@@ -5,34 +5,47 @@
 ### SUNContext
 
 SUNDIALS v6.0.0 introduces a new `SUNContext` object on which all other SUNDIALS
-objects depend. Users upgrading to SUNDIALS 6.0.0 will need to create a
-`SUNContext` object before calling any other SUNDIALS library function, and then
-provide this object to other SUNDIALS constructors. The `SUNContext` object has
-been introduced to allow SUNDIALS to provide new features, such as the
-profiling/instrumentation also introduced in this release, while maintaining
-thread-safety. See the documentation section on the `SUNContext` for more
-details.
+objects depend. As such, the constructors for all SUNDIALS packages, vectors,
+matrices, linear solvers, nonlinear solvers, and memory helpers have been
+updated to accept a context as the last input. Users upgrading to SUNDIALS
+v6.0.0 will need to call `SUNContext_Create` to create a context object with
+before calling any other SUNDIALS library function, and then provide this object
+to other SUNDIALS constructors. The context object has been introduced to allow
+SUNDIALS to provide new features, such as the profiling/instrumentation also
+introduced in this release, while maintaining thread-safety. See the
+documentation section on the `SUNContext` for more details.
+
+A script `upgrade-to-sundials-6-from-5.sh` has been provided with the release
+(obtainable from the GitHub release page) to help ease the transition to
+SUNDIALS v6.0.0. The script will add a `SUNCTX_PLACEHOLDER` argument to all of
+the calls to SUNDIALS constructors that now require a `SUNContext` object. It
+can also update deprecated SUNDIALS constants/types to the new names. It can be
+run like this:
+
+```
+> ./upgrade-to-sundials-6-from-5.sh <files to update>
+```
 
 ### SUNProfiler
 
 A capability to profile/instrument SUNDIALS library code has been added. This
-can be enabled with the CMake option `SUNDIALS_BUILD_WITH_PROFILING=TRUE`. A
-built-in profiler will be used by default, but the
+can be enabled with the CMake option `SUNDIALS_BUILD_WITH_PROFILING`. A built-in
+profiler will be used by default, but the
 [Caliper](https://github.com/LLNL/Caliper) library can also be used instead with
-the CMake option `ENABLE_CALIPER=TRUE`.  See the documentation section on
-profiling for more details.  **WARNING**: Profiling will impact performance, and
-should be enabled judiciously.
+the CMake option `ENABLE_CALIPER`. See the documentation section on profiling
+for more details.  **WARNING**: Profiling will impact performance, and should be
+enabled judiciously.
 
 ### SUNMemoryHelper
 
-The `SUNMemoryHelper` functions `Alloc`, `Dealloc`, and `Copy` have been
-updated to accept an opaque handle as the last input. At a minimum, existing
-`SUNMemoryHelper` implementations will need to update these functions to
-accept the additional argument. Typically, this handle is the execution stream
-(e.g., a CUDA/HIP stream or SYCL queue) for the operation, but it can also be
-any implementation specific data. The CUDA, HIP, and SYCL `SUNMemoryHelper`
-implementations have been updated accordingly. Additionally, the constructor for
-the SYCL implementation has been update to remove the SYCL queue as an input.
+The `SUNMemoryHelper` functions `Alloc`, `Dealloc`, and `Copy` have been updated
+to accept an opaque handle as the last input. At a minimum, existing
+`SUNMemoryHelper` implementations will need to update these functions to accept
+the additional argument. Typically, this handle is the execution stream (e.g., a
+CUDA/HIP stream or SYCL queue) for the operation. The CUDA, HIP, and SYCL
+`SUNMemoryHelper` implementations have been updated accordingly. Additionally,
+the constructor for the SYCL implementation has been updated to remove the SYCL
+queue as an input.
 
 ### NVector
 
@@ -40,20 +53,81 @@ Two new optional vector operations, `N_VDotProdMultiLocal` and
 `N_VDotProdMultiAllReduce`, have been added to support low-synchronization
 methods for Anderson acceleration.
 
+The CUDA, HIP, and SYCL execution policies have been moved from the `sundials`
+namespace to the `sundials::cuda`, `sundials::hip`, and `sundials::sycl`
+namespaces respectively. Accordingly, the prefixes "Cuda", "Hip", and "Sycl"
+have been removed from the execution policy classes and methods.
+
+The `Sundials` namespace used by the Trilinos Tpetra NVector has been replaced
+with the `sundials::trilinos::nvector_tpetra` namespace.
+
+The serial, PThreads, PETSc, *hypre*, Parallel, OpenMP_DEV, and OpenMP vector
+functions `N_VCloneVectorArray_*` and `N_VDestroyVectorArray_*` have been
+deprecated. The generic `N_VCloneVectorArray` and `N_VDestroyVectorArray`
+functions should be used instead.
+
+The previously deprecated constructor `N_VMakeWithManagedAllocator_Cuda` and
+the function `N_VSetCudaStream_Cuda` have been removed and replaced with
+`N_VNewWithMemHelp_Cuda` and `N_VSetKerrnelExecPolicy_Cuda` respectively.
+
+The previously deprecated macros `PVEC_REAL_MPI_TYPE` and
+`PVEC_INTEGER_MPI_TYPE` have been removed and replaced with
+`MPI_SUNREALTYPE` and `MPI_SUNINDEXTYPE` respectively.
+
+### SUNLinearSolver
+
+The following previously deprecated functions have been removed
+
+| Removed                   | Replaced with                    |
+|:--------------------------|:---------------------------------|
+| `SUNBandLinearSolver`     | `SUNLinSol_Band`                 |
+| `SUNDenseLinearSolver`    | `SUNLinSol_Dense`                |
+| `SUNKLU`                  | `SUNLinSol_KLU`                  |
+| `SUNKLUReInit`            | `SUNLinSol_KLUReInit`            |
+| `SUNKLUSetOrdering`       | `SUNLinSol_KLUSetOrdering`       |
+| `SUNLapackBand`           | `SUNLinSol_LapackBand`           |
+| `SUNLapackDense`          | `SUNLinSol_LapackDense`          |
+| `SUNPCG`                  | `SUNLinSol_PCG`                  |
+| `SUNPCGSetPrecType`       | `SUNLinSol_PCGSetPrecType`       |
+| `SUNPCGSetMaxl`           | `SUNLinSol_PCGSetMaxl`           |
+| `SUNSPBCGS`               | `SUNLinSol_SPBCGS`               |
+| `SUNSPBCGSSetPrecType`    | `SUNLinSol_SPBCGSSetPrecType`    |
+| `SUNSPBCGSSetMaxl`        | `SUNLinSol_SPBCGSSetMaxl`        |
+| `SUNSPFGMR`               | `SUNLinSol_SPFGMR`               |
+| `SUNSPFGMRSetPrecType`    | `SUNLinSol_SPFGMRSetPrecType`    |
+| `SUNSPFGMRSetGSType`      | `SUNLinSol_SPFGMRSetGSType`      |
+| `SUNSPFGMRSetMaxRestarts` | `SUNLinSol_SPFGMRSetMaxRestarts` |
+| `SUNSPGMR`                | `SUNLinSol_SPGMR`                |
+| `SUNSPGMRSetPrecType`     | `SUNLinSol_SPGMRSetPrecType`     |
+| `SUNSPGMRSetGSType`       | `SUNLinSol_SPGMRSetGSType`       |
+| `SUNSPGMRSetMaxRestarts`  | `SUNLinSol_SPGMRSetMaxRestarts`  |
+| `SUNSPTFQMR`              | `SUNLinSol_SPTFQMR`              |
+| `SUNSPTFQMRSetPrecType`   | `SUNLinSol_SPTFQMRSetPrecType`   |
+| `SUNSPTFQMRSetMaxl`       | `SUNLinSol_SPTFQMRSetMaxl`       |
+| `SUNSuperLUMT`            | `SUNLinSol_SuperLUMT`            |
+| `SUNSuperLUMTSetOrdering` | `SUNLinSol_SuperLUMTSetOrdering` |
+
+### Fortran Interfaces
+
+The ARKODE, CVODE, IDA, and KINSOL Fortran 77 interfaces have been removed. See
+the "SUNDIALS Fortran Interface" section in the user guides and the F2003
+example programs for more details using the SUNDIALS Fortran 2003 module
+interfaces.
+
 ### ARKODE
 
 The ARKODE MRIStep module has been extended to support implicit-explicit (IMEX)
 multirate infinitesimal generalized additive Runge-Kutta (MRI-GARK) methods. As
 such, `MRIStepCreate` has been updated to include arguments for the slow
 explicit and slow implicit ODE right-hand side functions. `MRIStepCreate` has
-also been updated to require attaching an MRIStepInnerStepper for evolving the
+also been updated to require attaching an `MRIStepInnerStepper` for evolving the
 fast time scale. `MRIStepReInit` has been similarly updated to take explicit
 and implicit right-hand side functions as input. Codes using explicit or
 implicit MRI methods will need to update `MRIStepCreate` and `MRIStepReInit`
 calls to pass `NULL` for either the explicit or implicit right-hand side
 function as appropriate. If ARKStep is used as the fast time scale integrator,
 codes will need to call `ARKStepCreateMRIStepInnerStepper` to wrap the ARKStep
-memory as an MRIStepInnerStepper object. Additionally, `MRIStepGetNumRhsEvals`
+memory as an `MRIStepInnerStepper` object. Additionally, `MRIStepGetNumRhsEvals`
 has been updated to return the number of slow implicit and explicit function
 evaluations. The coupling table structure `MRIStepCouplingMem` and the
 functions `MRIStepCoupling_Alloc` and `MRIStepCoupling_Create` have also
@@ -75,6 +149,15 @@ Deprecated ARKODE nonlinear solver predictors: specification of the ARKStep
 `MRIStepSetPredictorMethod`), will output a deprecation warning message.
 These options will be removed in a future release.
 
+The previously deprecated functions `ARKStepSetMaxStepsBetweenLSet` and
+`ARKStepSetMaxStepsBetweenJac` have been removed and replaced with
+`ARKStepSetLSetupFrequency` and `ARKStepSetMaxStepsBetweenJac` respectively.
+
+### CVODE
+
+The previously deprecated function `CVodeSetMaxStepsBetweenJac` has been removed
+and replaced with `CVodeSetJacEvalFrequency`.
+
 ### CVODES
 
 Added a new function `CVodeGetLinSolveStats` to get the CVODES linear solver
@@ -85,6 +168,9 @@ to be called by CVODES after every `nst` successfully completed time-steps.
 This is intended to provide a way of monitoring the CVODES statistics
 throughout the simulation.
 
+The previously deprecated function `CVodeSetMaxStepsBetweenJac` has been removed
+and replaced with `CVodeSetJacEvalFrequency`.
+
 ### KINSOL
 
 New orthogonalization methods were added for use within Anderson acceleration
@@ -92,20 +178,7 @@ in KINSOL. See the "Anderson Acceleration QR Factorization" subsection within
 the mathematical considerations chapter of the user guide and the
 `KINSetOrthAA` function documentation for more details.
 
-### Transitioning to SUNDIALS 6.0.0
-
-A script `upgrade-to-sundials-6-from-5.sh` has been provided with the release
-(obtainable from the GitHub release page) to help ease the transition to
-SUNDIALS v6.0.0. The script will add a `SUNCTX_PLACEHOLDER` argument to all of
-the calls to SUNDIALS constructors that now require a `SUNContext` object. It
-can also update deprecated SUNDIALS constants/types to the new names. It can be
-run like this:
-
-```
-> ./upgrade-to-sundials-6-from-5.sh <files to update>
-```
-
-### Deprecations and name changes
+### Deprecations
 
 In addition to the deprecations noted elsewhere, many constants, types, and
 functions have been renamed so that they are properly namespaced. The old names
@@ -182,7 +255,7 @@ The following constants, macros, and  typedefs are now deprecated:
 | `DORMAND_PRINCE_7_4_5`     | `ARKODE_DORMAND_PRINCE_7_4_5`     |
 | `ARK548L2SA_ERK_8_4_5`     | `ARKODE_ARK548L2SA_ERK_8_4_5`     |
 | `VERNER_8_5_6`             | `ARKODE_VERNER_8_5_6`             |
-| `FEHLBERG_13_7_8 `         | `ARKODE_FEHLBERG_13_7_8`          |
+| `FEHLBERG_13_7_8`          | `ARKODE_FEHLBERG_13_7_8`          |
 | `KNOTH_WOLKE_3_3`          | `ARKODE_KNOTH_WOLKE_3_3`          |
 | `ARK437L2SA_ERK_7_3_4`     | `ARKODE_ARK437L2SA_ERK_7_3_4`     |
 | `ARK548L2SAb_ERK_8_4_5`    | `ARKODE_ARK548L2SAb_ERK_8_4_5`    |
@@ -253,57 +326,6 @@ will be thrown if supported by the compiler):
 | `CVDlsGetNumRhsEvals`         | `CVodeGetNumLinRhsEvals`     |
 | `CVDlsGetLastFlag`            | `CVodeGetLastLinFlag`        |
 | `CVDlsGetReturnFlagName`      | `CVodeGetLinReturnFlagName`  |
-| `DenseGETRF`                  | `SUNDlsMat_DenseGETRF`       |
-| `DenseGETRS`                  | `SUNDlsMat_DenseGETRS`       |
-| `denseGETRF`                  | `SUNDlsMat_denseGETRF`       |
-| `denseGETRS`                  | `SUNDlsMat_denseGETRS`       |
-| `DensePOTRF`                  | `SUNDlsMat_DensePOTRF`       |
-| `DensePOTRS`                  | `SUNDlsMat_DensePOTRS`       |
-| `densePOTRF`                  | `SUNDlsMat_densePOTRF`       |
-| `densePOTRS`                  | `SUNDlsMat_densePOTRS`       |
-| `DenseGEQRF`                  | `SUNDlsMat_DenseGEQRF`       |
-| `DenseORMQR`                  | `SUNDlsMat_DenseORMQR`       |
-| `denseGEQRF`                  | `SUNDlsMat_denseGEQRF`       |
-| `denseORMQR`                  | `SUNDlsMat_denseORMQR`       |
-| `DenseCopy`                   | `SUNDlsMat_DenseCopy`        |
-| `denseCopy`                   | `SUNDlsMat_denseCopy`        |
-| `DenseScale`                  | `SUNDlsMat_DenseScale`       |
-| `denseScale`                  | `SUNDlsMat_denseScale`       |
-| `denseAddIdentity`            | `SUNDlsMat_denseAddIdentity` |
-| `DenseMatvec`                 | `SUNDlsMat_DenseMatvec`      |
-| `denseMatvec`                 | `SUNDlsMat_denseMatvec`      |
-| `BandGBTRF`                   | `SUNDlsMat_BandGBTRF`        |
-| `bandGBTRF`                   | `SUNDlsMat_bandGBTRF`        |
-| `BandGBTRS`                   | `SUNDlsMat_BandGBTRS`        |
-| `bandGBTRS`                   | `SUNDlsMat_bandGBTRS`        |
-| `BandCopy`                    | `SUNDlsMat_BandCopy`         |
-| `bandCopy`                    | `SUNDlsMat_bandCopy`         |
-| `BandScale`                   | `SUNDlsMat_BandScale`        |
-| `bandScale`                   | `SUNDlsMat_bandScale`        |
-| `bandAddIdentity`             | `SUNDlsMat_bandAddIdentity`  |
-| `BandMatvec`                  | `SUNDlsMat_BandMatvec`       |
-| `bandMatvec`                  | `SUNDlsMat_bandMatvec`       |
-| `ModifiedGS`                  | `SUNModifiedGS`              |
-| `ClassicalGS`                 | `SUNClassicalGS`             |
-| `QRfact`                      | `SUNQRFact`                  |
-| `QRsol`                       | `SUNQRsol`                   |
-| `DlsMat_NewDenseMat`          | `SUNDlsMat_NewDenseMat`      |
-| `DlsMat_NewBandMat`           | `SUNDlsMat_NewBandMat`       |
-| `DestroyMat`                  | `SUNDlsMat_DestroyMat`       |
-| `NewIntArray`                 | `SUNDlsMat_NewIntArray`      |
-| `NewIndexArray`               | `SUNDlsMat_NewIndexArray`    |
-| `NewRealArray`                | `SUNDlsMat_NewRealArray`     |
-| `DestroyArray`                | `SUNDlsMat_DestroyArray`     |
-| `AddIdentity`                 | `SUNDlsMat_AddIdentity`      |
-| `SetToZero`                   | `SUNDlsMat_SetToZero`        |
-| `PrintMat`                    | `SUNDlsMat_PrintMat`         |
-| `newDenseMat`                 | `SUNDlsMat_newDenseMat`      |
-| `newBandMat`                  | `SUNDlsMat_newBandMat`       |
-| `destroyMat`                  | `SUNDlsMat_destroyMat`       |
-| `newIntArray`                 | `SUNDlsMat_newIntArray`      |
-| `newIndexArray`               | `SUNDlsMat_newIndexArray`    |
-| `newRealArray`                | `SUNDlsMat_newRealArray`     |
-| `destroyArray`                | `SUNDlsMat_destroyArray`     |
 | `KINDlsSetLinearSolver`       | `KINSetLinearSolver`         |
 | `KINDlsSetJacFn`              | `KINSetJacFn`                |
 | `KINDlsGetWorkSpace`          | `KINGetLinWorkSpace`         |
@@ -355,6 +377,57 @@ will be thrown if supported by the compiler):
 | `IDADlsSetLinearSolverB`      | `IDASetLinearSolverB`        |
 | `IDADlsSetJacFnB`             | `IDASetJacFnB`               |
 | `IDADlsSetJacFnBS`            | `IDASetJacFnBS`              |
+| `DenseGETRF`                  | `SUNDlsMat_DenseGETRF`       |
+| `DenseGETRS`                  | `SUNDlsMat_DenseGETRS`       |
+| `denseGETRF`                  | `SUNDlsMat_denseGETRF`       |
+| `denseGETRS`                  | `SUNDlsMat_denseGETRS`       |
+| `DensePOTRF`                  | `SUNDlsMat_DensePOTRF`       |
+| `DensePOTRS`                  | `SUNDlsMat_DensePOTRS`       |
+| `densePOTRF`                  | `SUNDlsMat_densePOTRF`       |
+| `densePOTRS`                  | `SUNDlsMat_densePOTRS`       |
+| `DenseGEQRF`                  | `SUNDlsMat_DenseGEQRF`       |
+| `DenseORMQR`                  | `SUNDlsMat_DenseORMQR`       |
+| `denseGEQRF`                  | `SUNDlsMat_denseGEQRF`       |
+| `denseORMQR`                  | `SUNDlsMat_denseORMQR`       |
+| `DenseCopy`                   | `SUNDlsMat_DenseCopy`        |
+| `denseCopy`                   | `SUNDlsMat_denseCopy`        |
+| `DenseScale`                  | `SUNDlsMat_DenseScale`       |
+| `denseScale`                  | `SUNDlsMat_denseScale`       |
+| `denseAddIdentity`            | `SUNDlsMat_denseAddIdentity` |
+| `DenseMatvec`                 | `SUNDlsMat_DenseMatvec`      |
+| `denseMatvec`                 | `SUNDlsMat_denseMatvec`      |
+| `BandGBTRF`                   | `SUNDlsMat_BandGBTRF`        |
+| `bandGBTRF`                   | `SUNDlsMat_bandGBTRF`        |
+| `BandGBTRS`                   | `SUNDlsMat_BandGBTRS`        |
+| `bandGBTRS`                   | `SUNDlsMat_bandGBTRS`        |
+| `BandCopy`                    | `SUNDlsMat_BandCopy`         |
+| `bandCopy`                    | `SUNDlsMat_bandCopy`         |
+| `BandScale`                   | `SUNDlsMat_BandScale`        |
+| `bandScale`                   | `SUNDlsMat_bandScale`        |
+| `bandAddIdentity`             | `SUNDlsMat_bandAddIdentity`  |
+| `BandMatvec`                  | `SUNDlsMat_BandMatvec`       |
+| `bandMatvec`                  | `SUNDlsMat_bandMatvec`       |
+| `ModifiedGS`                  | `SUNModifiedGS`              |
+| `ClassicalGS`                 | `SUNClassicalGS`             |
+| `QRfact`                      | `SUNQRFact`                  |
+| `QRsol`                       | `SUNQRsol`                   |
+| `DlsMat_NewDenseMat`          | `SUNDlsMat_NewDenseMat`      |
+| `DlsMat_NewBandMat`           | `SUNDlsMat_NewBandMat`       |
+| `DestroyMat`                  | `SUNDlsMat_DestroyMat`       |
+| `NewIntArray`                 | `SUNDlsMat_NewIntArray`      |
+| `NewIndexArray`               | `SUNDlsMat_NewIndexArray`    |
+| `NewRealArray`                | `SUNDlsMat_NewRealArray`     |
+| `DestroyArray`                | `SUNDlsMat_DestroyArray`     |
+| `AddIdentity`                 | `SUNDlsMat_AddIdentity`      |
+| `SetToZero`                   | `SUNDlsMat_SetToZero`        |
+| `PrintMat`                    | `SUNDlsMat_PrintMat`         |
+| `newDenseMat`                 | `SUNDlsMat_newDenseMat`      |
+| `newBandMat`                  | `SUNDlsMat_newBandMat`       |
+| `destroyMat`                  | `SUNDlsMat_destroyMat`       |
+| `newIntArray`                 | `SUNDlsMat_newIntArray`      |
+| `newIndexArray`               | `SUNDlsMat_newIndexArray`    |
+| `newRealArray`                | `SUNDlsMat_newRealArray`     |
+| `destroyArray`                | `SUNDlsMat_destroyArray`     |
 
 In addition, the entire `sundials_lapack.h` header file is now deprecated for
 removal in SUNDIALS v7.0.0. Note, this header file is not needed to use the

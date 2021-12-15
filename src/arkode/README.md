@@ -1,5 +1,5 @@
 # ARKode
-### Version 4.8.0 (Sep 2021)
+### Version 5.0.0 (Dec 2021)
 
 **Daniel R. Reynolds,
   Department of Mathematics, SMU**
@@ -49,8 +49,8 @@ the "SUNDIALS Release History" appendix of the ARKode User Guide.
 ## References
 
 * D. R. Reynolds, D. J. Gardner, C. S. Woodward, and C. J. Balos,
-  "User Documentation for ARKode v4.8.0," LLNL technical report
-  LLNL-SM-668082, Sep 2021.
+  "User Documentation for ARKode v5.0.0," LLNL technical report
+  LLNL-SM-668082, Dec 2021.
 
-* D. R. Reynolds, "Example Programs for ARKode v4.8.0," Technical Report,
-  Southern Methodist University Center for Scientific Computation, Sep 2021.
+* D. R. Reynolds, "Example Programs for ARKode v5.0.0," Technical Report,
+  Southern Methodist University Center for Scientific Computation, Dec 2021.

@@ -121,6 +121,42 @@ Changes from previous versions
 Changes in 5.0.0
 ^^^^^^^^^^^^^^^^
 
+**SUNContext**
+
+SUNDIALS v6.0.0 introduces a new :c:type:`SUNContext` object on which all other
+SUNDIALS objects depend. As such, the constructors for all SUNDIALS packages,
+vectors, matrices, linear solvers, nonlinear solvers, and memory helpers have
+been updated to accept a context as the last input. Users upgrading to SUNDIALS
+v6.0.0 will need to call :c:func:`SUNContext_Create` to create a context object
+with before calling any other SUNDIALS library function, and then provide this
+object to other SUNDIALS constructors. The context object has been introduced to
+allow SUNDIALS to provide new features, such as the profiling/instrumentation
+also introduced in this release, while maintaining thread-safety. See the
+documentation section on the :c:type:`SUNContext` for more details.
+
+A script ``upgrade-to-sundials-6-from-5.sh`` has been provided with the release
+(obtainable from the GitHub release page) to help ease the transition to
+SUNDIALS v6.0.0. The script will add a ``SUNCTX_PLACEHOLDER`` argument to all of
+the calls to SUNDIALS constructors that now require a ``SUNContext`` object. It
+can also update deprecated SUNDIALS constants/types to the new names. It can be
+run like this:
+
+.. code-block::
+
+   > ./upgrade-to-sundials-6-from-5.sh <files to update>
+
+**SUNProfiler**
+
+A capability to profile/instrument SUNDIALS library code has been added. This
+can be enabled with the CMake option :cmakeop:`SUNDIALS_BUILD_WITH_PROFILING`. A
+built-in profiler will be used by default, but the `Caliper
+<https://github.com/LLNL/Caliper>`_ library can also be used instead with the
+CMake option :cmakeop:`ENABLE_CALIPER`. See the documentation section on
+profiling for more details.  **WARNING**: Profiling will impact performance, and
+should be enabled judiciously.
+
+**SUNMemoryHelper**
+
 The :c:type:`SUNMemoryHelper` functions :c:func:`SUNMemoryHelper_Alloc`,
 :c:func:`SUNMemoryHelper_Dealloc`, and :c:func:`SUNMemoryHelper_Copy` have been
 updated to accept an opaque handle as the last input. At a minimum, user-defined
@@ -129,8 +165,98 @@ accept the additional argument. Typically, this handle is the execution stream
 (e.g., a CUDA/HIP stream or SYCL queue) for the operation. The :ref:`CUDA
 <SUNMemory.CUDA>`, :ref:`HIP <SUNMemory.HIP>`, and :ref:`SYCL <SUNMemory.SYCL>`
 implementations have been updated accordingly. Additionally, the constructor
-:c:func:`SUNMemoryHelper_Sycl` has been update to remove the SYCL queue as an
+:c:func:`SUNMemoryHelper_Sycl` has been updated to remove the SYCL queue as an
 input.
+
+**NVector**
+
+Two new optional vector operations, :c:func:`N_VDotProdMultiLocal` and
+:c:func:`N_VDotProdMultiAllReduce`, have been added to support
+low-synchronization methods for Anderson acceleration.
+
+The CUDA, HIP, and SYCL execution policies have been moved from the ``sundials``
+namespace to the ``sundials::cuda``, ``sundials::hip``, and ``sundials::sycl``
+namespaces respectively. Accordingly, the prefixes "Cuda", "Hip", and "Sycl"
+have been removed from the execution policy classes and methods.
+
+The ``Sundials`` namespace used by the Trilinos Tpetra NVector has been replaced
+with the ``sundials::trilinos::nvector_tpetra`` namespace.
+
+The serial, PThreads, PETSc, *hypre*, Parallel, OpenMP_DEV, and OpenMP vector
+functions ``N_VCloneVectorArray_*`` and ``N_VDestroyVectorArray_*`` have been
+deprecated. The generic :c:func:`N_VCloneVectorArray` and
+:c:func:`N_VDestroyVectorArray` functions should be used instead.
+
+The previously deprecated constructor ``N_VMakeWithManagedAllocator_Cuda`` and
+the function ``N_VSetCudaStream_Cuda`` have been removed and replaced with
+:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKerrnelExecPolicy_Cuda`
+respectively.
+
+The previously deprecated macros ``PVEC_REAL_MPI_TYPE`` and
+``PVEC_INTEGER_MPI_TYPE`` have been removed and replaced with
+``MPI_SUNREALTYPE`` and ``MPI_SUNINDEXTYPE`` respectively.
+
+**SUNLinearSolver**
+
+The following previously deprecated functions have been removed:
+
++-----------------------------+------------------------------------------+
+| Removed                     | Replacement                              |
++=============================+==========================================+
+| ``SUNBandLinearSolver``     | :c:func:`SUNLinSol_Band`                 |
++-----------------------------+------------------------------------------+
+| ``SUNDenseLinearSolver``    | :c:func:`SUNLinSol_Dense`                |
++-----------------------------+------------------------------------------+
+| ``SUNKLU``                  | :c:func:`SUNLinSol_KLU`                  |
++-----------------------------+------------------------------------------+
+| ``SUNKLUReInit``            | :c:func:`SUNLinSol_KLUReInit`            |
++-----------------------------+------------------------------------------+
+| ``SUNKLUSetOrdering``       | :c:func:`SUNLinSol_KLUSetOrdering`       |
++-----------------------------+------------------------------------------+
+| ``SUNLapackBand``           | :c:func:`SUNLinSol_LapackBand`           |
++-----------------------------+------------------------------------------+
+| ``SUNLapackDense``          | :c:func:`SUNLinSol_LapackDense`          |
++-----------------------------+------------------------------------------+
+| ``SUNPCG``                  | :c:func:`SUNLinSol_PCG`                  |
++-----------------------------+------------------------------------------+
+| ``SUNPCGSetPrecType``       | :c:func:`SUNLinSol_PCGSetPrecType`       |
++-----------------------------+------------------------------------------+
+| ``SUNPCGSetMaxl``           | :c:func:`SUNLinSol_PCGSetMaxl`           |
++-----------------------------+------------------------------------------+
+| ``SUNSPBCGS``               | :c:func:`SUNLinSol_SPBCGS`               |
++-----------------------------+------------------------------------------+
+| ``SUNSPBCGSSetPrecType``    | :c:func:`SUNLinSol_SPBCGSSetPrecType`    |
++-----------------------------+------------------------------------------+
+| ``SUNSPBCGSSetMaxl``        | :c:func:`SUNLinSol_SPBCGSSetMaxl`        |
++-----------------------------+------------------------------------------+
+| ``SUNSPFGMR``               | :c:func:`SUNLinSol_SPFGMR`               |
++-----------------------------+------------------------------------------+
+| ``SUNSPFGMRSetPrecType``    | :c:func:`SUNLinSol_SPFGMRSetPrecType`    |
++-----------------------------+------------------------------------------+
+| ``SUNSPFGMRSetGSType``      | :c:func:`SUNLinSol_SPFGMRSetGSType`      |
++-----------------------------+------------------------------------------+
+| ``SUNSPFGMRSetMaxRestarts`` | :c:func:`SUNLinSol_SPFGMRSetMaxRestarts` |
++-----------------------------+------------------------------------------+
+| ``SUNSPGMR``                | :c:func:`SUNLinSol_SPGMR`                |
++-----------------------------+------------------------------------------+
+| ``SUNSPGMRSetPrecType``     | :c:func:`SUNLinSol_SPGMRSetPrecType`     |
++-----------------------------+------------------------------------------+
+| ``SUNSPGMRSetGSType``       | :c:func:`SUNLinSol_SPGMRSetGSType`       |
++-----------------------------+------------------------------------------+
+| ``SUNSPGMRSetMaxRestarts``  | :c:func:`SUNLinSol_SPGMRSetMaxRestarts`  |
++-----------------------------+------------------------------------------+
+| ``SUNSPTFQMR``              | :c:func:`SUNLinSol_SPTFQMR`              |
++-----------------------------+------------------------------------------+
+| ``SUNSPTFQMRSetPrecType``   | :c:func:`SUNLinSol_SPTFQMRSetPrecType`   |
++-----------------------------+------------------------------------------+
+| ``SUNSPTFQMRSetMaxl``       | :c:func:`SUNLinSol_SPTFQMRSetMaxl`       |
++-----------------------------+------------------------------------------+
+| ``SUNSuperLUMT``            | :c:func:`SUNLinSol_SuperLUMT`            |
++-----------------------------+------------------------------------------+
+| ``SUNSuperLUMTSetOrdering`` | :c:func:`SUNLinSol_SuperLUMTSetOrdering` |
++-----------------------------+------------------------------------------+
+
+**ARKODE**
 
 The MRIStep module has been extended to support implicit-explicit (ImEx)
 multirate infinitesimal generalized additive Runge--Kutta (MRI-GARK) methods. As
@@ -162,6 +288,329 @@ The implementation of solve-decoupled implicit MRI-GARK methods has been updated
 to remove extraneous slow implicit function calls and reduce the memory
 requirements.
 
+The previously deprecated functions ``ARKStepSetMaxStepsBetweenLSet`` and
+``ARKStepSetMaxStepsBetweenJac`` have been removed and replaced with
+:c:func:`ARKStepSetLSetupFrequency` and :c:func:`ARKStepSetMaxStepsBetweenJac`
+respectively.
+
+The ARKODE Fortran 77 interface has been removed. See :numref:`SUNDIALS.Fortran`
+and the F2003 example programs for more details using the SUNDIALS Fortran 2003
+module interfaces.
+
+**Deprecations**
+
+In addition to the deprecations noted elsewhere, many constants, types, and
+functions have been renamed so that they are properly namespaced. The old names
+have been deprecated and will be removed in SUNDIALS v7.0.0.
+
+The following constants, macros, and typedefs are now deprecated:
+
++------------------------------+-------------------------------------+
+| Deprecated Name              | New Name                            |
++==============================+=====================================+
+| ``realtype``                 | ``sunrealtype``                     |
++------------------------------+-------------------------------------+
+| ``booleantype``              | ``sunbooleantype``                  |
++------------------------------+-------------------------------------+
+| ``RCONST``                   | ``SUN_RCONST``                      |
++------------------------------+-------------------------------------+
+| ``BIG_REAL``                 | ``SUN_BIG_REAL``                    |
++------------------------------+-------------------------------------+
+| ``SMALL_REAL``               | ``SUN_SMALL_REAL``                  |
++------------------------------+-------------------------------------+
+| ``UNIT_ROUNDOFF``            | ``SUN_UNIT_ROUNDOFF``               |
++------------------------------+-------------------------------------+
+| ``PREC_NONE``                | ``SUN_PREC_NONE``                   |
++------------------------------+-------------------------------------+
+| ``PREC_LEFT``                | ``SUN_PREC_LEFT``                   |
++------------------------------+-------------------------------------+
+| ``PREC_RIGHT``               | ``SUN_PREC_RIGHT``                  |
++------------------------------+-------------------------------------+
+| ``PREC_BOTH``                | ``SUN_PREC_BOTH``                   |
++------------------------------+-------------------------------------+
+| ``MODIFIED_GS``              | ``SUN_MODIFIED_GS``                 |
++------------------------------+-------------------------------------+
+| ``CLASSICAL_GS``             | ``SUN_CLASSICAL_GS``                |
++------------------------------+-------------------------------------+
+| ``ATimesFn``                 | ``SUNATimesFn``                     |
++------------------------------+-------------------------------------+
+| ``PSetupFn``                 | ``SUNPSetupFn``                     |
++------------------------------+-------------------------------------+
+| ``PSolveFn``                 | ``SUNPSolveFn``                     |
++------------------------------+-------------------------------------+
+| ``DlsMat``                   | ``SUNDlsMat``                       |
++------------------------------+-------------------------------------+
+| ``DENSE_COL``                | ``SUNDLS_DENSE_COL``                |
++------------------------------+-------------------------------------+
+| ``DENSE_ELEM``               | ``SUNDLS_DENSE_ELEM``               |
++------------------------------+-------------------------------------+
+| ``BAND_COL``                 | ``SUNDLS_BAND_COL``                 |
++------------------------------+-------------------------------------+
+| ``BAND_COL_ELEM``            | ``SUNDLS_BAND_COL_ELEM``            |
++------------------------------+-------------------------------------+
+| ``BAND_ELEM``                | ``SUNDLS_BAND_ELEM``                |
++------------------------------+-------------------------------------+
+| ``SDIRK_2_1_2``              | ``ARKODE_SDIRK_2_1_2``              |
++------------------------------+-------------------------------------+
+| ``BILLINGTON_3_3_2``         | ``ARKODE_BILLINGTON_3_3_2``         |
++------------------------------+-------------------------------------+
+| ``TRBDF2_3_3_2``             | ``ARKODE_TRBDF2_3_3_2``             |
++------------------------------+-------------------------------------+
+| ``KVAERNO_4_2_3``            | ``ARKODE_KVAERNO_4_2_3``            |
++------------------------------+-------------------------------------+
+| ``ARK324L2SA_DIRK_4_2_3``    | ``ARKODE_ARK324L2SA_DIRK_4_2_3``    |
++------------------------------+-------------------------------------+
+| ``CASH_5_2_4``               | ``ARKODE_CASH_5_2_4``               |
++------------------------------+-------------------------------------+
+| ``CASH_5_3_4``               | ``ARKODE_CASH_5_3_4``               |
++------------------------------+-------------------------------------+
+| ``SDIRK_5_3_4``              | ``ARKODE_SDIRK_5_3_4``              |
++------------------------------+-------------------------------------+
+| ``KVAERNO_5_3_4``            | ``ARKODE_KVAERNO_5_3_4``            |
++------------------------------+-------------------------------------+
+| ``ARK436L2SA_DIRK_6_3_4``    | ``ARKODE_ARK436L2SA_DIRK_6_3_4``    |
++------------------------------+-------------------------------------+
+| ``KVAERNO_7_4_5``            | ``ARKODE_KVAERNO_7_4_5``            |
++------------------------------+-------------------------------------+
+| ``ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    |
++------------------------------+-------------------------------------+
+| ``ARK437L2SA_DIRK_7_3_4``    | ``ARKODE_ARK437L2SA_DIRK_7_3_4``    |
++------------------------------+-------------------------------------+
+| ``ARK548L2SAb_DIRK_8_4_5``   | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``   |
++------------------------------+-------------------------------------+
+| ``MIN_DIRK_NUM``             | ``ARKODE_MIN_DIRK_NUM``             |
++------------------------------+-------------------------------------+
+| ``MAX_DIRK_NUM``             | ``ARKODE_MAX_DIRK_NUM``             |
++------------------------------+-------------------------------------+
+| ``MIS_KW3``                  | ``ARKODE_MIS_KW3``                  |
++------------------------------+-------------------------------------+
+| ``MRI_GARK_ERK33a``          | ``ARKODE_MRI_GARK_ERK33a``          |
++------------------------------+-------------------------------------+
+| ``MRI_GARK_ERK45a``          | ``ARKODE_MRI_GARK_ERK45a``          |
++------------------------------+-------------------------------------+
+| ``MRI_GARK_IRK21a``          | ``ARKODE_MRI_GARK_IRK21a``          |
++------------------------------+-------------------------------------+
+| ``MRI_GARK_ESDIRK34a``       | ``ARKODE_MRI_GARK_ESDIRK34a``       |
++------------------------------+-------------------------------------+
+| ``MRI_GARK_ESDIRK46a``       | ``ARKODE_MRI_GARK_ESDIRK46a``       |
++------------------------------+-------------------------------------+
+| ``IMEX_MRI_GARK3a``          | ``ARKODE_IMEX_MRI_GARK3a``          |
++------------------------------+-------------------------------------+
+| ``IMEX_MRI_GARK3b``          | ``ARKODE_IMEX_MRI_GARK3b``          |
++------------------------------+-------------------------------------+
+| ``IMEX_MRI_GARK4``           | ``ARKODE_IMEX_MRI_GARK4``           |
++------------------------------+-------------------------------------+
+| ``MIN_MRI_NUM``              | ``ARKODE_MIN_MRI_NUM``              |
++------------------------------+-------------------------------------+
+| ``MAX_MRI_NUM``              | ``ARKODE_MAX_MRI_NUM``              |
++------------------------------+-------------------------------------+
+| ``DEFAULT_MRI_TABLE_3``      | ``MRISTEP_DEFAULT_TABLE_3``         |
++------------------------------+-------------------------------------+
+| ``DEFAULT_EXPL_MRI_TABLE_3`` | ``MRISTEP_DEFAULT_EXPL_TABLE_3``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_EXPL_MRI_TABLE_4`` | ``MRISTEP_DEFAULT_EXPL_TABLE_4``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_IMPL_SD_TABLE_2``  | ``MRISTEP_DEFAULT_IMPL_SD_TABLE_2`` |
++------------------------------+-------------------------------------+
+| ``DEFAULT_IMPL_SD_TABLE_3``  | ``MRISTEP_DEFAULT_IMPL_SD_TABLE_3`` |
++------------------------------+-------------------------------------+
+| ``DEFAULT_IMPL_SD_TABLE_4``  | ``MRISTEP_DEFAULT_IMPL_SD_TABLE_4`` |
++------------------------------+-------------------------------------+
+| ``DEFAULT_IMEX_SD_TABLE_3``  | ``MRISTEP_DEFAULT_IMEX_SD_TABLE_3`` |
++------------------------------+-------------------------------------+
+| ``DEFAULT_IMEX_SD_TABLE_4``  | ``MRISTEP_DEFAULT_IMEX_SD_TABLE_4`` |
++------------------------------+-------------------------------------+
+| ``HEUN_EULER_2_1_2``         | ``ARKODE_HEUN_EULER_2_1_2``         |
++------------------------------+-------------------------------------+
+| ``BOGACKI_SHAMPINE_4_2_3``   | ``ARKODE_BOGACKI_SHAMPINE_4_2_3``   |
++------------------------------+-------------------------------------+
+| ``ARK324L2SA_ERK_4_2_3``     | ``ARKODE_ARK324L2SA_ERK_4_2_3``     |
++------------------------------+-------------------------------------+
+| ``ZONNEVELD_5_3_4``          | ``ARKODE_ZONNEVELD_5_3_4``          |
++------------------------------+-------------------------------------+
+| ``ARK436L2SA_ERK_6_3_4``     | ``ARKODE_ARK436L2SA_ERK_6_3_4``     |
++------------------------------+-------------------------------------+
+| ``SAYFY_ABURUB_6_3_4``       | ``ARKODE_SAYFY_ABURUB_6_3_4``       |
++------------------------------+-------------------------------------+
+| ``CASH_KARP_6_4_5``          | ``ARKODE_CASH_KARP_6_4_5``          |
++------------------------------+-------------------------------------+
+| ``FEHLBERG_6_4_5``           | ``ARKODE_FEHLBERG_6_4_5``           |
++------------------------------+-------------------------------------+
+| ``DORMAND_PRINCE_7_4_5``     | ``ARKODE_DORMAND_PRINCE_7_4_5``     |
++------------------------------+-------------------------------------+
+| ``ARK548L2SA_ERK_8_4_5``     | ``ARKODE_ARK548L2SA_ERK_8_4_5``     |
++------------------------------+-------------------------------------+
+| ``VERNER_8_5_6``             | ``ARKODE_VERNER_8_5_6``             |
++------------------------------+-------------------------------------+
+| ``FEHLBERG_13_7_8``          | ``ARKODE_FEHLBERG_13_7_8``          |
++------------------------------+-------------------------------------+
+| ``KNOTH_WOLKE_3_3``          | ``ARKODE_KNOTH_WOLKE_3_3``          |
++------------------------------+-------------------------------------+
+| ``ARK437L2SA_ERK_7_3_4``     | ``ARKODE_ARK437L2SA_ERK_7_3_4``     |
++------------------------------+-------------------------------------+
+| ``ARK548L2SAb_ERK_8_4_5``    | ``ARKODE_ARK548L2SAb_ERK_8_4_5``    |
++------------------------------+-------------------------------------+
+| ``MIN_ERK_NUM``              | ``ARKODE_MIN_ERK_NUM``              |
++------------------------------+-------------------------------------+
+| ``MAX_ERK_NUM``              | ``ARKODE_MAX_ERK_NUM``              |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_2``            | ``ARKSTEP_DEFAULT_ERK_2``           |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_3``            | ``ARKSTEP_DEFAULT_ERK_3``           |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_4``            | ``ARKSTEP_DEFAULT_ERK_4``           |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_5``            | ``ARKSTEP_DEFAULT_ERK_5``           |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_6``            | ``ARKSTEP_DEFAULT_ERK_6``           |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_8``            | ``ARKSTEP_DEFAULT_ERK_8``           |
++------------------------------+-------------------------------------+
+| ``DEFAULT_DIRK_2``           | ``ARKSTEP_DEFAULT_DIRK_2``          |
++------------------------------+-------------------------------------+
+| ``DEFAULT_DIRK_3``           | ``ARKSTEP_DEFAULT_DIRK_3``          |
++------------------------------+-------------------------------------+
+| ``DEFAULT_DIRK_4``           | ``ARKSTEP_DEFAULT_DIRK_4``          |
++------------------------------+-------------------------------------+
+| ``DEFAULT_DIRK_5``           | ``ARKSTEP_DEFAULT_DIRK_5``          |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ARK_ETABLE_3``     | ``ARKSTEP_DEFAULT_ARK_ETABLE_3``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ARK_ETABLE_4``     | ``ARKSTEP_DEFAULT_ARK_ETABLE_4``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ARK_ETABLE_5``     | ``ARKSTEP_DEFAULT_ARK_ETABLE_4``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ARK_ITABLE_3``     | ``ARKSTEP_DEFAULT_ARK_ITABLE_3``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ARK_ITABLE_4``     | ``ARKSTEP_DEFAULT_ARK_ITABLE_4``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ARK_ITABLE_5``     | ``ARKSTEP_DEFAULT_ARK_ITABLE_5``    |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_2``            | ``ERKSTEP_DEFAULT_2``               |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_3``            | ``ERKSTEP_DEFAULT_3``               |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_4``            | ``ERKSTEP_DEFAULT_4``               |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_5``            | ``ERKSTEP_DEFAULT_5``               |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_6``            | ``ERKSTEP_DEFAULT_6``               |
++------------------------------+-------------------------------------+
+| ``DEFAULT_ERK_8``            | ``ERKSTEP_DEFAULT_8``               |
++------------------------------+-------------------------------------+
+
+In addition, the following functions are now deprecated (compile-time warnings
+will be thrown if supported by the compiler):
+
++---------------------------------+--------------------------------+
+| Deprecated Name                 | New Name                       |
++=================================+================================+
+| ``DenseGETRF``                  | ``SUNDlsMat_DenseGETRF``       |
++---------------------------------+--------------------------------+
+| ``DenseGETRS``                  | ``SUNDlsMat_DenseGETRS``       |
++---------------------------------+--------------------------------+
+| ``denseGETRF``                  | ``SUNDlsMat_denseGETRF``       |
++---------------------------------+--------------------------------+
+| ``denseGETRS``                  | ``SUNDlsMat_denseGETRS``       |
++---------------------------------+--------------------------------+
+| ``DensePOTRF``                  | ``SUNDlsMat_DensePOTRF``       |
++---------------------------------+--------------------------------+
+| ``DensePOTRS``                  | ``SUNDlsMat_DensePOTRS``       |
++---------------------------------+--------------------------------+
+| ``densePOTRF``                  | ``SUNDlsMat_densePOTRF``       |
++---------------------------------+--------------------------------+
+| ``densePOTRS``                  | ``SUNDlsMat_densePOTRS``       |
++---------------------------------+--------------------------------+
+| ``DenseGEQRF``                  | ``SUNDlsMat_DenseGEQRF``       |
++---------------------------------+--------------------------------+
+| ``DenseORMQR``                  | ``SUNDlsMat_DenseORMQR``       |
++---------------------------------+--------------------------------+
+| ``denseGEQRF``                  | ``SUNDlsMat_denseGEQRF``       |
++---------------------------------+--------------------------------+
+| ``denseORMQR``                  | ``SUNDlsMat_denseORMQR``       |
++---------------------------------+--------------------------------+
+| ``DenseCopy``                   | ``SUNDlsMat_DenseCopy``        |
++---------------------------------+--------------------------------+
+| ``denseCopy``                   | ``SUNDlsMat_denseCopy``        |
++---------------------------------+--------------------------------+
+| ``DenseScale``                  | ``SUNDlsMat_DenseScale``       |
++---------------------------------+--------------------------------+
+| ``denseScale``                  | ``SUNDlsMat_denseScale``       |
++---------------------------------+--------------------------------+
+| ``denseAddIdentity``            | ``SUNDlsMat_denseAddIdentity`` |
++---------------------------------+--------------------------------+
+| ``DenseMatvec``                 | ``SUNDlsMat_DenseMatvec``      |
++---------------------------------+--------------------------------+
+| ``denseMatvec``                 | ``SUNDlsMat_denseMatvec``      |
++---------------------------------+--------------------------------+
+| ``BandGBTRF``                   | ``SUNDlsMat_BandGBTRF``        |
++---------------------------------+--------------------------------+
+| ``bandGBTRF``                   | ``SUNDlsMat_bandGBTRF``        |
++---------------------------------+--------------------------------+
+| ``BandGBTRS``                   | ``SUNDlsMat_BandGBTRS``        |
++---------------------------------+--------------------------------+
+| ``bandGBTRS``                   | ``SUNDlsMat_bandGBTRS``        |
++---------------------------------+--------------------------------+
+| ``BandCopy``                    | ``SUNDlsMat_BandCopy``         |
++---------------------------------+--------------------------------+
+| ``bandCopy``                    | ``SUNDlsMat_bandCopy``         |
++---------------------------------+--------------------------------+
+| ``BandScale``                   | ``SUNDlsMat_BandScale``        |
++---------------------------------+--------------------------------+
+| ``bandScale``                   | ``SUNDlsMat_bandScale``        |
++---------------------------------+--------------------------------+
+| ``bandAddIdentity``             | ``SUNDlsMat_bandAddIdentity``  |
++---------------------------------+--------------------------------+
+| ``BandMatvec``                  | ``SUNDlsMat_BandMatvec``       |
++---------------------------------+--------------------------------+
+| ``bandMatvec``                  | ``SUNDlsMat_bandMatvec``       |
++---------------------------------+--------------------------------+
+| ``ModifiedGS``                  | ``SUNModifiedGS``              |
++---------------------------------+--------------------------------+
+| ``ClassicalGS``                 | ``SUNClassicalGS``             |
++---------------------------------+--------------------------------+
+| ``QRfact``                      | ``SUNQRFact``                  |
++---------------------------------+--------------------------------+
+| ``QRsol``                       | ``SUNQRsol``                   |
++---------------------------------+--------------------------------+
+| ``DlsMat_NewDenseMat``          | ``SUNDlsMat_NewDenseMat``      |
++---------------------------------+--------------------------------+
+| ``DlsMat_NewBandMat``           | ``SUNDlsMat_NewBandMat``       |
++---------------------------------+--------------------------------+
+| ``DestroyMat``                  | ``SUNDlsMat_DestroyMat``       |
++---------------------------------+--------------------------------+
+| ``NewIntArray``                 | ``SUNDlsMat_NewIntArray``      |
++---------------------------------+--------------------------------+
+| ``NewIndexArray``               | ``SUNDlsMat_NewIndexArray``    |
++---------------------------------+--------------------------------+
+| ``NewRealArray``                | ``SUNDlsMat_NewRealArray``     |
++---------------------------------+--------------------------------+
+| ``DestroyArray``                | ``SUNDlsMat_DestroyArray``     |
++---------------------------------+--------------------------------+
+| ``AddIdentity``                 | ``SUNDlsMat_AddIdentity``      |
++---------------------------------+--------------------------------+
+| ``SetToZero``                   | ``SUNDlsMat_SetToZero``        |
++---------------------------------+--------------------------------+
+| ``PrintMat``                    | ``SUNDlsMat_PrintMat``         |
++---------------------------------+--------------------------------+
+| ``newDenseMat``                 | ``SUNDlsMat_newDenseMat``      |
++---------------------------------+--------------------------------+
+| ``newBandMat``                  | ``SUNDlsMat_newBandMat``       |
++---------------------------------+--------------------------------+
+| ``destroyMat``                  | ``SUNDlsMat_destroyMat``       |
++---------------------------------+--------------------------------+
+| ``newIntArray``                 | ``SUNDlsMat_newIntArray``      |
++---------------------------------+--------------------------------+
+| ``newIndexArray``               | ``SUNDlsMat_newIndexArray``    |
++---------------------------------+--------------------------------+
+| ``newRealArray``                | ``SUNDlsMat_newRealArray``     |
++---------------------------------+--------------------------------+
+| ``destroyArray``                | ``SUNDlsMat_destroyArray``     |
++---------------------------------+--------------------------------+
+
+In addition, the entire ``sundials_lapack.h`` header file is now deprecated for
+removal in SUNDIALS v7.0.0. Note, this header file is not needed to use the
+SUNDIALS LAPACK linear solvers.
 
 Changes in 4.8.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

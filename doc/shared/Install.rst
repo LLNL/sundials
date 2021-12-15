@@ -1632,19 +1632,19 @@ configuration file to build against SUNDIALS in their own CMake project.
    | **SUNMEMORY Modules**                                                                      |
    |                                                                                            |
    +------------------------------+--------------+----------------------------------------------+
-   | SYSTEM                       | Libraries    | ??                                           |
+   | SYSTEM                       | Libraries    | ``libsundials_sunmemsys.LIB``                |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmemory/sunmemory_system.h``             |
    +------------------------------+--------------+----------------------------------------------+
-   | CUDA                         | Libraries    | ??                                           |
+   | CUDA                         | Libraries    | ``libsundials_sunmemcuda.LIB``               |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmemory/sunmemory_cuda.h``               |
    +------------------------------+--------------+----------------------------------------------+
-   | HIP                          | Libraries    | ??                                           |
+   | HIP                          | Libraries    | ``libsundials_sunmemhip.LIB``                |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmemory/sunmemory_hip.h``                |
    +------------------------------+--------------+----------------------------------------------+
-   | SYCL                         | Libraries    | ??                                           |
+   | SYCL                         | Libraries    | ``libsundials_sunmemsycl.LIB``               |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmemory/sunmemory_sycl.h``               |
    +------------------------------+--------------+----------------------------------------------+

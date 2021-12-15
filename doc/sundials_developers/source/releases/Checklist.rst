@@ -1,5 +1,5 @@
 ..
-   Author(s): David J. Gardner @ LLNL
+   Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -69,7 +69,8 @@ web pages.
 
 #. If this is a major release, search the SUNDIALS code for
    'DEPRECATION NOTICE' and 'SUNDIALS_DEPRECATED'. All deprecated
-   functions should be removed.
+   functions should be removed (unless this is the first version
+   that they are deprecated).
 
 #. Regenerate the Fortran 2003 interfaces. It is possible nothing will be updated.
 
@@ -87,18 +88,12 @@ web pages.
    * ``src/ida/README``
    * ``src/idas/README``
    * ``src/kinsol/README``
-   * ``doc/arkode/SphinxDocs/examples/source/conf.py``
-   * ``doc/arkode/SphinxDocs/examples/source/References.rst``
-   * ``doc/arkode/SphinxDocs/guide/source/conf.py``
-   * ``doc/arkode/SphinxDocs/guide/source/History.rst``
-   * ``doc/arkode/SphinxDocs/guide/source/References.rst``
+   * ``doc/arkode/examples/source/conf.py``
+   * ``doc/shared/versions.py``
+   * ``doc/shared/History.rst``
+   * ``doc/shared/sundials.bib``
    * ``doc/sundials/biblio.bib``
-   * ``doc/sundials/sundials_release_history.tex``
-   * ``doc/sundials/ug.tex``
    * ``scripts/tarscript``
-
-   The ARKode LaTeX files ``doc/arkode/ARKode_example.tex`` and
-   ``doc/arkode/ARKode.tex`` need to be regenerated and updated manually.
 
    The following files are no longer maintaianed:
 
@@ -114,38 +109,31 @@ web pages.
    appropriate for uploading to the website.
 
 #. Update Internal Drupal Web pages for SUNDIALS:
-   https://computation-external.llnl.gov/user
+   https://computing-staging.llnl.gov/user
 
    a) Modify content (save edits on each page as you go)
 
       * Edit Main Page:
-        https://computation-external.llnl.gov/projects/sundials
+        https://computing-staging.llnl.gov/projects/sundials
 
         * Update Release History page:
-          https://computation-external.llnl.gov/projects/sundials/release-history
+          https://computing-staging.llnl.gov/projects/sundials/release-history
         * Add list of primary changes and child page containing
           full list of changes (this information is shared with
           "Changes in ..." sections of user guides).
 
       * Edit Download Page:
-        https://computation-external.llnl.gov/projects/sundials/sundials-software
+        https://computing-staging.llnl.gov/projects/sundials/sundials-software
 
-        * Update main download table with new versions of solvers and
-          new sizes
-        * Upload new documentation (pdf) files.
-        * Update Previous releases table with new entry for previous
-          release of full SUNDIALS suite.
-
-      * Edit Usage Notes Example Page if major release:
-
-        * Upload new ``cvRoberts_dns_negsol.c``, ``cvDisc_dns.c``, and
-          ``cvsRoberts_FSA_dns_Switch.c`` examples if necessary.
+        * Update main download table with links to new versions of solvers
+        * The documentation links do not need to be updated (they point to the PDFs on the GitHub master branch)
+        * Update Previous releases table with new entry for previous release of full SUNDIALS suite.
 
       * Edit FAQ if necessary:
-        https://computation-external.llnl.gov/projects/sundials/faq
+        https://computing-staging.llnl.gov/projects/sundials/faq
 
    b) Once each sub page is complete, ask for team review of draft pages:
-      https://computation-external.llnl.gov/projects/sundials
+      https://computing-staging.llnl.gov/projects/sundials
 
    c) After team comments are included and saved, select the
       "Publishing options" button in the bottom left group of buttons on the
@@ -154,12 +142,10 @@ web pages.
       final action before pages are uploaded for external release.
 
 #. After final push, ensure web content and behavior is as expected on the main
-   page: http://computation.llnl.gov/projects/sundials
+   page: http://computing.llnl.gov/projects/sundials
 
 #. Tag the release
 
-Note as of 28 Aug 2019 the addresses web address above are still vaild but may
-change from "computation" to "computing" in the future.
 
 **Old steps for maintaianed code:**
 
