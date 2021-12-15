@@ -24,6 +24,16 @@ if(ENABLE_CALIPER)
 endif()
 
 # ---------------------------------------------------------------
+# Find (and test) the Ginkgo libraries
+# ---------------------------------------------------------------
+
+if(ENABLE_GINKGO)
+  include(SundialsGinkgo)
+  list(APPEND SUNDIALS_TPL_LIST "GINKGO")
+endif()
+
+
+# ---------------------------------------------------------------
 # Find (and test) the hypre libraries
 # ---------------------------------------------------------------
 

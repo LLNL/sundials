@@ -31,6 +31,10 @@ if(BUILD_SUNMATRIX_CUSPARSE)
   endif()
 endif()
 
+if(BUILD_SUNMATRIX_GINKGO)
+  add_subdirectory(ginkgo)
+endif()
+
 if(BUILD_SUNMATRIX_MAGMADENSE)
   add_subdirectory(magmadense)
 endif()
