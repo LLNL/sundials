@@ -27,13 +27,15 @@ $tar $tarfile $distrobase/.readthedocs.yaml
 
 if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/INSTALL_GUIDE.pdf
-    $tar $tarfile $distrobase/doc/shared
-    $tar $tarfile $distrobase/doc/requirements.txt
-    if [ $doc_sundials = "T" ]; then
-        $tar $tarfile $distrobase/doc/superbuild/Makefile
-        $tar $tarfile $distrobase/doc/superbuild/source
-    fi
 fi
+
+if [ $doc_sundials = "T" ]; then
+    $tar $tarfile $distrobase/doc/superbuild/Makefile
+    $tar $tarfile $distrobase/doc/superbuild/source
+fi
+
+$tar $tarfile $distrobase/doc/shared
+$tar $tarfile $distrobase/doc/requirements.txt
 
 echo "   --- Add benchmark files to $tarfile"
 

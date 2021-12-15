@@ -13,8 +13,9 @@ echo "   --- Add cvodes module to $tarfile"
 if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/cvodes/cvs_guide.pdf    || exit 1
     $tar $tarfile $distrobase/doc/cvodes/cvs_examples.pdf || exit 1
-    $tar $tarfile $distrobase/doc/cvodes/guide            || exit 1
 fi
+$tar $tarfile $distrobase/doc/cvodes/guide/Makefile   || exit 1
+$tar $tarfile $distrobase/doc/cvodes/guide/source     || exit 1
 
 $tar $tarfile $distrobase/include/cvodes/cvodes.h         || exit 1
 $tar $tarfile $distrobase/include/cvodes/cvodes_bandpre.h || exit 1
