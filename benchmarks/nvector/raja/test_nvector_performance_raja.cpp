@@ -208,7 +208,7 @@ void sync_device(N_Vector x)
 #elif defined(USE_HIP)
   hipDeviceSynchronize();
 #elif defined(USE_SYCL)
-  sycl::queue* myQueue = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* myQueue = ::RAJA::sycl::detail::getQueue();
   myQueue->wait_and_throw();
 #else
 #error "USE_CUDA, USE_HIP, and USE_SYCL not defined"

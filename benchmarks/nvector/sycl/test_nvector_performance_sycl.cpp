@@ -31,6 +31,8 @@ static int FinalizeClearCache();
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
+  sundials::Context sunctx;
+
   // return flag
   int flag;
 
@@ -91,13 +93,13 @@ int main(int argc, char *argv[])
   printf("  timing on/off         %d  \n", print_timing);
 
   /* Create an in-order GPU queue */
-  sycl::gpu_selector selector;
-  sycl::queue myQueue(selector,
-                      sycl::property_list{sycl::property::queue::in_order{}});
+  ::sycl::gpu_selector selector;
+  ::sycl::queue myQueue(selector,
+                        ::sycl::property_list{::sycl::property::queue::in_order{}});
 
-  sycl::device dev = myQueue.get_device();
+  ::sycl::device dev = myQueue.get_device();
   std::cout << "Running on "
-            << (dev.get_info<sycl::info::device::name>())
+            << (dev.get_info<::sycl::info::device::name>())
             << std::endl;
   std::cout << " is host? "
             << (dev.is_host() ? "Yes" : "No")
@@ -115,30 +117,30 @@ int main(int argc, char *argv[])
             << (myQueue.is_in_order() ? "Yes" : "No")
             << std::endl;
   std::cout << " supports usm host allocations? "
-            << (dev.get_info<sycl::info::device::usm_host_allocations>() ?
+            << (dev.get_info<::sycl::info::device::usm_host_allocations>() ?
                 "Yes" : "No")
             << std::endl;
   std::cout << " supports usm device allocations? "
-            << (dev.get_info<sycl::info::device::usm_device_allocations>() ?
+            << (dev.get_info<::sycl::info::device::usm_device_allocations>() ?
                 "Yes" : "No")
             << std::endl;
   std::cout << " suports usm shared allocations? "
-            << (dev.get_info<sycl::info::device::usm_shared_allocations>() ?
+            << (dev.get_info<::sycl::info::device::usm_shared_allocations>() ?
                 "Yes" : "No")
             << std::endl;
   std::cout << " max work group size: "
-            << dev.get_info<sycl::info::device::max_work_group_size>()
+            << dev.get_info<::sycl::info::device::max_work_group_size>()
             << std::endl;
   std::cout << " max global memory size (bytes): "
-            << dev.get_info<sycl::info::device::global_mem_size>()
+            << dev.get_info<::sycl::info::device::global_mem_size>()
             << std::endl;
   std::cout << " max local memory size (bytes): "
-            << dev.get_info<sycl::info::device::local_mem_size>()
+            << dev.get_info<::sycl::info::device::local_mem_size>()
             << std::endl;
   std::cout << std::endl;
 
   // Create vectors
-  N_Vector X = N_VNew_Sycl(veclen, &myQueue);
+  N_Vector X = N_VNew_Sycl(veclen, &myQueue, sunctx);
 
   // run tests
   if (print_timing) printf("\n\n standard operations:\n");

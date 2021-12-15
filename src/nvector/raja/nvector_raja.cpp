@@ -530,7 +530,7 @@ void N_VCopyToDevice_Raja(N_Vector x)
 
   /* we synchronize with respect to the host, but on the default stream currently */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   SUNDIALS_GPU_VERIFY(SUNDIALS_GPU_PREFIX(StreamSynchronize)(0));
@@ -564,7 +564,7 @@ void N_VCopyFromDevice_Raja(N_Vector x)
 
   /* we synchronize with respect to the host, but only in this stream */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   SUNDIALS_GPU_VERIFY(SUNDIALS_GPU_PREFIX(StreamSynchronize)(0));
@@ -1425,7 +1425,7 @@ int N_VBufPack_Raja(N_Vector x, void *buf)
 
   /* we synchronize with respect to the host, but only in this stream */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
@@ -1467,7 +1467,7 @@ int N_VBufUnpack_Raja(N_Vector x, void *buf)
 
   /* we synchronize with respect to the host, but only in this stream */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);

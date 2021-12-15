@@ -40,7 +40,7 @@ struct _SUNLinearSolverContent_OneMklDense
   SUNMemory       s_scratchpad;   /* scratchpad memory        */
   SUNMemoryType   mem_type;       /* memory type              */
   SUNMemoryHelper mem_helper;     /* memory helper            */
-  sycl::queue*    queue;          /* operation queue          */
+  ::sycl::queue*  queue;          /* operation queue          */
 };
 
 typedef struct _SUNLinearSolverContent_OneMklDense *SUNLinearSolverContent_OneMklDense;
