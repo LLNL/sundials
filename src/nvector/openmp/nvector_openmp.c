@@ -137,6 +137,10 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sun
   v->ops->nvbufpack   = N_VBufPack_OpenMP;
   v->ops->nvbufunpack = N_VBufUnpack_OpenMP;
 
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_OpenMP;
+  v->ops->nvprintfile = N_VPrintFile_OpenMP;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof *content);
