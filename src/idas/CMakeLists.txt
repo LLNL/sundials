@@ -45,6 +45,11 @@ set(idas_HEADERS
 # Add prefix with complete path to the IDAS header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/idas/ idas_HEADERS)
 
+if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
+  set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
+  set(_link_caliper_if_needed PUBLIC caliper)
+endif()
+
 # Create the library
 sundials_add_library(sundials_idas
   SOURCES
@@ -53,8 +58,11 @@ sundials_add_library(sundials_idas
     ${idas_HEADERS}
   INCLUDE_SUBDIR
     idas
+  INCLUDE_DIRECTORIES
+    ${_include_caliper_if_needed}
   OBJECT_LIBRARIES
     sundials_generic_obj
+    sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
@@ -68,6 +76,9 @@ sundials_add_library(sundials_idas
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
+  LINK_LIBRARIES
+    # Link to caliper if conditions are met.
+    ${_link_caliper_if_needed}
   OUTPUT_NAME
     sundials_idas
   VERSION

@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header files defines the HipExecPolicy classes which
+ * This header files defines the ExecPolicy classes which
  * are utilized to determine HIP kernel launch paramaters.
  * -----------------------------------------------------------------
  */
@@ -26,15 +26,17 @@
 
 namespace sundials
 {
+namespace hip
+{
 
-class HipExecPolicy
+class ExecPolicy
 {
 public:
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
   virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
   virtual const hipStream_t* stream() const = 0;
-  virtual HipExecPolicy* clone() const = 0;
-  virtual ~HipExecPolicy() {}
+  virtual ExecPolicy* clone() const = 0;
+  virtual ~ExecPolicy() {}
 };
 
 
@@ -45,14 +47,14 @@ public:
  * thread per element. If a stream is provided, it will be used to
  * execute the kernel.
  */
-class HipThreadDirectExecPolicy : public HipExecPolicy
+class ThreadDirectExecPolicy : public ExecPolicy
 {
 public:
-  HipThreadDirectExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
+  ThreadDirectExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
     : blockDim_(blockDim), stream_(stream)
   {}
 
-  HipThreadDirectExecPolicy(const HipThreadDirectExecPolicy& ex)
+  ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
     : blockDim_(ex.blockDim_), stream_(ex.stream_)
   {}
 
@@ -72,9 +74,9 @@ public:
     return &stream_;
   }
 
-  virtual HipExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<HipExecPolicy*>(new HipThreadDirectExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new ThreadDirectExecPolicy(*this));
   }
 
 private:
@@ -88,14 +90,14 @@ private:
  * The number of blocks (gridSize) can be set to anything. If a stream
  * is provided, it will be used to execute the kernel.
  */
-class HipGridStrideExecPolicy : public HipExecPolicy
+class GridStrideExecPolicy : public ExecPolicy
 {
 public:
-  HipGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const hipStream_t stream = 0)
+  GridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const hipStream_t stream = 0)
     : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
   {}
 
-  HipGridStrideExecPolicy(const HipGridStrideExecPolicy& ex)
+  GridStrideExecPolicy(const GridStrideExecPolicy& ex)
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
   {}
 
@@ -114,9 +116,9 @@ public:
     return &stream_;
   }
 
-  virtual HipExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<HipExecPolicy*>(new HipGridStrideExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new GridStrideExecPolicy(*this));
   }
 
 private:
@@ -134,10 +136,10 @@ private:
  * be chosen so that there are at most two work units per thread. If a stream is
  * provided, it will be used to execute the kernel.
  */
-class HipBlockReduceExecPolicy : public HipExecPolicy
+class BlockReduceExecPolicy : public ExecPolicy
 {
 public:
-  HipBlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, const hipStream_t stream = 0)
+  BlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, const hipStream_t stream = 0)
     : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
   {
     if (blockDim < 1 || blockDim % warpSize)
@@ -146,7 +148,7 @@ public:
     }
   }
 
-  HipBlockReduceExecPolicy(const HipBlockReduceExecPolicy& ex)
+  BlockReduceExecPolicy(const BlockReduceExecPolicy& ex)
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
   {}
 
@@ -169,9 +171,9 @@ public:
     return &stream_;
   }
 
-  virtual HipExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<HipExecPolicy*>(new HipBlockReduceExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new BlockReduceExecPolicy(*this));
   }
 
 private:
@@ -180,11 +182,12 @@ private:
   const size_t gridDim_;
 };
 
+} // namespace hip
 } // namespace sundials
 
-typedef sundials::HipExecPolicy SUNHipExecPolicy;
-typedef sundials::HipThreadDirectExecPolicy SUNHipThreadDirectExecPolicy;
-typedef sundials::HipGridStrideExecPolicy SUNHipGridStrideExecPolicy;
-typedef sundials::HipBlockReduceExecPolicy SUNHipBlockReduceExecPolicy;
+typedef sundials::hip::ExecPolicy SUNHipExecPolicy;
+typedef sundials::hip::ThreadDirectExecPolicy SUNHipThreadDirectExecPolicy;
+typedef sundials::hip::GridStrideExecPolicy SUNHipGridStrideExecPolicy;
+typedef sundials::hip::BlockReduceExecPolicy SUNHipBlockReduceExecPolicy;
 
 #endif

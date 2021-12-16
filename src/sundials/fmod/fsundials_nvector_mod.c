@@ -188,13 +188,15 @@
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
-#include "sundials/sundials_nvector.h"  
+#include "sundials/sundials_nvector.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VNewEmpty() {
+SWIGEXPORT N_Vector _wrap_FN_VNewEmpty(void *farg1) {
   N_Vector fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   N_Vector result;
   
-  result = (N_Vector)N_VNewEmpty();
+  arg1 = (SUNContext)(farg1);
+  result = (N_Vector)N_VNewEmpty(arg1);
   fresult = result;
   return fresult;
 }
@@ -850,6 +852,40 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal(N_Vector farg1, N_Vector farg2) {
   arg2 = (N_Vector)(farg2);
   result = (realtype)N_VMinQuotientLocal(arg1,arg2);
   fresult = (realtype)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VDotProdMultiLocal(int const *farg1, N_Vector farg2, void *farg3, double *farg4) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  realtype *arg4 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (realtype *)(farg4);
+  result = (int)N_VDotProdMultiLocal(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce(int const *farg1, N_Vector farg2, double *farg3) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  realtype *arg3 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (realtype *)(farg3);
+  result = (int)N_VDotProdMultiAllReduce(arg1,arg2,arg3);
+  fresult = (int)(result);
   return fresult;
 }
 

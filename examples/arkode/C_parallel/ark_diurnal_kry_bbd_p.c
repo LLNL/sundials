@@ -166,11 +166,13 @@ int main(int argc, char *argv[])
   int iout, my_pe, npes, flag, jpre;
   sunindextype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
+  SUNContext ctx;
 
   data = NULL;
   LS = NULL;
   arkode_mem = NULL;
   u = NULL;
+  ctx = NULL;
 
   /* Set problem size neq */
   neq = NVARS*MX*MY;
@@ -189,6 +191,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation. */
+  flag = SUNContext_Create((void*) &comm, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
@@ -198,21 +204,22 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */
-  u = N_VNew_Parallel(comm, local_N, neq);
+  u = N_VNew_Parallel(comm, local_N, neq, ctx);
   if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+
   SetInitialProfiles(u, data);
   abstol = ATOL;
   reltol = RTOL;
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, ctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, u);
+  arkode_mem = ARKStepCreate(NULL, f, T0, u, ctx);
   if(check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -242,12 +249,12 @@ int main(int argc, char *argv[])
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
 
-  /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
-  for (jpre=PREC_LEFT; jpre<=PREC_RIGHT; jpre++) {
+  /* Loop over jpre (= SUN_PREC_LEFT, SUN_PREC_RIGHT), and solve the problem */
+  for (jpre=SUN_PREC_LEFT; jpre<=SUN_PREC_RIGHT; jpre++) {
 
     /* On second run, re-initialize u, the integrator, ARKBBDPRE,
        and preconditioning type */
-    if (jpre == PREC_RIGHT) {
+    if (jpre == SUN_PREC_RIGHT) {
 
       SetInitialProfiles(u, data);
 
@@ -257,7 +264,7 @@ int main(int argc, char *argv[])
       flag = ARKBBDPrecReInit(arkode_mem, mudq, mldq, ZERO);
       if(check_flag(&flag, "ARKBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-      flag = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+      flag = SUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_RIGHT);
       if(check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
 
       if (my_pe == 0) {
@@ -269,7 +276,7 @@ int main(int argc, char *argv[])
 
     if (my_pe == 0) {
       printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-             (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+             (jpre == SUN_PREC_LEFT) ? "SUN_PREC_LEFT" : "SUN_PREC_RIGHT");
     }
 
     /* In loop over output points, call ARKStepEvolve, print results, test for error */
@@ -289,7 +296,9 @@ int main(int argc, char *argv[])
   free(data);
   ARKStepFree(&arkode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&ctx);
   MPI_Finalize();
+
   return(0);
 }
 

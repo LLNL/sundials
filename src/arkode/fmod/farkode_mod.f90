@@ -21,13 +21,16 @@
 module farkode_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_types_mod
@@ -96,6 +99,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_USER_PREDICT_FAIL = -39_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_FAIL = -40_C_INT
  integer(C_INT), parameter, public :: ARK_INVALID_TABLE = -41_C_INT
+ integer(C_INT), parameter, public :: ARK_CONTEXT_ERR = -42_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace
@@ -161,6 +165,31 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK548L2SAb_DIRK_8_4_5 = 113_C_INT
  integer(C_INT), parameter, public :: MIN_DIRK_NUM = 100_C_INT
  integer(C_INT), parameter, public :: MAX_DIRK_NUM = 113_C_INT
+ ! typedef enum ARKODE_DIRKTableID
+ enum, bind(c)
+  enumerator :: ARKODE_DIRK_NONE = -1
+  enumerator :: ARKODE_MIN_DIRK_NUM = 100
+  enumerator :: ARKODE_SDIRK_2_1_2 = ARKODE_MIN_DIRK_NUM
+  enumerator :: ARKODE_BILLINGTON_3_3_2
+  enumerator :: ARKODE_TRBDF2_3_3_2
+  enumerator :: ARKODE_KVAERNO_4_2_3
+  enumerator :: ARKODE_ARK324L2SA_DIRK_4_2_3
+  enumerator :: ARKODE_CASH_5_2_4
+  enumerator :: ARKODE_CASH_5_3_4
+  enumerator :: ARKODE_SDIRK_5_3_4
+  enumerator :: ARKODE_KVAERNO_5_3_4
+  enumerator :: ARKODE_ARK436L2SA_DIRK_6_3_4
+  enumerator :: ARKODE_KVAERNO_7_4_5
+  enumerator :: ARKODE_ARK548L2SA_DIRK_8_4_5
+  enumerator :: ARKODE_ARK437L2SA_DIRK_7_3_4
+  enumerator :: ARKODE_ARK548L2SAb_DIRK_8_4_5
+  enumerator :: ARKODE_MAX_DIRK_NUM = ARKODE_ARK548L2SAb_DIRK_8_4_5
+ end enum
+ integer, parameter, public :: ARKODE_DIRKTableID = kind(ARKODE_DIRK_NONE)
+ public :: ARKODE_DIRK_NONE, ARKODE_MIN_DIRK_NUM, ARKODE_SDIRK_2_1_2, ARKODE_BILLINGTON_3_3_2, ARKODE_TRBDF2_3_3_2, &
+    ARKODE_KVAERNO_4_2_3, ARKODE_ARK324L2SA_DIRK_4_2_3, ARKODE_CASH_5_2_4, ARKODE_CASH_5_3_4, ARKODE_SDIRK_5_3_4, &
+    ARKODE_KVAERNO_5_3_4, ARKODE_ARK436L2SA_DIRK_6_3_4, ARKODE_KVAERNO_7_4_5, ARKODE_ARK548L2SA_DIRK_8_4_5, &
+    ARKODE_ARK437L2SA_DIRK_7_3_4, ARKODE_ARK548L2SAb_DIRK_8_4_5, ARKODE_MAX_DIRK_NUM
  public :: FARKodeButcherTable_LoadDIRK
  integer(C_INT), parameter, public :: HEUN_EULER_2_1_2 = 0_C_INT
  integer(C_INT), parameter, public :: BOGACKI_SHAMPINE_4_2_3 = 1_C_INT
@@ -179,6 +208,33 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK548L2SAb_ERK_8_4_5 = 14_C_INT
  integer(C_INT), parameter, public :: MIN_ERK_NUM = 0_C_INT
  integer(C_INT), parameter, public :: MAX_ERK_NUM = 14_C_INT
+ ! typedef enum ARKODE_ERKTableID
+ enum, bind(c)
+  enumerator :: ARKODE_ERK_NONE = -1
+  enumerator :: ARKODE_MIN_ERK_NUM = 0
+  enumerator :: ARKODE_HEUN_EULER_2_1_2 = ARKODE_MIN_ERK_NUM
+  enumerator :: ARKODE_BOGACKI_SHAMPINE_4_2_3
+  enumerator :: ARKODE_ARK324L2SA_ERK_4_2_3
+  enumerator :: ARKODE_ZONNEVELD_5_3_4
+  enumerator :: ARKODE_ARK436L2SA_ERK_6_3_4
+  enumerator :: ARKODE_SAYFY_ABURUB_6_3_4
+  enumerator :: ARKODE_CASH_KARP_6_4_5
+  enumerator :: ARKODE_FEHLBERG_6_4_5
+  enumerator :: ARKODE_DORMAND_PRINCE_7_4_5
+  enumerator :: ARKODE_ARK548L2SA_ERK_8_4_5
+  enumerator :: ARKODE_VERNER_8_5_6
+  enumerator :: ARKODE_FEHLBERG_13_7_8
+  enumerator :: ARKODE_KNOTH_WOLKE_3_3
+  enumerator :: ARKODE_ARK437L2SA_ERK_7_3_4
+  enumerator :: ARKODE_ARK548L2SAb_ERK_8_4_5
+  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_ARK548L2SAb_ERK_8_4_5
+ end enum
+ integer, parameter, public :: ARKODE_ERKTableID = kind(ARKODE_ERK_NONE)
+ public :: ARKODE_ERK_NONE, ARKODE_MIN_ERK_NUM, ARKODE_HEUN_EULER_2_1_2, ARKODE_BOGACKI_SHAMPINE_4_2_3, &
+    ARKODE_ARK324L2SA_ERK_4_2_3, ARKODE_ZONNEVELD_5_3_4, ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_SAYFY_ABURUB_6_3_4, &
+    ARKODE_CASH_KARP_6_4_5, ARKODE_FEHLBERG_6_4_5, ARKODE_DORMAND_PRINCE_7_4_5, ARKODE_ARK548L2SA_ERK_8_4_5, &
+    ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
+    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARKLS_MEM_NULL = -1_C_INT
@@ -1020,7 +1076,7 @@ function FARKodeButcherTable_LoadDIRK(imethod) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: imethod
+integer(ARKODE_DIRKTableID), intent(in) :: imethod
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 
@@ -1033,7 +1089,7 @@ function FARKodeButcherTable_LoadERK(imethod) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: imethod
+integer(ARKODE_ERKTableID), intent(in) :: imethod
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 

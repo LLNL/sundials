@@ -36,26 +36,70 @@ extern "C" {
 /* Default Butcher tables for each method/order */
 
 /*    explicit */
-#define DEFAULT_ERK_2           HEUN_EULER_2_1_2
-#define DEFAULT_ERK_3           BOGACKI_SHAMPINE_4_2_3
-#define DEFAULT_ERK_4           ZONNEVELD_5_3_4
-#define DEFAULT_ERK_5           CASH_KARP_6_4_5
-#define DEFAULT_ERK_6           VERNER_8_5_6
-#define DEFAULT_ERK_8           FEHLBERG_13_7_8
+static const int ARKSTEP_DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2;
+static const int ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
+static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4;
+static const int ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5;
+static const int ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6;
+static const int ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8;
 
 /*    implicit */
-#define DEFAULT_DIRK_2          SDIRK_2_1_2
-#define DEFAULT_DIRK_3          ARK324L2SA_DIRK_4_2_3
-#define DEFAULT_DIRK_4          SDIRK_5_3_4
-#define DEFAULT_DIRK_5          ARK548L2SA_DIRK_8_4_5
+static const int ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2;
+static const int ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
+static const int ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4;
+static const int ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
 
 /*    ImEx */
-#define DEFAULT_ARK_ETABLE_3    ARK324L2SA_ERK_4_2_3
-#define DEFAULT_ARK_ETABLE_4    ARK436L2SA_ERK_6_3_4
-#define DEFAULT_ARK_ETABLE_5    ARK548L2SA_ERK_8_4_5
-#define DEFAULT_ARK_ITABLE_3    ARK324L2SA_DIRK_4_2_3
-#define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
-#define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3;
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4;
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
+
+#ifndef DEFAULT_ERK_2
+/* DEPRECATED DEFAULT_ERK_2: use ARKSTEP_ERK_DEFAULT_2 */
+#define DEFAULT_ERK_2           ARKSTEP_ERK_DEFAULT_2
+#endif
+
+#ifndef DEFAULT_ERK_3
+/* DEPRECATED DEFAULT_ERK_3: use ARKSTEP_ERK_DEFAULT_3 */
+#define DEFAULT_ERK_3           ARKSTEP_ERK_DEFAULT_3
+#endif
+
+#ifndef DEFAULT_ERK_4
+/* DEPRECATED DEFAULT_ERK_4: use ARKSTEP_ERK_DEFAULT_4 */
+#define DEFAULT_ERK_4           ARKSTEP_ERK_DEFAULT_4
+#endif
+
+#ifndef DEFAULT_ERK_5
+/* DEPRECATED DEFAULT_ERK_5: use ARKSTEP_ERK_DEFAULT_5 */
+#define DEFAULT_ERK_5           ARKSTEP_ERK_DEFAULT_5
+#endif
+
+#ifndef DEFAULT_ERK_6
+/* DEPRECATED DEFAULT_ERK_6: use ARKSTEP_ERK_DEFAULT_6 */
+#define DEFAULT_ERK_6           ARKSTEP_ERK_DEFAULT_6
+#endif
+
+#ifndef DEFAULT_ERK_8
+/* DEPRECATED DEFAULT_ERK_8: use ARKSTEP_ERK_DEFAULT_8 */
+#define DEFAULT_ERK_8           ARKSTEP_ERK_DEFAULT_8
+#endif
+
+/*    ImEx */
+/* DEPRECATED DEFAULT_ARK_ETABLE_3: use ARKSTEP_DEFAULT_ARK_ETABLE_3 */
+#define DEFAULT_ARK_ETABLE_3    ARKSTEP_DEFAULT_ARK_ETABLE_3
+/* DEPRECATED DEFAULT_ARK_ETABLE_4: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
+#define DEFAULT_ARK_ETABLE_4    ARKSTEP_DEFAULT_ARK_ETABLE_4
+/* DEPRECATED DEFAULT_ARK_ETABLE_5: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
+#define DEFAULT_ARK_ETABLE_5    ARKSTEP_DEFAULT_ARK_ETABLE_5
+/* DEPRECATED DEFAULT_ARK_ITABLE_3: use ARKSTEP_DEFAULT_ARK_ITABLE_3 */
+#define DEFAULT_ARK_ITABLE_3    ARKSTEP_DEFAULT_ARK_ITABLE_3
+/* DEPRECATED DEFAULT_ARK_ITABLE_4: use ARKSTEP_DEFAULT_ARK_ITABLE_4 */
+#define DEFAULT_ARK_ITABLE_4    ARKSTEP_DEFAULT_ARK_ITABLE_4
+/* DEPRECATED DEFAULT_ARK_ITABLE_5: use ARKSTEP_DEFAULT_ARK_ITABLE_5 */
+#define DEFAULT_ARK_ITABLE_5    ARKSTEP_DEFAULT_ARK_ITABLE_5
 
 /* backwards-compatibility */
 typedef ARKStagePredictFn ARKStepStagePredictFn;
@@ -66,7 +110,8 @@ typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* Create, Resize, and Reinitialization functions */
 SUNDIALS_EXPORT void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi,
-                                    realtype t0, N_Vector y0);
+                                    realtype t0, N_Vector y0,
+                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype hscale, realtype t0,
@@ -129,7 +174,7 @@ SUNDIALS_EXPORT int ARKStepSetTables(void *arkode_mem, int q, int p,
                                      ARKodeButcherTable Bi,
                                      ARKodeButcherTable Be);
 SUNDIALS_EXPORT int ARKStepSetTableNum(void *arkode_mem,
-                                       int itable, int etable);
+                                       ARKODE_DIRKTableID itable, ARKODE_ERKTableID etable);
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,
@@ -412,15 +457,6 @@ SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 /* MRIStep interface functions */
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
                                                      MRIStepInnerStepper *stepper);
-
-
-/* Deprecated functions */
-SUNDIALS_DEPRECATED_EXPORT
-int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp);
-
-SUNDIALS_DEPRECATED_EXPORT
-int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj);
-
 
 #ifdef __cplusplus
 }

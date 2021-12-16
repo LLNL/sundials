@@ -22,6 +22,7 @@
 module test_fsunlinsol_sptfqmr_serial
   use, intrinsic :: iso_c_binding
   use fsundials_nvector_mod
+  use test_utilities
   implicit none
 
   integer(C_LONG), private, parameter :: N = 100
@@ -61,15 +62,15 @@ contains
 
     A => null()
 
-    x    => FN_VNew_Serial(N)
-    xhat => FN_VNew_Serial(N)
-    b    => FN_VNew_Serial(N)
+    x    => FN_VNew_Serial(N, sunctx)
+    xhat => FN_VNew_Serial(N, sunctx)
+    b    => FN_VNew_Serial(N, sunctx)
 
     allocate(probdata)
     probdata%N  = N
-    probdata%d  => FN_VNew_Serial(N)
-    probdata%s1 => FN_VNew_Serial(N)
-    probdata%s2 => FN_VNew_Serial(N)
+    probdata%d  => FN_VNew_Serial(N, sunctx)
+    probdata%s1 => FN_VNew_Serial(N, sunctx)
+    probdata%s2 => FN_VNew_Serial(N, sunctx)
 
     ! fill xhat vector with uniform random data in [1, 2)
     xdata => FN_VGetArrayPointer(xhat)
@@ -82,7 +83,7 @@ contains
     call FN_VConst(FIVE, probdata%d)
 
     ! create SPTFQMR linear solver
-    LS => FSUNLinSol_SPTFQMR(x, pretype, maxl)
+    LS => FSUNLinSol_SPTFQMR(x, pretype, maxl, sunctx)
 
     ! run initialization tests
     fails = fails + Test_FSUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0)
@@ -118,7 +119,7 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+    fails = fails + FSUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
     fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
     fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
     fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
@@ -178,7 +179,7 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+    fails = fails + FSUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
     fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
     fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
     fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
@@ -330,6 +331,8 @@ program main
   print *, 'SPTFQMR SUNLinearSolver Fortran 2003 interface test'
   print *, ''
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -337,4 +340,7 @@ program main
   else
     print *,'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
+
 end program main

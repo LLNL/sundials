@@ -240,6 +240,7 @@ int main(int argc, char *argv[])
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, retval;
+  SUNContext ctx;
 
   cc = cp = res = id = NULL;
   webdata = NULL;
@@ -262,6 +263,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation. */
+  retval = SUNContext_Create((void*) &comm, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Set local length (local_N) and global length (SystemSize). */
 
   local_N = MXSUB*MYSUB*NUM_SPECIES;
@@ -270,24 +275,24 @@ int main(int argc, char *argv[])
   /* Set up user data block webdata. */
 
   webdata = (UserData) malloc(sizeof *webdata);
-  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata, thispe, npes, comm);
 
   /* Create needed vectors, and load initial values.
      The vector res is used temporarily only.        */
 
-  cc  = N_VNew_Parallel(comm, local_N, SystemSize);
+  cc  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if(check_retval((void *)cc, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  cp  = N_VNew_Parallel(comm, local_N, SystemSize);
+  cp  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if(check_retval((void *)cp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  res = N_VNew_Parallel(comm, local_N, SystemSize);
+  res = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if(check_retval((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  id  = N_VNew_Parallel(comm, local_N, SystemSize);
+  id  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if(check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   SetInitialProfiles(cc, cp, id, res, webdata);
@@ -302,7 +307,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetUserData(ida_mem, webdata);
@@ -320,7 +325,7 @@ int main(int argc, char *argv[])
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver */
 
   maxl = 16;
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_LEFT, maxl, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
   if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
@@ -375,9 +380,11 @@ int main(int argc, char *argv[])
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   free(webdata);
+
+  SUNContext_Free(&ctx);
 
   MPI_Finalize();
 

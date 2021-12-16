@@ -173,6 +173,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   UserData data;
   SUNLinearSolver LS;
   void *cvode_mem;
@@ -196,6 +197,10 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
       fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
@@ -213,7 +218,7 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */
-  u = N_VNew_Parallel(comm, local_N, neq);
+  u = N_VNew_Parallel(comm, local_N, neq, sunctx);
   if(check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL;
@@ -221,7 +226,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -241,7 +246,7 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach SPGMR solver structure to CVode interface */
@@ -258,12 +263,12 @@ int main(int argc, char *argv[])
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
 
-  /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
-  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
+  /* Loop over jpre (= SUN_PREC_LEFT, SUN_PREC_RIGHT), and solve the problem */
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
 
   /* On second run, re-initialize u, the integrator, CVBBDPRE, and SPGMR */
 
-  if (jpre == PREC_RIGHT) {
+  if (jpre == SUN_PREC_RIGHT) {
 
     SetInitialProfiles(u, data);
 
@@ -273,7 +278,7 @@ int main(int argc, char *argv[])
     retval = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_retval(&retval, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    retval = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+    retval = SUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_RIGHT);
     if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
 
     if (my_pe == 0) {
@@ -286,7 +291,7 @@ int main(int argc, char *argv[])
 
   if (my_pe == 0) {
     printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-	   (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+	   (jpre == SUN_PREC_LEFT) ? "SUN_PREC_LEFT" : "SUN_PREC_RIGHT");
   }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -308,6 +313,7 @@ int main(int argc, char *argv[])
   free(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
 

@@ -47,11 +47,18 @@ int main(int argc, char *argv[])
   SUNMatrix       A, B, I;            /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
+  int             print_on_fail;
   sunindextype    j, k;
   realtype        *colj, *xdata, *colIj;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set matrix dimensions */
-  if (argc < 3){
+  if (argc < 3) {
     printf("ERROR: TWO (2) Inputs required: matrix cols, print timing \n");
     return(-1);
   }
@@ -67,16 +74,21 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[2]);
   SetTiming(print_timing);
 
+  print_on_fail = 0;
+  if (argc == 4) {
+    print_on_fail = atoi(argv[3]);
+  }
+
   printf("\nDense linear solver test: size %ld\n\n",
          (long int) cols);
 
   /* Create matrices and vectors */
-  A = SUNDenseMatrix(rows, cols);
-  B = SUNDenseMatrix(rows, cols);
-  I = SUNDenseMatrix(rows, cols);
-  x = N_VNew_Serial(cols);
-  y = N_VNew_Serial(cols);
-  b = N_VNew_Serial(cols);
+  A = SUNDenseMatrix(rows, cols, sunctx);
+  B = SUNDenseMatrix(rows, cols, sunctx);
+  I = SUNDenseMatrix(rows, cols, sunctx);
+  x = N_VNew_Serial(cols, sunctx);
+  y = N_VNew_Serial(cols, sunctx);
+  b = N_VNew_Serial(cols, sunctx);
 
   /* Fill A matrix with uniform random data in [0,1/cols] */
   for (j=0; j<cols; j++) {
@@ -129,7 +141,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create dense linear solver */
-  LS = SUNLinSol_Dense(x, A);
+  LS = SUNLinSol_Dense(x, A, sunctx);
 
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
@@ -144,14 +156,16 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
-    printf("\nA (original) =\n");
-    SUNDenseMatrix_Print(B,stdout);
-    printf("\nA (factored) =\n");
-    SUNDenseMatrix_Print(A,stdout);
-    printf("\nx (original) =\n");
-    N_VPrint_Serial(y);
-    printf("\nx (computed) =\n");
-    N_VPrint_Serial(x);
+    if (print_on_fail) {
+      printf("\nA (original) =\n");
+      SUNDenseMatrix_Print(B,stdout);
+      printf("\nA (factored) =\n");
+      SUNDenseMatrix_Print(A,stdout);
+      printf("\nx (original) =\n");
+      N_VPrint_Serial(y);
+      printf("\nx (computed) =\n");
+      N_VPrint_Serial(x);
+    }
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }
@@ -164,6 +178,7 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

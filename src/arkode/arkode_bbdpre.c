@@ -100,7 +100,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk);
+  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ark_mem->sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
@@ -111,7 +111,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu);
+  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ark_mem->sunctx);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -121,8 +121,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   }
 
   /* Allocate memory for temporary N_Vectors */
+
   pdata->zlocal = NULL;
-  pdata->zlocal = N_VNewEmpty_Serial(Nlocal);
+  pdata->zlocal = N_VNewEmpty_Serial(Nlocal, ark_mem->sunctx);
   if (pdata->zlocal == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -131,8 +132,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
+
   pdata->rlocal = NULL;
-  pdata->rlocal = N_VNewEmpty_Serial(Nlocal);
+  pdata->rlocal = N_VNewEmpty_Serial(Nlocal, ark_mem->sunctx);
   if (pdata->rlocal == NULL) {
     N_VDestroy(pdata->zlocal);
     SUNMatDestroy(pdata->savedP);
@@ -142,9 +144,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
+
   pdata->tmp1 = NULL;
-  pdata->tmp1 = N_VClone(ark_mem->tempv1);
-  if (pdata->tmp1 == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -154,10 +156,10 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
+
   pdata->tmp2 = NULL;
-  pdata->tmp2 = N_VClone(ark_mem->tempv1);
-  if (pdata->tmp2 == NULL) {
-    N_VDestroy(pdata->tmp1);
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
+    arkFreeVec(ark_mem, &(pdata->tmp1));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -167,11 +169,11 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
+
   pdata->tmp3 = NULL;
-  pdata->tmp3 = N_VClone(ark_mem->tempv1);
-  if (pdata->tmp3 == NULL) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp3))) {
+    arkFreeVec(ark_mem, &(pdata->tmp1));
+    arkFreeVec(ark_mem, &(pdata->tmp2));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -184,11 +186,11 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP);
+  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, ark_mem->sunctx);
   if (pdata->LS == NULL) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
-    N_VDestroy(pdata->tmp3);
+    arkFreeVec(ark_mem, &(pdata->tmp1));
+    arkFreeVec(ark_mem, &(pdata->tmp2));
+    arkFreeVec(ark_mem, &(pdata->tmp3));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -202,9 +204,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* initialize band linear solver object */
   retval = SUNLinSolInitialize(pdata->LS);
   if (pdata->LS == NULL) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
-    N_VDestroy(pdata->tmp3);
+    arkFreeVec(ark_mem, &(pdata->tmp1));
+    arkFreeVec(ark_mem, &(pdata->tmp2));
+    arkFreeVec(ark_mem, &(pdata->tmp3));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -554,9 +556,9 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
   SUNLinSolFree(pdata->LS);
-  N_VDestroy(pdata->tmp1);
-  N_VDestroy(pdata->tmp2);
-  N_VDestroy(pdata->tmp3);
+  arkFreeVec(ark_mem, &(pdata->tmp1));
+  arkFreeVec(ark_mem, &(pdata->tmp2));
+  arkFreeVec(ark_mem, &(pdata->tmp3));
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->rlocal);
   SUNMatDestroy(pdata->savedP);

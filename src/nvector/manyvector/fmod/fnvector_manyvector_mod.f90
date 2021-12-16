@@ -21,6 +21,7 @@
 module fnvector_manyvector_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -68,6 +69,7 @@ module fnvector_manyvector_mod
  public :: FN_VInvTestLocal_ManyVector
  public :: FN_VConstrMaskLocal_ManyVector
  public :: FN_VMinQuotientLocal_ManyVector
+ public :: FN_VDotProdMultiLocal_ManyVector
  public :: FN_VBufSize_ManyVector
  public :: FN_VBufPack_ManyVector
  public :: FN_VBufUnpack_ManyVector
@@ -80,15 +82,17 @@ module fnvector_manyvector_mod
  public :: FN_VEnableConstVectorArray_ManyVector
  public :: FN_VEnableWrmsNormVectorArray_ManyVector
  public :: FN_VEnableWrmsNormMaskVectorArray_ManyVector
+ public :: FN_VEnableDotProdMultiLocal_ManyVector
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNew_ManyVector(farg1, farg2) &
+function swigc_FN_VNew_ManyVector(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VNew_ManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
 
@@ -457,6 +461,17 @@ type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
 end function
 
+function swigc_FN_VDotProdMultiLocal_ManyVector(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FN_VDotProdMultiLocal_ManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
 function swigc_FN_VBufSize_ManyVector(farg1, farg2) &
 bind(C, name="_wrap_FN_VBufSize_ManyVector") &
 result(fresult)
@@ -565,24 +580,36 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FN_VEnableDotProdMultiLocal_ManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VEnableDotProdMultiLocal_ManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNew_ManyVector(num_subvectors, vec_array) &
+function FN_VNew_ManyVector(num_subvectors, vec_array, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: num_subvectors
 type(C_PTR) :: vec_array
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = num_subvectors
 farg2 = vec_array
-fresult = swigc_FN_VNew_ManyVector(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VNew_ManyVector(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
 
@@ -1256,6 +1283,28 @@ fresult = swigc_FN_VMinQuotientLocal_ManyVector(farg1, farg2)
 swig_result = fresult
 end function
 
+function FN_VDotProdMultiLocal_ManyVector(nvec, x, y, dotprods) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: y
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = nvec
+farg2 = c_loc(x)
+farg3 = y
+farg4 = c_loc(dotprods(1))
+fresult = swigc_FN_VDotProdMultiLocal_ManyVector(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
 function FN_VBufSize_ManyVector(x, size) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1445,6 +1494,22 @@ integer(C_INT) :: farg2
 farg1 = c_loc(v)
 farg2 = tf
 fresult = swigc_FN_VEnableWrmsNormMaskVectorArray_ManyVector(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VEnableDotProdMultiLocal_ManyVector(v, tf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT), intent(in) :: tf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = tf
+fresult = swigc_FN_VEnableDotProdMultiLocal_ManyVector(farg1, farg2)
 swig_result = fresult
 end function
 

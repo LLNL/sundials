@@ -13,17 +13,17 @@
  * -----------------------------------------------------------------
  * Adjoint sensitivity example problem
  *
- * This IVP is a stiff system of 6 non-linear DAEs of index 1. The 
- * problem originates from Akzo Nobel Central research in Arnhern, 
- * The Netherlands, and describes a chemical process in which 2 
+ * This IVP is a stiff system of 6 non-linear DAEs of index 1. The
+ * problem originates from Akzo Nobel Central research in Arnhern,
+ * The Netherlands, and describes a chemical process in which 2
  * species are mixed, while carbon dioxide is continuously added.
- * See http://pitagora.dm.uniba.it/~testset/report/chemakzo.pdf  
+ * See http://pitagora.dm.uniba.it/~testset/report/chemakzo.pdf
  * -----------------------------------------------------------------*/
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
- 
+
 #include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
@@ -40,7 +40,7 @@
 #define T1  RCONST(1e-8)  /* first time for output */
 
 #define TF  RCONST(180.0) /* Final time. */
-#define NF  25            /* Total number of outputs. */ 
+#define NF  25            /* Total number of outputs. */
 
 #define RTOL  RCONST(1.0e-08)
 #define ATOL  RCONST(1.0e-10)
@@ -60,7 +60,7 @@ typedef struct {
 
 static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata);
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp, 
+static int rhsQ(realtype t, N_Vector yy, N_Vector yp,
               N_Vector qdot, void *user_data);
 
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
@@ -79,6 +79,7 @@ int main()
   int nout;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   /* Consistent IC for  y, y'. */
   const realtype y01 = RCONST(0.444);
@@ -91,6 +92,10 @@ int main()
   yy = yp = NULL;
   A = NULL;
   LS = NULL;
+
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate user data. */
   data = (UserData) malloc(sizeof(*data));
@@ -107,9 +112,9 @@ int main()
   data->H = RCONST(737.0);
 
   /* Allocate N-vectors. */
-  yy = N_VNew_Serial(NEQ);
+  yy = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
-  yp = N_VNew_Serial(NEQ);
+  yp = N_VClone(yy);
   if (check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
 
   /* Set IC */
@@ -123,18 +128,18 @@ int main()
   /* Get y' = - res(t0, y, 0) */
   N_VConst(ZERO, yp);
 
-  rr = N_VNew_Serial(NEQ);
+  rr = N_VClone(yy);
   res(T0, yy, yp, rr, data);
   N_VScale(-ONE, rr, yp);
   N_VDestroy(rr);
-  
+
  /* Create and initialize q0 for quadratures. */
-  q = N_VNew_Serial(1);
+  q = N_VNew_Serial(1, ctx);
   if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDAInit(mem, res, T0, yy, yp);
@@ -150,11 +155,11 @@ int main()
   if(check_retval(&retval, "IDASetUserData", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -178,7 +183,7 @@ int main()
 
   tout = T1; nout = 0;
   incr = SUNRpowerR(TF/T1,ONE/NF);
- 
+
   /* FORWARD run. */
   while (1) {
 
@@ -201,12 +206,12 @@ int main()
   printf("G:          %24.16Lf \n",Ith(q,1));
 #else
   printf("G:          %24.16f \n",Ith(q,1));
-#endif  
+#endif
   printf("--------------------------------------------------------\n\n");
 
   retval = PrintFinalStats(mem);
   if (check_retval(&retval, "PrintFinalStats", 1)) return(1);
-  
+
   IDAFree(&mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
@@ -214,6 +219,7 @@ int main()
   N_VDestroy(yp);
   N_VDestroy(q);
   free(data);
+  SUNContext_Free(&ctx);
 
   return(0);
 }
@@ -271,13 +277,13 @@ static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *user
   return(0);
 }
 
-/* 
- * rhsQ routine. Computes quadrature(t,y). 
+/*
+ * rhsQ routine. Computes quadrature(t,y).
  */
- 
+
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
-  Ith(qdot,1) = Ith(yy,1);  
+  Ith(qdot,1) = Ith(yy,1);
 
   return(0);
 }
@@ -319,13 +325,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%8.2Le %8.2Le %8.2Le %8.2Le %8.2Le %8.2Le %8.2Le | %3ld  %1d %8.2Le\n", 
+  printf("%8.2Le %8.2Le %8.2Le %8.2Le %8.2Le %8.2Le %8.2Le | %3ld  %1d %8.2Le\n",
          t, yval[0], yval[1], yval[2], yval[3], yval[4], yval[5], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e | %3ld  %1d %8.2e\n", 
+  printf("%8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e | %3ld  %1d %8.2e\n",
          t, yval[0], yval[1], yval[2], yval[3], yval[4], yval[5], nst, kused, hused);
 #else
-  printf("%8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e | %3ld  %1d %8.2e\n", 
+  printf("%8.2e %8.2e %8.2e %8.2e %8.2e %8.2e %8.2e | %3ld  %1d %8.2e\n",
          t, yval[0], yval[1], yval[2], yval[3], yval[4], yval[5], nst, kused, hused);
 #endif
 }
@@ -356,14 +362,14 @@ static int PrintFinalStats(void *mem)
 }
 
 
-/* 
+/*
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
  *    opt == 1 means SUNDIALS function returns an integer value so check if
  *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)

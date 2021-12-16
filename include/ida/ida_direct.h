@@ -37,21 +37,28 @@ typedef IDALsJacFn IDADlsJacFn;
   Exported Functions (wrappers for equivalent routines in ida_ls.h)
   ===================================================================*/
 
-SUNDIALS_EXPORT int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
-                                          SUNMatrix A);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
+int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
+                          SUNMatrix A);
 
-SUNDIALS_EXPORT int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFn instead")
+int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
 
-SUNDIALS_EXPORT int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
-                                       long int *leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
+int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
+                       long int *leniwLS);
 
-SUNDIALS_EXPORT int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJacEvals instead")
+int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
 
-SUNDIALS_EXPORT int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
+int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
 
-SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
+int IDADlsGetLastFlag(void *ida_mem, long int *flag);
 
-SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
+char *IDADlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

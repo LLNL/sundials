@@ -47,12 +47,12 @@ contains
 
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs)
-    tmp  => FN_VMake_Serial(N1, x1data)
+    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data)
+    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs)
+    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_ManyVector(x)
     call FN_VConst(ONE, y)
@@ -136,14 +136,14 @@ contains
 
     !===== Setup ====
     fails = 0
-    
+
     subvecs = FN_VNewVectorArray(nsubvecs)
-    tmp  => FN_VMake_Serial(N1, x1data)
+    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data)
+    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs)
+    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -184,12 +184,12 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   x1len = FN_VGetLength(X1)
   x0data => FN_VGetArrayPointer(X0)
   x1data => FN_VGetArrayPointer(X1)
-  
+
   if (local_length /= (x0len + x1len)) then
     failure = 1
     return
   endif
-  
+
   do i = 1, x0len
     if (FNEQ(x0data(i), ans) > 0) then
       failure = failure + 1
@@ -228,6 +228,8 @@ program main
   !============== Introduction =============
   print *, 'ManyVector N_Vector Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = smoke_tests()
   if (fails /= 0) then
     print *, 'FAILURE: smoke tests failed'
@@ -243,4 +245,6 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
 end program main

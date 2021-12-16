@@ -27,6 +27,21 @@
 
 #define NHVALS 9
 
+/* Precision specific math function macros */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SIN(x)   (sin((x)))
+#define COS(x)   (cos((x)))
+#define SQRT(x)  (sqrt((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SIN(x)   (sinf((x)))
+#define COS(x)   (cosf((x)))
+#define SQRT(x)  (sqrtf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SIN(x)   (sinl((x)))
+#define COS(x)   (cosl((x)))
+#define SQRT(x)  (sqrtl((x)))
+#endif
+
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
@@ -62,6 +77,10 @@ int main(int argc, char *argv[])
   realtype yrate2[ARK_INTERP_MAX_DEGREE+1], dyrate2[ARK_INTERP_MAX_DEGREE+1];
   realtype d2yrate2[ARK_INTERP_MAX_DEGREE+1], yferr2[ARK_INTERP_MAX_DEGREE+1];
   realtype dyferr2[ARK_INTERP_MAX_DEGREE+1], d2yferr2[ARK_INTERP_MAX_DEGREE+1];
+
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext sunctx = NULL;
+  SUNContext_Create(NULL, &sunctx);
 
   /* general problem parameters */
   T0 = RCONST(0.0);       /* initial time */
@@ -104,38 +123,38 @@ int main(int argc, char *argv[])
   printf("\nARKode Interpolation module tester (rtype = %i):\n", rtype);
 
   /* Initialize vectors */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  ytest = N_VNew_Serial(NEQ);
+  ytest = N_VClone(y);
   if (check_flag((void *)ytest, "N_VNew_Serial", 0)) return 1;
-  dytest = N_VNew_Serial(NEQ);
+  dytest = N_VClone(y);
   if (check_flag((void *)dytest, "N_VNew_Serial", 0)) return 1;
-  d2ytest = N_VNew_Serial(NEQ);
+  d2ytest = N_VClone(y);
   if (check_flag((void *)d2ytest, "N_VNew_Serial", 0)) return 1;
-  d3ytest = N_VNew_Serial(NEQ);
+  d3ytest = N_VClone(y);
   if (check_flag((void *)d3ytest, "N_VNew_Serial", 0)) return 1;
-  d4ytest = N_VNew_Serial(NEQ);
+  d4ytest = N_VClone(y);
   if (check_flag((void *)d4ytest, "N_VNew_Serial", 0)) return 1;
-  d5ytest = N_VNew_Serial(NEQ);
+  d5ytest = N_VClone(y);
   if (check_flag((void *)d5ytest, "N_VNew_Serial", 0)) return 1;
-  yerr = N_VNew_Serial(NEQ);
+  yerr = N_VClone(y);
   if (check_flag((void *)yerr, "N_VNew_Serial", 0)) return 1;
-  dyerr = N_VNew_Serial(NEQ);
+  dyerr = N_VClone(y);
   if (check_flag((void *)dyerr, "N_VNew_Serial", 0)) return 1;
-  d2yerr = N_VNew_Serial(NEQ);
+  d2yerr = N_VClone(y);
   if (check_flag((void *)d2yerr, "N_VNew_Serial", 0)) return 1;
-  d3yerr = N_VNew_Serial(NEQ);
+  d3yerr = N_VClone(y);
   if (check_flag((void *)d3yerr, "N_VNew_Serial", 0)) return 1;
-  d4yerr = N_VNew_Serial(NEQ);
+  d4yerr = N_VClone(y);
   if (check_flag((void *)d4yerr, "N_VNew_Serial", 0)) return 1;
-  d5yerr = N_VNew_Serial(NEQ);
+  d5yerr = N_VClone(y);
   if (check_flag((void *)d5yerr, "N_VNew_Serial", 0)) return 1;
 
   /* initialize algebraic solver structures */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_flag((void *) A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNDenseLinearSolver(y, A);
-  if (check_flag((void *) LS, "SUNDenseLinearSolver", 0)) return 1;
+  LS = SUNLinSol_Dense(y, A, sunctx);
+  if (check_flag((void *) LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* test parameters */
   nttest = 500;
@@ -168,7 +187,7 @@ int main(int argc, char *argv[])
       NV_Ith_S(y,1) = RCONST(1.0);
 
       /* Create/initialize ARKStep module */
-      arkode_mem = ARKStepCreate(NULL, f, T0, y);
+      arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
       if (check_flag(arkode_mem, "ARKStepCreate", 0)) return 1;
 
       /* pass lambda to RHS routine */
@@ -236,31 +255,31 @@ int main(int argc, char *argv[])
 
         /* set error values */
         /*   y */
-        NV_Ith_S(yerr,0) = SUNRabs(sin(RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
-        NV_Ith_S(yerr,1) = SUNRabs(cos(RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
+        NV_Ith_S(yerr,0) = SUNRabs(SIN(RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
+        NV_Ith_S(yerr,1) = SUNRabs(COS(RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
         /*   dy */
-        NV_Ith_S(dyerr,0) = SUNRabs(RCONST(2.0)*cos(RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
-        NV_Ith_S(dyerr,1) = SUNRabs(-RCONST(3.0)*sin(RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
+        NV_Ith_S(dyerr,0) = SUNRabs(RCONST(2.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
+        NV_Ith_S(dyerr,1) = SUNRabs(-RCONST(3.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
         /*   d2y */
-        NV_Ith_S(d2yerr,0) = SUNRabs(-RCONST(4.0)*sin(RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
-        NV_Ith_S(d2yerr,1) = SUNRabs(-RCONST(9.0)*cos(RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
+        NV_Ith_S(d2yerr,0) = SUNRabs(-RCONST(4.0)*SIN(RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
+        NV_Ith_S(d2yerr,1) = SUNRabs(-RCONST(9.0)*COS(RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
         /*   d3y */
-        NV_Ith_S(d3yerr,0) = SUNRabs(-RCONST(8.0)*cos(RCONST(2.0)*t_test) - NV_Ith_S(d3ytest,0));
-        NV_Ith_S(d3yerr,1) = SUNRabs(RCONST(27.0)*sin(RCONST(3.0)*t_test) - NV_Ith_S(d3ytest,1));
+        NV_Ith_S(d3yerr,0) = SUNRabs(-RCONST(8.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(d3ytest,0));
+        NV_Ith_S(d3yerr,1) = SUNRabs(RCONST(27.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(d3ytest,1));
         /*   d4y */
-        NV_Ith_S(d4yerr,0) = SUNRabs(RCONST(16.0)*sin(RCONST(2.0)*t_test) - NV_Ith_S(d4ytest,0));
-        NV_Ith_S(d4yerr,1) = SUNRabs(RCONST(81.0)*cos(RCONST(3.0)*t_test) - NV_Ith_S(d4ytest,1));
+        NV_Ith_S(d4yerr,0) = SUNRabs(RCONST(16.0)*SIN(RCONST(2.0)*t_test) - NV_Ith_S(d4ytest,0));
+        NV_Ith_S(d4yerr,1) = SUNRabs(RCONST(81.0)*COS(RCONST(3.0)*t_test) - NV_Ith_S(d4ytest,1));
         /*   d5y */
-        NV_Ith_S(d5yerr,0) = SUNRabs(RCONST(32.0)*cos(RCONST(2.0)*t_test) - NV_Ith_S(d5ytest,0));
-        NV_Ith_S(d5yerr,1) = SUNRabs(-RCONST(243.0)*sin(RCONST(3.0)*t_test) - NV_Ith_S(d5ytest,1));
+        NV_Ith_S(d5yerr,0) = SUNRabs(RCONST(32.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(d5ytest,0));
+        NV_Ith_S(d5yerr,1) = SUNRabs(-RCONST(243.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(d5ytest,1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
-        yerrs[ih] = SUNMAX(yerrs[ih], sqrt(N_VDotProd(yerr,yerr)));
-        dyerrs[ih] = SUNMAX(dyerrs[ih], sqrt(N_VDotProd(dyerr,dyerr)));
-        d2yerrs[ih] = SUNMAX(d2yerrs[ih], sqrt(N_VDotProd(d2yerr,d2yerr)));
-        d3yerrs[ih] = SUNMAX(d3yerrs[ih], sqrt(N_VDotProd(d3yerr,d3yerr)));
-        d4yerrs[ih] = SUNMAX(d4yerrs[ih], sqrt(N_VDotProd(d4yerr,d4yerr)));
-        d5yerrs[ih] = SUNMAX(d5yerrs[ih], sqrt(N_VDotProd(d5yerr,d5yerr)));
+        yerrs[ih] = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr,yerr)));
+        dyerrs[ih] = SUNMAX(dyerrs[ih], SQRT(N_VDotProd(dyerr,dyerr)));
+        d2yerrs[ih] = SUNMAX(d2yerrs[ih], SQRT(N_VDotProd(d2yerr,d2yerr)));
+        d3yerrs[ih] = SUNMAX(d3yerrs[ih], SQRT(N_VDotProd(d3yerr,d3yerr)));
+        d4yerrs[ih] = SUNMAX(d4yerrs[ih], SQRT(N_VDotProd(d4yerr,d4yerr)));
+        d5yerrs[ih] = SUNMAX(d5yerrs[ih], SQRT(N_VDotProd(d5yerr,d5yerr)));
 
       }  /* end itest loop */
 
@@ -352,7 +371,7 @@ int main(int argc, char *argv[])
       NV_Ith_S(y,1) = RCONST(1.0);
 
       /* Create/initialize ARKStep module */
-      arkode_mem = ARKStepCreate(NULL, f, T0, y);
+      arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
       if (check_flag(arkode_mem, "ARKStepCreate", 0)) return 1;
 
       /* pass lambda to RHS routine */
@@ -413,19 +432,19 @@ int main(int argc, char *argv[])
 
         /* set error values */
         /*   y */
-        NV_Ith_S(yerr,0) = SUNRabs(sin(RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
-        NV_Ith_S(yerr,1) = SUNRabs(cos(RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
+        NV_Ith_S(yerr,0) = SUNRabs(SIN(RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
+        NV_Ith_S(yerr,1) = SUNRabs(COS(RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
         /*   dy */
-        NV_Ith_S(dyerr,0) = SUNRabs(RCONST(2.0)*cos(RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
-        NV_Ith_S(dyerr,1) = SUNRabs(-RCONST(3.0)*sin(RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
+        NV_Ith_S(dyerr,0) = SUNRabs(RCONST(2.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
+        NV_Ith_S(dyerr,1) = SUNRabs(-RCONST(3.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
         /*   d2y */
-        NV_Ith_S(d2yerr,0) = SUNRabs(-RCONST(4.0)*sin(RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
-        NV_Ith_S(d2yerr,1) = SUNRabs(-RCONST(9.0)*cos(RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
+        NV_Ith_S(d2yerr,0) = SUNRabs(-RCONST(4.0)*SIN(RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
+        NV_Ith_S(d2yerr,1) = SUNRabs(-RCONST(9.0)*COS(RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
-        yerrs[ih] = SUNMAX(yerrs[ih], sqrt(N_VDotProd(yerr,yerr)));
-        dyerrs[ih] = SUNMAX(dyerrs[ih], sqrt(N_VDotProd(dyerr,dyerr)));
-        d2yerrs[ih] = SUNMAX(d2yerrs[ih], sqrt(N_VDotProd(d2yerr,d2yerr)));
+        yerrs[ih] = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr,yerr)));
+        dyerrs[ih] = SUNMAX(dyerrs[ih], SQRT(N_VDotProd(dyerr,dyerr)));
+        d2yerrs[ih] = SUNMAX(d2yerrs[ih], SQRT(N_VDotProd(d2yerr,d2yerr)));
 
       }  /* end itest loop */
 
@@ -512,6 +531,8 @@ int main(int argc, char *argv[])
   N_VDestroy(d5yerr);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
+
+  SUNContext_Free(&sunctx);
   return(flag);
 }
 
@@ -524,10 +545,10 @@ int main(int argc, char *argv[])
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype *lambda = (realtype *) user_data;
-  NV_Ith_S(ydot,0) = (*lambda)*(NV_Ith_S(y,0) - sin(RCONST(2.0)*t))
-    + NV_Ith_S(y,1) - cos(RCONST(3.0)*t) + RCONST(2.0)*cos(RCONST(2.0)*t);
-  NV_Ith_S(ydot,1) = NV_Ith_S(y,0) - NV_Ith_S(y,1) - sin(RCONST(2.0)*t)
-    + cos(RCONST(3.0)*t) - RCONST(3.0)*sin(RCONST(3.0)*t);
+  NV_Ith_S(ydot,0) = (*lambda)*(NV_Ith_S(y,0) - SIN(RCONST(2.0)*t))
+    + NV_Ith_S(y,1) - COS(RCONST(3.0)*t) + RCONST(2.0)*COS(RCONST(2.0)*t);
+  NV_Ith_S(ydot,1) = NV_Ith_S(y,0) - NV_Ith_S(y,1) - SIN(RCONST(2.0)*t)
+    + COS(RCONST(3.0)*t) - RCONST(3.0)*SIN(RCONST(3.0)*t);
   return 0;  /* Return with success */
 }
 

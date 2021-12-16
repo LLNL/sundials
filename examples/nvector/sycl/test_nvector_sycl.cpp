@@ -20,7 +20,6 @@
 
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <nvector/nvector_serial.h>
 #include <nvector/nvector_sycl.h>
 
 #include "custom_memory_helper_sycl.h"
@@ -43,25 +42,27 @@ int main(int argc, char *argv[])
   int             threadsPerBlock;   /* sycl block size            */
   int             memtype, policy;
 
+  Test_Init(NULL);
+
   /* check input and set vector length */
   if (argc < 4)
   {
     printf("ERROR: THREE (3) Inputs required: vector length, SYCL threads per block (0 for default), print timing \n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   length = (sunindextype) atol(argv[1]);
   if (length <= 0)
   {
     printf("ERROR: length of vector must be a positive integer\n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   threadsPerBlock = (int) atoi(argv[2]);
   if (threadsPerBlock < 0)
   {
     printf("ERROR: SYCL threads per block must be a positive value or 0 to use the default\n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   print_timing = atoi(argv[3]);
@@ -143,18 +144,18 @@ int main(int argc, char *argv[])
       if (memtype == UNMANAGED)
       {
         printf("Testing SYCL N_Vector, policy %d\n", policy);
-        X = N_VNew_Sycl(length, &myQueue);
+        X = N_VNew_Sycl(length, &myQueue, sunctx);
       }
       else if (memtype == MANAGED)
       {
         printf("Testing SYCL N_Vector with managed memory, policy %d\n", policy);
-        X = N_VNewManaged_Sycl(length, &myQueue);
+        X = N_VNewManaged_Sycl(length, &myQueue, sunctx);
       }
       else if (memtype == SUNMEMORY)
       {
         printf("Testing SYCL N_Vector with SUNMemoryHelper, policy %d\n", policy);
-        mem_helper = MyMemoryHelper(&myQueue);
-        X = N_VNewWithMemHelp_Sycl(length, SUNFALSE, mem_helper, &myQueue);
+        mem_helper = MyMemoryHelper(sunctx);
+        X = N_VNewWithMemHelp_Sycl(length, SUNFALSE, mem_helper, &myQueue, sunctx);
       }
       printf("Vector length: %ld \n", (long int) length);
 
@@ -163,7 +164,7 @@ int main(int argc, char *argv[])
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
         printf("FAIL: Unable to create a new vector \n\n");
-        return(1);
+        Test_Abort(1);
       }
 
       if (stream_exec_policy != NULL && reduce_exec_policy != NULL) {
@@ -173,7 +174,7 @@ int main(int argc, char *argv[])
           delete reduce_exec_policy;
           if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
           printf("FAIL: Unable to set kernel execution policy \n\n");
-          return(1);
+          Test_Abort(1);
         }
         printf("Using non-default kernel execution policy\n");
         printf("Threads per block: %d\n\n", actualThreadsPerBlock);
@@ -193,7 +194,7 @@ int main(int argc, char *argv[])
         delete stream_exec_policy;
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
-        return(1);
+        Test_Abort(1);
       }
 
       Z = N_VClone(X);
@@ -204,7 +205,7 @@ int main(int argc, char *argv[])
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
         printf("FAIL: Unable to create a new vector \n\n");
-        return(1);
+        Test_Abort(1);
       }
 
       /* Fill vectors with uniform random data in [-1,1] */
@@ -271,7 +272,7 @@ int main(int argc, char *argv[])
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
         printf("FAIL: Unable to create a new vector \n\n");
-        return(1);
+        Test_Abort(1);
       }
       retval = N_VEnableFusedOps_Sycl(U, SUNFALSE);
       if (retval != 0) {
@@ -283,7 +284,7 @@ int main(int argc, char *argv[])
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
         printf("FAIL: Unable to create a new vector \n\n");
-        return(1);
+        Test_Abort(1);
       }
 
       /* fused operations */
@@ -315,7 +316,7 @@ int main(int argc, char *argv[])
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
         printf("FAIL: Unable to create a new vector \n\n");
-        return(1);
+        Test_Abort(1);
       }
       if (retval != 0) {
         N_VDestroy(X);
@@ -327,7 +328,7 @@ int main(int argc, char *argv[])
         delete reduce_exec_policy;
         if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
         printf("FAIL: Unable to create a new vector \n\n");
-        return(1);
+        Test_Abort(1);
       }
 
       /* fused operations */
@@ -395,6 +396,7 @@ int main(int argc, char *argv[])
   /* Synchronize */
   myQueue.wait();
 
+  Test_Finalize();
   return(fails);
 }
 

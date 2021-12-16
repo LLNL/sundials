@@ -46,11 +46,18 @@ int main(int argc, char *argv[])
   realtype        *matdata, *xdata, *xrefdata;
   int             print_timing;
   sunindextype    i, j;
+  SUNContext      sunctx;
 
   cusparseStatus_t cusp_status;
   cusolverStatus_t cusol_status;
   cusparseHandle_t cusp_handle;
   cusolverSpHandle_t cusol_handle;
+
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set matrix dimensions */
   if (argc < 4){
@@ -78,7 +85,7 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[3]);
   SetTiming(print_timing);
 
-  printf("\ncuSolverSp linear solver test: size %ld, block size %ld, number of blocks %d\n\n",
+  printf("\ncuSolverSp linear solver test: size %ld, block size %ld, number of blocks %ld\n\n",
     (long int) N, (long int) block_size, (long int) nblocks);
 
   /* Initialize cuSPARSE */
@@ -96,12 +103,12 @@ int main(int argc, char *argv[])
   }
 
   /* Create matrices and vectors */
-  B = SUNDenseMatrix(N, N);
-  d_x = N_VNew_Cuda(N);
-  d_xref = N_VNew_Cuda(N);
-  d_b = N_VNew_Cuda(N);
-  x = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_x));
-  b = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_b));
+  B = SUNDenseMatrix(N, N, sunctx);
+  d_x = N_VNew_Cuda(N, sunctx);
+  d_xref = N_VNew_Cuda(N, sunctx);
+  d_b = N_VNew_Cuda(N, sunctx);
+  x = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_x), sunctx);
+  b = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_b), sunctx);
 
   /* Zero the matrix */
   fails = SUNMatZero(B);
@@ -142,7 +149,7 @@ int main(int argc, char *argv[])
   block_nnz = SUNSparseMatrix_NNZ(A) / nblocks;
 
   /* Create the device matrix */
-  dA = SUNMatrix_cuSparse_NewBlockCSR(nblocks, block_size, block_size, block_nnz, cusp_handle);
+  dA = SUNMatrix_cuSparse_NewBlockCSR(nblocks, block_size, block_size, block_nnz, cusp_handle, sunctx);
   if (dA == NULL) {
     printf("ERROR: could not create dA\n");
   }
@@ -181,7 +188,7 @@ int main(int argc, char *argv[])
   /* Create cuSolverSp linear solver
    * The BatchedQR method allows you to solve many small subsystems in parallel.
    */
-  LS = SUNLinSol_cuSolverSp_batchQR(d_x, dA, cusol_handle);
+  LS = SUNLinSol_cuSolverSp_batchQR(d_x, dA, cusol_handle, sunctx);
 
   if (LS == NULL) {
     printf("FAIL: SUNLinSol_cuSolverSp_batchQR returned NULL\n");
@@ -230,6 +237,8 @@ int main(int argc, char *argv[])
   /* Destroy the cuSOLVER and cuSPARSE handles */
   cusparseDestroy(cusp_handle);
   cusolverSpDestroy(cusol_handle);
+
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

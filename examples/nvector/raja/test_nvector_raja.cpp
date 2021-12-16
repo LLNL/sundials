@@ -49,17 +49,18 @@ int main(int argc, char *argv[])
   int          print_timing;      /* turn timing on/off        */
   int          memtype;
 
+  Test_Init(NULL);
 
   /* check input and set vector length */
   if (argc < 3){
     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   length = (sunindextype) atol(argv[1]);
   if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   print_timing = atoi(argv[2]);
@@ -83,21 +84,18 @@ int main(int argc, char *argv[])
       printf("Testing RAJA N_Vector with managed memory\n");
     } else if (memtype==SUNMEMORY) {
       printf("Testing RAJA N_Vector with custom allocator\n");
-#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-      mem_helper = MyMemoryHelper(myQueue);
-#else
-      mem_helper = MyMemoryHelper();
-#endif
+      mem_helper = MyMemoryHelper(sunctx);
     }
     printf("Vector length: %ld \n", (long int) length);
     /* Create new vectors */
-    if (memtype == UNMANAGED)       X = N_VNew_Raja(length);
-    else if (memtype == MANAGED)    X = N_VNewManaged_Raja(length);
-    else if (memtype == SUNMEMORY)  X = N_VNewWithMemHelp_Raja(length, SUNFALSE, mem_helper);
+    if (memtype == UNMANAGED)       X = N_VNew_Raja(length, sunctx);
+    else if (memtype == MANAGED)    X = N_VNewManaged_Raja(length, sunctx);
+    else if (memtype == SUNMEMORY)  X = N_VNewWithMemHelp_Raja(length, SUNFALSE,
+                                                               mem_helper, sunctx);
     if (X == NULL) {
       if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
       printf("FAIL: Unable to create a new vector \n\n");
-      return(1);
+      Test_Abort(1);
     }
 
     /* Fill vector with uniform random data in [-1,1] */
@@ -112,7 +110,7 @@ int main(int argc, char *argv[])
       N_VDestroy(X);
       if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
       printf("FAIL: Unable to create a new vector \n\n");
-      return(1);
+      Test_Abort(1);
     }
 
     Z = N_VClone(X);
@@ -121,7 +119,7 @@ int main(int argc, char *argv[])
       N_VDestroy(Y);
       if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
       printf("FAIL: Unable to create a new vector \n\n");
-      return(1);
+      Test_Abort(1);
     }
 
     /* Fill vectors with uniform random data in [-1,1] */
@@ -188,7 +186,7 @@ int main(int argc, char *argv[])
       N_VDestroy(Z);
       if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
       printf("FAIL: Unable to create a new vector \n\n");
-      return(1);
+      Test_Abort(1);
     }
 
     /* fused operations */
@@ -218,7 +216,7 @@ int main(int argc, char *argv[])
       N_VDestroy(U);
       if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
       printf("FAIL: Unable to create a new vector \n\n");
-      return(1);
+      Test_Abort(1);
     }
 
     /* fused operations */
@@ -284,6 +282,7 @@ int main(int argc, char *argv[])
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
   hipDeviceReset();
 #endif
+  Test_Finalize();
   return(fails);
 }
 

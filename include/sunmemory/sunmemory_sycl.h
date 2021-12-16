@@ -27,25 +27,28 @@ extern "C" {
 
 /* Implementation specific functions */
 
-SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Sycl(sycl::queue *Q);
+SUNDIALS_EXPORT
+SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx);
 
 /* SUNMemoryHelper functions */
 
-SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Clone_Sycl(SUNMemoryHelper helper);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
+                               size_t memsize, SUNMemoryType mem_type,
+                               void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
+                                 void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
-                                               size_t memsize, SUNMemoryType mem_type);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
+                              SUNMemory src, size_t memory_size, void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem);
-
-SUNDIALS_EXPORT int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
-                                              SUNMemory src, size_t memory_size);
-
-SUNDIALS_EXPORT int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
-                                                   SUNMemory src, size_t memory_size,
-                                                   void* ctx);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
+                                   SUNMemory src, size_t memory_size,
+                                   void* queue);
 
 #ifdef __cplusplus
 }

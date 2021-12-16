@@ -262,8 +262,8 @@ int KINSetPreconditioner(void *kinmem,
 {
   KINMem   kin_mem;
   KINLsMem kinls_mem;
-  PSetupFn kinls_psetup;
-  PSolveFn kinls_psolve;
+  SUNPSetupFn kinls_psetup;
+  SUNPSolveFn kinls_psolve;
   int      retval;
 
   /* access KINLsMem structure */

@@ -37,11 +37,13 @@
 #ifndef _NVECTOR_HIP_H
 #define _NVECTOR_HIP_H
 
+#include <hip/hip_runtime.h>
 #include <stdio.h>
 
 #include <sundials/sundials_hip_policies.hpp>
-#include <sundials/sundials_memory.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_config.h>
+#include <sunmemory/sunmemory_hip.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -74,17 +76,20 @@ typedef struct _N_VectorContent_Hip *N_VectorContent_Hip;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Hip(sunindextype length);
-SUNDIALS_EXPORT N_Vector N_VNewManaged_Hip(sunindextype length);
+SUNDIALS_EXPORT N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx);
+SUNDIALS_EXPORT N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Hip(sunindextype length,
                                                booleantype use_managed_mem,
-                                               SUNMemoryHelper helper);
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Hip();
+                                               SUNMemoryHelper helper,
+                                               SUNContext sunctx);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Hip(SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMake_Hip(sunindextype length,
                                      realtype *h_vdata,
-                                     realtype *d_vdata);
+                                     realtype *d_vdata,
+                                     SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMakeManaged_Hip(sunindextype length,
-                                            realtype *vdata);
+                                            realtype *vdata,
+                                            SUNContext sunctx);
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Hip(realtype* h_vdata, N_Vector v);
 SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Hip(N_Vector x);
 SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Hip(N_Vector x,

@@ -183,7 +183,7 @@ typedef struct
 #define LOCAL_NLS(NLS)       ( GET_NLS_CONTENT(NLS)->local_nls )
 
 /* SUNNonlinearSolver constructor */
-SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID);
+SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID);
 
 
 /*
@@ -211,10 +211,12 @@ static int PSolve(double t, N_Vector y, N_Vector f, N_Vector r,
  */
 
 /* function that does ARKStep setup and evolves the solution */
-static int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt);
+static int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt,
+                             SUNContext ctx);
 
 /* function that does ERKStep setup and evolves the solution */
-static int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt);
+static int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt,
+                                 SUNContext ctx);
 
 /* function to set initial condition */
 static int SetIC(N_Vector y, UserData udata);
@@ -226,7 +228,8 @@ static int ExchangeAllEnd(UserData udata);
 
 /* functions for processing command line args */
 static int SetupProblem(int argc, char *argv[],
-                        UserData udata, UserOptions uopt);
+                        UserData udata, UserOptions uopt,
+                        SUNContext ctx);
 static void InputError(char *name);
 
 /* function to write solution to disk */
@@ -252,6 +255,7 @@ int main(int argc, char *argv[])
   char         fname[MXSTR];
   MPI_Comm     comm;
   double       starttime, endtime;
+  SUNContext   ctx;
 
   /* Initialize MPI */
   comm = MPI_COMM_WORLD;
@@ -260,6 +264,9 @@ int main(int argc, char *argv[])
 
   /* Start timing */
   starttime = MPI_Wtime();
+
+  retval = SUNContext_Create((void*) &comm, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) MPI_Abort(comm, 1);
 
   /* Allocate user data structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -270,11 +277,11 @@ int main(int argc, char *argv[])
   if (check_retval((void *) uopt, "malloc", 0)) MPI_Abort(comm, 1);
 
   /* Process input args and setup the problem */
-  retval = SetupProblem(argc, argv, udata, uopt);
+  retval = SetupProblem(argc, argv, udata, uopt, ctx);
   if (check_retval(&retval, "SetupProblem", 1)) MPI_Abort(comm, 1);
 
   /* Create solution vector */
-  y = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
+  y = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ, ctx), ctx);
   if (check_retval((void *) y, "N_VMake_MPIPlusX", 0)) MPI_Abort(comm, 1);
 
   /* Enabled fused vector ops */
@@ -304,8 +311,8 @@ int main(int argc, char *argv[])
   }
 
   /* Integrate in time */
-  if (uopt->explicit) retval = EvolveProblemExplicit(y, udata, uopt);
-  else                retval = EvolveProblemIMEX(y, udata, uopt);
+  if (uopt->explicit) retval = EvolveProblemExplicit(y, udata, uopt, ctx);
+  else                retval = EvolveProblemIMEX(y, udata, uopt, ctx);
 
   if (check_retval(&retval, "Evolve", 1)) MPI_Abort(comm, 1);
 
@@ -322,6 +329,7 @@ int main(int argc, char *argv[])
   free(uopt);
   N_VDestroy(N_VGetLocalVector_MPIPlusX(y));
   N_VDestroy(y);
+  SUNContext_Free(&ctx);
 
   /* return success */
   MPI_Finalize();
@@ -329,7 +337,8 @@ int main(int argc, char *argv[])
 }
 
 /* Setup ARKODE and evolve problem in time with IMEX method*/
-int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
+int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt,
+                      SUNContext ctx)
 {
   void*              arkode_mem = NULL;  /* empty ARKODE memory structure    */
   SUNNonlinearSolver NLS = NULL;         /* empty nonlinear solver structure */
@@ -346,7 +355,7 @@ int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
   char     fname[MXSTR];
 
   /* Create the ARK timestepper module */
-  arkode_mem = ARKStepCreate(Advection, Reaction, uopt->t0, y);
+  arkode_mem = ARKStepCreate(Advection, Reaction, uopt->t0, y, ctx);
   if (check_retval((void*)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Select the method order */
@@ -379,7 +388,7 @@ int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
   if (uopt->global)
   {
     /* Create nonlinear solver */
-    NLS = SUNNonlinSol_Newton(y);
+    NLS = SUNNonlinSol_Newton(y, ctx);
     if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return 1;
 
     /* Attach nonlinear solver */
@@ -387,7 +396,7 @@ int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
     if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1)) return 1;
 
     /* Create linear solver */
-    LS  = SUNLinSol_SPGMR(y, PREC_LEFT, 0);
+    LS  = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     /* Attach linear solver */
@@ -402,7 +411,7 @@ int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
   {
     /* The custom task-local nonlinear solver handles the linear solve
       as well, so we do not need a SUNLinearSolver */
-    NLS = TaskLocalNewton(y, DFID);
+    NLS = TaskLocalNewton(ctx, y, DFID);
     if (check_retval((void *)NLS, "TaskLocalNewton", 0)) return 1;
 
     /* Attach nonlinear solver */
@@ -498,7 +507,8 @@ int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
 
 
 /* Setup ARKODE and evolve problem in time explicitly */
-int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt)
+int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt,
+                          SUNContext ctx)
 {
   void*    arkode_mem = NULL; /* empty ARKODE memory structure */
   double   t, dtout, tout;    /* current/output time data      */
@@ -510,7 +520,7 @@ int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt)
   char     fname[MXSTR];
 
   /* Create the ERK timestepper module */
-  arkode_mem = ERKStepCreate(AdvectionReaction, uopt->t0, y);
+  arkode_mem = ERKStepCreate(AdvectionReaction, uopt->t0, y, ctx);
   if (check_retval((void*)arkode_mem, "ERKStepCreate", 0)) return 1;
 
   /* Select the method order */
@@ -1163,7 +1173,7 @@ int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS,
 }
 
 
-SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID)
+SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID)
 {
   void* tmp_comm;
   SUNNonlinearSolver NLS;
@@ -1177,8 +1187,7 @@ SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID)
     return NULL;
 
   /* Create an empty nonlinear linear solver object */
-  NLS = NULL;
-  NLS = SUNNonlinSolNewEmpty();
+  NLS = SUNNonlinSolNewEmpty(ctx);
   if (NLS == NULL) return NULL;
 
   /* Attach operations */
@@ -1208,7 +1217,7 @@ SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID)
   content->comm = *((MPI_Comm*) tmp_comm);
   if (content->comm == MPI_COMM_NULL) { SUNNonlinSolFree(NLS); return NULL; }
 
-  content->local_nls = SUNNonlinSol_Newton(N_VGetLocalVector_MPIPlusX(y));
+  content->local_nls = SUNNonlinSol_Newton(N_VGetLocalVector_MPIPlusX(y), ctx);
   if (content->local_nls == NULL) { SUNNonlinSolFree(NLS); return NULL; }
 
   MPI_Comm_rank(content->comm, &content->myid);
@@ -1481,7 +1490,8 @@ int ExchangeAllEnd(UserData udata)
 }
 
 
-int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
+int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt,
+                 SUNContext ctx)
 {
   /* local variables */
   int      i, retval;
@@ -1677,7 +1687,9 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
   if (check_retval((void *)udata->Erecv, "calloc", 0)) return 1;
 
   /* Create the solution masks */
-  udata->umask = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
+  udata->umask = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ, ctx), ctx);
+  if (check_retval((void *) udata->umask, "N_VMake_MPIPlusX", 0)) return 1;
+
   if (uopt->fused)
   {
     retval = N_VEnableFusedOps_Serial(N_VGetLocalVector_MPIPlusX(udata->umask),
@@ -1711,17 +1723,17 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
     if (uopt->global)
     {
       /* Create MPI task-local data structures for preconditioning */
-      udata->pre = SUNDenseMatrix(udata->NEQ, udata->NEQ);
-      tmp = N_VNew_Serial(udata->NEQ);
-      udata->prels = SUNLinSol_Dense(tmp, udata->pre);
+      udata->pre = SUNDenseMatrix(udata->NEQ, udata->NEQ, ctx);
+      tmp = N_VNew_Serial(udata->NEQ, ctx);
+      udata->prels = SUNLinSol_Dense(tmp, udata->pre, ctx);
       N_VDestroy(tmp);
     }
     else
     {
       /* Create MPI task-local data structures for mesh node solves */
-      udata->b_node   = N_VNew_Serial(udata->nvar);
-      udata->jac_node = SUNDenseMatrix(udata->nvar, udata->nvar);
-      udata->ls_node  = SUNLinSol_Dense(udata->b_node, udata->jac_node);
+      udata->b_node   = N_VNew_Serial(udata->nvar, ctx);
+      udata->jac_node = SUNDenseMatrix(udata->nvar, udata->nvar, ctx);
+      udata->ls_node  = SUNLinSol_Dense(udata->b_node, udata->jac_node, ctx);
     }
   }
   udata->nnlfi = 0;

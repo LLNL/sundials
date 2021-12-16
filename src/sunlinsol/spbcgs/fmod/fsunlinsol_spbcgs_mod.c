@@ -208,17 +208,19 @@
 
 #include "sunlinsol/sunlinsol_spbcgs.h"
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPBCGS(N_Vector farg1, int const *farg2, int const *farg3) {
+SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPBCGS(N_Vector farg1, int const *farg2, int const *farg3, void *farg4) {
   SUNLinearSolver fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   int arg3 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   SUNLinearSolver result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
-  result = (SUNLinearSolver)SUNLinSol_SPBCGS(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (SUNLinearSolver)SUNLinSol_SPBCGS(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
@@ -247,50 +249,6 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPBCGSSetMaxl(SUNLinearSolver farg1, int const *
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNLinSol_SPBCGSSetMaxl(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT SUNLinearSolver _wrap_FSUNSPBCGS(N_Vector farg1, int const *farg2, int const *farg3) {
-  SUNLinearSolver fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  int arg2 ;
-  int arg3 ;
-  SUNLinearSolver result;
-  
-  arg1 = (N_Vector)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  result = (SUNLinearSolver)SUNSPBCGS(arg1,arg2,arg3);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPBCGSSetPrecType(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPBCGSSetPrecType(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPBCGSSetMaxl(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPBCGSSetMaxl(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -332,34 +290,34 @@ SWIGEXPORT int _wrap_FSUNLinSolInitialize_SPBCGS(SUNLinearSolver farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNLinSolSetATimes_SPBCGS(SUNLinearSolver farg1, void *farg2, ATimesFn farg3) {
+SWIGEXPORT int _wrap_FSUNLinSolSetATimes_SPBCGS(SUNLinearSolver farg1, void *farg2, SUNATimesFn farg3) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   void *arg2 = (void *) 0 ;
-  ATimesFn arg3 = (ATimesFn) 0 ;
+  SUNATimesFn arg3 = (SUNATimesFn) 0 ;
   int result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (void *)(farg2);
-  arg3 = (ATimesFn)(farg3);
+  arg3 = (SUNATimesFn)(farg3);
   result = (int)SUNLinSolSetATimes_SPBCGS(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNLinSolSetPreconditioner_SPBCGS(SUNLinearSolver farg1, void *farg2, PSetupFn farg3, PSolveFn farg4) {
+SWIGEXPORT int _wrap_FSUNLinSolSetPreconditioner_SPBCGS(SUNLinearSolver farg1, void *farg2, SUNPSetupFn farg3, SUNPSolveFn farg4) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   void *arg2 = (void *) 0 ;
-  PSetupFn arg3 = (PSetupFn) 0 ;
-  PSolveFn arg4 = (PSolveFn) 0 ;
+  SUNPSetupFn arg3 = (SUNPSetupFn) 0 ;
+  SUNPSolveFn arg4 = (SUNPSolveFn) 0 ;
   int result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (void *)(farg2);
-  arg3 = (PSetupFn)(farg3);
-  arg4 = (PSolveFn)(farg4);
+  arg3 = (SUNPSetupFn)(farg3);
+  arg4 = (SUNPSolveFn)(farg4);
   result = (int)SUNLinSolSetPreconditioner_SPBCGS(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;

@@ -78,6 +78,12 @@ using namespace std;
 
 struct UserData
 {
+  UserData(sundials::Context&);
+  ~UserData();
+
+  // SUNDIALS simulation context
+  sundials::Context& sunctx;
+
   // Diffusion coefficients in the x and y directions
   realtype kx;
   realtype ky;
@@ -265,12 +271,6 @@ static int ScaleAddI(UserData *udata, realtype gamma);
 // UserData and input functions
 // -----------------------------------------------------------------------------
 
-// Set the default values in the UserData structure
-static int InitUserData(UserData *udata);
-
-// Free memory allocated within UserData
-static int FreeUserData(UserData *udata);
-
 // Read the command line inputs and set UserData values
 static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
 
@@ -310,12 +310,7 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                   // reusable error-checking flag
-  UserData *udata    = NULL;  // user data structure
-  N_Vector u         = NULL;  // vector for storing solution
-  SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *cvode_mem    = NULL;  // CVODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
+  int flag; // reusable error-checking flag
 
   // Timing variables
   double t1 = 0.0;
@@ -332,246 +327,257 @@ int main(int argc, char* argv[])
   flag = MPI_Comm_rank(comm_w, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
-  // Set output process flag
-  bool outproc = (myid == 0);
-
-  // ------------------------------------------
-  // Setup UserData and parallel decomposition
-  // ------------------------------------------
-
-  // Allocate and initialize user data structure with default values. The
-  // defaults may be overwritten by command line inputs in ReadInputs below.
-  udata = new UserData;
-  flag = InitUserData(udata);
-  if (check_flag(&flag, "InitUserData", 1)) return 1;
-
-  // Parse command line inputs
-  flag = ReadInputs(&argc, &argv, udata, outproc);
-  if (flag != 0) return 1;
-
-  // Setup parallel decomposition
-  flag = SetupDecomp(comm_w, udata);
-  if (check_flag(&flag, "SetupDecomp", 1)) return 1;
-
-  // Output problem setup/options
-  if (outproc)
+  // Create a new scope so that sundials::Context is deleted
+  // prior to the MPI_Finalize() call.
   {
-    flag = PrintUserData(udata);
-    if (check_flag(&flag, "PrintUserData", 1)) return 1;
+    UserData *udata    = NULL;  // user data structure
+    N_Vector u         = NULL;  // vector for storing solution
+    SUNLinearSolver LS = NULL;  // linear solver memory structure
+    void *cvode_mem    = NULL;  // CVODE memory structure
+    FILE *diagfp       = NULL;  // diagnostics output file
 
-    // Open diagnostics output file
-    if (udata->lsinfo)
+    // SUNDIALS context
+    sundials::Context sunctx(&comm_w);
+
+    // Set output process flag
+    bool outproc = (myid == 0);
+
+    // ------------------------------------------
+    // Setup UserData and parallel decomposition
+    // ------------------------------------------
+
+    // Allocate and initialize user data structure with default values. The
+    // defaults may be overwritten by command line inputs in ReadInputs below.
+    udata = new UserData(sunctx);
+
+    // Parse command line inputs
+    flag = ReadInputs(&argc, &argv, udata, outproc);
+    if (flag != 0) return 1;
+
+    // Setup parallel decomposition
+    flag = SetupDecomp(comm_w, udata);
+    if (check_flag(&flag, "SetupDecomp", 1)) return 1;
+
+    // Output problem setup/options
+    if (outproc)
     {
-      diagfp = fopen("diagnostics.txt", "w");
-      if (check_flag((void *) diagfp, "fopen", 0)) return 1;
+      flag = PrintUserData(udata);
+      if (check_flag(&flag, "PrintUserData", 1)) return 1;
+
+      // Open diagnostics output file
+      if (udata->lsinfo)
+      {
+        diagfp = fopen("diagnostics.txt", "w");
+        if (check_flag((void *) diagfp, "fopen", 0)) return 1;
+      }
     }
-  }
 
-  // ------------------------
-  // Create parallel vectors
-  // ------------------------
+    // ------------------------
+    // Create parallel vectors
+    // ------------------------
 
-  // Create vector for solution
-  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
-  if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
+    // Create vector for solution
+    u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes, sunctx);
+    if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
-  // Set initial condition
-  flag = Solution(ZERO, u, udata);
-  if (check_flag(&flag, "Solution", 1)) return 1;
+    // Set initial condition
+    flag = Solution(ZERO, u, udata);
+    if (check_flag(&flag, "Solution", 1)) return 1;
 
-  // Create vector for error
-  udata->e = N_VClone(u);
-  if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
+    // Create vector for error
+    udata->e = N_VClone(u);
+    if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
 
-  // ---------------------
-  // Create linear solver
-  // ---------------------
+    // ---------------------
+    // Create linear solver
+    // ---------------------
 
-  // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
+    // Create linear solver
+    int prectype = (udata->prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
-  if (udata->pcg)
-  {
-    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
-    if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
+    if (udata->pcg)
     {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
+      LS = SUNLinSol_PCG(u, prectype, udata->liniters, sunctx);
+      if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
-      flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
+      if (udata->lsinfo && outproc)
+      {
+        flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
+        if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
+
+        flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
+        if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
+      }
     }
-  }
-  else
-  {
-    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
-    if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
+    else
     {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
+      LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, sunctx);
+      if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
+      if (udata->lsinfo && outproc)
+      {
+        flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
+        if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
+
+        flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
+        if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
+      }
     }
-  }
 
-  // ---------------------
-  // Create hypre objects
-  // ---------------------
+    // ---------------------
+    // Create hypre objects
+    // ---------------------
 
-  if (udata->prec || udata->matvec)
-  {
-    flag = SetupHypre(udata);
-    if (check_flag(&flag, "SetupHypre", 1)) return 1;
-  }
+    if (udata->prec || udata->matvec)
+    {
+      flag = SetupHypre(udata);
+      if (check_flag(&flag, "SetupHypre", 1)) return 1;
+    }
 
-  // --------------
-  // Setup CVODE
-  // --------------
+    // --------------
+    // Setup CVODE
+    // --------------
 
-  // Create integrator
-  cvode_mem = CVodeCreate(CV_BDF);
-  if (check_flag((void *) cvode_mem, "CVodeCreate", 0)) return 1;
+    // Create integrator
+    cvode_mem = CVodeCreate(CV_BDF, sunctx);
+    if (check_flag((void *) cvode_mem, "CVodeCreate", 0)) return 1;
 
-  // Initialize integrator
-  flag = CVodeInit(cvode_mem, f, ZERO, u);
-  if (check_flag(&flag, "CVodeInit", 1)) return 1;
+    // Initialize integrator
+    flag = CVodeInit(cvode_mem, f, ZERO, u);
+    if (check_flag(&flag, "CVodeInit", 1)) return 1;
 
-  // Specify tolerances
-  flag = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
-  if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
+    // Specify tolerances
+    flag = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
+    if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
 
-  // Attach user data
-  flag = CVodeSetUserData(cvode_mem, (void *) udata);
-  if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
+    // Attach user data
+    flag = CVodeSetUserData(cvode_mem, (void *) udata);
+    if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
 
-  // Attach linear solver
-  flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
+    // Attach linear solver
+    flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+    if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
 
-  if (udata->matvec)
-  {
-    // Attach Jacobian-vector product function
-    flag = CVodeSetJacTimes(cvode_mem, NULL, JTimes);
-    if (check_flag(&flag, "CVodeSetJacTimes", 1)) return 1;
-  }
+    if (udata->matvec)
+    {
+      // Attach Jacobian-vector product function
+      flag = CVodeSetJacTimes(cvode_mem, NULL, JTimes);
+      if (check_flag(&flag, "CVodeSetJacTimes", 1)) return 1;
+    }
 
-  if (udata->prec)
-  {
-    // Attach preconditioner
-    flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
-    if (check_flag(&flag, "CVodeSetPreconditioner", 1)) return 1;
+    if (udata->prec)
+    {
+      // Attach preconditioner
+      flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
+      if (check_flag(&flag, "CVodeSetPreconditioner", 1)) return 1;
 
-    // Set linear solver setup frequency (update preconditioner)
-    flag = CVodeSetLSetupFrequency(cvode_mem, udata->msbp);
-    if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
-  }
+      // Set linear solver setup frequency (update preconditioner)
+      flag = CVodeSetLSetupFrequency(cvode_mem, udata->msbp);
+      if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
+    }
 
-  // Set linear solver tolerance factor
-  flag = CVodeSetEpsLin(cvode_mem, udata->epslin);
-  if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
+    // Set linear solver tolerance factor
+    flag = CVodeSetEpsLin(cvode_mem, udata->epslin);
+    if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
 
-  // Set max steps between outputs
-  flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
-  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
+    // Set max steps between outputs
+    flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
+    if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
 
-  // Set stopping time
-  flag = CVodeSetStopTime(cvode_mem, udata->tf);
-  if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
+    // Set stopping time
+    flag = CVodeSetStopTime(cvode_mem, udata->tf);
+    if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
 
-  // -----------------------
-  // Loop over output times
-  // -----------------------
+    // -----------------------
+    // Loop over output times
+    // -----------------------
 
-  realtype t     = ZERO;
-  realtype dTout = udata->tf / udata->nout;
-  realtype tout  = dTout;
+    realtype t     = ZERO;
+    realtype dTout = udata->tf / udata->nout;
+    realtype tout  = dTout;
 
-  // Inital output
-  flag = OpenOutput(udata);
-  if (check_flag(&flag, "OpenOutput", 1)) return 1;
+    // Inital output
+    flag = OpenOutput(udata);
+    if (check_flag(&flag, "OpenOutput", 1)) return 1;
 
-  flag = WriteOutput(t, u, udata);
-  if (check_flag(&flag, "WriteOutput", 1)) return 1;
-
-  for (int iout = 0; iout < udata->nout; iout++)
-  {
-    // Start timer
-    t1 = MPI_Wtime();
-
-    // Evolve in time
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_flag(&flag, "CVode", 1)) break;
-
-    // Stop timer
-    t2 = MPI_Wtime();
-
-    // Update timer
-    udata->evolvetime += t2 - t1;
-
-    // Output solution and error
     flag = WriteOutput(t, u, udata);
     if (check_flag(&flag, "WriteOutput", 1)) return 1;
 
-    // Update output time
-    tout += dTout;
-    tout = (tout > udata->tf) ? udata->tf : tout;
-  }
-
-  // Close output
-  flag = CloseOutput(udata);
-  if (check_flag(&flag, "CloseOutput", 1)) return 1;
-
-  // --------------
-  // Final outputs
-  // --------------
-
-  // Print final integrator stats
-  if (udata->output > 0 && outproc)
-  {
-    cout << "Final integrator statistics:" << endl;
-    flag = OutputStats(cvode_mem, udata);
-    if (check_flag(&flag, "OutputStats", 1)) return 1;
-  }
-
-  if (udata->forcing)
-  {
-    // Output final error
-    flag = SolutionError(t, u, udata->e, udata);
-    if (check_flag(&flag, "SolutionError", 1)) return 1;
-
-    realtype maxerr = N_VMaxNorm(udata->e);
-
-    if (outproc)
+    for (int iout = 0; iout < udata->nout; iout++)
     {
-      cout << scientific;
-      cout << setprecision(numeric_limits<realtype>::digits10);
-      cout << "  Max error = " << maxerr << endl;
+      // Start timer
+      t1 = MPI_Wtime();
+
+      // Evolve in time
+      flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+      if (check_flag(&flag, "CVode", 1)) break;
+
+      // Stop timer
+      t2 = MPI_Wtime();
+
+      // Update timer
+      udata->evolvetime += t2 - t1;
+
+      // Output solution and error
+      flag = WriteOutput(t, u, udata);
+      if (check_flag(&flag, "WriteOutput", 1)) return 1;
+
+      // Update output time
+      tout += dTout;
+      tout = (tout > udata->tf) ? udata->tf : tout;
     }
+
+    // Close output
+    flag = CloseOutput(udata);
+    if (check_flag(&flag, "CloseOutput", 1)) return 1;
+
+    // --------------
+    // Final outputs
+    // --------------
+
+    // Print final integrator stats
+    if (udata->output > 0 && outproc)
+    {
+      cout << "Final integrator statistics:" << endl;
+      flag = OutputStats(cvode_mem, udata);
+      if (check_flag(&flag, "OutputStats", 1)) return 1;
+    }
+
+    if (udata->forcing)
+    {
+      // Output final error
+      flag = SolutionError(t, u, udata->e, udata);
+      if (check_flag(&flag, "SolutionError", 1)) return 1;
+
+      realtype maxerr = N_VMaxNorm(udata->e);
+
+      if (outproc)
+      {
+        cout << scientific;
+        cout << setprecision(numeric_limits<realtype>::digits10);
+        cout << "  Max error = " << maxerr << endl;
+      }
+    }
+
+    // Print timing
+    if (udata->timing)
+    {
+      flag = OutputTiming(udata);
+      if (check_flag(&flag, "OutputTiming", 1)) return 1;
+    }
+
+    // --------------------
+    // Clean up and return
+    // --------------------
+
+    if (udata->lsinfo && outproc) fclose(diagfp);
+
+    CVodeFree(&cvode_mem);     // Free integrator memory
+    SUNLinSolFree(LS);         // Free linear solver
+    N_VDestroy(u);             // Free vectors
+    delete udata;
   }
 
-  // Print timing
-  if (udata->timing)
-  {
-    flag = OutputTiming(udata);
-    if (check_flag(&flag, "OutputTiming", 1)) return 1;
-  }
-
-  // --------------------
-  // Clean up and return
-  // --------------------
-
-  if (udata->lsinfo && outproc) fclose(diagfp);
-
-  CVodeFree(&cvode_mem);     // Free integrator memory
-  SUNLinSolFree(LS);         // Free linear solver
-  N_VDestroy(u);             // Free vectors
-  FreeUserData(udata);       // Free user data
-  delete udata;
   flag = MPI_Finalize();     // Finalize MPI
   return 0;
 }
@@ -1210,7 +1216,7 @@ static int SetupHypre(UserData *udata)
 
   // Create 2D grid object
   flag = HYPRE_StructGridCreate(udata->comm_c, 2, &(udata->grid));
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // Set grid extents (lower left and upper right corners)
   udata->ilower[0] = udata->is;
@@ -1220,11 +1226,11 @@ static int SetupHypre(UserData *udata)
   udata->iupper[1] = udata->je;
 
   flag = HYPRE_StructGridSetExtents(udata->grid, udata->ilower, udata->iupper);
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // Assemble the grid
   flag = HYPRE_StructGridAssemble(udata->grid);
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // --------
   // Stencil
@@ -1232,7 +1238,7 @@ static int SetupHypre(UserData *udata)
 
   // Create the 2D 5 point stencil object
   flag = HYPRE_StructStencilCreate(2, 5, &(udata->stencil));
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // Set the stencil entries (center, left, right, bottom, top)
   HYPRE_Int offsets[5][2] = {{0,0}, {-1,0}, {1,0}, {0,-1}, {0,1}};
@@ -1240,7 +1246,7 @@ static int SetupHypre(UserData *udata)
   for (int entry = 0; entry < 5; entry++)
   {
     flag = HYPRE_StructStencilSetElement(udata->stencil, entry, offsets[entry]);
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
   }
 
   // -----------
@@ -1250,27 +1256,27 @@ static int SetupHypre(UserData *udata)
   udata->nwork = 5 * udata->nodes_loc;
   udata->work  = NULL;
   udata->work  = new HYPRE_Real[udata->nwork];
-  if (udata->work == NULL) { FreeUserData(udata); return -1; }
+  if (udata->work == NULL) { delete udata; return -1; }
 
   // ---------
   // x vector
   // ---------
 
   flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->xvec));
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   flag = HYPRE_StructVectorInitialize(udata->xvec);
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // ---------
   // b vector
   // ---------
 
   flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->bvec));
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   flag = HYPRE_StructVectorInitialize(udata->bvec);
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   if (udata->matvec)
   {
@@ -1279,20 +1285,20 @@ static int SetupHypre(UserData *udata)
     // ---------
 
     flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->vvec));
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
 
     flag = HYPRE_StructVectorInitialize(udata->vvec);
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
 
     // ----------
     // Jv vector
     // ----------
 
     flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->Jvvec));
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
 
     flag = HYPRE_StructVectorInitialize(udata->Jvvec);
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
   }
 
   // ---------
@@ -1301,10 +1307,10 @@ static int SetupHypre(UserData *udata)
 
   flag = HYPRE_StructMatrixCreate(udata->comm_c, udata->grid, udata->stencil,
                                   &(udata->Jmatrix));
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   flag = HYPRE_StructMatrixInitialize(udata->Jmatrix);
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // ---------
   // A matrix
@@ -1312,10 +1318,10 @@ static int SetupHypre(UserData *udata)
 
   flag = HYPRE_StructMatrixCreate(udata->comm_c, udata->grid, udata->stencil,
                                   &(udata->Amatrix));
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   flag = HYPRE_StructMatrixInitialize(udata->Amatrix);
-  if (flag != 0) { FreeUserData(udata); return -1; }
+  if (flag != 0) { delete udata; return -1; }
 
   // --------------------
   // PFMG preconditioner
@@ -1333,10 +1339,10 @@ static int SetupHypre(UserData *udata)
   if (udata->prec || udata->matvec)
   {
     flag = Jac(udata);
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
 
     flag = HYPRE_StructMatrixAssemble(udata->Jmatrix);
-    if (flag != 0) { FreeUserData(udata); return -1; }
+    if (flag != 0) { delete udata; return -1; }
   }
 
   return 0;
@@ -1938,175 +1944,170 @@ static int WaitRecv(UserData *udata)
 // -----------------------------------------------------------------------------
 
 // Initialize memory allocated within Userdata
-static int InitUserData(UserData *udata)
+UserData::UserData(sundials::Context& sunctx)
+  : sunctx(sunctx)
 {
   // Diffusion coefficient
-  udata->kx = ONE;
-  udata->ky = ONE;
+  kx = ONE;
+  ky = ONE;
 
   // Enable forcing
-  udata->forcing = true;
+  forcing = true;
 
   // Final time
-  udata->tf = ONE;
+  tf = ONE;
 
   // Upper bounds in x and y directions
-  udata->xu = ONE;
-  udata->yu = ONE;
+  xu = ONE;
+  yu = ONE;
 
   // Global number of nodes in the x and y directions
-  udata->nx    = 64;
-  udata->ny    = 64;
-  udata->nodes = udata->nx * udata->ny;
+  nx    = 64;
+  ny    = 64;
+  nodes = nx * ny;
 
   // Mesh spacing in the x and y directions
-  udata->dx = udata->xu / (udata->nx - 1);
-  udata->dy = udata->yu / (udata->ny - 1);
+  dx = xu / (nx - 1);
+  dy = yu / (ny - 1);
 
   // Locals number of nodes in the x and y directions (set in SetupDecomp)
-  udata->nx_loc    = 0;
-  udata->ny_loc    = 0;
-  udata->nodes_loc = 0;
+  nx_loc    = 0;
+  ny_loc    = 0;
+  nodes_loc = 0;
 
   // Global indices of this subdomain (set in SetupDecomp)
-  udata->is = 0;
-  udata->ie = 0;
-  udata->js = 0;
-  udata->je = 0;
+  is = 0;
+  ie = 0;
+  js = 0;
+  je = 0;
 
   // MPI variables (set in SetupDecomp)
-  udata->comm_c = MPI_COMM_NULL;
+  comm_c = MPI_COMM_NULL;
 
-  udata->nprocs_w = 1;
-  udata->npx      = 1;
-  udata->npy      = 1;
+  nprocs_w = 1;
+  npx      = 1;
+  npy      = 1;
 
-  udata->myid_c = 0;
+  myid_c = 0;
 
   // Flags denoting neighbors (set in SetupDecomp)
-  udata->HaveNbrW = true;
-  udata->HaveNbrE = true;
-  udata->HaveNbrS = true;
-  udata->HaveNbrN = true;
+  HaveNbrW = true;
+  HaveNbrE = true;
+  HaveNbrS = true;
+  HaveNbrN = true;
 
   // Exchange receive buffers (allocated in SetupDecomp)
-  udata->Erecv = NULL;
-  udata->Wrecv = NULL;
-  udata->Nrecv = NULL;
-  udata->Srecv = NULL;
+  Erecv = NULL;
+  Wrecv = NULL;
+  Nrecv = NULL;
+  Srecv = NULL;
 
   // Exchange send buffers (allocated in SetupDecomp)
-  udata->Esend = NULL;
-  udata->Wsend = NULL;
-  udata->Nsend = NULL;
-  udata->Ssend = NULL;
+  Esend = NULL;
+  Wsend = NULL;
+  Nsend = NULL;
+  Ssend = NULL;
 
   // Neighbors IDs (set in SetupDecomp)
-  udata->ipW = -1;
-  udata->ipE = -1;
-  udata->ipS = -1;
-  udata->ipN = -1;
+  ipW = -1;
+  ipE = -1;
+  ipS = -1;
+  ipN = -1;
 
   // Integrator settings
-  udata->rtol     = RCONST(1.e-5);   // relative tolerance
-  udata->atol     = RCONST(1.e-10);  // absolute tolerance
-  udata->maxsteps = 0;               // use default
+  rtol     = RCONST(1.e-5);   // relative tolerance
+  atol     = RCONST(1.e-10);  // absolute tolerance
+  maxsteps = 0;               // use default
 
   // Linear solver and preconditioner options
-  udata->pcg       = true;       // use PCG (true) or GMRES (false)
-  udata->prec      = true;       // enable preconditioning
-  udata->matvec    = false;      // use hypre matrix-vector product
-  udata->lsinfo    = false;      // output residual history
-  udata->liniters  = 10;         // max linear iterations
-  udata->msbp      = 0;          // use default (20 steps)
-  udata->epslin    = ZERO;       // use default (0.05)
+  pcg       = true;       // use PCG (true) or GMRES (false)
+  prec      = true;       // enable preconditioning
+  matvec    = false;      // use hypre matrix-vector product
+  lsinfo    = false;      // output residual history
+  liniters  = 10;         // max linear iterations
+  msbp      = 0;          // use default (20 steps)
+  epslin    = ZERO;       // use default (0.05)
 
   // hypre objects
-  udata->grid    = NULL;
-  udata->stencil = NULL;
-  udata->Jmatrix = NULL;
-  udata->Amatrix = NULL;
-  udata->bvec    = NULL;
-  udata->xvec    = NULL;
-  udata->vvec    = NULL;
-  udata->Jvvec   = NULL;
-  udata->precond = NULL;
+  grid    = NULL;
+  stencil = NULL;
+  Jmatrix = NULL;
+  Amatrix = NULL;
+  bvec    = NULL;
+  xvec    = NULL;
+  vvec    = NULL;
+  Jvvec   = NULL;
+  precond = NULL;
 
   // hypre grid extents
-  udata->ilower[0] = 0;
-  udata->ilower[1] = 0;
+  ilower[0] = 0;
+  ilower[1] = 0;
 
-  udata->iupper[0] = 0;
-  udata->iupper[1] = 0;
+  iupper[0] = 0;
+  iupper[1] = 0;
 
   // hypre workspace
-  udata->nwork = 0;
-  udata->work  = NULL;
+  nwork = 0;
+  work  = NULL;
 
   // hypre counters
-  udata->pfmg_its = 0;
+  pfmg_its = 0;
 
   // hypre PFMG settings
-  udata->pfmg_relax  = 2;
-  udata->pfmg_nrelax = 2;
+  pfmg_relax  = 2;
+  pfmg_nrelax = 2;
 
   // Output variables
-  udata->output = 1;   // 0 = no output, 1 = stats output, 2 = output to disk
-  udata->nout   = 20;  // Number of output times
-  udata->e      = NULL;
+  output = 1;   // 0 = no output, 1 = stats output, 2 = output to disk
+  nout   = 20;  // Number of output times
+  e      = NULL;
 
   // Timing variables
-  udata->timing       = false;
-  udata->evolvetime   = 0.0;
-  udata->rhstime      = 0.0;
-  udata->matfilltime  = 0.0;
-  udata->jvtime       = 0.0;
-  udata->psetuptime   = 0.0;
-  udata->psolvetime   = 0.0;
-  udata->exchangetime = 0.0;
-
-  // Return success
-  return 0;
+  timing       = false;
+  evolvetime   = 0.0;
+  rhstime      = 0.0;
+  matfilltime  = 0.0;
+  jvtime       = 0.0;
+  psetuptime   = 0.0;
+  psolvetime   = 0.0;
+  exchangetime = 0.0;
 }
 
 // Free memory allocated within Userdata
-static int FreeUserData(UserData *udata)
+UserData::~UserData()
 {
   // Free exchange buffers
-  if (udata->Wrecv != NULL)  delete[] udata->Wrecv;
-  if (udata->Wsend != NULL)  delete[] udata->Wsend;
-  if (udata->Erecv != NULL)  delete[] udata->Erecv;
-  if (udata->Esend != NULL)  delete[] udata->Esend;
-  if (udata->Srecv != NULL)  delete[] udata->Srecv;
-  if (udata->Ssend != NULL)  delete[] udata->Ssend;
-  if (udata->Nrecv != NULL)  delete[] udata->Nrecv;
-  if (udata->Nsend != NULL)  delete[] udata->Nsend;
+  if (Wrecv != NULL)  delete[] Wrecv;
+  if (Wsend != NULL)  delete[] Wsend;
+  if (Erecv != NULL)  delete[] Erecv;
+  if (Esend != NULL)  delete[] Esend;
+  if (Srecv != NULL)  delete[] Srecv;
+  if (Ssend != NULL)  delete[] Ssend;
+  if (Nrecv != NULL)  delete[] Nrecv;
+  if (Nsend != NULL)  delete[] Nsend;
 
   // Free hypre preconditioner data
-  if (udata->grid    != NULL) HYPRE_StructGridDestroy(udata->grid);
-  if (udata->stencil != NULL) HYPRE_StructStencilDestroy(udata->stencil);
-  if (udata->Jmatrix != NULL) HYPRE_StructMatrixDestroy(udata->Jmatrix);
-  if (udata->Amatrix != NULL) HYPRE_StructMatrixDestroy(udata->Amatrix);
-  if (udata->bvec    != NULL) HYPRE_StructVectorDestroy(udata->bvec);
-  if (udata->xvec    != NULL) HYPRE_StructVectorDestroy(udata->xvec);
-  if (udata->vvec    != NULL) HYPRE_StructVectorDestroy(udata->vvec);
-  if (udata->Jvvec   != NULL) HYPRE_StructVectorDestroy(udata->Jvvec);
-  if (udata->precond != NULL) HYPRE_StructPFMGDestroy(udata->precond);
-  if (udata->work    != NULL) delete[] udata->work;
+  if (grid    != NULL) HYPRE_StructGridDestroy(grid);
+  if (stencil != NULL) HYPRE_StructStencilDestroy(stencil);
+  if (Jmatrix != NULL) HYPRE_StructMatrixDestroy(Jmatrix);
+  if (Amatrix != NULL) HYPRE_StructMatrixDestroy(Amatrix);
+  if (bvec    != NULL) HYPRE_StructVectorDestroy(bvec);
+  if (xvec    != NULL) HYPRE_StructVectorDestroy(xvec);
+  if (vvec    != NULL) HYPRE_StructVectorDestroy(vvec);
+  if (Jvvec   != NULL) HYPRE_StructVectorDestroy(Jvvec);
+  if (precond != NULL) HYPRE_StructPFMGDestroy(precond);
+  if (work    != NULL) delete[] work;
 
   // Free MPI Cartesian communicator
-  if (udata->comm_c != MPI_COMM_NULL)
-    MPI_Comm_free(&(udata->comm_c));
+  if (comm_c != MPI_COMM_NULL)
+    MPI_Comm_free(&(comm_c));
 
   // Free error vector
-  if (udata->e)
+  if (e)
   {
-    N_VDestroy(udata->e);
-    udata->e = NULL;
+    N_VDestroy(e);
+    e = NULL;
   }
-
-  // Return success
-  return 0;
 }
 
 // Read command line inputs

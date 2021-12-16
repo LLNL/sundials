@@ -56,7 +56,9 @@ typedef struct _SUNNonlinearSolverContent_PetscSNES *SUNNonlinearSolverContent_P
 
 /* Constructor to create solver and allocates memory */
 
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes);
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes,
+                                          SUNContext sunctx);
 
 /* SUNNonlinearSolver API functions */
 

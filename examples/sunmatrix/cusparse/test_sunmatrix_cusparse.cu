@@ -65,51 +65,57 @@ private:
   const cudaStream_t stream_;
 };
 
+static SUNContext sunctx;
+
  /* ----------------------------------------------------------------------
   * Main SUNMatrix Testing Routine
   * --------------------------------------------------------------------*/
- int main(int argc, char *argv[])
- {
-   int          fails=0;                    /* counter for test failures  */
-   sunindextype M, N;                       /* overall matrix dims        */
-   sunindextype blkrows, blkcols;           /* block matrix dims          */
-   int          nblocks;                    /* number of matrix blocks    */
-   int          block_nnz_max;              /* max number of nnz in block */
-   int          mattype;                    /* matrix storage type        */
-   N_Vector     x, y, d_x, d_y;             /* test vectors               */
-   realtype*    vecdata;                    /* pointers to vector data    */
-   SUNMatrix    A, B, C, D, dA, dB, dI;     /* test matrices              */
-   realtype*    matdata;                    /* pointer to matrix data     */
-   int          print_timing, square;
-   int          matrix_to_use;
-   sunindextype i, j;
-   FILE*        matrixfp;
-   char*        filename;
+int main(int argc, char *argv[])
+{
+  int          fails=0;                    /* counter for test failures  */
+  sunindextype M, N;                       /* overall matrix dims        */
+  sunindextype blkrows, blkcols;           /* block matrix dims          */
+  int          nblocks;                    /* number of matrix blocks    */
+  int          block_nnz_max;              /* max number of nnz in block */
+  int          mattype;                    /* matrix storage type        */
+  N_Vector     x, y, d_x, d_y;             /* test vectors               */
+  realtype*    vecdata;                    /* pointers to vector data    */
+  SUNMatrix    A, B, C, D, dA, dB, dI;     /* test matrices              */
+  realtype*    matdata;                    /* pointer to matrix data     */
+  int          print_timing, square;
+  int          matrix_to_use;
+  sunindextype i, j;
+  FILE*        matrixfp;
+  char*        filename;
+  cusparseStatus_t cusp_status;
+  cusparseHandle_t cusp_handle;
 
-   cusparseStatus_t cusp_status;
-   cusparseHandle_t cusp_handle;
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
-   /* initialize some input variables */
-   blkrows = 0;
-   blkcols = 0;
-   nblocks = 0;
-   square  = 0;
+  /* initialize some input variables */
+  blkrows = 0;
+  blkcols = 0;
+  nblocks = 0;
+  square  = 0;
 
-   /* check input */
-   if (argc < 7) {
-     printf("ERROR: SIX (6) inputs required: matrix (filename|random|identity), matrix rows, matrix cols, number of blocks, matrix type (CSR/BCSR), print timing (0/1)\n");
-     return(-1);
-   }
+  /* check input */
+  if (argc < 7) {
+    printf("ERROR: SIX (6) inputs required: matrix (filename|random|identity), matrix rows, matrix cols, number of blocks, matrix type (CSR/BCSR), print timing (0/1)\n");
+    return(-1);
+  }
 
-   /* determine what test matrix to use */
-   if (!strcmp(argv[1], "random")) {
-     matrix_to_use = RANDOM;
-   } else if (!strcmp(argv[1], "identity")) {
-     matrix_to_use = IDENTITY;
-   } else {
-     matrix_to_use = RBFILE;
-     filename = argv[1];
-   }
+  /* determine what test matrix to use */
+  if (!strcmp(argv[1], "random")) {
+    matrix_to_use = RANDOM;
+  } else if (!strcmp(argv[1], "identity")) {
+    matrix_to_use = IDENTITY;
+  } else {
+    matrix_to_use = RBFILE;
+    filename = argv[1];
+  }
 
   /* if we are not reading from a file, verify that the dimension args are legal */
   if (matrix_to_use != RBFILE) {
@@ -154,26 +160,26 @@ private:
     return(-1);
   }
 
-   print_timing = atoi(argv[6]);
-   SetTiming(print_timing);
+  print_timing = atoi(argv[6]);
+  SetTiming(print_timing);
 
-   /* Initialize cuSPARSE */
-   cusp_status = cusparseCreate(&cusp_handle);
-   if (cusp_status != CUSPARSE_STATUS_SUCCESS) {
-      printf("ERROR: could not create cuSPARSE handle\n");
-      return(-1);
-   }
+  /* Initialize cuSPARSE */
+  cusp_status = cusparseCreate(&cusp_handle);
+  if (cusp_status != CUSPARSE_STATUS_SUCCESS) {
+    printf("ERROR: could not create cuSPARSE handle\n");
+    return(-1);
+  }
 
-   /* Initialize vectors and matrices to NULL */
-   x  = NULL;
-   y  = NULL;
-   A  = NULL;
-   B  = NULL;
-   C  = NULL;
-   D  = NULL;
-   dA = NULL;
-   dB = NULL;
-   dI = NULL;
+  /* Initialize vectors and matrices to NULL */
+  x  = NULL;
+  y  = NULL;
+  A  = NULL;
+  B  = NULL;
+  C  = NULL;
+  D  = NULL;
+  dA = NULL;
+  dB = NULL;
+  dI = NULL;
 
   if (matrix_to_use == RANDOM) {
     M = blkrows * nblocks;
@@ -189,7 +195,7 @@ private:
     }
 
     /* Fill matrix with uniform random data in [0,1/N] */
-    D = SUNDenseMatrix(M, N);
+    D = SUNDenseMatrix(M, N, sunctx);
     for (i=0; i<nblocks; i++) {
         for (j=0; j<block_nnz_max; j++) {
           sunindextype col = cols[j] + blkcols*i;
@@ -204,7 +210,7 @@ private:
     }
 
     /* Fill matrix with uniform random data in [0,1/N] */
-    C = SUNDenseMatrix(M, N);
+    C = SUNDenseMatrix(M, N, sunctx);
     for (i=0; i<nblocks; i++) {
         for (j=0; j<block_nnz_max; j++) {
           sunindextype col = cols[j] + blkcols*i;
@@ -236,14 +242,14 @@ private:
     M = blkrows * nblocks;
     N = blkcols * nblocks;
 
-    D = SUNDenseMatrix(M, N);
+    D = SUNDenseMatrix(M, N, sunctx);
     SUNMatScaleAddI(RCONST(0.0), D);
     if (SUNMatScaleAddI(RCONST(0.0), D)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix D\n");
       return(-1);
     }
 
-    C = SUNDenseMatrix(M, N);
+    C = SUNDenseMatrix(M, N, sunctx);
     if (SUNMatScaleAddI(RCONST(0.0), C)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix C\n");
       return(-1);
@@ -264,7 +270,7 @@ private:
     SUNMatrix cscA;
 
     matrixfp = fopen(filename, "r");
-    dreadrb_dist(0, matrixfp, &cscA);
+    dreadrb_dist(0, matrixfp, &cscA, sunctx);
     fclose(matrixfp);
 
     if (SUNSparseMatrix_ToCSR(cscA, &A)) {
@@ -297,12 +303,12 @@ private:
 
   if (mattype == SUNMAT_CUSPARSE_CSR) {
     /* Create matrices that will be on the device */
-    dA = SUNMatrix_cuSparse_NewCSR(SM_ROWS_S(A), SM_COLUMNS_S(A), SM_NNZ_S(A), cusp_handle);
+    dA = SUNMatrix_cuSparse_NewCSR(SM_ROWS_S(A), SM_COLUMNS_S(A), SM_NNZ_S(A), cusp_handle, sunctx);
     if (dA == NULL) {
       printf("ERROR: SUNMatrix_cuSparse_NewCSR returned NULL for dA\n");
       return(-1);
     }
-    dB = SUNMatrix_cuSparse_NewCSR(SM_ROWS_S(B), SM_COLUMNS_S(B), SM_NNZ_S(B), cusp_handle);
+    dB = SUNMatrix_cuSparse_NewCSR(SM_ROWS_S(B), SM_COLUMNS_S(B), SM_NNZ_S(B), cusp_handle, sunctx);
     if (dB == NULL) {
       printf("ERROR: SUNMatrix_cuSparse_NewCSR returned NULL for dB\n");
       return(-1);
@@ -314,12 +320,12 @@ private:
     block_nnz = SUNSparseMatrix_NNZ(A) / nblocks;
 
     /* Create matrices that will be on the device */
-    dA = SUNMatrix_cuSparse_NewBlockCSR(nblocks, blkrows, blkrows, block_nnz, cusp_handle);
+    dA = SUNMatrix_cuSparse_NewBlockCSR(nblocks, blkrows, blkrows, block_nnz, cusp_handle, sunctx);
     if (dA == NULL) {
       printf("ERROR: SUNMatrix_cuSparse_NewCSR returned NULL for dA\n");
       return(-1);
     }
-    dB = SUNMatrix_cuSparse_NewBlockCSR(nblocks, blkrows, blkrows, block_nnz, cusp_handle);
+    dB = SUNMatrix_cuSparse_NewBlockCSR(nblocks, blkrows, blkrows, block_nnz, cusp_handle, sunctx);
     if (dB == NULL) {
       printf("ERROR: SUNMatrix_cuSparse_NewCSR returned NULL for dB\n");
       return(-1);
@@ -329,130 +335,131 @@ private:
     return(-1);
   }
 
-   /* Copy data to device */
-   fails = SUNMatrix_cuSparse_CopyToDevice(dA, SM_DATA_S(A), SM_INDEXPTRS_S(A), SM_INDEXVALS_S(A));
-   if (fails != 0) {
-      printf("ERROR: could not copy A to the device\n");
-      return(-1);
-   }
-   fails = SUNMatrix_cuSparse_CopyToDevice(dB, SM_DATA_S(B), SM_INDEXPTRS_S(B), SM_INDEXVALS_S(B));
-   if (fails != 0) {
-      printf("ERROR: could not copy B to the device\n");
-      return(-1);
-   }
+  /* Copy data to device */
+  fails = SUNMatrix_cuSparse_CopyToDevice(dA, SM_DATA_S(A), SM_INDEXPTRS_S(A), SM_INDEXVALS_S(A));
+  if (fails != 0) {
+    printf("ERROR: could not copy A to the device\n");
+    return(-1);
+  }
+  fails = SUNMatrix_cuSparse_CopyToDevice(dB, SM_DATA_S(B), SM_INDEXPTRS_S(B), SM_INDEXVALS_S(B));
+  if (fails != 0) {
+    printf("ERROR: could not copy B to the device\n");
+    return(-1);
+  }
 
-   /* Create/fill I matrix */
-   dI = NULL;
-   if (square) {
-      dI = SUNMatClone_cuSparse(dA);
-      if (dI == NULL) {
-        printf("ERROR: SUNMatClone_cuSparse returned NULL\n");
-        return(-1);
-      }
-      if (SUNMatCopy_cuSparse(dA, dI)) {
-        printf("ERROR: SUNMatCopy_cuSparse failed\n");
-        return(-1);
-      }
-      if (SUNMatScaleAddI_cuSparse(ZERO, dI)) {
-        printf("ERROR: SUNMatScaleAddI_cuSparse failed\n");
-        return(-1);
-      }
-   }
-
-   /* Create vectors */
-   d_x = N_VNew_Cuda(N);
-   d_y = N_VNew_Cuda(M);
-   if (d_x == NULL || d_y == NULL) {
-      printf("ERROR: N_VNew_Cuda returned NULL\n");
+  /* Create/fill I matrix */
+  dI = NULL;
+  if (square) {
+    dI = SUNMatClone_cuSparse(dA);
+    if (dI == NULL) {
+      printf("ERROR: SUNMatClone_cuSparse returned NULL\n");
       return(-1);
-   }
-   x = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_x));
-   y = N_VMake_Serial(M, N_VGetHostArrayPointer_Cuda(d_y));
-   if (x == NULL || y == NULL) {
+    }
+    if (SUNMatCopy_cuSparse(dA, dI)) {
+      printf("ERROR: SUNMatCopy_cuSparse failed\n");
+      return(-1);
+    }
+    if (SUNMatScaleAddI_cuSparse(ZERO, dI)) {
+      printf("ERROR: SUNMatScaleAddI_cuSparse failed\n");
+      return(-1);
+    }
+  }
+
+  /* Create vectors */
+  d_x = N_VNew_Cuda(N, sunctx);
+  d_y = N_VNew_Cuda(M, sunctx);
+  if (d_x == NULL || d_y == NULL) {
+    printf("ERROR: N_VNew_Cuda returned NULL\n");
+    return(-1);
+  }
+  x = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_x), sunctx);
+  y = N_VMake_Serial(M, N_VGetHostArrayPointer_Cuda(d_y), sunctx);
+  if (x == NULL || y == NULL) {
     printf("ERROR: N_VMake_Serial returned NULL\n");
     return(-1);
   }
 
-   /* Zero the vectors on the host */
-   N_VConst(ZERO, x);
-   N_VConst(ZERO, y);
+  /* Zero the vectors on the host */
+  N_VConst(ZERO, x);
+  N_VConst(ZERO, y);
 
-   /* Fill vector on the host */
-   vecdata = N_VGetArrayPointer(x);
-   for(i=0; i<N; i++)
-     vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+  /* Fill vector on the host */
+  vecdata = N_VGetArrayPointer(x);
+  for(i=0; i<N; i++)
+    vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
 
-   /* Compute reference y on the host */
-   if (SUNMatMatvec(A, x, y)) {
-      printf("FAIL: SUNSparseMatrix matvec failure \n \n");
-      SUNMatDestroy(A);  SUNMatDestroy(B);
-      SUNMatDestroy(C);  SUNMatDestroy(D);
-      SUNMatDestroy(dA); SUNMatDestroy(dB);
-      N_VDestroy(x);  N_VDestroy(y);
-      N_VDestroy(d_x); N_VDestroy(d_y);
-      if (square) {
-         SUNMatDestroy(dI);
-      }
-      return(1);
-   }
+  /* Compute reference y on the host */
+  if (SUNMatMatvec(A, x, y)) {
+    printf("FAIL: SUNSparseMatrix matvec failure \n \n");
+    SUNMatDestroy(A);  SUNMatDestroy(B);
+    SUNMatDestroy(C);  SUNMatDestroy(D);
+    SUNMatDestroy(dA); SUNMatDestroy(dB);
+    N_VDestroy(x);  N_VDestroy(y);
+    N_VDestroy(d_x); N_VDestroy(d_y);
+    if (square) {
+        SUNMatDestroy(dI);
+    }
+    return(1);
+  }
 
-   /* Copy vectors to the device */
-   N_VCopyToDevice_Cuda(d_x);
-   N_VCopyToDevice_Cuda(d_y);
+  /* Copy vectors to the device */
+  N_VCopyToDevice_Cuda(d_x);
+  N_VCopyToDevice_Cuda(d_y);
 
-   printf("Setup complete\n");
-   printf("Beginning tests\n\n");
+  printf("Setup complete\n");
+  printf("Beginning tests\n\n");
 
-   /* SUNMatrix Tests */
-   fails += Test_SUNMatGetID(dA, SUNMATRIX_CUSPARSE, 0);
-   fails += Test_SUNMatClone(dA, 0);
-   fails += Test_SUNMatCopy(dA, 0);
-   fails += Test_SUNMatZero(dA, 0);
-   fails += Test_SUNMatScaleAdd(dA, dI, 0);
-   if (square) fails += Test_SUNMatScaleAddI(dA, dI, 0);
-   fails += Test_SUNMatMatvec(dA, d_x, d_y, 0);
-   if (square) fails += Test_SetKernelExecPolicy(dI, 0);
+  /* SUNMatrix Tests */
+  fails += Test_SUNMatGetID(dA, SUNMATRIX_CUSPARSE, 0);
+  fails += Test_SUNMatClone(dA, 0);
+  fails += Test_SUNMatCopy(dA, 0);
+  fails += Test_SUNMatZero(dA, 0);
+  fails += Test_SUNMatScaleAdd(dA, dI, 0);
+  if (square) fails += Test_SUNMatScaleAddI(dA, dI, 0);
+  fails += Test_SUNMatMatvec(dA, d_x, d_y, 0);
+  if (square) fails += Test_SetKernelExecPolicy(dI, 0);
 
-   /* Print result */
-   if (fails) {
-     SUNMatrix_cuSparse_CopyFromDevice(dA, SM_DATA_S(A), NULL, NULL);
-     SUNMatrix_cuSparse_CopyFromDevice(dB, SM_DATA_S(B), NULL, NULL);
-     printf("\nA =\n");
-     SUNSparseMatrix_Print(A,stdout);
-     printf("\nB =\n");
-     SUNSparseMatrix_Print(B,stdout);
-     N_VCopyFromDevice_Cuda(d_x);
-     N_VCopyFromDevice_Cuda(d_y);
-     printf("\nx\n");
-     N_VPrint_Cuda(d_x);
-     printf("\ny = Ax (reference)\n");
-     N_VPrint_Cuda(d_y);
-   } else {
-     printf("SUCCESS: SUNMatrix module passed all tests \n \n");
-   }
+  /* Print result */
+  if (fails) {
+    SUNMatrix_cuSparse_CopyFromDevice(dA, SM_DATA_S(A), NULL, NULL);
+    SUNMatrix_cuSparse_CopyFromDevice(dB, SM_DATA_S(B), NULL, NULL);
+    printf("\nA =\n");
+    SUNSparseMatrix_Print(A,stdout);
+    printf("\nB =\n");
+    SUNSparseMatrix_Print(B,stdout);
+    N_VCopyFromDevice_Cuda(d_x);
+    N_VCopyFromDevice_Cuda(d_y);
+    printf("\nx\n");
+    N_VPrint_Cuda(d_x);
+    printf("\ny = Ax (reference)\n");
+    N_VPrint_Cuda(d_y);
+  } else {
+    printf("SUCCESS: SUNMatrix module passed all tests \n \n");
+  }
 
-   printf("Beginning teardown\n");
+  printf("Beginning teardown\n");
 
-   /* Free vectors and matrices */
-   N_VDestroy(x);
-   N_VDestroy(y);
-   N_VDestroy(d_x);
-   N_VDestroy(d_y);
-   SUNMatDestroy(A);
-   SUNMatDestroy(B);
-   SUNMatDestroy(C);
-   SUNMatDestroy(D);
-   SUNMatDestroy(dA);
-   SUNMatDestroy(dB);
-   if (square) {
-     SUNMatDestroy(dI);
-   }
+  /* Free vectors and matrices */
+  N_VDestroy(x);
+  N_VDestroy(y);
+  N_VDestroy(d_x);
+  N_VDestroy(d_y);
+  SUNMatDestroy(A);
+  SUNMatDestroy(B);
+  SUNMatDestroy(C);
+  SUNMatDestroy(D);
+  SUNMatDestroy(dA);
+  SUNMatDestroy(dB);
+  if (square) {
+    SUNMatDestroy(dI);
+  }
 
-   cusparseDestroy(cusp_handle);
+  cusparseDestroy(cusp_handle);
+  SUNContext_Free(&sunctx);
 
-   printf("Teardown complete\n");
+  printf("Teardown complete\n");
 
-   return(fails);
+  return(fails);
  }
 
  /* ----------------------------------------------------------------------
@@ -520,9 +527,9 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* copy matrix data to host for the checks */
    A = SUNSparseMatrix(SUNMatrix_cuSparse_Rows(dA), SUNMatrix_cuSparse_Columns(dA),
-                       SUNMatrix_cuSparse_NNZ(dA), CSR_MAT);
+                       SUNMatrix_cuSparse_NNZ(dA), CSR_MAT, sunctx);
    B = SUNSparseMatrix(SUNMatrix_cuSparse_Rows(dB), SUNMatrix_cuSparse_Columns(dB),
-                       SUNMatrix_cuSparse_NNZ(dB), CSR_MAT);
+                       SUNMatrix_cuSparse_NNZ(dB), CSR_MAT, sunctx);
 
    failure = SUNMatrix_cuSparse_CopyFromDevice(dA, SM_DATA_S(A),
                                                SM_INDEXPTRS_S(A),

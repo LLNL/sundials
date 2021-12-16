@@ -30,12 +30,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 
 /*===============================================================
   EXPORTED FUNCTIONS
@@ -50,21 +44,30 @@
   initialization error occurs, arkCreate prints an error message
   to standard err and returns NULL.
   ---------------------------------------------------------------*/
-ARKodeMem arkCreate()
+ARKodeMem arkCreate(SUNContext sunctx)
 {
   int iret;
   ARKodeMem ark_mem;
 
+  if (!sunctx) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", "arkCreate",
+                    MSG_ARK_NULL_SUNCTX);
+    return(NULL);
+  }
+
   ark_mem = NULL;
   ark_mem = (ARKodeMem) malloc(sizeof(struct ARKodeMemRec));
   if (ark_mem == NULL) {
-    arkProcessError(NULL, 0, "ARKode", "arkCreate",
+    arkProcessError(NULL, ARK_MEM_FAIL, "ARKode", "arkCreate",
                     MSG_ARK_ARKMEM_FAIL);
     return(NULL);
   }
 
   /* Zero out ark_mem */
   memset(ark_mem, 0, sizeof(struct ARKodeMemRec));
+
+  /* Set the context */
+  ark_mem->sunctx = sunctx;
 
   /* Set uround */
   ark_mem->uround = UNIT_ROUNDOFF;
@@ -393,9 +396,11 @@ int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
 
   /* Copy tolerances into memory */
   if ( !(ark_mem->VabstolMallocDone) ) {
-    ark_mem->Vabstol = N_VClone(ark_mem->ewt);
-    ark_mem->lrw += ark_mem->lrw1;
-    ark_mem->liw += ark_mem->liw1;
+    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->Vabstol))) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                      "arkSVtolerances", MSG_ARK_ARKMEM_FAIL);
+      return(ARK_ILL_INPUT);
+    }
     ark_mem->VabstolMallocDone = SUNTRUE;
   }
   N_VScale(ONE, abstol, ark_mem->Vabstol);
@@ -480,10 +485,13 @@ int arkResStolerance(ARKodeMem ark_mem, realtype rabstol)
 
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt) {
+    ark_mem->rwt = NULL;
+    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->rwt))) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                      "arkResStolerances", MSG_ARK_ARKMEM_FAIL);
+      return(ARK_ILL_INPUT);
+    }
     ark_mem->rwt_is_ewt = SUNFALSE;
-    ark_mem->rwt = N_VClone(ark_mem->ewt);
-    ark_mem->lrw += ark_mem->lrw1;
-    ark_mem->liw += ark_mem->liw1;
   }
 
   /* Copy tolerances into memory */
@@ -537,17 +545,22 @@ int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
 
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt) {
+    ark_mem->rwt = NULL;
+    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->rwt))) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                      "arkResVtolerances", MSG_ARK_ARKMEM_FAIL);
+      return(ARK_ILL_INPUT);
+    }
     ark_mem->rwt_is_ewt = SUNFALSE;
-    ark_mem->rwt = N_VClone(ark_mem->ewt);
-    ark_mem->lrw += ark_mem->lrw1;
-    ark_mem->liw += ark_mem->liw1;
   }
 
   /* Copy tolerances into memory */
   if ( !(ark_mem->VRabstolMallocDone) ) {
-    ark_mem->VRabstol = N_VClone(ark_mem->rwt);
-    ark_mem->lrw += ark_mem->lrw1;
-    ark_mem->liw += ark_mem->liw1;
+    if (!arkAllocVec(ark_mem, ark_mem->rwt, &(ark_mem->VRabstol))) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                      "arkResStolerances", MSG_ARK_ARKMEM_FAIL);
+      return(ARK_ILL_INPUT);
+    }
     ark_mem->VRabstolMallocDone = SUNTRUE;
   }
   N_VScale(ONE, rabstol, ark_mem->VRabstol);
@@ -578,10 +591,13 @@ int arkResFtolerance(ARKodeMem ark_mem, ARKRwtFn rfun)
 
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt) {
+    ark_mem->rwt = NULL;
+    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->rwt))) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                      "arkResFtolerances", MSG_ARK_ARKMEM_FAIL);
+      return(ARK_ILL_INPUT);
+    }
     ark_mem->rwt_is_ewt = SUNFALSE;
-    ark_mem->rwt = N_VClone(ark_mem->ewt);
-    ark_mem->lrw += ark_mem->lrw1;
-    ark_mem->liw += ark_mem->liw1;
   }
 
   /* Copy tolerance data into memory */
@@ -796,7 +812,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->h = ark_mem->hin;
       ark_mem->next_h = ark_mem->h;
 
-      /* patch for 'fixedstep' + 'tstop' use case:
+      /* patch for 'fixedstep' + 'tstop' use case: 
          limit fixed step size if step would overtake tstop */
       if ( ark_mem->tstopset ) {
         if ( (ark_mem->tcur + ark_mem->h - ark_mem->tstop)*ark_mem->h > ZERO ) {
@@ -869,7 +885,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       if (kflag == ARK_SUCCESS)  break;
 
       /* unsuccessful step, if |h| = hmin, return ARK_ERR_FAILURE */
-      if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM)  return(ARK_ERR_FAILURE);
+      if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_ERR_FAILURE);
 
       /* update h, hprime and next_h for next iteration */
       ark_mem->h *= ark_mem->eta;
@@ -1479,6 +1495,7 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
   ---------------------------------------------------------------*/
 booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 {
+  /* allocate the new vector if necessary */
   if (*v == NULL) {
     *v = N_VClone(tmpl);
     if (*v == NULL) {
@@ -1493,18 +1510,16 @@ booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 }
 
 
-booleantype arkAllocVecArray(ARKodeMem ark_mem, int count, N_Vector tmpl,
-                             N_Vector **v)
+booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
+                             sunindextype lrw1, long int *lrw,
+                             sunindextype liw1, long int *liw)
 {
+  /* allocate the new vector array if necessary */
   if (*v == NULL) {
     *v = N_VCloneVectorArray(count, tmpl);
-    if (*v == NULL) {
-      arkFreeVectors(ark_mem);
-      return(SUNFALSE);
-    } else {
-      ark_mem->lrw += count * ark_mem->lrw1;
-      ark_mem->liw += count * ark_mem->liw1;
-    }
+    if (*v == NULL) return(SUNFALSE);
+    *lrw += count * lrw1;
+    *liw += count * liw1;
   }
   return (SUNTRUE);
 }
@@ -1529,13 +1544,15 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 }
 
 
-void arkFreeVecArray(ARKodeMem ark_mem, int count, N_Vector **v)
+void arkFreeVecArray(int count, N_Vector **v,
+                     sunindextype lrw1, long int *lrw,
+                     sunindextype liw1, long int *liw)
 {
   if (*v != NULL) {
     N_VDestroyVectorArray(*v, count);
     *v = NULL;
-    ark_mem->lrw -= count * ark_mem->lrw1;
-    ark_mem->liw -= count * ark_mem->liw1;
+    *lrw -= count * lrw1;
+    *liw -= count * liw1;
   }
 }
 
@@ -1583,10 +1600,10 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
 }
 
 
-booleantype arkResizeVecArray(ARKodeMem ark_mem, ARKVecResizeFn resize,
-                              void *resize_data, sunindextype lrw_diff,
-                              sunindextype liw_diff, int count, N_Vector tmpl,
-                              N_Vector **v)
+booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
+                              int count, N_Vector tmpl, N_Vector **v,
+                              sunindextype lrw_diff, long int *lrw,
+                              sunindextype liw_diff, long int *liw)
 {
   int i;
 
@@ -1595,22 +1612,14 @@ booleantype arkResizeVecArray(ARKodeMem ark_mem, ARKVecResizeFn resize,
       N_VDestroyVectorArray(*v, count);
       *v = NULL;
       *v = N_VCloneVectorArray(count, tmpl);
-      if (*v == NULL) {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
-                        "arkResizeVecArray", "Unable to clone vector");
-        return(SUNFALSE);
-      }
+      if (*v == NULL) return(SUNFALSE);
     } else {
       for (i = 0; i < count; i++) {
-        if (resize((*v)[i], tmpl, resize_data)) {
-          arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
-                          "arkResizeVecArray", MSG_ARK_RESIZE_FAIL);
-          return(SUNFALSE);
-        }
+        if (resize((*v)[i], tmpl, resize_data)) return(SUNFALSE);
       }
     }
-    ark_mem->lrw += count * lrw_diff;
-    ark_mem->liw += count * liw_diff;
+    *lrw += count * lrw_diff;
+    *liw += count * liw_diff;
   }
   return(SUNTRUE);
 }

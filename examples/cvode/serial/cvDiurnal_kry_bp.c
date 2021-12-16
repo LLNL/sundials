@@ -149,6 +149,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 int main()
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -162,8 +163,12 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Allocate and initialize u, and set problem data and tolerances */
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   data = (UserData) malloc(sizeof *data);
   if(check_retval((void *)data, "malloc", 2)) return(1);
@@ -174,7 +179,7 @@ int main()
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Set the pointer to user-defined data */
@@ -194,7 +199,7 @@ int main()
 
   /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR
    * with left preconditioning and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the linear sovler to CVode */
@@ -208,20 +213,20 @@ int main()
 
   PrintIntro(mu, ml);
 
-  /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
+  /* Loop over jpre (= SUN_PREC_LEFT, SUN_PREC_RIGHT), and solve the problem */
 
-  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
 
     /* On second run, re-initialize u, the solver, and SPGMR */
 
-    if (jpre == PREC_RIGHT) {
+    if (jpre == SUN_PREC_RIGHT) {
 
       SetInitialProfiles(u, data->dx, data->dy);
 
       retval = CVodeReInit(cvode_mem, T0, u);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
 
-      retval = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+      retval = SUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_RIGHT);
       if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
 
       retval = CVBandPrecInit(cvode_mem, NEQ, mu, ml);
@@ -232,7 +237,7 @@ int main()
     }
 
     printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-           (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+           (jpre == SUN_PREC_LEFT) ? "SUN_PREC_LEFT" : "SUN_PREC_RIGHT");
 
     /* In loop over output points, call CVode, print results, test for error */
 
@@ -256,6 +261,7 @@ int main()
   free(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }

@@ -2,7 +2,7 @@
  * -----------------------------------------------------------------
  * $Revision$
  * $Date$
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -16,7 +16,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the IC calculation for IDAS.
- * It is independent of the linear solver in use.                  
+ * It is independent of the linear solver in use.
  * -----------------------------------------------------------------
  */
 
@@ -28,7 +28,7 @@
 
 /*
  * =================================================================
- * IDA Constants 
+ * IDA Constants
  * =================================================================
  */
 
@@ -52,8 +52,14 @@
 #define IC_FAIL_RECOV       1
 #define IC_CONSTR_FAILED    2
 #define IC_LINESRCH_FAILED  3
-#define IC_CONV_FAIL        4  
+#define IC_CONV_FAIL        4
 #define IC_SLOW_CONVRG      5
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
 
 /*
  * =================================================================
@@ -62,9 +68,9 @@
  */
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, 
+extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x,
                             N_Vector w, booleantype mask);
-extern realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, 
+extern realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS,
                                 N_Vector *wS, booleantype mask);
 extern realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
@@ -99,7 +105,7 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  * -----------------------------------------------------------------
  * IDACalcIC
  * -----------------------------------------------------------------
- * IDACalcIC computes consistent initial conditions, given the 
+ * IDACalcIC computes consistent initial conditions, given the
  * user's initial guess for unknown components of yy0 and/or yp0.
  *
  * The return value is IDA_SUCCESS = 0 if no error occurred.
@@ -140,29 +146,37 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+
   /* Check if problem was malloc'ed */
-  
+
   if(IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDACalcIC", MSG_NO_MALLOC);
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_NO_MALLOC);
   }
 
   /* Check inputs to IDA for correctness and consistency */
 
   ier = IDAInitialSetup(IDA_mem);
-  if(ier != IDA_SUCCESS) return(IDA_ILL_INPUT);
+  if(ier != IDA_SUCCESS) {
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    return(IDA_ILL_INPUT);
+  }
   IDA_mem->ida_SetupDone = SUNTRUE;
 
   /* Check legality of input arguments, and set IDA memory copies. */
 
   if(icopt != IDA_YA_YDP_INIT && icopt != IDA_Y_INIT) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDACalcIC", MSG_IC_BAD_ICOPT);
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
   if(icopt == IDA_YA_YDP_INIT && (IDA_mem->ida_id == NULL)) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDACalcIC", MSG_IC_MISSING_ID);
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_ILL_INPUT);
   }
 
@@ -170,6 +184,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   troundoff = TWO * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(tout1));
   if(tdist < troundoff) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDACalcIC", MSG_IC_TOO_CLOSE);
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_ILL_INPUT);
   }
 
@@ -187,16 +202,16 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   if (IDA_mem->ida_sensi) {
 
-    /* Allocate temporary space required for sensitivity IC: yyS0 and ypS0. */      
+    /* Allocate temporary space required for sensitivity IC: yyS0 and ypS0. */
     IDA_mem->ida_yyS0 = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_ee);
     IDA_mem->ida_ypS0 = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_ee);
-    
+
     /* Initialize sensitivity vector. */
     for (is=0; is<IDA_mem->ida_Ns; is++) {
-      N_VScale(ONE, IDA_mem->ida_phiS[0][is], IDA_mem->ida_yyS0[is]);  
-      N_VScale(ONE, IDA_mem->ida_phiS[1][is], IDA_mem->ida_ypS0[is]);  
+      N_VScale(ONE, IDA_mem->ida_phiS[0][is], IDA_mem->ida_yyS0[is]);
+      N_VScale(ONE, IDA_mem->ida_phiS[1][is], IDA_mem->ida_ypS0[is]);
     }
-    
+
     /* Initialize work space vectors needed for sensitivities. */
     IDA_mem->ida_savresS = IDA_mem->ida_phiS[2];
     IDA_mem->ida_delnewS = IDA_mem->ida_phiS[3];
@@ -212,6 +227,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
     minid = N_VMin(IDA_mem->ida_id);
     if(minid < ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDACalcIC", MSG_IC_BAD_ID);
+      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return(IDA_ILL_INPUT);
     }
     if(minid > HALF) IDA_mem->ida_sysindex = 0;
@@ -221,8 +237,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   IDA_mem->ida_epsNewt = IDA_mem->ida_epiccon;
 
-  /* Initializations: 
-     cjratio = 1 (for use in direct linear solvers); 
+  /* Initializations:
+     cjratio = 1 (for use in direct linear solvers);
      set nbacktr = 0; */
 
   IDA_mem->ida_cjratio = ONE;
@@ -233,7 +249,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   hic = PT001*tdist;
   ypnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_yp0, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
 
-  if (sensi_sim) 
+  if (sensi_sim)
     ypnorm = IDASensWrmsNormUpdate(IDA_mem, ypnorm, IDA_mem->ida_ypS0, IDA_mem->ida_ewtS, SUNFALSE);
 
   if(ypnorm > HALF/hic) hic = HALF/ypnorm;
@@ -251,7 +267,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   /* Loop over nwt = number of evaluations of ewt vector. */
 
   for(nwt = 1; nwt <= 2; nwt++) {
- 
+
     /* Loop over nh = number of h values. */
     for(nh = 1; nh <= mxnh; nh++) {
 
@@ -273,8 +289,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
           /* Reset yyS0 and ypS0. */
           /* Copy phiS[0] and phiS[1] into yyS0 and ypS0. */
           for (is=0; is<IDA_mem->ida_Ns; is++) {
-            N_VScale(ONE, IDA_mem->ida_phiS[0][is], IDA_mem->ida_yyS0[is]);         
-            N_VScale(ONE, IDA_mem->ida_phiS[1][is], IDA_mem->ida_ypS0[is]);         
+            N_VScale(ONE, IDA_mem->ida_phiS[0][is], IDA_mem->ida_yyS0[is]);
+            N_VScale(ONE, IDA_mem->ida_phiS[1][is], IDA_mem->ida_ypS0[is]);
           }
         }
       }
@@ -285,29 +301,29 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
     /* Break on failure */
     if(retval != IDA_SUCCESS) break;
-    
+
     /* Reset ewt, save yy0, yp0 in phi, and loop. */
     ewtsetOK = IDA_mem->ida_efun(IDA_mem->ida_yy0, IDA_mem->ida_ewt, IDA_mem->ida_edata);
-    if(ewtsetOK != 0) { 
-      retval = IDA_BAD_EWT; 
-      break; 
+    if(ewtsetOK != 0) {
+      retval = IDA_BAD_EWT;
+      break;
     }
     N_VScale(ONE, IDA_mem->ida_yy0, IDA_mem->ida_phi[0]);
     N_VScale(ONE, IDA_mem->ida_yp0, IDA_mem->ida_phi[1]);
-    
+
     if (sensi_sim) {
-      
+
       /* Reevaluate ewtS. */
       ewtsetOK = IDASensEwtSet(IDA_mem, IDA_mem->ida_yyS0, IDA_mem->ida_ewtS);
-      if(ewtsetOK != 0) { 
-        retval = IDA_BAD_EWT; 
-        break; 
+      if(ewtsetOK != 0) {
+        retval = IDA_BAD_EWT;
+        break;
       }
-      
+
       /* Save yyS0 and ypS0. */
       for (is=0; is<IDA_mem->ida_Ns; is++) {
-            N_VScale(ONE, IDA_mem->ida_yyS0[is], IDA_mem->ida_phiS[0][is]);         
-            N_VScale(ONE, IDA_mem->ida_ypS0[is], IDA_mem->ida_phiS[1][is]);        
+            N_VScale(ONE, IDA_mem->ida_yyS0[is], IDA_mem->ida_phiS[0][is]);
+            N_VScale(ONE, IDA_mem->ida_ypS0[is], IDA_mem->ida_phiS[1][is]);
       }
     }
 
@@ -329,6 +345,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
     }
 
     icret = IDAICFailFlag(IDA_mem, retval);
+
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(icret);
   }
 
@@ -344,31 +362,36 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
       N_VDestroyVectorArray(IDA_mem->ida_ypS0, IDA_mem->ida_Ns);
     }
 
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_SUCCESS);
   }
 
   /* Find consistent I.C. for sensitivities using a staggered approach */
- 
-  
-  /* Evaluate res at converged y, needed for future evaluations of sens. RHS 
-     If res() fails recoverably, treat it as a convergence failure and 
+
+
+  /* Evaluate res at converged y, needed for future evaluations of sens. RHS
+     If res() fails recoverably, treat it as a convergence failure and
      attempt the step again */
-        
+
   retval = IDA_mem->ida_res(IDA_mem->ida_t0, IDA_mem->ida_yy0,
                             IDA_mem->ida_yp0, IDA_mem->ida_delta,
                             IDA_mem->ida_user_data);
   IDA_mem->ida_nre++;
-  if(retval < 0) 
+  if(retval < 0) {
     /* res function failed unrecoverably. */
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_RES_FAIL);
+  }
 
-  if(retval > 0) 
+  if(retval > 0) {
     /* res function failed recoverably but no recovery possible. */
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_FIRST_RES_FAIL);
-  
+  }
+
   /* Loop over nwt = number of evaluations of ewt vector. */
   for(nwt = 1; nwt <= 2; nwt++) {
- 
+
     /* Loop over nh = number of h values. */
     for(nh = 1; nh <= mxnh; nh++) {
 
@@ -384,34 +407,34 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
       /* If looping to try again, reset yyS0 and ypS0 if not converging. */
       if(retval != IC_SLOW_CONVRG) {
         for (is=0; is<IDA_mem->ida_Ns; is++) {
-          N_VScale(ONE, IDA_mem->ida_phiS[0][is], IDA_mem->ida_yyS0[is]);  
-          N_VScale(ONE, IDA_mem->ida_phiS[1][is], IDA_mem->ida_ypS0[is]);  
+          N_VScale(ONE, IDA_mem->ida_phiS[0][is], IDA_mem->ida_yyS0[is]);
+          N_VScale(ONE, IDA_mem->ida_phiS[1][is], IDA_mem->ida_ypS0[is]);
         }
       }
       hic *= PT1;
       IDA_mem->ida_cj = ONE/hic;
       IDA_mem->ida_hh = hic;
-        
+
     }   /* End of nh loop */
 
     /* Break on failure */
     if(retval != IDA_SUCCESS) break;
 
-    /* Since it was successful, reevaluate ewtS with the new values of yyS0, save 
-       yyS0 and ypS0 in phiS[0] and phiS[1] and loop one more time to check and 
+    /* Since it was successful, reevaluate ewtS with the new values of yyS0, save
+       yyS0 and ypS0 in phiS[0] and phiS[1] and loop one more time to check and
        maybe correct the  new sensitivities IC with respect to the new weights. */
-    
+
     /* Reevaluate ewtS. */
     ewtsetOK = IDASensEwtSet(IDA_mem, IDA_mem->ida_yyS0, IDA_mem->ida_ewtS);
-    if(ewtsetOK != 0) { 
-      retval = IDA_BAD_EWT; 
-      break; 
+    if(ewtsetOK != 0) {
+      retval = IDA_BAD_EWT;
+      break;
     }
 
     /* Save yyS0 and ypS0. */
     for (is=0; is<IDA_mem->ida_Ns; is++) {
-      N_VScale(ONE, IDA_mem->ida_yyS0[is], IDA_mem->ida_phiS[0][is]);         
-      N_VScale(ONE, IDA_mem->ida_ypS0[is], IDA_mem->ida_phiS[1][is]);        
+      N_VScale(ONE, IDA_mem->ida_yyS0[is], IDA_mem->ida_phiS[0][is]);
+      N_VScale(ONE, IDA_mem->ida_ypS0[is], IDA_mem->ida_phiS[1][is]);
     }
 
   }   /* End of nwt loop */
@@ -432,13 +455,13 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   /* On any failure, print message and return proper flag. */
   if(retval != IDA_SUCCESS) {
     icret = IDAICFailFlag(IDA_mem, retval);
+    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(icret);
   }
 
   /* Otherwise return success flag. */
-
+  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return(IDA_SUCCESS);
-
 }
 
 /*
@@ -451,7 +474,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
  * -----------------------------------------------------------------
  * IDANlsIC
  * -----------------------------------------------------------------
- * IDANlsIC solves a nonlinear system for consistent initial 
+ * IDANlsIC solves a nonlinear system for consistent initial
  * conditions.  It calls IDANewtonIC to do most of the work.
  *
  * The return value is IDA_SUCCESS = 0 if no error occurred.
@@ -484,7 +507,7 @@ static int IDANlsIC(IDAMem IDA_mem)
   tv1 = IDA_mem->ida_ee;
   tv2 = IDA_mem->ida_tempv2;
   tv3 = IDA_mem->ida_phi[2];
-  
+
   /* Evaluate RHS. */
   retval = IDA_mem->ida_res(IDA_mem->ida_t0, IDA_mem->ida_yy0, IDA_mem->ida_yp0,
                             IDA_mem->ida_delta, IDA_mem->ida_user_data);
@@ -496,9 +519,9 @@ static int IDANlsIC(IDAMem IDA_mem)
   N_VScale(ONE, IDA_mem->ida_delta, IDA_mem->ida_savres);
 
   if(sensi_sim) {
-    
+
     /*Evaluate sensitivity RHS and save it in savresS. */
-    retval = IDA_mem->ida_resS(IDA_mem->ida_Ns, IDA_mem->ida_t0, 
+    retval = IDA_mem->ida_resS(IDA_mem->ida_Ns, IDA_mem->ida_t0,
                                IDA_mem->ida_yy0, IDA_mem->ida_yp0,
                                IDA_mem->ida_delta,
                                IDA_mem->ida_yyS0, IDA_mem->ida_ypS0,
@@ -567,7 +590,7 @@ static int IDANlsIC(IDAMem IDA_mem)
  *                     or on maxbacks test)
  *  IC_CONV_FAIL       if the Newton iterations failed to converge
  *  IC_SLOW_CONVRG     if the iterations appear to be converging slowly.
- *                     They failed the convergence test, but showed 
+ *                     They failed the convergence test, but showed
  *                     an overall norm reduction (by a factor of < 0.1)
  *                     or a convergence rate <= ICRATEMAX).
  * The error return values (negative) considered non-recoverable are:
@@ -657,15 +680,15 @@ static int IDANewtonIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  * IDALineSrch
  * -----------------------------------------------------------------
- * IDALineSrch performs the Linesearch algorithm with the 
+ * IDALineSrch performs the Linesearch algorithm with the
  * calculation of consistent initial conditions.
  *
- * On entry, yy0 and yp0 are the current values of y and y', the 
+ * On entry, yy0 and yp0 are the current values of y and y', the
  * Newton step is delta, the current residual vector F is savres,
  * delnorm is WRMS-norm(delta), and fnorm is the norm of the vector
  * J-inverse F.
  *
- * On a successful return, yy0, yp0, and savres have been updated, 
+ * On a successful return, yy0, yp0, and savres have been updated,
  * delnew contains the current value of J-inverse F, and fnorm is
  * WRMS-norm(delnew).
  *
@@ -771,7 +794,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
     N_VScale(ONE, IDA_mem->ida_ypnew, IDA_mem->ida_yp0);
-    
+
     if(sensi_sim)
       for(is=0; is<IDA_mem->ida_Ns; is++)
         N_VScale(ONE, IDA_mem->ida_ypS0new[is], IDA_mem->ida_ypS0[is]);
@@ -788,7 +811,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
  * IDAfnorm
  * -----------------------------------------------------------------
  * IDAfnorm computes the norm of the current function value, by
- * evaluating the DAE residual function, calling the linear 
+ * evaluating the DAE residual function, calling the linear
  * system solver, and computing a WRMS-norm.
  *
  * On return, savres contains the current residual vector F, and
@@ -831,7 +854,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
   if(IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS)) {
 
     /* Evaluate the residual for sensitivities. */
-    retval = IDA_mem->ida_resS(IDA_mem->ida_Ns, IDA_mem->ida_t0, 
+    retval = IDA_mem->ida_resS(IDA_mem->ida_Ns, IDA_mem->ida_t0,
                                IDA_mem->ida_ynew, IDA_mem->ida_ypnew,
                                IDA_mem->ida_savres,
                                IDA_mem->ida_yyS0new,
@@ -859,7 +882,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
       if(retval < 0) return(IDA_LSOLVE_FAIL);
       if(retval > 0) return(IC_FAIL_RECOV);
     }
-      
+
     /* Include sensitivities in norm. */
     *fnorm = IDASensWrmsNormUpdate(IDA_mem, *fnorm, IDA_mem->ida_delnewS,
                                    IDA_mem->ida_ewtS, SUNFALSE);
@@ -888,7 +911,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 {
   int retval;
-  
+
   retval = IDA_SUCCESS;
 
   /* IDA_YA_YDP_INIT case: ynew  = yy0 - lambda*delta    where id_i = 0
@@ -912,7 +935,7 @@ static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 
   if(IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS))
     retval = IDASensNewyyp(IDA_mem, lambda);
-  
+
   return(retval);
 
 }
@@ -931,7 +954,7 @@ static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 
 static int IDANewy(IDAMem IDA_mem)
 {
-  
+
   /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
     N_VProd(IDA_mem->ida_id, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
@@ -954,11 +977,11 @@ static int IDANewy(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  */
 
-/* 
+/*
  * -----------------------------------------------------------------
  * IDASensNlsIC
  * -----------------------------------------------------------------
- * IDASensNlsIC solves nonlinear systems for sensitivities consistent 
+ * IDASensNlsIC solves nonlinear systems for sensitivities consistent
  * initial conditions.  It mainly relies on IDASensNewtonIC.
  *
  * The return value is IDA_SUCCESS = 0 if no error occurred.
@@ -994,7 +1017,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
   IDA_mem->ida_nrSe++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IDA_FIRST_RES_FAIL);
-  
+
   /* Save deltaS */
   for(is=0; is<IDA_mem->ida_Ns; is++)
     N_VScale(ONE, IDA_mem->ida_deltaS[is], IDA_mem->ida_savresS[is]);
@@ -1007,7 +1030,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
     retval = IDASensNewtonIC(IDA_mem);
     if(retval == IDA_SUCCESS) return(IDA_SUCCESS);
 
-    /* If converging slowly and lsetup is nontrivial and this is the first pass, 
+    /* If converging slowly and lsetup is nontrivial and this is the first pass,
        update Jacobian and retry. */
     if(retval == IC_SLOW_CONVRG && IDA_mem->ida_lsetup && nj==1) {
 
@@ -1035,8 +1058,8 @@ static int IDASensNlsIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  * IDASensNewtonIC
  * -----------------------------------------------------------------
- * IDANewtonIC performs the Newton iteration to solve for 
- * sensitivities consistent initial conditions.  It calls 
+ * IDANewtonIC performs the Newton iteration to solve for
+ * sensitivities consistent initial conditions.  It calls
  * IDASensLineSrch within each iteration.
  * On return, savresS contains the current residual vectors.
  *
@@ -1048,7 +1071,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
  *                     or on maxbacks test)
  *  IC_CONV_FAIL       if the Newton iterations failed to converge
  *  IC_SLOW_CONVRG     if the iterations appear to be converging slowly.
- *                     They failed the convergence test, but showed 
+ *                     They failed the convergence test, but showed
  *                     an overall norm reduction (by a factor of < 0.1)
  *                     or a convergence rate <= ICRATEMAX).
  * The error return values (negative) considered non-recoverable are:
@@ -1062,7 +1085,7 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
 
   for(is=0;is<IDA_mem->ida_Ns;is++) {
-   
+
     /* Call the linear solve function to get the Newton step, delta. */
     retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_deltaS[is],
                                  IDA_mem->ida_ewtS[is], IDA_mem->ida_yy0,
@@ -1087,19 +1110,19 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
     IDA_mem->ida_nniS++;
     delnorm = fnorm;
     oldfnrm = fnorm;
-      
+
     /* Call the Linesearch function and return if it failed. */
     retval = IDASensLineSrch(IDA_mem, &delnorm, &fnorm);
     if(retval != IDA_SUCCESS) return(retval);
-      
+
     /* Set the observed convergence rate and test for convergence. */
     rate = fnorm/oldfnrm;
     if(fnorm <= IDA_mem->ida_epsNewt) return(IDA_SUCCESS);
-    
+
     /* If not converged, copy new step vectors, and loop. */
     for(is=0; is<IDA_mem->ida_Ns; is++)
       N_VScale(ONE, IDA_mem->ida_delnewS[is], IDA_mem->ida_deltaS[is]);
-    
+
   }   /* End of Newton iteration loop */
 
   /* Return either IC_SLOW_CONVRG or recoverable fail flag. */
@@ -1111,16 +1134,16 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  * IDASensLineSrch
  * -----------------------------------------------------------------
- * IDASensLineSrch performs the Linesearch algorithm with the 
+ * IDASensLineSrch performs the Linesearch algorithm with the
  * calculation of consistent initial conditions for sensitivities
  * systems.
  *
- * On entry, yyS0 and ypS0 contain the current values, the Newton 
+ * On entry, yyS0 and ypS0 contain the current values, the Newton
  * steps are contained in deltaS, the current residual vectors FS are
  * savresS, delnorm is sens-WRMS-norm(deltaS), and fnorm is
- * max { WRMS-norm( J-inverse FS[is] ) : is=1,2,...,Ns } 
+ * max { WRMS-norm( J-inverse FS[is] ) : is=1,2,...,Ns }
  *
- * On a successful return, yy0, yp0, and savres have been updated, 
+ * On a successful return, yy0, yp0, and savres have been updated,
  * delnew contains the current values of J-inverse FS, and fnorm is
  * max { WRMS-norm(delnewS[is]) : is = 1,2,...Ns }
  *
@@ -1141,12 +1164,12 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
   int is, retval, nbacks;
   realtype f1norm, fnormp, f1normp, slpi, minlam;
   realtype lambda, ratio;
-  
+
   /* Set work space pointer. */
   IDA_mem->ida_dtemp = IDA_mem->ida_phi[3];
 
   f1norm = (*fnorm)*(*fnorm)*HALF;
-  
+
   /* Initialize local variables. */
   ratio = ONE;
   slpi = -TWO*f1norm*ratio;
@@ -1175,14 +1198,14 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
     lambda /= TWO;
     IDA_mem->ida_nbacktr++; nbacks++;
   }
-  
+
   /* Update yyS0, ypS0 and fnorm and return. */
   for(is=0; is<IDA_mem->ida_Ns; is++) {
     N_VScale(ONE, IDA_mem->ida_yyS0new[is], IDA_mem->ida_yyS0[is]);
   }
 
   if (IDA_mem->ida_icopt == IDA_YA_YDP_INIT)
-    for(is=0; is<IDA_mem->ida_Ns; is++) 
+    for(is=0; is<IDA_mem->ida_Ns; is++)
       N_VScale(ONE, IDA_mem->ida_ypS0new[is], IDA_mem->ida_ypS0[is]);
 
   *fnorm = fnormp;
@@ -1194,7 +1217,7 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
  * IDASensfnorm
  * -----------------------------------------------------------------
  * IDASensfnorm computes the norm of the current function value, by
- * evaluating the sensitivity residual function, calling the linear 
+ * evaluating the sensitivity residual function, calling the linear
  * system solver, and computing a WRMS-norm.
  *
  * On return, savresS contains the current residual vectors FS, and
@@ -1210,7 +1233,7 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
   int is, retval;
-  
+
   /* Get sensitivity residual */
   retval = IDA_mem->ida_resS(IDA_mem->ida_Ns, IDA_mem->ida_t0,
                              IDA_mem->ida_yy0, IDA_mem->ida_yp0,
@@ -1224,13 +1247,13 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
   IDA_mem->ida_nrSe++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
-  
+
   for(is=0; is<IDA_mem->ida_Ns; is++)
     N_VScale(ONE, IDA_mem->ida_delnewS[is], IDA_mem->ida_savresS[is]);
-  
+
   /* Call linear solve function */
   for(is=0; is<IDA_mem->ida_Ns; is++) {
-    
+
     retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delnewS[is],
                                  IDA_mem->ida_ewtS[is],
                                  IDA_mem->ida_yy0,
@@ -1252,8 +1275,8 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
  * -----------------------------------------------------------------
  * IDASensNewyyp
  * -----------------------------------------------------------------
- * IDASensNewyyp computes the Newton updates for each of the 
- * sensitivities systems using the current step vector lambda*delta, 
+ * IDASensNewyyp computes the Newton updates for each of the
+ * sensitivities systems using the current step vector lambda*delta,
  * in a manner depending on icopt and the input id vector.
  *
  * The return value is always IDA_SUCCESS = 0.
@@ -1266,12 +1289,12 @@ static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda)
 
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
 
-  /* IDA_YA_YDP_INIT case: 
+  /* IDA_YA_YDP_INIT case:
      - ySnew  = yS0  - lambda*deltaS    where id_i = 0
-     - ypSnew = ypS0 - cj*lambda*delta  where id_i = 1. */    
+     - ypSnew = ypS0 - cj*lambda*delta  where id_i = 1. */
 
     for(is=0; is<IDA_mem->ida_Ns; is++) {
-      
+
       /* It is ok to use dtemp as temporary vector here. */
       N_VProd(IDA_mem->ida_id, IDA_mem->ida_deltaS[is], IDA_mem->ida_dtemp);
       N_VLinearSum(ONE, IDA_mem->ida_ypS0[is], -IDA_mem->ida_cj*lambda,
@@ -1281,9 +1304,9 @@ static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda)
       N_VLinearSum(ONE, IDA_mem->ida_yyS0[is], -lambda,
                    IDA_mem->ida_dtemp, IDA_mem->ida_yyS0new[is]);
     } /* end loop is */
-  }else { 
+  }else {
 
-    /* IDA_Y_INIT case: 
+    /* IDA_Y_INIT case:
        - ySnew = yS0 - lambda*deltaS. (ypnew = yp0 preset.) */
 
     for(is=0; is<IDA_mem->ida_Ns; is++)
@@ -1320,7 +1343,7 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval)
       IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDAS", "IDACalcIC", MSG_IC_SETUP_FAIL);
       return(IDA_LSETUP_FAIL);
 
-    case IDA_LSOLVE_FAIL:  
+    case IDA_LSOLVE_FAIL:
       IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDAS", "IDACalcIC", MSG_IC_SOLVE_FAIL);
       return(IDA_LSOLVE_FAIL);
 
@@ -1328,11 +1351,11 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval)
       IDAProcessError(IDA_mem, IDA_NO_RECOVERY, "IDAS", "IDACalcIC", MSG_IC_NO_RECOVERY);
       return(IDA_NO_RECOVERY);
 
-    case IC_CONSTR_FAILED: 
+    case IC_CONSTR_FAILED:
       IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDAS", "IDACalcIC", MSG_IC_FAIL_CONSTR);
       return(IDA_CONSTR_FAIL);
 
-    case IC_LINESRCH_FAILED:  
+    case IC_LINESRCH_FAILED:
       IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, "IDAS", "IDACalcIC", MSG_IC_FAILED_LINS);
       return(IDA_LINESEARCH_FAIL);
 
@@ -1340,7 +1363,7 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval)
       IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDAS", "IDACalcIC", MSG_IC_CONV_FAILED);
       return(IDA_CONV_FAIL);
 
-    case IC_SLOW_CONVRG: 
+    case IC_SLOW_CONVRG:
       IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDAS", "IDACalcIC", MSG_IC_CONV_FAILED);
       return(IDA_CONV_FAIL);
 

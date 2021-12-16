@@ -79,9 +79,8 @@ foreach(test_tuple ${ARKODE_unit_tests})
   endif()
 
   # add test to regression tests
-  sundials_add_test(${test_name} ${test}
-    TEST_ARGS ${test_args}
-    MPI_NPROCS ${number_of_tasks}
-    NODIFF)
+  add_test(NAME ${test_name} COMMAND ${MPIEXEC_EXECUTABLE} -n ${number_of_tasks} ${test} ${test_args})
 
 endforeach()
+
+message(STATUS "Added ARKODE CXX parallel units tests")

@@ -100,11 +100,12 @@ if(Trilinos_FOUND AND (NOT Trilinos_WORKS))
 
   # Create a CMakeLists.txt file
   file(WRITE ${Trilinos_TEST_DIR}/CMakeLists.txt
-    "CMAKE_MINIMUM_REQUIRED(VERSION 3.1.3)\n"
+    "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
     "PROJECT(ltest CXX)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
     "SET(CMAKE_CXX_COMPILER \"${Trilinos_INTERFACE_CXX_COMPILER}\")\n"
+    "SET(CMAKE_CXX_STANDARD \"${CMAKE_CXX_STANDARD}\")\n"
     "SET(CMAKE_CXX_FLAGS \"${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}\")\n"
     "SET(Trilinos_DIR \"${Trilinos_DIR}\")\n"
     "INCLUDE(FindPackageHandleStandardArgs)\n"

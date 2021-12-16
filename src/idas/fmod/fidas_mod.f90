@@ -22,13 +22,16 @@ module fidas_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  implicit none
@@ -75,6 +78,7 @@ module fidas_mod
  integer(C_INT), parameter, public :: IDA_BAD_T = -26_C_INT
  integer(C_INT), parameter, public :: IDA_BAD_DKY = -27_C_INT
  integer(C_INT), parameter, public :: IDA_VECTOROP_ERR = -28_C_INT
+ integer(C_INT), parameter, public :: IDA_CONTEXT_ERR = -29_C_INT
  integer(C_INT), parameter, public :: IDA_NO_QUAD = -30_C_INT
  integer(C_INT), parameter, public :: IDA_QRHS_FAIL = -31_C_INT
  integer(C_INT), parameter, public :: IDA_FIRST_QRHS_ERR = -32_C_INT
@@ -348,10 +352,11 @@ module fidas_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FIDACreate() &
+function swigc_FIDACreate(farg1) &
 bind(C, name="_wrap_FIDACreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -2481,13 +2486,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FIDACreate() &
+function FIDACreate(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FIDACreate()
+farg1 = sunctx
+fresult = swigc_FIDACreate(farg1)
 swig_result = fresult
 end function
 

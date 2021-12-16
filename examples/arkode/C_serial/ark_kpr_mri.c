@@ -1,5 +1,6 @@
 /* ----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Rujeko Chinomona @ SMU
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -43,6 +44,12 @@
  * 5. exp-4/exp-4 (MRI-GARK-ERK45a / ERK-4-4)
  * 6. exp-4/exp-3 (MRI-GARK-ERK45a / ERK-3-3)
  * 7. dirk-3/exp-3 (MRI-GARK-ESDIRK34a / ERK-3-3) -- solve decoupled
+ * 8. ars343/exp-3 (IMEX-MRI3b / ERK-3-3) -- solve decoupled
+ * 9. imexark4/exp-4 (IMEX-MRI4/ ERK-4-4) -- solve decoupled
+ *
+ * We note that once we have methods that are IMEX at the slow time
+ * scale, the nonstiff slow term,  [ r'(t)/(2u) ], can be treated
+ * explicitly.
  *
  * The program should be run with arguments in the following order:
  *   $ a.out solve_type h G w e
@@ -54,7 +61,7 @@
  *   $ a.out solve_type
  *   $ a.out
  * are acceptable.  We require:
- *   * 0 <= solve_type <= 7
+ *   * 0 <= solve_type <= 9
  *   * 0 < h < 1/|G|
  *   * G < 0.0
  *   * w >= 1.0
@@ -89,11 +96,15 @@
 #define TWO  RCONST(2.0)
 
 /* User-supplied functions called by the solver */
+static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -112,6 +123,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* Main Program */
 int main(int argc, char *argv[])
 {
+  SUNContext ctx;
+
   /* general problem parameters */
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(5.0);     /* final time */
@@ -127,22 +140,24 @@ int main(int argc, char *argv[])
   realtype abstol = 1e-11;
 
   /* general problem variables */
-  int retval;                    /* reusable error-checking flag */
-  N_Vector y = NULL;             /* empty vector for the computed solution */
-  void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  void *inner_arkode_mem = NULL; /* empty ARKode memory structure */
-  ARKodeButcherTable B = NULL;   /* fast method Butcher table */
-  MRIStepCoupling C = NULL;      /* slow coupling coefficients */
-  SUNMatrix Af = NULL;           /* empty matrix for fast solver */
-  SUNLinearSolver LSf = NULL;    /* empty fast linear solver object */
-  SUNMatrix As = NULL;           /* empty matrix for slow solver */
-  SUNLinearSolver LSs = NULL;    /* empty slow linear solver object */
+  int retval;                               /* reusable error-checking flag */
+  N_Vector y = NULL;                        /* vector for the solution      */
+  void *arkode_mem = NULL;                  /* ARKode memory structure      */
+  void *inner_arkode_mem = NULL;            /* ARKode memory structure      */
+  MRIStepInnerStepper inner_stepper = NULL; /* inner stepper                */
+  ARKodeButcherTable B = NULL;              /* fast method Butcher table    */
+  MRIStepCoupling C = NULL;                 /* slow coupling coefficients   */
+  SUNMatrix Af = NULL;                      /* matrix for fast solver       */
+  SUNLinearSolver LSf = NULL;               /* fast linear solver object    */
+  SUNMatrix As = NULL;                      /* matrix for slow solver       */
+  SUNLinearSolver LSs = NULL;               /* slow linear solver object    */
   booleantype implicit_slow;
+  booleantype imex_slow = SUNFALSE;
   FILE *UFID;
   realtype hf, gamma, beta, t, tout, rpar[3];
   realtype uerr, verr, uerrtot, verrtot, errtot;
   int iout;
-  long int nsts, nstf, nfs, nff, nnif, nncf, njef, nnis, nncs, njes, tmp;
+  long int nsts, nstf, nfse, nfsi, nff, nnif, nncf, njef, nnis, nncs, njes, tmp;
 
   /*
    * Initialization
@@ -156,13 +171,13 @@ int main(int argc, char *argv[])
   if (argc > 5)  e = (realtype) atof(argv[5]);
 
   /* Check arguments for validity */
-  /*   0 <= solve_type <= 7      */
+  /*   0 <= solve_type <= 9      */
   /*   G < 0.0                   */
   /*   h > 0                     */
   /*   h < 1/|G| (explicit slow) */
   /*   w >= 1.0                  */
-  if ((solve_type < 0) || (solve_type > 7)) {
-    printf("ERROR: solve_type be an integer in [0,7] \n");
+  if ((solve_type < 0) || (solve_type > 9)) {
+    printf("ERROR: solve_type be an integer in [0,9] \n");
     return(-1);
   }
   if (G >= ZERO) {
@@ -172,6 +187,10 @@ int main(int argc, char *argv[])
   implicit_slow = SUNFALSE;
   if ((solve_type == 4) || (solve_type == 7))
     implicit_slow = SUNTRUE;
+  if ((solve_type == 8) || (solve_type == 9)) {
+    implicit_slow = SUNTRUE;
+    imex_slow = SUNTRUE;
+  }
   if (hs <= ZERO){
     printf("ERROR: hs must be in positive\n");
     return(-1);
@@ -231,10 +250,26 @@ int main(int argc, char *argv[])
     printf("    solver: dirk-3/exp-3 (MRI-GARK-ESDIRK34a / ERK-3-3) -- solve decoupled\n");
     printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
     break;
+  case(8):
+    reltol = SUNMAX(hs*hs*hs, 1e-10);
+    abstol = 1e-11;
+    printf("    solver: ars343/exp-3 (IMEX-MRI3b / ERK-3-3) -- solve decoupled\n");
+    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    break;
+  case(9):
+    reltol = SUNMAX(hs*hs*hs*hs, 1e-14);
+    abstol = 1e-14;
+    printf("    solver: imexark4/exp-4 (IMEX-MRI4 / ERK-4-4) -- solve decoupled\n");
+    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    break;
   }
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Create and initialize serial vector for the solution */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
   retval = Ytrue(T0, y, rpar);
   if (check_retval(&retval, "Ytrue", 1)) return 1;
@@ -244,13 +279,14 @@ int main(int argc, char *argv[])
    */
 
   /* Initialize the fast integrator. Specify the fast right-hand side
-     function in y'=fs(t,y)+ff(t,y), the inital time T0, and the
-     initial dependent variable vector y. */
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time T0,
+     and the initial dependent variable vector y. */
   switch (solve_type) {
   case(0):
   case(6):
-  case(7):  /* erk-3-3 fast solver */
-    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+  case(7):
+  case(8):  /* erk-3-3 fast solver */
+    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -264,12 +300,12 @@ int main(int argc, char *argv[])
     B->c[1] = RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
-    B->q=2;
+    B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
   case(1):  /* erk-3-3 fast solver (full problem) */
-    inner_arkode_mem = ARKStepCreate(fn, NULL, T0, y);
+    inner_arkode_mem = ARKStepCreate(fn, NULL, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -283,12 +319,13 @@ int main(int argc, char *argv[])
     B->c[1] = RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
-    B->q=2;
+    B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
+  case(9):
   case(5):  /* erk-4-4 fast solver */
-    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(4, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -307,7 +344,7 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
   case(2):  /* esdirk-3-3 fast solver (full problem) */
-    inner_arkode_mem = ARKStepCreate(NULL, fn, T0, y);
+    inner_arkode_mem = ARKStepCreate(NULL, fn, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -326,9 +363,9 @@ int main(int argc, char *argv[])
     B->q=3;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 0, B, NULL);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
-    Af = SUNDenseMatrix(NEQ, NEQ);
+    Af = SUNDenseMatrix(NEQ, NEQ, ctx);
     if (check_retval((void *)Af, "SUNDenseMatrix", 0)) return 1;
-    LSf = SUNLinSol_Dense(y, Af);
+    LSf = SUNLinSol_Dense(y, Af, ctx);
     if (check_retval((void *)LSf, "SUNLinSol_Dense", 0)) return 1;
     retval = ARKStepSetLinearSolver(inner_arkode_mem, LSf, Af);
     if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
@@ -339,7 +376,7 @@ int main(int argc, char *argv[])
     break;
   case(3):  /* no fast dynamics ('evolve' explicitly w/ erk-3-3) */
   case(4):
-    inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y);
+    inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -353,7 +390,7 @@ int main(int argc, char *argv[])
     B->c[1] = RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
-    B->q=2;
+    B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
   }
@@ -366,38 +403,47 @@ int main(int argc, char *argv[])
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
   if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
+  /* Create inner stepper */
+  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
+                                            &inner_stepper);
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+
   /*
    * Create the slow integrator and set options
    */
 
   /* Initialize the slow integrator. Specify the slow right-hand side
-     function in y'=fs(t,y)+ff(t,y), the inital time T0, the
-     initial dependent variable vector y, and the fast integrator. */
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time
+     T0, the initial dependent variable vector y, and the fast integrator. */
   switch (solve_type) {
   case(0):  /* KW3 slow solver */
-    arkode_mem = MRIStepCreate(fs, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+    arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    retval = MRIStepSetTableNum(arkode_mem, KNOTH_WOLKE_3_3);
-    if (check_retval(&retval, "MRIStepSetTableNum", 1)) return 1;
+    C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
+    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    retval = MRIStepSetCoupling(arkode_mem, C);
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
     break;
   case(3):  /* KW3 slow solver (full problem) */
-    arkode_mem = MRIStepCreate(fn, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+    arkode_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    retval = MRIStepSetTableNum(arkode_mem, KNOTH_WOLKE_3_3);
-    if (check_retval(&retval, "MRIStepSetTableNum", 1)) return 1;
+    C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
+    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    retval = MRIStepSetCoupling(arkode_mem, C);
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
     break;
   case(5):  /* MRI-GARK-ERK45a slow solver */
   case(6):
-    arkode_mem = MRIStepCreate(fs, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+    arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MRI_GARK_ERK45a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ERK45a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
     break;
   case(1):
   case(2):  /* no slow dynamics (use ERK-2-2) */
-    arkode_mem = MRIStepCreate(f0, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+    arkode_mem = MRIStepCreate(f0, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(2, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -406,19 +452,21 @@ int main(int argc, char *argv[])
     B->b[1] = RCONST(0.75);
     B->c[1] = TWO/RCONST(3.0);
     B->q=2;
-    retval = MRIStepSetTable(arkode_mem, 2, B);
-    if (check_retval(&retval, "MRIStepSetTable", 1)) return 1;
+    C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    if (check_retval((void *)C, "MRIStepCoupling_MIStoMRI", 0)) return 1;
+    retval = MRIStepSetCoupling(arkode_mem, C);
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
     break;
   case(4):  /* dirk-2 (trapezoidal), solve-decoupled slow solver */
-    arkode_mem = MRIStepCreate(fn, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+    arkode_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MRI_GARK_IRK21a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_IRK21a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
-    As = SUNDenseMatrix(NEQ, NEQ);
+    As = SUNDenseMatrix(NEQ, NEQ, ctx);
     if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
-    LSs = SUNLinSol_Dense(y, As);
+    LSs = SUNLinSol_Dense(y, As, ctx);
     if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
     if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
@@ -428,19 +476,55 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
     break;
   case(7):  /* MRI-GARK-ESDIRK34a, solve-decoupled slow solver */
-    arkode_mem = MRIStepCreate(fs, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+    arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
-    As = SUNDenseMatrix(NEQ, NEQ);
+    As = SUNDenseMatrix(NEQ, NEQ, ctx);
     if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
-    LSs = SUNLinSol_Dense(y, As);
+    LSs = SUNLinSol_Dense(y, As, ctx);
     if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
     if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
     retval = MRIStepSetJacFn(arkode_mem, Js);
+    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
+    retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
+    break;
+  case(8):  /* IMEX-MRI-GARK3b, solve-decoupled slow solver */
+    arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
+    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK3b);
+    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    retval = MRIStepSetCoupling(arkode_mem, C);
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    As = SUNDenseMatrix(NEQ, NEQ, ctx);
+    if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
+    LSs = SUNLinSol_Dense(y, As, ctx);
+    if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
+    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
+    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
+    retval = MRIStepSetJacFn(arkode_mem, Jsi);
+    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
+    retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
+    break;
+  case(9):  /* IMEX-MRI-GARK4, solve-decoupled slow solver */
+    arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
+    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK4);
+    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    retval = MRIStepSetCoupling(arkode_mem, C);
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    As = SUNDenseMatrix(NEQ, NEQ, ctx);
+    if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
+    LSs = SUNLinSol_Dense(y, As, ctx);
+    if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
+    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
+    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
+    retval = MRIStepSetJacFn(arkode_mem, Jsi);
     if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
     retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
     if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
@@ -518,7 +602,7 @@ int main(int argc, char *argv[])
   /* Get some slow integrator statistics */
   retval = MRIStepGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "MRIStepGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
@@ -532,10 +616,18 @@ int main(int argc, char *argv[])
   printf("   Steps: nsts = %li, nstf = %li\n", nsts, nstf);
   printf("   u error = %.3"ESYM", v error = %.3"ESYM", total error = %.3"ESYM"\n",
          uerrtot, verrtot, errtot);
-  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfs, nff);
+  if (imex_slow) {
+    printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfse, nfsi, nff);
+  } else if (implicit_slow) {
+    printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfsi, nff);
+  }
+  else {
+    printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff);
+  }
 
   /* Get/print slow integrator decoupled implicit solver statistics */
-  if ((solve_type==4) || (solve_type==7)) {
+  if ((solve_type == 4) || (solve_type == 7) ||
+      (solve_type == 8) || (solve_type == 9)) {
     retval = MRIStepGetNonlinSolvStats(arkode_mem, &nnis, &nncs);
     check_retval(&retval, "MRIStepGetNonlinSolvStats", 1);
     retval = MRIStepGetNumJacEvals(arkode_mem, &njes);
@@ -557,13 +649,17 @@ int main(int argc, char *argv[])
   }
 
   /* Clean up and return */
-  N_VDestroy(y);                  /* Free y vector */
-  ARKodeButcherTable_Free(B);     /* Butcher table */
-  MRIStepCoupling_Free(C);        /* free coupling coefficients */
-  SUNMatDestroy(Af);              /* free fast matrix */
-  SUNLinSolFree(LSf);             /* free fast linear solver */
-  ARKStepFree(&inner_arkode_mem); /* Free fast integrator memory */
-  MRIStepFree(&arkode_mem);       /* Free slow integrator memory */
+  N_VDestroy(y);                             /* Free y vector */
+  ARKodeButcherTable_Free(B);                /* Butcher table */
+  MRIStepCoupling_Free(C);                   /* free coupling coefficients */
+  SUNMatDestroy(Af);                         /* free fast matrix */
+  SUNLinSolFree(LSf);                        /* free fast linear solver */
+  SUNMatDestroy(As);                         /* free fast matrix */
+  SUNLinSolFree(LSs);                        /* free fast linear solver */
+  ARKStepFree(&inner_arkode_mem);            /* Free fast integrator memory */
+  MRIStepInnerStepper_Free(&inner_stepper);  /* Free inner stepper */
+  MRIStepFree(&arkode_mem);                  /* Free slow integrator memory */
+  SUNContext_Free(&ctx);                     /* Free context */
 
   return 0;
 }
@@ -615,6 +711,44 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
+/* fse routine to compute the slow portion of the ODE RHS. */
+static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+{
+  realtype *rpar = (realtype *) user_data;
+  const realtype u = NV_Ith_S(y,0);
+
+  /* fill in the slow explicit RHS function:
+     [rdot(t)/(2*u)]
+     [      0      ] */
+  NV_Ith_S(ydot,0) = rdot(t,rpar)/(TWO*u);
+  NV_Ith_S(ydot,1) = ZERO;
+
+  /* Return with success */
+  return 0;
+}
+
+/* fsi routine to compute the slow portion of the ODE RHS.(currently same as fse) */
+static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+{
+  realtype *rpar = (realtype *) user_data;
+  const realtype G = rpar[0];
+  const realtype e = rpar[2];
+  const realtype u = NV_Ith_S(y,0);
+  const realtype v = NV_Ith_S(y,1);
+  realtype tmp1, tmp2;
+
+  /* fill in the slow implicit RHS function:
+     [G e]*[(-1+u^2-r(t))/(2*u))]
+     [0 0] [(-2+v^2-s(t))/(2*v)]  */
+  tmp1 = (-ONE+u*u-r(t,rpar))/(TWO*u);
+  tmp2 = (-TWO+v*v-s(t,rpar))/(TWO*v);
+  NV_Ith_S(ydot,0) = G*tmp1 + e*tmp2;
+  NV_Ith_S(ydot,1) = ZERO;
+
+  /* Return with success */
+  return 0;
+}
+
 static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype *rpar = (realtype *) user_data;
@@ -652,9 +786,30 @@ static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   const realtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
-     [G/2 + (G*(1+r(t))+rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
+     [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
      [                 0                             0           ] */
-  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))+rdot(t,rpar))/(2*u*u);
+  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))-rdot(t,rpar))/(2*u*u);
+  SM_ELEMENT_D(J,0,1) = e/TWO+e*(TWO+s(t,rpar))/(TWO*v*v);
+  SM_ELEMENT_D(J,1,0) = ZERO;
+  SM_ELEMENT_D(J,1,1) = ZERO;
+
+  /* Return with success */
+  return 0;
+}
+
+static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype *rpar = (realtype *) user_data;
+  const realtype G = rpar[0];
+  const realtype e = rpar[2];
+  const realtype u = NV_Ith_S(y,0);
+  const realtype v = NV_Ith_S(y,1);
+
+  /* fill in the Jacobian:
+     [G/2 + (G*(1+r(t)))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
+     [                 0                             0           ] */
+  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar)))/(2*u*u);
   SM_ELEMENT_D(J,0,1) = e/TWO+e*(TWO+s(t,rpar))/(TWO*v*v);
   SM_ELEMENT_D(J,1,0) = ZERO;
   SM_ELEMENT_D(J,1,1) = ZERO;

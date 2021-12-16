@@ -312,13 +312,15 @@ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
   }
 }
 
-SWIGEXPORT void * _wrap_FCVodeCreate(int const *farg1) {
+SWIGEXPORT void * _wrap_FCVodeCreate(int const *farg1, void *farg2) {
   void * fresult ;
   int arg1 ;
+  SUNContext arg2 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (int)(*farg1);
-  result = (void *)CVodeCreate(arg1);
+  arg2 = (SUNContext)(farg2);
+  result = (void *)CVodeCreate(arg1,arg2);
   fresult = result;
   return fresult;
 }
@@ -404,17 +406,15 @@ SWIGEXPORT int _wrap_FCVodeWFtolerances(void *farg1, CVEwtFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FCVodeSetErrHandlerFn(void *farg1, CVErrHandlerFn farg2, void *farg3) {
+SWIGEXPORT int _wrap_FCVodeSetConstraints(void *farg1, N_Vector farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  CVErrHandlerFn arg2 = (CVErrHandlerFn) 0 ;
-  void *arg3 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (CVErrHandlerFn)(farg2);
-  arg3 = (void *)(farg3);
-  result = (int)CVodeSetErrHandlerFn(arg1,arg2,arg3);
+  arg2 = (N_Vector)(farg2);
+  result = (int)CVodeSetConstraints(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -434,71 +434,17 @@ SWIGEXPORT int _wrap_FCVodeSetErrFile(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FCVodeSetUserData(void *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FCVodeSetErrHandlerFn(void *farg1, CVErrHandlerFn farg2, void *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  void *arg2 = (void *) 0 ;
+  CVErrHandlerFn arg2 = (CVErrHandlerFn) 0 ;
+  void *arg3 = (void *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (void *)(farg2);
-  result = (int)CVodeSetUserData(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxOrd(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)CVodeSetMaxOrd(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxNumSteps(void *farg1, long const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long)(*farg2);
-  result = (int)CVodeSetMaxNumSteps(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxHnilWarns(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)CVodeSetMaxHnilWarns(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetStabLimDet(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)CVodeSetStabLimDet(arg1,arg2);
+  arg2 = (CVErrHandlerFn)(farg2);
+  arg3 = (void *)(farg3);
+  result = (int)CVodeSetErrHandlerFn(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
@@ -518,71 +464,15 @@ SWIGEXPORT int _wrap_FCVodeSetInitStep(void *farg1, double const *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FCVodeSetMinStep(void *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FCVodeSetLSetupFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  long arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  result = (int)CVodeSetMinStep(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxStep(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  result = (int)CVodeSetMaxStep(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetStopTime(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  result = (int)CVodeSetStopTime(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxErrTestFails(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)CVodeSetMaxErrTestFails(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxNonlinIters(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)CVodeSetMaxNonlinIters(arg1,arg2);
+  arg2 = (long)(*farg2);
+  result = (int)CVodeSetLSetupFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -602,6 +492,146 @@ SWIGEXPORT int _wrap_FCVodeSetMaxConvFails(void *farg1, int const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetMaxErrTestFails(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)CVodeSetMaxErrTestFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMaxHnilWarns(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)CVodeSetMaxHnilWarns(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMaxNonlinIters(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)CVodeSetMaxNonlinIters(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMaxNumSteps(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)CVodeSetMaxNumSteps(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMaxOrd(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)CVodeSetMaxOrd(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMaxStep(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)CVodeSetMaxStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMinStep(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)CVodeSetMinStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMonitorFn(void *farg1, CVMonitorFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  CVMonitorFn arg2 = (CVMonitorFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (CVMonitorFn)(farg2);
+  result = (int)CVodeSetMonitorFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMonitorFrequency(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)CVodeSetMonitorFrequency(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetNlsRhsFn(void *farg1, CVRhsFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  CVRhsFn arg2 = (CVRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (CVRhsFn)(farg2);
+  result = (int)CVodeSetNlsRhsFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeSetNonlinConvCoef(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -611,34 +641,6 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinConvCoef(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)CVodeSetNonlinConvCoef(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetLSetupFrequency(void *farg1, long const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long)(*farg2);
-  result = (int)CVodeSetLSetupFrequency(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetConstraints(void *farg1, N_Vector farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (int)CVodeSetConstraints(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -658,15 +660,43 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolver(void *farg1, SUNNonlinearSolver fa
 }
 
 
-SWIGEXPORT int _wrap_FCVodeSetNlsRhsFn(void *farg1, CVRhsFn farg2) {
+SWIGEXPORT int _wrap_FCVodeSetStabLimDet(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  CVRhsFn arg2 = (CVRhsFn) 0 ;
+  int arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (CVRhsFn)(farg2);
-  result = (int)CVodeSetNlsRhsFn(arg1,arg2);
+  arg2 = (int)(*farg2);
+  result = (int)CVodeSetStabLimDet(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetStopTime(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)CVodeSetStopTime(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetUserData(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  void *arg2 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (void *)(farg2);
+  result = (int)CVodeSetUserData(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -3470,6 +3500,34 @@ SWIGEXPORT int _wrap_FCVodeGetNumLinRhsEvals(void *farg1, long *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeGetLinSolveStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6, long *farg7, long *farg8, long *farg9) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  long *arg4 = (long *) 0 ;
+  long *arg5 = (long *) 0 ;
+  long *arg6 = (long *) 0 ;
+  long *arg7 = (long *) 0 ;
+  long *arg8 = (long *) 0 ;
+  long *arg9 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  arg4 = (long *)(farg4);
+  arg5 = (long *)(farg5);
+  arg6 = (long *)(farg6);
+  arg7 = (long *)(farg7);
+  arg8 = (long *)(farg8);
+  arg9 = (long *)(farg9);
+  result = (int)CVodeGetLinSolveStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeGetLastLinFlag(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -3694,20 +3752,6 @@ SWIGEXPORT int _wrap_FCVodeSetLinSysFnBS(void *farg1, int const *farg2, CVLsLinS
   arg2 = (int)(*farg2);
   arg3 = (CVLsLinSysFnBS)(farg3);
   result = (int)CVodeSetLinSysFnBS(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long)(*farg2);
-  result = (int)CVodeSetMaxStepsBetweenJac(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

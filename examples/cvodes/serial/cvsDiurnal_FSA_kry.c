@@ -177,6 +177,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   void *cvode_mem;
   SUNLinearSolver LS;
   UserData data;
@@ -206,8 +207,12 @@ int main(int argc, char *argv[])
   if(check_retval((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initial states */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   SetInitialProfiles(y, data->dx, data->dz);
 
@@ -216,7 +221,7 @@ int main(int argc, char *argv[])
   reltol=RTOL;
 
   /* Create CVODES object */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -234,7 +239,7 @@ int main(int argc, char *argv[])
 
   /* Create the SUNLinSol_SPGMR linear solver with left
      preconditioning and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
@@ -327,6 +332,7 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -474,7 +480,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
-        denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
   *jcurPtr = SUNFALSE;
 
@@ -508,7 +514,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
 
@@ -520,14 +526,14 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
     for (jz=0; jz < MZ; jz++)
       for (jx=0; jx < MX; jx++)
-        denseScale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseScale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      denseAddIdentity(P[jx][jz], NUM_SPECIES);
-      retval = denseGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
+      SUNDlsMat_denseAddIdentity(P[jx][jz], NUM_SPECIES);
+      retval = SUNDlsMat_denseGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
       if (retval != 0) return(1);
     }
   }
@@ -565,7 +571,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
       v = &(IJKth(zdata, 1, jx, jz));
-      denseGETRS(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
+      SUNDlsMat_denseGETRS(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
     }
   }
 
@@ -644,9 +650,9 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      (data->P)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->Jbd)[jx][jz] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jz] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jz] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jz] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jz] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
@@ -700,9 +706,9 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jz=0; jz < MZ; jz++) {
-      destroyMat((data->P)[jx][jz]);
-      destroyMat((data->Jbd)[jx][jz]);
-      destroyArray((data->pivot)[jx][jz]);
+      SUNDlsMat_destroyMat((data->P)[jx][jz]);
+      SUNDlsMat_destroyMat((data->Jbd)[jx][jz]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jz]);
     }
   }
 

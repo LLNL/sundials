@@ -54,24 +54,24 @@
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the SUNLinSol_SPGMR
- * linear solver (scaled preconditioned GMRES).
+ * The ODE system is solved using Newton iteration and the
+ * SUNLinSol_SPGMR linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
- * (1) A matrix, only defined implicitly, based on a fixed number
- * of Gauss-Seidel iterations using the diffusion terms only.
- * (2) A block-diagonal matrix based on the partial derivatives
- * of the interaction terms f only, using block-grouping (computing
- * only a subset of the ns by ns blocks).
+ * (1) A matrix, only defined implicitly, based on a fixed number of
+ * Gauss-Seidel iterations using the diffusion terms only. (2) A
+ * block-diagonal matrix based on the partial derivatives of the
+ * interaction terms f only, using block-grouping (computing only a
+ * subset of the ns by ns blocks).
  *
- * Four different runs are made for this problem.
- * The product preconditoner is applied on the left and on the
- * right. In each case, both the modified and classical Gram-Schmidt
- * options are tested.
- * In the series of runs, ARKStepCreate, SUNLinSol_SPGMR and
+ * Four different runs are made for this problem. The product
+ * preconditoner is applied on the left and on the right. In each
+ * case, both the modified and classical Gram-Schmidt options are
+ * tested. In the series of runs, ARKStepCreate, SUNLinSol_SPGMR and
  * ARKStepSetLinearSolver are called only for the first run, whereas
- * ARKStepReInit, SUNLinSol_SPGMRSetPrecType, and SUNLinSol_SPGMRSetGSType
- * are called for each of the remaining three runs.
+ * ARKStepReInit, SUNLinSol_SPGMRSetPrecType, and
+ * SUNLinSol_SPGMRSetGSType are called for each of the remaining
+ * three runs.
  *
  * A problem description, performance statistics at selected output
  * times, and final statistics are written to standard output.
@@ -80,8 +80,10 @@
  * but there should be no such messages.
  *
  * Note: This program requires the dense linear solver functions
- * newDenseMat, newIndexArray, denseAddIdentity, denseGETRF, denseGETRS,
- * destroyMat and destroyArray.
+ * SUNDlsMat_newDenseMat, SUNDlsMat_newIndexArray,
+ * SUNDlsMat_denseAddIdentity, SUNDlsMat_denseGETRF,
+ * SUNDlsMat_denseGETRS, SUNDlsMat_destroyMat and
+ * SUNDlsMat_destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
  * type N_Vector and uses the N_VGetArrayPointer function to gain
@@ -199,7 +201,7 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static WebData AllocUserData(void);
+static WebData AllocUserData(SUNContext ctx);
 static void InitUserData(WebData wdata);
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
@@ -242,29 +244,28 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char* argv[])
 {
   realtype abstol=ATOL, reltol=RTOL, t, tout;
-  N_Vector c;
-  WebData wdata;
-  SUNLinearSolver LS;
-  void *arkode_mem;
+  N_Vector c = NULL;
+  WebData wdata = NULL;
+  SUNLinearSolver LS = NULL;
+  void *arkode_mem = NULL;
   booleantype firstrun;
   int jpre, gstype, flag;
   int ns, mxns, iout;
-  int nrmfactor;   /* LS norm conversion factor flag */
-  realtype nrmfac; /* LS norm conversion factor      */
+  int nrmfactor = 0;   /* LS norm conversion factor flag */
+  realtype nrmfac;     /* LS norm conversion factor      */
 
-  c          = NULL;
-  wdata      = NULL;
-  LS         = NULL;
-  arkode_mem = NULL;
-  nrmfactor  = 0;
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* Retrieve the command-line options */
   if (argc > 1) nrmfactor = atoi(argv[1]);
 
   /* Initializations */
-  c = N_VNew_Serial(NEQ);
+  c = N_VNew_Serial(NEQ, ctx);
   if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
-  wdata = AllocUserData();
+  wdata = AllocUserData(ctx);
   if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
   ns = wdata->ns;
@@ -274,8 +275,8 @@ int main(int argc, char* argv[])
   PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
-  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
-    for (gstype = MODIFIED_GS; gstype <= CLASSICAL_GS; gstype++) {
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
+    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_CLASSICAL_GS; gstype++) {
 
       /* Initialize c and print heading */
       CInit(c, wdata);
@@ -283,9 +284,9 @@ int main(int argc, char* argv[])
 
       /* Call ARKStepCreate or ARKStepReInit, then SPGMR to set up problem */
 
-      firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
+      firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
       if (firstrun) {
-        arkode_mem = ARKStepCreate(NULL, f, T0, c);
+        arkode_mem = ARKStepCreate(NULL, f, T0, c, ctx);
         if(check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return(1);
 
         wdata->arkode_mem = arkode_mem;
@@ -302,7 +303,7 @@ int main(int argc, char* argv[])
         flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
         if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return(1);
 
-        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL, ctx);
         if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
         flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
@@ -374,11 +375,12 @@ int main(int argc, char* argv[])
   N_VDestroy(c);
   SUNLinSolFree(LS);
   FreeUserData(wdata);
+  SUNContext_Free(&ctx);
 
   return(0);
 }
 
-static WebData AllocUserData(void)
+static WebData AllocUserData(SUNContext ctx)
 {
   int i, ngrp = NGRP;
   sunindextype ns = NS;
@@ -386,11 +388,11 @@ static WebData AllocUserData(void)
 
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newIndexArray(ns);
+    (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
+    (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
-  wdata->rewt = N_VNew_Serial(NEQ);
-  wdata->tmp = N_VNew_Serial(NEQ);
+  wdata->rewt = N_VNew_Serial(NEQ, ctx);
+  wdata->tmp = N_VNew_Serial(NEQ, ctx);
   return(wdata);
 }
 
@@ -556,15 +558,15 @@ static void PrintIntro(void)
 
 static void PrintHeader(int jpre, int gstype)
 {
-  if(jpre == PREC_LEFT)
-    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_LEFT");
+  if(jpre == SUN_PREC_LEFT)
+    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_LEFT");
   else
-    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_RIGHT");
+    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_RIGHT");
 
-  if(gstype == MODIFIED_GS)
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "MODIFIED_GS");
+  if(gstype == SUN_MODIFIED_GS)
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_MODIFIED_GS");
   else
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "CLASSICAL_GS");
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_CLASSICAL_GS");
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
@@ -698,8 +700,8 @@ static void FreeUserData(WebData wdata)
 
   ngrp = wdata->ngrp;
   for(i=0; i < ngrp; i++) {
-    destroyMat((wdata->P)[i]);
-    destroyArray((wdata->pivot)[i]);
+    SUNDlsMat_destroyMat((wdata->P)[i]);
+    SUNDlsMat_destroyArray((wdata->pivot)[i]);
   }
   N_VDestroy(wdata->rewt);
   N_VDestroy(wdata->tmp);
@@ -792,7 +794,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 /*
  This routine generates the block-diagonal part of the Jacobian
  corresponding to the interaction rates, multiplies by -gamma, adds
- the identity matrix, and calls denseGETRF to do the LU decomposition of
+ the identity matrix, and calls SUNDlsMat_denseGETRF to do the LU decomposition of
  each diagonal block. The computation of the diagonal blocks uses
  the preset block and grouping information. One block per group is
  computed. The Jacobian elements are generated by difference
@@ -875,8 +877,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   /* Add identity matrix and do LU decompositions on blocks. */
 
   for (ig = 0; ig < ngrp; ig++) {
-    denseAddIdentity(P[ig], mp);
-    ier = denseGETRF(P[ig], mp, mp, pivot[ig]);
+    SUNDlsMat_denseAddIdentity(P[ig], mp);
+    ier = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
     if (ier != 0) return(1);
   }
 
@@ -945,7 +947,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
+      SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }

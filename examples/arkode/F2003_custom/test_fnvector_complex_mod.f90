@@ -47,6 +47,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fnvector_complex_mod
   use fnvector_test_mod
 
@@ -54,6 +55,7 @@ program main
   implicit none
 
   ! local variables
+  type(c_ptr) :: sunctx
   integer(c_int)  :: fails, i, loc
   integer(c_long), parameter :: N = 1000
   type(N_Vector), pointer :: sU, sV, sW, sX, sY, sZ
@@ -62,42 +64,44 @@ program main
   real(c_double) :: fac
   logical :: failure
 
-
   !======= Internals ============
 
   ! initialize failure total
   fails = 0
 
+  ! create SUNDIALS context
+  fails = FSUNContext_Create(c_null_ptr, sunctx)
+
   ! create new vectors, using New, Make and Clone routines
-  sU => FN_VMake_Complex(N, Udata)
+  sU => FN_VMake_Complex(N, Udata, sunctx)
   if (.not. associated(sU)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   U => FN_VGetFVec(sU)
 
-  sV => FN_VNew_Complex(N)
+  sV => FN_VNew_Complex(N, sunctx)
   if (.not. associated(sV)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   V => FN_VGetFVec(sV)
 
-  sW => FN_VNew_Complex(N)
+  sW => FN_VNew_Complex(N, sunctx)
   if (.not. associated(sW)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   W => FN_VGetFVec(sW)
 
-  sX => FN_VNew_Complex(N)
+  sX => FN_VNew_Complex(N, sunctx)
   if (.not. associated(sX)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   X => FN_VGetFVec(sX)
 
-  sY => FN_VNew_Complex(N)
+  sY => FN_VNew_Complex(N, sunctx)
   if (.not. associated(sY)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -610,6 +614,9 @@ program main
   call FN_VDestroy(sX)
   call FN_VDestroy(sY)
   call FN_VDestroy(sZ)
+
+  ! free SUNDIALS context
+  fails = FSUNContext_Free(sunctx)
 
   ! print results
   if (fails > 0) then

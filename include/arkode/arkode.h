@@ -29,6 +29,7 @@
 #define _ARKODE_H
 
 #include <stdio.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_nvector.h>
 #include <arkode/arkode_butcher.h>
 
@@ -129,6 +130,8 @@ extern "C" {
 
 #define ARK_INVALID_TABLE          -41
 
+#define ARK_CONTEXT_ERR            -42
+
 #define ARK_UNRECOGNIZED_ERROR     -99
 
 /* ------------------------------
@@ -166,11 +169,6 @@ typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
 
 typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
                                  void *user_data);
-
-/* ARKPostProcessStepFn is now deprecated and will be removed in future
-   releases. It has be replaced with ARKPostProcessFn. */
-typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
-                                    void *user_data);
 
 /* --------------------------
  * MRIStep Inner Stepper Type

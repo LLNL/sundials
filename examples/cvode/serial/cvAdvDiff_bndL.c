@@ -67,11 +67,11 @@
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. 
+   to the underlying 1-dimensional storage.
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
    The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
-   where v is an N_Vector. 
+   where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
@@ -96,7 +96,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(realtype t, N_Vector u, N_Vector fu, 
+static int Jac(realtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -108,6 +108,7 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
 
 int main(void)
 {
+  SUNContext sunctx;
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -123,9 +124,13 @@ int main(void)
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Create a serial vector */
 
-  u = N_VNew_Serial(NEQ);  /* Allocate u vector */
+  u = N_VNew_Serial(NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void*)u, "N_VNew_Serial", 0)) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -141,9 +146,9 @@ int main(void)
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -161,15 +166,15 @@ int main(void)
   retval = CVodeSetUserData(cvode_mem, data);
   if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
-  /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
+  /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
-  A = SUNBandMatrix(NEQ, MY, MY);
+  A = SUNBandMatrix(NEQ, MY, MY, sunctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create SUNLinSol_LapackBand solver object for use by CVode */
-  LS = SUNLinSol_LapackBand(u, A);
+  LS = SUNLinSol_LapackBand(u, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_LapackBand", 0)) return(1);
-  
+
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
   if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
@@ -198,6 +203,8 @@ int main(void)
   SUNLinSolFree(LS);      /* Free linear solver memory  */
   SUNMatDestroy(A);       /* Free the matrix memory     */
   free(data);             /* Free the user data */
+
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -255,14 +262,14 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(realtype t, N_Vector u, N_Vector fu, 
+static int Jac(realtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
-  
+
   /*
    * The components of f = udot that depend on u(i,j) are
    * f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
@@ -321,14 +328,14 @@ static void SetIC(N_Vector u, UserData data)
   udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
-  
+
   for (j=1; j <= MY; j++) {
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
       IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(FIVE*x*y);
     }
-  }  
+  }
 }
 
 /* Print first lines of output (problem description) */

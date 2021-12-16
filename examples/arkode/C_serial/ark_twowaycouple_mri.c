@@ -70,14 +70,20 @@ int main()
   realtype u0, v0, w0;           /* initial conditions */
 
   /* general problem variables */
-  int retval;                    /* reusable error-checking flag */
-  N_Vector y = NULL;             /* empty vector for the computed solution */
-  void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  void *inner_arkode_mem = NULL; /* empty ARKode memory structure */
+  int retval;                               /* reusable error-checking flag */
+  N_Vector y = NULL;                        /* vector for the solution      */
+  void *arkode_mem = NULL;                  /* ARKode memory structure      */
+  void *inner_arkode_mem = NULL;            /* ARKode memory structure      */
+  MRIStepInnerStepper inner_stepper = NULL; /* inner stepper                */
   FILE *UFID;
   realtype t, tout;
   int iout;
-  long int nsts, nstf, nfs, nff, tmp;
+  long int nsts, nstf, nfse, nfsi, nff, tmp;
+
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /*
    * Initialization
@@ -94,7 +100,7 @@ int main()
   printf("    hs = %"GSYM",  hf = %"GSYM"\n\n",hs,hf);
 
   /* Create and initialize serial vector for the solution */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;
   NV_Ith_S(y,1) = v0;
@@ -104,28 +110,33 @@ int main()
    * Create the fast integrator and set options
    */
 
-  /* Initialize the fast integrator. Specify the fast right-hand side
-     function in y'=fs(t,y)+ff(t,y), the inital time T0, and the
+  /* Initialize the fast integrator. Specify the explicit fast right-hand side
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
-  inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+  inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set the fast method */
-  retval = ARKStepSetTableNum(inner_arkode_mem, -1, KNOTH_WOLKE_3_3);
+  retval = ARKStepSetTableNum(inner_arkode_mem, -1, ARKODE_KNOTH_WOLKE_3_3);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
 
   /* Set the fast step size */
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
   if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
+  /* Create inner stepper */
+  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
+                                            &inner_stepper);
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+
   /*
    * Create the slow integrator and set options
    */
 
-  /* Initialize the slow integrator. Specify the slow right-hand side
-     function in y'=fs(t,y)+ff(t,y), the inital time T0, the
+  /* Initialize the slow integrator. Specify the explicit slow right-hand side
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
-  arkode_mem = MRIStepCreate(fs, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+  arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
   /* Set the slow step size */
@@ -180,7 +191,7 @@ int main()
   /* Get some slow integrator statistics */
   retval = MRIStepGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "MRIStepGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
@@ -192,12 +203,14 @@ int main()
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
   printf("   Steps: nsts = %li, nstf = %li\n", nsts, nstf);
-  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfs, nff);
+  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff);
 
   /* Clean up and return */
-  N_VDestroy(y);                  /* Free y vector */
-  ARKStepFree(&inner_arkode_mem); /* Free integrator memory */
-  MRIStepFree(&arkode_mem);       /* Free integrator memory */
+  N_VDestroy(y);                             /* Free y vector */
+  ARKStepFree(&inner_arkode_mem);            /* Free integrator memory */
+  MRIStepInnerStepper_Free(&inner_stepper);  /* Free inner stepper */
+  MRIStepFree(&arkode_mem);                  /* Free integrator memory */
+  SUNContext_Free(&ctx);                     /* Free context */
 
   return 0;
 }

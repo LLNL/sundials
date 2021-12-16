@@ -84,7 +84,7 @@
 #define NOUT         12                   /* number of output times */
 #define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */
+#define PI           RCONST(3.1415926535898)  /* pi */
 
 #define XMIN         RCONST(0.0)          /* grid boundaries in x  */
 #define XMAX         RCONST(20.0)
@@ -185,11 +185,13 @@ int main(int argc, char *argv[])
   int iout, flag, my_pe, npes;
   sunindextype neq, local_N;
   MPI_Comm comm;
+  SUNContext ctx;
 
   u = NULL;
   data = NULL;
   LS = NULL;
   arkode_mem = NULL;
+  ctx = NULL;
 
   /* Set problem size neq */
   neq = NVARS*MX*MY;
@@ -208,6 +210,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation. */
+  flag = SUNContext_Create((void*) &comm, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
@@ -217,20 +223,21 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, comm, data);
 
   /* Allocate u, and set initial values and tolerances */
-  u = N_VNew_Parallel(comm, local_N, neq);
+  u = N_VNew_Parallel(comm, local_N, neq, ctx);
   if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, ctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side functions in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, u);
+  arkode_mem = ARKStepCreate(NULL, f, T0, u, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -274,7 +281,9 @@ int main(int argc, char *argv[])
   ARKStepFree(&arkode_mem);
   SUNLinSolFree(LS);
   N_VDestroy(u);
+  SUNContext_Free(&ctx);
   MPI_Finalize();
+
   return(0);
 }
 
@@ -311,9 +320,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Preconditioner-related fields */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newIndexArray(NVARS);
+      (data->P)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
 }
@@ -324,9 +333,9 @@ static void FreeUserData(UserData data)
   int lx, ly;
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((data->P)[lx][ly]);
-      destroyMat((data->Jbd)[lx][ly]);
-      destroyArray((data->pivot)[lx][ly]);
+      SUNDlsMat_destroyMat((data->P)[lx][ly]);
+      SUNDlsMat_destroyMat((data->Jbd)[lx][ly]);
+      SUNDlsMat_destroyArray((data->pivot)[lx][ly]);
     }
   }
   free(data);
@@ -876,8 +885,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denseAddIdentity(P[lx][ly], NVARS);
-      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      SUNDlsMat_denseAddIdentity(P[lx][ly], NVARS);
+      ier = SUNDlsMat_denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -914,7 +923,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      SUNDlsMat_denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
 

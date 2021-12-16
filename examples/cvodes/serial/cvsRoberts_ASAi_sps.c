@@ -133,6 +133,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   UserData data;
 
   SUNMatrix A, AB;
@@ -180,15 +181,19 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initialize y */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   Ith(y,1) = RCONST(1.0);
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
   /* Initialize q */
-  q = N_VNew_Serial(1);
+  q = N_VNew_Serial(1, sunctx);
   if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
@@ -201,7 +206,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
      Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -221,12 +226,12 @@ int main(int argc, char *argv[])
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ; /* max no. of nonzeros entries in the Jac */
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, sunctx);
   if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object */
   nthreads = 1; /* no. of threads use when factoring the system */
-  LS = SUNLinSol_SuperLUMT(y, A, nthreads);
+  LS = SUNLinSol_SuperLUMT(y, A, nthreads, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver for the forward problem */
@@ -321,14 +326,14 @@ int main(int argc, char *argv[])
   */
 
   /* Initialize yB */
-  yB = N_VNew_Serial(NEQ);
+  yB = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
   Ith(yB,1) = ZERO;
   Ith(yB,2) = ZERO;
   Ith(yB,3) = ZERO;
 
   /* Initialize qB */
-  qB = N_VNew_Serial(NP);
+  qB = N_VNew_Serial(NP, sunctx);
   if (check_retval((void *)qB, "N_VNew", 0)) return(1);
   Ith(qB,1) = ZERO;
   Ith(qB,2) = ZERO;
@@ -365,11 +370,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
 
 /* Create sparse SUNMatrix for use in linear solves */
-  AB = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  AB = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, sunctx);
   if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object */
-  LSB = SUNLinSol_SuperLUMT(yB, AB, nthreads);
+  LSB = SUNLinSol_SuperLUMT(yB, AB, nthreads, sunctx);
   if (check_retval((void *)LSB, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver for the backward problem */
@@ -501,6 +506,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LSB);
   SUNMatDestroy(AB);
+  SUNContext_Free(&sunctx);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);

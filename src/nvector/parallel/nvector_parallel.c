@@ -75,7 +75,8 @@ N_Vector_ID N_VGetVectorID_Parallel(N_Vector v)
 
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
                               sunindextype local_length,
-                              sunindextype global_length)
+                              sunindextype global_length,
+                              SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Parallel content;
@@ -91,7 +92,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -141,6 +142,10 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Parallel;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Parallel;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal     = N_VDotProdMultiLocal_Parallel;
+  v->ops->nvdotprodmultiallreduce = N_VDotProdMultiAllReduce_Parallel;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Parallel;
   v->ops->nvbufpack   = N_VBufPack_Parallel;
@@ -174,13 +179,14 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
 N_Vector N_VNew_Parallel(MPI_Comm comm,
                          sunindextype local_length,
-                         sunindextype global_length)
+                         sunindextype global_length,
+                         SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -207,12 +213,13 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
 N_Vector N_VMake_Parallel(MPI_Comm comm,
                           sunindextype local_length,
                           sunindextype global_length,
-                          realtype *v_data)
+                          realtype *v_data,
+                          SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
   if (v == NULL) return(NULL);
 
   if (local_length > 0) {
@@ -230,25 +237,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
 
 N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Parallel(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Parallel(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -258,25 +247,7 @@ N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Parallel(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Parallel(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -285,12 +256,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Parallel(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -337,11 +303,11 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%Lg\n", xd[i]);
+    fprintf(outfile, "%35.32Le\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%g\n", xd[i]);
+    fprintf(outfile, "%19.16e\n", xd[i]);
 #else
-    fprintf(outfile, "%g\n", xd[i]);
+    fprintf(outfile, "%11.8e\n", xd[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -364,7 +330,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -1140,6 +1106,60 @@ int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotpro
     }
   }
   retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
+
+  return retval == MPI_SUCCESS ? 0 : -1;
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * single buffer reduction operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VDotProdMultiLocal_Parallel(int nvec, N_Vector x, N_Vector* Y,
+                                  realtype* dotprods)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* get vector length and data array */
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+
+  /* compute multiple dot products */
+  for (i=0; i<nvec; i++) {
+    yd = NV_DATA_P(Y[i]);
+    dotprods[i] = ZERO;
+    for (j=0; j<N; j++) {
+      dotprods[i] += xd[j] * yd[j];
+    }
+  }
+
+  return 0;
+}
+
+
+int N_VDotProdMultiAllReduce_Parallel(int nvec_total, N_Vector x, realtype* sum)
+{
+  int      retval;
+  MPI_Comm comm;
+
+  /* invalid number of vectors */
+  if (nvec_total < 1) return(-1);
+
+  /* get communicator */
+  comm = NV_COMM_P(x);
+
+  /* perform reduction */
+  retval = MPI_Allreduce(MPI_IN_PLACE, sum, nvec_total, MPI_SUNREALTYPE,
+                         MPI_SUM, comm);
 
   return retval == MPI_SUCCESS ? 0 : -1;
 }
@@ -2088,6 +2108,8 @@ int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Parallel;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Parallel;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Parallel;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_Parallel;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -2101,6 +2123,8 @@ int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -2283,6 +2307,24 @@ int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, booleantype tf)
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Parallel;
   else
     v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMultiLocal_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_Parallel;
+  else
+    v->ops->nvdotprodmultilocal = NULL;
 
   /* return success */
   return(0);

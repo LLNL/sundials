@@ -46,10 +46,12 @@ endif()
 
 # Determine MAGMA version and libraries it depends on
 if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
+
   get_filename_component(libdir ${MAGMA_LIBRARY} DIRECTORY)
   find_file(MAGMA_PKG_CONFIG_PATH magma.pc PATHS "${libdir}/pkgconfig")
 
   if(MAGMA_PKG_CONFIG_PATH)
+
     file(STRINGS ${MAGMA_PKG_CONFIG_PATH} _version_string REGEX "Version: [0-9].[0-9].[0-9]")
     string(REGEX MATCHALL "[0-9]" _version_full "${_version_string}")
 
@@ -65,12 +67,26 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
 
     set(_interface_libraires )
     foreach(lib ${_libraries_list})
-      if(NOT (lib STREQUAL "-lmagma" OR lib STREQUAL "-lmagma_sparse" OR  lib STREQUAL "-L\${libdir}" OR lib STREQUAL "") )
-        # remove -l only from the beginning of the string
+      if(NOT (lib STREQUAL "-lmagma" OR lib STREQUAL "-lmagma_sparse"
+            OR lib STREQUAL "-L\${libdir}" OR lib STREQUAL "") )
+
+        # Remove -l only from the beginning of the string
         string(REPLACE "^-l" "" lib ${lib})
         list(APPEND _interface_libraires ${lib})
+
+        # Check if we need to find roc::hipblas or roc::hipsparse
+        if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
+          if((lib STREQUAL "roc::hipblas") AND (NOT TARGET roc::hipblas))
+            find_package(hipblas REQUIRED)
+          endif()
+          if((lib STREQUAL "roc::hipsparse") AND (NOT TARGET roc::hipsparse))
+            find_package(hipsparse REQUIRED)
+          endif()
+        endif()
+
       endif()
     endforeach()
+
   endif()
 endif()
 

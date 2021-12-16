@@ -24,8 +24,9 @@ module test_nvector_mpiplusx
   implicit none
   include "mpif.h"
 
-  integer(c_long), parameter :: N        = 100        ! overall manyvector length
-  integer(c_int), parameter  :: comm = MPI_COMM_WORLD ! default MPI communicator
+  integer(c_long), parameter :: N    = 100            ! overall manyvector length
+  integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
+  integer(c_int), pointer    :: commptr
   integer(c_int)             :: nprocs                ! number of MPI processes
 
 contains
@@ -39,9 +40,9 @@ contains
     type(N_Vector), pointer :: x, local       ! N_Vectors
 
     !===== Setup ====
-    local  => FN_VMake_Serial(N, x1data)
+    local  => FN_VMake_Serial(N, x1data, sunctx)
 
-    x => FN_VMake_MPIPlusX(comm, local)
+    x => FN_VMake_MPIPlusX(comm, local, sunctx)
     call FN_VConst(ONE, x)
 
     !===== Test =====
@@ -70,15 +71,15 @@ contains
 
     !===== Setup ====
     fails = 0
-    
+
     call MPI_Comm_rank(comm, myid, fails)
     if (fails /= 0) then
       print *, '   FAILURE - MPI_COMM_RANK returned nonzero'
       stop 1
     endif
-    
-    local  => FN_VMake_Serial(N, x1data)
-    x => FN_VMake_MPIPlusX(comm, local)
+
+    local  => FN_VMake_Serial(N, x1data, sunctx)
+    x => FN_VMake_MPIPlusX(comm, local, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -114,12 +115,12 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   X0 => FN_VGetLocalVector_MPIPlusX(X)
   x0len = FN_VGetLength(X0)
   x0data => FN_VGetArrayPointer(X0)
-  
+
   if (local_length /= x0len) then
     failure = 1
     return
   endif
-  
+
   do i = 1, x0len
     if (FNEQ(x0data(i), ans) > 0) then
       failure = failure + 1
@@ -164,8 +165,12 @@ program main
     stop 1
   endif
 
+  commptr => comm
+
   !============== Introduction =============
   if (myid == 0) print *, 'MPIPlusX N_Vector Fortran 2003 interface test'
+
+  call Test_Init(c_loc(commptr))
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then
@@ -194,6 +199,8 @@ program main
   else
     if (myid == 0) print *,'    SUCCESS - all unit tests passed'
   end if
+
+  call Test_Finalize()
 
   call MPI_Finalize(fails)
   if (fails /= 0) then

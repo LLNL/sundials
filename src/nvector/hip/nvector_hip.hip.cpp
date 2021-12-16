@@ -22,7 +22,6 @@
 #include <limits>
 
 #include <nvector/nvector_hip.h>
-#include <sunmemory/sunmemory_hip.h>
 #include "VectorArrayKernels.hip.hpp"
 #include "VectorKernels.hip.hpp"
 #include "sundials_hip.h"
@@ -34,6 +33,7 @@
 extern "C" {
 
 using namespace sundials;
+using namespace sundials::hip;
 using namespace sundials::nvector_hip;
 
 /*
@@ -81,8 +81,8 @@ static void PostKernelLaunch();
  * Defaults
  */
 
-static HipThreadDirectExecPolicy NVEC_HIP_DEFAULT_STREAM_POLICY(512);
-static HipBlockReduceExecPolicy NVEC_HIP_DEFAULT_REDUCE_POLICY(512);
+static ThreadDirectExecPolicy NVEC_HIP_DEFAULT_STREAM_POLICY(512);
+static BlockReduceExecPolicy NVEC_HIP_DEFAULT_REDUCE_POLICY(512);
 
 
 /* ----------------------------------------------------------------
@@ -94,13 +94,13 @@ N_Vector_ID N_VGetVectorID_Hip(N_Vector v)
   return SUNDIALS_NVEC_HIP;
 }
 
-N_Vector N_VNewEmpty_Hip()
+N_Vector N_VNewEmpty_Hip(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -150,6 +150,9 @@ N_Vector N_VNewEmpty_Hip()
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Hip;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Hip;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_Hip;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Hip;
   v->ops->nvbufpack   = N_VBufPack_Hip;
@@ -191,18 +194,18 @@ N_Vector N_VNewEmpty_Hip()
   return(v);
 }
 
-N_Vector N_VNew_Hip(sunindextype length)
+N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
   NVEC_HIP_CONTENT(v)->host_data                     = NULL;
   NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
@@ -229,7 +232,7 @@ N_Vector N_VNew_Hip(sunindextype length)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -246,7 +249,7 @@ N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem,
   }
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -272,12 +275,12 @@ N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem,
   return(v);
 }
 
-N_Vector N_VNewManaged_Hip(sunindextype length)
+N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -285,7 +288,7 @@ N_Vector N_VNewManaged_Hip(sunindextype length)
   NVEC_HIP_CONTENT(v)->device_data                   = NULL;
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
   NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNTRUE;
@@ -310,14 +313,14 @@ N_Vector N_VNewManaged_Hip(sunindextype length)
   return(v);
 }
 
-N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (h_vdata == NULL || d_vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -325,7 +328,7 @@ N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   NVEC_HIP_CONTENT(v)->device_data                   = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
   NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNFALSE;
@@ -351,14 +354,14 @@ N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   return(v);
 }
 
-N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata)
+N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -366,7 +369,7 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata)
   NVEC_HIP_CONTENT(v)->device_data                   = SUNMemoryHelper_Alias(NVEC_HIP_CONTENT(v)->host_data);
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
   NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNTRUE;
@@ -520,13 +523,17 @@ void N_VPrintFile_Hip(N_Vector x, FILE *outfile)
 {
   sunindextype i;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  N_VCopyFromDevice_Hip(x);
+#endif
+
   for (i = 0; i < NVEC_HIP_CONTENT(x)->length; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "%35.32Le\n", NVEC_HIP_HDATAp(x)[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "%19.16e\n", NVEC_HIP_HDATAp(x)[i]);
 #else
-    fprintf(outfile, "%11.8g\n", NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "%11.8e\n", NVEC_HIP_HDATAp(x)[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -548,7 +555,7 @@ N_Vector N_VCloneEmpty_Hip(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -642,9 +649,9 @@ void N_VDestroy_Hip(N_Vector v)
 
   if (NVEC_HIP_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->host_data);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->host_data, nullptr);
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->device_data);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->device_data, nullptr);
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
@@ -1734,7 +1741,7 @@ int N_VBufPack_Hip(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, nullptr);
 
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -1759,7 +1766,7 @@ int N_VBufUnpack_Hip(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, nullptr);
 
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -1793,6 +1800,8 @@ int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Hip;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Hip;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Hip;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Hip;
   }
   else
   {
@@ -1808,6 +1817,8 @@ int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1859,10 +1870,13 @@ int N_VEnableDotProdMulti_Hip(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_Hip;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Hip;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Hip;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);
@@ -2009,7 +2023,8 @@ int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_UVM);
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_UVM,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -2019,14 +2034,16 @@ int AllocateData(N_Vector v)
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->host_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_HOST);
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_HOST,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_DEVICE);
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_DEVICE,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2062,7 +2079,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2070,7 +2087,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
       /* try to allocate just plain host memory instead */
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, nullptr);
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2078,7 +2095,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     }
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2101,7 +2118,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     }
   }
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), value_mem);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), value_mem, nullptr);
   return((alloc_fail || copy_fail) ? -1 : 0);
 }
 
@@ -2114,10 +2131,12 @@ void FreeReductionBuffer(N_Vector v)
   if (vcp == NULL) return;
 
   if (vcp->reduce_buffer_dev != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_dev);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_dev,
+                            nullptr);
   vcp->reduce_buffer_dev  = NULL;
   if (vcp->reduce_buffer_host != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_host);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_host,
+                            nullptr);
   vcp->reduce_buffer_host = NULL;
 }
 

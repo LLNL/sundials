@@ -26,12 +26,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM "Lg"
-#else
-#define RSYM "g"
-#endif
-
 
 /*===============================================================
   ARKode optional input utility functions

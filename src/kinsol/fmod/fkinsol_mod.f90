@@ -22,13 +22,16 @@ module fkinsol_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  implicit none
@@ -55,6 +58,11 @@ module fkinsol_mod
  integer(C_INT), parameter, public :: KIN_FIRST_SYSFUNC_ERR = -14_C_INT
  integer(C_INT), parameter, public :: KIN_REPTD_SYSFUNC_ERR = -15_C_INT
  integer(C_INT), parameter, public :: KIN_VECTOROP_ERR = -16_C_INT
+ integer(C_INT), parameter, public :: KIN_CONTEXT_ERR = -17_C_INT
+ integer(C_INT), parameter, public :: KIN_ORTH_MGS = 0_C_INT
+ integer(C_INT), parameter, public :: KIN_ORTH_ICWY = 1_C_INT
+ integer(C_INT), parameter, public :: KIN_ORTH_CGS2 = 2_C_INT
+ integer(C_INT), parameter, public :: KIN_ORTH_DCGS2 = 3_C_INT
  integer(C_INT), parameter, public :: KIN_ETACHOICE1 = 1_C_INT
  integer(C_INT), parameter, public :: KIN_ETACHOICE2 = 2_C_INT
  integer(C_INT), parameter, public :: KIN_ETACONSTANT = 3_C_INT
@@ -73,6 +81,7 @@ module fkinsol_mod
  public :: FKINSetPrintLevel
  public :: FKINSetDamping
  public :: FKINSetMAA
+ public :: FKINSetOrthAA
  public :: FKINSetDelayAA
  public :: FKINSetDampingAA
  public :: FKINSetReturnNewest
@@ -108,6 +117,7 @@ module fkinsol_mod
  public :: FKINGetReturnFlagName
  public :: FKINFree
  public :: FKINSetJacTimesVecSysFn
+ public :: FKINSetDebugFile
  integer(C_INT), parameter, public :: KINBBDPRE_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: KINBBDPRE_PDATA_NULL = -11_C_INT
  integer(C_INT), parameter, public :: KINBBDPRE_FUNC_UNRECVR = -12_C_INT
@@ -140,10 +150,11 @@ module fkinsol_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FKINCreate() &
+function swigc_FKINCreate(farg1) &
 bind(C, name="_wrap_FKINCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -240,6 +251,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FKINSetOrthAA(farg1, farg2) &
+bind(C, name="_wrap_FKINSetOrthAA") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -527,6 +547,15 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FKINSetDebugFile(farg1, farg2) &
+bind(C, name="_wrap_FKINSetDebugFile") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FKINBBDPrecInit(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9) &
 bind(C, name="_wrap_FKINBBDPrecInit") &
 result(fresult)
@@ -696,13 +725,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FKINCreate() &
+function FKINCreate(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FKINCreate()
+farg1 = sunctx
+fresult = swigc_FKINCreate(farg1)
 swig_result = fresult
 end function
 
@@ -881,6 +913,22 @@ integer(C_LONG) :: farg2
 farg1 = kinmem
 farg2 = maa
 fresult = swigc_FKINSetMAA(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINSetOrthAA(kinmem, orthaa) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+integer(C_INT), intent(in) :: orthaa
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = kinmem
+farg2 = orthaa
+fresult = swigc_FKINSetOrthAA(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1391,6 +1439,22 @@ type(C_FUNPTR) :: farg2
 farg1 = kinmem
 farg2 = jtimessysfn
 fresult = swigc_FKINSetJacTimesVecSysFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINSetDebugFile(kinmem, debugfp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+type(C_PTR) :: debugfp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = kinmem
+farg2 = debugfp
+fresult = swigc_FKINSetDebugFile(farg1, farg2)
 swig_result = fresult
 end function
 

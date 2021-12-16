@@ -208,11 +208,12 @@
 
 #include "nvector/nvector_parallel.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VNew_Parallel(int const *farg1, int64_t const *farg2, int64_t const *farg3) {
+SWIGEXPORT N_Vector _wrap_FN_VNew_Parallel(int const *farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
   N_Vector fresult ;
   MPI_Comm arg1 ;
   sunindextype arg2 ;
   sunindextype arg3 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   N_Vector result;
   
 #ifdef SUNDIALS_MPI_ENABLED
@@ -222,17 +223,19 @@ SWIGEXPORT N_Vector _wrap_FN_VNew_Parallel(int const *farg1, int64_t const *farg
 #endif
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
-  result = (N_Vector)N_VNew_Parallel(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (N_Vector)N_VNew_Parallel(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Parallel(int const *farg1, int64_t const *farg2, int64_t const *farg3) {
+SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Parallel(int const *farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
   N_Vector fresult ;
   MPI_Comm arg1 ;
   sunindextype arg2 ;
   sunindextype arg3 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   N_Vector result;
   
 #ifdef SUNDIALS_MPI_ENABLED
@@ -242,18 +245,20 @@ SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Parallel(int const *farg1, int64_t const 
 #endif
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
-  result = (N_Vector)N_VNewEmpty_Parallel(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (N_Vector)N_VNewEmpty_Parallel(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *farg2, int64_t const *farg3, double *farg4) {
+SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *farg2, int64_t const *farg3, double *farg4, void *farg5) {
   N_Vector fresult ;
   MPI_Comm arg1 ;
   sunindextype arg2 ;
   sunindextype arg3 ;
   realtype *arg4 = (realtype *) 0 ;
+  SUNContext arg5 = (SUNContext) 0 ;
   N_Vector result;
   
 #ifdef SUNDIALS_MPI_ENABLED
@@ -264,47 +269,10 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *far
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
   arg4 = (realtype *)(farg4);
-  result = (N_Vector)N_VMake_Parallel(arg1,arg2,arg3,arg4);
+  arg5 = (SUNContext)(farg5);
+  result = (N_Vector)N_VMake_Parallel(arg1,arg2,arg3,arg4,arg5);
   fresult = result;
   return fresult;
-}
-
-
-SWIGEXPORT void * _wrap_FN_VCloneVectorArray_Parallel(int const *farg1, N_Vector farg2) {
-  void * fresult ;
-  int arg1 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  N_Vector *result = 0 ;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (N_Vector *)N_VCloneVectorArray_Parallel(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void * _wrap_FN_VCloneVectorArrayEmpty_Parallel(int const *farg1, N_Vector farg2) {
-  void * fresult ;
-  int arg1 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  N_Vector *result = 0 ;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (N_Vector *)N_VCloneVectorArrayEmpty_Parallel(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_FN_VDestroyVectorArray_Parallel(void *farg1, int const *farg2) {
-  N_Vector *arg1 = (N_Vector *) 0 ;
-  int arg2 ;
-  
-  arg1 = (N_Vector *)(farg1);
-  arg2 = (int)(*farg2);
-  N_VDestroyVectorArray_Parallel(arg1,arg2);
 }
 
 
@@ -958,6 +926,40 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal_Parallel(N_Vector farg1, N_Vector f
 }
 
 
+SWIGEXPORT int _wrap_FN_VDotProdMultiLocal_Parallel(int const *farg1, N_Vector farg2, void *farg3, double *farg4) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  realtype *arg4 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (realtype *)(farg4);
+  result = (int)N_VDotProdMultiLocal_Parallel(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce_Parallel(int const *farg1, N_Vector farg2, double *farg3) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  realtype *arg3 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (realtype *)(farg3);
+  result = (int)N_VDotProdMultiAllReduce_Parallel(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FN_VBufSize_Parallel(N_Vector farg1, int64_t *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
@@ -1123,6 +1125,58 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector farg1, 
   result = (int)N_VEnableWrmsNormMaskVectorArray_Parallel(arg1,arg2);
   fresult = (int)(result);
   return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VEnableDotProdMultiLocal_Parallel(N_Vector farg1, int const *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)N_VEnableDotProdMultiLocal_Parallel(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FN_VCloneVectorArray_Parallel(int const *farg1, N_Vector farg2) {
+  void * fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *result = 0 ;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (N_Vector *)N_VCloneVectorArray_Parallel(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FN_VCloneVectorArrayEmpty_Parallel(int const *farg1, N_Vector farg2) {
+  void * fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *result = 0 ;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (N_Vector *)N_VCloneVectorArrayEmpty_Parallel(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FN_VDestroyVectorArray_Parallel(void *farg1, int const *farg2) {
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  int arg2 ;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (int)(*farg2);
+  N_VDestroyVectorArray_Parallel(arg1,arg2);
 }
 
 

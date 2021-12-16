@@ -106,6 +106,9 @@ static int FreeUserData(UserData *udata);
 
 // Main Program
 int main(int argc, char* argv[]) {
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext ctx = NULL;
+  SUNContext_Create(NULL, &ctx);
 
   // general problem parameters
   realtype T0 = RCONST(0.0);     // initial time
@@ -124,7 +127,7 @@ int main(int argc, char* argv[]) {
   booleantype linear;
   realtype t;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nli, ark_nJv, ark_nlcf, ark_nni, ark_ncfn, ark_npe, ark_nps;
-  long int mri_nst, mri_nfs, mri_nsetups, mri_nli, mri_nJv, mri_nlcf, mri_nni, mri_ncfn, mri_npe, mri_nps;
+  long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nli, mri_nJv, mri_nlcf, mri_nni, mri_ncfn, mri_npe, mri_nps;
 
   // general problem variables
   int flag;                       // reusable error-checking flag
@@ -135,7 +138,6 @@ int main(int argc, char* argv[]) {
   void *arkstep_mem = NULL;       // empty ARKStep memory structure
   void *mristep_mem = NULL;       // empty MRIStep memory structure
   void *inner_mem = NULL;         // empty inner ARKStep memory structure
-  ARKodeButcherTable B = NULL;    // empty Butcher table
 
   // initialize MPI
   flag = MPI_Init(&argc, &argv);
@@ -185,18 +187,18 @@ int main(int argc, char* argv[]) {
   // Initialize vector data structures
   N = (udata->nxl)*(udata->nyl);
   Ntot = nx*ny;
-  y = N_VNew_Parallel(udata->comm, N, Ntot);         // Create parallel vector for solution
+  y = N_VNew_Parallel(udata->comm, N, Ntot, ctx);    // Create parallel vector for solution
   if (check_flag((void *) y, "N_VNew_Parallel", 0)) return 1;
   N_VConst(ZERO, y);                                 // Set initial conditions
-  udata->h = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for heat source
+  udata->h = N_VClone(y);  // Create vector for heat source
   if (check_flag((void *) udata->h, "N_VNew_Parallel", 0)) return 1;
-  udata->d = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for Jacobian diagonal
+  udata->d = N_VClone(y);  // Create vector for Jacobian diagonal
   if (check_flag((void *) udata->d, "N_VNew_Parallel", 0)) return 1;
 
   // Initialize linear solver data structures
-  LSa = SUNLinSol_PCG(y, 1, 20);
+  LSa = SUNLinSol_PCG(y, 1, 20, ctx);
   if (check_flag((void *) LSa, "SUNLinSol_PCG", 0)) return 1;
-  LSm = SUNLinSol_PCG(y, 1, 20);
+  LSm = SUNLinSol_PCG(y, 1, 20, ctx);
   if (check_flag((void *) LSm, "SUNLinSol_PCG", 0)) return 1;
 
   // fill in the heat source array
@@ -207,24 +209,44 @@ int main(int argc, char* argv[]) {
                                 * sin(TWO*PI*(udata->js+j)*udata->dy);
 
   /* Call ARKStepCreate and MRIStepCreate to initialize the timesteppers */
-  arkstep_mem = ARKStepCreate(NULL, f, T0, y);
+  arkstep_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *) arkstep_mem, "ARKStepCreate", 0)) return 1;
-  inner_mem = ARKStepCreate(f0, NULL, T0, y);
+
+  inner_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
   if (check_flag((void *) inner_mem, "ARKStepCreate", 0)) return 1;
-  mristep_mem = MRIStepCreate(f, T0, y, MRISTEP_ARKSTEP, inner_mem);
+
+  MRIStepInnerStepper inner_stepper = NULL;
+  flag = ARKStepCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
+  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+
+  mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper, ctx);
   if (check_flag((void *) mristep_mem, "MRIStepCreate", 0)) return 1;
 
   // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
-  B = ARKodeButcherTable_Alloc(3, SUNFALSE);
+  ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
   if (check_flag((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-  B->A[1][0] = ONE;
-  B->A[2][0] = RCONST(0.5);
-  B->A[2][2] = RCONST(0.5);
+  B->A[1][0] = RCONST(0.5);
+  B->A[1][1] = RCONST(0.5);
   B->b[0] = RCONST(0.5);
-  B->b[2] = RCONST(0.5);
+  B->b[1] = RCONST(0.5);
   B->c[1] = ONE;
-  B->c[2] = ONE;
   B->q=2;
+
+  // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
+  ARKodeButcherTable Bc = ARKodeButcherTable_Alloc(3, SUNFALSE);
+  if (check_flag((void *)Bc, "ARKodeButcherTable_Alloc", 0)) return 1;
+  Bc->A[1][0] = ONE;
+  Bc->A[2][0] = RCONST(0.5);
+  Bc->A[2][2] = RCONST(0.5);
+  Bc->b[0] = RCONST(0.5);
+  Bc->b[2] = RCONST(0.5);
+  Bc->c[1] = ONE;
+  Bc->c[2] = ONE;
+  Bc->q=2;
+
+  // Create the MIS coupling table
+  MRIStepCoupling C = MRIStepCoupling_MIStoMRI(Bc, 2, 0);
+  if (check_flag((void *)C, "MRIStepCoupling_MIStoMRI", 0)) return 1;
 
   // Set routines
   flag = ARKStepSetUserData(arkstep_mem, (void *) udata);      // Pass udata to user functions
@@ -239,6 +261,7 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkstep_mem, 2*Nt);             // Increase num internal steps
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+
   flag = MRIStepSetUserData(mristep_mem, (void *) udata);      // Pass udata to user functions
   if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
   flag = MRIStepSetNonlinConvCoef(mristep_mem, RCONST(1.e-7)); // Update solver convergence coeff.
@@ -249,8 +272,8 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
   flag = ARKStepSetFixedStep(inner_mem, Tf/Nt/10);
   if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
-  flag = MRIStepSetTable(mristep_mem, 2, B);                   // Specify Butcher table
-  if (check_flag(&flag, "MRIStepSetTable", 1)) return 1;
+  flag = MRIStepSetCoupling(mristep_mem, C);                   // Specify Butcher table
+  if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
   flag = MRIStepSetMaxNumSteps(mristep_mem, 2*Nt);             // Increase num internal steps
   if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
 
@@ -259,6 +282,7 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
   flag = ARKStepSetPreconditioner(arkstep_mem, PSet, PSol);   // Specify the Preconditoner
   if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
+
   flag = MRIStepSetLinearSolver(mristep_mem, LSm, NULL);      // Attach linear solver
   if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
   flag = MRIStepSetPreconditioner(mristep_mem, PSet, PSol);   // Specify the Preconditoner
@@ -268,6 +292,7 @@ int main(int argc, char* argv[]) {
   if (linear) {
     flag = ARKStepSetLinear(arkstep_mem, 0);
     if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+
     flag = MRIStepSetLinear(mristep_mem, 0);
     if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
   }
@@ -319,7 +344,7 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "MRIStepEvolve", 1)) return 1;
   flag = MRIStepGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return 1;
-  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfs);
+  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return 1;
   flag = MRIStepGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
   if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) return 1;
@@ -340,7 +365,7 @@ int main(int argc, char* argv[]) {
   if (outproc) {
     cout << "\nMRIStep Solver Statistics:\n";
     cout << "   Internal solver steps = " << mri_nst << "\n";
-    cout << "   Total RHS evals:  Fe = " << mri_nfs << "\n";
+    cout << "   Total RHS evals:  Fe = " << mri_nfsi << "\n";
     cout << "   Total linear solver setups = " << mri_nsetups << "\n";
     cout << "   Total linear iterations = " << mri_nli << "\n";
     cout << "   Total number of Jacobian-vector products = " << mri_nJv << "\n";
@@ -361,10 +386,10 @@ int main(int argc, char* argv[]) {
     if (outproc)
       cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst << "\n";
   }
-  if (ark_nfi != (mri_nfs+mri_nst)) {
+  if ((ark_nfi - ark_nst) != mri_nfsi) {
     numfails += 1;
     if (outproc)
-      cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfs << "\n";
+      cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
   }
   if (ark_nsetups != mri_nsetups) {
     numfails += 1;
@@ -410,17 +435,22 @@ int main(int argc, char* argv[]) {
   }
 
   // Clean up and return with successful completion
-  ARKodeButcherTable_Free(B);  // Free Butcher table
-  ARKStepFree(&arkstep_mem);   // Free integrator memory
+  ARKodeButcherTable_Free(B);                // Free Butcher table
+  ARKodeButcherTable_Free(Bc);               // Free Butcher table
+  MRIStepCoupling_Free(C);                   // Free MRI coupling table
+  ARKStepFree(&arkstep_mem);                 // Free integrator memory
   MRIStepFree(&mristep_mem);
   ARKStepFree(&inner_mem);
-  SUNLinSolFree(LSa);          // Free linear solver
+  MRIStepInnerStepper_Free(&inner_stepper);
+  SUNLinSolFree(LSa);                        // Free linear solver
   SUNLinSolFree(LSm);
-  N_VDestroy(y);               // Free vectors
+  N_VDestroy(y);                             // Free vectors
   N_VDestroy(udata->h);
   N_VDestroy(udata->d);
-  FreeUserData(udata);         // Free user data
+  FreeUserData(udata);                       // Free user data
   delete udata;
+
+  SUNContext_Free(&ctx);
   flag = MPI_Finalize();       // Finalize MPI
   return (numfails);
 }

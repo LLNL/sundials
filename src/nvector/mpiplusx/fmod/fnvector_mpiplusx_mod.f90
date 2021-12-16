@@ -21,6 +21,7 @@
 module fnvector_mpiplusx_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -30,18 +31,21 @@ module fnvector_mpiplusx_mod
  public :: FN_VGetVectorID_MPIPlusX
  public :: FN_VGetArrayPointer_MPIPlusX
  public :: FN_VSetArrayPointer_MPIPlusX
+ public :: FN_VPrint_MPIPlusX
+ public :: FN_VPrintFile_MPIPlusX
  public :: FN_VGetLocalVector_MPIPlusX
  public :: FN_VGetLocalLength_MPIPlusX
  public :: FN_VEnableFusedOps_MPIPlusX
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VMake_MPIPlusX(farg1, farg2) &
+function swigc_FN_VMake_MPIPlusX(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VMake_MPIPlusX") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
 type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
 
@@ -63,6 +67,19 @@ end function
 
 subroutine swigc_FN_VSetArrayPointer_MPIPlusX(farg1, farg2) &
 bind(C, name="_wrap_FN_VSetArrayPointer_MPIPlusX")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+subroutine swigc_FN_VPrint_MPIPlusX(farg1) &
+bind(C, name="_wrap_FN_VPrint_MPIPlusX")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+subroutine swigc_FN_VPrintFile_MPIPlusX(farg1, farg2) &
+bind(C, name="_wrap_FN_VPrintFile_MPIPlusX")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
@@ -98,19 +115,22 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VMake_MPIPlusX(comm, x) &
+function FN_VMake_MPIPlusX(comm, x, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer :: comm
 type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = int(comm, C_INT)
 farg2 = c_loc(x)
-fresult = swigc_FN_VMake_MPIPlusX(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VMake_MPIPlusX(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
 
@@ -150,6 +170,27 @@ type(C_PTR) :: farg2
 farg1 = c_loc(vdata(1))
 farg2 = c_loc(v)
 call swigc_FN_VSetArrayPointer_MPIPlusX(farg1, farg2)
+end subroutine
+
+subroutine FN_VPrint_MPIPlusX(x)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(x)
+call swigc_FN_VPrint_MPIPlusX(farg1)
+end subroutine
+
+subroutine FN_VPrintFile_MPIPlusX(x, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = outfile
+call swigc_FN_VPrintFile_MPIPlusX(farg1, farg2)
 end subroutine
 
 function FN_VGetLocalVector_MPIPlusX(v) &

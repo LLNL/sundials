@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
   int sensi_meth;
 
   SUNNonlinearSolver NLS, NLSsens;
+  SUNContext sunctx;
 
   cvode_mem = NULL;
   data = NULL;
@@ -134,6 +135,10 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
+  /* Create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Set user data */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
   if(check_retval((void *)data, "malloc", 2)) return(1);
@@ -143,7 +148,7 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(0.5);
 
   /* Allocate and set initial states */
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   SetIC(u, dx);
 
@@ -152,7 +157,7 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* Create CVODES object */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -166,7 +171,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* create fixed point nonlinear solver object */
-  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
   if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
 
   /* attach nonlinear solver object to CVode */
@@ -208,11 +213,11 @@ int main(int argc, char *argv[])
 
     /* create sensitivity fixed point nonlinear solver object */
     if (sensi_meth == CV_SIMULTANEOUS)
-      NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0);
+      NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0, sunctx);
     else if(sensi_meth == CV_STAGGERED)
-      NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0);
+      NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0, sunctx);
     else
-      NLSsens = SUNNonlinSol_FixedPoint(u, 0);
+      NLSsens = SUNNonlinSol_FixedPoint(u, 0, sunctx);
     if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
 
     /* attach nonlinear solver object to CVode */
@@ -273,6 +278,7 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);
   SUNNonlinSolFree(NLS);
   if (sensi) SUNNonlinSolFree(NLSsens);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }

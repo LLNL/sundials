@@ -41,25 +41,25 @@ contains
     type(c_ptr)             :: xvecs, zvecs       ! C pointer to array of C pointers to N_Vectors
 
     !===== Setup ====
-    x => FN_VMake_Serial(N, xdata)
+    x => FN_VMake_Serial(N, xdata, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_Serial(x)
     call FN_VConst(ONE, y)
     z => FN_VClone_Serial(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray_Serial(nv, x)
-    zvecs = FN_VCloneVectorArray_Serial(nv, z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
 
     ! test constructors
-    tmp => FN_VNewEmpty_Serial(N)
+    tmp => FN_VNewEmpty_Serial(N, sunctx)
     call FN_VDestroy_Serial(tmp)
-    tmp => FN_VMake_Serial(N, xdata)
+    tmp => FN_VMake_Serial(N, xdata, sunctx)
     call FN_VDestroy_Serial(tmp)
-    tmp => FN_VNew_Serial(N)
+    tmp => FN_VNew_Serial(N, sunctx)
     call FN_VDestroy_Serial(tmp)
     tmp => FN_VCloneEmpty_Serial(x)
     call FN_VDestroy_Serial(tmp)
@@ -109,8 +109,8 @@ contains
     call FN_VDestroy_Serial(x)
     call FN_VDestroy_Serial(y)
     call FN_VDestroy_Serial(z)
-    call FN_VDestroyVectorArray_Serial(xvecs, nv)
-    call FN_VDestroyVectorArray_Serial(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 
@@ -126,7 +126,7 @@ contains
     !===== Setup ====
     fails = 0
 
-    x => FN_VMake_Serial(N, xdata)
+    x => FN_VMake_Serial(N, xdata, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -190,6 +190,8 @@ program main
   !============== Introduction =============
   print *, 'Serial N_Vector Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = smoke_tests()
   if (fails /= 0) then
     print *, 'FAILURE: smoke tests failed'
@@ -205,4 +207,7 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
+
 end program main

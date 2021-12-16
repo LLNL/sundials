@@ -115,6 +115,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char** argv)
 {
+  sundials::Context sunctx;
   realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -142,14 +143,14 @@ int main(int argc, char** argv)
   abstol = ATOL;
 
   /* Create a RAJA vector with initial values */
-  u = N_VNew_Raja(data->NEQ);  /* Allocate u vector */
+  u = N_VNew_Raja(data->NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void*)u, "N_VNew_Raja", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -169,7 +170,7 @@ int main(int argc, char** argv)
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
   /* Set CVode linear solver to LS */

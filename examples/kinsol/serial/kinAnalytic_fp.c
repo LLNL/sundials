@@ -99,6 +99,7 @@ typedef struct
   long int maxiter;     /* max number of iterations         */
   long int m_aa;        /* number of acceleration vectors   */
   long int delay_aa;    /* number of iterations to delay AA */
+  int      orth_aa;     /* orthogonalization method         */
   realtype damping_fp;  /* damping parameter for FP         */
   realtype damping_aa;  /* damping parameter for AA         */
 } *UserOpt;
@@ -127,6 +128,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
  * ---------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   int       retval = 0;     /* return value flag   */
   UserOpt   uopt   = NULL;  /* user options struct */
   N_Vector  u      = NULL;  /* solution vector     */
@@ -156,18 +158,23 @@ int main(int argc, char *argv[])
   printf("    y = %"GSYM"\n", YTRUE);
   printf("    z = %"GSYM"\n", ZTRUE);
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
-  printf("    tolerance  = %"GSYM"\n", uopt->tol);
-  printf("    max iters  = %ld\n", uopt->maxiter);
-  printf("    m_aa       = %ld\n", uopt->m_aa);
-  printf("    delay_aa   = %ld\n", uopt->delay_aa);
-  printf("    damping_aa = %"GSYM"\n", uopt->damping_aa);
-  printf("    damping_fp = %"GSYM"\n", uopt->damping_fp);
+  printf("    tolerance    = %"GSYM"\n", uopt->tol);
+  printf("    max iters    = %ld\n", uopt->maxiter);
+  printf("    m_aa         = %ld\n", uopt->m_aa);
+  printf("    delay_aa     = %ld\n", uopt->delay_aa);
+  printf("    damping_aa   = %"GSYM"\n", uopt->damping_aa);
+  printf("    damping_fp   = %"GSYM"\n", uopt->damping_fp);
+  printf("    orth routine = %d\n", uopt->orth_aa);
+
+  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
 
   scale = N_VClone(u);
@@ -177,11 +184,15 @@ int main(int argc, char *argv[])
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
-  kmem = KINCreate();
+  kmem = KINCreate(sunctx);
   if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
 
   /* Set number of prior residuals used in Anderson acceleration */
   retval = KINSetMAA(kmem, uopt->m_aa);
+
+  /* Set orthogonalization routine used in Anderson acceleration */
+  retval = KINSetOrthAA(kmem, uopt->orth_aa);
+  if (check_retval(&retval, "KINSetOrthAA", 1)) return(1);
 
   retval = KINInit(kmem, FPFunction, u);
   if (check_retval(&retval, "KINInit", 1)) return(1);
@@ -284,6 +295,7 @@ int main(int argc, char *argv[])
   N_VDestroy(scale);
   KINFree(&kmem);
   free(uopt);
+  SUNContext_Free(&sunctx);
 
   return(retval);
 }
@@ -380,6 +392,7 @@ static int SetDefaults(UserOpt *uopt)
   (*uopt)->maxiter    = 30;
   (*uopt)->m_aa       = 0;            /* no acceleration */
   (*uopt)->delay_aa   = 0;            /* no delay        */
+  (*uopt)->orth_aa    = 0;            /* MGS             */
   (*uopt)->damping_fp = RCONST(1.0);  /* no FP dampig    */
   (*uopt)->damping_aa = RCONST(1.0);  /* no AA damping   */
 
@@ -425,6 +438,11 @@ static int ReadInputs(int *argc, char ***argv, UserOpt uopt)
       arg_index++;
       uopt->damping_aa = atof((*argv)[arg_index++]);
     }
+    else if (strcmp((*argv)[arg_index], "--orth_aa") == 0)
+    {
+      arg_index++;
+      uopt->orth_aa = atoi((*argv)[arg_index++]);
+    }
     else if (strcmp((*argv)[arg_index], "--help") == 0)
     {
       InputHelp();
@@ -449,11 +467,14 @@ static void InputHelp()
 {
   printf("\n");
   printf(" Command line options:\n");
-  printf("   --tol         : nonlinear solver tolerance\n");
-  printf("   --maxiter     : max number of nonlinear iterations\n");
-  printf("   --m_aa        : number of Anderson acceleration vectors\n");
-  printf("   --damping_fp  : fixed point damping parameter\n");
-  printf("   --damping_aa  : Anderson acceleration damping parameter\n");
+  printf("   --tol        : nonlinear solver tolerance\n");
+  printf("   --maxiter    : max number of nonlinear iterations\n");
+  printf("   --m_aa       : number of Anderson acceleration vectors\n");
+  printf("   --delay_aa   : Anderson acceleration delay\n");
+  printf("   --damping_fp : fixed point damping parameter\n");
+  printf("   --damping_aa : Anderson acceleration damping parameter\n");
+  printf("   --orth_aa    : Anderson acceleration orthogonalization method\n");
+
   return;
 }
 

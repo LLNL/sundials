@@ -206,6 +206,7 @@ int main(int argc, char *argv[])
   sunindextype mu, ml;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
+  SUNContext ctx;
 
   ida_mem = NULL;
   A = NULL;
@@ -221,24 +222,29 @@ int main(int argc, char *argv[])
   if (argc > 1)      /* overwrite with command line value, if supplied */
     num_threads = (int) strtol(argv[1], NULL, 0);
 
+  /* Create the SUNDIALS context object for this simulation */
+
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate and initialize user data block webdata. */
 
   webdata = (UserData) malloc(sizeof *webdata);
-  webdata->rates = N_VNew_OpenMP(NEQ, num_threads);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->rates = N_VNew_OpenMP(NEQ, num_threads, ctx);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   webdata->nthreads = num_threads;
 
   InitUserData(webdata);
 
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
-  cc  = N_VNew_OpenMP(NEQ, num_threads);
+  cc = N_VNew_OpenMP(NEQ, num_threads, ctx);
   if(check_retval((void *)cc, "N_VNew_OpenMP", 0)) return(1);
 
-  cp  = N_VNew_OpenMP(NEQ, num_threads);
+  cp = N_VClone(cc);
   if(check_retval((void *)cp, "N_VNew_OpenMP", 0)) return(1);
 
-  id  = N_VNew_OpenMP(NEQ, num_threads);
+  id = N_VClone(cc);
   if(check_retval((void *)id, "N_VNew_OpenMP", 0)) return(1);
 
   SetInitialProfiles(cc, cp, id, webdata);
@@ -251,7 +257,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(ida_mem, webdata);
@@ -269,9 +275,9 @@ int main(int argc, char *argv[])
   /* Setup band matrix and linear solver, and attach to IDA. */
 
   mu = ml = NSMX;
-  A = SUNBandMatrix(NEQ, mu, ml);
+  A = SUNBandMatrix(NEQ, mu, ml, ctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
-  LS = SUNLinSol_Band(cc, A);
+  LS = SUNLinSol_Band(cc, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
   retval = IDASetLinearSolver(ida_mem, LS, A);
   if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
@@ -316,9 +322,11 @@ int main(int argc, char *argv[])
   N_VDestroy_OpenMP(id);
 
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy_OpenMP(webdata->rates);
   free(webdata);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

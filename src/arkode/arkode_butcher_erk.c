@@ -22,12 +22,6 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set Runge Kutta methods.
@@ -52,26 +46,26 @@
 
      imeth                       QP
     --------------------------------
-     HEUN_EULER_2_1_2             Y
-     BOGACKI_SHAMPINE_4_2_3       Y
-     ARK324L2SA_ERK_4_2_3*        N
-     ZONNEVELD_5_3_4              Y
-     ARK436L2SA_ERK_6_3_4*        N
-     ARK437L2SA_ERK_7_3_4*        N
-     SAYFY_ABURUB_6_3_4           N
-     CASH_KARP_6_4_5              Y
-     FEHLBERG_6_4_5               Y
-     DORMAND_PRINCE_7_4_5         Y
-     ARK548L2SA_ERK_8_4_5*        N
-     ARK548L2SAb_ERK_8_4_5*       N
-     VERNER_8_5_6                 Y
-     FEHLBERG_13_7_8              Y
+     ARKODE_HEUN_EULER_2_1_2             Y
+     ARKODE_BOGACKI_SHAMPINE_4_2_3       Y
+     ARKODE_ARK324L2SA_ERK_4_2_3*        N
+     ARKODE_ZONNEVELD_5_3_4              Y
+     ARKODE_ARK436L2SA_ERK_6_3_4*        N
+     ARKODE_ARK437L2SA_ERK_7_3_4*        N
+     ARKODE_SAYFY_ABURUB_6_3_4           N
+     ARKODE_CASH_KARP_6_4_5              Y
+     ARKODE_FEHLBERG_6_4_5               Y
+     ARKODE_DORMAND_PRINCE_7_4_5         Y
+     ARKODE_ARK548L2SA_ERK_8_4_5*        N
+     ARKODE_ARK548L2SAb_ERK_8_4_5*       N
+     ARKODE_VERNER_8_5_6                 Y
+     ARKODE_FEHLBERG_13_7_8              Y
     --------------------------------
-     KNOTH_WOLKE_3_3^             Y
+     ARKODE_KNOTH_WOLKE_3_3^             Y
     --------------------------------
 
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
+ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID imethod)
 {
 
   ARKodeButcherTable B;
@@ -84,7 +78,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
    * METHODS WITH EMBEDDINGS
    * ========================================================*/
 
-  case(HEUN_EULER_2_1_2):    /* Heun-Euler-ERK */
+  case(ARKODE_HEUN_EULER_2_1_2):    /* Heun-Euler-ERK */
     B = ARKodeButcherTable_Alloc(2, SUNTRUE);
     B->q = 2;
     B->p = 1;
@@ -99,7 +93,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[1] = RCONST(1.0);
     break;
 
-  case(BOGACKI_SHAMPINE_4_2_3):    /* Bogacki-Shampine-ERK */
+  case(ARKODE_BOGACKI_SHAMPINE_4_2_3):    /* Bogacki-Shampine-ERK */
     B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;
@@ -123,7 +117,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[3] = RCONST(1.0);
     break;
 
-  case(ARK324L2SA_ERK_4_2_3):    /* ARK3(2)4L[2]SA-ERK */
+  case(ARKODE_ARK324L2SA_ERK_4_2_3):    /* ARK3(2)4L[2]SA-ERK */
     B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;
@@ -149,7 +143,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[3] = RCONST(1.0);
     break;
 
-  case(ZONNEVELD_5_3_4):    /* Zonneveld */
+  case(ARKODE_ZONNEVELD_5_3_4):    /* Zonneveld */
     B = ARKodeButcherTable_Alloc(5, SUNTRUE);
     B->q = 4;
     B->p = 3;
@@ -178,7 +172,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[4] = RCONST(0.75);
     break;
 
-  case(ARK436L2SA_ERK_6_3_4):    /* ARK4(3)6L[2]SA-ERK */
+  case(ARKODE_ARK436L2SA_ERK_6_3_4):    /* ARK4(3)6L[2]SA-ERK */
     B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 4;
     B->p = 3;
@@ -217,7 +211,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[5] = RCONST(1.0);
     break;
 
-  case(ARK437L2SA_ERK_7_3_4):    /* ARK4(3)7L[2]SA-ERK */
+  case(ARKODE_ARK437L2SA_ERK_7_3_4):    /* ARK4(3)7L[2]SA-ERK */
     B = ARKodeButcherTable_Alloc(7, SUNTRUE);
     B->q = 4;
     B->p = 3;
@@ -263,7 +257,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[6] = RCONST(1.0);
     break;
 
-  case(SAYFY_ABURUB_6_3_4):    /* Sayfy-Aburub-4-3-ERK */
+  case(ARKODE_SAYFY_ABURUB_6_3_4):    /* Sayfy-Aburub-4-3-ERK */
     B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 4;
     B->p = 3;
@@ -299,7 +293,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[5] = RCONST(1.0);
     break;
 
-  case(CASH_KARP_6_4_5):    /* Cash-Karp-ERK */
+  case(ARKODE_CASH_KARP_6_4_5):    /* Cash-Karp-ERK */
     B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 5;
     B->p = 4;
@@ -337,7 +331,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[5] = RCONST(7.0)/RCONST(8.0);
     break;
 
-  case(FEHLBERG_6_4_5):    /* Fehlberg-ERK */
+  case(ARKODE_FEHLBERG_6_4_5):    /* Fehlberg-ERK */
     B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 5;
     B->p = 4;
@@ -375,7 +369,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[5] = RCONST(1.0)/RCONST(2.0);
     break;
 
-  case(DORMAND_PRINCE_7_4_5):    /* Dormand-Prince-ERK */
+  case(ARKODE_DORMAND_PRINCE_7_4_5):    /* Dormand-Prince-ERK */
     B = ARKodeButcherTable_Alloc(7, SUNTRUE);
     B->q = 5;
     B->p = 4;
@@ -421,7 +415,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[6] = RCONST(1.0);
     break;
 
-  case(ARK548L2SA_ERK_8_4_5):    /* ARK5(4)8L[2]SA-ERK */
+  case(ARKODE_ARK548L2SA_ERK_8_4_5):    /* ARK5(4)8L[2]SA-ERK */
     B = ARKodeButcherTable_Alloc(8, SUNTRUE);
     B->q = 5;
     B->p = 4;
@@ -472,7 +466,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[7] = RCONST(1.0);
     break;
 
-  case(ARK548L2SAb_ERK_8_4_5):    /* ARK5(4)8L[2]SAb-ERK */
+  case(ARKODE_ARK548L2SAb_ERK_8_4_5):    /* ARK5(4)8L[2]SAb-ERK */
     B = ARKodeButcherTable_Alloc(8, SUNTRUE);
     B->q = 5;
     B->p = 4;
@@ -528,7 +522,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[7] = RCONST(1.0);
     break;
 
-  case(VERNER_8_5_6):    /* Verner-6-5 */
+  case(ARKODE_VERNER_8_5_6):    /* Verner-6-5 */
     B = ARKodeButcherTable_Alloc(8, SUNTRUE);
     B->q = 6;
     B->p = 5;
@@ -582,7 +576,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[7] = RCONST(1.0);
     break;
 
-  case(FEHLBERG_13_7_8):    /* Fehlberg-8-7 */
+  case(ARKODE_FEHLBERG_13_7_8):    /* Fehlberg-8-7 */
     B = ARKodeButcherTable_Alloc(13, SUNTRUE);
     B->q = 8;
     B->p = 7;
@@ -675,7 +669,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
    * FIXED STEP METHODS
    * ========================================================*/
 
-  case(KNOTH_WOLKE_3_3):      /* Knoth-Wolke-ERK */
+  case(ARKODE_KNOTH_WOLKE_3_3):      /* Knoth-Wolke-ERK */
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     B->q = 3;
     B->p = 0;

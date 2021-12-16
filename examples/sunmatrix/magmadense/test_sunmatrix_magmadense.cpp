@@ -47,9 +47,6 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  SUNMemoryHelper memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip();,
-                                           SUNMemoryHelper_Cuda(); )
-
   int          fails = 0;        /* counter for test failures  */
   sunindextype matrows, matcols; /* matrix dimensions          */
   sunindextype nblocks;          /* number of blocks in matrix */
@@ -59,6 +56,15 @@ int main(int argc, char *argv[])
   realtype     *Adata, *Idata;   /* pointers to matrix data    */
   int          print_timing, square;
   sunindextype i, j, k, m, n;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
+
+  SUNMemoryHelper memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip(sunctx);,
+                                           SUNMemoryHelper_Cuda(sunctx); )
 
   /* check input and set vector length */
   if (argc < 5) {
@@ -98,11 +104,11 @@ int main(int argc, char *argv[])
   I = NULL;
 
   /* Create vectors and matrices */
-  x = HIP_OR_CUDA( N_VNew_Hip(matcols*nblocks);,
-                   N_VNew_Cuda(matcols*nblocks); )
-  y = HIP_OR_CUDA( N_VNew_Hip(matrows*nblocks);,
-                   N_VNew_Cuda(matrows*nblocks); )
-  A = SUNMatrix_MagmaDenseBlock(nblocks, matrows, matcols, SUNMEMTYPE_DEVICE, memhelper, NULL);
+  x = HIP_OR_CUDA( N_VNew_Hip(matcols*nblocks, sunctx);,
+                   N_VNew_Cuda(matcols*nblocks, sunctx); )
+  y = HIP_OR_CUDA( N_VNew_Hip(matrows*nblocks, sunctx);,
+                   N_VNew_Cuda(matrows*nblocks, sunctx); )
+  A = SUNMatrix_MagmaDenseBlock(nblocks, matrows, matcols, SUNMEMTYPE_DEVICE, memhelper, NULL, sunctx);
   if (square)
     I = SUNMatClone(A);
 
@@ -180,6 +186,7 @@ int main(int argc, char *argv[])
     SUNMatDestroy(I);
     free(Idata);
   }
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

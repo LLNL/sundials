@@ -44,6 +44,12 @@ int main(int argc, char *argv[])
   sun_klu_symbolic *symbolic;
   sun_klu_numeric  *numeric;
   sun_klu_common   *common;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set matrix dimensions */
   if (argc < 4){
@@ -71,10 +77,10 @@ int main(int argc, char *argv[])
          (long int) N, mattype);
 
   /* Create matrices and vectors */
-  B = SUNDenseMatrix(N, N);
-  x = N_VNew_Serial(N);
-  y = N_VNew_Serial(N);
-  b = N_VNew_Serial(N);
+  B = SUNDenseMatrix(N, N, sunctx);
+  x = N_VNew_Serial(N, sunctx);
+  y = N_VNew_Serial(N, sunctx);
+  b = N_VNew_Serial(N, sunctx);
 
   /* Fill matrix with uniform random data in [0,1/N] */
   for (k=0; k<5*N; k++) {
@@ -111,7 +117,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create KLU linear solver */
-  LS = SUNLinSol_KLU(x, A);
+  LS = SUNLinSol_KLU(x, A, sunctx);
 
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
@@ -167,6 +173,8 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
+
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

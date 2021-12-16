@@ -58,10 +58,10 @@ typedef struct _SUNMatrixContent_MagmaDense *SUNMatrixContent_MagmaDense;
  * ---------------------------------------*/
 
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_MagmaDense(sunindextype M, sunindextype N, SUNMemoryType memtype,
-                                               SUNMemoryHelper memhelper, void* queue);
+                                               SUNMemoryHelper memhelper, void* queue, SUNContext sunctx);
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunindextype N,
                                                     SUNMemoryType memtype, SUNMemoryHelper memhelper,
-                                                    void* queue);
+                                                    void* queue, SUNContext sunctx);
 SUNDIALS_EXPORT void SUNMatrix_MagmaDense_Print(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNMatrix_MagmaDense_Data(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_LData(SUNMatrix A);

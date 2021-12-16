@@ -1,6 +1,6 @@
-/*-----------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
- *-----------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,14 +10,14 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *-----------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------
  * This is the header file for the SUNNonlinearSolver module implementation of
  * the Anderson-accelerated fixed-point method.
  *
  * Part I defines the solver-specific content structure.
  *
  * Part II contains prototypes for the solver constructor and operations.
- *---------------------------------------------------------------------------*/
+ * ---------------------------------------------------------------------------*/
 
 #ifndef _SUNNONLINSOL_FIXEDPOINT_H
 #define _SUNNONLINSOL_FIXEDPOINT_H
@@ -76,8 +76,12 @@ typedef struct _SUNNonlinearSolverContent_FixedPoint *SUNNonlinearSolverContent_
    ---------------------------------------------------------------------------*/
 
 /* Constructor to create solver and allocates memory */
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m);
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m);
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx);
+
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
+                                               SUNContext sunctx);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS);
@@ -122,7 +126,7 @@ SUNDIALS_EXPORT int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS,
                                                        FILE* info_file);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS,
-                                                         int print_level);                                                   
+                                                         int print_level);
 
 
 #ifdef __cplusplus

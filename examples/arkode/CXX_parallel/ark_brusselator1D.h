@@ -196,7 +196,7 @@ typedef struct
 #define LOCAL_NLS(NLS)       ( GET_NLS_CONTENT(NLS)->local_nls )
 
 /* SUNNonlinearSolver constructor */
-SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID);
+SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID);
 
 
 /*
@@ -231,10 +231,12 @@ static int PSolve(double t, N_Vector y, N_Vector f, N_Vector r,
  */
 
 /* function that does ARKStep setup and evolves the solution */
-static int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt);
+static int EvolveProblemIMEX(SUNContext ctx, N_Vector y, UserData* udata,
+                             UserOptions* uopt);
 
 /* function that does ERKStep setup and evolves the solution */
-static int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt);
+static int EvolveProblemExplicit(SUNContext ctx, N_Vector y, UserData* udata,
+                                 UserOptions* uopt);
 
 /* function to set initial condition */
 static int SetIC(N_Vector y, UserData* udata);
@@ -251,8 +253,8 @@ static int ExchangeAllStart(N_Vector y, UserData* udata);
 static int ExchangeAllEnd(UserData* udata);
 
 /* functions for processing command line args */
-static int SetupProblem(int argc, char *argv[],
-                        UserData* udata, UserOptions* uopt);
+static int SetupProblem(int argc, char *argv[], UserData* udata,
+                        UserOptions* uopt, SUNContext ctx);
 static void InputError(char *name);
 
 /* function to write solution to disk */
@@ -265,4 +267,3 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 #ifdef USE_CUDA_OR_HIP
 static void gpuAssert(GPU_PREFIX(Error_t) code, const char *file, int line, int abort);
 #endif
-

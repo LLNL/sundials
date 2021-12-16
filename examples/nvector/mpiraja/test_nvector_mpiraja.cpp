@@ -51,7 +51,10 @@ int main(int argc, char *argv[])
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
+
   comm = MPI_COMM_WORLD;
+  Test_Init(&comm);
+
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
 
@@ -59,14 +62,14 @@ int main(int argc, char *argv[])
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    MPI_Abort(comm, -1);
+    Test_AbortMPI(&comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    MPI_Abort(comm, -1);
+    Test_AbortMPI(&comm, -1);
   }
 
   /* global length */
@@ -93,18 +96,18 @@ int main(int argc, char *argv[])
     }
 
     /* Create new vectors */
-    X = (i == UNMANAGED) ? N_VNew_Raja(local_length) : N_VNewManaged_Raja(local_length);
+    X = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx) : N_VNewManaged_Raja(local_length, sunctx);
     if (X == NULL) {
       if (myid == 0) printf("FAIL: Unable to create a new RAJA vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     /* Create the MPI+X vector */
-    plusX = N_VMake_MPIPlusX(comm, X);
+    plusX = N_VMake_MPIPlusX(comm, X, sunctx);
     if (plusX == NULL) {
       N_VDestroy(X);
       if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     /* Check vector ID */
@@ -128,7 +131,7 @@ int main(int argc, char *argv[])
       N_VDestroy(X);
       N_VDestroy(plusX);
       if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     plusZ = N_VClone(plusX);
@@ -137,7 +140,7 @@ int main(int argc, char *argv[])
       N_VDestroy(plusX);
       N_VDestroy(plusY);
       if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     /* Standard vector operation tests */
@@ -167,7 +170,7 @@ int main(int argc, char *argv[])
     if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
 
     /* create vector and disable all fused and vector array operations */
-    U = (i == UNMANAGED) ? N_VNew_Raja(local_length) : N_VNewManaged_Raja(local_length);
+    U = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx) : N_VNewManaged_Raja(local_length, sunctx);
     retval = N_VEnableFusedOps_Raja(U, SUNFALSE);
     if (U == NULL || retval != 0) {
       N_VDestroy(X);
@@ -175,10 +178,10 @@ int main(int argc, char *argv[])
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
       if (myid == 0) printf("FAIL: Unable to create a new RAJA vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
-    plusU = N_VMake_MPIPlusX(comm, U);
+    plusU = N_VMake_MPIPlusX(comm, U, sunctx);
     if (U == NULL || retval != 0) {
       N_VDestroy(X);
       N_VDestroy(U);
@@ -186,7 +189,7 @@ int main(int argc, char *argv[])
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
       if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     /* fused operations */
@@ -207,7 +210,7 @@ int main(int argc, char *argv[])
     if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
 
     /* create vector and enable all fused and vector array operations */
-    V = (i == UNMANAGED) ? N_VNew_Raja(local_length) : N_VNewManaged_Raja(local_length);
+    V = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx) : N_VNewManaged_Raja(local_length, sunctx);
     retval = N_VEnableFusedOps_Raja(V, SUNTRUE);
     if (V == NULL || retval != 0) {
       N_VDestroy(X);
@@ -217,11 +220,11 @@ int main(int argc, char *argv[])
       N_VDestroy(plusZ);
       N_VDestroy(plusU);
       if (myid == 0) printf("FAIL: Unable to create a new RAJA vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     /* create the MPIPlusX vector */
-    plusV = N_VMake_MPIPlusX(comm, V);
+    plusV = N_VMake_MPIPlusX(comm, V, sunctx);
     if (V == NULL || retval != 0) {
       N_VDestroy(X);
       N_VDestroy(U);
@@ -231,7 +234,7 @@ int main(int argc, char *argv[])
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
       if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
 
     /* fused operations */
@@ -249,7 +252,7 @@ int main(int argc, char *argv[])
     fails += Test_N_VLinearCombinationVectorArray(plusV, local_length, myid);
 
     /* local reduction operations */
-    printf("\nTesting local reduction operations:\n\n");
+    if (myid == 0) printf("\nTesting local reduction operations:\n\n");
 
     fails += Test_N_VDotProdLocal(plusX, plusY, local_length, myid);
     fails += Test_N_VMaxNormLocal(plusX, local_length, myid);
@@ -261,8 +264,13 @@ int main(int argc, char *argv[])
     fails += Test_N_VConstrMaskLocal(plusX, plusY, plusZ, local_length, myid);
     fails += Test_N_VMinQuotientLocal(plusX, plusY, local_length, myid);
 
+    /* local fused reduction operations */
+    if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+    fails += Test_N_VDotProdMultiLocal(plusV, local_length, myid);
+    fails += Test_N_VDotProdMultiAllReduce(plusV, local_length, myid);
+
     /* XBraid interface operations */
-    printf("\nTesting XBraid interface operations:\n\n");
+    if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
 
     fails += Test_N_VBufSize(plusX, local_length, myid);
     fails += Test_N_VBufPack(plusX, local_length, myid);
@@ -290,6 +298,13 @@ int main(int argc, char *argv[])
 
   /* check if any other process failed */
   (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+
+  sync_device(NULL);
+#if defined(USE_CUDA)
+  cudaDeviceReset();
+#elif defined(USE_HIP)
+  hipDeviceReset();
+#endif
 
   MPI_Finalize();
 

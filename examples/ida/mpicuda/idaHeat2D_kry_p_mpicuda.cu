@@ -335,6 +335,7 @@ int main(int argc, char *argv[])
   sunindextype local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uulocal, uu, up, constraints, id, res;
+  SUNContext ctx;
 
   ida_mem = NULL;
   LS = NULL;
@@ -347,6 +348,11 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &thispe);
+
+  /* Create the SUNDIALS context object for this simulation */
+  ier = SUNContext_Create((void*) &comm, &ctx);
+  if (check_flag(&ier, "SUNContext_Create", 1, thispe))
+    MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure */
   data = (UserData) malloc(sizeof *data);
@@ -371,11 +377,11 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize N-vectors. */
 
-  uulocal = N_VNew_Cuda(local_N);
+  uulocal = N_VNew_Cuda(local_N, ctx);
   if(check_flag((void *)uulocal, "N_VNew_Cuda", 0, thispe))
     MPI_Abort(comm, 1);
 
-  uu = N_VMake_MPIPlusX(comm, uulocal);
+  uu = N_VMake_MPIPlusX(comm, uulocal, ctx);
   if(check_flag((void *)uu, "N_VMake_MPIPlusX", 0, thispe))
     MPI_Abort(comm, 1);
 
@@ -414,7 +420,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetUserData(ida_mem, data);
@@ -438,7 +444,7 @@ int main(int argc, char *argv[])
 
   /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
   if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpilsSetLinearSolver(ida_mem, LS);
@@ -479,6 +485,8 @@ int main(int argc, char *argv[])
 
   DeleteUserData(data);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   MPI_Finalize();
 

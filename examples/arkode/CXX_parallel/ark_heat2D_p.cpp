@@ -295,6 +295,11 @@ int main(int argc, char* argv[])
   flag = MPI_Comm_rank(comm_w, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
+  // Create the SUNDIALS context object for this simulation
+  SUNContext ctx;
+  flag = SUNContext_Create((void*) &comm_w, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   // Set output process flag
   bool outproc = (myid == 0);
 
@@ -335,7 +340,7 @@ int main(int argc, char* argv[])
   // ------------------------
 
   // Create vector for solution
-  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
+  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes, ctx);
   if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
   // Set initial condition
@@ -351,11 +356,11 @@ int main(int argc, char* argv[])
   // ---------------------
 
   // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
+  int prectype = (udata->prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   if (udata->pcg)
   {
-    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
+    LS = SUNLinSol_PCG(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
     if (udata->lsinfo && outproc)
@@ -369,7 +374,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
+    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     if (udata->lsinfo && outproc)
@@ -394,7 +399,7 @@ int main(int argc, char* argv[])
   // --------------
 
   // Create integrator
-  arkode_mem = ARKStepCreate(NULL, f, ZERO, u);
+  arkode_mem = ARKStepCreate(NULL, f, ZERO, u, ctx);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Specify tolerances
@@ -574,6 +579,7 @@ int main(int argc, char* argv[])
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
+  SUNContext_Free(&ctx);     // Free context
   flag = MPI_Finalize();     // Finalize MPI
   return 0;
 }

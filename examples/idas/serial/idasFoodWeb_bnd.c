@@ -182,6 +182,7 @@ int main()
   realtype rtol, atol, t0, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   mem = NULL;
   webdata = NULL;
@@ -189,23 +190,28 @@ int main()
   A = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate and initialize user data block webdata. */
 
   webdata = (UserData) malloc(sizeof *webdata);
-  webdata->rates = N_VNew_Serial(NEQ);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->rates = N_VNew_Serial(NEQ, ctx);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata);
 
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
-  cc  = N_VNew_Serial(NEQ);
+  cc = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)cc, "N_VNew_Serial", 0)) return(1);
 
-  cp  = N_VNew_Serial(NEQ);
+  cp = N_VClone(cc);
   if(check_retval((void *)cp, "N_VNew_Serial", 0)) return(1);
 
-  id  = N_VNew_Serial(NEQ);
+  id = N_VClone(cc);
   if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
 
   SetInitialProfiles(cc, cp, id, webdata);
@@ -218,7 +224,7 @@ int main()
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, webdata);
@@ -235,11 +241,11 @@ int main()
 
   /* Create banded SUNMatrix for use in linear solves */
   mu = ml = NSMX;
-  A = SUNBandMatrix(NEQ, mu, ml);
+  A = SUNBandMatrix(NEQ, mu, ml, ctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */
-  LS = SUNLinSol_Band(cc, A);
+  LS = SUNLinSol_Band(cc, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -285,9 +291,11 @@ int main()
   N_VDestroy(id);
 
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   free(webdata);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

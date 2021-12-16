@@ -101,24 +101,30 @@ int main()
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew_Serial(NEQ);
+  uu = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
 
-  up = N_VNew_Serial(NEQ);
+  up = N_VClone(uu);
   if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
 
-  res = N_VNew_Serial(NEQ);
+  res = N_VClone(uu);
   if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
 
-  constraints = N_VNew_Serial(NEQ);
+  constraints = N_VClone(uu);
   if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
 
   data = (UserData) malloc(sizeof *data);
@@ -130,7 +136,7 @@ int main()
   data->mm  = MGRID;
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VNew_Serial(NEQ);
+  data->pp = N_VClone(uu);
   if(check_retval((void *)data->pp, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize uu, up. */
@@ -150,7 +156,7 @@ int main()
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, data);
@@ -168,7 +174,7 @@ int main()
 
   /* Create the linear solver SUNLinSol_SPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
@@ -194,7 +200,7 @@ int main()
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
+  printf("\n\nCase 1: gsytpe = SUN_MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -237,12 +243,12 @@ int main()
   retval = IDAReInit(mem, t0, uu, up);
   if(check_retval(&retval, "IDAReInit", 1)) return(1);
 
-  retval = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
+  retval = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
   if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
+  printf("\n\nCase 2: gstype = SUN_CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -281,6 +287,8 @@ int main()
 
   N_VDestroy(data->pp);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

@@ -80,6 +80,9 @@ using namespace std;
 
 struct UserData
 {
+  // SUNDIALS simulation context
+  SUNContext ctx;
+
   // Diffusion coefficients in the x and y directions
   realtype kx;
   realtype ky;
@@ -197,7 +200,7 @@ static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 // -----------------------------------------------------------------------------
 
 // Set the default values in the UserData structure
-static int InitUserData(UserData *udata);
+static int InitUserData(UserData *udata, SUNContext ctx);
 
 // Free memory allocated within UserData
 static int FreeUserData(UserData *udata);
@@ -260,6 +263,11 @@ int main(int argc, char* argv[])
   flag = MPI_Comm_rank(comm_w, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
+  // Create the SUNDIALS context object for this simulation
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   // Set output process flag
   bool outproc = (myid == 0);
 
@@ -270,7 +278,7 @@ int main(int argc, char* argv[])
   // Allocate and initialize user data structure with default values. The
   // defaults may be overwritten by command line inputs in ReadInputs below.
   udata = new UserData;
-  flag = InitUserData(udata);
+  flag = InitUserData(udata, ctx);
   if (check_flag(&flag, "InitUserData", 1)) return 1;
 
   // Parse command line inputs
@@ -311,7 +319,7 @@ int main(int argc, char* argv[])
   // ----------------------
 
   // Create vector for solution
-  u = N_VNew_Serial(udata->nodes);
+  u = N_VNew_Serial(udata->nodes, ctx);
   if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
   // Set initial condition
@@ -327,11 +335,11 @@ int main(int argc, char* argv[])
   // ---------------------
 
   // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
+  int prectype = (udata->prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   if (udata->pcg)
   {
-    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
+    LS = SUNLinSol_PCG(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
     if (udata->lsinfo)
@@ -345,7 +353,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
+    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     if (udata->lsinfo)
@@ -370,7 +378,7 @@ int main(int argc, char* argv[])
   // --------------
 
   // Create integrator
-  arkode_mem = ARKStepCreate(NULL, f, ZERO, u);
+  arkode_mem = ARKStepCreate(NULL, f, ZERO, u, ctx);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Specify tolerances
@@ -625,7 +633,9 @@ int main(int argc, char* argv[])
   delete udata;
   braid_Destroy(core);       // Free braid memory
   ARKBraid_Free(&app);       // Free interface memory
+  SUNContext_Free(&ctx);     // Free context
   flag = MPI_Finalize();     // Finalize MPI
+
   return 0;
 }
 
@@ -646,7 +656,7 @@ int MyInit(braid_App app, realtype t, braid_Vector *u_ptr)
   udata = static_cast<UserData*>(user_data);
 
   // Create new vector
-  N_Vector y = N_VNew_Serial(udata->nodes);
+  N_Vector y = N_VNew_Serial(udata->nodes, udata->ctx);
   flag = SUNBraidVector_New(y, u_ptr);
   if (flag != 0) return 1;
 
@@ -964,8 +974,11 @@ static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 // -----------------------------------------------------------------------------
 
 // Initialize memory allocated within Userdata
-static int InitUserData(UserData *udata)
+static int InitUserData(UserData *udata, SUNContext ctx)
 {
+  // SUNDIALS simulation context
+  udata->ctx = ctx;
+
   // Diffusion coefficient
   udata->kx = ONE;
   udata->ky = ONE;

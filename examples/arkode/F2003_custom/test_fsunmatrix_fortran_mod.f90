@@ -116,6 +116,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fnvector_fortran_mod
   use fsunmatrix_test_mod
 
@@ -123,6 +124,7 @@ program main
   implicit none
 
   ! local variables
+  type(c_ptr) :: sunctx
   integer(c_int)  :: fails, retval, i, j, k
   integer(c_long), parameter :: N = 1000
   integer(c_long), parameter :: Nvar = 50
@@ -137,53 +139,56 @@ program main
   ! initialize failure total
   fails = 0
 
+  ! create SUNDIALS context
+  fails = FSUNContext_Create(c_null_ptr, sunctx)
+
   ! create new matrices and vectors
-  sW => FN_VNew_Fortran(Nvar, N)
+  sW => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sW)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sX => FN_VNew_Fortran(Nvar, N)
+  sX => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sX)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   X => FN_VGetFVec(sX)
 
-  sY => FN_VNew_Fortran(Nvar, N)
+  sY => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sY)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   Y => FN_VGetFVec(sY)
 
-  sZ => FN_VNew_Fortran(Nvar, N)
+  sZ => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sZ)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sA => FSUNMatNew_Fortran(Nvar, N)
+  sA => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sA)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
   A => FSUNMatGetFMat(sA)
 
-  sB => FSUNMatNew_Fortran(Nvar, N)
+  sB => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sB)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
-  sC => FSUNMatNew_Fortran(Nvar, N)
+  sC => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sC)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
-  sD => FSUNMatNew_Fortran(Nvar, N)
+  sD => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sD)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
@@ -299,6 +304,9 @@ program main
   call FN_VDestroy(sX)
   call FN_VDestroy(sY)
   call FN_VDestroy(sZ)
+
+  ! free SUNDIALS context
+  fails = FSUNContext_Free(sunctx)
 
   ! print results
   if (fails > 0) then

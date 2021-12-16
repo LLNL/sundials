@@ -73,14 +73,14 @@ N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v)
  * Function to create a new empty vector
  */
 
-N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
+N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_OpenMP content;
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -129,6 +129,9 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMP;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMP;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMP;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_OpenMP;
   v->ops->nvbufpack   = N_VBufPack_OpenMP;
@@ -155,13 +158,13 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
  * Function to create a new vector
  */
 
-N_Vector N_VNew_OpenMP(sunindextype length, int num_threads)
+N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_OpenMP(length, num_threads);
+  v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -185,12 +188,12 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads)
  * Function to create a vector with user data component
  */
 
-N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
+N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_OpenMP(length, num_threads);
+  v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -208,25 +211,7 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
 
 N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_OpenMP(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_OpenMP(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -235,25 +220,7 @@ N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_OpenMP(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_OpenMP(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -262,12 +229,7 @@ N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 
 void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_OpenMP(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -335,7 +297,7 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -2505,6 +2467,8 @@ int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_OpenMP;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_OpenMP;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_OpenMP;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMP;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -2518,6 +2482,8 @@ int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -2570,10 +2536,13 @@ int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_OpenMP;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_OpenMP;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMP;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);

@@ -26,15 +26,18 @@
 # options are correctly passed to consumers.
 #
 #   HYPRE_FOUND       - system has HYPRE library
+#   HYPRE_DIR
 #   HYPRE_LIBRARY     - the HYPRE library
 #   HYPRE_INCLUDE_DIR - the HYPRE include path
 #   HYPRE_LIBRARIES   - all of the libraries needed for HYPRE
 # ---------------------------------------------------------------
 
 ### Find include dir
-find_path(temp_HYPRE_INCLUDE_DIR hypre.h ${HYPRE_INCLUDE_DIR})
+find_path(temp_HYPRE_INCLUDE_DIR
+          NAMES HYPRE.h hypre.h
+          HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/include" "${HYPRE_INCLUDE_DIR}")
 if (temp_HYPRE_INCLUDE_DIR)
-    set(HYPRE_INCLUDE_DIR ${temp_HYPRE_INCLUDE_DIR})
+    set(HYPRE_INCLUDE_DIR "${temp_HYPRE_INCLUDE_DIR}" CACHE PATH "" FORCE)
 endif()
 unset(temp_HYPRE_INCLUDE_DIR CACHE)
 
@@ -49,7 +52,8 @@ else ()
     set(HYPRE_LIBRARY_NAMES hypre HYPRE)
     find_library(HYPRE_LIBRARY
       NAMES ${HYPRE_LIBRARY_NAMES}
-      PATHS ${HYPRE_LIBRARY_DIR} NO_DEFAULT_PATH
+      HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/lib" "${HYPRE_DIR}/lib64" "${HYPRE_LIBRARY_DIR}"
+      NO_DEFAULT_PATH
       )
 endif ()
 mark_as_advanced(HYPRE_LIBRARY)

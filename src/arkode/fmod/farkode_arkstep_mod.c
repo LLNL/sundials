@@ -233,19 +233,21 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include <string.h>
 
-SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
+SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, void *farg5) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
   realtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
+  SUNContext arg5 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
   arg2 = (ARKRhsFn)(farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (N_Vector)(farg4);
-  result = (void *)ARKStepCreate(arg1,arg2,arg3,arg4);
+  arg5 = (SUNContext)(farg5);
+  result = (void *)ARKStepCreate(arg1,arg2,arg3,arg4,arg5);
   fresult = result;
   return fresult;
 }
@@ -640,13 +642,13 @@ SWIGEXPORT int _wrap_FARKStepSetTables(void *farg1, int const *farg2, int const 
 SWIGEXPORT int _wrap_FARKStepSetTableNum(void *farg1, int const *farg2, int const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int arg3 ;
+  ARKODE_DIRKTableID arg2 ;
+  ARKODE_ERKTableID arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
+  arg2 = (ARKODE_DIRKTableID)(*farg2);
+  arg3 = (ARKODE_ERKTableID)(*farg3);
   result = (int)ARKStepSetTableNum(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -2310,34 +2312,6 @@ SWIGEXPORT int _wrap_FARKStepCreateMRIStepInnerStepper(void *farg1, void *farg2)
   arg1 = (void *)(farg1);
   arg2 = (MRIStepInnerStepper *)(farg2);
   result = (int)ARKStepCreateMRIStepInnerStepper(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenLSet(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)ARKStepSetMaxStepsBetweenLSet(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long)(*farg2);
-  result = (int)ARKStepSetMaxStepsBetweenJac(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

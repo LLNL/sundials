@@ -99,14 +99,19 @@ int main(void)
   int retval;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   A = NULL;
   LS = NULL;
 
-  id = N_VNew_Serial(NEQ);
-  yy = N_VNew_Serial(NEQ);
-  yp = N_VNew_Serial(NEQ);
-  q = N_VNew_Serial(1);
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
+  id = N_VNew_Serial(NEQ, ctx);
+  yy = N_VClone(id);
+  yp = N_VClone(id);
+  q = N_VNew_Serial(1, ctx);
 
   data = (UserData) malloc(sizeof *data);
 
@@ -130,7 +135,7 @@ int main(void)
   setIC(yy, yp, data);
 
   /* IDAS initialization */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   retval = IDAInit(mem, ressc, TBEGIN, yy, yp);
   retval = IDASStolerances(mem, RTOLF, ATOLF);
   retval = IDASetUserData(mem, data);
@@ -139,11 +144,11 @@ int main(void)
   retval = IDASetMaxNumSteps(mem, 20000);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -198,6 +203,7 @@ int main(void)
   N_VDestroy(yy);
   N_VDestroy(yp);
   N_VDestroy(q);
+  SUNContext_Free(&ctx);
 
   return(0);
 }

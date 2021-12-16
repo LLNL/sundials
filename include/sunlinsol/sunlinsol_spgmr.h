@@ -41,7 +41,7 @@ extern "C" {
 /* Default SPGMR solver parameters */
 #define SUNSPGMR_MAXL_DEFAULT    5
 #define SUNSPGMR_MAXRS_DEFAULT   0
-#define SUNSPGMR_GSTYPE_DEFAULT  MODIFIED_GS
+#define SUNSPGMR_GSTYPE_DEFAULT  SUN_MODIFIED_GS
 
 /* ----------------------------------------
  * SPGMR Implementation of SUNLinearSolver
@@ -57,10 +57,10 @@ struct _SUNLinearSolverContent_SPGMR {
   realtype resnorm;
   int last_flag;
 
-  ATimesFn ATimes;
+  SUNATimesFn ATimes;
   void* ATData;
-  PSetupFn Psetup;
-  PSolveFn Psolve;
+  SUNPSetupFn Psetup;
+  SUNPSolveFn Psolve;
   void* PData;
 
   N_Vector s1;
@@ -88,28 +88,23 @@ typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPGMR(N_Vector y,
                                                 int pretype,
-                                                int maxl);
+                                                int maxl,
+                                                SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S,
                                                int pretype);
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S,
                                              int gstype);
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S,
                                                   int maxrs);
-
-SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_SPGMR(SUNLinearSolver S, void* A_data,
-                                             ATimesFn ATimes);
+                                             SUNATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPGMR(SUNLinearSolver S,
                                                      void* P_data,
-                                                     PSetupFn Pset,
-                                                     PSolveFn Psol);
+                                                     SUNPSetupFn Pset,
+                                                     SUNPSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S,
                                                      N_Vector s1,
                                                      N_Vector s2);

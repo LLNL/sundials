@@ -34,6 +34,12 @@ int main(int argc, char *argv[])
 {
   int          fails = 0;        // counter for test failures
   sunindextype i, j, k, m, n;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   // Check inputs and set matrix dimensions
   if (argc < 5)
@@ -121,7 +127,7 @@ int main(int argc, char *argv[])
   std::cout << std::endl;
 
   // Create Sycl memory helper
-  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(&myQueue);
+  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(sunctx);
   if (!memhelper)
   {
     printf("Memory helper creation failed\n");
@@ -129,14 +135,14 @@ int main(int argc, char *argv[])
   }
 
   // Create vectors and matrices
-  N_Vector x = N_VNew_Sycl(matcols * nblocks, &myQueue);
+  N_Vector x = N_VNew_Sycl(matcols * nblocks, &myQueue, sunctx);
   if (!x)
   {
     printf("Vector creation failed\n");
     return 1;
   }
 
-  N_Vector y = N_VNew_Sycl(matrows * nblocks, &myQueue);
+  N_Vector y = N_VNew_Sycl(matrows * nblocks, &myQueue, sunctx);
   if (!y)
   {
     printf("Vector creation failed\n");
@@ -146,7 +152,7 @@ int main(int argc, char *argv[])
 
   SUNMatrix A = SUNMatrix_OneMklDenseBlock(nblocks, matrows, matcols,
                                            SUNMEMTYPE_DEVICE, memhelper,
-                                           &myQueue);
+                                           &myQueue, sunctx);
   if (!A)
   {
     printf("Matrix creation failed\n");
@@ -271,6 +277,7 @@ int main(int argc, char *argv[])
     free(Idata);
   }
   SUNMemoryHelper_Destroy(memhelper);
+  SUNContext_Free(&sunctx);
 
   return fails;
 }

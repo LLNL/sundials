@@ -233,17 +233,19 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include <string.h>
 
-SWIGEXPORT void * _wrap_FERKStepCreate(ARKRhsFn farg1, double const *farg2, N_Vector farg3) {
+SWIGEXPORT void * _wrap_FERKStepCreate(ARKRhsFn farg1, double const *farg2, N_Vector farg3, void *farg4) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
   realtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (N_Vector)(farg3);
-  result = (void *)ERKStepCreate(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (void *)ERKStepCreate(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
@@ -452,11 +454,11 @@ SWIGEXPORT int _wrap_FERKStepSetTable(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetTableNum(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  ARKODE_ERKTableID arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
+  arg2 = (ARKODE_ERKTableID)(*farg2);
   result = (int)ERKStepSetTableNum(arg1,arg2);
   fresult = (int)(result);
   return fresult;

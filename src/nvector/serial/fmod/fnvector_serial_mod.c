@@ -208,79 +208,47 @@
 
 #include "nvector/nvector_serial.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VNew_Serial(int64_t const *farg1) {
+SWIGEXPORT N_Vector _wrap_FN_VNew_Serial(int64_t const *farg1, void *farg2) {
   N_Vector fresult ;
   sunindextype arg1 ;
+  SUNContext arg2 = (SUNContext) 0 ;
   N_Vector result;
   
   arg1 = (sunindextype)(*farg1);
-  result = (N_Vector)N_VNew_Serial(arg1);
+  arg2 = (SUNContext)(farg2);
+  result = (N_Vector)N_VNew_Serial(arg1,arg2);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Serial(int64_t const *farg1) {
+SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Serial(int64_t const *farg1, void *farg2) {
   N_Vector fresult ;
   sunindextype arg1 ;
+  SUNContext arg2 = (SUNContext) 0 ;
   N_Vector result;
   
   arg1 = (sunindextype)(*farg1);
-  result = (N_Vector)N_VNewEmpty_Serial(arg1);
+  arg2 = (SUNContext)(farg2);
+  result = (N_Vector)N_VNewEmpty_Serial(arg1,arg2);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT N_Vector _wrap_FN_VMake_Serial(int64_t const *farg1, double *farg2) {
+SWIGEXPORT N_Vector _wrap_FN_VMake_Serial(int64_t const *farg1, double *farg2, void *farg3) {
   N_Vector fresult ;
   sunindextype arg1 ;
   realtype *arg2 = (realtype *) 0 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
   
   arg1 = (sunindextype)(*farg1);
   arg2 = (realtype *)(farg2);
-  result = (N_Vector)N_VMake_Serial(arg1,arg2);
+  arg3 = (SUNContext)(farg3);
+  result = (N_Vector)N_VMake_Serial(arg1,arg2,arg3);
   fresult = result;
   return fresult;
-}
-
-
-SWIGEXPORT void * _wrap_FN_VCloneVectorArray_Serial(int const *farg1, N_Vector farg2) {
-  void * fresult ;
-  int arg1 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  N_Vector *result = 0 ;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (N_Vector *)N_VCloneVectorArray_Serial(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void * _wrap_FN_VCloneVectorArrayEmpty_Serial(int const *farg1, N_Vector farg2) {
-  void * fresult ;
-  int arg1 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  N_Vector *result = 0 ;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (N_Vector *)N_VCloneVectorArrayEmpty_Serial(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_FN_VDestroyVectorArray_Serial(void *farg1, int const *farg2) {
-  N_Vector *arg1 = (N_Vector *) 0 ;
-  int arg2 ;
-  
-  arg1 = (N_Vector *)(farg1);
-  arg2 = (int)(*farg2);
-  N_VDestroyVectorArray_Serial(arg1,arg2);
 }
 
 
@@ -981,6 +949,44 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_Serial(N_Vector farg1, in
   result = (int)N_VEnableWrmsNormMaskVectorArray_Serial(arg1,arg2);
   fresult = (int)(result);
   return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FN_VCloneVectorArray_Serial(int const *farg1, N_Vector farg2) {
+  void * fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *result = 0 ;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (N_Vector *)N_VCloneVectorArray_Serial(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FN_VCloneVectorArrayEmpty_Serial(int const *farg1, N_Vector farg2) {
+  void * fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *result = 0 ;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (N_Vector *)N_VCloneVectorArrayEmpty_Serial(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FN_VDestroyVectorArray_Serial(void *farg1, int const *farg2) {
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  int arg2 ;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (int)(*farg2);
+  N_VDestroyVectorArray_Serial(arg1,arg2);
 }
 
 

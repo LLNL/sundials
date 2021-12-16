@@ -65,8 +65,8 @@
 #define MX    40            /* mesh dimensions               */
 #define MY    20
 #define NEQ   MX*MY         /* number of equations           */
-#define ATOL  RCONST(1.e-5)        
-#define RTOLB RCONST(1.e-6)        
+#define ATOL  RCONST(1.e-5)
+#define RTOLB RCONST(1.e-6)
 #define T0    RCONST(0.0)   /* initial time                  */
 #define T1    RCONST(0.1)   /* first output time             */
 #define DTOUT RCONST(0.1)   /* output time increment         */
@@ -82,16 +82,16 @@
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. 
+   to the underlying 1-dimensional storage.
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
    The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
-   where v is an N_Vector. 
+   where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
 
-/* Type : UserData 
+/* Type : UserData
    contains grid constants */
 
 typedef struct {
@@ -103,12 +103,12 @@ typedef struct {
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *user_dataB);
 
 static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
-                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
+                void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /* Prototypes of private functions */
 
@@ -124,6 +124,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   UserData data;
 
   void *cvode_mem;
@@ -137,7 +138,7 @@ int main(int argc, char *argv[])
 
   realtype reltolB, abstolB;
   N_Vector uB;
-  
+
   int retval, ncheck;
 
   data = NULL;
@@ -161,8 +162,12 @@ int main(int argc, char *argv[])
   reltol = ZERO;
   abstol = ATOL;
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Allocate u vector */
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)u, "N_VNew", 0)) return(1);
 
   /* Initialize u vector */
@@ -172,7 +177,7 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for forward runs\n");
 
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -185,11 +190,11 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create banded SUNMatrix for the forward problem */
-  A = SUNBandMatrix(NEQ, MY, MY);
+  A = SUNBandMatrix(NEQ, MY, MY, sunctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the forward problem */
-  LS = SUNLinSol_Band(u, A);
+  LS = SUNLinSol_Band(u, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -219,7 +224,7 @@ int main(int argc, char *argv[])
   abstolB = ATOL;
 
   /* Allocate uB */
-  uB = N_VNew_Serial(NEQ);
+  uB = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)uB, "N_VNew", 0)) return(1);
   /* Initialize uB = 0 */
   N_VConst(ZERO, uB);
@@ -239,13 +244,13 @@ int main(int argc, char *argv[])
 
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
   if(check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
- 
+
   /* Create banded SUNMatrix for the backward problem */
-  AB = SUNBandMatrix(NEQ, MY, MY);
+  AB = SUNBandMatrix(NEQ, MY, MY, sunctx);
   if(check_retval((void *)AB, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the backward problem */
-  LSB = SUNLinSol_Band(uB, AB);
+  LSB = SUNLinSol_Band(uB, AB, sunctx);
   if(check_retval((void *)LSB, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -273,8 +278,8 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);       /* Free the forward matrix memory         */
   SUNLinSolFree(LSB);     /* Free the backward linear solver memory */
   SUNMatDestroy(AB);      /* Free the backward matrix memory        */
-
   free(data);             /* Free the user data */
+  SUNContext_Free(&sunctx); /* Free the SUNDIALS simulation context */
 
   return(0);
 }
@@ -380,7 +385,7 @@ static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
  * fB function. Right-hand side of backward ODE.
  */
 
-static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, 
+static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
               void *user_dataB)
 {
   UserData data;
@@ -469,7 +474,7 @@ static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB
  */
 
 /*
- * Set initial conditions in u vector 
+ * Set initial conditions in u vector
  */
 
 static void SetIC(N_Vector u, UserData data)
@@ -495,12 +500,12 @@ static void SetIC(N_Vector u, UserData data)
       x = i*dx;
       IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(RCONST(5.0)*x*y);
     }
-  }  
+  }
 
 }
 
 /*
- * Print results after backward integration 
+ * Print results after backward integration
  */
 
 static void PrintOutput(N_Vector uB, UserData data)
@@ -546,14 +551,14 @@ static void PrintOutput(N_Vector uB, UserData data)
 
 }
 
-/* 
+/*
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
  *    opt == 1 means SUNDIALS function returns an integer value so check if
  *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)

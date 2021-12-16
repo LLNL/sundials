@@ -75,3 +75,5 @@ foreach(test_tuple ${ARKODE_unit_tests})
   add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 
 endforeach()
+
+message(STATUS "Added ARKODE C serial units tests")

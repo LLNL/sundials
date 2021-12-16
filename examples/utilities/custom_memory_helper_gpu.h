@@ -45,7 +45,7 @@ static void gpuVerify(MY_GPU(Error_t) code, const char *file, int line, int abor
 }
 
 int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                         size_t memsize, SUNMemoryType mem_type)
+                         size_t memsize, SUNMemoryType mem_type, void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
@@ -74,36 +74,35 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   return(0);
 }
 
-int MyMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem)
+int MyMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem, void* queue)
 {
-  if (mem != NULL)
-  {
-    if (mem->ptr != NULL && mem->own)
-    {
-      if (mem->type == SUNMEMTYPE_HOST)
-      {
-        free(mem->ptr);
-        mem->ptr = NULL;
-      }
-      else if (mem->type == SUNMEMTYPE_DEVICE)
-      {
-        MY_GPUCHK( MY_GPU(Free)(mem->ptr) );
-        mem->ptr = NULL;
-      }
-      else
-      {
-        return(-1);
-      }
-    }
+  if (!mem) return 0;
 
-    free(mem);
+  if (mem->ptr && mem->own)
+  {
+    if (mem->type == SUNMEMTYPE_HOST)
+    {
+      free(mem->ptr);
+      mem->ptr = NULL;
+    }
+    else if (mem->type == SUNMEMTYPE_DEVICE)
+    {
+      MY_GPUCHK( MY_GPU(Free)(mem->ptr) );
+      mem->ptr = NULL;
+    }
+    else
+    {
+      return(-1);
+    }
   }
+
+  free(mem);
 
   return(0);
 }
 
 int MyMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
-                        SUNMemory src, size_t memory_size)
+                        SUNMemory src, size_t memory_size, void* queue)
 {
   switch(src->type)
   {
@@ -141,12 +140,12 @@ int MyMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
   return(0);
 }
 
-SUNMemoryHelper MyMemoryHelper()
+SUNMemoryHelper MyMemoryHelper(SUNContext sunctx)
 {
   SUNMemoryHelper helper;
 
   /* Allocate helper */
-  helper = SUNMemoryHelper_NewEmpty();
+  helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
   helper->ops->alloc     = MyMemoryHelper_Alloc;

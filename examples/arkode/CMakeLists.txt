@@ -52,26 +52,6 @@ if(EXAMPLES_ENABLE_CXX)
   endif()
 endif()
 
-# F77 examples
-if(BUILD_FORTRAN77_INTERFACE AND EXAMPLES_ENABLE_F77)
-  add_subdirectory(F77_serial)
-  if(ENABLE_MPI AND MPI_Fortran_FOUND)
-    add_subdirectory(F77_parallel)
-  endif()
-endif()
-
-# F90 examples
-if(BUILD_FORTRAN77_INTERFACE AND EXAMPLES_ENABLE_F90)
-  add_subdirectory(F90_serial)
-  if(ENABLE_MPI AND MPI_Fortran_FOUND)
-    # currently the only F90_parallel example
-    # does not support anything but double precision
-    if(SUNDIALS_PRECISION MATCHES "DOUBLE")
-      add_subdirectory(F90_parallel)
-    endif()
-  endif()
-endif()
-
 # F2003 examples
 if(BUILD_FORTRAN_MODULE_INTERFACE AND EXAMPLES_ENABLE_F2003)
   add_subdirectory(F2003_serial)

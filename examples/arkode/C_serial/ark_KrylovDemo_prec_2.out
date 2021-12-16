@@ -23,9 +23,9 @@ Preconditioning uses a product of:
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_LEFT
+Preconditioner type is           jpre = SUN_PREC_LEFT
 
-Gram-Schmidt method type is    gstype = MODIFIED_GS
+Gram-Schmidt method type is    gstype = SUN_MODIFIED_GS
 
 
 c values at t = 0:
@@ -418,8 +418,8 @@ Species 6
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3125 
- ARKStep integer workspace length      =  127 
+ ARKStep real workspace length         = 3557 
+ ARKStep integer workspace length      =  129 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  266 
@@ -442,9 +442,9 @@ Species 6
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_LEFT
+Preconditioner type is           jpre = SUN_PREC_LEFT
 
-Gram-Schmidt method type is    gstype = CLASSICAL_GS
+Gram-Schmidt method type is    gstype = SUN_CLASSICAL_GS
 
 
 t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
@@ -487,8 +487,8 @@ t =   1.00e+01  nst = 251  nfe = 0  nfi = 4101  nni = 2746  hu =    7.09e-02
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3125 
- ARKStep integer workspace length      =  132 
+ ARKStep real workspace length         = 3557 
+ ARKStep integer workspace length      =  134 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  251 
@@ -511,9 +511,9 @@ t =   1.00e+01  nst = 251  nfe = 0  nfi = 4101  nni = 2746  hu =    7.09e-02
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_RIGHT
+Preconditioner type is           jpre = SUN_PREC_RIGHT
 
-Gram-Schmidt method type is    gstype = MODIFIED_GS
+Gram-Schmidt method type is    gstype = SUN_MODIFIED_GS
 
 
 t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
@@ -556,8 +556,8 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5722  nni = 3907  hu =    1.35e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3125 
- ARKStep integer workspace length      =  137 
+ ARKStep real workspace length         = 3557 
+ ARKStep integer workspace length      =  139 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  359 
@@ -580,9 +580,9 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5722  nni = 3907  hu =    1.35e-01
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_RIGHT
+Preconditioner type is           jpre = SUN_PREC_RIGHT
 
-Gram-Schmidt method type is    gstype = CLASSICAL_GS
+Gram-Schmidt method type is    gstype = SUN_CLASSICAL_GS
 
 
 t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
@@ -625,8 +625,8 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5728  nni = 3912  hu =    1.31e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3125 
- ARKStep integer workspace length      =  142 
+ ARKStep real workspace length         = 3557 
+ ARKStep integer workspace length      =  144 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  359 

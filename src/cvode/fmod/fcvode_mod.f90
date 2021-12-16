@@ -21,13 +21,16 @@
 module fcvode_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_types_mod
@@ -71,6 +74,7 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_PROJ_MEM_NULL = -29_C_INT
  integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -30_C_INT
  integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -31_C_INT
+ integer(C_INT), parameter, public :: CV_CONTEXT_ERR = -32_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  public :: FCVodeCreate
  public :: FCVodeInit
@@ -78,28 +82,28 @@ module fcvode_mod
  public :: FCVodeSStolerances
  public :: FCVodeSVtolerances
  public :: FCVodeWFtolerances
- public :: FCVodeSetErrHandlerFn
+ public :: FCVodeSetConstraints
  public :: FCVodeSetErrFile
- public :: FCVodeSetUserData
+ public :: FCVodeSetErrHandlerFn
+ public :: FCVodeSetInitStep
+ public :: FCVodeSetLSetupFrequency
+ public :: FCVodeSetMaxConvFails
+ public :: FCVodeSetMaxErrTestFails
+ public :: FCVodeSetMaxHnilWarns
+ public :: FCVodeSetMaxNonlinIters
+ public :: FCVodeSetMaxNumSteps
+ public :: FCVodeSetMaxOrd
+ public :: FCVodeSetMaxStep
+ public :: FCVodeSetMinStep
  public :: FCVodeSetMonitorFn
  public :: FCVodeSetMonitorFrequency
- public :: FCVodeSetMaxOrd
- public :: FCVodeSetMaxNumSteps
- public :: FCVodeSetMaxHnilWarns
- public :: FCVodeSetStabLimDet
- public :: FCVodeSetInitStep
- public :: FCVodeSetMinStep
- public :: FCVodeSetMaxStep
- public :: FCVodeSetStopTime
- public :: FCVodeSetMaxErrTestFails
- public :: FCVodeSetMaxNonlinIters
- public :: FCVodeSetMaxConvFails
- public :: FCVodeSetNonlinConvCoef
- public :: FCVodeSetLSetupFrequency
- public :: FCVodeSetConstraints
- public :: FCVodeSetNonlinearSolver
  public :: FCVodeSetNlsRhsFn
+ public :: FCVodeSetNonlinConvCoef
+ public :: FCVodeSetNonlinearSolver
+ public :: FCVodeSetStabLimDet
+ public :: FCVodeSetStopTime
  public :: FCVodeSetUseIntegratorFusedKernels
+ public :: FCVodeSetUserData
  public :: FCVodeRootInit
  public :: FCVodeSetRootDirection
  public :: FCVodeSetNoInactiveRootWarn
@@ -188,7 +192,6 @@ module fcvode_mod
  public :: FCVodeGetLinSolveStats
  public :: FCVodeGetLastLinFlag
  public :: FCVodeGetLinReturnFlagName
- public :: FCVodeSetMaxStepsBetweenJac
  public :: FCVodeSetProjFn
  public :: FCVodeSetProjErrEst
  public :: FCVodeSetProjFrequency
@@ -200,11 +203,12 @@ module fcvode_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FCVodeCreate(farg1) &
+function swigc_FCVodeCreate(farg1, farg2) &
 bind(C, name="_wrap_FCVodeCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
 
@@ -258,13 +262,12 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetErrHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FCVodeSetErrHandlerFn") &
+function swigc_FCVodeSetConstraints(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetConstraints") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -277,12 +280,103 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetUserData(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetUserData") &
+function swigc_FCVodeSetErrHandlerFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeSetErrHandlerFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
+type(C_FUNPTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetInitStep(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetInitStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetLSetupFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLSetupFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxConvFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxConvFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxErrTestFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxErrTestFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxHnilWarns(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxHnilWarns") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxNonlinIters(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxNonlinIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxNumSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxOrd(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxOrd") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxStep(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMinStep(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMinStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -304,102 +398,12 @@ integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetMaxOrd(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxOrd") &
+function swigc_FCVodeSetNlsRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNlsRhsFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMaxNumSteps(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxNumSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMaxHnilWarns(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxHnilWarns") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetStabLimDet(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetStabLimDet") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetInitStep(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetInitStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMinStep(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMinStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMaxStep(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetStopTime(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetStopTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMaxErrTestFails(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxErrTestFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMaxNonlinIters(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxNonlinIters") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetMaxConvFails(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxConvFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -412,24 +416,6 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetLSetupFrequency(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetLSetupFrequency") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetConstraints(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetConstraints") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FCVodeSetNonlinearSolver(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetNonlinearSolver") &
 result(fresult)
@@ -439,12 +425,21 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetNlsRhsFn(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetNlsRhsFn") &
+function swigc_FCVodeSetStabLimDet(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetStabLimDet") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetStopTime(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -454,6 +449,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetUserData(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetUserData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1101,15 +1105,6 @@ integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
 end function
 
-function swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxStepsBetweenJac") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FCVodeSetProjFn(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetProjFn") &
 result(fresult)
@@ -1187,16 +1182,19 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FCVodeCreate(lmm) &
+function FCVodeCreate(lmm, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: lmm
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = lmm
-fresult = swigc_FCVodeCreate(farg1)
+farg2 = sunctx
+fresult = swigc_FCVodeCreate(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1295,22 +1293,19 @@ fresult = swigc_FCVodeWFtolerances(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetErrHandlerFn(cvode_mem, ehfun, eh_data) &
+function FCVodeSetConstraints(cvode_mem, constraints) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-type(C_FUNPTR), intent(in), value :: ehfun
-type(C_PTR) :: eh_data
+type(N_Vector), target, intent(inout) :: constraints
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
+type(C_PTR) :: farg2 
 
 farg1 = cvode_mem
-farg2 = ehfun
-farg3 = eh_data
-fresult = swigc_FCVodeSetErrHandlerFn(farg1, farg2, farg3)
+farg2 = c_loc(constraints)
+fresult = swigc_FCVodeSetConstraints(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1330,19 +1325,182 @@ fresult = swigc_FCVodeSetErrFile(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetUserData(cvode_mem, user_data) &
+function FCVodeSetErrHandlerFn(cvode_mem, ehfun, eh_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-type(C_PTR) :: user_data
+type(C_FUNPTR), intent(in), value :: ehfun
+type(C_PTR) :: eh_data
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = cvode_mem
-farg2 = user_data
-fresult = swigc_FCVodeSetUserData(farg1, farg2)
+farg2 = ehfun
+farg3 = eh_data
+fresult = swigc_FCVodeSetErrHandlerFn(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeSetInitStep(cvode_mem, hin) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: hin
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = hin
+fresult = swigc_FCVodeSetInitStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetLSetupFrequency(cvode_mem, msbp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: msbp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = msbp
+fresult = swigc_FCVodeSetLSetupFrequency(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxConvFails(cvode_mem, maxncf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: maxncf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = maxncf
+fresult = swigc_FCVodeSetMaxConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxErrTestFails(cvode_mem, maxnef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: maxnef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = maxnef
+fresult = swigc_FCVodeSetMaxErrTestFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxHnilWarns(cvode_mem, mxhnil) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: mxhnil
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = mxhnil
+fresult = swigc_FCVodeSetMaxHnilWarns(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxNonlinIters(cvode_mem, maxcor) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: maxcor
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = maxcor
+fresult = swigc_FCVodeSetMaxNonlinIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxNumSteps(cvode_mem, mxsteps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: mxsteps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = mxsteps
+fresult = swigc_FCVodeSetMaxNumSteps(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxOrd(cvode_mem, maxord) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: maxord
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = maxord
+fresult = swigc_FCVodeSetMaxOrd(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxStep(cvode_mem, hmax) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: hmax
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = hmax
+fresult = swigc_FCVodeSetMaxStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMinStep(cvode_mem, hmin) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: hmin
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = hmin
+fresult = swigc_FCVodeSetMinStep(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1378,179 +1536,19 @@ fresult = swigc_FCVodeSetMonitorFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetMaxOrd(cvode_mem, maxord) &
+function FCVodeSetNlsRhsFn(cvode_mem, f) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: maxord
+type(C_FUNPTR), intent(in), value :: f
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
+type(C_FUNPTR) :: farg2 
 
 farg1 = cvode_mem
-farg2 = maxord
-fresult = swigc_FCVodeSetMaxOrd(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMaxNumSteps(cvode_mem, mxsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), intent(in) :: mxsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-
-farg1 = cvode_mem
-farg2 = mxsteps
-fresult = swigc_FCVodeSetMaxNumSteps(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMaxHnilWarns(cvode_mem, mxhnil) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: mxhnil
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = cvode_mem
-farg2 = mxhnil
-fresult = swigc_FCVodeSetMaxHnilWarns(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetStabLimDet(cvode_mem, stldet) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: stldet
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = cvode_mem
-farg2 = stldet
-fresult = swigc_FCVodeSetStabLimDet(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetInitStep(cvode_mem, hin) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-real(C_DOUBLE), intent(in) :: hin
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = cvode_mem
-farg2 = hin
-fresult = swigc_FCVodeSetInitStep(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMinStep(cvode_mem, hmin) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-real(C_DOUBLE), intent(in) :: hmin
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = cvode_mem
-farg2 = hmin
-fresult = swigc_FCVodeSetMinStep(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMaxStep(cvode_mem, hmax) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-real(C_DOUBLE), intent(in) :: hmax
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = cvode_mem
-farg2 = hmax
-fresult = swigc_FCVodeSetMaxStep(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetStopTime(cvode_mem, tstop) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-real(C_DOUBLE), intent(in) :: tstop
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = cvode_mem
-farg2 = tstop
-fresult = swigc_FCVodeSetStopTime(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMaxErrTestFails(cvode_mem, maxnef) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: maxnef
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = cvode_mem
-farg2 = maxnef
-fresult = swigc_FCVodeSetMaxErrTestFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMaxNonlinIters(cvode_mem, maxcor) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: maxcor
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = cvode_mem
-farg2 = maxcor
-fresult = swigc_FCVodeSetMaxNonlinIters(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetMaxConvFails(cvode_mem, maxncf) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: maxncf
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = cvode_mem
-farg2 = maxncf
-fresult = swigc_FCVodeSetMaxConvFails(farg1, farg2)
+farg2 = f
+fresult = swigc_FCVodeSetNlsRhsFn(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1570,38 +1568,6 @@ fresult = swigc_FCVodeSetNonlinConvCoef(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetLSetupFrequency(cvode_mem, msbp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), intent(in) :: msbp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-
-farg1 = cvode_mem
-farg2 = msbp
-fresult = swigc_FCVodeSetLSetupFrequency(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetConstraints(cvode_mem, constraints) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-type(N_Vector), target, intent(inout) :: constraints
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = cvode_mem
-farg2 = c_loc(constraints)
-fresult = swigc_FCVodeSetConstraints(farg1, farg2)
-swig_result = fresult
-end function
-
 function FCVodeSetNonlinearSolver(cvode_mem, nls) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1618,19 +1584,35 @@ fresult = swigc_FCVodeSetNonlinearSolver(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetNlsRhsFn(cvode_mem, f) &
+function FCVodeSetStabLimDet(cvode_mem, stldet) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-type(C_FUNPTR), intent(in), value :: f
+integer(C_INT), intent(in) :: stldet
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = cvode_mem
-farg2 = f
-fresult = swigc_FCVodeSetNlsRhsFn(farg1, farg2)
+farg2 = stldet
+fresult = swigc_FCVodeSetStabLimDet(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetStopTime(cvode_mem, tstop) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: tstop
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = tstop
+fresult = swigc_FCVodeSetStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1647,6 +1629,22 @@ integer(C_INT) :: farg2
 farg1 = cvode_mem
 farg2 = onoff
 fresult = swigc_FCVodeSetUseIntegratorFusedKernels(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetUserData(cvode_mem, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_PTR) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = user_data
+fresult = swigc_FCVodeSetUserData(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2849,22 +2847,6 @@ farg1 = flag
 fresult = swigc_FCVodeGetLinReturnFlagName(farg1)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
-end function
-
-function FCVodeSetMaxStepsBetweenJac(cvode_mem, msbj) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), intent(in) :: msbj
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-
-farg1 = cvode_mem
-farg2 = msbj
-fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
-swig_result = fresult
 end function
 
 function FCVodeSetProjFn(cvode_mem, pfun) &

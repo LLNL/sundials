@@ -58,7 +58,8 @@ typedef struct _SUNLinearSolverContent_cuSolverSp_batchQR *SUNLinearSolverConten
  */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A,
-                                                             cusolverSpHandle_t cusol_handle);
+                                                             cusolverSpHandle_t cusol_handle,
+                                                             SUNContext sunctx);
 
 
 /*
@@ -101,7 +102,7 @@ SUNDIALS_EXPORT void SUNLinSol_cuSolverSp_batchQR_SetDescription(SUNLinearSolver
 
 SUNDIALS_EXPORT void SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace(SUNLinearSolver S,
                                                                  size_t* cuSolverInternal,
-                                                                 size_t* cuSolverWorkspace);                                                                
+                                                                 size_t* cuSolverWorkspace);
 
 
 #ifdef __cplusplus

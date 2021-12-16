@@ -404,30 +404,6 @@ SWIGEXPORT int _wrap_MRIStepCouplingMem_p_get(SwigClassWrapper const *farg1) {
 }
 
 
-SWIGEXPORT void _wrap_MRIStepCouplingMem_G_set(SwigClassWrapper const *farg1, void *farg2) {
-  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  realtype ***arg2 = (realtype ***) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return );
-  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  arg2 = (realtype ***)(farg2);
-  if (arg1) (arg1)->G = arg2;
-}
-
-
-SWIGEXPORT void * _wrap_MRIStepCouplingMem_G_get(SwigClassWrapper const *farg1) {
-  void * fresult ;
-  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  realtype ***result = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return 0);
-  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  result = (realtype ***) ((arg1)->G);
-  fresult = result;
-  return fresult;
-}
-
-
 SWIGEXPORT void _wrap_MRIStepCouplingMem_c_set(SwigClassWrapper const *farg1, double *farg2) {
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
   realtype *arg2 = (realtype *) 0 ;
@@ -447,6 +423,54 @@ SWIGEXPORT double * _wrap_MRIStepCouplingMem_c_get(SwigClassWrapper const *farg1
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::c", return 0);
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
   result = (realtype *) ((arg1)->c);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_MRIStepCouplingMem_W_set(SwigClassWrapper const *farg1, void *farg2) {
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  realtype ***arg2 = (realtype ***) 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::W", return );
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  arg2 = (realtype ***)(farg2);
+  if (arg1) (arg1)->W = arg2;
+}
+
+
+SWIGEXPORT void * _wrap_MRIStepCouplingMem_W_get(SwigClassWrapper const *farg1) {
+  void * fresult ;
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  realtype ***result = 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::W", return 0);
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  result = (realtype ***) ((arg1)->W);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_MRIStepCouplingMem_G_set(SwigClassWrapper const *farg1, void *farg2) {
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  realtype ***arg2 = (realtype ***) 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return );
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  arg2 = (realtype ***)(farg2);
+  if (arg1) (arg1)->G = arg2;
+}
+
+
+SWIGEXPORT void * _wrap_MRIStepCouplingMem_G_get(SwigClassWrapper const *farg1) {
+  void * fresult ;
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  realtype ***result = 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return 0);
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  result = (realtype ***) ((arg1)->G);
   fresult = result;
   return fresult;
 }
@@ -485,10 +509,10 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_op_assign__(SwigClassWrapper *farg1, Sw
 
 SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_LoadTable(int const *farg1) {
   SwigClassWrapper fresult ;
-  int arg1 ;
+  ARKODE_MRITableID arg1 ;
   MRIStepCoupling result;
   
-  arg1 = (int)(*farg1);
+  arg1 = (ARKODE_MRITableID)(*farg1);
   result = (MRIStepCoupling)MRIStepCoupling_LoadTable(arg1);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
@@ -496,22 +520,24 @@ SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_LoadTable(int const *farg1) {
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Alloc(int const *farg1, int const *farg2) {
+SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Alloc(int const *farg1, int const *farg2, int const *farg3) {
   SwigClassWrapper fresult ;
   int arg1 ;
   int arg2 ;
+  MRISTEP_METHOD_TYPE arg3 ;
   MRIStepCoupling result;
   
   arg1 = (int)(*farg1);
   arg2 = (int)(*farg2);
-  result = (MRIStepCoupling)MRIStepCoupling_Alloc(arg1,arg2);
+  arg3 = (MRISTEP_METHOD_TYPE)(*farg3);
+  result = (MRIStepCoupling)MRIStepCoupling_Alloc(arg1,arg2,arg3);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
   return fresult;
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Create(int const *farg1, int const *farg2, int const *farg3, int const *farg4, double *farg5, double *farg6) {
+SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Create(int const *farg1, int const *farg2, int const *farg3, int const *farg4, double *farg5, double *farg6, double *farg7) {
   SwigClassWrapper fresult ;
   int arg1 ;
   int arg2 ;
@@ -519,6 +545,7 @@ SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Create(int const *farg1, int 
   int arg4 ;
   realtype *arg5 = (realtype *) 0 ;
   realtype *arg6 = (realtype *) 0 ;
+  realtype *arg7 = (realtype *) 0 ;
   MRIStepCoupling result;
   
   arg1 = (int)(*farg1);
@@ -527,7 +554,8 @@ SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Create(int const *farg1, int 
   arg4 = (int)(*farg4);
   arg5 = (realtype *)(farg5);
   arg6 = (realtype *)(farg6);
-  result = (MRIStepCoupling)MRIStepCoupling_Create(arg1,arg2,arg3,arg4,arg5,arg6);
+  arg7 = (realtype *)(farg7);
+  result = (MRIStepCoupling)MRIStepCoupling_Create(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
   return fresult;
@@ -598,49 +626,24 @@ SWIGEXPORT void _wrap_FMRIStepCoupling_Write(SwigClassWrapper const *farg1, void
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepGetCurrentButcherTables(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKodeButcherTable *)(farg2);
-  result = (int)MRIStepGetCurrentButcherTables(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FMRIStepWriteButcher(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)MRIStepWriteButcher(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void * _wrap_FMRIStepCreate(ARKRhsFn farg1, double const *farg2, N_Vector farg3, int const *farg4, void *farg5) {
+SWIGEXPORT void * _wrap_FMRIStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, SwigClassWrapper const *farg5, void *farg6) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
-  realtype arg2 ;
-  N_Vector arg3 = (N_Vector) 0 ;
-  MRISTEP_ID arg4 ;
-  void *arg5 = (void *) 0 ;
+  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
+  realtype arg3 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  MRIStepInnerStepper arg5 = (MRIStepInnerStepper) 0 ;
+  SUNContext arg6 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (N_Vector)(farg3);
-  arg4 = (MRISTEP_ID)(*farg4);
-  arg5 = (void *)(farg5);
-  result = (void *)MRIStepCreate(arg1,arg2,arg3,arg4,arg5);
+  arg2 = (ARKRhsFn)(farg2);
+  arg3 = (realtype)(*farg3);
+  arg4 = (N_Vector)(farg4);
+  SWIG_check_mutable(*farg5, "MRIStepInnerStepper", "SWIGTYPE_p__MRIStepInnerStepper", "MRIStepCreate(ARKRhsFn,ARKRhsFn,realtype,N_Vector,MRIStepInnerStepper,SUNContext)", return 0);
+  arg5 = (MRIStepInnerStepper)(farg5->cptr);
+  arg6 = (SUNContext)(farg6);
+  result = (void *)MRIStepCreate(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult = result;
   return fresult;
 }
@@ -666,19 +669,21 @@ SWIGEXPORT int _wrap_FMRIStepResize(void *farg1, N_Vector farg2, double const *f
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepReInit(void *farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
+SWIGEXPORT int _wrap_FMRIStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  realtype arg3 ;
-  N_Vector arg4 = (N_Vector) 0 ;
+  ARKRhsFn arg3 = (ARKRhsFn) 0 ;
+  realtype arg4 ;
+  N_Vector arg5 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (ARKRhsFn)(farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (N_Vector)(farg4);
-  result = (int)MRIStepReInit(arg1,arg2,arg3,arg4);
+  arg3 = (ARKRhsFn)(farg3);
+  arg4 = (realtype)(*farg4);
+  arg5 = (N_Vector)(farg5);
+  result = (int)MRIStepReInit(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }
@@ -896,36 +901,6 @@ SWIGEXPORT int _wrap_FMRIStepSetCoupling(void *farg1, SwigClassWrapper const *fa
   SWIG_check_mutable(*farg2, "MRIStepCoupling", "MRIStepCouplingMem", "MRIStepSetCoupling(void *,MRIStepCoupling)", return 0);
   arg2 = (MRIStepCoupling)(farg2->cptr);
   result = (int)MRIStepSetCoupling(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FMRIStepSetTable(void *farg1, int const *farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  ARKodeButcherTable arg3 = (ARKodeButcherTable) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (ARKodeButcherTable)(farg3);
-  result = (int)MRIStepSetTable(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FMRIStepSetTableNum(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)MRIStepSetTableNum(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1423,15 +1398,17 @@ SWIGEXPORT int _wrap_FMRIStepComputeState(void *farg1, N_Vector farg2, N_Vector 
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepGetNumRhsEvals(void *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FMRIStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
-  result = (int)MRIStepGetNumRhsEvals(arg1,arg2);
+  arg3 = (long *)(farg3);
+  result = (int)MRIStepGetNumRhsEvals(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
@@ -1905,13 +1882,15 @@ SWIGEXPORT void _wrap_FMRIStepPrintMem(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1) {
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1, void *farg2) {
   int fresult ;
-  MRIStepInnerStepper *arg1 = (MRIStepInnerStepper *) 0 ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
   int result;
   
-  arg1 = (MRIStepInnerStepper *)(farg1);
-  result = (int)MRIStepInnerStepper_Create(arg1);
+  arg1 = (SUNContext)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)MRIStepInnerStepper_Create(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

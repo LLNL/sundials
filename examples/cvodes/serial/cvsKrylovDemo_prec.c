@@ -70,7 +70,7 @@
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
  * In the series of runs, CVodeInit, SUNLinSol_SPGMR, and
- * CVDlsSetLinearSolver are called only for the first run, whereas
+ * CVodeSetLinearSolver are called only for the first run, whereas
  * CVodeReInit, SUNLinSol_SPGMRSetPrecType, and SUNSLinSol_PGMRSetGSType
  * are called for each of the remaining three runs.
  *
@@ -81,8 +81,10 @@
  * but there should be no such messages.
  *
  * Note: This program requires the dense linear solver functions
- * newDenseMat, newIndexArray, denseAddIdentity, denseGETRF, denseGETRS,
- * destroyMat and destroyArray.
+ * SUNDlsMat_newDenseMat, SUNDlsMat_newIndexArray,
+ * SUNDlsMat_denseAddIdentity, SUNDlsMat_denseGETRF,
+ * SUNDlsMat_denseGETRS, SUNDlsMat_destroyMat and
+ * SUNDlsMat_destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
  * type N_Vector and uses the N_VGetArrayPointer function to gain
@@ -229,6 +231,9 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
+/* SUNDIALS simulation context */
+static SUNContext sunctx;
+
 /* Implementation */
 
 int main()
@@ -247,8 +252,12 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initializations */
-  c = N_VNew_Serial(NEQ);
+  c = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
   wdata = AllocUserData();
   if(check_retval((void *)wdata, "AllocUserData", 2)) return(1);
@@ -260,8 +269,8 @@ int main()
   PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
-  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
-    for (gstype = MODIFIED_GS; gstype <= CLASSICAL_GS; gstype++) {
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
+    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_CLASSICAL_GS; gstype++) {
 
       /* Initialize c and print heading */
       CInit(c, wdata);
@@ -269,9 +278,9 @@ int main()
 
       /* Call CVodeInit or CVodeReInit, then SUNLinSol_SPGMR to set up problem */
 
-      firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
+      firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeCreate(CV_BDF);
+        cvode_mem = CVodeCreate(CV_BDF, sunctx);
         if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
@@ -285,7 +294,7 @@ int main()
         retval = CVodeSStolerances(cvode_mem, reltol, abstol);
         if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL, sunctx);
         if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
         retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
@@ -336,6 +345,7 @@ int main()
   N_VDestroy(c);
   SUNLinSolFree(LS);
   FreeUserData(wdata);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -348,11 +358,11 @@ static WebData AllocUserData(void)
 
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newIndexArray(ns);
+    (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
+    (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
-  wdata->rewt = N_VNew_Serial(NEQ);
-  wdata->tmp = N_VNew_Serial(NEQ);
+  wdata->rewt = N_VNew_Serial(NEQ, sunctx);
+  wdata->tmp = N_VNew_Serial(NEQ, sunctx);
   return(wdata);
 }
 
@@ -518,15 +528,15 @@ static void PrintIntro(void)
 
 static void PrintHeader(int jpre, int gstype)
 {
-  if(jpre == PREC_LEFT)
-    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_LEFT");
+  if(jpre == SUN_PREC_LEFT)
+    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_LEFT");
   else
-    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_RIGHT");
+    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_RIGHT");
 
-  if(gstype == MODIFIED_GS)
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "MODIFIED_GS");
+  if(gstype == SUN_MODIFIED_GS)
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_MODIFIED_GS");
   else
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "CLASSICAL_GS");
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_CLASSICAL_GS");
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
@@ -661,8 +671,8 @@ static void FreeUserData(WebData wdata)
 
   ngrp = wdata->ngrp;
   for(i=0; i < ngrp; i++) {
-    destroyMat((wdata->P)[i]);
-    destroyArray((wdata->pivot)[i]);
+    SUNDlsMat_destroyMat((wdata->P)[i]);
+    SUNDlsMat_destroyArray((wdata->pivot)[i]);
   }
   N_VDestroy(wdata->rewt);
   N_VDestroy(wdata->tmp);
@@ -755,7 +765,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 /*
  This routine generates the block-diagonal part of the Jacobian
  corresponding to the interaction rates, multiplies by -gamma, adds
- the identity matrix, and calls denseGETRF to do the LU decomposition of
+ the identity matrix, and calls SUNDlsMat_denseGETRF to do the LU decomposition of
  each diagonal block. The computation of the diagonal blocks uses
  the preset block and grouping information. One block per group is
  computed. The Jacobian elements are generated by difference
@@ -838,8 +848,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   /* Add identity matrix and do LU decompositions on blocks. */
 
   for (ig = 0; ig < ngrp; ig++) {
-    denseAddIdentity(P[ig], mp);
-    denseretval = denseGETRF(P[ig], mp, mp, pivot[ig]);
+    SUNDlsMat_denseAddIdentity(P[ig], mp);
+    denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
     if (denseretval != 0) return(1);
   }
 
@@ -908,7 +918,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
+      SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }

@@ -89,9 +89,6 @@ if(EXAMPLES_INSTALL)
     SUNDIALS_TARGETS
       ${vector}
       sunlinsolmagmadense
-      MAGMA
-    EXTRA_INCLUDES
-      ${MAGMA_INCLUDE_DIR}
     DESTINATION
       sunlinsol/magmadense
     )

@@ -17,6 +17,7 @@
 
 module test_fsunmatrix_sparse
   use, intrinsic :: iso_c_binding
+  use test_utilities
   implicit none
 
   integer(C_LONG), parameter :: N = 5
@@ -31,7 +32,6 @@ contains
     use fsundials_matrix_mod
     use fsunmatrix_sparse_mod
     use fnvector_serial_mod
-    use test_utilities
 
     !======== Declarations ========
     implicit none
@@ -48,13 +48,13 @@ contains
 
     fails = 0
 
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
 
     !===== Calls to interface =====
 
     ! constructor
-    A => FSUNSparseMatrix(N, N, N*N, CSR_MAT)
+    A => FSUNSparseMatrix(N, N, N*N, CSR_MAT, sunctx)
     if (.not. associated(A)) then
       print *,'>>> FAILED - ERROR in FSUNSparseMatrix; halting'
       stop 1
@@ -111,8 +111,8 @@ contains
     fails = 0
 
     ! create dense A and I
-    DA => FSUNDenseMatrix(N, N)
-    DI => FSUNDenseMatrix(N, N)
+    DA => FSUNDenseMatrix(N, N, sunctx)
+    DI => FSUNDenseMatrix(N, N, sunctx)
 
     ! fill A matrix
     Adata => FSUNDenseMatrix_Data(DA)
@@ -133,8 +133,8 @@ contains
     I => FSUNSparseFromDenseMatrix(DI, ZERO, CSR_MAT)
 
     ! create vectors
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
 
     ! fill vector x
     xdata => FN_VGetArrayPointer(x)
@@ -183,6 +183,8 @@ program main
   !============== Introduction =============
   print *, 'Sparse SUNMatrix Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -190,6 +192,8 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
 
 end program main
 

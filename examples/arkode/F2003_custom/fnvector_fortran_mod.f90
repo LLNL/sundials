@@ -34,17 +34,18 @@ module fnvector_fortran_mod
 contains
 
   ! ----------------------------------------------------------------
-  function FN_VNew_Fortran(n1, n2) result(sunvec_y)
+  function FN_VNew_Fortran(n1, n2, sunctx) result(sunvec_y)
 
     implicit none
     integer(c_long),    value   :: n1
     integer(c_long),    value   :: n2
+    type(c_ptr),        value   :: sunctx
     type(N_Vector),     pointer :: sunvec_y
     type(N_Vector_Ops), pointer :: ops
     type(FVec),         pointer :: content
 
     ! allocate output N_Vector structure
-    sunvec_y => FN_VNewEmpty()
+    sunvec_y => FN_VNewEmpty(sunctx)
 
     ! allocate and fill content structure
     allocate(content)
@@ -95,18 +96,19 @@ contains
   end function FN_VNew_Fortran
 
   ! ----------------------------------------------------------------
-  function FN_VMake_Fortran(n1, n2, data) result(sunvec_y)
+  function FN_VMake_Fortran(n1, n2, data, sunctx) result(sunvec_y)
 
     implicit none
     integer(c_long),    value   :: n1
     integer(c_long),    value   :: n2
+    type(c_ptr),        value   :: sunctx
     type(N_Vector),     pointer :: sunvec_y
     type(N_Vector_Ops), pointer :: ops
     type(FVec),         pointer :: content
     real(c_double),     target  :: data(:,:)
 
     ! allocate output N_Vector structure
-    sunvec_y => FN_VNewEmpty()
+    sunvec_y => FN_VNewEmpty(sunctx)
 
     ! allocate and fill content structure
     allocate(content)
@@ -271,7 +273,7 @@ contains
     x => FN_VGetFVec(sunvec_x)
 
     ! allocate output N_Vector structure
-    sunvec_y => FN_VNewEmpty()
+    sunvec_y => FN_VNewEmpty(sunvec_x%sunctx)
 
     ! copy operations from x into y
     retval = FN_VCopyOps(sunvec_x, sunvec_y)

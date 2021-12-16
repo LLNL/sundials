@@ -202,6 +202,9 @@ int main(int argc, char** argv)
     return(1);
   }
 
+  /* Create the SUNDIALS context */
+  sundials::Context sunctx;
+
   SUNCudaThreadDirectExecPolicy stream_exec_policy(256, stream);
   SUNCudaBlockReduceExecPolicy reduce_exec_policy(256, 0, stream);
 
@@ -213,7 +216,7 @@ int main(int argc, char** argv)
   abstol = ATOL;
 
   /* Create a CUDA vector with initial values */
-  u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
+  u = N_VNew_Cuda(data->NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
 
   /* Use a non-default cuda stream for kernel execution */
@@ -224,7 +227,7 @@ int main(int argc, char** argv)
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -244,7 +247,7 @@ int main(int argc, char** argv)
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
   /* Set CVode linear solver to LS */

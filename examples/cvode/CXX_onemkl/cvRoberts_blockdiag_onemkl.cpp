@@ -65,12 +65,12 @@ using namespace std;
 #define Y3    RCONST(0.0)
 #define RTOL  RCONST(1.0e-4)   // scalar relative tolerance
 #define ATOL1 RCONST(1.0e-8)   // vector absolute tolerance components
-#define ATOL2 RCONST(1.0e-11)
+#define ATOL2 RCONST(1.0e-14)
 #define ATOL3 RCONST(1.0e-6)
 #define T0    RCONST(0.0)      // initial time
 #define T1    RCONST(0.1)      // first output time
 #define TMULT RCONST(10.0)     // output time factor
-#define NOUT  8                // number of output times
+#define NOUT  10               // number of output times
 
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
@@ -108,6 +108,9 @@ typedef struct
 
 int main(int argc, char *argv[])
 {
+  // SUNDIALS simulation context
+  sundials::Context sunctx;
+
   // return value flag
   int retval;
 
@@ -145,11 +148,11 @@ int main(int argc, char *argv[])
   udata.neq     = neq;
 
   // Create the SYCL memory helper
-  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(&myQueue);
+  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(sunctx);
   if (check_retval((void *)memhelper, "SUNMemoryHelper_Sycl", 0)) return 1;
 
   // Create SYCL vector for state and absolute tolerances
-  N_Vector y = N_VNew_Sycl(neq, &myQueue);
+  N_Vector y = N_VNew_Sycl(neq, &myQueue, sunctx);
   if (check_retval((void *)y, "N_VNew", 0)) return 1;
 
   N_Vector abstol = N_VClone(y);
@@ -179,7 +182,7 @@ int main(int argc, char *argv[])
   N_VCopyToDevice_Sycl(abstol);
 
   // Create CVODE with BDF methods
-  void* cvode_mem = CVodeCreate(CV_BDF);
+  void* cvode_mem = CVodeCreate(CV_BDF, NULL);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
 
   // Initialize CVODE
@@ -202,11 +205,12 @@ int main(int argc, char *argv[])
   {
     // Create SUNMatrix for use in linear solves
     A = SUNMatrix_OneMklDenseBlock(ngroups, GROUPSIZE, GROUPSIZE,
-                                   SUNMEMTYPE_DEVICE, memhelper, &myQueue);
+                                   SUNMEMTYPE_DEVICE, memhelper, &myQueue,
+                                   sunctx);
     if (check_retval((void *)A, "SUNMatrix_OneMklDenseBlock", 0)) return 1;
 
     // Create the SUNLinearSolver object for use by CVode
-    LS = SUNLinSol_OneMklDense(y, A);
+    LS = SUNLinSol_OneMklDense(y, A, sunctx);
     if (check_retval((void *)LS, "SUNLinSol_OneMklDense", 0)) return 1;
 
     // Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode
@@ -220,7 +224,7 @@ int main(int argc, char *argv[])
   else
   {
     // Create SPGMR solver
-    LS = SUNLinSol_SPGMR(y, PREC_RIGHT, 10);
+    LS = SUNLinSol_SPGMR(y, SUN_PREC_RIGHT, 10, sunctx);
     if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) return 1;
 
     // Call CVodeSetLinearSolver to attach the linear solver to CVode

@@ -55,12 +55,7 @@ typedef struct _SUNLinearSolverContent_Dense *SUNLinearSolverContent_Dense;
  * Exported Functions for SUNLINSOL_DENSE
  * ---------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNDenseLinearSolver(N_Vector y,
-                                                     SUNMatrix A);
-
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Dense(SUNLinearSolver S);

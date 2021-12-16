@@ -136,14 +136,14 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->stgMallocDone == SUNFALSE) {
 
-    IDA_mem->ypredictStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
+    IDA_mem->ypredictStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx);
     if (IDA_mem->ypredictStg == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensStg", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ycorStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
+    IDA_mem->ycorStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx);
     if (IDA_mem->ycorStg == NULL) {
       N_VDestroy(IDA_mem->ypredictStg);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
@@ -151,7 +151,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ewtStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
+    IDA_mem->ewtStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns, IDA_mem->ida_sunctx);
     if (IDA_mem->ewtStg == NULL) {
       N_VDestroy(IDA_mem->ypredictStg);
       N_VDestroy(IDA_mem->ycorStg);

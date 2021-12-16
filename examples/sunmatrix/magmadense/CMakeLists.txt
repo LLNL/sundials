@@ -92,9 +92,6 @@ if(EXAMPLES_INSTALL)
     SUNDIALS_TARGETS
       ${vector}
       sunmatrixmagmadense
-      MAGMA
-    EXTRA_INCLUDES
-      ${MAGMA_INCLUDE_DIR}
     DESTINATION
       sunmatrix/magmadense
     )

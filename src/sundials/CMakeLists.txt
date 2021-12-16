@@ -22,21 +22,25 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
   sundials_band.h
+  sundials_context.h
   sundials_dense.h
   sundials_direct.h
-  sundials_fnvector.h
-  sundials_futils.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_math.h
   sundials_matrix.h
   sundials_memory.h
-  sundials_nonlinearsolver.h
   sundials_mpi_types.h
+  sundials_nonlinearsolver.h
   sundials_nvector.h
+  sundials_profiler.h
   sundials_types.h
   sundials_version.h
   )
+
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND sundials_HEADERS sundials_futils.h)
+endif()
 
 if(ENABLE_CUDA)
   list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
@@ -65,9 +69,9 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
   sundials_band.c
+  sundials_context.c
   sundials_dense.c
   sundials_direct.c
-  sundials_futils.c
   sundials_iterative.c
   sundials_linearsolver.c
   sundials_math.c
@@ -76,10 +80,31 @@ set(sundials_SOURCES
   sundials_nonlinearsolver.c
   sundials_nvector.c
   sundials_nvector_senswrapper.c
-  sundials_version.c)
+  sundials_version.c
+  )
+
+if(SUNDIALS_BUILD_WITH_PROFILING)
+  message(WARNING "SUNDIALS built with profiling turned on, performance may be affected.")
+  list(APPEND sundials_SOURCES sundials_profiler.c)
+endif()
+
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND sundials_SOURCES sundials_futils.c)
+endif()
 
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
+
+if(SUNDIALS_BUILD_WITH_PROFILING)
+  if(ENABLE_MPI AND MPI_C_FOUND)
+    # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
+    set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
+    set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
+  endif()
+  if(ENABLE_CALIPER)
+    set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
+  endif()
+endif()
 
 # Create a library out of the generic sundials modules
 sundials_add_library(sundials_generic
@@ -89,6 +114,11 @@ sundials_add_library(sundials_generic
     ${sundials_HEADERS}
   INCLUDE_SUBDIR
     sundials
+  INCLUDE_DIRECTORIES
+    ${_include_mpi_if_needed}
+    ${_include_caliper_if_needed}
+  LINK_LIBRARIES
+    ${_link_mpi_if_needed}
   OUTPUT_NAME
     sundials_generic
   VERSION

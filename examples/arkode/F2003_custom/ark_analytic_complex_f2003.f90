@@ -122,22 +122,26 @@ program main
   use farkode_mod           ! Fortran interface to the ARKode module
   use farkode_arkstep_mod   ! Fortran interface to the ARKStep module
   use fnvector_complex_mod  ! Custom complex N_Vector
+  use fsundials_context_mod
   use ode_mod               ! ODE functions
 
   !======= Declarations =========
   implicit none
 
   ! local variables
-  integer(c_int) :: ierr, iout
-  real(c_double) :: tcur(1), tout, dTout, yerr, yerrI, yerr2
-
-  type(N_Vector), pointer :: sunvec_y    ! sundials vector
+  integer(c_int)          :: ierr, iout
+  real(c_double)          :: tcur(1), tout, dTout, yerr, yerrI, yerr2
+  type(N_Vector), pointer :: sunvec_y    ! SUNDIALS vector
   type(c_ptr)             :: arkode_mem  ! ARKODE memory
+  type(c_ptr)             :: sunctx      ! SUNDIALS context for the simulation
 
   ! solution vector
   type(FVec), pointer :: y
 
   !======= Internals ============
+
+  ! create the SUNDIALS context
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
 
   ! initial problem output
   print *, "  "
@@ -146,7 +150,7 @@ program main
   print '(2(a,es8.1))', "    reltol = ",reltol,",  abstol = ",abstol
 
   ! initialize SUNDIALS solution vector
-  sunvec_y => FN_VNew_Complex(neq)
+  sunvec_y => FN_VNew_Complex(neq, sunctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -157,7 +161,7 @@ program main
   y%data(1) = Sol(T0)
 
   ! create ARKStep memory
-  arkode_mem = FARKStepCreate(c_funloc(Rhs), c_null_funptr, T0, sunvec_y)
+  arkode_mem = FARKStepCreate(c_funloc(Rhs), c_null_funptr, T0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *,'ERROR: arkode_mem = NULL'
      stop 1
@@ -206,6 +210,7 @@ program main
   ! clean up
   call FARKStepFree(arkode_mem)
   call FN_VDestroy(sunvec_y)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 

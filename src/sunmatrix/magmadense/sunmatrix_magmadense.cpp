@@ -72,14 +72,14 @@ static booleantype SMCompatible2_MagmaDense(SUNMatrix A, N_Vector x, N_Vector y)
 
 SUNMatrix SUNMatrix_MagmaDense(sunindextype M, sunindextype N, SUNMemoryType memtype,
                                SUNMemoryHelper memhelper,
-                               void* queue)
+                               void* queue, SUNContext sunctx)
 {
-  return(SUNMatrix_MagmaDenseBlock(1, M, N, memtype, memhelper, queue));
+  return(SUNMatrix_MagmaDenseBlock(1, M, N, memtype, memhelper, queue, sunctx));
 }
 
 SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunindextype N,
                                     SUNMemoryType memtype, SUNMemoryHelper memhelper,
-                                    void* queue)
+                                    void* queue, SUNContext sunctx)
 {
   SUNMatrix Amat;
   SUNMatrixContent_MagmaDense A;
@@ -103,7 +103,7 @@ SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunind
 
   /* Create an empty matrix object */
   Amat = NULL;
-  Amat = SUNMatNewEmpty();
+  Amat = SUNMatNewEmpty(sunctx);
   if (Amat == NULL) return(NULL);
 
   /* Attach operations */
@@ -144,13 +144,16 @@ SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunind
     magma_queue_create_from_cuda(A->device_id, (cudaStream_t) queue, NULL, NULL, &A->q); )
 
   /* Allocate data */
-  retval = SUNMemoryHelper_Alloc(A->memhelp, &A->data, sizeof(realtype)*A->ldata, memtype);
+  retval = SUNMemoryHelper_Alloc(A->memhelp, &A->data,
+                                 sizeof(realtype) * A->ldata, memtype, nullptr);
   if (retval) { SUNMatDestroy(Amat); return(NULL); }
 
   if (A->nblocks > 1)
   {
     /* Allocate array of pointers to block data */
-    retval = SUNMemoryHelper_Alloc(A->memhelp, &A->blocks, sizeof(realtype*)*A->nblocks, memtype);
+    retval = SUNMemoryHelper_Alloc(A->memhelp, &A->blocks,
+                                   sizeof(realtype*) * A->nblocks, memtype,
+                                   nullptr);
     if (retval) { SUNMatDestroy(Amat); return(NULL); }
 
     /* Initialize array of pointers to block data */
@@ -278,11 +281,11 @@ int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, realtype* h_data)
   retval = SUNMemoryHelper_CopyAsync(A->memhelp,
                                      A->data,
                                      _h_data,
-                                     sizeof(realtype)*A->ldata,
+                                     sizeof(realtype) * A->ldata,
                                      (void*) &stream);
   magma_queue_sync(A->q); /* sync with respect to host, but only this stream */
 
-  SUNMemoryHelper_Dealloc(A->memhelp, _h_data);
+  SUNMemoryHelper_Dealloc(A->memhelp, _h_data, nullptr);
   return(retval == 0 ? SUNMAT_SUCCESS : SUNMAT_MEM_FAIL);
 }
 
@@ -299,11 +302,11 @@ int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, realtype* h_data)
   retval = SUNMemoryHelper_CopyAsync(A->memhelp,
                                      _h_data,
                                      A->data,
-                                     sizeof(realtype)*A->ldata,
+                                     sizeof(realtype) * A->ldata,
                                      (void*) &stream);
   magma_queue_sync(A->q); /* sync with respect to host, but only this stream */
 
-  SUNMemoryHelper_Dealloc(A->memhelp, _h_data);
+  SUNMemoryHelper_Dealloc(A->memhelp, _h_data, nullptr);
   return(retval == 0 ? SUNMAT_SUCCESS : SUNMAT_MEM_FAIL);
 }
 
@@ -325,9 +328,11 @@ SUNMatrix SUNMatClone_MagmaDense(SUNMatrix Amat)
                         cudaStream_t stream = magma_queue_get_cuda_stream(A->q); )
 
   if (A->nblocks > 1)
-    B = SUNMatrix_MagmaDenseBlock(A->nblocks, A->M, A->N, A->data->type, A->memhelp, stream);
+    B = SUNMatrix_MagmaDenseBlock(A->nblocks, A->M, A->N, A->data->type,
+                                  A->memhelp, stream, Amat->sunctx);
   else
-    B = SUNMatrix_MagmaDense(A->M, A->N, A->data->type, A->memhelp, stream);
+    B = SUNMatrix_MagmaDense(A->M, A->N, A->data->type, A->memhelp, stream,
+                             Amat->sunctx);
 
   return(B);
 }
@@ -347,10 +352,10 @@ void SUNMatDestroy_MagmaDense(SUNMatrix Amat)
   if (A)
   {
     /* Free data array(s) */
-    if (A->data) SUNMemoryHelper_Dealloc(A->memhelp, A->data);
-    if (A->blocks) SUNMemoryHelper_Dealloc(A->memhelp, A->blocks);
-    if (A->xblocks) SUNMemoryHelper_Dealloc(A->memhelp, A->xblocks);
-    if (A->yblocks) SUNMemoryHelper_Dealloc(A->memhelp, A->yblocks);
+    if (A->data) SUNMemoryHelper_Dealloc(A->memhelp, A->data, nullptr);
+    if (A->blocks) SUNMemoryHelper_Dealloc(A->memhelp, A->blocks, nullptr);
+    if (A->xblocks) SUNMemoryHelper_Dealloc(A->memhelp, A->xblocks, nullptr);
+    if (A->yblocks) SUNMemoryHelper_Dealloc(A->memhelp, A->yblocks, nullptr);
     magma_queue_destroy(A->q);
     /* Free content struct */
     free(A);
@@ -492,12 +497,14 @@ int SUNMatMatvecSetup_MagmaDense(SUNMatrix Amat)
     /* Allocate array of pointers to blocks on device */
     if (A->xblocks == NULL)
       retval = SUNMemoryHelper_Alloc(A->memhelp, &A->xblocks,
-                                     sizeof(realtype*)*A->nblocks, A->data->type);
+                                     sizeof(realtype*) * A->nblocks,
+                                     A->data->type, nullptr);
     if (retval) return(SUNMAT_MEM_FAIL);
 
     if (A->yblocks == NULL)
       retval = SUNMemoryHelper_Alloc(A->memhelp, &A->yblocks,
-                                     sizeof(realtype*)*A->nblocks, A->data->type);
+                                     sizeof(realtype*) * A->nblocks,
+                                     A->data->type, nullptr);
     if (retval) return(SUNMAT_MEM_FAIL);
   }
 

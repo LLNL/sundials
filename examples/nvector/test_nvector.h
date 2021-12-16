@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+extern SUNContext sunctx;
+
 /* Forward declarations for implementation specific utility functions */
 int check_ans(realtype ans, N_Vector X, sunindextype local_length);
 booleantype has_data(N_Vector X);
@@ -40,6 +42,12 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 realtype get_element(N_Vector X, sunindextype i);
 double max_time(N_Vector X, double time);
 void sync_device(N_Vector X);
+
+/* Shared test initialization/finalization */
+int Test_Init(void* comm);
+int Test_Finalize();
+void Test_Abort(int code);
+void Test_AbortMPI(void* comm, int code);
 
 /* Vector ID test */
 int Test_N_VGetVectorID(N_Vector X, N_Vector_ID ID, int myid);
@@ -129,6 +137,11 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
                             sunindextype local_length, int myid);
 int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
                              sunindextype local_length, int myid);
+
+/* Single buffer reduction tests */
+int Test_N_VDotProdMultiLocal(N_Vector X, sunindextype local_length, int myid);
+int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
+                                  int myid);
 
 /* XBraid interface operations */
 int Test_N_VBufSize(N_Vector x, sunindextype local_length, int myid);

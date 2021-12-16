@@ -175,6 +175,11 @@ int main(int argc, char *argv[]) {
   long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
   long int netf, nmset, nms, nMv;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* if a command-line argument was supplied, set num_threads */
   num_threads = 1;
   if (argc > 1)
@@ -210,27 +215,27 @@ int main(int argc, char *argv[]) {
   printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);           /* Create serial vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
-  data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  umask = N_VClone(y);
+  if (check_retval((void *)umask, "N_VClone", 0)) return(1);
 
-  umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
-  if (check_retval((void *)umask, "N_VNew_Serial", 0)) return(1);
+  vmask = N_VClone(y);
+  if (check_retval((void *)vmask, "N_VClone", 0)) return(1);
 
-  vmask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)vmask, "N_VNew_Serial", 0)) return(1);
-
-  wmask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)wmask, "N_VNew_Serial", 0)) return(1);
+  wmask = N_VClone(y);
+  if (check_retval((void *)wmask, "N_VClone", 0)) return(1);
 
   /* temporary N_Vector inside udata */
-  udata->tmp = N_VNew_Serial(NEQ);
+  udata->tmp = N_VClone(y);
   if (check_retval((void *) udata->tmp, "N_VNew_Serial", 0)) return(1);
 
   /* allocate and set up spatial mesh; this [arbitrarily] clusters
      more intervals near the end points of the interval */
+  data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+
   udata->x = (realtype *) malloc(N*sizeof(realtype));
   if (check_retval((void *)udata->x, "malloc", 2)) return(1);
   h = RCONST(10.0)/(N-1);
@@ -268,7 +273,7 @@ int main(int argc, char *argv[]) {
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) return(1);
 
   /* Set routines */
@@ -288,16 +293,16 @@ int main(int argc, char *argv[]) {
   /* Initialize sparse matrix data structure and linear solvers (system and mass) */
   NNZ = 15*NEQ;
 
-  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT, ctx);
   if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  LS = SUNLinSol_SuperLUMT(y, A, num_threads);
+  LS = SUNLinSol_SuperLUMT(y, A, num_threads, ctx);
   if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   M = SUNMatClone(A);
   if (check_retval((void *)M, "SUNSparseMatrix", 0)) return(1);
 
-  MLS = SUNLinSol_SuperLUMT(y, M, num_threads);
+  MLS = SUNLinSol_SuperLUMT(y, M, num_threads, ctx);
   if (check_retval((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
@@ -431,6 +436,8 @@ int main(int argc, char *argv[]) {
   SUNLinSolFree(MLS);
   SUNMatDestroy(A);                /* Free matrices */
   SUNMatDestroy(M);
+  SUNContext_Free(&ctx);           /* Free context */
+
   return 0;
 }
 
@@ -717,7 +724,8 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   if (udata->R == NULL) {
     udata->R = SUNSparseMatrix(SUNSparseMatrix_Rows(J),
                                SUNSparseMatrix_Columns(J),
-                               SUNSparseMatrix_NNZ(J), CSR_MAT);
+                               SUNSparseMatrix_NNZ(J), CSR_MAT,
+                               J->sunctx);
     if (udata->R == NULL) {
       printf("Jac: error in allocating R matrix!\n");
       return 1;

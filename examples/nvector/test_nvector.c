@@ -19,18 +19,24 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+/* Minimum POSIX version needed for struct timespec and clock_monotonic */
+#if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 199309L)
+#define _POSIX_C_SOURCE 199309L
+#endif
+
+/* POSIX timers */
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#include <time.h>
+#include <stddef.h>
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
-
-/* POSIX timers */
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-#include <time.h>
-#include <unistd.h>
-#endif
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -39,8 +45,11 @@
 #else
 #define GSYM "g"
 #define ESYM "e"
-#define FSYM "f"
+#define FSYM ".17f"
 #endif
+
+/* all tests need a SUNContext */
+SUNContext sunctx = NULL;
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -59,6 +68,34 @@ static int print_time = 0;
 /* macro for printing timings */
 #define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(test, time) if (print_time) printf(FMT, test, time)
+
+int Test_Init(void* comm)
+{
+  if (sunctx == NULL) {
+    if (SUNContext_Create(comm, &sunctx)) {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+int Test_Finalize()
+{
+  if (sunctx != NULL) {
+    if (SUNContext_Free(&sunctx)) {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+void Test_Abort(int code)
+{
+  Test_Finalize();
+  abort();
+}
 
 /* ----------------------------------------------------------------------
  * N_VMake Test
@@ -5300,6 +5337,237 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   /* find max time across all processes */
   maxt = max_time(NUM, stop_time - start_time);
   PRINT_TIME("N_VMinQuotientLocal", maxt);
+
+  return(fails);
+}
+
+
+
+/* ----------------------------------------------------------------------
+ * N_VDotProdMultiLocal Test
+ * --------------------------------------------------------------------*/
+int Test_N_VDotProdMultiLocal(N_Vector X, sunindextype local_length, int myid)
+{
+  int    fails = 0, failure = 0, ierr = 0;
+  double start_time, stop_time, maxt;
+
+  N_Vector *V;
+  realtype dotprods[3];
+
+  /* create vectors for testing */
+  V = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1: d[0] = z . V[0], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,  X);
+  N_VConst(HALF, V[0]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(1, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[0] should equal the local vector length */
+  if (ierr == 0)
+    failure = SUNRCompare(dotprods[0], (realtype) local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiLocal Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiLocal Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /*
+   * Case 2: d[i] = z . V[i], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,      X);
+  N_VConst(NEG_HALF, V[0]);
+  N_VConst(HALF,     V[1]);
+  N_VConst(ONE,      V[2]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(3, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the local vector length */
+  if (ierr == 0) {
+    failure  = SUNRCompare(dotprods[0], (realtype) -1 * local_length);
+    failure += SUNRCompare(dotprods[1], (realtype)      local_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2 * local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiLocal Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiLocal Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /* Free vectors */
+  N_VDestroyVectorArray(V, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VDotProdMultiAllReduce Test
+ * --------------------------------------------------------------------*/
+int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
+                                  int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time, maxt;
+
+  sunindextype  global_length;
+  N_Vector     *V;
+  realtype      dotprods[3];
+
+  /* only test if the operation is implemented, local vectors (non-MPI) do not
+     provide this function */
+  if (!(X->ops->nvdotprodmultiallreduce)) return 0;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
+
+  /* create vectors for testing */
+  V = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1: d[0] = z . V[0], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,  X);
+  N_VConst(HALF, V[0]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(1, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[0] should equal the local vector length */
+  if (ierr == 0)
+    failure = SUNRCompare(dotprods[0], (realtype) local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiAllReduce Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /* perform the global reduction */
+  start_time = get_time();
+  ierr = N_VDotProdMultiAllReduce(1, X, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[0] should equal the global vector length */
+  if (ierr == 0)
+    failure = SUNRCompare(dotprods[0], (realtype) global_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiAllReduce Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiAllReduce", maxt);
+
+  /*
+   * Case 2: d[i] = z . V[i], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,      X);
+  N_VConst(NEG_HALF, V[0]);
+  N_VConst(HALF,     V[1]);
+  N_VConst(ONE,      V[2]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(3, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the local vector length */
+  if (ierr == 0) {
+    failure  = SUNRCompare(dotprods[0], (realtype) -1 * local_length);
+    failure += SUNRCompare(dotprods[1], (realtype)      local_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2 * local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiLocal Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiLocal Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /* perform the global reduction */
+  start_time = get_time();
+  ierr = N_VDotProdMultiAllReduce(3, X, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
+  if (ierr == 0) {
+    failure  = SUNRCompare(dotprods[0], (realtype) -1 * global_length);
+    failure += SUNRCompare(dotprods[1], (realtype)      global_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2 * global_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiAllReduce Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiAllReduce", maxt);
+
+  /* Free vectors */
+  N_VDestroyVectorArray(V, 3);
 
   return(fails);
 }

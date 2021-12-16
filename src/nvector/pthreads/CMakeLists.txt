@@ -40,20 +40,3 @@ message(STATUS "Added NVECTOR_PTHREADS module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fnvecpthreads
-    SOURCES
-      fnvector_pthreads.c
-    LINK_LIBRARIES
-      PRIVATE sundials_nvecpthreads
-    OUTPUT_NAME
-      sundials_fnvecpthreads
-    VERSION
-      ${nveclib_VERSION}
-    SOVERSION
-      ${nveclib_SOVERSION}
-  )
-  message(STATUS "Added NVECTOR_PTHREADS F77 interface")
-endif()

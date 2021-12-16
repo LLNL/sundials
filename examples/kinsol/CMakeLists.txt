@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner and Slaven Peles @ LLNL
+#                Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -26,14 +27,24 @@ if(EXAMPLES_ENABLE_C)
   endif()
 endif()
 
-# Fortran examples
-if(BUILD_FORTRAN77_INTERFACE AND EXAMPLES_ENABLE_F77)
-  add_subdirectory(fcmix_serial)
-  if(ENABLE_MPI AND MPI_Fortran_FOUND)
-    add_subdirectory(fcmix_parallel)
+# C++ examples
+if(EXAMPLES_ENABLE_CXX)
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
+    add_subdirectory(CXX_parallel)
+  endif()
+  if(ENABLE_MPI AND MPI_CXX_FOUND AND ENABLE_HYPRE AND HYPRE_FOUND)
+    add_subdirectory(CXX_parhyp)
   endif()
 endif()
 
+# CUDA examples
+if(EXAMPLES_ENABLE_CUDA)
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
+    add_subdirectory(CUDA_mpi)
+  endif()
+endif()
+
+# Fortran examples
 if(BUILD_FORTRAN_MODULE_INTERFACE AND EXAMPLES_ENABLE_F2003)
   add_subdirectory(F2003_serial)
 endif()

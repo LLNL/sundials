@@ -94,6 +94,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -104,6 +105,7 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;
 
+  sunctx = NULL;
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
@@ -113,6 +115,10 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
+
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create((void*) &comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set local vector length. */
   nperpe = NEQ/npes;
@@ -127,7 +133,7 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  u = N_VNew_Parallel(comm, local_N, NEQ);  /* Allocate u vector */
+  u = N_VNew_Parallel(comm, local_N, NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -141,7 +147,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -188,9 +194,9 @@ int main(int argc, char *argv[])
   N_VDestroy(u);                 /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
-
   return(0);
 }
 

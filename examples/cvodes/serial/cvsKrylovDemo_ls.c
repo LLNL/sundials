@@ -196,6 +196,7 @@ int main(int argc, char* argv[])
   int nrmfactor;   /* LS norm conversion factor flag */
   realtype nrmfac; /* LS norm conversion factor      */
   int monitor;     /* LS resiudal monitoring flag    */
+  SUNContext sunctx;
 
   u         = NULL;
   data      = NULL;
@@ -209,6 +210,10 @@ int main(int argc, char* argv[])
   if (argc > 1) nrmfactor = atoi(argv[1]);
   if (argc > 2) monitor   = atoi(argv[2]);
 
+  /* Create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Open info file if monitoring is turned on */
   if (monitor) {
     infofp = fopen("cvKrylovDemo_ls-info.txt", "w+");
@@ -216,7 +221,7 @@ int main(int argc, char* argv[])
   }
 
   /* Allocate memory, and set problem data, initial values, tolerances */
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   data = AllocUserData();
   if (check_retval((void *)data, "AllocUserData", 2)) return(1);
@@ -227,7 +232,7 @@ int main(int argc, char* argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Set the pointer to user-defined data */
@@ -246,7 +251,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create the SUNNonlinearSolver */
-  NLS = SUNNonlinSol_Newton(u);
+  NLS = SUNNonlinSol_Newton(u, sunctx);
   if (check_retval(&retval, "SUNNonlinSol_Newton", 0)) return(1);
   if (monitor) {
     /* Set the print level set to 1, so that the nonlinear residual
@@ -297,7 +302,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+      LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
@@ -325,7 +330,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPFGMR to specify the linear solver SPFGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPFGMR(u, PREC_LEFT, 0);
+      LS = SUNLinSol_SPFGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPFGMR(LS, 1);
@@ -353,7 +358,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPBCGS(u, PREC_LEFT, 0);
+      LS = SUNLinSol_SPBCGS(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPBCGS(LS, 1);
@@ -381,7 +386,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPTFQMR(u, PREC_LEFT, 0);
+      LS = SUNLinSol_SPTFQMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPTFQMR(LS, 1);
@@ -439,6 +444,7 @@ int main(int argc, char* argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -460,9 +466,9 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->Jbd)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
@@ -489,9 +495,9 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      destroyMat((data->P)[jx][jy]);
-      destroyMat((data->Jbd)[jx][jy]);
-      destroyArray((data->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((data->P)[jx][jy]);
+      SUNDlsMat_destroyMat((data->Jbd)[jx][jy]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jy]);
     }
   }
 
@@ -779,7 +785,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
     for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
-        denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
 
     *jcurPtr = SUNFALSE;
 
@@ -813,7 +819,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
 
@@ -825,14 +831,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
   for (jy=0; jy < MY; jy++)
     for (jx=0; jx < MX; jx++)
-      denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+      SUNDlsMat_denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      denseAddIdentity(P[jx][jy], NUM_SPECIES);
-      retval =denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
+      SUNDlsMat_denseAddIdentity(P[jx][jy], NUM_SPECIES);
+      retval =SUNDlsMat_denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
       if (retval != 0) return(1);
     }
   }
@@ -868,7 +874,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       v = &(IJKth(zdata, 1, jx, jy));
-      denseGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
+      SUNDlsMat_denseGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
     }
   }
 

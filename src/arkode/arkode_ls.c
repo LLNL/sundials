@@ -24,12 +24,6 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 /* constants */
 #define MIN_INC_MULT RCONST(1000.0)
 #define MAX_DQITERS  3  /* max. # of attempts to recover in DQ J*v */
@@ -239,19 +233,17 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for ytemp and x */
-  arkls_mem->ytemp = N_VClone(ark_mem->tempv1);
-  if (arkls_mem->ytemp == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->ytemp))) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetLinearSolver", MSG_LS_MEM_FAIL);
     free(arkls_mem); arkls_mem = NULL;
     return(ARKLS_MEM_FAIL);
   }
 
-  arkls_mem->x = N_VClone(ark_mem->tempv1);
-  if (arkls_mem->x == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->x))) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetLinearSolver", MSG_LS_MEM_FAIL);
-    N_VDestroy(arkls_mem->ytemp);
+    arkFreeVec(ark_mem, &(arkls_mem->ytemp));
     free(arkls_mem); arkls_mem = NULL;
     return(ARKLS_MEM_FAIL);
   }
@@ -466,8 +458,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for x */
-  arkls_mem->x = N_VClone(ark_mem->tempv1);
-  if (arkls_mem->x == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->x))) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetMassLinearSolver", MSG_LS_MEM_FAIL);
     if (!iterative) SUNMatDestroy(arkls_mem->M_lu);
@@ -683,8 +674,8 @@ int arkLSSetPreconditioner(void *arkode_mem,
 {
   ARKodeMem ark_mem;
   ARKLsMem  arkls_mem;
-  PSetupFn  arkls_psetup;
-  PSolveFn  arkls_psolve;
+  SUNPSetupFn  arkls_psetup;
+  SUNPSolveFn  arkls_psolve;
   int       retval;
 
   /* access ARKLsMem structure */
@@ -1232,8 +1223,8 @@ int arkLSSetMassPreconditioner(void *arkode_mem,
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
-  PSetupFn     arkls_mpsetup;
-  PSolveFn     arkls_mpsolve;
+  SUNPSetupFn     arkls_mpsetup;
+  SUNPSolveFn     arkls_mpsolve;
   int          retval;
 
   /* access ARKLsMassMem structure */

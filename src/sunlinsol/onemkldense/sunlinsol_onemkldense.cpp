@@ -69,7 +69,7 @@ using namespace oneapi::mkl::lapack;
  * -------------------------------------------------------------------------- */
 
 
-SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
+SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sunctx)
 {
   int retval = 0;
 
@@ -123,7 +123,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
   }
 
   // Create the linear solver
-  SUNLinearSolver S = SUNLinSolNewEmpty();
+  SUNLinearSolver S = SUNLinSolNewEmpty(sunctx);
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("SUNLinSolNewEmpty returned NULL\n");
@@ -164,7 +164,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
   // Allocate data
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_PIVOTS(S)),
                                  A->rows * sizeof(sunindextype),
-                                 LS_MEM_TYPE(S));
+                                 LS_MEM_TYPE(S), A->queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Pivots allocation failed\n");
@@ -173,7 +173,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
   }
 
   // Compute scratchpad size for factorization and solve
-  sycl::queue* queue      = A->queue;
+  ::sycl::queue* queue    = A->queue;
   sunindextype M          = SUNMatrix_OneMklDense_BlockRows(Amat);
   sunindextype N          = SUNMatrix_OneMklDense_BlockColumns(Amat);
   sunindextype num_blocks = SUNMatrix_OneMklDense_NumBlocks(Amat);
@@ -231,7 +231,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
   // Allocate factorization scratchpad if necessary
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_F_SCRATCH(S)),
                                  LS_F_SCRATCH_SIZE(S) * sizeof(realtype),
-                                 LS_MEM_TYPE(S));
+                                 LS_MEM_TYPE(S), queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Scratchpad allocation failed\n");
@@ -242,7 +242,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
   // Allocate solve scratchpad if necessary
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_S_SCRATCH(S)),
                                  LS_S_SCRATCH_SIZE(S) * sizeof(realtype),
-                                 LS_MEM_TYPE(S));
+                                 LS_MEM_TYPE(S), queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Scratchpad allocation failed\n");
@@ -316,7 +316,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   }
 
   // Call oneMKL to do LU factorization of A
-  sycl::queue* queue        = LS_QUEUE(S);
+  ::sycl::queue* queue      = LS_QUEUE(S);
   sunindextype ier          = 0;
   sunindextype M            = SUNMatrix_OneMklDense_BlockRows(A);
   sunindextype N            = SUNMatrix_OneMklDense_BlockColumns(A);
@@ -458,7 +458,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   // Call oneMKL to solve the linear system
   sunindextype ier          = 0;
-  sycl::queue* queue        = LS_QUEUE(S);
+  ::sycl::queue* queue      = LS_QUEUE(S);
   sunindextype M            = SUNMatrix_OneMklDense_BlockRows(A);
   sunindextype N            = SUNMatrix_OneMklDense_BlockColumns(A);
   sunindextype num_blocks   = SUNMatrix_OneMklDense_NumBlocks(A);
@@ -592,20 +592,20 @@ int SUNLinSolFree_OneMklDense(SUNLinearSolver S)
     // Pivots memory
     if (LS_PIVOTS(S))
     {
-      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_PIVOTS(S));
+      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_PIVOTS(S), LS_QUEUE(S));
     }
 
     // Factorization scrach memory
     if (LS_F_SCRATCH(S))
     {
-      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_F_SCRATCH(S));
+      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_F_SCRATCH(S), LS_QUEUE(S));
     }
     LS_F_SCRATCH_SIZE(S) = 0;
 
     // Solve scratch memory
     if (LS_S_SCRATCH(S))
     {
-      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_S_SCRATCH(S));
+      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_S_SCRATCH(S), LS_QUEUE(S));
     }
     LS_S_SCRATCH_SIZE(S) = 0;
   }

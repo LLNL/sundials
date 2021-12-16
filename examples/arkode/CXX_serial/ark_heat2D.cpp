@@ -213,6 +213,11 @@ int main(int argc, char* argv[])
   chrono::time_point<chrono::steady_clock> t1;
   chrono::time_point<chrono::steady_clock> t2;
 
+  // Create the SUNDIALS context object for this simulation
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   // ---------------
   // Setup UserData
   // ---------------
@@ -243,8 +248,8 @@ int main(int argc, char* argv[])
   // ----------------------
 
   // Create vector for solution
-  u = N_VNew_Serial(udata->nodes);
-  if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
+  u = N_VNew_Serial(udata->nodes, ctx);
+  if (check_flag((void *) u, "N_VNew_Serial", 0)) return 1;
 
   // Set initial condition
   flag = Solution(ZERO, u, udata);
@@ -259,11 +264,11 @@ int main(int argc, char* argv[])
   // ---------------------
 
   // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
+  int prectype = (udata->prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   if (udata->pcg)
   {
-    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
+    LS = SUNLinSol_PCG(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
     if (udata->lsinfo)
@@ -277,7 +282,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
+    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     if (udata->lsinfo)
@@ -302,7 +307,7 @@ int main(int argc, char* argv[])
   // --------------
 
   // Create integrator
-  arkode_mem = ARKStepCreate(NULL, f, ZERO, u);
+  arkode_mem = ARKStepCreate(NULL, f, ZERO, u, ctx);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Specify tolerances
@@ -479,6 +484,8 @@ int main(int argc, char* argv[])
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
+  SUNContext_Free(&ctx);     // Free context
+
   return 0;
 }
 

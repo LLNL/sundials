@@ -235,11 +235,13 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include <string.h>
 
-SWIGEXPORT void * _wrap_FIDACreate() {
+SWIGEXPORT void * _wrap_FIDACreate(void *farg1) {
   void * fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   void *result = 0 ;
   
-  result = (void *)IDACreate();
+  arg1 = (SUNContext)(farg1);
+  result = (void *)IDACreate(arg1);
   fresult = result;
   return fresult;
 }

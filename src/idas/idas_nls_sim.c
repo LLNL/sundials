@@ -136,14 +136,14 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->simMallocDone == SUNFALSE) {
 
-    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ypredictSim == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ycorSim == NULL) {
       N_VDestroy(IDA_mem->ypredictSim);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
@@ -151,7 +151,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ewtSim == NULL) {
       N_VDestroy(IDA_mem->ypredictSim);
       N_VDestroy(IDA_mem->ycorSim);

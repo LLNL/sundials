@@ -235,11 +235,13 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include <string.h>
 
-SWIGEXPORT void * _wrap_FKINCreate() {
+SWIGEXPORT void * _wrap_FKINCreate(void *farg1) {
   void * fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   void *result = 0 ;
   
-  result = (void *)KINCreate();
+  arg1 = (SUNContext)(farg1);
+  result = (void *)KINCreate(arg1);
   fresult = result;
   return fresult;
 }
@@ -392,6 +394,20 @@ SWIGEXPORT int _wrap_FKINSetMAA(void *farg1, long const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetMAA(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetOrthAA(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)KINSetOrthAA(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -825,6 +841,20 @@ SWIGEXPORT int _wrap_FKINSetJacTimesVecSysFn(void *farg1, KINSysFn farg2) {
   arg1 = (void *)(farg1);
   arg2 = (KINSysFn)(farg2);
   result = (int)KINSetJacTimesVecSysFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetDebugFile(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  result = (int)KINSetDebugFile(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

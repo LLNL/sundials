@@ -44,9 +44,6 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  SUNMemoryHelper memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip();,
-                                           SUNMemoryHelper_Cuda(); )
-
   int             fails = 0;          /* counter for test failures  */
   sunindextype    cols, rows;         /* matrix columns, rows       */
   sunindextype    nblocks;            /* number of matrix blocks    */
@@ -56,6 +53,15 @@ int main(int argc, char *argv[])
   int             print_timing;
   sunindextype    i, j, k;
   realtype        *Adata, *Idata, *xdata;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
+
+  SUNMemoryHelper memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip(sunctx);,
+                                           SUNMemoryHelper_Cuda(sunctx); )
 
   /* check input and set matrix dimensions */
   if (argc < 4){
@@ -84,13 +90,13 @@ int main(int argc, char *argv[])
 
   /* Create matrices and vectors */
   if (nblocks > 1)
-    A = SUNMatrix_MagmaDenseBlock(nblocks, rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL);
+    A = SUNMatrix_MagmaDenseBlock(nblocks, rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL, sunctx);
   else
-    A = SUNMatrix_MagmaDense(rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL);
+    A = SUNMatrix_MagmaDense(rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL, sunctx);
   B = SUNMatClone(A);
   I = SUNMatClone(A);
-  x = HIP_OR_CUDA( N_VNew_Hip(cols*nblocks);,
-                   N_VNew_Cuda(cols*nblocks); )
+  x = HIP_OR_CUDA( N_VNew_Hip(cols*nblocks, sunctx);,
+                   N_VNew_Cuda(cols*nblocks, sunctx); )
   y = N_VClone(x);
   b = N_VClone(x);
 
@@ -154,7 +160,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create dense linear solver */
-  LS = SUNLinSol_MagmaDense(x, A);
+  LS = SUNLinSol_MagmaDense(x, A, sunctx);
   if (LS == NULL) {
     printf("FAIL: SUNLinSol_MagmaDense failure\n");
 
@@ -205,6 +211,8 @@ int main(int argc, char *argv[])
 
   free(Adata);
   free(Idata);
+
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

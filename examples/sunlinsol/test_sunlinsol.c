@@ -231,7 +231,7 @@ int Test_SUNLinSolResid(SUNLinearSolver S, int myid)
  * SUNLinSolSetATimes Test
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
-                            ATimesFn ATimes, int myid)
+                            SUNATimesFn ATimes, int myid)
 {
   int     failure;
   double  start_time, stop_time;
@@ -260,7 +260,7 @@ int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
  * SUNLinSolSetPreconditioner
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
-                                    PSetupFn PSetup, PSolveFn PSolve, int myid)
+                                    SUNPSetupFn PSetup, SUNPSolveFn PSolve, int myid)
 {
   int       failure;
   double    start_time, stop_time;

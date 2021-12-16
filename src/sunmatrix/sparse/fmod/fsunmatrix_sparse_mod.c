@@ -208,19 +208,21 @@
 
 #include "sunmatrix/sunmatrix_sparse.h"
 
-SWIGEXPORT SUNMatrix _wrap_FSUNSparseMatrix(int64_t const *farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4) {
+SWIGEXPORT SUNMatrix _wrap_FSUNSparseMatrix(int64_t const *farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4, void *farg5) {
   SUNMatrix fresult ;
   sunindextype arg1 ;
   sunindextype arg2 ;
   sunindextype arg3 ;
   int arg4 ;
+  SUNContext arg5 = (SUNContext) 0 ;
   SUNMatrix result;
   
   arg1 = (sunindextype)(*farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
   arg4 = (int)(*farg4);
-  result = (SUNMatrix)SUNSparseMatrix(arg1,arg2,arg3,arg4);
+  arg5 = (SUNContext)(farg5);
+  result = (SUNMatrix)SUNSparseMatrix(arg1,arg2,arg3,arg4,arg5);
   fresult = result;
   return fresult;
 }

@@ -183,6 +183,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
+  SUNContext ctx;
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
@@ -215,6 +216,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation. */
+  retval = SUNContext_Create((void*) &comm, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Set local length (local_N) and global length (SystemSize). */
   local_N = MXSUB*MYSUB*NUM_SPECIES;
   SystemSize = NEQ;
@@ -227,16 +232,16 @@ int main(int argc, char *argv[])
   /* Create needed vectors, and load initial values.
      The vector resid is used temporarily only.        */
 
-  uv  = N_VNew_Parallel(comm, local_N, SystemSize);
+  uv  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if(check_retval((void *)uv, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  uvp  = N_VNew_Parallel(comm, local_N, SystemSize);
+  uvp  = N_VClone(uv);
   if(check_retval((void *)uvp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  resid = N_VNew_Parallel(comm, local_N, SystemSize);
+  resid = N_VClone(uv);
   if(check_retval((void *)resid, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  id  = N_VNew_Parallel(comm, local_N, SystemSize);
+  id  = N_VClone(uv);
   if(check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   uvS = N_VCloneVectorArray(NS, uv);
@@ -257,7 +262,7 @@ int main(int argc, char *argv[])
   atol = ATOL;
 
   /* Call IDACreate and IDAInit to initialize solution */
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetUserData(ida_mem, data);
@@ -290,7 +295,7 @@ int main(int argc, char *argv[])
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the IDAS linear solver */
   maxl = 16;                                      /* max dimension of the Krylov subspace */
-  LS = SUNLinSol_SPGMR(uv, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  LS = SUNLinSol_SPGMR(uv, SUN_PREC_LEFT, maxl, ctx);      /* IDA only allows left preconditioning */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
@@ -375,6 +380,8 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);
 
   free(data);
+
+  SUNContext_Free(&ctx);
 
   MPI_Finalize();
 

@@ -68,20 +68,25 @@ int main()
   realtype t, tout;
   long int nst, nst_a, nfe, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* Initial problem output */
   printf("\nAnalytical ODE test problem:\n");
   printf("   reltol = %.1"ESYM"\n",  reltol);
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = 0.0;             /* Specify initial condition */
 
   /* Call ERKStepCreate to initialize the ERK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y. */
-  arkode_mem = ERKStepCreate(f, T0, y);
+  arkode_mem = ERKStepCreate(f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ERKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
@@ -136,6 +141,8 @@ int main()
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
   ERKStepFree(&arkode_mem);    /* Free integrator memory */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 

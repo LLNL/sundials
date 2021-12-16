@@ -117,6 +117,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
+  SUNContext ctx;
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
@@ -155,6 +156,10 @@ int main(int argc, char *argv[])
   ierr = PetscInitializeNoArguments();
   CHKERRQ(ierr);
 
+  /* Create the SUNDIALS context object for this simulation. */
+  retval = SUNContext_Create((void*) &comm, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Allocate and initialize the data structure and N-vectors. */
   data = (UserData) malloc(sizeof *data);
   if(check_retval((void *)data, "malloc", 2, thispe))
@@ -185,7 +190,7 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Make N_Vector wrapper for uvec */
-  uu = N_VMake_Petsc(uvec);
+  uu = N_VMake_Petsc(uvec, ctx);
   if(check_retval((void *)uu, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
@@ -227,7 +232,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetUserData(ida_mem, data);
@@ -251,7 +256,7 @@ int main(int argc, char *argv[])
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
@@ -300,6 +305,8 @@ int main(int argc, char *argv[])
 
   ierr = PetscFinalize();
   CHKERRQ(ierr);
+
+  SUNContext_Free(&ctx);
 
   MPI_Finalize();
 

@@ -40,6 +40,10 @@ else()
   set(_lang CXX)
 endif()
 
+if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  set(OTHER_LIBS OpenMP::OpenMP_CXX)
+endif()
+
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_raja_examples})
 
@@ -70,7 +74,8 @@ foreach(example_tuple ${nvector_raja_examples})
       sundials_nvecmpiplusx
       sundials_nvecraja
       ${MPI_CXX_LIBRARIES}
-      ${EXTRA_LINK_LIBS})
+      ${EXTRA_LINK_LIBS}
+      ${OTHER_LIBS})
 
   endif()
 
@@ -109,7 +114,6 @@ foreach(example_tuple ${nvector_raja_examples})
   endif()
 
 endforeach(example_tuple ${nvector_raja_examples})
-
 
 if(EXAMPLES_INSTALL)
 

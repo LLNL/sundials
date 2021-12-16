@@ -17,6 +17,7 @@
 module test_utilities
 
     use, intrinsic :: iso_c_binding
+    use fsundials_context_mod
     implicit none
 
     real(C_DOUBLE), parameter :: UNIT_ROUNDOFF = epsilon(1.0d0)
@@ -33,7 +34,30 @@ module test_utilities
     real(C_DOUBLE) :: FIVE     = 5.0d0
     real(C_DOUBLE) :: SIX      = 6.0d0
 
+    type(C_PTR)    :: sunctx
+
 contains
+
+  subroutine Test_Init(comm)
+    implicit none
+    type(C_PTR), value :: comm
+    integer(C_INT)     :: retval
+
+    retval = FSUNContext_Create(comm, sunctx)
+    if (retval /= 0) then
+      print *, 'ERROR in Test_Init: FSUNContext_Create returned nonzero'
+      stop 1
+    end if
+
+  end subroutine
+
+  subroutine Test_Finalize()
+    implicit none
+    integer(C_INT) :: retval
+
+    retval = FSUNContext_Free(sunctx)
+
+  end subroutine
 
   integer(C_INT) function FNEQTOL(a, b, tol) result(nequal)
     implicit none

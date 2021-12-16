@@ -19,6 +19,10 @@
 
 #include <sundials/sundials_version.h>
 
+/* note strlen does not include terminating null character hence the
+   use of >= when checking len below and strncpy copies up to len
+   characters including the terminating null character */
+
 /* fill string with SUNDIALS version information */
 int SUNDIALSGetVersion(char *version, int len)
 {

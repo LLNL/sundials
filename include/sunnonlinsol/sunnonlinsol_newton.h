@@ -64,8 +64,12 @@ typedef struct _SUNNonlinearSolverContent_Newton *SUNNonlinearSolverContent_Newt
  * ---------------------------------------------------------------------------*/
 
 /* Constructor to create solver and allocates memory */
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y);
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y);
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx);
+
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
+                                           SUNContext sunctx);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS);

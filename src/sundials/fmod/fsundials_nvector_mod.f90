@@ -5,6 +5,7 @@
 ! the SWIG interface file instead.
 module fsundials_nvector_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -83,6 +84,8 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvminquotientlocal
   type(C_FUNPTR), public :: nvwsqrsumlocal
   type(C_FUNPTR), public :: nvwsqrsummasklocal
+  type(C_FUNPTR), public :: nvdotprodmultilocal
+  type(C_FUNPTR), public :: nvdotprodmultiallreduce
   type(C_FUNPTR), public :: nvbufsize
   type(C_FUNPTR), public :: nvbufpack
   type(C_FUNPTR), public :: nvbufunpack
@@ -93,6 +96,7 @@ module fsundials_nvector_mod
  type, bind(C), public :: N_Vector
   type(C_PTR), public :: content
   type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
  end type N_Vector
  public :: FN_VNewEmpty
  public :: FN_VFreeEmpty
@@ -143,6 +147,8 @@ module fsundials_nvector_mod
  public :: FN_VInvTestLocal
  public :: FN_VConstrMaskLocal
  public :: FN_VMinQuotientLocal
+ public :: FN_VDotProdMultiLocal
+ public :: FN_VDotProdMultiAllReduce
  public :: FN_VBufSize
  public :: FN_VBufPack
  public :: FN_VBufUnpack
@@ -157,10 +163,11 @@ module fsundials_nvector_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNewEmpty() &
+function swigc_FN_VNewEmpty(farg1) &
 bind(C, name="_wrap_FN_VNewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -587,6 +594,27 @@ type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
 end function
 
+function swigc_FN_VDotProdMultiLocal(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FN_VDotProdMultiLocal") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VDotProdMultiAllReduce(farg1, farg2, farg3) &
+bind(C, name="_wrap_FN_VDotProdMultiAllReduce") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FN_VBufSize(farg1, farg2) &
 bind(C, name="_wrap_FN_VBufSize") &
 result(fresult)
@@ -682,13 +710,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNewEmpty() &
+function FN_VNewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FN_VNewEmpty()
+farg1 = sunctx
+fresult = swigc_FN_VNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
@@ -1456,6 +1487,47 @@ type(C_PTR) :: farg2
 farg1 = c_loc(num)
 farg2 = c_loc(denom)
 fresult = swigc_FN_VMinQuotientLocal(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VDotProdMultiLocal(nvec, x, y, dotprods) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: y
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = nvec
+farg2 = c_loc(x)
+farg3 = y
+farg4 = c_loc(dotprods(1))
+fresult = swigc_FN_VDotProdMultiLocal(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FN_VDotProdMultiAllReduce(nvec_total, x, sum) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec_total
+type(N_Vector), target, intent(inout) :: x
+real(C_DOUBLE), dimension(*), target, intent(inout) :: sum
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = nvec_total
+farg2 = c_loc(x)
+farg3 = c_loc(sum(1))
+fresult = swigc_FN_VDotProdMultiAllReduce(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

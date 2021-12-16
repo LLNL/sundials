@@ -32,11 +32,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA methods           */
-#include <nvector/nvector_cuda.h>      /* access to CUDA N_Vector              */
-#include <ida/ida_spils.h>             /* access to IDASpils interface         */
-#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <ida/ida.h>                   /* prototypes for IDA methods            */
+#include <nvector/nvector_cuda.h>      /* access to CUDA N_Vector               */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver       */
+#include <sundials/sundials_types.h>   /* definition of type realtype           */
 
 
 /* Problem Constants */
@@ -172,11 +171,17 @@ int main(int argc, char *argv[])
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
+
+  /* Create the SUNDIALS context object for this simulation */
+
+  ier = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&ier, "SUNContext_Create", 1)) return 1;
 
   /* Assign parameters in the user data structure. */
 
@@ -191,7 +196,7 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors and the user data structure objects. */
 
-  uu = N_VNew_Cuda(data->neq);
+  uu = N_VNew_Cuda(data->neq, ctx);
   if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
 
   up = N_VClone(uu);
@@ -223,7 +228,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
 
   ier = IDASetUserData(mem, data);
@@ -241,7 +246,7 @@ int main(int argc, char *argv[])
 
   /* Create the linear solver SUNSPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
   if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
@@ -249,12 +254,12 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
-  ier = IDASpilsSetLinearSolver(mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1)) return(1);
+  ier = IDASetLinearSolver(mem, LS, NULL);
+  if(check_flag(&ier, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the preconditioner solve and setup functions */
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
+  ier = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
+  if(check_flag(&ier, "IDASetPreconditioner", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -267,7 +272,7 @@ int main(int argc, char *argv[])
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
+  printf("\n\nCase 1: gsytpe = SUN_MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -288,8 +293,8 @@ int main(int argc, char *argv[])
   ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
-  ier = IDASpilsGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfl);
+  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -310,12 +315,12 @@ int main(int argc, char *argv[])
   ier = IDAReInit(mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1)) return(1);
 
-  ier = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
+  ier = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
   if(check_flag(&ier, "SUNLinSol_SPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
+  printf("\n\nCase 2: gstype = SUN_CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -336,8 +341,8 @@ int main(int argc, char *argv[])
   ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
-  ier = IDASpilsGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfl);
+  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -354,6 +359,8 @@ int main(int argc, char *argv[])
 
   N_VDestroy(data->pp);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }
@@ -550,16 +557,16 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDASpilsGetNumJtimesEvals(mem, &nje);
-  check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1);
-  ier = IDASpilsGetNumLinIters(mem, &nli);
-  check_flag(&ier, "IDASpilsGetNumLinIters", 1);
-  ier = IDASpilsGetNumResEvals(mem, &nreLS);
-  check_flag(&ier, "IDASpilsGetNumResEvals", 1);
-  ier = IDASpilsGetNumPrecEvals(mem, &npe);
-  check_flag(&ier, "IDASpilsGetPrecEvals", 1);
-  ier = IDASpilsGetNumPrecSolves(mem, &nps);
-  check_flag(&ier, "IDASpilsGetNumPrecSolves", 1);
+  ier = IDAGetNumJtimesEvals(mem, &nje);
+  check_flag(&ier, "IDAGetNumJtimesEvals", 1);
+  ier = IDAGetNumLinIters(mem, &nli);
+  check_flag(&ier, "IDAGetNumLinIters", 1);
+  ier = IDAGetNumLinResEvals(mem, &nreLS);
+  check_flag(&ier, "IDAGetNumLinResEvals", 1);
+  ier = IDAGetNumPrecEvals(mem, &npe);
+  check_flag(&ier, "IDAGetPrecEvals", 1);
+  ier = IDAGetNumPrecSolves(mem, &nps);
+  check_flag(&ier, "IDAGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",

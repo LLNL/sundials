@@ -196,7 +196,7 @@ static void PrintFinalStats(void *kmem);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                     void *user_data);
 static realtype DotProd(sunindextype size, realtype *x1, realtype *x2);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *retvalvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -206,11 +206,12 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   int globalstrategy;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
-  int flag, maxl, maxlrst;
+  int retval, maxl, maxlrst;
   void *kmem;
   SUNLinearSolver LS;
   int num_threads;
@@ -219,6 +220,10 @@ int main(int argc, char *argv[])
   kmem = NULL;
   LS = NULL;
   data = NULL;
+
+  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Allocate memory, and set problem data, initial values, tolerances */
   globalstrategy = KIN_NONE;
@@ -232,20 +237,20 @@ int main(int argc, char *argv[])
     num_threads = (int) strtol(argv[1], NULL, 0);
 
   data = AllocUserData();
-  if (check_flag((void *)data, "AllocUserData", 2)) return(1);
+  if (check_retval((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
   data->nthreads = num_threads;
 
   /* Create serial vectors of length NEQ */
-  cc = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_flag((void *)cc, "N_VNew_OpenMP", 0)) return(1);
-  sc = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_flag((void *)sc, "N_VNew_OpenMP", 0)) return(1);
-  data->rates = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_flag((void *)data->rates, "N_VNew_OpenMP", 0)) return(1);
+  cc = N_VNew_OpenMP(NEQ, num_threads, sunctx);
+  if (check_retval((void *)cc, "N_VNew_OpenMP", 0)) return(1);
+  sc = N_VNew_OpenMP(NEQ, num_threads, sunctx);
+  if (check_retval((void *)sc, "N_VNew_OpenMP", 0)) return(1);
+  data->rates = N_VNew_OpenMP(NEQ, num_threads, sunctx);
+  if (check_retval((void *)data->rates, "N_VNew_OpenMP", 0)) return(1);
 
-  constraints = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_flag((void *)constraints, "N_VNew_OpenMP", 0)) return(1);
+  constraints = N_VNew_OpenMP(NEQ, num_threads, sunctx);
+  if (check_retval((void *)constraints, "N_VNew_OpenMP", 0)) return(1);
   N_VConst(TWO, constraints);
 
   SetInitialProfiles(cc, sc);
@@ -254,21 +259,21 @@ int main(int argc, char *argv[])
 
   /* Call KINCreate/KINInit to initialize KINSOL.
      A pointer to KINSOL problem memory is returned and stored in kmem. */
-  kmem = KINCreate();
-  if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
+  kmem = KINCreate(sunctx);
+  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
 
   /* Vector cc passed as template vector. */
-  flag = KINInit(kmem, func, cc);
-  if (check_flag(&flag, "KINInit", 1)) return(1);
+  retval = KINInit(kmem, func, cc);
+  if (check_retval(&retval, "KINInit", 1)) return(1);
 
-  flag = KINSetUserData(kmem, data);
-  if (check_flag(&flag, "KINSetUserData", 1)) return(1);
-  flag = KINSetConstraints(kmem, constraints);
-  if (check_flag(&flag, "KINSetConstraints", 1)) return(1);
-  flag = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
-  flag = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_flag(&flag, "KINSetScaledStepTol", 1)) return(1);
+  retval = KINSetUserData(kmem, data);
+  if (check_retval(&retval, "KINSetUserData", 1)) return(1);
+  retval = KINSetConstraints(kmem, constraints);
+  if (check_retval(&retval, "KINSetConstraints", 1)) return(1);
+  retval = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  retval = KINSetScaledStepTol(kmem, scsteptol);
+  if (check_retval(&retval, "KINSetScaledStepTol", 1)) return(1);
 
   /* We no longer need the constraints vector since KINSetConstraints
      creates a private copy for KINSOL to use. */
@@ -278,32 +283,32 @@ int main(int argc, char *argv[])
   /* Create SUNLinSol_SPGMR object with right preconditioning and the
      maximum Krylov dimension maxl */
   maxl = 15;
-  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
-  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear solver to KINSOL */
-  flag = KINSetLinearSolver(kmem, LS, NULL);
-  if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
+  retval = KINSetLinearSolver(kmem, LS, NULL);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) return 1;
 
   /* Set the maximum number of restarts */
   maxlrst = 2;
-  flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
-  if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
   /* Specify the preconditioner setup and solve routines */
-  flag = KINSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
-  if (check_flag(&flag, "KINSetPreconditioner", 1)) return(1);
+  retval = KINSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
+  if (check_retval(&retval, "KINSetPreconditioner", 1)) return(1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
 
   /* Call KINSol and print output concentration profile */
-  flag = KINSol(kmem,           /* KINSol memory block */
+  retval = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guess on input; solution vector */
                 globalstrategy, /* global strategy choice */
                 sc,             /* scaling vector for the variable cc */
                 sc);            /* scaling vector for function values fval */
-  if (check_flag(&flag, "KINSol", 1)) return(1);
+  if (check_retval(&retval, "KINSol", 1)) return(1);
 
   printf("\n\nComputed equilibrium species concentrations:\n");
   PrintOutput(cc);
@@ -317,6 +322,7 @@ int main(int argc, char *argv[])
   KINFree(&kmem);
   SUNLinSolFree(LS);
   FreeUserData(data);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -454,7 +460,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
 
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
 
     } /* end of jx loop */
@@ -492,7 +498,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      SUNDlsMat_denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
 
     } /* end of jy loop */
 
@@ -558,12 +564,12 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
-  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -635,12 +641,12 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      destroyMat((data->P)[jx][jy]);
-      destroyArray((data->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((data->P)[jx][jy]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jy]);
     }
   }
 
-  destroyMat(acoef);
+  SUNDlsMat_destroyMat(acoef);
   free(bcoef);
   free(cox);
   free(coy);
@@ -775,22 +781,22 @@ static void PrintOutput(N_Vector cc)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
-  int flag;
+  int retval;
 
-  flag = KINGetNumNonlinSolvIters(kmem, &nni);
-  check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
-  flag = KINGetNumFuncEvals(kmem, &nfe);
-  check_flag(&flag, "KINGetNumFuncEvals", 1);
-  flag = KINGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINGetNumLinIters", 1);
-  flag = KINGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINGetNumPrecEvals", 1);
-  flag = KINGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINGetNumPrecSolves", 1);
-  flag = KINGetNumLinConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINGetNumLinConvFails", 1);
-  flag = KINGetNumLinFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
+  retval = KINGetNumNonlinSolvIters(kmem, &nni);
+  check_retval(&retval, "KINGetNumNonlinSolvIters", 1);
+  retval = KINGetNumFuncEvals(kmem, &nfe);
+  check_retval(&retval, "KINGetNumFuncEvals", 1);
+  retval = KINGetNumLinIters(kmem, &nli);
+  check_retval(&retval, "KINGetNumLinIters", 1);
+  retval = KINGetNumPrecEvals(kmem, &npe);
+  check_retval(&retval, "KINGetNumPrecEvals", 1);
+  retval = KINGetNumPrecSolves(kmem, &nps);
+  check_retval(&retval, "KINGetNumPrecSolves", 1);
+  retval = KINGetNumLinConvFails(kmem, &ncfl);
+  check_retval(&retval, "KINGetNumLinConvFails", 1);
+  retval = KINGetNumLinFuncEvals(kmem, &nfeSG);
+  check_retval(&retval, "KINGetNumLinFuncEvals", 1);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
@@ -803,37 +809,37 @@ static void PrintFinalStats(void *kmem)
  * Check function return value...
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns a retval so check if
+ *             retval >= 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *retvalvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *errretval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && retvalvalue == NULL) {
     fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1);
   }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    errretval = (int *) retvalvalue;
+    if (*errretval < 0) {
       fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *errretval);
       return(1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && retvalvalue == NULL) {
     fprintf(stderr,
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);

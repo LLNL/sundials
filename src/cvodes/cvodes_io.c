@@ -79,6 +79,64 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 }
 
 /*
+ * CVodeSetMonitorFn
+ *
+ * Specifies the user function to call for monitoring
+ * the solution and/or integrator statistics.
+ */
+
+int CVodeSetMonitorFn(void *cvode_mem, CVMonitorFn fn)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetMonitorFn", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  cv_mem->cv_monitorfun = fn;
+  return(CV_SUCCESS);
+#else
+  cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetMonitorFn", "SUNDIALS was not built with monitoring enabled.");
+  return(CV_ILL_INPUT);
+#endif
+}
+
+/*
+ * CVodeSetMonitorFrequency
+ *
+ * Specifies the frequency with which to call the user function.
+ */
+
+int CVodeSetMonitorFrequency(void *cvode_mem, long int nst)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetMonitorFrequency", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  if (nst < 0) {
+    cvProcessError(NULL, CV_ILL_INPUT, "CVODES", "CVodeSetMonitorFrequency", "step interval must be >= 0\n");
+    return(CV_ILL_INPUT);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  cv_mem->cv_monitor_interval = nst;
+  return(CV_SUCCESS);
+#else
+  cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetMonitorFrequency", "SUNDIALS was not built with monitoring enabled.");
+  return(CV_ILL_INPUT);
+#endif
+}
+
+/*
  * CVodeSetUserData
  *
  * Specifies the user data pointer for f

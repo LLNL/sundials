@@ -58,11 +58,18 @@ set(DOCSTR "Integer type to use for indices in SUNDIALS")
 sundials_option(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "" ADVANCED)
 
 # ---------------------------------------------------------------
-# Option to specify monitoring
+# Option to enable monitoring
 # ---------------------------------------------------------------
 
 set(DOCSTR "Build with simulation monitoring capabilities enabled")
 sundials_option(SUNDIALS_BUILD_WITH_MONITORING BOOL "${DOCSTR}" OFF)
+
+# ---------------------------------------------------------------
+# Option to enable profiling
+# ---------------------------------------------------------------
+
+set(DOCSTR "Build with simulation profiling capabilities enabled")
+sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
 # Option to use the generic math libraries (UNIX only)
@@ -139,21 +146,6 @@ endif()
 # Options to enable Fortran interfaces.
 # ---------------------------------------------------------------
 
-# Fortran interface is disabled by default
-set(DOCSTR "Enable Fortran 77 interfaces")
-sundials_option(BUILD_FORTRAN77_INTERFACE BOOL "${DOCSTR}" OFF)
-
-# Check that at least one solver with a Fortran 77 interface is built
-if(BUILD_FORTRAN77_INTERFACE)
-  if(NOT (BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL))
-    print_warning("Enabled packages do not support Fortran 77 interface" "Disabling F77 interface")
-    set(BUILD_FORTRAN77_INTERFACE OFF CACHE BOOL "${DOCSTR}" FORCE)
-  elseif(NOT BUILD_STATIC_LIBS)
-    print_error("Fortran 77 interfaces can only be built as static libraries" "Disabling F77 interface")
-    set(BUILD_FORTRAN77_INTERFACE OFF CACHE BOOL "${DOCSTR}" FORCE)
-  endif()
-endif()
-
 # Fortran 2003 interface is disabled by default
 set(DOCSTR "Enable Fortran 2003 modules")
 sundials_option(BUILD_FORTRAN_MODULE_INTERFACE BOOL "${DOCSTR}" OFF)
@@ -174,6 +166,57 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   sundials_option(Fortran_INSTALL_MODDIR STRING "${DOCSTR}" "fortran")
 endif()
 
+# ---------------------------------------------------------------
+# Options for benchmark suite
+# ---------------------------------------------------------------
+
+sundials_option(BUILD_BENCHMARKS BOOL "Build the SUNDIALS benchmark suite" OFF)
+
+# ---------------------------------------------------------------
+# Options for CMake config installation
+# ---------------------------------------------------------------
+
 set(DOCSTR "Path to SUNDIALS cmake files")
 sundials_option(SUNDIALS_INSTALL_CMAKEDIR STRING "${DOCSTR}"
                 "${CMAKE_INSTALL_LIBDIR}/cmake/sundials")
+
+
+# ---------------------------------------------------------------
+# Options to enable SUNDIALS debugging
+# ---------------------------------------------------------------
+
+# List of debugging options (used to add preprocessor directives)
+set(_SUNDIALS_DEBUG_OPTIONS
+  SUNDIALS_DEBUG
+  SUNDIALS_DEBUG_ASSERT
+  SUNDIALS_DEBUG_CUDA_LASTERROR
+  SUNDIALS_DEBUG_HIP_LASTERROR
+  SUNDIALS_DEBUG_PRINTVEC)
+
+sundials_option(SUNDIALS_DEBUG BOOL
+  "Enable additional debugging output and options" OFF
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_ASSERT BOOL
+  "Enable assert when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG
+  SHOW_IF SUNDIALS_DEBUG
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_CUDA_LASTERROR BOOL
+  "Enable CUDA last error checks when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_CUDA
+  SHOW_IF SUNDIALS_DEBUG ENABLE_CUDA
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_HIP_LASTERROR BOOL
+  "Enable HIP last error checks when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_HIP
+  SHOW_IF SUNDIALS_DEBUG ENABLE_HIP
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_PRINTVEC BOOL
+  "Enable vector printing when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG
+  SHOW_IF SUNDIALS_DEBUG
+  ADVANCED)

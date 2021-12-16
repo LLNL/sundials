@@ -36,6 +36,7 @@
 extern "C" {
 
 using namespace sundials;
+using namespace sundials::sycl;
 
 
 /* --------------------------------------------------------------------------
@@ -118,10 +119,10 @@ static int GetKernelParameters(N_Vector v, booleantype reduction,
  * -------------------------------------------------------------------------- */
 
 
-N_Vector N_VNewEmpty_Sycl()
+N_Vector N_VNewEmpty_Sycl(SUNContext sunctx)
 {
   /* Create an empty vector object */
-  N_Vector v = N_VNewEmpty();
+  N_Vector v = N_VNewEmpty(sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNewEmpty_Sycl: N_VNewEmpty returned NULL\n");
@@ -228,7 +229,7 @@ N_Vector N_VNewEmpty_Sycl()
 }
 
 
-N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q)
+N_Vector N_VNew_Sycl(sunindextype length, ::sycl::queue *Q, SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -244,7 +245,7 @@ N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q)
   }
 
   /* Create vector with empty content */
-  N_Vector v = N_VNewEmpty_Sycl();
+  N_Vector v = N_VNewEmpty_Sycl(sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNew_Sycl: N_VNewEmpty_Sycl returned NULL\n");
@@ -255,9 +256,9 @@ N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q)
   NVEC_SYCL_CONTENT(v)->length             = length;
   NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q);
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
 
@@ -282,7 +283,8 @@ N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q)
 N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
                                 booleantype use_managed_mem,
                                 SUNMemoryHelper helper,
-                                sycl::queue *Q)
+                                ::sycl::queue *Q,
+                                SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -310,7 +312,7 @@ N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
   }
 
   /* Create vector with empty content */
-  N_Vector v = N_VNewEmpty_Sycl();
+  N_Vector v = N_VNewEmpty_Sycl(sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNewWithMemHelp_Sycl: N_VNewEmpty_Sycl returned NULL\n");
@@ -321,8 +323,8 @@ N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
   NVEC_SYCL_CONTENT(v)->length             = length;
   NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNFALSE;
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->mem_helper         = helper;
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = use_managed_mem;
@@ -338,7 +340,8 @@ N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
 }
 
 
-N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q)
+N_Vector N_VNewManaged_Sycl(sunindextype length, ::sycl::queue *Q,
+                            SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -354,7 +357,7 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q)
   }
 
   /* Create vector with empty content */
-  N_Vector v = N_VNewEmpty_Sycl();
+  N_Vector v = N_VNewEmpty_Sycl(sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNewManaged_Sycl: N_VNewEmpty_Sycl returned NULL\n");
@@ -365,9 +368,9 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q)
   NVEC_SYCL_CONTENT(v)->length             = length;
   NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q);
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;
 
@@ -390,7 +393,7 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q)
 
 
 N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
-                      sycl::queue *Q)
+                      ::sycl::queue *Q, SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -412,7 +415,7 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
   }
 
   /* Create vector with empty content */
-  N_Vector v = N_VNewEmpty_Sycl();
+  N_Vector v = N_VNewEmpty_Sycl(sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMake_Sycl: N_VNewEmpty_Sycl returned NULL\n");
@@ -425,9 +428,9 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q);
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
 
@@ -451,7 +454,7 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
 
 
 N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
-                             sycl::queue *Q)
+                             ::sycl::queue *Q, SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -473,7 +476,7 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
   }
 
   /* Create vector with empty content */
-  N_Vector v = N_VNewEmpty_Sycl();
+  N_Vector v = N_VNewEmpty_Sycl(sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMakeManaged_Sycl: N_VNewEmpty_Sycl returned NULL\n");
@@ -486,9 +489,9 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_SYCL_CONTENT(v)->host_data);
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q);
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;
 
@@ -630,7 +633,8 @@ void N_VCopyToDevice_Sycl(N_Vector x)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->device_data,
                                    NVEC_SYCL_CONTENT(x)->host_data,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   if (copy_fail)
   {
@@ -650,7 +654,8 @@ void N_VCopyFromDevice_Sycl(N_Vector x)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->host_data,
                                    NVEC_SYCL_CONTENT(x)->device_data,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   if (copy_fail)
   {
@@ -704,7 +709,7 @@ N_Vector N_VCloneEmpty_Sycl(N_Vector w)
   }
 
   /* Create vector */
-  N_Vector v = N_VNewEmpty_Sycl();
+  N_Vector v = N_VNewEmpty_Sycl(w->sunctx);
   if (v == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VCloneEmpty_Sycl: N_VNewEmpty returned NULL\n");
@@ -807,9 +812,11 @@ void N_VDestroy_Sycl(N_Vector v)
   /* free items in content */
   if (NVEC_SYCL_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->host_data);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->host_data,
+                            NVEC_SYCL_QUEUE(v));
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->device_data);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->device_data,
+                            NVEC_SYCL_QUEUE(v));
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
@@ -838,7 +845,7 @@ void N_VConst_Sycl(realtype c, N_Vector z)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -860,7 +867,7 @@ void N_VLinearSum_Sycl(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector 
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -882,7 +889,7 @@ void N_VProd_Sycl(N_Vector x, N_Vector y, N_Vector z)
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -904,7 +911,7 @@ void N_VDiv_Sycl(N_Vector x, N_Vector y, N_Vector z)
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -925,7 +932,7 @@ void N_VScale_Sycl(realtype c, N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -946,7 +953,7 @@ void N_VAbs_Sycl(N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -967,7 +974,7 @@ void N_VInv_Sycl(N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -988,7 +995,7 @@ void N_VAddConst_Sycl(N_Vector x, realtype b, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -1009,7 +1016,7 @@ realtype N_VDotProd_Sycl(N_Vector x, N_Vector y)
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1026,7 +1033,7 @@ realtype N_VDotProd_Sycl(N_Vector x, N_Vector y)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::ONEAPI::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     sum += xdata[i] * ydata[i];
@@ -1045,7 +1052,7 @@ realtype N_VMaxNorm_Sycl(N_Vector x)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1062,7 +1069,7 @@ realtype N_VMaxNorm_Sycl(N_Vector x)
   realtype *max = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  max, sycl::ONEAPI::maximum<realtype>(),
+                  max, ::sycl::maximum<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     max.combine(abs(xdata[i]));
@@ -1082,7 +1089,7 @@ realtype N_VWSqrSumLocal_Sycl(N_Vector x, N_Vector w)
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *wdata = NVEC_SYCL_DDATAp(w);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1099,7 +1106,7 @@ realtype N_VWSqrSumLocal_Sycl(N_Vector x, N_Vector w)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::ONEAPI::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     sum += xdata[i] * wdata[i] * xdata[i] * wdata[i];
@@ -1128,7 +1135,7 @@ realtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w, N_Vector id)
   const realtype     *xdata  = NVEC_SYCL_DDATAp(x);
   const realtype     *wdata  = NVEC_SYCL_DDATAp(w);
   const realtype     *iddata = NVEC_SYCL_DDATAp(id);
-  sycl::queue        *Q      = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q      = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1145,7 +1152,7 @@ realtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w, N_Vector id)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::ONEAPI::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     if (iddata[i] > ZERO)
@@ -1173,7 +1180,7 @@ realtype N_VMin_Sycl(N_Vector x)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, std::numeric_limits<realtype>::max()))
@@ -1190,7 +1197,7 @@ realtype N_VMin_Sycl(N_Vector x)
   realtype *min = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  min, sycl::ONEAPI::minimum<realtype>(),
+                  min, ::sycl::minimum<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     min.combine(xdata[i]);
@@ -1215,7 +1222,7 @@ realtype N_VL1Norm_Sycl(N_Vector x)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1232,7 +1239,7 @@ realtype N_VL1Norm_Sycl(N_Vector x)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::ONEAPI::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     sum += abs(xdata[i]);
@@ -1252,7 +1259,7 @@ void N_VCompare_Sycl(realtype c, N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -1273,7 +1280,7 @@ booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1290,7 +1297,7 @@ booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::ONEAPI::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     if (xdata[i] == ZERO)
@@ -1318,7 +1325,7 @@ booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x, N_Vector m)
   const realtype     *cdata = NVEC_SYCL_DDATAp(c);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *mdata = NVEC_SYCL_DDATAp(m);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1335,7 +1342,7 @@ booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x, N_Vector m)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::ONEAPI::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     bool test =
@@ -1359,7 +1366,7 @@ realtype N_VMinQuotient_Sycl(N_Vector num, N_Vector denom)
   const sunindextype N      = NVEC_SYCL_LENGTH(num);
   const realtype     *ndata = NVEC_SYCL_DDATAp(num);
   const realtype     *ddata = NVEC_SYCL_DDATAp(denom);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(num);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(num);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(num, std::numeric_limits<realtype>::max()))
@@ -1376,7 +1383,7 @@ realtype N_VMinQuotient_Sycl(N_Vector num, N_Vector denom)
   realtype *min = NVEC_SYCL_DBUFFERp(num);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  min, sycl::ONEAPI::minimum<realtype>(),
+                  min, ::sycl::minimum<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     if (ddata[i] != ZERO)
@@ -1401,7 +1408,7 @@ int N_VLinearCombination_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Fused op workspace shortcuts */
@@ -1458,7 +1465,7 @@ int N_VScaleAddMulti_Sycl(int nvec, realtype* c, N_Vector x, N_Vector* Y,
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace */
@@ -1527,7 +1534,7 @@ int N_VLinearSumVectorArray_Sycl(int nvec,
                                  N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace */
@@ -1588,7 +1595,7 @@ int N_VLinearSumVectorArray_Sycl(int nvec,
 int N_VScaleVectorArray_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace arrays */
@@ -1649,7 +1656,7 @@ int N_VScaleVectorArray_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 int N_VConstVectorArray_Sycl(int nvec, realtype c, N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace arrays */
@@ -1697,7 +1704,7 @@ int N_VScaleAddMultiVectorArray_Sycl(int nvec, int nsum, realtype* c,
                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(X[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(X[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(X[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace */
@@ -1770,7 +1777,7 @@ int N_VLinearCombinationVectorArray_Sycl(int nvec, int nsum, realtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace arrays */
@@ -1857,12 +1864,13 @@ int N_VBufPack_Sycl(N_Vector x, void *buf)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    buf_mem,
                                    NVEC_SYCL_CONTENT(x)->device_data,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   /* synchronize with the host */
   NVEC_SYCL_QUEUE(x)->wait_and_throw();
 
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
   return (copy_fail ? -1 : 0);
 }
@@ -1880,12 +1888,13 @@ int N_VBufUnpack_Sycl(N_Vector x, void *buf)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->device_data,
                                    buf_mem,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   /* synchronize with the host */
   NVEC_SYCL_QUEUE(x)->wait_and_throw();
 
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
   return (copy_fail ? -1 : 0);
 }
@@ -2018,7 +2027,8 @@ static int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v), &(vc->device_data),
-                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_UVM);
+                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_UVM,
+                                       NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -2028,14 +2038,16 @@ static int AllocateData(N_Vector v)
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v), &(vc->host_data),
-                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_HOST);
+                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_HOST,
+                                       NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v), &(vc->device_data),
-                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_DEVICE);
+                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_DEVICE,
+                                       NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2072,7 +2084,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     /* allocate pinned memory on the host */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2080,7 +2092,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
       /* if pinned alloc failed, allocate plain host memory */
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, NVEC_SYCL_QUEUE(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2090,7 +2102,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     /* allocate device memory */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2117,7 +2129,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
   }
 
   /* deallocate the wrapper */
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), value_mem);
+  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), value_mem, NVEC_SYCL_QUEUE(v));
 
   return ((alloc_fail || copy_fail) ? -1 : 0);
 }
@@ -2132,12 +2144,14 @@ static void FreeReductionBuffer(N_Vector v)
 
   /* free device mem */
   if (vcp->reduce_buffer_dev != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_dev);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_dev,
+                            NVEC_SYCL_QUEUE(v));
   vcp->reduce_buffer_dev = NULL;
 
   /* free host mem */
   if (vcp->reduce_buffer_host != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_host);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_host,
+                            NVEC_SYCL_QUEUE(v));
   vcp->reduce_buffer_host = NULL;
 
   /* reset allocated memory size */
@@ -2189,7 +2203,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     /* allocate pinned memory on the host */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->fused_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2197,7 +2211,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
       /* if pinned alloc failed, allocate plain host memory */
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                          &(vcp->fused_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, NVEC_SYCL_QUEUE(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2208,7 +2222,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     /* allocate device memory */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->fused_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2353,14 +2367,14 @@ static int FusedBuffer_Free(N_Vector v)
   if (vcp->fused_buffer_host)
   {
     SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_buffer_host);
+                            vcp->fused_buffer_host, NVEC_SYCL_QUEUE(v));
     vcp->fused_buffer_host = NULL;
   }
 
   if (vcp->fused_buffer_dev)
   {
     SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_buffer_dev);
+                            vcp->fused_buffer_dev, NVEC_SYCL_QUEUE(v));
     vcp->fused_buffer_dev = NULL;
   }
 

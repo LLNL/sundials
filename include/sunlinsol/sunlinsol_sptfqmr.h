@@ -50,10 +50,10 @@ struct _SUNLinearSolverContent_SPTFQMR {
   realtype resnorm;
   int last_flag;
 
-  ATimesFn ATimes;
+  SUNATimesFn ATimes;
   void* ATData;
-  PSetupFn Psetup;
-  PSolveFn Psolve;
+  SUNPSetupFn Psetup;
+  SUNPSolveFn Psolve;
   void* PData;
 
   N_Vector s1;
@@ -81,25 +81,21 @@ typedef struct _SUNLinearSolverContent_SPTFQMR *SUNLinearSolverContent_SPTFQMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y,
                                                   int pretype,
-                                                  int maxl);
+                                                  int maxl,
+                                                  SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S,
                                                  int pretype);
 SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S,
                                              int maxl);
-
-SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* A_data,
-                                               ATimesFn ATimes);
+                                               SUNATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S,
                                                        void* P_data,
-                                                       PSetupFn Pset,
-                                                       PSolveFn Psol);
+                                                       SUNPSetupFn Pset,
+                                                       SUNPSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
                                                        N_Vector s1,
                                                        N_Vector s2);

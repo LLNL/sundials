@@ -180,6 +180,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 /***************************** Main Program ******************************/
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -211,6 +212,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation */
+  flag = SUNContext_Create(&comm, &sunctx);
+  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) return 1;
+
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
@@ -229,7 +234,7 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
-  u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
+  u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
   if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set tolerances */
@@ -237,13 +242,13 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, u);
+  arkode_mem = ARKStepCreate(NULL, f, T0, u, sunctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -288,7 +293,9 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   ARKStepFree(&arkode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);      /* Free context */
   MPI_Finalize();
+
   return(0);
 }
 
@@ -325,9 +332,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Preconditioner-related fields */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newIndexArray(NVARS);
+      (data->P)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
 }
@@ -338,9 +345,9 @@ static void FreeUserData(UserData data)
   int lx, ly;
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((data->P)[lx][ly]);
-      destroyMat((data->Jbd)[lx][ly]);
-      destroyArray((data->pivot)[lx][ly]);
+      SUNDlsMat_destroyMat((data->P)[lx][ly]);
+      SUNDlsMat_destroyMat((data->Jbd)[lx][ly]);
+      SUNDlsMat_destroyArray((data->pivot)[lx][ly]);
     }
   }
   free(data);
@@ -864,7 +871,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* jok = SUNTRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
+        SUNDlsMat_denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
   *jcurPtr = SUNFALSE;
 
@@ -899,7 +906,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        denseCopy(j, a, NVARS, NVARS);
+        SUNDlsMat_denseCopy(j, a, NVARS, NVARS);
       }
     }
 
@@ -910,13 +917,13 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Scale by -gamma */
   for (ly = 0; ly < MYSUB; ly++)
     for (lx = 0; lx < MXSUB; lx++)
-      denseScale(-gamma, P[lx][ly], NVARS, NVARS);
+      SUNDlsMat_denseScale(-gamma, P[lx][ly], NVARS, NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denseAddIdentity(P[lx][ly], NVARS);
-      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      SUNDlsMat_denseAddIdentity(P[lx][ly], NVARS);
+      ier = SUNDlsMat_denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -955,7 +962,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      SUNDlsMat_denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
 

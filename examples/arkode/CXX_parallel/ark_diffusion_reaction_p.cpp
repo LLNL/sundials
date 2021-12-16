@@ -392,13 +392,14 @@ static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 static int SetupDecomp(UserData *udata);
 
 // Integrator setup functions
-static int SetupARK(UserData *udata, N_Vector u, SUNLinearSolver LS,
-                     void **arkode_mem);
-static int SetupMRI(UserData *udata, N_Vector u, SUNLinearSolver LS,
-                    void **arkode_mem, MRIStepInnerStepper *stepper);
-static int SetupMRICVODE(UserData *udata, N_Vector u, SUNLinearSolver LS,
-                         SUNNonlinearSolver *NLS, void **arkode_mem,
-                         MRIStepInnerStepper *stepper);
+static int SetupARK(SUNContext ctx, UserData *udata, N_Vector u,
+                    SUNLinearSolver LS, void **arkode_mem);
+static int SetupMRI(SUNContext ctx, UserData *udata, N_Vector u,
+                    SUNLinearSolver LS, void **arkode_mem,
+                    MRIStepInnerStepper *stepper);
+static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector u,
+                         SUNLinearSolver LS, SUNNonlinearSolver *NLS,
+                         void **arkode_mem, MRIStepInnerStepper *stepper);
 
 // Perform neighbor exchange
 static int StartExchange(N_Vector y, UserData *udata);
@@ -468,6 +469,11 @@ int main(int argc, char* argv[])
   flag = MPI_Init(&argc, &argv);
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
 
+  // Create the SUNDIALS context object for this simulation.
+  SUNContext ctx = NULL;
+  MPI_Comm comm  = MPI_COMM_WORLD;
+  SUNContext_Create((void*) &comm, &ctx);
+
   // MPI process ID
   int myid;
   flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
@@ -505,7 +511,8 @@ int main(int argc, char* argv[])
   // Create vectors
   // --------------
 
-  N_Vector u = N_VMake_MPIPlusX(udata.comm, N_VNew_Serial(udata.neq_loc));
+  N_Vector u = N_VMake_MPIPlusX(udata.comm,
+                                N_VNew_Serial(udata.neq_loc, ctx), ctx);
   if (check_flag((void *) u, "N_VNew_MPIPlusX", 0)) return 1;
 
   // --------------------
@@ -520,14 +527,14 @@ int main(int argc, char* argv[])
   }
 
   // Preconditioning type
-  int prectype = (udata.prec) ? PREC_RIGHT : PREC_NONE;
+  int prectype = (udata.prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   // Linear solver memory structure
   SUNLinearSolver LS = NULL;
 
   if (udata.pcg)
   {
-    LS = SUNLinSol_PCG(u, prectype, udata.liniters);
+    LS = SUNLinSol_PCG(u, prectype, udata.liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
     if (udata.lsinfo && outproc)
@@ -541,7 +548,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    LS = SUNLinSol_SPGMR(u, prectype, udata.liniters);
+    LS = SUNLinSol_SPGMR(u, prectype, udata.liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     if (udata.lsinfo && outproc)
@@ -585,16 +592,16 @@ int main(int argc, char* argv[])
   switch(udata.integrator)
   {
   case(0):
-    flag = SetupARK(&udata, u, LS, &arkode_mem);
+    flag = SetupARK(ctx, &udata, u, LS, &arkode_mem);
     if (check_flag((void *) arkode_mem, "SetupARK", 0)) return 1;
     break;
   case(1):
-    flag = SetupMRI(&udata, u, LS, &arkode_mem, &stepper);
+    flag = SetupMRI(ctx, &udata, u, LS, &arkode_mem, &stepper);
     if (check_flag((void *) arkode_mem, "SetupMRI", 0)) return 1;
     break;
   case(2):
   case(3):
-    flag = SetupMRICVODE(&udata, u, LS, &NLS, &arkode_mem, &stepper);
+    flag = SetupMRICVODE(ctx, &udata, u, LS, &NLS, &arkode_mem, &stepper);
     if (check_flag((void *) arkode_mem, "SetupMRICVODE", 0)) return 1;
     break;
   default:
@@ -724,7 +731,7 @@ int main(int argc, char* argv[])
       MRIStepInnerStepper_GetContent(stepper, &inner_content);
       InnerStepperContent* content = (InnerStepperContent *) inner_content;
       CVodeFree(&(content->cvode_mem));
-      free(inner_content);
+      delete content;
       MRIStepInnerStepper_Free(&stepper);
       SUNNonlinSolFree(NLS);
       MRIStepFree(&arkode_mem);
@@ -735,11 +742,12 @@ int main(int argc, char* argv[])
     break;
   }
 
-  SUNLinSolFree(LS);                         // Free linear solver
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(u)); // Free vectors
+  SUNLinSolFree(LS);
+  N_VDestroy(N_VGetLocalVector_MPIPlusX(u));
   N_VDestroy(u);
-  FreeUserData(&udata);                      // Free user data
-  flag = MPI_Finalize();                     // Finalize MPI
+  FreeUserData(&udata);
+  SUNContext_Free(&ctx);
+  flag = MPI_Finalize();
   return 0;
 }
 
@@ -946,8 +954,8 @@ static int SetupDecomp(UserData *udata)
 // -----------------------------------------------------------------------------
 
 
-static int SetupARK(UserData* udata, N_Vector u, SUNLinearSolver LS,
-                    void** arkode_mem)
+static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
+                    SUNLinearSolver LS, void** arkode_mem)
 {
   int flag;
 
@@ -956,7 +964,7 @@ static int SetupARK(UserData* udata, N_Vector u, SUNLinearSolver LS,
   ARKRhsFn fi = udata->diffusion ? diffusion : NULL;
 
   // Create ARKStep memory with explicit reactions and implicit diffusion
-  *arkode_mem = ARKStepCreate(fe, fi, ZERO, u);
+  *arkode_mem = ARKStepCreate(fe, fi, ZERO, u, ctx);
   if (check_flag((void *) *arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Specify tolerances
@@ -1032,8 +1040,9 @@ static int SetupARK(UserData* udata, N_Vector u, SUNLinearSolver LS,
 }
 
 
-static int SetupMRI(UserData* udata, N_Vector y, SUNLinearSolver LS,
-                    void** arkode_mem, MRIStepInnerStepper* stepper)
+static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
+                    SUNLinearSolver LS, void** arkode_mem,
+                    MRIStepInnerStepper* stepper)
 {
   int flag;
 
@@ -1042,7 +1051,7 @@ static int SetupMRI(UserData* udata, N_Vector y, SUNLinearSolver LS,
   // -------------------------
 
   // Create fast explicit integrator for reactions
-  void *inner_arkode_mem = ARKStepCreate(reaction, NULL, ZERO, y);
+  void *inner_arkode_mem = ARKStepCreate(reaction, NULL, ZERO, y, ctx);
   if (check_flag((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Specify tolerances
@@ -1092,12 +1101,11 @@ static int SetupMRI(UserData* udata, N_Vector y, SUNLinearSolver LS,
   // -------------------------
 
   // Create slow integrator for diffusion and attach fast integrator
-  *arkode_mem = MRIStepCreate(diffusion, ZERO, y, MRISTEP_CUSTOM,
-                              *stepper);
+  *arkode_mem = MRIStepCreate(NULL, diffusion, ZERO, y, *stepper, ctx);
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+  MRIStepCoupling C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
   if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
@@ -1162,9 +1170,9 @@ static int SetupMRI(UserData* udata, N_Vector y, SUNLinearSolver LS,
 }
 
 
-static int SetupMRICVODE(UserData *udata, N_Vector y, SUNLinearSolver LS,
-                         SUNNonlinearSolver *NLS, void **arkode_mem,
-                         MRIStepInnerStepper* stepper)
+static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
+                         SUNLinearSolver LS, SUNNonlinearSolver *NLS,
+                         void **arkode_mem, MRIStepInnerStepper* stepper)
 {
   int flag;
 
@@ -1189,7 +1197,7 @@ static int SetupMRICVODE(UserData *udata, N_Vector y, SUNLinearSolver LS,
   }
 
   // Create the solver memory and specify the Adams methods
-  void *cvode_mem = CVodeCreate(CV_ADAMS);
+  void *cvode_mem = CVodeCreate(CV_ADAMS, ctx);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   // Initialize the integrator memory
@@ -1205,7 +1213,7 @@ static int SetupMRICVODE(UserData *udata, N_Vector y, SUNLinearSolver LS,
   if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
 
   // Create and attach fixed-point nonlinear solver
-  *NLS = SUNNonlinSol_FixedPoint(y_vec, udata->fp_aa);
+  *NLS = SUNNonlinSol_FixedPoint(y_vec, udata->fp_aa, ctx);
   if(check_flag((void *)*NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
 
   flag = CVodeSetNonlinearSolver(cvode_mem, *NLS);
@@ -1220,7 +1228,7 @@ static int SetupMRICVODE(UserData *udata, N_Vector y, SUNLinearSolver LS,
   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
 
   // Create the inner stepper wrapper
-  flag = MRIStepInnerStepper_Create(stepper);
+  flag = MRIStepInnerStepper_Create(ctx, stepper);
   if (check_flag(&flag, "MRIStepInnerStepper_Create", 1)) return 1;
 
   // Attach memory and operations
@@ -1253,12 +1261,11 @@ static int SetupMRICVODE(UserData *udata, N_Vector y, SUNLinearSolver LS,
   // -------------------------
 
   // Create slow integrator for diffusion and attach fast integrator
-  *arkode_mem = MRIStepCreate(diffusion, ZERO, y, MRISTEP_CUSTOM,
-                              *stepper);
+  *arkode_mem = MRIStepCreate(NULL, diffusion, ZERO, y, *stepper, ctx);
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+  MRIStepCoupling C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
   if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
@@ -2860,10 +2867,10 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   int flag;
 
   // Get slow integrator and solver stats
-  long int nsts, nfs, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = MRIStepGetNumSteps(arkode_mem, &nsts);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return -1;
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return -1;
   flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return -1;
@@ -2886,7 +2893,7 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   cout << endl << "Slow Integrator:" << endl;
 
   cout << "  Steps            = " << nsts    << endl;
-  cout << "  RHS diffusion    = " << nfs     << endl;
+  cout << "  RHS diffusion    = " << nfsi    << endl;
   cout << "  NLS iters        = " << nni     << endl;
   cout << "  NLS fails        = " << ncfn    << endl;
   cout << "  LS iters         = " << nli     << endl;
@@ -2950,10 +2957,10 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   int flag;
 
   // Get slow integrator and solver stats
-  long int nsts, nfs, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = MRIStepGetNumSteps(arkode_mem, &nsts);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return -1;
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return -1;
   flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return -1;
@@ -2976,7 +2983,7 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   cout << endl << "Slow Integrator:" << endl;
 
   cout << "  Steps            = " << nsts    << endl;
-  cout << "  RHS diffusion    = " << nfs     << endl;
+  cout << "  RHS diffusion    = " << nfsi    << endl;
   cout << "  NLS iters        = " << nni     << endl;
   cout << "  NLS fails        = " << ncfn    << endl;
   cout << "  LS iters         = " << nli     << endl;

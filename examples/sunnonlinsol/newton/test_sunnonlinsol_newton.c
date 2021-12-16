@@ -95,12 +95,17 @@ int main(int argc, char *argv[])
   SUNNonlinearSolver NLS;        /* nonlinear solver object     */
   long int           niters;     /* number of nonlinear iters   */
   int                retval = 0; /* return value                */
+  SUNContext         sunctx;
+
+  /* create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* create proxy for integrator memory */
   Imem = (IntegratorMem) malloc(sizeof(struct IntegratorMemRec));
 
   /* create vector */
-  Imem->y0 = N_VNew_Serial(NEQ);
+  Imem->y0 = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) return(1);
 
   Imem->ycur = N_VClone(Imem->y0);
@@ -131,11 +136,11 @@ int main(int argc, char *argv[])
   NV_Ith_S(Imem->w,2) = ONE;
 
   /* create dense matrix */
-  Imem->A = SUNDenseMatrix(NEQ, NEQ);
+  Imem->A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_retval((void *)Imem->A, "SUNDenseMatrix", 0)) return(1);
 
   /* create dense linear solver */
-  Imem->LS = SUNLinSol_Dense(Imem->y0, Imem->A);
+  Imem->LS = SUNLinSol_Dense(Imem->y0, Imem->A, sunctx);
   if (check_retval((void *)Imem->LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* initialize the linear solver */
@@ -143,7 +148,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SUNLinSolInitialize", 1)) return(1);
 
   /* create nonlinear solver */
-  NLS = SUNNonlinSol_Newton(Imem->y0);
+  NLS = SUNNonlinSol_Newton(Imem->y0, sunctx);
   if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* set the nonlinear residual function */
@@ -200,6 +205,7 @@ int main(int argc, char *argv[])
   SUNLinSolFree(Imem->LS);
   SUNNonlinSolFree(NLS);
   free(Imem);
+  SUNContext_Free(&sunctx);
 
   /* Print result */
   if (retval) {

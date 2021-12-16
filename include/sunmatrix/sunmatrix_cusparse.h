@@ -75,15 +75,17 @@ typedef struct _SUNMatrix_Content_cuSparse *SUNMatrix_Content_cuSparse;
  * Constructors.
  * ------------------------------------------------------------------ */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp,
+                                                    SUNContext sunctx);
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ,
                                                      int *rowptrs , int *colind , realtype *data,
-                                                     cusparseHandle_t cusp);
+                                                     cusparseHandle_t cusp, SUNContext sunctx);
 
 /* Creates a CSR block-diagonal matrix where each block shares the same sparsity structure.
    Reduces memory usage by only storing the row pointers and column indices for one block. */
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols,
-                                                         int blocknnz, cusparseHandle_t cusp);
+                                                         int blocknnz, cusparseHandle_t cusp,
+                                                         SUNContext sunctx);
 
 
 /* ------------------------------------------------------------------

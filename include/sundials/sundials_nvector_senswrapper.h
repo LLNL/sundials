@@ -60,7 +60,7 @@ typedef struct _N_VectorContent_SensWrapper *N_VectorContent_SensWrapper;
   ============================================================================*/
 
 /* constructor creates an empty vector wrapper */
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_SensWrapper(int nvecs);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_SensWrapper(int nvecs, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNew_SensWrapper(int count, N_Vector w);
 
 /* clone operations */

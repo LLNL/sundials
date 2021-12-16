@@ -220,7 +220,7 @@ static realtype dotprod(int size, realtype *x1, realtype *x2);
 /* Prototypes for private Helper Functions. */
 
 static UserData AllocUserData(MPI_Comm comm, sunindextype local_N,
-                              sunindextype SystemSize);
+                              sunindextype SystemSize, SUNContext ctx);
 
 static void InitUserData(UserData webdata, int thispe, int npes,
                          MPI_Comm comm);
@@ -256,6 +256,7 @@ int main(int argc, char *argv[])
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
   int thispe, npes, maxl, iout, retval;
+  SUNContext ctx;
 
   cc = cp = res = id = NULL;
   webdata = NULL;
@@ -273,10 +274,14 @@ int main(int argc, char *argv[])
     if (thispe == 0)
       fprintf(stderr,
               "\nMPI_ERROR(0): npes = %d not equal to NPEX*NPEY = %d\n",
-	      npes, NPEX*NPEY);
+              npes, NPEX*NPEY);
     MPI_Finalize();
     return(1);
   }
+
+  /* Create the SUNDIALS context object for this simulation. */
+  retval = SUNContext_Create((void*) &comm, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Set local length (local_N) and global length (SystemSize). */
 
@@ -285,7 +290,7 @@ int main(int argc, char *argv[])
 
   /* Set up user data block webdata. */
 
-  webdata = AllocUserData(comm, local_N, SystemSize);
+  webdata = AllocUserData(comm, local_N, SystemSize, ctx);
   if (check_retval((void *)webdata, "AllocUserData", 0, thispe)) MPI_Abort(comm, 1);
 
   InitUserData(webdata, thispe, npes, comm);
@@ -293,16 +298,16 @@ int main(int argc, char *argv[])
   /* Create needed vectors, and load initial values.
      The vector res is used temporarily only.        */
 
-  cc  = N_VNew_Parallel(comm, local_N, SystemSize);
+  cc  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if (check_retval((void *)cc, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  cp  = N_VNew_Parallel(comm, local_N, SystemSize);
+  cp  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if (check_retval((void *)cp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  res = N_VNew_Parallel(comm, local_N, SystemSize);
+  res = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if (check_retval((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  id  = N_VNew_Parallel(comm, local_N, SystemSize);
+  id  = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   if (check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   SetInitialProfiles(cc, cp, id, res, webdata);
@@ -318,7 +323,7 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize IDA.
      A pointer to IDA problem memory is returned and stored in idamem. */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if (check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetUserData(ida_mem, webdata);
@@ -340,7 +345,7 @@ int main(int argc, char *argv[])
      (Precondbd & PSolvebd).  maxl (Krylov subspace dim.) is set to 16. */
 
   maxl = 16;
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_LEFT, maxl, ctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
@@ -394,6 +399,8 @@ int main(int argc, char *argv[])
 
   FreeUserData(webdata);
 
+  SUNContext_Free(&ctx);
+
   MPI_Finalize();
 
   return(0);
@@ -410,24 +417,25 @@ int main(int argc, char *argv[])
  * AllocUserData: Allocate memory for data structure of type UserData.
  */
 
-static UserData AllocUserData(MPI_Comm comm, sunindextype local_N, sunindextype SystemSize)
+static UserData AllocUserData(MPI_Comm comm, sunindextype local_N,
+                              sunindextype SystemSize, SUNContext ctx)
 {
   int ix, jy;
   UserData webdata;
 
   webdata = (UserData) malloc(sizeof *webdata);
 
-  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
+  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      (webdata->PP)[ix][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (webdata->pivot)[ix][jy] = newIndexArray(NUM_SPECIES);
+      (webdata->PP)[ix][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (webdata->pivot)[ix][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-  webdata->ewt = N_VNew_Parallel(comm, local_N, SystemSize);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->ewt = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   return(webdata);
 
 }
@@ -502,12 +510,12 @@ static void FreeUserData(UserData webdata)
 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      destroyMat((webdata->PP)[ix][jy]);
-      destroyArray((webdata->pivot)[ix][jy]);
+      SUNDlsMat_destroyMat((webdata->PP)[ix][jy]);
+      SUNDlsMat_destroyArray((webdata->pivot)[ix][jy]);
     }
   }
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   N_VDestroy(webdata->ewt);
   free(webdata);
@@ -548,7 +556,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       cxy = IJ_Vptr(cc,ix,jy);
       idxy = IJ_Vptr(id,ix,jy);
       for (is = 0; is < NUM_SPECIES; is++) {
-	if (is < np) { cxy[is] = RCONST(10.0) + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
+        if (is < np) { cxy[is] = RCONST(10.0) + (realtype)(is+1)*xyfactor; idxy[is] = ONE; }
         else { cxy[is] = 1.0e5; idxy[is] = ZERO; }
       }
     }
@@ -1197,7 +1205,7 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
       } /* End of js loop. */
 
       /* Do LU decomposition of matrix block for grid point (ix,jy). */
-      ret = denseGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
 
       if (ret != 0) return(1);
 
@@ -1236,7 +1244,7 @@ static int PSolvebd(realtype tt, N_Vector cc, N_Vector cp,
       zxy = IJ_Vptr(zvec,ix,jy);
       Pxy = (webdata->PP)[ix][jy];
       pivot = (webdata->pivot)[ix][jy];
-      denseGETRS(Pxy, ns, pivot, zxy);
+      SUNDlsMat_denseGETRS(Pxy, ns, pivot, zxy);
 
     } /* End of jy loop. */
   } /* End of ix loop. */

@@ -22,6 +22,19 @@
 #include <sunlinsol/sunlinsol_lapackband.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials_lapack_defs.h"
+
+/* Interfaces to match 'realtype' with the correct LAPACK functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define xgbtrf_f77    dgbtrf_f77
+#define xgbtrs_f77    dgbtrs_f77
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define xgbtrf_f77    sgbtrf_f77
+#define xgbtrs_f77    sgbtrs_f77
+#else
+#error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
+#endif
+
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
 
@@ -37,15 +50,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_LapackBand(y, A)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +58,7 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
  * Function to create a new LAPACK band linear solver
  */
 
-SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_LapackBand content;
@@ -75,7 +79,7 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

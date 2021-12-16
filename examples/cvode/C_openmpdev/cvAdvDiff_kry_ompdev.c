@@ -91,7 +91,7 @@ static void PrintOutput(realtype t, realtype umax, long int nst);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *flagvalue, const char *funcname, int opt);
 
 
 /*
@@ -102,12 +102,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 int main(int argc, char** argv)
 {
+  SUNContext sunctx;
   realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int iout, flag;
+  int iout, retval;
   long int nst;
 
   u = NULL;
@@ -115,62 +116,66 @@ int main(int argc, char** argv)
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Set model parameters */
   data = SetUserData(argc, argv);
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
   /* Create an OpenMPDEV vector with initial values */
-  u = N_VNew_OpenMPDEV(data->NEQ);  /* Allocate u vector */
-  if(check_flag((void*)u, "N_VNew_Cuda", 0)) return(1);
+  u = N_VNew_OpenMPDEV(data->NEQ, sunctx);  /* Allocate u vector */
+  if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerance */
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create SPGMR solver without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
-  if(check_flag(&flag, "SUNLinSol_SPGMR", 1)) return(1);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
+  if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
   /* Attach the linear solver */
-  flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if(check_flag(&flag, "CVodeSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the JAcobian-times-vector function */
-  flag = CVodeSetJacTimes(cvode_mem, NULL, jtv);
-  if(check_flag(&flag, "CVodeSetJacTimesVecFn", 1)) return(1);
+  retval = CVodeSetJacTimes(cvode_mem, NULL, jtv);
+  if(check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax, data);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1)) break;
     umax = N_VMaxNorm(u);
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1);
     PrintOutput(t, umax, nst);
   }
 
@@ -179,6 +184,7 @@ int main(int argc, char** argv)
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   free(data);             /* Free the user data */
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -200,7 +206,7 @@ UserData SetUserData(int argc, char *argv[])
 
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);
-  if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
+  if(check_retval((void*) ud, "AllocUserData", 2)) return(NULL);
 
   ud->MX  = MX;
   ud->MY  = MY;
@@ -402,35 +408,35 @@ static void PrintFinalStats(void *cvode_mem)
   long lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  check_flag(&flag, "CVodeGetWorkSpace", 1);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_retval(&retval, "CVodeGetWorkSpace", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVodeGetLinWorkSpace", 1);
-  flag = CVodeGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVodeGetNumLinIters", 1);
-  flag = CVodeGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVodeGetNumPrecEvals", 1);
-  flag = CVodeGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVodeGetNumPrecSolves", 1);
-  flag = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVodeGetNumLinConvFails", 1);
-  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVodeGetNumLinRhsEvals", 1);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
@@ -448,12 +454,12 @@ static void PrintFinalStats(void *cvode_mem)
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns a retval so check if
+              retval >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 
@@ -464,12 +470,12 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
             funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
 
   else if (opt == 1) {
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *errflag);
       return(1); }}
 

@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This simple example problem for IDA, due to Robertson, 
- * is from chemical kinetics, and consists of the following three 
+ * This simple example problem for IDA, due to Robertson,
+ * is from chemical kinetics, and consists of the following three
  * equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -103,6 +103,7 @@ int main(void)
   SUNMatrix A;
   SUNLinearSolver LS;
   SUNNonlinearSolver NLS;
+  SUNContext ctx;
 
   mem = NULL;
   yy = yp = avtol = NULL;
@@ -111,12 +112,16 @@ int main(void)
   LS = NULL;
   NLS = NULL;
 
+  /* Create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Allocate N-vectors. */
-  yy = N_VNew_Serial(NEQ);
+  yy = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
-  yp = N_VNew_Serial(NEQ);
+  yp = N_VClone(yy);
   if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
-  avtol = N_VNew_Serial(NEQ);
+  avtol = N_VClone(yy);
   if(check_retval((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
@@ -144,7 +149,7 @@ int main(void)
   PrintHeader(rtol, avtol, yy);
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAInit(mem, resrob, t0, yy, yp);
   if(check_retval(&retval, "IDAInit", 1)) return(1);
@@ -157,11 +162,11 @@ int main(void)
   if (check_retval(&retval, "IDARootInit", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -176,7 +181,7 @@ int main(void)
    * Newton SUNNonlinearSolver by default, so it is unecessary
    * to create it and attach it. It is done in this example code
    * solely for demonstration purposes. */
-  NLS = SUNNonlinSol_Newton(yy);
+  NLS = SUNNonlinSol_Newton(yy, ctx);
   if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* Attach the nonlinear solver */
@@ -222,6 +227,7 @@ int main(void)
   N_VDestroy(avtol);
   N_VDestroy(yy);
   N_VDestroy(yp);
+  SUNContext_Free(&ctx);
 
   return(retval);
 

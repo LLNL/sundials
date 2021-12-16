@@ -53,19 +53,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
-{ return(SUNLinSol_SuperLUMT(y, A, num_threads)); }
-
-int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
-{ return(SUNLinSol_SuperLUMTSetOrdering(S, ordering_choice)); }
-
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -74,7 +61,7 @@ int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
  * Function to create a new SuperLUMT linear solver
  */
 
-SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
+SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_SuperLUMT content;
@@ -95,7 +82,7 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

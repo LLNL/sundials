@@ -40,20 +40,3 @@ message(STATUS "Added SUNNONLINSOL_NEWTON module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the F77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunnonlinsolnewton
-    SOURCES
-      fsunnonlinsol_newton.c
-    LINK_LIBRARIES
-      PRIVATE sundials_fnvecserial sundials_sunnonlinsolnewton
-    OUTPUT_NAME
-      sundials_fsunnonlinsolnewton
-    VERSION
-      ${sunnonlinsol_VERSION}
-    SOVERSION
-      ${sunnonlinsol_SOVERSION}
-  )
-  message(STATUS "Added SUNNONLINSOL_NEWTON F77 interface")
-endif()

@@ -38,6 +38,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <sundials/sundials_context.h>
+
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
@@ -68,11 +70,11 @@
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. 
+   to the underlying 1-dimensional storage.
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
    The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
-   where v is an N_Vector. 
+   where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
@@ -81,6 +83,7 @@
 
 typedef struct {
   realtype dx, dy, hdcoef, hacoef, vdcoef;
+  SUNProfiler profobj;
 } *UserData;
 
 /* Private Helper Functions */
@@ -97,7 +100,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(realtype t, N_Vector u, N_Vector fu, 
+static int Jac(realtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -117,16 +120,30 @@ int main(void)
   void *cvode_mem;
   int iout, retval;
   long int nst;
+  SUNContext sunctx;
+  SUNProfiler profobj;
 
+  /* Initialize variables */
   u = NULL;
   data = NULL;
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
+  sunctx = NULL;
+
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
+  /* Get a reference to the profiler */
+  retval = SUNContext_GetProfiler(sunctx, &profobj);
+  if(check_retval(&retval, "SUNContext_GetProfiler", 1)) return(1);
+
+  SUNDIALS_MARK_FUNCTION_BEGIN(profobj);
 
   /* Create a serial vector */
 
-  u = N_VNew_Serial(NEQ);  /* Allocate u vector */
+  u = N_VNew_Serial(NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void*)u, "N_VNew_Serial", 0)) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -136,15 +153,19 @@ int main(void)
   if(check_retval((void *)data, "malloc", 2)) return(1);
   dx = data->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
   dy = data->dy = YMAX/(MY+1);
-  data->hdcoef = ONE/(dx*dx);
-  data->hacoef = HALF/(TWO*dx);
-  data->vdcoef = ONE/(dy*dy);
+  data->hdcoef  = ONE/(dx*dx);
+  data->hacoef  = HALF/(TWO*dx);
+  data->vdcoef  = ONE/(dy*dy);
+  data->profobj = profobj;
+
+  SUNDIALS_MARK_BEGIN(profobj, "Setup");
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -162,15 +183,15 @@ int main(void)
   retval = CVodeSetUserData(cvode_mem, data);
   if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
-  /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
+  /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
-  A = SUNBandMatrix(NEQ, MY, MY);
+  A = SUNBandMatrix(NEQ, MY, MY, sunctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_Band(u, A);
+  LS = SUNLinSol_Band(u, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
-  
+
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
   if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
@@ -179,8 +200,11 @@ int main(void)
   retval = CVodeSetJacFn(cvode_mem, Jac);
   if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
+  SUNDIALS_MARK_END(profobj, "Setup");
+
   /* In loop over output points: call CVode, print results, test for errors */
 
+  SUNDIALS_MARK_BEGIN(profobj, "Integration loop");
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
@@ -191,7 +215,7 @@ int main(void)
     check_retval(&retval, "CVodeGetNumSteps", 1);
     PrintOutput(t, umax, nst);
   }
-
+  SUNDIALS_MARK_END(profobj, "Integration loop");
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
   N_VDestroy(u);          /* Free the u vector          */
@@ -200,6 +224,8 @@ int main(void)
   SUNMatDestroy(A);       /* Free the matrix memory     */
   free(data);             /* Free the user data         */
 
+  SUNDIALS_MARK_FUNCTION_END(profobj);
+  SUNContext_Free(&sunctx);
   return(0);
 }
 
@@ -228,6 +254,8 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
   horac = data->hacoef;
   verdc = data->vdcoef;
 
+  SUNDIALS_MARK_BEGIN(data->profobj, "RHS");
+
   /* Loop over all grid points. */
 
   for (j=1; j <= MY; j++) {
@@ -251,19 +279,21 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
     }
   }
 
+  SUNDIALS_MARK_END(data->profobj, "RHS");
+
   return(0);
 }
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(realtype t, N_Vector u, N_Vector fu, 
+static int Jac(realtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunindextype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
-  
+
   /*
    * The components of f = udot that depend on u(i,j) are
    * f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
@@ -278,6 +308,8 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
+
+  SUNDIALS_MARK_BEGIN(data->profobj, "Jac");
 
   /* set non-zero Jacobian entries */
   for (j=1; j <= MY; j++) {
@@ -294,6 +326,8 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
       if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
     }
   }
+
+  SUNDIALS_MARK_END(data->profobj, "Jac");
 
   return(0);
 }
@@ -322,14 +356,14 @@ static void SetIC(N_Vector u, UserData data)
   udata = N_VGetArrayPointer(u);
 
   /* Load initial profile into u vector */
-  
+
   for (j=1; j <= MY; j++) {
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
       IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(FIVE*x*y);
     }
-  }  
+  }
 }
 
 /* Print first lines of output (problem description) */

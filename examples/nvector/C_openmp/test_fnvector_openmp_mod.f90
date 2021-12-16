@@ -42,25 +42,25 @@ module test_nvector_openmp
     type(c_ptr)             :: xvecs, zvecs       ! C pointer to array of C pointers to N_Vectors
 
     !===== Setup ====
-    x => FN_VMake_OpenMP(N, xdata, 2)
+    x => FN_VMake_OpenMP(N, xdata, 2, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_OpenMP(x)
     call FN_VConst(ONE, y)
     z => FN_VClone_OpenMP(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray_OpenMP(nv, x)
-    zvecs = FN_VCloneVectorArray_OpenMP(nv, z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
 
     ! test constructors
-    tmp => FN_VNewEmpty_OpenMP(N, 2)
+    tmp => FN_VNewEmpty_OpenMP(N, 2, sunctx)
     call FN_VDestroy_OpenMP(tmp)
-    tmp => FN_VMake_OpenMP(N, xdata, 2)
+    tmp => FN_VMake_OpenMP(N, xdata, 2, sunctx)
     call FN_VDestroy_OpenMP(tmp)
-    tmp => FN_VNew_OpenMP(N, 2)
+    tmp => FN_VNew_OpenMP(N, 2, sunctx)
     call FN_VDestroy_OpenMP(tmp)
     tmp => FN_VCloneEmpty_OpenMP(x)
     call FN_VDestroy_OpenMP(tmp)
@@ -110,8 +110,8 @@ module test_nvector_openmp
     call FN_VDestroy_OpenMP(x)
     call FN_VDestroy_OpenMP(y)
     call FN_VDestroy_OpenMP(z)
-    call FN_VDestroyVectorArray_OpenMP(xvecs, nv)
-    call FN_VDestroyVectorArray_OpenMP(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 
@@ -127,7 +127,7 @@ module test_nvector_openmp
     !===== Setup ====
     fails = 0
 
-    x => FN_VMake_OpenMP(N, xdata, 2)
+    x => FN_VMake_OpenMP(N, xdata, 2, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -191,6 +191,8 @@ program main
   !============== Introduction =============
   print *, 'OpenMP N_Vector Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = smoke_tests()
   if (fails /= 0) then
     print *, 'FAILURE: smoke tests failed'
@@ -206,4 +208,6 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
 end program main

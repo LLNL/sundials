@@ -42,7 +42,7 @@ struct _SUNMatrixContent_OneMklDense {
   SUNSyclExecPolicy* exec_policy;  /* execution policy               */
   SUNMemoryType      mem_type;     /* memory type                    */
   SUNMemoryHelper    mem_helper;   /* memory helper                  */
-  sycl::queue*       queue;        /* operation queue                */
+  ::sycl::queue*     queue;        /* operation queue                */
 };
 
 typedef struct _SUNMatrixContent_OneMklDense *SUNMatrixContent_OneMklDense;
@@ -57,14 +57,16 @@ SUNDIALS_EXPORT
 SUNMatrix SUNMatrix_OneMklDense(sunindextype M, sunindextype N,
                                 SUNMemoryType mem_type,
                                 SUNMemoryHelper mem_helper,
-                                sycl::queue* queue);
+                                ::sycl::queue* queue,
+                                SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M_block,
                                      sunindextype N_block,
                                      SUNMemoryType mem_type,
                                      SUNMemoryHelper mem_helper,
-                                     sycl::queue* queue);
+                                     ::sycl::queue* queue,
+                                     SUNContext sunctx);
 
 /* Get matrix dimensions */
 

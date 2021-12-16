@@ -34,30 +34,88 @@ extern "C" {
  * MRIStep Constants
  * ----------------- */
 
-/* Inner stepper module identifiers */
+/* MRIStep method types */
 typedef enum {
-  MRISTEP_ARKSTEP,
-  MRISTEP_CUSTOM
-} MRISTEP_ID;
+  MRISTEP_EXPLICIT,
+  MRISTEP_IMPLICIT,
+  MRISTEP_IMEX
+} MRISTEP_METHOD_TYPE;
+
 
 /* MRI coupling table table accessor IDs:
      ERK:    0 -  99
      DIRK: 100 - 199
      MRI:  200 - 299          */
-#define MIS_KW3            200
-#define MRI_GARK_ERK45a    201
-#define MRI_GARK_IRK21a    202
-#define MRI_GARK_ESDIRK34a 203
+
+/* DEPRECATED MIS_KW3: use ARKODE_MIS_KW3 */
+#define MIS_KW3             200
+/* DEPRECATED MRI_GARK_ERK33a: use ARKODE_MRI_GARK_ERK33a */
+#define MRI_GARK_ERK33a     201
+/* DEPRECATED MRI_GARK_ERK45a: use ARKODE_MRI_GARK_ERK45a */
+#define MRI_GARK_ERK45a     202
+/* DEPRECATED MRI_GARK_IRK21a: use ARKODE_MRI_GARK_IRK21a */
+#define MRI_GARK_IRK21a     203
+/* DEPRECATED MRI_GARK_ESDIRK34a: use ARKODE_MRI_GARK_ESDIRK34a */
+#define MRI_GARK_ESDIRK34a  204
+/* DEPRECATED MRI_GARK_ESDIRK46a: use ARKODE_MRI_GARK_ESDIRK46a */
+#define MRI_GARK_ESDIRK46a  205
+/* DEPRECATED IMEX_MRI_GARK3a: use ARKODE_IMEX_MRI_GARK3a */
+#define IMEX_MRI_GARK3a     206
+/* DEPRECATED IMEX_MRI_GARK3b: use ARKODE_IMEX_MRI_GARK3b */
+#define IMEX_MRI_GARK3b     207
+/* DEPRECATED IMEX_MRI_GARK4: use ARKODE_IMEX_MRI_GARK4 */
+#define IMEX_MRI_GARK4      208
 
 /* Utility #defines to ensure valid input IDs for MRI tables */
-#define MIN_MRI_NUM        200
-#define MAX_MRI_NUM        203
+
+/* DEPRECATED MIN_MRI_NUM: use ARKODE_MIN_MRI_NUM */
+#define MIN_MRI_NUM         200
+/* DEPRECATED MAX_MRI_NUM: use ARKODE_MAX_MRI_NUM */
+#define MAX_MRI_NUM         208
+
+typedef enum {
+  ARKODE_MRI_NONE = -1, /* ensure enum is signed int */
+  ARKODE_MIN_MRI_NUM = 200,
+  ARKODE_MIS_KW3 = ARKODE_MIN_MRI_NUM,
+  ARKODE_MRI_GARK_ERK33a,
+  ARKODE_MRI_GARK_ERK45a,
+  ARKODE_MRI_GARK_IRK21a,
+  ARKODE_MRI_GARK_ESDIRK34a,
+  ARKODE_MRI_GARK_ESDIRK46a,
+  ARKODE_IMEX_MRI_GARK3a,
+  ARKODE_IMEX_MRI_GARK3b,
+  ARKODE_IMEX_MRI_GARK4,
+  ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_GARK4
+} ARKODE_MRITableID;
+
 
 /* Default MRI coupling tables for each order */
-#define DEFAULT_MRI_TABLE_3           MIS_KW3     /* backwards-compatibility */
-#define DEFAULT_EXPL_MRI_TABLE_3      MIS_KW3
-#define DEFAULT_EXPL_MRI_TABLE_4      MRI_GARK_ERK45a
-#define DEFAULT_IMPL_SD_MRI_TABLE_4   MRI_GARK_ESDIRK34a
+
+static const int MRISTEP_DEFAULT_3         = ARKODE_MIS_KW3;
+static const int MRISTEP_DEFAULT_EXPL_3    = ARKODE_MIS_KW3;
+static const int MRISTEP_DEFAULT_EXPL_4    = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a;
+static const int MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a;
+static const int MRISTEP_DEFAULT_IMPL_SD_4 = ARKODE_MRI_GARK_ESDIRK46a;
+static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b;
+static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
+
+/* DEPRECATED DEFAULT_MRI_TABLE_3: use MRISTEP_DEFAULT_3 */
+#define DEFAULT_MRI_TABLE_3          MRISTEP_DEFAULT_3     /* backwards-compatibility */
+/* DEPRECATED DEFAULT_EXPL_MRI_TABLE_3: use MRISTEP_DEFAULT_EXPL_3 */
+#define DEFAULT_EXPL_MRI_TABLE_3     MRISTEP_DEFAULT_EXPL_3
+/* DEPRECATED DEFAULT_EXPL_MRI_TABLE_4: use MRISTEP_DEFAULT_EXPL_4 */
+#define DEFAULT_EXPL_MRI_TABLE_4     MRISTEP_DEFAULT_EXPL_4
+/* DEPRECATED DEFAULT_IMPL_SD_TABLE_2: use MRISTEP_DEFAULT_IMPL_SD_2 */
+#define DEFAULT_IMPL_SD_MRI_TABLE_2  MRISTEP_DEFAULT_IMPL_SD_2
+/* DEPRECATED DEFAULT_IMPL_SD_TABLE_3: use MRISTEP_DEFAULT_IMPL_SD_3 */
+#define DEFAULT_IMPL_SD_MRI_TABLE_3  MRISTEP_DEFAULT_IMPL_SD_3
+/* DEPRECATED DEFAULT_IMPL_SD_TABLE_4: use MRISTEP_DEFAULT_IMPL_SD_4 */
+#define DEFAULT_IMPL_SD_MRI_TABLE_4  MRISTEP_DEFAULT_IMPL_SD_4
+/* DEPRECATED DEFAULT_IMEX_SD_TABLE_3: use MRISTEP_DEFAULT_IMEX_SD_3 */
+#define DEFAULT_IMEX_SD_MRI_TABLE_3  MRISTEP_DEFAULT_IMEX_SD_3
+/* DEPRECATED DEFAULT_IMEX_SD_TABLE_4: use MRISTEP_DEFAULT_IMEX_SD_4 */
+#define DEFAULT_IMEX_SD_MRI_TABLE_4  MRISTEP_DEFAULT_IMEX_SD_4
 
 /* ------------------------------------
  * MRIStep Inner Stepper Function Types
@@ -76,29 +134,30 @@ typedef int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper,
 /*---------------------------------------------------------------
   MRI coupling data structure and associated utility routines
   ---------------------------------------------------------------*/
-struct MRIStepCouplingMem {
-
-  int nmat;        /* number of MRI coupling matrices             */
-  int stages;      /* size of coupling matrices (stages * stages) */
-  int q;           /* method order of accuracy                    */
-  int p;           /* embedding order of accuracy                 */
-  realtype ***G;   /* coupling matrices [nmat][stages][stages]    */
-  realtype *c;     /* abcissae                                    */
-
+struct MRIStepCouplingMem
+{
+  int nmat;        /* number of MRI coupling matrices                   */
+  int stages;      /* size of coupling matrices (stages * stages)       */
+  int q;           /* method order of accuracy                          */
+  int p;           /* embedding order of accuracy                       */
+  realtype *c;     /* stage abscissae                                   */
+  realtype ***W;   /* explicit coupling matrices [nmat][stages][stages] */
+  realtype ***G;   /* implicit coupling matrices [nmat][stages][stages] */
 };
 
 typedef _SUNDIALS_STRUCT_ MRIStepCouplingMem *MRIStepCoupling;
 
 /* Accessor routine to load built-in MRI table */
-SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTable(int imethod);
+SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID imethod);
 
-/* Utility routines to allocate/free/output Butcher table structures */
-SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Alloc(int nmat,
-                                                      int stages);
+/* Utility routines to allocate/free/output coupling table structures */
+SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
+                                                      MRISTEP_METHOD_TYPE type);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Create(int nmat,
                                                        int stages,
                                                        int q,
                                                        int p,
+                                                       realtype *W,
                                                        realtype *G,
                                                        realtype *c);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
@@ -125,25 +184,17 @@ typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void *user_data);
  * Exported Functions
  * ------------------- */
 
-/* DEPRECATED routines (only for backwards compatibility) */
-SUNDIALS_DEPRECATED_EXPORT
-int MRIStepGetCurrentButcherTables(void *arkode_mem, ARKodeButcherTable *B);
-
-SUNDIALS_DEPRECATED_EXPORT
-int MRIStepWriteButcher(void *arkode_mem, FILE *fp);
-
-
 /* Create, Resize, and Reinitialization functions */
-SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fs, realtype t0, N_Vector y0,
-                                    MRISTEP_ID inner_step_id,
-                                    void* inner_step_mem);
+SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
+                                    N_Vector y0, MRIStepInnerStepper stepper,
+                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT int MRIStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype t0, ARKVecResizeFn resize,
                                   void *resize_data);
 
-SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0,
-                                  N_Vector y0);
+SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi,
+                                  realtype t0, N_Vector y0);
 
 SUNDIALS_EXPORT int MRIStepReset(void* arkode_mem, realtype tR, N_Vector yR);
 
@@ -178,10 +229,6 @@ SUNDIALS_EXPORT int MRIStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int MRIStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetCoupling(void *arkode_mem,
                                        MRIStepCoupling MRIC);
-SUNDIALS_EXPORT int MRIStepSetTable(void *arkode_mem, int q,
-                                    ARKodeButcherTable B);
-SUNDIALS_EXPORT int MRIStepSetTableNum(void *arkode_mem,
-                                       int itable);
 SUNDIALS_EXPORT int MRIStepSetMaxNumSteps(void *arkode_mem,
                                           long int mxsteps);
 SUNDIALS_EXPORT int MRIStepSetNonlinCRDown(void *arkode_mem,
@@ -262,7 +309,8 @@ SUNDIALS_EXPORT int MRIStepComputeState(void *arkode_mem, N_Vector zcor,
 
 /* Optional output functions */
 SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void *arkode_mem,
-                                          long int *nfs_evals);
+                                          long int *nfse_evals,
+                                          long int *nfsi_evals);
 SUNDIALS_EXPORT int MRIStepGetNumLinSolvSetups(void *arkode_mem,
                                                long int *nlinsetups);
 SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void *arkode_mem,
@@ -346,7 +394,8 @@ SUNDIALS_EXPORT void MRIStepFree(void **arkode_mem);
 SUNDIALS_EXPORT void MRIStepPrintMem(void* arkode_mem, FILE* outfile);
 
 /* Custom inner stepper functions */
-SUNDIALS_EXPORT int MRIStepInnerStepper_Create(MRIStepInnerStepper *stepper);
+SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
+                                               MRIStepInnerStepper *stepper);
 
 SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper);
 

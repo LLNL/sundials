@@ -131,6 +131,11 @@ int main()
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nli, nlcf, nJv, nfeLS, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* allocate udata structure */
   userdata = (UserData) malloc(sizeof(*userdata));
   if (check_flag((void *) userdata, "malloc", 2)) return 1;
@@ -155,16 +160,16 @@ int main()
 
   /* Initialize data structures */
   userdata->dx = ONE/(N-1);      /* set spatial mesh spacing */
-  u = N_VNew_Serial(N);                  /* Create serial vectors */
+  u = N_VNew_Serial(N, ctx);     /* Create serial vectors */
   if (check_flag((void *) u, "N_VNew_Serial", 0)) return 1;
-  v = N_VNew_Serial(N);
-  if (check_flag((void *) v, "N_VNew_Serial", 0)) return 1;
-  w = N_VNew_Serial(N);
-  if (check_flag((void *) w, "N_VNew_Serial", 0)) return 1;
+  v = N_VClone(u);
+  if (check_flag((void *) v, "N_VClone", 0)) return 1;
+  w = N_VClone(u);
+  if (check_flag((void *) w, "N_VClone", 0)) return 1;
 
   /* Create manyvector for solution */
   uvw[0] = u; uvw[1] = v; uvw[2] = w;
-  y = N_VNew_ManyVector(Nvar, uvw);
+  y = N_VNew_ManyVector(Nvar, uvw, ctx);
   if (check_flag((void *)y, "N_VNew_ManyVector", 0)) return 1;
 
   udata = N_VGetArrayPointer(u);     /* Access data array for new NVector u */
@@ -186,7 +191,7 @@ int main()
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(fe, fi, T0, y);
+  arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -196,7 +201,7 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize spgmr solver */
-  LS = SUNLinSol_SPGMR(y, PREC_NONE, 10);
+  LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 10, ctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return 1;
 
   /* Linear solver interface */
@@ -311,6 +316,8 @@ int main()
   free(userdata);               /* Free user data */
   ARKStepFree(&arkode_mem);     /* Free integrator memory */
   SUNLinSolFree(LS);            /* Free linear solver */
+  SUNContext_Free(&ctx);        /* Free context */
+
   return 0;
 }
 

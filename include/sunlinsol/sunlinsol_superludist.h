@@ -100,7 +100,8 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A,
                                                       xScalePermstruct_t *scaleperm,
                                                       xSOLVEstruct_t *solve,
                                                       SuperLUStat_t *stat,
-                                                      superlu_dist_options_t *options);
+                                                      superlu_dist_options_t *options,
+                                                      SUNContext sunctx);
 
 /*
  * ----------------------------------------------------------------------------

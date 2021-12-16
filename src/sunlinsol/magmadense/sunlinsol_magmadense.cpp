@@ -65,7 +65,7 @@
  * Constructor functions
  */
 
-SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
+SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunctx)
 {
   int retval = 0;
   SUNLinearSolver S;
@@ -106,7 +106,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
 
   /* Create the linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */
@@ -143,8 +143,9 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
   /* The pivots need to be in host memory when calling the non-batched methods,
      but in device memory for the batched methods. */
   retval = SUNMemoryHelper_Alloc(content->memhelp, &content->pivots,
-                                 M*nblocks*sizeof(sunindextype),
-                                 nblocks > 1 ? SUNMEMTYPE_DEVICE : SUNMEMTYPE_HOST);
+                                 M * nblocks * sizeof(sunindextype),
+                                 nblocks > 1 ? SUNMEMTYPE_DEVICE : SUNMEMTYPE_HOST,
+                                 nullptr);
   if (retval) { SUNLinSolFree(S); return(NULL); }
 
   /* If we have multiple blocks, then we need to allocate some extra
@@ -152,7 +153,8 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
   if (nblocks > 1)
   {
     retval = SUNMemoryHelper_Alloc(content->memhelp, &content->pivotsarr,
-                                   nblocks*sizeof(sunindextype*), SUNMEMTYPE_DEVICE);
+                                   nblocks * sizeof(sunindextype*),
+                                   SUNMEMTYPE_DEVICE, nullptr);
     if (retval) { SUNLinSolFree(S); return(NULL); }
 
     /* Set the pivots array on the device */
@@ -168,11 +170,13 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
     /* We use pinned memory for the info array because we are going to
        check its values on the host and we need it to have fast transfers. */
     retval = SUNMemoryHelper_Alloc(content->memhelp, &content->infoarr,
-                                   nblocks*sizeof(sunindextype), SUNMEMTYPE_PINNED);
+                                   nblocks * sizeof(sunindextype),
+                                   SUNMEMTYPE_PINNED, nullptr);
     if (retval) { SUNLinSolFree(S); return(NULL); }
 
     retval = SUNMemoryHelper_Alloc(content->memhelp, &content->rhsarr,
-                                   nblocks*sizeof(realtype*), SUNMEMTYPE_DEVICE);
+                                   nblocks * sizeof(realtype*),
+                                   SUNMEMTYPE_DEVICE, nullptr);
     if (retval) { SUNLinSolFree(S); return(NULL); }
   }
 
@@ -395,13 +399,17 @@ int SUNLinSolFree_MagmaDense(SUNLinearSolver S)
   if (S->content)
   {
     if (MAGMADENSE_CONTENT(S)->pivots)
-      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->pivots);
+      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->pivots,
+                              nullptr);
     if (MAGMADENSE_CONTENT(S)->pivotsarr)
-      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->pivotsarr);
+      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->pivotsarr,
+                              nullptr);
     if (MAGMADENSE_CONTENT(S)->infoarr)
-      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->infoarr);
+      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->infoarr,
+                              nullptr);
     if (MAGMADENSE_CONTENT(S)->rhsarr)
-      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->rhsarr);
+      SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->rhsarr,
+                              nullptr);
   }
   if (S->ops)
   {

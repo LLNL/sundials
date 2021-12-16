@@ -210,6 +210,7 @@ end module dae_mod
 
 program main
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fidas_mod                  ! Fortran interface to IDA
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
@@ -224,6 +225,7 @@ program main
   integer(c_int)  :: retval, iout
   integer(c_long) :: netf(1), ncfn(1), ncfl(1)
 
+  type(c_ptr)                    :: sunctx
   type(N_Vector),        pointer :: sunvec_u     ! sundials solution vector
   type(N_Vector),        pointer :: sunvec_up    ! sundials derivative vector
   type(N_Vector),        pointer :: sunvec_c     ! sundials constraints vector
@@ -241,26 +243,33 @@ program main
   dx = 1.d0/(mgrid-1)
   coeff = 1.d0/(dx * dx)
 
+  ! Create the SUNDIALS simulation context
+  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  if (retval /= 0) then
+    print *, 'ERROR: FSUNContext_Create returned nonzero'
+    stop 1
+  end if
+
   ! Create N_Vectors
-  sunvec_u => FN_VMake_Serial(neq, uu)
+  sunvec_u => FN_VMake_Serial(neq, uu, sunctx)
   if (.not. associated(sunvec_u)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_up => FN_VMake_Serial(neq, up)
+  sunvec_up => FN_VMake_Serial(neq, up, sunctx)
   if (.not. associated(sunvec_up)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_r => FN_VMake_Serial(neq, res)
+  sunvec_r => FN_VMake_Serial(neq, res, sunctx)
   if (.not. associated(sunvec_r)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_c => FN_VMake_Serial(neq, constraints)
+  sunvec_c => FN_VMake_Serial(neq, constraints, sunctx)
   if (.not. associated(sunvec_c)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -279,7 +288,7 @@ program main
   atol = 1.d-3
 
   ! Call FIDACreate and FIDAInit to initialize solution
-  idas_mem = FIDACreate()
+  idas_mem = FIDACreate(sunctx)
   if (.not. c_associated(idas_mem)) then
      print *, 'ERROR: idas_mem = NULL'
      stop 1
@@ -305,7 +314,7 @@ program main
 
   ! Create the linear solver SUNLinSol_SPGMR with left preconditioning
   ! and the default Krylov dimension
-  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, PREC_LEFT, 0)
+  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, SUN_PREC_LEFT, 0, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
@@ -344,7 +353,7 @@ program main
 
   print *, " "
   print *, " "
-  print *, "Case 1: gsytpe = MODIFIED_GS"
+  print *, "Case 1: gsytpe = SUN_MODIFIED_GS"
   print *, " "
   print *, "   Output Summary (umax = max-norm of solution)"
   print *, " "
@@ -404,7 +413,7 @@ program main
      stop 1
   end if
 
-  retval = FSUNLinSol_SPGMRSetGSType(sunlinsol_LS, CLASSICAL_GS)
+  retval = FSUNLinSol_SPGMRSetGSType(sunlinsol_LS, SUN_CLASSICAL_GS)
   if (retval /= 0) then
      print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval, '; halting'
      stop 1
@@ -414,7 +423,7 @@ program main
 
   print *, " "
   print *, " "
-  print *, "Case 2: gsytpe = CLASSICAL_GS"
+  print *, "Case 2: gsytpe = SUN_CLASSICAL_GS"
   print *, " "
   print *, "   Output Summary (umax = max-norm of solution)"
   print *, " "
@@ -465,6 +474,7 @@ program main
   call FN_VDestroy(sunvec_up)
   call FN_VDestroy(sunvec_r)
   call FN_VDestroy(sunvec_c)
+  retval = FSUNContext_Free(sunctx)
 
 end program main
 

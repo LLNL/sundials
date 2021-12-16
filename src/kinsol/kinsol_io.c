@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -156,6 +156,40 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
   return(KIN_SUCCESS);
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDebugFile
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDebugFile(void *kinmem, FILE *debugfp)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDebugFile",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+#if defined(SUNDIALS_DEBUG)
+  if (debugfp)
+    kin_mem->kin_debugfp = debugfp;
+  else
+    kin_mem->kin_debugfp = stdout;
+
+  return(KIN_SUCCESS);
+#else
+  KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetDebugFile",
+                  "SUNDIALS was not built with debugging enabled");
+  return(KIN_ILL_INPUT);
+#endif
+}
+
+
 /*
  * -----------------------------------------------------------------
  * Function : KINSetUserData
@@ -274,6 +308,33 @@ int KINSetDelayAA(void *kinmem, long int delay)
   return(KIN_SUCCESS);
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetOrthAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetOrthAA(void *kinmem, int orthaa)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetOrthAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  if ((orthaa < KIN_ORTH_MGS) || (orthaa > KIN_ORTH_DCGS2)) {
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_BAD_ORTHAA);
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem->kin_orth_aa = orthaa;
+
+  return(KIN_SUCCESS);
+}
 
 /*
  * -----------------------------------------------------------------

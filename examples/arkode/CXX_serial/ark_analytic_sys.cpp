@@ -69,7 +69,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to perform matrix-matrix product
-static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
+static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
 
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
@@ -99,24 +99,27 @@ int main()
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
 
+  // Create the SUNDIALS context object for this simulation
+  sundials::Context ctx;
+
   // Initialize vector data structure and specify initial condition
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, ctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = 1.0;
   NV_Ith_S(y,1) = 1.0;
   NV_Ith_S(y,2) = 1.0;
 
   // Initialize dense matrix data structure and solver
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, ctx);
   if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* Call ARKStepCreate to initialize the ARK timestepper memory and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since
      this problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Set routines
@@ -245,12 +248,18 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 {
   realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
   realtype lam = rdata[0];                    // set shortcut for stiffness parameter
-  SUNMatrix V  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
-  SUNMatrix D  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
-  SUNMatrix Vi = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
 
-  SUNMatZero(V);        // initialize temporary matrices to zero
-  SUNMatZero(D);        // (not technically required)
+  // Get Jacobian context
+  SUNContext ctx = J->sunctx;
+
+  // create temporary SUNMatrix objects
+  SUNMatrix V  = SUNDenseMatrix(3, 3, ctx);
+  SUNMatrix D  = SUNDenseMatrix(3, 3, ctx);
+  SUNMatrix Vi = SUNDenseMatrix(3, 3, ctx);
+
+  // initialize temporary matrices to zero (not technically required)
+  SUNMatZero(V);
+  SUNMatZero(D);
   SUNMatZero(Vi);
 
   // Fill in temporary matrices:
@@ -282,11 +291,11 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   SM_ELEMENT_D(D,2,2) = lam;
 
   // Compute J = V*D*Vi
-  if (dense_MM(D,Vi,J) != 0) {     // J = D*Vi
+  if (SUNDlsMat_dense_MM(D,Vi,J) != 0) {     // J = D*Vi
     cerr << "matmul error\n";
     return 1;
   }
-  if (dense_MM(V,J,D) != 0) {      // D = V*J [= V*D*Vi]
+  if (SUNDlsMat_dense_MM(V,J,D) != 0) {      // D = V*J [= V*D*Vi]
     cerr << "matmul error\n";
     return 1;
   }
@@ -304,7 +313,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
  *-------------------------------*/
 
 // SUNDenseMatrix matrix-multiply utility routine: C = A*B.
-static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
+static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
 {
   // check for legal dimensions
   if ( (SUNDenseMatrix_Columns(A) != SUNDenseMatrix_Rows(B)) ||

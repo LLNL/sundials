@@ -70,15 +70,17 @@ module ode_mod
   implicit none
   save
 
+  type(c_ptr) :: sunctx ! SUNDIALS simulation context
+
   ! Number of chemical species
   integer, parameter :: Nvar = 3
 
   ! MPI variables
-  integer :: comm   ! communicator
-  integer :: myid   ! process ID
-  integer :: nprocs ! total number of processes
-  integer :: reqS   ! MPI send request handle
-  integer :: reqR   ! MPI receive request handle
+  integer, target        :: comm   ! communicator
+  integer                :: myid   ! process ID
+  integer                :: nprocs ! total number of processes
+  integer                :: reqS   ! MPI send request handle
+  integer                :: reqR   ! MPI receive request handle
 
   ! Excahnge buffers
   real(c_double) :: Wsend(Nvar), Wrecv(Nvar)
@@ -996,7 +998,7 @@ contains
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
 
-    use ode_mod, only : Nvar, comm, DFID, monitor
+    use ode_mod, only : sunctx, Nvar, comm, DFID, monitor
 
     !======= Declarations =========
     implicit none
@@ -1017,7 +1019,7 @@ contains
     arkmem => arkode_mem
 
     ! Create an empty nonlinear linear solver object
-    sunnls => FSUNNonlinSolNewEmpty()
+    sunnls => FSUNNonlinSolNewEmpty(sunctx)
     if (.not. associated(sunnls)) then
        print *, "Error: FSUNNonlinSolNewEmpty returned NULL"
        call MPI_Abort(comm, 1, ierr)
@@ -1036,7 +1038,7 @@ contains
     nlsops%getnumconvfails = c_funloc(TaskLocalNewton_GetNumConvFails)
 
     ! Create the task local Newton solver
-    sunnls_LOC => FSUNNonlinSol_Newton(sunvec_y)
+    sunnls_LOC => FSUNNonlinSol_Newton(sunvec_y, sunctx)
 
     ! Create vector pointers to receive residual data
     zpred_ptr = FN_VNewVectorArray(1)
@@ -1044,9 +1046,9 @@ contains
     Fi_ptr    = FN_VNewVectorArray(1)
     sdata_ptr = FN_VNewVectorArray(1)
 
-    sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long))
-    sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long))
-    sunls_Jnode  => FSUNLinSol_Dense(sunvec_bnode, sunmat_Jnode)
+    sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long), sunctx)
+    sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long), sunctx)
+    sunls_Jnode  => FSUNLinSol_Dense(sunvec_bnode, sunmat_Jnode, sunctx)
 
     ! initialize number of nonlinear solver function evals and fails
     nnlfi    = 0
@@ -1081,8 +1083,9 @@ program main
   use fnvector_mpiplusx_mod      ! Access MPI+X N_Vector
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
+  use fsundials_context_mod      ! Access sundials context
 
-  use ode_mod, only : comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
+  use ode_mod, only : sunctx, comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
 
   !======= Declarations =========
   implicit none
@@ -1094,6 +1097,7 @@ program main
   integer          :: ierr               ! MPI error status
   integer(c_int)   :: retval             ! SUNDIALS error status
   double precision :: starttime, endtime ! timing variables
+  integer, pointer :: commptr
 
   type(N_Vector), pointer :: sunvec_ys   ! sundials serial vector
   type(N_Vector), pointer :: sunvec_y    ! sundials MPI+X vector
@@ -1110,12 +1114,21 @@ program main
   ! Start timing
   starttime = MPI_Wtime()
 
+  ! Create SUNDIALS simulation context
+  comm = MPI_COMM_WORLD
+  commptr => comm
+  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  if (retval /= 0) then
+     print *, "Error: FSUNContext_Create returned ",retval
+     call MPI_Abort(comm, 1, ierr)
+  end if
+
   ! Process input args and setup the problem
   call SetupProblem()
 
   ! Create solution vector
-  sunvec_ys => FN_VNew_Serial(int(Neq, c_long))
-  sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys)
+  sunvec_ys => FN_VNew_Serial(int(Neq, c_long), sunctx)
+  sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
 
   ! Enable fused vector ops in local and MPI+X vectors
   if (fused) then
@@ -1184,7 +1197,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   use fsundials_nonlinearsolver_mod ! Access generic SUNNonlinearSolver
   use fsunnonlinsol_newton_mod      ! Access Newton SUNNonlinearSolver
 
-  use ode_mod, only : comm, myid, Neq, t0, tf, atol, rtol, order, DFID, &
+  use ode_mod, only : sunctx, comm, myid, Neq, t0, tf, atol, rtol, order, DFID, &
        monitor, global, nout, umask_s, Advection, Reaction
 
   use prec_mod, only : sunls_P, sunmat_P, PSetup, PSolve
@@ -1228,7 +1241,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
   ! Create the ARK timestepper module
   arkode_mem = FARKStepCreate(c_funloc(Advection), c_funloc(Reaction), &
-       t0, sunvec_y)
+       t0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *, "Error: FARKStepCreate returned NULL"
      call MPI_Abort(comm, 1, ierr)
@@ -1273,7 +1286,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   if (global) then
 
      ! Create nonlinear solver
-     sun_NLS => FSUNNonlinSol_Newton(sunvec_y)
+     sun_NLS => FSUNNonlinSol_Newton(sunvec_y, sunctx)
      if (.not. associated(sun_NLS)) then
         print *, "Error: SUNNonlinSol_Newton returned NULL"
         call MPI_Abort(comm, 1, ierr)
@@ -1287,7 +1300,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Create linear solver
-     sun_LS => FSUNLinSol_SPGMR(sunvec_y, PREC_LEFT, 0)
+     sun_LS => FSUNLinSol_SPGMR(sunvec_y, SUN_PREC_LEFT, 0, sunctx)
      if (.not. associated(sun_NLS)) then
         print *, "Error: FSUNLinSol_SPGMR returned NULL"
         call MPI_Abort(comm, 1, ierr)
@@ -1310,8 +1323,8 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Create MPI task-local data structures for preconditioning
-     sunmat_P => FSUNDenseMatrix(int(Neq, c_long), int(Neq, c_long))
-     sunls_P  => FSUNLinSol_Dense(umask_s, sunmat_P)
+     sunmat_P => FSUNDenseMatrix(int(Neq, c_long), int(Neq, c_long), sunctx)
+     sunls_P  => FSUNLinSol_Dense(umask_s, sunmat_P, sunctx)
 
   else
 
@@ -1507,7 +1520,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   use farkode_erkstep_mod   ! Access ERKStep
   use fsundials_nvector_mod ! Access generic N_Vector
 
-  use ode_mod, only : comm, myid, t0, tf, atol, rtol, order, DFID, monitor, &
+  use ode_mod, only : sunctx, comm, myid, t0, tf, atol, rtol, order, DFID, monitor, &
        nout, AdvectionReaction
 
   !======= Declarations =========
@@ -1536,7 +1549,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   !======= Internals ============
 
   ! Create the ERK integrator
-  arkode_mem = FERKStepCreate(c_funloc(AdvectionReaction), t0, sunvec_y)
+  arkode_mem = FERKStepCreate(c_funloc(AdvectionReaction), t0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *, "Error: FERKStepCreate returned NULL"
      call MPI_Abort(comm, 1, ierr)
@@ -2051,15 +2064,13 @@ subroutine SetupProblem()
   !======= Internals ============
 
   ! MPI variables
-  comm = MPI_COMM_WORLD
-
   call MPI_Comm_rank(comm, myid, ierr)
   if (ierr /= MPI_SUCCESS) then
      print *, "Error:MPI_Comm_rank = ", ierr
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  call MPI_Comm_size(MPI_COMM_WORLD, nprocs, ierr)
+  call MPI_Comm_size(comm, nprocs, ierr)
   if (ierr /= MPI_SUCCESS) then
      print *, "Error:MPI_Comm_rank = ", ierr
      call MPI_Abort(comm, 1, ierr)
@@ -2199,8 +2210,8 @@ subroutine SetupProblem()
   dx   = xmax / Nx   ! Nx is number of intervals
 
   ! Create the solution masks
-  umask_s => FN_VNew_Serial(int(Neq, c_long))
-  umask   => FN_VMake_MPIPlusX(comm, umask_s)
+  umask_s => FN_VNew_Serial(int(Neq, c_long), sunctx)
+  umask   => FN_VMake_MPIPlusX(comm, umask_s, sunctx)
 
   if (fused) then
      retval = FN_VEnableFusedOps_Serial(umask_s, SUNTRUE)
@@ -2295,14 +2306,16 @@ subroutine FreeProblem()
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod
   use fsundials_nvector_mod
   use fsundials_matrix_mod
   use fsundials_linearsolver_mod
 
-  use ode_mod, only : myid, nout, umask_s, umask, vmask, wmask
+  use ode_mod, only : sunctx, myid, nout, umask_s, umask, vmask, wmask
 
   !======= Declarations =========
   implicit none
+  integer(c_int) :: ierr
 
   !======= Internals ============
 
@@ -2319,6 +2332,8 @@ subroutine FreeProblem()
      close(102)
      close(103)
   end if
+
+ ierr = FSUNContext_Free(sunctx)
 
 end subroutine FreeProblem
 

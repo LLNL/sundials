@@ -48,6 +48,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fnvector_fortran_mod
   use fnvector_test_mod
 
@@ -55,6 +56,7 @@ program main
   implicit none
 
   ! local variables
+  type(c_ptr)                :: sunctx
   integer(c_int)             :: fails
   integer(c_long)            :: i, j, loc
   integer(c_long), parameter :: N = 1000
@@ -71,36 +73,39 @@ program main
   ! initialize failure total
   fails = 0
 
+  ! create SUNDIALS context
+  fails = FSUNContext_Create(c_null_ptr, sunctx)
+
   ! create new vectors, using New, Make and Clone routines
-  sU => FN_VMake_Fortran(Nvar, N, Udata)
+  sU => FN_VMake_Fortran(Nvar, N, Udata, sunctx)
   if (.not. associated(sU)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   U => FN_VGetFVec(sU)
 
-  sV => FN_VNew_Fortran(Nvar, N)
+  sV => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sV)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   V => FN_VGetFVec(sV)
 
-  sW => FN_VNew_Fortran(Nvar, N)
+  sW => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sW)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   W => FN_VGetFVec(sW)
 
-  sX => FN_VNew_Fortran(Nvar, N)
+  sX => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sX)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   X => FN_VGetFVec(sX)
 
-  sY => FN_VNew_Fortran(Nvar, N)
+  sY => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sY)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -695,6 +700,9 @@ program main
   call FN_VDestroy(sX)
   call FN_VDestroy(sY)
   call FN_VDestroy(sZ)
+
+  ! free SUNDIALS context
+  fails = FSUNContext_Free(sunctx)
 
   ! print results
   if (fails > 0) then

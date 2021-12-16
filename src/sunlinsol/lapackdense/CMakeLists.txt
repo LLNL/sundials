@@ -37,20 +37,3 @@ sundials_add_library(sundials_sunlinsollapackdense
 )
 
 message(STATUS "Added SUNLINSOL_LAPACKDENSE module")
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunlinsollapackdense
-    SOURCES
-    fsunlinsol_lapackdense.c
-    LINK_LIBRARIES
-      PRIVATE sundials_fnvecserial sundials_fsunmatrixdense sundials_sunlinsollapackdense
-    OUTPUT_NAME
-      sundials_fsunlinsollapackdense
-    VERSION
-      ${sunlinsollib_VERSION}
-    SOVERSION
-      ${sunlinsollib_SOVERSION}
-  )
-  message(STATUS "Added SUNLINSOL_LAPACKDENSE F77 interface")
-endif()

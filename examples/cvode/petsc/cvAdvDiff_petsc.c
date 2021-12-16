@@ -98,6 +98,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   N_Vector u;
   SUNNonlinearSolver NLS;
   UserData data;
@@ -124,6 +125,11 @@ int main(int argc, char *argv[])
 
   /* Initialize PETSc */
   retval = PetscInitialize(&argc, &argv, (char*)0, NULL);
+  if(check_retval(&retval, "PetscInitialize", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* Create SUNDIALS context */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set local vector length. */
   nperpe = NEQ/npes;
@@ -133,7 +139,7 @@ int main(int argc, char *argv[])
 
   /* Create the vector */
   ptcerr = VecCreateMPI(comm, local_N, NEQ, &uvec); CHKERRQ(ptcerr);
-  u = N_VMake_Petsc(uvec);
+  u = N_VMake_Petsc(uvec, sunctx);
   if(check_retval((void *)u, "N_VMake_Petsc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Create the user data structure */
@@ -157,7 +163,7 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);
 
   /* Call CVodeCreate to create the solver memory and specify the Adams-Moulton LMM */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -176,7 +182,7 @@ int main(int argc, char *argv[])
 
   /* Create SNES nonlinear solver object */
   ptcerr = SNESCreate(comm, &snes); CHKERRQ(ptcerr);
-  NLS = SUNNonlinSol_PetscSNES(u, snes); /* This will call SNESSetFunction appropriately */
+  NLS = SUNNonlinSol_PetscSNES(u, snes, sunctx); /* This will call SNESSetFunction appropriately */
   if(check_retval((void *)NLS, "SUNNonlinSol_PetscSNES", 0, my_pe)) return(1);
 
   /* Set SNES options */
@@ -216,6 +222,7 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);         /* Free the cvode integrator memory */
   SUNNonlinSolFree(NLS);         /* Free the sundials nonlinear solver */
   free(data);                    /* Free user data */
+  SUNContext_Free(&sunctx);      /* Free context */
 
   MPI_Finalize();
 

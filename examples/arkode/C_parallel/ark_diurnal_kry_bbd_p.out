@@ -5,7 +5,7 @@
     Difference-quotient half-bandwidths are mudq = 10,  mldq = 10
     Retained band block half-bandwidths are mukeep = 2,  mlkeep = 2
 
-Preconditioner type is:  jpre = PREC_LEFT
+Preconditioner type is:  jpre = SUN_PREC_LEFT
 
 t = 7.20e+03   no. steps = 979   stepsize = 3.07e+00
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
@@ -58,7 +58,7 @@ At top right:    c1, c2 =   -4.190e-08    4.163e+11
 
 Final Statistics: 
 
-lenrw   =  2901     leniw   =   225
+lenrw   =  3901     leniw   =   265
 lenrwls =  2455     leniwls =   126
 nst     =  7252     nfe     =     0
 nfe     = 76109     nfels   = 82856
@@ -74,7 +74,7 @@ In ARKBBDPRE: real/integer local work space sizes = 1300, 192
 -------------------------------------------------------------------
 
 
-Preconditioner type is:  jpre = PREC_RIGHT
+Preconditioner type is:  jpre = SUN_PREC_RIGHT
 
 t = 7.20e+03   no. steps = 981   stepsize = 3.07e+00
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
@@ -127,7 +127,7 @@ At top right:    c1, c2 =   -6.607e-08    4.163e+11
 
 Final Statistics: 
 
-lenrw   =  2941     leniw   =   233
+lenrw   =  3901     leniw   =   270
 lenrwls =  2455     leniwls =   126
 nst     =  7364     nfe     =     0
 nfe     = 77457     nfels   = 101131

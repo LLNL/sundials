@@ -743,10 +743,10 @@ SWIGEXPORT int _wrap_FARKodeButcherTable_CheckARKOrder(void *farg1, void *farg2,
 
 SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadDIRK(int const *farg1) {
   void * fresult ;
-  int arg1 ;
+  ARKODE_DIRKTableID arg1 ;
   ARKodeButcherTable result;
   
-  arg1 = (int)(*farg1);
+  arg1 = (ARKODE_DIRKTableID)(*farg1);
   result = (ARKodeButcherTable)ARKodeButcherTable_LoadDIRK(arg1);
   fresult = result;
   return fresult;
@@ -755,10 +755,10 @@ SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadDIRK(int const *farg1) {
 
 SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadERK(int const *farg1) {
   void * fresult ;
-  int arg1 ;
+  ARKODE_ERKTableID arg1 ;
   ARKodeButcherTable result;
   
-  arg1 = (int)(*farg1);
+  arg1 = (ARKODE_ERKTableID)(*farg1);
   result = (ARKodeButcherTable)ARKodeButcherTable_LoadERK(arg1);
   fresult = result;
   return fresult;

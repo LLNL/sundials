@@ -124,18 +124,15 @@ typedef struct _Pthreads_Data Pthreads_Data;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Pthreads(sunindextype vec_length, int n_threads);
+SUNDIALS_EXPORT N_Vector N_VNew_Pthreads(sunindextype vec_length, int n_threads,
+                                         SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int n_threads);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length,
+                                              int n_threads, SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VMake_Pthreads(sunindextype vec_length, int n_threads,
-                                          realtype *v_data);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w);
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count);
+SUNDIALS_EXPORT N_Vector N_VMake_Pthreads(sunindextype vec_length,
+                                          int n_threads, realtype *v_data,
+                                          SUNContext sunctx);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Pthreads(N_Vector v);
 
@@ -147,12 +144,14 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Pthreads(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Pthreads(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Pthreads(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw);
+SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw,
+                                       sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Pthreads(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v);
 
 /* standard vector operations */
-SUNDIALS_EXPORT void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b,
+                                           N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Pthreads(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Pthreads(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_Pthreads(N_Vector x, N_Vector y, N_Vector z);
@@ -163,13 +162,15 @@ SUNDIALS_EXPORT void N_VAddConst_Pthreads(N_Vector x, realtype b, N_Vector z);
 SUNDIALS_EXPORT realtype N_VDotProd_Pthreads(N_Vector x, N_Vector y);
 SUNDIALS_EXPORT realtype N_VMaxNorm_Pthreads(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w,
+                                                  N_Vector id);
 SUNDIALS_EXPORT realtype N_VMin_Pthreads(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWL2Norm_Pthreads(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VL1Norm_Pthreads(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Pthreads(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x,
+                                                   N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Pthreads(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
@@ -206,7 +207,8 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w,
+                                                      N_Vector id);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize_Pthreads(N_Vector x, sunindextype *size);
@@ -221,17 +223,43 @@ SUNDIALS_EXPORT int N_VBufUnpack_Pthreads(N_Vector x, void *buf);
 
 SUNDIALS_EXPORT int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Pthreads(N_Vector v,
+                                                        booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v,
+                                                           booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Pthreads(N_Vector v,
+                                                       booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Pthreads(N_Vector v,
+                                                       booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v,
+                                                          booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v,
+                                                              booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v,
+                                                               booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v,
+                                                                   booleantype tf);
+
+/*
+ * -----------------------------------------------------------------
+ * Deprecated functions
+ * -----------------------------------------------------------------
+ */
+
+/* use N_VCloneVectorArray */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArray_Pthreads(int count,
+                                                                  N_Vector w);
+
+/* use N_VCloneVectorArrayEmpty */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count,
+                                                                       N_Vector w);
+
+/* use N_VDestroyVectorArray */
+SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_Pthreads(N_Vector* vs,
+                                                               int count);
 
 #ifdef __cplusplus
 }

@@ -21,6 +21,7 @@
 module fnvector_serial_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -29,9 +30,6 @@ module fnvector_serial_mod
  public :: FN_VNew_Serial
  public :: FN_VNewEmpty_Serial
  public :: FN_VMake_Serial
- public :: FN_VCloneVectorArray_Serial
- public :: FN_VCloneVectorArrayEmpty_Serial
- public :: FN_VDestroyVectorArray_Serial
  public :: FN_VGetLength_Serial
  public :: FN_VPrint_Serial
  public :: FN_VPrintFile_Serial
@@ -83,58 +81,39 @@ module fnvector_serial_mod
  public :: FN_VEnableConstVectorArray_Serial
  public :: FN_VEnableWrmsNormVectorArray_Serial
  public :: FN_VEnableWrmsNormMaskVectorArray_Serial
+ public :: FN_VCloneVectorArray_Serial
+ public :: FN_VCloneVectorArrayEmpty_Serial
+ public :: FN_VDestroyVectorArray_Serial
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNew_Serial(farg1) &
+function swigc_FN_VNew_Serial(farg1, farg2) &
 bind(C, name="_wrap_FN_VNew_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
+type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VNewEmpty_Serial(farg1) &
+function swigc_FN_VNewEmpty_Serial(farg1, farg2) &
 bind(C, name="_wrap_FN_VNewEmpty_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
+type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VMake_Serial(farg1, farg2) &
+function swigc_FN_VMake_Serial(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VMake_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
-
-function swigc_FN_VCloneVectorArray_Serial(farg1, farg2) &
-bind(C, name="_wrap_FN_VCloneVectorArray_Serial") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR) :: fresult
-end function
-
-function swigc_FN_VCloneVectorArrayEmpty_Serial(farg1, farg2) &
-bind(C, name="_wrap_FN_VCloneVectorArrayEmpty_Serial") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR) :: fresult
-end function
-
-subroutine swigc_FN_VDestroyVectorArray_Serial(farg1, farg2) &
-bind(C, name="_wrap_FN_VDestroyVectorArray_Serial")
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-end subroutine
 
 function swigc_FN_VGetLength_Serial(farg1) &
 bind(C, name="_wrap_FN_VGetLength_Serial") &
@@ -588,96 +567,86 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FN_VCloneVectorArray_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VCloneVectorArray_Serial") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR) :: fresult
+end function
+
+function swigc_FN_VCloneVectorArrayEmpty_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VCloneVectorArrayEmpty_Serial") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_FN_VDestroyVectorArray_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VDestroyVectorArray_Serial")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNew_Serial(vec_length) &
+function FN_VNew_Serial(vec_length, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: vec_length
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = vec_length
-fresult = swigc_FN_VNew_Serial(farg1)
+farg2 = sunctx
+fresult = swigc_FN_VNew_Serial(farg1, farg2)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VNewEmpty_Serial(vec_length) &
+function FN_VNewEmpty_Serial(vec_length, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: vec_length
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = vec_length
-fresult = swigc_FN_VNewEmpty_Serial(farg1)
+farg2 = sunctx
+fresult = swigc_FN_VNewEmpty_Serial(farg1, farg2)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VMake_Serial(vec_length, v_data) &
+function FN_VMake_Serial(vec_length, v_data, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: vec_length
 real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = vec_length
 farg2 = c_loc(v_data(1))
-fresult = swigc_FN_VMake_Serial(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VMake_Serial(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
-
-function FN_VCloneVectorArray_Serial(count, w) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: count
-type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = count
-farg2 = c_loc(w)
-fresult = swigc_FN_VCloneVectorArray_Serial(farg1, farg2)
-swig_result = fresult
-end function
-
-function FN_VCloneVectorArrayEmpty_Serial(count, w) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: count
-type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = count
-farg2 = c_loc(w)
-fresult = swigc_FN_VCloneVectorArrayEmpty_Serial(farg1, farg2)
-swig_result = fresult
-end function
-
-subroutine FN_VDestroyVectorArray_Serial(vs, count)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: vs
-integer(C_INT), intent(in) :: count
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = vs
-farg2 = count
-call swigc_FN_VDestroyVectorArray_Serial(farg1, farg2)
-end subroutine
 
 function FN_VGetLength_Serial(v) &
 result(swig_result)
@@ -1501,6 +1470,50 @@ farg2 = tf
 fresult = swigc_FN_VEnableWrmsNormMaskVectorArray_Serial(farg1, farg2)
 swig_result = fresult
 end function
+
+function FN_VCloneVectorArray_Serial(count, w) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = count
+farg2 = c_loc(w)
+fresult = swigc_FN_VCloneVectorArray_Serial(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VCloneVectorArrayEmpty_Serial(count, w) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = count
+farg2 = c_loc(w)
+fresult = swigc_FN_VCloneVectorArrayEmpty_Serial(farg1, farg2)
+swig_result = fresult
+end function
+
+subroutine FN_VDestroyVectorArray_Serial(vs, count)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: vs
+integer(C_INT), intent(in) :: count
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = vs
+farg2 = count
+call swigc_FN_VDestroyVectorArray_Serial(farg1, farg2)
+end subroutine
 
 
 end module

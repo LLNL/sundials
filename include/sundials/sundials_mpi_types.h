@@ -33,7 +33,3 @@
 #elif defined(SUNDIALS_INT32_T)
   #define MPI_SUNINDEXTYPE MPI_INT32_T
 #endif
-
-/* define legacy SUNDIALS MPI data types */
-#define PVEC_REAL_MPI_TYPE    MPI_SUNREALTYPE
-#define PVEC_INTEGER_MPI_TYPE MPI_SUNINDEXTYPE

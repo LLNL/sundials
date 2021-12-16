@@ -22,24 +22,21 @@
 #include "arkode_impl.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_interp_impl.h"
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
 
-/* constants */
-#define ZERO   RCONST(0.0)
-#define ONE    RCONST(1.0)
+/*===============================================================
+  SHORTCUTS
+  ===============================================================*/
 
+#define ARK_PROFILER ark_mem->sunctx->profiler
 
 /*===============================================================
   ERKStep Exported functions -- Required
   ===============================================================*/
 
-void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
+void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -60,6 +57,12 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
     return(NULL);
   }
 
+  if (!sunctx) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepCreate", MSG_ARK_NULL_SUNCTX);
+    return(NULL);
+  }
+
   /* Test if all required vector operations are implemented */
   nvectorOK = erkStep_CheckNVector(y0);
   if (!nvectorOK) {
@@ -69,7 +72,7 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   }
 
   /* Create ark_mem structure and set default values */
-  ark_mem = arkCreate();
+  ark_mem = arkCreate(sunctx);
   if (ark_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
                     "ERKStepCreate", MSG_ARK_NO_MEM);
@@ -335,6 +338,7 @@ int ERKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
                   realtype *tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
+  int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
@@ -342,13 +346,17 @@ int ERKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkEvolve(ark_mem, tout, yout, tret, itask));
+  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+  retval = arkEvolve(ark_mem, tout, yout, tret, itask);
+  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+  return(retval);
 }
 
 
 int ERKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
+  int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
@@ -356,7 +364,10 @@ int ERKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetDky(ark_mem, t, k, dky));
+  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+  retval = arkGetDky(ark_mem, t, k, dky);
+  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+  return(retval);
 }
 
 
@@ -908,29 +919,29 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
   /* select method based on order */
   switch (step_mem->q) {
   case(2):
-    etable = DEFAULT_ERK_2;
+    etable = ERKSTEP_DEFAULT_2;
     break;
   case(3):
-    etable = DEFAULT_ERK_3;
+    etable = ERKSTEP_DEFAULT_3;
     break;
   case(4):
-    etable = DEFAULT_ERK_4;
+    etable = ERKSTEP_DEFAULT_4;
     break;
   case(5):
-    etable = DEFAULT_ERK_5;
+    etable = ERKSTEP_DEFAULT_5;
     break;
   case(6):
-    etable = DEFAULT_ERK_6;
+    etable = ERKSTEP_DEFAULT_6;
     break;
   case(7):
   case(8):
-    etable = DEFAULT_ERK_8;
+    etable = ERKSTEP_DEFAULT_8;
     break;
   default:    /* no available method, set default */
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
                     "erkStep_SetButcherTable",
                     "No explicit method at requested order, using q=6.");
-    etable = DEFAULT_ERK_6;
+    etable = ERKSTEP_DEFAULT_6;
     break;
   }
 

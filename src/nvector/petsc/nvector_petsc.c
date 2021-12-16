@@ -115,7 +115,8 @@ N_Vector_ID N_VGetVectorID_Petsc(N_Vector v)
 
 N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
                            sunindextype local_length,
-                           sunindextype global_length)
+                           sunindextype global_length,
+                           SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Petsc content;
@@ -133,7 +134,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -183,6 +184,10 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Petsc;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Petsc;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal     = N_VDotProdMultiLocal_Petsc;
+  v->ops->nvdotprodmultiallreduce = N_VDotProdMultiAllReduce_Petsc;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Petsc;
   v->ops->nvbufpack   = N_VBufPack_Petsc;
@@ -212,7 +217,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
  * Function to create an N_Vector wrapper for a PETSc vector.
  */
 
-N_Vector N_VMake_Petsc(Vec pvec)
+N_Vector N_VMake_Petsc(Vec pvec, SUNContext sunctx)
 {
   N_Vector v = NULL;
   MPI_Comm comm;
@@ -223,7 +228,7 @@ N_Vector N_VMake_Petsc(Vec pvec)
   VecGetSize(pvec, &global_length);
   PetscObjectGetComm((PetscObject) pvec, &comm);
 
-  v = N_VNewEmpty_Petsc(comm, local_length, global_length);
+  v = N_VNewEmpty_Petsc(comm, local_length, global_length, sunctx);
   if (v == NULL)
      return(NULL);
 
@@ -240,25 +245,7 @@ N_Vector N_VMake_Petsc(Vec pvec)
 
 N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Petsc(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Petsc(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -268,25 +255,7 @@ N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w)
 
 N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Petsc(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Petsc(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -295,13 +264,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Petsc(vs[j]);
-
-  free(vs);
-  vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -371,7 +334,7 @@ N_Vector N_VCloneEmpty_Petsc(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -1075,6 +1038,45 @@ int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   return(0);
 }
 
+/*
+ * -----------------------------------------------------------------------------
+ * single buffer reduction operations
+ * -----------------------------------------------------------------------------
+ */
+
+int N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x, N_Vector* Y,
+                               realtype* dotprods)
+{
+  int j;
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
+  Vec xv = NV_PVEC_PTC(x);
+  Vec yv;
+  PetscScalar *xd;
+  PetscScalar *yd;
+
+  VecGetArray(xv, &xd);
+  for (j = 0; j < nvec; j++) {
+    yv = NV_PVEC_PTC(Y[j]);
+    VecGetArray(yv, &yd);
+    dotprods[j] = ZERO;
+    for (i = 0; i < N; i++) {
+      dotprods[j] += xd[i] * yd[i];
+    }
+    VecRestoreArray(yv, &yd);
+  }
+  VecRestoreArray(xv, &xd);
+
+  return (0);
+}
+
+int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x, realtype* dotprods)
+{
+  int retval;
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
+                         MPI_SUM, NV_COMM_PTC(x));
+  return retval == MPI_SUCCESS ? 0 : -1;
+}
 
 /*
  * -----------------------------------------------------------------------------
@@ -1615,6 +1617,8 @@ int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Petsc;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Petsc;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_Petsc;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -1628,6 +1632,8 @@ int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1810,6 +1816,24 @@ int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf)
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
   else
     v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMultiLocal_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_Petsc;
+  else
+    v->ops->nvdotprodmultilocal = NULL;
 
   /* return success */
   return(0);

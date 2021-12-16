@@ -35,10 +35,10 @@
  * Output is printed at t = .5, 1.0, ..., 5.
  * Run statistics (optional outputs) are printed at the end.
  *
- * This example uses Hypre vector with "IJ" interface and MPI 
- * parallelization. User is expected to be familiar with the Hypre 
- * library. 
- * 
+ * This example uses Hypre vector with "IJ" interface and MPI
+ * parallelization. User is expected to be familiar with the Hypre
+ * library.
+ *
  * Execute with Number of Processors = N,  with 1 <= N <= MX.
  * -----------------------------------------------------------------
  */
@@ -71,7 +71,7 @@
 #define DTOUT RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-/* Type : UserData 
+/* Type : UserData
    contains grid constants, parhyp machine parameters, work array. */
 
 typedef struct {
@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
   SUNNonlinearSolver NLS;
+  SUNContext sunctx;
 
   MPI_Comm comm;
 
@@ -127,12 +128,16 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
 
+  /* Create SUNDIALS context */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if (check_retval(&retval, "SUNContex_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Set partitioning. */
   nperpe = NEQ/npes;
   nrem = NEQ - npes*nperpe;
   local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
-  
+
   /* Allocate hypre vector */
   HYPRE_IJVectorCreate(comm, my_base, my_base + local_N - 1, &Uij);
   HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
@@ -158,12 +163,12 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
-  u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
+  u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
   if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-  
-  /* Call CVodeCreate to create the solver memory and specify the 
+
+  /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -181,7 +186,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
 
   /* create fixed point nonlinear solver object */
-  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
   if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) return(1);
 
   /* attach nonlinear solver object to CVode */
@@ -208,7 +213,7 @@ int main(int argc, char *argv[])
     if (my_pe == 0) PrintData(t, umax, nst);
   }
 
-  if (my_pe == 0) 
+  if (my_pe == 0)
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
   N_VDestroy(u);              /* Free hypre vector wrapper */
@@ -216,6 +221,7 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
   free(data);                 /* Free user data */
+  SUNContext_Free(&sunctx);      /* Free context */
 
   MPI_Finalize();
 
@@ -281,7 +287,7 @@ static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nni, ncfn, netf;
   int retval;
-  
+
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   check_retval(&retval, "CVodeGetNumSteps", 1, 0);
   retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
@@ -314,10 +320,10 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
 
-  /* Extract hypre vectors */  
+  /* Extract hypre vectors */
   uhyp  = N_VGetVector_ParHyp(u);
   udothyp  = N_VGetVector_ParHyp(udot);
-  
+
   /* Access hypre vectors local data */
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
   udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
@@ -329,10 +335,10 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Extract parameters for parhyp computation. */
   comm = data->comm;
-  npes = data->npes;                           /* Number of processes    */ 
+  npes = data->npes;                           /* Number of processes    */
   my_pe = data->my_pe;                         /* Current process number */
   my_length =  hypre_ParVectorLastIndex(uhyp)  /* Local length of uhyp   */
-             - hypre_ParVectorFirstIndex(uhyp) + 1;  
+             - hypre_ParVectorFirstIndex(uhyp) + 1;
   z = data->z;
 
   /* Compute related parameters. */
@@ -348,17 +354,17 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   if (my_pe != 0)
     MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
   if (my_pe != last_pe)
-    MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);   
+    MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
 
   /* Receive needed data from processes before and after current process. */
   if (my_pe != 0)
     MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
-  else 
+  else
     z[0] = ZERO;
   if (my_pe != last_pe)
     MPI_Recv(&z[my_length+1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
-             &status);   
-  else 
+             &status);
+  else
     z[my_length + 1] = ZERO;
 
   /* Loop over all grid points in current process. */

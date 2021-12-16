@@ -92,20 +92,22 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
-  use farkode_mod                ! Fortran interface to the ARKode module
-  use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
+  use farkode_mod                ! Fortran interface to the ARKODE
+  use farkode_arkstep_mod        ! Fortran interface to the ARKStep time-stepper module
   use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
   use fsundials_matrix_mod       ! Fortran interface to the generic SUNMatrix
   use fsundials_linearsolver_mod ! Fortran interface to the generic SUNLinearSolver
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
+  use fsundials_context_mod      ! Fortran interface to SUNContext
   use ode_mod                    ! ODE functions
 
   !======= Declarations =========
   implicit none
 
   ! local variables
+  type(c_ptr)    :: ctx                      ! SUNDIALS context for the simulation
   real(c_double) :: tstart                   ! initial time
   real(c_double) :: tend                     ! final time
   real(c_double) :: rtol, atol               ! relative and absolute tolerance
@@ -126,6 +128,9 @@ program main
 
   !======= Internals ============
 
+  ! create the SUNDIALS context
+  ierr = FSUNContext_Create(c_null_ptr, ctx)
+
   ! initialize ODE
   tstart = 0.0d0
   tend   = 10.0d0
@@ -135,7 +140,7 @@ program main
   nout   = ceiling(tend/dtout)
 
   ! create SUNDIALS N_Vector
-  sunvec_y => FN_VNew_Serial(neq)
+  sunvec_y => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -146,17 +151,17 @@ program main
   call FN_VConst(0.0d0, sunvec_y)
 
   ! create ARKStep memory
-  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(RhsFn), tstart, sunvec_y)
+  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(RhsFn), tstart, sunvec_y, ctx)
   if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
 
   ! Tell ARKODE to use a dense linear solver.
-  sunmat_A => FSUNDenseMatrix(neq, neq)
+  sunmat_A => FSUNDenseMatrix(neq, neq, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
-  sunls => FSUNDenseLinearSolver(sunvec_y, sunmat_A)
+  sunls => FSUNLinSol_Dense(sunvec_y, sunmat_A, ctx)
   if (.not. associated(sunls)) then
      print *, 'ERROR: sunls = NULL'
      stop 1
@@ -217,6 +222,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
+  ierr = FSUNContext_Free(ctx)
 
 end program main
 

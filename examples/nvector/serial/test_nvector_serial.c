@@ -34,16 +34,19 @@ int main(int argc, char *argv[])
   N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
   int          print_timing;      /* turn timing on/off        */
 
+  Test_Init(NULL);
 
   /* check input and set vector length */
   if (argc < 3){
     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
+    Test_Finalize();
     return(-1);
   }
 
   length = (sunindextype) atol(argv[1]);
   if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
+    Test_Finalize();
     return(-1);
   }
 
@@ -54,16 +57,18 @@ int main(int argc, char *argv[])
   printf("Vector length %ld \n", (long int) length);
 
   /* Create new vectors */
-  W = N_VNewEmpty_Serial(length);
+  W = N_VNewEmpty_Serial(length, sunctx);
   if (W == NULL) {
     printf("FAIL: Unable to create a new empty vector \n\n");
+    Test_Finalize();
     return(1);
   }
 
-  X = N_VNew_Serial(length);
+  X = N_VNew_Serial(length, sunctx);
   if (X == NULL) {
     N_VDestroy(W);
     printf("FAIL: Unable to create a new vector \n\n");
+    Test_Finalize();
     return(1);
   }
 
@@ -92,6 +97,7 @@ int main(int argc, char *argv[])
     N_VDestroy(W);
     N_VDestroy(X);
     printf("FAIL: Unable to create a new vector \n\n");
+    Test_Finalize();
     return(1);
   }
 
@@ -101,6 +107,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Y);
     printf("FAIL: Unable to create a new vector \n\n");
+    Test_Finalize();
     return(1);
   }
 
@@ -131,7 +138,7 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VNew_Serial(length);
+  U = N_VNew_Serial(length, sunctx);
   retval = N_VEnableFusedOps_Serial(U, SUNFALSE);
   if (U == NULL || retval != 0) {
     N_VDestroy(W);
@@ -139,6 +146,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     N_VDestroy(Z);
     printf("FAIL: Unable to create a new vector \n\n");
+    Test_Finalize();
     return(1);
   }
 
@@ -160,7 +168,7 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VNew_Serial(length);
+  V = N_VNew_Serial(length, sunctx);
   retval = N_VEnableFusedOps_Serial(V, SUNTRUE);
   if (V == NULL || retval != 0) {
     N_VDestroy(W);
@@ -169,6 +177,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(U);
     printf("FAIL: Unable to create a new vector \n\n");
+    Test_Finalize();
     return(1);
   }
 
@@ -199,6 +208,10 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
   fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
+  /* local fused reduction operations */
+  printf("\nTesting local fused reduction operations:\n\n");
+  fails += Test_N_VDotProdMultiLocal(V, length, 0);
+
   /* XBraid interface operations */
   printf("\nTesting XBraid interface operations:\n\n");
 
@@ -221,6 +234,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
+  Test_Finalize();
   return(fails);
 }
 

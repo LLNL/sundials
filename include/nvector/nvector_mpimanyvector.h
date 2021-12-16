@@ -66,10 +66,12 @@ typedef struct _N_VectorContent_MPIManyVector *N_VectorContent_MPIManyVector;
 
 SUNDIALS_EXPORT N_Vector N_VMake_MPIManyVector(MPI_Comm comm,
                                                sunindextype num_subvectors,
-                                               N_Vector *vec_array);
+                                               N_Vector *vec_array,
+                                               SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
-                                              N_Vector *vec_array);
+                                              N_Vector *vec_array,
+                                              SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VGetSubvector_MPIManyVector(N_Vector v,
                                                        sunindextype vec_num);
@@ -129,6 +131,14 @@ SUNDIALS_EXPORT int N_VDotProdMulti_MPIManyVector(int nvec, N_Vector x,
                                                   N_Vector *Y,
                                                   realtype* dotprods);
 
+/* single buffer reduction operations */
+SUNDIALS_EXPORT int N_VDotProdMultiLocal_MPIManyVector(int nvec, N_Vector x,
+                                                       N_Vector *Y,
+                                                       realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total,
+                                                           N_Vector x,
+                                                           realtype* sum);
+
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_MPIManyVector(int nvec,
                                                           realtype a, N_Vector* X,
@@ -180,6 +190,8 @@ SUNDIALS_EXPORT int N_VEnableScaleVectorArray_MPIManyVector(N_Vector v, booleant
 SUNDIALS_EXPORT int N_VEnableConstVectorArray_MPIManyVector(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_MPIManyVector(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_MPIManyVector(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_MPIManyVector(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

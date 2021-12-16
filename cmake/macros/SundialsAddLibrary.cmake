@@ -235,7 +235,8 @@ macro(sundials_add_library target)
         endif()
         foreach(_tmp ${_all_objs})
           # We use target_sources since target_link_libraries does not work
-          # properly with CMake 3.12.
+          # as expected with CMake 3.12 (see CMake issues 18090 and 18692).
+          # TODO(DJG): Update whenever we require CMake 3.14 or 3.21
           target_sources(${_actual_target_name} PRIVATE $<TARGET_OBJECTS:${_tmp}>)
         endforeach()
       endif()
@@ -246,6 +247,16 @@ macro(sundials_add_library target)
       endif()
       if(sundials_add_library_LINK_LIBRARIES)
         target_link_libraries(${_actual_target_name} ${sundials_add_library_LINK_LIBRARIES})
+      endif()
+
+      if(SUNDIALS_BUILD_WITH_PROFILING)
+        if(ENABLE_MPI AND MPI_C_FOUND)
+          # Workaround issues with sundials_generic object library dependency on
+          # MPI not getting propagated when building examples.
+          # Workaround bug in CMake < 3.17.3 when using MPI::MPI_C and CUDA
+          target_include_directories(${_actual_target_name} PUBLIC ${MPI_C_INCLUDE_DIRS})
+          target_link_libraries(${_actual_target_name} PUBLIC ${MPI_C_LIBRARIES})
+        endif()
       endif()
 
       # add common includes
@@ -402,6 +413,12 @@ macro(sundials_add_f2003_library target)
   string(REPLACE "sundials_f" "sundials_" _clib_name "${target}")
   string(REPLACE "_mod" "" _clib_name "${_clib_name}")
 
+  # If SundialsSetupFortran.cmake did not set CMAKE_Fortran_PREPROCESS to ON,
+  # then add a compiler flag to preprocess Fortran code.
+  if(CMAKE_VERSION VERSION_LESS "3.18")
+    set(_preprocess PRIVATE -cpp)
+  endif()
+
   sundials_add_library(${target}
     SOURCES ${sundials_add_f2003_library_SOURCES}
     OBJECT_LIBRARIES ${sundials_add_f2003_library_OBJECT_LIBRARIES}
@@ -412,7 +429,7 @@ macro(sundials_add_f2003_library target)
       ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
       ${_includes}
     COMPILE_DEFINITIONS ${sundials_add_f2003_library_COMPILE_DEFINITIONS}
-    COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS}
+    COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS} ${_preprocess}
     PROPERTIES ${sundials_add_f2003_library_PROPERTIES} ${_properties}
     OUTPUT_NAME ${sundials_add_f2003_library_OUTPUT_NAME}
     VERSION ${sundials_add_f2003_library_VERSION}

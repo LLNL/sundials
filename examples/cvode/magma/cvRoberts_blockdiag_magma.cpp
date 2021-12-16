@@ -115,14 +115,12 @@ typedef struct {
 
 int main(int argc, char *argv[])
 {
-  SUNMemoryHelper memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip();,
-                                           SUNMemoryHelper_Cuda(); )
-
   realtype reltol, t, tout;
   realtype *ydata, *abstol_data;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNMemoryHelper memhelper;
   void *cvode_mem;
   int retval, iout;
   int neq, ngroups, groupj;
@@ -132,6 +130,12 @@ int main(int argc, char *argv[])
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
+
+  /* Create the SUNDIALS context */
+  sundials::Context sunctx;
+
+  memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip(sunctx);,
+                           SUNMemoryHelper_Cuda(sunctx); )
 
   /* Parse command line arguments */
   if (argc > 1) {
@@ -145,8 +149,8 @@ int main(int argc, char *argv[])
   udata.neq = neq;
 
   /* Create CUDA or HIP vector of length neq for I.C. and abstol */
-  y = HIP_OR_CUDA( N_VNew_Hip(neq);,
-                   N_VNew_Cuda(neq); )
+  y = HIP_OR_CUDA( N_VNew_Hip(neq, sunctx);,
+                   N_VNew_Cuda(neq, sunctx); )
   if (check_retval((void *)y, "N_VNew", 0)) return(1);
   abstol = N_VClone(y);
   if (check_retval((void *)abstol, "N_VClone", 0)) return(1);
@@ -176,7 +180,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -195,11 +199,12 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
   /* Create SUNMatrix for use in linear solves */
-  A = SUNMatrix_MagmaDenseBlock(ngroups, GROUPSIZE, GROUPSIZE, SUNMEMTYPE_DEVICE, memhelper, NULL);
+  A = SUNMatrix_MagmaDenseBlock(ngroups, GROUPSIZE, GROUPSIZE, SUNMEMTYPE_DEVICE,
+                                memhelper, NULL, sunctx);
   if(check_retval((void *)A, "SUNMatrix_MagmaDenseBlock", 0)) return(1);
 
   /* Create the SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_MagmaDense(y, A);
+  LS = SUNLinSol_MagmaDense(y, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_MagmaDense", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */

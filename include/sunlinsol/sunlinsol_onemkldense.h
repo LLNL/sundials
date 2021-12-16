@@ -40,7 +40,7 @@ struct _SUNLinearSolverContent_OneMklDense
   SUNMemory       s_scratchpad;   /* scratchpad memory        */
   SUNMemoryType   mem_type;       /* memory type              */
   SUNMemoryHelper mem_helper;     /* memory helper            */
-  sycl::queue*    queue;          /* operation queue          */
+  ::sycl::queue*  queue;          /* operation queue          */
 };
 
 typedef struct _SUNLinearSolverContent_OneMklDense *SUNLinearSolverContent_OneMklDense;
@@ -50,7 +50,7 @@ typedef struct _SUNLinearSolverContent_OneMklDense *SUNLinearSolverContent_OneMk
  * ---------------------------------------------------------------------------*/
 
 SUNDIALS_EXPORT
-SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix A);
+SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix A, SUNContext sunctx);
 
 SUNDIALS_STATIC_INLINE
 SUNLinearSolver_Type SUNLinSolGetType_OneMklDense(SUNLinearSolver S) { return SUNLINEARSOLVER_DIRECT; };

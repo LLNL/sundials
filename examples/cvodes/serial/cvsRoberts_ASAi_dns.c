@@ -131,6 +131,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   UserData data;
 
   SUNMatrix A, AB;
@@ -178,15 +179,19 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initialize y */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   Ith(y,1) = RCONST(1.0);
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
   /* Initialize q */
-  q = N_VNew_Serial(1);
+  q = N_VNew_Serial(1, sunctx);
   if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
@@ -199,7 +204,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
      Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -218,11 +223,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -317,14 +322,14 @@ int main(int argc, char *argv[])
   */
 
   /* Initialize yB */
-  yB = N_VNew_Serial(NEQ);
+  yB = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
   Ith(yB,1) = ZERO;
   Ith(yB,2) = ZERO;
   Ith(yB,3) = ZERO;
 
   /* Initialize qB */
-  qB = N_VNew_Serial(NP);
+  qB = N_VNew_Serial(NP, sunctx);
   if (check_retval((void *)qB, "N_VNew", 0)) return(1);
   Ith(qB,1) = ZERO;
   Ith(qB,2) = ZERO;
@@ -361,11 +366,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  AB = SUNDenseMatrix(NEQ, NEQ);
+  AB = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_retval((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB = SUNLinSol_Dense(yB, AB);
+  LSB = SUNLinSol_Dense(yB, AB, sunctx);
   if (check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -497,6 +502,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LSB);
   SUNMatDestroy(AB);
+  SUNContext_Free(&sunctx);
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);

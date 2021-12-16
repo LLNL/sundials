@@ -19,19 +19,19 @@
 
 /*
     Copyright (c) 2003, The Regents of the University of California, through
-    Lawrence Berkeley National Laboratory (subject to receipt of any required 
-    approvals from U.S. Dept. of Energy) 
+    Lawrence Berkeley National Laboratory (subject to receipt of any required
+    approvals from U.S. Dept. of Energy)
 
-    All rights reserved. 
+    All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met: 
+    modification, are permitted provided that the following conditions are met:
 
     (1) Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer. 
+    this list of conditions and the following disclaimer.
     (2) Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
     (3) Neither the name of Lawrence Berkeley National Laboratory, U.S. Dept. of
     Energy nor the names of its contributors may be used to endorse or promote
     products derived from this software without specific prior written permission.
@@ -46,7 +46,7 @@
     PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
     LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
     NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /*! @file dreadrb.c
@@ -325,7 +325,7 @@ FormFullA(sunindextype n, sunindextype *nonz, realtype **nzval, sunindextype **r
 }
 
 void
-dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout)
+dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout, SUNContext sunctx)
 {
     register sunindextype i, numer_lines = 0;
     sunindextype tmp, colnum, colsize, rownum, rowsize, valnum, valsize, nrow, ncol, nonz;
@@ -384,7 +384,7 @@ dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout)
     }
 #endif
 
-    A = SUNSparseMatrix(nrow, ncol, nonz, CSC_MAT);
+    A = SUNSparseMatrix(nrow, ncol, nonz, CSC_MAT, sunctx);
     if (A == NULL) DREADRB_ABORT("SUNSparseMatrix returned NULL!\n");
 
     /* Grab storage for the three arrays ( nzval, rowind, colptr ) */

@@ -124,6 +124,11 @@ int main(int argc, char *argv[])
   ::RAJA::sycl::detail::setQueue(sycl_res);
 #endif
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  ier = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&ier, "SUNContext_Create", 1)) return 1;
+
   /* Assign parameters in the user data structure. */
 
   data = (UserData) malloc(sizeof *data);
@@ -137,7 +142,7 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors and the user data structure objects. */
 
-  uu = N_VNew_Raja(data->neq);
+  uu = N_VNew_Raja(data->neq, ctx);
   if(check_flag((void *)uu, "N_VNew_Raja", 0)) return(1);
 
   up = N_VClone(uu);
@@ -169,7 +174,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
 
   ier = IDASetUserData(mem, data);
@@ -187,11 +192,11 @@ int main(int argc, char *argv[])
 
   /* Create the linear solver SUNSPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
   if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
-  ier = SUNSPGMRSetMaxRestarts(LS, 5);
+  ier = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
   if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
@@ -213,7 +218,7 @@ int main(int argc, char *argv[])
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
+  printf("\n\nCase 1: gsytpe = SUN_MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -256,12 +261,12 @@ int main(int argc, char *argv[])
   ier = IDAReInit(mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1)) return(1);
 
-  ier = SUNSPGMRSetGSType(LS, CLASSICAL_GS);
+  ier = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
   if(check_flag(&ier, "SUNSPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
+  printf("\n\nCase 2: gstype = SUN_CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -300,6 +305,8 @@ int main(int argc, char *argv[])
 
   N_VDestroy(data->pp);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

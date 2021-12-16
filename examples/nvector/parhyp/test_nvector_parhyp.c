@@ -45,7 +45,10 @@ int main(int argc, char *argv[])
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
+
   comm = MPI_COMM_WORLD;
+  Test_Init(&comm);
+
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
 
@@ -53,14 +56,14 @@ int main(int argc, char *argv[])
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    MPI_Abort(comm, -1);
+    Test_AbortMPI(&comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    MPI_Abort(comm, -1);
+    Test_AbortMPI(&comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -85,7 +88,7 @@ int main(int argc, char *argv[])
     if (local_length < 1) {
       printf("Using global partition.\n");
       printf("I don't do this stuff. Now exiting...\n");
-      MPI_Abort(comm, 1);
+      Test_AbortMPI(&comm, 1);
     }
   }
 
@@ -94,13 +97,13 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorInitialize(Xhyp);
 
   /* Create hypre ParVector N_Vector wrapper and test */
-  X = N_VMake_ParHyp(Xhyp);
+  X = N_VMake_ParHyp(Xhyp, sunctx);
   fails += Test_N_VMake(X, local_length, myid);
   if (fails != 0) {
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* Check vector ID */
@@ -124,7 +127,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   Z = N_VClone(X);
@@ -133,7 +136,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -163,7 +166,7 @@ int main(int argc, char *argv[])
   if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VMake_ParHyp(Xhyp);
+  U = N_VMake_ParHyp(Xhyp, sunctx);
   retval = N_VEnableFusedOps_ParHyp(U, SUNFALSE);
   if (U == NULL || retval != 0) {
     N_VDestroy(X);
@@ -171,7 +174,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* fused operations */
@@ -192,7 +195,7 @@ int main(int argc, char *argv[])
   if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VMake_ParHyp(Xhyp);
+  V = N_VMake_ParHyp(Xhyp, sunctx);
   retval = N_VEnableFusedOps_ParHyp(V, SUNTRUE);
   if (V == NULL || retval != 0) {
     N_VDestroy(X);
@@ -201,7 +204,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* fused operations */
@@ -219,7 +222,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
   /* local reduction operations */
-  printf("\nTesting local reduction operations:\n\n");
+  if (myid == 0) printf("\nTesting local reduction operations:\n\n");
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
   fails += Test_N_VMaxNormLocal(X, local_length, myid);
@@ -231,8 +234,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
 
+  /* local fused reduction operations */
+  if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+  fails += Test_N_VDotProdMultiLocal(V, local_length, myid);
+  fails += Test_N_VDotProdMultiAllReduce(V, local_length, myid);
+
   /* XBraid interface operations */
-  printf("\nTesting XBraid interface operations:\n\n");
+  if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
 
   fails += Test_N_VBufSize(X, local_length, myid);
   fails += Test_N_VBufPack(X, local_length, myid);
@@ -260,8 +268,8 @@ int main(int argc, char *argv[])
   /* check if any other process failed */
   (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
 
+  Test_Finalize();
   MPI_Finalize();
-
   return(globfails);
 }
 

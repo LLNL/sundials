@@ -17,6 +17,7 @@
 
 module test_fsunmatrix_band
   use, intrinsic :: iso_c_binding
+  use test_utilities
   implicit none
 
   integer(C_LONG), parameter :: N  = 4
@@ -33,7 +34,6 @@ contains
     use fsundials_matrix_mod
     use fsunmatrix_band_mod
     use fnvector_serial_mod
-    use test_utilities
 
     !======== Declarations ========
     implicit none
@@ -47,13 +47,13 @@ contains
     type(C_PTR),     pointer :: cptr
 
     fails = 0
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
 
     !===== Calls to interface =====
 
     ! constructor
-    A => FSUNBandMatrix(N, mu, ml)
+    A => FSUNBandMatrix(N, mu, ml, sunctx)
     if (.not. associated(A)) then
       print *,'>>> FAILED - ERROR in FSUNBandMatrix; halting'
       fails = 1
@@ -111,10 +111,10 @@ contains
 
     fails = 0
 
-    A => FSUNBandMatrix(N, mu, ml)
-    I => FSUNBandMatrix(N, 0_8, 0_8)
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
+    A => FSUNBandMatrix(N, mu, ml, sunctx)
+    I => FSUNBandMatrix(N, 0_8, 0_8, sunctx)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
 
     ! Fill identity matrix
     Idata => FSUNBandMatrix_Data(I)
@@ -185,6 +185,8 @@ program main
   !============== Introduction =============
   print *, 'Band SUNMatrix Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -192,6 +194,8 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
 
 end program main
 

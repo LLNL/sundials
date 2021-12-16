@@ -36,9 +36,15 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-# Using hypre requres building with MPI enabled
-if(ENABLE_HYPRE AND NOT ENABLE_MPI)
-  print_error("MPI is required for hypre support. Set ENABLE_MPI to ON.")
+if(ENABLE_HYPRE)
+  # Using hypre requres building with MPI enabled
+  if(NOT ENABLE_MPI)
+    print_error("MPI is required for hypre support. Set ENABLE_MPI to ON.")
+  endif()
+  # Using hypre requres C99 or newer
+  if(CMAKE_C_STANDARD STREQUAL "90")
+    message(SEND_ERROR "CMAKE_C_STANDARD must be >= c99 with ENABLE_HYPRE=ON")
+  endif()
 endif()
 
 # -----------------------------------------------------------------------------
@@ -63,11 +69,12 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
 
   # Create a CMakeLists.txt file
   file(WRITE ${HYPRE_TEST_DIR}/CMakeLists.txt
-  "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
+  "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
   "PROJECT(ltest C)\n"
   "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
   "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
   "SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})\n"
+  "SET(CMAKE_C_STANDARD \"${CMAKE_C_STANDARD}\")\n"
   "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
   "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
   "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"

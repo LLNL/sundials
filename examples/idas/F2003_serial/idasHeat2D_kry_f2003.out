@@ -1,18 +1,18 @@
-
+  
  idasHeat2D_kry: Heat equation, serial example problem for IDA
           Discretized heat equation on 2D unit square.
           Zero boundary conditions, polynomial initial conditions.
          Mesh dimensions: 10 x 10        Total system size: 100
-
+  
 Tolerance parameters:  rtol = 0.000   atol = 0.001
  Constraints set to force all solution components >= 0.
  Linear solver: SPGMR, preconditioner using diagonal elements.
-
-
- Case 1: gsytpe = MODIFIED_GS
-
+  
+  
+ Case 1: gsytpe = SUN_MODIFIED_GS
+  
     Output Summary (umax = max-norm of solution)
-
+  
    time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps
  ----------------------------------------------------------------------
  0.01   8.24106E-01 2   12   14    7    14     7   2.56E-03    8  21
@@ -26,16 +26,16 @@ Tolerance parameters:  rtol = 0.000   atol = 0.001
  2.56   0.00000E+00 1   43   55   77    55    77   1.69E+00   16 132
  5.12   0.00000E+00 1   44   56   77    56    77   3.37E+00   17 133
 10.24   0.00000E+00 1   45   57   77    57    77   6.74E+00   18 134
-
+  
 Error test failures            = 1
 Nonlinear convergence failures = 0
 Linear convergence failures    = 0
-
-
- Case 2: gsytpe = CLASSICAL_GS
-
+  
+  
+ Case 2: gsytpe = SUN_CLASSICAL_GS
+  
     Output Summary (umax = max-norm of solution)
-
+  
    time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps
  ----------------------------------------------------------------------
  0.01   8.24106E-01 2   12   14    7    14     7   2.56E-03    8  21
@@ -49,7 +49,7 @@ Linear convergence failures    = 0
  2.56   0.00000E+00 1   43   55   77    55    77   1.69E+00   16 132
  5.12   0.00000E+00 1   44   56   77    56    77   3.37E+00   17 133
 10.24   0.00000E+00 1   45   57   77    57    77   6.74E+00   18 134
-
+  
 Error test failures            = 1
 Nonlinear convergence failures = 0
 Linear convergence failures    = 0

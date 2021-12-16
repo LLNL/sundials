@@ -101,6 +101,11 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   set(_fused_link_lib sundials_cvode_fused_stubs)
 endif()
 
+if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
+  set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
+  set(_link_caliper_if_needed PUBLIC caliper)
+endif()
+
 # Create the library
 sundials_add_library(sundials_cvode
   SOURCES
@@ -109,8 +114,11 @@ sundials_add_library(sundials_cvode
     ${cvode_HEADERS}
   INCLUDE_SUBDIR
     cvode
+  INCLUDE_DIRECTORIES
+    ${_include_caliper_if_needed}
   OBJECT_LIBRARIES
     sundials_generic_obj
+    sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
@@ -127,6 +135,8 @@ sundials_add_library(sundials_cvode
   LINK_LIBRARIES
     # Link to stubs so examples work.
     PRIVATE ${_fused_link_lib}
+    # Link to caliper if conditions are met.
+    ${_link_caliper_if_needed}
   OUTPUT_NAME
     sundials_cvode
   VERSION
@@ -141,8 +151,4 @@ message(STATUS "Added CVODE module")
 # Add F2003 module if the interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
-endif()
-
-if(BUILD_FORTRAN77_INTERFACE)
-  add_subdirectory(fcmix)
 endif()

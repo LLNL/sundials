@@ -19,7 +19,7 @@
 # -----------------------------------------------------------------
 
 # Set the minimum required cmake version
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_C_COMPILER
@@ -30,6 +30,11 @@ set(CMAKE_C_FLAGS
   "@Trilinos_C_COMPILER_FLAGS@"
   CACHE STRING "Trilinos C compiler flags")
 
+if("@CMAKE_C_STANDARD@")
+  set(CMAKE_C_STANDARD "@CMAKE_C_STANDARD@"
+    CACHE STRING "C standard")
+endif()
+
 set(CMAKE_CXX_COMPILER
   @Trilinos_CXX_COMPILER@
   CACHE FILEPATH "Trilinos C++ compiler")
@@ -37,6 +42,10 @@ set(CMAKE_CXX_COMPILER
 set(CMAKE_CXX_FLAGS
   "@Trilinos_CXX_COMPILER_FLAGS@"
   CACHE STRING "Trilinos C++ compiler flags")
+
+set(CMAKE_CXX_STANDARD
+  @CMAKE_CXX_STANDARD@
+  CACHE STRING "C++ standard")
 
 # Specify project name and languages
 project(@SOLVER@_CXX_trilinos_examples C CXX)

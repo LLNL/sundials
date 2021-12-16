@@ -22,13 +22,16 @@ module farkode_arkstep_mod
  use, intrinsic :: ISO_C_BINDING
  use farkode_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_types_mod
@@ -36,22 +39,22 @@ module farkode_arkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_2 = 100_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_3 = 104_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_4 = 107_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_5 = 111_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_3 = 2_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_4 = 4_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_5 = 9_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_3 = 104_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_4 = 109_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_5 = 111_C_INT
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
  public :: FARKStepCreate
  public :: FARKStepResize
  public :: FARKStepReInit
@@ -198,12 +201,10 @@ module farkode_arkstep_mod
  public :: FARKStepFree
  public :: FARKStepPrintMem
  public :: FARKStepCreateMRIStepInnerStepper
- public :: FARKStepSetMaxStepsBetweenLSet
- public :: FARKStepSetMaxStepsBetweenJac
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FARKStepCreate(farg1, farg2, farg3, farg4) &
+function swigc_FARKStepCreate(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FARKStepCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -211,6 +212,7 @@ type(C_FUNPTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
 type(C_PTR) :: fresult
 end function
 
@@ -1534,30 +1536,12 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2) &
-bind(C, name="_wrap_FARKStepSetMaxStepsBetweenLSet") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FARKStepSetMaxStepsBetweenJac") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
-function FARKStepCreate(fe, fi, t0, y0) &
+function FARKStepCreate(fe, fi, t0, y0, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1565,17 +1549,20 @@ type(C_FUNPTR), intent(in), value :: fe
 type(C_FUNPTR), intent(in), value :: fi
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: y0
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 type(C_FUNPTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = fe
 farg2 = fi
 farg3 = t0
 farg4 = c_loc(y0)
-fresult = swigc_FARKStepCreate(farg1, farg2, farg3, farg4)
+farg5 = sunctx
+fresult = swigc_FARKStepCreate(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
@@ -2033,8 +2020,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: itable
-integer(C_INT), intent(in) :: etable
+integer(ARKODE_DIRKTableID), intent(in) :: itable
+integer(ARKODE_ERKTableID), intent(in) :: etable
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
@@ -3985,38 +3972,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(stepper)
 fresult = swigc_FARKStepCreateMRIStepInnerStepper(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: msbp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = msbp
-fresult = swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKStepSetMaxStepsBetweenJac(arkode_mem, msbj) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), intent(in) :: msbj
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-
-farg1 = arkode_mem
-farg2 = msbj
-fresult = swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2)
 swig_result = fresult
 end function
 

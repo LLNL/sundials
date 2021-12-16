@@ -22,12 +22,21 @@
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include "sundials_context_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "41.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
+#endif
 
 /*===============================================================
   ARKode Private Constants
@@ -254,6 +263,8 @@ typedef struct ARKodeMassMemRec {
   This structure contains fields to keep track of problem state.
   ---------------------------------------------------------------*/
 typedef struct ARKodeMemRec {
+
+  SUNContext sunctx;
 
   realtype uround;             /* machine unit roundoff */
 
@@ -855,10 +866,13 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 
 int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0, int init_type);
 booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v);
-booleantype arkAllocVecArray(ARKodeMem ark_mem, int count, N_Vector tmpl,
-                             N_Vector **v);
+booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
+                             sunindextype lrw1, long int *lrw,
+                             sunindextype liw1, long int *liw);
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v);
-void arkFreeVecArray(ARKodeMem ark_mem, int count, N_Vector **v);
+void arkFreeVecArray(int count, N_Vector **v,
+                     sunindextype lrw1, long int *lrw,
+                     sunindextype liw1, long int *liw);
 booleantype arkResizeVec(ARKodeMem ark_mem,
                          ARKVecResizeFn resize,
                          void *resize_data,
@@ -866,14 +880,10 @@ booleantype arkResizeVec(ARKodeMem ark_mem,
                          sunindextype liw_diff,
                          N_Vector tmpl,
                          N_Vector *v);
-booleantype arkResizeVecArray(ARKodeMem ark_mem,
-                              ARKVecResizeFn resize,
-                              void *resize_data,
-                              sunindextype lrw_diff,
-                              sunindextype liw_diff,
-                              int count,
-                              N_Vector tmpl,
-                              N_Vector **v);
+booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
+                              int count, N_Vector tmpl, N_Vector **v,
+                              sunindextype lrw_diff, long int *lrw,
+                              sunindextype liw_diff, long int *liw);
 void arkPrintMem(ARKodeMem ark_mem, FILE *outfile);
 booleantype arkCheckTimestepper(ARKodeMem ark_mem);
 booleantype arkCheckNvector(N_Vector tmpl);
@@ -907,7 +917,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My,
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
                 N_Vector weight);
 
-ARKodeMem arkCreate();
+ARKodeMem arkCreate(SUNContext sunctx);
 int arkResize(ARKodeMem ark_mem, N_Vector ynew, realtype hscale,
               realtype t0, ARKVecResizeFn resize, void *resize_data);
 int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol);
@@ -1102,6 +1112,8 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 #define MSG_ARK_INNERSTEP_FAILED  "At " MSG_TIME ", the inner stepper failed in an unrecoverable manner."
 #define MSG_ARK_POSTPROCESS_STEP_FAIL "At " MSG_TIME ", the step postprocessing routine failed in an unrecoverable manner."
 #define MSG_ARK_POSTPROCESS_STAGE_FAIL "At " MSG_TIME ", the stage postprocessing routine failed in an unrecoverable manner."
+#define MSG_ARK_NULL_SUNCTX "sunctx = NULL illegal."
+#define MSG_ARK_CONTEXT_MISMATCH "Outer and inner steppers have different contexts."
 
 #ifdef __cplusplus
 }

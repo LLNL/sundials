@@ -134,6 +134,11 @@ SUNDIALS_EXPORT int CVodeGetNumJtimesEvals(void *cvode_mem,
                                            long int *njvevals);
 SUNDIALS_EXPORT int CVodeGetNumLinRhsEvals(void *cvode_mem,
                                            long int *nfevalsLS);
+SUNDIALS_EXPORT int CVodeGetLinSolveStats(void* cvode_mem,
+                                          long int* njevals, long int* nfevalsLS,
+                                          long int* nliters, long int* nlcfails,
+                                          long int* npevals, long int* npsolves,
+                                          long int* njtsetups, long int* njtimes);
 SUNDIALS_EXPORT int CVodeGetLastLinFlag(void *cvode_mem,
                                         long int *flag);
 SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);
@@ -255,10 +260,6 @@ SUNDIALS_EXPORT int CVodeSetLinSysFnB(void *cvode_mem, int which,
                                       CVLsLinSysFnB linsys);
 SUNDIALS_EXPORT int CVodeSetLinSysFnBS(void *cvode_mem, int which,
                                        CVLsLinSysFnBS linsys);
-
-/* Deprecated functions */
-SUNDIALS_DEPRECATED_EXPORT
-int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj);
 
 #ifdef __cplusplus
 }

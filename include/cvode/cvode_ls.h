@@ -135,11 +135,6 @@ SUNDIALS_EXPORT int CVodeGetLastLinFlag(void *cvode_mem,
                                         long int *flag);
 SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);
 
-
-/* Deprecated functions */
-SUNDIALS_DEPRECATED_EXPORT
-int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj);
-
 #ifdef __cplusplus
 }
 #endif

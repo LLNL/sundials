@@ -21,6 +21,7 @@
 module fnvector_parallel_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -29,9 +30,6 @@ module fnvector_parallel_mod
  public :: FN_VNew_Parallel
  public :: FN_VNewEmpty_Parallel
  public :: FN_VMake_Parallel
- public :: FN_VCloneVectorArray_Parallel
- public :: FN_VCloneVectorArrayEmpty_Parallel
- public :: FN_VDestroyVectorArray_Parallel
  public :: FN_VGetLength_Parallel
  public :: FN_VGetLocalLength_Parallel
  public :: FN_VPrint_Parallel
@@ -80,6 +78,8 @@ module fnvector_parallel_mod
  public :: FN_VInvTestLocal_Parallel
  public :: FN_VConstrMaskLocal_Parallel
  public :: FN_VMinQuotientLocal_Parallel
+ public :: FN_VDotProdMultiLocal_Parallel
+ public :: FN_VDotProdMultiAllReduce_Parallel
  public :: FN_VBufSize_Parallel
  public :: FN_VBufPack_Parallel
  public :: FN_VBufUnpack_Parallel
@@ -92,31 +92,15 @@ module fnvector_parallel_mod
  public :: FN_VEnableConstVectorArray_Parallel
  public :: FN_VEnableWrmsNormVectorArray_Parallel
  public :: FN_VEnableWrmsNormMaskVectorArray_Parallel
+ public :: FN_VEnableDotProdMultiLocal_Parallel
+ public :: FN_VCloneVectorArray_Parallel
+ public :: FN_VCloneVectorArrayEmpty_Parallel
+ public :: FN_VDestroyVectorArray_Parallel
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNew_Parallel(farg1, farg2, farg3) &
+function swigc_FN_VNew_Parallel(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FN_VNew_Parallel") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
-type(C_PTR) :: fresult
-end function
-
-function swigc_FN_VNewEmpty_Parallel(farg1, farg2, farg3) &
-bind(C, name="_wrap_FN_VNewEmpty_Parallel") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
-type(C_PTR) :: fresult
-end function
-
-function swigc_FN_VMake_Parallel(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FN_VMake_Parallel") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
@@ -126,30 +110,28 @@ type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VCloneVectorArray_Parallel(farg1, farg2) &
-bind(C, name="_wrap_FN_VCloneVectorArray_Parallel") &
+function swigc_FN_VNewEmpty_Parallel(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FN_VNewEmpty_Parallel") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
+type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VCloneVectorArrayEmpty_Parallel(farg1, farg2) &
-bind(C, name="_wrap_FN_VCloneVectorArrayEmpty_Parallel") &
+function swigc_FN_VMake_Parallel(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FN_VMake_Parallel") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
 type(C_PTR) :: fresult
 end function
-
-subroutine swigc_FN_VDestroyVectorArray_Parallel(farg1, farg2) &
-bind(C, name="_wrap_FN_VDestroyVectorArray_Parallel")
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-end subroutine
 
 function swigc_FN_VGetLength_Parallel(farg1) &
 bind(C, name="_wrap_FN_VGetLength_Parallel") &
@@ -572,6 +554,27 @@ type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
 end function
 
+function swigc_FN_VDotProdMultiLocal_Parallel(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FN_VDotProdMultiLocal_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VDotProdMultiAllReduce_Parallel(farg1, farg2, farg3) &
+bind(C, name="_wrap_FN_VDotProdMultiAllReduce_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FN_VBufSize_Parallel(farg1, farg2) &
 bind(C, name="_wrap_FN_VBufSize_Parallel") &
 result(fresult)
@@ -680,57 +683,53 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FN_VEnableDotProdMultiLocal_Parallel(farg1, farg2) &
+bind(C, name="_wrap_FN_VEnableDotProdMultiLocal_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VCloneVectorArray_Parallel(farg1, farg2) &
+bind(C, name="_wrap_FN_VCloneVectorArray_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR) :: fresult
+end function
+
+function swigc_FN_VCloneVectorArrayEmpty_Parallel(farg1, farg2) &
+bind(C, name="_wrap_FN_VCloneVectorArrayEmpty_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_FN_VDestroyVectorArray_Parallel(farg1, farg2) &
+bind(C, name="_wrap_FN_VDestroyVectorArray_Parallel")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNew_Parallel(comm, local_length, global_length) &
+function FN_VNew_Parallel(comm, local_length, global_length, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer :: comm
 integer(C_INT64_T), intent(in) :: local_length
 integer(C_INT64_T), intent(in) :: global_length
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
-
-farg1 = int(comm, C_INT)
-farg2 = local_length
-farg3 = global_length
-fresult = swigc_FN_VNew_Parallel(farg1, farg2, farg3)
-call c_f_pointer(fresult, swig_result)
-end function
-
-function FN_VNewEmpty_Parallel(comm, local_length, global_length) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(N_Vector), pointer :: swig_result
-integer :: comm
-integer(C_INT64_T), intent(in) :: local_length
-integer(C_INT64_T), intent(in) :: global_length
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
-
-farg1 = int(comm, C_INT)
-farg2 = local_length
-farg3 = global_length
-fresult = swigc_FN_VNewEmpty_Parallel(farg1, farg2, farg3)
-call c_f_pointer(fresult, swig_result)
-end function
-
-function FN_VMake_Parallel(comm, local_length, global_length, v_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(N_Vector), pointer :: swig_result
-integer :: comm
-integer(C_INT64_T), intent(in) :: local_length
-integer(C_INT64_T), intent(in) :: global_length
-real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT64_T) :: farg2 
@@ -740,54 +739,57 @@ type(C_PTR) :: farg4
 farg1 = int(comm, C_INT)
 farg2 = local_length
 farg3 = global_length
-farg4 = c_loc(v_data(1))
-fresult = swigc_FN_VMake_Parallel(farg1, farg2, farg3, farg4)
+farg4 = sunctx
+fresult = swigc_FN_VNew_Parallel(farg1, farg2, farg3, farg4)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VCloneVectorArray_Parallel(count, w) &
+function FN_VNewEmpty_Parallel(comm, local_length, global_length, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: count
-type(N_Vector), target, intent(inout) :: w
+type(N_Vector), pointer :: swig_result
+integer :: comm
+integer(C_INT64_T), intent(in) :: local_length
+integer(C_INT64_T), intent(in) :: global_length
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+type(C_PTR) :: farg4 
 
-farg1 = count
-farg2 = c_loc(w)
-fresult = swigc_FN_VCloneVectorArray_Parallel(farg1, farg2)
-swig_result = fresult
+farg1 = int(comm, C_INT)
+farg2 = local_length
+farg3 = global_length
+farg4 = sunctx
+fresult = swigc_FN_VNewEmpty_Parallel(farg1, farg2, farg3, farg4)
+call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VCloneVectorArrayEmpty_Parallel(count, w) &
+function FN_VMake_Parallel(comm, local_length, global_length, v_data, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: count
-type(N_Vector), target, intent(inout) :: w
+type(N_Vector), pointer :: swig_result
+integer :: comm
+integer(C_INT64_T), intent(in) :: local_length
+integer(C_INT64_T), intent(in) :: global_length
+real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
-farg1 = count
-farg2 = c_loc(w)
-fresult = swigc_FN_VCloneVectorArrayEmpty_Parallel(farg1, farg2)
-swig_result = fresult
+farg1 = int(comm, C_INT)
+farg2 = local_length
+farg3 = global_length
+farg4 = c_loc(v_data(1))
+farg5 = sunctx
+fresult = swigc_FN_VMake_Parallel(farg1, farg2, farg3, farg4, farg5)
+call c_f_pointer(fresult, swig_result)
 end function
-
-subroutine FN_VDestroyVectorArray_Parallel(vs, count)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: vs
-integer(C_INT), intent(in) :: count
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = vs
-farg2 = count
-call swigc_FN_VDestroyVectorArray_Parallel(farg1, farg2)
-end subroutine
 
 function FN_VGetLength_Parallel(v) &
 result(swig_result)
@@ -1552,6 +1554,47 @@ fresult = swigc_FN_VMinQuotientLocal_Parallel(farg1, farg2)
 swig_result = fresult
 end function
 
+function FN_VDotProdMultiLocal_Parallel(nvec, x, y, dotprods) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: y
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = nvec
+farg2 = c_loc(x)
+farg3 = y
+farg4 = c_loc(dotprods(1))
+fresult = swigc_FN_VDotProdMultiLocal_Parallel(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FN_VDotProdMultiAllReduce_Parallel(nvec_total, x, dotprods) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec_total
+type(N_Vector), target, intent(inout) :: x
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = nvec_total
+farg2 = c_loc(x)
+farg3 = c_loc(dotprods(1))
+fresult = swigc_FN_VDotProdMultiAllReduce_Parallel(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FN_VBufSize_Parallel(x, size) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1743,6 +1786,66 @@ farg2 = tf
 fresult = swigc_FN_VEnableWrmsNormMaskVectorArray_Parallel(farg1, farg2)
 swig_result = fresult
 end function
+
+function FN_VEnableDotProdMultiLocal_Parallel(v, tf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT), intent(in) :: tf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = tf
+fresult = swigc_FN_VEnableDotProdMultiLocal_Parallel(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VCloneVectorArray_Parallel(count, w) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = count
+farg2 = c_loc(w)
+fresult = swigc_FN_VCloneVectorArray_Parallel(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VCloneVectorArrayEmpty_Parallel(count, w) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = count
+farg2 = c_loc(w)
+fresult = swigc_FN_VCloneVectorArrayEmpty_Parallel(farg1, farg2)
+swig_result = fresult
+end function
+
+subroutine FN_VDestroyVectorArray_Parallel(vs, count)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: vs
+integer(C_INT), intent(in) :: count
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = vs
+farg2 = count
+call swigc_FN_VDestroyVectorArray_Parallel(farg1, farg2)
+end subroutine
 
 
 end module

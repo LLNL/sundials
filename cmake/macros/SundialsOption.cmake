@@ -30,6 +30,7 @@
 # The DEPENDS_ON option can be used to provide variable which must evaluate
 # to true in order to set <variable>. If the DEPENDS_ON dependencies do not
 # all evaluate to true, then <variable> is set to "" and a warning is printed.
+#
 # The DEPENDS_ON_THROW_ERROR option will change the warning to be an error.
 #
 # The OPTIONS macro can be used to provide a list of valid values for the

@@ -62,7 +62,8 @@ typedef struct _N_VectorContent_ManyVector *N_VectorContent_ManyVector;
    ----------------------------------------------------------------- */
 
 SUNDIALS_EXPORT N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
-                                           N_Vector *vec_array);
+                                           N_Vector *vec_array,
+                                           SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VGetSubvector_ManyVector(N_Vector v,
                                                     sunindextype vec_num);
@@ -143,6 +144,11 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ManyVector(N_Vector c, N_Vector x
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ManyVector(N_Vector num,
                                                         N_Vector denom);
 
+/* OPTIONAL single buffer reduction operations */
+SUNDIALS_EXPORT int N_VDotProdMultiLocal_ManyVector(int nvec, N_Vector x,
+                                                    N_Vector *Y,
+                                                    realtype* dotprods);
+
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize_ManyVector(N_Vector x, sunindextype *size);
 SUNDIALS_EXPORT int N_VBufPack_ManyVector(N_Vector x, void *buf);
@@ -163,6 +169,8 @@ SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ManyVector(N_Vector v, booleantype
 SUNDIALS_EXPORT int N_VEnableConstVectorArray_ManyVector(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ManyVector(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

@@ -190,6 +190,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod
   use fsundials_futils_mod       ! Fortran utilities
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
@@ -207,6 +208,7 @@ program main
   integer(c_int)  :: ierr
   integer(c_long) :: maa = 3
 
+  type(c_ptr)                    :: sunctx
   type(N_Vector),        pointer :: sunvec_u      ! sundials vectors
   type(N_Vector),        pointer :: sunvec_s
   type(SUNMatrix),       pointer :: sunmat_L      ! sundials matrix (empty)
@@ -240,15 +242,19 @@ program main
   scale = 1.d0 ! no scaling used
 
   ! -------------------------
+  ! Create the SUNDIALS context used for this simulation
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+
+  ! -------------------------
   ! Create vectors for solution and scaling
 
-  sunvec_u => FN_VMake_Serial(neq, u)
+  sunvec_u => FN_VMake_Serial(neq, u, sunctx)
   if (.not. associated(sunvec_u)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_s => FN_VMake_Serial(neq, scale)
+  sunvec_s => FN_VMake_Serial(neq, scale, sunctx)
   if (.not. associated(sunvec_s)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -257,7 +263,7 @@ program main
   ! -------------------------
   ! Initialize and allocate memory for KINSOL
 
-  kmem = FKINCreate()
+  kmem = FKINCreate(sunctx)
   if (.not. c_associated(kmem)) then
      print *, 'ERROR: kmem = NULL'
      stop 1
@@ -309,7 +315,7 @@ program main
   ! -------------------------
   ! Create a linear solver
 
-  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, PREC_NONE, 10)
+  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, SUN_PREC_NONE, 10, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *,'ERROR: sunlinsol = NULL'
      stop 1
@@ -371,6 +377,7 @@ program main
   ierr = FSUNLinSolFree(sunlinsol_LS)
   call FN_VDestroy(sunvec_u)
   call FN_VDestroy(sunvec_s)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 

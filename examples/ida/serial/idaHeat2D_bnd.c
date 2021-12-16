@@ -94,6 +94,7 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   mem = NULL;
   data = NULL;
@@ -101,16 +102,20 @@ int main(void)
   A = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew_Serial(NEQ);
+  uu = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
-  up = N_VNew_Serial(NEQ);
+  up = N_VClone(uu);
   if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
-  res = N_VNew_Serial(NEQ);
+  res = N_VClone(uu);
   if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
-  constraints = N_VNew_Serial(NEQ);
+  constraints = N_VClone(uu);
   if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
-  id = N_VNew_Serial(NEQ);
+  id = N_VClone(uu);
   if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
 
   /* Create and load problem data block. */
@@ -133,7 +138,7 @@ int main(void)
   atol = RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, data);
@@ -155,11 +160,11 @@ int main(void)
 
   /* Create banded SUNMatrix for use in linear solves */
   mu = MGRID; ml = MGRID;
-  A = SUNBandMatrix(NEQ, mu, ml);
+  A = SUNBandMatrix(NEQ, mu, ml, ctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */
-  LS = SUNLinSol_Band(uu, A);
+  LS = SUNLinSol_Band(uu, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -203,6 +208,7 @@ int main(void)
   N_VDestroy(id);
   N_VDestroy(res);
   free(data);
+  SUNContext_Free(&ctx);
 
   return(0);
 }

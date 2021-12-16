@@ -17,6 +17,7 @@
 
 module test_fsunmatrix_dense
   use, intrinsic :: iso_c_binding
+  use test_utilities
   implicit none
 
   integer(C_LONG), parameter :: N = 4
@@ -31,7 +32,6 @@ contains
     use fsundials_matrix_mod
     use fsunmatrix_dense_mod
     use fnvector_serial_mod
-    use test_utilities
 
     !======== Declarations ========
     implicit none
@@ -45,13 +45,13 @@ contains
 
     fails = 0
 
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
 
     !===== Calls to interface =====
 
     ! constructor
-    A => FSUNDenseMatrix(N, N)
+    A => FSUNDenseMatrix(N, N, sunctx)
     if (.not. associated(A)) then
       print *,'>>> FAILED - ERROR in FSUNDenseMatrix; halting'
       stop 1
@@ -103,10 +103,10 @@ contains
 
     fails = 0
 
-    A => FSUNDenseMatrix(N, N)
-    I => FSUNDenseMatrix(N, N)
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
+    A => FSUNDenseMatrix(N, N, sunctx)
+    I => FSUNDenseMatrix(N, N, sunctx)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
 
     ! fill matrix A
     Adata => FSUNDenseMatrix_Data(A)
@@ -167,6 +167,8 @@ program main
   !============== Introduction =============
   print *, 'Dense SUNMatrix Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -174,6 +176,9 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
+
 end program main
 
 ! exported functions used by test_sunmatrix

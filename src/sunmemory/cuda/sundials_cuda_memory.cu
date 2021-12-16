@@ -21,12 +21,12 @@
 #include "sundials_cuda.h"
 
 
-SUNMemoryHelper SUNMemoryHelper_Cuda()
+SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 {
   SUNMemoryHelper helper;
 
   /* Allocate the helper */
-  helper = SUNMemoryHelper_NewEmpty();
+  helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
   helper->ops->alloc     = SUNMemoryHelper_Alloc_Cuda;
@@ -41,7 +41,8 @@ SUNMemoryHelper SUNMemoryHelper_Cuda()
 }
 
 int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
-                               size_t mem_size, SUNMemoryType mem_type)
+                               size_t mem_size, SUNMemoryType mem_type,
+                               void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
@@ -97,7 +98,8 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
   return(0);
 }
 
-int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem)
+int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
+                                 void *queue)
 {
   if (mem == NULL) return(0);
 
@@ -139,7 +141,7 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem)
 }
 
 int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
-                              SUNMemory src, size_t memory_size)
+                              SUNMemory src, size_t memory_size, void* queue)
 {
   int retval = 0;
   cudaError_t cuerr = cudaSuccess;
@@ -190,15 +192,15 @@ int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
 
 int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
                                    SUNMemory src, size_t memory_size,
-                                   void* ctx)
+                                   void* queue)
 {
   int retval = 0;
   cudaError_t cuerr = cudaSuccess;
   cudaStream_t stream = 0;
 
-  if (ctx != NULL)
+  if (queue != NULL)
   {
-    stream = *((cudaStream_t*) ctx);
+    stream = *((cudaStream_t*) queue);
   }
 
   switch(src->type)

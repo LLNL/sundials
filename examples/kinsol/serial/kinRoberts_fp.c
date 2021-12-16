@@ -79,7 +79,7 @@
 static int funcRoberts(N_Vector u, N_Vector f, void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *retvalvalue, const char *funcname, int opt);
 static int check_ans(N_Vector u, realtype rtol, realtype atol);
 
 /*
@@ -90,9 +90,10 @@ static int check_ans(N_Vector u, realtype rtol, realtype atol);
 
 int main()
 {
+  SUNContext sunctx;
   realtype fnormtol, fnorm;
   N_Vector y, scale;
-  int flag;
+  int retval;
   void *kmem;
 
   fnorm = 0.0;
@@ -113,30 +114,34 @@ int main()
   printf("conditions: y1 = 1.0, y2 = y3 = 0.\n");
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
 
+  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
-  y = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  y = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
-  scale = N_VNew_Serial(NEQ);
-  if (check_flag((void *)scale, "N_VNew_Serial", 0)) return(1);
+  scale = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
 
   /* -----------------------------------------
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
-  kmem = KINCreate();
-  if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
+  kmem = KINCreate(sunctx);
+  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
 
   /* y is used as a template */
 
   /* Set number of prior residuals used in Anderson acceleration */
-  flag = KINSetMAA(kmem, PRIORS);
+  retval = KINSetMAA(kmem, PRIORS);
 
-  flag = KINInit(kmem, funcRoberts, y);
-  if (check_flag(&flag, "KINInit", 1)) return(1);
+  retval = KINInit(kmem, funcRoberts, y);
+  if (check_retval(&retval, "KINInit", 1)) return(1);
 
   /* -------------------
    * Set optional inputs
@@ -145,8 +150,8 @@ int main()
   /* Specify stopping tolerance based on residual */
 
   fnormtol  = TOL;
-  flag = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
+  retval = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
 
   /* -------------
    * Initial guess
@@ -163,12 +168,12 @@ int main()
   N_VConst(ONE,scale);
 
   /* Call main solver */
-  flag = KINSol(kmem,           /* KINSol memory block */
+  retval = KINSol(kmem,           /* KINSol memory block */
                 y,              /* initial guess on input; solution vector */
                 KIN_FP,         /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
-  if (check_flag(&flag, "KINSol", 1)) return(1);
+  if (check_retval(&retval, "KINSol", 1)) return(1);
 
 
   /* ------------------------------------
@@ -177,8 +182,8 @@ int main()
 
   /* Get scaled norm of the system function */
 
-  flag = KINGetFuncNorm(kmem, &fnorm);
-  if (check_flag(&flag, "KINGetfuncNorm", 1)) return(1);
+  retval = KINGetFuncNorm(kmem, &fnorm);
+  if (check_retval(&retval, "KINGetfuncNorm", 1)) return(1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
@@ -190,7 +195,7 @@ int main()
   PrintFinalStats(kmem);
 
   /* check the solution error */
-  flag = check_ans(y, RCONST(1e-4), RCONST(1e-6));
+  retval = check_ans(y, RCONST(1e-4), RCONST(1e-6));
 
   /* -----------
    * Free memory
@@ -199,8 +204,9 @@ int main()
   N_VDestroy(y);
   N_VDestroy(scale);
   KINFree(&kmem);
+  SUNContext_Free(&sunctx);
 
-  return(flag);
+  return(retval);
 }
 
 /*
@@ -262,14 +268,14 @@ static void PrintOutput(N_Vector y)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe;
-  int flag;
+  int retval;
 
   /* Main solver statistics */
 
-  flag = KINGetNumNonlinSolvIters(kmem, &nni);
-  check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
-  flag = KINGetNumFuncEvals(kmem, &nfe);
-  check_flag(&flag, "KINGetNumFuncEvals", 1);
+  retval = KINGetNumNonlinSolvIters(kmem, &nni);
+  check_retval(&retval, "KINGetNumNonlinSolvIters", 1);
+  retval = KINGetNumFuncEvals(kmem, &nfe);
+  check_retval(&retval, "KINGetNumFuncEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
@@ -279,37 +285,37 @@ static void PrintFinalStats(void *kmem)
  * Check function return value...
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns a retval so check if
+ *             retval >= 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *retvalvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *errretval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && retvalvalue == NULL) {
     fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1);
   }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    errretval = (int *) retvalvalue;
+    if (*errretval < 0) {
       fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *errretval);
       return(1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && retvalvalue == NULL) {
     fprintf(stderr,
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
@@ -323,7 +329,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
    tolerance of 1e-14 */
 static int check_ans(N_Vector u, realtype rtol, realtype atol)
 {
-  int      passfail=0;        /* answer pass (0) or fail (1) flag */
+  int      passfail=0;        /* answer pass (0) or fail (1) retval */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
   realtype err;               /* wrms error                       */

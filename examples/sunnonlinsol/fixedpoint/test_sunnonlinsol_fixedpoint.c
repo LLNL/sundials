@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
   realtype           damping = RCONST(1.0); /* no damping      */
   long int           niters  = 0;
   realtype*          data    = NULL;
+  SUNContext         sunctx     = NULL;
 
   /* Check if a acceleration/dampling values were provided */
   if (argc > 1) maa     = (long int) atoi(argv[1]);
@@ -140,12 +141,16 @@ int main(int argc, char *argv[])
   printf("    accel vec = %d\n", maa);
   printf("    damping   = %"GSYM"\n", damping);
 
+  /* create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* create proxy for integrator memory */
   Imem = (IntegratorMem) malloc(sizeof(struct IntegratorMemRec));
   if (check_retval((void *)Imem, "Creating Integrator Memory", 0)) return(1);
 
   /* create vectors */
-  Imem->y0 = N_VNew_Serial(NEQ);
+  Imem->y0 = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) return(1);
 
   Imem->ycor = N_VClone(Imem->y0);
@@ -172,7 +177,7 @@ int main(int argc, char *argv[])
   N_VConst(ONE, Imem->w);
 
   /* create nonlinear solver */
-  NLS = SUNNonlinSol_FixedPoint(Imem->y0, maa);
+  NLS = SUNNonlinSol_FixedPoint(Imem->y0, maa, sunctx);
   if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
 
   /* set the nonlinear residual function */
@@ -215,6 +220,7 @@ int main(int argc, char *argv[])
   N_VDestroy(Imem->w);
   SUNNonlinSolFree(NLS);
   free(Imem);
+  SUNContext_Free(&sunctx);
 
   return(retval);
 }

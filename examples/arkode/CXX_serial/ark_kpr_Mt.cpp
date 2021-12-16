@@ -233,9 +233,13 @@ int main(int argc, char *argv[])
   // Problem Setup
   //
 
+  // Create SUNDIALS context
+  SUNContext ctx = NULL;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   // Create and initialize serial vector for the solution
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
   retval = Ytrue(T0, y);
   if (check_retval(&retval, "Ytrue", 1)) return 1;
@@ -244,11 +248,11 @@ int main(int argc, char *argv[])
   // M(t) * y' = fe(t,y) + fi(t,y), the inital time T0, and the
   // initial dependent variable vector y.
   if (rk_type == 0) {         // ARK method
-    arkode_mem = ARKStepCreate(fe, fi, T0, y);
+    arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
   } else if (rk_type == 1) {  // DIRK method
-    arkode_mem = ARKStepCreate(NULL, fn, T0, y);
+    arkode_mem = ARKStepCreate(NULL, fn, T0, y, ctx);
   } else {                    // ERK method
-    arkode_mem = ARKStepCreate(fn, NULL, T0, y);
+    arkode_mem = ARKStepCreate(fn, NULL, T0, y, ctx);
   }
   if (check_retval((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
@@ -257,14 +261,14 @@ int main(int argc, char *argv[])
 
     if (nls_type == 0) {   // Newton
 
-      NLS = SUNNonlinSol_Newton(y);
+      NLS = SUNNonlinSol_Newton(y, ctx);
       if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return 1;
       retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
       if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1)) return(1);
 
-      A = SUNDenseMatrix(NEQ, NEQ);
+      A = SUNDenseMatrix(NEQ, NEQ, ctx);
       if (check_retval((void *)A, "SUNDenseMatrix", 0)) return 1;
-      LS = SUNLinSol_Dense(y, A);
+      LS = SUNLinSol_Dense(y, A, ctx);
       if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return 1;
       retval = ARKStepSetLinearSolver(arkode_mem, LS, A);
       if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return(1);
@@ -277,7 +281,7 @@ int main(int argc, char *argv[])
 
     } else {               // Fixed-point
 
-      NLS = SUNNonlinSol_FixedPoint(y,4);
+      NLS = SUNNonlinSol_FixedPoint(y, 4, ctx);
       if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
       retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
       if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1)) return(1);
@@ -292,9 +296,9 @@ int main(int argc, char *argv[])
   }
 
   // Initialize/attach mass matrix solver
-  M = SUNDenseMatrix(NEQ, NEQ);
+  M = SUNDenseMatrix(NEQ, NEQ, ctx);
   if (check_retval((void *)M, "SUNDenseMatrix", 0)) return 1;
-  MLS = SUNLinSol_Dense(y, M);
+  MLS = SUNLinSol_Dense(y, M, ctx);
   if (check_retval((void *)MLS, "SUNLinSol_Dense", 0)) return 1;
   retval = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNTRUE);
   if (check_retval(&retval, "ARKStepSetMassLinearSolver", 1)) return(1);
@@ -328,6 +332,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);               // free system matrix
   SUNMatDestroy(M);               // free mass matrix
   N_VDestroy(y);                  // Free y vector
+  SUNContext_Free(&ctx);          // Free context
   return 0;
 }
 

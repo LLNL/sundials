@@ -3,16 +3,16 @@ List of serial ARKODE C examples
   ark_analytic              : simple stiff, linear, ODE           (DIRK/DENSE)
   ark_analytic_nonlin       : simple nonstiff, nonlinear ODE      (ERK)
   ark_brusselator           : stiff chemical kinetics ODE system  (DIRK/DENSE)
-  ark_brusselator_fp        : stiff chemical kinetics ODE system  (ARK/Fixed point) 
+  ark_brusselator_fp        : stiff chemical kinetics ODE system  (ARK/Fixed point)
   ark_brusselator1D         : stiff chemical kinetics PDE system  (DIRK/BAND)
-  ark_brusselator1D_FEM_slu : stiff chemical kinetics PDE, with 
+  ark_brusselator1D_FEM_slu : stiff chemical kinetics PDE, with
                               FEM spatial discretization          (DIRK/SuperLU_MT)
   ark_brusselator1D_klu     : stiff chemical kinetics PDE system  (DIRK/KLU)
   ark_heat1D                : stiff 1D heat PDE example           (DIRK/PCG)
   ark_heat1D_adapt          : stiff 1D heat PDE, adaptive mesh    (DIRK/PCG/ARKodeResize)
   ark_KrylovDemo_prec       : Krylov method demonstration program (SPGMR)
   ark_robertson             : stiff chemical kinetics ODE system  (DIRK/DENSE)
-  ark_robertson_root        : stiff chemical kinetics ODE system 
+  ark_robertson_root        : stiff chemical kinetics ODE system
                               with root-finding                   (DIRK/DENSE)
   ark_robertson_constraints : stiff chemical kinetics ODE system  (DIRKDENSE)
                               with constraints
@@ -33,11 +33,8 @@ The following CMake command was used to configure SUNDIALS:
 -DBUILD_STATIC_LIBS=ON \
 -DEXAMPLES_ENABLE_C=ON \
 -DEXAMPLES_ENABLE_CXX=ON \
--DEXAMPLES_ENABLE_F77=ON \
--DEXAMPLES_ENABLE_F90=ON \
 -DEXAMPLES_INSTALL=ON \
 -DENABLE_MPI=ON \
--DFCMIX_ENABLE=ON \
 -DENABLE_LAPACK=ON \
 -DENABLE_KLU=ON \
 -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \
@@ -47,7 +44,6 @@ The following CMake command was used to configure SUNDIALS:
 -DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.11.1/lib/libHYPRE.a \
 -DENABLE_OPENMP=ON \
 -DENABLE_PTHREAD=ON \
--DFCMIX_ENABLE=ON \
 -DENABLE_SUPERLUMT=ON \
 -DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/SRC \
 -DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/lib \

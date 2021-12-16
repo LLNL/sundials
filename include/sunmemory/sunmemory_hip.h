@@ -27,21 +27,28 @@ extern "C" {
 
 /* Implementation specific functions */
 
-SUNMemoryHelper SUNMemoryHelper_Hip();
+SUNDIALS_EXPORT
+SUNMemoryHelper SUNMemoryHelper_Hip(SUNContext sunctx);
 
 /* SUNMemoryHelper functions */
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
-                                              size_t memsize, SUNMemoryType mem_type);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
+                              size_t memsize, SUNMemoryType mem_type,
+                              void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
+                                void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
-                                             SUNMemory src, size_t memory_size);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
+                             SUNMemory src, size_t memory_size, void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
-                                                  SUNMemory src, size_t memory_size,
-                                                  void* ctx);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
+                                  SUNMemory src, size_t memory_size,
+                                  void* queue);
 
 
 #ifdef __cplusplus

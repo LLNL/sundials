@@ -126,6 +126,7 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS;
   int nrmfactor;   /* LS norm conversion factor flag */
   realtype nrmfac; /* LS norm conversion factor      */
+  SUNContext ctx;
 
   mem         = NULL;
   data        = NULL;
@@ -139,18 +140,23 @@ int main(int argc, char* argv[])
   /* Retrieve the command-line options */
   if (argc > 1) nrmfactor = atoi(argv[1]);
 
+  /* Create the SUNDIALS context object for this simulation */
+
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew_Serial(NEQ);
+  uu = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
 
-  up = N_VNew_Serial(NEQ);
+  up = N_VClone(uu);
   if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
 
-  res = N_VNew_Serial(NEQ);
+  res = N_VClone(uu);
   if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
 
-  constraints = N_VNew_Serial(NEQ);
+  constraints = N_VClone(uu);
   if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
 
   data = (UserData) malloc(sizeof *data);
@@ -162,7 +168,7 @@ int main(int argc, char* argv[])
   data->mm  = MGRID;
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VNew_Serial(NEQ);
+  data->pp = N_VClone(uu);
   if(check_retval((void *)data->pp, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize uu, up. */
@@ -182,7 +188,7 @@ int main(int argc, char* argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, data);
@@ -227,7 +233,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+      LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
       if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       /* Attach the linear solver */
@@ -246,7 +252,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPBCGS(uu, PREC_LEFT, 0);
+      LS = SUNLinSol_SPBCGS(uu, SUN_PREC_LEFT, 0, ctx);
       if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       /* Attach the linear solver */
@@ -265,7 +271,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPTFQMR(uu, PREC_LEFT, 0);
+      LS = SUNLinSol_SPTFQMR(uu, SUN_PREC_LEFT, 0, ctx);
       if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       /* Attach the linear solver */
@@ -347,6 +353,8 @@ int main(int argc, char* argv[])
 
   N_VDestroy(data->pp);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

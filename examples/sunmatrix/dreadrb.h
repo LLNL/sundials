@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 
-void dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout);
+void dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout, SUNContext sunctx);
 
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

@@ -18,6 +18,7 @@
 module test_fsunnonlinsol_fixedpoint
   use, intrinsic :: iso_c_binding
   use fsundials_nvector_mod
+  use test_utilities
 
   implicit none
 
@@ -40,6 +41,7 @@ contains
     use fsundials_nonlinearsolver_mod
     use fnvector_serial_mod
     use fsunnonlinsol_fixedpoint_mod
+    use fsundials_context_mod
 
     implicit none
 
@@ -49,9 +51,7 @@ contains
     integer(C_LONG)                   :: niters(1)
     integer(C_INT)                    :: tmp
 
-    retval = 0
-
-    x  => FN_VNew_Serial(NEQ)
+    x  => FN_VNew_Serial(NEQ, sunctx)
     y0 => FN_VClone(x)
     y  => FN_VClone(x)
     w  => FN_VClone(x)
@@ -65,7 +65,7 @@ contains
     call FN_VConst(1.0d0, w)
 
     ! create and test NLS
-    NLS => FSUNNonlinsol_FixedPoint(y, 0)
+    NLS => FSUNNonlinsol_FixedPoint(y, 0, sunctx)
 
     retval = FSUNNonlinSolSetSysFn(NLS, c_funloc(FPFunction))
     if (retval /= 0) then
@@ -203,6 +203,8 @@ program main
   !============== Introduction =============
   print *, 'fixedpoint SUNNonlinearSolver Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -210,5 +212,7 @@ program main
   else
     print *,'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
 
 end program main

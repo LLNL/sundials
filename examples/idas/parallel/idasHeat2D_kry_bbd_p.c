@@ -128,6 +128,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
+  SUNContext ctx;
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
@@ -157,6 +158,11 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation. */
+
+  retval = SUNContext_Create((void*) &comm, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
+
   /* Set local length local_N and global length Neq. */
 
   local_N = MXSUB*MYSUB;
@@ -164,19 +170,19 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors. */
 
-  uu = N_VNew_Parallel(comm, local_N, Neq);
+  uu = N_VNew_Parallel(comm, local_N, Neq, ctx);
   if(check_retval((void *)uu, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  up = N_VNew_Parallel(comm, local_N, Neq);
+  up = N_VClone(uu);
   if(check_retval((void *)up, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  res = N_VNew_Parallel(comm, local_N, Neq);
+  res = N_VClone(uu);
   if(check_retval((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  constraints = N_VNew_Parallel(comm, local_N, Neq);
+  constraints = N_VClone(uu);
   if(check_retval((void *)constraints, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  id = N_VNew_Parallel(comm, local_N, Neq);
+  id = N_VClone(uu);
   if(check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure. */
@@ -200,7 +206,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetUserData(ida_mem, data);
@@ -238,7 +244,7 @@ int main(int argc, char *argv[])
    */
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* IDA recommends left-preconditioning only;
                                               0 indicates to use default maxl value */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
@@ -313,6 +319,8 @@ int main(int argc, char *argv[])
   N_VDestroy(res);
   N_VDestroy(up);
   N_VDestroy(uu);
+
+  SUNContext_Free(&ctx);
 
   MPI_Finalize();
 

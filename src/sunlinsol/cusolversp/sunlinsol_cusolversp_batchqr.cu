@@ -60,7 +60,7 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSpHandle_t cusol_handle)
+SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSpHandle_t cusol_handle, SUNContext sunctx)
 {
   /* Check that required arguments are not NULL */
   if (y == NULL || A == NULL)
@@ -87,7 +87,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSp
   SUNLinearSolver S;
 
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL)
   {
     return NULL;

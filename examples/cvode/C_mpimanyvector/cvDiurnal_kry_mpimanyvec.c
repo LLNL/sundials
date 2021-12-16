@@ -195,6 +195,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u, c[2];
   UserData data;
@@ -227,7 +228,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
 	      npes,NPEX*NPEY);
     MPI_Finalize();
-    return(1);
+    MPI_Abort(comm, 1);
   }
 
   /* Allocate and load user data block; allocate preconditioner block */
@@ -238,19 +239,23 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = MXSUB*MYSUB;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Allocate c[0], c[1], u, and set initial values and tolerances */
-  c[0] = N_VNew_Parallel(comm, local_N, neq);
+  c[0] = N_VNew_Parallel(comm, local_N, neq, sunctx);
   if (check_retval((void *)c[0], "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  c[1] = N_VNew_Parallel(comm, local_N, neq);
+  c[1] = N_VNew_Parallel(comm, local_N, neq, sunctx);
   if (check_retval((void *)c[1], "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  u = N_VNew_MPIManyVector(2, c);
+  u = N_VNew_MPIManyVector(2, c, sunctx);
   if (check_retval((void *)u, "N_VNew_MPIManyVector", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -261,16 +266,16 @@ int main(int argc, char *argv[])
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Create SPGMR solver structure with left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach SPGMR solver structure to CVode interface */
@@ -304,6 +309,7 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
 
@@ -342,9 +348,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Preconditioner-related fields */
   for (lx=0; lx<MXSUB; lx++) {
     for (ly=0; ly<MYSUB; ly++) {
-      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newIndexArray(NVARS);
+      (data->P)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
 }
@@ -357,9 +363,9 @@ static void FreeUserData(UserData data)
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((data->P)[lx][ly]);
-      destroyMat((data->Jbd)[lx][ly]);
-      destroyArray((data->pivot)[lx][ly]);
+      SUNDlsMat_destroyMat((data->P)[lx][ly]);
+      SUNDlsMat_destroyMat((data->Jbd)[lx][ly]);
+      SUNDlsMat_destroyArray((data->pivot)[lx][ly]);
     }
   }
 
@@ -841,7 +847,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
   if (jok) {
     for (ly=0; ly<MYSUB; ly++)
       for (lx=0; lx<MXSUB; lx++)
-        denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
+        SUNDlsMat_denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
     *jcurPtr = SUNFALSE;
   }
 
@@ -866,7 +872,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
         IJth(j,1,2) = -Q2*c1 + data->q4;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - data->q4) + diag;
-        denseCopy(j, a, NVARS, NVARS);
+        SUNDlsMat_denseCopy(j, a, NVARS, NVARS);
       }
     }
 
@@ -877,13 +883,13 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
   /* Scale by -gamma */
   for (lx=0; lx<MXSUB; lx++)
     for (ly=0; ly<MYSUB; ly++)
-      denseScale(-gamma, P[lx][ly], NVARS, NVARS);
+      SUNDlsMat_denseScale(-gamma, P[lx][ly], NVARS, NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx=0; lx<MXSUB; lx++) {
     for (ly=0; ly<MYSUB; ly++) {
-      denseAddIdentity(P[lx][ly], NVARS);
-      retval = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      SUNDlsMat_denseAddIdentity(P[lx][ly], NVARS);
+      retval = SUNDlsMat_denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (retval != 0) return(1);
     }
   }
@@ -916,7 +922,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
     for (ly=0; ly<MYSUB; ly++) {
       v[0] = z1data[lx + ly*MXSUB];
       v[1] = z2data[lx + ly*MXSUB];
-      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      SUNDlsMat_denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
 

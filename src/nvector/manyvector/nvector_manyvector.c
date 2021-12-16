@@ -67,7 +67,7 @@ static int SubvectorMPIRank(N_Vector w);
    N_Vector objects, along with a user-created MPI (inter/intra)communicator
    that couples all subvectors together. */
 N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
-                               N_Vector *vec_array)
+                               N_Vector *vec_array, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_MPIManyVector content;
@@ -81,7 +81,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -135,6 +135,10 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvminquotientlocal = N_VMinQuotientLocal_MPIManyVector;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_MPIManyVector;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_MPIManyVector;
+
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal     = N_VDotProdMultiLocal_MPIManyVector;
+  v->ops->nvdotprodmultiallreduce = N_VDotProdMultiAllReduce_MPIManyVector;
 
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_MPIManyVector;
@@ -206,11 +210,12 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 /* This function creates an MPIManyVector from a set of existing
    N_Vector objects, under the requirement that all MPI-aware
    sub-vectors use the same MPI communicator (this is verified
-   internally).  If no sub-vector is MPI-aware, then this 
+   internally).  If no sub-vector is MPI-aware, then this
    function will return NULL. For single-node partitioning,
    the regular (not MPI aware) manyvector should be used. */
 N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
-                              N_Vector *vec_array)
+                              N_Vector *vec_array,
+                              SUNContext sunctx)
 {
   sunindextype i;
   booleantype nocommfound;
@@ -232,7 +237,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 
     /* if this is the first communicator, create a copy */
     if (nocommfound) {
-    
+
       /* set comm to duplicate this first subvector communicator */
       retval = MPI_Comm_dup(*vcomm, &comm);
       if (retval != MPI_SUCCESS)  return(NULL);
@@ -247,10 +252,10 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 
     }
   }
-    
+
   if (!nocommfound) {
     /* Create vector using "Make" routine and shared communicator (if non-NULL) */
-    v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array);
+    v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array, sunctx);
     if (comm != MPI_COMM_NULL)  MPI_Comm_free(&comm);
   }
 
@@ -261,7 +266,8 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
    N_Vector objects.  ManyVector objects created with this constructor
    may be used to describe data partitioning within a single node. */
 N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
-                           N_Vector *vec_array)
+                           N_Vector *vec_array,
+                           SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_ManyVector content;
@@ -274,7 +280,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -318,15 +324,18 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_ManyVector;
 
   /* local reduction operations */
-  v->ops->nvdotprodlocal     = N_VDotProdLocal_ManyVector;
-  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_ManyVector;
-  v->ops->nvminlocal         = N_VMinLocal_ManyVector;
-  v->ops->nvl1normlocal      = N_VL1NormLocal_ManyVector;
-  v->ops->nvinvtestlocal     = N_VInvTestLocal_ManyVector;
-  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_ManyVector;
-  v->ops->nvminquotientlocal = N_VMinQuotientLocal_ManyVector;
-  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ManyVector;
-  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ManyVector;
+  v->ops->nvdotprodlocal      = N_VDotProdLocal_ManyVector;
+  v->ops->nvmaxnormlocal      = N_VMaxNormLocal_ManyVector;
+  v->ops->nvminlocal          = N_VMinLocal_ManyVector;
+  v->ops->nvl1normlocal       = N_VL1NormLocal_ManyVector;
+  v->ops->nvinvtestlocal      = N_VInvTestLocal_ManyVector;
+  v->ops->nvconstrmasklocal   = N_VConstrMaskLocal_ManyVector;
+  v->ops->nvminquotientlocal  = N_VMinQuotientLocal_ManyVector;
+  v->ops->nvwsqrsumlocal      = N_VWSqrSumLocal_ManyVector;
+  v->ops->nvwsqrsummasklocal  = N_VWSqrSumMaskLocal_ManyVector;
+
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_ManyVector;
 
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_ManyVector;
@@ -1236,6 +1245,73 @@ realtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
 #endif
 
 
+/* -----------------------------------------------------------------
+   Single buffer reduction operations
+   ----------------------------------------------------------------- */
+
+
+int MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
+                                   realtype* dotprods)
+{
+  int          j, retval;
+  sunindextype i;
+  N_Vector*    Ysub;
+  realtype*    contrib;
+
+  /* create temporary workspace arrays */
+  Ysub = NULL;
+  Ysub = (N_Vector*) malloc(nvec * sizeof(N_Vector));
+  if (!Ysub) return -1;
+
+  contrib = NULL;
+  contrib = (realtype*) malloc(nvec * sizeof(realtype));
+  if (!contrib) return -1;
+
+  /* initialize output */
+  for (j = 0; j < nvec; j++)
+    dotprods[j] = ZERO;
+
+  /* loop over subvectors */
+  for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++) {
+
+    /* extract subvectors from vector array */
+    for (j = 0; j < nvec; j++)
+      Ysub[j] = MANYVECTOR_SUBVEC(Y[j], i);
+
+    /* compute dot products */
+    retval = N_VDotProdMultiLocal(nvec, MANYVECTOR_SUBVEC(x,i), Ysub, contrib);
+
+    if (retval) {
+      free(Ysub);
+      free(contrib);
+      return -1;
+    }
+
+    /* accumulate contributions */
+    for (j = 0; j < nvec; j++)
+      dotprods[j] += contrib[j];
+  }
+
+  free(Ysub);
+  free(contrib);
+
+  /* return with success */
+  return 0;
+}
+
+
+#ifdef MANYVECTOR_BUILD_WITH_MPI
+int N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x, realtype* sum)
+{
+  /* accumulate totals and return */
+  if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
+    return(MPI_Allreduce(MPI_IN_PLACE, sum, nvec_total, MPI_SUNREALTYPE,
+                         MPI_SUM, MANYVECTOR_COMM(x)));
+
+  return(-1);
+}
+#endif
+
 
 /* -----------------------------------------------------------------
    Fused vector operations
@@ -1354,10 +1430,10 @@ int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
     return(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
                          MPI_SUM, MANYVECTOR_COMM(x)));
 #endif
+
   /* return with success */
   return(0);
 }
-
 
 /* -----------------------------------------------------------------
    Vector array operations
@@ -1705,6 +1781,8 @@ int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = MVAPPEND(N_VWrmsNormMaskVectorArray);
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = MVAPPEND(N_VDotProdMultiLocal);
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -1718,6 +1796,8 @@ int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1869,6 +1949,23 @@ int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
+int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmultilocal = MVAPPEND(N_VDotProdMultiLocal);
+  else
+    v->ops->nvdotprodmultilocal = NULL;
+
+  /* return success */
+  return(0);
+}
 
 /* -----------------------------------------------------------------
    Implementation of utility routines
@@ -1887,7 +1984,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

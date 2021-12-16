@@ -14,7 +14,22 @@
  * SUNDIALS configuration header file.
  * -----------------------------------------------------------------*/
 
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+
 #include "sundials_export.h"
+
+#ifndef SUNDIALS_DEPRECATED_MSG
+#  define SUNDIALS_DEPRECATED_MSG(msg) @SUNDIALS_DEPRECATED_MSG_MACRO@
+#endif
+
+#ifndef SUNDIALS_DEPRECATED_EXPORT_MSG
+#  define SUNDIALS_DEPRECATED_EXPORT_MSG(msg) SUNDIALS_EXPORT SUNDIALS_DEPRECATED_MSG(msg)
+#endif
+
+#ifndef SUNDIALS_DEPRECATED_NO_EXPORT_MSG
+#  define SUNDIALS_DEPRECATED_NO_EXPORT_MSG(msg) SUNDIALS_NO_EXPORT SUNDIALS_DEPRECATED_MSG(msg)
+#endif
 
 /* ------------------------------------------------------------------
  * Define SUNDIALS version numbers
@@ -67,23 +82,21 @@
  */
 #cmakedefine SUNDIALS_HAVE_POSIX_TIMERS
 
-/* CVODE should use fused kernels if utilizing
-  * the CUDA NVector.
-  */
+/* BUILD CVODE with fused kernel functionality */
 #cmakedefine SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
 
-
-/* BUILD SUNDIALS with monitoring functionalities
-  * the CUDA NVector.
-  */
+/* BUILD SUNDIALS with monitoring functionalities */
 #cmakedefine SUNDIALS_BUILD_WITH_MONITORING
+
+/* BUILD SUNDIALS with profiling functionalities */
+#cmakedefine SUNDIALS_BUILD_WITH_PROFILING
 
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
  * -----------------------------------------------------------------*/
 
-
-@SUNDIALS_CONFIGH_TPLS@
+/* Caliper */
+#cmakedefine SUNDIALS_CALIPER_ENABLED
 
 /* MAGMA backends */
 #cmakedefine SUNDIALS_MAGMA_BACKENDS_CUDA
@@ -113,7 +126,6 @@
  * SUNDIALS modules enabled
  * -----------------------------------------------------------------*/
 
-
 @SUNDIALS_CONFIGH_BUILDS@
 
 
@@ -122,7 +134,7 @@
  * -----------------------------------------------------------------*/
 
 
-/* FCMIX: Define Fortran name-mangling macro for C identifiers.
+/* Define Fortran name-mangling macro for C identifiers.
  * Depending on the inferred scheme, one of the following six
  * macros will be defined:
  *     #define SUNDIALS_F77_FUNC(name,NAME) name
@@ -134,12 +146,12 @@
  */
 @F77_MANGLE_MACRO1@
 
-/* FCMIX: Define Fortran name-mangling macro for C identifiers
- *        which contain underscores.
+/* Define Fortran name-mangling macro for C identifiers
+ * which contain underscores.
  */
 @F77_MANGLE_MACRO2@
 
-/* FNVECTOR: Allow user to specify different MPI communicator
+/* Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then
  *      #define SUNDIALS_MPI_COMM_F2C 1
  * otherwise
@@ -160,7 +172,11 @@
 #endif
 
 #ifndef SUNDIALS_C_INLINE
+#ifndef __STDC_VERSION__ /* must be c89 or c90 */
+#define SUNDIALS_C_INLINE
+#else
 #define SUNDIALS_C_INLINE inline
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -172,3 +188,5 @@
 /* Mark SUNDIALS function as static inline.
  */
 #define SUNDIALS_STATIC_INLINE static SUNDIALS_INLINE
+
+#endif /* _SUNDIALS_CONFIG_H */

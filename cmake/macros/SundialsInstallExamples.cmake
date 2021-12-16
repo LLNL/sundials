@@ -86,6 +86,10 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   set(EXTRA_INCLUDES "${sundials_install_examples_EXTRA_INCLUDES}")
   examples2string(${EXAMPLES_VAR} EXAMPLES)
 
+  # components for find_package
+  list2string(sundials_install_examples_SUNDIALS_TARGETS
+    EXAMPLES_CMAKE_COMPONENTS)
+
   set(target_list "")
   foreach(target ${sundials_install_examples_SUNDIALS_TARGETS})
     list(APPEND target_list SUNDIALS::${target})

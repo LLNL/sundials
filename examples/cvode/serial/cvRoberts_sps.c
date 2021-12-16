@@ -13,11 +13,11 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Example problem:
- * 
+ *
  * The following is a simple example problem, with the coding
  * needed for its solution by CVODE. The problem is from
  * chemical kinetics, and consists of the following three rate
- * equations:         
+ * equations:
  *    dy1/dt = -.04*y1 + 1.e4*y2*y3
  *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
  *    dy3/dt = 3.e7*(y2)^2
@@ -77,7 +77,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
@@ -102,6 +102,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main()
 {
+  SUNContext sunctx;
   realtype reltol, t, tout;
   N_Vector y, abstol;
   SUNMatrix A;
@@ -115,10 +116,14 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Create serial vector of length NEQ for I.C. and abstol */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ); 
+  abstol = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
@@ -133,11 +138,11 @@ int main()
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
-  
+
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
@@ -155,11 +160,11 @@ int main()
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, sunctx);
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT solver object for use by CVode (one thread) */
-  LS = SUNLinSol_SuperLUMT(y, A, 1);
+  LS = SUNLinSol_SuperLUMT(y, A, 1, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
@@ -210,6 +215,9 @@ int main()
   /* Free the matrix memory */
   SUNMatDestroy(A);
 
+  /* Free the SUNDIALS simulation context */
+  SUNContext_Free(&sunctx);
+
   return(0);
 }
 
@@ -221,7 +229,7 @@ int main()
  */
 
 /*
- * f routine. Compute function f(t,y). 
+ * f routine. Compute function f(t,y).
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
@@ -238,7 +246,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /*
- * g routine. Compute functions g_i(t,y) for i = 0,1. 
+ * g routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
@@ -256,14 +264,14 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
   realtype *data = SUNSparseMatrix_Data(J);
-  
+
   yval = N_VGetArrayPointer(y);
 
   SUNMatZero(J);
@@ -323,7 +331,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
   return;
 }
 
-/* 
+/*
  * Get and print some final statistics
  */
 
@@ -365,7 +373,7 @@ static void PrintFinalStats(void *cvode_mem)
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)

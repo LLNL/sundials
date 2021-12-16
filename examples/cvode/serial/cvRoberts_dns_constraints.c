@@ -14,11 +14,11 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Example problem:
- * 
+ *
  * The following is a simple example problem, with the coding
  * needed for its solution by CVODE. The problem is from
  * chemical kinetics, and consists of the following three rate
- * equations:         
+ * equations:
  *    dy1/dt = -.04*y1 + 1.e4*y2*y3
  *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
  *    dy3/dt = 3.e7*(y2)^2
@@ -65,7 +65,7 @@
 
    IJth(A,i,j) references the (i,j)th element of the dense matrix A, where
    i and j are in the range [1..NEQ]. The IJth macro is defined using the
-   SM_ELEMENT_D macro in dense.h. SM_ELEMENT_D numbers rows and columns of 
+   SM_ELEMENT_D macro in dense.h. SM_ELEMENT_D numbers rows and columns of
    a dense matrix starting from 0. */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
@@ -96,7 +96,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
@@ -116,6 +116,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
 
+/* SUNDIALS context */
+static SUNContext sunctx = NULL;
 
 /*
  *-------------------------------
@@ -138,12 +140,16 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Create serial vector of length NEQ for I.C., abstol, and constraints */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ); 
+  abstol = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
-  constraints = N_VNew_Serial(NEQ);
+  constraints = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
@@ -161,11 +167,11 @@ int main()
   /* Set constraints to all 1's for nonnegative solution values. */
   N_VConst(ONE, constraints);
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
-  
+
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
@@ -182,11 +188,11 @@ int main()
   if (check_retval(&retval, "CVodeRootInit", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
@@ -245,6 +251,8 @@ int main()
   /* Free the matrix memory */
   SUNMatDestroy(A);
 
+  SUNContext_Free(&sunctx);
+
   return(retval);
 }
 
@@ -256,7 +264,7 @@ int main()
  */
 
 /*
- * f routine. Compute function f(t,y). 
+ * f routine. Compute function f(t,y).
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
@@ -273,7 +281,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /*
- * g routine. Compute functions g_i(t,y) for i = 0,1. 
+ * g routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
@@ -291,7 +299,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y2, y3;
@@ -302,7 +310,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   IJth(J,1,2) = RCONST(1.0e4)*y3;
   IJth(J,1,3) = RCONST(1.0e4)*y2;
 
-  IJth(J,2,1) = RCONST(0.04); 
+  IJth(J,2,1) = RCONST(0.04);
   IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
   IJth(J,2,3) = RCONST(-1.0e4)*y2;
 
@@ -339,7 +347,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
   return;
 }
 
-/* 
+/*
  * Get and print some final statistics
  */
 
@@ -383,7 +391,7 @@ static void PrintFinalStats(void *cvode_mem)
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -417,7 +425,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
    using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
 static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
 {
-  int      passfail=0;        /* answer pass (0) or fail (1) flag */  
+  int      passfail=0;        /* answer pass (0) or fail (1) flag */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
   realtype err;               /* wrms error                       */
@@ -438,14 +446,14 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
     return(-1);
   }
-  N_VInv(ewt, ewt);   
+  N_VInv(ewt, ewt);
 
   /* compute the solution error */
   N_VLinearSum(ONE, y, -ONE, ref, ref);
   err = N_VWrmsNorm(ref, ewt);
 
   /* is the solution within the tolerances? */
-  passfail = (err < ONE) ? 0 : 1; 
+  passfail = (err < ONE) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

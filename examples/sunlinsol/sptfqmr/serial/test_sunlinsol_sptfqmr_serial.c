@@ -105,6 +105,12 @@ int main(int argc, char *argv[])
   sunindextype    i;
   realtype        *vecdata;
   double          tol;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check inputs: local problem size, timing flag */
   if (argc < 6) {
@@ -124,9 +130,9 @@ int main(int argc, char *argv[])
   }
   pretype = atoi(argv[2]);
   if (pretype == 1) {
-    pretype = PREC_LEFT;
+    pretype = SUN_PREC_LEFT;
   } else if (pretype == 2) {
-    pretype = PREC_RIGHT;
+    pretype = SUN_PREC_RIGHT;
   } else {
     printf("ERROR: Preconditioning type must be either 1 or 2\n");
     return 1;
@@ -152,17 +158,17 @@ int main(int argc, char *argv[])
   printf("  timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
-  x = N_VNew_Serial(ProbData.N);
+  x = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(x, "N_VNew_Serial", 0)) return 1;
-  xhat = N_VNew_Serial(ProbData.N);
+  xhat = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(xhat, "N_VNew_Serial", 0)) return 1;
-  b = N_VNew_Serial(ProbData.N);
+  b = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(b, "N_VNew_Serial", 0)) return 1;
-  ProbData.d = N_VNew_Serial(ProbData.N);
+  ProbData.d = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.d, "N_VNew_Serial", 0)) return 1;
-  ProbData.s1 = N_VNew_Serial(ProbData.N);
+  ProbData.s1 = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.s1, "N_VNew_Serial", 0)) return 1;
-  ProbData.s2 = N_VNew_Serial(ProbData.N);
+  ProbData.s2 = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.s2, "N_VNew_Serial", 0)) return 1;
 
   /* Fill xhat vector with uniform random data in [1,2] */
@@ -174,7 +180,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
 
   /* Create SPTFQMR linear solver */
-  LS = SUNLinSol_SPTFQMR(x, pretype, maxl);
+  LS = SUNLinSol_SPTFQMR(x, pretype, maxl, sunctx);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SPTFQMR, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
@@ -205,7 +211,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
@@ -240,7 +246,7 @@ int main(int argc, char *argv[])
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
-  if (pretype == PREC_LEFT) {
+  if (pretype == SUN_PREC_LEFT) {
     /* note a non-zero guess with right preconditioning is not supported */
     fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   }
@@ -274,7 +280,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
@@ -311,7 +317,7 @@ int main(int argc, char *argv[])
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
-  if (pretype == PREC_LEFT) {
+  if (pretype == SUN_PREC_LEFT) {
     /* note a non-zero guess with right preconditioning is not supported */
     fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   }
@@ -345,7 +351,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
@@ -382,7 +388,7 @@ int main(int argc, char *argv[])
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
-  if (pretype == PREC_LEFT) {
+  if (pretype == SUN_PREC_LEFT) {
     /* note a non-zero guess with right preconditioning is not supported */
     fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   }
@@ -408,6 +414,7 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.d);
   N_VDestroy(ProbData.s1);
   N_VDestroy(ProbData.s2);
+  SUNContext_Free(&sunctx);
 
   return(passfail);
 }

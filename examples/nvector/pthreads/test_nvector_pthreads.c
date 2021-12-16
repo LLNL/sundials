@@ -35,22 +35,24 @@ int main(int argc, char *argv[])
   int          print_timing;      /* turn timing on/off        */
   int          nthreads;          /* number of POSIX threads   */
 
+  Test_Init(NULL);
+
   /* check input and set vector length */
   if (argc < 4){
     printf("ERROR: THREE (3) Inputs required: vector length, number of threads, print timing \n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   length = (sunindextype) atol(argv[1]);
   if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   nthreads = atoi(argv[2]);
   if (nthreads < 1) {
     printf("ERROR: number of threads must be at least 1 \n");
-    return(-1);
+    Test_Abort(-1);
   }
 
   print_timing = atoi(argv[3]);
@@ -61,17 +63,17 @@ int main(int argc, char *argv[])
   printf("Number of threads %d \n\n", nthreads);
 
   /* Create new vectors */
-  W = N_VNewEmpty_Pthreads(length, nthreads);
+  W = N_VNewEmpty_Pthreads(length, nthreads, sunctx);
   if (W == NULL) {
     printf("FAIL: Unable to create a new empty vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
-  X = N_VNew_Pthreads(length, nthreads);
+  X = N_VNew_Pthreads(length, nthreads, sunctx);
   if (X == NULL) {
     N_VDestroy(W);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* Check vector ID */
@@ -99,7 +101,7 @@ int main(int argc, char *argv[])
     N_VDestroy(W);
     N_VDestroy(X);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   Z = N_VClone(X);
@@ -108,7 +110,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Y);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* Standard vector operation tests */
@@ -138,7 +140,7 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VNew_Pthreads(length, nthreads);
+  U = N_VNew_Pthreads(length, nthreads, sunctx);
   retval = N_VEnableFusedOps_Pthreads(U, SUNFALSE);
   if (U == NULL || retval != 0) {
     N_VDestroy(W);
@@ -146,7 +148,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     N_VDestroy(Z);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* fused operations */
@@ -167,7 +169,7 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VNew_Pthreads(length, nthreads);
+  V = N_VNew_Pthreads(length, nthreads, sunctx);
   retval = N_VEnableFusedOps_Pthreads(V, SUNTRUE);
   if (V == NULL || retval != 0) {
     N_VDestroy(W);
@@ -176,7 +178,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(U);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* fused operations */
@@ -206,6 +208,10 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
   fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
+  /* local fused reduction operations */
+  printf("\nTesting local fused reduction operations:\n\n");
+  fails += Test_N_VDotProdMultiLocal(V, length, 0);
+
   /* XBraid interface operations */
   printf("\nTesting XBraid interface operations:\n\n");
 
@@ -228,6 +234,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
+  Test_Finalize();
   return(fails);
 }
 

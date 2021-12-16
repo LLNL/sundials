@@ -265,6 +265,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod
   use farkode_mod                ! Fortran interface to the ARKode module
   use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
   use fnvector_fortran_mod       ! Custom Fortran N_Vector
@@ -279,6 +280,7 @@ program main
   integer(c_int) :: ierr, iout, i
   real(c_double) :: pi, tcur(1), dTout, tout
 
+  type(c_ptr)                    :: sunctx        ! sundials context for the simulation
   type(N_Vector),        pointer :: sunvec_y      ! sundials vector
   type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix
   type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
@@ -297,23 +299,30 @@ program main
   print '(3(a,es10.3))', "    diffusion coefficients:  du = ",du,",  dv = ",dv,",  dw = ",dw
   print '(2(a,es8.1))', "    reltol = ",reltol,",  abstol = ",abstol
 
+  ! create the SUNDIALS context for the simulation
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  if (ierr /= 0) then
+    write(*,*) 'Error in FSUNContext_Create'
+    stop 1
+  end if
+
   ! initialize SUNDIALS solution vector
-  sunvec_y => FN_VMake_Fortran(Nvar, N, y)
+  sunvec_y => FN_VMake_Fortran(Nvar, N, y, sunctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    write(*,*) 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! Set initial conditions into y
   pi = 4.d0*datan(1.d0)
   do i = 1,N
-     y(1,i) =  a  + 0.1d0*sin(pi*i*dx)  ! u
-     y(2,i) = b/a + 0.1d0*sin(pi*i*dx)  ! v
-     y(3,i) =  b  + 0.1d0*sin(pi*i*dx)  ! w
+    y(1,i) =  a  + 0.1d0*sin(pi*i*dx)  ! u
+    y(2,i) = b/a + 0.1d0*sin(pi*i*dx)  ! v
+    y(3,i) =  b  + 0.1d0*sin(pi*i*dx)  ! w
   end do
 
   ! create ARKStep memory
-  arkode_mem = FARKStepCreate(c_funloc(RhsExplicit), c_funloc(RhsImplicit), T0, sunvec_y)
+  arkode_mem = FARKStepCreate(c_funloc(RhsExplicit), c_funloc(RhsImplicit), T0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *,'ERROR: arkode_mem = NULL'
      stop 1
@@ -327,13 +336,13 @@ program main
   end if
 
   ! initialize custom matrix data structure and solver; attach to ARKStep
-  sunmat_A => FSUNMatNew_Fortran(Nvar, N)
+  sunmat_A => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sunmat_A)) then
      print *,'ERROR: sunmat = NULL'
      stop 1
   end if
 
-  sunls => FSUNLinSolNew_Fortran(Nvar, N)
+  sunls => FSUNLinSolNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sunls)) then
      print *,'ERROR: sunls = NULL'
      stop 1
@@ -386,6 +395,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 

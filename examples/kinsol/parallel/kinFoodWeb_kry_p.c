@@ -197,7 +197,7 @@ static void BRecvWait(MPI_Request request[], int isubx,
                       realtype *buffer);
 static void ccomm(realtype *cdata, UserData data);
 static void fcalcprpr(N_Vector cc, N_Vector fval,void *user_data);
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *retvalvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -206,14 +206,14 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
  */
 
 int main(int argc, char *argv[])
-
 {
+  SUNContext sunctx;
   int globalstrategy;
   sunindextype local_N;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
-  int flag, maxl, maxlrst;
+  int retval, maxl, maxlrst;
   int my_pe, npes, npelast = NPEX*NPEY-1;
   void *kmem;
   SUNLinearSolver LS;
@@ -238,6 +238,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Allocate memory, and set problem data, initial values, tolerances */
 
   /* Set local vector length */
@@ -245,21 +249,21 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize user data block */
   data = AllocUserData();
-  if (check_flag((void *)data, "AllocUserData", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)data, "AllocUserData", 0, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
-  /* Set global strategy flag */
+  /* Set global strategy retval */
   globalstrategy = KIN_NONE;
 
   /* Allocate and initialize vectors */
-  cc = N_VNew_Parallel(comm, local_N, NEQ);
-  if (check_flag((void *)cc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  sc = N_VNew_Parallel(comm, local_N, NEQ);
-  if (check_flag((void *)sc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  data->rates = N_VNew_Parallel(comm, local_N, NEQ);
-  if (check_flag((void *)data->rates, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  constraints = N_VNew_Parallel(comm, local_N, NEQ);
-  if (check_flag((void *)constraints, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  cc = N_VNew_Parallel(comm, local_N, NEQ, sunctx);
+  if (check_retval((void *)cc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  sc = N_VNew_Parallel(comm, local_N, NEQ, sunctx);
+  if (check_retval((void *)sc, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  data->rates = N_VNew_Parallel(comm, local_N, NEQ, sunctx);
+  if (check_retval((void *)data->rates, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  constraints = N_VNew_Parallel(comm, local_N, NEQ, sunctx);
+  if (check_retval((void *)constraints, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   N_VConst(ZERO, constraints);
 
   SetInitialProfiles(cc, sc);
@@ -269,22 +273,22 @@ int main(int argc, char *argv[])
   /* Call KINCreate/KINInit to initialize KINSOL:
      nvSpec is the nvSpec pointer used in the parallel version
      A pointer to KINSOL problem memory is returned and stored in kmem. */
-  kmem = KINCreate();
-  if (check_flag((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  kmem = KINCreate(sunctx);
+  if (check_retval((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Vector cc passed as template vector. */
-  flag = KINInit(kmem, funcprpr, cc);
-  if (check_flag(&flag, "KINInit", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSetNumMaxIters(kmem, 250);
-  if (check_flag(&flag, "KINSetNumMaxIters", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSetUserData(kmem, data);
-  if (check_flag(&flag, "KINSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSetConstraints(kmem, constraints);
-  if (check_flag(&flag, "KINSetConstraints", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_flag(&flag, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_flag(&flag, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINInit(kmem, funcprpr, cc);
+  if (check_retval(&retval, "KINInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetNumMaxIters(kmem, 250);
+  if (check_retval(&retval, "KINSetNumMaxIters", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetUserData(kmem, data);
+  if (check_retval(&retval, "KINSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetConstraints(kmem, constraints);
+  if (check_retval(&retval, "KINSetConstraints", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetScaledStepTol(kmem, scsteptol);
+  if (check_retval(&retval, "KINSetScaledStepTol", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* We no longer need the constraints vector since KINSetConstraints
      creates a private copy for KINSOL to use. */
@@ -293,33 +297,33 @@ int main(int argc, char *argv[])
   /* Create SUNLinSol_SPGMR object with right preconditioning and the
      maximum Krylov dimension maxl */
   maxl = 20;
-  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
-  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach the linear solver to KINSOL */
-  flag = KINSetLinearSolver(kmem, LS, NULL);
-  if (check_flag(&flag, "KINSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetLinearSolver(kmem, LS, NULL);
+  if (check_retval(&retval, "KINSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the maximum number of restarts */
   maxlrst = 2;
-  flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
-  if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Specify the preconditioner setup and solve routines */
-  flag = KINSetPreconditioner(kmem, Precondbd, PSolvebd);
-  if (check_flag(&flag, "KINSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = KINSetPreconditioner(kmem, Precondbd, PSolvebd);
+  if (check_retval(&retval, "KINSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   if (my_pe == 0)
     PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
 
   /* Call KINSol and print output concentration profile */
-  flag = KINSol(kmem,           /* KINSol memory block */
+  retval = KINSol(kmem,           /* KINSol memory block */
                 cc,             /* initial guess on input; solution vector */
                 globalstrategy, /* global strategy choice */
                 sc,             /* scaling vector for the variable cc */
                 sc);            /* scaling vector for function values fval */
-  if (check_flag(&flag, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) printf("\n\nComputed equilibrium species concentrations:\n");
   if (my_pe == 0 || my_pe == npelast) PrintOutput(my_pe, comm, cc);
@@ -332,6 +336,7 @@ int main(int argc, char *argv[])
   KINFree(&kmem);
   SUNLinSolFree(LS);
   FreeUserData(data);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
 
@@ -430,7 +435,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
 
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
 
     } /* end of jx loop */
@@ -465,7 +470,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      SUNDlsMat_denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
 
     } /* end of jy loop */
 
@@ -530,12 +535,12 @@ static UserData AllocUserData(void)
 
   for (jx = 0; jx < MXSUB; jx++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
-  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -613,12 +618,12 @@ static void FreeUserData(UserData data)
 
   for (jx = 0; jx < MXSUB; jx++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      destroyMat((data->P)[jx][jy]);
-      destroyArray((data->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((data->P)[jx][jy]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jy]);
     }
   }
 
-  destroyMat(acoef);
+  SUNDlsMat_destroyMat(acoef);
   free(bcoef);
   free(cox);
   free(coy);
@@ -770,22 +775,22 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
-  int flag;
+  int retval;
 
-  flag = KINGetNumNonlinSolvIters(kmem, &nni);
-  check_flag(&flag, "KINGetNumNonlinSolvIters", 1, 0);
-  flag = KINGetNumFuncEvals(kmem, &nfe);
-  check_flag(&flag, "KINGetNumFuncEvals", 1, 0);
-  flag = KINGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINGetNumLinIters", 1, 0);
-  flag = KINGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINGetNumPrecEvals", 1, 0);
-  flag = KINGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINGetNumPrecSolves", 1, 0);
-  flag = KINGetNumLinConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINGetNumLinConvFails", 1, 0);
-  flag = KINGetNumLinFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINGetNumLinFuncEvals", 1, 0);
+  retval = KINGetNumNonlinSolvIters(kmem, &nni);
+  check_retval(&retval, "KINGetNumNonlinSolvIters", 1, 0);
+  retval = KINGetNumFuncEvals(kmem, &nfe);
+  check_retval(&retval, "KINGetNumFuncEvals", 1, 0);
+  retval = KINGetNumLinIters(kmem, &nli);
+  check_retval(&retval, "KINGetNumLinIters", 1, 0);
+  retval = KINGetNumPrecEvals(kmem, &npe);
+  check_retval(&retval, "KINGetNumPrecEvals", 1, 0);
+  retval = KINGetNumPrecSolves(kmem, &nps);
+  check_retval(&retval, "KINGetNumPrecSolves", 1, 0);
+  retval = KINGetNumLinConvFails(kmem, &ncfl);
+  check_retval(&retval, "KINGetNumLinConvFails", 1, 0);
+  retval = KINGetNumLinFuncEvals(kmem, &nfeSG);
+  check_retval(&retval, "KINGetNumLinFuncEvals", 1, 0);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
@@ -1080,37 +1085,37 @@ static void fcalcprpr(N_Vector cc, N_Vector fval, void *user_data)
  * Check function return value...
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns a retval so check if
+ *             retval >= 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *retvalvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *errretval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && retvalvalue == NULL) {
     fprintf(stderr,
             "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1);
   }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    errretval = (int *) retvalvalue;
+    if (*errretval < 0) {
       fprintf(stderr,
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
+              "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *errretval);
       return(1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && retvalvalue == NULL) {
     fprintf(stderr,
             "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);

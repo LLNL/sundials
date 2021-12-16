@@ -35,6 +35,12 @@ int main(int argc, char *argv[])
 {
   int          fails = 0; // counter for test failures
   sunindextype i, j, k;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   // Check inputs and set matrix dimensions
   if (argc < 4){
@@ -112,7 +118,7 @@ int main(int argc, char *argv[])
   std::cout << std::endl;
 
   // Create Sycl memory helper
-  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(&myQueue);
+  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(sunctx);
   if (!memhelper)
   {
     printf("Memory helper creation failed\n");
@@ -120,7 +126,7 @@ int main(int argc, char *argv[])
   }
 
   // Create vectors and matrices
-  N_Vector x = N_VNew_Sycl(cols * nblocks, &myQueue);
+  N_Vector x = N_VNew_Sycl(cols * nblocks, &myQueue, sunctx);
   if (!x)
   {
     printf("Vector creation failed\n");
@@ -148,12 +154,12 @@ int main(int argc, char *argv[])
   if (nblocks > 1)
   {
     A = SUNMatrix_OneMklDenseBlock(nblocks, rows, cols, SUNMEMTYPE_DEVICE,
-                                   memhelper, &myQueue);
+                                   memhelper, &myQueue, sunctx);
   }
   else
   {
     A = SUNMatrix_OneMklDense(rows, cols, SUNMEMTYPE_DEVICE, memhelper,
-                              &myQueue);
+                              &myQueue, sunctx);
   }
 
   if (!A)
@@ -268,7 +274,7 @@ int main(int argc, char *argv[])
   }
 
   // Create dense linear solver
-  SUNLinearSolver LS = SUNLinSol_OneMklDense(x, A);
+  SUNLinearSolver LS = SUNLinSol_OneMklDense(x, A, sunctx);
   if (!LS)
   {
     printf("FAIL: SUNLinSol_OneMklDense failure\n");
@@ -289,7 +295,7 @@ int main(int argc, char *argv[])
   // Run Tests
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1e-10), 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1e-10), SUNTRUE, 0);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_ONEMKLDENSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -325,6 +331,7 @@ int main(int argc, char *argv[])
   free(Adata);
   free(Idata);
   SUNMemoryHelper_Destroy(memhelper);
+  SUNContext_Free(&sunctx);
 
   return fails;
 }

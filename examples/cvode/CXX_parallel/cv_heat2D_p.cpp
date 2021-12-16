@@ -268,12 +268,7 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                   // reusable error-checking flag
-  UserData *udata    = NULL;  // user data structure
-  N_Vector u         = NULL;  // vector for storing solution
-  SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *cvode_mem    = NULL;  // CVODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
+  int flag; // reusable error-checking flag
 
   // Timing variables
   double t1 = 0.0;
@@ -290,236 +285,250 @@ int main(int argc, char* argv[])
   flag = MPI_Comm_rank(comm_w, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
-  // Set output process flag
-  bool outproc = (myid == 0);
-
-  // ------------------------------------------
-  // Setup UserData and parallel decomposition
-  // ------------------------------------------
-
-  // Allocate and initialize user data structure with default values. The
-  // defaults may be overwritten by command line inputs in ReadInputs below.
-  udata = new UserData;
-  flag = InitUserData(udata);
-  if (check_flag(&flag, "InitUserData", 1)) return 1;
-
-  // Parse command line inputs
-  flag = ReadInputs(&argc, &argv, udata, outproc);
-  if (flag != 0) return 1;
-
-  // Setup parallel decomposition
-  flag = SetupDecomp(comm_w, udata);
-  if (check_flag(&flag, "SetupDecomp", 1)) return 1;
-
-  // Output problem setup/options
-  if (outproc)
+  // Create a new scope so that sundials::Context is deleted
+  // prior to the MPI_Finalize() call.
   {
-    flag = PrintUserData(udata);
-    if (check_flag(&flag, "PrintUserData", 1)) return 1;
+    UserData *udata    = NULL;  // user data structure
+    N_Vector u         = NULL;  // vector for storing solution
+    SUNLinearSolver LS = NULL;  // linear solver memory structure
+    void *cvode_mem    = NULL;  // CVODE memory structure
+    FILE *diagfp       = NULL;  // diagnostics output file
 
-    // Open diagnostics output file
-    if (udata->lsinfo)
+    // SUNDIALS context
+    sundials::Context sunctx(&comm_w);
+
+    // Set output process flag
+    bool outproc = (myid == 0);
+
+    // ------------------------------------------
+    // Setup UserData and parallel decomposition
+    // ------------------------------------------
+
+    // Allocate and initialize user data structure with default values. The
+    // defaults may be overwritten by command line inputs in ReadInputs below.
+    udata = new UserData;
+    flag = InitUserData(udata);
+    if (check_flag(&flag, "InitUserData", 1)) return 1;
+
+    // Parse command line inputs
+    flag = ReadInputs(&argc, &argv, udata, outproc);
+    if (flag != 0) return 1;
+
+    // Setup parallel decomposition
+    flag = SetupDecomp(comm_w, udata);
+    if (check_flag(&flag, "SetupDecomp", 1)) return 1;
+
+    // Output problem setup/options
+    if (outproc)
     {
-      diagfp = fopen("diagnostics.txt", "w");
-      if (check_flag((void *) diagfp, "fopen", 0)) return 1;
+      flag = PrintUserData(udata);
+      if (check_flag(&flag, "PrintUserData", 1)) return 1;
+
+      // Open diagnostics output file
+      if (udata->lsinfo)
+      {
+        diagfp = fopen("diagnostics.txt", "w");
+        if (check_flag((void *) diagfp, "fopen", 0)) return 1;
+      }
     }
-  }
 
-  // ------------------------
-  // Create parallel vectors
-  // ------------------------
+    // ------------------------
+    // Create parallel vectors
+    // ------------------------
 
-  // Create vector for solution
-  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
-  if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
+    // Create vector for solution
+    u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes, sunctx);
+    if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
-  // Set initial condition
-  flag = Solution(ZERO, u, udata);
-  if (check_flag(&flag, "Solution", 1)) return 1;
+    // Set initial condition
+    flag = Solution(ZERO, u, udata);
+    if (check_flag(&flag, "Solution", 1)) return 1;
 
-  // Create vector for error
-  udata->e = N_VClone(u);
-  if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
+    // Create vector for error
+    udata->e = N_VClone(u);
+    if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
 
-  // ---------------------
-  // Create linear solver
-  // ---------------------
+    // ---------------------
+    // Create linear solver
+    // ---------------------
 
-  // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
+    // Create linear solver
+    int prectype = (udata->prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
-  if (udata->pcg)
-  {
-    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
-    if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
+    if (udata->pcg)
     {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
+      LS = SUNLinSol_PCG(u, prectype, udata->liniters, sunctx);
+      if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
-      flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
+      if (udata->lsinfo && outproc)
+      {
+        flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
+        if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
+
+        flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
+        if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
+      }
     }
-  }
-  else
-  {
-    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
-    if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
+    else
     {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
+      LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, sunctx);
+      if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
+      if (udata->lsinfo && outproc)
+      {
+        flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
+        if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
+
+        flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
+        if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
+      }
     }
-  }
 
-  // Allocate preconditioner workspace
-  if (udata->prec)
-  {
-    udata->d = N_VClone(u);
-    if (check_flag((void *) (udata->d), "N_VClone", 0)) return 1;
-  }
+    // Allocate preconditioner workspace
+    if (udata->prec)
+    {
+      udata->d = N_VClone(u);
+      if (check_flag((void *) (udata->d), "N_VClone", 0)) return 1;
+    }
 
-  // --------------
-  // Setup CVODE
-  // --------------
+    // --------------
+    // Setup CVODE
+    // --------------
 
-  // Create integrator
-  cvode_mem = CVodeCreate(CV_BDF);
-  if (check_flag((void *) cvode_mem, "CVodeCreate", 0)) return 1;
+    // Create integrator
+    cvode_mem = CVodeCreate(CV_BDF, sunctx);
+    if (check_flag((void *) cvode_mem, "CVodeCreate", 0)) return 1;
 
-  // Initialize integrator
-  flag = CVodeInit(cvode_mem, f, ZERO, u);
-  if (check_flag(&flag, "CVodeInit", 1)) return 1;
+    // Initialize integrator
+    flag = CVodeInit(cvode_mem, f, ZERO, u);
+    if (check_flag(&flag, "CVodeInit", 1)) return 1;
 
-  // Specify tolerances
-  flag = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
-  if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
+    // Specify tolerances
+    flag = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
+    if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
 
-  // Attach user data
-  flag = CVodeSetUserData(cvode_mem, (void *) udata);
-  if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
+    // Attach user data
+    flag = CVodeSetUserData(cvode_mem, (void *) udata);
+    if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
 
-  // Attach linear solver
-  flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
+    // Attach linear solver
+    flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+    if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
 
-  if (udata->prec)
-  {
-    // Attach preconditioner
-    flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
-    if (check_flag(&flag, "CVodeSetPreconditioner", 1)) return 1;
+    if (udata->prec)
+    {
+      // Attach preconditioner
+      flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
+      if (check_flag(&flag, "CVodeSetPreconditioner", 1)) return 1;
 
-    // Set linear solver setup frequency (update preconditioner)
-    flag = CVodeSetLSetupFrequency(cvode_mem, udata->msbp);
-    if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
-  }
+      // Set linear solver setup frequency (update preconditioner)
+      flag = CVodeSetLSetupFrequency(cvode_mem, udata->msbp);
+      if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
+    }
 
-  // Set linear solver tolerance factor
-  flag = CVodeSetEpsLin(cvode_mem, udata->epslin);
-  if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
+    // Set linear solver tolerance factor
+    flag = CVodeSetEpsLin(cvode_mem, udata->epslin);
+    if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
 
-  // Set max steps between outputs
-  flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
-  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
+    // Set max steps between outputs
+    flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
+    if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
 
-  // Set stopping time
-  flag = CVodeSetStopTime(cvode_mem, udata->tf);
-  if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
+    // Set stopping time
+    flag = CVodeSetStopTime(cvode_mem, udata->tf);
+    if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
 
-  // -----------------------
-  // Loop over output times
-  // -----------------------
+    // -----------------------
+    // Loop over output times
+    // -----------------------
 
-  realtype t     = ZERO;
-  realtype dTout = udata->tf / udata->nout;
-  realtype tout  = dTout;
+    realtype t     = ZERO;
+    realtype dTout = udata->tf / udata->nout;
+    realtype tout  = dTout;
 
-  // Inital output
-  flag = OpenOutput(udata);
-  if (check_flag(&flag, "OpenOutput", 1)) return 1;
+    // Inital output
+    flag = OpenOutput(udata);
+    if (check_flag(&flag, "OpenOutput", 1)) return 1;
 
-  flag = WriteOutput(t, u, udata);
-  if (check_flag(&flag, "WriteOutput", 1)) return 1;
-
-  for (int iout = 0; iout < udata->nout; iout++)
-  {
-    // Start timer
-    t1 = MPI_Wtime();
-
-    // Evolve in time
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_flag(&flag, "CVode", 1)) break;
-
-    // Stop timer
-    t2 = MPI_Wtime();
-
-    // Update timer
-    udata->evolvetime += t2 - t1;
-
-    // Output solution and error
     flag = WriteOutput(t, u, udata);
     if (check_flag(&flag, "WriteOutput", 1)) return 1;
 
-    // Update output time
-    tout += dTout;
-    tout = (tout > udata->tf) ? udata->tf : tout;
-  }
-
-  // Close output
-  flag = CloseOutput(udata);
-  if (check_flag(&flag, "CloseOutput", 1)) return 1;
-
-  // --------------
-  // Final outputs
-  // --------------
-
-  // Print final integrator stats
-  if (udata->output > 0 && outproc)
-  {
-    cout << "Final integrator statistics:" << endl;
-    flag = OutputStats(cvode_mem, udata);
-    if (check_flag(&flag, "OutputStats", 1)) return 1;
-  }
-
-  if (udata->forcing)
-  {
-    // Output final error
-    flag = SolutionError(t, u, udata->e, udata);
-    if (check_flag(&flag, "SolutionError", 1)) return 1;
-
-    realtype maxerr = N_VMaxNorm(udata->e);
-
-    if (outproc)
+    for (int iout = 0; iout < udata->nout; iout++)
     {
-      cout << scientific;
-      cout << setprecision(numeric_limits<realtype>::digits10);
-      cout << "  Max error = " << maxerr << endl;
+      // Start timer
+      t1 = MPI_Wtime();
+
+      // Evolve in time
+      flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+      if (check_flag(&flag, "CVode", 1)) break;
+
+      // Stop timer
+      t2 = MPI_Wtime();
+
+      // Update timer
+      udata->evolvetime += t2 - t1;
+
+      // Output solution and error
+      flag = WriteOutput(t, u, udata);
+      if (check_flag(&flag, "WriteOutput", 1)) return 1;
+
+      // Update output time
+      tout += dTout;
+      tout = (tout > udata->tf) ? udata->tf : tout;
     }
+
+    // Close output
+    flag = CloseOutput(udata);
+    if (check_flag(&flag, "CloseOutput", 1)) return 1;
+
+    // --------------
+    // Final outputs
+    // --------------
+
+    // Print final integrator stats
+    if (udata->output > 0 && outproc)
+    {
+      cout << "Final integrator statistics:" << endl;
+      flag = OutputStats(cvode_mem, udata);
+      if (check_flag(&flag, "OutputStats", 1)) return 1;
+    }
+
+    if (udata->forcing)
+    {
+      // Output final error
+      flag = SolutionError(t, u, udata->e, udata);
+      if (check_flag(&flag, "SolutionError", 1)) return 1;
+
+      realtype maxerr = N_VMaxNorm(udata->e);
+
+      if (outproc)
+      {
+        cout << scientific;
+        cout << setprecision(numeric_limits<realtype>::digits10);
+        cout << "  Max error = " << maxerr << endl;
+      }
+    }
+
+    // Print timing
+    if (udata->timing)
+    {
+      flag = OutputTiming(udata);
+      if (check_flag(&flag, "OutputTiming", 1)) return 1;
+    }
+
+    // --------------------
+    // Clean up and return
+    // --------------------
+
+    if (udata->lsinfo && outproc) fclose(diagfp);
+
+    CVodeFree(&cvode_mem);     // Free integrator memory
+    SUNLinSolFree(LS);         // Free linear solver
+    N_VDestroy(u);             // Free vectors
+    FreeUserData(udata);       // Free user data
+    delete udata;
   }
 
-  // Print timing
-  if (udata->timing)
-  {
-    flag = OutputTiming(udata);
-    if (check_flag(&flag, "OutputTiming", 1)) return 1;
-  }
-
-  // --------------------
-  // Clean up and return
-  // --------------------
-
-  if (udata->lsinfo && outproc) fclose(diagfp);
-
-  CVodeFree(&cvode_mem);     // Free integrator memory
-  SUNLinSolFree(LS);         // Free linear solver
-  N_VDestroy(u);             // Free vectors
-  FreeUserData(udata);       // Free user data
-  delete udata;
   flag = MPI_Finalize();     // Finalize MPI
   return 0;
 }

@@ -26,44 +26,44 @@ extern "C" {
 #endif
 
 /* Get the maximum work group size (block size) for a queue */
-#define SYCL_BLOCKDIM(q)  (q->get_device().get_info<sycl::info::device::max_work_group_size>())
+#define SYCL_BLOCKDIM(q)  (q->get_device().get_info<::sycl::info::device::max_work_group_size>())
 
 /* Grid (work group) stride loop */
-#define GRID_STRIDE_XLOOP(item, iter, max)        \
-  for (sunindextype iter = item.get_global_id(0); \
-       iter < max;                                \
+#define GRID_STRIDE_XLOOP(item, iter, max)              \
+  for (sunindextype iter = item.get_global_id(0);       \
+       iter < max;                                      \
        iter += item.get_global_range(0))
 
 /* Sycl parallel for loop */
-#define SYCL_FOR(q, total, block, item, loop)        \
-  q->submit([&](sycl::handler& h) {                  \
-      h.parallel_for(sycl::nd_range<1>{total,block}, \
-                     [=](sycl::nd_item<1> item)      \
+#define SYCL_FOR(q, total, block, item, loop)           \
+  q->submit([&](::sycl::handler& h) {                   \
+      h.parallel_for(::sycl::nd_range<1>{total,block},  \
+                     [=](::sycl::nd_item<1> item)       \
                      { loop }); });
 
 /* Sycl parallel for loop with stream for ouput */
-#define SYCL_FOR_DEBUG(q, total, block, item, loop)        \
-  q->submit([&](sycl::handler& h) {                        \
-      sycl::stream out(1024, 256, h);                      \
-      h.parallel_for(sycl::nd_range<1>{total,block},       \
-                     [=](sycl::nd_item<1> item)            \
+#define SYCL_FOR_DEBUG(q, total, block, item, loop)     \
+  q->submit([&](::sycl::handler& h) {                   \
+      ::sycl::stream out(1024, 256, h);                 \
+      h.parallel_for(::sycl::nd_range<1>{total,block},  \
+                     [=](::sycl::nd_item<1> item)       \
                      { loop }); });
 
 /* Sycl parallel for loop with reduction */
-#define SYCL_FOR_REDUCE(q, total, block, item, rvar, rop, loop)  \
-  q->submit([&](sycl::handler& h) {                              \
-      h.parallel_for(sycl::nd_range<1>{total,block},             \
-                     sycl::ONEAPI::reduction(rvar, rop),         \
-                     [=](sycl::nd_item<1> item, auto& rvar)      \
+#define SYCL_FOR_REDUCE(q, total, block, item, rvar, rop, loop) \
+  q->submit([&](::sycl::handler& h) {                           \
+      h.parallel_for(::sycl::nd_range<1>{total,block},          \
+                     ::sycl::reduction(rvar, rop),              \
+                     [=](::sycl::nd_item<1> item, auto& rvar)   \
                      { loop }); });
 
 /* Sycl parallel for loop with reduction and stream for ouput */
-#define SYCL_FOR_REDUCE_DEBUG(q, total, block, item, rvar, rop, loop)  \
-  q->submit([&](sycl::handler& h) {                                    \
-      sycl::stream out(1024, 256, h);                                  \
-      h.parallel_for(sycl::nd_range<1>{total,block},                   \
-                     sycl::ONEAPI::reduction(rvar, rop),               \
-                     [=](sycl::nd_item<1> item, auto& rvar)            \
+#define SYCL_FOR_REDUCE_DEBUG(q, total, block, item, rvar, rop, loop)   \
+  q->submit([&](::sycl::handler& h) {                                   \
+      ::sycl::stream out(1024, 256, h);                                 \
+      h.parallel_for(::sycl::nd_range<1>{total,block},                  \
+                     ::sycl::reduction(rvar, rop),                      \
+                     [=](::sycl::nd_item<1> item, auto& rvar)           \
                      { loop }); });
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

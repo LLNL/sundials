@@ -74,16 +74,17 @@ static int GetKernelParameters(SUNMatrix A, booleantype reduction,
 SUNMatrix SUNMatrix_OneMklDense(sunindextype M, sunindextype N,
                                 SUNMemoryType mem_type,
                                 SUNMemoryHelper mem_helper,
-                                sycl::queue* queue)
+                                sycl::queue* queue, SUNContext sunctx)
 {
-  return SUNMatrix_OneMklDenseBlock(1, M, N, mem_type, mem_helper, queue);
+  return SUNMatrix_OneMklDenseBlock(1, M, N, mem_type, mem_helper, queue,
+                                    sunctx);
 }
 
 
 SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
                                      sunindextype N, SUNMemoryType mem_type,
                                      SUNMemoryHelper mem_helper,
-                                     sycl::queue* queue)
+                                     sycl::queue* queue, SUNContext sunctx)
 {
   int retval;
 
@@ -96,7 +97,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   }
 
   // Create an empty matrix object
-  SUNMatrix A = SUNMatNewEmpty();
+  SUNMatrix A = SUNMatNewEmpty(sunctx);
   if (!A)
   {
     SUNDIALS_DEBUG_ERROR("SUNMatNewEmpty returned NULL\n");
@@ -134,12 +135,13 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   MAT_CONTENT(A)->blocks      = NULL;
   MAT_CONTENT(A)->mem_type    = mem_type;
   MAT_CONTENT(A)->mem_helper  = mem_helper;
-  MAT_CONTENT(A)->exec_policy = new sundials::SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(queue));
+  MAT_CONTENT(A)->exec_policy = new sundials::sycl::ThreadDirectExecPolicy(SYCL_BLOCKDIM(queue));
   MAT_CONTENT(A)->queue       = queue;
 
   // Allocate data
   retval = SUNMemoryHelper_Alloc(MAT_MEMHELPER(A), &(MAT_DATA(A)),
-                                 sizeof(realtype) * MAT_LDATA(A), mem_type);
+                                 sizeof(realtype) * MAT_LDATA(A), mem_type,
+                                 queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory allocation failed\n");
@@ -151,7 +153,8 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   {
     // Allocate array of pointers to block data
     retval = SUNMemoryHelper_Alloc(MAT_MEMHELPER(A), &(MAT_BLOCKS(A)),
-                                   sizeof(realtype*) * MAT_NBLOCKS(A), mem_type);
+                                   sizeof(realtype*) * MAT_NBLOCKS(A), mem_type,
+                                   queue);
     if (retval)
     {
       SUNDIALS_DEBUG_ERROR("SUNMemory allocation failed\n");
@@ -312,7 +315,7 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, realtype* h_data)
   // Sync with respect to host, but only this queue
   MAT_QUEUE(A)->wait_and_throw();
 
-  int retval = SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), _h_data);
+  int retval = SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), _h_data, MAT_QUEUE(A));
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory dealloc failed\n");
@@ -347,7 +350,7 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, realtype* h_data)
   // Sync with respect to host, but only this queue
   MAT_QUEUE(A)->wait_and_throw();
 
-  int retval = SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), _h_data);
+  int retval = SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), _h_data, MAT_QUEUE(A));
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory dealloc failed\n");
@@ -382,7 +385,8 @@ SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A)
                                            MAT_BLOCK_COLS(A),
                                            MAT_DATA(A)->type,
                                            MAT_MEMHELPER(A),
-                                           MAT_QUEUE(A));
+                                           MAT_QUEUE(A),
+                                           A->sunctx);
 
   if (!B)
   {
@@ -412,8 +416,10 @@ void SUNMatDestroy_OneMklDense(SUNMatrix A)
   if (A->content)
   {
     // Free data array(s)
-    if (MAT_DATA(A)) SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_DATA(A));
-    if (MAT_BLOCKS(A)) SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_BLOCKS(A));
+    if (MAT_DATA(A)) SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_DATA(A),
+                                             MAT_QUEUE(A));
+    if (MAT_BLOCKS(A)) SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_BLOCKS(A),
+                                               MAT_QUEUE(A));
 
     // Free content struct
     free(A->content);

@@ -24,7 +24,7 @@
 
 #include <cvodes/cvodes.h>
 #include <cvodes/cvodes_bbdpre.h>
-#include <sunlinsol/sunlinsol_spgmr.h> 
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -65,7 +65,7 @@
 /* Parameters for source Gaussians */
 
 #define G1_AMPL   RCONST(1.0)
-#define G1_SIGMA  RCONST(1.7) 
+#define G1_SIGMA  RCONST(1.7)
 #define G1_X      RCONST(4.0)
 #define G1_Y      RCONST(8.0)
 #ifdef USE3D
@@ -137,13 +137,13 @@
 
 /*
  *------------------------------------------------------------------
- * Type definition: ProblemData 
+ * Type definition: ProblemData
  *------------------------------------------------------------------
  */
 
 typedef struct {
   /* Domain */
-  realtype xmin[DIM];  /* "left" boundaries */  
+  realtype xmin[DIM];  /* "left" boundaries */
   realtype xmax[DIM];  /* "right" boundaries */
   int m[DIM];          /* number of grid points */
   realtype dx[DIM];    /* grid spacing */
@@ -151,20 +151,20 @@ typedef struct {
 
   /* Parallel stuff */
   MPI_Comm comm;       /* MPI communicator */
-  int myId;            /* process id */ 
+  int myId;            /* process id */
   int npes;            /* total number of processes */
   int num_procs[DIM];  /* number of processes in each direction */
   int nbr_left[DIM];   /* MPI ID of "left" neighbor */
   int nbr_right[DIM];  /* MPI ID of "right" neighbor */
   int m_start[DIM];    /* "left" index in the global domain */
-  int l_m[DIM];        /* number of local grid points */ 
+  int l_m[DIM];        /* number of local grid points */
   realtype *y_ext;     /* extended data array */
   realtype *buf_send;  /* Send buffer */
   realtype *buf_recv;  /* Receive buffer */
   int buf_size;        /* Buffer size */
 
   /* Source */
-  N_Vector p;          /* Source parameters */ 
+  N_Vector p;          /* Source parameters */
 
 } *ProblemData;
 
@@ -175,19 +175,19 @@ typedef struct {
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f_local(sunindextype Nlocal, realtype t, N_Vector y, 
+static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
                    N_Vector ydot, void *user_data);
 
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 
 
-static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
+static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
               void *user_dataB);
-static int fB_local(sunindextype NlocalB, realtype t, 
-                    N_Vector y, N_Vector yB, N_Vector yBdot, 
+static int fB_local(sunindextype NlocalB, realtype t,
+                    N_Vector y, N_Vector yB, N_Vector yBdot,
                     void *user_dataB);
 
-static int fQB(realtype t, N_Vector y, N_Vector yB, 
+static int fQB(realtype t, N_Vector y, N_Vector yB,
                N_Vector qBdot, void *user_dataB);
 
 /*
@@ -206,6 +206,8 @@ static int PrintFinalStats(void *cvode_mem);
 static void OutputGradient(int myId, N_Vector qB, ProblemData d);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
+static SUNContext sunctx;
+
 /*
  *------------------------------------------------------------------
  * Main program
@@ -219,7 +221,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   int npes, npes_needed;
   int myId;
- 
+
   sunindextype neq, l_neq;
 
   void *cvode_mem;
@@ -244,6 +246,10 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_rank(comm, &myId);
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, myId)) MPI_Abort(comm, 1);
+
   /* Check number of processes */
   npes_needed = NPX * NPY;
 #ifdef USE3D
@@ -264,64 +270,64 @@ int main(int argc, char *argv[])
   /* Allocate and set problem data structure */
   d = (ProblemData) malloc(sizeof *d);
   SetData(d, comm, npes, myId, &neq, &l_neq);
-  
+
   if (myId == 0) PrintHeader();
 
-  /*-------------------------- 
+  /*--------------------------
     Forward integration phase
     --------------------------*/
 
   /* Allocate space for y and set it with the I.C. */
-  y = N_VNew_Parallel(comm, l_neq, neq);
+  y = N_VNew_Parallel(comm, l_neq, neq, sunctx);
   if(check_retval(y, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, y);
-  
+
   /* Allocate and initialize qB (local contribution to cost) */
-  q = N_VNew_Parallel(comm, 1, npes); 
+  q = N_VNew_Parallel(comm, 1, npes, sunctx);
   if(check_retval(q, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, q);
 
   /* Create CVODES object, attach user data, and allocate space */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval(cvode_mem, "CVodeCreate", 0, myId)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, d);
   if(check_retval(&retval, "CVodeSetUserData", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeInit(cvode_mem, f, ti, y);
   if(check_retval(&retval, "CVodeInit", 1, myId)) MPI_Abort(comm, 1);
-  
-  abstol = ATOL;  
-  reltol = RTOL;   
-  
+
+  abstol = ATOL;
+  reltol = RTOL;
+
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if(check_retval(&retval, "CVodeSStolerances", 1, myId)) MPI_Abort(comm, 1);
 
   /* create and attach linear solver */
-  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval(LS, "SUNLinSol_SPGMR", 0, myId)) MPI_Abort(comm, 1);
 
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if(check_retval(&retval, "CVodeSetLinearSolver", 1, myId)) MPI_Abort(comm, 1);
-  
+
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
-  mukeep = mlkeep = 2;  
-  retval = CVBBDPrecInit(cvode_mem, l_neq, mudq, mldq, 
+  mukeep = mlkeep = 2;
+  retval = CVBBDPrecInit(cvode_mem, l_neq, mudq, mldq,
                        mukeep, mlkeep, ZERO,
                        f_local, NULL);
   if(check_retval(&retval, "CVBBDPrecInit", 1, myId)) MPI_Abort(comm, 1);
-  
+
   /* Initialize quadrature calculations */
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
-  
+
   retval = CVodeQuadInit(cvode_mem, fQ, q);
   if(check_retval(&retval, "CVodeQuadInit", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
   if(check_retval(&retval, "CVodeQuadSStolerances", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
   if(check_retval(&retval, "CVodesSetQuadErrCon", 1, myId)) MPI_Abort(comm, 1);
 
@@ -338,7 +344,7 @@ int main(int argc, char *argv[])
    /* Extract quadratures */
   retval = CVodeGetQuad(cvode_mem, &tret, q);
   if(check_retval(&retval, "CVodeGetQuad", 1, myId)) MPI_Abort(comm, 1);
-  
+
   qdata = N_VGetArrayPointer(q);
   MPI_Allreduce(&qdata[0], &G, 1, MPI_SUNREALTYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -351,33 +357,33 @@ int main(int argc, char *argv[])
   if (myId == 0) {
     retval = PrintFinalStats(cvode_mem);
     if(check_retval(&retval, "PrintFinalStats", 1, myId)) MPI_Abort(comm, 1);
-  } 
+  }
 
-  /*-------------------------- 
+  /*--------------------------
     Backward integration phase
     --------------------------*/
- 
+
   /* Allocate and initialize yB */
-  yB = N_VNew_Parallel(comm, l_neq, neq); 
+  yB = N_VNew_Parallel(comm, l_neq, neq, sunctx);
   if(check_retval(yB, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, yB);
 
   /* Allocate and initialize qB (gradient) */
-  qB = N_VNew_Parallel(comm, l_neq, neq); 
+  qB = N_VNew_Parallel(comm, l_neq, neq, sunctx);
   if(check_retval(qB, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, qB);
 
   /* Create and allocate backward CVODE memory */
   retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
   if(check_retval(&retval, "CVodeCreateB", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeSetUserDataB(cvode_mem, indexB, d);
   if(check_retval(&retval, "CVodeSetUserDataB", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeInitB(cvode_mem, indexB, fB, tf, yB);
   if(check_retval(&retval, "CVodeInitB", 1, myId)) MPI_Abort(comm, 1);
-  
-  abstolB = ATOL_B;  
+
+  abstolB = ATOL_B;
   reltolB = RTOL_B;
 
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
@@ -386,24 +392,24 @@ int main(int argc, char *argv[])
   /* Attach preconditioner and linear solver modules */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LS, NULL);
   if(check_retval(&retval, "CVodeSetLinearSolverB", 1, myId)) MPI_Abort(comm, 1);
-  
+
   mudqB = mldqB = d->l_m[0]+1;
-  mukeepB = mlkeepB = 2;  
-  
-  retval = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
+  mukeepB = mlkeepB = 2;
+
+  retval = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB,
                         mukeepB, mlkeepB, ZERO, fB_local, NULL);
   if(check_retval(&retval, "CVBBDPrecInitB", 1, myId)) MPI_Abort(comm, 1);
 
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  
+
   retval = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
   if(check_retval(&retval, "CVodeQuadInitB", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
   if(check_retval(&retval, "CVodeQuadSStolerancesB", 1, myId)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
   if(check_retval(&retval, "CVodeSetQuadErrConB", 1, myId)) MPI_Abort(comm, 1);
 
@@ -412,7 +418,7 @@ int main(int argc, char *argv[])
   retval = CVodeB(cvode_mem, ti, CV_NORMAL);
   if(check_retval(&retval, "CVodeB", 1, myId)) MPI_Abort(comm, 1);
   if (myId == 0) printf("done.\n");
-  
+
   /* Extract solution */
   retval = CVodeGetB(cvode_mem, indexB, &tret, yB);
   if(check_retval(&retval, "CVodeGetB", 1, myId)) MPI_Abort(comm, 1);
@@ -450,6 +456,7 @@ int main(int argc, char *argv[])
   free(d->buf_recv);
   free(d);
 
+  SUNContext_Free(&sunctx);
   MPI_Finalize();
 
   return(0);
@@ -508,19 +515,19 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
   /* Set partitioning */
 
   d->num_procs[0] = NPX;
-  n[0] = NPX; 
+  n[0] = NPX;
   nd[0] = d->m[0] / NPX;
 
   d->num_procs[1] = NPY;
-  n[1] = NPY; 
+  n[1] = NPY;
   nd[1] = d->m[1] / NPY;
 
 #ifdef USE3D
   d->num_procs[2] = NPZ;
-  n[2] = NPZ; 
+  n[2] = NPZ;
   nd[2] = d->m[2] / NPZ;
 #endif
-  
+
   /* Compute the neighbors */
 
   d->nbr_left[0]  = (myId%n[0]) == 0                ? myId : myId-1;
@@ -533,11 +540,11 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
   d->nbr_left[2]  = (myId/n[0]/n[1])%n[2] == 0      ? myId : myId-n[0]*n[1];
   d->nbr_right[2] = (myId/n[0]/n[1])%n[2] == n[2]-1 ? myId : myId+n[0]*n[1];
 #endif
- 
-  /* Compute the local subdomains 
-     m_start: left border in global index space 
+
+  /* Compute the local subdomains
+     m_start: left border in global index space
      l_m:     length of the subdomain */
-  
+
   d->m_start[0] = (myId%n[0])*nd[0];
   d->l_m[0]     = d->nbr_right[0] == myId ? d->m[0] - d->m_start[0] : nd[0];
 
@@ -549,7 +556,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
   d->l_m[2]     = d->nbr_right[2] == myId ? d->m[2] - d->m_start[2] : nd[2];
 #endif
 
-  /* Allocate memory for the y_ext array 
+  /* Allocate memory for the y_ext array
      (local solution + data from neighbors) */
 
   size = 1;
@@ -561,13 +568,13 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 
   d->buf_send = NULL;
   d->buf_recv = NULL;
-  d->buf_size = 0;   
+  d->buf_size = 0;
 
   /* Allocate space for the source parameters */
 
   *neq = 1; *l_neq = 1;
   FOR_DIM {*neq *= d->m[dim];  *l_neq *= d->l_m[dim];}
-  d->p = N_VNew_Parallel(comm, *l_neq, *neq);
+  d->p = N_VNew_Parallel(comm, *l_neq, *neq, sunctx);
 
   /* Initialize the parameters for a source with Gaussian profile */
 
@@ -597,41 +604,41 @@ static void SetSource(ProblemData d)
 #ifdef USE3D
       for(i[2]=0; i[2]<l_m[2]; i[2]++) {
         x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
-        
-        g = G1_AMPL 
+
+        g = G1_AMPL
           * SUNRexp( -SUNSQR(G1_X-x[0])/SUNSQR(G1_SIGMA) )
           * SUNRexp( -SUNSQR(G1_Y-x[1])/SUNSQR(G1_SIGMA) )
           * SUNRexp( -SUNSQR(G1_Z-x[2])/SUNSQR(G1_SIGMA) );
-        
-        g += G2_AMPL 
+
+        g += G2_AMPL
           * SUNRexp( -SUNSQR(G2_X-x[0])/SUNSQR(G2_SIGMA) )
           * SUNRexp( -SUNSQR(G2_Y-x[1])/SUNSQR(G2_SIGMA) )
           * SUNRexp( -SUNSQR(G2_Z-x[2])/SUNSQR(G2_SIGMA) );
-        
+
         if( g < G_MIN ) g = ZERO;
 
         IJth(pdata, i) = g;
       }
 #else
-      g = G1_AMPL 
+      g = G1_AMPL
         * SUNRexp( -SUNSQR(G1_X-x[0])/SUNSQR(G1_SIGMA) )
         * SUNRexp( -SUNSQR(G1_Y-x[1])/SUNSQR(G1_SIGMA) );
 
-      g += G2_AMPL 
+      g += G2_AMPL
         * SUNRexp( -SUNSQR(G2_X-x[0])/SUNSQR(G2_SIGMA) )
         * SUNRexp( -SUNSQR(G2_Y-x[1])/SUNSQR(G2_SIGMA) );
-      
+
       if( g < G_MIN ) g = ZERO;
 
       IJth(pdata, i) = g;
-#endif 
+#endif
     }
   }
 }
 
 /*
  *------------------------------------------------------------------
- * f_comm: 
+ * f_comm:
  * Function for inter-process communication
  * Used both for the forward and backward phase.
  *------------------------------------------------------------------
@@ -652,7 +659,7 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
   d  = (ProblemData) user_data;
   comm = d->comm;
   id = d->myId;
-  
+
   /* extract data from domain*/
   FOR_DIM {
     n[dim] = d->num_procs[dim];
@@ -660,14 +667,14 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
   }
   yextdata = d->y_ext;
   ydata    = N_VGetArrayPointer(y);
-  
+
   /* Calculate required buffer size */
   FOR_DIM {
     size *= l_m[dim];
     if( l_m[dim] < small) small = l_m[dim];
   }
   size /= small;
-  
+
   /* Adjust buffer size if necessary */
   if( d->buf_size < size ) {
     d->buf_send = (realtype*) realloc( d->buf_send, size * sizeof(realtype));
@@ -677,7 +684,7 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
 
   buf_send = d->buf_send;
   buf_recv = d->buf_recv;
-  
+
   /* Compute the communication pattern; who sends first? */
   /* if proc_cond==1 , process sends first in this dimension */
   proc_cond[0] = (id%n[0])%2;
@@ -693,7 +700,7 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
     nbr[dim][proc_cond[dim]]  = d->nbr_left[dim];
     nbr[dim][!proc_cond[dim]] = d->nbr_right[dim];
   }
-  
+
   /* Communication: loop over dimension and direction (left/right) */
   FOR_DIM {
 
@@ -709,11 +716,11 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
         l[0]=(dim+1)%DIM;
 #ifdef USE3D
         l[1]=(dim+2)%DIM;
-        for(i[l[1]]=0; i[l[1]]<l_m[l[1]]; i[l[1]]++) 
+        for(i[l[1]]=0; i[l[1]]<l_m[l[1]]; i[l[1]]++)
 #endif
-          for(i[l[0]]=0; i[l[0]]<l_m[l[0]]; i[l[0]]++) 
+          for(i[l[0]]=0; i[l[0]]<l_m[l[0]]; i[l[0]]++)
             buf_send[c++] = IJth(ydata, i);
-	  
+
         if ( proc_cond[dim] ) {
           /* Send buf_send and receive into buf_recv */
           MPI_Send(buf_send, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm);
@@ -737,7 +744,7 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
             IJth_ext(yextdata, i) = buf_recv[c++];
       }
     } /* end loop over direction */
-  } /* end loop over dimension */ 
+  } /* end loop over dimension */
 }
 
 /*
@@ -755,7 +762,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   d = (ProblemData) user_data;
   FOR_DIM l_neq *= d->l_m[dim];
-  
+
   /* Do all inter-processor communication */
   f_comm(l_neq, t, y, user_data);
 
@@ -765,7 +772,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int f_local(sunindextype Nlocal, realtype t, N_Vector y, 
+static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
                    N_Vector ydot, void *user_data)
 {
   realtype *Ydata, *dydata, *pdata;
@@ -787,7 +794,7 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
     dx[dim]        = d->dx[dim];
     nbr_left[dim]  = d->nbr_left[dim];
     nbr_right[dim] = d->nbr_right[dim];
-  } 
+  }
 
   /* Get pointers to vector data */
   dydata = N_VGetArrayPointer(ydot);
@@ -808,7 +815,7 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
   for(i[2]=0; i[2]<l_m[2]; i[2]++) {
 
     x[2] = xmin[2] + (m_start[2]+i[2])*dx[2];
-#endif    
+#endif
     for(i[1]=0; i[1]<l_m[1]; i[1]++) {
 
       x[1] = xmin[1] + (m_start[1]+i[1])*dx[1];
@@ -821,7 +828,7 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
 
         x[0] = xmin[0] + (m_start[0]+i[0])*dx[0];
 
-        c  = IJth_ext(Ydata, i);	       
+        c  = IJth_ext(Ydata, i);
 
         /* Source term*/
         IJth(dydata, i) = IJth(pdata, i);
@@ -843,7 +850,7 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
           diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SUNSQR(dx[dim]);
 
           IJth(dydata, i) += (diff[dim] - adv[dim]);
-        } 
+        }
       }
     }
 #ifdef USE3D
@@ -884,7 +891,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
  *------------------------------------------------------------------
  */
 
-static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
+static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
               void *user_dataB)
 {
   ProblemData d;
@@ -893,7 +900,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
 
   d = (ProblemData) user_dataB;
   FOR_DIM l_neq *= d->l_m[dim];
-  
+
   /* Do all inter-processor communication */
   f_comm(l_neq, t, yB, user_dataB);
 
@@ -903,8 +910,8 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
   return(0);
 }
 
-static int fB_local(sunindextype NlocalB, realtype t, 
-                    N_Vector y, N_Vector yB, N_Vector dyB, 
+static int fB_local(sunindextype NlocalB, realtype t,
+                    N_Vector y, N_Vector yB, N_Vector dyB,
                     void *user_dataB)
 {
   realtype *YBdata, *dyBdata, *ydata;
@@ -914,7 +921,7 @@ static int fB_local(sunindextype NlocalB, realtype t,
   int i[DIM], l_m[DIM], m_start[DIM], nbr_left[DIM], nbr_right[DIM], id;
   ProblemData d;
   int dim;
-  
+
   d = (ProblemData) user_dataB;
 
   /* Extract stuff from data structure */
@@ -927,7 +934,7 @@ static int fB_local(sunindextype NlocalB, realtype t,
     nbr_left[dim]  = d->nbr_left[dim];
     nbr_right[dim] = d->nbr_right[dim];
   }
- 
+
   dyBdata = N_VGetArrayPointer(dyB);
   ydata   = N_VGetArrayPointer(y);
 
@@ -940,18 +947,18 @@ static int fB_local(sunindextype NlocalB, realtype t,
 #ifdef USE3D
   v[2] = ZERO;
 #endif
- 
+
   /* local domain is [xmin+(m_start)*dx, xmin+(m_start+l_m-1)*dx] */
 #ifdef USE3D
   for(i[2]=0; i[2]<l_m[2]; i[2]++) {
 
     x[2] = xmin[2] + (m_start[2]+i[2])*dx[2];
 #endif
-    
+
     for(i[1]=0; i[1]<l_m[1]; i[1]++) {
-      
+
       x[1] = xmin[1] + (m_start[1]+i[1])*dx[1];
-	  
+
       /* Velocity component in x0 direction (Poiseuille profile) */
       x1 = x[1] - xmin[1] - L;
       v[0] = V_COEFF * (L + x1) * (L - x1);
@@ -959,14 +966,14 @@ static int fB_local(sunindextype NlocalB, realtype t,
       for(i[0]=0; i[0]<l_m[0]; i[0]++) {
 
         x[0] = xmin[0] + (m_start[0]+i[0])*dx[0];
-        
-        c  = IJth_ext(YBdata, i);	       
-        
+
+        c  = IJth_ext(YBdata, i);
+
         /* Source term for adjoint PDE */
         IJth(dyBdata, i) = -IJth(ydata, i);
-        
+
         FOR_DIM {
-          
+
           i[dim]+=1;
           cr[dim] = IJth_ext(YBdata, i);
           i[dim]-=2;
@@ -978,12 +985,12 @@ static int fB_local(sunindextype NlocalB, realtype t,
 	    cr[dim] = cl[dim]-(TWO*dx[dim]*v[dim]/DIFF_COEF)*c;
           else if( i[dim]==0 && nbr_left[dim]==id )
 	      cl[dim] = cr[dim]+(TWO*dx[dim]*v[dim]/DIFF_COEF)*c;
-		  
+
           adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (TWO*dx[dim]);
           diff[dim] = DIFF_COEF * (cr[dim]-TWO*c+cl[dim]) / SUNSQR(dx[dim]);
-          
+
           IJth(dyBdata, i) -= (diff[dim] + adv[dim]);
-        } 
+        }
       }
     }
 #ifdef USE3D
@@ -1001,7 +1008,7 @@ static int fB_local(sunindextype NlocalB, realtype t,
  *------------------------------------------------------------------
  */
 
-static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, 
+static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
                void *user_dataB)
 {
   ProblemData d;
@@ -1015,7 +1022,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
 
 /*
  *------------------------------------------------------------------
- * Load_yext: 
+ * Load_yext:
  * copies data from src (y or yB) into y_ext, which already contains
  * data from neighboring processes.
  *------------------------------------------------------------------
@@ -1026,7 +1033,7 @@ static void Load_yext(realtype *src, ProblemData d)
   int i[DIM], l_m[DIM], dim;
 
   FOR_DIM l_m[dim] = d->l_m[dim];
-     
+
   /* copy local segment */
 #ifdef USE3D
   for  (i[2]=0; i[2]<l_m[2]; i[2]++)
@@ -1088,40 +1095,40 @@ static int PrintFinalStats(void *cvode_mem)
 
   retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
   if(check_retval(&retval, "CVodeGetWorkSpace", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   if(check_retval(&retval, "CVodeGetNumSteps", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
   if(check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
   if(check_retval(&retval, "CVodeGetNumLinSolvSetups", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
   if(check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   if(check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   if(check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0)) return(-1);
 
   retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
   if(check_retval(&retval, "CVodeGetLinWorkSpace", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumLinIters(cvode_mem, &nli);
   if(check_retval(&retval, "CVodeGetNumLinIters", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
   if(check_retval(&retval, "CVodeGetNumPrecEvals", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
   if(check_retval(&retval, "CVodeGetNumPrecSolves", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
   if(check_retval(&retval, "CVodeGetNumLinConvFails", 1, 0)) return(-1);
-  
+
   retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
   if(check_retval(&retval, "CVodeGetNumLinRhsEvals", 1, 0)) return(-1);
 
@@ -1133,7 +1140,7 @@ static int PrintFinalStats(void *cvode_mem)
   printf("nni     = %6ld     nli   = %6ld\n"  , nni, nli);
   printf("nsetups = %6ld     netf  = %6ld\n"  , nsetups, netf);
   printf("npe     = %6ld     nps   = %6ld\n"  , npe, nps);
-  printf("ncfn    = %6ld     ncfl  = %6ld\n\n", ncfn, ncfl); 
+  printf("ncfn    = %6ld     ncfl  = %6ld\n\n", ncfn, ncfl);
 
   return(0);
 }
@@ -1240,7 +1247,7 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"p%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, p);
       fprintf(fid,"g%d(%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, g);
 #endif
-#endif 
+#endif
     }
   }
   fclose(fid);
@@ -1292,7 +1299,7 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"p.FaceAlpha = gtrans;\n");
       fprintf(fid,"clear x%d y%d z%d p%d g%d;\n",ip,ip,ip,ip,ip);
     }
-    
+
     fprintf(fid,"\nfigure(1)\n");
     fprintf(fid,"view(3)\n");
     fprintf(fid,"shading interp\naxis equal\n");
@@ -1334,7 +1341,7 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"axis tight\n");
       fprintf(fid,"box on\n");
       fprintf(fid,"colorbar('Position', [0.5 0.1 0.025 0.8])\n");
-      
+
       fprintf(fid,"\nax(2) = subplot(1,2,2);\n");
       fprintf(fid,"s = surf(x%d,y%d,p%d);\n",ip,ip,ip);
       fprintf(fid,"set(s, 'CData', g%d);\n",ip);
@@ -1368,14 +1375,14 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   }
 }
 
-/* 
+/*
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
  *    opt == 1 means SUNDIALS function returns an integer value so check if
  *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id)

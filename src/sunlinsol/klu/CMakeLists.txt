@@ -38,24 +38,6 @@ sundials_add_library(sundials_sunlinsolklu
 
 message(STATUS "Added SUNLINSOL_KLU module")
 
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunlinsolklu
-    SOURCES
-      fsunlinsol_klu.c
-    LINK_LIBRARIES
-      PUBLIC sundials_sunlinsolklu
-      PRIVATE sundials_fnvecserial sundials_fsunmatrixsparse
-    OUTPUT_NAME
-      sundials_fsunlinsolklu
-    VERSION
-      ${sunlinsollib_VERSION}
-    SOVERSION
-      ${sunlinsollib_SOVERSION}
-  )
-  message(STATUS "Added SUNLINSOL_KLU F77 interface")
-endif()
-
 # Add F90 module if F2003 interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)

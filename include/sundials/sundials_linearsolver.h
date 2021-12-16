@@ -108,9 +108,9 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver *SUNLinearSolver;
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
   SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
-  int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
+  int                  (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*,
-                                            PSetupFn, PSolveFn);
+                                            SUNPSetupFn, SUNPSolveFn);
   int                  (*setscalingvectors)(SUNLinearSolver,
                                             N_Vector, N_Vector);
   int                  (*setzeroguess)(SUNLinearSolver, booleantype);
@@ -132,6 +132,7 @@ struct _generic_SUNLinearSolver_Ops {
 struct _generic_SUNLinearSolver {
   void *content;
   SUNLinearSolver_Ops ops;
+  SUNContext sunctx;
 };
 
 
@@ -139,7 +140,7 @@ struct _generic_SUNLinearSolver {
  * Functions exported by SUNLinearSolver module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty();
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT void SUNLinSolFreeEmpty(SUNLinearSolver S);
 
@@ -148,10 +149,10 @@ SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
-                                       ATimesFn ATimes);
+                                       SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
-                                               PSetupFn Pset, PSolveFn Psol);
+                                               SUNPSetupFn Pset, SUNPSolveFn Psol);
 
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
                                                N_Vector s2);

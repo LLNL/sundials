@@ -112,6 +112,9 @@ static int check_retval(void* returnvalue, const char *funcname, int opt);
 
 int main(int argc, char** argv)
 {
+  // SUNDIALS simulation context
+  sundials::Context sunctx;
+
   // return flag value
   int retval;
 
@@ -130,7 +133,7 @@ int main(int argc, char** argv)
   data.myQueue = &myQueue;
 
   // Create a SYCL vector
-  N_Vector u = N_VNew_Sycl(data.NEQ, &myQueue);
+  N_Vector u = N_VNew_Sycl(data.NEQ, &myQueue, sunctx);
   if (check_retval((void*)u, "N_VNew_Sycl", 0)) return 1;
 
   // Extract host pointer to solution vector data on the host
@@ -153,7 +156,7 @@ int main(int argc, char** argv)
   N_VCopyToDevice_Sycl(u);
 
   // Create CVODE and specify the Backward Differentiation Formula
-  void* cvode_mem = CVodeCreate(CV_BDF);
+  void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
 
   // Specify the right hand side function in f(t,u), initial condition (t0, u0)
@@ -171,7 +174,7 @@ int main(int argc, char** argv)
   if (check_retval(&retval, "CVodeSetUserData", 1)) return 1;
 
   // Create SPGMR solver without preconditioning and default Krylov dimension
-  SUNLinearSolver LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  SUNLinearSolver LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) return 1;
 
   // Attach the linear sovler to CVODE

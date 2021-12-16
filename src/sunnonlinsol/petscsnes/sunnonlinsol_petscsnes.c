@@ -36,7 +36,7 @@ static PetscErrorCode PetscSysFn(SNES snes, Vec x, Vec f, void *ctx);
   ============================================================================*/
 
 /* create a SUNNonlinearSolver wrapper for the PETSc SNES context */
-SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes)
+SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes, SUNContext sunctx)
 {
   int ierr;
   SUNNonlinearSolver NLS;
@@ -52,7 +52,7 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes)
    * Create an empty nonlinear linear solver object
    */
 
-  NLS = SUNNonlinSolNewEmpty();
+  NLS = SUNNonlinSolNewEmpty(sunctx);
   if (NLS == NULL) return NULL;
 
   /* Attach operations */

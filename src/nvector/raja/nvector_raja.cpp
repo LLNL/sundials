@@ -111,13 +111,13 @@ static int FusedBuffer_CopyToDevice(N_Vector v);
 static int FusedBuffer_Free(N_Vector v);
 
 
-N_Vector N_VNewEmpty_Raja()
+N_Vector N_VNewEmpty_Raja(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -206,22 +206,21 @@ N_Vector N_VNewEmpty_Raja()
   return(v);
 }
 
-N_Vector N_VNew_Raja(sunindextype length)
+N_Vector N_VNew_Raja(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data       = NULL;
@@ -245,7 +244,10 @@ N_Vector N_VNew_Raja(sunindextype length)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+N_Vector N_VNewWithMemHelp_Raja(sunindextype length,
+                                booleantype use_managed_mem,
+                                SUNMemoryHelper helper,
+                                SUNContext sunctx)
 {
   N_Vector v;
 
@@ -262,7 +264,7 @@ N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem
   }
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
@@ -282,22 +284,21 @@ N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem
   return(v);
 }
 
-N_Vector N_VNewManaged_Raja(sunindextype length)
+N_Vector N_VNewManaged_Raja(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data       = NULL;
@@ -321,26 +322,26 @@ N_Vector N_VNewManaged_Raja(sunindextype length)
   return(v);
 }
 
-N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata,
+                      SUNContext sunctx)
 {
   N_Vector v;
 
   if (h_vdata == NULL || d_vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNFALSE;
@@ -364,26 +365,26 @@ N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   return(v);
 }
 
-N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata)
+N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata,
+                             SUNContext sunctx)
 {
   N_Vector v;
 
   if (vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->host_data);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNTRUE;
@@ -510,11 +511,17 @@ void N_VCopyToDevice_Raja(N_Vector x)
 {
   int copy_fail;
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
                                         NVEC_RAJA_CONTENT(x)->device_data,
                                         NVEC_RAJA_CONTENT(x)->host_data,
                                         NVEC_RAJA_MEMSIZE(x),
-                                        0);
+                                        queue);
 
   if (copy_fail)
   {
@@ -523,7 +530,7 @@ void N_VCopyToDevice_Raja(N_Vector x)
 
   /* we synchronize with respect to the host, but on the default stream currently */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   SUNDIALS_GPU_VERIFY(SUNDIALS_GPU_PREFIX(StreamSynchronize)(0));
@@ -538,11 +545,17 @@ void N_VCopyFromDevice_Raja(N_Vector x)
 {
   int copy_fail;
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
                                         NVEC_RAJA_CONTENT(x)->host_data,
                                         NVEC_RAJA_CONTENT(x)->device_data,
                                         NVEC_RAJA_MEMSIZE(x),
-                                        0);
+                                        queue);
 
   if (copy_fail)
   {
@@ -551,7 +564,7 @@ void N_VCopyFromDevice_Raja(N_Vector x)
 
   /* we synchronize with respect to the host, but only in this stream */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   SUNDIALS_GPU_VERIFY(SUNDIALS_GPU_PREFIX(StreamSynchronize)(0));
@@ -603,7 +616,7 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -677,9 +690,15 @@ void N_VDestroy_Raja(N_Vector v)
   /* free items in content */
   if (NVEC_RAJA_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(v), vc->host_data);
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+    void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+    void* queue = nullptr;
+#endif
+
+    SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(v), vc->host_data, queue);
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(v), vc->device_data);
+    SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(v), vc->device_data, queue);
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
@@ -1392,21 +1411,27 @@ int N_VBufPack_Raja(N_Vector x, void *buf)
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
   if (buf_mem == NULL) return(-1);
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
                                         buf_mem,
                                         NVEC_RAJA_CONTENT(x)->device_data,
                                         NVEC_RAJA_MEMSIZE(x),
-                                        0);
+                                        queue);
 
   /* we synchronize with respect to the host, but only in this stream */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
 #endif
 
-  SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem, queue);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   return (copy_fail ? -1 : 0);
@@ -1428,21 +1453,27 @@ int N_VBufUnpack_Raja(N_Vector x, void *buf)
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
   if (buf_mem == NULL) return(-1);
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
                                         NVEC_RAJA_CONTENT(x)->device_data,
                                         buf_mem,
                                         NVEC_RAJA_MEMSIZE(x),
-                                        0);
+                                        queue);
 
   /* we synchronize with respect to the host, but only in this stream */
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  sycl::queue* q = ::RAJA::sycl::detail::getQueue();
+  ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
   cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
 #endif
 
-  SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem, queue);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   return (copy_fail ? -1 : 0);
@@ -1639,10 +1670,17 @@ int AllocateData(N_Vector v)
 
   if (N_VGetLength_Raja(v) == 0) return(0);
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v), &(vc->device_data),
-                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE_UVM);
+                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE_UVM,
+                                       queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -1652,14 +1690,16 @@ int AllocateData(N_Vector v)
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v), &(vc->host_data),
-                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE_HOST);
+                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE_HOST,
+                                       queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v), &(vc->device_data),
-                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE_DEVICE);
+                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE_DEVICE,
+                                       queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -1688,10 +1728,16 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 
   if (alloc_mem)
   {
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+    void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+    void* queue = nullptr;
+#endif
+
     // allocate pinned memory on the host
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v),
                                        &(vcp->fused_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -1699,7 +1745,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
       // if pinned alloc failed, allocate plain host memory
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v),
                                          &(vcp->fused_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, queue);
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -1710,7 +1756,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     // allocate device memory
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v),
                                        &(vcp->fused_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -1830,12 +1876,18 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
   // Get the vector private memory structure
   N_PrivateVectorContent_Raja vcp = NVEC_RAJA_PRIVATE(v);
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   // Copy the fused buffer to the device
   int copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(v),
                                             vcp->fused_buffer_dev,
                                             vcp->fused_buffer_host,
                                             vcp->fused_buffer_offset,
-                                            0);
+                                            queue);
   if (copy_fail)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyToDevice: SUNMemoryHelper_CopyAsync failed\n");
@@ -1852,17 +1904,23 @@ static int FusedBuffer_Free(N_Vector v)
 
   if (vcp == NULL) return 0;
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
+#else
+  void* queue = nullptr;
+#endif
+
   if (vcp->fused_buffer_host)
   {
     SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(v),
-                            vcp->fused_buffer_host);
+                            vcp->fused_buffer_host, queue);
     vcp->fused_buffer_host = NULL;
   }
 
   if (vcp->fused_buffer_dev)
   {
     SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(v),
-                            vcp->fused_buffer_dev);
+                            vcp->fused_buffer_dev, queue);
     vcp->fused_buffer_dev = NULL;
   }
 

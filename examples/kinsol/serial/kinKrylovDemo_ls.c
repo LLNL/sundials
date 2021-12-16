@@ -209,6 +209,10 @@ int main(void)
   void *kmem;
   SUNLinearSolver LS;
 
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext sunctx = NULL;
+  SUNContext_Create(NULL, &sunctx);
+
   cc = sc = constraints = NULL;
   kmem = NULL;
   LS = NULL;
@@ -222,14 +226,14 @@ int main(void)
   InitUserData(data);
 
   /* Create serial vectors of length NEQ */
-  cc = N_VNew_Serial(NEQ);
+  cc = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)cc, "N_VNew_Serial", 0)) return(1);
-  sc = N_VNew_Serial(NEQ);
+  sc = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)sc, "N_VNew_Serial", 0)) return(1);
-  data->rates = N_VNew_Serial(NEQ);
+  data->rates = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)data->rates, "N_VNew_Serial", 0)) return(1);
 
-  constraints = N_VNew_Serial(NEQ);
+  constraints = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
   N_VConst(TWO, constraints);
 
@@ -243,7 +247,7 @@ int main(void)
 
     /* Call KINCreate/KINInit to initialize KINSOL:
        A pointer to KINSOL problem memory is returned and stored in kmem. */
-    kmem = KINCreate();
+    kmem = KINCreate(sunctx);
     if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
 
     /* Vector cc passed as template vector. */
@@ -273,7 +277,7 @@ int main(void)
       /* Create SUNLinSol_SPGMR object with right preconditioning and the
          maximum Krylov dimension maxl */
       maxl = 15;
-      LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
+      LS = SUNLinSol_SPGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
       if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
@@ -298,7 +302,7 @@ int main(void)
       /* Create SUNLinSol_SPBCGS object with right preconditioning and the
          maximum Krylov dimension maxl */
       maxl = 15;
-      LS = SUNLinSol_SPBCGS(cc, PREC_RIGHT, maxl);
+      LS = SUNLinSol_SPBCGS(cc, SUN_PREC_RIGHT, maxl, sunctx);
       if(check_flag((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
@@ -318,7 +322,7 @@ int main(void)
       /* Create SUNLinSol_SPTFQMR object with right preconditioning and the
          maximum Krylov dimension maxl */
       maxl = 25;
-      LS = SUNLinSol_SPTFQMR(cc, PREC_RIGHT, maxl);
+      LS = SUNLinSol_SPTFQMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
       if(check_flag((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
@@ -338,7 +342,7 @@ int main(void)
       /* Create SUNLinSol_SPFGMR object with right preconditioning and the
          maximum Krylov dimension maxl */
       maxl = 15;
-      LS = SUNLinSol_SPFGMR(cc, PREC_RIGHT, maxl);
+      LS = SUNLinSol_SPFGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
       if(check_flag((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
@@ -385,6 +389,7 @@ int main(void)
   N_VDestroy(sc);
   FreeUserData(data);
 
+  SUNContext_Free(&sunctx);
   return(0);
 }
 
@@ -519,7 +524,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
 
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
 
     } /* end of jx loop */
@@ -554,7 +559,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      SUNDlsMat_denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
 
     } /* end of jy loop */
 
@@ -619,11 +624,11 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
-  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -695,12 +700,12 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      destroyMat((data->P)[jx][jy]);
-      destroyArray((data->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((data->P)[jx][jy]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jy]);
     }
   }
 
-  destroyMat(acoef);
+  SUNDlsMat_destroyMat(acoef);
   free(bcoef);
   free(cox);
   free(coy);

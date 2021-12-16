@@ -102,6 +102,11 @@ int main(int argc, char *argv[]) {
   int iout, num_threads;
   long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* set the number of threads to use */
   num_threads = 1;                       /* default value */
 #ifdef _OPENMP
@@ -123,10 +128,10 @@ int main(int argc, char *argv[]) {
   printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Initialize data structures */
-  y = N_VNew_OpenMP(N, num_threads);  /* Create OpenMP vector for solution */
+  y = N_VNew_OpenMP(N, num_threads, ctx);  /* Create OpenMP vector for solution */
   if (check_flag((void *) y, "N_VNew_OpenMP", 0)) return 1;
   N_VConst(0.0, y);                               /* Set initial conditions */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);     /* Create the solver memory */
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);     /* Create the solver memory */
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -140,7 +145,7 @@ int main(int argc, char *argv[]) {
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNLinSol_PCG(y, 0, (int) N);
+  LS = SUNLinSol_PCG(y, 0, (int) N, ctx);
   if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
@@ -230,8 +235,10 @@ int main(int argc, char *argv[]) {
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free vectors */
   free(udata);                 /* Free user data */
-  ARKStepFree(&arkode_mem);     /* Free integrator memory */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 
