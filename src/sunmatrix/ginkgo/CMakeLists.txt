@@ -25,7 +25,8 @@ install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO with ${SUNDIALS_GINKGO_BACKEN
 # Add the sunmatrix_ginkgo library
 sundials_add_library(sundials_sunmatrixginkgo
   SOURCES
-    sunmatrix_ginkgo.cpp
+    sunmatrix_ginkgodense.cpp
+    sunmatrix_ginkgocsr.cpp
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.h
   INCLUDE_SUBDIR
