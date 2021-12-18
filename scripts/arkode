@@ -13,8 +13,9 @@ echo "   --- Add arkode module to $tarfile"
 if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/arkode/ark_guide.pdf    || exit 1
     $tar $tarfile $distrobase/doc/arkode/ark_examples.pdf || exit 1
-    $tar $tarfile $distrobase/doc/arkode/guide            || exit 1
 fi
+$tar $tarfile $distrobase/doc/arkode/guide/Makefile   || exit 1
+$tar $tarfile $distrobase/doc/arkode/guide/source     || exit 1
 
 $tar $tarfile $distrobase/include/arkode/arkode.h              || exit 1
 $tar $tarfile $distrobase/include/arkode/arkode_arkstep.h      || exit 1

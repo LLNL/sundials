@@ -205,6 +205,10 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads,
   v->ops->nvbufpack   = N_VBufPack_Pthreads;
   v->ops->nvbufunpack = N_VBufUnpack_Pthreads;
 
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_Pthreads;
+  v->ops->nvprintfile = N_VPrintFile_Pthreads;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Pthreads) malloc(sizeof *content);

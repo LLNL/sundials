@@ -14,6 +14,9 @@
  * SUNDIALS configuration header file.
  * -----------------------------------------------------------------*/
 
+#ifndef _SUNDIALS_CONFIG_H
+#define _SUNDIALS_CONFIG_H
+
 #include "sundials_export.h"
 
 #ifndef SUNDIALS_DEPRECATED_MSG
@@ -185,3 +188,5 @@
 /* Mark SUNDIALS function as static inline.
  */
 #define SUNDIALS_STATIC_INLINE static SUNDIALS_INLINE
+
+#endif /* _SUNDIALS_CONFIG_H */

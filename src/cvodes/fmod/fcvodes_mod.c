@@ -590,6 +590,34 @@ SWIGEXPORT int _wrap_FCVodeSetMinStep(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetMonitorFn(void *farg1, CVMonitorFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  CVMonitorFn arg2 = (CVMonitorFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (CVMonitorFn)(farg2);
+  result = (int)CVodeSetMonitorFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMonitorFrequency(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)CVodeSetMonitorFrequency(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeSetNlsRhsFn(void *farg1, CVRhsFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -3467,6 +3495,34 @@ SWIGEXPORT int _wrap_FCVodeGetNumLinRhsEvals(void *farg1, long *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumLinRhsEvals(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetLinSolveStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6, long *farg7, long *farg8, long *farg9) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  long *arg4 = (long *) 0 ;
+  long *arg5 = (long *) 0 ;
+  long *arg6 = (long *) 0 ;
+  long *arg7 = (long *) 0 ;
+  long *arg8 = (long *) 0 ;
+  long *arg9 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  arg4 = (long *)(farg4);
+  arg5 = (long *)(farg5);
+  arg6 = (long *)(farg6);
+  arg7 = (long *)(farg7);
+  arg8 = (long *)(farg8);
+  arg9 = (long *)(farg9);
+  result = (int)CVodeGetLinSolveStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   fresult = (int)(result);
   return fresult;
 }

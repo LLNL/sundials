@@ -312,7 +312,7 @@ r'''
   \vskip 2em%
   \begin{center}%
     \let \footnote \thanks
-    {\huge \rmfamily \@title \space \releasename \par}
+    {\huge \rmfamily \@title \par}
     {\Large \rmfamily SUNDIALS \space \sunreleasename \par}
     \vskip 3.0em%
     {\large \lineskip .5em%
@@ -324,7 +324,7 @@ r'''
     \vfill
     {\includegraphics[width=0.5\textwidth]{doc_logo_blue}}
     \vfill
-    {\large \rmfamily UCRL-SM-208108}
+    {\large \rmfamily UCRL-SM-208116}
     \vfill
   \end{center}
   \par

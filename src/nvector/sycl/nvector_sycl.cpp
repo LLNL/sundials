@@ -229,7 +229,7 @@ N_Vector N_VNewEmpty_Sycl(SUNContext sunctx)
 }
 
 
-N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q, SUNContext sunctx)
+N_Vector N_VNew_Sycl(sunindextype length, ::sycl::queue *Q, SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -283,7 +283,7 @@ N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q, SUNContext sunctx)
 N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
                                 booleantype use_managed_mem,
                                 SUNMemoryHelper helper,
-                                sycl::queue *Q,
+                                ::sycl::queue *Q,
                                 SUNContext sunctx)
 {
   /* Check inputs */
@@ -340,7 +340,7 @@ N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
 }
 
 
-N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q,
+N_Vector N_VNewManaged_Sycl(sunindextype length, ::sycl::queue *Q,
                             SUNContext sunctx)
 {
   /* Check inputs */
@@ -393,7 +393,7 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q,
 
 
 N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
-                      sycl::queue *Q, SUNContext sunctx)
+                      ::sycl::queue *Q, SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -454,7 +454,7 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
 
 
 N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
-                             sycl::queue *Q, SUNContext sunctx)
+                             ::sycl::queue *Q, SUNContext sunctx)
 {
   /* Check inputs */
   if (Q == NULL)
@@ -845,7 +845,7 @@ void N_VConst_Sycl(realtype c, N_Vector z)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -867,7 +867,7 @@ void N_VLinearSum_Sycl(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector 
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -889,7 +889,7 @@ void N_VProd_Sycl(N_Vector x, N_Vector y, N_Vector z)
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -911,7 +911,7 @@ void N_VDiv_Sycl(N_Vector x, N_Vector y, N_Vector z)
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -932,7 +932,7 @@ void N_VScale_Sycl(realtype c, N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -953,7 +953,7 @@ void N_VAbs_Sycl(N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -974,7 +974,7 @@ void N_VInv_Sycl(N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -995,7 +995,7 @@ void N_VAddConst_Sycl(N_Vector x, realtype b, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -1016,7 +1016,7 @@ realtype N_VDotProd_Sycl(N_Vector x, N_Vector y)
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *ydata = NVEC_SYCL_DDATAp(y);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1033,7 +1033,7 @@ realtype N_VDotProd_Sycl(N_Vector x, N_Vector y)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     sum += xdata[i] * ydata[i];
@@ -1052,7 +1052,7 @@ realtype N_VMaxNorm_Sycl(N_Vector x)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1069,7 +1069,7 @@ realtype N_VMaxNorm_Sycl(N_Vector x)
   realtype *max = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  max, sycl::maximum<realtype>(),
+                  max, ::sycl::maximum<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     max.combine(abs(xdata[i]));
@@ -1089,7 +1089,7 @@ realtype N_VWSqrSumLocal_Sycl(N_Vector x, N_Vector w)
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   const realtype     *wdata = NVEC_SYCL_DDATAp(w);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1106,7 +1106,7 @@ realtype N_VWSqrSumLocal_Sycl(N_Vector x, N_Vector w)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     sum += xdata[i] * wdata[i] * xdata[i] * wdata[i];
@@ -1135,7 +1135,7 @@ realtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w, N_Vector id)
   const realtype     *xdata  = NVEC_SYCL_DDATAp(x);
   const realtype     *wdata  = NVEC_SYCL_DDATAp(w);
   const realtype     *iddata = NVEC_SYCL_DDATAp(id);
-  sycl::queue        *Q      = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q      = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1152,7 +1152,7 @@ realtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w, N_Vector id)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     if (iddata[i] > ZERO)
@@ -1180,7 +1180,7 @@ realtype N_VMin_Sycl(N_Vector x)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, std::numeric_limits<realtype>::max()))
@@ -1197,7 +1197,7 @@ realtype N_VMin_Sycl(N_Vector x)
   realtype *min = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  min, sycl::minimum<realtype>(),
+                  min, ::sycl::minimum<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     min.combine(xdata[i]);
@@ -1222,7 +1222,7 @@ realtype N_VL1Norm_Sycl(N_Vector x)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1239,7 +1239,7 @@ realtype N_VL1Norm_Sycl(N_Vector x)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     sum += abs(xdata[i]);
@@ -1259,7 +1259,7 @@ void N_VCompare_Sycl(realtype c, N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(z, SUNFALSE, nthreads_total, nthreads_per_block))
@@ -1280,7 +1280,7 @@ booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1297,7 +1297,7 @@ booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     if (xdata[i] == ZERO)
@@ -1325,7 +1325,7 @@ booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x, N_Vector m)
   const realtype     *cdata = NVEC_SYCL_DDATAp(c);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
   realtype           *mdata = NVEC_SYCL_DDATAp(m);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(x, ZERO))
@@ -1342,7 +1342,7 @@ booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x, N_Vector m)
   realtype *sum = NVEC_SYCL_DBUFFERp(x);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  sum, sycl::plus<realtype>(),
+                  sum, ::sycl::plus<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     bool test =
@@ -1366,7 +1366,7 @@ realtype N_VMinQuotient_Sycl(N_Vector num, N_Vector denom)
   const sunindextype N      = NVEC_SYCL_LENGTH(num);
   const realtype     *ndata = NVEC_SYCL_DDATAp(num);
   const realtype     *ddata = NVEC_SYCL_DDATAp(denom);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(num);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(num);
   size_t             nthreads_total, nthreads_per_block;
 
   if (InitializeReductionBuffer(num, std::numeric_limits<realtype>::max()))
@@ -1383,7 +1383,7 @@ realtype N_VMinQuotient_Sycl(N_Vector num, N_Vector denom)
   realtype *min = NVEC_SYCL_DBUFFERp(num);
 
   SYCL_FOR_REDUCE(Q, nthreads_total, nthreads_per_block, item,
-                  min, sycl::minimum<realtype>(),
+                  min, ::sycl::minimum<realtype>(),
                   GRID_STRIDE_XLOOP(item, i, N)
                   {
                     if (ddata[i] != ZERO)
@@ -1408,7 +1408,7 @@ int N_VLinearCombination_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   realtype           *zdata = NVEC_SYCL_DDATAp(z);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Fused op workspace shortcuts */
@@ -1465,7 +1465,7 @@ int N_VScaleAddMulti_Sycl(int nvec, realtype* c, N_Vector x, N_Vector* Y,
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const realtype     *xdata = NVEC_SYCL_DDATAp(x);
-  sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
+  ::sycl::queue      *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace */
@@ -1534,7 +1534,7 @@ int N_VLinearSumVectorArray_Sycl(int nvec,
                                  N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace */
@@ -1595,7 +1595,7 @@ int N_VLinearSumVectorArray_Sycl(int nvec,
 int N_VScaleVectorArray_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace arrays */
@@ -1656,7 +1656,7 @@ int N_VScaleVectorArray_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 int N_VConstVectorArray_Sycl(int nvec, realtype c, N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace arrays */
@@ -1704,7 +1704,7 @@ int N_VScaleAddMultiVectorArray_Sycl(int nvec, int nsum, realtype* c,
                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(X[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(X[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(X[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace */
@@ -1777,7 +1777,7 @@ int N_VLinearCombinationVectorArray_Sycl(int nvec, int nsum, realtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(Z[0]);
-  sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
+  ::sycl::queue      *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
   /* Shortcuts to the fused op workspace arrays */

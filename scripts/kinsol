@@ -13,8 +13,9 @@ echo "   --- Add kinsol module to $tarfile"
 if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf    || exit 1
     $tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf || exit 1
-    $tar $tarfile $distrobase/doc/kinsol/guide            || exit 1
 fi
+$tar $tarfile $distrobase/doc/kinsol/guide/Makefile   || exit 1
+$tar $tarfile $distrobase/doc/kinsol/guide/source     || exit 1
 
 $tar $tarfile $distrobase/include/kinsol/kinsol.h        || exit 1
 $tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h || exit 1

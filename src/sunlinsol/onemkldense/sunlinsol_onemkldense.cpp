@@ -173,7 +173,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   }
 
   // Compute scratchpad size for factorization and solve
-  sycl::queue* queue      = A->queue;
+  ::sycl::queue* queue    = A->queue;
   sunindextype M          = SUNMatrix_OneMklDense_BlockRows(Amat);
   sunindextype N          = SUNMatrix_OneMklDense_BlockColumns(Amat);
   sunindextype num_blocks = SUNMatrix_OneMklDense_NumBlocks(Amat);
@@ -316,7 +316,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   }
 
   // Call oneMKL to do LU factorization of A
-  sycl::queue* queue        = LS_QUEUE(S);
+  ::sycl::queue* queue      = LS_QUEUE(S);
   sunindextype ier          = 0;
   sunindextype M            = SUNMatrix_OneMklDense_BlockRows(A);
   sunindextype N            = SUNMatrix_OneMklDense_BlockColumns(A);
@@ -458,7 +458,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   // Call oneMKL to solve the linear system
   sunindextype ier          = 0;
-  sycl::queue* queue        = LS_QUEUE(S);
+  ::sycl::queue* queue      = LS_QUEUE(S);
   sunindextype M            = SUNMatrix_OneMklDense_BlockRows(A);
   sunindextype N            = SUNMatrix_OneMklDense_BlockColumns(A);
   sunindextype num_blocks   = SUNMatrix_OneMklDense_NumBlocks(A);

@@ -58,6 +58,7 @@ module fkinsol_mod
  integer(C_INT), parameter, public :: KIN_FIRST_SYSFUNC_ERR = -14_C_INT
  integer(C_INT), parameter, public :: KIN_REPTD_SYSFUNC_ERR = -15_C_INT
  integer(C_INT), parameter, public :: KIN_VECTOROP_ERR = -16_C_INT
+ integer(C_INT), parameter, public :: KIN_CONTEXT_ERR = -17_C_INT
  integer(C_INT), parameter, public :: KIN_ORTH_MGS = 0_C_INT
  integer(C_INT), parameter, public :: KIN_ORTH_ICWY = 1_C_INT
  integer(C_INT), parameter, public :: KIN_ORTH_CGS2 = 2_C_INT

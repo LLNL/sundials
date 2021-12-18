@@ -320,7 +320,7 @@ if(EXAMPLES_INSTALL)
       set(THREAD_LIBRARY_SLUMT "")
     endif()
   else()
-    set(EXAMPLES_SLUMTU "")
+    set(EXAMPLES_SLUMT "")
     set(THREAD_LIBRARY_SLUMT "")
   endif()
 

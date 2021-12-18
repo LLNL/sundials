@@ -46,7 +46,7 @@ struct _N_VectorContent_Sycl
   SUNSyclExecPolicy* stream_exec_policy;
   SUNSyclExecPolicy* reduce_exec_policy;
   SUNMemoryHelper    mem_helper;
-  sycl::queue*       queue;
+  ::sycl::queue*     queue;
   void*              priv; /* 'private' data */
 };
 
@@ -60,24 +60,24 @@ typedef struct _N_VectorContent_Sycl *N_VectorContent_Sycl;
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Sycl(SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNew_Sycl(sunindextype length,
-                                     sycl::queue *Q,
+                                     ::sycl::queue *Q,
                                      SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewManaged_Sycl(sunindextype length,
-                                            sycl::queue *Q,
+                                            ::sycl::queue *Q,
                                             SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
                                                 booleantype use_managed_mem,
                                                 SUNMemoryHelper helper,
-                                                sycl::queue *Q,
+                                                ::sycl::queue *Q,
                                                 SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMake_Sycl(sunindextype length,
                                       realtype *h_vdata,
                                       realtype *d_vdata,
-                                      sycl::queue *Q,
+                                      ::sycl::queue *Q,
                                       SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMakeManaged_Sycl(sunindextype length,
                                              realtype *vdata,
-                                             sycl::queue *Q,
+                                             ::sycl::queue *Q,
                                              SUNContext sunctx);
 
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Sycl(realtype* h_vdata, N_Vector v);

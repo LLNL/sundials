@@ -47,7 +47,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Sycl: queue is NULL\n");
     return -1;
   }
-  sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
+  ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   // Allocate the memory struct
   SUNMemory mem = SUNMemoryNewEmpty();
@@ -75,7 +75,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
-    mem->ptr = sycl::malloc_host(mem_size, *sycl_queue);
+    mem->ptr = ::sycl::malloc_host(mem_size, *sycl_queue);
     if (!(mem->ptr))
     {
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_host returned NULL\n");
@@ -85,7 +85,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
   {
-    mem->ptr = sycl::malloc_device(mem_size, *sycl_queue);
+    mem->ptr = ::sycl::malloc_device(mem_size, *sycl_queue);
     if (!(mem->ptr))
     {
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_device returned NULL\n");
@@ -95,7 +95,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   }
   else if (mem_type == SUNMEMTYPE_UVM)
   {
-    mem->ptr = sycl::malloc_shared(mem_size, *sycl_queue);
+    mem->ptr = ::sycl::malloc_shared(mem_size, *sycl_queue);
     if (!(mem->ptr))
     {
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_shared returned NULL\n");
@@ -125,7 +125,7 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Dealloc_Sycl: queue is NULL\n");
       return -1;
     }
-    sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
+    ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
     if (mem->type == SUNMEMTYPE_HOST)
     {
@@ -136,7 +136,7 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
              mem->type == SUNMEMTYPE_DEVICE ||
              mem->type == SUNMEMTYPE_UVM)
     {
-      sycl::free(mem->ptr, *sycl_queue);
+      ::sycl::free(mem->ptr, *sycl_queue);
       mem->ptr = nullptr;
     }
     else
@@ -158,7 +158,7 @@ int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Copy_Sycl: queue is NULL\n");
     return -1;
   }
-  sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
+  ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   if (SUNMemoryHelper_CopyAsync_Sycl(helper, dst, src, memory_size, queue))
     return -1;
@@ -175,7 +175,7 @@ int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_CopyAsync_Sycl: queue is NULL\n");
     return -1;
   }
-  sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
+  ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   if (src->type == SUNMEMTYPE_HOST && dst->type == SUNMEMTYPE_HOST)
   {
