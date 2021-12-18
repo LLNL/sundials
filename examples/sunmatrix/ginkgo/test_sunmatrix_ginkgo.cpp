@@ -5,7 +5,7 @@
 using namespace sundials::ginkgo::matrix;
 using VecType = gko::matrix::Dense<realtype>;
 
-#ifdef USE_CUDA
+#if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
 class NvectorType {
 public:
@@ -16,6 +16,22 @@ public:
   const realtype* get_const_values()
   {
     N_VCopyFromDevice_Cuda(nv);
+    return N_VGetArrayPointer(nv);;
+  }
+private:
+  N_Vector nv;
+};
+#elif defined(USE_HIP)
+#include <nvector/nvector_hip.h>
+class NvectorType {
+public:
+  NvectorType(sunindextype len, sundials::Context& sunctx)
+    : nv(N_VNew_Hip(len, sunctx))
+  {}
+  operator N_Vector() { return nv; }
+  const realtype* get_const_values()
+  {
+    N_VCopyFromDevice_Hip(nv);
     return N_VGetArrayPointer(nv);;
   }
 private:
@@ -49,8 +65,10 @@ int main(int argc, char* argv[])
 {
   sundials::Context sunctx;
 
-#ifdef USE_CUDA
+#if defined(USE_CUDA)
   auto gko_exec = gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true);
+#elif defined(USE_HIP)
+  auto gko_exec = gko::HipExecutor::create(0, gko::OmpExecutor::create(), true);
 #else
   auto gko_exec = gko::OmpExecutor::create();
 #endif
@@ -78,11 +96,8 @@ int check_vector_entries(GkoVecType* x, realtype expected)
 {
   int fails = 0;
   auto arr = x->get_const_values();
-  // std::cout << "\n";
-  for (int i = 0; i < x->get_size()[0]; ++i) {
-    // std::cout << arr[i] << "\n";
+  for (int i = 0; i < x->get_size()[0]; ++i)
     fails += arr[i] != expected;
-  }
   return fails;
 }
 
