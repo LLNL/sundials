@@ -1,10 +1,39 @@
 
-#include <nvector/nvector_serial.h>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 #include "test_sunmatrix.h"
 
 using namespace sundials::ginkgo::matrix;
 using VecType = gko::matrix::Dense<realtype>;
+
+#ifdef USE_CUDA
+#include <nvector/nvector_cuda.h>
+class NvectorType {
+public:
+  NvectorType(sunindextype len, sundials::Context& sunctx)
+    : nv(N_VNew_Cuda(len, sunctx))
+  {}
+  operator N_Vector() { return nv; }
+  const realtype* get_const_values()
+  {
+    N_VCopyFromDevice_Cuda(nv);
+    return N_VGetArrayPointer(nv);;
+  }
+private:
+  N_Vector nv;
+};
+#else
+#include <nvector/nvector_serial.h>
+class NvectorType {
+public:
+  NvectorType(sunindextype len, sundials::Context& sunctx)
+    : nv(N_VNew_Serial(len, sunctx))
+  {}
+  operator N_Vector() { return nv; }
+  const realtype* get_const_values() { return N_VGetArrayPointer(nv); }
+private:
+  N_Vector nv;
+};
+#endif
 
 template<typename MtxType>
 int Test_Constructor(sundials::Context& sunctx, std::shared_ptr<gko::Executor> gko_exec);
@@ -19,7 +48,12 @@ int Test_CInterfaceCsr(sundials::Context& sunctx, std::shared_ptr<gko::Executor>
 int main(int argc, char* argv[])
 {
   sundials::Context sunctx;
-  auto gko_exec = gko::ReferenceExecutor::create();
+
+#ifdef USE_CUDA
+  auto gko_exec = gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true);
+#else
+  auto gko_exec = gko::OmpExecutor::create();
+#endif
 
   {
     std::cout << ">>>>>>>>>>>>>>>>>>>>>> TESTING DENSE <<<<<<<<<<<<<<<<<<<<<\n";
@@ -44,15 +78,18 @@ int check_vector_entries(GkoVecType* x, realtype expected)
 {
   int fails = 0;
   auto arr = x->get_const_values();
-  for (int i = 0; i < x->get_size()[0]; ++i)
+  // std::cout << "\n";
+  for (int i = 0; i < x->get_size()[0]; ++i) {
+    // std::cout << arr[i] << "\n";
     fails += arr[i] != expected;
+  }
   return fails;
 }
 
-int check_vector_entries(N_Vector x, realtype expected)
+int check_vector_entries(NvectorType& x, realtype expected)
 {
   int fails = 0;
-  auto arr = N_VGetArrayPointer(x);
+  auto arr = x.get_const_values();
   for (int i = 0; i < N_VGetLength(x); ++i)
     fails += arr[i] != expected;
   return fails;
@@ -64,22 +101,21 @@ int Test_Constructor(sundials::Context& sunctx, std::shared_ptr<gko::Executor> g
   static const char test[] = "Constructor works";
   std::cout << test;
 
-  MtxType A(gko_exec, 2, 2, sunctx);
-  MtxType B(gko_exec, 2, 2, sunctx);
+  MtxType A{gko_exec, 2, 2, sunctx};
+  MtxType B{gko_exec, 2, 2, sunctx};
   auto x = GkoVecType::create(gko_exec, gko::dim<2>(2, 1));
   x->fill(1.0);
   auto b = GkoVecType::create(gko_exec, gko::dim<2>(2, 1));
   b->fill(0.0);
 
   Fill(A, 1.0);
-  Fill(B, 1.0);
-  ScaleAddI(1.0, B);
-
-  Matvec(B, x.get(), b.get());
-  assert(check_vector_entries(b.get(), 3.0) == 0);
-
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
+
+  Fill(B, 1.0);
+  ScaleAddI(1.0, B);
+  Matvec(B, x.get(), b.get());
+  assert(check_vector_entries(b.get(), 3.0) == 0);
 
   std::cout << " -- passed\n";
 
@@ -92,8 +128,8 @@ int Test_CopyConstructor(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   static const char test[] = "Copy constructor works";
   std::cout << test;
 
-  MtxType A(gko_exec, 2, 2, sunctx);
-  MtxType B(A);
+  MtxType A{gko_exec, 2, 2, sunctx};
+  MtxType B{A};
 
   auto x = GkoVecType::create(gko_exec, gko::dim<2>(2, 1));
   x->fill(1.0);
@@ -101,14 +137,13 @@ int Test_CopyConstructor(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   b->fill(0.0);
 
   Fill(A, 1.0);
-  Fill(B, 1.0);
-  ScaleAddI(1.0, B);
-
-  Matvec(B, x.get(), b.get());
-  assert(check_vector_entries(b.get(), 3.0) == 0);
-
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
+
+  Fill(B, 1.0);
+  ScaleAddI(1.0, B);
+  Matvec(B, x.get(), b.get());
+  assert(check_vector_entries(b.get(), 3.0) == 0);
 
   std::cout << " -- passed\n";
   return 0;
@@ -157,8 +192,8 @@ int Test_CInterfaceDense(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   SUNMatrix A = SUNMatrix_GinkgoDense(gko_exec, 2, 2, sunctx);
   SUNMatrix B = SUNMatClone(A);
 
-  N_Vector x = N_VNew_Serial(2, sunctx);
-  N_Vector b = N_VClone(x);
+  NvectorType x{2, sunctx};
+  NvectorType b{2, sunctx};
 
   N_VConst(1.0, x);
   N_VConst(0.0, b);
@@ -182,7 +217,6 @@ int Test_CInterfaceDense(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   SUNMatSpace(A, &lenrw, &leniw);
   assert(lenrw == 4);
 
-
   SUNMatDestroy(A);
   SUNMatDestroy(B);
   N_VDestroy(x);
@@ -200,8 +234,8 @@ int Test_CInterfaceCsr(sundials::Context& sunctx, std::shared_ptr<gko::Executor>
   SUNMatrix A = SUNMatrix_GinkgoCsr(gko_exec, 2, 2, sunctx);
   SUNMatrix B = SUNMatClone(A);
 
-  N_Vector x = N_VNew_Serial(2, sunctx);
-  N_Vector b = N_VClone(x);
+  NvectorType x{2, sunctx};
+  NvectorType b{2, sunctx};
 
   N_VConst(1.0, x);
   N_VConst(0.0, b);

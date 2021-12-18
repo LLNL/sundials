@@ -12,12 +12,12 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO with ${SUNDIALS_GINKGO_BACKENDS} backend(s)\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO with ${GINKGO_BACKENDS} backend(s)\n\")")
 
-# if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
+# if(GINKGO_BACKENDS MATCHES "CUDA")
 #   set_source_files_properties(sunmatrix_ginkgo.cpp PROPERTIES LANGUAGE CUDA)
 #   set(_libs_needed sundials_nveccuda ${CUDA_CUBLAS_LIBRARIES})
-# elseif(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
+# elseif(GINKGO_BACKENDS MATCHES "HIP")
 #   set_source_files_properties(sunmatrix_ginkgo.cpp PROPERTIES LANGUAGE CXX)
 #   set(_libs_needed sundials_nvechip hip::device)
 # endif()
@@ -46,4 +46,4 @@ sundials_add_library(sundials_sunmatrixginkgo
     ${sunmatrixlib_SOVERSION}
 )
 
-message(STATUS "Added SUNMATRIX_GINKGO module with ${SUNDIALS_GINKGO_BACKENDS} backend(s)")
+message(STATUS "Added SUNMATRIX_GINKGO module with ${GINKGO_BACKENDS} backend(s)")

@@ -25,6 +25,10 @@ add_subdirectory(dense)
 add_subdirectory(band)
 add_subdirectory(sparse)
 
+# Build the sunmatrix test utilities
+add_library(test_sunmatrix_obj OBJECT test_sunmatrix.c test_sunmatrix.h)
+target_link_libraries(test_sunmatrix_obj PRIVATE sundials_sunmatrixdense)
+
 if(BUILD_SUNMATRIX_CUSPARSE)
   if(SUNDIALS_INDEX_SIZE MATCHES "32")
     add_subdirectory(cusparse)

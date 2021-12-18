@@ -169,15 +169,19 @@ void Matvec(GinkgoMatrix<GkoMatType>& A, GkoVecType* x, GkoVecType* y)
 template<typename GkoMatType>
 void Matvec(GinkgoMatrix<GkoMatType>& A, N_Vector x, N_Vector y)
 {
+  realtype* x_arr = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
+
   if (x != y)
   {
+    realtype* y_arr = (y->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(y) : N_VGetArrayPointer(y);
+
     const sunindextype x_len = N_VGetLength(x);
     auto x_vec = GkoVecType::create_const(A.gkoexec(), gko::dim<2>(x_len, 1),
-      gko::Array<realtype>::const_view(A.gkoexec(), x_len, N_VGetArrayPointer(x)), 1);
+      gko::Array<realtype>::const_view(A.gkoexec(), x_len, x_arr), 1);
 
     const sunindextype y_len = N_VGetLength(y);
     auto y_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(y_len, 1),
-      gko::Array<realtype>::view(A.gkoexec(), y_len, N_VGetArrayPointer(y)), 1);
+      gko::Array<realtype>::view(A.gkoexec(), y_len, y_arr), 1);
 
     A.gkomtx()->apply(x_vec.get(), y_vec.get());
   }
@@ -185,7 +189,7 @@ void Matvec(GinkgoMatrix<GkoMatType>& A, N_Vector x, N_Vector y)
   {
     const sunindextype x_len = N_VGetLength(x);
     auto x_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(x_len, 1),
-      gko::Array<realtype>::view(A.gkoexec(), x_len, N_VGetArrayPointer(x)), 1);
+      gko::Array<realtype>::view(A.gkoexec(), x_len, x_arr), 1);
     A.gkomtx()->apply(x_vec.get(), x_vec.get());
   }
 
@@ -195,7 +199,6 @@ template<typename GkoMatType>
 std::shared_ptr<GkoMatType> CreateIdentity(std::shared_ptr<const gko::Executor> gko_exec, const gko::dim<2>& gko_dim)
 {
   auto I = gko::share(GkoMatType::create(gko_exec, gko_dim));
-  // I->fill(1.0);
   I->read(gko::matrix_data<realtype, sunindextype>(gko_dim, 1.0));
   auto Idia = I->extract_diagonal();
   auto Icsr = gko::matrix::Csr<realtype>::create(gko_exec, gko_dim);
@@ -207,16 +210,6 @@ std::shared_ptr<GkoMatType> CreateIdentity(std::shared_ptr<const gko::Executor> 
 template<typename GkoMatType>
 void ScaleAdd(const realtype c, GinkgoMatrix<GkoMatType>& A, GinkgoMatrix<GkoMatType>& B)
 {
-  // B.gkolinop_ =
-  //   gko::share(
-  //     gko::Combination<realtype>::create(
-  //       gko::initialize<GkoMatType>({1.0}, gkoexec()),
-  //       B.gkolinop_,
-  //       gko::initialize<GkoMatType>({c}, gkoexec()),
-  //       gkolinop_
-  //     )
-  //   );
-  // B.linop_was_updated_ = true;
   auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
   I->apply(
     gko::initialize<gko::matrix::Dense<realtype>>({1.0}, A.gkoexec()).get(),
@@ -229,17 +222,6 @@ void ScaleAdd(const realtype c, GinkgoMatrix<GkoMatType>& A, GinkgoMatrix<GkoMat
 template<typename GkoMatType>
 void ScaleAddI(const realtype c, GinkgoMatrix<GkoMatType>& A)
 {
-  // A is the linear operator c*A+I, it is not computed upon creation.
-  // gkolinop_ =
-  //   gko::share(
-  //     gko::Combination<realtype>::create(
-  //       gko::initialize<GkoMatType>({c}, gkoexec()),
-  //       gkolinop_,
-  //       gko::initialize<GkoMatType>({1.0}, gkoexec()),
-  //       gko::matrix::Identity<realtype>::create(gkoexec(), gkodim()[0])
-  //     )
-  //   );
-  // linop_was_updated_ = true;
   auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
   I->apply(
     gko::initialize<gko::matrix::Dense<realtype>>({1.0}, A.gkoexec()).get(),
