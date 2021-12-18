@@ -3,7 +3,7 @@
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
 using namespace sundials::ginkgo::matrix;
-using GkoMatType = gko::matrix::Csr<realtype, sunindextype>;
+using GkoMatType = gko::matrix::Csr<sunrealtype, sunindextype>;
 
 #define GET_CONTENT(A) ((GinkgoMatrix<GkoMatType>*) A->content)
 
@@ -19,7 +19,7 @@ SUNMatrix SUNMatrix_GinkgoCsr(std::shared_ptr<gko::Executor> gko_exec,
   return ((SUNMatrix) *mat);
 }
 
-int SUNMatFill_GinkgoCsr(realtype c, SUNMatrix A)
+int SUNMatFill_GinkgoCsr(sunrealtype c, SUNMatrix A)
 {
   Fill(*GET_CONTENT(A), c);
   return SUNMAT_SUCCESS;
@@ -66,7 +66,7 @@ int SUNMatCopy_GinkgoCsr(SUNMatrix A, SUNMatrix B)
   return SUNMAT_SUCCESS;
 }
 
-int SUNMatScaleAdd_GinkgoCsr(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_GinkgoCsr(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   GinkgoMatrix<GkoMatType>* Amat = GET_CONTENT(A);
   GinkgoMatrix<GkoMatType>* Bmat = GET_CONTENT(B);
@@ -74,7 +74,7 @@ int SUNMatScaleAdd_GinkgoCsr(realtype c, SUNMatrix A, SUNMatrix B)
   return SUNMAT_SUCCESS;
 }
 
-int SUNMatScaleAddI_GinkgoCsr(realtype c, SUNMatrix A)
+int SUNMatScaleAddI_GinkgoCsr(sunrealtype c, SUNMatrix A)
 {
   GinkgoMatrix<GkoMatType>* Amat = GET_CONTENT(A);
   ScaleAddI(c, *Amat);

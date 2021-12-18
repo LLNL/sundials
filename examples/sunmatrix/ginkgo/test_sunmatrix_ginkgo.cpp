@@ -3,7 +3,7 @@
 #include "test_sunmatrix.h"
 
 using namespace sundials::ginkgo::matrix;
-using VecType = gko::matrix::Dense<realtype>;
+using VecType = gko::matrix::Dense<sunrealtype>;
 
 #if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
@@ -13,7 +13,7 @@ public:
     : nv(N_VNew_Cuda(len, sunctx))
   {}
   operator N_Vector() { return nv; }
-  const realtype* get_const_values()
+  const sunrealtype* get_const_values()
   {
     N_VCopyFromDevice_Cuda(nv);
     return N_VGetArrayPointer(nv);;
@@ -29,7 +29,7 @@ public:
     : nv(N_VNew_Hip(len, sunctx))
   {}
   operator N_Vector() { return nv; }
-  const realtype* get_const_values()
+  const sunrealtype* get_const_values()
   {
     N_VCopyFromDevice_Hip(nv);
     return N_VGetArrayPointer(nv);;
@@ -45,7 +45,7 @@ public:
     : nv(N_VNew_Serial(len, sunctx))
   {}
   operator N_Vector() { return nv; }
-  const realtype* get_const_values() { return N_VGetArrayPointer(nv); }
+  const sunrealtype* get_const_values() { return N_VGetArrayPointer(nv); }
 private:
   N_Vector nv;
 };
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
   {
     std::cout << ">>>>>>>>>>>>>>>>>>>>>> TESTING DENSE <<<<<<<<<<<<<<<<<<<<<\n";
-    using MtxType = GinkgoMatrix<gko::matrix::Dense<realtype>>;
+    using MtxType = GinkgoMatrix<gko::matrix::Dense<sunrealtype>>;
     Test_Constructor<MtxType>(sunctx, gko_exec);
     Test_CopyConstructor<MtxType>(sunctx, gko_exec);
     Test_CppInterface<MtxType>(sunctx, gko_exec);
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
   }
   {
     std::cout << ">>>>>>>>>>>>>>>>>>>>>>> TESTING CSR <<<<<<<<<<<<<<<<<<<<<<\n";
-    using MtxType = GinkgoMatrix<gko::matrix::Csr<realtype>>;
+    using MtxType = GinkgoMatrix<gko::matrix::Csr<sunrealtype>>;
     Test_Constructor<MtxType>(sunctx, gko_exec);
     Test_CopyConstructor<MtxType>(sunctx, gko_exec);
     Test_CppInterface<MtxType>(sunctx, gko_exec);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-int check_vector_entries(GkoVecType* x, realtype expected)
+int check_vector_entries(GkoVecType* x, sunrealtype expected)
 {
   int fails = 0;
   auto arr = x->get_const_values();
@@ -101,7 +101,7 @@ int check_vector_entries(GkoVecType* x, realtype expected)
   return fails;
 }
 
-int check_vector_entries(NvectorType& x, realtype expected)
+int check_vector_entries(NvectorType& x, sunrealtype expected)
 {
   int fails = 0;
   auto arr = x.get_const_values();
@@ -283,14 +283,14 @@ int Test_CInterfaceCsr(sundials::Context& sunctx, std::shared_ptr<gko::Executor>
   return 0;
 }
 
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   // int failure = 0;
   // sunindextype i = 0;
   // sunindextype Aldata = SUNMatrix_MagmaDense_LData(A);
   // sunindextype Bldata = SUNMatrix_MagmaDense_LData(B);
-  // realtype *Adata = (realtype*) malloc(sizeof(realtype)*Aldata);
-  // realtype *Bdata = (realtype*) malloc(sizeof(realtype)*Bldata);
+  // sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*Aldata);
+  // sunrealtype *Bdata = (sunrealtype*) malloc(sizeof(sunrealtype)*Bldata);
 
   // /* copy data to host */
   // SUNMatrix_MagmaDense_CopyFromDevice(A, Adata);
@@ -317,12 +317,12 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   return 0;
 }
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   // int failure = 0;
   // sunindextype i = 0;
   // sunindextype Aldata = SUNMatrix_MagmaDense_LData(A);
-  // realtype *Adata = (realtype*) malloc(sizeof(realtype)*Aldata);
+  // sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*Aldata);
 
   // /* copy data to host */
   // SUNMatrix_MagmaDense_CopyFromDevice(A, Adata);
@@ -345,10 +345,10 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   return 0;
 }
 
-int check_vector(N_Vector actual, N_Vector expected, realtype tol)
+int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   // int failure = 0;
-  // realtype *xdata, *ydata;
+  // sunrealtype *xdata, *ydata;
   // sunindextype xldata, yldata;
   // sunindextype i;
 
@@ -393,7 +393,7 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
 
 booleantype has_data(SUNMatrix A)
 {
-  // realtype *Adata = SUNMatrix_MagmaDense_Data(A);
+  // sunrealtype *Adata = SUNMatrix_MagmaDense_Data(A);
   // if (Adata == NULL)
   //   return SUNFALSE;
   // else

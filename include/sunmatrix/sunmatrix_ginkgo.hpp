@@ -24,14 +24,14 @@ SUNDIALS_EXPORT SUNMatrix SUNMatClone_GinkgoDense(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_GinkgoDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_GinkgoDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_GinkgoDense(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_GinkgoDense(realtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_GinkgoDense(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScaleAdd_GinkgoDense(sunrealtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAddI_GinkgoDense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvecSetup_GinkgoDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_GinkgoDense(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace_GinkgoDense(SUNMatrix A, long int *lenrw, long int *leniw);
 
 // Additional functions
-SUNDIALS_EXPORT int SUNMatFill_GinkgoDense(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatFill_GinkgoDense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatPrint_GinkgoDense(SUNMatrix A);
 
 //
@@ -49,14 +49,14 @@ SUNDIALS_EXPORT SUNMatrix SUNMatClone_GinkgoCsr(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_GinkgoCsr(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_GinkgoCsr(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_GinkgoCsr(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_GinkgoCsr(realtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_GinkgoCsr(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScaleAdd_GinkgoCsr(sunrealtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAddI_GinkgoCsr(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvecSetup_GinkgoCsr(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_GinkgoCsr(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace_GinkgoCsr(SUNMatrix A, long int *lenrw, long int *leniw);
 
 // Additional functions
-SUNDIALS_EXPORT int SUNMatFill_GinkgoCsr(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatFill_GinkgoCsr(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatPrint_GinkgoCsr(SUNMatrix A);
 
 #ifdef __cplusplus
@@ -71,7 +71,7 @@ namespace ginkgo
 namespace matrix
 {
 
-using GkoVecType = gko::matrix::Dense<realtype>;
+using GkoVecType = gko::matrix::Dense<sunrealtype>;
 
 
 template<typename GkoMatType>
@@ -121,9 +121,9 @@ private:
 //
 
 template<>
-inline GinkgoMatrix<gko::matrix::Dense<realtype>>::GinkgoMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
+inline GinkgoMatrix<gko::matrix::Dense<sunrealtype>>::GinkgoMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
   : sunmtx_(SUNMatNewEmpty(sunctx)),
-    gkomtx_(gko::share(gko::matrix::Dense<realtype>::create(gko_exec, gko::dim<2>(M, N))))
+    gkomtx_(gko::share(gko::matrix::Dense<sunrealtype>::create(gko_exec, gko::dim<2>(M, N))))
 {
   sunmtx_->content = this;
 
@@ -139,9 +139,9 @@ inline GinkgoMatrix<gko::matrix::Dense<realtype>>::GinkgoMatrix(std::shared_ptr<
 }
 
 template<>
-inline GinkgoMatrix<gko::matrix::Csr<realtype>>::GinkgoMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
+inline GinkgoMatrix<gko::matrix::Csr<sunrealtype>>::GinkgoMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
   : sunmtx_(SUNMatNewEmpty(sunctx)),
-    gkomtx_(gko::share(gko::matrix::Csr<realtype>::create(gko_exec, gko::dim<2>(M, N))))
+    gkomtx_(gko::share(gko::matrix::Csr<sunrealtype>::create(gko_exec, gko::dim<2>(M, N))))
 {
   sunmtx_->content = this;
 
@@ -169,19 +169,19 @@ void Matvec(GinkgoMatrix<GkoMatType>& A, GkoVecType* x, GkoVecType* y)
 template<typename GkoMatType>
 void Matvec(GinkgoMatrix<GkoMatType>& A, N_Vector x, N_Vector y)
 {
-  realtype* x_arr = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
+  sunrealtype* x_arr = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
 
   if (x != y)
   {
-    realtype* y_arr = (y->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(y) : N_VGetArrayPointer(y);
+    sunrealtype* y_arr = (y->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(y) : N_VGetArrayPointer(y);
 
     const sunindextype x_len = N_VGetLength(x);
     auto x_vec = GkoVecType::create_const(A.gkoexec(), gko::dim<2>(x_len, 1),
-      gko::Array<realtype>::const_view(A.gkoexec(), x_len, x_arr), 1);
+      gko::Array<sunrealtype>::const_view(A.gkoexec(), x_len, x_arr), 1);
 
     const sunindextype y_len = N_VGetLength(y);
     auto y_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(y_len, 1),
-      gko::Array<realtype>::view(A.gkoexec(), y_len, y_arr), 1);
+      gko::Array<sunrealtype>::view(A.gkoexec(), y_len, y_arr), 1);
 
     A.gkomtx()->apply(x_vec.get(), y_vec.get());
   }
@@ -189,7 +189,7 @@ void Matvec(GinkgoMatrix<GkoMatType>& A, N_Vector x, N_Vector y)
   {
     const sunindextype x_len = N_VGetLength(x);
     auto x_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(x_len, 1),
-      gko::Array<realtype>::view(A.gkoexec(), x_len, x_arr), 1);
+      gko::Array<sunrealtype>::view(A.gkoexec(), x_len, x_arr), 1);
     A.gkomtx()->apply(x_vec.get(), x_vec.get());
   }
 
@@ -199,34 +199,34 @@ template<typename GkoMatType>
 std::shared_ptr<GkoMatType> CreateIdentity(std::shared_ptr<const gko::Executor> gko_exec, const gko::dim<2>& gko_dim)
 {
   auto I = gko::share(GkoMatType::create(gko_exec, gko_dim));
-  I->read(gko::matrix_data<realtype, sunindextype>(gko_dim, 1.0));
+  I->read(gko::matrix_data<sunrealtype, sunindextype>(gko_dim, 1.0));
   auto Idia = I->extract_diagonal();
-  auto Icsr = gko::matrix::Csr<realtype>::create(gko_exec, gko_dim);
+  auto Icsr = gko::matrix::Csr<sunrealtype>::create(gko_exec, gko_dim);
   Idia->move_to(Icsr.get());
   Icsr->move_to(I.get());
   return I;
 }
 
 template<typename GkoMatType>
-void ScaleAdd(const realtype c, GinkgoMatrix<GkoMatType>& A, GinkgoMatrix<GkoMatType>& B)
+void ScaleAdd(const sunrealtype c, GinkgoMatrix<GkoMatType>& A, GinkgoMatrix<GkoMatType>& B)
 {
   auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
   I->apply(
-    gko::initialize<gko::matrix::Dense<realtype>>({1.0}, A.gkoexec()).get(),
+    gko::initialize<gko::matrix::Dense<sunrealtype>>({1.0}, A.gkoexec()).get(),
     B.gkomtx().get(),
-    gko::initialize<gko::matrix::Dense<realtype>>({c}, A.gkoexec()).get(),
+    gko::initialize<gko::matrix::Dense<sunrealtype>>({c}, A.gkoexec()).get(),
     A.gkomtx().get()
   );
 }
 
 template<typename GkoMatType>
-void ScaleAddI(const realtype c, GinkgoMatrix<GkoMatType>& A)
+void ScaleAddI(const sunrealtype c, GinkgoMatrix<GkoMatType>& A)
 {
   auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
   I->apply(
-    gko::initialize<gko::matrix::Dense<realtype>>({1.0}, A.gkoexec()).get(),
+    gko::initialize<gko::matrix::Dense<sunrealtype>>({1.0}, A.gkoexec()).get(),
     I.get(),
-    gko::initialize<gko::matrix::Dense<realtype>>({c}, A.gkoexec()).get(),
+    gko::initialize<gko::matrix::Dense<sunrealtype>>({c}, A.gkoexec()).get(),
     A.gkomtx().get()
   );
 }
@@ -234,13 +234,15 @@ void ScaleAddI(const realtype c, GinkgoMatrix<GkoMatType>& A)
 template<typename GkoMatType>
 void Zero(GinkgoMatrix<GkoMatType>& A)
 {
+  // Do we need to actually zero the matrix or can we just create a new empty matrix?
   Fill(A, 0.0);
 }
 
 template<typename GkoMatType>
-void Fill(GinkgoMatrix<GkoMatType>& A, const realtype c)
+void Fill(GinkgoMatrix<GkoMatType>& A, const sunrealtype c)
 {
-  A.gkomtx()->read(gko::matrix_data<realtype, sunindextype>(A.gkodim(), c));
+  // Will this trigger a host-device transfer?
+  A.gkomtx()->read(gko::matrix_data<sunrealtype, sunindextype>(A.gkodim(), c));
 }
 
 template<typename GkoMatType>
