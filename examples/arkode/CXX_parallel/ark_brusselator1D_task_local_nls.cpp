@@ -54,7 +54,8 @@
  *  --tf <double>    final time
  *  --A <double>     A parameter value
  *  --B <double>     B parameter value
- *  --k <double>     reaction rate
+ *  --k <double> <double> <double> <double>
+ *                   reaction rates
  *  --c <double>     advection speed
  *  --rtol <double>  relative tolerance
  *  --atol <double>  absolute tolerance
@@ -1719,7 +1720,8 @@ void InputError(char *name)
     fprintf(stderr, "  --tf <double>    final time\n");
     fprintf(stderr, "  --A <double>     A parameter value\n");
     fprintf(stderr, "  --B <double>     B parameter value\n");
-    fprintf(stderr, "  --k <double>     reaction rate\n");
+    fprintf(stderr, "  --k <double> <double> <double> <double>\n");
+    fprintf(stderr, "                   reaction rates\n");
     fprintf(stderr, "  --c <double>     advection speed\n");
     fprintf(stderr, "  --rtol <double>  relative tolerance\n");
     fprintf(stderr, "  --atol <double>  absolute tolerance\n");
