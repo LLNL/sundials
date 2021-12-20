@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
 int check_vector_entries(GkoVecType* x, sunrealtype expected)
 {
   int fails = 0;
+  x->get_executor()->synchronize();
   auto arr = x->get_const_values();
   for (int i = 0; i < x->get_size()[0]; ++i)
     fails += arr[i] != expected;
@@ -145,7 +146,6 @@ int Test_CopyConstructor(sundials::Context& sunctx, std::shared_ptr<gko::Executo
 
   MtxType A{gko_exec, 2, 2, sunctx};
   MtxType B{A};
-
   auto x = GkoVecType::create(gko_exec, gko::dim<2>(2, 1));
   x->fill(1.0);
   auto b = GkoVecType::create(gko_exec, gko::dim<2>(2, 1));
@@ -180,12 +180,12 @@ int Test_CppInterface(sundials::Context& sunctx, std::shared_ptr<gko::Executor> 
   Zero(A);
   ScaleAddI(1.0, A);
   ScaleAddI(1.0, A);
-  A.gkomtx()->apply(x.get(), b.get());
+  Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
   Fill(B, 1.0);
   ScaleAdd(1.0, A, B);
-  A.gkomtx()->apply(x.get(), b.get());
+  Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 4.0) == 0);
 
   Copy(A, B);

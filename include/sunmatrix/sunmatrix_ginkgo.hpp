@@ -117,7 +117,7 @@ private:
 };
 
 //
-// Class methods
+// Class method specializations.
 //
 
 template<>
@@ -241,8 +241,15 @@ void Zero(GinkgoMatrix<GkoMatType>& A)
 template<typename GkoMatType>
 void Fill(GinkgoMatrix<GkoMatType>& A, const sunrealtype c)
 {
-  // Will this trigger a host-device transfer?
+  // This will trigger a host-device transfer.
+  // TODO: Look at using gko::device_matrix_data if the executor is a device executor.
   A.gkomtx()->read(gko::matrix_data<sunrealtype, sunindextype>(A.gkodim(), c));
+}
+
+template<>
+inline void Fill(GinkgoMatrix<gko::matrix::Dense<sunrealtype>>& A, const sunrealtype c)
+{
+  A.gkomtx()->fill(c);
 }
 
 template<typename GkoMatType>
@@ -252,9 +259,9 @@ void Copy(GinkgoMatrix<GkoMatType>& A, GinkgoMatrix<GkoMatType>& B)
 }
 
 template<typename GkoMatType>
-void Print(GinkgoMatrix<GkoMatType>& A)
+void Print(GinkgoMatrix<GkoMatType>& A, std::ostream& ost = std::cout)
 {
-  gko::write(std::cout, A.gkomtx().get());
+  gko::write(ost, A.gkomtx().get());
 }
 
 }//matrix
