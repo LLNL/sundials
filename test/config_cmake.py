@@ -89,6 +89,9 @@ def main():
     add_arg(group, '--cuda-flags', 'CUDAFLAGS', 'CMAKE_CUDA_FLAGS', None,
             'STRING', 'CUDA compiler flags')
 
+    add_arg(group, '--cuda-std', 'CMAKE_CUDA_STANDARD', 'CMAKE_CUDA_STANDARD',
+            '11', 'STRING', 'CUDA standard')
+
     add_arg(group, '--cuda-arch', 'CUDAARCHS', 'CMAKE_CUDA_ARCHITECTURES',
             None, 'STRING', 'CUDA architecture')
 

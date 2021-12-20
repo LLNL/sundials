@@ -24,9 +24,9 @@ set(CXX_FOUND TRUE)
 # compiler and related options.
 # ---------------------------------------------------------------
 
-set(DOCSTR "The C++ standard to use if C++ is enabled (14, 17, 20)")
-sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "14"
-                OPTIONS "14;17;20")
+set(DOCSTR "The C++ standard to use if C++ is enabled (11, 14, 17, 20)")
+sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "11"
+                OPTIONS "11;14;17;20")
 message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")
 
 set(DOCSTR "Enable C++ compiler specific extensions")

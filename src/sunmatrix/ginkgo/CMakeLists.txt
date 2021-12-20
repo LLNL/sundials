@@ -14,14 +14,6 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO with ${GINKGO_BACKENDS} backend(s)\n\")")
 
-# if(GINKGO_BACKENDS MATCHES "CUDA")
-#   set_source_files_properties(sunmatrix_ginkgo.cpp PROPERTIES LANGUAGE CUDA)
-#   set(_libs_needed sundials_nveccuda ${CUDA_CUBLAS_LIBRARIES})
-# elseif(GINKGO_BACKENDS MATCHES "HIP")
-#   set_source_files_properties(sunmatrix_ginkgo.cpp PROPERTIES LANGUAGE CXX)
-#   set(_libs_needed sundials_nvechip hip::device)
-# endif()
-
 # Add the sunmatrix_ginkgo library
 sundials_add_library(sundials_sunmatrixginkgo
   SOURCES
@@ -33,10 +25,7 @@ sundials_add_library(sundials_sunmatrixginkgo
     sunmatrix
   OBJECT_LIBRARIES
     sundials_generic_obj
-  # INCLUDE_DIRECTORIES
-    # PUBLIC ${MAGMA_INCLUDE_DIR}
   LINK_LIBRARIES
-    # PUBLIC SUNDIALS::GINKGO ${_libs_needed}
     PUBLIC Ginkgo::ginkgo
   OUTPUT_NAME
     sundials_sunmatrixginkgo

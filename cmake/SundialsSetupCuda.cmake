@@ -28,9 +28,9 @@ endif()
 # Configure the CUDA flags
 # ===============================================================
 
-set(DOCSTR "The CUDA standard to use if CUDA is enabled (14, 17, 20)")
-sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "14"
-                OPTIONS "14;17;20")
+set(DOCSTR "The CUDA standard to use if CUDA is enabled (11, 14, 17, 20)")
+sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "11"
+                OPTIONS "11;14;17;20")
 message(STATUS "CUDA standard set to ${CMAKE_CUDA_STANDARD}")
 
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda")
