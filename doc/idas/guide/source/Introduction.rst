@@ -86,6 +86,12 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+
 Changes in v5.0.0
 -----------------
 

@@ -137,7 +137,8 @@ updateConstructors() {
   echo "replacing in ${@}"
   for constructor in "${constructors[@]}"
   do
-    perl -pi -e 's/'"${constructor}"'\((.*?)\)/'"${constructor}"'($1, SUNCTX_PLACEHOLDER)/g;' ${@}
+    perl -pi -e 's/'"${constructor}"'\((.*\S.*)\)/'"${constructor}"'($1, SUNCTX_PLACEHOLDER)/g;' ${@}
+    perl -pi -e 's/'"${constructor}"'\(\)/'"${constructor}"'(SUNCTX_PLACEHOLDER)/g;' ${@}
   done
 }
 

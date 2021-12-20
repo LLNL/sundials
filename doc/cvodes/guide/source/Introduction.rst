@@ -111,6 +111,12 @@ Fortran.
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+
 Changes in v6.0.0
 -----------------
 
@@ -672,7 +678,7 @@ linear solver with BDF methods.
 
 
 Changes in v5.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
@@ -692,7 +698,7 @@ Added support for constant damping to the :ref:`SUNNonlinearSolver_FixedPoint
 <SUNNonlinSol.FixedPoint>` module when using Anderson acceleration.
 
 Changes in v5.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 **Build system changes**
 

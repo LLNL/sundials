@@ -14,8 +14,9 @@
 
 .. _ARKODE.Introduction:
 
+************
 Introduction
-============
+************
 
 The ARKODE infrastructure provides adaptive-step time integration
 modules for stiff, nonstiff and mixed stiff/nonstiff systems of
@@ -114,12 +115,17 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 
 
 
-
 Changes from previous versions
---------------------------------
+==============================
 
-Changes in 5.0.0
-^^^^^^^^^^^^^^^^
+Changes in vx.x.x
+-----------------
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+
+Changes in v5.0.0
+-----------------
 
 **SUNContext**
 
@@ -612,8 +618,8 @@ In addition, the entire ``sundials_lapack.h`` header file is now deprecated for
 removal in SUNDIALS v7.0.0. Note, this header file is not needed to use the
 SUNDIALS LAPACK linear solvers.
 
-Changes in 4.8.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changes in v4.8.0
+-----------------
 
 The RAJA NVECTOR implementation has been updated to support the SYCL backend
 in addition to the CUDA and HIP backend. Users can choose the backend when
@@ -665,8 +671,8 @@ A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
 
 
-Changes in 4.7.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changes in v4.7.0
+-----------------
 
 A new NVECTOR implementation based on the SYCL abstraction layer has been added
 targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
@@ -680,8 +686,8 @@ support general dense linear systems as well as block diagonal linear systems,
 and both are targeted at GPUs (AMD or NVIDIA). See :numref:`SUNLinSol.MagmaDense`
 for more details.
 
-Changes in 4.6.1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changes in v4.6.1
+-----------------
 
 Fixed a bug in the SUNDIALS CMake which caused an error
 if the CMAKE_CXX_STANDARD and SUNDIALS_RAJA_BACKENDS options
@@ -689,8 +695,8 @@ were not provided.
 
 Fixed some compiler warnings when using the IBM XL compilers.
 
-Changes in 4.6.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changes in v4.6.0
+-----------------
 
 A new NVECTOR implementation based on the AMD ROCm HIP platform has been added.
 This vector can target NVIDIA or AMD GPUs. See :numref:`NVectors.HIP` for more
@@ -713,7 +719,7 @@ that the pointer returned by :c:func:`N_VGetDeviceArrayPointer` is a valid CUDA
 device pointer.
 
 Changes in v4.5.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now required.
 Users will likely see deprecation warnings, but otherwise the changes
@@ -723,7 +729,7 @@ now exports CMake targets and installs a SUNDIALSConfig.cmake file.
 Added support for SuperLU DIST 6.3.0 or newer.
 
 Changes in v4.4.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Added full support for time-dependent mass matrices in ARKStep, and expanded
 existing non-identity mass matrix infrastructure to support use of the
@@ -797,7 +803,7 @@ Added support for CUDA v11.
 
 
 Changes in v4.3.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Fixed a bug in ARKODE where the prototypes for :c:func:`ERKStepSetMinReduction()`
 and :c:func:`ARKStepSetMinReduction()` were not included in ``arkode_erkstep.h``
@@ -833,7 +839,7 @@ modules. SUNDIALS must be built with the CMake option
 
 
 Changes in v4.2.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the
 IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
@@ -888,7 +894,7 @@ these have been deprecated and will be removed in a future release.
 
 
 Changes in v4.1.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
@@ -927,7 +933,7 @@ module when using Anderson acceleration. See :numref:`SUNNonlinSol.FixedPoint.Ma
 and the :c:func:`SUNNonlinSolSetDamping_FixedPoint()` for more details.
 
 Changes in v4.0.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 **Build system changes**
 
@@ -1191,7 +1197,7 @@ to the ARKStep, ERKStep, and MRIStep time-stepping modules. See the
 
 
 Changes in v3.1.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 An additional NVECTOR implementation was added for the
 Tpetra vector from the Trilinos library to facilitate interoperability
@@ -1215,18 +1221,18 @@ Fixed a bug in ``ARKodeButcherTable_Write`` when printing a Butcher table
 without an embedding.
 
 Changes in v3.0.2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Added information on how to contribute to SUNDIALS and a contributing agreement.
 
 Changes in v3.0.1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 A bug in ARKODE where single precision builds would fail to compile has been fixed.
 
 
 Changes in v3.0.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 The ARKODE library has been entirely rewritten to support a modular
 approach to one-step methods, which should allow rapid research and
@@ -1379,7 +1385,7 @@ been added, NVECTOR_OpenMPDEV. See :numref:`NVectors.OpenMPDEV` for more details
 
 
 Changes in v2.2.1
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Fixed a bug in the CUDA NVECTOR where the ``N_VInvTest`` operation could
 write beyond the allocated vector data.
@@ -1391,7 +1397,7 @@ set, but is available as a CMAKE option that can modified.
 
 
 Changes in v2.2.0
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Fixed a problem with setting ``sunindextype`` which would occur with
 some compilers (e.g. armclang) that did not define ``__STDC_VERSION__``.
@@ -1441,7 +1447,7 @@ Several changes were made to the build system:
 
 
 Changes in v2.1.2
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Updated the minimum required version of CMake to 2.8.12 and enabled
 using rpath by default to locate shared libraries on OSX.
@@ -1472,7 +1478,7 @@ Changed LICENSE install path to ``instdir/include/sundials``.
 
 
 Changes in v2.1.1
-^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
 if "Initialize" was called multiple times then the solver memory was
@@ -1511,7 +1517,7 @@ linear solvers, explicit methods, fixed point solver, etc.).
 
 
 Changes in v2.1.0
-^^^^^^^^^^^^^^^^^^^
+-----------------
 
 Added NVECTOR print functions that write vector data to a specified
 file (e.g. ``N_VPrintFile_Serial``).
@@ -1522,7 +1528,7 @@ installing with ``make install`` respectively.
 
 
 Changes in v2.0.0
-^^^^^^^^^^^^^^^^^^^
+-----------------
 
 All interfaces to matrix structures and linear solvers have been
 reworked, and all example programs have been updated.  The goal of the
@@ -1627,7 +1633,7 @@ installation-related files, and to the user documentation.
 
 
 Changes in v1.1.0
-^^^^^^^^^^^^^^^^^^^
+-----------------
 
 We have included numerous bugfixes and enhancements since the
 v1.0.2 release.
@@ -1711,7 +1717,7 @@ The feature changes/enhancements include:
 
 
 Reading this User Guide
-----------------------------
+=======================
 
 This user guide is a combination of general usage instructions and
 specific example programs.  We expect that some readers will want to
@@ -1757,7 +1763,7 @@ The structure of this document is as follows:
 
 
 SUNDIALS License and Notices
-----------------------------
+============================
 
 .. ifconfig:: package_name != 'super'
 

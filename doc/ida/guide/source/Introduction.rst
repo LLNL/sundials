@@ -72,6 +72,12 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+
 Changes in v6.0.0
 -----------------
 

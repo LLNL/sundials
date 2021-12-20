@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release x.x.x
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
 ## Changes to SUNDIALS in release 6.0.0
 
 ### SUNContext
