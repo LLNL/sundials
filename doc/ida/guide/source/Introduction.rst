@@ -77,6 +77,7 @@ Changes in vx.x.x
 
 Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
+Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
 Changes in v6.0.0
 -----------------
