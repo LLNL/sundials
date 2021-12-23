@@ -4,6 +4,8 @@
 
 Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
+``CMAKE_C_STANDARD`` is now set to 99 by default.
+
 Fixed `sundials_export.h` include in `sundials_config.h`.
 
 ## Changes to SUNDIALS in release 6.0.0

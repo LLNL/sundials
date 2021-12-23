@@ -116,6 +116,8 @@ Changes in vx.x.x
 
 Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
+:cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
+
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
 Changes in v6.0.0

@@ -23,10 +23,17 @@ endif()
 # Always add the nvector serial examples
 add_subdirectory(serial)
 
+# Build the nvector test utilities
+add_library(test_nvector_obj OBJECT test_nvector.c)
+target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)
+
 if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(parallel)
   add_subdirectory(mpimanyvector)
   add_subdirectory(mpiplusx)
+  # Build the mpi nvector test utilities
+  add_library(test_nvectormpi_obj OBJECT test_mpinvector.c)
+  target_link_libraries(test_nvectormpi_obj PRIVATE MPI::MPI_C sundials_nvecparallel)
 endif()
 add_subdirectory(manyvector)
 

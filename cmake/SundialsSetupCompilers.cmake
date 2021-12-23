@@ -65,16 +65,10 @@ endif()
 # C settings
 # ===============================================================
 
-# TODO(DJG): Set C standard by default once it does not break HIP builds
-if(CMAKE_C_STANDARD)
-  # set C standard here in order to check for vaild options
-  set(DOCSTR "The C standard to use (90, 99, 11, 17)")
-  sundials_option(CMAKE_C_STANDARD STRING "${DOCSTR}" "99"
-                  OPTIONS "90;99;11;17")
-  message(STATUS "C standard set to ${CMAKE_C_STANDARD}")
-else()
-  message(STATUS "C standard not set")
-endif()
+set(DOCSTR "The C standard to use (90, 99, 11, 17)")
+sundials_option(CMAKE_C_STANDARD STRING "${DOCSTR}" "99"
+                OPTIONS "90;99;11;17")
+message(STATUS "C standard set to ${CMAKE_C_STANDARD}")
 
 set(DOCSTR "Enable C compiler specific extensions")
 sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" OFF)

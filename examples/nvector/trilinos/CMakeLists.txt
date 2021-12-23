@@ -29,11 +29,6 @@ else()
     )
 endif()
 
-set(shared_SOURCES
-  ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-  ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
-  )
-
 # Dependencies for nvector examples
 if(Trilinos_MPI)
   set(nvector_examples_dependencies
@@ -80,13 +75,19 @@ foreach(example_tuple ${nvector_trilinos_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cpp ${shared_SOURCES})
+    add_executable(${example} ${example}.cpp)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj)
+    if (Trilinos_MPI)
+      target_link_libraries(${example} PRIVATE test_nvectormpi_obj)
+    endif()
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # Trilinos libraries must be linked after SUNDIALS libraries!
     # Otherwise, segfaults may occur; something to do with RCPs.
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   endif()
 
   # check if example args are provided and set the test name

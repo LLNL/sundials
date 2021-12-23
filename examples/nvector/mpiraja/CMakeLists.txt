@@ -61,9 +61,10 @@ foreach(example_tuple ${nvector_raja_examples})
     set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
 
     # example source files
-    add_executable(${example} ${example}.cpp
-      ../test_nvector.c
-      ../test_mpinvector.c)
+    add_executable(${example} ${example}.cpp)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

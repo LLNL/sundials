@@ -60,13 +60,16 @@ foreach(example_tuple ${nvector_manyvector_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../test_nvector.c)
+    add_executable(${example} ${example}.c)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   endif()
 
   # check if example args are provided and set the test name
