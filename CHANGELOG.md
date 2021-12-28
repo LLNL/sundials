@@ -2,6 +2,10 @@
 
 ## Changes to SUNDIALS in release x.x.x
 
+Additionally export `SUNDIALS::<lib>` targets with no static/shared suffix for
+use within the build directory (this mirrors how the targets are exported upon
+installation).
+
 Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
 ``CMAKE_C_STANDARD`` is now set to 99 by default.

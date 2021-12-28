@@ -264,3 +264,10 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfigVersion.cmake"
         DESTINATION "${SUNDIALS_INSTALL_CMAKEDIR}"
 )
+
+# Export targets so build directory can be used directly
+export(
+  EXPORT sundials-targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSTargets.cmake"
+  NAMESPACE SUNDIALS::
+)
