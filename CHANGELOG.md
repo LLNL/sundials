@@ -12,6 +12,8 @@ Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
 Fixed `sundials_export.h` include in `sundials_config.h`.
 
+Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
+
 ## Changes to SUNDIALS in release 6.0.0
 
 ### SUNContext

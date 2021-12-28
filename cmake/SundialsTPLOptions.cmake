@@ -273,7 +273,6 @@ sundials_option(ONEMKL_WORKS BOOL "Set to ON to force CMake to accept a given on
 # ---------------------------------------------------------------
 
 sundials_option(ENABLE_CALIPER BOOL "Enable CALIPER support" OFF
-                SHOW_IF SUNDIALS_BUILD_WITH_PROFILING
                 DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING)
 
 sundials_option(CALIPER_DIR PATH "Path to the root of an CALIPER installation" "${CALIPER_DIR}"
