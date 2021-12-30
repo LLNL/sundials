@@ -82,7 +82,7 @@ rather than the combined SUNDIALS online guide:
       author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
       title  = {User Documentation for CVODE},
       year   = {|YEAR|}
-      notes  = {|CVODE_VERSION|}
+      note  = {|CVODE_VERSION|}
    }
 
 .. parsed-literal::

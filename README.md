@@ -55,7 +55,8 @@ such failures, obtain all desired package at the same time.
 ## Support ##
 
 Full user guides for SUNDIALS packages are provided in the [doc](./doc)
-directory along with documentation for example programs.
+directory along with documentation for example programs. The SUNDIALS
+documentation is also available online at https://sundials.readthedocs.io.
 
 A list of Frequently Asked Questions on build and installation procedures as
 well as common usage issues is available on the SUNDIALS [FAQ](https://computing.llnl.gov/projects/sundials/faq).
@@ -94,13 +95,7 @@ Ting Yan, and Ulrike M. Yang.
 
 ### Citing SUNDIALS ###
 
-We ask users of SUNDIALS to cite the following paper in any publications
-reporting work done with SUNDIALS:
-
-* Alan C. Hindmarsh, Peter N. Brown, Keith E. Grant, Steven L. Lee, Radu
-Serban, Dan E. Shumaker, and Carol S. Woodward. 2005. SUNDIALS: Suite of
-nonlinear and differential/algebraic equation solvers. ACM Trans. Math. Softw.
-31, 3 (September 2005), 363-396. DOI=http://dx.doi.org/10.1145/1089014.1089020
+See [CITATIONS](./CITATIONS.md).
 
 ## License ##
 

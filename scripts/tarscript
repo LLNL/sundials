@@ -201,6 +201,7 @@ fi
 #----------------------------------
 
 cp $sundialsdir/CHANGELOG.md $tmpdir/
+cp $sundialsdir/CITATIONS.md $tmpdir/
 cp $sundialsdir/CMakeLists.txt $tmpdir/
 cp $sundialsdir/CONTRIBUTING.md $tmpdir/
 cp $sundialsdir/LICENSE $tmpdir/

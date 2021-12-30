@@ -17,7 +17,8 @@ tar=$*
 
 echo "   --- Add top-level files to $tarfile"
 
-tar cfv $tarfile $distrobase/CHANGELOG.md
+$tar $tarfile $distrobase/CHANGELOG.md
+$tar $tarfile $distrobase/CITATIONS.md
 $tar $tarfile $distrobase/CMakeLists.txt
 $tar $tarfile $distrobase/CONTRIBUTING.md
 $tar $tarfile $distrobase/LICENSE

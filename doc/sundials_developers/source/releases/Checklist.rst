@@ -80,6 +80,7 @@ web pages.
 #. Update version numbers and release date information using the ``updateVerson.sh``
    script. This will update the following files:
 
+   * ``CITATIONS.md``
    * ``CMakeLists.txt``
    * ``README.md``
    * ``src/arkode/README``
