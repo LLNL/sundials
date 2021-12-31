@@ -38,8 +38,8 @@ def main():
                         arguments will override any settings from the
                         environment variables)''')
 
-    parser.add_argument('--debug', action='store_true',
-                        help='Enable debugging')
+    parser.add_argument('--debugscript', action='store_true',
+                        help='Enable debugging output for this script')
 
     # -----------------
     # Compiler Options
@@ -56,7 +56,7 @@ def main():
     add_arg(group, '--c-flags', 'CFLAGS', 'CMAKE_C_FLAGS', None, 'STRING',
             'C compiler flags')
 
-    add_arg(group, '--c-std', 'CMAKE_C_STANDARD', 'CMAKE_C_STANDARD', None,
+    add_arg(group, '--c-std', 'CMAKE_C_STANDARD', 'CMAKE_C_STANDARD', '99',
             'STRING', 'C standard')
 
     add_arg(group, '--c-ext', 'CMAKE_C_EXTENSIONS', 'CMAKE_C_EXTENSIONS',
@@ -105,6 +105,32 @@ def main():
             'CMAKE_INSTALL_PREFIX', None, 'PATH', 'SUNDIALS install location')
 
     # library directory
+
+    # ------------------
+    # Debugging Options
+    # ------------------
+
+    group = parser.add_argument_group('Debugging Options',
+                                      '''Options debugging SUNDIALS.''')
+
+    add_arg(group, '--debug', 'SUNDIALS_DEBUG', 'SUNDIALS_DEBUG', 'OFF',
+            'BOOL', 'SUNDIALS debugging output')
+
+    add_arg(group, '--debug-assert', 'SUNDIALS_DEBUG_ASSERT',
+            'SUNDIALS_DEBUG_ASSERT', 'OFF', 'BOOL',
+            'SUNDIALS debugging asserts', dependson='--debug')
+
+    add_arg(group, '--debug-cuda', 'SUNDIALS_DEBUG_CUDA_LASTERROR',
+            'SUNDIALS_DEBUG_CUDA_LASTERROR', 'OFF', 'BOOL',
+            'SUNDIALS debugging cuda errors', dependson='--debug')
+
+    add_arg(group, '--debug-hip', 'SUNDIALS_DEBUG_HIP_LASTERROR',
+            'SUNDIALS_DEBUG_HIP_LASTERROR', 'OFF', 'BOOL',
+            'SUNDIALS debugging hip errors', dependson='--debug')
+
+    add_arg(group, '--debug-printvec', 'SUNDIALS_DEBUG_PRINTVEC',
+            'SUNDIALS_DEBUG_PRINTVEC', 'OFF', 'BOOL',
+            'SUNDIALS debugging vector output', dependson='--debug')
 
     # --------------
     # Library Types
@@ -497,7 +523,7 @@ def main():
     args = parser.parse_args()
 
     # output arg values from command line
-    if args.debug:
+    if args.debugscript:
         print_args(args)
 
     # read environment variables
@@ -505,7 +531,7 @@ def main():
         read_env(args)
 
         # output arg values from env
-        if args.debug:
+        if args.debugscript:
             print_args(args)
 
     # ------------------

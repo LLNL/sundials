@@ -107,9 +107,39 @@ The ``SUNContext`` API further consists of the following functions:
 Implications for Multi-Threading
 --------------------------------
 
-In multi-threading applications where multiple SUNDIALS simulations are conducted concurrently,
-e.g. by having one instance of an integrator per thread, a ``SUNContext`` object needs to be created
-for each thread.
+In multi-threading applications where multiple SUNDIALS simulations are
+conducted concurrently, e.g. by having one instance of an integrator per thread,
+a ``SUNContext`` object needs to be created for each thread, as show in the
+following code example:
+
+.. code-block:: c
+
+   SUNContext sunctxs[num_threads];
+   void* cvode_mem[num_threads];
+
+   // Create
+   for (int i = 0; i < num_threads; i++) {
+      sunctxs[i] = SUNContext_Create(...);
+      cvode_mem[i] = CVodeCreate(..., sunctxs[i]);
+   }
+
+   // Solve
+   #pragma omp parallel for
+   for (int i = 0; i < num_problems; i++) {
+      int retval = CVode(cvode_mem[i], ...);
+   }
+
+   // Free
+   for (int i = 0; i < num_threads; i++) {
+      CVodeFree(&cvode_mem[i]);
+      SUNContext_Free(&sunctxs[i]);
+   }
+
+
+Since each threads has its own unique CVODE and SUNContext object pair, there
+should be no thread-safety issues. Users should be sure that you apply the same
+idea to the other SUNDIALS objects needed as well (e.g. an N_Vector).
+
 
 .. _SUNDIALS.SUNContext.CPP:
 

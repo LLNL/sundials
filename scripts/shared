@@ -221,6 +221,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 $tar $tarfile $distrobase/src/sundials/sundials_profiler.c
+$tar $tarfile $distrobase/src/sundials/sundials_reductions.hpp
 $tar $tarfile $distrobase/src/sundials/sundials_sycl.h
 $tar $tarfile $distrobase/src/sundials/sundials_version.c
 $tar $tarfile $distrobase/src/sundials/sundials_xbraid.c
@@ -744,3 +745,6 @@ $tar $tarfile $distrobase/test/testRunner
 echo "   --- Add unit tests files to $tarfile"
 
 $tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/reductions
+$tar $tarfile $distrobase/test/unit_tests/reductions/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/reductions/test_reduction_operators.cpp

@@ -24,7 +24,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./default.sh $*" | tee -a suntest.log
+echo "./default.sh $*" | tee -a configure.log
 
 # set defaults for optional inputs
 compiler="gcc@4.9.4" # compiler spec

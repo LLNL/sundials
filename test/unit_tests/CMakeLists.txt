@@ -20,3 +20,7 @@ message("Adding units tests")
 if(BUILD_ARKODE)
   add_subdirectory(arkode)
 endif()
+
+if(CXX_FOUND)
+  add_subdirectory(reductions)
+endif()

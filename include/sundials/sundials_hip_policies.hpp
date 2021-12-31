@@ -22,21 +22,39 @@
 
 #include <cstdio>
 #include <stdexcept>
-#include <hip/hip_runtime.h>
+
+#include <sundials/sundials_types.h>
 
 namespace sundials
 {
 namespace hip
 {
 
+#if defined(__HIP_PLATFORM_HCC__)
+constexpr const sunindextype WARP_SIZE = 64;
+#elif defined(__HIP_PLATFORM_NVCC__)
+constexpr const sunindextype WARP_SIZE = 32;
+#endif
+constexpr const sunindextype MAX_BLOCK_SIZE = 1024;
+constexpr const sunindextype MAX_WARPS = MAX_BLOCK_SIZE / WARP_SIZE;
+
 class ExecPolicy
 {
 public:
+  ExecPolicy(hipStream_t stream = 0) : stream_(stream) { }
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
   virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-  virtual const hipStream_t* stream() const = 0;
+  virtual const hipStream_t* stream() const { return (&stream_); }
   virtual ExecPolicy* clone() const = 0;
+  ExecPolicy* clone_new_stream(hipStream_t stream) const {
+    ExecPolicy* ex = clone();
+    ex->stream_ = stream;
+    return ex;
+  }
+  virtual bool atomic() const { return false; }
   virtual ~ExecPolicy() {}
+protected:
+  hipStream_t stream_;
 };
 
 
@@ -50,28 +68,23 @@ public:
 class ThreadDirectExecPolicy : public ExecPolicy
 {
 public:
-  ThreadDirectExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
-    : blockDim_(blockDim), stream_(stream)
+  ThreadDirectExecPolicy(const size_t blockDim, hipStream_t stream = 0)
+    : blockDim_(blockDim), ExecPolicy(stream)
   {}
 
   ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
-    : blockDim_(ex.blockDim_), stream_(ex.stream_)
+    : blockDim_(ex.blockDim_), ExecPolicy(ex.stream_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
   {
     /* ceil(n/m) = floor((n + m - 1) / m) */
     return (numWorkUnits + blockSize() - 1) / blockSize();
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
   {
     return blockDim_;
-  }
-
-  virtual const hipStream_t* stream() const
-  {
-    return &stream_;
   }
 
   virtual ExecPolicy* clone() const
@@ -80,7 +93,6 @@ public:
   }
 
 private:
-  const hipStream_t stream_;
   const size_t blockDim_;
 };
 
@@ -93,27 +105,22 @@ private:
 class GridStrideExecPolicy : public ExecPolicy
 {
 public:
-  GridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const hipStream_t stream = 0)
-    : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
+  GridStrideExecPolicy(const size_t blockDim, const size_t gridDim, hipStream_t stream = 0)
+    : blockDim_(blockDim), gridDim_(gridDim), ExecPolicy(stream)
   {}
 
   GridStrideExecPolicy(const GridStrideExecPolicy& ex)
-    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
+    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), ExecPolicy(ex.stream_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t /*numWorkUnits*/ = 0, size_t /*blockDim*/ = 0) const
   {
     return gridDim_;
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
   {
     return blockDim_;
-  }
-
-  virtual const hipStream_t* stream() const
-  {
-    return &stream_;
   }
 
   virtual ExecPolicy* clone() const
@@ -122,11 +129,9 @@ public:
   }
 
 private:
-  const hipStream_t stream_;
   const size_t blockDim_;
   const size_t gridDim_;
 };
-
 
 /*
  * A kernel execution policy for performing a reduction across indvidual thread
@@ -136,23 +141,24 @@ private:
  * be chosen so that there are at most two work units per thread. If a stream is
  * provided, it will be used to execute the kernel.
  */
-class BlockReduceExecPolicy : public ExecPolicy
+
+class BlockReduceAtomicExecPolicy : public ExecPolicy
 {
 public:
-  BlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, const hipStream_t stream = 0)
-    : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
+  BlockReduceAtomicExecPolicy(const size_t blockDim, const size_t gridDim = 0, hipStream_t stream = 0)
+    : blockDim_(blockDim), gridDim_(gridDim), ExecPolicy(stream)
   {
-    if (blockDim < 1 || blockDim % warpSize)
+    if (blockDim < 1 || blockDim % WARP_SIZE)
     {
       throw std::invalid_argument("the block size must be a multiple of the HIP warp size");
     }
   }
 
-  BlockReduceExecPolicy(const BlockReduceExecPolicy& ex)
-    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
+  BlockReduceAtomicExecPolicy(const BlockReduceAtomicExecPolicy& ex)
+    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), ExecPolicy(ex.stream_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
   {
     if (gridDim_ == 0)
     {
@@ -161,14 +167,51 @@ public:
     return gridDim_;
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
   {
     return blockDim_;
   }
 
-  virtual const hipStream_t* stream() const
+  virtual ExecPolicy* clone() const
   {
-    return &stream_;
+    return static_cast<ExecPolicy*>(new BlockReduceAtomicExecPolicy(*this));
+  }
+
+  virtual bool atomic() const { return true; }
+
+private:
+  const size_t blockDim_;
+  const size_t gridDim_;
+};
+
+class BlockReduceExecPolicy : public ExecPolicy
+{
+public:
+  BlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, hipStream_t stream = 0)
+    : blockDim_(blockDim), gridDim_(gridDim), ExecPolicy(stream)
+  {
+    if (blockDim < 1 || blockDim % WARP_SIZE)
+    {
+      throw std::invalid_argument("the block size must be a multiple of the HIP warp size");
+    }
+  }
+
+  BlockReduceExecPolicy(const BlockReduceExecPolicy& ex)
+    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), ExecPolicy(ex.stream_)
+  {}
+
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
+  {
+    if (gridDim_ == 0)
+    {
+      return (numWorkUnits + (blockSize() * 2 - 1)) / (blockSize() * 2);
+    }
+    return gridDim_;
+  }
+
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
+  {
+    return blockDim_;
   }
 
   virtual ExecPolicy* clone() const
@@ -176,8 +219,9 @@ public:
     return static_cast<ExecPolicy*>(new BlockReduceExecPolicy(*this));
   }
 
+  bool atomic() const { return false; }
+
 private:
-  const hipStream_t stream_;
   const size_t blockDim_;
   const size_t gridDim_;
 };
@@ -189,5 +233,6 @@ typedef sundials::hip::ExecPolicy SUNHipExecPolicy;
 typedef sundials::hip::ThreadDirectExecPolicy SUNHipThreadDirectExecPolicy;
 typedef sundials::hip::GridStrideExecPolicy SUNHipGridStrideExecPolicy;
 typedef sundials::hip::BlockReduceExecPolicy SUNHipBlockReduceExecPolicy;
+typedef sundials::hip::BlockReduceAtomicExecPolicy SUNHipBlockReduceAtomicExecPolicy;
 
 #endif

@@ -210,23 +210,8 @@ if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
         # profiling requires C99 for __func__ however, some compilers still
         # define __func__ when using ISO C89/C90.
         export CMAKE_C_STANDARD="90"
-    else
-        # Support for float and long math functions added in ISO C99.
-        export CMAKE_C_STANDARD="99"
     fi
-    export CMAKE_CXX_STANDARD="11"
-
-else
-
-    # C and C++ standards
-    export CMAKE_C_STANDARD="99"
-    export CMAKE_CXX_STANDARD="11"
-
 fi
-
-# Disable compiler extensions
-export CMAKE_C_EXTENSIONS="OFF"
-export CMAKE_CXX_EXTENSIONS="OFF"
 
 # Print relevant environment variables to the log file
 for env_var in "${!CMAKE_@}"; do

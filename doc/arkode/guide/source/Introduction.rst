@@ -127,6 +127,14 @@ installation).
 
 Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
+Added new reduction implementations for the CUDA and HIP NVECTORs that use
+shared memory (local data storage) instead of atomics. These new implementations
+are recommended when the target hardware does not provide atomic support for the
+floating point precision that SUNDIALS is being built with. The HIP vector uses
+these by default, but the :c:func:`N_VSetKernelExecPolicy_Cuda` and
+:c:func:`N_VSetKernelExecPolicy_Hip` functions can be used to choose between
+different reduction implementations.
+
 :cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
 
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.

@@ -28,7 +28,7 @@ endif()
 # Configure the CUDA flags
 # ===============================================================
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr")
 
 if(${CMAKE_VERSION} VERSION_LESS "3.18.0")
   if(CMAKE_CUDA_ARCHITECTURES)
