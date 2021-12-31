@@ -27,14 +27,14 @@ the HIP-clang compiler. The vector content layout is as follows:
 
    struct _N_VectorContent_Hip
    {
-     sunindextype       length;
-     booleantype        own_data;
-     SUNMemory          host_data;
-     SUNMemory          device_data;
-     SUNHipExecPolicy*  stream_exec_policy;
-     SUNHipExecPolicy*  reduce_exec_policy;
-     SUNMemoryHelper    mem_helper;
-     void*              priv; /* 'private' data */
+      sunindextype       length;
+      booleantype        own_helper;
+      SUNMemory          host_data;
+      SUNMemory          device_data;
+      SUNHipExecPolicy*  stream_exec_policy;
+      SUNHipExecPolicy*  reduce_exec_policy;
+      SUNMemoryHelper    mem_helper;
+      void*              priv; /* 'private' data */
    };
 
    typedef struct _N_VectorContent_Hip *N_VectorContent_Hip;
@@ -143,11 +143,12 @@ The module NVECTOR_HIP also provides the following user-callable routines:
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction HIP kernels. By default
    the vector is setup to use the :cpp:func:`SUNHipThreadDirectExecPolicy` and
-   :cpp:func:`SUNHipBlockReduceExecPolicy`. Any custom execution policy for reductions
-   must ensure that the grid dimensions (number of thread blocks) is a multiple
-   of the HIP warp size (32 for NVIDIA GPUs, 64 for AMD GPUs). See
+   :cpp:func:`SUNHipBlockReduceExecPolicy`. Any custom execution policy for
+   reductions must ensure that the grid dimensions (number of thread blocks) is
+   a multiple of the HIP warp size (32 for NVIDIA GPUs, 64 for AMD GPUs). See
    :numref:`NVectors.HIP.SUNHipExecPolicy` below for more information about the
-   :cpp:type:`SUNHipExecPolicy` class.
+   :cpp:type:`SUNHipExecPolicy` class. Providing ``NULL`` for an argument will
+   result in the default policy being restored.
 
    .. note::
 
@@ -297,12 +298,22 @@ where the ``sundials::hip::ExecPolicy`` class is defined in the header file
    class ExecPolicy
    {
    public:
+      ExecPolicy(hipStream_t stream = 0) : stream_(stream) { }
       virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
       virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual hipStream_t stream() const = 0;
+      virtual const hipStream_t* stream() const { return (&stream_); }
       virtual ExecPolicy* clone() const = 0;
+      ExecPolicy* clone_new_stream(hipStream_t stream) const {
+         ExecPolicy* ex = clone();
+         ex->stream_ = stream;
+         return ex;
+      }
+      virtual bool atomic() const { return false; }
       virtual ~ExecPolicy() {}
+   protected:
+      hipStream_t stream_;
    };
+
 
 
 To define a custom execution policy, a user simply needs to create a class that inherits from
@@ -316,27 +327,23 @@ may look like:
    class ThreadDirectExecPolicy : public ExecPolicy
    {
    public:
-      ThreadDirectExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
-         : blockDim_(blockDim), stream_(stream)
+      ThreadDirectExecPolicy(const size_t blockDim, hipStream_t stream = 0)
+         : blockDim_(blockDim), ExecPolicy(stream)
       {}
 
       ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
-         : blockDim_(ex.blockDim_), stream_(ex.stream_)
+         : blockDim_(ex.blockDim_), ExecPolicy(ex.stream_)
       {}
 
-      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+      virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
       {
+         /* ceil(n/m) = floor((n + m - 1) / m) */
          return (numWorkUnits + blockSize() - 1) / blockSize();
       }
 
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+      virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
       {
          return blockDim_;
-      }
-
-      virtual hipStream_t stream() const
-      {
-         return stream_;
       }
 
       virtual ExecPolicy* clone() const
@@ -345,33 +352,44 @@ may look like:
       }
 
    private:
-      const hipStream_t stream_;
       const size_t blockDim_;
    };
 
 
-In total, SUNDIALS provides 3 execution policies:
+In total, SUNDIALS provides 4 execution policies:
 
 
    .. cpp:function:: SUNHipThreadDirectExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
 
-      Maps each HIP thread to a work unit. The number of threads per block (blockDim) can be set
-      to anything. The grid size will be calculated so that there are enough threads for one
-      thread per element. If a HIP stream is provided, it will be used to execute the kernel.
+      Maps each HIP thread to a work unit. The number of threads per block
+      (blockDim) can be set to anything. The grid size will be calculated so
+      that there are enough threads for one thread per element. If a HIP stream
+      is provided, it will be used to execute the kernel.
 
    .. cpp:function:: SUNHipGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const hipStream_t stream = 0)
 
       Is for kernels that use grid stride loops. The number of threads per block (blockDim)
-      can be set to anything. The number of blocks (gridDim) can be set to anything. If a
-      HIP stream is provided, it will be used to execute the kernel.
+      can be set to anything. The number of blocks (gridDim) can be set to
+      anything. If a HIP stream is provided, it will be used to execute the
+      kernel.
 
    .. cpp:function:: SUNHipBlockReduceExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
 
-      Is for kernels performing a reduction across indvidual thread blocks. The number of threads
-      per block (blockDim) can be set to any valid multiple of the HIP warp size. The grid size
-      (gridDim) can be set to any value greater than 0. If it is set to 0, then the grid size
-      will be chosen so that there is enough threads for one thread per work unit. If a
-      HIP stream is provided, it will be used to execute the kernel.
+      Is for kernels performing a reduction across indvidual thread blocks. The
+      number of threads per block (blockDim) can be set to any valid multiple of
+      the HIP warp size. The grid size (gridDim) can be set to any value greater
+      than 0. If it is set to 0, then the grid size will be chosen so that there
+      is enough threads for one thread per work unit. If a HIP stream is
+      provided, it will be used to execute the kernel.
+
+   .. cpp:function:: SUNHipBlockReduceAtomicExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
+
+      Is for kernels performing a reduction across indvidual thread blocks using
+      atomic operations. The number of threads per block (blockDim) can be set
+      to any valid multiple of the HIP warp size. The grid size (gridDim) can be
+      set to any value greater than 0. If it is set to 0, then the grid size
+      will be chosen so that there is enough threads for one thread per work
+      unit. If a HIP stream is provided, it will be used to execute the kernel.
 
 
 For example, a policy that uses 128 threads per block and a user provided stream can be

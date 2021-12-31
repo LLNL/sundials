@@ -11,27 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the hip implementation of the
+ * This is the header file for the HIP implementation of the
  * NVECTOR module.
- *
- * Notes:
- *
- *   - The definition of the generic N_Vector structure can be found
- *     in the header file sundials_nvector.h.
- *
- *   - The definitions of the types 'realtype' and 'sunindextype' can
- *     be found in the header file sundials_types.h, and it may be
- *     changed (at the configuration stage) according to the user's needs.
- *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
- *
- *   - N_Vector arguments to arithmetic vector operations need not
- *     be distinct. For example, the following call:
- *
- *       N_VLinearSum_Hip(a,x,b,y,y);
- *
- *     (which stores the result of the operation a*x+b*y in y)
- *     is legal.
  * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_HIP_H
@@ -51,14 +32,13 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * hip implementation of N_Vector
+ * HIP implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
 struct _N_VectorContent_Hip
 {
   sunindextype       length;
-  booleantype        own_exec;
   booleantype        own_helper;
   SUNMemory          host_data;
   SUNMemory          device_data;
@@ -76,13 +56,13 @@ typedef struct _N_VectorContent_Hip *N_VectorContent_Hip;
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Hip(SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Hip(sunindextype length,
                                                booleantype use_managed_mem,
                                                SUNMemoryHelper helper,
                                                SUNContext sunctx);
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Hip(SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMake_Hip(sunindextype length,
                                      realtype *h_vdata,
                                      realtype *d_vdata,
@@ -91,14 +71,13 @@ SUNDIALS_EXPORT N_Vector N_VMakeManaged_Hip(sunindextype length,
                                             realtype *vdata,
                                             SUNContext sunctx);
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Hip(realtype* h_vdata, N_Vector v);
+SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Hip(realtype* d_vdata, N_Vector v);
 SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Hip(N_Vector x);
 SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Hip(N_Vector x,
                                                SUNHipExecPolicy* stream_exec_policy,
                                                SUNHipExecPolicy* reduce_exec_policy);
 SUNDIALS_EXPORT void N_VCopyToDevice_Hip(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Hip(N_Vector v);
-SUNDIALS_EXPORT void N_VPrint_Hip(N_Vector v);
-SUNDIALS_EXPORT void N_VPrintFile_Hip(N_Vector v, FILE *outfile);
 
 SUNDIALS_STATIC_INLINE
 sunindextype N_VGetLength_Hip(N_Vector x)
@@ -126,6 +105,12 @@ realtype *N_VGetDeviceArrayPointer_Hip(N_Vector x)
  * NVECTOR API functions
  * -----------------------------------------------------------------
  */
+
+SUNDIALS_STATIC_INLINE
+N_Vector_ID N_VGetVectorID_Hip(N_Vector /*v*/)
+{
+  return SUNDIALS_NVEC_HIP;
+}
 
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Hip(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Hip(N_Vector w);

@@ -51,7 +51,6 @@ struct _SUNMatrix_Content_cuSparse {
   int blocknnz;
   int sparse_type;
   booleantype own_matd;
-  booleantype own_exec;
   booleantype fixed_pattern;
   booleantype matvec_issetup;
   SUNMemory colind;

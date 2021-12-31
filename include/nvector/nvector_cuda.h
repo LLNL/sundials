@@ -39,7 +39,6 @@ extern "C" {
 struct _N_VectorContent_Cuda
 {
   sunindextype       length;
-  booleantype        own_exec;
   booleantype        own_helper;
   SUNMemory          host_data;
   SUNMemory          device_data;
@@ -108,7 +107,7 @@ realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
  */
 
 SUNDIALS_STATIC_INLINE
-N_Vector_ID N_VGetVectorID_Cuda(N_Vector v)
+N_Vector_ID N_VGetVectorID_Cuda(N_Vector /*v*/)
 {
   return SUNDIALS_NVEC_CUDA;
 }
@@ -180,7 +179,6 @@ SUNDIALS_EXPORT int N_VBufUnpack_Cuda(N_Vector x, void *buf);
 /* OPTIONAL operations for debugging */
 SUNDIALS_EXPORT void N_VPrint_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VPrintFile_Cuda(N_Vector v, FILE *outfile);
-
 
 /*
  * -----------------------------------------------------------------

@@ -27,7 +27,7 @@ All exported symbols that will be publically available must be namespaced approp
 - ``SUN`` for functions that are not class functions (see :ref:`Style.Classes` for class naming conventions)
 - ``SUN`` for types that are non-native (e.g., ``SUNDlsMat``)
 - ``sundials::`` for C++ code (nesting under `sundials::` is OK)
-
+- ``sundials::<somename>::impl`` for C++ code that is private (implementation only)
 
 Formatting
 ----------
