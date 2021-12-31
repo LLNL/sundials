@@ -24,7 +24,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./lassen.sh $*" | tee -a suntest.log
+echo "./lassen.sh $*" | tee -a configure.log
 
 # set defaults for optional inputs
 compiler="xl@2020.09.17" # compiler spec

@@ -55,6 +55,14 @@ help ()
                            NONE -- compile test only
                            STD  -- run standard tests
                            DEV  -- run development tests
+    --phase PHASE        Testing phase to stop after:
+                           ENV -- after setting up the environment
+                           CONFIG -- after configuring with CMake
+                           BUILD -- after make
+                           TEST -- after make test
+                           INSTALL -- after make install
+                           TEST_INSTALL -- after make test_install
+                           TEST_INSTALL_ALL -- after make test_install_all
     --env ENVFILE        Environment file to use
     EXTRA INPUTS         Extra inputs passed to the environment file
 
@@ -452,11 +460,12 @@ if [ "$tarball" != NONE ]; then
                 "${args_tpls[0]}"
                 "${args_suntests[0]}")
 
+    # Setup environment (creates configure.log)
+    time source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"
 
-    if ! source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"; then
-        echo "ERROR: test_driver.sh Unable to setup the environment"
-        exit 1
-    fi
+    rc=${PIPESTATUS[0]}
+    echo -e "\nsetup_env.sh returned $rc\n" | tee -a configure.log
+    if [ "$rc" -ne 0 ]; then exit 1; fi
 
     # Remove old tarballs directory
     \rm -rf "$testroot/tarballs"
@@ -469,7 +478,7 @@ if [ "$tarball" != NONE ]; then
     cd scripts
 
     echo "START TARSCRIPT"
-    ./tarscript $tarball | tee -a tar.log
+    time ./tarscript $tarball | tee -a tar.log
 
     # Check tarscript return code
     rc=${PIPESTATUS[0]}
@@ -541,10 +550,11 @@ for ((j=0;j<ntestdirs;j++)); do
         echo "TEST: ${env_config[*]}"
 
         # Setup environment (creates configure.log)
-        if ! source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"; then
-            echo "ERROR: test_driver.sh Unable to setup the environment"
-            passfail=1; break;
-        fi
+        time source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"
+
+        rc=${PIPESTATUS[0]}
+        echo -e "\nsetup_env.sh returned $rc\n" | tee -a configure.log
+        if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if the environment sets the number of build and test jobs but do
         # not override the command line options. If neither are set then set the
@@ -614,9 +624,9 @@ for ((j=0;j<ntestdirs;j++)); do
         # Create CMake cache file
         # -----------------------
 
-        python3 ../config_cmake.py \
-                --readenv \
-                --install-prefix "${installdir}" | tee -a configure.log
+        time python3 ../config_cmake.py \
+            --readenv \
+            --install-prefix "${installdir}" | tee -a configure.log
 
         # ---------
         # Configure
@@ -739,13 +749,13 @@ for ((j=0;j<ntestdirs;j++)); do
         # End of tests
         # ------------
 
-        echo "PASSED: ${env_config[*]}"
+        echo "PASSED: ${env_config[*]}" | tee -a suntest.log
         cd ..
 
     done
 
     if [ $passfail -ne 0 ]; then
-        echo "FAILED: ${env_config[*]}"
+        echo "FAILED: ${env_config[*]}" | tee -a suntest.log
         cd "${testroot}"
         break
     fi

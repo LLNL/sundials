@@ -24,7 +24,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./quartz.sh $*" | tee -a suntest.log
+echo "./quartz.sh $*" | tee -a configure.log
 
 # set defaults for optional inputs
 compiler="gcc@8.1.0" # compiler spec
