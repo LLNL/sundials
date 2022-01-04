@@ -264,6 +264,9 @@ sundials_option(XBRAID_WORKS BOOL "Set to ON to force CMake to accept a given XB
 
 sundials_option(ENABLE_ONEMKL BOOL "Enable oneMKL support" OFF)
 
+sundials_option(ONEMKL_DIR PATH "Path to root of oneMKL installation" "${ONEMKL_DIR}"
+                SHOW_IF ENABLE_ONEMKL)
+
 sundials_option(ONEMKL_WORKS BOOL "Set to ON to force CMake to accept a given oneMKL configuration" OFF
                 SHOW_IF ENABLE_ONEMKL
                 ADVANCED)
