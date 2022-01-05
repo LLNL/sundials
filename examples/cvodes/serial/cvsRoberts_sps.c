@@ -57,6 +57,7 @@
 /* Problem Constants */
 
 #define NEQ   3                /* number of equations  */
+#define NNZ   7                /* number of non-zero entries in the Jacobian */
 #define Y1    RCONST(1.0)      /* initial y components */
 #define Y2    RCONST(0.0)
 #define Y3    RCONST(0.0)
@@ -108,7 +109,7 @@ int main()
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval, retvalr, iout, nnz;
+  int retval, retvalr, iout;
   int rootsfound[2];
 
   y = abstol = NULL;
@@ -116,7 +117,7 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
-  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
@@ -159,8 +160,7 @@ int main()
   if (check_retval(&retval, "CVodeRootInit", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
-  nnz = NEQ * NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, sunctx);
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT, sunctx);
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT solver object for use by CVode (one thread) */
@@ -215,7 +215,7 @@ int main()
   /* Free the matrix memory */
   SUNMatDestroy(A);
 
-  /* Free the SUNDIALS context */
+  /* Free the SUNDIALS simulation context */
   SUNContext_Free(&sunctx);
 
   return(0);
@@ -267,40 +267,50 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *yval;
-  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
+  /* State at which to evaluate the Jacobian */
+  realtype *yval = N_VGetArrayPointer(y);
+
+  /* J is stored in CSC format:
+     data    = non-zero matrix entries stored column-wise (length NNZ)
+     rowvals = row index for each non-zero matrix entry (length NNZ)
+     colptrs = i-th entry is the index in data where the first non-zero matrix
+               entry of the i-th column is stored (length NEQ + 1) */
+  realtype     *data    = SUNSparseMatrix_Data(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
+  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
 
-  yval = N_VGetArrayPointer(y);
-
-  SUNMatZero(J);
-
+  /* first column entries start at data[0], two entries (rows 0 and 1) */
   colptrs[0] = 0;
-  colptrs[1] = 3;
-  colptrs[2] = 6;
-  colptrs[3] = 9;
 
-  data[0] = RCONST(-0.04);
   rowvals[0] = 0;
-  data[1] = RCONST(0.04);
+  data[0]    = RCONST(-0.04);
+
   rowvals[1] = 1;
-  data[2] = ZERO;
-  rowvals[2] = 2;
+  data[1]    = RCONST(0.04);
 
-  data[3] = RCONST(1.0e4)*yval[2];
-  rowvals[3] = 0;
-  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
-  rowvals[4] = 1;
-  data[5] = RCONST(6.0e7)*yval[1];
-  rowvals[5] = 2;
+  /* second column entries start at data[2], three entries (rows 0, 1, and 2) */
+  colptrs[1] = 2;
 
-  data[6] = RCONST(1.0e4)*yval[1];
-  rowvals[6] = 0;
-  data[7] = RCONST(-1.0e4)*yval[1];
-  rowvals[7] = 1;
-  data[8] = ZERO;
-  rowvals[8] = 2;
+  rowvals[2] = 0;
+  data[2]    = RCONST(1.0e4) * yval[2];
+
+  rowvals[3] = 1;
+  data[3]    = (RCONST(-1.0e4) * yval[2]) - (RCONST(6.0e7) * yval[1]);
+
+  rowvals[4] = 2;
+  data[4]    = RCONST(6.0e7) * yval[1];
+
+  /* third column entries start at data[5], two entries (rows 0 and 1) */
+  colptrs[2] = 5;
+
+  rowvals[5] = 0;
+  data[5]    = RCONST(1.0e4) * yval[1];
+
+  rowvals[6] = 1;
+  data[6]    = RCONST(-1.0e4) * yval[1];
+
+  /* number of non-zeros */
+  colptrs[3] = 7;
 
   return(0);
 }
@@ -361,9 +371,9 @@ static void PrintFinalStats(void *cvode_mem)
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-	 nst, nfe, nsetups, nje);
+         nst, nfe, nsetups, nje);
   printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n \n",
-	 nni, ncfn, netf, nge);
+         nni, ncfn, netf, nge);
 }
 
 /*
@@ -383,7 +393,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -391,13 +401,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);
