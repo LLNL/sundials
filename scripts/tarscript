@@ -1,7 +1,19 @@
 #!/bin/bash
+# ------------------------------------------------------------------------------
+# Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
 #
-# File tarscript: Script to build SUNDIALS tar-files.
-# Author: Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+# Script to build SUNDIALS tar-files.
+# ------------------------------------------------------------------------------
 
 # Exit immediately if a command fails
 set -e
@@ -312,9 +324,11 @@ find $tmpdir -name "*.orig" -delete
 # Create tar files
 #---------------------------
 
+# NOTE: The "shared" script must be called first for each case below as it
+# creates the initial archive appended to by the package scripts
+
 # Initial name of the directory to be archived
 distrobase="$tmpdir"
-
 
 # SUNDIALS
 if [ $do_sundials = "T" ]; then
