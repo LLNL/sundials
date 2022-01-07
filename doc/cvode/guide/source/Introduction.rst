@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -25,7 +25,7 @@ analysis capabilities.
 .. _CVODE.Introduction.history:
 
 Historical Background
----------------------
+=====================
 
 Fortran solvers for ODE initial value problems are widespread and heavily
 used. Two solvers that have been written at LLNL in the past are
@@ -109,10 +109,33 @@ implementations.
 .. applications written in extended Fortran.
 
 Changes from previous versions
-------------------------------
+==============================
+
+Changes in vx.x.x
+-----------------
+
+Additionally export ``SUNDIALS::<lib>`` targets with no static/shared suffix for
+use within the build directory (this mirrors how the targets are exported upon
+installation).
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+Added new reduction implementations for the CUDA and HIP NVECTORs that use
+shared memory (local data storage) instead of atomics. These new implementations
+are recommended when the target hardware does not provide atomic support for the
+floating point precision that SUNDIALS is being built with. The HIP vector uses
+these by default, but the :c:func:`N_VSetKernelExecPolicy_Cuda` and
+:c:func:`N_VSetKernelExecPolicy_Hip` functions can be used to choose between
+different reduction implementations.
+
+:cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
+
+Fixed ``sundials_export.h`` include in ``sundials_config.h``.
+
+Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
 
 Changes in v6.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 **SUNContext**
 
@@ -468,7 +491,7 @@ removal in SUNDIALS v7.0.0. Note, this header file is not needed to use the
 SUNDIALS LAPACK linear solvers.
 
 Changes in v5.8.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The :ref:`RAJA N_Vector <NVectors.RAJA>` implementation has been updated to
 support the SYCL backend in addition to the CUDA and HIP backend. Users can
@@ -521,7 +544,7 @@ codes using :c:ref:`SPBCGS <SUNLinSol.SPBCGS>` or :c:ref:`SPTFQMR <SUNLinSol.SPT
 as standalone solvers as all SUNDIALS packages utilize a zero initial guess.
 
 Changes in v5.7.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 A new :c:type:`N_Vector` implementation based on the SYCL abstraction layer
 has been added targeting Intel GPUs. At present the only SYCL
@@ -537,7 +560,7 @@ diagonal linear systems, and both are targeted at GPUs (AMD or NVIDIA).
 See :numref:`SUNLinSol.MagmaDense` for more details.
 
 Changes in v5.6.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a bug in the SUNDIALS CMake which caused an error if the
 ``CMAKE_CXX_STANDARD`` and ``SUNDIALS_RAJA_BACKENDS`` options were not provided.
@@ -545,7 +568,7 @@ Fixed a bug in the SUNDIALS CMake which caused an error if the
 Fixed some compiler warnings when using the IBM XL compilers.
 
 Changes in v5.6.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 A new :c:type:`N_Vector` implementation based on the AMD ROCm HIP platform has
 been added. This vector can target NVIDIA or AMD GPUs. See
@@ -569,7 +592,7 @@ they require that the vector utilized provides the :c:func:`N_VGetDeviceArrayPoi
 the pointer returned by :c:func:`N_VGetDeviceArrayPointer` is a valid CUDA device pointer.
 
 Changes in v5.5.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now
 required. Users will likely see deprecation warnings, but otherwise the
@@ -580,7 +603,7 @@ SUNDIALSConfig.cmake file.
 Added support for SuperLU DIST 6.3.0 or newer.
 
 Changes in v5.4.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Added new functions :c:func:`CVodeComputeState`, and
 :c:func:`CVodeGetNonlinearSystemData` which advanced users might find useful if
@@ -628,7 +651,7 @@ Trilinos 12.18+. This update changes the local ordinal type to always be an
 ``int``.
 
 Changes in v5.3.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a bug in the iterative linear solver modules where an error is not
 returned if the Atimes function is ``NULL`` or, if preconditioning is enabled,
@@ -675,7 +698,7 @@ additions to user documentation and CVODE examples. See
 Added support for CUDA v11.
 
 Changes in v5.2.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the
 IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
@@ -699,7 +722,7 @@ matrix :math:`I - \gamma J`. Scaling is enabled by default when using a
 matrix-based linear solver with BDF methods.
 
 Changes in v5.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
@@ -719,7 +742,7 @@ Added support for constant damping to the :ref:`SUNNonlinearSolver_FixedPoint
 <SUNNonlinSol.FixedPoint>` module when using Anderson acceleration.
 
 Changes in v5.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 **Build system changes**
 
@@ -929,7 +952,7 @@ Changes in v5.0.0
    :numref:`SUNDIALS.Fortran` for more details.
 
 Changes in v4.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 An additional ``N_Vector`` implementation was added for the Tpetra
 vector from the Trilinos library to facilitate interoperability
@@ -950,7 +973,7 @@ code to use CVODE’s public API.
 Python is no longer required to run ``make test`` and ``make test_install``.
 
 Changes in v4.0.2
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Added information on how to contribute to SUNDIALS and a
 contributing agreement.
@@ -959,12 +982,12 @@ Moved definitions of DLS and SPILS backwards compatibility functions to
 a source file. The symbols are now included in the CVODE library, ``libsundials_cvode``.
 
 Changes in v4.0.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 No changes were made in this release.
 
 Changes in v4.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 CVODE’s previous direct and iterative linear solver interfaces,
 CVDLS and CVSPILS, have been merged into a single unified linear
@@ -1081,7 +1104,7 @@ interfaces to the following shared SUNDIALS modules:
    -  ``NVECTOR_SERIAL``, ``NVECTOR_PTHREADS``, and ``NVECTOR_OPENMP`` vector modules
 
 Changes in v3.2.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor release include the following:
 
@@ -1095,7 +1118,7 @@ The changes in this minor release include the following:
    but is available as a CMake option that can modified.
 
 Changes in v3.2.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Support for optional inequality constraints on individual components of the
 solution vector has been added to CVODE and CVODES. See
@@ -1134,7 +1157,7 @@ Several changes were made to the build system:
      directories to make the CMake configuration file structure more modular.
 
 Changes in v3.1.2
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor release include the following:
 
@@ -1166,7 +1189,7 @@ The changes in this minor release include the following:
 -  Changed the LICENSE install path to `instdir/icnlude/sundials`.
 
 Changes in v3.1.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor release include the following:
 
@@ -1193,7 +1216,7 @@ In addition to the changes above, minor corrections were also made to
 the example programs, build system, and user documentation.
 
 Changes in v3.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Added ``N_Vector`` print functions that write vector data to a specified
 file (e.g., :c:func:`N_VPrintFile_Serial`).
@@ -1202,7 +1225,7 @@ Added ``make test`` and ``make test_install`` options to the build system for te
 building with and installing with respectively.
 
 Changes in v3.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 All interfaces to matrix structures and linear solvers have been reworked, and
 all example programs have been updated. The goal of the redesign of these
@@ -1301,7 +1324,7 @@ Corrections and additions were made to the examples, to installation-related
 files, and to the user documentation.
 
 Changes in v2.9.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Two additional ``N_Vector`` implementations were added – one for Hypre
 (parallel) ParVector vectors, and one for PETSc vectors. These
@@ -1338,7 +1361,7 @@ the Fortran interfaces, to the examples, to installation-related files,
 and to the user documentation.
 
 Changes in v2.8.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Two major additions were made to the linear system solvers that are available
 for use with the CVODE solver. First, in the serial case, an interface to the
@@ -1391,7 +1414,7 @@ of installation is being dropped, in favor of the CMake mode, which is
 considered more widely portable.
 
 Changes in v2.7.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 One significant design change was made with this release: The problem size and
 its relatives, bandwidth parameters, related internal indices, pivot arrays, and
@@ -1414,7 +1437,7 @@ macro SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB is
 either defined (with no value) or not defined.
 
 Changes in v2.6.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Two new features were added in this release: (a) a new linear solver
 module, based on BLAS and LAPACK for both dense and banded matrices, and
@@ -1431,7 +1454,7 @@ pointer to user data, optionally specified through a -type function; and
 with the solver.
 
 Changes in v2.5.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The main changes in this release involve a rearrangement of the entire
 :ref:`SUNDIALS source tree <CVODE.Organization>`. At the user interface
@@ -1448,7 +1471,7 @@ respectively. The factorization and solution functions in the generic band
 linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
 
 Changes in v2.4.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 CVSPBCG and CVSPTFQMR modules have been added to interface with
 the Scaled Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned
@@ -1469,7 +1492,7 @@ various subdirectories of the target directory. For more details see
 :numref:`Installation`.
 
 Changes in v2.3.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The user interface has been further refined. Several functions used for
 setting optional inputs were combined into a single one. An optional
@@ -1479,13 +1502,13 @@ solvers release user data right after its use. The build systems has
 been further improved to make it more robust.
 
 Changes in v2.2.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor SUNDIALS release affect only the build
 system.
 
 Changes in v2.2.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The major changes from the previous version involve a redesign of the
 user interface across the entire SUNDIALS suite. We have eliminated
@@ -1513,7 +1536,7 @@ redesigned and is now based on configure scripts.
 .. _CVODE.Introduction.reading:
 
 Reading this User Guide
------------------------
+=======================
 
 This user guide is a combination of general usage instructions. Specific
 example programs are provided as a separate document. We expect that
@@ -1601,7 +1624,7 @@ or modules, such as CVLS, are written in all capitals.
 
 
 SUNDIALS License and Notices
-----------------------------
+============================
 
 .. ifconfig:: package_name != 'super'
 
@@ -1617,7 +1640,7 @@ SUNDIALS License and Notices
 .. _CVODE.Introduction.Ack:
 
 Acknowledgments
----------------
+===============
 
 We wish to acknowledge the contributions to previous versions of the
 CVODE and PVODE codes and their user guides by Scott D.

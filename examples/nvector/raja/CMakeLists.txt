@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -64,7 +64,10 @@ foreach(example_tuple ${nvector_raja_examples})
 
     set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
 
-    add_executable(${example} ${example}.cpp ../test_nvector.c)
+    add_executable(${example} ${example}.cpp)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

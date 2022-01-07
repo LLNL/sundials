@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
+# -----------------------------------------------------------------------------
+# Programmer(s): Cody J. Balos @ LLNL
+# -----------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------------------
 
 """
--------------------------------------------------------------------------------
-SUNDIALS Copyright Start
-Copyright (c) 2002-2021, Lawrence Livermore National Security
-and Southern Methodist University.
-All rights reserved.
-
-See the top-level LICENSE and NOTICE files for details.
-SPDX-License-Identifier: BSD-3-Clause
-SUNDIALS Copyright End
--------------------------------------------------------------------------------
 This script can be used to parse Caliper data if Caliper was run with the
 hatchet-region-profile config. The expected format is json-split.
 See http://software.llnl.gov/Caliper/BuiltinConfigurations.html and
@@ -23,7 +26,6 @@ The script requires numpy, pandas and hatchet:
 
 It can also use [Flamegraph](https://github.com/brendangregg/FlameGraph) to
 generate a nice stack-trace-like plot, if Flamegraph is available in your path.
--------------------------------------------------------------------------------
 """
 
 import argparse

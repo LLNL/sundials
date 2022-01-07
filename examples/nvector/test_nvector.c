@@ -6,7 +6,7 @@
  *                   @ SMU.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,6 +23,8 @@
 #if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 199309L)
 #define _POSIX_C_SOURCE 199309L
 #endif
+
+#include <sundials/sundials_config.h>
 
 /* POSIX timers */
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)

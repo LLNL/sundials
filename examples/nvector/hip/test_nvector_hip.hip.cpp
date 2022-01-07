@@ -2,7 +2,7 @@
  * Programmer(s): Daniel McGreer, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -27,7 +27,7 @@
 
 /* hip vector variants */
 enum mem_type { UNMANAGED, MANAGED, SUNMEMORY };
-enum pol_type { DEFAULT_POL, DEFAULT_POL_W_STREAM, GRID_STRIDE };
+enum pol_type { DEFAULT_POL, DEFAULT_POL_W_STREAM, GRID_STRIDE, LDS_REDUCTIONS };
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, 0);
 
   /* test with all policy variants */
-  for (policy=DEFAULT_POL; policy<=GRID_STRIDE; ++policy) {
+  for (policy=DEFAULT_POL; policy<=LDS_REDUCTIONS; ++policy) {
     int actualThreadsPerBlock = threadsPerBlock ? threadsPerBlock : 512;
     SUNHipExecPolicy* stream_exec_policy = NULL;
     SUNHipExecPolicy* reduce_exec_policy = NULL;
@@ -75,10 +75,13 @@ int main(int argc, char *argv[])
 
     if (policy == DEFAULT_POL_W_STREAM) {
       stream_exec_policy = new SUNHipThreadDirectExecPolicy(actualThreadsPerBlock, stream);
-      reduce_exec_policy = new SUNHipBlockReduceExecPolicy(actualThreadsPerBlock, 0, stream);
+      reduce_exec_policy = new SUNHipBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 0, stream);
     } else if (policy == GRID_STRIDE) {
       stream_exec_policy = new SUNHipGridStrideExecPolicy(actualThreadsPerBlock, 1);
-      reduce_exec_policy = new SUNHipBlockReduceExecPolicy(actualThreadsPerBlock, 1);
+      reduce_exec_policy = new SUNHipBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 1);
+    } else if (policy == LDS_REDUCTIONS) {
+      stream_exec_policy = new SUNHipThreadDirectExecPolicy(actualThreadsPerBlock);
+      reduce_exec_policy = new SUNHipBlockReduceExecPolicy(actualThreadsPerBlock);
     }
 
     /* test with all memory variants */

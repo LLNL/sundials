@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -72,7 +72,7 @@ rather than the combined SUNDIALS online guide:
    @Misc{arkodeDocumentation,
       author = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
       title  = {User Documentation for ARKODE},
-      year   = {|YEAR|}
+      year   = {|YEAR|},
       note   = {|ARKODE_VERSION|}
    }
 
@@ -81,8 +81,8 @@ rather than the combined SUNDIALS online guide:
    @Misc{cvodeDocumentation,
       author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
       title  = {User Documentation for CVODE},
-      year   = {|YEAR|}
-      notes  = {|CVODE_VERSION|}
+      year   = {|YEAR|},
+      note   = {|CVODE_VERSION|}
    }
 
 .. parsed-literal::
@@ -90,7 +90,7 @@ rather than the combined SUNDIALS online guide:
    @Misc{cvodesDocumentation,
       author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
       title  = {User Documentation for CVODES},
-      year   = {|YEAR|}
+      year   = {|YEAR|},
       note   = {|CVODES_VERSION|}
    }
 
@@ -99,7 +99,7 @@ rather than the combined SUNDIALS online guide:
    @Misc{idaDocumentation,
       author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
       title  = {User Documentation for IDA},
-      year   = {|YEAR|}
+      year   = {|YEAR|},
       note   = {|IDA_VERSION|}
    }
 
@@ -108,7 +108,7 @@ rather than the combined SUNDIALS online guide:
    @Misc{idasDocumentation,
       author = {Radu Serban and Cosmin Petra and Alan C. Hindmarsh and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
       title  = {User Documentation for IDAS},
-      year   = {|YEAR|}
+      year   = {|YEAR|},
       note   = {|IDAS_VERSION|}
    }
 
@@ -117,7 +117,7 @@ rather than the combined SUNDIALS online guide:
    @Misc{kinsolDocumentation,
       author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
       title  = {User Documentation for KINSOL},
-      year   = {|YEAR|}
+      year   = {|YEAR|},
       note   = {|KINSOL_VERSION|}
    }
 

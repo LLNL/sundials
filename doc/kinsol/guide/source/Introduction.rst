@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -26,7 +26,7 @@ iteration is also included with the release of KINSOL v.2.8.0 and higher.
 .. _KINSOL.Introduction.Historical:
 
 Historical Background
----------------------
+=====================
 
 The first nonlinear solver packages based on Newton-Krylov methods were written in Fortran. In particular, the NKSOL
 package, written at LLNL, was the first Newton-Krylov solver package written for solution of systems arising in the
@@ -86,10 +86,33 @@ applications written in Fortran.
 .. _KINSOL.Introduction.Changes:
 
 Changes from previous versions
-------------------------------
+==============================
+
+Changes in vx.x.x
+-----------------
+
+Additionally export ``SUNDIALS::<lib>`` targets with no static/shared suffix for
+use within the build directory (this mirrors how the targets are exported upon
+installation).
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+Added new reduction implementations for the CUDA and HIP NVECTORs that use
+shared memory (local data storage) instead of atomics. These new implementations
+are recommended when the target hardware does not provide atomic support for the
+floating point precision that SUNDIALS is being built with. The HIP vector uses
+these by default, but the :c:func:`N_VSetKernelExecPolicy_Cuda` and
+:c:func:`N_VSetKernelExecPolicy_Hip` functions can be used to choose between
+different reduction implementations.
+
+:cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
+
+Fixed ``sundials_export.h`` include in ``sundials_config.h``.
+
+Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
 
 Changes in v6.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 **SUNContext**
 
@@ -442,7 +465,7 @@ removal in SUNDIALS v7.0.0. Note, this header file is not needed to use the
 SUNDIALS LAPACK linear solvers.
 
 Changes in v5.8.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The RAJA ``N_Vector`` implementation has been updated to support the SYCL backend in addition to the CUDA and HIP
 backend. Users can choose the backend when configuring SUNDIALS by using the ``SUNDIALS_RAJA_BACKENDS`` CMake variable.
@@ -475,7 +498,7 @@ packages utilize a zero initial guess.
 A bug was fixed in the Picard iteration where the value of ``KINSetMaxSetupCalls`` would be ignored.
 
 Changes in v5.7.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 A new ``N_Vector`` implementation based on the SYCL abstraction layer has been added targeting Intel GPUs. At
 present the only SYCL compiler supported is the DPC++ (Intel oneAPI) compiler. See :numref:`NVectors.SYCL` for more details. This module is considered experimental and is subject to major
@@ -487,7 +510,7 @@ both are targeted at GPUs (AMD or NVIDIA). See :numref:`SUNLinSol.MagmaDense` fo
 details.
 
 Changes in v5.6.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a bug in the SUNDIALS CMake which caused an error if the CMAKE_CXX_STANDARD and SUNDIALS_RAJA_BACKENDS
 options were not provided.
@@ -495,7 +518,7 @@ options were not provided.
 Fixed some compiler warnings when using the IBM XL compilers.
 
 Changes in v5.6.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 A new ``N_Vector`` implementation based on the AMD ROCm HIP platform has been added. This vector can target NVIDIA or
 AMD GPUs. See :numref:`NVectors.HIP` for more details. This module is considered experimental and is subject
@@ -513,7 +536,7 @@ N_Vector. Instead, they require that the vector utilized provides the ``N_VGetDe
 the pointer returned by ``N_VGetDeviceArrayPointer`` is a valid CUDA device pointer.
 
 Changes in v5.5.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now required. Users will likely see deprecation
 warnings, but otherwise the changes should be fully backwards compatible for almost all users. SUNDIALS now
@@ -522,7 +545,7 @@ exports CMake targets and installs a SUNDIALSConfig.cmake file.
 Added support for SuperLU DIST 6.3.0 or newer.
 
 Changes in v5.4.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 A new API, ``SUNMemoryHelper``, was added to support **GPU users** who have complex memory management needs such as
 using memory pools. This is paired with new constructors for the ``NVECTOR_CUDA`` and ``NVECTOR_RAJA`` modules that accept a
@@ -539,7 +562,7 @@ type to always be an ``int``.
 Added support for CUDA v11.
 
 Changes in v5.3.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a bug in the iterative linear solver modules where an error is not returned if the Atimes function is ``NULL`` or,
 if preconditioning is enabled, the PSolve function is ``NULL``.
@@ -558,7 +581,7 @@ Added the optional function ``KINSetJacTimesVecSysFn`` to specify an alternative
 Jacobian-vector products with the internal difference quotient approximation.
 
 Changes in v5.2.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the IBM XL compiler. When building the
 Fortran 2003 interfaces with an XL compiler it is recommended to set ``CMAKE_Fortran_COMPILER`` to ``f2003``,
@@ -573,7 +596,7 @@ this matrix, therefore, users of this module will need to update their code. The
 experimental, thus they are subject to breaking changes even in minor releases.
 
 Changes in v5.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
@@ -591,7 +614,7 @@ Added support for constant damping when using Anderson acceleration. See :numref
 description of the ``KINSetDampingAA`` function for more details.
 
 Changes in v5.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Build system changes
 ^^^^^^^^^^^^^^^^^^^^
@@ -734,7 +757,7 @@ KINSOL changes
 -  Added a Fortran 2003 interface to KINSOL. See :numref:`SUNDIALS.Fortran` for more details.
 
 Changes in v4.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 An additional ``N_Vector`` implementation was added for the TPetra vector from the Trilinos library to
 facilitate interoperability between SUNDIALS and Trilinos. This implementation is accompanied by additions
@@ -749,7 +772,7 @@ The implementation header file ``kin_impl.h`` is no longer installed. This means
 Python is no longer required to run ``make test`` and ``make test_install``.
 
 Changes in v4.0.2
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Added information on how to contribute to SUNDIALS and a contributing agreement.
 
@@ -757,12 +780,12 @@ Moved definitions of DLS and SPILS backwards compatibility functions to a source
 the KINSOL library, ``libsundials_kinsol``.
 
 Changes in v4.0.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 No changes were made in this release.
 
 Changes in v4.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 KINSOL’s previous direct and iterative linear solver interfaces, KINDls and KINSpils, have been merged
 into a single unified linear solver interface, KINLs, to support any valid ``SUNLinearSolver`` module. This includes
@@ -832,7 +855,7 @@ A new ``N_Vector`` implementation for leveraging OpenMP 4.5+ device offloading h
 :numref:`NVectors.OpenMPDEV` for more details.
 
 Changes in v3.2.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor release include the following:
 
@@ -844,7 +867,7 @@ The changes in this minor release include the following:
    ``CMAKE_INSTALL_LIBDIR`` is automatically set, but is available as a CMake option that can modified.
 
 Changes in v3.2.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Fixed a problem with setting ``sunindextype`` which would occur with some compilers (e.g. armclang) that
 did not define ``__STDC_VERSION__``. Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more than
@@ -876,7 +899,7 @@ the build system:
    CMake configuration file structure more modular.
 
 Changes in v3.1.2
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor release include the following:
 
@@ -900,7 +923,7 @@ The changes in this minor release include the following:
 -  Changed the LICENSE install path to ``instdir/include/sundials``.
 
 Changes in v3.1.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor release include the following:
 
@@ -930,7 +953,7 @@ In addition to the changes above, minor corrections were also made to the exampl
 documentation.
 
 Changes in v3.1.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Added ``N_Vector`` print functions that write vector data to a specified file (e.g., ``N_VPrintFile_Serial``).
 
@@ -938,7 +961,7 @@ Added ``make test`` and ``make test_install`` options to the build system for te
 ``make`` and installing with ``make install`` respectively.
 
 Changes in v3.0.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 All interfaces to matrix structures and linear solvers have been reworked, and all example programs have been updated.
 The goal of the redesign of these interfaces was to provide more encapsulation and ease in the interfacing of custom
@@ -1013,7 +1036,7 @@ A bug fix was done to correct the fcmix name translation for ``FKIN_SPFGMR``.
 Corrections and additions were made to the examples, to installation-related files, and to the user documentation.
 
 Changes in v2.9.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Two additional ``N_Vector`` implementations were added – one for Hypre (parallel) vectors, and one for PETSc vectors.
 These additions are accompanied by additions to various interface functions and to user documentation.
@@ -1045,7 +1068,7 @@ Minor corrections and additions were made to the KINSOL solver, to the Fortran i
 installation-related files, and to the user documentation.
 
 Changes in v2.8.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Two major additions were made to the globalization strategy options (``KINSol`` argument ``strategy``). One is
 fixed-point iteration, and the other is Picard iteration. Both can be accelerated by use of the Anderson acceleration
@@ -1090,7 +1113,7 @@ With this version of SUNDIALS, support and documentation of the Autotools mode o
 in favor of the CMake mode, which is considered more widely portable.
 
 Changes in v2.7.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 One significant design change was made with this release: The problem size and its relatives, bandwidth parameters,
 related internal indices, pivot arrays, and the optional output ``lsflag`` have all been changed from type ``int`` to
@@ -1107,7 +1130,7 @@ the linear solver memory. In the installation files, we modified the treatment o
 so that the parameter GENERIC_MATH_LIB is either defined (with no value) or not defined.
 
 Changes in v2.6.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 This release introduces a new linear solver module, based on BLAS and LAPACK for both dense and banded matrices.
 
@@ -1118,7 +1141,7 @@ single pointer to user data, optionally specified through a ``Set``-type functio
 band-block-diagonal preconditioner module distributed with the solver.
 
 Changes in v2.5.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The main changes in this release involve a rearrangement of the entire SUNDIALS source tree (see
 :numref:`KINSOL.Organization`). At the user interface level, the main impact is in the mechanism of including
@@ -1132,7 +1155,7 @@ renamed to ``DenseGETRF``/``denGETRF`` and ``DenseGETRS``/``denGETRS``, respecti
 functions in the generic band linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
 
 Changes in v2.4.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 KINSPBCG, KINSPTFQMR, KINDENSE, and KINBAND modules have been added to interface with the Scaled
 Preconditioned Bi-CGStab (SPBCG), Scaled Preconditioned Transpose-Free Quasi-Minimal Residual (SPTFQMR),
@@ -1153,19 +1176,19 @@ To reduce the possibility of conflicts, the names of all header files have been 
 various subdirectories of the target ``include`` directory. For more details see Appendix :numref:`Installation`.
 
 Changes in v2.3.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The user interface has been further refined. Several functions used for setting optional inputs were combined into a
 single one. Additionally, to resolve potential variable scope issues, all SUNDIALS solvers release user data right
 after its use. The build system has been further improved to make it more robust.
 
 Changes in v2.2.1
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The changes in this minor SUNDIALS release affect only the build system.
 
 Changes in v2.2.0
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The major changes from the previous version involve a redesign of the user interface across the entire SUNDIALS
 suite. We have eliminated the mechanism of providing optional inputs and extracting optional statistics from the solver
@@ -1181,10 +1204,10 @@ previously accessible through such arguments can now be obtained through ``Get``
 Installation of KINSOL (and all of SUNDIALS) has been completely redesigned and is now based on configure
 scripts.
 
-.. _ss:reading:
+.. _KINSOL.Introduction.reading:
 
 Reading this User Guide
------------------------
+=======================
 
 This user guide is a combination of general usage instructions and specific examples. We expect that some readers will
 want to concentrate on the general instructions, while others will refer mostly to the examples, and the organization is
@@ -1234,7 +1257,7 @@ structures (such as *content*) appear in italics; and packages or modules are wr
 
 
 SUNDIALS License and Notices
-----------------------------
+============================
 
 .. ifconfig:: package_name != 'super'
 
@@ -1248,7 +1271,7 @@ SUNDIALS License and Notices
 
 
 Acknowledgments
----------------
+===============
 
 We wish to acknowledge the contributions to previous versions of the KINSOL code and user guide by Allan G.
 Taylor.

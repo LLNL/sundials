@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -386,6 +386,20 @@ illustration only.
 
    Default: ``-O3 -DNDEBUG``
 
+.. cmakeoption:: CMAKE_C_STANDARD
+
+   The C standard to build C parts of SUNDIALS with.
+
+   Default: 99
+
+   Options: 90, 99, 11, 17.
+
+.. cmakeoption:: CMAKE_C_EXTENSIONS
+
+   Enable compiler specific C extensions.
+
+   Default: ``OFF``
+
 .. cmakeoption:: CMAKE_CXX_COMPILER
 
    C++ compiler
@@ -394,10 +408,10 @@ illustration only.
 
    .. note::
 
-      A C++ compiler (and all related options) are only are
-      triggered if C++ examples are enabled
-      (``EXAMPLES_ENABLE_CXX`` is ON). All SUNDIALS solvers can
-      be used from C++ applications by default without setting
+      A C++ compiler is only required when a feature requiring C++ is enabled
+      (e.g., CUDA, HIP, SYCL, RAJA, etc.) or the C++ examples are enabled.
+
+      All SUNDIALS solvers can be used from C++ applications without setting
       any additional configuration options.
 
 .. cmakeoption:: CMAKE_CXX_FLAGS
@@ -430,8 +444,13 @@ illustration only.
 
    Default: 11
 
-   Note: Options are 98, 11, 14, 17, 20. This option is only used when a
-   C++ compiler is required.
+   Options: 98, 11, 14, 17, 20.
+
+.. cmakeoption:: CMAKE_CXX_EXTENSIONS
+
+   Enable compiler specific C++ extensions.
+
+   Default: ``OFF``
 
 .. cmakeoption:: CMAKE_Fortran_COMPILER
 
@@ -708,6 +727,12 @@ illustration only.
 
    Default: ``OFF``
 
+.. cmakeoption:: ONEMKL_DIR
+
+   Path to oneMKL installation.
+
+   Default: none
+
 .. cmakeoption:: ENABLE_OPENMP
 
    Enable OpenMP support (build the OpenMP NVector)
@@ -853,8 +878,10 @@ illustration only.
 
    Default: OFF
 
-   Note: Building with monitoring may result in minor performance degradation
-   even if monitoring is not utilized.
+   .. warning::
+
+      Building with monitoring may result in minor performance degradation even
+      if monitoring is not utilized.
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
 
@@ -890,12 +917,13 @@ illustration only.
 
    Default:
 
-   Note: The build system will attempt to infer the Fortran
-   name-mangling scheme using the Fortran compiler. This option should
-   only be used if a Fortran compiler is not available or to override
-   the inferred or default (``lower``) scheme if one can not be
-   determined. If used, ``SUNDIALS_F77_FUNC_UNDERSCORES`` must also
-   be set.
+   .. note::
+
+      The build system will attempt to infer the Fortran name-mangling scheme
+      using the Fortran compiler. This option should only be used if a Fortran
+      compiler is not available or to override the inferred or default
+      (``lower``) scheme if one can not be determined. If used,
+      ``SUNDIALS_F77_FUNC_UNDERSCORES`` must also be set.
 
 .. cmakeoption:: SUNDIALS_F77_FUNC_UNDERSCORES
 
@@ -904,11 +932,13 @@ illustration only.
 
    Default:
 
-   Note: The build system will attempt to infer the Fortran
-   name-mangling scheme using the Fortran compiler. This option should
-   only be used if a Fortran compiler is not available or to override
-   the inferred or default (``one``) scheme if one can not be
-   determined. If used, ``SUNDIALS_F77_FUNC_CASE`` must also be set.
+   .. note::
+
+      The build system will attempt to infer the Fortran name-mangling scheme
+      using the Fortran compiler. This option should only be used if a Fortran
+      compiler is not available or to override the inferred or default (``one``)
+      scheme if one can not be determined. If used, ``SUNDIALS_F77_FUNC_CASE``
+      must also be set.
 
 .. cmakeoption:: SUNDIALS_INDEX_TYPE
 
@@ -917,11 +947,13 @@ illustration only.
 
    Default: Automatically determined based on :cmakeop:`SUNDIALS_INDEX_SIZE`
 
-   Note: In past SUNDIALS versions, a user could set this option to ``INT64_T``
-   to use 64-bit integers, or ``INT32_T`` to use 32-bit integers. Starting in
-   SUNDIALS 3.2.0, these special values are deprecated. For SUNDIALS 3.2.0 and
-   up, a user will only need to use the :cmakeop:`SUNDIALS_INDEX_SIZE` option in
-   most cases.
+   .. note::
+
+      In past SUNDIALS versions, a user could set this option to ``INT64_T`` to
+      use 64-bit integers, or ``INT32_T`` to use 32-bit integers. Starting in
+      SUNDIALS 3.2.0, these special values are deprecated. For SUNDIALS 3.2.0
+      and up, a user will only need to use the :cmakeop:`SUNDIALS_INDEX_SIZE`
+      option in most cases.
 
 .. cmakeoption:: SUNDIALS_INDEX_SIZE
 
@@ -930,12 +962,14 @@ illustration only.
 
    Default: ``64``
 
-   Note: The build system tries to find an integer type of appropriate
-   size. Candidate 64-bit integer types are (in order of preference):
-   ``int64_t``, ``__int64``, ``long long``, and ``long``.  Candidate 32-bit
-   integers are (in order of preference): ``int32_t``, ``int``, and ``long``.
-   The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide a
-   type not listed here.
+   .. note::
+
+      The build system tries to find an integer type of appropriate
+      size. Candidate 64-bit integer types are (in order of preference):
+      ``int64_t``, ``__int64``, ``long long``, and ``long``.  Candidate 32-bit
+      integers are (in order of preference): ``int32_t``, ``int``, and ``long``.
+      The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
+      a type not listed here.
 
 .. cmakeoption:: SUNDIALS_PRECISION
 
@@ -1054,7 +1088,6 @@ attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the ``LAPACK_LIBRARIES``
 variable can be set to the desired libraries required for LAPACK.
 
-
 .. code-block:: bash
 
    % cmake \
@@ -1066,15 +1099,16 @@ variable can be set to the desired libraries required for LAPACK.
 
    % make install
 
-.. note:: If a working Fortran compiler is not available to infer the
-          Fortran name-mangling scheme, the options
-          ``SUNDIALS_F77_FUNC_CASE`` and
-          ``SUNDIALS_F77_FUNC_UNDERSCORES`` *must* be set in order to
-          bypass the check for a Fortran compiler and define the
-          name-mangling scheme. The defaults for these options in
-          earlier versions of SUNDIALS were ``lower`` and ``one``,
-          respectively.
+.. note::
 
+   If a working Fortran compiler is not available to infer the Fortran
+   name-mangling scheme, the options ``SUNDIALS_F77_FUNC_CASE`` and
+   ``SUNDIALS_F77_FUNC_UNDERSCORES`` *must* be set in order to bypass the check
+   for a Fortran compiler and define the name-mangling scheme. The defaults for
+   these options in earlier versions of SUNDIALS were ``lower`` and ``one``,
+   respectively.
+
+SUNDIALS has been tested with OpenBLAS 0.3.18.
 
 
 .. _Installation.CMake.ExternalLibraries.KLU:
@@ -1082,50 +1116,58 @@ variable can be set to the desired libraries required for LAPACK.
 Building with KLU
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The KLU libraries are part of SuiteSparse, a suite of sparse matrix
-software, available from the Texas A&M University website:
-http://faculty.cse.tamu.edu/davis/suitesparse.html .
+KLU is a software package for the direct solution of sparse nonsymmetric linear
+systems of equations that arise in circuit simulation and is part of
+SuiteSparse, a suite of sparse matrix software. The library is developed by
+Texas A&M University and is available from the `SuiteSparse GitHub repository
+<https://github.com/DrTimothyAldenDavis/SuiteSparse>`_.
 
-SUNDIALS has been tested with SuiteSparse version 5.7.2.  To enable
-KLU, set ``ENABLE_KLU`` to ``ON``, set ``KLU_INCLUDE_DIR`` to the
+To enable KLU, set ``ENABLE_KLU`` to ``ON``, set ``KLU_INCLUDE_DIR`` to the
 ``include`` path of the KLU installation and set ``KLU_LIBRARY_DIR``
 to the ``lib`` path of the KLU installation.  The CMake configure will
 result in populating the following variables: ``AMD_LIBRARY``,
 ``AMD_LIBRARY_DIR``,  ``BTF_LIBRARY``, ``BTF_LIBRARY_DIR``,
 ``COLAMD_LIBRARY``, ``COLAMD_LIBRARY_DIR``, and ``KLU_LIBRARY``.
 
+SUNDIALS has been tested with SuiteSparse version 5.10.1.
 
-.. _Installation.CMake.ExternalLibraries.SuperLU_MT:
+
+.. _Installation.CMake.ExternalLibraries.SuperLU_DIST:
 
 Building with SuperLU_DIST
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The SuperLU_DIST libraries are available for download from the Lawrence
-Berkeley National Laboratory website:
-https://portal.nersc.gov/project/sparse/superlu/#superlu_dist.
+SuperLU_DIST is a general purpose library for the direct solution of large,
+sparse, nonsymmetric systems of linear equations in a distributed memory
+setting. The library is developed by Lawrence Berkeley National Laboratory and
+is available from the `SuperLU_DIST GitHub repository
+<https://github.com/xiaoyeli/superlu_dist>`_.
 
-SUNDIALS has been tested with SuperLU_DIST 6.1.1. To enable
-SuperLU_DIST, set  ``ENABLE_SUPERLUDIST`` to ``ON``, set
+To enable SuperLU_DIST, set ``ENABLE_SUPERLUDIST`` to ``ON``, set
 ``SUPERLUDIST_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_DIST
-installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
-``lib`` path of the SuperLU_DIST installation.  At the same time, the
-variable ``SUPERLUDIST_LIBRARIES`` must be set to a semi-colon separated list
-of other libraries SuperLU_DIST depends on. For example, if SuperLU_DIST
-was built with LAPACK, then include the LAPACK library in this list.
-If SuperLU_DIST was built with OpenMP support, then you may set
-``SUPERLUDIST_OpenMP`` to ``ON`` utilize the OpenMP functionality of
-SuperLU_DIST.
+installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the ``lib`` path
+of the SuperLU_DIST installation.  At the same time, the variable
+``SUPERLUDIST_LIBRARIES`` must be set to a semi-colon separated list of other
+libraries SuperLU_DIST depends on. For example, if SuperLU_DIST was built with
+LAPACK, then include the LAPACK library in this list.  If SuperLU_DIST was built
+with OpenMP support, then you may set ``SUPERLUDIST_OpenMP`` to ``ON`` utilize
+the OpenMP functionality of SuperLU_DIST.
 
+SUNDIALS has been tested with SuperLU_DIST 7.1.1.
+
+
+.. _Installation.CMake.ExternalLibraries.SuperLU_MT:
 
 Building with SuperLU_MT
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The SuperLU_MT libraries are available for download from the Lawrence
-Berkeley National Laboratory website:
-https://portal.nersc.gov/project/sparse/superlu/#superlu_mt.
+SuperLU_MT is a general purpose library for the direct solution of large,
+sparse, nonsymmetric systems of linear equations on shared memory parallel
+machines. The library is developed by Lawrence Berkeley National Laboratory and
+is available from the `SuperLU_MT GitHub repository
+<https://github.com/xiaoyeli/superlu_mt>`_.
 
-SUNDIALS has been tested with SuperLU_MT version 3.1.  To enable
-SuperLU_MT, set  ``ENABLE_SUPERLUMT`` to ``ON``, set
+To enable SuperLU_MT, set  ``ENABLE_SUPERLUMT`` to ``ON``, set
 ``SUPERLUMT_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_MT
 installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
 ``lib`` path of the SuperLU_MT installation. At the same time, the
@@ -1141,21 +1183,26 @@ If threading is enabled for SUNDIALS by having either
 ``ENABLE_OPENMP`` or ``ENABLE_PTHREAD`` set to ``ON`` then SuperLU_MT
 should be set to use the same threading type.
 
+SUNDIALS has been tested with SuperLU_MT version 3.1.
+
 
 .. _Installation.CMake.ExternalLibraries.PETSc:
 
 Building with PETSc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The PETSc libraries are available for download from the Argonne
-National Laboratory website:
-http://www.mcs.anl.gov/petsc .
+The Portable, Extensible Toolkit for Scientific Computation (PETSc) is a suite
+of data structures and routines for simulating applications modeled by partial
+differential equations. The library is developed by Argonne National Laboratory
+and is available from the `PETSc GitLab repository
+<https://gitlab.com/petsc/petsc>`_.
 
-SUNDIALS has been tested with PETSc versions 3.10.0 -- 3.14.0. To enable PETSc,
-set ``ENABLE_PETSC`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
-installation. Alternatively, a user can provide a list of include paths in
-``PETSC_INCLUDES`` and a list of complete paths to the PETSc libraries in
-``PETSC_LIBRARIES``.
+To enable PETSc, set ``ENABLE_PETSC`` to ``ON``, and set ``PETSC_DIR`` to the
+path of the PETSc installation. Alternatively, a user can provide a list of
+include paths in ``PETSC_INCLUDES`` and a list of complete paths to the PETSc
+libraries in ``PETSC_LIBRARIES``.
+
+SUNDIALS has been tested with PETSc version 3.16.1.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:
@@ -1163,37 +1210,56 @@ installation. Alternatively, a user can provide a list of include paths in
 Building with *hypre*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The *hypre* libraries are available for download from the Lawrence
-Livermore National Laboratory website:
-`http://computing.llnl.gov/projects/hypre <http://computing.llnl.gov/projects/hypre>`_.
-SUNDIALS has been tested with *hypre* version 2.19.0.
+*hypre* is a library of high performance preconditioners and solvers featuring
+multigrid methods for the solution of large, sparse linear systems of equations
+on massively parallel computers. The library is developed by Lawrence Livermore
+National Laboratory and is available from the `hypre GitHub repository
+<https://github.com/hypre-space/hypre>`_.
+
 To enable *hypre*, set  ``ENABLE_HYPRE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
 ``HYPRE_LIBRARY_DIR`` to the ``lib`` path of the *hypre* installation.
 
-Note: SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` (or
-equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
-``HYPRE_BigInt`` in the corresponding *hypre* installation.
+.. note::
+
+   SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` is compatible
+   with ``HYPRE_BigInt`` in the *hypre* installation.
+
+SUNDIALS has been tested with *hypre* version 2.23.0
 
 
 .. _Installation.CMake.ExternalLibraries.Magma:
 
-Building with Magma
+Building with MAGMA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Magma libraries are ....
+The Matrix Algebra on GPU and Multicore Architectures (MAGMA) project provides a
+dense linear algebra library similar to LAPACK but targeting heterogeneous
+architectures. The library is developed by the University of Tennessee and is
+available from the `UTK webpage <https://icl.utk.edu/magma/index.html>`_.
 
-SUNDIALS has been tested with Magma version ...
+To enable the SUNDIALS MAGMA interface set ``ENABLE_MAGMA`` to ``ON``,
+``MAGMA_DIR`` to the MAGMA installation path, and ``SUNDIALS_MAGMA_BACKENDS`` to
+the desired MAGMA backend to use with SUNDIALS e.g., ``CUDA`` or ``HIP``.
+
+SUNDIALS has been tested with MAGMA version 2.6.1.
 
 
 .. _Installation.CMake.ExternalLibraries.OneMKL:
 
-Building with OneMKL
+Building with oneMKL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The OneMKL libraries are ....
+The Intel `oneAPI Math Kernel Library (oneMKL)
+<https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html>`_
+includes CPU and DPC++ interfaces for LAPACK dense linear algebra routines. The
+SUNDIALS oneMKL interface targets the DPC++ routines, to utilize the CPU routine
+see :numref:`Installation.CMake.ExternalLibraries.LAPACK`.
 
-SUNDIALS has been tested with OneMKL version ...
+To enable the SUNDIALS oneMKL interface set ``ENABLE_ONEMKL`` to ``ON`` and
+``ONEMKL_DIR`` to the oneMKL installation path.
+
+SUNDIALS has been tested with oneMKL version 2021.4.
 
 
 .. _Installation.CMake.ExternalLibraries.CUDA:
@@ -1201,15 +1267,17 @@ SUNDIALS has been tested with OneMKL version ...
 Building with CUDA
 ^^^^^^^^^^^^^^^^^^^^^^
 
-SUNDIALS CUDA modules and examples have been tested with version 10 and 11
-of the CUDA toolkit. To build them, you need to install the Toolkit and compatible
-NVIDIA drivers. Both are available for download from the NVIDIA website:
-`https://developer.nvidia.com/cuda-downloads
-<https://developer.nvidia.com/cuda-downloads>`_. To enable CUDA,
-set ``ENABLE_CUDA`` to ``ON``. If CUDA is installed in a nonstandard
-location, you may be prompted to set the variable
-``CUDA_TOOLKIT_ROOT_DIR`` with your CUDA Toolkit installation
-path. To enable CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
+The NVIDIA CUDA Toolkit provides a development environment for GPU-accelerated
+computing with NVIDIA GPUs. The CUDA Toolkit and compatible NVIDIA drivers are
+available from the `NVIDIA developer website
+<https://developer.nvidia.com/cuda-downloads>`_.
+
+To enable CUDA, set ``ENABLE_CUDA`` to ``ON``. If CUDA is installed in a
+nonstandard location, you may be prompted to set the variable
+``CUDA_TOOLKIT_ROOT_DIR`` with your CUDA Toolkit installation path. To enable
+CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
+
+SUNDIALS has been tested with the CUDA toolkit versions 10 and 11.
 
 
 .. _Installation.CMake.ExternalLibraries.RAJA:
@@ -1217,11 +1285,11 @@ path. To enable CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
 Building with RAJA
 ^^^^^^^^^^^^^^^^^^^^^
 
-RAJA is a performance portability layer developed by Lawrence
-Livermore National Laboratory and can be obtained from
-`https://github.com/LLNL/RAJA <https://github.com/LLNL/RAJA>`_.
-SUNDIALS RAJA modules and examples have been tested with RAJA
-version 0.14.0. Building SUNDIALS RAJA modules requires a CUDA, HIP, or SYCL
+RAJA is a performance portability layer developed by Lawrence Livermore National
+Laboratory and can be obtained from the `RAJA GitHub repository
+<https://github.com/LLNL/RAJA>`_.
+
+Building SUNDIALS RAJA modules requires a CUDA, HIP, or SYCL
 enabled RAJA installation. To enable RAJA, set ``ENABLE_RAJA`` to ``ON``, set
 ``SUNDIALS_RAJA_BACKENDS`` to the desired backend (``CUDA``, ``HIP``, or
 ``SYCL``), and set ``ENABLE_CUDA``, ``ENABLE_HIP``, or ``ENABLE_SYCL`` to
@@ -1230,25 +1298,32 @@ location you will be prompted to set the variable ``RAJA_DIR`` with
 the path to the RAJA CMake configuration file. To enable building the
 RAJA examples set ``EXAMPLES_ENABLE_CXX`` to ``ON``.
 
+SUNDIALS has been tested with RAJA version 0.14.0.
+
 
 .. _Installation.CMake.ExternalLibraries.XBraid:
 
 Building with XBraid
 ^^^^^^^^^^^^^^^^^^^^
 
-The XBraid library is available for download from the XBraid GitHub:
-`https://github.com/XBraid/xbraid <https://github.com/XBraid/xbraid>`_.
+XBraid is parallel-in-time library implementing an optimal-scaling multigrid
+reduction in time (MGRIT) solver. The library is developed by Lawrence Livermore
+National Laboratory and is available from the `XBraid GitHub repository
+<https://github.com/XBraid/xbraid>`_.
+
+To enable XBraid support, set ``ENABLE_XBRAID`` to ``ON``, set ``XBRAID_DIR`` to
+the root install location of XBraid or the location of the clone of the XBraid
+repository.
+
+.. note::
+
+   At this time the XBraid types ``braid_Int`` and ``braid_Real`` are hard-coded
+   to ``int`` and ``double`` respectively. As such SUNDIALS must be configured
+   with ``SUNDIALS_INDEX_SIZE`` set to ``32`` and ``SUNDIALS_PRECISION`` set to
+   ``double``. Additionally, SUNDIALS must be configured with ``ENABLE_MPI`` set
+   to ``ON``.
+
 SUNDIALS has been tested with XBraid version 3.0.0.
-To enable XBraid, set  ``ENABLE_XBRAID`` to ``ON``, set ``XBRAID_DIR``
-to the root install location of XBraid or the location of the clone of the
-XBraid repository.
-
-Note: At this time the XBraid types ``braid_Int`` and ``braid_Real`` are
-hard-coded to ``int`` and ``double`` respectively. As such SUNDIALS must be
-configured with ``SUNDIALS_INDEX_SIZE`` set to ``32`` and ``SUNDIALS_PRECISION``
-set to ``double``. Additionally, SUNDIALS must be configured with ``ENABLE_MPI``
-set to ``ON``.
-
 
 
 .. _Installation.CMake.Testing:
@@ -1298,8 +1373,10 @@ it will overwrite the traditional ``Makefile`` with a new CMake-generated
 The resulting output from running the examples can be compared with example
 output bundled in the SUNDIALS distribution.
 
-NOTE: There will potentially be differences in the output due to machine
-architecture, compiler versions, use of third party libraries etc.
+.. note::
+
+   There will potentially be differences in the output due to machine
+   architecture, compiler versions, use of third party libraries etc.
 
 
 .. _Installation.CMake.Windows:

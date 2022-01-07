@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -27,15 +27,14 @@ is as follows:
 
    struct _N_VectorContent_Cuda
    {
-     sunindextype       length;
-     booleantype        own_exec;
-     booleantype        own_helper;
-     SUNMemory          host_data;
-     SUNMemory          device_data;
-     SUNCudaExecPolicy* stream_exec_policy;
-     SUNCudaExecPolicy* reduce_exec_policy;
-     SUNMemoryHelper    mem_helper;
-     void*              priv; /* 'private' data */
+      sunindextype       length;
+      booleantype        own_helper;
+      SUNMemory          host_data;
+      SUNMemory          device_data;
+      SUNCudaExecPolicy* stream_exec_policy;
+      SUNCudaExecPolicy* reduce_exec_policy;
+      SUNMemoryHelper    mem_helper;
+      void*              priv; /* 'private' data */
    };
 
    typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
@@ -161,10 +160,12 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction CUDA kernels. By default
    the vector is setup to use the :cpp:func:`SUNCudaThreadDirectExecPolicy` and
-   :cpp:func:`SUNCudaBlockReduceExecPolicy`. Any custom execution policy for reductions
-   must ensure that the grid dimensions (number of thread blocks) is a multiple of
-   the CUDA warp size (32). See :numref:`NVectors.CUDA.SUNCudaExecPolicy`
-   below for more information about the :cpp:type:`SUNCudaExecPolicy` class.
+   :cpp:func:`SUNCudaBlockReduceAtomicExecPolicy`. Any custom execution policy
+   for reductions must ensure that the grid dimensions (number of thread blocks)
+   is a multiple of the CUDA warp size (32). See
+   :numref:`NVectors.CUDA.SUNCudaExecPolicy` below for more information about
+   the :cpp:type:`SUNCudaExecPolicy` class. Providing ``NULL`` for an argument
+   will result in the default policy being restored.
 
    .. note::
 
@@ -314,46 +315,51 @@ where the ``sundials::cuda::ExecPolicy`` class is defined in the header file
    class ExecPolicy
    {
    public:
+      ExecPolicy(cudaStream_t stream = 0) : stream_(stream) { }
       virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
       virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual cudaStream_t stream() const = 0;
+      virtual const cudaStream_t* stream() const { return (&stream_); }
       virtual ExecPolicy* clone() const = 0;
+      ExecPolicy* clone_new_stream(cudaStream_t stream) const {
+         ExecPolicy* ex = clone();
+         ex->stream_ = stream;
+         return ex;
+      }
+      virtual bool atomic() const { return false; }
       virtual ~ExecPolicy() {}
+   protected:
+      cudaStream_t stream_;
    };
 
 
-To define a custom execution policy, a user simply needs to create a class that inherits from
-the abstract class and implements the methods. The SUNDIALS provided
-``sundials::cuda::ThreadDirectExecPolicy`` (aka in the global namespace as
-``SUNCudaThreadDirectExecPolicy``) class is a good example of a what a custom execution policy
-may look like:
+To define a custom execution policy, a user simply needs to create a class that
+inherits from the abstract class and implements the methods. The SUNDIALS
+provided ``sundials::cuda::ThreadDirectExecPolicy`` (aka in the global namespace
+as ``SUNCudaThreadDirectExecPolicy``) class is a good example of a what a custom
+execution policy may look like:
 
 .. code-block:: c++
 
    class ThreadDirectExecPolicy : public ExecPolicy
    {
    public:
-      ThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
-         : blockDim_(blockDim), stream_(stream)
+      ThreadDirectExecPolicy(const size_t blockDim, cudaStream_t stream = 0)
+         : blockDim_(blockDim), ExecPolicy(stream)
       {}
 
       ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
-         : blockDim_(ex.blockDim_), stream_(ex.stream_)
+         : blockDim_(ex.blockDim_), ExecPolicy(ex.stream_)
       {}
 
-      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+      virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
       {
+         /* ceil(n/m) = floor((n + m - 1) / m) */
          return (numWorkUnits + blockSize() - 1) / blockSize();
       }
 
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+      virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
       {
          return blockDim_;
-      }
-
-      virtual cudaStream_t stream() const
-      {
-         return stream_;
       }
 
       virtual ExecPolicy* clone() const
@@ -362,7 +368,6 @@ may look like:
       }
 
    private:
-      const cudaStream_t stream_;
       const size_t blockDim_;
    };
 
@@ -371,23 +376,35 @@ In total, SUNDIALS provides 3 execution policies:
 
    .. cpp:function:: SUNCudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
 
-      Maps each CUDA thread to a work unit. The number of threads per block (blockDim) can be set
-      to anything. The grid size will be calculated so that there are enough threads for one
-      thread per element. If a CUDA stream is provided, it will be used to execute the kernel.
+      Maps each CUDA thread to a work unit. The number of threads per block
+      (blockDim) can be set to anything. The grid size will be calculated so
+      that there are enough threads for one thread per element. If a CUDA stream
+      is provided, it will be used to execute the kernel.
 
    .. cpp:function:: SUNCudaGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)
 
-      Is for kernels that use grid stride loops. The number of threads per block (blockDim)
-      can be set to anything. The number of blocks (gridDim) can be set to anything. If a
-      CUDA stream is provided, it will be used to execute the kernel.
+      Is for kernels that use grid stride loops. The number of threads per block
+      (blockDim) can be set to anything. The number of blocks (gridDim) can be
+      set to anything. If a CUDA stream is provided, it will be used to execute
+      the kernel.
 
    .. cpp:function:: SUNCudaBlockReduceExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
 
-      Is for kernels performing a reduction across indvidual thread blocks. The number of threads
-      per block (blockDim) can be set to any valid multiple of the CUDA warp size. The grid size
-      (gridDim) can be set to any value greater than 0. If it is set to 0, then the grid size
-      will be chosen so that there is enough threads for one thread per work unit. If a
-      CUDA stream is provided, it will be used to execute the kernel.
+      Is for kernels performing a reduction across indvidual thread blocks. The
+      number of threads per block (blockDim) can be set to any valid multiple of
+      the CUDA warp size. The grid size (gridDim) can be set to any value
+      greater than 0. If it is set to 0, then the grid size will be chosen so
+      that there is enough threads for one thread per work unit. If a CUDA
+      stream is provided, it will be used to execute the kernel.
+
+   .. cpp:function:: SUNCudaBlockReduceAtomicExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
+
+      Is for kernels performing a reduction across indvidual thread blocks using
+      atomic operations. The number of threads per block (blockDim) can be set
+      to any valid multiple of the CUDA warp size. The grid size (gridDim) can be
+      set to any value greater than 0. If it is set to 0, then the grid size
+      will be chosen so that there is enough threads for one thread per work
+      unit. If a CUDA stream is provided, it will be used to execute the kernel.
 
 
 For example, a policy that uses 128 threads per block and a user provided stream can be

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -359,12 +359,20 @@ macro(sundials_add_library target)
     if(NOT sundials_add_library_OBJECT_LIB_ONLY)
       add_library(${target} ALIAS ${target}${_SHARED_LIB_SUFFIX})
       set(_SUNDIALS_ALIAS_TARGETS "${target}->${target}${_SHARED_LIB_SUFFIX};${_SUNDIALS_ALIAS_TARGETS}" CACHE INTERNAL "" FORCE)
+
+      # Namespaced alias for using build directory directly
+      string(REPLACE "sundials_" "" _export_name "${target}")
+      add_library(SUNDIALS::${_export_name} ALIAS ${target}${_SHARED_LIB_SUFFIX})
     endif()
   else()
     add_library(${target}_obj ALIAS ${target}_obj${_STATIC_LIB_SUFFIX})
     if(NOT sundials_add_library_OBJECT_LIB_ONLY)
       add_library(${target} ALIAS ${target}${_STATIC_LIB_SUFFIX})
       set(_SUNDIALS_ALIAS_TARGETS "${target}->${target}${_STATIC_LIB_SUFFIX};${_SUNDIALS_ALIAS_TARGETS}" CACHE INTERNAL "" FORCE)
+
+      # Namespaced alias for using build directory directly
+      string(REPLACE "sundials_" "" _export_name "${target}")
+      add_library(SUNDIALS::${_export_name} ALIAS ${target}${_STATIC_LIB_SUFFIX})
     endif()
   endif()
 

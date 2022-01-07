@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -29,11 +29,11 @@ endif()
 # ===============================================================
 
 set(DOCSTR "The CUDA standard to use if CUDA is enabled (11, 14, 17, 20)")
-sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "11"
+sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "${CMAKE_CXX_STANDARD}"
                 OPTIONS "11;14;17;20")
 message(STATUS "CUDA standard set to ${CMAKE_CUDA_STANDARD}")
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr")
 
 if(${CMAKE_VERSION} VERSION_LESS "3.18.0")
   if(CMAKE_CUDA_ARCHITECTURES)

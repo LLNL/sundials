@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -62,9 +62,9 @@ int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
-    if (!SUNDIALS_HIP_VERIFY(hipMallocHost(&(mem->ptr), mem_size)))
+    if (!SUNDIALS_HIP_VERIFY(hipHostMalloc(&(mem->ptr), mem_size, hipHostMallocDefault)))
     {
-      SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Hip: hipMallocHost failed\n");
+      SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Hip: hipHostMalloc failed\n");
       free(mem);
       return(-1);
     }
@@ -112,9 +112,9 @@ int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
     }
     else if (mem->type == SUNMEMTYPE_PINNED)
     {
-      if (!SUNDIALS_HIP_VERIFY(hipFreeHost(mem->ptr)))
+      if (!SUNDIALS_HIP_VERIFY(hipHostFree(mem->ptr)))
       {
-        SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Dealloc_Hip: hipFreeHost failed\n");
+        SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Dealloc_Hip: hipHostFree failed\n");
         return(-1);
       }
       mem->ptr = NULL;

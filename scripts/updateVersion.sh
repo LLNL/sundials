@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -349,3 +349,19 @@ sedi '23 a\
 '"${divider}"''$'\n' $fn
 sedi '23 a\
 '"${new_entry}"''$'\n' $fn
+
+
+# Update CITATIONS.md
+fn="../CITATIONS.md"
+sedi '39s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '40s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
+sedi '48s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '49s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
+sedi '57s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '58s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
+sedi '66s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '67s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
+sedi '75s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '76s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
+sedi '84s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '85s/.*/\ \ note   = {v'${kin_ver}'}/' $fn

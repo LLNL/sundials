@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos, and Daniel McGreer @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -29,12 +29,6 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-/* ---------------------------------------------------------------------------
- * Constants
- * ---------------------------------------------------------------------------*/
-
-#define MAX_HIP_BLOCKSIZE 1024
 
 /* ---------------------------------------------------------------------------
  * Utility macros

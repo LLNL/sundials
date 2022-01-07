@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -64,7 +64,6 @@ static cusparseStatus_t CreateSpMatDescr(SUNMatrix, cusparseSpMatDescr_t*);
 #define SMCU_NP(A)          ( SMCU_CONTENT(A)->NP )
 #define SMCU_SPARSETYPE(A)  ( SMCU_CONTENT(A)->sparse_type )
 #define SMCU_OWNMATD(A)     ( SMCU_CONTENT(A)->own_matd )
-#define SMCU_OWNEXEC(A)     ( SMCU_CONTENT(A)->own_exec )
 #define SMCU_DATA(A)        ( SMCU_CONTENT(A)->data )
 #define SMCU_DATAp(A)       ( (realtype*)SMCU_CONTENT(A)->data->ptr )
 #define SMCU_INDEXVALS(A)   ( SMCU_CONTENT(A)->colind )
@@ -91,11 +90,11 @@ class SUNCuSparseMatrixExecPolicy : public ExecPolicy
 {
 public:
   SUNCuSparseMatrixExecPolicy(const cudaStream_t stream = 0)
-    : stream_(stream)
+    : ExecPolicy(stream)
   {}
 
   SUNCuSparseMatrixExecPolicy(const SUNCuSparseMatrixExecPolicy& ex)
-    : stream_(ex.stream_)
+    : ExecPolicy(ex.stream_)
   {}
 
   virtual size_t gridSize(size_t numWorkElements, size_t blockDim = 0) const
@@ -105,7 +104,7 @@ public:
 
   virtual size_t blockSize(size_t numWorkElements = 0, size_t gridDim = 0) const
   {
-    return(max_block_size(CUDA_WARP_SIZE*(numWorkElements + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE));
+    return(max_block_size(WARP_SIZE*(numWorkElements + WARP_SIZE - 1)/WARP_SIZE));
   }
 
   virtual const cudaStream_t* stream() const
@@ -120,12 +119,11 @@ public:
 
   static size_t max_block_size(int val)
   {
-    return((val > MAX_CUDA_BLOCKSIZE) ? MAX_CUDA_BLOCKSIZE : val );
+    return((val > MAX_BLOCK_SIZE) ? MAX_BLOCK_SIZE : val );
   }
-
-private:
-  const cudaStream_t stream_;
 };
+
+SUNCuSparseMatrixExecPolicy DEFAULT_EXEC_POLICY;
 
 /* ------------------------------------------------------------------
  * Constructors.
@@ -232,7 +230,6 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   SMCU_CONTENT(A)->blockcols      = N;
   SMCU_CONTENT(A)->blocknnz       = NNZ;
   SMCU_CONTENT(A)->own_matd       = SUNTRUE;
-  SMCU_CONTENT(A)->own_exec       = SUNTRUE;
   SMCU_CONTENT(A)->matvec_issetup = SUNFALSE;
   SMCU_CONTENT(A)->fixed_pattern  = SUNFALSE;
   SMCU_CONTENT(A)->sparse_type    = SUNMAT_CUSPARSE_CSR;
@@ -241,7 +238,7 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   SMCU_CONTENT(A)->data           = d_values;
   SMCU_CONTENT(A)->mat_descr      = mat_descr;
   SMCU_CONTENT(A)->cusp_handle    = cusp;
-  SMCU_CONTENT(A)->exec_policy    = new SUNCuSparseMatrixExecPolicy(stream);
+  SMCU_CONTENT(A)->exec_policy    = DEFAULT_EXEC_POLICY.clone_new_stream(stream);
 
 #if CUDART_VERSION >= 11000
   cusparseSpMatDescr_t spmat_descr;
@@ -315,7 +312,6 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
   SMCU_CONTENT(A)->blockcols      = N;
   SMCU_CONTENT(A)->blocknnz       = NNZ;
   SMCU_CONTENT(A)->own_matd       = SUNFALSE;
-  SMCU_CONTENT(A)->own_exec       = SUNTRUE;
   SMCU_CONTENT(A)->matvec_issetup = SUNFALSE;
   SMCU_CONTENT(A)->fixed_pattern  = SUNFALSE;
   SMCU_CONTENT(A)->sparse_type    = SUNMAT_CUSPARSE_CSR;
@@ -325,7 +321,7 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
   SMCU_CONTENT(A)->mat_descr      = mat_descr;
   SMCU_CONTENT(A)->cusp_handle    = cusp;
 
-  SMCU_CONTENT(A)->exec_policy   = new SUNCuSparseMatrixExecPolicy(stream);
+  SMCU_CONTENT(A)->exec_policy   = DEFAULT_EXEC_POLICY.clone_new_stream(stream);
 
   if (SMCU_CONTENT(A)->colind == NULL ||
       SMCU_CONTENT(A)->rowptrs == NULL ||
@@ -467,7 +463,6 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   SMCU_CONTENT(A)->blockcols      = blockrows;
   SMCU_CONTENT(A)->blocknnz       = blocknnz;
   SMCU_CONTENT(A)->own_matd       = SUNTRUE;
-  SMCU_CONTENT(A)->own_exec       = SUNTRUE;
   SMCU_CONTENT(A)->matvec_issetup = SUNFALSE;
   SMCU_CONTENT(A)->cusp_handle    = cusp;
   SMCU_CONTENT(A)->fixed_pattern  = SUNFALSE;
@@ -476,7 +471,7 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   SMCU_CONTENT(A)->rowptrs        = d_rowptr;
   SMCU_CONTENT(A)->data           = d_values;
   SMCU_CONTENT(A)->mat_descr      = mat_descr;
-  SMCU_CONTENT(A)->exec_policy    = new SUNCuSparseMatrixExecPolicy(stream);
+  SMCU_CONTENT(A)->exec_policy    = DEFAULT_EXEC_POLICY.clone_new_stream(stream);
 
 #if CUDART_VERSION >= 11000
   cusparseSpMatDescr_t spmat_descr;
@@ -625,13 +620,15 @@ int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno)
 
 int SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy)
 {
-  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE || exec_policy == NULL)
+  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE)
     return(SUNMAT_ILL_INPUT);
 
-  if (SMCU_OWNEXEC(A)) delete SMCU_EXECPOLICY(A);
-  SMCU_EXECPOLICY(A) = exec_policy;
-
-  SMCU_OWNEXEC(A) = SUNFALSE;
+  /* Reset to the default policy if the new one is NULL */
+  delete SMCU_EXECPOLICY(A);
+  if (exec_policy)
+    SMCU_EXECPOLICY(A) = exec_policy->clone();
+  else
+    SMCU_EXECPOLICY(A) = DEFAULT_EXEC_POLICY.clone_new_stream(*SMCU_EXECPOLICY(A)->stream());
 
   return(SUNMAT_SUCCESS);
 }
@@ -843,7 +840,7 @@ void SUNMatDestroy_cuSparse(SUNMatrix A)
                             nullptr);
 #endif
 
-    if (SMCU_EXECPOLICY(A) && SMCU_OWNEXEC(A))
+    if (SMCU_EXECPOLICY(A))
     {
       delete SMCU_EXECPOLICY(A);
       SMCU_EXECPOLICY(A) = NULL;

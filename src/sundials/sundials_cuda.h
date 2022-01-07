@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,14 +32,6 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-/* ---------------------------------------------------------------------------
- * Constants
- * ---------------------------------------------------------------------------*/
-
-#define CUDA_WARP_SIZE 32
-#define MAX_CUDA_BLOCKSIZE 1024
-
 
 /* ---------------------------------------------------------------------------
  * Utility macros

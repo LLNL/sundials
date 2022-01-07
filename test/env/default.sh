@@ -3,7 +3,7 @@
 # Programmer(s): Cody J. Balos and David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,7 +24,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./default.sh $*" | tee -a suntest.log
+echo "./default.sh $*" | tee -a configure.log
 
 # set defaults for optional inputs
 compiler="gcc@4.9.4" # compiler spec

@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1611,9 +1611,9 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt,
       else if (strcmp(argv[i],"--k") == 0)
       {
         udata->k1 = strtod(argv[i+1], NULL);
-        udata->k2 = strtod(argv[i+1], NULL);
-        udata->k3 = strtod(argv[i+1], NULL);
-        udata->k4 = strtod(argv[i+1], NULL);
+        udata->k2 = strtod(argv[i+2], NULL);
+        udata->k3 = strtod(argv[i+3], NULL);
+        udata->k4 = strtod(argv[i+4], NULL);
         i += 4;
       }
       else if (strcmp(argv[i],"--c") == 0)

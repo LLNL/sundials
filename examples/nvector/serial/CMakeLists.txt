@@ -2,7 +2,7 @@
 # Programmer(s): Steven Smith and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -60,10 +60,13 @@ foreach(example_tuple ${nvector_serial_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../test_nvector.c)
+    add_executable(${example} ${example}.c)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

@@ -1,7 +1,7 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -137,7 +137,8 @@ updateConstructors() {
   echo "replacing in ${@}"
   for constructor in "${constructors[@]}"
   do
-    perl -pi -e 's/'"${constructor}"'\((.*?)\)/'"${constructor}"'($1, SUNCTX_PLACEHOLDER)/g;' ${@}
+    perl -pi -e 's/'"${constructor}"'\((.*\S.*)\)/'"${constructor}"'($1, SUNCTX_PLACEHOLDER)/g;' ${@}
+    perl -pi -e 's/'"${constructor}"'\(\)/'"${constructor}"'(SUNCTX_PLACEHOLDER)/g;' ${@}
   done
 }
 

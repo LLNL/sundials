@@ -31,15 +31,17 @@ class Sundials(CMakePackage, CudaPackage, ROCmPackage):
     Solvers)"""
 
     homepage = "https://computing.llnl.gov/projects/sundials"
-    urls = ["https://computing.llnl.gov/projects/sundials/download/sundials-2.7.0.tar.gz",
-            "https://github.com/LLNL/sundials/releases/download/v2.7.0/sundials-2.7.0.tar.gz"]
+    url = "https://github.com/LLNL/sundials/releases/download/v2.7.0/sundials-2.7.0.tar.gz"
     git = "https://github.com/llnl/sundials.git"
-    maintainers = ['cswoodward', 'gardner48', 'balos1']
+    tags = ['radiuss', 'e4s']
+
+    maintainers = ['balos1', 'cswoodward', 'gardner48']
 
     # ==========================================================================
     # Versions
     # ==========================================================================
     version('develop', branch='develop')
+    version('6.0.0', sha256='c7178e54df20a9363ae3e5ac5b3ee9db756a4ddd4b8fff045127e93b73b151f4')
     version('5.8.0', sha256='d4ed403351f72434d347df592da6c91a69452071860525385b3339c824e8a213')
     version('5.7.0', sha256='8d6dd094feccbb8d6ecc41340ec16a65fabac82ed4415023f6d7c1c2390ea2f3')
     version('5.6.1', sha256='16b77999ec7e7f2157aa1d04ca1de4a2371ca8150e056d24951d0c58966f2a83')
@@ -553,7 +555,7 @@ class Sundials(CMakePackage, CudaPackage, ROCmPackage):
         cfg.write("# Generated host-config - Edit at own risk!\n")
         cfg.write("###################\n".format("#" * 60))
         cfg.write("# SUNDIALS Copyright Start")
-        cfg.write("# Copyright (c) 2002-2021, Lawrence Livermore National Security, LLC and\n")
+        cfg.write("# Copyright (c) 2002-2022, Lawrence Livermore National Security, LLC and\n")
         cfg.write("# Southern Methodist University.\n")
         cfg.write("# All rights reserved.\n")
         cfg.write("#\n")

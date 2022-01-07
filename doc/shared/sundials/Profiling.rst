@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -147,7 +147,7 @@ are available.
       * Returns zero if successful, or non-zero if an error occurred
 
 
-.. c:function:: int SUNProfiler_Print(SUNProfiler p)
+.. c:function:: int SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
    Prints out a profiling summary. When constructed with an MPI comm the summary
    will include the average and maximum time per rank (in seconds) spent in each
@@ -155,6 +155,7 @@ are available.
 
    **Arguments:**
       * ``p`` -- a ``SUNProfiler`` object
+      * ``fp`` -- the file handler to print to
 
    **Returns:**
       * Returns zero if successful, or non-zero if an error occurred

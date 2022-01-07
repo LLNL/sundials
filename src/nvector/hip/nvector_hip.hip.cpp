@@ -2,7 +2,7 @@
  * Programmer(s): Daniel McGreer, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -18,38 +18,61 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include <iostream>
 #include <limits>
+#include <iostream>
 
 #include <nvector/nvector_hip.h>
 #include "VectorArrayKernels.hip.hpp"
 #include "VectorKernels.hip.hpp"
+
 #include "sundials_hip.h"
 #include "sundials_debug.h"
 
 #define ZERO RCONST(0.0)
 #define HALF RCONST(0.5)
 
-extern "C" {
-
 using namespace sundials;
 using namespace sundials::hip;
-using namespace sundials::nvector_hip;
+using namespace sundials::hip::impl;
+
+/*
+ * Private function definitions
+ */
+
+// Allocate vector data
+static int AllocateData(N_Vector v);
+
+// Reduction buffer functions
+static int InitializeDeviceCounter(N_Vector v);
+static int FreeDeviceCounter(N_Vector v);
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
+static void FreeReductionBuffer(N_Vector v);
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
+
+// Kernel launch parameters
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+                               size_t& shMemSize, hipStream_t& stream, size_t n = 0);
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+                                size_t& shMemSize, hipStream_t& stream, bool& atomic, size_t n = 0);
+static void PostKernelLaunch();
 
 /*
  * Macro definitions
  */
 
+// Macros to access vector content
 #define NVEC_HIP_CONTENT(x)  ((N_VectorContent_Hip)(x->content))
-#define NVEC_HIP_PRIVATE(x)  ((N_PrivateVectorContent_Hip)(NVEC_HIP_CONTENT(x)->priv))
 #define NVEC_HIP_MEMSIZE(x)  (NVEC_HIP_CONTENT(x)->length * sizeof(realtype))
 #define NVEC_HIP_MEMHELP(x)  (NVEC_HIP_CONTENT(x)->mem_helper)
 #define NVEC_HIP_HDATAp(x)   ((realtype*) NVEC_HIP_CONTENT(x)->host_data->ptr)
 #define NVEC_HIP_DDATAp(x)   ((realtype*) NVEC_HIP_CONTENT(x)->device_data->ptr)
-#define NVEC_HIP_HBUFFERp(x) ((realtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_host->ptr)
-#define NVEC_HIP_DBUFFERp(x) ((realtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_dev->ptr)
 #define NVEC_HIP_STREAM(x)   (NVEC_HIP_CONTENT(x)->stream_exec_policy->stream())
 
+// Macros to access vector private content
+#define NVEC_HIP_PRIVATE(x)   ((N_PrivateVectorContent_Hip)(NVEC_HIP_CONTENT(x)->priv))
+#define NVEC_HIP_HBUFFERp(x)  ((realtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_host->ptr)
+#define NVEC_HIP_DBUFFERp(x)  ((realtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_dev->ptr)
+#define NVEC_HIP_DCOUNTERp(x) ((unsigned int*) NVEC_HIP_PRIVATE(x)->device_counter->ptr)
 
 /*
  * Private structure definition
@@ -61,38 +84,16 @@ struct _N_PrivateVectorContent_Hip
   size_t          reduce_buffer_allocated_bytes; /* current size of the reduction buffer */
   SUNMemory       reduce_buffer_dev;             /* device buffer used for reductions */
   SUNMemory       reduce_buffer_host;            /* host buffer used for reductions */
+  SUNMemory       device_counter;                /* device memory for a counter (used in LDS reductions) */
 };
 
 typedef struct _N_PrivateVectorContent_Hip *N_PrivateVectorContent_Hip;
 
-/*
- * Private function definitions
- */
+/* Default policies to clone */
+ThreadDirectExecPolicy DEFAULT_STREAMING_EXECPOLICY(512);
+BlockReduceExecPolicy DEFAULT_REDUCTION_EXECPOLICY(512);
 
-static int AllocateData(N_Vector v);
-static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n = 1);
-static void FreeReductionBuffer(N_Vector v);
-static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
-                               size_t& shMemSize, hipStream_t& stream, size_t n = 0);
-static void PostKernelLaunch();
-
-/*
- * Defaults
- */
-
-static ThreadDirectExecPolicy NVEC_HIP_DEFAULT_STREAM_POLICY(512);
-static BlockReduceExecPolicy NVEC_HIP_DEFAULT_REDUCE_POLICY(512);
-
-
-/* ----------------------------------------------------------------
- * Returns vector type ID. Used to identify vector implementation
- * from abstract N_Vector interface.
- */
-N_Vector_ID N_VGetVectorID_Hip(N_Vector v)
-{
-  return SUNDIALS_NVEC_HIP;
-}
+extern "C" {
 
 N_Vector N_VNewEmpty_Hip(SUNContext sunctx)
 {
@@ -178,17 +179,20 @@ N_Vector N_VNewEmpty_Hip(SUNContext sunctx)
     return(NULL);
   }
 
-  NVEC_HIP_CONTENT(v)->length                        = 0;
-  NVEC_HIP_CONTENT(v)->host_data                     = NULL;
-  NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->stream_exec_policy            = NULL;
-  NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NULL;
-  NVEC_HIP_CONTENT(v)->mem_helper                    = NULL;
-  NVEC_HIP_CONTENT(v)->own_helper                    = SUNFALSE;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
+  // Initialize content
+  NVEC_HIP_CONTENT(v)->length             = 0;
+  NVEC_HIP_CONTENT(v)->host_data          = NULL;
+  NVEC_HIP_CONTENT(v)->device_data        = NULL;
+  NVEC_HIP_CONTENT(v)->stream_exec_policy = NULL;
+  NVEC_HIP_CONTENT(v)->reduce_exec_policy = NULL;
+  NVEC_HIP_CONTENT(v)->mem_helper         = NULL;
+  NVEC_HIP_CONTENT(v)->own_helper         = SUNFALSE;
+
+  // Initialize private content
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNFALSE;
   NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
   NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
+  NVEC_HIP_PRIVATE(v)->device_counter                = NULL;
   NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
 
   return(v);
@@ -202,18 +206,12 @@ N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx)
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
-  NVEC_HIP_CONTENT(v)->length                        = length;
-  NVEC_HIP_CONTENT(v)->host_data                     = NULL;
-  NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
-  NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNFALSE;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
+  NVEC_HIP_CONTENT(v)->length             = length;
+  NVEC_HIP_CONTENT(v)->mem_helper         = SUNMemoryHelper_Hip(sunctx);
+  NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->own_helper         = SUNTRUE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem    = SUNFALSE;
 
   if (NVEC_HIP_MEMHELP(v) == NULL)
   {
@@ -252,18 +250,12 @@ N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem,
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
-  NVEC_HIP_CONTENT(v)->length                        = length;
-  NVEC_HIP_CONTENT(v)->host_data                     = NULL;
-  NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->mem_helper                    = helper;
-  NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->own_helper                    = SUNFALSE;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem               = use_managed_mem;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
+  NVEC_HIP_CONTENT(v)->length             = length;
+  NVEC_HIP_CONTENT(v)->mem_helper         = helper;
+  NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->own_helper         = SUNFALSE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem    = use_managed_mem;
 
   if (AllocateData(v))
   {
@@ -283,18 +275,12 @@ N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx)
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
-  NVEC_HIP_CONTENT(v)->length                        = length;
-  NVEC_HIP_CONTENT(v)->host_data                     = NULL;
-  NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
-  NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
+  NVEC_HIP_CONTENT(v)->length             = length;
+  NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->mem_helper         = SUNMemoryHelper_Hip(sunctx);
+  NVEC_HIP_CONTENT(v)->own_helper         = SUNTRUE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem    = SUNTRUE;
 
   if (NVEC_HIP_MEMHELP(v) == NULL)
   {
@@ -323,18 +309,14 @@ N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata, 
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
-  NVEC_HIP_CONTENT(v)->length                        = length;
-  NVEC_HIP_CONTENT(v)->host_data                     = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
-  NVEC_HIP_CONTENT(v)->device_data                   = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
-  NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
-  NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNFALSE;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
+  NVEC_HIP_CONTENT(v)->length             = length;
+  NVEC_HIP_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
+  NVEC_HIP_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
+  NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->mem_helper         = SUNMemoryHelper_Hip(sunctx);
+  NVEC_HIP_CONTENT(v)->own_helper         = SUNTRUE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem    = SUNFALSE;
 
   if (NVEC_HIP_MEMHELP(v) == NULL)
   {
@@ -364,18 +346,14 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata, SUNContext sun
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
-  NVEC_HIP_CONTENT(v)->length                        = length;
-  NVEC_HIP_CONTENT(v)->host_data                     = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
-  NVEC_HIP_CONTENT(v)->device_data                   = SUNMemoryHelper_Alias(NVEC_HIP_CONTENT(v)->host_data);
-  NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
-  NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
+  NVEC_HIP_CONTENT(v)->length             = length;
+  NVEC_HIP_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
+  NVEC_HIP_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_HIP_CONTENT(v)->host_data);
+  NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
+  NVEC_HIP_CONTENT(v)->mem_helper         = SUNMemoryHelper_Hip(sunctx);
+  NVEC_HIP_CONTENT(v)->own_helper         = SUNTRUE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem    = SUNTRUE;
 
   if (NVEC_HIP_MEMHELP(v) == NULL)
   {
@@ -394,6 +372,10 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata, SUNContext sun
 
   return(v);
 }
+
+/* ----------------------------------------------------------------------------
+ * Set pointer to the raw host data. Does not free the existing pointer.
+ */
 
 void N_VSetHostArrayPointer_Hip(realtype* h_vdata, N_Vector v)
 {
@@ -423,6 +405,10 @@ void N_VSetHostArrayPointer_Hip(realtype* h_vdata, N_Vector v)
   }
 }
 
+/* ----------------------------------------------------------------------------
+ * Set pointer to the raw device data
+ */
+
 void N_VSetDeviceArrayPointer_Hip(realtype* d_vdata, N_Vector v)
 {
   if (N_VIsManagedMemory_Hip(v))
@@ -451,6 +437,10 @@ void N_VSetDeviceArrayPointer_Hip(realtype* d_vdata, N_Vector v)
   }
 }
 
+/* ----------------------------------------------------------------------------
+ * Return a flag indicating if the memory for the vector data is managed
+ */
+
 booleantype N_VIsManagedMemory_Hip(N_Vector x)
 {
   return NVEC_HIP_PRIVATE(x)->use_managed_mem;
@@ -460,21 +450,30 @@ int N_VSetKernelExecPolicy_Hip(N_Vector x,
                                SUNHipExecPolicy* stream_exec_policy,
                                SUNHipExecPolicy* reduce_exec_policy)
 {
-  if (x == NULL || stream_exec_policy == NULL || reduce_exec_policy == NULL)
-    return(-1);
+  if (x == NULL) return(-1);
 
-  if (NVEC_HIP_CONTENT(x)->own_exec)
-  {
-    delete NVEC_HIP_CONTENT(x)->stream_exec_policy;
-    delete NVEC_HIP_CONTENT(x)->reduce_exec_policy;
-  }
+  /* Delete the old policies */
+  delete NVEC_HIP_CONTENT(x)->stream_exec_policy;
+  delete NVEC_HIP_CONTENT(x)->reduce_exec_policy;
 
-  NVEC_HIP_CONTENT(x)->stream_exec_policy = stream_exec_policy;
-  NVEC_HIP_CONTENT(x)->reduce_exec_policy = reduce_exec_policy;
-  NVEC_HIP_CONTENT(x)->own_exec = SUNFALSE;
+  /* Reset the policy if it is null */
+
+  if (stream_exec_policy == NULL)
+    NVEC_HIP_CONTENT(x)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
+  else
+    NVEC_HIP_CONTENT(x)->stream_exec_policy = stream_exec_policy->clone();
+
+  if (reduce_exec_policy == NULL)
+    NVEC_HIP_CONTENT(x)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
+  else
+    NVEC_HIP_CONTENT(x)->reduce_exec_policy = reduce_exec_policy->clone();
 
   return(0);
 }
+
+/* ----------------------------------------------------------------------------
+ * Copy vector data to the device
+ */
 
 void N_VCopyToDevice_Hip(N_Vector x)
 {
@@ -495,6 +494,10 @@ void N_VCopyToDevice_Hip(N_Vector x)
   SUNDIALS_HIP_VERIFY(hipStreamSynchronize(*NVEC_HIP_STREAM(x)));
 }
 
+/* ----------------------------------------------------------------------------
+ * Copy vector data from the device to the host
+ */
+
 void N_VCopyFromDevice_Hip(N_Vector x)
 {
   int copy_fail;
@@ -514,10 +517,18 @@ void N_VCopyFromDevice_Hip(N_Vector x)
   SUNDIALS_HIP_VERIFY(hipStreamSynchronize(*NVEC_HIP_STREAM(x)));
 }
 
+/* ----------------------------------------------------------------------------
+ * Function to print the a CUDA-based vector to stdout
+ */
+
 void N_VPrint_Hip(N_Vector x)
 {
   N_VPrintFile_Hip(x, stdout);
 }
+
+/* ----------------------------------------------------------------------------
+ * Function to print the a CUDA-based vector to outfile
+ */
 
 void N_VPrintFile_Hip(N_Vector x, FILE *outfile)
 {
@@ -541,6 +552,7 @@ void N_VPrintFile_Hip(N_Vector x, FILE *outfile)
   return;
 }
 
+
 /*
  * -----------------------------------------------------------------
  * implementation of vector operations
@@ -562,15 +574,8 @@ N_Vector N_VCloneEmpty_Hip(N_Vector w)
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Set content */
-  NVEC_HIP_CONTENT(v)->length                        = NVEC_HIP_CONTENT(w)->length;
-  NVEC_HIP_CONTENT(v)->host_data                     = NULL;
-  NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->mem_helper                    = NULL;
-  NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem               = NVEC_HIP_PRIVATE(w)->use_managed_mem;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_dev             = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_host            = NULL;
-  NVEC_HIP_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
+  NVEC_HIP_CONTENT(v)->length          = NVEC_HIP_CONTENT(w)->length;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem = NVEC_HIP_PRIVATE(w)->use_managed_mem;
 
   return(v);
 }
@@ -633,29 +638,26 @@ void N_VDestroy_Hip(N_Vector v)
   if (vcp != NULL)
   {
     /* free items in private content */
+    FreeDeviceCounter(v);
     FreeReductionBuffer(v);
     free(vcp);
     vc->priv = NULL;
   }
 
   /* free items in content */
-  if (vc->own_exec)
-  {
-    delete vc->stream_exec_policy;
-    vc->stream_exec_policy = NULL;
-    delete vc->reduce_exec_policy;
-    vc->reduce_exec_policy = NULL;
-  }
-
   if (NVEC_HIP_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->host_data, nullptr);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->host_data, (void*) NVEC_HIP_STREAM(v));
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->device_data, nullptr);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->device_data, (void*) NVEC_HIP_STREAM(v));
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
   }
+
+  /* we can delete the exec policies now that we are done with the streams */
+  delete vc->stream_exec_policy;
+  delete vc->reduce_exec_policy;
 
   /* free content struct */
   free(vc);
@@ -677,8 +679,13 @@ void N_VConst_Hip(realtype a, N_Vector X)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(setConstKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConst_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  setConstKernel<<<grid, block, shMemSize, stream>>>
+  (
     a,
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_CONTENT(X)->length
@@ -691,8 +698,13 @@ void N_VLinearSum_Hip(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(linearSumKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  linearSumKernel<<<grid, block, shMemSize, stream>>>
+  (
     a,
     NVEC_HIP_DDATAp(X),
     b,
@@ -708,8 +720,14 @@ void N_VProd_Hip(N_Vector X, N_Vector Y, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(prodKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VProd_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+
+  prodKernel<<<grid, block, shMemSize, stream>>>
+  (
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Y),
     NVEC_HIP_DDATAp(Z),
@@ -723,8 +741,13 @@ void N_VDiv_Hip(N_Vector X, N_Vector Y, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(divKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDiv_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  divKernel<<<grid, block, shMemSize, stream>>>
+  (
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Y),
     NVEC_HIP_DDATAp(Z),
@@ -738,8 +761,13 @@ void N_VScale_Hip(realtype a, N_Vector X, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(scaleKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScale_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  scaleKernel<<<grid, block, shMemSize, stream>>>
+  (
     a,
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Z),
@@ -753,8 +781,13 @@ void N_VAbs_Hip(N_Vector X, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(absKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VAbs_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  absKernel<<<grid, block, shMemSize, stream>>>
+  (
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Z),
     NVEC_HIP_CONTENT(X)->length
@@ -767,8 +800,13 @@ void N_VInv_Hip(N_Vector X, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(invKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VInv_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  invKernel<<<grid, block, shMemSize, stream>>>
+  (
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Z),
     NVEC_HIP_CONTENT(X)->length
@@ -781,8 +819,13 @@ void N_VAddConst_Hip(N_Vector X, realtype b, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(addConstKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VAddConst_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  addConstKernel<<<grid, block, shMemSize, stream>>>
+  (
     b,
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Z),
@@ -793,77 +836,152 @@ void N_VAddConst_Hip(N_Vector X, realtype b, N_Vector Z)
 
 realtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  // When using atomic reductions, we only need one output value
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(dotProdKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DDATAp(Y),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    dotProdKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(Y),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    dotProdKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(Y),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return gpu_result;
 }
 
 realtype N_VMaxNorm_Hip(N_Vector X)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNorm_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  // When using atomic reductions, we only need one output value
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNorm_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(maxNormKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    maxNormKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    maxNormKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Finish reduction on CPU if there are less than two blocks of data left.
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return gpu_result;
 }
 
 realtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumLocal_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumLocal_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(wL2NormSquareKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DDATAp(W),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(W),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(W),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return gpu_result;
 }
@@ -876,27 +994,53 @@ realtype N_VWrmsNorm_Hip(N_Vector X, N_Vector W)
 
 realtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumMaskLocal_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumMaskLocal_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(wL2NormSquareMaskKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DDATAp(W),
-    NVEC_HIP_DDATAp(Id),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    wL2NormSquareMaskKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(W),
+      NVEC_HIP_DDATAp(Id),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    wL2NormSquareMaskKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(W),
+      NVEC_HIP_DDATAp(Id),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return gpu_result;
 }
@@ -909,28 +1053,51 @@ realtype N_VWrmsNormMask_Hip(N_Vector X, N_Vector W, N_Vector Id)
 
 realtype N_VMin_Hip(N_Vector X)
 {
-  const realtype maxVal = std::numeric_limits<realtype>::max();
-
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, maxVal))
+  realtype gpu_result = std::numeric_limits<realtype>::max();
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMin_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMin_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(findMinKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    maxVal,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    findMinKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      gpu_result,
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    findMinKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      gpu_result,
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return gpu_result;
 }
@@ -943,25 +1110,49 @@ realtype N_VWL2Norm_Hip(N_Vector X, N_Vector W)
 
 realtype N_VL1Norm_Hip(N_Vector X)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VL1Norm_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VL1Norm_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(L1NormKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    L1NormKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    L1NormKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return gpu_result;
 }
@@ -971,8 +1162,13 @@ void N_VCompare_Hip(realtype c, N_Vector X, N_Vector Z)
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  GetKernelParameters(X, false, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(compareKernel, grid, block, shMemSize, stream,
+  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VCompare_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  compareKernel<<<grid, block, shMemSize, stream>>>
+  (
     c,
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DDATAp(Z),
@@ -983,82 +1179,157 @@ void N_VCompare_Hip(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VInvTest_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VInvTest_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(invTestKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DDATAp(Z),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    invTestKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(Z),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    invTestKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(Z),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return (gpu_result < HALF);
 }
 
 booleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
 {
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(X, ZERO))
+  realtype gpu_result = ZERO;
+
+  if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstrMask_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstrMask_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(X, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(constrMaskKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    NVEC_HIP_DDATAp(C),
-    NVEC_HIP_DDATAp(X),
-    NVEC_HIP_DDATAp(M),
-    NVEC_HIP_DBUFFERp(X),
-    NVEC_HIP_CONTENT(X)->length
-  );
+  if (atomic)
+  {
+    constrMaskKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(C),
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(M),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    constrMaskKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      NVEC_HIP_DDATAp(C),
+      NVEC_HIP_DDATAp(X),
+      NVEC_HIP_DDATAp(M),
+      NVEC_HIP_DBUFFERp(X),
+      NVEC_HIP_CONTENT(X)->length,
+      NVEC_HIP_DCOUNTERp(X)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(X)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(X)[0];
 
   return (gpu_result < HALF);
 }
 
 realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
 {
-  // Starting value for min reduction
-  const realtype maxVal = std::numeric_limits<realtype>::max();
+  bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  if (InitializeReductionBuffer(num, maxVal))
+  realtype gpu_result = std::numeric_limits<realtype>::max();;
+
+  if (GetKernelParameters(num, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMinQuotient_Hip: GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(num, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMinQuotient_Hip: InitializeReductionBuffer returned nonzero\n");
   }
 
-  GetKernelParameters(num, true, grid, block, shMemSize, stream);
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(minQuotientKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    maxVal,
-    NVEC_HIP_DDATAp(num),
-    NVEC_HIP_DDATAp(denom),
-    NVEC_HIP_DBUFFERp(num),
-    NVEC_HIP_CONTENT(num)->length
-  );
+  if (atomic)
+  {
+    minQuotientKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      gpu_result,
+      NVEC_HIP_DDATAp(num),
+      NVEC_HIP_DDATAp(denom),
+      NVEC_HIP_DBUFFERp(num),
+      NVEC_HIP_CONTENT(num)->length,
+      nullptr
+    );
+  }
+  else
+  {
+    minQuotientKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      gpu_result,
+      NVEC_HIP_DDATAp(num),
+      NVEC_HIP_DDATAp(denom),
+      NVEC_HIP_DBUFFERp(num),
+      NVEC_HIP_CONTENT(num)->length,
+      NVEC_HIP_DCOUNTERp(num)
+    );
+  }
+
   PostKernelLaunch();
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(num);
-  realtype gpu_result = NVEC_HIP_HBUFFERp(num)[0];
+  gpu_result = NVEC_HIP_HBUFFERp(num)[0];
 
   return gpu_result;
 }
@@ -1098,7 +1369,7 @@ int N_VLinearCombination_Hip(int nvec, realtype* c, N_Vector* X, N_Vector Z)
   hipStream_t stream;
 
   if (GetKernelParameters(X[0], false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(linearCombinationKernel, grid, block, shMemSize, stream,
+  linearCombinationKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     d_c,
     d_Xd,
@@ -1158,7 +1429,7 @@ int N_VScaleAddMulti_Hip(int nvec, realtype* c, N_Vector X, N_Vector* Y,
   hipStream_t stream;
 
   if (GetKernelParameters(X, false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(scaleAddMultiKernel, grid, block, shMemSize, stream,
+  scaleAddMultiKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     d_c,
     NVEC_HIP_DDATAp(X),
@@ -1213,7 +1484,7 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, realtype* dots)
   err = hipMemsetAsync(d_buff, 0, grid*sizeof(realtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(dotProdMultiKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
+  dotProdMultiKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
     nvec,
     NVEC_HIP_DDATAp(X),
     d_Yd,
@@ -1287,7 +1558,7 @@ int N_VLinearSumVectorArray_Hip(int nvec, realtype a, N_Vector* X, realtype b,
   hipStream_t stream;
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(linearSumVectorArrayKernel, grid, block, shMemSize, stream,
+  linearSumVectorArrayKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     a,
     d_Xd,
@@ -1352,7 +1623,7 @@ int N_VScaleVectorArray_Hip(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   hipStream_t stream;
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(scaleVectorArrayKernel, grid, block, shMemSize, stream,
+  scaleVectorArrayKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     d_c,
     d_Xd,
@@ -1397,7 +1668,7 @@ int N_VConstVectorArray_Hip(int nvec, realtype c, N_Vector* Z)
   hipStream_t stream;
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(constVectorArrayKernel, grid, block, shMemSize, stream,
+  constVectorArrayKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     c,
     d_Zd,
@@ -1455,7 +1726,7 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   err = hipMemsetAsync(d_buff, 0, grid*sizeof(realtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(wL2NormSquareVectorArrayKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
+  wL2NormSquareVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
     nvec,
     d_Xd,
     d_Wd,
@@ -1528,7 +1799,7 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   err = hipMemsetAsync(d_buff, 0, grid*sizeof(realtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  hipLaunchKernelGGL(HIP_KERNEL_NAME(wL2NormSquareMaskVectorArrayKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
+  wL2NormSquareMaskVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
     nvec,
     d_Xd,
     d_Wd,
@@ -1612,7 +1883,7 @@ int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, realtype* c,
   hipStream_t stream;
 
   if (GetKernelParameters(Z[0][0], false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(scaleAddMultiVectorArrayKernel, grid, block, shMemSize, stream,
+  scaleAddMultiVectorArrayKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     nsum,
     d_c,
@@ -1681,7 +1952,7 @@ int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, realtype* c,
   hipStream_t stream;
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream)) return(-1);
-  hipLaunchKernelGGL(linearCombinationVectorArrayKernel, grid, block, shMemSize, stream,
+  linearCombinationVectorArrayKernel<<<grid, block, shMemSize, stream>>>(
     nvec,
     nsum,
     d_c,
@@ -1741,7 +2012,7 @@ int N_VBufPack_Hip(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, nullptr);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, (void*) NVEC_HIP_STREAM(x));
 
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -1766,7 +2037,7 @@ int N_VBufUnpack_Hip(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, nullptr);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, (void*) NVEC_HIP_STREAM(x));
 
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -1777,6 +2048,7 @@ int N_VBufUnpack_Hip(N_Vector x, void *buf)
  * Enable / Disable fused and vector array operations
  * -----------------------------------------------------------------
  */
+
 
 int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
 {
@@ -2008,6 +2280,8 @@ int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
+} // extern "C"
+
 /*
  * Private helper functions.
  */
@@ -2024,7 +2298,7 @@ int AllocateData(N_Vector v)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
                                        NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_UVM,
-                                       nullptr);
+                                       (void*) NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -2035,7 +2309,7 @@ int AllocateData(N_Vector v)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->host_data),
                                        NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_HOST,
-                                       nullptr);
+                                       (void*) NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2043,7 +2317,7 @@ int AllocateData(N_Vector v)
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
                                        NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_DEVICE,
-                                       nullptr);
+                                       (void*) NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2060,42 +2334,47 @@ int AllocateData(N_Vector v)
  * of the vector is increased. The buffer is initialized to the
  * value given.
  */
-int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
 {
-  int alloc_fail = 0, copy_fail = 0;
-  size_t bytes = sizeof(realtype);
-  booleantype need_to_allocate = SUNFALSE;
-  N_PrivateVectorContent_Hip vcp = NVEC_HIP_PRIVATE(v);
-  SUNMemory value_mem = SUNMemoryHelper_Wrap((void*) &value, SUNMEMTYPE_HOST);
+  int         alloc_fail = 0;
+  int         copy_fail  = 0;
+  booleantype alloc_mem  = SUNFALSE;
+  size_t      bytes      = n * sizeof(realtype);
 
-  /* we allocate if the existing reduction buffer is not large enough */
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Hip vcp = NVEC_HIP_PRIVATE(v);
+
+  // Check if the existing reduction memory is not large enough
   if (vcp->reduce_buffer_allocated_bytes < bytes)
   {
     FreeReductionBuffer(v);
-    need_to_allocate = SUNTRUE;
+    alloc_mem = SUNTRUE;
   }
 
-  if (need_to_allocate)
+  if (alloc_mem)
   {
+    // Allocate pinned memory on the host
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED, nullptr);
+                                       SUNMEMTYPE_PINNED, (void*) NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
 
-      /* try to allocate just plain host memory instead */
+      // If pinned alloc failed, allocate plain host memory
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST, nullptr);
+                                         SUNMEMTYPE_HOST, (void*) NVEC_HIP_STREAM(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
       }
     }
+
+    // Allocate device memory
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE, nullptr);
+                                       SUNMEMTYPE_DEVICE, (void*) NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2104,12 +2383,16 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
 
   if (!alloc_fail)
   {
-    /* store the size of the buffer */
+    // Store the size of the reduction memory buffer
     vcp->reduce_buffer_allocated_bytes = bytes;
 
-    /* initialize the memory with the value */
+    // Initialize the host memory with the value
+    for (int i = 0; i < n; ++i)
+      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
+
+    // Initialize the device memory with the value
     copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(v),
-                                          vcp->reduce_buffer_dev, value_mem,
+                                          vcp->reduce_buffer_dev, vcp->reduce_buffer_host,
                                           bytes, (void*) NVEC_HIP_STREAM(v));
 
     if (copy_fail)
@@ -2118,31 +2401,36 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     }
   }
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), value_mem, nullptr);
   return((alloc_fail || copy_fail) ? -1 : 0);
 }
 
 /* Free the reduction buffer
  */
-void FreeReductionBuffer(N_Vector v)
+static void FreeReductionBuffer(N_Vector v)
 {
   N_PrivateVectorContent_Hip vcp = NVEC_HIP_PRIVATE(v);
 
   if (vcp == NULL) return;
 
+  // Free device mem
   if (vcp->reduce_buffer_dev != NULL)
     SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_dev,
-                            nullptr);
+                            (void*) NVEC_HIP_STREAM(v));
   vcp->reduce_buffer_dev  = NULL;
+
+  // Free host mem
   if (vcp->reduce_buffer_host != NULL)
     SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_host,
-                            nullptr);
+                            (void*) NVEC_HIP_STREAM(v));
   vcp->reduce_buffer_host = NULL;
+
+  // Reset allocated memory size
+  vcp->reduce_buffer_allocated_bytes = 0;
 }
 
 /* Copy the reduction buffer from the device to the host.
  */
-int CopyReductionBufferFromDevice(N_Vector v, size_t n)
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 {
   int copy_fail;
   hipError_t cuerr;
@@ -2150,7 +2438,7 @@ int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(v),
                                         NVEC_HIP_PRIVATE(v)->reduce_buffer_host,
                                         NVEC_HIP_PRIVATE(v)->reduce_buffer_dev,
-                                        n*sizeof(realtype),
+                                        n * sizeof(realtype),
                                         (void*) NVEC_HIP_STREAM(v));
 
   if (copy_fail)
@@ -2163,11 +2451,35 @@ int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
 
+static int InitializeDeviceCounter(N_Vector v)
+{
+  int retval = 0;
+  /* AMD hardware does not seem to like atomicInc on pinned memory, so use device memory. */
+  if (NVEC_HIP_PRIVATE(v)->device_counter == NULL)
+  {
+    retval = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
+                                   &(NVEC_HIP_PRIVATE(v)->device_counter), sizeof(unsigned int),
+                                   SUNMEMTYPE_DEVICE, (void*) NVEC_HIP_STREAM(v));
+  }
+  hipMemsetAsync(NVEC_HIP_DCOUNTERp(v), 0, sizeof(unsigned int), *NVEC_HIP_STREAM(v));
+  return retval;
+}
+
+static int FreeDeviceCounter(N_Vector v)
+{
+  int retval = 0;
+  if (NVEC_HIP_PRIVATE(v)->device_counter)
+    retval = SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), NVEC_HIP_PRIVATE(v)->device_counter,
+                                     (void*) NVEC_HIP_STREAM(v));
+  return retval;
+}
+
 /* Get the kernel launch parameters based on the kernel type (reduction or not),
  * using the appropriate kernel execution policy.
  */
-int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
-                        size_t& shMemSize, hipStream_t& stream, size_t n)
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+                               size_t& block, size_t& shMemSize,
+                               hipStream_t& stream, bool& atomic, size_t n)
 {
   n = (n == 0) ? NVEC_HIP_CONTENT(v)->length : n;
   if (reduction)
@@ -2177,10 +2489,23 @@ int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t&
     block     = reduce_exec_policy->blockSize();
     shMemSize = 0;
     stream    = *(reduce_exec_policy->stream());
-    if (block % warpSize)
+    atomic    = reduce_exec_policy->atomic();
+
+    if (!atomic)
+    {
+      if (InitializeDeviceCounter(v))
+      {
+  #ifdef SUNDIALS_DEBUG
+        throw std::runtime_error("SUNMemoryHelper_Alloc returned nonzero\n");
+  #endif
+        return(-1);
+      }
+    }
+
+    if (block % sundials::hip::WARP_SIZE)
     {
 #ifdef SUNDIALS_DEBUG
-      throw std::runtime_error("the block size must be a multiple must be of HIP warp size");
+      throw std::runtime_error("the block size must be a multiple must be of the HIP warp size");
 #endif
       return(-1);
     }
@@ -2192,6 +2517,7 @@ int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t&
     block     = stream_exec_policy->blockSize();
     shMemSize = 0;
     stream    = *(stream_exec_policy->stream());
+    atomic    = false;
   }
 
   if (grid == 0)
@@ -2212,17 +2538,22 @@ int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t&
   return(0);
 }
 
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+                               size_t& block, size_t& shMemSize, hipStream_t& stream,
+                               size_t n)
+{
+  bool atomic;
+  return GetKernelParameters(v, reduction, grid, block, shMemSize, stream, atomic, n);
+}
+
 /* Should be called after a kernel launch.
  * If SUNDIALS_DEBUG_HIP_LASTERROR is not defined, then the function does nothing.
  * If it is defined, the function will synchronize and check the last HIP error.
  */
-void PostKernelLaunch()
+static void PostKernelLaunch()
 {
 #ifdef SUNDIALS_DEBUG_HIP_LASTERROR
   hipDeviceSynchronize();
   SUNDIALS_HIP_VERIFY(hipGetLastError());
 #endif
 }
-
-
-} // extern "C"

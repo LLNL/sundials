@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos, Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -17,7 +17,7 @@
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
 
-#include "sundials_export.h"
+#include "sundials/sundials_export.h"
 
 #ifndef SUNDIALS_DEPRECATED_MSG
 #  define SUNDIALS_DEPRECATED_MSG(msg) @SUNDIALS_DEPRECATED_MSG_MACRO@

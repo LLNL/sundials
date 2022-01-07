@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -85,6 +85,29 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 
 Changes from previous versions
 ==============================
+
+Changes in vx.x.x
+-----------------
+
+Additionally export ``SUNDIALS::<lib>`` targets with no static/shared suffix for
+use within the build directory (this mirrors how the targets are exported upon
+installation).
+
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+
+Added new reduction implementations for the CUDA and HIP NVECTORs that use
+shared memory (local data storage) instead of atomics. These new implementations
+are recommended when the target hardware does not provide atomic support for the
+floating point precision that SUNDIALS is being built with. The HIP vector uses
+these by default, but the :c:func:`N_VSetKernelExecPolicy_Cuda` and
+:c:func:`N_VSetKernelExecPolicy_Hip` functions can be used to choose between
+different reduction implementations.
+
+:cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
+
+Fixed ``sundials_export.h`` include in ``sundials_config.h``.
+
+Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
 
 Changes in v5.0.0
 -----------------

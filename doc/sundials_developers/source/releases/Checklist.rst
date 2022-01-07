@@ -2,7 +2,7 @@
    Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -80,6 +80,7 @@ web pages.
 #. Update version numbers and release date information using the ``updateVerson.sh``
    script. This will update the following files:
 
+   * ``CITATIONS.md``
    * ``CMakeLists.txt``
    * ``README.md``
    * ``src/arkode/README``
