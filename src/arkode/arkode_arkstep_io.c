@@ -326,7 +326,7 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->linear_timedep   = SUNTRUE;        /* dfi/dy depends on t */
   step_mem->explicit         = SUNTRUE;        /* fe(t,y) will be used */
   step_mem->implicit         = SUNTRUE;        /* fi(t,y) will be used */
-  step_mem->implicit_reeval  = SUNFALSE;       /* evaluate fi on result of NLS */
+  step_mem->implicit_reeval  = SUNTRUE;        /* evaluate fi on result of NLS */
   step_mem->maxcor           = MAXCOR;         /* max nonlinear iters/stage */
   step_mem->nlscoef          = NLSCOEF;        /* nonlinear tolerance coefficient */
   step_mem->crdown           = CRDOWN;         /* nonlinear convergence estimate coeff. */
