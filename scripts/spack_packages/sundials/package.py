@@ -555,7 +555,7 @@ class Sundials(CMakePackage, CudaPackage, ROCmPackage):
         cfg.write("# Generated host-config - Edit at own risk!\n")
         cfg.write("###################\n".format("#" * 60))
         cfg.write("# SUNDIALS Copyright Start")
-        cfg.write("# Copyright (c) 2002-2021, Lawrence Livermore National Security, LLC and\n")
+        cfg.write("# Copyright (c) 2002-2022, Lawrence Livermore National Security, LLC and\n")
         cfg.write("# Southern Methodist University.\n")
         cfg.write("# All rights reserved.\n")
         cfg.write("#\n")

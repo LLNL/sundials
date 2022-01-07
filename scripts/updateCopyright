@@ -92,10 +92,11 @@ $|=1;
 
 my $end_of_line = $/;
 
+my $endyear = '2022';
 
-my $newCopyright = <<END;
+my $newCopyright = <<"END";
  # SUNDIALS Copyright Start
- # Copyright (c) 2002-2021, Lawrence Livermore National Security
+ # Copyright (c) 2002-$endyear, Lawrence Livermore National Security
  # and Southern Methodist University.
  # All rights reserved.
  #
@@ -109,12 +110,13 @@ END
 my $fileExcludePattern=q!/(.git)$!;
 
 ##############################################################################
-## Replace in LICENSE and doc files
+# Replace copyright year in cases without copyright "Start" and "End" markers
+# e.g., LICENSE file, doc file text, and python strings
 ##############################################################################
 
-my $docFilePattern    = q!(LICENSE|\.tex|\.rst)$!;
+my $docFilePattern    = q!(LICENSE|\.tex|\.rst|\.py)$!;
 my $docReplacePattern = 'Copyright \(c\) (.*?),';
-my $docNewCopyright   = 'Copyright (c) 2002-2021,';
+my $docNewCopyright   = "Copyright (c) 2002-$endyear,";
 
 replaceInFiles($docFilePattern,$fileExcludePattern,$docReplacePattern,$docNewCopyright);
 
@@ -137,7 +139,7 @@ replaceInFiles($cFilePattern,$fileExcludePattern,$cReplacePattern,$cNewCopyright
 
 my $fFilePattern    = q!(\.f|\.f90|\.in)$!;
 my $fReplacePattern = '! (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
-my $fNewCopyright = $newCopyright;
+my $fNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
 $fNewCopyright =~ s/ #/!/g;
@@ -215,7 +217,7 @@ replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright
 ## Replace in rst files
 ##############################################################################
 
-my $rstFilePattern    = q!(\.rst)$!;
+my $rstFilePattern    = q!(\.rst|\.rest)$!;
 my $rstReplacePattern = '   (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
 my $rstNewCopyright   = $newCopyright;
 
@@ -224,6 +226,19 @@ $rstNewCopyright =~ s/ # /   /g;
 $rstNewCopyright =~ s/ #//g;
 
 replaceInFiles($rstFilePattern,$fileExcludePattern,$rstReplacePattern,$rstNewCopyright);
+
+#############################################################################
+# Replace in LateX/BibTeX files
+#############################################################################
+
+my $texFilePattern    = q!(\.tex|\.bib)$!;
+my $texReplacePattern = '% (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $texNewCopyright   = $newCopyright;
+
+# replace comment character(s) in new copyright
+$texNewCopyright =~ s/ #/\%/g;
+
+replaceInFiles($texFilePattern,$fileExcludePattern,$texReplacePattern,$texNewCopyright);
 
 #############################################################################
 # Replace in Matlab files

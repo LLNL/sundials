@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -53,8 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for SUNDIALS'
-# copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
-copyright= u'Copyright (c) 2002-2021, Lawrence Livermore National Security and Southern Methodist University.'
+copyright = u'Copyright (c) 2002-2022, Lawrence Livermore National Security and Southern Methodist University.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

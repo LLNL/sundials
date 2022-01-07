@@ -4,7 +4,7 @@ c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
 c     --------------------------------------------------------------------
 C     SUNDIALS Copyright Start
-C     Copyright (c) 2002-2021, Lawrence Livermore National Security
+C     Copyright (c) 2002-2022, Lawrence Livermore National Security
 C     and Southern Methodist University.
 C     All rights reserved.
 C
