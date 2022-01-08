@@ -1614,6 +1614,28 @@ int arkGetNumErrTestFails(void *arkode_mem, long int *netfails)
   return(ARK_SUCCESS);
 }
 
+
+/*---------------------------------------------------------------
+  arkGetUserData:
+
+  Returns the user data pointer
+  ---------------------------------------------------------------*/
+int arkGetUserData(void *arkode_mem, void** user_data)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkGetUserData", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  *user_data = ark_mem->user_data;
+
+  return(ARK_SUCCESS);
+}
+
+
 /*-----------------------------------------------------------------*/
 
 char *arkGetReturnFlagName(long int flag)

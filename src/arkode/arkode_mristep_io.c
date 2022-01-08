@@ -109,6 +109,8 @@ int MRIStepGetNumGEvals(void *arkode_mem, long int *ngevals) {
   return(arkGetNumGEvals(arkode_mem, ngevals)); }
 int MRIStepGetRootInfo(void *arkode_mem, int *rootsfound) {
   return(arkGetRootInfo(arkode_mem, rootsfound)); }
+int ERKStepGetUserData(void *arkode_mem, void** user_data) {
+  return(arkGetUserData(arkode_mem, user_data)); }
 char *MRIStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 

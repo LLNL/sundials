@@ -1010,6 +1010,7 @@ int arkGetNumErrTestFails(void *arkode_mem, long int *netfails);
 int arkGetStepStats(void *arkode_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);
+int arkGetUserData(void *arkode_mem, void** user_data);
 char *arkGetReturnFlagName(long int flag);
 
 

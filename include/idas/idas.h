@@ -297,6 +297,7 @@ SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem,
                                                  long int *nncfails);
 SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
                                           long int *nncfails);
+SUNDIALS_EXPORT int IDAGetUserData(void *cvode_mem, void** user_data);
 SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 /* Free function */

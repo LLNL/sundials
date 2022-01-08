@@ -292,6 +292,7 @@ SUNDIALS_EXPORT int CVodeGetNumNonlinSolvConvFails(void *cvode_mem,
                                                    long int *nncfails);
 SUNDIALS_EXPORT int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                                             long int *nncfails);
+SUNDIALS_EXPORT int CVodeGetUserData(void *cvode_mem, void** user_data);
 SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
 /* Free function */
