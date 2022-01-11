@@ -10,6 +10,7 @@
 *.directory
 /.pydevproject
 /tarballs
+/thirdparty
 
 # custom test environment setup script
 /test/env/env.sh

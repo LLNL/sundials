@@ -18,6 +18,7 @@
 # Examples using SUNDIALS Ginkgo dense matrix
 set(sunmatrix_ginkgo_examples
   "test_sunmatrix_ginkgo.cpp\;100 100 1 0\;"
+  "test_sunmatrix_ginkgoblock.cpp\;100 100 1 0\;"
   # "test_sunmatrix_ginkgo.cpp\;200 1000 1 0\;"
   # "test_sunmatrix_ginkgo.cpp\;2000 100 1 0\;"
   # "test_sunmatrix_ginkgo.cpp\;10 10 100 0\;"
@@ -32,20 +33,22 @@ include_directories(..)
 foreach(example_tuple ${sunmatrix_ginkgo_examples})
   foreach(backend ${GINKGO_BACKENDS})
 
-    if(backend MATCHES "CUDA")
-      set_source_files_properties(test_sunmatrix_ginkgo.cpp PROPERTIES LANGUAGE CUDA)
-      set(vector nveccuda)
-    elseif(backend MATCHES "HIP")
-      set_source_files_properties(test_sunmatrix_ginkgo.cpp PROPERTIES LANGUAGE CXX)
-      set(vector nvechip)
-    elseif(backend MATCHES "OMP")
-      set(vector nvecserial)
-    endif()
-
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
+
+    message(">>>>> ${example}")
+
+    if(backend MATCHES "CUDA")
+      set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+      set(vector nveccuda)
+    elseif(backend MATCHES "HIP")
+      set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
+      set(vector nvechip)
+    elseif(backend MATCHES "OMP")
+      set(vector nvecserial)
+    endif()
 
     # extract the file name without extension
     get_filename_component(example_target ${example} NAME_WE)

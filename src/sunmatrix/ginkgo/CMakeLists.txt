@@ -20,7 +20,8 @@ sundials_add_library(sundials_sunmatrixginkgo
     sunmatrix_ginkgodense.cpp
     sunmatrix_ginkgocsr.cpp
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.h
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgoblock.hpp
   INCLUDE_SUBDIR
     sunmatrix
   OBJECT_LIBRARIES
