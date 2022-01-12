@@ -1,5 +1,5 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
-### Version 6.0.0 (Dec 2021) ###
+### Version 6.1.0 (Jan 2022) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 

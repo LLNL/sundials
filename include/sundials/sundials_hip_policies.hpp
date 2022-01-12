@@ -13,7 +13,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This header files defines the ExecPolicy classes which
- * are utilized to determine HIP kernel launch paramaters.
+ * are utilized to determine HIP kernel launch parameters.
  * -----------------------------------------------------------------
  */
 
