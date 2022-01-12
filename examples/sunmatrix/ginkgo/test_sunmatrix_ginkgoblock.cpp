@@ -95,19 +95,19 @@ int main(int argc, char* argv[])
 int check_vector_entries(VecType* x, sunrealtype expected)
 {
   int fails = 0;
-  // x->get_executor()->synchronize();
-  // auto arr = x->get_const_values();
-  // for (int i = 0; i < x->get_size()[0]; ++i)
-  //   fails += arr[i] != expected;
+  x->get_executor()->synchronize();
+  auto arr = x->get_const_values();
+  for (int i = 0; i < x->get_size().at(0)[0]; ++i)
+    fails += arr[i] != expected;
   return fails;
 }
 
 int check_vector_entries(NvectorType& x, sunrealtype expected)
 {
   int fails = 0;
-  // auto arr = x.get_const_values();
-  // for (int i = 0; i < N_VGetLength(x); ++i)
-  //   fails += arr[i] != expected;
+  auto arr = x.get_const_values();
+  for (int i = 0; i < N_VGetLength(x); ++i)
+    fails += arr[i] != expected;
   return fails;
 }
 
@@ -124,11 +124,11 @@ int Test_Constructor(sundials::Context& sunctx, std::shared_ptr<gko::Executor> g
   auto b = VecType::create(gko_exec, gko::batch_dim<>(1, gko::dim<2>(2, 1)));
   // b->fill(0.0);
 
-  // Fill(A, 1.0);
+  Fill(A, 1.0);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
-  // Fill(B, 1.0);
+  Fill(B, 1.0);
   ScaleAddI(1.0, B);
   Matvec(B, x.get(), b.get());
   assert(check_vector_entries(b.get(), 3.0) == 0);
@@ -151,11 +151,11 @@ int Test_CopyConstructor(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   auto b = VecType::create(gko_exec, gko::batch_dim<>(1, gko::dim<2>(2, 1)));
   // b->fill(0.0);
 
-  // Fill(A, 1.0);
+  Fill(A, 1.0);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
-  // Fill(B, 1.0);
+  Fill(B, 1.0);
   ScaleAddI(1.0, B);
   Matvec(B, x.get(), b.get());
   assert(check_vector_entries(b.get(), 3.0) == 0);
@@ -183,7 +183,7 @@ int Test_CppInterface(sundials::Context& sunctx, std::shared_ptr<gko::Executor> 
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
-  // Fill(B, 1.0);
+  Fill(B, 1.0);
   ScaleAdd(1.0, A, B);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 4.0) == 0);

@@ -8,6 +8,11 @@
 extern "C" {
 #endif
 
+constexpr static int debug_print_off = 0;
+#define debugstream \
+    if (debug_print_off) {} \
+    else std::cerr
+
 //
 // Dense
 //
@@ -83,7 +88,13 @@ public:
 
   void Zero()
   {
-    gkomtx_ = gko::share(GkoBatchMatType::create(gkoexec(), gkodim()));
+    // TODO: determine if we can just reset the matrix instead of zeroing,
+    //       or if we need to actually fill it with zeros
+    // gkomtx_ = gko::share(gkomtx_->clone());
+    debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
+    // const auto zero = gko::batch_initialize<GkoBatchMatType>(numBlocks(), {0.0}, gkoexec());
+    // gkomtx_->apply(zero.get(), gkomtx_.get(), zero.get(), gkomtx_.get());
+    Fill(*this, 0.0);
   }
 
 private:
@@ -234,13 +245,16 @@ void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A, BlockMatrix<
 template<>
 inline void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchDenseMat>& A, BlockMatrix<GkoBatchDenseMat>& B)
 {
-  auto I = CreateBatchIdentity<GkoDenseMat, GkoBatchDenseMat>(A);
-  auto one = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
-  auto constant = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
+  debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
+  const auto I = CreateBatchIdentity<GkoDenseMat, GkoBatchDenseMat>(A);
+  const auto one = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
+  const auto constant = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
+  // TODO: this is not implemented for CUDA (dense or csr) and OMP (csr)
+  // A = B + cA
   I->apply(
-    GkoBatchDenseMat::create(A.gkoexec(), A.numBlocks(), one.get()).get(),
+    one.get(),
     B.gkomtx().get(),
-    GkoBatchDenseMat::create(A.gkoexec(), A.numBlocks(), constant.get()).get(),
+    constant.get(),
     A.gkomtx().get()
   );
 }
@@ -248,13 +262,16 @@ inline void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchDenseMat>& A, Bloc
 template<>
 inline void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A, BlockMatrix<GkoBatchCsrMat>& B)
 {
-  auto I = CreateBatchIdentity<GkoCsrMat, GkoBatchCsrMat>(A);
-  auto one = gko::initialize<GkoCsrMat>({1.0}, A.gkoexec());
-  auto constant = gko::initialize<GkoCsrMat>({c}, A.gkoexec());
+  debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
+  const auto I = CreateBatchIdentity<GkoCsrMat, GkoBatchCsrMat>(A);
+  const auto one = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {1.0}, A.gkoexec());
+  const auto constant = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {c}, A.gkoexec());
+  // TODO: this is not implemented for CUDA (dense or csr) and OMP (csr)
+  // A = B + cA
   I->apply(
-    GkoBatchCsrMat::create(A.gkoexec(), A.numBlocks(), one.get()).get(),
+    one.get(),
     B.gkomtx().get(),
-    GkoBatchCsrMat::create(A.gkoexec(), A.numBlocks(), constant.get()).get(),
+    constant.get(),
     A.gkomtx().get()
   );
 }
@@ -268,13 +285,16 @@ void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)
 template<>
 inline void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchDenseMat>& A)
 {
-  auto I = CreateBatchIdentity<GkoDenseMat, GkoBatchDenseMat>(A);
-  auto one = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
-  auto constant = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
+  debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
+  const auto I = CreateBatchIdentity<GkoDenseMat, GkoBatchDenseMat>(A);
+  const auto one = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
+  const auto constant = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
+  // TODO: this is not implemented for CUDA (dense or csr) and OMP (csr)
+  // A = I + cA
   I->apply(
-    GkoBatchDenseMat::create(A.gkoexec(), A.numBlocks(), one.get()).get(),
+    one.get(),
     I.get(),
-    GkoBatchDenseMat::create(A.gkoexec(), A.numBlocks(), constant.get()).get(),
+    constant.get(),
     A.gkomtx().get()
   );
 }
@@ -282,30 +302,31 @@ inline void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchDenseMat>& A)
 template<>
 inline void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A)
 {
-  auto I = CreateBatchIdentity<GkoCsrMat, GkoBatchCsrMat>(A);
-  auto one = gko::initialize<GkoCsrMat>({1.0}, A.gkoexec());
-  auto constant = gko::initialize<GkoCsrMat>({c}, A.gkoexec());
+  debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
+  const auto I = CreateBatchIdentity<GkoCsrMat, GkoBatchCsrMat>(A);
+  const auto one = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {1.0}, A.gkoexec());
+  const auto constant = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {c}, A.gkoexec());
+  // TODO: this is not implemented for CUDA (dense or csr) and OMP (csr)
+  // A = I + cA
   I->apply(
-    GkoBatchCsrMat::create(A.gkoexec(), A.numBlocks(), one.get()).get(),
+    one.get(),
     I.get(),
-    GkoBatchCsrMat::create(A.gkoexec(), A.numBlocks(), constant.get()).get(),
+    constant.get(),
     A.gkomtx().get()
   );
 }
 
-// template<typename GkoBatchMatType>
-// void Zero(BlockMatrix<GkoBatchMatType>& A)
-// {
-//   // TODO: Do we need to actually zero the matrix or can we just create a new empty matrix?
-//   Fill(A, 0.0);
-// }
-
 template<typename GkoBatchMatType>
 void Fill(BlockMatrix<GkoBatchMatType>& A, const sunrealtype c)
 {
-  // This will trigger a host-device transfer.
+  // This will trigger a host-device transfer
   // TODO: Look at using gko::device_matrix_data if the executor is a device executor.
-  // A.gkomtx()->read(gko::matrix_data<sunrealtype, sunindextype>(A.gkodim(), c));
+  // TODO: this seems very inefficient
+  using mtxdata = gko::matrix_data<sunrealtype, sunindextype>;
+  auto block = mtxdata(A.blockDim(), c);
+  std::vector<mtxdata> blocks(A.numBlocks());
+  std::fill(blocks.begin(), blocks.end(), block);
+  A.gkomtx()->read(blocks);
 }
 
 template<typename GkoBatchMatType>

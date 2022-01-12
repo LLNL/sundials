@@ -122,7 +122,13 @@ public:
 
   void Zero()
   {
-    // gkomtx_ = gko::share(GkoMatType::create(gkoexec(), gkodim()));
+    // TODO: Figure out the best way to 'zero' the matrix.
+    //       Creating a new one doesn't work because it is
+    //       not initialized to zero, adn the following i
+    //       is not implemented for CSR. So, we use Fill for now.
+    // std::cerr << "\n" << __PRETTY_FUNCTION__ << "\n";
+    // const auto zero = gko::initialize<GkoMatType>({0.0}, gkoexec());
+    // gkomtx()->apply(zero.get(), gkomtx().get(), zero.get(), gkomtx().get());
     Fill(*this, 0.0);
   }
 
@@ -199,6 +205,7 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
     auto y_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(y_len, 1),
       gko::Array<sunrealtype>::view(A.gkoexec(), y_len, y_arr), 1);
 
+    // y = Ax
     A.gkomtx()->apply(x_vec.get(), y_vec.get());
   }
   else
@@ -206,6 +213,8 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
     const sunindextype x_len = N_VGetLength(x);
     auto x_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(x_len, 1),
       gko::Array<sunrealtype>::view(A.gkoexec(), x_len, x_arr), 1);
+
+    // x = Ax
     A.gkomtx()->apply(x_vec.get(), x_vec.get());
   }
 
@@ -227,6 +236,7 @@ template<typename GkoMatType>
 void ScaleAdd(const sunrealtype c, Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
   auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
+  // A = B + cA
   I->apply(
     gko::initialize<GkoDenseMat>({1.0}, A.gkoexec()).get(),
     B.gkomtx().get(),
@@ -239,6 +249,7 @@ template<typename GkoMatType>
 void ScaleAddI(const sunrealtype c, Matrix<GkoMatType>& A)
 {
   auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
+  // A = I + cA
   I->apply(
     gko::initialize<GkoDenseMat>({1.0}, A.gkoexec()).get(),
     I.get(),
@@ -246,13 +257,6 @@ void ScaleAddI(const sunrealtype c, Matrix<GkoMatType>& A)
     A.gkomtx().get()
   );
 }
-
-// template<typename GkoMatType>
-// void Zero(Matrix<GkoMatType>& A)
-// {
-//   // Do we need to actually zero the matrix or can we just create a new empty matrix?
-//   Fill(A, 0.0);
-// }
 
 template<typename GkoMatType>
 void Fill(Matrix<GkoMatType>& A, const sunrealtype c)
