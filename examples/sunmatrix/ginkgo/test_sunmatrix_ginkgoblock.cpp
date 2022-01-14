@@ -124,11 +124,11 @@ int Test_Constructor(sundials::Context& sunctx, std::shared_ptr<gko::Executor> g
   auto b = VecType::create(gko_exec, gko::batch_dim<>(1, gko::dim<2>(2, 1)));
   // b->fill(0.0);
 
-  Fill(A, 1.0);
+  // Fill(A, 1.0);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
-  Fill(B, 1.0);
+  // Fill(B, 1.0);
   ScaleAddI(1.0, B);
   Matvec(B, x.get(), b.get());
   assert(check_vector_entries(b.get(), 3.0) == 0);
@@ -151,11 +151,11 @@ int Test_CopyConstructor(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   auto b = VecType::create(gko_exec, gko::batch_dim<>(1, gko::dim<2>(2, 1)));
   // b->fill(0.0);
 
-  Fill(A, 1.0);
+  // Fill(A, 1.0);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
-  Fill(B, 1.0);
+  // Fill(B, 1.0);
   ScaleAddI(1.0, B);
   Matvec(B, x.get(), b.get());
   assert(check_vector_entries(b.get(), 3.0) == 0);
@@ -177,13 +177,13 @@ int Test_CppInterface(sundials::Context& sunctx, std::shared_ptr<gko::Executor> 
   auto b = VecType::create(gko_exec, gko::batch_dim<>(1, gko::dim<2>(2, 1)));
   // b->fill(0.0);
 
-  A.Zero();
+  Zero(A);
   ScaleAddI(1.0, A);
   ScaleAddI(1.0, A);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 2.0) == 0);
 
-  Fill(B, 1.0);
+  // Fill(B, 1.0);
   ScaleAdd(1.0, A, B);
   Matvec(A, x.get(), b.get());
   assert(check_vector_entries(b.get(), 4.0) == 0);

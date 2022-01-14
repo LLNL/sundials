@@ -28,36 +28,22 @@ SUNMatrix SUNMatrix_GinkgoCsrBlock(std::shared_ptr<gko::Executor> gko_exec,
   return ((SUNMatrix) *mat);
 }
 
-int SUNMatFill_GinkgoCsr(sunrealtype c, SUNMatrix A)
+int SUNMatPrint_GinkgoCsr(SUNMatrix A)
 {
   if (auto Amat = dynamic_cast<ginkgo::Matrix<GkoMatType>*>(GET_CONTENT(A)))
   {
-    ginkgo::Fill(*Amat, c);
+    ginkgo::Print(*Amat);
     return SUNMAT_SUCCESS;
   }
   else if (auto Ablock = dynamic_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(GET_CONTENT(A)))
   {
-    ginkgo::Fill(*Ablock, c);
+    // ginkgo::Print(*Ablock);
     return SUNMAT_SUCCESS;
   }
   else
   {
     return SUNMAT_OPERATION_FAIL;
   }
-}
-
-int SUNMatPrint_GinkgoCsr(SUNMatrix A)
-{
-  // if (auto Amat = dynamic_cast<ginkgo::Matrix<GkoMatType>*>(A->content))
-  // {
-  //   ginkgo::Print(Amat);
-  // }
-  // else
-  // {
-  //   auto Amat = dynamic_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(A->content);
-  //   ginkgo::Print(Amat);
-  // }
-  return SUNMAT_SUCCESS;
 }
 
 //
@@ -109,12 +95,12 @@ int SUNMatZero_GinkgoCsr(SUNMatrix A)
 {
   if (auto Amat = dynamic_cast<ginkgo::Matrix<GkoMatType>*>(GET_CONTENT(A)))
   {
-    Amat->Zero();
+    Zero(*Amat);
     return SUNMAT_SUCCESS;
   }
   else if (auto Ablock = dynamic_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(GET_CONTENT(A)))
   {
-    Ablock->Zero();
+    Zero(*Ablock);
     return SUNMAT_SUCCESS;
   }
   else

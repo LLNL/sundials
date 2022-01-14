@@ -33,7 +33,6 @@ SUNDIALS_EXPORT int SUNMatMatvec_GinkgoDense(SUNMatrix A, N_Vector x, N_Vector y
 SUNDIALS_EXPORT int SUNMatSpace_GinkgoDense(SUNMatrix A, long int *lenrw, long int *leniw);
 
 // Additional functions
-SUNDIALS_EXPORT int SUNMatFill_GinkgoDense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatPrint_GinkgoDense(SUNMatrix A);
 
 //
@@ -58,7 +57,6 @@ SUNDIALS_EXPORT int SUNMatMatvec_GinkgoCsr(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace_GinkgoCsr(SUNMatrix A, long int *lenrw, long int *leniw);
 
 // Additional functions
-SUNDIALS_EXPORT int SUNMatFill_GinkgoCsr(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatPrint_GinkgoCsr(SUNMatrix A);
 
 #ifdef __cplusplus
@@ -130,11 +128,6 @@ public:
   bool isBlockDiagonal() const override { return false; }
 
   long int workspaceSize() const override { return gkodim()[0] * gkodim()[1]; }
-
-  void Zero()
-  {
-    Fill(*this, 0.0);
-  }
 
 private:
   std::shared_ptr<GkoMatType> gkomtx_;
@@ -276,17 +269,15 @@ void ScaleAddI(const sunrealtype c, Matrix<GkoMatType>& A)
 }
 
 template<typename GkoMatType>
-void Fill(Matrix<GkoMatType>& A, const sunrealtype c)
+void Zero(Matrix<GkoMatType>& A)
 {
-  // This will trigger a host-device transfer.
-  // TODO: Look at using gko::device_matrix_data if the executor is a device executor.
-  A.gkomtx()->read(gko::matrix_data<sunrealtype, sunindextype>(A.gkodim(), c));
+  A.gkomtx()->clear();
 }
 
 template<>
-inline void Fill(Matrix<GkoDenseMat>& A, const sunrealtype c)
+inline void Zero(Matrix<GkoDenseMat>& A)
 {
-  A.gkomtx()->fill(c);
+  A.gkomtx()->fill(0.0);
 }
 
 template<typename GkoMatType>

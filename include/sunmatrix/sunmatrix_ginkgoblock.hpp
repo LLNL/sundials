@@ -95,15 +95,6 @@ public:
     return blockDim()[0] * blockDim()[1] * numBlocks();
   }
 
-  void Zero()
-  {
-    // TODO: determine if we can just reset the matrix instead of zeroing,
-    //       or if we need to actually fill it with zeros
-    // gkomtx_ = gko::share(gkomtx_->clone());
-    debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
-    Fill(*this, 0.0);
-  }
-
 private:
   std::shared_ptr<GkoBatchMatType> gkomtx_;
   std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;
@@ -175,15 +166,6 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(const BlockMatrix<GkoBatchCsrMat
   sunmtx_->content = this;
   SUNMatCopyOps(Asun, sunmtx_.get());
 }
-
-template<>
-inline void BlockMatrix<GkoBatchCsrMat>::Zero()
-{
-  gkomtx_ = gko::share(GkoBatchCsrMat::create(
-    gkoexec(), numBlocks(), blockDim()
-  ));
-}
-
 
 //
 // Non-class methods
@@ -324,16 +306,9 @@ inline void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A)
 }
 
 template<typename GkoBatchMatType>
-void Fill(BlockMatrix<GkoBatchMatType>& A, const sunrealtype c)
+void Zero(BlockMatrix<GkoBatchMatType>& A)
 {
-  // This will trigger a host-device transfer
-  // TODO: Look at using gko::device_matrix_data if the executor is a device executor.
-  // TODO: this seems very inefficient
-  using mtxdata = gko::matrix_data<sunrealtype, sunindextype>;
-  auto block = mtxdata(A.blockDim(), c);
-  std::vector<mtxdata> blocks(A.numBlocks());
-  std::fill(blocks.begin(), blocks.end(), block);
-  A.gkomtx()->read(blocks);
+  A.gkomtx()->clear();
 }
 
 template<typename GkoBatchMatType>
