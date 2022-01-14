@@ -1146,7 +1146,7 @@ evaluating :math:`f^I` after each nonlinear solve. Consider, for example,
      f^I(t^I_{n,j}, z_j) = \frac{z_i - a_i}{h_n A^I_{i,i}}
 
 when :math:`z_i` is the exact root. Similar relations hold for non-identity mass
-matrices. This optimization can be enabled with :c:func:`ARKStepSetImplicitReeval()`.
+matrices. This optimization can be enabled with :c:func:`ARKStepSetImplicitReeval`.
 
 In each of the above nonlinear residual functions, if :math:`f^I(t,y)` depends
 nonlinearly on :math:`y` then :eq:`ARKODE_Residual` corresponds to a nonlinear system

@@ -141,6 +141,9 @@ Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
 Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
 
+Added :c:func:`ARKStepSetImplicitReeval` to provide optimization for computing
+function evaluations of implicit stages.
+
 Changes in v5.0.0
 -----------------
 
