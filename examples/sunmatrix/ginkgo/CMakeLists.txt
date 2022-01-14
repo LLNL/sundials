@@ -38,8 +38,6 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
 
-    message(">>>>> ${example}")
-
     if(backend MATCHES "CUDA")
       set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
       set(vector nveccuda)

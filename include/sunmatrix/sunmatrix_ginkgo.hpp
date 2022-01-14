@@ -235,14 +235,27 @@ std::shared_ptr<GkoMatType> CreateIdentity(std::shared_ptr<const gko::Executor> 
 template<typename GkoMatType>
 void ScaleAdd(const sunrealtype c, Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
-  auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
+  throw std::runtime_error("ScaleAdd not implemented for matrix type\n");
+}
+
+template<>
+inline void ScaleAdd(const sunrealtype c, Matrix<GkoDenseMat>& A, Matrix<GkoDenseMat>& B)
+{
+  const auto I = CreateIdentity<GkoDenseMat>(A.gkoexec(), A.gkodim());
+  const auto one = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
+  const auto cmat = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
   // A = B + cA
-  I->apply(
-    gko::initialize<GkoDenseMat>({1.0}, A.gkoexec()).get(),
-    B.gkomtx().get(),
-    gko::initialize<GkoDenseMat>({c}, A.gkoexec()).get(),
-    A.gkomtx().get()
-  );
+  B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
+}
+
+template<>
+inline void ScaleAdd(const sunrealtype c, Matrix<gko::matrix::Csr<sunrealtype>>& A, Matrix<gko::matrix::Csr<sunrealtype>>& B)
+{
+  const auto I = gko::matrix::Identity<sunrealtype>::create(A.gkoexec(), A.gkodim());
+  const auto one = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
+  const auto cmat = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
+  // A = B + cA
+  B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
 }
 
 template<typename GkoMatType>

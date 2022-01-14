@@ -92,8 +92,6 @@ public:
     //       or if we need to actually fill it with zeros
     // gkomtx_ = gko::share(gkomtx_->clone());
     debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
-    // const auto zero = gko::batch_initialize<GkoBatchMatType>(numBlocks(), {0.0}, gkoexec());
-    // gkomtx_->apply(zero.get(), gkomtx_.get(), zero.get(), gkomtx_.get());
     Fill(*this, 0.0);
   }
 
@@ -264,8 +262,8 @@ inline void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A, BlockM
 {
   debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
   const auto I = CreateBatchIdentity<GkoCsrMat, GkoBatchCsrMat>(A);
-  const auto one = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {1.0}, A.gkoexec());
-  const auto constant = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {c}, A.gkoexec());
+  const auto one = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
+  const auto constant = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
   // TODO: this is not implemented for CUDA (dense or csr) and OMP (csr)
   // A = B + cA
   I->apply(
@@ -304,8 +302,8 @@ inline void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A)
 {
   debugstream << "\n>>> Called " << __PRETTY_FUNCTION__ << "\n";
   const auto I = CreateBatchIdentity<GkoCsrMat, GkoBatchCsrMat>(A);
-  const auto one = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {1.0}, A.gkoexec());
-  const auto constant = gko::batch_initialize<GkoBatchCsrMat>(A.numBlocks(), {c}, A.gkoexec());
+  const auto one = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
+  const auto constant = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
   // TODO: this is not implemented for CUDA (dense or csr) and OMP (csr)
   // A = I + cA
   I->apply(
