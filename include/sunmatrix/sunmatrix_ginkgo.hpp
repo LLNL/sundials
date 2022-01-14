@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include <sundials/sundials_matrix.h>
 #include <ginkgo/ginkgo.hpp>
 
@@ -92,9 +94,9 @@ public:
     : gkomtx_(gko::share(GkoMatType::create(A.gkoexec(), A.gkodim())))
   {
     const SUNMatrix Asun = A;
-    sunmtx_ = SUNMatNewEmpty(Asun->sunctx);
+    sunmtx_.reset(SUNMatNewEmpty(Asun->sunctx));
     sunmtx_->content = this;
-    SUNMatCopyOps(Asun, sunmtx_);
+    SUNMatCopyOps(Asun, sunmtx_.get());
   }
 
   Matrix& operator=(const Matrix& A)
@@ -104,11 +106,11 @@ public:
 
   ~Matrix()
   {
-    if (sunmtx_) free(sunmtx_);
+    if (sunmtx_) free(sunmtx_.get());
   }
 
-  operator SUNMatrix() { return sunmtx_; }
-  operator SUNMatrix() const { return sunmtx_; }
+  operator SUNMatrix() { return sunmtx_.get(); }
+  operator SUNMatrix() const { return sunmtx_.get(); }
 
   std::shared_ptr<const gko::Executor> gkoexec() const { return gkomtx_->get_executor(); }
 
@@ -122,19 +124,12 @@ public:
 
   void Zero()
   {
-    // TODO: Figure out the best way to 'zero' the matrix.
-    //       Creating a new one doesn't work because it is
-    //       not initialized to zero, adn the following i
-    //       is not implemented for CSR. So, we use Fill for now.
-    // std::cerr << "\n" << __PRETTY_FUNCTION__ << "\n";
-    // const auto zero = gko::initialize<GkoMatType>({0.0}, gkoexec());
-    // gkomtx()->apply(zero.get(), gkomtx().get(), zero.get(), gkomtx().get());
     Fill(*this, 0.0);
   }
 
 private:
   std::shared_ptr<GkoMatType> gkomtx_;
-  SUNMatrix sunmtx_;
+  std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;
 
 };
 
