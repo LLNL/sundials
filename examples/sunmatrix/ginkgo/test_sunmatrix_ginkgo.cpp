@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     Test_Constructor<MtxType>(sunctx, gko_exec);
     Test_CopyConstructor<MtxType>(sunctx, gko_exec);
     Test_CppInterface<MtxType>(sunctx, gko_exec);
-    Test_CInterfaceDense(sunctx, gko_exec);
+    // Test_CInterfaceDense(sunctx, gko_exec);
   }
   {
     std::cout << ">>>>>>>>>>>>>>>>>>>>>>> TESTING CSR <<<<<<<<<<<<<<<<<<<<<<\n";
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     Test_Constructor<MtxType>(sunctx, gko_exec);
     Test_CopyConstructor<MtxType>(sunctx, gko_exec);
     Test_CppInterface<MtxType>(sunctx, gko_exec);
-    Test_CInterfaceCsr(sunctx, gko_exec);
+    // Test_CInterfaceCsr(sunctx, gko_exec);
   }
   return 0;
 }

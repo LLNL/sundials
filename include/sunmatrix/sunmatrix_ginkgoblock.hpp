@@ -51,7 +51,13 @@ class BlockMatrix : public BaseMatrix
 
 public:
   BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, SUNContext sunctx)
-  { }
+  { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
+
+  BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ, SUNContext sunctx)
+  { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
+
+  BlockMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)
+  { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
 
   BlockMatrix(const BlockMatrix<GkoBatchMatType>& A)
   { }
@@ -130,6 +136,60 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<gko::Executor> g
   : gkomtx_(gko::share(GkoBatchCsrMat::create(
        gko_exec, nblocks, gko::dim<2>(M, N)
      ))),
+    sunmtx_(SUNMatNewEmpty(sunctx))
+{
+  sunmtx_->content = this;
+
+  sunmtx_->ops->clone       = SUNMatClone_GinkgoCsr;
+  sunmtx_->ops->zero        = SUNMatZero_GinkgoCsr;
+  sunmtx_->ops->copy        = SUNMatCopy_GinkgoCsr;
+  sunmtx_->ops->scaleadd    = SUNMatScaleAdd_GinkgoCsr;
+  sunmtx_->ops->scaleaddi   = SUNMatScaleAddI_GinkgoCsr;
+  sunmtx_->ops->matvecsetup = SUNMatMatvecSetup_GinkgoCsr;
+  sunmtx_->ops->matvec      = SUNMatMatvec_GinkgoCsr;
+  sunmtx_->ops->destroy     = SUNMatDestroy_GinkgoCsr;
+  sunmtx_->ops->space       = SUNMatSpace_GinkgoCsr;
+}
+
+template<>
+inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ, SUNContext sunctx)
+  : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, nblocks, gko::dim<2>(M, N), NNZ))),
+    sunmtx_(SUNMatNewEmpty(sunctx))
+{
+  sunmtx_->content = this;
+
+  sunmtx_->ops->clone       = SUNMatClone_GinkgoCsr;
+  sunmtx_->ops->zero        = SUNMatZero_GinkgoCsr;
+  sunmtx_->ops->copy        = SUNMatCopy_GinkgoCsr;
+  sunmtx_->ops->scaleadd    = SUNMatScaleAdd_GinkgoCsr;
+  sunmtx_->ops->scaleaddi   = SUNMatScaleAddI_GinkgoCsr;
+  sunmtx_->ops->matvecsetup = SUNMatMatvecSetup_GinkgoCsr;
+  sunmtx_->ops->matvec      = SUNMatMatvec_GinkgoCsr;
+  sunmtx_->ops->destroy     = SUNMatDestroy_GinkgoCsr;
+  sunmtx_->ops->space       = SUNMatSpace_GinkgoCsr;
+}
+
+template<>
+inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(std::shared_ptr<GkoBatchDenseMat> gko_mat, SUNContext sunctx)
+  : gkomtx_(gko_mat),
+    sunmtx_(SUNMatNewEmpty(sunctx))
+{
+  sunmtx_->content = this;
+
+  sunmtx_->ops->clone       = SUNMatClone_GinkgoDense;
+  sunmtx_->ops->zero        = SUNMatZero_GinkgoDense;
+  sunmtx_->ops->copy        = SUNMatCopy_GinkgoDense;
+  sunmtx_->ops->scaleadd    = SUNMatScaleAdd_GinkgoDense;
+  sunmtx_->ops->scaleaddi   = SUNMatScaleAddI_GinkgoDense;
+  sunmtx_->ops->matvecsetup = SUNMatMatvecSetup_GinkgoDense;
+  sunmtx_->ops->matvec      = SUNMatMatvec_GinkgoDense;
+  sunmtx_->ops->destroy     = SUNMatDestroy_GinkgoDense;
+  sunmtx_->ops->space       = SUNMatSpace_GinkgoDense;
+}
+
+template<>
+inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<GkoBatchCsrMat> gko_mat, SUNContext sunctx)
+  : gkomtx_(gko_mat),
     sunmtx_(SUNMatNewEmpty(sunctx))
 {
   sunmtx_->content = this;
