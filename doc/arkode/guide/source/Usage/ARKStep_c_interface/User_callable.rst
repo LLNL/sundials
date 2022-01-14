@@ -1908,20 +1908,21 @@ the code, is provided in :numref:`ARKODE.Mathematics.Nonlinear`.
 
 .. cssclass:: table-bordered
 
-================================================  =========================================  ============
-Optional input                                    Function name                              Default
-================================================  =========================================  ============
-Specify that :math:`f^I` is linearly implicit     :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
-Specify that :math:`f^I` is nonlinearly implicit  :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
-Implicit predictor method                         :c:func:`ARKStepSetPredictorMethod()`      0
-User-provided implicit stage predictor            :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
-RHS function for nonlinear system evaluations     :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
-Maximum number of nonlinear iterations            :c:func:`ARKStepSetMaxNonlinIters()`       3
-Coefficient in the nonlinear convergence test     :c:func:`ARKStepSetNonlinConvCoef()`       0.1
-Nonlinear convergence rate constant               :c:func:`ARKStepSetNonlinCRDown()`         0.3
-Nonlinear residual divergence ratio               :c:func:`ARKStepSetNonlinRDiv()`           2.3
-Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFails()`         10
-================================================  =========================================  ============
+==================================================  =========================================  ============
+Optional input                                      Function name                              Default
+==================================================  =========================================  ============
+Specify that :math:`f^I` is linearly implicit       :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
+Specify that :math:`f^I` is nonlinearly implicit    :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
+Implicit predictor method                           :c:func:`ARKStepSetPredictorMethod()`      0
+User-provided implicit stage predictor              :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
+RHS function for nonlinear system evaluations       :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
+Maximum number of nonlinear iterations              :c:func:`ARKStepSetMaxNonlinIters()`       3
+Coefficient in the nonlinear convergence test       :c:func:`ARKStepSetNonlinConvCoef()`       0.1
+Nonlinear convergence rate constant                 :c:func:`ARKStepSetNonlinCRDown()`         0.3
+Nonlinear residual divergence ratio                 :c:func:`ARKStepSetNonlinRDiv()`           2.3
+Maximum number of convergence failures              :c:func:`ARKStepSetMaxConvFails()`         10
+Specify how stage is computed from nonlinear solve  :c:func:`ARKStepSetImplicitReeval()`       ``SUNTRUE``
+==================================================  =========================================  ============
 
 
 
@@ -2172,6 +2173,29 @@ Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFail
       setup routine and try again (if a Newton method is used).  If a
       convergence failure still occurs, the time step size is reduced by
       the factor *etacf* (set within :c:func:`ARKStepSetMaxCFailGrowth()`).
+
+
+
+.. c:function:: int ARKStepSetImplicitReeval(void *arkode_mem, sunbooleantype reeval)
+
+   Specifies if an optimization is used to avoid an evaluation of
+   :math:`f^I` after a nonlinear solve for an implicit stage.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *reeval* -- If ``SUNTRUE``, implicit stages are computed by
+        evaluating :math:`f^I` on the solution from the nonlinear
+        solver. If ``SUNFALSE``, stages are extracted without
+        evaluating :math:`f^I`.
+
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   **Notes:**
+      If stage postprocessecing in enabled, this option is ignored, and
+      :math:`f^I` is always reevaluated.
 
 
 

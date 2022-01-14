@@ -750,34 +750,6 @@ int ARKStepSetImEx(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
-  ARKStepSetImplicitReeval:
-
-  Specifies if an optimization is used to avoid an evaluation of
-  fi after a nonlinear solve for an implicit stage.  If stage
-  postprocessecing in enabled, this option is ignored, and fi is
-  always reevaluated.
-
-  The argument should be 1 or 0, where 1 indicates that fi is
-  evaluated to compute fi(z_i), and 0 indicates that fi(z_i) is
-  computed without an additional evaluation of fi.
-  ---------------------------------------------------------------*/
-int ARKStepSetImplicitReeval(void *arkode_mem, int reeval)
-{
-  ARKodeMem        ark_mem;
-  ARKodeARKStepMem step_mem;
-  int              retval;
-
-  /* access ARKodeARKStepMem structure and set function pointer */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImplicitReeval",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  step_mem->implicit_reeval = (reeval == 1);
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   ARKStepSetTables:
 
   Specifies to use customized Butcher tables for the system.
@@ -1363,6 +1335,35 @@ int ARKStepSetStagePredictFn(void *arkode_mem,
   step_mem->stage_predict = PredictStage;
   return(ARK_SUCCESS);
 }
+
+
+/*---------------------------------------------------------------
+  ARKStepSetImplicitReeval:
+
+  Specifies if an optimization is used to avoid an evaluation of
+  fi after a nonlinear solve for an implicit stage.  If stage
+  postprocessecing in enabled, this option is ignored, and fi is
+  always reevaluated.
+
+  An argument of SUNTRUE indicates that fi is evaluated to
+  compute fi(z_i), and SUNFALSE indicates that fi(z_i) is
+  computed without an additional evaluation of fi.
+  ---------------------------------------------------------------*/
+int ARKStepSetImplicitReeval(void *arkode_mem, sunbooleantype reeval)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure and set function pointer */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImplicitReeval",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  step_mem->implicit_reeval = (reeval == 1);
+  return(ARK_SUCCESS);
+}
+
 
 /*===============================================================
   ARKStep optional output functions -- stepper-specific
