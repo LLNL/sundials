@@ -117,8 +117,8 @@ int Test_Constructor(sundials::Context& sunctx, std::shared_ptr<gko::Executor> g
   static const char test[] = "Constructor works";
   std::cout << test;
 
-  MtxType A{gko_exec, 2, 2, sunctx};
-  MtxType B{gko_exec, 2, 2, sunctx};
+  MtxType A{2, 2, gko_exec, sunctx};
+  MtxType B{2, 2, gko_exec, sunctx};
   auto x = VecType::create(gko_exec, gko::dim<2>(2, 1));
   x->fill(1.0);
   auto b = VecType::create(gko_exec, gko::dim<2>(2, 1));
@@ -144,7 +144,7 @@ int Test_CopyConstructor(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   static const char test[] = "Copy constructor works";
   std::cout << test;
 
-  MtxType A{gko_exec, 2, 2, sunctx};
+  MtxType A{2, 2, gko_exec, sunctx};
   MtxType B{A};
   auto x = VecType::create(gko_exec, gko::dim<2>(2, 1));
   x->fill(1.0);
@@ -170,7 +170,7 @@ int Test_CppInterface(sundials::Context& sunctx, std::shared_ptr<gko::Executor> 
   static const char test[] = "Test the CPP interface";
   std::cout << test;
 
-  MtxType A{gko_exec, 2, 2, sunctx};
+  MtxType A{2, 2, gko_exec, sunctx};
   MtxType B{A};
   auto x = VecType::create(gko_exec, gko::dim<2>(2, 1));
   x->fill(1.0);
@@ -204,7 +204,7 @@ int Test_CInterfaceDense(sundials::Context& sunctx, std::shared_ptr<gko::Executo
   static const char test[] = "Test the C dense interface";
   std::cout << test;
 
-  SUNMatrix A = SUNMatrix_GinkgoDense(gko_exec, 2, 2, sunctx);
+  SUNMatrix A = SUNMatrix_GinkgoDense(2, 2, gko_exec, sunctx);
   SUNMatrix B = SUNMatClone(A);
 
   NvectorType x{2, sunctx};
@@ -246,7 +246,7 @@ int Test_CInterfaceCsr(sundials::Context& sunctx, std::shared_ptr<gko::Executor>
   static const char test[] = "Test the C Csr interface";
   std::cout << test;
 
-  SUNMatrix A = SUNMatrix_GinkgoCsr(gko_exec, 2, 2, sunctx);
+  SUNMatrix A = SUNMatrix_GinkgoCsr(2, 2, 4, gko_exec, sunctx);
   SUNMatrix B = SUNMatClone(A);
 
   NvectorType x{2, sunctx};

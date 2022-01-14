@@ -19,8 +19,8 @@ constexpr static int debug_print_off = 0;
 
 // Implementation specific methods
 SUNDIALS_EXPORT
-SUNMatrix SUNMatrix_GinkgoDenseBlock(std::shared_ptr<gko::Executor> gko_exec,
-                                     sunindextype nblocks, sunindextype M, sunindextype N, SUNContext sunctx);
+SUNMatrix SUNMatrix_GinkgoDenseBlock(sunindextype nblocks, sunindextype M, sunindextype N,
+                                     std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx);
 
 //
 // CSR
@@ -28,8 +28,8 @@ SUNMatrix SUNMatrix_GinkgoDenseBlock(std::shared_ptr<gko::Executor> gko_exec,
 
 // Implementation specific methods
 SUNDIALS_EXPORT
-SUNMatrix SUNMatrix_GinkgoCsrBlock(std::shared_ptr<gko::Executor> gko_exec,
-                                   sunindextype nblocks, sunindextype M, sunindextype N, SUNContext sunctx);
+SUNMatrix SUNMatrix_GinkgoCsrBlock(sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ,
+                                   std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx);
 
 #ifdef __cplusplus
 }
@@ -50,10 +50,10 @@ class BlockMatrix : public BaseMatrix
 {
 
 public:
-  BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, SUNContext sunctx)
+  BlockMatrix(sunindextype nblocks, sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
 
-  BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ, SUNContext sunctx)
+  BlockMatrix(sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
 
   BlockMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)
@@ -118,7 +118,7 @@ private:
 //
 
 template<>
-inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, SUNContext sunctx)
+inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(sunindextype nblocks, sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   : gkomtx_(gko::share(GkoBatchDenseMat::create(
       gko_exec, gko::batch_dim<>(nblocks, gko::dim<2>(M, N))
     ))),
@@ -138,7 +138,7 @@ inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(std::shared_ptr<gko::Executor>
 }
 
 template<>
-inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, SUNContext sunctx)
+inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(sunindextype nblocks, sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   : gkomtx_(gko::share(GkoBatchCsrMat::create(
        gko_exec, nblocks, gko::dim<2>(M, N)
      ))),
@@ -158,7 +158,7 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<gko::Executor> g
 }
 
 template<>
-inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ, SUNContext sunctx)
+inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(sunindextype nblocks, sunindextype M, sunindextype N, sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, nblocks, gko::dim<2>(M, N), NNZ))),
     sunmtx_(SUNMatNewEmpty(sunctx))
 {

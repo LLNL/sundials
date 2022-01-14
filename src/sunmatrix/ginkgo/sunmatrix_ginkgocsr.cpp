@@ -13,18 +13,17 @@ using GkoBatchMatType = gko::matrix::BatchCsr<sunrealtype>;
 // Implementation specific methods
 //
 
-SUNMatrix SUNMatrix_GinkgoCsr(std::shared_ptr<gko::Executor> gko_exec,
-                                sunindextype M, sunindextype N, SUNContext sunctx)
+SUNMatrix SUNMatrix_GinkgoCsr(sunindextype M, sunindextype N, sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
 {
-  auto mat = new ginkgo::Matrix<GkoMatType>(gko_exec, M, N, sunctx);
+  auto mat = new ginkgo::Matrix<GkoMatType>(M, N, NNZ, gko_exec, sunctx);
   return ((SUNMatrix) *mat);
 }
 
-SUNMatrix SUNMatrix_GinkgoCsrBlock(std::shared_ptr<gko::Executor> gko_exec,
-                                   sunindextype nblocks, sunindextype M,
-                                   sunindextype N, SUNContext sunctx)
+SUNMatrix SUNMatrix_GinkgoCsrBlock(sunindextype nblocks, sunindextype M, sunindextype N,
+                                   sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec,
+                                   SUNContext sunctx)
 {
-  auto mat = new ginkgo::BlockMatrix<GkoBatchMatType>(gko_exec, nblocks, M, N, sunctx);
+  auto mat = new ginkgo::BlockMatrix<GkoBatchMatType>(nblocks, M, N, NNZ, gko_exec, sunctx);
   return ((SUNMatrix) *mat);
 }
 

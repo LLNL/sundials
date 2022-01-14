@@ -17,8 +17,7 @@ extern "C" {
 
 // Implementation specific methods
 SUNDIALS_EXPORT
-SUNMatrix SUNMatrix_GinkgoDense(std::shared_ptr<gko::Executor> gko_exec,
-                                sunindextype M, sunindextype N, SUNContext sunctx);
+SUNMatrix SUNMatrix_GinkgoDense(sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx);
 
 // SUNMatrix overrides
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_GinkgoDense(SUNMatrix A);
@@ -41,8 +40,7 @@ SUNDIALS_EXPORT int SUNMatPrint_GinkgoDense(SUNMatrix A);
 
 // Implementation specific methods
 SUNDIALS_EXPORT
-SUNMatrix SUNMatrix_GinkgoCsr(std::shared_ptr<gko::Executor> gko_exec,
-                              sunindextype M, sunindextype N, SUNContext sunctx);
+SUNMatrix SUNMatrix_GinkgoCsr(sunindextype M, sunindextype N, sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx);
 
 // SUNMatrix overrides
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_GinkgoCsr(SUNMatrix A);
@@ -85,10 +83,10 @@ class Matrix : public BaseMatrix
 {
 
 public:
-  Matrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
+  Matrix(sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
 
-  Matrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, sunindextype NNZ, SUNContext sunctx)
+  Matrix(sunindextype M, sunindextype N, sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   { std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n"); }
 
   Matrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx)
@@ -146,7 +144,7 @@ private:
 //
 
 template<>
-inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
+inline Matrix<GkoDenseMat>::Matrix(sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   : gkomtx_(gko::share(GkoDenseMat::create(gko_exec, gko::dim<2>(M, N)))),
     sunmtx_(SUNMatNewEmpty(sunctx))
 {
@@ -164,7 +162,7 @@ inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<gko::Executor> gko_exec, suni
 }
 
 template<>
-inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, SUNContext sunctx)
+inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   : gkomtx_(gko::share(GkoCsrMat::create(gko_exec, gko::dim<2>(M, N)))),
     sunmtx_(SUNMatNewEmpty(sunctx))
 {
@@ -182,7 +180,7 @@ inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<gko::Executor> gko_exec, sunind
 }
 
 template<>
-inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<gko::Executor> gko_exec, sunindextype M, sunindextype N, sunindextype NNZ, SUNContext sunctx)
+inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, sunindextype NNZ, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
   : gkomtx_(gko::share(GkoCsrMat::create(gko_exec, gko::dim<2>(M, N), NNZ))),
     sunmtx_(SUNMatNewEmpty(sunctx))
 {
