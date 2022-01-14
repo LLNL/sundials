@@ -56,18 +56,27 @@ public:
   BlockMatrix(const BlockMatrix<GkoBatchMatType>& A)
   { }
 
+  BlockMatrix(BlockMatrix<GkoBatchMatType>&& A)
+    : gkomtx_(A.gkomtx_),
+      sunmtx_(std::move(A.sunmtx_))
+  { }
+
   BlockMatrix& operator=(const BlockMatrix& A)
   {
     return *this = BlockMatrix<GkoBatchMatType>(A);
   }
 
-  ~BlockMatrix()
+  BlockMatrix& operator=(BlockMatrix&& A)
   {
-    if (sunmtx_) free(sunmtx_);
+    sunmtx_ = std::move(A.sunmtx_);
+    return *this;
   }
 
-  operator SUNMatrix() { return sunmtx_; }
-  operator SUNMatrix() const { return sunmtx_; }
+  ~BlockMatrix()
+  { }
+
+  operator SUNMatrix() { return sunmtx_.get(); }
+  operator SUNMatrix() const { return sunmtx_.get(); }
 
   const gko::dim<2>& blockDim() const { return gkodim().at(0); }
 
@@ -97,7 +106,7 @@ public:
 
 private:
   std::shared_ptr<GkoBatchMatType> gkomtx_;
-  SUNMatrix sunmtx_;
+  std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;
 
 };
 
@@ -150,9 +159,9 @@ inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(const BlockMatrix<GkoBatchDens
   : gkomtx_(gko::share(GkoBatchDenseMat::create(A.gkoexec(), A.gkodim())))
 {
   const SUNMatrix Asun = A;
-  sunmtx_ = SUNMatNewEmpty(Asun->sunctx);
+  sunmtx_.reset(SUNMatNewEmpty(Asun->sunctx));
   sunmtx_->content = this;
-  SUNMatCopyOps(Asun, sunmtx_);
+  SUNMatCopyOps(Asun, sunmtx_.get());
 }
 
 template<>
@@ -162,9 +171,9 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(const BlockMatrix<GkoBatchCsrMat
     ))
 {
   const SUNMatrix Asun = A;
-  sunmtx_ = SUNMatNewEmpty(Asun->sunctx);
+  sunmtx_.reset(SUNMatNewEmpty(Asun->sunctx));
   sunmtx_->content = this;
-  SUNMatCopyOps(Asun, sunmtx_);
+  SUNMatCopyOps(Asun, sunmtx_.get());
 }
 
 template<>
