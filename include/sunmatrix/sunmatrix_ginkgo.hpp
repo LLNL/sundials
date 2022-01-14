@@ -99,15 +99,24 @@ public:
     SUNMatCopyOps(Asun, sunmtx_.get());
   }
 
+  Matrix(Matrix<GkoMatType>&& A)
+    : gkomtx_(A.gkomtx_),
+      sunmtx_(std::move(A.sunmtx_))
+  { }
+
   Matrix& operator=(const Matrix& A)
   {
     return *this = Matrix<GkoMatType>(A);
   }
 
-  ~Matrix()
+  Matrix& operator=(Matrix&& A)
   {
-    if (sunmtx_) free(sunmtx_.get());
+    sunmtx_ = std::move(A.sunmtx_);
+    return *this;
   }
+
+  ~Matrix()
+  { }
 
   operator SUNMatrix() { return sunmtx_.get(); }
   operator SUNMatrix() const { return sunmtx_.get(); }
