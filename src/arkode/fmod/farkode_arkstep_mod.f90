@@ -81,6 +81,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetExplicit
  public :: FARKStepSetImplicit
  public :: FARKStepSetImEx
+ public :: FARKStepSetImplicitReeval
  public :: FARKStepSetTables
  public :: FARKStepSetTableNum
  public :: FARKStepSetCFLFraction
@@ -446,6 +447,15 @@ bind(C, name="_wrap_FARKStepSetImEx") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetImplicitReeval(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetImplicitReeval") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1987,6 +1997,22 @@ type(C_PTR) :: farg1
 
 farg1 = arkode_mem
 fresult = swigc_FARKStepSetImEx(farg1)
+swig_result = fresult
+end function
+
+function FARKStepSetImplicitReeval(arkode_mem, reeval) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: reeval
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = reeval
+fresult = swigc_FARKStepSetImplicitReeval(farg1, farg2)
 swig_result = fresult
 end function
 
