@@ -331,7 +331,7 @@ void ScaleAddI(const sunrealtype c, Matrix<GkoMatType>& A)
 template<typename GkoMatType>
 void Zero(Matrix<GkoMatType>& A)
 {
-  A.gkomtx()->clear();
+  A.gkomtx()->scale(gko::initialize<GkoDenseMat>({0.0}, A.gkoexec()).get());
 }
 
 template<>

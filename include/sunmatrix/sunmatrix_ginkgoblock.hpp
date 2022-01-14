@@ -101,6 +101,12 @@ public:
     return blockDim()[0] * blockDim()[1] * numBlocks();
   }
 
+  BlockMatrix reset()
+  {
+    gkomtx_ = gko::share(gkomtx_->clone());
+    return *this;
+  }
+
 private:
   std::shared_ptr<GkoBatchMatType> gkomtx_;
   std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;
@@ -368,7 +374,13 @@ inline void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A)
 template<typename GkoBatchMatType>
 void Zero(BlockMatrix<GkoBatchMatType>& A)
 {
-  A.gkomtx()->clear();
+  A.reset();
+}
+
+template<>
+inline void Zero(BlockMatrix<GkoBatchDenseMat>& A)
+{
+  A.gkomtx()->scale(gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {0.0}, A.gkoexec()).get());
 }
 
 template<typename GkoBatchMatType>
