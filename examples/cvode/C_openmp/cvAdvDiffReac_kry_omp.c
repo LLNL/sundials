@@ -457,7 +457,7 @@ void SetTiming(int onoff)
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  clock_gettime( CLOCK_MONOTONIC, &spec );
   base_time_tv_sec = spec.tv_sec;
 #endif
 }
@@ -469,7 +469,7 @@ static double get_time()
 {
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  clock_gettime( CLOCK_MONOTONIC, &spec );
   double time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else
   double time = 0;

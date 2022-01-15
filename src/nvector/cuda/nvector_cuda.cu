@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -45,8 +45,7 @@ static int AllocateData(N_Vector v);
 // Reduction buffer functions
 static int InitializeDeviceCounter(N_Vector v);
 static int FreeDeviceCounter(N_Vector v);
-static int InitializeReductionBuffer(N_Vector v, const realtype* value,
-                                     size_t n = 1);
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
 static void FreeReductionBuffer(N_Vector v);
 static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
 
@@ -874,7 +873,7 @@ realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 
   // When using atomic reductions, we only need one output value
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -925,7 +924,7 @@ realtype N_VMaxNorm_Cuda(N_Vector X)
 
   // When using atomic reductions, we only need one output value
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNorm_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -974,7 +973,7 @@ realtype N_VWSqrSumLocal_Cuda(N_Vector X, N_Vector W)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumLocal_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1031,7 +1030,7 @@ realtype N_VWSqrSumMaskLocal_Cuda(N_Vector X, N_Vector W, N_Vector Id)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumMaskLocal_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1090,7 +1089,7 @@ realtype N_VMin_Cuda(N_Vector X)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMin_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1147,7 +1146,7 @@ realtype N_VL1Norm_Cuda(N_Vector X)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VL1Norm_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1216,7 +1215,7 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VInvTest_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1267,7 +1266,7 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstrMask_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1320,7 +1319,7 @@ realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(num, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(num, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMinQuotient_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1510,12 +1509,6 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dots)
     return -1;
   }
 
-  // Setup the reduction buffer
-  for (int i = 0; i < nvec; ++i)
-  {
-    dots[i] = ZERO;
-  }
-
   // Set kernel parameters
   size_t grid, block, shMemSize;
   cudaStream_t stream;
@@ -1527,7 +1520,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dots)
   }
   grid = nvec;
 
-  if (InitializeReductionBuffer(x, dots, nvec))
+  if (InitializeReductionBuffer(x, ZERO, nvec))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1769,13 +1762,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
     return -1;
   }
 
-  // Setup the reduction buffer
-  for (int i = 0; i < nvec; ++i)
-  {
-    norms[i] = ZERO;
-  }
-
-  if (InitializeReductionBuffer(W[0], norms, nvec))
+  if (InitializeReductionBuffer(W[0], ZERO, nvec))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1845,13 +1832,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
     return -1;
   }
 
-  // Setup the reduction buffer
-  for (int i = 0; i < nvec; ++i)
-  {
-    norms[i] = ZERO;
-  }
-
-  if (InitializeReductionBuffer(W[0], norms, nvec))
+  if (InitializeReductionBuffer(W[0], ZERO, nvec))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
@@ -2294,7 +2275,7 @@ static int AllocateData(N_Vector v)
  * of the vector is increased. The buffer is initialized to the
  * value given.
  */
-static int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
 {
   int         alloc_fail = 0;
   int         copy_fail  = 0;
@@ -2348,7 +2329,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n
 
     // Initialize the host memory with the value
     for (int i = 0; i < n; ++i)
-      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value[i];
+      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
 
     // Initialize the device memory with the value
     copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(v),

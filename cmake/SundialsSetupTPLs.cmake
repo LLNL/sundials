@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,6 +12,42 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # Setup third-party libraries
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+# Setup MPI, OpenMP, and OpenMP offload first as other TPLs may
+# need targets or variables corresponding to these TPLs.
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+# Find MPI
+# ---------------------------------------------------------------
+
+if(ENABLE_MPI)
+  include(SundialsMPI)
+  list(APPEND SUNDIALS_TPL_LIST "MPI")
+endif()
+
+# ---------------------------------------------------------------
+# Find OpenMP
+# ---------------------------------------------------------------
+
+if(ENABLE_OPENMP)
+  include(SundialsOpenMP)
+  list(APPEND SUNDIALS_TPL_LIST "OPENMP")
+endif()
+
+# ---------------------------------------------------------------
+# Find OpenMP with device offloading
+# --------------------------------------------------------------
+
+if(ENABLE_OPENMP_DEVICE)
+  include(SundialsOpenMP)
+  list(APPEND SUNDIALS_TPL_LIST "OPENMP_DEVICE")
+endif()
+
+# ---------------------------------------------------------------
+# Setup other TPLs (listed in alphabetical order)
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
@@ -60,39 +96,12 @@ if(ENABLE_MAGMA)
 endif()
 
 # ---------------------------------------------------------------
-# Find MPI.
-# ---------------------------------------------------------------
-
-if(ENABLE_MPI)
-  include(SundialsMPI)
-  list(APPEND SUNDIALS_TPL_LIST "MPI")
-endif()
-
-# ---------------------------------------------------------------
 # Find (and test) the oneMKL libraries
 # ---------------------------------------------------------------
 
 if(ENABLE_ONEMKL)
   include(SundialsONEMKL)
   list(APPEND SUNDIALS_TPL_LIST "ONEMKL")
-endif()
-
-# ---------------------------------------------------------------
-# Find OpenMP
-# ---------------------------------------------------------------
-
-if(ENABLE_OPENMP)
-  include(SundialsOpenMP)
-  list(APPEND SUNDIALS_TPL_LIST "OPENMP")
-endif()
-
-# ---------------------------------------------------------------
-# Find OpenMP with device offloading
-# --------------------------------------------------------------
-
-if(ENABLE_OPENMP_DEVICE)
-  include(SundialsOpenMP)
-  list(APPEND SUNDIALS_TPL_LIST "OPENMP_DEVICE")
 endif()
 
 # ---------------------------------------------------------------

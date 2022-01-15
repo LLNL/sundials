@@ -2,7 +2,7 @@
  * Programmer(s): Daniel McGreer, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2021, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -45,8 +45,7 @@ static int AllocateData(N_Vector v);
 // Reduction buffer functions
 static int InitializeDeviceCounter(N_Vector v);
 static int FreeDeviceCounter(N_Vector v);
-static int InitializeReductionBuffer(N_Vector v, const realtype* value,
-                                     size_t n = 1);
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
 static void FreeReductionBuffer(N_Vector v);
 static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
 
@@ -850,7 +849,7 @@ realtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
 
   // When using atomic reductions, we only need one output value
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -901,7 +900,7 @@ realtype N_VMaxNorm_Hip(N_Vector X)
 
   // When using atomic reductions, we only need one output value
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNorm_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -950,7 +949,7 @@ realtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumLocal_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1007,7 +1006,7 @@ realtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumMaskLocal_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1066,7 +1065,7 @@ realtype N_VMin_Hip(N_Vector X)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMin_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1123,7 +1122,7 @@ realtype N_VL1Norm_Hip(N_Vector X)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VL1Norm_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1192,7 +1191,7 @@ booleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VInvTest_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1243,7 +1242,7 @@ booleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(X, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstrMask_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -1296,7 +1295,7 @@ realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(num, &gpu_result, buffer_size))
+  if (InitializeReductionBuffer(num, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMinQuotient_Hip: InitializeReductionBuffer returned nonzero\n");
   }
@@ -2335,7 +2334,7 @@ int AllocateData(N_Vector v)
  * of the vector is increased. The buffer is initialized to the
  * value given.
  */
-static int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
 {
   int         alloc_fail = 0;
   int         copy_fail  = 0;
@@ -2389,7 +2388,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n
 
     // Initialize the host memory with the value
     for (int i = 0; i < n; ++i)
-      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value[i];
+      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
 
     // Initialize the device memory with the value
     copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(v),

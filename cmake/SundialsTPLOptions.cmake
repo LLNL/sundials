@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -263,6 +263,9 @@ sundials_option(XBRAID_WORKS BOOL "Set to ON to force CMake to accept a given XB
 # -------------------------------------------------------------
 
 sundials_option(ENABLE_ONEMKL BOOL "Enable oneMKL support" OFF)
+
+sundials_option(ONEMKL_DIR PATH "Path to root of oneMKL installation" "${ONEMKL_DIR}"
+                SHOW_IF ENABLE_ONEMKL)
 
 sundials_option(ONEMKL_WORKS BOOL "Set to ON to force CMake to accept a given oneMKL configuration" OFF
                 SHOW_IF ENABLE_ONEMKL

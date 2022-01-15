@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -56,8 +56,8 @@ macro(posix_timers_test)
     "#include <unistd.h>\n"
     "int main(){\n"
     "struct timespec spec;\n"
-    "clock_gettime(CLOCK_MONOTONIC_RAW, &spec);\n"
-    "clock_getres(CLOCK_MONOTONIC_RAW, &spec);\n"
+    "clock_gettime(CLOCK_MONOTONIC, &spec);\n"
+    "clock_getres(CLOCK_MONOTONIC, &spec);\n"
     "return(0);\n"
     "}\n")
 

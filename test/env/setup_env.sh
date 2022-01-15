@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -50,7 +50,8 @@ if [ "$#" -lt 5 ]; then
     return 1
 fi
 
-# Set required inputs
+# These values should not be overridden by the environment script and may be
+# referenced as appropriate to load TPLs
 export SUNDIALS_PRECISION="$1"
 export SUNDIALS_INDEX_SIZE="$2"
 export SUNDIALS_LIBRARY_TYPE="$3"
@@ -60,15 +61,14 @@ export SUNDIALS_TEST_TYPE="$5"
 # Remove parsed inputs, the remainder are passed to the environment script
 shift 5
 
-# Enable all SUNDIALS examples (environment script may disable, CMake will
+# Enable all SUNDIALS examples (the environment script may disable, CMake will
 # disable if necessary depending on the configuration)
-
 export SUNDIALS_EXAMPLES_C=ON
 export SUNDIALS_EXAMPLES_CXX=ON
 export SUNDIALS_EXAMPLES_F03=ON
 export SUNDIALS_EXAMPLES_CUDA=ON
 
-# Set the library type options
+# Set the library type options (the environment script should not override)
 
 case "${SUNDIALS_LIBRARY_TYPE}" in
     static)
@@ -89,7 +89,7 @@ case "${SUNDIALS_LIBRARY_TYPE}" in
         ;;
 esac
 
-# Set the test type options
+# Set the test type options (the environment script should not override)
 
 case "$SUNDIALS_TEST_TYPE" in
     DEV)
@@ -105,6 +105,23 @@ case "$SUNDIALS_TEST_TYPE" in
         return 1
         ;;
 esac
+
+# C and C++ standards. Note only double precision math functions are supported
+# in ISO C89/C90. While profiling requires C99 for __func__ some compilers still
+# define __func__ with ISO C89/C90. As such we do not consider if profiling is
+# enabled and let the environment script override this setting if necessary.
+if [ "${SUNDIALS_TPLS}" == "OFF" ] && [ "${SUNDIALS_PRECISION}" == "double" ]
+then
+    export CMAKE_C_STANDARD="90"
+else
+    export CMAKE_C_STANDARD="99"
+fi
+export CMAKE_CXX_STANDARD="11"
+
+# Disable compiler extensions by default. The user's environment script may
+# override this setting if necessary.
+export CMAKE_C_EXTENSIONS="OFF"
+export CMAKE_CXX_EXTENSIONS="OFF"
 
 # Call the environment setup script
 
@@ -204,13 +221,6 @@ if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
     # fused kernels currently require CUDA or HIP
     export SUNDIALS_FUSED_KERNELS=OFF
 
-    # C and C++ standards
-    if [[ "${SUNDIALS_PRECISION}" == "double" ]]; then
-        # Only double math functions are supported in ISO C89/C90. Note
-        # profiling requires C99 for __func__ however, some compilers still
-        # define __func__ when using ISO C89/C90.
-        export CMAKE_C_STANDARD="90"
-    fi
 fi
 
 # Print relevant environment variables to the log file
