@@ -51,7 +51,7 @@ int SUNMatPrint_GinkgoCsr(SUNMatrix A)
 
 SUNMatrix_ID SUNMatGetID_GinkgoCsr(SUNMatrix A)
 {
-  return SUNMATRIX_GINKGO;
+  return SUNMATRIX_GINKGOCSR;
 }
 
 SUNMatrix SUNMatClone_GinkgoCsr(SUNMatrix A)

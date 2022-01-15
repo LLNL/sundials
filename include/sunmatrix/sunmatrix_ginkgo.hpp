@@ -17,7 +17,9 @@ extern "C" {
 
 // Implementation specific methods
 SUNDIALS_EXPORT
-SUNMatrix SUNMatrix_GinkgoDense(sunindextype M, sunindextype N, std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx);
+SUNMatrix SUNMatrix_GinkgoDense(sunindextype M, sunindextype N,
+                                std::shared_ptr<gko::Executor> gko_exec,
+                                SUNContext sunctx);
 
 // SUNMatrix overrides
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_GinkgoDense(SUNMatrix A);
@@ -32,6 +34,15 @@ SUNDIALS_EXPORT int SUNMatMatvec_GinkgoDense(SUNMatrix A, N_Vector x, N_Vector y
 SUNDIALS_EXPORT int SUNMatSpace_GinkgoDense(SUNMatrix A, long int *lenrw, long int *leniw);
 
 // Additional functions
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_LData(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_Rows(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_Columns(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_BlockRows(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_BlockColumns(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_BlockLData(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_GinkgoDense_NumBlocks(SUNMatrix A);
+SUNDIALS_EXPORT gko::matrix::Dense<sunrealtype>* SUNMatrix_GinkgoDense_GetGkoMat(SUNMatrix A);
+SUNDIALS_EXPORT gko::matrix::BatchDense<sunrealtype>* SUNMatrix_GinkgoDense_GetGkoBatchMat(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatPrint_GinkgoDense(SUNMatrix A);
 
 //
@@ -124,13 +135,10 @@ public:
   operator SUNMatrix() const { return sunmtx_.get(); }
 
   std::shared_ptr<const gko::Executor> gkoexec() const { return gkomtx_->get_executor(); }
-
   const gko::dim<2>& gkodim() const { return gkomtx_->get_size(); }
-
   std::shared_ptr<GkoMatType> gkomtx() { return gkomtx_; }
 
   bool isBlockDiagonal() const override { return false; }
-
   long int workspaceSize() const override { return gkodim()[0] * gkodim()[1]; }
 
 private:
@@ -150,6 +158,7 @@ inline Matrix<GkoDenseMat>::Matrix(sunindextype M, sunindextype N, std::shared_p
 {
   sunmtx_->content = this;
 
+  sunmtx_->ops->getid       = SUNMatGetID_GinkgoDense;
   sunmtx_->ops->clone       = SUNMatClone_GinkgoDense;
   sunmtx_->ops->zero        = SUNMatZero_GinkgoDense;
   sunmtx_->ops->copy        = SUNMatCopy_GinkgoDense;
@@ -168,6 +177,7 @@ inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, std::shared_ptr
 {
   sunmtx_->content = this;
 
+  sunmtx_->ops->getid       = SUNMatGetID_GinkgoCsr;
   sunmtx_->ops->clone       = SUNMatClone_GinkgoCsr;
   sunmtx_->ops->zero        = SUNMatZero_GinkgoCsr;
   sunmtx_->ops->copy        = SUNMatCopy_GinkgoCsr;
@@ -186,6 +196,7 @@ inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, sunindextype NN
 {
   sunmtx_->content = this;
 
+  sunmtx_->ops->getid       = SUNMatGetID_GinkgoCsr;
   sunmtx_->ops->clone       = SUNMatClone_GinkgoCsr;
   sunmtx_->ops->zero        = SUNMatZero_GinkgoCsr;
   sunmtx_->ops->copy        = SUNMatCopy_GinkgoCsr;
@@ -204,6 +215,7 @@ inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<GkoDenseMat> gko_mat, SUNCont
 {
   sunmtx_->content = this;
 
+  sunmtx_->ops->getid       = SUNMatGetID_GinkgoDense;
   sunmtx_->ops->clone       = SUNMatClone_GinkgoDense;
   sunmtx_->ops->zero        = SUNMatZero_GinkgoDense;
   sunmtx_->ops->copy        = SUNMatCopy_GinkgoDense;
@@ -222,6 +234,7 @@ inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<GkoCsrMat> gko_mat, SUNContext 
 {
   sunmtx_->content = this;
 
+  sunmtx_->ops->getid       = SUNMatGetID_GinkgoCsr;
   sunmtx_->ops->clone       = SUNMatClone_GinkgoCsr;
   sunmtx_->ops->zero        = SUNMatZero_GinkgoCsr;
   sunmtx_->ops->copy        = SUNMatCopy_GinkgoCsr;
@@ -299,7 +312,6 @@ inline void ScaleAdd(const sunrealtype c, Matrix<GkoDenseMat>& A, Matrix<GkoDens
   const auto I = CreateIdentity<GkoDenseMat>(A.gkoexec(), A.gkodim());
   const auto one = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
   const auto cmat = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
-  // A = B + cA
   B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
 }
 

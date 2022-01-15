@@ -46,13 +46,80 @@ int SUNMatPrint_GinkgoDense(SUNMatrix A)
   }
 }
 
+GkoMatType* SUNMatrix_GinkgoDense_GetGkoMat(SUNMatrix A)
+{
+  if (auto Amat = dynamic_cast<ginkgo::Matrix<GkoMatType>*>(GET_CONTENT(A)))
+  {
+    return Amat->gkomtx().get();
+  }
+  else if (auto Ablock = dynamic_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(GET_CONTENT(A)))
+  {
+    return NULL;
+  }
+  else
+  {
+    return NULL;
+  }
+}
+
+GkoBatchMatType* SUNMatrix_GinkgoDense_GetGkoBatchMat(SUNMatrix A)
+{
+  if (auto Amat = dynamic_cast<ginkgo::Matrix<GkoMatType>*>(GET_CONTENT(A)))
+  {
+    return NULL;
+  }
+  else if (auto Ablock = dynamic_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(GET_CONTENT(A)))
+  {
+    return Ablock->gkomtx().get();
+  }
+  else
+  {
+    return NULL;
+  }
+}
+
+// sunindextype SUNMatrix_GinkgoDense_LData(SUNMatrix A)
+// {
+
+// }
+
+// sunindextype SUNMatrix_GinkgoDense_Rows(SUNMatrix A)
+// {
+
+// }
+
+// sunindextype SUNMatrix_GinkgoDense_Columns(SUNMatrix A)
+// {
+
+// }
+
+// sunindextype SUNMatrix_GinkgoDense_BlockRows(SUNMatrix A)
+// {
+
+// }
+
+// sunindextype SUNMatrix_GinkgoDense_BlockColumns(SUNMatrix A)
+// {
+
+// }
+
+// sunindextype SUNMatrix_GinkgoDense_BlockLData(SUNMatrix A)
+// {
+
+// }
+
+// sunindextype SUNMatrix_GinkgoDense_NumBlocks(SUNMatrix A)
+// {
+
+// }
+
 //
 // SUNMatrix overrides
 //
 
 SUNMatrix_ID SUNMatGetID_GinkgoDense(SUNMatrix A)
 {
-  return SUNMATRIX_GINKGO;
+  return SUNMATRIX_GINKGODENSE;
 }
 
 SUNMatrix SUNMatClone_GinkgoDense(SUNMatrix A)

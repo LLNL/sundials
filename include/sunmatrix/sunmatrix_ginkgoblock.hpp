@@ -85,17 +85,13 @@ public:
   operator SUNMatrix() const { return sunmtx_.get(); }
 
   const gko::dim<2>& blockDim() const { return gkodim().at(0); }
-
   const gko::batch_dim<>& gkodim() const { return gkomtx_->get_size(); }
-
   std::shared_ptr<const gko::Executor> gkoexec() const { return gkomtx_->get_executor(); }
-
   std::shared_ptr<GkoBatchMatType> gkomtx() { return gkomtx_; }
-
-  bool isBlockDiagonal() const override { return true; }
 
   sunindextype numBlocks() const { return gkodim().get_num_batch_entries(); }
 
+  bool isBlockDiagonal() const override { return true; }
   long int workspaceSize() const override
   {
     return blockDim()[0] * blockDim()[1] * numBlocks();
