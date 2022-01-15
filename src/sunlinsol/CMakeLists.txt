@@ -28,6 +28,10 @@ if(BUILD_SUNLINSOL_CUSOLVERSP)
   add_subdirectory(cusolversp)
 endif()
 
+if(BUILD_SUNLINSOL_GINKGO)
+  add_subdirectory(ginkgo)
+endif()
+
 if(BUILD_SUNLINSOL_KLU)
   add_subdirectory(klu)
 endif()

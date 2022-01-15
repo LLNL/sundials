@@ -20,6 +20,7 @@ set(sunmatrix_ginkgo_examples
   "test_sunmatrix_ginkgo.cpp\;100 100 1 0\;"
   "test_sunmatrix_ginkgoblock.cpp\;100 100 1 0\;"
   "test_sunmatrix_gkodense.cpp\;100 100 1 0\;"
+  # "test_sunmatrix_gkocsr.cpp\;100 100 1 0\;"
   # "test_sunmatrix_ginkgo.cpp\;200 1000 1 0\;"
   # "test_sunmatrix_ginkgo.cpp\;2000 100 1 0\;"
   # "test_sunmatrix_ginkgo.cpp\;10 10 100 0\;"

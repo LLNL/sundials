@@ -103,6 +103,8 @@ public:
     return *this;
   }
 
+  gko::LinOp* gkolinop() override { return nullptr; }
+
 private:
   std::shared_ptr<GkoBatchMatType> gkomtx_;
   std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;

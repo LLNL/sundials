@@ -87,6 +87,7 @@ class BaseMatrix
 public:
   virtual bool isBlockDiagonal() const = 0;
   virtual long int workspaceSize() const = 0;
+  virtual gko::LinOp* gkolinop() { return nullptr; }
 };
 
 template<typename GkoMatType>
@@ -140,6 +141,8 @@ public:
 
   bool isBlockDiagonal() const override { return false; }
   long int workspaceSize() const override { return gkodim()[0] * gkodim()[1]; }
+
+  gko::LinOp* gkolinop() override { return static_cast<gko::LinOp*>(gkomtx_.get()); }
 
 private:
   std::shared_ptr<GkoMatType> gkomtx_;
