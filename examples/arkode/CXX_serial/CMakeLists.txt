@@ -32,8 +32,8 @@ set(ARKODE_examples
   "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;0 3 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
-  "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 0 \;develop"
-  "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 0 \;develop"
+  "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 0\;develop"
+  "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 0\;develop"
   )
 
 # Auxiliary files to install

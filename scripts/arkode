@@ -269,6 +269,8 @@ $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_1_-5.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_4_0_-10_0.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_-5_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_8_0_-10.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_0_10_0.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_1_10_0.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 
