@@ -72,6 +72,11 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Fixed exported ``SUNDIALSConfig.cmake``.
+
 Changes in v6.1.0
 -----------------
 

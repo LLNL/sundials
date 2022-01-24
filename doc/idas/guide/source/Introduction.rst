@@ -86,6 +86,11 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Fixed exported ``SUNDIALSConfig.cmake``.
+
 Changes in v5.1.0
 -----------------
 

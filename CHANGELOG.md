@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release x.x.x
+
+Fixed exported `SUNDIALSConfig.cmake`.
+
 ## Changes to SUNDIALS in release 6.1.0
 
 Added new reduction implementations for the CUDA and HIP NVECTORs that use
