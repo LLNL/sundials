@@ -235,6 +235,19 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(const BlockMatrix<GkoBatchCsrMat
 // Non-class methods
 //
 
+inline
+std::unique_ptr<GkoBatchVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec,
+                                            sunindextype num_blocks, N_Vector x)
+{
+  sunrealtype* x_arr =
+    (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
+  const sunindextype xvec_len = N_VGetLength(x);
+  auto batch_vec_stride = gko::batch_stride(num_blocks, 1);
+  auto batch_xvec_size = gko::batch_dim<>(num_blocks, gko::dim<2>(xvec_len, 1));
+  auto xvec_view = gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr);
+  return GkoBatchVecType::create(gko_exec, batch_xvec_size, xvec_view, batch_vec_stride);
+}
+
 template<typename GkoBatchMatType>
 void Matvec(BlockMatrix<GkoBatchMatType>& A, GkoBatchVecType* x, GkoBatchVecType* y)
 {
@@ -244,40 +257,21 @@ void Matvec(BlockMatrix<GkoBatchMatType>& A, GkoBatchVecType* x, GkoBatchVecType
 template<typename GkoBatchMatType>
 void Matvec(BlockMatrix<GkoBatchMatType>& A, N_Vector x, N_Vector y)
 {
-  auto batch_vec_stride = gko::batch_stride(A.numBlocks(), 1);
-
   if (x != y)
   {
-    sunrealtype* x_arr =
-      (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
-    const sunindextype xvec_len = N_VGetLength(x);
-    auto batch_xvec_size = gko::batch_dim<>(A.numBlocks(), gko::dim<2>(xvec_len, 1));
-    auto xvec_view = gko::Array<sunrealtype>::view(A.gkoexec(), xvec_len, x_arr);
-    auto xvec = GkoBatchVecType::create(A.gkoexec(), batch_xvec_size, xvec_view, batch_vec_stride);
-
-    sunrealtype* y_arr =
-      (y->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(y) : N_VGetArrayPointer(y);
-    const sunindextype yvec_len = N_VGetLength(y);
-    auto batch_yvec_size = gko::batch_dim<>(A.numBlocks(), gko::dim<2>(yvec_len, 1));
-    auto yvec_view = gko::Array<sunrealtype>::view(A.gkoexec(), yvec_len, y_arr);
-    auto yvec = GkoBatchVecType::create(A.gkoexec(), batch_yvec_size, yvec_view, batch_vec_stride);
+    auto x_vec = WrapVector(A.gkoexec(), A.numBlocks(), x);
+    auto y_vec = WrapVector(A.gkoexec(), A.numBlocks(), y);
 
     // y = Ax
-    A.gkomtx()->apply(xvec.get(), yvec.get());
+    A.gkomtx()->apply(gko::lend(x_vec), gko::lend(y_vec));
   }
   else
   {
-    sunrealtype* x_arr =
-      (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
-    const sunindextype xvec_len = N_VGetLength(x);
-    auto batch_xvec_size = gko::batch_dim<>(A.numBlocks(), gko::dim<2>(xvec_len, 1));
-    auto xvec_view = gko::Array<sunrealtype>::view(A.gkoexec(), xvec_len, x_arr);
-    auto xvec = GkoBatchVecType::create(A.gkoexec(), batch_xvec_size, xvec_view, batch_vec_stride);
+    auto x_vec = WrapVector(A.gkoexec(), A.numBlocks(), x);
 
     // x = Ax
-    A.gkomtx()->apply(xvec.get(), xvec.get());
+    A.gkomtx()->apply(gko::lend(x_vec), gko::lend(x_vec));
   }
-
 }
 
 template<typename GkoMatType, typename GkoBatchMatType>

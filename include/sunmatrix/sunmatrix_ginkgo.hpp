@@ -253,6 +253,24 @@ inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<GkoCsrMat> gko_mat, SUNContext 
 // Non-class methods
 //
 
+inline
+std::unique_ptr<GkoVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
+{
+  sunrealtype* x_arr = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
+  const sunindextype x_len = N_VGetLength(x);
+  return GkoVecType::create(gko_exec, gko::dim<2>(x_len, 1),
+    gko::Array<sunrealtype>::view(gko_exec, x_len, x_arr), 1);
+}
+
+inline
+std::unique_ptr<const GkoVecType> WrapConstVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
+{
+  sunrealtype* x_arr = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
+  const sunindextype x_len = N_VGetLength(x);
+  return GkoVecType::create_const(gko_exec, gko::dim<2>(x_len, 1),
+    gko::Array<sunrealtype>::const_view(gko_exec, x_len, x_arr), 1);
+}
+
 template<typename GkoMatType>
 void Matvec(Matrix<GkoMatType>& A, GkoVecType* x, GkoVecType* y)
 {
@@ -262,33 +280,21 @@ void Matvec(Matrix<GkoMatType>& A, GkoVecType* x, GkoVecType* y)
 template<typename GkoMatType>
 void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 {
-  sunrealtype* x_arr = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
-
   if (x != y)
   {
-    sunrealtype* y_arr = (y->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(y) : N_VGetArrayPointer(y);
-
-    const sunindextype x_len = N_VGetLength(x);
-    auto x_vec = GkoVecType::create_const(A.gkoexec(), gko::dim<2>(x_len, 1),
-      gko::Array<sunrealtype>::const_view(A.gkoexec(), x_len, x_arr), 1);
-
-    const sunindextype y_len = N_VGetLength(y);
-    auto y_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(y_len, 1),
-      gko::Array<sunrealtype>::view(A.gkoexec(), y_len, y_arr), 1);
+    auto x_vec = WrapConstVector(A.gkoexec(), x);
+    auto y_vec = WrapVector(A.gkoexec(), y);
 
     // y = Ax
-    A.gkomtx()->apply(x_vec.get(), y_vec.get());
+    A.gkomtx()->apply(gko::lend(x_vec), gko::lend(y_vec));
   }
   else
   {
-    const sunindextype x_len = N_VGetLength(x);
-    auto x_vec = GkoVecType::create(A.gkoexec(), gko::dim<2>(x_len, 1),
-      gko::Array<sunrealtype>::view(A.gkoexec(), x_len, x_arr), 1);
+    auto x_vec = WrapVector(A.gkoexec(), x);
 
     // x = Ax
-    A.gkomtx()->apply(x_vec.get(), x_vec.get());
+    A.gkomtx()->apply(gko::lend(x_vec), gko::lend(x_vec));
   }
-
 }
 
 template<typename GkoMatType>
