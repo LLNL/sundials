@@ -802,7 +802,6 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
       fprintf(outfile,"MRIStep: Fsi[%i]:\n", i);
       N_VPrintFile(step_mem->Fsi[i], outfile);
     }
-  }
 #endif
 
   /* print the inner stepper memory */
