@@ -1137,16 +1137,26 @@ based on the type of mass-matrix supplied by the user.
      \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right)f^I(t_{n,j}^S, z_j).
 
 
-Upon solving for :math:`z_i`, method stages must store :math:`f^E(t^E_{n,j}, z_j)`
-and :math:`f^I(t^I_{n,j}, z_j)`. It is possible to compute the later without
-evaluating :math:`f^I` after each nonlinear solve. Consider, for example,
-:eq:`ARKODE_Residual_MeqI` which implies
+Upon solving for :math:`z_i`, method stages must store
+:math:`f^E(t^E_{n,j}, z_i)` and :math:`f^I(t^I_{n,j}, z_i)`. It is possible
+to compute the later without evaluating :math:`f^I` after each nonlinear solve.
+Consider, for example, :eq:`ARKODE_Residual_MeqI` which implies
 
   .. math::
-     f^I(t^I_{n,j}, z_j) = \frac{z_i - a_i}{h_n A^I_{i,i}}
+     f^I(t^I_{n,j}, z_i) = \frac{z_i - a_i}{h_n A^I_{i,i}}
+     :label: ARKODE_Implicit_Stage_Eval
 
-when :math:`z_i` is the exact root. Similar relations hold for non-identity mass
-matrices. This optimization can be enabled with :c:func:`ARKStepSetImplicitReeval`.
+when :math:`z_i` is the exact root, and similar relations hold for non-identity
+mass matrices.  This optimization can be enabled with
+:c:func:`ARKStepSetImplicitReeval` and :c:func:`MRIStepSetImplicitReeval`.
+Another factor to consider when using this option is the amplification of errors
+from the nonlinear solver to the stages. In :eq:`ARKODE_Implicit_Stage_Eval`,
+nonlinear solver errors in :math:`z_i` are scaled by
+:math:`1 / (h_n A^I_{i,i})`. By evaluating :math:`f^I` on :math:`z_i`, errors
+are scaled roughly by the Lipshitz constant :math:`L` of the problem. If
+:math:`h_n A^I_{i,i} L > 1`, which is often the case when using implicit
+methods, it may be more accurate to use :eq:`ARKODE_Implicit_Stage_Eval`.
+Additional details are discussed in :cite:p:`Shampine:80`.
 
 In each of the above nonlinear residual functions, if :math:`f^I(t,y)` depends
 nonlinearly on :math:`y` then :eq:`ARKODE_Residual` corresponds to a nonlinear system

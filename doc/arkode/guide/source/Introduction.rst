@@ -118,6 +118,15 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Added the functions :c:func:`ARKStepSetImplicitReeval` and
+:c:func:`MRIStepSetImplicitReeval` to optionally remove an evaluation of the
+implicit right-hand side function after nonlinear solves. See
+:numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
+optimization.
+
 Changes in v5.1.0
 -----------------
 
@@ -139,9 +148,6 @@ Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Calipe
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
 Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
-
-Added :c:func:`ARKStepSetImplicitReeval` to provide optimization for computing
-function evaluations of implicit stages.
 
 Changes in v5.0.0
 -----------------

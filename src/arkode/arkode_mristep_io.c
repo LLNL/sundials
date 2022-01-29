@@ -195,24 +195,25 @@ int MRIStepSetDefaults(void* arkode_mem)
   if (retval != ARK_SUCCESS) return(retval);
 
   /* Set default values for integrator optional inputs */
-  step_mem->q              = 3;              /* method order */
-  step_mem->p              = 0;              /* embedding order */
-  step_mem->predictor      = 0;              /* trivial predictor */
-  step_mem->linear         = SUNFALSE;       /* nonlinear problem */
-  step_mem->linear_timedep = SUNTRUE;        /* dfs/dy depends on t */
-  step_mem->maxcor         = MAXCOR;         /* max nonlinear iters/stage */
-  step_mem->nlscoef        = NLSCOEF;        /* nonlinear tolerance coefficient */
-  step_mem->crdown         = CRDOWN;         /* nonlinear convergence estimate coeff. */
-  step_mem->rdiv           = RDIV;           /* nonlinear divergence tolerance */
-  step_mem->dgmax          = DGMAX;          /* max gamma change before recomputing J or P */
-  step_mem->msbp           = MSBP;           /* max steps between updates to J or P */
-  step_mem->stages         = 0;              /* no stages */
-  step_mem->istage         = 0;              /* current stage index */
-  step_mem->MRIC           = NULL;           /* no slow->fast coupling */
-  step_mem->NLS            = NULL;           /* no nonlinear solver object */
-  step_mem->jcur           = SUNFALSE;
-  step_mem->convfail       = ARK_NO_FAILURES;
-  step_mem->stage_predict  = NULL;           /* no user-supplied stage predictor */
+  step_mem->q               = 3;              /* method order */
+  step_mem->p               = 0;              /* embedding order */
+  step_mem->predictor       = 0;              /* trivial predictor */
+  step_mem->linear          = SUNFALSE;       /* nonlinear problem */
+  step_mem->linear_timedep  = SUNTRUE;        /* dfs/dy depends on t */
+  step_mem->implicit_reeval = SUNTRUE;        /* evaluate fi on result of NLS */
+  step_mem->maxcor          = MAXCOR;         /* max nonlinear iters/stage */
+  step_mem->nlscoef         = NLSCOEF;        /* nonlinear tolerance coefficient */
+  step_mem->crdown          = CRDOWN;         /* nonlinear convergence estimate coeff. */
+  step_mem->rdiv            = RDIV;           /* nonlinear divergence tolerance */
+  step_mem->dgmax           = DGMAX;          /* max gamma change before recomputing J or P */
+  step_mem->msbp            = MSBP;           /* max steps between updates to J or P */
+  step_mem->stages          = 0;              /* no stages */
+  step_mem->istage          = 0;              /* current stage index */
+  step_mem->MRIC            = NULL;           /* no slow->fast coupling */
+  step_mem->NLS             = NULL;           /* no nonlinear solver object */
+  step_mem->jcur            = SUNFALSE;
+  step_mem->convfail        = ARK_NO_FAILURES;
+  step_mem->stage_predict   = NULL;           /* no user-supplied stage predictor */
 
   return(ARK_SUCCESS);
 }
@@ -656,6 +657,34 @@ int MRIStepSetStagePredictFn(void *arkode_mem,
   }
 
   step_mem->stage_predict = PredictStage;
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  MRIStepSetImplicitReeval:
+
+  Specifies if an optimization is used to avoid an evaluation of
+  fi after a nonlinear solve for an implicit stage.  If stage
+  postprocessecing in enabled, this option is ignored, and fi is
+  always reevaluated.
+
+  An argument of SUNTRUE indicates that fi is evaluated to
+  compute fi(z_i), and SUNFALSE indicates that fi(z_i) is
+  computed without an additional evaluation of fi.
+  ---------------------------------------------------------------*/
+int MRIStepSetImplicitReeval(void *arkode_mem, sunbooleantype reeval)
+{
+  ARKodeMem        ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeMRIStepMem structure and set function pointer */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetImplicitReeval",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  step_mem->implicit_reeval = reeval;
   return(ARK_SUCCESS);
 }
 

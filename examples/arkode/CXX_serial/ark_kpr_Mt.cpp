@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   int rk_type = 0;                  // type of RK method [ARK=0, DIRK=1, ERK=2]
   int nls_type = 0;                 // type of nonlinear solver [Newton=0, FP=1]
   int order = 4;                    // order of accuracy for RK method
-  booleantype reeval = SUNTRUE;
+  booleantype reeval = SUNTRUE;     // evaluated fi after a nonlinear solve
   booleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
   realtype reltol = RCONST(1e-5);   // relative tolerance
   realtype abstol = RCONST(1e-11);  // absolute tolerance

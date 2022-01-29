@@ -1711,12 +1711,12 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval != 0) return(ARK_POSTPROCESS_STAGE_FAIL);
     }
 
-    reevaluate_stage = step_mem->implicit_reeval || !implicit_stage
-                       || ark_mem->ProcessStage != NULL;
-
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
+      reevaluate_stage = step_mem->implicit_reeval || !implicit_stage
+                         || ark_mem->ProcessStage != NULL;
+
       if (reevaluate_stage) {
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
                               step_mem->Fi[is], ark_mem->user_data);

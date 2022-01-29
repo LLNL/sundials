@@ -1360,7 +1360,7 @@ int ARKStepSetImplicitReeval(void *arkode_mem, sunbooleantype reeval)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  step_mem->implicit_reeval = (reeval == 1);
+  step_mem->implicit_reeval = reeval;
   return(ARK_SUCCESS);
 }
 
