@@ -200,12 +200,12 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
-  ier = IDASpilsSetLinearSolver(mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1)) return(1);
+  ier = IDASetLinearSolver(mem, LS, NULL);
+  if(check_flag(&ier, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the preconditioner solve and setup functions */
-  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
+  ier = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
+  if(check_flag(&ier, "IDASetPreconditioner", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -239,8 +239,8 @@ int main(int argc, char *argv[])
   ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
-  ier = IDASpilsGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+  ier = IDAGetNumLinConvFails(mem, &ncfl);
+  check_flag(&ier, "IDAGetNumLinConvFails", 1);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -287,8 +287,8 @@ int main(int argc, char *argv[])
   ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
-  ier = IDASpilsGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+  ier = IDAGetNumLinConvFails(mem, &ncfl);
+  check_flag(&ier, "IDAGetNumLinConvFails", 1);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -532,16 +532,16 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetNumResEvals", 1);
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDASpilsGetNumJtimesEvals(mem, &nje);
-  check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1);
-  ier = IDASpilsGetNumLinIters(mem, &nli);
-  check_flag(&ier, "IDASpilsGetNumLinIters", 1);
-  ier = IDASpilsGetNumResEvals(mem, &nreLS);
-  check_flag(&ier, "IDASpilsGetNumResEvals", 1);
-  ier = IDASpilsGetNumPrecEvals(mem, &npe);
-  check_flag(&ier, "IDASpilsGetPrecEvals", 1);
-  ier = IDASpilsGetNumPrecSolves(mem, &nps);
-  check_flag(&ier, "IDASpilsGetNumPrecSolves", 1);
+  ier = IDAGetNumJtimesEvals(mem, &nje);
+  check_flag(&ier, "IDAGetNumJtimesEvals", 1);
+  ier = IDAGetNumLinIters(mem, &nli);
+  check_flag(&ier, "IDAGetNumLinIters", 1);
+  ier = IDAGetNumLinResEvals(mem, &nreLS);
+  check_flag(&ier, "IDAGetNumLinResEvals", 1);
+  ier = IDAGetNumPrecEvals(mem, &npe);
+  check_flag(&ier, "IDAGetPrecEvals", 1);
+  ier = IDAGetNumPrecSolves(mem, &nps);
+  check_flag(&ier, "IDAGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",

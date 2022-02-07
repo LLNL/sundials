@@ -29,7 +29,7 @@
  * where
  *
  *                 i          ns         j
- *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c ).
+ *  f (x,y,c)  =  c *(b(i) + sum a(i,j)*c )
  *   i                       j=1
  *
  * The number of species is ns = 2*np, with the first np being prey
@@ -111,30 +111,31 @@
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 /* Problem Specification Constants */
 
-#define AA ONE               /* AA = a */
-#define EE RCONST(1e4)       /* EE = e */
-#define GG RCONST(0.5e-6)    /* GG = g */
-#define BB ONE               /* BB = b */
+#define AA    ONE               /* AA = a */
+#define EE    RCONST(1.0e4)     /* EE = e */
+#define GG    RCONST(0.5e-6)    /* GG = g */
+#define BB    ONE               /* BB = b */
 #define DPREY ONE
 #define DPRED RCONST(0.5)
-#define ALPH ONE
-#define NP 3
-#define NS (2*NP)
+#define ALPH  ONE
+#define NP    3
+#define NS    (2*NP)
 
 /* Method Constants */
 
-#define MX   20
-#define MY   20
-#define MXNS (MX*NS)
-#define AX   ONE
-#define AY   ONE
-#define DX   (AX/(realtype)(MX-1))
-#define DY   (AY/(realtype)(MY-1))
-#define MP   NS
-#define MQ   (MX*MY)
+#define MX    20
+#define MY    20
+#define MXNS  (MX*NS)
+#define AX    ONE
+#define AY    ONE
+#define DX    (AX/(realtype)(MX-1))
+#define DY    (AY/(realtype)(MY-1))
+#define MP    NS
+#define MQ    (MX*MY)
 #define MXMP  (MX*MP)
 #define NGX   2
 #define NGY   2
@@ -144,9 +145,9 @@
 /* CVodeInit Constants */
 
 #define NEQ   (NS*MX*MY)
-#define T0    RCONST(0.0)
-#define RTOL  RCONST(1e-5)
-#define ATOL  RCONST(1e-5)
+#define T0    ZERO
+#define RTOL  RCONST(1.0e-5)
+#define ATOL  RCONST(1.0e-5)
 
 /* Output Constants */
 
@@ -161,7 +162,7 @@
 typedef struct {
   realtype **P[NGRP];
   sunindextype *pivot[NGRP];
-  int ns,  mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
+  int ns, mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
   realtype acoef[NS][NS], bcoef[NS], diff[NS];
@@ -170,6 +171,8 @@ typedef struct {
   realtype fBsave[NEQ];
   N_Vector rewt;
   N_Vector vtemp;
+  N_Vector rewtB;
+  N_Vector vtempB;
   void *cvode_mem;
   int indexB;
 } *WebData;
@@ -228,8 +231,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* Small Vector Kernels */
 
 static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n);
-static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[], realtype w[],
-                        int n);
+static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[],
+                        realtype w[], int n);
 static void v_prod(realtype u[], realtype v[], realtype w[], int n);
 static void v_zero(realtype u[], int n);
 
@@ -314,7 +317,7 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
   retval = CVodeAdjInit(cvode_mem, NSTEPS, CV_HERMITE);
-  if(check_retval(&retval, "CVadjInit", 1)) return(1);
+  if(check_retval(&retval, "CVodeAdjInit", 1)) return(1);
 
   /* Perform forward run */
 
@@ -478,22 +481,19 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr,
                    realtype gamma, void *user_data)
 {
-  int N, retval;
   realtype ***P;
   sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   sunindextype denseretval;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
-  void *cvode_mem;
   WebData wdata;
   N_Vector rewt;
 
   wdata = (WebData) user_data;
-  cvode_mem = wdata->cvode_mem;
   rewt = wdata->rewt;
-  retval = CVodeGetErrWeights(cvode_mem, rewt);
+  retval = CVodeGetErrWeights(wdata->cvode_mem, rewt);
   if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = N_VGetArrayPointer(c);
@@ -520,8 +520,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   f1 = N_VGetArrayPointer(wdata->vtemp);
 
   fac = N_VWrmsNorm (fc, rewt);
-  N = NEQ+1;
-  r0 = RCONST(1000.0)*fabs(gamma)*uround*N*fac;
+  r0 = RCONST(1000.0)*fabs(gamma)*uround*(NEQ+1)*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -625,7 +624,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
  */
 
 static int fB(realtype t, N_Vector c, N_Vector cB,
-               N_Vector cBdot, void *user_data)
+              N_Vector cBdot, void *user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
@@ -693,12 +692,11 @@ static int PrecondB(realtype t, N_Vector c,
                     booleantype *jcurPtr, realtype gamma,
                     void *user_data)
 {
-  int N, retval;
   realtype ***P;
   sunindextype **pivot;
-  int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp;
   sunindextype denseretval;
+  int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   void *cvode_mem;
@@ -708,7 +706,7 @@ static int PrecondB(realtype t, N_Vector c,
   wdata = (WebData) user_data;
   cvode_mem = CVodeGetAdjCVodeBmem(wdata->cvode_mem, wdata->indexB);
   if(check_retval((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
-  rewt = wdata->rewt;
+  rewt = wdata->rewtB;
   retval = CVodeGetErrWeights(cvode_mem, rewt);
   if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
 
@@ -733,10 +731,9 @@ static int PrecondB(realtype t, N_Vector c,
      Here, fsave contains the base value of the rate vector and
      r0 is a minimum increment factor for the difference quotient. */
 
-  f1 = N_VGetArrayPointer(wdata->vtemp);
+  f1 = N_VGetArrayPointer(wdata->vtempB);
   fac = N_VWrmsNorm (fcB, rewt);
-  N = NEQ;
-  r0 = RCONST(1000.0)*fabs(gamma)*uround*N*fac;
+  r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -796,7 +793,7 @@ static int PSolveB(realtype t, N_Vector c,
 
   /* call GSIter for Gauss-Seidel iterations (same routine but with gamma=-gamma) */
 
-  GSIter(-gamma, z, wdata->vtemp, wdata);
+  GSIter(-gamma, z, wdata->vtempB, wdata);
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
 
@@ -835,7 +832,8 @@ static int PSolveB(realtype t, N_Vector c,
 
 static WebData AllocUserData(void)
 {
-  int i, ngrp = NGRP, ns = NS;
+  int i, ngrp = NGRP;
+  sunindextype ns = NS;
   WebData wdata;
 
   wdata = (WebData) malloc(sizeof *wdata);
@@ -843,8 +841,10 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
     (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
-  wdata->rewt  = N_VNew_Serial(NEQ+1, sunctx);
-  wdata->vtemp = N_VNew_Serial(NEQ+1, sunctx);
+  wdata->rewt   = N_VNew_Serial(NEQ+1, sunctx);
+  wdata->vtemp  = N_VNew_Serial(NEQ+1, sunctx);
+  wdata->rewtB  = N_VNew_Serial(NEQ, sunctx);
+  wdata->vtempB = N_VNew_Serial(NEQ, sunctx);
 
   return(wdata);
 }
@@ -1055,7 +1055,6 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
   WebRates(x, y, t, cdata+ic, cdotdata, wdata);
 }
 
-
 /*
  * This routine performs ITMAX=5 Gauss-Seidel iterations to compute an
  * approximation to (P-inverse)*z, where P = I - gamma*Jd, and
@@ -1066,8 +1065,7 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
  * vector kernels v_sum_prods, v_prod, v_inc_by_prod.
  */
 
-static void GSIter(realtype gamma, N_Vector z, N_Vector x,
-                   WebData wdata)
+static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 {
   int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
   realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
@@ -1086,11 +1084,11 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x,
      Load local arrays beta, beta2, gam, gam2, and cof1. */
 
   for (i = 0; i < ns; i++) {
-    temp = ONE/(ONE + RCONST(2.0)*gamma*(cox[i] + coy[i]));
+    temp = ONE/(ONE + TWO*gamma*(cox[i] + coy[i]));
     beta[i] = gamma*cox[i]*temp;
-    beta2[i] = RCONST(2.0)*beta[i];
+    beta2[i] = TWO*beta[i];
     gam[i] = gamma*coy[i]*temp;
-    gam2[i] = RCONST(2.0)*gam[i];
+    gam2[i] = TWO*gam[i];
     cof1[i] = temp;
   }
 
@@ -1317,7 +1315,7 @@ static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
   jy = 0;
   intgr_x = cdata[(i-1)+jy*mxns];
   for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += RCONST(2.0)*cdata[(i-1) + jx*ns + jy*mxns];
+    intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
   }
   intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
   intgr_x *= RCONST(0.5)*dx;
@@ -1328,19 +1326,19 @@ static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
 
     intgr_x = cdata[(i-1)+jy*mxns];
     for (jx = 1; jx < mx-1; jx++) {
-      intgr_x += RCONST(2.0)*cdata[(i-1) + jx*ns + jy*mxns];
+      intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
     }
     intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
     intgr_x *= RCONST(0.5)*dx;
 
-    intgr_xy += RCONST(2.0)*intgr_x;
+    intgr_xy += TWO*intgr_x;
 
   }
 
   jy = my-1;
   intgr_x = cdata[(i-1)+jy*mxns];
   for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += RCONST(2.0)*cdata[(i-1) + jx*ns + jy*mxns];
+    intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
   }
   intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
   intgr_x *= RCONST(0.5)*dx;
@@ -1367,6 +1365,8 @@ static void FreeUserData(WebData wdata)
   }
   N_VDestroy(wdata->rewt);
   N_VDestroy(wdata->vtemp);
+  N_VDestroy(wdata->rewtB);
+  N_VDestroy(wdata->vtempB);
   free(wdata);
 }
 
@@ -1387,7 +1387,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -1395,13 +1395,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

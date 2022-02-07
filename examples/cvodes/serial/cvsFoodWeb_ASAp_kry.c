@@ -48,8 +48,8 @@
  * The boundary conditions are: normal derivative = 0.
  * A polynomial in x and y is used to set the initial conditions.
  *
- * The PDEs are discretized by central differencing on an MX by
- * MY mesh. The resulting ODE system is stiff.
+ * The PDEs are discretized by central differencing on an MX by MY
+ * mesh. The resulting ODE system is stiff.
  *
  * The ODE system is solved by CVODES using Newton iteration and
  * the SUNLinSol_SPGMR linear solver (scaled preconditioned GMRES).
@@ -57,11 +57,11 @@
  * The preconditioner matrix used is the product of two matrices:
  * (1) A matrix, only defined implicitly, based on a fixed number
  * of Gauss-Seidel iterations using the diffusion terms only.
- * (2) A block-diagonal matrix based on the partial derivatives
- * of the interaction terms f only, using block-grouping (computing
+ * (2) A block-diagonal matrix based on the partial derivatives of
+ * the interaction terms f only, using block-grouping (computing
  * only a subset of the ns by ns blocks).
  *
- * Additionally, CVODES can integrate backwards in time the
+ * Additionally, CVODES integrates backwards in time the
  * the semi-discrete form of the adjoint PDE:
  *   d(lambda)/dt = - D^T ( lambda_xx + lambda_yy )
  *                  - F_c^T lambda
@@ -78,8 +78,7 @@
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,9 +102,9 @@
 
 /* Constants */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 /* Problem Specification Constants */
 
@@ -171,6 +170,7 @@ typedef struct {
 
 /* Adjoint calculation constants */
 /* g = int_x int_y c(ISPEC) dy dx at t = Tfinal */
+
 #define NSTEPS 80  /* check points every NSTEPS steps */
 #define ISPEC  6   /* species # in objective */
 
@@ -252,7 +252,8 @@ int main(int argc, char *argv[])
   realtype reltolB=RTOL, abstolB=ATOL;
   N_Vector cB;
 
-  c = cB = NULL;
+  c = NULL;
+  cB = NULL;
   wdata = NULL;
   cvode_mem = NULL;
   LS = LSB = NULL;
@@ -561,7 +562,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   realtype gamma, realtype delta,
                   int lr, void *user_data)
 {
-  realtype   ***P;
+  realtype ***P;
   sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
@@ -652,7 +653,7 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
         /* Collect terms and load cdot elements. */
         cBdotdata[ici] = - coy[i-1]*(dcyui - dcyli)
                          - cox[i-1]*(dcxui - dcxli)
-	                 - fBsave[ici];
+                         - fBsave[ici];
       }
     }
   }
@@ -673,7 +674,7 @@ static int PrecondB(realtype t, N_Vector c,
   sunindextype **pivot;
   sunindextype denseretval;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, retval;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   void *cvode_mem;
@@ -709,7 +710,6 @@ static int PrecondB(realtype t, N_Vector c,
      r0 is a minimum increment factor for the difference quotient. */
 
   f1 = N_VGetArrayPointer(wdata->vtemp);
-
   fac = N_VWrmsNorm (fcB, rewt);
   r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
   if (r0 == ZERO) r0 = ONE;
@@ -1034,7 +1034,6 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
   for (j = 0; j < ns; j++)
     for (i = 0; i < ns; i++)
       rateB[i] += acoef[j][i]*c[j]*cB[j];
-
 }
 
 /*
@@ -1386,7 +1385,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -1394,13 +1393,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

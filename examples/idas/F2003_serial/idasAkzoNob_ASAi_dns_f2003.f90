@@ -213,7 +213,7 @@ contains
 
     ! function arguments
     type(N_Vector) :: nv_yB, nv_ypB
-    real(c_double), pointer :: yB(:), ypB(:)
+    real(c_double), pointer :: yB(:)
 
     yB => FN_VGetArrayPointer(nv_yB)
 
@@ -252,9 +252,9 @@ program main
   real(c_double)                 :: time(1)
   integer(c_long)                :: nst(1), nstB(1)
   integer(c_int)                 :: indexB(1)
-  real(c_double),        pointer :: yy(:), yp(:), rr(:), q(:)
+  real(c_double),        pointer :: yy(:), q(:)
   type(N_Vector),        pointer :: nv_yy, nv_yp, nv_rr, nv_q
-  real(c_double),        pointer :: yB(:), ypB(:)
+  real(c_double),        pointer :: ypB(:)
   type(N_Vector),        pointer :: nv_yB, nv_ypB
   type(SUNMatrix),       pointer :: A, AB
   type(SUNLinearSolver), pointer :: LS, LSB

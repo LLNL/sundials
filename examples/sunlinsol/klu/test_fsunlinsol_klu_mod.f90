@@ -40,7 +40,7 @@ contains
     type(SUNLinearSolver), pointer :: LS                ! test linear solver
     type(SUNMatrix),       pointer :: A, D              ! test matrices
     type(N_Vector),        pointer :: x, b              ! test vectors
-    real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
+    real(C_DOUBLE),        pointer :: colj(:)           ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
     integer(C_LONG)                :: j, k, i

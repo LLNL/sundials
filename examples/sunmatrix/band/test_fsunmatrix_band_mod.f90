@@ -147,7 +147,7 @@ contains
 
       ! y vector
       ydata(ii) = ZERO
-      jstart    = max(0, ii-ml)
+      jstart    = max(0_c_long, ii-ml)
       jend      = min(N-1, ii+mu)
       do jj = jstart, jend
         ydata(ii) = ydata(ii) + (jj+jj-ii)*(jj)
