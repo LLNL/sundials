@@ -26,7 +26,6 @@ set(nvector_mpiplusx_examples
 set(nvector_examples_dependencies
   test_nvector
   test_mpinvector
-  sundials_nvector
   )
 
 # If building F2003 tests
@@ -127,7 +126,6 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
       ../test_nvector.c
       ../test_mpinvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx)
   endif()
 

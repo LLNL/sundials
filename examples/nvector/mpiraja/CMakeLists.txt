@@ -27,7 +27,6 @@ set(nvector_raja_examples
 set(nvector_examples_dependencies
   test_nvector
   test_mpinvector
-  sundials_nvector
   sundials_math
   )
 
@@ -109,7 +108,6 @@ foreach(example_tuple ${nvector_raja_examples})
       ../test_nvector.c
       ../test_mpinvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
       ../../../src/sundials/sundials_math.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja)
   endif()

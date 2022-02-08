@@ -30,7 +30,6 @@ set(nvector_openmp_examples
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
   test_nvector
-  sundials_nvector
   )
 
 # If building F2003 tests
@@ -93,7 +92,6 @@ foreach(example_tuple ${nvector_openmp_examples})
     install(FILES ${example}.c
       ../test_nvector.c
       ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/C_openmp)
   endif()
 
