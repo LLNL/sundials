@@ -2577,7 +2577,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
                      ark_mem->tempv1);
       }
 
-      retval = ark_mem->relax_mem->rjac(ark_mem->tempv1, ark_mem->tempv1,
+      retval = ark_mem->relax_mem->rjac(ark_mem->tempv1, ark_mem->tempv2,
                                         ark_mem->user_data);
       if (retval) return retval;
 
