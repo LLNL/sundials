@@ -94,6 +94,9 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->constraintsSet = SUNFALSE;
   ark_mem->constraints    = NULL;
 
+  /* Initialize relaxation variables */
+  ark_mem->relax_mem = NULL;
+
   /* Initialize diagnostics reporting variables */
   ark_mem->report  = SUNFALSE;
   ark_mem->diagfp  = NULL;

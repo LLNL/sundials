@@ -27,6 +27,10 @@
 #include <sundials/sundials_types.h>
 
 
+int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac) {
+  return(arkSetRelaxFn(arkode_mem, rfn, rjac));
+}
+
 /*===============================================================
   ARKStep Optional input functions (wrappers for generic ARKode
   utility routines).  All are documented in arkode_io.c.

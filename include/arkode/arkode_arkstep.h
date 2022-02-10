@@ -458,6 +458,10 @@ SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
                                                      MRIStepInnerStepper *stepper);
 
+
+SUNDIALS_EXPORT int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,
+                                      ARKRelaxJacFn rjac);
+
 #ifdef __cplusplus
 }
 #endif

@@ -2478,8 +2478,9 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 {
   /* local data */
-  int retval, j, nvec;
+  int retval, i, j, nvec;
   N_Vector y, yerr;
+  realtype gam;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
@@ -2549,6 +2550,52 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
     /* fill error norm */
     *dsmPtr = N_VWrmsNorm(yerr, ark_mem->ewt);
+  }
+
+  /* TODO(DJG):
+     Should this happen before or after the error estimate? If gamma is "small"
+     then the error estimate should still hold. Do not relax if the step would
+     fail the error test. Could relaxation reduce the error enough that the test
+     would pass? Would it be worthwhile to have an option for when to relax?
+     If before, this should happen in <stepper>_ComputeSolutions.
+     If after, should happen in arkCompleteStep?
+     operation for a set of dot products?
+  */
+  if (ark_mem->relax_mem)
+  {
+    ark_mem->relax_mem->est = ZERO;
+    for (i = 0; i < step_mem->stages; i++)
+    {
+      /* TODO(DJG): Update for implicit compute the stage */
+      N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
+      for (j = 0; j < i; j++)
+      {
+        N_VLinearSum(ONE, ark_mem->tempv1,
+                     step_mem->Be->A[i][j], step_mem->Fe[j],
+                     ark_mem->tempv1);
+      }
+
+      retval = ark_mem->relax_mem->rjac(ark_mem->tempv1, ark_mem->tempv1,
+                                        ark_mem->user_data);
+      if (retval) return retval;
+
+      ark_mem->relax_mem->est += step_mem->Be->b[i] *
+        N_VDotProd(ark_mem->tempv2, step_mem->Fe[j]);
+    }
+    ark_mem->relax_mem->est *= ark_mem->h;
+
+
+    retval = ark_mem->relax_mem->rfn(ark_mem->yn, &(ark_mem->relax_mem->rcur),
+                                     ark_mem->user_data);
+    if (retval) return retval;
+
+    retval = arkRelax(ark_mem, &gam);
+    if (retval) return retval;
+
+    ark_mem->h *= gam;
+
+    N_VLinearSum(gam, ark_mem->ycur, (ONE - gam), ark_mem->yn,
+                 ark_mem->ycur);
   }
 
   return(ARK_SUCCESS);

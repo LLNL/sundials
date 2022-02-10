@@ -22,6 +22,7 @@
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"
+#include "arkode_relaxation_impl.h"
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
 #include "sundials_context_impl.h"
@@ -393,6 +394,9 @@ typedef struct ARKodeMemRec {
 
   /* Rootfinding Data */
   ARKodeRootMem root_mem;          /* root-finding structure */
+
+  /* Relaxation Data */
+  ARKodeRelaxMem relax_mem;        /* relaxation structure */
 
   /* User-supplied step solution post-processing function */
   ARKPostProcessFn ProcessStep;
