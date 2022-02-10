@@ -135,19 +135,38 @@ int main(int argc, char *argv[])
   FILE*    UFID;
 
   /* Command line options */
-  int      implicit = 0;            /* explicit      */
-  realtype fixed_h  = RCONST(0.0);  /* adaptive step */
+  int      implicit = 0;            /* explicit          */
+  int      relax    = 1;            /* enable relaxation */
+  realtype fixed_h  = RCONST(0.0);  /* adaptive steps    */
 
-  /* ----- *
-   * Setup *
-   * ----- */
+  /* -------------------- *
+   * Output Problem Setup *
+   * -------------------- */
 
   if (argc > 1) implicit = atoi(argv[1]);
-  if (argc > 2) fixed_h  = (realtype) atof(argv[2]);
+  if (argc > 2) relax    = atoi(argv[2]);
+  if (argc > 3) fixed_h  = (realtype) atof(argv[3]);
 
   printf("\nConserved Exponential Entropy problem:\n");
-  printf("   reltol = %.1"ESYM"\n",  reltol);
-  printf("   abstol = %.1"ESYM"\n\n",abstol);
+  if (implicit)
+    printf("   method = ERK\n");
+  else
+    printf("   method = DIRK\n");
+  if (relax)
+    printf("   relaxation = ON");
+  else
+    printf("   relaxation = OFF");
+  if (fixed_h > 0.0)
+    printf("   fixed h = %.6"ESYM"\n", fixed_h);
+  if (implicit || fixed_h > 0.0)
+  {
+    printf("   reltol = %.1"ESYM"\n",  reltol);
+    printf("   abstol = %.1"ESYM"\n\n",abstol);
+  }
+
+  /* ------------ *
+   * Setup ARKODE *
+   * ------------ */
 
   /* Create the SUNDIALS context object for this simulation */
   flag = SUNContext_Create(NULL, &ctx);
@@ -177,8 +196,12 @@ int main(int argc, char *argv[])
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(flag, "ARKStepSStolerances")) return 1;
 
-  flag = ARKStepSetRelaxFn(arkode_mem, Ent, JacEnt);
-  if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
+  if (relax)
+  {
+    /* Enable relaxation methods */
+    flag = ARKStepSetRelaxFn(arkode_mem, Ent, JacEnt);
+    if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
+  }
 
   if (fixed_h > 0.0)
   {
