@@ -15,7 +15,7 @@
  *
  * H. Ranocha, M. Sayyari, L. Dalcin, M. Parsani, and D.I. Ketcheson,
  * "Relaxation Runge-Kutta Methods: Fully-Discrete Explicit Entropy-Stable
- * Schemes for the Compressible Euler and Navier-Stokes Equations, SIAM Journal
+ * Schemes for the Compressible Euler and Navier-Stokes Equations," SIAM Journal
  * on Scientific Computing, 42(2), 2020, https://doi.org/10.1137/19M1263480.
  * -----------------------------------------------------------------------------
  * This example evolves system

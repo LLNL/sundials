@@ -2553,20 +2553,22 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   }
 
   /* TODO(DJG):
-     Should this happen before or after the error estimate? If gamma is "small"
-     then the error estimate should still hold. Do not relax if the step would
-     fail the error test. Could relaxation reduce the error enough that the test
-     would pass? Would it be worthwhile to have an option for when to relax?
+     Should this happen before or after the error estimate?
      If before, this should happen in <stepper>_ComputeSolutions.
      If after, should happen in arkCompleteStep?
-     operation for a set of dot products?
+     * If gamma is "small enough" then the error estimate should still hold.
+     * Do not relax if the step would fail the error test.
+     * Could relaxation reduce the error enough that the test would pass?
+     * Would it be worthwhile to have an option for when to relax?
+     Operation for a set of dot products?
+     Could gamma cause issues with tstop?
   */
   if (ark_mem->relax_mem)
   {
     ark_mem->relax_mem->est = ZERO;
     for (i = 0; i < step_mem->stages; i++)
     {
-      /* TODO(DJG): Update for implicit compute the stage */
+      /* TODO(DJG): Update for implicit and IMEX stages */
       N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
       for (j = 0; j < i; j++)
       {
