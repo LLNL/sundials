@@ -111,7 +111,7 @@ Fortran.
 Changes from previous versions
 ==============================
 
-Changes in vx.x.x
+Changes in v6.1.1
 -----------------
 
 Fixed exported ``SUNDIALSConfig.cmake``.

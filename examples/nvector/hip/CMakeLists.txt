@@ -25,9 +25,9 @@ endif()
 
 # Examples using SUNDIALS hip nvector
 set(nvector_hip_examples
-  "test_nvector_hip\;3 ${_warp_size} 0\;\;\;"
-  "test_nvector_hip\;500 128 0\;\;\;"
-  "test_nvector_hip\;1000 0 0\;\;\;"
+  "test_nvector_hip.cpp\;3 ${_warp_size} 0\;\;\;"
+  "test_nvector_hip.cpp\;500 128 0\;\;\;"
+  "test_nvector_hip.cpp\;1000 0 0\;\;\;"
   )
 
 # Add source directory to include directories
@@ -49,80 +49,62 @@ foreach(example_tuple ${nvector_hip_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  if(NOT TARGET ${example})
+  if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example} ${example}.hip.cpp)
+    add_executable(${example_target} ${example})
 
     # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj)
+    target_link_libraries(${example_target} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example_target} PRIVATE ${SUNDIALS_LIBS})
   endif()
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
     if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
+      set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks})
     endif()
   else()
     if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(${test_name} ${example_target}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.hip.cpp
-      ../test_nvector.c
-      ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/hip)
-  endif()
-
 endforeach(example_tuple ${nvector_hip_examples})
 
 if(EXAMPLES_INSTALL)
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/hip)
 
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(EXAMPLES_CMAKE_TARGETS "nvechip")
+  sundials_install_examples(nvector nvector_hip_examples
+    SUNDIALS_TARGETS
+      nvechip
+    EXAMPLES_DEPENDENCIES
+      test_nvector.c
+    EXTRA_FILES
+      ../test_nvector.c
+      ../test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
+    CMAKE_TEMPLATE
+      cmakelists_HIP_ex.in
+    DESTINATION
+      nvector/hip)
 
-  examples2string(nvector_hip_examples EXAMPLES)
-  set(ex_dependencies test_nvector.c)
-  examples2string(ex_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_HIP_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/hip/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/hip/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/hip
-    )
 endif(EXAMPLES_INSTALL)

@@ -26,7 +26,7 @@
 #     [EXTRA_INCLUDES includes]
 #   )
 #
-# adds an install target for examples in EXAMPLES_VAR that go with MOUDLE (e.g. arkode, nvecserial).
+# adds an install target for examples in EXAMPLES_VAR that go with MODULE (e.g. arkode, nvecserial).
 #
 # The DESTINATION option is the path *within* EXAMPLES_INSTALL_PATH that the files should be installed.
 #
@@ -42,7 +42,7 @@
 #
 # The OTHER_TARGETS option is a list of CMake targets that the examples need to be linked to.
 #
-# The EXAMPLE_DEPENDENCIES option is a list of additional source files that the examples are dependent on.
+# The EXAMPLES_DEPENDENCIES option is a list of additional source files that the examples are dependent on.
 #
 # The EXTRA_FILES option is a list of files to install that are not example source code.
 #
@@ -72,12 +72,6 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
     install(FILES ${example} ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
   endforeach()
-
-  # Install the example dependencies
-  if(DEFINED sundials_install_examples_EXAMPLES_DEPENDENCIES)
-    install(FILES ${sundials_install_examples_EXAMPLES_DEPENDENCIES}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
-  endif()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   string(TOUPPER "${MODULE}" SOLVER)

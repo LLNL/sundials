@@ -566,7 +566,7 @@ $tar $tarfile $distrobase/examples/nvector/C_openmp/test_nvector_openmp.c
 $tar $tarfile $distrobase/examples/nvector/cuda/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu
 $tar $tarfile $distrobase/examples/nvector/hip/CMakeLists.txt
-$tar $tarfile $distrobase/examples/nvector/hip/test_nvector_hip.hip.cpp
+$tar $tarfile $distrobase/examples/nvector/hip/test_nvector_hip.cpp
 $tar $tarfile $distrobase/examples/nvector/manyvector/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_fnvector_manyvector_mod.f90
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c

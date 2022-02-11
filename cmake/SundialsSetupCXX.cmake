@@ -25,8 +25,14 @@ set(CXX_FOUND TRUE)
 # ---------------------------------------------------------------
 
 set(DOCSTR "The C++ standard to use if C++ is enabled (98, 11, 14, 17, 20)")
-sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "11"
-                OPTIONS "98;11;14;17;20")
+
+if(ENABLE_SYCL)
+  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17"
+                  OPTIONS "98;11;14;17;20")
+else()
+  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "11"
+                  OPTIONS "98;11;14;17;20")
+endif()
 message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")
 
 set(DOCSTR "Enable C++ compiler specific extensions")

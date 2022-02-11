@@ -118,7 +118,7 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in vx.x.x
+Changes in v5.1.1
 -----------------
 
 Fixed exported ``SUNDIALSConfig.cmake``.

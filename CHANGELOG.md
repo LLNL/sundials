@@ -1,6 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release x.x.x
+## Changes to SUNDIALS in release 6.1.1
 
 Fixed exported `SUNDIALSConfig.cmake`.
 
