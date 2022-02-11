@@ -115,7 +115,11 @@ int arkRelax(void* arkode_mem, realtype* gam)
     if (flag) return flag;
 
     *gam += res;
+
+    if (res < 1.0e-12) break;
   }
+
+  printf("gamma = %g\n", *gam);
 
   return 0;
 }
