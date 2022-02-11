@@ -2582,10 +2582,9 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
       if (retval) return retval;
 
       ark_mem->relax_mem->est += step_mem->Be->b[i] *
-        N_VDotProd(ark_mem->tempv2, step_mem->Fe[j]);
+        N_VDotProd(ark_mem->tempv2, step_mem->Fe[i]);
     }
     ark_mem->relax_mem->est *= ark_mem->h;
-
 
     retval = ark_mem->relax_mem->rfn(ark_mem->yn, &(ark_mem->relax_mem->rcur),
                                      ark_mem->user_data);
