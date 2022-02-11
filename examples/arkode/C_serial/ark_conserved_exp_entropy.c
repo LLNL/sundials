@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
   /* Command line options */
   int      implicit = 0;            /* explicit          */
-  int      relax    = 1;            /* enable relaxation */
+  int      relax    = 0;            /* enable relaxation */
   realtype fixed_h  = RCONST(0.0);  /* adaptive steps    */
 
   /* -------------------- *
@@ -149,20 +149,21 @@ int main(int argc, char *argv[])
 
   printf("\nConserved Exponential Entropy problem:\n");
   if (implicit)
-    printf("   method = ERK\n");
-  else
     printf("   method = DIRK\n");
-  if (relax)
-    printf("   relaxation = ON");
   else
-    printf("   relaxation = OFF");
+    printf("   method = ERK\n");
+  if (relax)
+    printf("   relaxation = ON\n");
+  else
+    printf("   relaxation = OFF\n");
   if (fixed_h > 0.0)
     printf("   fixed h = %.6"ESYM"\n", fixed_h);
   if (implicit || fixed_h > 0.0)
   {
     printf("   reltol = %.1"ESYM"\n",  reltol);
-    printf("   abstol = %.1"ESYM"\n\n",abstol);
+    printf("   abstol = %.1"ESYM"\n", abstol);
   }
+  printf("\n");
 
   /* ------------ *
    * Setup ARKODE *
