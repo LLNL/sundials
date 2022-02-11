@@ -109,14 +109,14 @@ int arkRelax(void* arkode_mem, realtype* gam)
   ark_mem = (ARKodeMem) arkode_mem;
 
   *gam = ONE;
-  for (i = 0; i < 100; i++)
+  for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     flag = arkRelaxResidual(*gam, &res, ark_mem);
     if (flag) return flag;
 
     *gam += res;
 
-    if (res < 1.0e-12) break;
+    if (res < ark_mem->relax_mem->tol) break;
   }
 
   printf("gamma = %g\n", *gam);

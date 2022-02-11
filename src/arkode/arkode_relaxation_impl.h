@@ -35,10 +35,12 @@ typedef struct ARKodeRelaxMemRec* ARKodeRelaxMem;
 
 struct ARKodeRelaxMemRec
 {
-  ARKRelaxFn    rfn;
-  ARKRelaxJacFn rjac;
+  ARKRelaxFn    rfn;        /* relaxation function               */
+  ARKRelaxJacFn rjac;       /* relaxation Jacobian               */
   realtype      est;
-  realtype      rcur;
+  realtype      rcur;       /* current relaxation function value */
+  realtype      tol;        /* nonlinear solve tolerance         */
+  int           max_iters;  /* nonlinear solve max iterations    */
 };
 
 /* ==================== *
