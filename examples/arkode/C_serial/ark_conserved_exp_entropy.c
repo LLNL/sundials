@@ -111,10 +111,11 @@ int main(int argc, char *argv[])
   realtype abstol = RCONST(1.0e-10);
 
   /* SUNDIALS context, vector, matrix, and linear solver objects */
-  SUNContext      ctx = NULL;
-  N_Vector        y   = NULL;
-  SUNMatrix       A   = NULL;
-  SUNLinearSolver LS  = NULL;
+  SUNContext         ctx = NULL;
+  N_Vector           y   = NULL;
+  SUNMatrix          A   = NULL;
+  SUNLinearSolver    LS  = NULL;
+  ARKodeButcherTable B   = NULL;
 
   /* Pointer to vector data array */
   realtype* ydata;
@@ -227,6 +228,30 @@ int main(int argc, char *argv[])
     /* Set Jacobian routine */
     flag = ARKStepSetJacFn(arkode_mem, Jac);
     if (check_flag(flag, "ARKStepSetJacFn")) return 1;
+  }
+  else
+  {
+    /* Use RK4 */
+    B = ARKodeButcherTable_Alloc(4, SUNFALSE);
+
+    B->A[1][0] = RCONST(0.5);
+    B->A[2][1] = RCONST(0.5);
+    B->A[3][2] = RCONST(1.0);
+
+    B->c[1] = RCONST(0.5);
+    B->c[2] = RCONST(0.5);
+    B->c[3] = RCONST(1.0);
+
+    B->b[0] = RCONST(1.0) / RCONST(6.0);
+    B->b[1] = RCONST(1.0) / RCONST(3.0);
+    B->b[2] = RCONST(1.0) / RCONST(3.0);
+    B->b[3] = RCONST(1.0) / RCONST(6.0);
+
+    B->q = 4;
+    B->p = 0;
+
+    flag = ARKStepSetTables(arkode_mem, 4, 0, NULL, B);
+    if (check_flag(flag, "ARKStepSetTables")) return 1;
   }
 
   /* Open output stream for results, output comment line */
