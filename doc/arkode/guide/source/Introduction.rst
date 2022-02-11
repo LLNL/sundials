@@ -127,6 +127,18 @@ implicit right-hand side function after nonlinear solves. See
 :numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
 optimization.
 
+Changes in v5.1.1
+-----------------
+
+Fixed exported ``SUNDIALSConfig.cmake``.
+
+Fixed Fortran interface to :c:type:`MRIStepInnerStepper` and :c:type:`MRIStepCoupling`
+structures and functions.
+
+Added new Fortran example program,
+``examples/arkode/F2003_serial/ark_kpr_mri_f2003.f90`` demonstrating MRI
+capabilities.
+
 Changes in v5.1.0
 -----------------
 

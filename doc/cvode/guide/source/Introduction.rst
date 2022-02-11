@@ -111,6 +111,11 @@ implementations.
 Changes from previous versions
 ==============================
 
+Changes in v6.1.1
+-----------------
+
+Fixed exported ``SUNDIALSConfig.cmake``.
+
 Changes in v6.1.0
 -----------------
 

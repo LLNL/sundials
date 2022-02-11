@@ -27,7 +27,6 @@ set(nvector_cuda_examples
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
   test_nvector
-  sundials_nvector
   )
 
 # Add source directory to include directories
@@ -92,7 +91,6 @@ foreach(example_tuple ${nvector_cuda_examples})
       ../test_nvector.c
       ../test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
   endif()
 

@@ -318,6 +318,18 @@ $tar $tarfile $distrobase/examples/arkode/F2003_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/F2003_serial/README
 $tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_analytic_f2003.f90
 $tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_analytic_f2003.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003.f90
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_0_0.002.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_1_0.002.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_2_0.005.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_3_0.01.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_4_0.002.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_5_0.002.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_6_0.005.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_7_0.001.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_8_0.001.out
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_kpr_mri_f2003_9_0.001.out
 $tar $tarfile $distrobase/examples/arkode/F2003_serial/test_ark_butcher_f2003.f90
 
 echo "   --- Add arkode unit tests to $tarfile"

@@ -1,5 +1,16 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.1.1
+
+Fixed exported `SUNDIALSConfig.cmake`.
+
+Fixed Fortran interface to `MRIStepInnerStepper` and ``MRIStepCoupling`
+structures and functions.
+
+Added new Fortran example program,
+`examples/arkode/F2003_serial/ark_kpr_mri_f2003.f90` demonstrating MRI
+capabilities.
+
 ## Changes to SUNDIALS in release 6.1.0
 
 Added new reduction implementations for the CUDA and HIP NVECTORs that use

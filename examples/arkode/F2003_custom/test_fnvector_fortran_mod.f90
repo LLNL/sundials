@@ -56,16 +56,16 @@ program main
   implicit none
 
   ! local variables
-  type(c_ptr)                :: sunctx
-  integer(c_int)             :: fails
-  integer(c_long)            :: i, j, loc
-  integer(c_long), parameter :: N = 1000
-  integer(c_long), parameter :: Nvar = 10
-  type(N_Vector), pointer    :: sU, sV, sW, sX, sY, sZ
-  type(FVec), pointer        :: U, V, W, X, Y, Z
-  real(c_double)             :: Udata(Nvar,N)
-  real(c_double)             :: fac
-  logical                    :: failure
+  type(c_ptr)                 :: sunctx
+  integer(c_int)              :: fails
+  integer(c_long)             :: i, j, loc
+  integer(c_long), parameter  :: N = 1000
+  integer(c_long), parameter  :: Nvar = 10
+  type(N_Vector), pointer     :: sU, sV, sW, sX, sY, sZ
+  type(FVec), pointer         :: U, V, W, X, Y, Z
+  real(c_double), allocatable :: Udata(:,:)
+  real(c_double)              :: fac
+  logical                     :: failure
 
 
   !======= Internals ============
@@ -77,6 +77,7 @@ program main
   fails = FSUNContext_Create(c_null_ptr, sunctx)
 
   ! create new vectors, using New, Make and Clone routines
+  allocate(Udata(Nvar,N))
   sU => FN_VMake_Fortran(Nvar, N, Udata, sunctx)
   if (.not. associated(sU)) then
      print *, 'ERROR: sunvec = NULL'
@@ -495,7 +496,7 @@ program main
   call FN_VConst(-1.d0, sZ)
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 3)
+        loc = mod((j-1)*Nvar + i - 1, 3_c_long)
         if (loc == 0)  X%data(i,j) = 0.d0
         if (loc == 1)  X%data(i,j) = -1.d0
         if (loc == 2)  X%data(i,j) = -2.d0
@@ -505,7 +506,7 @@ program main
   failure = .false.
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 3)
+        loc = mod((j-1)*Nvar + i - 1, 3_c_long)
         if ((loc == 0) .and. (Z%data(i,j) /= 0.d0))  failure = .true.
         if ((loc == 1) .and. (Z%data(i,j) /= 1.d0))  failure = .true.
         if ((loc == 2) .and. (Z%data(i,j) /= 1.d0))  failure = .true.
@@ -533,7 +534,7 @@ program main
   call FN_VConst(0.d0, sZ)
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 2)
+        loc = mod((j-1)*Nvar + i - 1, 2_c_long)
         if (loc == 0)  X%data(i,j) = 0.d0
         if (loc == 1)  X%data(i,j) = 0.5d0
      end do
@@ -541,7 +542,7 @@ program main
   if (FN_VInvTest(sX, sZ) == 1)  failure = .true.
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 2)
+        loc = mod((j-1)*Nvar + i - 1, 2_c_long)
         if ((loc == 0) .and. (Z%data(i,j) /= 0.d0))  failure = .true.
         if ((loc == 1) .and. (Z%data(i,j) /= 2.d0))  failure = .true.
      end do
@@ -557,7 +558,7 @@ program main
   call FN_VConst(-1.d0, sZ)
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 7)
+        loc = mod((j-1)*Nvar + i - 1, 7_c_long)
         if (loc == 0) then  ! y = -2, test for < 0
            Y%data(i,j) = -2.d0
            X%data(i,j) = -2.d0
@@ -602,7 +603,7 @@ program main
   call FN_VConst(-1.d0, sZ)
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 5)
+        loc = mod((j-1)*Nvar + i - 1, 5_c_long)
         if (loc == 0) then  ! y = -2, test for < 0
            Y%data(i,j) = -2.d0
            X%data(i,j) = 2.d0
@@ -631,7 +632,7 @@ program main
   end if
   do j = 1,N
      do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 5)
+        loc = mod((j-1)*Nvar + i - 1, 5_c_long)
         if (loc == 2) then
            if (Z%data(i,j) /= 0.d0) failure = .true.
         else
@@ -700,6 +701,9 @@ program main
   call FN_VDestroy(sX)
   call FN_VDestroy(sY)
   call FN_VDestroy(sZ)
+
+  ! Free vector data
+  deallocate(Udata)
 
   ! free SUNDIALS context
   fails = FSUNContext_Free(sunctx)

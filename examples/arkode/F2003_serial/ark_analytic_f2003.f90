@@ -66,7 +66,7 @@ contains
     type(N_Vector) :: sunvec_f   ! rhs N_Vector
     type(c_ptr) :: user_data     ! user-defined data
 
-    ! pointers to data in SUNDAILS vectors
+    ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: yvec(:)
     real(c_double), pointer :: fvec(:)
 
