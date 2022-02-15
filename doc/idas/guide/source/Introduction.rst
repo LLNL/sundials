@@ -86,6 +86,12 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in v5.2.0
+-----------------
+
+Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
+counters to zero.
+
 Changes in v5.1.1
 -----------------
 

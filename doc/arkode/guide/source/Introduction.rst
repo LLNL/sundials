@@ -118,6 +118,12 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.2.0
+-----------------
+
+Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
+counters to zero.
+
 Changes in v5.1.1
 -----------------
 

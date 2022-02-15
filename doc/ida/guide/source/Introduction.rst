@@ -72,6 +72,12 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in v6.2.0
+-----------------
+
+Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
+counters to zero.
+
 Changes in v6.1.1
 -----------------
 

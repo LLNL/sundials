@@ -34,6 +34,7 @@ SUNDIALS_EXPORT int SUNProfiler_Free(SUNProfiler* p);
 SUNDIALS_EXPORT int SUNProfiler_Begin(SUNProfiler p, const char* name);
 SUNDIALS_EXPORT int SUNProfiler_End(SUNProfiler p, const char* name);
 SUNDIALS_EXPORT int SUNProfiler_Print(SUNProfiler p, FILE* fp);
+SUNDIALS_EXPORT int SUNProfiler_Reset(SUNProfiler p);
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && defined(SUNDIALS_CALIPER_ENABLED)
 

@@ -1,10 +1,15 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.2.0
+
+Added the function `SUNProfiler_Reset` to reset the region timings and counters
+to zero.
+
 ## Changes to SUNDIALS in release 6.1.1
 
 Fixed exported `SUNDIALSConfig.cmake`.
 
-Fixed Fortran interface to `MRIStepInnerStepper` and ``MRIStepCoupling`
+Fixed Fortran interface to `MRIStepInnerStepper` and `MRIStepCoupling`
 structures and functions.
 
 Added new Fortran example program,
