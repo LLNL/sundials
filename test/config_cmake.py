@@ -95,6 +95,19 @@ def main():
     add_arg(group, '--cuda-arch', 'CUDAARCHS', 'CMAKE_CUDA_ARCHITECTURES',
             None, 'STRING', 'CUDA architecture')
 
+    # Additional compiler options
+    add_arg(group, '--Wall', 'SUNDIALS_ENABLE_ALL_WARNINGS',
+            'ENABLE_ALL_WARNINGS', 'OFF', 'BOOL',
+            'Enable all compiler warnings')
+
+    add_arg(group, '--Werror', 'SUNDIALS_ENABLE_WARNINGS_AS_ERRORS',
+            'ENABLE_WARNINGS_AS_ERRORS', 'OFF', 'BOOL',
+            'Enable compiler warnings as errors')
+
+    add_arg(group, '--address-sanitizer', 'SUNDIALS_ENABLE_ADDRESS_SANITIZER',
+            'ENABLE_ADDRESS_SANITIZER', 'OFF', 'BOOL',
+            'Enable address sanitizer')
+
     # ----------------
     # Install Options
     # ----------------

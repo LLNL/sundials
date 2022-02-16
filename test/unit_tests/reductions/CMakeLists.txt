@@ -54,3 +54,5 @@ foreach(test_tuple ${unit_tests})
   add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 
 endforeach()
+
+message(STATUS "Added reduction units tests")

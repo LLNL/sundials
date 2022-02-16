@@ -165,6 +165,10 @@ ARKodeButcherTable functions
       If the method does not have an embedding then *d* should be
       ``NULL`` and *p* should be equal to zero.
 
+      .. warning::
+         When calling this function from Fortran, it is important to note that ``A`` is expected
+         to be in row-major ordering.
+
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
 
    Creates copy of the given Butcher table.

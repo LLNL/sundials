@@ -27,7 +27,6 @@ set(nvector_cuda_examples
 set(nvector_examples_dependencies
   test_nvector
   test_mpinvector
-  sundials_nvector
   )
 
 # Add source directory to include directories
@@ -97,7 +96,6 @@ foreach(example_tuple ${nvector_cuda_examples})
       ../test_nvector.c
       ../test_mpinvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
   endif()
 

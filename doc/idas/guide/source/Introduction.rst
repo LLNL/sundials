@@ -86,14 +86,19 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in vx.x.x
+Changes in v5.2.0
 -----------------
 
-Additionally export ``SUNDIALS::<lib>`` targets with no static/shared suffix for
-use within the build directory (this mirrors how the targets are exported upon
-installation).
+Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
+counters to zero.
 
-Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+Changes in v5.1.1
+-----------------
+
+Fixed exported ``SUNDIALSConfig.cmake``.
+
+Changes in v5.1.0
+-----------------
 
 Added new reduction implementations for the CUDA and HIP NVECTORs that use
 shared memory (local data storage) instead of atomics. These new implementations
@@ -103,11 +108,16 @@ these by default, but the :c:func:`N_VSetKernelExecPolicy_Cuda` and
 :c:func:`N_VSetKernelExecPolicy_Hip` functions can be used to choose between
 different reduction implementations.
 
+``SUNDIALS::<lib>`` targets with no static/shared suffix have been added for use
+within the build directory (this mirrors the targets exported on installation).
+
 :cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
+
+Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
 
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
-Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
 Changes in v5.0.0
 -----------------

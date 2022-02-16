@@ -1,12 +1,22 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release x.x.x
+## Changes to SUNDIALS in release 6.2.0
 
-Additionally export `SUNDIALS::<lib>` targets with no static/shared suffix for
-use within the build directory (this mirrors how the targets are exported upon
-installation).
+Added the function `SUNProfiler_Reset` to reset the region timings and counters
+to zero.
 
-Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+## Changes to SUNDIALS in release 6.1.1
+
+Fixed exported `SUNDIALSConfig.cmake`.
+
+Fixed Fortran interface to `MRIStepInnerStepper` and `MRIStepCoupling`
+structures and functions.
+
+Added new Fortran example program,
+`examples/arkode/F2003_serial/ark_kpr_mri_f2003.f90` demonstrating MRI
+capabilities.
+
+## Changes to SUNDIALS in release 6.1.0
 
 Added new reduction implementations for the CUDA and HIP NVECTORs that use
 shared memory (local data storage) instead of atomics. These new implementations
@@ -16,11 +26,16 @@ these by default, but the `N_VSetKernelExecPolicy_Cuda` and
 `N_VSetKernelExecPolicy_Hip` functions can be used to choose between
 different reduction implementations.
 
+`SUNDIALS::<lib>` targets with no static/shared suffix have been added for use
+within the build directory (this mirrors the targets exported on installation).
+
 ``CMAKE_C_STANDARD`` is now set to 99 by default.
+
+Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
 
 Fixed `sundials_export.h` include in `sundials_config.h`.
 
-Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
 ## Changes to SUNDIALS in release 6.0.0
 

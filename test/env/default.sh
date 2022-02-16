@@ -137,11 +137,7 @@ if [ "$compilername" == "gcc" ]; then
         export CUDAFLAGS="-g -O3"
     fi
 
-    # append warning flags
-    export CFLAGS="${CFLAGS} -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-unused-function -Werror"
-    export CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-unused-function -Werror"
-    export FFLAGS="${FFLAGS} -Wall -Wpedantic -ffpe-summary=none"
-
+    # append additional warning flags
     if [[ "$SUNDIALS_PRECISION" == "double" && "$SUNDIALS_INDEX_SIZE" == "32" ]]; then
         export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
         export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
@@ -163,10 +159,6 @@ else
         export CXXFLAGS="-g -O3"
         export CUDAFLAGS="-g -O3"
     fi
-
-    # append warning flags
-    export CFLAGS="${CFLAGS} -Wall -Wpedantic -Werror"
-    export CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Werror"
 
 fi
 

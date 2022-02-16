@@ -19,7 +19,18 @@
 
 # Examples using SUNDIALS linear solvers
 set(FARKODE_examples
-  "ark_analytic_f2003\;develop"
+  "ark_analytic_f2003\;\;develop"
+  "ark_kpr_mri_f2003\;\;develop"
+  "ark_kpr_mri_f2003\;0 0.002\;develop"
+  "ark_kpr_mri_f2003\;1 0.002\;develop"
+  "ark_kpr_mri_f2003\;2 0.005\;develop"
+  "ark_kpr_mri_f2003\;3 0.01\;develop"
+  "ark_kpr_mri_f2003\;4 0.002\;develop"
+  "ark_kpr_mri_f2003\;5 0.002\;develop"
+  "ark_kpr_mri_f2003\;6 0.005\;develop"
+  "ark_kpr_mri_f2003\;7 0.001\;develop"
+  "ark_kpr_mri_f2003\;8 0.001\;develop"
+  "ark_kpr_mri_f2003\;9 0.001\;develop"
   )
 
 set(FARKODE_tests
@@ -38,31 +49,42 @@ foreach(example_tuple ${FARKODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
-  # Install fortran modules to a unique directory to avoid naming collisions
-  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+  if (NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example}.f90)
 
-  # example source files
-  add_executable(${example} ${example}.f90)
+    # folder for IDEs
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-  # add example to regression tests
-  sundials_add_test(${example} ${example}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
-
-   # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
+    # Install fortran modules to a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
   endif()
 
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
+
+  # add example to regression tests
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
+
+  # install example source and out files
+  if(EXAMPLES_INSTALL)
+    install(FILES ${example}.f90 ${test_name}.out
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
+  endif()
 endforeach(example_tuple ${FARKODE_examples})
 
 # Add the build and install targets for regression test

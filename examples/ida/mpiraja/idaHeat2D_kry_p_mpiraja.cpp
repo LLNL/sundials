@@ -278,12 +278,12 @@ int main(int argc, char *argv[])
   if(check_flag((void *)LS, "SUNSPGMR", 0, thispe))
     MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe))
+  ier = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_flag(&ier, "IDASetLinearSolver", 1, thispe))
     MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe))
+  ier = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
+  if(check_flag(&ier, "IDASetPreconditioner", 1, thispe))
     MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
@@ -1078,16 +1078,16 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
     ier = IDAGetLastStep(ida_mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumJtimesEvals(ida_mem, &nje);
-    check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1, id);
-    ier = IDASpilsGetNumLinIters(ida_mem, &nli);
-    check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-    check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-    check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-    check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
+    ier = IDAGetNumJtimesEvals(ida_mem, &nje);
+    check_flag(&ier, "IDAGetNumJtimesEvals", 1, id);
+    ier = IDAGetNumLinIters(ida_mem, &nli);
+    check_flag(&ier, "IDAGetNumLinIters", 1, id);
+    ier = IDAGetNumLinResEvals(ida_mem, &nreLS);
+    check_flag(&ier, "IDAGetNumLinResEvals", 1, id);
+    ier = IDAGetNumPrecEvals(ida_mem, &npe);
+    check_flag(&ier, "IDAGetPrecEvals", 1, id);
+    ier = IDAGetNumPrecSolves(ida_mem, &nps);
+    check_flag(&ier, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
@@ -1113,7 +1113,7 @@ static void PrintFinalStats(void *ida_mem)
 
   IDAGetNumErrTestFails(ida_mem, &netf);
   IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  IDASpilsGetNumConvFails(ida_mem, &ncfl);
+  IDAGetNumLinConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

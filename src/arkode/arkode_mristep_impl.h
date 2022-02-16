@@ -260,8 +260,9 @@ int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int *stage_map,
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSG_MRISTEP_NO_MEM    "Time step module memory is NULL."
-#define MSG_NLS_INIT_FAIL     "The nonlinear solver's init routine failed."
+#define MSG_MRISTEP_NO_MEM "Time step module memory is NULL."
+#define MSG_NLS_INIT_FAIL "The nonlinear solver's init routine failed."
+#define MSG_MRISTEP_NO_COUPLING "The MRIStepCoupling is NULL."
 
 #ifdef __cplusplus
 }

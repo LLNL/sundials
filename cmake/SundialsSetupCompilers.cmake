@@ -121,13 +121,8 @@ check_c_source_compiles("
 # Fortran settings
 # ===============================================================
 
-# ---------------------------------------------------------------
-# A Fortran compiler is needed to:
-# (a) Determine compiler the name-mangling scheme if the F77
-#     interfaces or LAPACK are enabled
-# ---------------------------------------------------------------
-
-# Do we need a Fortran name-mangling scheme?
+# When LAPACK is enabled we will need a Fortran compiler to infer the
+# name-mangling scheme if it is not set by the user
 if(ENABLE_LAPACK)
   set(NEED_FORTRAN_NAME_MANGLING TRUE)
 endif()
@@ -224,10 +219,6 @@ endif()
 # C++ settings
 # ===============================================================
 
-# ---------------------------------------------------------------
-# A C++ compiler is only needed if:
-# ---------------------------------------------------------------
-
 if(BUILD_BENCHMARKS OR EXAMPLES_ENABLE_CXX OR
     ENABLE_CUDA OR
     ENABLE_HIP OR
@@ -255,31 +246,13 @@ endif()
 
 if(ENABLE_HIP)
   include(SundialsSetupHIP)
+  # we treat HIP as both a TPL and a language
   list(APPEND SUNDIALS_TPL_LIST "HIP")
 endif()
 
 # ===============================================================
-# Default flags for build types
-# ===============================================================
-
-set(CMAKE_C_FLAGS_DEV "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function" CACHE STRING "" FORCE)
-mark_as_advanced(CMAKE_C_FLAGS_DEV)
-set(CMAKE_CXX_FLAGS_DEV "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function" CACHE STRING "" FORCE)
-mark_as_advanced(CMAKE_CXX_FLAGS_DEV)
-set(CMAKE_Fortran_FLAGS_DEV "-g -O0 -Wall -Wpedantic -ffpe-summary=none" CACHE STRING "" FORCE)
-mark_as_advanced(CMAKE_Fortran_FLAGS_DEV)
-set(CMAKE_C_FLAGS_DEVSTRICT "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function -Werror" CACHE STRING "" FORCE)
-mark_as_advanced(CMAKE_C_FLAGS_DEVSTRICT)
-set(CMAKE_CXX_FLAGS_DEVSTRICT "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function -Werror" CACHE STRING "" FORCE)
-mark_as_advanced(CMAKE_CXX_FLAGS_DEVSTRICT)
-set(CMAKE_Fortran_FLAGS_DEVSTRICT "-g -O0 -Wall -Wpedantic -ffpe-summary=none -Werror" CACHE STRING "" FORCE)
-mark_as_advanced(CMAKE_Fortran_FLAGS_DEVSTRICT)
-
-# ===============================================================
 # Configure presentation of language options
 # ===============================================================
-
-set(_SUNDIALS_EXTRA_BUILD_TYPES "DEV;DEVSTRICT")
 
 # List of enabled languages
 set(_SUNDIALS_ENABLED_LANGS "C")
@@ -299,7 +272,7 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
 # Make build type specific flag options ADVANCED,
 # except for the one corresponding to the current build type
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
-  foreach(build_type DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_BUILD_TYPES})
+  foreach(build_type DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL)
     if("${_cmake_build_type}" STREQUAL "${build_type}")
       message(STATUS "Appending ${lang} ${build_type} flags")
       mark_as_advanced(CLEAR CMAKE_${lang}_FLAGS_${build_type})
@@ -311,13 +284,39 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   mark_as_advanced(CLEAR CMAKE_${lang}_COMPILER CMAKE_${lang}_FLAGS)
 endforeach()
 
-# Update build type doc string
-set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
-    CACHE STRING "Choose the type of build, options are: DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_BUILD_TYPES}"
-    FORCE)
+# ===============================================================
+# Additional compiler flags
+#
+# TODO(DJG): Set flags based on CMAKE_<language>_COMPILER_ID
+# ===============================================================
 
-# Add preprocessor definitions for debugging
+if(ENABLE_ALL_WARNINGS)
+  message(STATUS "Enabling all compiler warnings")
+
+  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
+endif()
+
+if(ENABLE_WARNINGS_AS_ERRORS)
+  message(STATUS "Enabling compiler warnings as errors")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Werror")
+endif()
+
+if(ENABLE_ADDRESS_SANITIZER)
+  message(STATUS "Enabling address sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+endif()
+
 if(SUNDIALS_DEBUG)
+  message(STATUS "Adding debugging preprocessor directives")
+
   foreach(debug ${_SUNDIALS_DEBUG_OPTIONS})
     if (${${debug}})
       add_compile_definitions(${debug})
@@ -338,4 +337,3 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
     set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
   endif()
 endforeach()
-

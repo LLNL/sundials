@@ -80,7 +80,7 @@ program main
 
   ! local variables
   type(c_ptr)                      :: sunctx
-  integer(c_int)                   :: fails, retval, i, j, k
+  integer(c_int)                   :: fails, retval, j, k
   integer(c_long),       parameter :: N = 1000
   integer(c_long),       parameter :: Nvar = 50
   type(SUNMatrix),       pointer   :: sA
@@ -133,11 +133,10 @@ program main
   call random_number(A%data)
 
   ! update A to scale by 1/Nvar, and 1 to anti-diagonal of each diagonal block
-  i = 0
   do k = 1,N
      A%data(:,:,k) = A%data(:,:,k)/Nvar
      do j = 1,Nvar
-        A%data(Nvar-j+1,j,k) = A%data(Nvar-i+1,j,k) + 1.d0
+        A%data(Nvar-j+1,j,k) = A%data(Nvar-j+1,j,k) + 1.d0
      end do
   end do
 

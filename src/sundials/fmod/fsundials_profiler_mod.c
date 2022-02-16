@@ -287,6 +287,18 @@ SWIGEXPORT int _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNProfiler_Reset(void *farg1) {
+  int fresult ;
+  SUNProfiler arg1 = (SUNProfiler) 0 ;
+  int result;
+  
+  arg1 = (SUNProfiler)(farg1);
+  result = (int)SUNProfiler_Reset(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 
 SWIGEXPORT int _wrap_FSUNProfiler_Create(void *farg1, SwigArrayWrapper *farg2, void *farg3) {
   int fresult ;

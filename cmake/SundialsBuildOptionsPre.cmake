@@ -180,6 +180,18 @@ set(DOCSTR "Path to SUNDIALS cmake files")
 sundials_option(SUNDIALS_INSTALL_CMAKEDIR STRING "${DOCSTR}"
                 "${CMAKE_INSTALL_LIBDIR}/cmake/sundials")
 
+# ---------------------------------------------------------------
+# Options to enable compiler warnings, address sanitizer
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_ALL_WARNINGS BOOL
+  "Enable all compiler warnings" OFF ADVANCED)
+
+sundials_option(ENABLE_WARNINGS_AS_ERRORS BOOL
+  "Enable compiler warnings as errors" OFF ADVANCED)
+
+sundials_option(ENABLE_ADDRESS_SANITIZER BOOL
+  "Enable address sanitizer" OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Options to enable SUNDIALS debugging
