@@ -1,26 +1,11 @@
-# ---------------------------------------------------------------
-# Programmer(s): Cody J. Balos @ LLNL
-# ---------------------------------------------------------------
-# SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
-# and Southern Methodist University.
-# All rights reserved.
-#
-# See the top-level LICENSE and NOTICE files for details.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-# SUNDIALS Copyright End
-# ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS Ginkgo dense matrix
 set(sunmatrix_ginkgo_examples
-  # "test_sunmatrix_ginkgoblock.cpp\;100 100 1 0\;"
-  "test_sunmatrix_gkodense.cpp\;100 100 1 0\;"
-  # "test_sunmatrix_gkocsr.cpp\;100 100 1 0\;"
-)
+  "test_sunlinsol_ginkgo.cpp\;100 100 1 0\;"
+  )
 
 # Add source directory to include directories
 include_directories(..)
@@ -61,10 +46,9 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
       # libraries to link against
       target_link_libraries(${example_target}
         PRIVATE
-          test_sunmatrix_obj
+          test_sunlinsol_obj
           sundials_${vector}
-          sundials_sunmatrixginkgo
-          Ginkgo::ginkgo
+          sundials_sunlinsolginkgo
           ${EXTRA_LINK_LIBS}
       )
     endif()

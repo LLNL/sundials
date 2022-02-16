@@ -38,6 +38,8 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
+using SUNMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -97,8 +99,8 @@ int main(int argc, char *argv[])
 
   auto matrix_dim = gko::dim<2>(matrows, matcols);
   auto gko_matdata = gko::matrix_data<sunrealtype>(matrix_dim, distribution, generator);
-  auto gko_matrix = gko::share(gko::matrix::Dense<sunrealtype>::create(gko_exec, matrix_dim));
-  auto gko_ident = gko::share(gko::matrix::Dense<sunrealtype>::create(gko_exec, matrix_dim));
+  auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
+  auto gko_ident = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
 
   /* Fill matrices and vectors */
   gko_matrix->read(gko_matdata);
@@ -108,8 +110,8 @@ int main(int argc, char *argv[])
 
   /* Wrap ginkgo matrices for SUNDIALS.
      sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
-  sundials::ginkgo::Matrix<gko::matrix::Dense<sunrealtype>> A{gko_matrix, sunctx};
-  sundials::ginkgo::Matrix<gko::matrix::Dense<sunrealtype>> I{gko_ident, sunctx};
+  SUNMatrixType A{gko_matrix, sunctx};
+  SUNMatrixType I{gko_ident, sunctx};
 
   xdata = N_VGetArrayPointer(x);
   for(sunindextype i = 0; i < matcols; i++) {
@@ -158,8 +160,8 @@ int main(int argc, char *argv[])
 int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int failure = 0;
-  gko::matrix::Dense<sunrealtype>* Amat = SUNMatrix_GinkgoDense_GetGkoMat(A);
-  gko::matrix::Dense<sunrealtype>* Bmat = SUNMatrix_GinkgoDense_GetGkoMat(B);
+  auto Amat = static_cast<SUNMatrixType*>(A->content)->gkomtx();
+  auto Bmat = static_cast<SUNMatrixType*>(B->content)->gkomtx();
   sunindextype rows = Amat->get_size()[0];
   sunindextype cols = Amat->get_size()[1];
 
@@ -182,7 +184,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
   int failure = 0;
-  gko::matrix::Dense<sunrealtype>* Amat = SUNMatrix_GinkgoDense_GetGkoMat(A);
+  auto Amat = static_cast<SUNMatrixType*>(A->content)->gkomtx();
   sunindextype rows = Amat->get_size()[0];
   sunindextype cols = Amat->get_size()[1];
 
@@ -244,7 +246,7 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
 
 booleantype has_data(SUNMatrix A)
 {
-  gko::matrix::Dense<sunrealtype>* Amat = SUNMatrix_GinkgoDense_GetGkoMat(A);
+  auto Amat = static_cast<SUNMatrixType*>(A->content)->gkomtx();
   if (Amat->get_values() == NULL || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0)
     return SUNFALSE;
   else
@@ -253,7 +255,7 @@ booleantype has_data(SUNMatrix A)
 
 booleantype is_square(SUNMatrix A)
 {
-  gko::matrix::Dense<sunrealtype>* Amat = SUNMatrix_GinkgoDense_GetGkoMat(A);
+  auto Amat = static_cast<SUNMatrixType*>(A->content)->gkomtx();
   if (Amat->get_size()[0] == Amat->get_size()[1])
     return SUNTRUE;
   else

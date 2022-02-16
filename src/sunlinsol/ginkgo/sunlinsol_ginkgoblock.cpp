@@ -4,7 +4,9 @@ using namespace sundials;
 
 using GkoBatchDenseMat = gko::matrix::BatchDense<sunrealtype>;
 
-#define GET_CONTENT(S) ((ginkgo::LinearSolver<gko::solver::BatchCg<sunrealtype>, GkoBatchDenseMat> *) S->content)
+#define GET_CONTENT(S)                                           \
+  ((ginkgo::BlockLinearSolver<gko::solver::BatchCg<sunrealtype>, \
+                              GkoBatchDenseMat>*)S->content)
 
 SUNLinearSolver_Type SUNLinSolGetType_GinkgoBlock(SUNLinearSolver S)
 {
@@ -21,8 +23,7 @@ int SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S)
   return SUNMAT_SUCCESS;
 }
 
-int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S,
-                                           N_Vector s1,
+int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S, N_Vector s1,
                                            N_Vector s2)
 {
   auto solver = GET_CONTENT(S);
@@ -37,12 +38,13 @@ int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S,
 int SUNLinSolSetup_GinkgoBlock(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver = GET_CONTENT(S);
-  solver->setup(static_cast<ginkgo::BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx());
+  solver->setup(static_cast<ginkgo::BlockMatrix<GkoBatchDenseMat>*>(A->content)
+                    ->gkomtx());
   return SUNMAT_SUCCESS;
 }
 
-int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A,
-                               N_Vector x, N_Vector b, sunrealtype tol)
+int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                               N_Vector b, sunrealtype tol)
 {
   auto solver = GET_CONTENT(S);
 
@@ -52,9 +54,8 @@ int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A,
   if (!solver->useCustomStop())
   {
     solver->gkosolver()->set_stop_criterion_factory(
-        gko::stop::AbsoluteResidualNorm<sunrealtype>::build()
-          .with_tolerance(tol)
-    );
+        gko::stop::AbsoluteResidualNorm<sunrealtype>::build().with_tolerance(
+            tol));
   }
 
   solver->solve(b, x);
@@ -71,7 +72,4 @@ int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A,
 //                           long int *lenrwLS,
 //                           long int *leniwLS);
 
-int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S)
-{
-
-}
+int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S) {}
