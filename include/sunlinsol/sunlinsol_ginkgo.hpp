@@ -101,12 +101,19 @@ std::unique_ptr<gko::stop::Combined::Factory> DefaultStop(
   auto tolerance_crit = gko::stop::AbsoluteResidualNorm<sunrealtype>::build() //
                             .with_tolerance(tol)                              //
                             .on(gko_exec);
-  auto iteration_crit = gko::stop::Iteration::build()        //
-                            .with_max_iters(sunindextype{5}) //
-                            .on(gko_exec);
-  return gko::stop::Combined::build()                                      //
-      .with_criteria(std::move(tolerance_crit), std::move(iteration_crit)) //
-      .on(gko_exec);
+  // TODO: In the unit tests, the max iters needed to be > 25 to get it to pass
+  // auto iteration_crit = gko::stop::Iteration::build()         //
+  //                           .with_max_iters(sunindextype{50}) //
+  //                           .on(gko_exec);
+  auto combined_crit = gko::stop::Combined::build()                  //
+                           .with_criteria(std::move(tolerance_crit)) //
+                           .on(gko_exec);
+
+  // std::shared_ptr<const gko::log::Convergence<sunrealtype>> logger =
+  // gko::log::Convergence<sunrealtype>::create(gko_exec);
+  // combined_crit->add_logger(logger);
+
+  return combined_crit;
 }
 
 template<class GkoSolverType, class MatrixType> class LinearSolver {

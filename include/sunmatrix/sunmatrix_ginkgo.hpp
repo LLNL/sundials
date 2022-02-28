@@ -17,7 +17,7 @@ using GkoVecType  = GkoDenseMat;
 // Common matrix class
 //
 
-template <typename GkoMatType> class BaseMatrix {
+template<typename GkoMatType> class BaseMatrix {
 public:
   BaseMatrix(std::shared_ptr<GkoMatType> gko_mat) : gkomtx_(gko_mat) {}
 
@@ -35,7 +35,7 @@ protected:
 // Standard matrix class
 //
 
-template <typename GkoMatType> class Matrix : public BaseMatrix<GkoMatType> {
+template<typename GkoMatType> class Matrix : public BaseMatrix<GkoMatType> {
 public:
   Matrix(sunindextype M, sunindextype N,
          std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
@@ -107,39 +107,39 @@ private:
 // Methods that operate on SUNMatrix
 //
 
-template <typename GkoMatType> SUNMatrix_ID SUNMatGetID_Ginkgo(SUNMatrix A)
+template<typename GkoMatType> SUNMatrix_ID SUNMatGetID_Ginkgo(SUNMatrix A)
 {
   return SUNMATRIX_GINKGODENSE;
 }
 
-template <typename GkoMatType> SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
+template<typename GkoMatType> SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
 {
   auto Amat    = static_cast<Matrix<GkoMatType>*>(A->content);
   auto new_mat = new ginkgo::Matrix<GkoMatType>(*Amat);
   return ((SUNMatrix)*new_mat);
 }
 
-template <typename GkoMatType> void SUNMatDestroy_Ginkgo(SUNMatrix A)
+template<typename GkoMatType> void SUNMatDestroy_Ginkgo(SUNMatrix A)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
   delete Amat;
 }
 
-template <typename GkoMatType> int SUNMatZero_Ginkgo(SUNMatrix A)
+template<typename GkoMatType> int SUNMatZero_Ginkgo(SUNMatrix A)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
   Zero(*Amat);
   return SUNMAT_SUCCESS;
 }
 
-template <typename GkoMatType> int SUNMatCopy_Ginkgo(SUNMatrix A, SUNMatrix B)
+template<typename GkoMatType> int SUNMatCopy_Ginkgo(SUNMatrix A, SUNMatrix B)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
   Copy(*Amat, *static_cast<ginkgo::Matrix<GkoMatType>*>(B->content));
   return SUNMAT_SUCCESS;
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 int SUNMatScaleAdd_Ginkgo(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
@@ -147,7 +147,7 @@ int SUNMatScaleAdd_Ginkgo(sunrealtype c, SUNMatrix A, SUNMatrix B)
   return SUNMAT_SUCCESS;
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 int SUNMatScaleAddI_Ginkgo(sunrealtype c, SUNMatrix A)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
@@ -155,12 +155,12 @@ int SUNMatScaleAddI_Ginkgo(sunrealtype c, SUNMatrix A)
   return SUNMAT_SUCCESS;
 }
 
-template <typename GkoMatType> int SUNMatMatvecSetup_Ginkgo(SUNMatrix A)
+template<typename GkoMatType> int SUNMatMatvecSetup_Ginkgo(SUNMatrix A)
 {
   return SUNMAT_SUCCESS;
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
@@ -168,7 +168,7 @@ int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
   return SUNMAT_SUCCESS;
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 int SUNMatSpace_Ginkgo(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   auto Amat = static_cast<ginkgo::Matrix<GkoMatType>*>(A->content);
@@ -181,7 +181,7 @@ int SUNMatSpace_Ginkgo(SUNMatrix A, long int* lenrw, long int* leniw)
 // Class method specializations.
 //
 
-template <>
+template<>
 inline Matrix<GkoDenseMat>::Matrix(sunindextype M, sunindextype N,
                                    std::shared_ptr<gko::Executor> gko_exec,
                                    SUNContext sunctx)
@@ -203,7 +203,7 @@ inline Matrix<GkoDenseMat>::Matrix(sunindextype M, sunindextype N,
   sunmtx_->ops->space       = SUNMatSpace_Ginkgo<GkoDenseMat>;
 }
 
-template <>
+template<>
 inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N,
                                  std::shared_ptr<gko::Executor> gko_exec,
                                  SUNContext sunctx)
@@ -225,7 +225,7 @@ inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N,
   sunmtx_->ops->space       = SUNMatSpace_Ginkgo<GkoCsrMat>;
 }
 
-template <>
+template<>
 inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, sunindextype NNZ,
                                  std::shared_ptr<gko::Executor> gko_exec,
                                  SUNContext sunctx)
@@ -247,7 +247,7 @@ inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, sunindextype NN
   sunmtx_->ops->space       = SUNMatSpace_Ginkgo<GkoCsrMat>;
 }
 
-template <>
+template<>
 inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<GkoDenseMat> gko_mat,
                                    SUNContext sunctx)
     : BaseMatrix<GkoDenseMat>(gko_mat), sunmtx_(SUNMatNewEmpty(sunctx))
@@ -266,7 +266,7 @@ inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<GkoDenseMat> gko_mat,
   sunmtx_->ops->space       = SUNMatSpace_Ginkgo<GkoDenseMat>;
 }
 
-template <>
+template<>
 inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<GkoCsrMat> gko_mat,
                                  SUNContext sunctx)
     : BaseMatrix<GkoCsrMat>(gko_mat), sunmtx_(SUNMatNewEmpty(sunctx))
@@ -315,13 +315,19 @@ inline std::unique_ptr<const GkoVecType> WrapConstVector(
                                   1);
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
+void Print(Matrix<GkoMatType>& A, std::ostream& ost = std::cout)
+{
+  gko::write(ost, A.gkomtx().get());
+}
+
+template<typename GkoMatType>
 void Matvec(Matrix<GkoMatType>& A, GkoVecType* x, GkoVecType* y)
 {
   A.gkomtx()->apply(x, y);
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 {
   if (x != y)
@@ -341,7 +347,7 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
   }
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 std::shared_ptr<GkoMatType> CreateIdentity(
     std::shared_ptr<const gko::Executor> gko_exec, const gko::dim<2>& gko_dim)
 {
@@ -354,23 +360,24 @@ std::shared_ptr<GkoMatType> CreateIdentity(
   return I;
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 void ScaleAdd(const sunrealtype c, Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
   throw std::runtime_error("ScaleAdd not implemented for matrix type\n");
 }
 
-template <>
+template<>
 inline void ScaleAdd(const sunrealtype c, Matrix<GkoDenseMat>& A,
                      Matrix<GkoDenseMat>& B)
 {
   const auto I    = CreateIdentity<GkoDenseMat>(A.gkoexec(), A.gkodim());
   const auto one  = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
   const auto cmat = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
+  // A = B + cA
   B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
 }
 
-template <>
+template<>
 inline void ScaleAdd(const sunrealtype c,
                      Matrix<gko::matrix::Csr<sunrealtype>>& A,
                      Matrix<gko::matrix::Csr<sunrealtype>>& B)
@@ -383,33 +390,26 @@ inline void ScaleAdd(const sunrealtype c,
   B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
 }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 void ScaleAddI(const sunrealtype c, Matrix<GkoMatType>& A)
 {
-  auto I = CreateIdentity<GkoMatType>(A.gkoexec(), A.gkodim());
-  // A = I + cA
-  I->apply(gko::initialize<GkoDenseMat>({1.0}, A.gkoexec()).get(), I.get(),
-           gko::initialize<GkoDenseMat>({c}, A.gkoexec()).get(),
-           A.gkomtx().get());
+  const auto one  = gko::initialize<GkoDenseMat>({1.0}, A.gkoexec());
+  const auto cmat = gko::initialize<GkoDenseMat>({c}, A.gkoexec());
+  // A = 1*I + c*A = cA + I
+  A.gkomtx()->add_scaled_identity(one.get(), cmat.get());
 }
 
-template <typename GkoMatType> void Zero(Matrix<GkoMatType>& A)
+template<typename GkoMatType> void Zero(Matrix<GkoMatType>& A)
 {
   A.gkomtx()->scale(gko::initialize<GkoDenseMat>({0.0}, A.gkoexec()).get());
 }
 
-template <> inline void Zero(Matrix<GkoDenseMat>& A) { A.gkomtx()->fill(0.0); }
+template<> inline void Zero(Matrix<GkoDenseMat>& A) { A.gkomtx()->fill(0.0); }
 
-template <typename GkoMatType>
+template<typename GkoMatType>
 void Copy(Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
   B.gkomtx()->copy_from(A.gkomtx().get());
-}
-
-template <typename GkoMatType>
-void Print(Matrix<GkoMatType>& A, std::ostream& ost = std::cout)
-{
-  gko::write(ost, A.gkomtx().get());
 }
 
 } // namespace ginkgo

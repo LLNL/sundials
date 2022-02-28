@@ -110,17 +110,12 @@ int main(int argc, char* argv[])
   auto gko_matrixB = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
   auto gko_ident   = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
 
-  /* Fill matrices and vectors */
+  /* Fill matrices */
   gko_matrixA->read(gko_matdata);
   gko_matrixB->read(gko_matdata);
   gko_ident->read(gko::matrix_data<sunrealtype>::diag(matrix_dim, 1.0));
 
-  /* Wrap ginkgo matrices for SUNDIALS.
-     sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
-  SUNMatrixType A{gko_matrixA, sunctx};
-  SUNMatrixType B{gko_matrixB, sunctx};
-  SUNMatrixType I{gko_ident, sunctx};
-
+  /* Fill x with random data */
   xdata = N_VGetArrayPointer(x);
   for (sunindextype i = 0; i < cols; i++)
   {
@@ -128,11 +123,17 @@ int main(int argc, char* argv[])
   }
   OMP_OR_HIP_OR_CUDA(, N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x));
 
-  /* copy A and x into B and y to print in case of solver failure */
+  /* Wrap ginkgo matrices for SUNDIALS.
+     sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
+  SUNMatrixType A{gko_matrixA, sunctx};
+  SUNMatrixType B{gko_matrixB, sunctx};
+  SUNMatrixType I{gko_ident, sunctx};
+
+  /* Copy A and x into B and y to print in case of solver failure */
   SUNMatCopy(A, B);
   N_VScale(ONE, x, y);
 
-  /* create right-hand side vector for linear solve */
+  /* Create right-hand side vector for linear solve */
   fails += SUNMatMatvecSetup(A);
   fails += SUNMatMatvec(A, x, b);
   if (fails)
@@ -147,13 +148,19 @@ int main(int argc, char* argv[])
     return (1);
   }
 
+  /* Create logger */
+  std::shared_ptr<const gko::log::Convergence<sunrealtype>> logger =
+      gko::log::Convergence<sunrealtype>::create(gko_exec);
+
+  /* Create stopping critieria */
+  auto crit = sundials::ginkgo::DefaultStop(gko_exec);
+  crit->add_logger(logger);
+
   /* Create linear solver.
    */
-  bool use_custom_criteria = false;
+  bool use_custom_criteria = true;
   auto gko_solver_factory =
-      GkoSolverType::build()
-          .with_criteria(sundials::ginkgo::DefaultStop(gko_exec))
-          .on(gko_exec);
+      GkoSolverType::build().with_criteria(gko::share(crit)).on(gko_exec);
   SUNLinearSolverType LS{gko::share(gko_solver_factory), use_custom_criteria,
                          sunctx};
 
@@ -182,6 +189,10 @@ int main(int argc, char* argv[])
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }
 
+  /* Print number of iterations */
+  printf("Number of linear solver iterations: %ld\n",
+         static_cast<long int>(logger->get_num_iterations()));
+
   /* Free solver, matrix and vectors */
   SUNLinSolFree(LS);
   N_VDestroy(x);
@@ -194,7 +205,7 @@ int main(int argc, char* argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector actual, N_Vector expected, realtype tol)
+int check_vector(N_Vector expected, N_Vector actual, realtype tol)
 {
   int failure = 0;
   realtype *xdata, *ydata;
