@@ -39,7 +39,6 @@ extern "C" {
 struct _N_VectorContent_Sycl
 {
   sunindextype       length;
-  booleantype        own_exec;
   booleantype        own_helper;
   SUNMemory          host_data;
   SUNMemory          device_data;

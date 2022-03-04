@@ -124,6 +124,15 @@ Changes in v5.2.0
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 
+The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+consistent with the CUDA and HIP vectors. The input execution policies are now
+cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
+Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
+vector execution policies to the defaults.
+
+A memory leak in the SYCL vector was fixed where the execution policies were
+not freed when the vector was destroyed.
+
 Changes in v5.1.1
 -----------------
 

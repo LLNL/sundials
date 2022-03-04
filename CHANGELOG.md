@@ -5,6 +5,15 @@
 Added the function `SUNProfiler_Reset` to reset the region timings and counters
 to zero.
 
+The behavior of `N_VSetKernelExecPolicy_Sycl` has been updated to be consistent
+with the CUDA and HIP vectors. The input execution policies are now cloned and
+may be freed after calling `N_VSetKernelExecPolicy_Sycl`. Additionally, `NULL`
+inputs are now allowed and, if provided, will reset the vector execution
+policies to the defaults.
+
+A memory leak in the SYCL vector was fixed where the execution policies were
+not freed when the vector was destroyed.
+
 ## Changes to SUNDIALS in release 6.1.1
 
 Fixed exported `SUNDIALSConfig.cmake`.
