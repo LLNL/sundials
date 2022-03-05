@@ -41,7 +41,7 @@
 
 using GkoMatrixType = gko::matrix::Csr<sunrealtype>;
 using SUNMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
-using GkoSolverType = gko::solver::Cg<sunrealtype>;
+using GkoSolverType = gko::solver::Gmres<sunrealtype>;
 using SUNLinearSolverType =
     sundials::ginkgo::LinearSolver<GkoSolverType, SUNMatrixType>;
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
   print_timing = atoi(argv[3]);
   SetTiming(print_timing);
 
-  printf("\n Ginkgo linear solver test: size %ld, blocks %ld\n\n",
+  printf("\nGinkgo linear solver test: size %ld, blocks %ld\n\n",
          (long int)cols, (long int)nblocks);
 
   /* Create vectors and matrices */
@@ -140,7 +140,9 @@ int main(int argc, char* argv[])
   {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
 
-    /* Free vectors */
+    SUNMatDestroy(A);
+    SUNMatDestroy(B);
+    SUNMatDestroy(I);
     N_VDestroy(x);
     N_VDestroy(y);
     N_VDestroy(b);
@@ -148,30 +150,31 @@ int main(int argc, char* argv[])
     return (1);
   }
 
-  /* Create logger */
-  std::shared_ptr<const gko::log::Convergence<sunrealtype>> logger =
-      gko::log::Convergence<sunrealtype>::create(gko_exec);
+  /* Create linear solver. */
+  /* Use default stopping critieria */
+  bool use_custom_criteria = false;
 
-  /* Create stopping critieria */
-  auto crit = sundials::ginkgo::DefaultStop(gko_exec);
-  crit->add_logger(logger);
+  auto crit = sundials::ginkgo::DefaultStop::build() //
+                  .with_max_iters(cols)              //
+                  .on(gko_exec);
 
-  /* Create linear solver.
-   */
-  bool use_custom_criteria = true;
-  auto gko_solver_factory =
-      GkoSolverType::build().with_criteria(gko::share(crit)).on(gko_exec);
+  // auto precon = gko::preconditioner::Jacobi<sunrealtype,
+  // sunindextype>::build() // .on(gko_exec);
+
+  auto gko_solver_factory = GkoSolverType::build()               //
+                                .with_criteria(gko::share(crit)) //
+                                // .with_preconditioner(gko::share(precon)) //
+                                .on(gko_exec);
+
   SUNLinearSolverType LS{gko::share(gko_solver_factory), use_custom_criteria,
                          sunctx};
 
-  // /* Run Tests */
+  /* Run Tests */
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_GINKGO, 0);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
   fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1e-10), SUNTRUE, 0);
-  // fails += Test_SUNLinSolLastFlag(LS, 0);
-  // fails += Test_SUNLinSolSpace(LS, 0);
 
   /* Print result */
   if (fails)
@@ -186,15 +189,19 @@ int main(int argc, char* argv[])
   }
   else
   {
-    printf("SUCCESS: SUNLinSol module passed all tests \n \n");
+    printf("\nSUCCESS: SUNLinSol module passed all tests \n \n");
   }
 
-  /* Print number of iterations */
+  /* Print solve information */
   printf("Number of linear solver iterations: %ld\n",
-         static_cast<long int>(logger->get_num_iterations()));
+         static_cast<long int>(SUNLinSolNumIters(LS)));
+  printf("Final residual norm: %g\n", SUNLinSolResNorm(LS));
 
   /* Free solver, matrix and vectors */
   SUNLinSolFree(LS);
+  // SUNMatDestroy(A);
+  // SUNMatDestroy(B);
+  // SUNMatDestroy(I);
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
