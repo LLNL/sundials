@@ -76,6 +76,8 @@ if(EXAMPLES_INSTALL)
 
   sundials_install_examples(sunlinsol_onemkl sunlinsols_onemkldense_examples
     EXAMPLES_DEPENDENCIES
+      test_sunlinsol.c
+    EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE

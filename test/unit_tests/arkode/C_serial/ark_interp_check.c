@@ -1,18 +1,24 @@
-/*---------------------------------------------------------------
- Programmer(s): Daniel R. Reynolds @ SMU
- ----------------------------------------------------------------
- Copyright (c) 2020, Southern Methodist University.
- All rights reserved.
- For details, see the LICENSE file.
- ----------------------------------------------------------------
- Routine to test the accuracy of the ARKodeInterp modules, using
- the problem
-    [y'] = [ lambda*(y - sin(2*t)) + z - cos(3*t) + 2*cos(2*t) ]
-    [z']   [     y - z - sin(2*t) + cos(3*t) - 3*sin(3*t)      ]
-    [y(0); z(0)] = [0; 1]
- for various values of lambda<0.  This has analytical solution
-    [y(t); z(t)] = [sin(2*t); cos(3*t)]
----------------------------------------------------------------*/
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ * -----------------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * Routine to test the accuracy of the ARKodeInterp modules, using
+ * the problem
+ *   [y'] = [ lambda*(y - sin(2*t)) + z - cos(3*t) + 2*cos(2*t) ]
+ *   [z']   [     y - z - sin(2*t) + cos(3*t) - 3*sin(3*t)      ]
+ *   [y(0); z(0)] = [0; 1]
+ * for various values of lambda<0.  This has analytical solution
+ *   [y(t); z(t)] = [sin(2*t); cos(3*t)]
+ * ---------------------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>

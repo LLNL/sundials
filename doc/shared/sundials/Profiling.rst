@@ -161,6 +161,17 @@ are available.
       * Returns zero if successful, or non-zero if an error occurred
 
 
+.. c:function:: int SUNProfiler_Reset(SUNProfiler p)
+
+   Resets the region timings and counters to zero.
+
+   **Arguments:**
+      * ``p`` -- a ``SUNProfiler`` object
+
+   **Returns:**
+      * Returns zero if successful, or non-zero if an error occurred
+
+
 .. _SUNDIALS.Profiling.Example:
 
 Example Usage
