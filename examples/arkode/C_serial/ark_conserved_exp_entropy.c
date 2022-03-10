@@ -275,10 +275,10 @@ int main(int argc, char *argv[])
   printf(" %14.6"ESYM" %14.6"ESYM" %14.6"ESYM" %14.6"ESYM"\n",
          t, ydata[0], ydata[1], RCONST(0.0));
 
-  for (iout = 0; iout < nout; iout++)
+  for (iout = 0; iout < 1; iout++)
   {
     /* Evolve in time */
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
     if (check_flag(flag, "ARKStepEvolve")) break;
 
     /* Output solution and change in entropy */

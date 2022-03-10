@@ -68,25 +68,39 @@ int arkSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
   return ARK_SUCCESS;
 }
 
-/* this could almost be implemented as a user supplied post processing
-   if the user had access to the method stages, NOTE this requires the
-   stage solutions not the stage derivatives (as posed right now) so
-   currently this requires the Z form of take step */
-/* Residual and Jacobian are stepper dependent? to account for imex vs erk vs dirk */
 
 static int arkRelaxResidual(realtype gam, realtype* res, ARKodeMem ark_mem)
 {
   int flag;
 
-  /* yn + gam * dir = gam ycur + (1 - gam) yn */
-  N_VLinearSum(gam, ark_mem->ycur, (ONE - gam), ark_mem->yn,
-               ark_mem->tempv1);
+  /* w = yn + gam * direction */
+  N_VLinearSum(ONE, ark_mem->yn, gam, ark_mem->tempv1, ark_mem->tempv2);
 
-  flag = ark_mem->relax_mem->rfn(ark_mem->tempv1, res, ark_mem->user_data);
+  /* rfun(w) */
+  flag = ark_mem->relax_mem->rfn(ark_mem->tempv2, res, ark_mem->user_data);
   if (flag) return flag;
 
-  /* res = r(yn + gam * dir) - r(yn) - gam * est */
+  /* res = r(w) - r(y_n) - gam * estimate */
   *res = *res - ark_mem->relax_mem->rcur - gam * ark_mem->relax_mem->est;
+
+  return ARK_SUCCESS;
+}
+
+
+static int arkRelaxJacobian(realtype gam, realtype* jac, ARKodeMem ark_mem)
+{
+  int flag;
+
+  /* w = yn + gam * direction */
+  N_VLinearSum(ONE, ark_mem->yn, gam, ark_mem->tempv1, ark_mem->tempv2);
+
+  /* rjac(w) */
+  flag = ark_mem->relax_mem->rjac(ark_mem->tempv2, ark_mem->tempv3,
+                                  ark_mem->user_data);
+  if (flag) return flag;
+
+  /* jac = rjac(w) . direction - estimate */
+  *jac = N_VDotProd(ark_mem->tempv3, ark_mem->tempv1) - ark_mem->relax_mem->est;
 
   return ARK_SUCCESS;
 }
@@ -95,7 +109,7 @@ static int arkRelaxResidual(realtype gam, realtype* res, ARKodeMem ark_mem)
 int arkRelax(void* arkode_mem, realtype* gam)
 {
   int i, flag;
-  realtype res;
+  realtype res, jac;
 
   ARKodeMem ark_mem;
 
@@ -114,14 +128,15 @@ int arkRelax(void* arkode_mem, realtype* gam)
     flag = arkRelaxResidual(*gam, &res, ark_mem);
     if (flag) return flag;
 
-    *gam += res;
+    flag = arkRelaxJacobian(*gam, &jac, ark_mem);
+    if (flag) return flag;
 
-    if (res < ark_mem->relax_mem->tol) break;
+     *gam -= res / jac;
+
+     if (SUNRabs(res) < ark_mem->relax_mem->tol) break;
   }
 
-  printf("gamma = %g\n", *gam);
-
-  return 0;
+  return ARK_SUCCESS;
 }
 
 /*===============================================================
