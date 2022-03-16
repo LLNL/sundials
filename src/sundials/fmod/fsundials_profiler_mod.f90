@@ -32,6 +32,7 @@ module fsundials_profiler_mod
  public :: FSUNProfiler_Begin
  public :: FSUNProfiler_End
  public :: FSUNProfiler_Print
+ public :: FSUNProfiler_Reset
 
   public :: FSUNProfiler_Create
 
@@ -72,6 +73,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNProfiler_Reset(farg1) &
+bind(C, name="_wrap_FSUNProfiler_Reset") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -170,6 +179,19 @@ type(C_PTR) :: farg2
 farg1 = p
 farg2 = fp
 fresult = swigc_FSUNProfiler_Print(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNProfiler_Reset(p) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: p
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = p
+fresult = swigc_FSUNProfiler_Reset(farg1)
 swig_result = fresult
 end function
 
