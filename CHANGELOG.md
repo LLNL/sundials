@@ -14,6 +14,10 @@ policies to the defaults.
 A memory leak in the SYCL vector was fixed where the execution policies were
 not freed when the vector was destroyed.
 
+The include guard in `nvector_mpimanyvector.h` has been corrected to enable
+using both the ManyVector and MPIManyVector NVector implementations in the same
+simulation.
+
 ## Changes to SUNDIALS in release 6.1.1
 
 Fixed exported `SUNDIALSConfig.cmake`.
