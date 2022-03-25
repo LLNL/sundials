@@ -70,9 +70,7 @@ endif()
 # -----------------------------------------------------------------------------
 
 sundials_option(EXAMPLES_ENABLE_CUDA BOOL "Build SUNDIALS CUDA examples" ON
-                DEPENDS_ON ENABLE_CUDA
-                SHOW_IF ENABLE_CUDA)
-
+                DEPENDS_ON ENABLE_CUDA)
 
 # -----------------------------------------------------------------------------
 # Options for installing examples
