@@ -2194,7 +2194,7 @@ Specify if :math:`f^I` is evaluated after a nonlinear solve  :c:func:`ARKStepSet
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
 
    **Notes:**
-      If stage postprocessecing in enabled, this option is ignored, and
+      If stage postprocessing is enabled, this option is ignored, and
       :math:`f^I` is always reevaluated.
 
 
