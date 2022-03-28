@@ -1,6 +1,7 @@
 
-#include <ginkgo/ginkgo.hpp>
 #include <memory>
+#include <cstring>
+#include <ginkgo/ginkgo.hpp>
 #include <sundials/sundials_matrix.h>
 
 #ifndef _SUNMATRIX_GINKGO_HPP
@@ -38,14 +39,14 @@ protected:
 template<typename GkoMatType> class Matrix : public BaseMatrix<GkoMatType> {
 public:
   Matrix(sunindextype M, sunindextype N,
-         std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
+         std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
   {
     std::runtime_error(
         "Constructor is not implemented for the Ginkgo matrix type provided\n");
   }
 
   Matrix(sunindextype M, sunindextype N, sunindextype NNZ,
-         std::shared_ptr<gko::Executor> gko_exec, SUNContext sunctx)
+         std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
   {
     std::runtime_error(
         "Constructor is not implemented for the Ginkgo matrix type provided\n");
@@ -57,32 +58,13 @@ public:
         "Constructor is not implemented for the Ginkgo matrix type provided\n");
   }
 
-  Matrix(const Matrix<GkoMatType>& A)
-      : BaseMatrix<GkoMatType>(
-            gko::share(GkoMatType::create(A.gkoexec(), A.gkodim())))
-  {
-    const SUNMatrix Asun = A;
-    sunmtx_.reset(SUNMatNewEmpty(Asun->sunctx));
-    sunmtx_->content = this;
-    SUNMatCopyOps(Asun, sunmtx_.get());
-  }
-
-  Matrix(Matrix<GkoMatType>&& A)
-      : BaseMatrix<GkoMatType>(A.gkomtx_), sunmtx_(std::move(A.sunmtx_))
-  {}
-
-  Matrix& operator=(const Matrix& A) { return *this = Matrix<GkoMatType>(A); }
-
-  Matrix& operator=(Matrix&& A)
-  {
-    sunmtx_ = std::move(A.sunmtx_);
-    return *this;
-  }
-
-  ~Matrix() {}
-
   operator SUNMatrix() { return sunmtx_.get(); }
+
   operator SUNMatrix() const { return sunmtx_.get(); }
+
+  SUNMatrix get() { return sunmtx_.get(); }
+
+  SUNMatrix get() const { return sunmtx_.get(); }
 
   using BaseMatrix<GkoMatType>::gkomtx;
   std::shared_ptr<const gko::Executor> gkoexec() const
@@ -90,9 +72,12 @@ public:
     return gkomtx()->get_executor();
   }
   const gko::dim<2>& gkodim() const { return gkomtx()->get_size(); }
+  const sunindextype gkodim(sunindextype dim) const { return gkomtx()->get_size()[dim]; }
+
+  SUNContext sunctx() const { return sunmtx_->sunctx; }
 
   bool isBlockDiagonal() const override { return false; }
-  long int workspaceSize() const override { return gkodim()[0] * gkodim()[1]; }
+  long int workspaceSize() const override { return gkodim(0) * gkodim(1); }
 
   gko::LinOp* gkolinop() override
   {
@@ -101,28 +86,40 @@ public:
 
 private:
   std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;
+  std::unique_ptr<struct _generic_SUNMatrix_Ops> sunmtx_ops_;
 };
 
 //
 // Methods that operate on SUNMatrix
 //
 
-template<typename GkoMatType> SUNMatrix_ID SUNMatGetID_Ginkgo(SUNMatrix A)
+template<typename GkoMatType>
+SUNMatrix_ID SUNMatGetID_Ginkgo(SUNMatrix A)
 {
-  return SUNMATRIX_GINKGODENSE;
+  return std::is_same<GkoCsrMat, GkoMatType>::value ?
+    SUNMATRIX_GINKGOCSR : SUNMATRIX_GINKGODENSE;
 }
 
-template<typename GkoMatType> SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
+template<typename GkoMatType>
+SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
 {
-  auto Amat    = static_cast<Matrix<GkoMatType>*>(A->content);
-  auto new_mat = new ginkgo::Matrix<GkoMatType>(*Amat);
-  return ((SUNMatrix)*new_mat);
+  auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
+
+  auto new_mat = std::is_same<GkoCsrMat, GkoMatType>::value ?
+    new ginkgo::Matrix<GkoCsrMat>(Amat->gkodim(0),
+               Amat->gkodim(1), Amat->gkomtx()->get_num_stored_elements(),
+                Amat->gkoexec(), Amat->sunctx()) :
+    new ginkgo::Matrix<GkoCsrMat>(Amat->gkodim(0),
+               Amat->gkodim(1), Amat->gkoexec(), Amat->sunctx());
+
+  return new_mat->get();
 }
 
 template<typename GkoMatType> void SUNMatDestroy_Ginkgo(SUNMatrix A)
 {
   auto Amat = static_cast<Matrix<GkoMatType>*>(A->content);
   delete Amat;
+  return;
 }
 
 template<typename GkoMatType> int SUNMatZero_Ginkgo(SUNMatrix A)
@@ -183,14 +180,18 @@ int SUNMatSpace_Ginkgo(SUNMatrix A, long int* lenrw, long int* leniw)
 
 template<>
 inline Matrix<GkoDenseMat>::Matrix(sunindextype M, sunindextype N,
-                                   std::shared_ptr<gko::Executor> gko_exec,
+                                   std::shared_ptr<const gko::Executor> gko_exec,
                                    SUNContext sunctx)
     : BaseMatrix<GkoDenseMat>(
           gko::share(GkoDenseMat::create(gko_exec, gko::dim<2>(M, N)))),
-      sunmtx_(SUNMatNewEmpty(sunctx))
+      sunmtx_(std::make_unique<_generic_SUNMatrix>()),
+      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   sunmtx_->content = this;
+  sunmtx_->ops     = sunmtx_ops_.get();
+  sunmtx_->sunctx  = sunctx;
 
+  std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid       = SUNMatGetID_Ginkgo<GkoDenseMat>;
   sunmtx_->ops->clone       = SUNMatClone_Ginkgo<GkoDenseMat>;
   sunmtx_->ops->zero        = SUNMatZero_Ginkgo<GkoDenseMat>;
@@ -205,14 +206,18 @@ inline Matrix<GkoDenseMat>::Matrix(sunindextype M, sunindextype N,
 
 template<>
 inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N,
-                                 std::shared_ptr<gko::Executor> gko_exec,
+                                 std::shared_ptr<const gko::Executor> gko_exec,
                                  SUNContext sunctx)
     : BaseMatrix<GkoCsrMat>(
           gko::share(GkoCsrMat::create(gko_exec, gko::dim<2>(M, N)))),
-      sunmtx_(SUNMatNewEmpty(sunctx))
+      sunmtx_(std::make_unique<_generic_SUNMatrix>()),
+      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   sunmtx_->content = this;
+  sunmtx_->ops     = sunmtx_ops_.get();
+  sunmtx_->sunctx  = sunctx;
 
+  std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid       = SUNMatGetID_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->clone       = SUNMatClone_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->zero        = SUNMatZero_Ginkgo<GkoCsrMat>;
@@ -224,17 +229,21 @@ inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N,
   sunmtx_->ops->destroy     = SUNMatDestroy_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->space       = SUNMatSpace_Ginkgo<GkoCsrMat>;
 }
-
+\
 template<>
 inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, sunindextype NNZ,
-                                 std::shared_ptr<gko::Executor> gko_exec,
+                                 std::shared_ptr<const gko::Executor> gko_exec,
                                  SUNContext sunctx)
     : BaseMatrix<GkoCsrMat>(
           gko::share(GkoCsrMat::create(gko_exec, gko::dim<2>(M, N), NNZ))),
-      sunmtx_(SUNMatNewEmpty(sunctx))
+      sunmtx_(std::make_unique<_generic_SUNMatrix>()),
+      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   sunmtx_->content = this;
+  sunmtx_->ops     = sunmtx_ops_.get();
+  sunmtx_->sunctx  = sunctx;
 
+  std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid       = SUNMatGetID_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->clone       = SUNMatClone_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->zero        = SUNMatZero_Ginkgo<GkoCsrMat>;
@@ -250,10 +259,15 @@ inline Matrix<GkoCsrMat>::Matrix(sunindextype M, sunindextype N, sunindextype NN
 template<>
 inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<GkoDenseMat> gko_mat,
                                    SUNContext sunctx)
-    : BaseMatrix<GkoDenseMat>(gko_mat), sunmtx_(SUNMatNewEmpty(sunctx))
+    : BaseMatrix<GkoDenseMat>(gko_mat),
+      sunmtx_(std::make_unique<_generic_SUNMatrix>()),
+      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   sunmtx_->content = this;
+  sunmtx_->ops     = sunmtx_ops_.get();
+  sunmtx_->sunctx  = sunctx;
 
+  std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid       = SUNMatGetID_Ginkgo<GkoDenseMat>;
   sunmtx_->ops->clone       = SUNMatClone_Ginkgo<GkoDenseMat>;
   sunmtx_->ops->zero        = SUNMatZero_Ginkgo<GkoDenseMat>;
@@ -269,10 +283,15 @@ inline Matrix<GkoDenseMat>::Matrix(std::shared_ptr<GkoDenseMat> gko_mat,
 template<>
 inline Matrix<GkoCsrMat>::Matrix(std::shared_ptr<GkoCsrMat> gko_mat,
                                  SUNContext sunctx)
-    : BaseMatrix<GkoCsrMat>(gko_mat), sunmtx_(SUNMatNewEmpty(sunctx))
+    : BaseMatrix<GkoCsrMat>(gko_mat),
+      sunmtx_(std::make_unique<_generic_SUNMatrix>()),
+      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   sunmtx_->content = this;
+  sunmtx_->ops     = sunmtx_ops_.get();
+  sunmtx_->sunctx  = sunctx;
 
+  std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid       = SUNMatGetID_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->clone       = SUNMatClone_Ginkgo<GkoCsrMat>;
   sunmtx_->ops->zero        = SUNMatZero_Ginkgo<GkoCsrMat>;

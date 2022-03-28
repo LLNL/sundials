@@ -127,7 +127,9 @@ int main(int argc, char* argv[])
      sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
   SUNMatrixType A{gko_matrixA, sunctx};
   SUNMatrixType B{gko_matrixB, sunctx};
-  SUNMatrixType I{gko_ident, sunctx};
+
+  /* You can also create the SUNMatrix via cloning */
+  SUNMatrix I = SUNMatClone(A);
 
   /* Copy A and x into B and y to print in case of solver failure */
   SUNMatCopy(A, B);
@@ -140,8 +142,6 @@ int main(int argc, char* argv[])
   {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
 
-    SUNMatDestroy(A);
-    SUNMatDestroy(B);
     SUNMatDestroy(I);
     N_VDestroy(x);
     N_VDestroy(y);
@@ -150,31 +150,32 @@ int main(int argc, char* argv[])
     return (1);
   }
 
-  /* Create linear solver. */
-  /* Use default stopping critieria */
-  bool use_custom_criteria = false;
+  /*
+   * Create linear solver.
+   */
 
+  /* Use default stopping critieria */
   auto crit = sundials::ginkgo::DefaultStop::build() //
                   .with_max_iters(cols)              //
                   .on(gko_exec);
 
-  // auto precon = gko::preconditioner::Jacobi<sunrealtype,
-  // sunindextype>::build() // .on(gko_exec);
+  auto precon = gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build() //
+                                .on(gko_exec);
 
   auto gko_solver_factory = GkoSolverType::build()               //
                                 .with_criteria(gko::share(crit)) //
-                                // .with_preconditioner(gko::share(precon)) //
+                                .with_preconditioner(gko::share(precon)) //
                                 .on(gko_exec);
 
-  SUNLinearSolverType LS{gko::share(gko_solver_factory), use_custom_criteria,
-                         sunctx};
+  SUNLinearSolverType LS{gko::share(gko_solver_factory), sunctx};
+  LS.logResNorm(true); // turn on residual norm logging
 
   /* Run Tests */
-  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_GINKGO, 0);
-  fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
-  fails += Test_SUNLinSolInitialize(LS, 0);
-  fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1e-10), SUNTRUE, 0);
+  fails += Test_SUNLinSolGetID(LS.get(), SUNLINEARSOLVER_GINKGO, 0);
+  fails += Test_SUNLinSolGetType(LS.get(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
+  fails += Test_SUNLinSolInitialize(LS.get(), 0);
+  fails += Test_SUNLinSolSetup(LS.get(), A, 0);
+  fails += Test_SUNLinSolSolve(LS.get(), A, x, b, SUN_RCONST(1e-10), SUNTRUE, 0);
 
   /* Print result */
   if (fails)
@@ -198,10 +199,7 @@ int main(int argc, char* argv[])
   printf("Final residual norm: %g\n", SUNLinSolResNorm(LS));
 
   /* Free solver, matrix and vectors */
-  SUNLinSolFree(LS);
-  // SUNMatDestroy(A);
-  // SUNMatDestroy(B);
-  // SUNMatDestroy(I);
+  SUNMatDestroy(I);
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);

@@ -1,5 +1,6 @@
 
 #include <memory>
+#include <cstring>
 #include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
@@ -108,8 +109,8 @@ SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
 }
 
 // Custom gko::stop::Criterion that does the normal SUNDIALS stopping checks:
-// 1. Was absolute residual tolerance met.
-// 2. Was max iterations reached.
+// 1. Was the absolute residual tolerance met?
+// 2. Was the max iteration count reached?
 class DefaultStop
     : public gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion> {
   friend class gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion>;
@@ -122,6 +123,10 @@ public:
   };
   GKO_ENABLE_CRITERION_FACTORY(DefaultStop, parameters, Factory);
   GKO_ENABLE_BUILD_METHOD(Factory);
+
+  int get_max_iters() const { return parameters_.max_iters; }
+
+  sunrealtype get_tolerance() const { return parameters_.tolerance; }
 
 protected:
   bool check_impl(gko::uint8 stoppingId, bool setFinalized,
@@ -177,16 +182,21 @@ bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized,
 template<class GkoSolverType, class MatrixType> class LinearSolver {
 public:
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory,
-               bool use_custom_criteria, SUNContext sunctx)
+               SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory),
-        sunlinsol_(SUNLinSolNewEmpty(sunctx)),
-        use_custom_criteria_(use_custom_criteria), iter_count_(0),
-        res_norm_(sunrealtype{0.0})
+        sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
+        sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()),
+        iter_count_(0), res_norm_(sunrealtype{0.0}),
+        log_res_norm_(false)
   {
     // Attach function pointers for SUNLinearSolver
     using this_type = LinearSolver<GkoSolverType, MatrixType>;
 
-    sunlinsol_->content      = this;
+    sunlinsol_->content = this;
+    sunlinsol_->ops     = sunlinsol_ops_.get();
+    sunlinsol_->sunctx  = sunctx;
+
+    std::memset(sunlinsol_->ops, 0, sizeof(_generic_SUNLinearSolver_Ops));
     sunlinsol_->ops->gettype = SUNLinSolGetType_Ginkgo;
     sunlinsol_->ops->getid   = SUNLinSolGetID_Ginkgo;
     sunlinsol_->ops->setscalingvectors =
@@ -198,11 +208,6 @@ public:
     sunlinsol_->ops->resnorm    = SUNLinSolResNorm_Ginkgo<this_type>;
     sunlinsol_->ops->free       = SUNLinSolFree_Ginkgo;
   }
-
-  LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory,
-               SUNContext sunctx)
-      : LinearSolver(gko_solver_factory, false, sunctx)
-  {}
 
   std::shared_ptr<const gko::Executor> gkoexec() const
   {
@@ -216,15 +221,21 @@ public:
 
   GkoSolverType* gkosolver() { return gko::lend(gko_solver_); }
 
-  bool useCustomCriteria() const { return use_custom_criteria_; }
-
   int numIters() const { return iter_count_; }
 
   sunrealtype resNorm() const { return res_norm_; }
 
+  bool logResNorm() const { return log_res_norm_; }
+
+  bool logResNorm(bool onoff) { log_res_norm_ = onoff; return log_res_norm_; }
+
   operator SUNLinearSolver() { return sunlinsol_.get(); }
 
   operator SUNLinearSolver() const { return sunlinsol_.get(); }
+
+  SUNLinearSolver get() { return sunlinsol_.get(); }
+
+  SUNLinearSolver get() const { return sunlinsol_.get(); }
 
   GkoSolverType* setup(MatrixType* A)
   {
@@ -234,19 +245,23 @@ public:
 
   gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
-    // Ginkgo provides a lot of options for stopping criterion,
-    // so we make it possible to use it, but default to using
-    // our normal iterative linear solver criterion.
     auto logger =
         gko::share(gko::log::Convergence<sunrealtype>::create(gkoexec()));
 
-    if (!useCustomCriteria())
+    // Ginkgo provides a lot of options for stopping criterion,
+    // so we make it possible to use it, but default to using
+    // our normal iterative linear solver criterion.
+    // If the criterion on the solver is of type DefaultStop,
+    // then we will override the tolerance.
+    auto crit = dynamic_cast<const DefaultStop::Factory*>(gkosolver()->get_stop_criterion_factory().get());
+    if (crit != nullptr)
     {
-      auto crit = DefaultStop::build()     //
-                      .with_tolerance(tol) //
-                      .on(gkoexec());
-      crit->add_logger(logger);
-      gkosolver()->set_stop_criterion_factory(gko::share(crit));
+      auto new_crit = DefaultStop::build()     //
+                          .with_tolerance(tol) //
+                          .with_max_iters(crit->get_parameters().max_iters)
+                          .on(gkoexec());
+      new_crit->add_logger(logger);
+      gkosolver()->set_stop_criterion_factory(gko::share(new_crit));
     }
 
     gko::LinOp* result;
@@ -266,22 +281,23 @@ public:
       result = gkosolver()->apply(gko::lend(x_vec), gko::lend(x_vec));
     }
 
-    if (!useCustomCriteria())
-    {
-      iter_count_ += logger->get_num_iterations();
+    iter_count_ += logger->get_num_iterations();
+    if (logResNorm())
       res_norm_ = gko::as<GkoDenseMat>(logger->get_residual_norm())->at(0);
-    }
 
     return result;
   }
 
-protected:
+// protected:
+private:
   std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory_;
   std::unique_ptr<GkoSolverType> gko_solver_;
   std::unique_ptr<struct _generic_SUNLinearSolver> sunlinsol_;
-  bool use_custom_criteria_;
+  std::unique_ptr<struct _generic_SUNLinearSolver_Ops> sunlinsol_ops_;
   int iter_count_;
   sunrealtype res_norm_;
+  bool log_res_norm_;
+
 };
 
 // template<typename GkoSolverType, typename GkoMatType>
