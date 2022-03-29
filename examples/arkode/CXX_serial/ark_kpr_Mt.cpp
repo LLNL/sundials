@@ -49,7 +49,7 @@
  * accuracy for the method.
  *
  * The program should be run with arguments in the following order:
- *   $ a.out RK ord N G TD g reeval
+ *   $ a.out RK ord N G TD g deduce
  * Not all arguments are required, but these must be omitted from
  * end-to-beginning, i.e. any one of
  *   $ a.out RK ord N G TD
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   int rk_type = 0;                  // type of RK method [ARK=0, DIRK=1, ERK=2]
   int nls_type = 0;                 // type of nonlinear solver [Newton=0, FP=1]
   int order = 4;                    // order of accuracy for RK method
-  booleantype reeval = SUNTRUE;     // evaluated fi after a nonlinear solve
+  booleantype deduce = SUNFALSE;    // deduce fi after a nonlinear solve
   booleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
   realtype reltol = RCONST(1e-5);   // relative tolerance
   realtype abstol = RCONST(1e-11);  // absolute tolerance
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
   if (argc > 4)  udata.G = (realtype) atof(argv[4]);
   if (argc > 5)  udata.M_timedep = (int) atoi(argv[5]);
   if (argc > 6)  udata.g = (realtype) atof(argv[6]);
-  if (argc > 7)  reeval = (int) atoi(argv[7]);
+  if (argc > 7)  deduce = (int) atoi(argv[7]);
 
   // Check arguments for validity
   //   0 <= rk_type <= 2
@@ -311,8 +311,8 @@ int main(int argc, char *argv[])
   retval = ARKStepSetOrder(arkode_mem, order);
   if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
 
-  retval = ARKStepSetImplicitReeval(arkode_mem, reeval);
-  if (check_retval(&retval, "ARKStepSetImplicitReeval", 1)) return 1;
+  retval = ARKStepSetDeduceImplicitRhs(arkode_mem, deduce);
+  if (check_retval(&retval, "ARKStepSetDeduceImplicitRhs", 1)) return 1;
 
   // Set the user data pointer
   retval = ARKStepSetUserData(arkode_mem, (void *) &udata);

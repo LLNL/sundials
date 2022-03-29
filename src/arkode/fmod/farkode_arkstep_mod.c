@@ -619,7 +619,7 @@ SWIGEXPORT int _wrap_FARKStepSetImEx(void *farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetImplicitReeval(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetDeduceImplicitRhs(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -627,7 +627,7 @@ SWIGEXPORT int _wrap_FARKStepSetImplicitReeval(void *farg1, int const *farg2) {
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)ARKStepSetImplicitReeval(arg1,arg2);
+  result = (int)ARKStepSetDeduceImplicitRhs(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -121,8 +121,8 @@ Changes from previous versions
 Changes in v5.2.0
 -----------------
 
-Added the functions :c:func:`ARKStepSetImplicitReeval` and
-:c:func:`MRIStepSetImplicitReeval` to optionally remove an evaluation of the
+Added the functions :c:func:`ARKStepSetDeduceImplicitRhs` and
+:c:func:`MRIStepSetDeduceImplicitRhs` to optionally remove an evaluation of the
 implicit right-hand side function after nonlinear solves. See
 :numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
 optimization.

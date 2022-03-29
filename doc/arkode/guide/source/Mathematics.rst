@@ -1148,8 +1148,8 @@ Consider, for example, :eq:`ARKODE_Residual_MeqI` which implies
 
 when :math:`z_i` is the exact root, and similar relations hold for non-identity
 mass matrices.  This optimization can be enabled by
-:c:func:`ARKStepSetImplicitReeval` and :c:func:`MRIStepSetImplicitReeval` with
-the second argument in either function set to SUNFALSE. Another factor to
+:c:func:`ARKStepSetDeduceImplicitRhs` and :c:func:`MRIStepSetDeduceImplicitRhs`
+with the second argument in either function set to SUNTRUE. Another factor to
 consider when using this option is the amplification of errors from the
 nonlinear solver to the stages. In :eq:`ARKODE_Implicit_Stage_Eval`, nonlinear
 solver errors in :math:`z_i` are scaled by :math:`1 / (h_n A^I_{i,i})`. By

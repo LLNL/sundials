@@ -1558,7 +1558,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   int retval, is, nvec;
   booleantype implicit_stage;
-  booleantype reevaluate_stage;
+  booleantype deduce_stage;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -1714,10 +1714,10 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
-      reevaluate_stage = step_mem->implicit_reeval || !implicit_stage
-                         || ark_mem->ProcessStage != NULL;
+      deduce_stage = step_mem->deduce_rhs && implicit_stage
+        && ark_mem->ProcessStage == NULL;
 
-      if (reevaluate_stage) {
+      if (!deduce_stage) {
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
                               step_mem->Fi[is], ark_mem->user_data);
         step_mem->nfi++;
@@ -1774,8 +1774,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* if using a time-dependent mass matrix, update Fe[is] and/or Fi[is] with M(t)^{-1} */
     if (step_mem->mass_type == MASS_TIMEDEP) {
-      /* If the implicit stage was not reevaluated, it already includes M(t)^{-1} */
-      if (step_mem->implicit && reevaluate_stage) {
+      /* If the implicit stage was deduced, it already includes M(t)^{-1} */
+      if (step_mem->implicit && !deduce_stage) {
         *nflagPtr = step_mem->msolve((void *) ark_mem, step_mem->Fi[is], step_mem->nlscoef);
         if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
       }
