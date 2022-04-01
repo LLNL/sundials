@@ -1536,7 +1536,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
       /* store implicit slow rhs  */
       if (step_mem->implicit_rhs) {
-        if (!step_mem->deduce_rhs || (ark_mem->ProcessStage != NULL) ||
+        if (!step_mem->deduce_rhs ||
             (step_mem->stagetypes[is] != MRISTAGE_DIRK_NOFAST)) {
           retval = step_mem->fsi(ark_mem->tcur, ark_mem->ycur,
                                  step_mem->Fsi[step_mem->stage_map[is]],

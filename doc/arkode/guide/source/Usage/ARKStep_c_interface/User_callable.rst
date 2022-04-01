@@ -2193,10 +2193,6 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`ARKStepSetDe
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
 
-   **Notes:**
-      If stage postprocessing is enabled, this option is ignored, and
-      :math:`f^I` is never deduced.
-
 
 
 

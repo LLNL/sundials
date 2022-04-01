@@ -260,10 +260,6 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`MRIStepSetDe
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   **Notes:**
-      If stage postprocessing is enabled, this option is ignored, and
-      :math:`f^I` is never deduced.
-
 
 .. _ARKODE.Usage.MRIStep.ARKLsInputs:
 
