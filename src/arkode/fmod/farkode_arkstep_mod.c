@@ -1988,6 +1988,20 @@ SWIGEXPORT int _wrap_FARKStepGetNonlinSolvStats(void *farg1, long *farg2, long *
 }
 
 
+SWIGEXPORT int _wrap_FARKStepGetNumStepSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)ARKStepGetNumStepSolveFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepGetLinWorkSpace(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

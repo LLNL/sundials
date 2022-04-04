@@ -483,7 +483,7 @@ subroutine PrintOutput(cvodes_mem, t, u)
   retval = FCVodeGetLastOrder(cvodes_mem, qu)
   retval = FCVodeGetLastStep(cvodes_mem, hu)
 
-  write(*,'(1x,es9.3,1x,i2,2x,es9.3,i5)') t, qu, hu, nst
+  write(*,'(1x,es10.3,1x,i2,2x,es10.3,i5)') t, qu, hu, nst
 
   unorm = FN_VMaxNorm(u)
   write(*,'(1x,A,es12.4)') "                                Solution        ", unorm

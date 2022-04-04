@@ -1362,6 +1362,20 @@ SWIGEXPORT int _wrap_FIDAGetNonlinSolvStats(void *farg1, long *farg2, long *farg
 }
 
 
+SWIGEXPORT int _wrap_FIDAGetNumStepSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)IDAGetNumStepSolveFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FIDAGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
@@ -1976,6 +1990,20 @@ SWIGEXPORT int _wrap_FIDAGetSensNonlinSolvStats(void *farg1, long *farg2, long *
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)IDAGetSensNonlinSolvStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDAGetNumStepSensSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)IDAGetNumStepSensSolveFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

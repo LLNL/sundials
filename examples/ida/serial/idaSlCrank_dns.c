@@ -365,14 +365,15 @@ static int PrintOutput(void *mem, realtype t, N_Vector y)
 static int PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn;
+  long int nst, nni, nnf, nje, nre, nreLS, netf, ncfn;
 
   retval = IDAGetNumSteps(mem, &nst);
   retval = IDAGetNumResEvals(mem, &nre);
   retval = IDAGetNumJacEvals(mem, &nje);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   retval = IDAGetNumErrTestFails(mem, &netf);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
   retval = IDAGetNumLinResEvals(mem, &nreLS);
 
   printf("\nFinal Run Statistics: \n\n");
@@ -381,7 +382,8 @@ static int PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
 
   return(retval);
 }

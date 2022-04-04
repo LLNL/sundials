@@ -239,6 +239,9 @@ fi
 for env_var in "${!CMAKE_@}"; do
     printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
 done
+for env_var in "${!MPI@}"; do
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+done
 for env_var in "${!SUNDIALS_@}"; do
     printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
 done

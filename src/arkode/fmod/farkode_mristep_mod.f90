@@ -204,6 +204,7 @@ module farkode_mristep_mod
  public :: FMRIStepGetNumNonlinSolvIters
  public :: FMRIStepGetNumNonlinSolvConvFails
  public :: FMRIStepGetNonlinSolvStats
+ public :: FMRIStepGetNumStepSolveFails
  public :: FMRIStepGetLinWorkSpace
  public :: FMRIStepGetNumJacEvals
  public :: FMRIStepGetNumPrecEvals
@@ -1140,6 +1141,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepGetNumStepSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2939,7 +2949,42 @@ fresult = swigc_FMRIStepGetNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepGetNumNonlinSolvConvFails(arkode_mem, nncfails) &
+function FMRIStepGetNumNonlinSolvConvFails(arkode_mem, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nnfails(1))
+fresult = swigc_FMRIStepGetNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepGetNonlinSolvStats(arkode_mem, nniters, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(nniters(1))
+farg3 = c_loc(nnfails(1))
+fresult = swigc_FMRIStepGetNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FMRIStepGetNumStepSolveFails(arkode_mem, nncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -2951,26 +2996,7 @@ type(C_PTR) :: farg2
 
 farg1 = arkode_mem
 farg2 = c_loc(nncfails(1))
-fresult = swigc_FMRIStepGetNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNonlinSolvStats(arkode_mem, nniters, nncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = c_loc(nniters(1))
-farg3 = c_loc(nncfails(1))
-fresult = swigc_FMRIStepGetNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FMRIStepGetNumStepSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 

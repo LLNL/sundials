@@ -126,5 +126,5 @@ group 90: At t = 4.0000e+10      y =  5.551889e-08    2.220755e-13    9.999999e-
 
 Final Statistics:
 nst = 590    nfe  = 834    nsetups = 109    nje = 13
-nni = 831    ncfn = 1      netf = 23        nge = 0
+nni = 831    ncfn = 4      netf = 23        nge = 0
  

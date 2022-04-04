@@ -1677,6 +1677,9 @@ the preconditioner.
    | No. of local error test failures that have     | :c:func:`CVodeGetNumErrTestFails`        |
    | occurred                                       |                                          |
    +------------------------------------------------+------------------------------------------+
+   | No. of failed steps due to a nonlinear solver  | :c:func:`CVodeGetNumStepSolveFails()`    |
+   | failure                                        |                                          |
+   +------------------------------------------------+------------------------------------------+
    | Order used during the last step                | :c:func:`CVodeGetLastOrder`              |
    +------------------------------------------------+------------------------------------------+
    | Order to be attempted on the next step         | :c:func:`CVodeGetCurrentOrder`           |
@@ -1869,6 +1872,20 @@ described next.
    **Return value:**
      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
      * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+
+
+.. c:function:: int CVodeGetNumStepSolveFails(void* cvode_mem, long int* ncnf)
+
+   Returns the number of failed steps due to a nonlinear solver failure.
+
+   **Arguments:**
+      * ``cvode_mem`` -- pointer to the CVODE memory block.
+      * ``ncnf`` -- number of step failures.
+
+   **Return value:**
+      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
+      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
 
 

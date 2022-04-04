@@ -433,7 +433,7 @@ Species 6
  Number of preconditioner evaluations  =  121 
  Number of preconditioner solves       = 11819 
  Number of error test failures         =   23 
- Number of nonlinear conv. failures    =   10 
+ Number of nonlinear conv. failures    =   17 
  Number of linear convergence failures =  509 
  Average Krylov subspace dimension     = 3.053 
 
@@ -502,7 +502,7 @@ t =   1.00e+01  nst = 251  nfe = 0  nfi = 4101  nni = 2746  hu =    7.09e-02
  Number of preconditioner evaluations  =   91 
  Number of preconditioner solves       = 11537 
  Number of error test failures         =   18 
- Number of nonlinear conv. failures    =    8 
+ Number of nonlinear conv. failures    =   13 
  Number of linear convergence failures =  597 
  Average Krylov subspace dimension     = 3.234 
 
@@ -571,7 +571,7 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5722  nni = 3907  hu =    1.35e-01
  Number of preconditioner evaluations  =  253 
  Number of preconditioner solves       = 16594 
  Number of error test failures         =    0 
- Number of nonlinear conv. failures    =  103 
+ Number of nonlinear conv. failures    =  117 
  Number of linear convergence failures = 1072 
  Average Krylov subspace dimension     = 3.303 
 
@@ -640,7 +640,7 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5728  nni = 3912  hu =    1.31e-01
  Number of preconditioner evaluations  =  254 
  Number of preconditioner solves       = 16627 
  Number of error test failures         =    0 
- Number of nonlinear conv. failures    =  103 
+ Number of nonlinear conv. failures    =  118 
  Number of linear convergence failures = 1076 
  Average Krylov subspace dimension     = 3.306 
 

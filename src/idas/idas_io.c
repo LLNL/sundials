@@ -1324,7 +1324,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
+int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nnfails)
 {
   IDAMem IDA_mem;
 
@@ -1335,14 +1335,14 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  *nncfails = IDA_mem->ida_ncfn;
+  *nnfails = IDA_mem->ida_nnf;
 
   return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
+int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nnfails)
 {
   IDAMem IDA_mem;
 
@@ -1354,7 +1354,26 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  *nniters  = IDA_mem->ida_nni;
+  *nniters = IDA_mem->ida_nni;
+  *nnfails = IDA_mem->ida_nnf;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetNumStepSolveFails(void *ida_mem, long int *nncfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumStepSolveFails",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
   *nncfails = IDA_mem->ida_ncfn;
 
   return(IDA_SUCCESS);
@@ -1780,7 +1799,7 @@ int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
+int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSnfails)
 {
   IDAMem IDA_mem;
 
@@ -1796,14 +1815,15 @@ int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
     return(IDA_NO_SENS);
   }
 
-  *nSncfails = IDA_mem->ida_ncfnS;
+  *nSnfails = IDA_mem->ida_nnfS;
 
   return(IDA_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncfails)
+int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters,
+                              long int *nSnfails)
 {
   IDAMem IDA_mem;
 
@@ -1821,8 +1841,27 @@ int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncf
     return(IDA_NO_SENS);
   }
 
-  *nSniters  = IDA_mem->ida_nniS;
-  *nSncfails = IDA_mem->ida_ncfnS;
+  *nSniters = IDA_mem->ida_nniS;
+  *nSnfails = IDA_mem->ida_nnfS;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetNumStepSensSolveFails(void *ida_mem, long int *nSncfails)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumStepSensSolveFails",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *nSncfails = IDA_mem->ida_ncfn;
 
   return(IDA_SUCCESS);
 }

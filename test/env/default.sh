@@ -98,11 +98,14 @@ export SPACK_ROOT=${APPROOT}/sundials-tpls-v0.17.0/spack
 # shellcheck disable=SC1090
 source ${SPACK_ROOT}/share/spack/setup-env.sh
 
-# load CMake
-spack load "cmake@3.12.4%${compiler}"
-
 # load compiler
 spack load "${compiler}"
+
+# make sure spack knows about the compiler
+spack compiler find
+
+# load CMake
+spack load "cmake@3.12.4%${compiler}"
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then

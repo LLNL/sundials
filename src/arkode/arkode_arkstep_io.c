@@ -191,6 +191,8 @@ int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumAccSteps(arkode_mem, nsteps)); }
 int ARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails) {
   return(arkGetNumErrTestFails(arkode_mem, netfails)); }
+int ARKStepGetNumStepSolveFails(void *arkode_mem, long int *nncfails) {
+  return(arkGetNumStepSolveFails(arkode_mem, nncfails)); }
 char *ARKStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 
@@ -1544,7 +1546,7 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 
   Returns the current number of nonlinear solver convergence fails
   ---------------------------------------------------------------*/
-int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
+int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nnfails)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1556,7 +1558,7 @@ int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* set output from step_mem */
-  *nncfails = ark_mem->ncfn;
+  *nnfails = step_mem->nls_fails;
 
   return(ARK_SUCCESS);
 }
@@ -1568,7 +1570,7 @@ int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
   Returns nonlinear solver statistics
   ---------------------------------------------------------------*/
 int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
-                              long int *nncfails)
+                              long int *nnfails)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1579,12 +1581,11 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  *nniters  = step_mem->nls_iters;
-  *nncfails = ark_mem->ncfn;
+  *nniters = step_mem->nls_iters;
+  *nnfails = step_mem->nls_fails;
 
   return(ARK_SUCCESS);
 }
-
 
 /*===============================================================
   ARKStep parameter output

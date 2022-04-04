@@ -294,9 +294,11 @@ SUNDIALS_EXPORT int IDAGetNonlinearSystemDataSens(void *ida_mem, realtype *tcur,
                                                   void **user_data);
 SUNDIALS_EXPORT int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters);
 SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem,
-                                                 long int *nncfails);
+                                                 long int *nnfails);
 SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
-                                          long int *nncfails);
+                                          long int *nnfails);
+SUNDIALS_EXPORT int IDAGetNumStepSolveFails(void *ida_mem,
+                                            long int *nncfails);
 SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 /* Free function */
@@ -404,10 +406,12 @@ SUNDIALS_EXPORT int IDAGetSensStats(void *ida_mem, long int *nresSevals,
 SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvIters(void *ida_mem,
                                                  long int *nSniters);
 SUNDIALS_EXPORT int IDAGetSensNumNonlinSolvConvFails(void *ida_mem,
-                                                     long int *nSncfails);
+                                                     long int *nSnfails);
 SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem,
                                               long int *nSniters,
-                                              long int *nSncfails);
+                                              long int *nSnfails);
+SUNDIALS_EXPORT int IDAGetNumStepSensSolveFails(void *ida_mem,
+                                                long int *nSncfails);
 
 /* Free function */
 SUNDIALS_EXPORT void IDASensFree(void *ida_mem);

@@ -487,6 +487,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_ncfn    = 0;
   IDA_mem->ida_netf    = 0;
   IDA_mem->ida_nni     = 0;
+  IDA_mem->ida_nnf     = 0;
   IDA_mem->ida_nsetups = 0;
 
   IDA_mem->ida_kused = 0;
@@ -590,6 +591,7 @@ int IDAReInit(void *ida_mem,
   IDA_mem->ida_ncfn    = 0;
   IDA_mem->ida_netf    = 0;
   IDA_mem->ida_nni     = 0;
+  IDA_mem->ida_nnf     = 0;
   IDA_mem->ida_nsetups = 0;
 
   IDA_mem->ida_kused = 0;
@@ -2461,7 +2463,8 @@ static int IDANls(IDAMem IDA_mem)
   booleantype constraintsPassed, callLSetup;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
-  long int nni_inc;
+  long int nni_inc = 0;
+  long int nnf_inc = 0;
 
   callLSetup = SUNFALSE;
 
@@ -2499,17 +2502,19 @@ static int IDANls(IDAMem IDA_mem)
                              IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
 
-  /* increment counter */
-  nni_inc = 0;
-  (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &(nni_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &nni_inc);
   IDA_mem->ida_nni += nni_inc;
+
+  (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc);
+  IDA_mem->ida_nnf += nnf_inc;
+
+  /* return if nonlinear solver failed */
+  if (retval != SUN_NLS_SUCCESS) return(retval);
 
   /* update yy and yp based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee, IDA_mem->ida_yp);
-
-  /* return if nonlinear solver failed */
-  if (retval != IDA_SUCCESS) return(retval);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 

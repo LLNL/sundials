@@ -358,10 +358,12 @@ SUNDIALS_EXPORT int MRIStepGetNonlinearSystemData(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepGetNumNonlinSolvIters(void *arkode_mem,
                                                  long int *nniters);
 SUNDIALS_EXPORT int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem,
-                                                     long int *nncfails);
+                                                     long int *nnfails);
 SUNDIALS_EXPORT int MRIStepGetNonlinSolvStats(void *arkode_mem,
                                               long int *nniters,
-                                              long int *nncfails);
+                                              long int *nnfails);
+SUNDIALS_EXPORT int MRIStepGetNumStepSolveFails(void *arkode_mem,
+                                                long int *nncfails);
 
 /* Linear solver optional output functions */
 SUNDIALS_EXPORT int MRIStepGetLinWorkSpace(void *arkode_mem,

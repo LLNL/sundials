@@ -336,6 +336,9 @@ typedef struct IDAMemRec {
   long int ida_nni;      /* number of Newton iterations performed             */
   long int ida_nniS;
 
+  long int ida_nnf;      /* number of Newton convergence failures             */
+  long int ida_nnfS;
+
   long int ida_nsetups;  /* number of lsetup calls                            */
   long int ida_nsetupsS;
 

@@ -812,19 +812,20 @@ detail in the remainder of this section.
 .. table:: Forward sensitivity optional outputs
    :align: center
 
-   ================================================== ================================================
-   **Optional output**                                **Routine name**
-   ================================================== ================================================
-   No. of calls to sensitivity residual function      :c:func:`IDAGetSensNumResEvals`
-   No. of calls to residual function for sensitivity  :c:func:`IDAGetNumResEvalsSens`
-   No. of sensitivity local error test failures       :c:func:`IDAGetSensNumErrTestFails`
-   No. of calls to lin. solv. setup routine for sens. :c:func:`IDAGetSensNumLinSolvSetups`
-   Error weight vector for sensitivity variables      :c:func:`IDAGetSensErrWeights`
-   Sensitivity-related statistics as a group          :c:func:`IDAGetSensStats`
-   No. of sens. nonlinear solver iterations           :c:func:`IDAGetSensNumNonlinSolvIters`
-   No. of sens. convergence failures                  :c:func:`IDAGetSensNumNonlinSolvConvFails`
-   Sens. nonlinear solver statistics as a group       :c:func:`IDAGetSensNonlinSolveStats`
-   ================================================== ================================================
+   ================================================================ ================================================
+   **Optional output**                                              **Routine name**
+   ================================================================ ================================================
+   No. of calls to sensitivity residual function                    :c:func:`IDAGetSensNumResEvals`
+   No. of calls to residual function for sensitivity                :c:func:`IDAGetNumResEvalsSens`
+   No. of sensitivity local error test failures                     :c:func:`IDAGetSensNumErrTestFails`
+   No. of failed steps due to sensitivity nonlinear solver failures :c:func:`IDAGetNumStepSensSolveFails`
+   No. of calls to lin. solv. setup routine for sens.               :c:func:`IDAGetSensNumLinSolvSetups`
+   Error weight vector for sensitivity variables                    :c:func:`IDAGetSensErrWeights`
+   Sensitivity-related statistics as a group                        :c:func:`IDAGetSensStats`
+   No. of sens. nonlinear solver iterations                         :c:func:`IDAGetSensNumNonlinSolvIters`
+   No. of sens. convergence failures                                :c:func:`IDAGetSensNumNonlinSolvConvFails`
+   Sens. nonlinear solver statistics as a group                     :c:func:`IDAGetSensNonlinSolveStats`
+   ================================================================ ================================================
 
 
 .. c:function:: int IDAGetSensNumResEvals(void * ida_mem, long int * nfSevals)
@@ -882,6 +883,21 @@ detail in the remainder of this section.
       included in the error test (see :c:func:`IDASetSensErrCon`).  Even in
       that case, this counter is not incremented if the
       ``ism = IDA_SIMULTANEOUS``  sensitivity solution method has been used.
+
+
+.. c:function:: int IDAGetNumStepSensSolveFails(void* ida_mem, long int* nSncfails)
+
+   Returns the number of failed steps due to a sensitivity nonlinear solver
+   failure.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS memory block.
+      * ``nSncfails`` -- number of step failures.
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+     * ``IDA_NO_SENS`` -- Forward sensitivity analysis was not initialized.
 
 
 .. c:function:: int IDAGetSensNumLinSolvSetups(void * ida_mem, long int * nlinsetupsS)

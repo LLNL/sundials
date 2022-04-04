@@ -1007,6 +1007,7 @@ int arkGetNumConstrFails(void *arkode_mem, long int *nconstrfails);
 int arkGetNumExpSteps(void *arkode_mem, long int *nsteps);
 int arkGetNumAccSteps(void *arkode_mem, long int *nsteps);
 int arkGetNumErrTestFails(void *arkode_mem, long int *netfails);
+int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails);
 int arkGetStepStats(void *arkode_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);

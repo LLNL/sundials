@@ -69,7 +69,7 @@ Final Solver Statistics (for processor 0):
    Internal solver steps = 482 (attempted = 482)
    Total RHS evals:  Fe = 1931,  Fi = 4835
    Total number of error test failures = 0
-   Total number of nonlinear solver convergence failures = 0
+   Total number of nonlinear solver convergence failures = 2
    Total number of nonlinear iterations = 2904
    Total number of linear iterations = 9286
    Total number of preconditioner setups = 9

@@ -70,7 +70,7 @@ Final Solver Statistics (for processor 0):
   Steps            = 482
   Step attempts    = 482
   Error test fails = 0
-  NLS fails        = 0
+  NLS fails        = 2
   RHS evals Fe     = 1931
   RHS evals Fi     = 4835
   NLS iters        = 2904

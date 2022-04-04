@@ -109,6 +109,8 @@ int MRIStepGetNumGEvals(void *arkode_mem, long int *ngevals) {
   return(arkGetNumGEvals(arkode_mem, ngevals)); }
 int MRIStepGetRootInfo(void *arkode_mem, int *rootsfound) {
   return(arkGetRootInfo(arkode_mem, rootsfound)); }
+int MRIStepGetNumStepSolveFails(void *arkode_mem, long int *nncfails) {
+  return(arkGetNumStepSolveFails(arkode_mem, nncfails)); }
 char *MRIStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 
@@ -829,7 +831,7 @@ int MRIStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 
   Returns the current number of nonlinear solver convergence fails
   ---------------------------------------------------------------*/
-int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
+int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nnfails)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -841,7 +843,7 @@ int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* set output from step_mem */
-  *nncfails = ark_mem->ncfn;
+  *nnfails = step_mem->nls_fails;
 
   return(ARK_SUCCESS);
 }
@@ -853,7 +855,7 @@ int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
   Returns nonlinear solver statistics
   ---------------------------------------------------------------*/
 int MRIStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
-                              long int *nncfails)
+                              long int *nnfails)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -864,8 +866,8 @@ int MRIStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  *nniters  = step_mem->nls_iters;
-  *nncfails = ark_mem->ncfn;
+  *nniters = step_mem->nls_iters;
+  *nnfails = step_mem->nls_fails;
 
   return(ARK_SUCCESS);
 }

@@ -34,5 +34,6 @@ Number of residual evaluations     = 537
 Number of Jacobian evaluations     = 60
 Number of nonlinear iterations     = 537
 Number of error test failures      = 15
-Number of nonlinear conv. failures = 0
+Number of nonlinear conv. failures = 5
+Number of step solver failures     = 0
 Number of root fn. evaluations     = 404

@@ -1258,6 +1258,20 @@ SWIGEXPORT int _wrap_FCVodeGetNonlinSolvStats(void *farg1, long *farg2, long *fa
 }
 
 
+SWIGEXPORT int _wrap_FCVodeGetNumStepSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)CVodeGetNumStepSolveFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
@@ -1891,6 +1905,20 @@ SWIGEXPORT int _wrap_FCVodeGetSensNonlinSolvStats(void *farg1, long *farg2, long
 }
 
 
+SWIGEXPORT int _wrap_FCVodeGetNumStepSensSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)CVodeGetNumStepSensSolveFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeGetStgrSensNumNonlinSolvIters(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1930,6 +1958,20 @@ SWIGEXPORT int _wrap_FCVodeGetStgrSensNonlinSolvStats(void *farg1, long *farg2, 
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)CVodeGetStgrSensNonlinSolvStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetNumStepStgrSensSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)CVodeGetNumStepStgrSensSolveFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

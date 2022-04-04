@@ -241,6 +241,7 @@ typedef struct CVodeMemRec {
   long int cv_nfe;         /* number of f calls                               */
   long int cv_ncfn;        /* number of corrector convergence failures        */
   long int cv_nni;         /* number of nonlinear iterations performed        */
+  long int cv_nnf;         /* number of nonlinear convergence failures        */
   long int cv_netf;        /* number of error test failures                   */
   long int cv_nsetups;     /* number of setup calls                           */
   int cv_nhnil;            /* number of messages issued to the user that

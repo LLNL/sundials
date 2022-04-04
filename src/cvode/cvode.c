@@ -557,6 +557,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_ncfn    = 0;
   cv_mem->cv_netf    = 0;
   cv_mem->cv_nni     = 0;
+  cv_mem->cv_nnf     = 0;
   cv_mem->cv_nsetups = 0;
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
@@ -662,6 +663,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   cv_mem->cv_ncfn    = 0;
   cv_mem->cv_netf    = 0;
   cv_mem->cv_nni     = 0;
+  cv_mem->cv_nnf     = 0;
   cv_mem->cv_nsetups = 0;
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
@@ -2802,7 +2804,8 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
   booleantype callSetup;
-  long int nni_inc;
+  long int nni_inc = 0;
+  long int nnf_inc = 0;
 
   /* Decide whether or not to call setup routine (if one exists) and */
   /* set flag convfail (input to lsetup for its evaluation decision) */
@@ -2833,13 +2836,15 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-  /* increment counter */
-  nni_inc = 0;
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc);
   cv_mem->cv_nni += nni_inc;
 
+  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc);
+  cv_mem->cv_nnf += nnf_inc;
+
   /* if the solve failed return */
-  if (flag != CV_SUCCESS) return(flag);
+  if (flag != SUN_NLS_SUCCESS) return(flag);
 
   /* solve successful */
 

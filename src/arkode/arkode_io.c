@@ -1621,6 +1621,28 @@ int arkGetNumErrTestFails(void *arkode_mem, long int *netfails)
   return(ARK_SUCCESS);
 }
 
+
+/*---------------------------------------------------------------
+  arkGetNumStepSolveFails:
+
+  Returns the current number of failed steps due to an algebraic
+  solver convergence failure.
+  ---------------------------------------------------------------*/
+int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkGetNumStepSolveFails", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  *nncfails = ark_mem->ncfn;
+  return(ARK_SUCCESS);
+}
+
+
 /*-----------------------------------------------------------------*/
 
 char *arkGetReturnFlagName(long int flag)

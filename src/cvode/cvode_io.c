@@ -1167,7 +1167,8 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumNonlinSolvIters",
+                   MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
@@ -1185,7 +1186,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
  * nonlinear solver
  */
 
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nnfails)
 {
   CVodeMem cv_mem;
 
@@ -1196,7 +1197,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nncfails = cv_mem->cv_ncfn;
+  *nnfails = cv_mem->cv_nnf;
 
   return(CV_SUCCESS);
 }
@@ -1208,18 +1209,43 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
  */
 
 int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
-                            long int *nncfails)
+                            long int *nnfails)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats",
+                   MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters  = cv_mem->cv_nni;
+  *nniters = cv_mem->cv_nni;
+  *nnfails = cv_mem->cv_nnf;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeGetNumStepSolveFails
+ *
+ * Returns the current number of failed steps due to a nonlinear solver
+ * convergence failure
+ */
+
+int CVodeGetNumStepSolveFails(void *cvode_mem, long int *nncfails)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumStepSolveFails",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
   *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);
