@@ -1714,7 +1714,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
-      deduce_stage = step_mem->deduce_rhs && implicit_stage
+      deduce_stage = step_mem->deduce_rhs && implicit_stage;
 
       if (!deduce_stage) {
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
