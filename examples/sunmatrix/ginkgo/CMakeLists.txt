@@ -19,7 +19,7 @@
 set(sunmatrix_ginkgo_examples
   # "test_sunmatrix_ginkgoblock.cpp\;100 100 1 0\;"
   "test_sunmatrix_gkodense.cpp\;100 100 1 0\;"
-  # "test_sunmatrix_gkocsr.cpp\;100 100 1 0\;"
+  "test_sunmatrix_gkocsr.cpp\;100 100 1 0\;"
 )
 
 # Add source directory to include directories
