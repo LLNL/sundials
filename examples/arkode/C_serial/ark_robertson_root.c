@@ -72,26 +72,28 @@ int main()
   realtype TMult = RCONST(10.0); /* output time multiplication factor */
   int Nt = 12;                   /* total number of output times */
   sunindextype NEQ = 3;              /* number of dependent vars. */
-  realtype reltol;
+ 
+  /* rootfinding variables */
   int rootsfound[2];
-  long int nst, nst_a, nfe, nfi, nsetups;
-  long int nje, nfeLS, nni, ncfn, netf, nge;
-  int flag, rtflag;              /* reusable error-checking flags */
-  FILE *UFID;
-  realtype t, tout;
-  int iout;
+  int rtflag;         /* root info flag */
 
   /* general problem variables */
+  int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   N_Vector atols = NULL;         /* empty vector for absolute tolerances */
   SUNMatrix A = NULL;            /* empty matrix for linear solver */
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
+  FILE *UFID;
+  realtype t, tout;
+  int iout;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nge;
 
   /* set up the initial conditions */
   realtype u0 = RCONST(1.0);
   realtype v0 = RCONST(0.0);
   realtype w0 = RCONST(0.0);
+  realtype reltol = RCONST(1.0e-4);
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -103,13 +105,19 @@ int main()
   printf("    initial conditions:  u0 = %"GSYM",  v0 = %"GSYM",  w0 = %"GSYM"\n",u0,v0,w0);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ, ctx);        /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);         /* Create serial vector for solution */
   if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
-  atols = N_VClone(y);    /* Create serial vector absolute tolerances */
-  if (check_flag((void *) atols, "N_VNew_Serial", 0)) return 1;
-  NV_Ith_S(y,0) = u0;            /* Set initial conditions into y */
+  NV_Ith_S(y,0) = u0;             /* Set initial conditions into y */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
+
+  atols = N_VClone(y);    /* Create serial vector absolute tolerances */
+  if (check_flag((void *) atols, "N_VNew_Serial", 0)) return 1;
+
+  /* Set absolute tolerances */
+  NV_Ith_S(atols,0) = RCONST(1.0e-8);
+  NV_Ith_S(atols,1) = RCONST(1.0e-11);
+  NV_Ith_S(atols,2) = RCONST(1.0e-8);
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -118,24 +126,18 @@ int main()
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
-  /* Set tolerances */
-  reltol = RCONST(1.0e-4);
-  NV_Ith_S(atols,0) = RCONST(1.0e-8);
-  NV_Ith_S(atols,1) = RCONST(1.0e-11);
-  NV_Ith_S(atols,2) = RCONST(1.0e-8);
-
   /* Set routines */
-  flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);        /* Increase max error test fails */
+  flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);           /* Increase max error test fails */
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
-  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);          /* Increase max nonlinear iterations  */
+  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);      /* Update nonlinear solver convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);        /* Increase max number of steps */
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
-  flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
+  flag = ARKStepSetPredictorMethod(arkode_mem, 1);            /* Specify maximum-order predictor */
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
-  flag = ARKStepSVtolerances(arkode_mem, reltol, atols);   /* Specify tolerances */
+  flag = ARKStepSVtolerances(arkode_mem, reltol, atols);      /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Specify the root-finding function, having 2 equations */
@@ -173,10 +175,10 @@ int main()
   iout = 0;
   while(1) {
 
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);     /* call integrator */
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
-    printf("  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",  t,        /* access/print solution */
-        NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+    printf("  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",              /* access/print solution */
+           t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
             t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     if (flag == ARK_ROOT_RETURN) {                          /* check if a root was found */
@@ -208,9 +210,11 @@ int main()
   check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
   flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumStepSolveFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumStepSolveFails", 1);
   flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &nnf);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
   flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
   check_flag(&flag, "ARKStepGetNumJacEvals", 1);
@@ -228,8 +232,9 @@ int main()
   printf("   Total number of Jacobian evaluations = %li\n", nje);
   printf("   Total number of Newton iterations = %li\n", nni);
   printf("   Total root-function g evals = %li\n", nge);
-  printf("   Total number of nonlinear solver convergence failures = %li\n", ncfn);
+  printf("   Total number of nonlinear solver convergence failures = %li\n", nnf);
   printf("   Total number of error test failures = %li\n", netf);
+  printf("   Total number of failed steps from solver failure = %li\n", ncfn);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
@@ -249,25 +254,25 @@ int main()
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype u = NV_Ith_S(y,0);     /* access current solution */
+  realtype u = NV_Ith_S(y,0);   /* access current solution */
   realtype v = NV_Ith_S(y,1);
   realtype w = NV_Ith_S(y,2);
 
-  /* Fill in the ODE RHS function */
+  /* Fill in ODE RHS function */
   NV_Ith_S(ydot,0) = -0.04*u + 1.e4*v*w;
   NV_Ith_S(ydot,1) = 0.04*u - 1.e4*v*w - 3.e7*v*v;
   NV_Ith_S(ydot,2) = 3.e7*v*v;
 
-  return 0;                      /* Return with success */
+  return 0;                     /* Return with success */
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype v = NV_Ith_S(y,1);    /* access current solution */
+  realtype v = NV_Ith_S(y,1);   /* access current solution */
   realtype w = NV_Ith_S(y,2);
-  SUNMatZero(J);                 /* initialize Jacobian to zero */
+  SUNMatZero(J);                /* initialize Jacobian to zero */
 
   /* Fill in the Jacobian of the ODE RHS function */
   SM_ELEMENT_D(J,0,0) = -0.04;
@@ -280,7 +285,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
   SM_ELEMENT_D(J,2,1) = 6.e7*v;
 
-  return 0;                      /* Return with success */
+  return 0;                     /* Return with success */
 }
 
 /* g routine to compute the root-finding function g(t,y). */

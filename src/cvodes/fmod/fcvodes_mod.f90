@@ -165,6 +165,7 @@ module fcvodes_mod
  public :: FCVodeGetNumNonlinSolvIters
  public :: FCVodeGetNumNonlinSolvConvFails
  public :: FCVodeGetNonlinSolvStats
+ public :: FCVodeGetNumStepSolveFails
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -211,9 +212,11 @@ module fcvodes_mod
  public :: FCVodeGetSensNumNonlinSolvIters
  public :: FCVodeGetSensNumNonlinSolvConvFails
  public :: FCVodeGetSensNonlinSolvStats
+ public :: FCVodeGetNumStepSensSolveFails
  public :: FCVodeGetStgrSensNumNonlinSolvIters
  public :: FCVodeGetStgrSensNumNonlinSolvConvFails
  public :: FCVodeGetStgrSensNonlinSolvStats
+ public :: FCVodeGetNumStepStgrSensSolveFails
  public :: FCVodeSensFree
  public :: FCVodeQuadSensInit
  public :: FCVodeQuadSensReInit
@@ -969,6 +972,15 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeGetNumStepSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
  subroutine SWIG_free(cptr) &
   bind(C, name="free")
  use, intrinsic :: ISO_C_BINDING
@@ -1375,6 +1387,15 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeGetNumStepSensSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumStepSensSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeGetStgrSensNumNonlinSolvIters(farg1, farg2) &
 bind(C, name="_wrap_FCVodeGetStgrSensNumNonlinSolvIters") &
 result(fresult)
@@ -1400,6 +1421,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNumStepStgrSensSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumStepStgrSensSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3639,7 +3669,42 @@ fresult = swigc_FCVodeGetNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails) &
+function FCVodeGetNumNonlinSolvConvFails(cvode_mem, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nnfails(1))
+fresult = swigc_FCVodeGetNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetNonlinSolvStats(cvode_mem, nniters, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(nniters(1))
+farg3 = c_loc(nnfails(1))
+fresult = swigc_FCVodeGetNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeGetNumStepSolveFails(cvode_mem, nncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -3651,26 +3716,7 @@ type(C_PTR) :: farg2
 
 farg1 = cvode_mem
 farg2 = c_loc(nncfails(1))
-fresult = swigc_FCVodeGetNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = cvode_mem
-farg2 = c_loc(nniters(1))
-farg3 = c_loc(nncfails(1))
-fresult = swigc_FCVodeGetNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FCVodeGetNumStepSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -4396,7 +4442,42 @@ fresult = swigc_FCVodeGetSensNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetSensNumNonlinSolvConvFails(cvode_mem, nsncfails) &
+function FCVodeGetSensNumNonlinSolvConvFails(cvode_mem, nsnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nsnfails(1))
+fresult = swigc_FCVodeGetSensNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetSensNonlinSolvStats(cvode_mem, nsniters, nsnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nsnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(nsniters(1))
+farg3 = c_loc(nsnfails(1))
+fresult = swigc_FCVodeGetSensNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeGetNumStepSensSolveFails(cvode_mem, nsncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -4408,26 +4489,7 @@ type(C_PTR) :: farg2
 
 farg1 = cvode_mem
 farg2 = c_loc(nsncfails(1))
-fresult = swigc_FCVodeGetSensNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeGetSensNonlinSolvStats(cvode_mem, nsniters, nsncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nsncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = cvode_mem
-farg2 = c_loc(nsniters(1))
-farg3 = c_loc(nsncfails(1))
-fresult = swigc_FCVodeGetSensNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FCVodeGetNumStepSensSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -4447,7 +4509,42 @@ fresult = swigc_FCVodeGetStgrSensNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetStgrSensNumNonlinSolvConvFails(cvode_mem, nstgr1ncfails) &
+function FCVodeGetStgrSensNumNonlinSolvConvFails(cvode_mem, nstgr1nfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1nfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nstgr1nfails(1))
+fresult = swigc_FCVodeGetStgrSensNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetStgrSensNonlinSolvStats(cvode_mem, nstgr1niters, nstgr1nfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1niters
+integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1nfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(nstgr1niters(1))
+farg3 = c_loc(nstgr1nfails(1))
+fresult = swigc_FCVodeGetStgrSensNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeGetNumStepStgrSensSolveFails(cvode_mem, nstgr1ncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -4459,26 +4556,7 @@ type(C_PTR) :: farg2
 
 farg1 = cvode_mem
 farg2 = c_loc(nstgr1ncfails(1))
-fresult = swigc_FCVodeGetStgrSensNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeGetStgrSensNonlinSolvStats(cvode_mem, nstgr1niters, nstgr1ncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1niters
-integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1ncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = cvode_mem
-farg2 = c_loc(nstgr1niters(1))
-farg3 = c_loc(nstgr1ncfails(1))
-fresult = swigc_FCVodeGetStgrSensNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FCVodeGetNumStepStgrSensSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 

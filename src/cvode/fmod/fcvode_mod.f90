@@ -134,6 +134,7 @@ module fcvode_mod
  public :: FCVodeGetNumNonlinSolvIters
  public :: FCVodeGetNumNonlinSolvConvFails
  public :: FCVodeGetNonlinSolvStats
+ public :: FCVodeGetNumStepSolveFails
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -752,6 +753,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNumStepSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2165,7 +2175,42 @@ fresult = swigc_FCVodeGetNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails) &
+function FCVodeGetNumNonlinSolvConvFails(cvode_mem, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nnfails(1))
+fresult = swigc_FCVodeGetNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetNonlinSolvStats(cvode_mem, nniters, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(nniters(1))
+farg3 = c_loc(nnfails(1))
+fresult = swigc_FCVodeGetNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeGetNumStepSolveFails(cvode_mem, nncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -2177,26 +2222,7 @@ type(C_PTR) :: farg2
 
 farg1 = cvode_mem
 farg2 = c_loc(nncfails(1))
-fresult = swigc_FCVodeGetNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = cvode_mem
-farg2 = c_loc(nniters(1))
-farg3 = c_loc(nncfails(1))
-fresult = swigc_FCVodeGetNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FCVodeGetNumStepSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 

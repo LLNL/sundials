@@ -22,5 +22,5 @@ Number of function evaluations = 5831
 Number of linear solver setups = 806   
 Number of Jacobian evaluations = 103   
 Number of nonlinear solver iterations = 5828  
-Number of convergence failures = 20    
+Number of convergence failures = 40    
 Number of error test failures = 329   

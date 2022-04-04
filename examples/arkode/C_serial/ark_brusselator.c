@@ -104,7 +104,7 @@ int main()
   FILE *UFID;
   realtype t, tout;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -225,9 +225,11 @@ int main()
   check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
   flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumStepSolveFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumStepSolveFails", 1);
   flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &nnf);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
   flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
   check_flag(&flag, "ARKStepGetNumJacEvals", 1);
@@ -241,8 +243,9 @@ int main()
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
   printf("   Total number of Jacobian evaluations = %li\n", nje);
   printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of linear solver convergence failures = %li\n", ncfn);
-  printf("   Total number of error test failures = %li\n\n", netf);
+  printf("   Total number of nonlinear solver convergence failures = %li\n", nnf);
+  printf("   Total number of error test failures = %li\n", netf);
+  printf("   Total number of failed steps from solver failure = %li\n", ncfn);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */

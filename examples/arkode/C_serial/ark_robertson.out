@@ -113,5 +113,6 @@ Final Solver Statistics:
    Total RHS evals for setting up the linear system = 0
    Total number of Jacobian evaluations = 56
    Total number of Newton iterations = 27313
-   Total number of nonlinear solver convergence failures = 3
+   Total number of nonlinear solver convergence failures = 46
    Total number of error test failures = 177
+   Total number of failed steps from solver failure = 3

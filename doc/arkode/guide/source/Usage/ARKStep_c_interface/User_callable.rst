@@ -3109,32 +3109,33 @@ Main solver optional output functions
 
 .. cssclass:: table-bordered
 
-===================================================  ============================================
-Optional output                                      Function name
-===================================================  ============================================
-Size of ARKStep real and integer workspaces          :c:func:`ARKStepGetWorkSpace()`
-Cumulative number of internal steps                  :c:func:`ARKStepGetNumSteps()`
-Actual initial time step size used                   :c:func:`ARKStepGetActualInitStep()`
-Step size used for the last successful step          :c:func:`ARKStepGetLastStep()`
-Step size to be attempted on the next step           :c:func:`ARKStepGetCurrentStep()`
-Current internal time reached by the solver          :c:func:`ARKStepGetCurrentTime()`
-Current internal solution reached by the solver      :c:func:`ARKStepGetCurrentState()`
-Current :math:`\gamma` value used by the solver      :c:func:`ARKStepGetCurrentGamma()`
-Suggested factor for tolerance scaling               :c:func:`ARKStepGetTolScaleFactor()`
-Error weight vector for state variables              :c:func:`ARKStepGetErrWeights()`
-Residual weight vector                               :c:func:`ARKStepGetResWeights()`
-Single accessor to many statistics at once           :c:func:`ARKStepGetStepStats()`
-Name of constant associated with a return flag       :c:func:`ARKStepGetReturnFlagName()`
-No. of explicit stability-limited steps              :c:func:`ARKStepGetNumExpSteps()`
-No. of accuracy-limited steps                        :c:func:`ARKStepGetNumAccSteps()`
-No. of attempted steps                               :c:func:`ARKStepGetNumStepAttempts()`
-No. of calls to *fe* and *fi* functions              :c:func:`ARKStepGetNumRhsEvals()`
-No. of local error test failures that have occurred  :c:func:`ARKStepGetNumErrTestFails()`
-Current ERK and DIRK Butcher tables                  :c:func:`ARKStepGetCurrentButcherTables()`
-Estimated local truncation error vector              :c:func:`ARKStepGetEstLocalErrors()`
-Single accessor to many statistics at once           :c:func:`ARKStepGetTimestepperStats()`
-Number of constraint test failures                   :c:func:`ARKStepGetNumConstrFails()`
-===================================================  ============================================
+=====================================================  ============================================
+Optional output                                        Function name
+=====================================================  ============================================
+Size of ARKStep real and integer workspaces            :c:func:`ARKStepGetWorkSpace()`
+Cumulative number of internal steps                    :c:func:`ARKStepGetNumSteps()`
+Actual initial time step size used                     :c:func:`ARKStepGetActualInitStep()`
+Step size used for the last successful step            :c:func:`ARKStepGetLastStep()`
+Step size to be attempted on the next step             :c:func:`ARKStepGetCurrentStep()`
+Current internal time reached by the solver            :c:func:`ARKStepGetCurrentTime()`
+Current internal solution reached by the solver        :c:func:`ARKStepGetCurrentState()`
+Current :math:`\gamma` value used by the solver        :c:func:`ARKStepGetCurrentGamma()`
+Suggested factor for tolerance scaling                 :c:func:`ARKStepGetTolScaleFactor()`
+Error weight vector for state variables                :c:func:`ARKStepGetErrWeights()`
+Residual weight vector                                 :c:func:`ARKStepGetResWeights()`
+Single accessor to many statistics at once             :c:func:`ARKStepGetStepStats()`
+Name of constant associated with a return flag         :c:func:`ARKStepGetReturnFlagName()`
+No. of explicit stability-limited steps                :c:func:`ARKStepGetNumExpSteps()`
+No. of accuracy-limited steps                          :c:func:`ARKStepGetNumAccSteps()`
+No. of attempted steps                                 :c:func:`ARKStepGetNumStepAttempts()`
+No. of calls to *fe* and *fi* functions                :c:func:`ARKStepGetNumRhsEvals()`
+No. of local error test failures that have occurred    :c:func:`ARKStepGetNumErrTestFails()`
+No. of failed steps due to a nonlinear solver failure  :c:func:`ARKStepGetNumStepSolveFails()`
+Current ERK and DIRK Butcher tables                    :c:func:`ARKStepGetCurrentButcherTables()`
+Estimated local truncation error vector                :c:func:`ARKStepGetEstLocalErrors()`
+Single accessor to many statistics at once             :c:func:`ARKStepGetTimestepperStats()`
+Number of constraint test failures                     :c:func:`ARKStepGetNumConstrFails()`
+=====================================================  ============================================
 
 
 
@@ -3425,6 +3426,20 @@ Number of constraint test failures                   :c:func:`ARKStepGetNumConst
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *netfails* -- number of error test failures.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+
+
+.. c:function:: int ARKStepGetNumStepSolveFails(void* arkode_mem, long int* ncnf)
+
+   Returns the number of failed steps due to a nonlinear solver failure (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *ncnf* -- number of step failures.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

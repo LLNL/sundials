@@ -707,6 +707,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_ncfn    = 0;
   IDA_mem->ida_netf    = 0;
   IDA_mem->ida_nni     = 0;
+  IDA_mem->ida_nnf     = 0;
   IDA_mem->ida_nsetups = 0;
 
   IDA_mem->ida_kused = 0;
@@ -817,6 +818,7 @@ int IDAReInit(void *ida_mem,
   IDA_mem->ida_ncfn    = 0;
   IDA_mem->ida_netf    = 0;
   IDA_mem->ida_nni     = 0;
+  IDA_mem->ida_nnf     = 0;
   IDA_mem->ida_nsetups = 0;
 
   IDA_mem->ida_kused = 0;
@@ -1331,6 +1333,7 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
   IDA_mem->ida_ncfnS    = 0;
   IDA_mem->ida_netfS    = 0;
   IDA_mem->ida_nniS     = 0;
+  IDA_mem->ida_nnfS     = 0;
   IDA_mem->ida_nsetupsS = 0;
 
   /* Set default values for plist and pbar */
@@ -1478,6 +1481,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
   IDA_mem->ida_ncfnS    = 0;
   IDA_mem->ida_netfS    = 0;
   IDA_mem->ida_nniS     = 0;
+  IDA_mem->ida_nnfS     = 0;
   IDA_mem->ida_nsetupsS = 0;
 
   /* Set default values for plist and pbar */
@@ -5670,7 +5674,8 @@ static int IDANls(IDAMem IDA_mem)
   booleantype constraintsPassed, callLSetup, sensi_sim;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
-  long int nni_inc;
+  long int nni_inc = 0;
+  long int nnf_inc = 0;
 
   /* Are we computing sensitivities with the IDA_SIMULTANEOUS approach? */
   sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
@@ -5724,11 +5729,12 @@ static int IDANls(IDAMem IDA_mem)
                                IDA_mem->ypredictSim, IDA_mem->ycorSim,
                                IDA_mem->ewtSim, IDA_mem->ida_epsNewt,
                                callLSetup, IDA_mem);
-
-    /* increment counter */
-    nni_inc = 0;
-    (void) SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &(nni_inc));
+    /* increment counters */
+    (void) SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nni_inc);
     IDA_mem->ida_nni += nni_inc;
+
+    (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLSsim, &nnf_inc);
+    IDA_mem->ida_nnf += nnf_inc;
 
   } else {
 
@@ -5738,11 +5744,15 @@ static int IDANls(IDAMem IDA_mem)
                                callLSetup, IDA_mem);
 
     /* increment counter */
-    nni_inc = 0;
-    (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &(nni_inc));
+    (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &nni_inc);
     IDA_mem->ida_nni += nni_inc;
 
+    (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc);
+    IDA_mem->ida_nnf += nnf_inc;
   }
+
+  /* return if nonlinear solver failed */
+  if (retval != SUN_NLS_SUCCESS) return(retval);
 
   /* update the state using the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);
@@ -5757,9 +5767,6 @@ static int IDANls(IDAMem IDA_mem)
                             ONE, IDA_mem->ida_ypSpredict,
                             IDA_mem->ida_cj, IDA_mem->ida_eeS, IDA_mem->ida_ypS);
   }
-
-  /* return if nonlinear solver failed */
-  if (retval != IDA_SUCCESS) return(retval);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
@@ -5896,7 +5903,8 @@ static void IDAQuadPredict(IDAMem IDA_mem)
 static int IDASensNls(IDAMem IDA_mem)
 {
   booleantype callLSetup;
-  long int nniS_inc;
+  long int nniS_inc = 0;
+  long int nnfS_inc = 0;
   int retval;
 
   callLSetup = SUNFALSE;
@@ -5910,10 +5918,17 @@ static int IDASensNls(IDAMem IDA_mem)
                              IDA_mem->ewtStg, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
 
-  /* increment counter */
-  nniS_inc = 0;
-  (void) SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &(nniS_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nniS_inc);
   IDA_mem->ida_nniS += nniS_inc;
+
+  (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLSstg, &nnfS_inc);
+  IDA_mem->ida_nnfS += nnfS_inc;
+
+  if (retval != SUN_NLS_SUCCESS) {
+    IDA_mem->ida_ncfnS++;
+    return(retval);
+  }
 
   /* update using the final correction from the nonlinear solver */
   N_VLinearSumVectorArray(IDA_mem->ida_Ns,
@@ -5922,9 +5937,6 @@ static int IDASensNls(IDAMem IDA_mem)
   N_VLinearSumVectorArray(IDA_mem->ida_Ns,
                           ONE, IDA_mem->ida_ypSpredict,
                           IDA_mem->ida_cj, IDA_mem->ida_eeS, IDA_mem->ida_ypS);
-
-  if (retval != IDA_SUCCESS)
-    IDA_mem->ida_ncfnS++;
 
   return(retval);
 

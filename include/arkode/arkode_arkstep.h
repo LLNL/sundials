@@ -391,12 +391,14 @@ SUNDIALS_EXPORT int ARKStepGetNonlinearSystemData(void *arkode_mem,
                                                   void     **user_data);
 
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
-                                                long int *nniters);
+                                                 long int *nniters);
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem,
-                                                    long int *nncfails);
+                                                     long int *nnfails);
 SUNDIALS_EXPORT int ARKStepGetNonlinSolvStats(void *arkode_mem,
-                                             long int *nniters,
-                                             long int *nncfails);
+                                              long int *nniters,
+                                              long int *nnfails);
+SUNDIALS_EXPORT int ARKStepGetNumStepSolveFails(void *arkode_mem,
+                                                long int *nncfails);
 
 /* Linear solver optional output functions */
 SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem,

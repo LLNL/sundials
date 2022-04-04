@@ -168,6 +168,7 @@ module fidas_mod
  public :: FIDAGetNumNonlinSolvIters
  public :: FIDAGetNumNonlinSolvConvFails
  public :: FIDAGetNonlinSolvStats
+ public :: FIDAGetNumStepSolveFails
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -213,6 +214,7 @@ module fidas_mod
  public :: FIDAGetSensNumNonlinSolvIters
  public :: FIDAGetSensNumNonlinSolvConvFails
  public :: FIDAGetSensNonlinSolvStats
+ public :: FIDAGetNumStepSensSolveFails
  public :: FIDASensFree
  public :: FIDAQuadSensInit
  public :: FIDAQuadSensReInit
@@ -1016,6 +1018,15 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDAGetNumStepSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
  subroutine SWIG_free(cptr) &
   bind(C, name="free")
  use, intrinsic :: ISO_C_BINDING
@@ -1410,6 +1421,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetNumStepSensSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetNumStepSensSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3684,7 +3704,42 @@ fresult = swigc_FIDAGetNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDAGetNumNonlinSolvConvFails(ida_mem, nncfails) &
+function FIDAGetNumNonlinSolvConvFails(ida_mem, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(nnfails(1))
+fresult = swigc_FIDAGetNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetNonlinSolvStats(ida_mem, nniters, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = c_loc(nniters(1))
+farg3 = c_loc(nnfails(1))
+fresult = swigc_FIDAGetNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDAGetNumStepSolveFails(ida_mem, nncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -3696,26 +3751,7 @@ type(C_PTR) :: farg2
 
 farg1 = ida_mem
 farg2 = c_loc(nncfails(1))
-fresult = swigc_FIDAGetNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FIDAGetNonlinSolvStats(ida_mem, nniters, nncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = ida_mem
-farg2 = c_loc(nniters(1))
-farg3 = c_loc(nncfails(1))
-fresult = swigc_FIDAGetNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FIDAGetNumStepSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -4425,7 +4461,42 @@ fresult = swigc_FIDAGetSensNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDAGetSensNumNonlinSolvConvFails(ida_mem, nsncfails) &
+function FIDAGetSensNumNonlinSolvConvFails(ida_mem, nsnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(nsnfails(1))
+fresult = swigc_FIDAGetSensNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetSensNonlinSolvStats(ida_mem, nsniters, nsnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nsnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = c_loc(nsniters(1))
+farg3 = c_loc(nsnfails(1))
+fresult = swigc_FIDAGetSensNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDAGetNumStepSensSolveFails(ida_mem, nsncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -4437,26 +4508,7 @@ type(C_PTR) :: farg2
 
 farg1 = ida_mem
 farg2 = c_loc(nsncfails(1))
-fresult = swigc_FIDAGetSensNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FIDAGetSensNonlinSolvStats(ida_mem, nsniters, nsncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nsncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = ida_mem
-farg2 = c_loc(nsniters(1))
-farg3 = c_loc(nsncfails(1))
-fresult = swigc_FIDAGetSensNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FIDAGetNumStepSensSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 

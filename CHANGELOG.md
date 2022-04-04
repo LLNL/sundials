@@ -18,6 +18,42 @@ The include guard in `nvector_mpimanyvector.h` has been corrected to enable
 using both the ManyVector and MPIManyVector NVector implementations in the same
 simulation.
 
+A bug was fixed in the integrator functions to retrieve the number of nonlinear
+solver failures. The failure count returned was the number of failed *steps* due
+to a nonlinear solver failure i.e., if a nonlinear solve failed with a stale
+Jacobian or preconditioner but succeeded after updating the Jacobian or
+preconditioner, the initial failure was not included in the nonlinear solver
+failure count. The following functions have been updated to return the total
+number of nonlinear solver failures:
+
+* `ARKStepGetNumNonlinSolvConvFails`
+* `ARKStepGetNonlinSolvStats`
+* `MRIStepGetNumNonlinSolvConvFails`
+* `MRIStepGetNonlinSolvStats`
+* `CVodeGetNumNonlinSolvConvFails`
+* `CVodeGetNonlinSolvStats`
+* `CVodeGetSensNumNonlinSolvConvFails`
+* `CVodeGetSensNonlinSolvStats`
+* `CVodeGetStgrSensNumNonlinSolvConvFails`
+* `CVodeGetStgrSensNonlinSolvStats`
+* `IDAGetNumNonlinSolvConvFails`
+* `IDAGetNonlinSolvStats`
+* `IDAGetSensNumNonlinSolvConvFails`
+* `IDAGetSensNonlinSolvStats`
+
+As such users may see an increase in the number of failures reported from the
+above functions. The following functions have been added to retrieve the number
+of failed steps due to a nonlinear solver failure i.e., the counts previously
+returned by the above functions:
+
+* `ARKStepGetNumStepSolveFails`
+* `MRIStepGetNumStepSolveFails`
+* `CVodeGetNumStepSolveFails`
+* `CVodeGetNumStepSensSolveFails`
+* `CVodeGetNumStepStgrSensSolveFails`
+* `IDAGetNumStepSolveFails`
+* `IDAGetNumStepSensSolveFails`
+
 ## Changes to SUNDIALS in release 6.1.1
 
 Fixed exported `SUNDIALSConfig.cmake`.

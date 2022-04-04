@@ -678,6 +678,7 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_ncfS1      = NULL;
   cv_mem->cv_ncfnS1     = NULL;
   cv_mem->cv_nniS1      = NULL;
+  cv_mem->cv_nnfS1      = NULL;
   cv_mem->cv_itolS      = CV_NN;
   cv_mem->cv_atolSmin0  = NULL;
 
@@ -917,6 +918,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_ncfn    = 0;
   cv_mem->cv_netf    = 0;
   cv_mem->cv_nni     = 0;
+  cv_mem->cv_nnf     = 0;
   cv_mem->cv_nsetups = 0;
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
@@ -1026,6 +1028,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   cv_mem->cv_ncfn    = 0;
   cv_mem->cv_netf    = 0;
   cv_mem->cv_nni     = 0;
+  cv_mem->cv_nnf     = 0;
   cv_mem->cv_nsetups = 0;
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
@@ -1581,6 +1584,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
   cv_mem->cv_ncfnS    = 0;
   cv_mem->cv_netfS    = 0;
   cv_mem->cv_nniS     = 0;
+  cv_mem->cv_nnfS     = 0;
   cv_mem->cv_nsetupsS = 0;
 
   /* Set default values for plist and pbar */
@@ -1724,9 +1728,12 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     cv_mem->cv_ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
     cv_mem->cv_nniS1 = NULL;
     cv_mem->cv_nniS1 = (long int*)malloc(Ns*sizeof(long int));
-    if ( (cv_mem->cv_ncfS1 == NULL) ||
+    cv_mem->cv_nnfS1 = NULL;
+    cv_mem->cv_nnfS1 = (long int*)malloc(Ns*sizeof(long int));
+    if ( (cv_mem->cv_ncfS1 == NULL)  ||
          (cv_mem->cv_ncfnS1 == NULL) ||
-         (cv_mem->cv_nniS1 == NULL) ) {
+         (cv_mem->cv_nniS1 == NULL)  ||
+         (cv_mem->cv_nnfS1 == NULL) ) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1",
                      MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -1740,9 +1747,10 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
   allocOK = cvSensAllocVectors(cv_mem, yS0[0]);
   if (!allocOK) {
     if (cv_mem->cv_stgr1alloc) {
-      free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1 = NULL;
+      free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1  = NULL;
       free(cv_mem->cv_ncfnS1); cv_mem->cv_ncfnS1 = NULL;
-      free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1 = NULL;
+      free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1  = NULL;
+      free(cv_mem->cv_nnfS1);  cv_mem->cv_nnfS1  = NULL;
     }
     cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1",
                    MSGCV_MEM_FAIL);
@@ -1763,9 +1771,10 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
         (cv_mem->cv_Xvecs == NULL) ||
         (cv_mem->cv_Zvecs == NULL)) {
       if (cv_mem->cv_stgr1alloc) {
-        free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1 = NULL;
+        free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1  = NULL;
         free(cv_mem->cv_ncfnS1); cv_mem->cv_ncfnS1 = NULL;
-        free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1 = NULL;
+        free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1  = NULL;
+        free(cv_mem->cv_nnfS1);  cv_mem->cv_nnfS1  = NULL;
       }
       cvSensFreeVectors(cv_mem);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1",
@@ -1793,11 +1802,13 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
   cv_mem->cv_ncfnS    = 0;
   cv_mem->cv_netfS    = 0;
   cv_mem->cv_nniS     = 0;
+  cv_mem->cv_nnfS     = 0;
   cv_mem->cv_nsetupsS = 0;
   if (ism==CV_STAGGERED1)
     for (is=0; is<Ns; is++) {
       cv_mem->cv_ncfnS1[is] = 0;
-      cv_mem->cv_nniS1[is] = 0;
+      cv_mem->cv_nniS1[is]  = 0;
+      cv_mem->cv_nnfS1[is]  = 0;
     }
 
   /* Set default values for plist and pbar */
@@ -1932,9 +1943,12 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     cv_mem->cv_ncfnS1 = (long int*)malloc(cv_mem->cv_Ns*sizeof(long int));
     cv_mem->cv_nniS1 = NULL;
     cv_mem->cv_nniS1 = (long int*)malloc(cv_mem->cv_Ns*sizeof(long int));
-    if ( (cv_mem->cv_ncfS1==NULL) ||
+    cv_mem->cv_nnfS1 = NULL;
+    cv_mem->cv_nnfS1 = (long int*)malloc(cv_mem->cv_Ns*sizeof(long int));
+    if ( (cv_mem->cv_ncfS1==NULL)  ||
          (cv_mem->cv_ncfnS1==NULL) ||
-         (cv_mem->cv_nniS1==NULL) ) {
+         (cv_mem->cv_nniS1==NULL)  ||
+         (cv_mem->cv_nnfS1==NULL) ) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSensReInit", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -1961,11 +1975,13 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
   cv_mem->cv_ncfnS    = 0;
   cv_mem->cv_netfS    = 0;
   cv_mem->cv_nniS     = 0;
+  cv_mem->cv_nnfS     = 0;
   cv_mem->cv_nsetupsS = 0;
   if (ism==CV_STAGGERED1)
     for (is=0; is<cv_mem->cv_Ns; is++) {
       cv_mem->cv_ncfnS1[is] = 0;
-      cv_mem->cv_nniS1[is] = 0;
+      cv_mem->cv_nniS1[is]  = 0;
+      cv_mem->cv_nnfS1[is]  = 0;
     }
 
   /* Problem has been successfully re-initialized */
@@ -3408,9 +3424,11 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   /* Load optional output */
   if (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_STAGGERED1)) {
     cv_mem->cv_nniS  = 0;
+    cv_mem->cv_nnfS  = 0;
     cv_mem->cv_ncfnS = 0;
     for (is=0; is<cv_mem->cv_Ns; is++) {
       cv_mem->cv_nniS  += cv_mem->cv_nniS1[is];
+      cv_mem->cv_nnfS  += cv_mem->cv_nnfS1[is];
       cv_mem->cv_ncfnS += cv_mem->cv_ncfnS1[is];
     }
   }
@@ -4197,6 +4215,7 @@ void CVodeSensFree(void *cvode_mem)
       free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1  = NULL;
       free(cv_mem->cv_ncfnS1); cv_mem->cv_ncfnS1 = NULL;
       free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1  = NULL;
+      free(cv_mem->cv_nnfS1);  cv_mem->cv_nnfS1  = NULL;
       cv_mem->cv_stgr1alloc = SUNFALSE;
     }
     cvSensFreeVectors(cv_mem);
@@ -6338,7 +6357,8 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   int flag = CV_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
-  long int nni_inc;
+  long int nni_inc = 0;
+  long int nnf_inc = 0;
 
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
@@ -6388,25 +6408,28 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     flag = SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim, cv_mem->ycorSim,
                              cv_mem->ewtSim, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-    /* increment counter */
-    nni_inc = 0;
-    (void) SUNNonlinSolGetNumIters(cv_mem->NLSsim, &(nni_inc));
+    /* increment counters */
+    (void) SUNNonlinSolGetNumIters(cv_mem->NLSsim, &nni_inc);
     cv_mem->cv_nni += nni_inc;
+
+    (void) SUNNonlinSolGetNumConvFails(cv_mem->NLSsim, &nnf_inc);
+    cv_mem->cv_nnf += nnf_inc;
 
   } else {
 
     flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                              cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-    /* increment counter */
-    nni_inc = 0;
-    (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+    /* increment counters */
+    (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc);
     cv_mem->cv_nni += nni_inc;
 
+    (void) SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc);
+    cv_mem->cv_nnf += nnf_inc;
   }
 
   /* if the solve failed return */
-  if (flag != CV_SUCCESS) return(flag);
+  if (flag != SUN_NLS_SUCCESS) return(flag);
 
   /* solve successful */
 
@@ -6596,7 +6619,8 @@ static int cvStgrNls(CVodeMem cv_mem)
 {
   booleantype callSetup;
   int flag=CV_SUCCESS;
-  long int nniS_inc;
+  long int nniS_inc = 0;
+  long int nnfS_inc = 0;
 
   callSetup = SUNFALSE;
   if (cv_mem->cv_lsetup == NULL)
@@ -6612,16 +6636,18 @@ static int cvStgrNls(CVodeMem cv_mem)
   flag = SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg, cv_mem->ycorStg,
                            cv_mem->ewtStg, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-  /* increment counter */
-  nniS_inc = 0;
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg, &(nniS_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg, &nniS_inc);
   cv_mem->cv_nniS += nniS_inc;
+
+  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLSstg, &nnfS_inc);
+  cv_mem->cv_nnfS += nnfS_inc;
 
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
 
   /* if the solve failed return */
-  if (flag != CV_SUCCESS) return(flag);
+  if (flag != SUN_NLS_SUCCESS) return(flag);
 
   /* solve successful */
 
@@ -6647,7 +6673,8 @@ static int cvStgrNls(CVodeMem cv_mem)
 static int cvStgr1Nls(CVodeMem cv_mem, int is)
 {
   booleantype callSetup;
-  long int nniS1_inc;
+  long int nniS1_inc = 0;
+  long int nnfS1_inc = 0;
   int flag=CV_SUCCESS;
 
 
@@ -6666,16 +6693,18 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
                            cv_mem->cv_znS[0][is], cv_mem->cv_acorS[is],
                            cv_mem->cv_ewtS[is], cv_mem->cv_tq[4], callSetup, cv_mem);
 
-  /* increment counter */
-  nniS1_inc = 0;
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &(nniS1_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nniS1_inc);
   cv_mem->cv_nniS1[is] += nniS1_inc;
+
+  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLSstg1, &nnfS1_inc);
+  cv_mem->cv_nnfS1[is] += nnfS1_inc;
 
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
 
   /* if the solve failed return */
-  if (flag != CV_SUCCESS) return(flag);
+  if (flag != SUN_NLS_SUCCESS) return(flag);
 
   /* solve successful */
 

@@ -330,6 +330,10 @@ typedef struct CVodeMemRec {
   long int cv_nniS;        /* number of total sensi. nonlinear iterations     */
   long int *cv_nniS1;      /* number of sensi. nonlinear iterations           */
 
+  long int cv_nnf;         /* number of nonlinear convergence fails           */
+  long int cv_nnfS;        /* number of total sensi. nonlinear conv. fails    */
+  long int *cv_nnfS1;      /* number of sensi. nonlinear conv. fails          */
+
   long int cv_netf;        /* number of error test failures                   */
   long int cv_netfQ;       /* number of quadr. error test failures            */
   long int cv_netfS;       /* number of sensi. error test failures            */

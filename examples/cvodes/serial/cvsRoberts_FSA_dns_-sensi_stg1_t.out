@@ -1,5 +1,5 @@
-
-3-species chemical kinetics problem
+ 
+3-species kinetics problem
 Sensitivity: YES ( STAGGERED1 + FULL ERROR CONTROL )
 
 =======================================================================
@@ -78,16 +78,10 @@ Sensitivity: YES ( STAGGERED1 + FULL ERROR CONTROL )
                   Sensitivity 3   -1.7339e-15  -6.9355e-21   1.7339e-15 
 -----------------------------------------------------------------------
 
-Final Statistics
+Final Statistics:
+nst = 930    nfe = 2104   nsetups = 182    nfeLS = 0      nje = 17
+nni = 1105   nnf = 0      netf = 0         ncfn = 0     
 
-nst     =   930
+nfSe = 3564   nfeS = 0      nsetupsS = 0     
+nniS = 3555   nnfS = 0      netfS = 66     ncfnS = 0     
 
-nfe     =  2104
-netf    =     0    nsetups  =   182
-nni     =  1105    ncfn     =     0
-
-nfSe    =  3564    nfeS     =     0
-netfs   =    66    nsetupsS =     0
-nniS    =  3555    ncfnS    =     0
-
-nje    =    17    nfeLS     =     0

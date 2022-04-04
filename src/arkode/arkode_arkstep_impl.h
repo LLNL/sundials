@@ -139,6 +139,7 @@ typedef struct ARKodeARKStepMemRec {
   long int nfi;       /* num fi calls               */
   long int nsetups;   /* num setup calls            */
   long int nls_iters; /* num nonlinear solver iters */
+  long int nls_fails; /* num nonlinear solver fails */
 
   /* Reusable arrays for fused vector operations */
   realtype *cvals;         /* scalar array for fused ops       */

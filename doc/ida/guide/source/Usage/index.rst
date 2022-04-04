@@ -2013,6 +2013,8 @@ preconditioner.
   +--------------------------------------------------------------------+---------------------------------------+
   | No. of local error test failures that have occurred                | :c:func:`IDAGetNumErrTestFails`       |
   +--------------------------------------------------------------------+---------------------------------------+
+  | No. of failed steps due to a nonlinear solver failure              | :c:func:`IDAGetNumStepSolveFails()`   |
+  +--------------------------------------------------------------------+---------------------------------------+
   | Order used during the last step                                    | :c:func:`IDAGetLastOrder`             |
   +--------------------------------------------------------------------+---------------------------------------+
   | Order to be attempted on the next step                             | :c:func:`IDAGetCurrentOrder`          |
@@ -2185,6 +2187,18 @@ described next.
    **Arguments:**
       * ``ida_mem`` -- pointer to the IDA solver object.
       * ``netfails`` -- number of error test failures.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+.. c:function:: int IDAGetNumStepSolveFails(void* ida_mem, long int* ncnf)
+
+   Returns the number of failed steps due to a nonlinear solver failure.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``ncnf`` -- number of step failures.
 
    **Return value:**
       * ``IDA_SUCCESS`` -- The optional output value has been successfully set.

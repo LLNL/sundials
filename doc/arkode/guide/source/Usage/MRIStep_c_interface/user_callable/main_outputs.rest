@@ -99,6 +99,9 @@ Main solver optional output functions
    +------------------------------------------------------+-------------------------------------------+
    | No. of calls to the :math:`f^E` and :math:`f^I`      | :c:func:`MRIStepGetNumRhsEvals()`         |
    +------------------------------------------------------+-------------------------------------------+
+   | No. of failed steps due to a nonlinear solver        | :c:func:`MRIStepGetNumStepSolveFails()`   |
+   | failure                                              |                                           |
+   +------------------------------------------------------+-------------------------------------------+
    | Current MRI coupling tables                          | :c:func:`MRIStepGetCurrentCoupling()`     |
    +------------------------------------------------------+-------------------------------------------+
    | Last inner stepper return value                      | :c:func:`MRIStepGetLastInnerStepFlag()`   |
@@ -435,6 +438,23 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
 
       * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+
+.. c:function:: int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* ncnf)
+
+   Returns the number of failed steps due to a nonlinear solver failure (so far).
+
+   **Arguments:**
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *ncnf* -- number of step failures.
+
+   **Return value:**
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetCurrentCoupling(void* arkode_mem, MRIStepCoupling *C)

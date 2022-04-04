@@ -130,6 +130,20 @@ The include guard in ``nvector_mpimanyvector.h`` has been corrected to enable
 using both the ManyVector and MPIManyVector NVector implementations in the same
 simulation.
 
+A bug was fixed in the functions :c:func:`CVodeGetNumNonlinSolvConvFails` and
+:c:func:`CVodeGetNonlinSolvStats` where the number of nonlinear solver failures
+returned was the number of failed *steps* due to a nonlinear solver failure
+i.e., if a nonlinear solve failed with a stale Jacobian or preconditioner but
+succeeded after updating the Jacobian or preconditioner, the initial failure was
+not included in the nonlinear solver failure count. These functions have been
+updated to return the total number of nonlinear solver failures. As such users
+may see an increase in the number of failures reported.
+
+The function :c:func:`CVodeGetNumStepSolveFails` has been added to retrieve the
+number of failed steps due to a nonlinear solver failure. The count returned by
+this function will match those previously returned by
+:c:func:`CVodeGetNumNonlinSolvConvFails` and :c:func:`CVodeGetNonlinSolvStats`.
+
 Changes in v6.1.1
 -----------------
 

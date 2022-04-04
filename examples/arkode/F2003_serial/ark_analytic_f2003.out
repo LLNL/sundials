@@ -26,5 +26,5 @@
     Next internal step size       = 7.85712E-02
     Current internal time         = 1.00544E+01
     Num nonlinear solver iters    =     2861
-    Num nonlinear solver fails    =        0
+    Num nonlinear solver fails    =        3
   

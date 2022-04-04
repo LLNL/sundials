@@ -1420,7 +1420,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
  * nonlinear solver
  */
 
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nnfails)
 {
   CVodeMem cv_mem;
 
@@ -1431,7 +1431,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nncfails = cv_mem->cv_ncfn;
+  *nnfails = cv_mem->cv_nnf;
 
   return(CV_SUCCESS);
 }
@@ -1443,7 +1443,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
  */
 
 int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
-                            long int *nncfails)
+                            long int *nnfails)
 {
   CVodeMem cv_mem;
 
@@ -1455,12 +1455,35 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters  = cv_mem->cv_nni;
-  *nncfails = cv_mem->cv_ncfn;
+  *nniters = cv_mem->cv_nni;
+  *nnfails = cv_mem->cv_nnf;
 
   return(CV_SUCCESS);
 }
 
+/*
+ * CVodeGetNumStepSolveFails
+ *
+ * Returns the current number of failed steps due to a nonlinear solver
+ * convergence failure
+ */
+
+int CVodeGetNumStepSolveFails(void *cvode_mem, long int *nncfails)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumStepSolveFails",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *nncfails = cv_mem->cv_ncfn;
+
+  return(CV_SUCCESS);
+}
 
 /*
  * =================================================================
@@ -1844,7 +1867,7 @@ int CVodeGetSensNumNonlinSolvIters(void *cvode_mem, long int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
+int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSnfails)
 {
   CVodeMem cv_mem;
 
@@ -1860,7 +1883,7 @@ int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
     return(CV_NO_SENS);
   }
 
-  *nSncfails = cv_mem->cv_ncfnS;
+  *nSnfails = cv_mem->cv_nnfS;
 
   return(CV_SUCCESS);
 }
@@ -1868,7 +1891,7 @@ int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 /*-----------------------------------------------------------------*/
 
 int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
-                                long int *nSncfails)
+                                long int *nSnfails)
 {
   CVodeMem cv_mem;
 
@@ -1886,7 +1909,30 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
     return(CV_NO_SENS);
   }
 
-  *nSniters  = cv_mem->cv_nniS;
+  *nSniters = cv_mem->cv_nniS;
+  *nSnfails = cv_mem->cv_nnfS;
+
+  return(CV_SUCCESS);
+}
+
+int CVodeGetNumStepSensSolveFails(void *cvode_mem, long int *nSncfails)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumStepSensSolveFails",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_sensi==SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetNumStepSensSolveFails", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  }
+
   *nSncfails = cv_mem->cv_ncfnS;
 
   return(CV_SUCCESS);
@@ -1921,7 +1967,7 @@ int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfails)
+int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1nfails)
 {
   CVodeMem cv_mem;
   int is, Ns;
@@ -1941,7 +1987,7 @@ int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
   }
 
   if(cv_mem->cv_ism==CV_STAGGERED1)
-    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_ncfnS1[is];
+    for(is=0; is<Ns; is++) nSTGR1nfails[is] = cv_mem->cv_nnfS1[is];
 
   return(CV_SUCCESS);
 }
@@ -1950,7 +1996,7 @@ int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
 
 int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
                                     long int *nSTGR1niters,
-                                    long int *nSTGR1ncfails)
+                                    long int *nSTGR1nfails)
 {
   CVodeMem cv_mem;
   int is, Ns;
@@ -1972,9 +2018,38 @@ int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
   }
 
   if(cv_mem->cv_ism == CV_STAGGERED1) {
-    for(is=0; is<Ns; is++) nSTGR1niters[is]  = cv_mem->cv_nniS1[is];
-    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_ncfnS1[is];
+    for(is=0; is<Ns; is++) nSTGR1niters[is] = cv_mem->cv_nniS1[is];
+    for(is=0; is<Ns; is++) nSTGR1nfails[is] = cv_mem->cv_nnfS1[is];
   }
+
+  return(CV_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int CVodeGetNumStepStgrSensSolveFails(void *cvode_mem, long int *nSTGR1ncfails)
+{
+  CVodeMem cv_mem;
+  int is, Ns;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetNumStepStgrSensSolveFails", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  Ns = cv_mem->cv_Ns;
+
+  if (cv_mem->cv_sensi==SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetNumStepStgrSensSolveFails", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  }
+
+  if(cv_mem->cv_ism==CV_STAGGERED1)
+    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_nnfS1[is];
 
   return(CV_SUCCESS);
 }
