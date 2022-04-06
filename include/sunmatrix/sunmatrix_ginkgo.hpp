@@ -81,6 +81,7 @@ public:
   SUNContext sunctx() const { return sunmtx_->sunctx; }
 
   bool isBlockDiagonal() const override { return false; }
+
   long int workspaceSize() const override { return gkodim(0) * gkodim(1); }
 
   gko::LinOp* gkolinop() override
@@ -311,14 +312,14 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
     auto y_vec = WrapVector(A.gkoexec(), y);
 
     // y = Ax
-    A.gkomtx()->apply(gko::lend(x_vec), gko::lend(y_vec));
+    A.gkomtx()->apply(x_vec.get(), y_vec.get());
   }
   else
   {
     auto x_vec = WrapVector(A.gkoexec(), x);
 
     // x = Ax
-    A.gkomtx()->apply(gko::lend(x_vec), gko::lend(x_vec));
+    A.gkomtx()->apply(x_vec.get(), x_vec.get());
   }
 }
 

@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
   if (square) {
-    // fails += Test_SUNMatScaleAdd(A, I, 0);
+    fails += Test_SUNMatScaleAdd(A, I, 0);
     fails += Test_SUNMatScaleAddI(A, I, 0);
   }
   fails += Test_SUNMatMatvecSetup(A, 0);
@@ -208,7 +208,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   return failure > 0;
 }
 
-int check_vector(N_Vector actual, N_Vector expected, realtype tol)
+int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 {
   int failure = 0;
   realtype *xdata, *ydata;
@@ -216,21 +216,21 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
   sunindextype i;
 
   /* copy vectors to host */
-  OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(actual),
-                       N_VCopyFromDevice_Cuda(actual) );
+  OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(computed),
+                       N_VCopyFromDevice_Cuda(computed) );
   OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(expected),
                        N_VCopyFromDevice_Cuda(expected) );
 
   /* get vector data */
-  xdata = N_VGetArrayPointer(actual);
+  xdata = N_VGetArrayPointer(computed);
   ydata = N_VGetArrayPointer(expected);
 
   /* check data lengths */
-  xldata = N_VGetLength(actual);
+  xldata = N_VGetLength(computed);
   yldata = N_VGetLength(expected);
 
   if (xldata != yldata) {
-    printf(">>> ERROR: check_vector: Different data array lengths \n");
+    printf(">>> [ERROR] check_vector: different vector lengths \n");
     return(1);
   }
 
@@ -242,7 +242,7 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
     printf("Check_vector failures:\n");
     for(i=0; i < xldata; i++)
       if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
-        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int) i,
+        printf("  computed[%ld] = %g != %e (err = %g)\n", (long int) i,
                xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
   }
 
