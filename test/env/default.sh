@@ -204,6 +204,12 @@ export SUNDIALS_MONITORING=ON
 # Sundials profiling
 export SUNDIALS_PROFILING=ON
 
+# Uncomment to override the default output file comparison precisions. The float
+# precision is number of digits to compare (0 = all digits) and the integer
+# precision is allowed percentage difference (0 = no difference).
+# export SUNDIALS_TEST_FLOAT_PRECISION=0
+# export SUNDIALS_TEST_INTEGER_PRECISION=0
+
 # ------------------------------------------------------------------------------
 # Third party libraries
 # ------------------------------------------------------------------------------

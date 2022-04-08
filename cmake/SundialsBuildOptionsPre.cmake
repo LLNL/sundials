@@ -228,3 +228,19 @@ sundials_option(SUNDIALS_DEBUG_PRINTVEC BOOL
   "Enable vector printing when debugging" OFF
   DEPENDS_ON SUNDIALS_DEBUG
   ADVANCED)
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS testing
+# ---------------------------------------------------------------
+
+sundials_option(SUNDIALS_TEST_FLOAT_PRECISION STRING
+  "Precision for floating point comparisons (number of digits)" "-1" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_INTEGER_PRECISION STRING
+  "Precision for integer comparisons (percent difference)" "-1" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_OUTPUT_DIR PATH
+  "Location to write testing output files" "" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
+  "Location of testing answer files" "" ADVANCED)

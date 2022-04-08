@@ -74,11 +74,11 @@ if(SUNDIALS_TEST_DEVTESTS)
   endif()
 
   # Check if using non-default comparison precisions when testing
-  if(SUNDIALS_TEST_FLOAT_PRECISION)
+  if(SUNDIALS_TEST_FLOAT_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default float precision: ${SUNDIALS_TEST_FLOAT_PRECISION}")
   endif()
 
-  if(SUNDIALS_TEST_INTEGER_PRECISION)
+  if(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
   endif()
 

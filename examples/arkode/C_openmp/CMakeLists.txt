@@ -19,21 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_brusselator1D_omp\;4\;develop"
-  "ark_heat1D_omp\;4\;develop"
+  "ark_brusselator1D_omp\;4\;develop\;default\;default"
+  "ark_heat1D_omp\;4\;develop\;default\;10"
   )
 
 # Auxiliary files to install
 set(ARKODE_extras_OMP
   plot_brusselator1D.py
   )
-
-# Specify libraries to link against
-set(ARKODE_LIB sundials_arkode)
-set(NVECOMP_LIB sundials_nvecopenmp)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -42,6 +35,8 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_float_precision)
+  list(GET example_tuple 4 example_int_precision)
 
   # example source files
   add_executable(${example} ${example}.c)
@@ -53,10 +48,15 @@ foreach(example_tuple ${ARKODE_examples})
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    FLOAT_PRECISION ${example_float_precision}
+    INTEGER_PRECISION ${example_int_precision})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example}
+    sundials_arkode
+    sundials_nvecopenmp
+    ${EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
