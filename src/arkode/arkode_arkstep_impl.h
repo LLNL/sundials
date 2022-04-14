@@ -203,17 +203,14 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
-int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsm);
 void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
                           realtype s, int *nvec);
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
-int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
-int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_Mass(N_Vector zcor, N_Vector r, void* arkode_mem);
 int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
-int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
-int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_Mass(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
 int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,

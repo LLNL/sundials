@@ -221,9 +221,9 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
     if (step_mem->mass_type == MASS_IDENTITY) {
       retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassIdent);
     } else if (step_mem->mass_type == MASS_FIXED) {
-      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassFixed);
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_Mass);
     } else if (step_mem->mass_type == MASS_TIMEDEP) {
-      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassTDep);
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_Mass);
     } else {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "arkStep_NlsInit",
@@ -234,9 +234,9 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
     if (step_mem->mass_type == MASS_IDENTITY) {
       retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_MassIdent);
     } else if (step_mem->mass_type == MASS_FIXED) {
-      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_MassFixed);
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_Mass);
     } else if (step_mem->mass_type == MASS_TIMEDEP) {
-      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_MassTDep);
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_Mass);
     } else {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "arkStep_NlsInit",
@@ -509,76 +509,7 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkStep_NlsResidual_MassFixed:
-
-  This routine evaluates the nonlinear residual for the additive
-  Runge-Kutta method.  It assumes that any data from previous
-  time steps/stages is contained in step_mem, and merely combines
-  this old data with the current implicit ODE RHS vector to
-  compute the nonlinear residual r.
-
-  This version assumes a fixed mass matrix.
-
-  At the ith stage, we compute the residual vector:
-     r = M*z - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                    - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-  <=>
-     r = M*zp + M*zc - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                            - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-  <=>
-     r = (M*zc - gamma*Fi(z)) - (M*yn - M*zp + data)
-  where the current stage solution z = zp + zc, and where
-     zc is stored in the input, zcor
-     (M*yn-M*zp+data) is stored in step_mem->sdata,
-  so we really just compute:
-     z = zp + zc (stored in ark_mem->ycur)
-     Fi(z) (stored step_mem->Fi[step_mem->istage])
-     r = M*zc - gamma*Fi(z) - step_mem->sdata
-  ---------------------------------------------------------------*/
-int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
-{
-  /* temporary variables */
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-  realtype c[3];
-  N_Vector X[3];
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual_MassFixed",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* update 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
-
-  /* compute implicit RHS */
-  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->Fi[step_mem->istage],
-                            ark_mem->user_data);
-  step_mem->nfi++;
-  if (retval < 0) return(ARK_RHSFUNC_FAIL);
-  if (retval > 0) return(RHSFUNC_RECVR);
-
-  /* put M*zcor in r */
-  retval = step_mem->mmult((void *) ark_mem, zcor, r);
-  if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
-
-  /* compute residual via linear combination */
-  c[0] = ONE;
-  X[0] = r;
-  c[1] = -ONE;
-  X[1] = step_mem->sdata;
-  c[2] = -step_mem->gamma;
-  X[2] = step_mem->Fi[step_mem->istage];
-  retval = N_VLinearCombination(3, c, X, r);
-  if (retval != 0)  return(ARK_VECTOROP_ERR);
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkStep_NlsResidual_MassTDep:
+  arkStep_NlsResidual_Mass:
 
   This routine evaluates the nonlinear residual for the additive
   Runge-Kutta method.  It assumes that any data from previous
@@ -608,7 +539,7 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
      Fi(z) (stored step_mem->Fi[istage])
      r = r - gamma*Fi(z)
   ---------------------------------------------------------------*/
-int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
+int arkStep_NlsResidual_Mass(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -616,7 +547,7 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual_MassTDep",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual_Mass",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
@@ -708,78 +639,7 @@ int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkStep_NlsFPFunction_MassFixed:
-
-  This routine evaluates the fixed point iteration function for
-  the additive Runge-Kutta method.  It assumes that any data from
-  previous time steps/stages is contained in step_mem, and
-  merely combines this old data with the current guess and
-  implicit ODE RHS vector to compute the iteration function g.
-
-  This version assumes a fixed mass matrix.
-
-  At the ith stage, the new stage solution z should solve:
-     M*z = M*yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-  <=>
-     M*z = M*yn + gamma*Fi(z) + h*sum_{j=0}^{i-1} ( Ae(i,j)*Fe(j)
-                                                  + Ai(i,j)*Fi(j) )
-  <=>
-     z = yn + M^{-1}*(gamma*Fi(z) + data)
-  <=>
-     zc = M^{-1}*(gamma*Fi(zp+zc) + M*yn - M*zp + data)
-  Where zp is the predicted stage and zc is the correction to
-  the prediction.
-
-  Our fixed-point problem is zc=g(zc), so the FP function is just:
-     g(z) = M^{-1}*(gamma*Fi(z) + M*yn - M*zp + data)
-  where the current nonlinear guess is z = zp + zc, and where
-     z is stored in ycur,
-     zp is stored in step_mem->zpred,
-     (M*yn-M*zp+data) is stored in step_mem->sdata,
-  so we really just compute:
-     Fi(z) (store in step_mem->Fi[step_mem->istage])
-     g = gamma*Fi(z) + step_mem->sdata
-     g = M^{-1}*g
-  ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
-{
-  /* temporary variables */
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction_MassFixed",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* update 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
-
-  /* compute implicit RHS and save for later */
-  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->Fi[step_mem->istage],
-                            ark_mem->user_data);
-  step_mem->nfi++;
-  if (retval < 0) return(ARK_RHSFUNC_FAIL);
-  if (retval > 0) return(RHSFUNC_RECVR);
-
-  /* combine parts:  g = gamma*Fi(z) + sdata */
-  N_VLinearSum(step_mem->gamma, step_mem->Fi[step_mem->istage],
-               ONE, step_mem->sdata, g);
-
-  /* perform mass matrix solve */
-  retval = step_mem->msolve((void *) ark_mem, g, step_mem->nlscoef);
-  if (retval < 0) return(ARK_RHSFUNC_FAIL);
-  if (retval > 0) return(RHSFUNC_RECVR);
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkStep_NlsFPFunction_MassTDep:
+  arkStep_NlsFPFunction_Mass:
 
   This routine evaluates the fixed point iteration function for
   the additive Runge-Kutta method.  It assumes that any data from
@@ -814,7 +674,7 @@ int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
      g = M(ti)^{-1}*(gamma*Fi(z))
      g = g + step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
+int arkStep_NlsFPFunction_Mass(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -822,7 +682,7 @@ int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction_MassTDep",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction_Mass",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
