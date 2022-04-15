@@ -202,6 +202,7 @@ int MRIStepSetDefaults(void* arkode_mem)
   step_mem->predictor      = 0;              /* trivial predictor */
   step_mem->linear         = SUNFALSE;       /* nonlinear problem */
   step_mem->linear_timedep = SUNTRUE;        /* dfs/dy depends on t */
+  step_mem->deduce_rhs     = SUNFALSE;       /* deduce fi on result of NLS */
   step_mem->maxcor         = MAXCOR;         /* max nonlinear iters/stage */
   step_mem->nlscoef        = NLSCOEF;        /* nonlinear tolerance coefficient */
   step_mem->crdown         = CRDOWN;         /* nonlinear convergence estimate coeff. */
@@ -658,6 +659,34 @@ int MRIStepSetStagePredictFn(void *arkode_mem,
   }
 
   step_mem->stage_predict = PredictStage;
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  MRIStepSetDeduceImplicitRhs:
+
+  Specifies if an optimization is used to avoid an evaluation of
+  fi after a nonlinear solve for an implicit stage.  If stage
+  postprocessecing in enabled, this option is ignored, and fi is
+  never deduced.
+
+  An argument of SUNTRUE indicates that fi is deduced to compute
+  fi(z_i), and SUNFALSE indicates that fi(z_i) is computed with
+  an additional evaluation of fi.
+  ---------------------------------------------------------------*/
+int MRIStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce)
+{
+  ARKodeMem        ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeMRIStepMem structure and set function pointer */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDeduceImplicitRhs",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  step_mem->deduce_rhs = deduce;
   return(ARK_SUCCESS);
 }
 

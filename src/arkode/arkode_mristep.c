@@ -1537,10 +1537,18 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
       /* store implicit slow rhs  */
       if (step_mem->implicit_rhs) {
-        retval = step_mem->fsi(ark_mem->tcur, ark_mem->ycur,
-                               step_mem->Fsi[step_mem->stage_map[is]],
-                               ark_mem->user_data);
-        step_mem->nfsi++;
+        if (!step_mem->deduce_rhs ||
+            (step_mem->stagetypes[is] != MRISTAGE_DIRK_NOFAST)) {
+          retval = step_mem->fsi(ark_mem->tcur, ark_mem->ycur,
+                                 step_mem->Fsi[step_mem->stage_map[is]],
+                                 ark_mem->user_data);
+          step_mem->nfsi++;
+        } else {
+          N_VLinearSum(ONE / step_mem->gamma, step_mem->zcor,
+                       -ONE / step_mem->gamma, step_mem->sdata,
+                       step_mem->Fsi[step_mem->stage_map[is]]);
+        }
+
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
         if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 

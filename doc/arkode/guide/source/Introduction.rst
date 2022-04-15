@@ -121,6 +121,12 @@ Changes from previous versions
 Changes in v5.2.0
 -----------------
 
+Added the functions :c:func:`ARKStepSetDeduceImplicitRhs` and
+:c:func:`MRIStepSetDeduceImplicitRhs` to optionally remove an evaluation of the
+implicit right-hand side function after nonlinear solves. See
+:numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
+optimization.
+
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 

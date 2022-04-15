@@ -619,6 +619,20 @@ SWIGEXPORT int _wrap_FARKStepSetImEx(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetDeduceImplicitRhs(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKStepSetDeduceImplicitRhs(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetTables(void *farg1, int const *farg2, int const *farg3, void *farg4, void *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;

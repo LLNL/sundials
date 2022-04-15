@@ -64,6 +64,8 @@ typedef struct ARKodeMRIStepMemRec {
   booleantype  linear_timedep;   /* SUNTRUE if dfi/dy depends on t */
   booleantype  explicit_rhs;     /* SUNTRUE if fse is provided     */
   booleantype  implicit_rhs;     /* SUNTRUE if fsi is provided     */
+  booleantype  deduce_rhs;       /* SUNTRUE if fi is deduced after
+                                    a nonlinear solve              */
 
   /* Outer RK method storage and parameters */
   N_Vector *Fse;                 /* explicit RHS at each stage               */

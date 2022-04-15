@@ -194,8 +194,11 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_4_0.002.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_5_0.002.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_6_0.005.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001_-100_100_0.5_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_8_0.001.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_8_0.001_-100_100_0.5_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_9_0.001.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_9_0.001_-100_100_0.5_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec_1.out
@@ -269,6 +272,8 @@ $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_1_-5.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_4_0_-10_0.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_-5_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_8_0_-10.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_0_10_1.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_1_10_1.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 

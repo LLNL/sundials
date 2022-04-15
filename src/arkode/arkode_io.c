@@ -664,6 +664,13 @@ int arkSetPostprocessStepFn(void *arkode_mem,
   IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
   THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
   STABILITY ARE LOST.
+
+  While it is possible to perform postprocessing when
+  ARKStepSetDeduceImplicitRhs is enabled, this can cause implicit
+  RHS evaluations to be inconsistent with the postprocessed stage
+  values.  It is strongly recommended to disable
+  ARKStepSetDeduceImplicitRhs in order to guarantee
+  postprocessing constraints are enforced.
   ---------------------------------------------------------------*/
 int arkSetPostprocessStageFn(void *arkode_mem,
                              ARKPostProcessFn ProcessStage)

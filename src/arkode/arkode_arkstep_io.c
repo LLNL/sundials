@@ -328,6 +328,7 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->linear_timedep   = SUNTRUE;        /* dfi/dy depends on t */
   step_mem->explicit         = SUNTRUE;        /* fe(t,y) will be used */
   step_mem->implicit         = SUNTRUE;        /* fi(t,y) will be used */
+  step_mem->deduce_rhs       = SUNFALSE;       /* deduce fi on result of NLS */
   step_mem->maxcor           = MAXCOR;         /* max nonlinear iters/stage */
   step_mem->nlscoef          = NLSCOEF;        /* nonlinear tolerance coefficient */
   step_mem->crdown           = CRDOWN;         /* nonlinear convergence estimate coeff. */
@@ -1023,7 +1024,7 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
     if (flag != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetTableNum",
-                      "Error in ARKStepSetIxplicit");
+                      "Error in ARKStepSetImplicit");
       return(flag);
     }
 
@@ -1334,6 +1335,34 @@ int ARKStepSetStagePredictFn(void *arkode_mem,
   }
 
   step_mem->stage_predict = PredictStage;
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  ARKStepSetDeduceImplicitRhs:
+
+  Specifies if an optimization is used to avoid an evaluation of
+  fi after a nonlinear solve for an implicit stage.  If stage
+  postprocessecing in enabled, this option is ignored, and fi is
+  never deduced.
+
+  An argument of SUNTRUE indicates that fi is deduced to compute
+  fi(z_i), and SUNFALSE indicates that fi(z_i) is computed with
+  an additional evaluation of fi.
+  ---------------------------------------------------------------*/
+int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure and set function pointer */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetDeduceImplicitRhs",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  step_mem->deduce_rhs = deduce;
   return(ARK_SUCCESS);
 }
 

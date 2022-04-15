@@ -1908,20 +1908,21 @@ the code, is provided in :numref:`ARKODE.Mathematics.Nonlinear`.
 
 .. cssclass:: table-bordered
 
-================================================  =========================================  ============
-Optional input                                    Function name                              Default
-================================================  =========================================  ============
-Specify that :math:`f^I` is linearly implicit     :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
-Specify that :math:`f^I` is nonlinearly implicit  :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
-Implicit predictor method                         :c:func:`ARKStepSetPredictorMethod()`      0
-User-provided implicit stage predictor            :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
-RHS function for nonlinear system evaluations     :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
-Maximum number of nonlinear iterations            :c:func:`ARKStepSetMaxNonlinIters()`       3
-Coefficient in the nonlinear convergence test     :c:func:`ARKStepSetNonlinConvCoef()`       0.1
-Nonlinear convergence rate constant               :c:func:`ARKStepSetNonlinCRDown()`         0.3
-Nonlinear residual divergence ratio               :c:func:`ARKStepSetNonlinRDiv()`           2.3
-Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFails()`         10
-================================================  =========================================  ============
+=========================================================  =========================================  ============
+Optional input                                             Function name                              Default
+=========================================================  =========================================  ============
+Specify that :math:`f^I` is linearly implicit              :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
+Specify that :math:`f^I` is nonlinearly implicit           :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
+Implicit predictor method                                  :c:func:`ARKStepSetPredictorMethod()`      0
+User-provided implicit stage predictor                     :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
+RHS function for nonlinear system evaluations              :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
+Maximum number of nonlinear iterations                     :c:func:`ARKStepSetMaxNonlinIters()`       3
+Coefficient in the nonlinear convergence test              :c:func:`ARKStepSetNonlinConvCoef()`       0.1
+Nonlinear convergence rate constant                        :c:func:`ARKStepSetNonlinCRDown()`         0.3
+Nonlinear residual divergence ratio                        :c:func:`ARKStepSetNonlinRDiv()`           2.3
+Maximum number of convergence failures                     :c:func:`ARKStepSetMaxConvFails()`         10
+Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`ARKStepSetDeduceImplicitRhs`      ``SUNFALSE``
+=========================================================  =========================================  ============
 
 
 
@@ -2174,6 +2175,24 @@ Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFail
       the factor *etacf* (set within :c:func:`ARKStepSetMaxCFailGrowth()`).
 
 
+
+.. c:function:: int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce)
+
+   Specifies if implicit stage derivatives are deduced without evaluating
+   :math:`f^I`. See :numref:`ARKODE.Mathematics.Nonlinear` for more details.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *deduce* -- If ``SUNFALSE`` (default), the stage derivative is obtained
+        by evaluating :math:`f^I` with the stage solution returned from the
+        nonlinear solver. If ``SUNTRUE``, the stage derivative is deduced
+        without an additional evaluation of :math:`f^I`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   .. versionadded:: 5.2.0
 
 
 .. _ARKODE.Usage.ARKStep.ARKLsInputs:

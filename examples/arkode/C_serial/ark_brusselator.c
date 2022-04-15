@@ -165,6 +165,8 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
   flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);  /* Specify stiff interpolant */
   if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
+  flag = ARKStepSetDeduceImplicitRhs(arkode_mem, 1);  /* Avoid eval of f after stage */
+  if (check_flag(&flag, "ARKStepSetDeduceImplicitRhs", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);

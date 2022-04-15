@@ -52,9 +52,10 @@
  * explicitly.
  *
  * The program should be run with arguments in the following order:
- *   $ a.out solve_type h G w e
+ *   $ a.out solve_type h G w e deduce
  * Not all arguments are required, but these must be omitted from
  * end-to-beginning, i.e. any one of
+ *   $ a.out solve_type h G w e
  *   $ a.out solve_type h G w
  *   $ a.out solve_type h G
  *   $ a.out solve_type h
@@ -153,6 +154,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LSs = NULL;               /* slow linear solver object    */
   booleantype implicit_slow;
   booleantype imex_slow = SUNFALSE;
+  booleantype deduce = SUNFALSE;
   FILE *UFID;
   realtype hf, gamma, beta, t, tout, rpar[3];
   realtype uerr, verr, uerrtot, verrtot, errtot;
@@ -169,6 +171,7 @@ int main(int argc, char *argv[])
   if (argc > 3)  G = (realtype) atof(argv[3]);
   if (argc > 4)  w = (realtype) atof(argv[4]);
   if (argc > 5)  e = (realtype) atof(argv[5]);
+  if (argc > 6)  deduce = (booleantype) atoi(argv[6]);
 
   /* Check arguments for validity */
   /*   0 <= solve_type <= 9      */
@@ -534,6 +537,9 @@ int main(int argc, char *argv[])
   /* Set the user data pointer */
   retval = MRIStepSetUserData(arkode_mem, (void *) rpar);
   if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
+
+  retval = MRIStepSetDeduceImplicitRhs(arkode_mem, deduce);
+  if (check_retval(&retval, "MRIStepSetDeduceImplicitRhs", 1)) return 1;
 
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
