@@ -133,6 +133,9 @@ The include guard in ``nvector_mpimanyvector.h`` has been corrected to enable
 using both the ManyVector and MPIManyVector NVector implementations in the same
 simulation.
 
+Changed exported SUNDIALS PETSc CMake targets to be INTERFACE IMPORTED instead
+of UNKNOWN IMPORTED.
+
 A bug was fixed in the functions
 :c:func:`CVodeGetNumNonlinSolvConvFails`,
 :c:func:`CVodeGetNonlinSolvStats`,
