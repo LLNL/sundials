@@ -36,27 +36,38 @@ SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 #ifdef __cplusplus
 }
 
+#include <memory>
+
 namespace sundials
 {
 
 class Context
 {
 public:
-   Context(void* comm = NULL)
-   {
-      SUNContext_Create(comm, &sunctx_);
-   }
+  explicit Context(void* comm = NULL)
+  {
+    sunctx_ = std::unique_ptr<SUNContext>(new SUNContext());
+    SUNContext_Create(comm, sunctx_.get());
+  }
 
-   operator SUNContext() { return sunctx_; }
+  /* disallow copy, but allow move construction */
+  Context(const Context &) = delete;
+  Context(Context &&) = default;
 
-   ~Context()
-   {
-      SUNContext_Free(&sunctx_);
-   }
+  /* disallow copy, but allow move operators */
+  Context & operator=(const Context &) = delete;
+  Context & operator=(Context &&) = default;
+
+  operator SUNContext() { return *sunctx_.get(); }
+
+  ~Context()
+  {
+    if (sunctx_)
+      SUNContext_Free(sunctx_.get());
+  }
 
 private:
-   SUNContext sunctx_;
-
+  std::unique_ptr<SUNContext> sunctx_;
 };
 
 } /* namespace sundials */

@@ -215,21 +215,30 @@ For C++ users, a class, ``sundials::Context``, that follows RAII is provided:
    class Context
    {
    public:
-      Context(void* comm = NULL)
+      explicit Context(void* comm = NULL)
       {
-         SUNContext_Create(comm, &sunctx_);
+         sunctx_ = std::unique_ptr<SUNContext>(new SUNContext());
+         SUNContext_Create(comm, sunctx_.get());
       }
 
-      operator SUNContext() { return sunctx_; }
+      /* disallow copy, but allow move construction */
+      Context(const Context &) = delete;
+      Context(Context &&) = default;
+
+      /* disallow copy, but allow move operators */
+      Context & operator=(const Context &) = delete;
+      Context & operator=(Context &&) = default;
+
+      operator SUNContext() { return *sunctx_.get(); }
 
       ~Context()
       {
-         SUNContext_Free(&sunctx_);
+         if (sunctx_)
+            SUNContext_Free(sunctx_.get());
       }
 
    private:
-      SUNContext sunctx_;
-
+      std::unique_ptr<SUNContext> sunctx_;
    };
 
    } // namespace sundials

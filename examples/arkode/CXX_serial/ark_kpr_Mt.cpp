@@ -236,9 +236,7 @@ int main(int argc, char *argv[])
   //
 
   // Create SUNDIALS context
-  SUNContext ctx = NULL;
-  retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  sundials::Context ctx;
 
   // Create and initialize serial vector for the solution
   y = N_VNew_Serial(NEQ, ctx);
@@ -337,7 +335,6 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);               // free system matrix
   SUNMatDestroy(M);               // free mass matrix
   N_VDestroy(y);                  // Free y vector
-  SUNContext_Free(&ctx);          // Free context
   return 0;
 }
 

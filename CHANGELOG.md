@@ -11,6 +11,9 @@ may be freed after calling `N_VSetKernelExecPolicy_Sycl`. Additionally, `NULL`
 inputs are now allowed and, if provided, will reset the vector execution
 policies to the defaults.
 
+Fixed the `SUNContext` convenience class for C++ users to disallow copy
+construction and allow move construction.
+
 A memory leak in the SYCL vector was fixed where the execution policies were
 not freed when the vector was destroyed.
 
