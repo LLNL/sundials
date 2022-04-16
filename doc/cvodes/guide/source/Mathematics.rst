@@ -32,6 +32,20 @@ systems. Roughly speaking, stiffness is characterized by the presence of
 at least one rapidly damped mode, whose time constant is small compared
 to the time scale of the solution itself.
 
+For problems :eq:`CVODES_ivp` where the analytical solution :math:`y(t)`
+satisfies an implicit constraint :math:`g(t,y)=0` (including the initial
+condition, :math:`g(t_0,y_0)=0`) for
+:math:`g(t,y): \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^{M}` with
+:math:`M<N`,  CVODES may be configured to explicitly enforce these constraints
+via solving the modified problem
+
+.. math::
+   \begin{aligned}
+      \dot{y} &= f(t,y) \, ,\quad y(t_0) = y_0 \, ,\\
+      0 &= g(t,y).
+   \end{aligned}
+   :label: CVODES_ivp_constr
+
 Additionally, if :eq:`CVODES_ivp` depends on some parameters :math:`p \in {\bf R}^{N_p}`, i.e.
 
 .. math::
@@ -391,6 +405,75 @@ the calling program after each step. There are also options to force
 CVODES not to integrate past a given stopping point
 :math:`t = t_{\text{stop}}`.
 
+.. _CVODE.Mathematics.constraints:
+
+IVPs with constraints
+=====================
+
+For IVPs whose analytical solutions implicitly satisfy constraints as
+in :eq:`CVODES_ivp_constr`, CVODES ensures that the solution satisfies
+the constraint equation by projecting a successfully computed time step
+onto the invariant manifold. As discussed in
+:cite:p:`eich1993convergence` and
+:cite:p:`shampine1999conservation`, this approach reduces the
+error in the solution and retains the order of convergence of the
+numerical method. Therefore, in an attempt to advance the solution to a
+new point in time (i.e., taking a new integration step), CVODES
+performs the following operations:
+
+#. predict solution
+
+#. solve nonlinear system and correct solution
+
+#. project solution
+
+#. test error
+
+#. select order and step size for next step
+
+and includes several recovery attempts in case there are convergence
+failures (or difficulties) in the nonlinear solver or in the projection
+step, or if the solution fails to satisfy the error test. Note that at
+this time projection is only supported with BDF methods and the
+projection function must be user-defined. See :numref:`CVODES.Usage.SIM.cvprojinit` and
+:c:func:`CVodeSetProjFn` for more information on providing a
+projection function to CVODE.
+
+When using a coordinate projection method the solution :math:`y_n` is
+obtained by projecting (orthogonally or otherwise) the solution
+:math:`\tilde{y}_n` from step 2 above onto
+the manifold given by the constraint. As such :math:`y_n` is computed as
+the solution of the nonlinear constrained least squares problem
+
+.. math::
+   \begin{split}
+     \text{minimize}   &\quad \| y_n - \tilde{y}_n \| \\
+     \text{subject to} &\quad g(t_n,y_n) = 0.
+   \end{split}
+   :label: CVODES_proj
+
+The solution of :eq:`CVODES_proj` can be computed iteratively with
+a Newton method. Given an initial guess :math:`y_n^{(0)}` the iterations
+are computed as
+
+.. math:: y_n^{(i+1)} = y_n^{(i)} + \delta y_n^{(i)}
+
+where the increment :math:`\delta y_n^{(i)}` is the solution of the
+least-norm problem
+
+.. math::
+   \begin{split}
+       \text{minimize}   &\quad \| \delta y_n^{(i)} \| \\
+       \text{subject to} &\quad G(t_n,y_n^{(i)}) \; \delta y_n^{(i)} = -g(t_n,y_n^{(i)})
+   \end{split}
+   :label: CVODES_leastnorm
+
+where :math:`G(t,y) = \partial g(t,y) / \partial y`.
+
+If the projected solution satisfies the error test then the step is
+accepted and the correction to the unprojected solution,
+:math:`\Delta_p = y_n - \tilde{y}_n`, is used to update the Nordsieck
+history array for the next step.
 
 .. _CVODES.Mathematics.preconditioning:
 

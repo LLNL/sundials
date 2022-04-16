@@ -22,6 +22,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <cvodes/cvodes_ls.h>
+#include <cvode/cvode_proj.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -109,6 +110,10 @@ extern "C" {
 #define CV_UNREC_QSRHSFUNC_ERR  -54
 
 #define CV_CONTEXT_ERR          -55
+
+#define CV_PROJ_MEM_NULL        -56
+#define CV_PROJFUNC_FAIL        -57
+#define CV_REPTD_PROJFUNC_ERR   -58
 
 #define CV_UNRECOGNIZED_ERR     -99
 

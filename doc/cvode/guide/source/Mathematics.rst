@@ -30,9 +30,11 @@ Here we use :math:`\dot{y}` to denote :math:`\mathrm dy/\mathrm dt`. While we us
 it certainly need not be. CVODE solves both stiff and nonstiff
 systems. Roughly speaking, stiffness is characterized by the presence of
 at least one rapidly damped mode, whose time constant is small compared
-to the time scale of the solution itself. Additionally, for problems :eq:`CVODE_ivp`
-where the analytical solution :math:`y(t)` satisfies an implicit constraint
-:math:`g(t,y)=0` (including the initial condition, :math:`g(t_0,y_0)=0`) for
+to the time scale of the solution itself.
+
+For problems :eq:`CVODE_ivp` where the analytical solution :math:`y(t)`
+satisfies an implicit constraint :math:`g(t,y)=0` (including the initial
+condition, :math:`g(t_0,y_0)=0`) for
 :math:`g(t,y): \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^{M}` with
 :math:`M<N`,  CVODE may be configured to explicitly enforce these constraints
 via solving the modified problem

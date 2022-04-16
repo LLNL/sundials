@@ -37,6 +37,8 @@ set(CVODES_examples
   "cvsKrylovDemo_ls\;1\;develop"
   "cvsKrylovDemo_ls\;2\;develop"
   "cvsKrylovDemo_prec\;\;develop"
+  "cvsParticle_dns\;\;develop"
+  "cvsPendulum_dns\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
   "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"

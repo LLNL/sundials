@@ -1105,7 +1105,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check inputs for corectness */
 
     ier = cvInitialSetup(cv_mem);
-    if (ier!= CV_SUCCESS) {
+    if (ier != CV_SUCCESS) {
       SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
       return(ier);
     }
@@ -1585,7 +1585,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dky);
   if (ier != CV_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-    return (CV_VECTOROP_ERR);
+    return(CV_VECTOROP_ERR);
   }
 
   if (k == 0) {
@@ -2192,10 +2192,9 @@ static int cvStep(CVodeMem cv_mem)
   int eflag;                 /* error test return flag                   */
   booleantype doProjection;  /* flag to apply projection in this step    */
 
-  saved_t = cv_mem->cv_tn;
+  /* Initialize local counters for convergence and error test failures */
+
   ncf = npf = nef = 0;
-  nflag = FIRST_CALL;
-  doProjection = SUNFALSE;
 
   /* If the step size has changed, update the history array */
   if ((cv_mem->cv_nst > 0) && (cv_mem->cv_hprime != cv_mem->cv_h)) {
@@ -2203,12 +2202,17 @@ static int cvStep(CVodeMem cv_mem)
   }
 
   /* Check if this step should be projected */
+  doProjection = SUNFALSE;
   if (cv_mem->proj_enabled)
     doProjection = cv_mem->proj_mem->freq > 0 &&
       (cv_mem->cv_nst == 0 || (cv_mem->cv_nst >= cv_mem->proj_mem->nstlprj
                                + cv_mem->proj_mem->freq));
 
   /* Looping point for attempts to take a step */
+
+  saved_t = cv_mem->cv_tn;
+  nflag = FIRST_CALL;
+
   for(;;) {
 
     cvPredict(cv_mem);
@@ -2722,7 +2726,7 @@ static void cvSetBDF(CVodeMem cv_mem)
 
   if (cv_mem->proj_enabled)
     for (i=0; i <= cv_mem->cv_q; i++)
-      cv_mem->cv_p[i] = cv_mem->cv_l[i];
+      cv_mem->proj_p[i] = cv_mem->cv_l[i];
 
   if (cv_mem->cv_q > 1) {
     for (j=2; j < cv_mem->cv_q; j++) {
@@ -2742,7 +2746,7 @@ static void cvSetBDF(CVodeMem cv_mem)
 
     if (cv_mem->proj_enabled)
       for (i = cv_mem->cv_q; i >= 1; i--)
-        cv_mem->cv_p[i] = cv_mem->cv_l[i] + cv_mem->cv_p[i-1] * xi_inv;
+        cv_mem->proj_p[i] = cv_mem->cv_l[i] + cv_mem->proj_p[i-1] * xi_inv;
 
     for (i=cv_mem->cv_q; i >= 1; i--)
       cv_mem->cv_l[i] += cv_mem->cv_l[i-1]*xistar_inv;
@@ -3172,7 +3176,7 @@ static void cvCompleteStep(CVodeMem cv_mem)
   /* Apply the projection correction to column j of zn: p_j * Delta_n */
   if (cv_mem->proj_applied) {
     (void) N_VScaleAddMulti(cv_mem->cv_q+1,
-                            cv_mem->cv_p, cv_mem->cv_tempv, /* tempv = acorP */
+                            cv_mem->proj_p, cv_mem->cv_tempv, /* tempv = acorP */
                             cv_mem->cv_zn, cv_mem->cv_zn);
   }
 

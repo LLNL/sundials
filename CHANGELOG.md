@@ -8,6 +8,11 @@ to zero.
 Added the function `MRIStepSetOrder` to select the default MRI method of a given
 order.
 
+Added support to CVODES for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user defined
+projection function. This implementation is accompanied by additions to the
+CVODES user documentation and examples.
+
 The behavior of `N_VSetKernelExecPolicy_Sycl` has been updated to be consistent
 with the CUDA and HIP vectors. The input execution policies are now cloned and
 may be freed after calling `N_VSetKernelExecPolicy_Sycl`. Additionally, `NULL`

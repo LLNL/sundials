@@ -84,7 +84,7 @@ extern "C" {
  * cvNewtonIteration return values:
  *    CV_SUCCESS,
  *    CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL
- *    CONV_FAIL, RHSFUNC_RECVR,
+ *    RHSFUNC_RECVR,
  *    TRY_AGAIN
  *
  */
@@ -370,7 +370,7 @@ typedef struct CVodeMemRec {
   CVodeProjMem proj_mem;      /* projection memory structure               */
   booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
   booleantype  proj_applied;  /* flag indicating if projection was applied */
-  realtype     cv_p[L_MAX];   /* coefficients of p(x) (degree q poly)      */
+  realtype     proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
     Fused Vector Operations

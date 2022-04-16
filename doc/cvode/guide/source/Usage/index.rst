@@ -673,20 +673,29 @@ user-defined projection function, call the following set function:
 
 .. c:function:: int CVodeSetProjFn(void* cvode_mem, CVProjFn proj)
 
-   The function ``CVodeSetProjFn`` enables or disables projection with a  user-defined projection function.
+   The function ``CVodeSetProjFn`` enables or disables projection with a
+   user-defined projection function.
 
    **Arguments:**
-     * ``cvode_mem`` -- is a pointer to the CVODE memory block returned by :c:func:`CVodeCreate`.
-     * ``proj`` -- is the C function which defines the projection. See :c:type:`CVProjFn` for details.
+     * ``cvode_mem`` -- is a pointer to the CVODE memory block returned by
+       :c:func:`CVodeCreate`.
+     * ``proj`` -- is the C function which defines the projection. See
+       :c:type:`CVProjFn` for details.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The call was successful.
      * ``CV_MEM_NULL`` -- The ``cvode_mem`` argument was ``NULL``.
      * ``CV_MEM_FAIL`` -- A memory allocation failed.
-     * ``CV_ILL_INPUT`` -- The projection function is ``NULL`` or the method type is not ``CV_BDF``.
+     * ``CV_ILL_INPUT`` -- The projection function is ``NULL`` or the
+       method type is not ``CV_BDF``.
 
    **Notes:**
-      At this time projection is only supported with BDF methods.  If a new IVP is to be solved with a call to ``CVodeReInit``, where the new  IVP does not have a constraint equation but the prior one did, then call  ``CVodeSetProjFrequency`` with an input of ``0`` to disable projection.
+      At this time projection is only supported with BDF methods.  If a new IVP
+      is to be solved with a call to ``CVodeReInit``, where the new  IVP does
+      not have a constraint equation but the prior one did, then call
+      ``CVodeSetProjFrequency`` with an input of ``0`` to disable projection.
+
+   .. versionadded:: 5.3.0
 
 .. _CVODE.Usage.CC.cvode:
 
@@ -1629,6 +1638,8 @@ the projection when solving an IVP with constraints.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
+   .. versionadded:: 5.3.0
+
 .. c:function:: int CVodeSetProjFrequency(void* cvode_mem, long int freq)
 
    The function ``CVodeSetProjFrequency`` specifies the frequency with which the  projection is performed.
@@ -1641,6 +1652,8 @@ the projection when solving an IVP with constraints.
      * ``CV_SUCCESS`` -- The optional value has been successfully set.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
+
+   .. versionadded:: 5.3.0
 
 .. c:function:: int CVodeSetMaxNumProjFails(void* cvode_mem, int max_fails)
 
@@ -1655,6 +1668,8 @@ the projection when solving an IVP with constraints.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
+   .. versionadded:: 5.3.0
+
 .. c:function:: int CVodeSetEpsProj(void* cvode_mem, realtype eps)
 
    The function ``CVodeSetEpsProj`` specifies the tolerance for the nonlinear  constrained least squares problem solved by the projection function.
@@ -1668,6 +1683,8 @@ the projection when solving an IVP with constraints.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
+   .. versionadded:: 5.3.0
+
 .. c:function:: int CVodeSetProjFailEta(void* cvode_mem, realtype eta)
 
    The function ``CVodeSetProjFailEta`` specifies the time step reduction factor  to apply on a projection function failure.
@@ -1680,6 +1697,8 @@ the projection when solving an IVP with constraints.
      * ``CV_SUCCESS`` -- The optional value has been successfully set.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
+
+   .. versionadded:: 5.3.0
 
 .. _CVODE.Usage.CC.optional_dky:
 
@@ -2260,7 +2279,7 @@ Projection optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following optional output functions are available for retrieving
-information and statistics related the projection when solving and IVP
+information and statistics related the projection when solving an IVP
 with constraints.
 
 
@@ -2277,6 +2296,8 @@ with constraints.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
+   .. versionadded:: 5.3.0
+
 
 .. c:function:: int CVodeGetNumProjFails(void* cvode_mem, long int * npfails)
 
@@ -2290,6 +2311,8 @@ with constraints.
      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL``, i.e., the projection functionality has not been enabled.
+
+   .. versionadded:: 5.3.0
 
 
 .. _CVODE.Usage.CC.optional_output.optout_ls:
@@ -2855,7 +2878,10 @@ user-defined projection operation the projection function must have type
       * ``user_data`` a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData`.
 
    **Return value:**
-      Should return 0 if successful, a negative value if an unrecoverable error occurred (the integraiton is halted), or a positive value if a recoverable error occurred (the integrator will, in most cases, try to correct and reattempt the step).
+      Should return 0 if successful, a negative value if an unrecoverable error
+      occurred (the integration is halted), or a positive value if a recoverable
+      error occurred (the integrator will, in most cases, try to correct and
+      reattempt the step).
 
    **Notes:**
       The tolerance passed to the projection function (``epsProj``) is the
@@ -2866,6 +2892,8 @@ user-defined projection operation the projection function must have type
       If needed by the user's projection routine, the error weight vector can be
       accessed by calling :c:func:`CVodeGetErrWeights`, and the unit roundoff is
       available as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+
+   .. versionadded:: 5.3.0
 
 
 .. _CVODE.Usage.CC.user_fct_sim.jacFn:

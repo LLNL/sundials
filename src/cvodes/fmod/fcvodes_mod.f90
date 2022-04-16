@@ -95,6 +95,9 @@ module fcvodes_mod
  integer(C_INT), parameter, public :: CV_REPTD_QSRHSFUNC_ERR = -53_C_INT
  integer(C_INT), parameter, public :: CV_UNREC_QSRHSFUNC_ERR = -54_C_INT
  integer(C_INT), parameter, public :: CV_CONTEXT_ERR = -55_C_INT
+ integer(C_INT), parameter, public :: CV_PROJ_MEM_NULL = -56_C_INT
+ integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -57_C_INT
+ integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -58_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  integer(C_INT), parameter, public :: CV_NO_ADJ = -101_C_INT
  integer(C_INT), parameter, public :: CV_NO_FWD = -102_C_INT

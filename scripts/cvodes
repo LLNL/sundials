@@ -40,6 +40,7 @@ $tar $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_diag.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_direct.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_ls.h
+$tar $tarfile $distrobase/include/cvodes/cvodes_proj.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE
@@ -65,6 +66,8 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_nls.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_sim.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg1.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_proj.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_proj_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
 
 $tar $tarfile $distrobase/src/cvodes/fmod/CMakeLists.txt
@@ -109,6 +112,10 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_ls_1.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_ls_2.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_prec.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_prec.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsParticle_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsParticle_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsPendulum_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsPendulum_dns.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.c

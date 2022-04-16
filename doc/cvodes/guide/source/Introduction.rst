@@ -117,6 +117,12 @@ Changes in v6.2.0
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 
+Added support for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user
+defined projection function. This implementation is accompanied by
+additions to user documentation and CVODES examples. See
+:c:func:`CVodeSetConstraints` for more information.
+
 The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
 cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.

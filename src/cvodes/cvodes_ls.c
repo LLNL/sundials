@@ -1353,7 +1353,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     retval = SUNMatCopy(cvls_mem->savedJ, A);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                     "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
       return(cvls_mem->last_flag);
     }
@@ -1368,7 +1368,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
       retval = SUNMatZero(A);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                       "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
         cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
         return(cvls_mem->last_flag);
       }
@@ -1379,7 +1379,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
                            vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVLS_JACFUNC_UNRECVR, "CVSLS",
-                     "cvLsSetup",  MSG_LS_JACFUNC_FAILED);
+                     "cvLsLinSys",  MSG_LS_JACFUNC_FAILED);
       cvls_mem->last_flag = CVLS_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -1392,7 +1392,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     retval = SUNMatCopy(A, cvls_mem->savedJ);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                     "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
       return(cvls_mem->last_flag);
     }
@@ -1403,7 +1403,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   retval = SUNMatScaleAddI(-gamma, A);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                   "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                   "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
     cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
     return(cvls_mem->last_flag);
   }
