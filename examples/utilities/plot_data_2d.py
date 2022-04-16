@@ -33,7 +33,7 @@
 #  .         .       .       .       .       .       .       .       .
 # t_{M-1}  u_0,0   v_0,0   u_1,0   v_1,0   u_0,1   v_0,1   u_1,1   v_1,1
 #
-# where u_i,j and v_i,j are the solution componetns at node (i,j). In general,
+# where u_i,j and v_i,j are the solution components at node (i,j). In general,
 # the n-th solution component at node (i,j) is located at column index
 # 1 + V * (X * j + i) + n with n = 0,...,V-1, i = 0,...,X-1, and j = 0,...,Y-1.
 #

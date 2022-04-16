@@ -136,6 +136,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetLinearSolver
  public :: FMRIStepRootInit
  public :: FMRIStepSetDefaults
+ public :: FMRIStepSetOrder
  public :: FMRIStepSetInterpolantType
  public :: FMRIStepSetInterpolantDegree
  public :: FMRIStepSetDenseOrder
@@ -544,6 +545,15 @@ bind(C, name="_wrap_FMRIStepSetDefaults") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetOrder(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetOrder") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1897,6 +1907,22 @@ type(C_PTR) :: farg1
 
 farg1 = arkode_mem
 fresult = swigc_FMRIStepSetDefaults(farg1)
+swig_result = fresult
+end function
+
+function FMRIStepSetOrder(arkode_mem, ord) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: ord
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = ord
+fresult = swigc_FMRIStepSetOrder(farg1, farg2)
 swig_result = fresult
 end function
 

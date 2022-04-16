@@ -285,6 +285,47 @@ int MRIStepSetNonlinear(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
+  MRIStepSetOrder:
+
+  Specifies the method order
+
+  NOTE: This should not be called along with MRIStepSetCoupling.
+  Any user-supplied coupling table will specify the order.
+  ---------------------------------------------------------------*/
+int MRIStepSetOrder(void *arkode_mem, int ord)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  sunindextype Tlrw, Tliw;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetOrder",
+                                 &ark_mem, &step_mem);
+  if (retval) return(retval);
+
+  /* check for illegal inputs */
+  if (ord < 3 || ord > 4) {
+    step_mem->q = 3;
+  } else {
+    step_mem->q = ord;
+  }
+
+  /* Clear tables, the user is requesting a change in method or a reset to
+     defaults. Tables will be set in InitialSetup. */
+  step_mem->stages = 0;
+  step_mem->p = 0;
+  MRIStepCoupling_Space(step_mem->MRIC, &Tliw, &Tlrw);
+  MRIStepCoupling_Free(step_mem->MRIC);
+  step_mem->MRIC = NULL;
+  ark_mem->liw -= Tliw;
+  ark_mem->lrw -= Tlrw;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   MRIStepSetCoupling:
 
   Specifies to use a customized coupling structure for the slow

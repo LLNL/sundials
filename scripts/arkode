@@ -257,6 +257,9 @@ $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/plot_heat2D_p.py
 
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/README
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_advection_diffusion_reaction.cpp
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_advection_diffusion_reaction.hpp
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_advection_diffusion_reaction.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_heat2D.cpp

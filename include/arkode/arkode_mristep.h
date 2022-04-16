@@ -219,6 +219,7 @@ SUNDIALS_EXPORT int MRIStepRootInit(void *arkode_mem, int nrtfn,
 
 /* Optional input functions -- must be called AFTER MRIStepCreate */
 SUNDIALS_EXPORT int MRIStepSetDefaults(void* arkode_mem);
+SUNDIALS_EXPORT int MRIStepSetOrder(void *arkode_mem, int ord);
 SUNDIALS_EXPORT int MRIStepSetInterpolantType(void *arkode_mem, int itype);
 SUNDIALS_EXPORT int MRIStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int MRIStepSetDenseOrder(void *arkode_mem, int dord);

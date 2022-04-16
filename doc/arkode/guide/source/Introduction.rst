@@ -130,6 +130,9 @@ optimization.
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 
+Added the function :c:func:`MRIStepSetOrder` to select the default MRI method of
+a given order.
+
 The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
 cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.

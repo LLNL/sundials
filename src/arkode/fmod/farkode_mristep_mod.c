@@ -785,6 +785,20 @@ SWIGEXPORT int _wrap_FMRIStepSetDefaults(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetOrder(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)MRIStepSetOrder(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepSetInterpolantType(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
