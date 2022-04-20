@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include "idas_impl.h"
+#include "idas_ls_impl.h"
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 
@@ -208,7 +209,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   if (IDA_mem->ida_nst > 0) {
 
     if ( (tstop - IDA_mem->ida_tn) * IDA_mem->ida_hh < ZERO ) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetStopTime", MSG_BAD_TSTOP, tstop, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetStopTime", MSG_BAD_TSTOP, tstop, IDA_mem->ida_tn);
       return(IDA_ILL_INPUT);
     }
 
@@ -593,14 +594,14 @@ int IDASetMaxBacksIC(void *ida_mem, int maxbacks)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxBacksIC", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetMaxBacksIC", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxbacks <= 0) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetMaxBacksIC", MSG_IC_BAD_MAXBACKS);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMaxBacksIC", MSG_IC_BAD_MAXBACKS);
     return(IDA_ILL_INPUT);
   }
 
@@ -1367,7 +1368,7 @@ int IDAGetNumStepSolveFails(void *ida_mem, long int *nncfails)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumStepSolveFails",
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumStepSolveFails",
                     MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
@@ -1854,7 +1855,7 @@ int IDAGetNumStepSensSolveFails(void *ida_mem, long int *nSncfails)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumStepSensSolveFails",
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNumStepSensSolveFails",
                     MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
@@ -1865,6 +1866,212 @@ int IDAGetNumStepSensSolveFails(void *ida_mem, long int *nSncfails)
 
   return(IDA_SUCCESS);
 }
+
+/*-----------------------------------------------------------------*/
+
+int IDAPrintAllStats(void *ida_mem, FILE *outfile, SUNOutputFormat fmt)
+{
+  IDAMem IDA_mem;
+  IDALsMem idals_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAPrintAllStats",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* step and method stats */
+    fprintf(outfile, "Current time                 = %"RSYM"\n", IDA_mem->ida_tn);
+    fprintf(outfile, "Steps                        = %ld\n", IDA_mem->ida_nst);
+    fprintf(outfile, "Error test fails             = %ld\n", IDA_mem->ida_netf);
+    fprintf(outfile, "NLS step fails               = %ld\n", IDA_mem->ida_ncfn);
+    fprintf(outfile, "Initial step size            = %"RSYM"\n", IDA_mem->ida_h0u);
+    fprintf(outfile, "Last step size               = %"RSYM"\n", IDA_mem->ida_hused);
+    fprintf(outfile, "Current step size            = %"RSYM"\n", IDA_mem->ida_hh);
+    fprintf(outfile, "Last method order            = %d\n", IDA_mem->ida_kused);
+    fprintf(outfile, "Current method order         = %d\n", IDA_mem->ida_kk);
+
+    /* function evaluations */
+    fprintf(outfile, "Residual fn evals            = %ld\n", IDA_mem->ida_nre);
+
+    /* IC calculation stats */
+    fprintf(outfile, "IC linesearch backtrack ops  = %d\n", IDA_mem->ida_nbacktr);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, "NLS iters                    = %ld\n", IDA_mem->ida_nni);
+    fprintf(outfile, "NLS fails                    = %ld\n", IDA_mem->ida_nnf);
+    if (IDA_mem->ida_nst > 0)
+    {
+      fprintf(outfile, "NLS iters per step           = %"RSYM"\n",
+              (realtype) IDA_mem->ida_nre / (realtype) IDA_mem->ida_nst);
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, "LS setups                    = %ld\n", IDA_mem->ida_nsetups);
+    if (IDA_mem->ida_lmem)
+    {
+      idals_mem = (IDALsMem) (IDA_mem->ida_lmem);
+      fprintf(outfile, "Jac fn evals                 = %ld\n", idals_mem->nje);
+      fprintf(outfile, "LS residual fn evals         = %ld\n", idals_mem->nreDQ);
+      fprintf(outfile, "Prec setup evals             = %ld\n", idals_mem->npe);
+      fprintf(outfile, "Prec solves                  = %ld\n", idals_mem->nps);
+      fprintf(outfile, "LS iters                     = %ld\n", idals_mem->nli);
+      fprintf(outfile, "LS fails                     = %ld\n", idals_mem->ncfl);
+      fprintf(outfile, "Jac-times setups             = %ld\n", idals_mem->njtsetup);
+      fprintf(outfile, "Jac-times evals              = %ld\n", idals_mem->njtimes);
+      if (IDA_mem->ida_nni > 0)
+      {
+        fprintf(outfile, "LS iters per NLS iter        = %"RSYM"\n",
+                (realtype) idals_mem->nli / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, "Jac evals per NLS iter       = %"RSYM"\n",
+                (realtype) idals_mem->nje / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, "Prec evals per NLS iter      = %"RSYM"\n",
+                (realtype) idals_mem->npe / (realtype) IDA_mem->ida_nni);
+      }
+    }
+
+    /* rootfinding stats */
+    fprintf(outfile, "Root fn evals                = %ld\n", IDA_mem->ida_nge);
+
+    /* quadrature stats */
+    if (IDA_mem->ida_quadr)
+    {
+      fprintf(outfile, "Quad fn evals                = %ld\n", IDA_mem->ida_nrQe);
+      fprintf(outfile, "Quad error test fails        = %ld\n", IDA_mem->ida_netfQ);
+    }
+
+    /* sensitivity stats */
+    if (IDA_mem->ida_sensi)
+    {
+      fprintf(outfile, "Sens fn evals                = %ld\n", IDA_mem->ida_nrSe);
+      fprintf(outfile, "Sens residual fn evals       = %ld\n", IDA_mem->ida_nreS);
+      fprintf(outfile, "Sens error test fails        = %ld\n", IDA_mem->ida_netfS);
+      if (IDA_mem->ida_ism == IDA_STAGGERED)
+      {
+        fprintf(outfile, "Sens NLS iters               = %ld\n", IDA_mem->ida_nniS);
+        fprintf(outfile, "Sens NLS fails               = %ld\n", IDA_mem->ida_nnfS);
+        fprintf(outfile, "Sens NLS step fails          = %ld\n", IDA_mem->ida_ncfnS);
+      }
+      fprintf(outfile, "Sens LS setups               = %ld\n", IDA_mem->ida_nsetupsS);
+    }
+
+    /* quadrature-sensitivity stats */
+    if (IDA_mem->ida_quadr_sensi)
+    {
+      fprintf(outfile, "QuadSens residual evals      = %ld\n", IDA_mem->ida_nrQSe);
+      fprintf(outfile, "QuadSens error test fails    = %ld\n", IDA_mem->ida_netfQS);
+    }
+    break;
+
+  case SUN_OUTPUTFORMAT_CSV:
+    /* step and method stats */
+    fprintf(outfile, "Time,%"RSYM, IDA_mem->ida_tn);
+    fprintf(outfile, ",Steps,%ld", IDA_mem->ida_nst);
+    fprintf(outfile, ",Error test fails,%ld", IDA_mem->ida_netf);
+    fprintf(outfile, ",NLS step fails,%ld", IDA_mem->ida_ncfn);
+    fprintf(outfile, ",Initial step size,%"RSYM, IDA_mem->ida_h0u);
+    fprintf(outfile, ",Last step size,%"RSYM, IDA_mem->ida_hused);
+    fprintf(outfile, ",Current step size,%"RSYM, IDA_mem->ida_hh);
+    fprintf(outfile, ",Last method order,%d", IDA_mem->ida_kused);
+    fprintf(outfile, ",Current method order,%d", IDA_mem->ida_kk);
+
+    /* function evaluations */
+    fprintf(outfile, ",Residual fn evals,%ld", IDA_mem->ida_nre);
+
+    /* IC calculation stats */
+    fprintf(outfile, ",IC linesearch backtrack ops,%d", IDA_mem->ida_nbacktr);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, ",NLS iters,%ld", IDA_mem->ida_nni);
+    fprintf(outfile, ",NLS fails,%ld", IDA_mem->ida_nnf);
+    if (IDA_mem->ida_nst > 0)
+    {
+      fprintf(outfile, ",NLS iters per step,%"RSYM,
+              (realtype) IDA_mem->ida_nre / (realtype) IDA_mem->ida_nst);
+    }
+    else
+    {
+      fprintf(outfile, ",NLS iters per step,0");
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, ",LS setups,%ld", IDA_mem->ida_nsetups);
+    if (IDA_mem->ida_lmem)
+    {
+      idals_mem = (IDALsMem) (IDA_mem->ida_lmem);
+      fprintf(outfile, ",Jac fn evals,%ld", idals_mem->nje);
+      fprintf(outfile, ",LS residual evals,%ld", idals_mem->nreDQ);
+      fprintf(outfile, ",Prec setup evals,%ld", idals_mem->npe);
+      fprintf(outfile, ",Prec solves,%ld", idals_mem->nps);
+      fprintf(outfile, ",LS iters,%ld", idals_mem->nli);
+      fprintf(outfile, ",LS fails,%ld", idals_mem->ncfl);
+      fprintf(outfile, ",Jac-times setups,%ld", idals_mem->njtsetup);
+      fprintf(outfile, ",Jac-times evals,%ld", idals_mem->njtimes);
+      if (IDA_mem->ida_nni > 0)
+      {
+        fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
+                (realtype) idals_mem->nli / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
+                (realtype) idals_mem->nje / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
+                (realtype) idals_mem->npe / (realtype) IDA_mem->ida_nni);
+      }
+      else
+      {
+        fprintf(outfile, ",LS iters per NLS iter,0");
+        fprintf(outfile, ",Jac evals per NLS iter,0");
+        fprintf(outfile, ",Prec evals per NLS iter,0");
+      }
+    }
+
+    /* rootfinding stats */
+    fprintf(outfile, ",Root fn evals,%ld", IDA_mem->ida_nge);
+
+    /* quadrature stats */
+    if (IDA_mem->ida_quadr)
+    {
+      fprintf(outfile, ",Quad fn evals,%ld", IDA_mem->ida_nrQe);
+      fprintf(outfile, ",Quad error test fails,%ld", IDA_mem->ida_netfQ);
+    }
+
+    /* sensitivity stats */
+    if (IDA_mem->ida_sensi)
+    {
+      fprintf(outfile, ",Sens fn evals,%ld", IDA_mem->ida_nrSe);
+      fprintf(outfile, ",Sens residual fn evals,%ld", IDA_mem->ida_nreS);
+      fprintf(outfile, ",Sens error test fails,%ld", IDA_mem->ida_netfS);
+      if (IDA_mem->ida_ism == IDA_STAGGERED)
+      {
+        fprintf(outfile, ",Sens NLS iters,%ld", IDA_mem->ida_nniS);
+        fprintf(outfile, ",Sens NLS fails,%ld", IDA_mem->ida_nnfS);
+        fprintf(outfile, ",Sens NLS step fails,%ld", IDA_mem->ida_ncfnS);
+      }
+      fprintf(outfile, ",Sens LS setups,%ld", IDA_mem->ida_nsetupsS);
+    }
+
+    /* quadrature-sensitivity stats */
+    if (IDA_mem->ida_quadr_sensi)
+    {
+      fprintf(outfile, ",QuadSens residual evals,%ld", IDA_mem->ida_nrQSe);
+      fprintf(outfile, ",QuadSens error test fails,%ld", IDA_mem->ida_netfQS);
+    }
+    fprintf(outfile, "\n");
+    break;
+
+  default:
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAPrintAllStats",
+                   "Invalid formatting option.");
+    return(IDA_ILL_INPUT);
+  }
+
+  return(IDA_SUCCESS);
+}
+
 
 /*
  * =================================================================

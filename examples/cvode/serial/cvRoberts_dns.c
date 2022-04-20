@@ -99,10 +99,6 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
 static void PrintRootInfo(int root_f1, int root_f2);
 
-/* Private function to print final statistics */
-
-static void PrintFinalStats(void *cvode_mem);
-
 /* Private function to check function return values */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -130,6 +126,7 @@ int main()
   int retval, iout;
   int retvalr;
   int rootsfound[2];
+  FILE* FID;
 
   y = NULL;
   abstol = NULL;
@@ -198,6 +195,9 @@ int main()
      Break out of loop when NOUT preset output times have been reached.  */
   printf(" \n3-species kinetics problem\n\n");
 
+  /* Open file for printing statistics */
+  FID = fopen("cvRoberts_dns_stats.csv", "w");
+
   iout = 0;  tout = T1;
   while(1) {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
@@ -215,11 +215,15 @@ int main()
       tout *= TMULT;
     }
 
+    retval = CVodePrintAllStats(cvode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+
     if (iout == NOUT) break;
   }
+  fclose(FID);
 
-  /* Print some final statistics */
-  PrintFinalStats(cvode_mem);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   /* check the solution error */
   retval = check_ans(y, t, RTOL, abstol);
@@ -324,45 +328,6 @@ static void PrintRootInfo(int root_f1, int root_f2)
   printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
 
   return;
-}
-
-/*
- * Get and print some final statistics
- */
-
-static void PrintFinalStats(void *cvode_mem)
-{
-  long int nst, nfe, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nge;
-  int retval;
-
-  retval = CVodeGetNumSteps(cvode_mem, &nst);
-  check_retval(&retval, "CVodeGetNumSteps", 1);
-  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
-  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
-  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
-  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
-  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &nnf);
-  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
-  retval = CVodeGetNumStepSolveFails(cvode_mem, &ncfn);
-  check_retval(&retval, "CVodeGetNumStepSolveFails", 1);
-
-  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
-  check_retval(&retval, "CVodeGetNumJacEvals", 1);
-  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
-
-  retval = CVodeGetNumGEvals(cvode_mem, &nge);
-  check_retval(&retval, "CVodeGetNumGEvals", 1);
-
-  printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
-         nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld nnf = %-6ld netf = %-6ld    ncfn = %-6ld  nge = %ld\n\n",
-         nni, nnf, netf, ncfn, nge);
 }
 
 /*

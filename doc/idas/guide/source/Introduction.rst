@@ -92,6 +92,11 @@ Changes in v5.2.0
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 
+Added the function :c:func:`IDAPrintAllStats` to output all of the integrator,
+nonlinear solver, linear solver, and other statistics in one call. The file
+``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
+value output files.
+
 The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
 cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.

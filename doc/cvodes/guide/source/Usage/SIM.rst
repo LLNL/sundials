@@ -1832,6 +1832,8 @@ the preconditioner.
    +------------------------------------------------+------------------------------------------+
    | No. of calls to user root function             | :c:func:`CVodeGetNumGEvals`              |
    +------------------------------------------------+------------------------------------------+
+   | Print all statistics                           | :c:func:`CVodePrintAllStats`             |
+   +------------------------------------------------+------------------------------------------+
    | Name of constant associated with a return flag | :c:func:`CVodeGetReturnFlagName`         |
    +------------------------------------------------+------------------------------------------+
    | **CVLS linear solver interface**               |                                          |
@@ -1999,12 +2001,12 @@ described next.
    Returns the number of failed steps due to a nonlinear solver failure.
 
    **Arguments:**
-      * ``cvode_mem`` -- pointer to the CVODE memory block.
+      * ``cvode_mem`` -- pointer to the CVODES memory block.
       * ``ncnf`` -- number of step failures.
 
    **Return value:**
       * ``CV_SUCCESS`` -- The optional output value has been successfully set.
-      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+      * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
 
 
@@ -2232,6 +2234,34 @@ described next.
      * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_MEM_FAIL`` -- The ``SUNNonlinearSolver`` module is ``NULL``.
 
+
+.. c:function:: int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   The function ``CVodePrintAllStats`` outputs all of the integrator, nonlinear
+   solver, linear solver, and other statistics.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``outfile`` -- pointer to output file.
+     * ``fmt`` -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The output was successfully.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+     * ``CV_ILL_INPUT`` -- An invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: char* CVodeGetReturnFlagName(int flag)

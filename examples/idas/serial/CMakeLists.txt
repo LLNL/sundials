@@ -55,6 +55,14 @@ set(IDAS_examples_SUPERLUMT
   "idasRoberts_sps\;\;develop"
   )
 
+# Auxiliary files to install
+set(IDAS_extras
+  idasRoberts_ASAi_dns_bkw1_stats.csv
+  idasRoberts_ASAi_dns_fwd_stats.csv
+  idasRoberts_dns_stats.csv
+  idasRoberts_FSA_dns_stats_-sensi_stg_t.csv
+  )
+
 # Specify libraries to link against
 set(IDAS_LIB sundials_idas)
 set(NVECS_LIB sundials_nvecserial)
@@ -293,6 +301,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+
+  # Install the extra files
+  foreach(extrafile ${IDAS_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDAS")

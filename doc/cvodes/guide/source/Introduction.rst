@@ -117,6 +117,11 @@ Changes in v6.2.0
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 
+Added the function :c:func:`CVodePrintAllStats` to output all of the integrator,
+nonlinear solver, linear solver, and other statistics in one call. The file
+``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
+value output files.
+
 Added support for integrating IVPs with constraints using BDF methods
 and projecting the solution onto the constraint manifold with a user
 defined projection function. This implementation is accompanied by

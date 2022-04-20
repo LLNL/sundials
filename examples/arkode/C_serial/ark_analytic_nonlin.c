@@ -64,9 +64,8 @@ int main()
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  FILE *UFID;
+  FILE *UFID, *FID;
   realtype t, tout;
-  long int nst, nst_a, nfe, netf;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -123,20 +122,14 @@ int main()
   printf("   ---------------------\n");
   fclose(UFID);
 
-  /* Print some final statistics */
-  flag = ERKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ERKStepGetNumSteps", 1);
-  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ERKStepGetNumStepAttempts", 1);
-  flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_flag(&flag, "ERKStepGetNumRhsEvals", 1);
-  flag = ERKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ERKStepGetNumErrTestFails", 1);
+  /* Print final statistics */
+  printf("\nFinal Statistics:\n");
+  flag = ERKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals = %li\n", nfe);
-  printf("   Total number of error test failures = %li\n\n", netf);
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("ark_analytic_nonlin_stats.csv", "w");
+  flag = ERKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */

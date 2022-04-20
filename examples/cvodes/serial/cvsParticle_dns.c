@@ -224,8 +224,8 @@ int main(int argc, char* argv[])
 
   if (udata->nout > 0)
   {
-    YFID = fopen("cvParticle_solution.txt","w");
-    EFID = fopen("cvParticle_error.txt","w");
+    YFID = fopen("cvsParticle_solution.txt","w");
+    EFID = fopen("cvsParticle_error.txt","w");
     WriteOutput(t, y, e, ec, 1, YFID, EFID);
   }
 

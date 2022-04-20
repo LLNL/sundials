@@ -110,6 +110,7 @@ module fkinsol_mod
  public :: FKINGetNumBacktrackOps
  public :: FKINGetFuncNorm
  public :: FKINGetStepLength
+ public :: FKINPrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -515,6 +516,16 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FKINPrintAllStats(farg1, farg2, farg3) &
+bind(C, name="_wrap_FKINPrintAllStats") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1386,6 +1397,25 @@ type(C_PTR) :: farg2
 farg1 = kinmem
 farg2 = c_loc(steplength(1))
 fresult = swigc_FKINGetStepLength(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINPrintAllStats(kinmem, outfile, fmt) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+type(C_PTR) :: outfile
+integer(SUNOutputFormat), intent(in) :: fmt
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
+
+farg1 = kinmem
+farg2 = outfile
+farg3 = fmt
+fresult = swigc_FKINPrintAllStats(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

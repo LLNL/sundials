@@ -78,10 +78,9 @@ int main()
   SUNMatrix A = NULL;            /* empty matrix for linear solver */
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  FILE *UFID;
+  FILE *UFID, *FID;
   realtype t, tout;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf;
 
   /* set up the initial conditions, tolerances, initial time step size */
   realtype u0 = RCONST(1.0);
@@ -177,39 +176,14 @@ int main()
   printf("   --------------------------------------------------\n");
   fclose(UFID);
 
-  /* Print some final statistics */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
-  flag = ARKStepGetNumStepSolveFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumStepSolveFails", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &nnf);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n",
-         nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
-  printf("   Total linear solver setups = %li\n", nsetups);
-  printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
-  printf("   Total number of Jacobian evaluations = %li\n", nje);
-  printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of nonlinear solver convergence failures = %li\n", nnf);
-  printf("   Total number of error test failures = %li\n", netf);
-  printf("   Total number of failed steps from solver failure = %li\n", ncfn);
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("ark_robertson_stats.csv", "w");
+  flag = ARKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);

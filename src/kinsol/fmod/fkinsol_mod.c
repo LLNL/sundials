@@ -811,6 +811,22 @@ SWIGEXPORT int _wrap_FKINGetStepLength(void *farg1, double *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINPrintAllStats(void *farg1, void *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  SUNOutputFormat arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  arg3 = (SUNOutputFormat)(*farg3);
+  result = (int)KINPrintAllStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FKINGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;

@@ -121,14 +121,20 @@ Changes from previous versions
 Changes in v5.2.0
 -----------------
 
+Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
+counters to zero.
+
+Added the functions :c:func:`ARKStepPrintAllStats`,
+:c:func:`ERKStepPrintAllStats`, and :c:func:`MRIStepPrintAll` to output all of
+the integrator, nonlinear solver, linear solver, and other statistics in one
+call. The file ``scripts/sundials_csv.py`` contains functions for parsing the
+comma-separated value output files.
+
 Added the functions :c:func:`ARKStepSetDeduceImplicitRhs` and
 :c:func:`MRIStepSetDeduceImplicitRhs` to optionally remove an evaluation of the
 implicit right-hand side function after nonlinear solves. See
 :numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
 optimization.
-
-Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
-counters to zero.
 
 Added the function :c:func:`MRIStepSetOrder` to select the default MRI method of
 a given order.

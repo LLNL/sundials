@@ -22,7 +22,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <cvodes/cvodes_ls.h>
-#include <cvode/cvode_proj.h>
+#include <cvodes/cvodes_proj.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -299,6 +299,8 @@ SUNDIALS_EXPORT int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                                             long int *nnfails);
 SUNDIALS_EXPORT int CVodeGetNumStepSolveFails(void *cvode_mem,
                                               long int *nncfails);
+SUNDIALS_EXPORT int CVodePrintAllStats(void *cvode_mem, FILE *outfile,
+                                       SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
 /* Free function */

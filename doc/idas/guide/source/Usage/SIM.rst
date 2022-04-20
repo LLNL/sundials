@@ -2062,6 +2062,8 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of calls to user root function                                 | :c:func:`IDAGetNumGEvals`              |
   +--------------------------------------------------------------------+----------------------------------------+
+  | Print all statistics                                               | :c:func:`IDAPrintAllStats`             |
+  +--------------------------------------------------------------------+----------------------------------------+
   | Name of constant associated with a return flag                     | :c:func:`IDAGetReturnFlagName`         |
   +--------------------------------------------------------------------+----------------------------------------+
   | Number of backtrack operations                                     | :c:func:`IDAGetNumBacktrackOps`        |
@@ -2223,7 +2225,7 @@ described next.
    Returns the number of failed steps due to a nonlinear solver failure.
 
    **Arguments:**
-      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``ida_mem`` -- pointer to the IDAS solver object.
       * ``ncnf`` -- number of step failures.
 
    **Return value:**
@@ -2445,6 +2447,33 @@ described next.
       * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
       * ``IDA_MEM_FAIL`` -- The ``SUNNonlinearSolver`` object is ``NULL``.
+
+.. c:function:: int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   The function ``IDAPrintAllStats`` outputs all of the integrator, nonlinear
+   solver, linear solver, and other statistics.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDAS memory block.
+     * ``outfile`` -- pointer to output file.
+     * ``fmt`` -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The output was successfully.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+     * ``IDA_ILL_INPUT`` -- An invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 5.2.0
 
 .. c:function:: char* IDAGetReturnFlagName(long int flag)
 
@@ -3425,7 +3454,7 @@ function of type :c:type:`IDALsPrecSetupFn`, defined as follows:
 Integration of pure quadrature equations
 ========================================
 
-IDA allows the DAE system to include *pure quadratures*. In this case, it is
+IDAS allows the DAE system to include *pure quadratures*. In this case, it is
 more efficient to treat the quadratures separately by excluding them from the
 nonlinear solution stage. To do this, begin by excluding the quadrature
 variables from the vectors ``yy`` and ``yp`` and the quadrature equations from
@@ -3518,13 +3547,13 @@ this function is as follows:
    The function :c:func:`IDAQuadInit` provides required problem specifications,  allocates internal memory, and initializes quadrature integration.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block returned by :c:func:`IDACreate`.
+     * ``ida_mem`` -- pointer to the IDAS memory block returned by :c:func:`IDACreate`.
      * ``rhsQ`` -- is the C function which computes :math:`f_Q` , the right-hand side of the quadrature equations. This function has the form ``f(Qt, yy, yp, rhsQ, user_data)`` for full details see :numref:`IDAS.Usage.Purequad.user_supplied`.
      * ``yQ0`` -- is the initial value of :math:`y_Q`.
 
    **Return value:**
      * ``IDA_SUCCESS`` -- The call to :c:func:`IDAQuadInit` was successful.
-     * ``IDA_MEM_NULL`` -- The IDA memory was not initialized by a prior call to :c:func:`IDACreate`.
+     * ``IDA_MEM_NULL`` -- The IDAS memory was not initialized by a prior call to :c:func:`IDACreate`.
      * ``IDA_MEM_FAIL`` -- A memory allocation request failed.
 
    **Notes:**
@@ -3552,12 +3581,12 @@ unchanged from the prior call to :c:func:`IDAQuadInit`. The call to the
    reinitializes the quadrature integration.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``yQ0`` -- is the initial value of :math:`y_Q`.
 
    **Return value:**
      * ``IDA_SUCCESS`` -- The call to :c:func:`IDAReInit` was successful.
-     * ``IDA_MEM_NULL`` -- The IDA memory was not initialized by a prior call to :c:func:`IDACreate`.
+     * ``IDA_MEM_NULL`` -- The IDAS memory was not initialized by a prior call to :c:func:`IDACreate`.
      * ``IDA_NO_QUAD`` -- Memory space for the quadrature integration was not allocated by a prior call to :c:func:`IDAQuadInit`.
 
    **Notes:**
@@ -3571,7 +3600,7 @@ unchanged from the prior call to :c:func:`IDAQuadInit`. The call to the
    integration.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
 
   **Return value:**
      * The function has no return value.
@@ -3606,7 +3635,7 @@ Quadrature extraction functions
 
 If quadrature integration has been initialized by a call to
 :c:func:`IDAQuadInit`, or reinitialized by a call to :c:func:`IDAQuadReInit`,
-then IDA computes both a solution and quadratures at time ``t``. However,
+then IDAS computes both a solution and quadratures at time ``t``. However,
 :c:func:`IDASolve` will still return only the solution :math:`y` in ``y``.
 Solution quadratures can be obtained using the following function:
 
@@ -3661,7 +3690,7 @@ by the user.
 Optional inputs for quadrature integration
 ----------------------------------------------------
 
-IDA provides the following optional input functions to control the integration
+IDAS provides the following optional input functions to control the integration
 of quadrature equations.
 
 .. c:function:: int IDASetQuadErrCon(void * ida_mem, booleantype errconQ)
@@ -3673,7 +3702,7 @@ of quadrature equations.
    the  integration tolerances for the quadrature variables.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``errconQ`` -- specifies whether quadrature variables are included ``SUNTRUE`` or not ``SUNFALSE`` in the error control mechanism.
 
    **Return value:**
@@ -3696,7 +3725,7 @@ quadrature variables.
    The function :c:func:`IDAQuadSStolerances` specifies scalar relative and absolute  tolerances.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``reltolQ`` --  tolerances is the scalar relative error tolerance.
      * ``abstolQ`` -- is the scalar absolute error tolerance.
 
@@ -3712,7 +3741,7 @@ quadrature variables.
    The function :c:func:`IDAQuadSVtolerances` specifies scalar relative and  vector absolute tolerances.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``reltolQ`` --  tolerances is the scalar relative error tolerance.
      * ``abstolQ`` -- is the vector absolute error tolerance.
 
@@ -3728,7 +3757,7 @@ quadrature variables.
 Optional outputs for quadrature integration
 ----------------------------------------------------
 
-IDA provides the following functions that can be used to obtain solver
+IDAS provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
 
 .. c:function:: int IDAGetQuadNumRhsEvals(void * ida_mem, long int* nrhsQevals)
@@ -3736,7 +3765,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadNumRhsEvals` returns the  number of calls made to the user's quadrature right-hand side function.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``nrhsQevals`` -- number of calls made to the user's ``rhsQ`` function.
 
    **Return value:**
@@ -3750,7 +3779,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadNumErrTestFails` returns the  number of local error test failures due to quadrature variables.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``nQetfails`` -- number of error test failures due to quadrature variables.
 
    **Return value:**
@@ -3764,7 +3793,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadErrWeights` returns the quadrature error weights  at the current time.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``eQweight`` -- quadrature error weights at the current time.
 
    **Return value:**
@@ -3785,7 +3814,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadStats` returns the IDAS integrator statistics as a group.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``nrhsQevals`` -- number of calls to the user's ``rhsQ`` function.
      * ``nQetfails`` -- number of error test failures due to quadrature variables.
 

@@ -1643,6 +1643,72 @@ int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails)
 }
 
 
+/*-----------------------------------------------------------------
+  arkPrintAllStats
+
+  Prints the current value of all statistics
+  ---------------------------------------------------------------*/
+
+int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
+{
+  ARKodeMem ark_mem;
+  ARKodeRootMem ark_root_mem;
+
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPrintAllStats", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    fprintf(outfile, "Current time                 = %"RSYM"\n", ark_mem->tcur);
+    fprintf(outfile, "Steps                        = %ld\n", ark_mem->nst);
+    fprintf(outfile, "Step attempts                = %ld\n", ark_mem->nst_attempts);
+    fprintf(outfile, "Stability limited steps      = %ld\n", ark_mem->hadapt_mem->nst_exp);
+    fprintf(outfile, "Accuracy limited steps       = %ld\n", ark_mem->hadapt_mem->nst_acc);
+    fprintf(outfile, "Error test fails             = %ld\n", ark_mem->netf);
+    fprintf(outfile, "NLS step fails               = %ld\n", ark_mem->ncfn);
+    fprintf(outfile, "Inequality constraint fails  = %ld\n", ark_mem->nconstrfails);
+    fprintf(outfile, "Initial step size            = %"RSYM"\n", ark_mem->h0u);
+    fprintf(outfile, "Last step size               = %"RSYM"\n", ark_mem->hold);
+    fprintf(outfile, "Current step size            = %"RSYM"\n", ark_mem->next_h);
+    if (ark_mem->root_mem)
+    {
+      ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
+      fprintf(outfile, "Root fn evals                = %ld\n", ark_root_mem->nge);
+    }
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    fprintf(outfile, "Time,%"RSYM, ark_mem->tcur);
+    fprintf(outfile, ",Steps,%ld", ark_mem->nst);
+    fprintf(outfile, ",Step attempts,%ld", ark_mem->nst_attempts);
+    fprintf(outfile, ",Stability limited steps,%ld", ark_mem->hadapt_mem->nst_exp);
+    fprintf(outfile, ",Accuracy limited steps,%ld", ark_mem->hadapt_mem->nst_acc);
+    fprintf(outfile, ",Error test fails,%ld", ark_mem->netf);
+    fprintf(outfile, ",NLS step fails,%ld", ark_mem->ncfn);
+    fprintf(outfile, ",Inequality constraint fails,%ld", ark_mem->nconstrfails);
+    fprintf(outfile, ",Initial step size,%"RSYM, ark_mem->h0u);
+    fprintf(outfile, ",Last step size,%"RSYM, ark_mem->hold);
+    fprintf(outfile, ",Current step size,%"RSYM, ark_mem->next_h);
+    if (ark_mem->root_mem)
+    {
+      ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
+      fprintf(outfile, ",Roof fn evals,%ld", ark_root_mem->nge);
+    }
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkPrintAllStats",
+                    "Invalid formatting option.");
+    return(ARK_ILL_INPUT);
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
 /*-----------------------------------------------------------------*/
 
 char *arkGetReturnFlagName(long int flag)

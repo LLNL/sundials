@@ -91,13 +91,17 @@ $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls_1.out
 $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls_2.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns_bkw1_stats.csv
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns_fwd_stats.csv
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_sps.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_sps.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.out
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns_stats.csv
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.c
+$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns_stats_-sensi_stg_t.csv
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns_-sensi_stg_t.out
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_klu.c
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_klu_-sensi_stg_t.out

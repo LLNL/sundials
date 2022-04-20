@@ -118,10 +118,14 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsPendulum_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsPendulum_dns.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_bkw1_stats.csv
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_bkw2_stats.csv
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_fwd_stats.csv
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_stats.csv
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_constraints.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dnsL.c
@@ -133,6 +137,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_sps.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_uw.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_uw.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_sim_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_stg1_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_Switch.out
@@ -147,6 +153,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_klu.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_klu.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_sps.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_sps.out
+$tar $tarfile $distrobase/examples/cvodes/serial/plot_cvsParticle.py
+$tar $tarfile $distrobase/examples/cvodes/serial/plot_cvsPendulum.py
 
 $tar $tarfile $distrobase/examples/cvodes/C_openmp/README
 $tar $tarfile $distrobase/examples/cvodes/C_openmp/CMakeLists.txt

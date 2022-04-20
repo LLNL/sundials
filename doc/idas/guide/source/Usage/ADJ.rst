@@ -1313,7 +1313,7 @@ of these ``IDAGet*`` and ``IDA*Get*`` functions is the pointer to the IDAS
 memory block for the backward problem. In order to call any of these functions,
 the user must first call the following function to obtain this pointer:
 
-.. c:function:: int IDAGetAdjIDABmem(void * ida_mem, int which)
+.. c:function:: void* IDAGetAdjIDABmem(void * ida_mem, int which)
 
    The function :c:func:`IDAGetAdjIDABmem` returns a pointer to the IDAS  memory
    block for the backward problem.

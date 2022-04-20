@@ -106,6 +106,7 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvPendulum_dns.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvPendulum_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_stats.csv
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_constraints.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dnsL.c

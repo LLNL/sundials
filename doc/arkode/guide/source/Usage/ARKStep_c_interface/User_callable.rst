@@ -3143,6 +3143,7 @@ Suggested factor for tolerance scaling                 :c:func:`ARKStepGetTolSca
 Error weight vector for state variables                :c:func:`ARKStepGetErrWeights()`
 Residual weight vector                                 :c:func:`ARKStepGetResWeights()`
 Single accessor to many statistics at once             :c:func:`ARKStepGetStepStats()`
+Print all statistics                                   :c:func:`ARKStepPrintAllStats`
 Name of constant associated with a return flag         :c:func:`ARKStepGetReturnFlagName()`
 No. of explicit stability-limited steps                :c:func:`ARKStepGetNumExpSteps()`
 No. of accuracy-limited steps                          :c:func:`ARKStepGetNumAccSteps()`
@@ -3356,6 +3357,33 @@ Number of constraint test failures                     :c:func:`ARKStepGetNumCon
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+
+.. c:function:: int ARKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   Outputs all of the integrator, nonlinear solver, linear solver, and other
+   statistics.
+
+   **Arguments:**
+     * *arkode_mem* -- pointer to the ARKStep memory block.
+     * *outfile* -- pointer to output file.
+     * *fmt* -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * *ARK_SUCCESS* -- if the output was successfully.
+     * *CV_MEM_NULL* -- if the ARKStep memory was ``NULL``.
+     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 5.2.0
 
 
 .. c:function:: char *ARKStepGetReturnFlagName(long int flag)

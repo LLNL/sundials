@@ -1194,7 +1194,7 @@ and for the linear solver modules. The first argument of these ``CVodeGet*`` and
 backward problem. In order to call any of these functions, the user must first
 call the following function to obtain this pointer.
 
-.. c:function:: int CVodeGetAdjCVodeBmem(void * cvode_mem, int which)
+.. c:function:: void* CVodeGetAdjCVodeBmem(void * cvode_mem, int which)
 
    The function :c:func:`CVodeGetAdjCVodeBmem` returns a pointer to the CVODES  memory block for the backward problem.
 

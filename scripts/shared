@@ -111,7 +111,7 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsSuperLUDIST.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsTrilinos.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake
 
-echo "   --- Add shared module to $tarfile"
+echo "   --- Add include files to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_config.in
@@ -195,6 +195,12 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superludist.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_newton.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_petscsnes.h
+
+echo "   --- Add scripts to $tarfile"
+
+$tar $tarfile $distrobase/scripts/sundials_csv.py
+
+echo "   --- Add shared source files to $tarfile"
 
 $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt

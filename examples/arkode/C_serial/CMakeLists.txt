@@ -84,6 +84,10 @@ set(ARKODE_extras
   plot_heat1D_adapt.py
   plot_sol.py
   plot_sol_log.py
+  ark_analytic_nonlin_stats.csv
+  ark_reaction_diffusion_mri_fast_stats.csv
+  ark_reaction_diffusion_mri_slow_stats.csv
+  ark_robertson_stats.csv
   )
 
 # Specify libraries to link against

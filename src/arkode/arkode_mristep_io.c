@@ -937,6 +937,129 @@ int MRIStepGetCurrentCoupling(void *arkode_mem, MRIStepCoupling *MRIC)
 }
 
 
+/*---------------------------------------------------------------
+  MRIStepPrintAllStats:
+
+  Prints integrator statistics
+  ---------------------------------------------------------------*/
+int MRIStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  ARKLsMem arkls_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepPrintAllStats",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* step and rootfinding stats */
+  retval = arkPrintAllStats(arkode_mem, outfile, fmt);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* function evaluations */
+    fprintf(outfile, "Explicit slow RHS fn evals   = %ld\n", step_mem->nfse);
+    fprintf(outfile, "Implicit slow RHS fn evals   = %ld\n", step_mem->nfsi);
+
+
+    /* nonlinear solver stats */
+    fprintf(outfile, "NLS iters                    = %ld\n", step_mem->nls_iters);
+    fprintf(outfile, "NLS fails                    = %ld\n", step_mem->nls_fails);
+    if (ark_mem->nst > 0)
+    {
+      fprintf(outfile, "NLS iters per step           = %"RSYM"\n",
+              (realtype) step_mem->nls_iters / (realtype) ark_mem->nst);
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, "LS setups                    = %ld\n", step_mem->nsetups);
+    if (ark_mem->step_getlinmem(arkode_mem))
+    {
+      arkls_mem = (ARKLsMem) (ark_mem->step_getlinmem(arkode_mem));
+      fprintf(outfile, "Jac fn evals                 = %ld\n", arkls_mem->nje);
+      fprintf(outfile, "LS RHS fn evals              = %ld\n", arkls_mem->nfeDQ);
+      fprintf(outfile, "Prec setup evals             = %ld\n", arkls_mem->npe);
+      fprintf(outfile, "Prec solves                  = %ld\n", arkls_mem->nps);
+      fprintf(outfile, "LS iters                     = %ld\n", arkls_mem->nli);
+      fprintf(outfile, "LS fails                     = %ld\n", arkls_mem->ncfl);
+      fprintf(outfile, "Jac-times setups             = %ld\n", arkls_mem->njtsetup);
+      fprintf(outfile, "Jac-times evals              = %ld\n", arkls_mem->njtimes);
+      if (step_mem->nls_iters > 0)
+      {
+        fprintf(outfile, "LS iters per NLS iter        = %"RSYM"\n",
+                (realtype) arkls_mem->nli / (realtype) step_mem->nls_iters);
+        fprintf(outfile, "Jac evals per NLS iter       = %"RSYM"\n",
+                (realtype) arkls_mem->nje / (realtype) step_mem->nls_iters);
+        fprintf(outfile, "Prec evals per NLS iter      = %"RSYM"\n",
+                (realtype) arkls_mem->npe / (realtype) step_mem->nls_iters);
+      }
+    }
+    break;
+
+  case SUN_OUTPUTFORMAT_CSV:
+    /* function evaluations */
+    fprintf(outfile, ",Explicit slow RHS fn evals,%ld", step_mem->nfse);
+    fprintf(outfile, ",Implicit slow RHS fn evals,%ld", step_mem->nfsi);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, ",NLS iters,%ld", step_mem->nls_iters);
+    fprintf(outfile, ",NLS fails,%ld", step_mem->nls_fails);
+    if (ark_mem->nst > 0)
+    {
+      fprintf(outfile, ",NLS iters per step,%"RSYM,
+              (realtype) step_mem->nls_iters / (realtype) ark_mem->nst);
+    }
+    else
+    {
+      fprintf(outfile, ",NLS iters per step,0");
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, ",LS setups,%ld", step_mem->nsetups);
+    if (ark_mem->step_getlinmem(arkode_mem))
+    {
+      arkls_mem = (ARKLsMem) (ark_mem->step_getlinmem(arkode_mem));
+      fprintf(outfile, ",Jac fn evals,%ld", arkls_mem->nje);
+      fprintf(outfile, ",LS RHS fn evals,%ld", arkls_mem->nfeDQ);
+      fprintf(outfile, ",Prec setup evals,%ld", arkls_mem->npe);
+      fprintf(outfile, ",Prec solves,%ld", arkls_mem->nps);
+      fprintf(outfile, ",LS iters,%ld", arkls_mem->nli);
+      fprintf(outfile, ",LS fails,%ld", arkls_mem->ncfl);
+      fprintf(outfile, ",Jac-times setups,%ld", arkls_mem->njtsetup);
+      fprintf(outfile, ",Jac-times evals,%ld", arkls_mem->njtimes);
+      if (step_mem->nls_iters > 0)
+      {
+        fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
+                (realtype) arkls_mem->nli / (realtype) step_mem->nls_iters);
+        fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
+                (realtype) arkls_mem->nje / (realtype) step_mem->nls_iters);
+        fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
+                (realtype) arkls_mem->npe / (realtype) step_mem->nls_iters);
+      }
+      else
+      {
+        fprintf(outfile, ",LS iters per NLS iter,0");
+        fprintf(outfile, ",Jac evals per NLS iter,0");
+        fprintf(outfile, ",Prec evals per NLS iter,0");
+      }
+    }
+    fprintf(outfile, "\n");
+    break;
+
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "MRIStepPrintAllStats",
+                    "Invalid formatting option.");
+    return(ARK_ILL_INPUT);
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
 /*===============================================================
   MRIStep parameter output
   ===============================================================*/

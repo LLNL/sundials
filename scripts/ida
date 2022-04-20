@@ -90,6 +90,7 @@ $tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls_1.out
 $tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls_2.out
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns_stats.csv
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.out
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.c

@@ -51,15 +51,15 @@
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <cvodes/cvodes.h>             /* prototypes for CVODE fcts., consts.  */
+#include <cvodes/cvodes.h>             /* prototypes for CVODES fcts., consts. */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* definition of ABS */
+
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 
@@ -78,6 +78,16 @@
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component i=1..NEQ */
 #define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
+
+/* Precision specific math function macros */
+
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define ABS(x)   (fabs((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define ABS(x)   (fabsf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define ABS(x)   (fabsl((x)))
+#endif
 
 /* Problem Constants */
 
@@ -123,10 +133,6 @@ static int ewt(N_Vector y, N_Vector w, void *user_data);
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 
-/* Private function to print final statistics */
-
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
-
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
@@ -134,6 +140,8 @@ static void ProcessArgs(int argc, char *argv[],
                         booleantype *err_con);
 
 static void WrongArgs(char *name);
+
+/* Private function to check function return values */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
@@ -154,6 +162,8 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   int retval, iout;
   UserData data;
+  FILE* FID;
+  char fname[256];
 
   realtype pbar[NS];
   int is;
@@ -213,11 +223,11 @@ int main(int argc, char *argv[])
   retval = CVodeSetUserData(cvode_mem, data);
   if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
-  /* Create dense SUNMatrix */
+  /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create dense SUNLinearSolver */
+  /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
@@ -313,8 +323,30 @@ int main(int argc, char *argv[])
 
   }
 
-  /* Print some final statistics */
-  PrintFinalStats(cvode_mem, sensi);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  strcpy(fname, "cvsRoberts_FSA_dns_stats");
+  if (sensi)
+  {
+    if(sensi_meth == CV_SIMULTANEOUS)
+      strcat(fname, "_-sensi_sim");
+    else
+      if(sensi_meth == CV_STAGGERED)
+        strcat(fname, "_-sensi_stg");
+      else
+        strcat(fname, "_-sensi_stg1");
+    if(err_con)
+      strcat(fname, "_t");
+    else
+      strcat(fname, "_f");
+  }
+  strcat(fname, ".csv");
+  FID = fopen(fname, "w");
+  retval = CVodePrintAllStats(cvode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Free memory */
   N_VDestroy(y);                            /* Free y vector */
@@ -440,7 +472,7 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
 
   for (i=1; i<=3; i++) {
     yy = Ith(y,i);
-    ww = rtol * SUNRabs(yy) + atol[i-1];
+    ww = rtol * ABS(yy) + atol[i-1];
     if (ww <= 0.0) return (-1);
     Ith(w,i) = 1.0/ww;
   }
@@ -586,67 +618,6 @@ static void PrintOutputS(N_Vector *uS)
 #else
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
 #endif
-}
-
-/*
- * Get and print some final statistics
- */
-
-static void PrintFinalStats(void *cvode_mem, booleantype sensi)
-{
-  long int nst, nfe, nsetups, nje, nni, nnf, ncfn, netf, nfeLS;
-  long int nfSe, nfeS, nsetupsS, nniS, nnfS, ncfnS, netfS;
-  int retval;
-
-  retval = CVodeGetNumSteps(cvode_mem, &nst);
-  check_retval(&retval, "CVodeGetNumSteps", 1);
-  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
-  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
-  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
-  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
-  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &nnf);
-  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
-  retval = CVodeGetNumStepSolveFails(cvode_mem, &ncfn);
-  check_retval(&retval, "CVodeGetNumStepSolveFails", 1);
-
-  if (sensi) {
-    retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
-    check_retval(&retval, "CVodeGetSensNumRhsEvals", 1);
-    retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_retval(&retval, "CVodeGetNumRhsEvalsSens", 1);
-    retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1);
-    retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_retval(&retval, "CVodeGetSensNumErrTestFails", 1);
-    retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1);
-    retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &nnfS);
-    check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1);
-    retval = CVodeGetNumStepSensSolveFails(cvode_mem, &ncfnS);
-    check_retval(&retval, "CVodeGetNumStepSensSolveFails", 1);
-  }
-
-  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
-  check_retval(&retval, "CVodeGetNumJacEvals", 1);
-  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
-
-  printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
-         nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld nnf = %-6ld netf = %-6ld    ncfn = %-6ld\n\n",
-         nni, nnf, netf, ncfn);
-
-  if(sensi) {
-    printf("nfSe = %-6ld nfeS = %-6ld nsetupsS = %-6ld\n",
-           nfSe, nfeS, nsetupsS);
-    printf("nniS = %-6ld nnfS = %-6ld netfS = %-6ld ncfnS = %-6ld\n\n",
-           nniS, nnfS, netfS, ncfnS);
-  }
 }
 
 /*

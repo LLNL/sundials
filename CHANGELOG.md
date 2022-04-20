@@ -5,6 +5,12 @@
 Added the function `SUNProfiler_Reset` to reset the region timings and counters
 to zero.
 
+Added the functions `ARKStepPrintAllStats`, `ERKStepPrintAllStats`,
+`MRIStepPrintAll`, `CVodePrintAllStats`, `IDAPrintAllStats`, and
+`KINPrintAllStats` to output all of the integrator, nonlinear solver, linear
+solver, and other statistics in one call. The file `scripts/sundials_csv.py`
+contains functions for parsing the comma-separated value output files.
+
 Added the function `MRIStepSetOrder` to select the default MRI method of a given
 order.
 

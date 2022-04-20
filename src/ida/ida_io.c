@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include "ida_impl.h"
+#include "ida_ls_impl.h"
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 
@@ -1049,7 +1050,8 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 
   nrt = IDA_mem->ida_nrtfn;
 
-  for (i=0; i<nrt; i++) rootsfound[i] = IDA_mem->ida_iroots[i];
+  for (i=0; i<nrt; i++)
+    rootsfound[i] = IDA_mem->ida_iroots[i];
 
   return(IDA_SUCCESS);
 }
@@ -1126,6 +1128,153 @@ int IDAGetNumStepSolveFails(void *ida_mem, long int *nncfails)
   IDA_mem = (IDAMem) ida_mem;
 
   *nncfails = IDA_mem->ida_ncfn;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAPrintAllStats(void *ida_mem, FILE *outfile, SUNOutputFormat fmt)
+{
+  IDAMem IDA_mem;
+  IDALsMem idals_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAPrintAllStats",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* step and method stats */
+    fprintf(outfile, "Current time                 = %"RSYM"\n", IDA_mem->ida_tn);
+    fprintf(outfile, "Steps                        = %ld\n", IDA_mem->ida_nst);
+    fprintf(outfile, "Error test fails             = %ld\n", IDA_mem->ida_netf);
+    fprintf(outfile, "NLS step fails               = %ld\n", IDA_mem->ida_ncfn);
+    fprintf(outfile, "Initial step size            = %"RSYM"\n", IDA_mem->ida_h0u);
+    fprintf(outfile, "Last step size               = %"RSYM"\n", IDA_mem->ida_hused);
+    fprintf(outfile, "Current step size            = %"RSYM"\n", IDA_mem->ida_hh);
+    fprintf(outfile, "Last method order            = %d\n", IDA_mem->ida_kused);
+    fprintf(outfile, "Current method order         = %d\n", IDA_mem->ida_kk);
+
+    /* function evaluations */
+    fprintf(outfile, "Residual fn evals            = %ld\n", IDA_mem->ida_nre);
+
+    /* IC calculation stats */
+    fprintf(outfile, "IC linesearch backtrack ops  = %d\n", IDA_mem->ida_nbacktr);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, "NLS iters                    = %ld\n", IDA_mem->ida_nni);
+    fprintf(outfile, "NLS fails                    = %ld\n", IDA_mem->ida_nnf);
+    if (IDA_mem->ida_nst > 0)
+    {
+      fprintf(outfile, "NLS iters per step           = %"RSYM"\n",
+              (realtype) IDA_mem->ida_nre / (realtype) IDA_mem->ida_nst);
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, "LS setups                    = %ld\n", IDA_mem->ida_nsetups);
+    if (IDA_mem->ida_lmem)
+    {
+      idals_mem = (IDALsMem) (IDA_mem->ida_lmem);
+      fprintf(outfile, "Jac fn evals                 = %ld\n", idals_mem->nje);
+      fprintf(outfile, "LS residual fn evals         = %ld\n", idals_mem->nreDQ);
+      fprintf(outfile, "Prec setup evals             = %ld\n", idals_mem->npe);
+      fprintf(outfile, "Prec solves                  = %ld\n", idals_mem->nps);
+      fprintf(outfile, "LS iters                     = %ld\n", idals_mem->nli);
+      fprintf(outfile, "LS fails                     = %ld\n", idals_mem->ncfl);
+      fprintf(outfile, "Jac-times setups             = %ld\n", idals_mem->njtsetup);
+      fprintf(outfile, "Jac-times evals              = %ld\n", idals_mem->njtimes);
+      if (IDA_mem->ida_nni > 0)
+      {
+        fprintf(outfile, "LS iters per NLS iter        = %"RSYM"\n",
+                (realtype) idals_mem->nli / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, "Jac evals per NLS iter       = %"RSYM"\n",
+                (realtype) idals_mem->nje / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, "Prec evals per NLS iter      = %"RSYM"\n",
+                (realtype) idals_mem->npe / (realtype) IDA_mem->ida_nni);
+      }
+    }
+
+    /* rootfinding stats */
+    fprintf(outfile, "Root fn evals                = %ld\n", IDA_mem->ida_nge);
+    break;
+
+  case SUN_OUTPUTFORMAT_CSV:
+    /* step and method stats */
+    fprintf(outfile, "Time,%"RSYM, IDA_mem->ida_tn);
+    fprintf(outfile, ",Steps,%ld", IDA_mem->ida_nst);
+    fprintf(outfile, ",Error test fails,%ld", IDA_mem->ida_netf);
+    fprintf(outfile, ",NLS step fails,%ld", IDA_mem->ida_ncfn);
+    fprintf(outfile, ",Initial step size,%"RSYM, IDA_mem->ida_h0u);
+    fprintf(outfile, ",Last step size,%"RSYM, IDA_mem->ida_hused);
+    fprintf(outfile, ",Current step size,%"RSYM, IDA_mem->ida_hh);
+    fprintf(outfile, ",Last method order,%d", IDA_mem->ida_kused);
+    fprintf(outfile, ",Current method order,%d", IDA_mem->ida_kk);
+
+    /* function evaluations */
+    fprintf(outfile, ",Residual fn evals,%ld", IDA_mem->ida_nre);
+
+    /* IC calculation stats */
+    fprintf(outfile, ",IC linesearch backtrack ops,%d", IDA_mem->ida_nbacktr);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, ",NLS iters,%ld", IDA_mem->ida_nni);
+    fprintf(outfile, ",NLS fails,%ld", IDA_mem->ida_nnf);
+    if (IDA_mem->ida_nst > 0)
+    {
+      fprintf(outfile, ",NLS iters per step,%"RSYM,
+              (realtype) IDA_mem->ida_nre / (realtype) IDA_mem->ida_nst);
+    }
+    else
+    {
+      fprintf(outfile, ",NLS iters per step,0");
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, ",LS setups,%ld", IDA_mem->ida_nsetups);
+    if (IDA_mem->ida_lmem)
+    {
+      idals_mem = (IDALsMem) (IDA_mem->ida_lmem);
+      fprintf(outfile, ",Jac fn evals,%ld", idals_mem->nje);
+      fprintf(outfile, ",LS residual evals,%ld", idals_mem->nreDQ);
+      fprintf(outfile, ",Prec setup evals,%ld", idals_mem->npe);
+      fprintf(outfile, ",Prec solves,%ld", idals_mem->nps);
+      fprintf(outfile, ",LS iters,%ld", idals_mem->nli);
+      fprintf(outfile, ",LS fails,%ld", idals_mem->ncfl);
+      fprintf(outfile, ",Jac-times setups,%ld", idals_mem->njtsetup);
+      fprintf(outfile, ",Jac-times evals,%ld", idals_mem->njtimes);
+      if (IDA_mem->ida_nni > 0)
+      {
+        fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
+                (realtype) idals_mem->nli / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
+                (realtype) idals_mem->nje / (realtype) IDA_mem->ida_nni);
+        fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
+                (realtype) idals_mem->npe / (realtype) IDA_mem->ida_nni);
+      }
+      else
+      {
+        fprintf(outfile, ",LS iters per NLS iter,0");
+        fprintf(outfile, ",Jac evals per NLS iter,0");
+        fprintf(outfile, ",Prec evals per NLS iter,0");
+      }
+    }
+
+    /* rootfinding stats */
+    fprintf(outfile, ",Root fn evals,%ld", IDA_mem->ida_nge);
+    fprintf(outfile, "\n");
+    break;
+
+  default:
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAPrintAllStats",
+                    "Invalid formatting option.");
+    return(IDA_ILL_INPUT);
+  }
 
   return(IDA_SUCCESS);
 }

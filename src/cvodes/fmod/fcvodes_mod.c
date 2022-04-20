@@ -1272,6 +1272,22 @@ SWIGEXPORT int _wrap_FCVodeGetNumStepSolveFails(void *farg1, long *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodePrintAllStats(void *farg1, void *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  SUNOutputFormat arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  arg3 = (SUNOutputFormat)(*farg3);
+  result = (int)CVodePrintAllStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;

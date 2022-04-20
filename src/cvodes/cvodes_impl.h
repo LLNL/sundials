@@ -22,9 +22,18 @@
 #include "cvodes/cvodes.h"
 #include "cvodes_proj_impl.h"
 #include "sundials_context_impl.h"
+#include "sundials/sundials_math.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
+#endif
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "19.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
 #endif
 
 /*

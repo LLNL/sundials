@@ -226,6 +226,8 @@ SUNDIALS_EXPORT int ERKStepGetRootInfo(void *arkode_mem,
                                        int *rootsfound);
 SUNDIALS_EXPORT int ERKStepGetNumConstrFails(void *arkode_mem,
                                              long int *nconstrfails);
+SUNDIALS_EXPORT int ERKStepPrintAllStats(void *arkode_mem, FILE *outfile,
+                                         SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *ERKStepGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT int ERKStepWriteParameters(void *arkode_mem, FILE *fp);

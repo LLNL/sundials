@@ -140,7 +140,6 @@ SUNDIALS_EXPORT int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
 SUNDIALS_EXPORT int KINSetConstraints(void *kinmem, N_Vector constraints);
 SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
 
-
 /* Optional output functions */
 SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, long int *lenrw,
                                     long int *leniw);
@@ -150,6 +149,8 @@ SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails);
 SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 SUNDIALS_EXPORT int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 SUNDIALS_EXPORT int KINGetStepLength(void *kinmem, realtype *steplength);
+SUNDIALS_EXPORT int KINPrintAllStats(void *kinmem, FILE *outfile,
+                                     SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);
 
 /* Free function */
