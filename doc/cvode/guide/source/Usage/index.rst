@@ -836,6 +836,15 @@ and, if successful, takes effect immediately.
    | **CVLS linear solver          |                                             |                |
    | interface**                   |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
+   | Max allowed :math:`\gamma`    | :c:func:`CVodeSetDeltaGammaMaxLSetup`       | 0.3            |
+   | change without a linear       |                                             |                |
+   | solver setup                  |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Max allowed :math:`\gamma`    | :c:func:`CVodeSetDeltaGammaMaxBadJac`       | 0.2            |
+   | change to update the Jacobian |                                             |                |
+   | / preconditioner after a      |                                             |                |
+   | NLS failure                   |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
    | Linear solver setup frequency | :c:func:`CVodeSetLSetupFrequency`           | 20             |
    +-------------------------------+---------------------------------------------+----------------+
    | Jacobian / preconditioner     | :c:func:`CVodeSetJacEvalFrequency`          | 51             |
@@ -1257,7 +1266,7 @@ Jacobian information, depends on several factors including:
 The frequency with which to update Jacobian information can be controlled with
 the ``msbj`` argument to :c:func:`CVodeSetJacEvalFrequency`. We note that this
 is only checked *within* calls to the linear solver setup routine, so values
-:math:`<` do not make sense. For linear-solvers with user-supplied
+:math:`<` ``msbp`` do not make sense. For linear-solvers with user-supplied
 preconditioning the above factors are used to determine whether to recommend
 updating the Jacobian information in the preconditioner (i.e., whether to set
 ``jok`` to ``SUNFALSE`` in calling the :ref:`user-supplied preconditioner setup
@@ -1269,6 +1278,48 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
 <CVODE.Usage.CC.user_fct_sim.jacFn>`; if not then the previous value is reused and the system matrix
 :math:`M(t,y) \approx I - \gamma J(t,y)` is recomputed using the current
 :math:`\gamma` value.
+
+.. c:function:: int CVodeSetDeltaGammaMaxLSetup(void* cvode_mem, realtype dgmax_lsetup)
+
+   The function ``CVodeSetDeltaGammaMaxLSetup`` specifies the maximum allowed
+   :math:`\gamma` change that does not require a linear solver setup call. If
+   ``|gamma_current / gamma_previous - 1| > dgmax_lsetup``, the linear solver
+   setup function is called.
+
+   Positive values of ``dgmax_lsetup`` specify the threshold, all other values
+   will result in using the default value (0.3).
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODE memory block.
+     * ``dgmax_lsetup`` -- the :math:`\gamma` change threshold.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetDeltaGammaMaxBadJac(void* cvode_mem, realtype dgmax_jbad)
+
+   The function ``CVodeSetDeltaGammaMaxBadJac`` specifies the maximum allowed
+   :math:`\gamma` change after a NLS failure that requires updating the Jacobian
+   / preconditioner. If ``gamma_current < dgmax_jbad``, the Jacobian evaluation
+   and/or preconditioner setup functions will be called.
+
+   Positive values of ``dgmax_jbad`` specify the threshold, all other values
+   will result in using the default value (0.2).
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODE memory block.
+     * ``dgmax_jbad`` -- the :math:`\gamma` change threshold.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
 
 .. c:function:: int CVodeSetLSetupFrequency(void* cvode_mem, long int msbp)
 

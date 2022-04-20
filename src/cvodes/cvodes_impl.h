@@ -55,7 +55,8 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
-#define MSBP 20  /* max no. of steps between lsetup calls */
+#define MSBP_DEFAULT         20          /* max steps between lsetup calls */
+#define DGMAX_LSETUP_DEFAULT RCONST(0.3) /* gamma threshold to call lsetup */
 
 
 /* Control constants for lower-level functions used by cvStep
@@ -495,12 +496,11 @@ typedef struct CVodeMemRec {
 
   /* Linear Solver specific memory */
 
-  void     *cv_lmem;  /* linear solver interface memory structure */
-  long int  cv_msbp;  /* max number of steps between lsetip calls */
-
-  /* Flag to request a call to the setup routine */
-
-  booleantype cv_forceSetup;
+  void     *cv_lmem;         /* linear solver interface memory structure */
+  long int  cv_msbp;         /* max number of steps between lsetip calls */
+  realtype  cv_dgmax_lsetup; /* gamma ratio threshold to signal for a linear
+                              * solver setup */
+  booleantype cv_forceSetup; /* flag to request a call to the setup routine */
 
   /*------------
     Saved Values

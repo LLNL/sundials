@@ -50,6 +50,8 @@ extern "C" {
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
+#define DCJ_DEFAULT RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
+
 /* Return values for lower level routines used by IDASolve and functions
    provided to the nonlinear solver */
 
@@ -267,7 +269,9 @@ typedef struct IDAMemRec {
 
   /* Linear Solver specific memory */
 
-  void *ida_lmem;
+  void *ida_lmem;   /* linear solver interface structure */
+  realtype ida_dcj; /* parameter that determines cj ratio thresholds for calling
+                     * the linear solver setup function */
 
   /* Flag to indicate successful ida_linit call */
 

@@ -35,6 +35,26 @@
  * =================================================================
  */
 
+int IDASetDeltaCjLSetup(void *ida_mem, realtype dcj)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetDeltaCjLSetup",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (dcj < ZERO || dcj >= ONE)
+    IDA_mem->ida_dcj = DCJ_DEFAULT;
+  else
+    IDA_mem->ida_dcj = dcj;
+
+  return(IDA_SUCCESS);
+}
+
 int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data)
 {
   IDAMem IDA_mem;

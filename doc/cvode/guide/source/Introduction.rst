@@ -122,6 +122,11 @@ nonlinear solver, linear solver, and other statistics in one call. The file
 ``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
 value output files.
 
+Added the functions :c:func:`CVodeSetDeltaGammaMaxLSetup` and
+:c:func:`CVodeSetDeltaGammaMaxBadJac` to adjust the :math:`\gamma` change
+thresholds to require a linear solver setup or Jacobian/precondition update,
+respectively.
+
 The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
 cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.

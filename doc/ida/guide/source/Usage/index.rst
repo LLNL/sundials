@@ -1231,6 +1231,9 @@ Linear solver interface optional input functions
    +-------------------------------------------------+---------------------------------------+---------------+
    | Jacobian function                               | :c:func:`IDASetJacFn`                 | DQ            |
    +-------------------------------------------------+---------------------------------------+---------------+
+   | Set parameter determining if a :math:`c_j`      | :c:func:`IDASetDeltaCjLSetup`         | 0.25          |
+   | change requires a linear solver setup call      |                                       |               |
+   +-------------------------------------------------+---------------------------------------+---------------+
    | Enable or disable linear solution scaling       | :c:func:`IDASetLinearSolutionScaling` | on            |
    +-------------------------------------------------+---------------------------------------+---------------+
    | Jacobian-times-vector function                  | :c:func:`IDASetJacTimes`              | NULL, DQ      |
@@ -1309,6 +1312,27 @@ for the lagged value of :math:`\alpha`. See :numref:`SUNLinSol.IDA.Lagged` for
 more details. The function :c:func:`IDASetLinearSolutionScaling` can be used to
 disable this scaling when necessary, e.g., when providing a custom linear solver
 that updates the matrix using the current :math:`\alpha` as part of the solve.
+
+.. c:function:: int IDASetDeltaCjLSetup(void* ida_mem, realtype dcj)
+
+   The function ``IDASetDeltaCjLSetup`` specifies the parameter that determines
+   the bounds on a change in :math:`c_j` that require a linear solver setup
+   call. If ``cj_current / cj_previous < (1 - dcj) / (1 + dcj)`` or
+   ``cj_current / cj_previous > (1 + dcj) / (1 - dcj)``, the linear solver
+   setup function is called.
+
+   If ``dcj`` is :math:`< 0` or :math:`\geq 1` then the default value (0.25) is
+   used.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``dcj`` -- the :math:`c_j` change threshold.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The flag value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
 
 .. c:function:: int IDASetLinearSolutionScaling(void * ida_mem, booleantype onoff)
 

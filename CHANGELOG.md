@@ -11,6 +11,15 @@ Added the functions `ARKStepPrintAllStats`, `ERKStepPrintAllStats`,
 solver, and other statistics in one call. The file `scripts/sundials_csv.py`
 contains functions for parsing the comma-separated value output files.
 
+Added the functions `CVodeSetDeltaGammaMaxLSetup` and
+`CVodeSetDeltaGammaMaxBadJac` in CVODE and CVODES to adjust the `gamma` change
+thresholds to require a linear solver setup or Jacobian/precondition update,
+respectively.
+
+Added the function `IDASetDetlaCjLSetup` in IDA and IDAS to adjust the parameter
+that determines when a change in `c_j` requires calling the linear solver setup
+function.
+
 Added the function `MRIStepSetOrder` to select the default MRI method of a given
 order.
 

@@ -174,7 +174,6 @@
 #define MAXNI           10  /* max. Newton iterations in IC calc. */
 #define EPCON RCONST(0.33)  /* Newton convergence test constant */
 #define MAXBACKS       100  /* max backtracks per Newton step in IDACalcIC */
-#define XRATE RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
 
 /*=================================================================*/
 /* Shortcuts                                                       */
@@ -322,6 +321,7 @@ void *IDACreate(SUNContext sunctx)
   IDA_mem->ida_constraints    = NULL;
   IDA_mem->ida_constraintsSet = SUNFALSE;
   IDA_mem->ida_tstopset       = SUNFALSE;
+  IDA_mem->ida_dcj            = DCJ_DEFAULT;
 
   /* set the saved value maxord_alloc */
   IDA_mem->ida_maxord_alloc = MAXORD_DEFAULT;
@@ -2480,7 +2480,7 @@ static int IDANls(IDAMem IDA_mem)
 
   if (IDA_mem->ida_lsetup) {
     IDA_mem->ida_cjratio = IDA_mem->ida_cj / IDA_mem->ida_cjold;
-    temp1 = (ONE - XRATE) / (ONE + XRATE);
+    temp1 = (ONE - IDA_mem->ida_dcj) / (ONE + IDA_mem->ida_dcj);
     temp2 = ONE/temp1;
     if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callLSetup = SUNTRUE;
     if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss = HUNDRED;

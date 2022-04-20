@@ -201,6 +201,8 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
 /* Optional input functions */
 
 SUNDIALS_EXPORT int CVodeSetConstraints(void *cvode_mem, N_Vector constraints);
+SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem,
+                                                realtype dgmax_lsetup);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);
 SUNDIALS_EXPORT int CVodeSetInitStep(void *cvode_mem, realtype hin);

@@ -33,6 +33,34 @@
  * =================================================================
  */
 
+
+/*
+ * CVodeSetDeltaGammaMaxLSetup
+ *
+ * Specifies the gamma ratio threshold to signal for a linear solver setup
+ */
+
+int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem, realtype dgmax_lsetup)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetDeltaGammaMaxLSetup",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Set value or use default */
+  if(dgmax_lsetup <= ZERO)
+    cv_mem->cv_dgmax_lsetup = DGMAX_LSETUP_DEFAULT;
+  else
+    cv_mem->cv_dgmax_lsetup = dgmax_lsetup;
+
+  return(CV_SUCCESS);
+}
+
 /*
  * CVodeSetErrHandlerFn
  *
@@ -552,7 +580,7 @@ int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp)
   }
 
   /* use default or user provided value */
-  cv_mem->cv_msbp = (msbp == 0) ? MSBP : msbp;
+  cv_mem->cv_msbp = (msbp == 0) ? MSBP_DEFAULT : msbp;
 
   return(CV_SUCCESS);
 }

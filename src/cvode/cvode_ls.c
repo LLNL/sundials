@@ -191,10 +191,11 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvLsInitializeCounters(cvls_mem);
 
   /* Set default values for the rest of the LS parameters */
-  cvls_mem->msbj      = CVLS_MSBJ;
-  cvls_mem->jbad      = SUNTRUE;
-  cvls_mem->eplifac   = CVLS_EPLIN;
-  cvls_mem->last_flag = CVLS_SUCCESS;
+  cvls_mem->msbj       = CVLS_MSBJ;
+  cvls_mem->jbad       = SUNTRUE;
+  cvls_mem->dgmax_jbad = CVLS_DGMAX;
+  cvls_mem->eplifac    = CVLS_EPLIN;
+  cvls_mem->last_flag  = CVLS_SUCCESS;
 
   /* If LS supports ATimes, attach CVLs routine */
   if (LS->ops->setatimes) {
@@ -300,6 +301,30 @@ int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac)
   cvls_mem->user_linsys = SUNFALSE;
   cvls_mem->linsys      = cvLsLinSys;
   cvls_mem->A_data      = cv_mem;
+
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeSetDeltaGammaMaxBadJac specifies the maximum gamma ratio change
+ * after a NLS convergence failure with a potentially bad Jacobian. If
+ * |gamma/gammap-1| < dgmax_jbad then the Jacobian is marked as bad */
+int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem, realtype dgmax_jbad)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* Access CVLsMem structure */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetDeltaGammaMaxBadJac",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  /* Set value or use default */
+  if(dgmax_jbad <= ZERO)
+    cvls_mem->dgmax_jbad = CVLS_DGMAX;
+  else
+    cvls_mem->dgmax_jbad = dgmax_jbad;
 
   return(CVLS_SUCCESS);
 }
@@ -1492,7 +1517,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   cvls_mem->jbad = (cv_mem->cv_nst == 0) ||
     (cv_mem->cv_nst >= cvls_mem->nstlj + cvls_mem->msbj) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVLS_DGMAX)) ||
+    ((convfail == CV_FAIL_BAD_J) && (dgamma < cvls_mem->dgmax_jbad)) ||
     (convfail == CV_FAIL_OTHER);
 
   /* Setup the linear system if necessary */

@@ -131,6 +131,7 @@ SUNDIALS_EXPORT int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
 SUNDIALS_EXPORT int IDASetMaxBacksIC(void *ida_mem, int maxbacks);
 
 /* Optional input functions */
+SUNDIALS_EXPORT int IDASetDeltaCjLSetup(void *ida_max, realtype dcj);
 SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun,
                                        void *eh_data);
 SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);

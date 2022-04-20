@@ -131,10 +131,6 @@
  *    LONG_WAIT   number of steps to wait before considering an order change when
  *                q==1 and MXNEF1 error test failures have occurred
  *
- * cvNls
- *
- *    DGMAX       |gamma/gammap-1| > DGMAX => call lsetup
- *
  */
 
 
@@ -166,8 +162,6 @@
 #define MXNEF1        3
 #define SMALL_NEF     2
 #define LONG_WAIT    10
-
-#define DGMAX  RCONST(0.3)
 
 /*=================================================================*/
 /* Shortcuts                                                       */
@@ -370,7 +364,8 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_maxnef           = MXNEF;
   cv_mem->cv_maxncf           = MXNCF;
   cv_mem->cv_nlscoef          = CORTES;
-  cv_mem->cv_msbp             = MSBP;
+  cv_mem->cv_msbp             = MSBP_DEFAULT;
+  cv_mem->cv_dgmax_lsetup     = DGMAX_LSETUP_DEFAULT;
   cv_mem->convfail            = CV_NO_FAILURES;
   cv_mem->cv_constraints      = NULL;
   cv_mem->cv_constraintsSet   = SUNFALSE;
@@ -2820,7 +2815,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) ||
       (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
-      (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
+      (SUNRabs(cv_mem->cv_gamrat-ONE) > cv_mem->cv_dgmax_lsetup);
   } else {
     cv_mem->cv_crate = ONE;
     callSetup = SUNFALSE;
