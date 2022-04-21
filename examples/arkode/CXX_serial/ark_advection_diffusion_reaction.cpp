@@ -375,7 +375,7 @@ int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
     flag = ERKStepSetFixedStep(*arkode_mem, uopts.fixed_h);
     if (check_flag(flag, "ERKStepSetFixedStep")) return 1;
   }
-  else if (uopts.controller > 0)
+  else if (uopts.controller >= 0)
   {
     flag = ERKStepSetAdaptivityMethod(*arkode_mem, uopts.controller, SUNTRUE,
                                       SUNFALSE, nullptr);
@@ -594,7 +594,7 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
     flag = ARKStepSetFixedStep(*arkode_mem, uopts.fixed_h);
     if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
-  else if (uopts.controller > 0)
+  else if (uopts.controller >= 0)
   {
     flag = ARKStepSetAdaptivityMethod(*arkode_mem, uopts.controller, SUNTRUE,
                                       SUNFALSE, nullptr);
@@ -726,7 +726,7 @@ int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
     flag = ARKStepSetFixedStep(fast_arkode_mem, uopts.fixed_h_fast);
     if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
-  else if (uopts.controller_fast > 0)
+  else if (uopts.controller_fast >= 0)
   {
     flag = ARKStepSetAdaptivityMethod(fast_arkode_mem, uopts.controller_fast,
                                       SUNTRUE, SUNFALSE, nullptr);

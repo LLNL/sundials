@@ -132,9 +132,9 @@ struct UserOptions
 
   // Relative and absolute tolerances
   realtype rtol      = RCONST(1.e-4);
-  realtype atol      = RCONST(1.e-8);
+  realtype atol      = RCONST(1.e-9);
   realtype rtol_fast = RCONST(1.e-4);
-  realtype atol_fast = RCONST(1.e-8);
+  realtype atol_fast = RCONST(1.e-9);
 
   // Step size selection (ZERO = adaptive steps)
   realtype fixed_h      = ZERO;
@@ -891,7 +891,7 @@ int OpenOutput(UserData &udata, UserOptions &uopts)
   }
 
   // Open output stream and output problem information
-  if (uopts.output == 2)
+  if (uopts.output >= 2)
   {
     // Open output stream
     stringstream fname;
@@ -923,7 +923,7 @@ int WriteOutput(realtype t, N_Vector y, UserData &udata, UserOptions &uopts)
     cout << setw(22) << t << setw(25) << urms << endl;
 
     // Write solution to disk
-    if (uopts.output > 2)
+    if (uopts.output >= 2)
     {
       realtype* ydata = N_VGetArrayPointer(y);
       if (check_ptr(ydata, "N_VGetArrayPointer")) return -1;
@@ -955,7 +955,7 @@ int CloseOutput(UserOptions &uopts)
   }
 
   // Close output streams
-  if (uopts.output == 2)
+  if (uopts.output >= 2)
   {
     uopts.uout.close();
   }
