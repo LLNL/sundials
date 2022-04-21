@@ -79,10 +79,13 @@ directories, respectively. For a default installation, these are
 respectively, where ``instdir`` is the directory where SUNDIALS was installed
 (see :numref:`Installation`).
 
-Note that an application cannot link to both the IDAS and IDA libraries because
-both contain user-callable functions with the same names (to ensure that IDAS is
-backward compatible with IDA). Therefore, applications that contain both DAE
-problems and DAEs with sensitivity analysis, should use IDAS.
+.. warning::
+
+   Note that an application cannot link to both the IDAS and IDA libraries
+   because both contain user-callable functions with the same names (to ensure
+   that IDAS is backward compatible with IDA). Therefore, applications that
+   contain both DAE problems and DAEs with sensitivity analysis, should use
+   IDAS.
 
 
 .. _IDAS.Usage.SIM.header_sim:
@@ -900,20 +903,23 @@ IDAS solver. IDAS provides functions that can be used to change these optional
 input parameters from their default values. The main inputs are divided in the
 following categories:
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.main.Table` list the main IDAS optional
-  inputs,
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.main.Table` list the main IDAS
+  optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ls.Table` lists the IDALS linear solver
-  interface optional inputs,
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ls.Table` lists the IDALS linear
+  solver interface optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.nls.Table` lists the IDANLS nonlinear solver
-  interface optional inputs,
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.nls.Table` lists the IDANLS
+  nonlinear solver interface optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ic.Table` lists the initial condition
-  calculation optional inputs, and
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ic.Table` lists the initial
+  condition calculation optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.root.Table` lists the rootfinding optional
-  inputs.
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.step_adapt.Table` lists the IDAS
+  step size adaptivity optional input functions, and
+
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.root.Table` lists the rootfinding
+  optional input functions.
 
 These optional inputs are described in detail in the remainder of this section.
 For the most casual use of IDAS, the reader can skip to
@@ -955,7 +961,9 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Initial step size                                                  | :c:func:`IDASetInitStep`        | estimated      |
    +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Maximum absolute step size                                         | :c:func:`IDASetMaxStep`         | :math:`\infty` |
+   | Minimum absolute step size :math:`h_{\text{min}}`                  | :c:func:`IDASetMinStep`         | 0              |
+   +--------------------------------------------------------------------+---------------------------------+----------------+
+   | Maximum absolute step size :math:`h_{\text{max}}`                  | :c:func:`IDASetMaxStep`         | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -1095,6 +1103,24 @@ Main solver optional input functions
       By default, IDAS estimates the initial step as the solution of
       :math:`\|h \dot{y} \|_{{\scriptsize WRMS}} = 1/2`, with an added restriction
       that :math:`|h| \leq .001|t_{\text{out}} - t_0|`.
+
+.. c:function:: int IDASetMinStep(void * ida_mem, realtype hmin)
+
+   The function :c:func:`IDASetMinStep` specifies the minimum absolute value of
+   the step size.
+
+   Pass ``hmin = 0`` to obtain the default value of 0.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``hmin`` -- minimum absolute value of the step size.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+      * ``IDA_ILL_INPUT`` -- ``hmin`` is negative.
+
+   .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetMaxStep(void * ida_mem, realtype hmax)
 
@@ -1896,6 +1922,171 @@ to set optional inputs controlling the initial condition calculation.
    **Notes:**
       The default value is :math:`(\text{unit roundoff})^{2/3}`.
 
+
+.. _IDAS.Usage.SIM.user_callable.optional_input.step_adapt:
+
+Time step adaptivity optional input functions
+"""""""""""""""""""""""""""""""""""""""""""""
+
+.. _IDAS.Usage.SIM.user_callable.optional_input.step_adapt.Table:
+
+.. table:: Optional inputs for IDAS time step adaptivity
+
+   +------------------------------------------------------+------------------------------------+----------------+
+   | **Optional input**                                   | **Function name**                  | **Default**    |
+   +======================================================+====================================+================+
+   | Fixed step size bounds :math:`\eta_{\text{min\_fx}}` | :c:func:`IDASetEtaFixedStepBounds` | 1.0 and 2.0    |
+   | and :math:`\eta_{\text{max\_fx}}`                    |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size growth factor                      | :c:func:`IDASetEtaMax`             | 2.0            |
+   | :math:`\eta_{\text{max}}`                            |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor                   | :c:func:`IDASetEtaMin`             | 0.5            |
+   | :math:`\eta_{\text{min}}`                            |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size reduction factor                   | :c:func:`IDASetEtaLow`             | 0.9            |
+   | :math:`\eta_{\text{low}}`                            |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor after an error    | :c:func:`IDASetEtaMinErrFail`      | 0.25           |
+   | test failure :math:`\eta_{\text{min\_ef}}`           |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Step size reduction factor after a nonlinear solver  | :c:func:`IDASetEtaConvFail`        | 0.25           |
+   | convergence failure :math:`\eta_{\text{cf}}`         |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+
+
+The following functions can be called to set optional inputs to control the
+step size adaptivity.
+
+.. note::
+
+   The default values for the step size adaptivity tuning parameters have a long
+   history of success and changing the values is generally discouraged. However,
+   users that wish to experiment with alternative values should be careful to
+   make changes gradually and with testing to determine their effectiveness.
+
+
+.. c:function:: int IDASetEtaFixedStepBounds(void* ida_mem, realtype eta_min_fx, realtype eta_max_fx)
+
+   The function ``IDASetEtaFixedStepBounds`` specifies the bounds
+   :math:`\eta_{\text{min\_fx}}` and :math:`\eta_{\text{max\_fx}}`. If step size
+   change factor :math:`\eta` satisfies :math:`\eta_{\text{min\_fx}} < \eta <
+   \eta_{\text{max\_fx}}` the current step size is retained.
+
+   The default values are :math:`\eta_{\text{fxmin}} = 1` and
+   :math:`\eta_{\text{fxmax}} = 2`.
+
+   ``eta_fxmin`` should satisfy :math:`0 < \eta_{\text{fxmin}} \leq 1`,
+   otherwise the default value is used. ``eta_fxmax`` should satisfy
+   :math:`\eta_{\text{fxmin}} \geq 1`, otherwise the default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_min_fx`` -- value of the fixed step size lower bound.
+      * ``eta_max_fx`` -- value of the fixed step size upper bound.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaMax(void* ida_mem, realtype eta_max)
+
+   The function ``IDASetEtaMax`` specifies the maximum step size growth
+   factor :math:`\eta_{\text{max}}`.
+
+   The default value is :math:`\eta_{\text{max}} = 2`.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_max`` -- maximum step size growth factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaMin(void* ida_mem, realtype eta_min)
+
+   The function ``IDASetEtaMin`` specifies the minimum step size reduction
+   factor :math:`\eta_{\text{min}}`.
+
+   The default value is :math:`\eta_{\text{min}} = 0.5`.
+
+   ``eta_min`` should satisfy :math:`0 < \eta_{\text{min}} < 1`, otherwise the
+   default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_min`` -- value of the minimum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaLow(void* ida_mem, realtype eta_low)
+
+   The function ``IDASetEtaLow`` specifies the maximum step size reduction
+   factor :math:`\eta_{\text{low}}`.
+
+   The default value is :math:`\eta_{\text{low}} = 0.9`.
+
+   ``eta_low`` should satisfy :math:`0 < \eta_{\text{low}} \leq 1`, otherwise
+   the default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_low`` -- value of the maximum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaMinErrFail(void* ida_mem, realtype eta_min_ef)
+
+   The function ``IDASetEtaMinErrFail`` specifies the minimum step size
+   reduction factor :math:`\eta_{\text{min\_ef}}` after an error test failure.
+
+   The default value is :math:`\eta_{\text{min\_ef}} = 0.25`.
+
+   If ``eta_min_ef`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
+   used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_low`` -- value of the minimum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaConvFail(void* ida_mem, realtype eta_cf)
+
+   The function ``IDASetEtaConvFail`` specifies the step size reduction factor
+   :math:`\eta_{\text{cf}}` after a nonlinear solver convergence failure.
+
+   The default value is :math:`\eta_{\text{cf}} = 0.25`.
+
+   If ``eta_cf`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
+   used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_low`` -- value of the step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
 
 
 .. _IDAS.Usage.SIM.user_callable.optional_input.root:
@@ -3721,7 +3912,7 @@ of quadrature equations.
 
    The function :c:func:`IDASetQuadErrCon` specifies whether or not the
    quadrature variables are to be used in the step size control mechanism
-   within IDA.  If they are, the user must call either
+   within IDAS.  If they are, the user must call either
    :c:func:`IDAQuadSStolerances`  or :c:func:`IDAQuadSVtolerances` to specify
    the  integration tolerances for the quadrature variables.
 

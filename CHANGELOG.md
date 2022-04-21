@@ -11,6 +11,26 @@ Added the functions `ARKStepPrintAllStats`, `ERKStepPrintAllStats`,
 solver, and other statistics in one call. The file `scripts/sundials_csv.py`
 contains functions for parsing the comma-separated value output files.
 
+Added functions to CVODE, CVODES, IDA, and IDAS to change the default step size
+adaptivity parameters. For more information see the documentation for:
+
+* `CVodeSetEtaFixedStepBounds`
+* `CVodeSetEtaMaxFirstStep`
+* `CVodeSetEtaMaxEarlyStep`
+* `CVodeSetNumStepsEtaMaxEarlyStep`
+* `CVodeSetEtaMax`
+* `CVodeSetEtaMin`
+* `CVodeSetEtaMinErrFailEta`
+* `CVodeSetEtaMaxErrFailEta`
+* `CVodeSetNumFailsEtaMaxErrFail`
+* `CVodeSetEtaConvFail`
+* `IDASetEtaFixedStepBounds`
+* `IDAsetEtaMax`
+* `IDASetEtaMin`
+* `IDASetEtaLow`
+* `IDASetEtaMinErrFail`
+* `IDASetEtaConvFail`
+
 Added the functions `CVodeSetDeltaGammaMaxLSetup` and
 `CVodeSetDeltaGammaMaxBadJac` in CVODE and CVODES to adjust the `gamma` change
 thresholds to require a linear solver setup or Jacobian/precondition update,

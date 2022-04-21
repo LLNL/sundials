@@ -109,6 +109,144 @@ int IDASetUserData(void *ida_mem, void *user_data)
 
 /*-----------------------------------------------------------------*/
 
+int IDASetEtaFixedStepBounds(void *ida_mem, realtype eta_min_fx,
+                             realtype eta_max_fx)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetEtaFixedStepBounds",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* set allowed value or use default */
+  if (eta_min_fx >= ZERO && eta_min_fx <= ONE)
+    IDA_mem->ida_eta_min_fx = eta_min_fx;
+  else
+    IDA_mem->ida_eta_min_fx = ETA_MIN_FX_DEFAULT;
+
+  if (eta_max_fx >= ONE)
+    IDA_mem->ida_eta_max_fx = eta_max_fx;
+  else
+    IDA_mem->ida_eta_max_fx = ETA_MAX_FX_DEFAULT;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDASetEtaMax(void *ida_mem, realtype eta_max)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetEtaMax",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* set allowed value or use default */
+  if (eta_max <= ONE)
+    IDA_mem->ida_eta_max = ETA_MAX_DEFAULT;
+  else
+    IDA_mem->ida_eta_max = eta_max;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDASetEtaMin(void *ida_mem, realtype eta_min)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetEtaMin",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* set allowed value or use default */
+  if (eta_min <= ZERO || eta_min >= ONE)
+    IDA_mem->ida_eta_min = ETA_MIN_DEFAULT;
+  else
+    IDA_mem->ida_eta_min = eta_min;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDASetEtaLow(void *ida_mem, realtype eta_low)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetEtaLow",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* set allowed value or use default */
+  if (eta_low <= ZERO || eta_low >= ONE)
+    IDA_mem->ida_eta_low = ETA_LOW_DEFAULT;
+  else
+    IDA_mem->ida_eta_low = eta_low;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDASetEtaMinErrFail(void *ida_mem, realtype eta_min_ef)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetEtaMinErrFail",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* set allowed value or use default */
+  if (eta_min_ef <= ZERO || eta_min_ef >= ONE)
+    IDA_mem->ida_eta_min_ef = ETA_MIN_EF_DEFAULT;
+  else
+    IDA_mem->ida_eta_min_ef = eta_min_ef;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDASetEtaConvFail(void *ida_mem, realtype eta_cf)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetEtaConvFail",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* set allowed value or use default */
+  if (eta_cf <= ZERO || eta_cf >= ONE)
+    IDA_mem->ida_eta_cf = ETA_CF_DEFAULT;
+  else
+    IDA_mem->ida_eta_cf = eta_cf;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDASetMaxOrd(void *ida_mem, int maxord)
 {
   IDAMem IDA_mem;
@@ -194,7 +332,7 @@ int IDASetMaxStep(void *ida_mem, realtype hmax)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (hmax < 0) {
+  if (hmax < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMaxStep", MSG_NEG_HMAX);
     return(IDA_ILL_INPUT);
   }
@@ -206,6 +344,36 @@ int IDASetMaxStep(void *ida_mem, realtype hmax)
   }
 
   IDA_mem->ida_hmax_inv = ONE/hmax;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDASetMinStep(void *ida_mem, realtype hmin)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetMinStep", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (hmin < ZERO) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetMinStep",
+                    MSG_NEG_HMIN);
+    return(IDA_ILL_INPUT);
+  }
+
+  /* Passing 0 sets hmin = zero */
+  if (hmin == ZERO) {
+    IDA_mem->ida_hmin = HMIN_DEFAULT;
+    return(IDA_SUCCESS);
+  }
+
+  IDA_mem->ida_hmin = hmin;
 
   return(IDA_SUCCESS);
 }
@@ -1319,8 +1487,7 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 
   nrt = IDA_mem->ida_nrtfn;
 
-  for (i=0; i<nrt; i++)
-    rootsfound[i] = IDA_mem->ida_iroots[i];
+  for (i=0; i<nrt; i++) rootsfound[i] = IDA_mem->ida_iroots[i];
 
   return(IDA_SUCCESS);
 }

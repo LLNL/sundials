@@ -26,7 +26,6 @@
 #include <omp.h>
 
 #include <cvode/cvode.h>
-#include <cvode/cvode_spils.h>         /* access to CVSpils interface            */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
 #include <nvector/nvector_openmp.h>
 #include <sundials/sundials_types.h>
@@ -129,7 +128,7 @@ int main(int argc, char *argv[])
   LS = SUNSPGMR(u, SUN_PREC_NONE, 0);
   if(check_retval(&retval, "SUNSPGMR", 1)) return(1);
 
-  /* Set CVSpils linear solver to LS */
+  /* Set linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS);
   if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 

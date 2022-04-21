@@ -128,6 +128,19 @@ defined projection function. This implementation is accompanied by
 additions to user documentation and CVODES examples. See
 :c:func:`CVodeSetConstraints` for more information.
 
+Added the functions
+:c:func:`CVodeSetEtaFixedStepBounds`,
+:c:func:`CVodeSetEtaMaxFirstStep`,
+:c:func:`CVodeSetEtaMaxEarlyStep`,
+:c:func:`CVodeSetNumStepsEtaMaxEarlyStep`,
+:c:func:`CVodeSetEtaMax`,
+:c:func:`CVodeSetEtaMin`,
+:c:func:`CVodeSetEtaMinErrFailEta`,
+:c:func:`CVodeSetEtaMaxErrFailEta`,
+:c:func:`CVodeSetNumFailsEtaMaxErrFail`, and
+:c:func:`CVodeSetEtaConvFail` to adjust various parameters controlling changes
+in step size.
+
 Added the functions :c:func:`CVodeSetDeltaGammaMaxLSetup` and
 :c:func:`CVodeSetDeltaGammaMaxBadJac` to adjust the :math:`\gamma` change
 thresholds to require a linear solver setup or Jacobian/precondition update,

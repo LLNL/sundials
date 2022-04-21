@@ -620,6 +620,20 @@ SWIGEXPORT int _wrap_FIDASetMaxStep(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FIDASetMinStep(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetMinStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDASetStopTime(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -634,20 +648,6 @@ SWIGEXPORT int _wrap_FIDASetStopTime(void *farg1, double const *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FIDASetNonlinConvCoef(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  result = (int)IDASetNonlinConvCoef(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FIDASetMaxErrTestFails(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -657,34 +657,6 @@ SWIGEXPORT int _wrap_FIDASetMaxErrTestFails(void *farg1, int const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)IDASetMaxErrTestFails(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FIDASetMaxNonlinIters(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)IDASetMaxNonlinIters(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FIDASetMaxConvFails(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)IDASetMaxConvFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -732,15 +704,87 @@ SWIGEXPORT int _wrap_FIDASetConstraints(void *farg1, N_Vector farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FIDASetNonlinearSolver(void *farg1, SUNNonlinearSolver farg2) {
+SWIGEXPORT int _wrap_FIDASetEtaFixedStepBounds(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  SUNNonlinearSolver arg2 = (SUNNonlinearSolver) 0 ;
+  realtype arg2 ;
+  realtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (SUNNonlinearSolver)(farg2);
-  result = (int)IDASetNonlinearSolver(arg1,arg2);
+  arg2 = (realtype)(*farg2);
+  arg3 = (realtype)(*farg3);
+  result = (int)IDASetEtaFixedStepBounds(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetEtaMin(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetEtaMin(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetEtaMax(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetEtaMax(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetEtaLow(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetEtaLow(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetMaxConvFails(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)IDASetMaxConvFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetMaxNonlinIters(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)IDASetMaxNonlinIters(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -755,6 +799,34 @@ SWIGEXPORT int _wrap_FIDASetNlsResFn(void *farg1, IDAResFn farg2) {
   arg1 = (void *)(farg1);
   arg2 = (IDAResFn)(farg2);
   result = (int)IDASetNlsResFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetNonlinConvCoef(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetNonlinConvCoef(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetNonlinearSolver(void *farg1, SUNNonlinearSolver farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNNonlinearSolver arg2 = (SUNNonlinearSolver) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNNonlinearSolver)(farg2);
+  result = (int)IDASetNonlinearSolver(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

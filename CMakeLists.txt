@@ -200,6 +200,11 @@ if(BUILD_BENCHMARKS)
   add_subdirectory(benchmarks)
 endif()
 
+# Add unit tests to the build if they are enabled
+if(SUNDIALS_TEST_UNITTESTS)
+  add_subdirectory(test/unit_tests)
+endif()
+
 # ===============================================================
 # Install configuration header files and license file.
 # ===============================================================

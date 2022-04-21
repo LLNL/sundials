@@ -16,9 +16,24 @@
 
 message("Adding units tests")
 
-# Add ARKode unit tests
 if(BUILD_ARKODE)
   add_subdirectory(arkode)
+endif()
+
+if(BUILD_CVODE)
+  add_subdirectory(cvode)
+endif()
+
+if(BUILD_CVODES)
+  add_subdirectory(cvodes)
+endif()
+
+if(BUILD_IDA)
+  add_subdirectory(ida)
+endif()
+
+if(BUILD_IDAS)
+  add_subdirectory(idas)
 endif()
 
 if(CXX_FOUND)

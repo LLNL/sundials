@@ -224,6 +224,29 @@ SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
 SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, realtype tstop);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 
+/* Optional step adaptivity input functions */
+SUNDIALS_EXPORT
+int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
+                               realtype eta_max_fx);
+SUNDIALS_EXPORT
+int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs);
+SUNDIALS_EXPORT
+int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es);
+SUNDIALS_EXPORT
+int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst);
+SUNDIALS_EXPORT
+int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs);
+SUNDIALS_EXPORT
+int CVodeSetEtaMin(void* cvode_mem, realtype eta_min);
+SUNDIALS_EXPORT
+int CVodeSetEtaMinErrFail(void *cvode_mem, realtype eta_min_ef);
+SUNDIALS_EXPORT
+int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef);
+SUNDIALS_EXPORT
+int CVodeSetNumFailsEtaMaxErrFail(void *cvode_mem, int small_nef);
+SUNDIALS_EXPORT
+int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf);
+
 /* Rootfinding initialization function */
 SUNDIALS_EXPORT int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g);
 

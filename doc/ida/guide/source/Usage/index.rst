@@ -245,8 +245,9 @@ macro to be referenced.
 
 #. **Set linear solver optional inputs** (*if appropriate*)
 
-   See :numref:`IDA.Usage.CC.optional_input_ls.Table` for IDALS optional inputs
-   and Chapter :numref:`SUNLinSol` for linear solver specific optional inputs.
+   See :numref:`IDA.Usage.CC.optional_input.optin_ls_table` for IDALS optional
+   inputs and Chapter :numref:`SUNLinSol` for linear solver specific optional
+   inputs.
 
 #. **Attach nonlinear solver module** (*if appropriate*)
 
@@ -256,9 +257,9 @@ macro to be referenced.
 
 #. **Set nonlinear solver optional inputs** (*if appropriate*)
 
-   See :numref:`IDA.Usage.CC.optional_input_nls.Table` for IDANLS optional inputs
-   and Chapter :numref:`SUNNonlinSol` for nonlinear solver specific optional
-   inputs. Note, solver specific optional inputs *must* be called after
+   See :numref:`IDA.Usage.CC.optional_input.optin_nls_table` for IDANLS optional
+   inputs and Chapter :numref:`SUNNonlinSol` for nonlinear solver specific
+   optional inputs. Note, solver specific optional inputs *must* be called after
    :c:func:`IDASetNonlinearSolver`, otherwise the optional inputs will be
    overridden by IDA defaults.
 
@@ -266,8 +267,8 @@ macro to be referenced.
 
    Call :c:func:`IDARootInit` to initialize a rootfinding problem to be solved
    during the integration of the ODE system. See
-   :numref:`IDA.Usage.CC.optional_input_root.Table` for relevant optional input
-   calls.
+   :numref:`IDA.Usage.CC.optional_input.optin_root_table` for relevant optional
+   input calls.
 
 #. **Set optional inputs**
 
@@ -278,7 +279,7 @@ macro to be referenced.
 #. **Correct initial values** (*optional*)
 
    Call :c:func:`IDACalcIC` to correct the initial values ``y0`` and ``yp0``
-   passed to :c:func:`IDAInit`. See :numref:`IDA.Usage.CC.optional_input_ic.Table`
+   passed to :c:func:`IDAInit`. See :numref:`IDA.Usage.CC.optional_input.optin_ic_table`
    for relevant optional input calls.
 
 #. **Advance solution in time**
@@ -306,10 +307,7 @@ macro to be referenced.
    * Call :c:func:`SUNLinSolFree` to free linear solvers objects.
    * Call :c:func:`SUNNonlinSolFree` to free nonlinear solvers objects.
    * Call :c:func:`IDAFree` to free the memory allocated by IDA.
-
-#. **Free the SUNContext object**
-
-   Call :c:func:`SUNContext_Free` to free the memory allocated for the ``SUNContext`` object.
+   * Call :c:func:`SUNContext_Free` to free the SUNDIALS context.
 
 #. **Finalize MPI, if used**
 
@@ -895,20 +893,23 @@ IDA solver. IDA provides functions that can be used to change these optional
 input parameters from their default values. The main inputs are divided in the
 following categories:
 
-* :numref:`IDA.Usage.CC.optional_input_main.Table` list the main IDA optional
-  inputs,
+* :numref:`IDA.Usage.CC.optional_input.optin_main_table` list the main IDA
+  optional input functions,
 
-* :numref:`IDA.Usage.CC.optional_input_ls.Table` lists the IDALS linear solver
-  interface optional inputs,
+* :numref:`IDA.Usage.CC.optional_input.optin_ls_table` lists the IDALS linear
+  solver interface optional input functions,
 
-* :numref:`IDA.Usage.CC.optional_input_nls.Table` lists the IDANLS nonlinear solver
-  interface optional inputs,
+* :numref:`IDA.Usage.CC.optional_input.optin_nls_table` lists the IDANLS
+  nonlinear solver interface optional input functions,
 
-* :numref:`IDA.Usage.CC.optional_input_ic.Table` lists the initial condition
-  calculation optional inputs, and
+* :numref:`IDA.Usage.CC.optional_input.optin_ic_table` lists the initial
+  condition calculation optional input functions,
 
-* :numref:`IDA.Usage.CC.optional_input_root.Table` lists the rootfinding optional
-  inputs.
+* :numref:`IDA.Usage.CC.optional_input.optin_step_adapt_table` lists the IDA
+  step size adaptivity optional input functions, and
+
+* :numref:`IDA.Usage.CC.optional_input.optin_root_table` lists the rootfinding
+  optional input functions.
 
 These optional inputs are described in detail in the remainder of this section.
 For the most casual use of IDA, the reader can skip to
@@ -931,7 +932,7 @@ calling program and, if successful, takes effect immediately.
 Main solver optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _IDA.Usage.CC.optional_input_main.Table:
+.. _IDA.Usage.CC.optional_input.optin_main_table:
 
 .. table:: Optional inputs for IDA
 
@@ -950,7 +951,9 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Initial step size                                                  | :c:func:`IDASetInitStep`        | estimated      |
    +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Maximum absolute step size                                         | :c:func:`IDASetMaxStep`         | :math:`\infty` |
+   | Minimum absolute step size :math:`h_{\text{min}}`                  | :c:func:`IDASetMinStep`         | 0              |
+   +--------------------------------------------------------------------+---------------------------------+----------------+
+   | Maximum absolute step size :math:`h_{\text{max}}`                  | :c:func:`IDASetMaxStep`         | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -1091,6 +1094,24 @@ Main solver optional input functions
       :math:`\|h \dot{y} \|_{{\scriptsize WRMS}} = 1/2`, with an added restriction
       that :math:`|h| \leq .001|t_{\text{out}} - t_0|`.
 
+.. c:function:: int IDASetMinStep(void * ida_mem, realtype hmin)
+
+   The function ``IDASetMinStep`` specifies the minimum absolute value of the
+   step size.
+
+   Pass ``hmin = 0`` to obtain the default value of 0.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``hmin`` -- minimum absolute value of the step size.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+      * ``IDA_ILL_INPUT`` -- ``hmin`` is negative.
+
+   .. versionadded:: 6.2.0
+
 .. c:function:: int IDASetMaxStep(void * ida_mem, realtype hmax)
 
    The function ``IDASetMaxStep`` specifies the maximum absolute value of the
@@ -1217,12 +1238,12 @@ Main solver optional input functions
       input return. A ``NULL`` input will disable constraint checking.
 
 
-.. _IDA.Usage.CC.optional_inputs.optin_ls:
+.. _IDA.Usage.CC.optional_input.optin_ls:
 
 Linear solver interface optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _IDA.Usage.CC.optional_input_ls.Table:
+.. _IDA.Usage.CC.optional_input.optin_ls_table:
 
 .. table:: Optional inputs for the IDALS linear solver interface
 
@@ -1612,12 +1633,12 @@ where :math:`\epsilon` is the nonlinear solver tolerance, and the default
       ``nrmfac < 0`` case.
 
 
-.. _IDA.Usage.CC.optional_inputs.optin_nls:
+.. _IDA.Usage.CC.optional_input.optin_nls:
 
 Nonlinear solver interface optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _IDA.Usage.CC.optional_input_nls.Table:
+.. _IDA.Usage.CC.optional_input.optin_nls_table:
 
 .. table:: Optional inputs for the IDANLS nonlinear solver interface
 
@@ -1719,7 +1740,7 @@ nonlinear solver.
 Initial condition calculation optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _IDA.Usage.CC.optional_input_ic.Table:
+.. _IDA.Usage.CC.optional_input.optin_ic_table:
 
 .. table:: Optional inputs for IDA initial condition calculation
 
@@ -1876,13 +1897,178 @@ to set optional inputs controlling the initial condition calculation.
       The default value is :math:`(\text{unit roundoff})^{2/3}`.
 
 
+.. _IDA.Usage.CC.optional_input.optin_step_adapt:
+
+Time step adaptivity optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _IDA.Usage.CC.optional_input.optin_step_adapt_table:
+
+.. table:: Optional inputs for IDA time step adaptivity
+
+   +------------------------------------------------------+------------------------------------+----------------+
+   | **Optional input**                                   | **Function name**                  | **Default**    |
+   +======================================================+====================================+================+
+   | Fixed step size bounds :math:`\eta_{\text{min\_fx}}` | :c:func:`IDASetEtaFixedStepBounds` | 1.0 and 2.0    |
+   | and :math:`\eta_{\text{max\_fx}}`                    |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size growth factor                      | :c:func:`IDASetEtaMax`             | 2.0            |
+   | :math:`\eta_{\text{max}}`                            |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor                   | :c:func:`IDASetEtaMin`             | 0.5            |
+   | :math:`\eta_{\text{min}}`                            |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size reduction factor                   | :c:func:`IDASetEtaLow`             | 0.9            |
+   | :math:`\eta_{\text{low}}`                            |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor after an error    | :c:func:`IDASetEtaMinErrFail`      | 0.25           |
+   | test failure :math:`\eta_{\text{min\_ef}}`           |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+   | Step size reduction factor after a nonlinear solver  | :c:func:`IDASetEtaConvFail`        | 0.25           |
+   | convergence failure :math:`\eta_{\text{cf}}`         |                                    |                |
+   +------------------------------------------------------+------------------------------------+----------------+
+
+
+The following functions can be called to set optional inputs to control the
+step size adaptivity.
+
+.. note::
+
+   The default values for the step size adaptivity tuning parameters have a long
+   history of success and changing the values is generally discouraged. However,
+   users that wish to experiment with alternative values should be careful to
+   make changes gradually and with testing to determine their effectiveness.
+
+
+.. c:function:: int IDASetEtaFixedStepBounds(void* ida_mem, realtype eta_min_fx, realtype eta_max_fx)
+
+   The function ``IDASetEtaFixedStepBounds`` specifies the bounds
+   :math:`\eta_{\text{min\_fx}}` and :math:`\eta_{\text{max\_fx}}`. If step size
+   change factor :math:`\eta` satisfies :math:`\eta_{\text{min\_fx}} < \eta <
+   \eta_{\text{max\_fx}}` the current step size is retained.
+
+   The default values are :math:`\eta_{\text{fxmin}} = 1` and
+   :math:`\eta_{\text{fxmax}} = 2`.
+
+   ``eta_fxmin`` should satisfy :math:`0 < \eta_{\text{fxmin}} \leq 1`,
+   otherwise the default value is used. ``eta_fxmax`` should satisfy
+   :math:`\eta_{\text{fxmin}} \geq 1`, otherwise the default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``eta_min_fx`` -- value of the fixed step size lower bound.
+      * ``eta_max_fx`` -- value of the fixed step size upper bound.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int IDASetEtaMax(void* ida_mem, realtype eta_max)
+
+   The function ``IDASetEtaMax`` specifies the maximum step size growth
+   factor :math:`\eta_{\text{max}}`.
+
+   The default value is :math:`\eta_{\text{max}} = 2`.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``eta_max`` -- maximum step size growth factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int IDASetEtaMin(void* ida_mem, realtype eta_min)
+
+   The function ``IDASetEtaMin`` specifies the minimum step size reduction
+   factor :math:`\eta_{\text{min}}`.
+
+   The default value is :math:`\eta_{\text{min}} = 0.5`.
+
+   ``eta_min`` should satisfy :math:`0 < \eta_{\text{min}} < 1`, otherwise the
+   default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``eta_min`` -- value of the minimum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int IDASetEtaLow(void* ida_mem, realtype eta_low)
+
+   The function ``IDASetEtaLow`` specifies the maximum step size reduction
+   factor :math:`\eta_{\text{low}}`.
+
+   The default value is :math:`\eta_{\text{low}} = 0.9`.
+
+   ``eta_low`` should satisfy :math:`0 < \eta_{\text{low}} \leq 1`, otherwise
+   the default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``eta_low`` -- value of the maximum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int IDASetEtaMinErrFail(void* ida_mem, realtype eta_min_ef)
+
+   The function ``IDASetEtaMinErrFail`` specifies the minimum step size
+   reduction factor :math:`\eta_{\text{min\_ef}}` after an error test failure.
+
+   The default value is :math:`\eta_{\text{min\_ef}} = 0.25`.
+
+   If ``eta_min_ef`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
+   used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``eta_low`` -- value of the minimum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int IDASetEtaConvFail(void* ida_mem, realtype eta_cf)
+
+   The function ``IDASetEtaConvFail`` specifies the step size reduction factor
+   :math:`\eta_{\text{cf}}` after a nonlinear solver convergence failure.
+
+   The default value is :math:`\eta_{\text{cf}} = 0.25`.
+
+   If ``eta_cf`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
+   used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA solver object.
+      * ``eta_low`` -- value of the step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.2.0
+
 
 .. _IDA.Usage.CC.optional_input.optin_root:
 
 Rootfinding optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _IDA.Usage.CC.optional_input_root.Table:
+.. _IDA.Usage.CC.optional_input.optin_root_table:
 
 .. table:: Optional inputs for IDA rootfinding
 

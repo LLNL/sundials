@@ -46,9 +46,18 @@ extern "C" {
 /* Basic IDA constants */
 
 #define HMAX_INV_DEFAULT RCONST(0.0) /* hmax_inv default value          */
+#define HMIN_DEFAULT     RCONST(0.0) /* hmin default value              */
 #define MAXORD_DEFAULT   5           /* maxord default value            */
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
+
+#define ETA_MAX_FX_DEFAULT RCONST(2.0)  /* threshold to increase step size   */
+#define ETA_MIN_FX_DEFAULT RCONST(1.0)  /* threshold to decrease step size   */
+#define ETA_MAX_DEFAULT    RCONST(2.0)  /* max step size increase factor     */
+#define ETA_MIN_DEFAULT    RCONST(0.5)  /* min step size decrease factor     */
+#define ETA_LOW_DEFAULT    RCONST(0.9)  /* upper bound on decrease factor    */
+#define ETA_MIN_EF_DEFAULT RCONST(0.25) /* err test fail min decrease factor */
+#define ETA_CF_DEFAULT     RCONST(0.25) /* NLS failure decrease factor       */
 
 #define DCJ_DEFAULT RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
 
@@ -170,7 +179,7 @@ typedef struct IDAMemRec {
   realtype ida_h0u;      /* actual initial stepsize                           */
   realtype ida_hh;       /* current step size h                               */
   realtype ida_hused;    /* step size used on last successful step            */
-  realtype ida_rr;       /* rr = hnext / hused                                */
+  realtype ida_eta;      /* eta = hnext / hused                               */
   realtype ida_tn;       /* current internal value of t                       */
   realtype ida_tretlast; /* value of tret previously returned by IDASolve     */
   realtype ida_cj;       /* current value of scalar (-alphas/hh) in Jacobian  */
@@ -194,6 +203,15 @@ typedef struct IDAMemRec {
   int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
   long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
+  realtype ida_hmin;     /* min step size hmin (default = 0.0)                */
+
+  realtype ida_eta_max_fx; /* threshold to increase step size */
+  realtype ida_eta_min_fx; /* threshold to decrease step size */
+  realtype ida_eta_max;    /* max step size increase factor   */
+  realtype ida_eta_min;    /* min step size decrease factor   */
+  realtype ida_eta_low;    /* upper bound on decrease factor  */
+  realtype ida_eta_min_ef; /* eta >= eta_min_ef after an error test failure */
+  realtype ida_eta_cf;     /* eta on a nonlinear solver convergence failure */
 
   /*--------
     Counters
@@ -526,6 +544,7 @@ int idaNlsInit(IDAMem IDA_mem);
 
 #define MSG_BAD_K          "Illegal value for k."
 #define MSG_NULL_DKY       "dky = NULL illegal."
+#define MSG_NULL_DKYP      "dkyp = NULL illegal."
 #define MSG_BAD_T          "Illegal value for t." MSG_TIME_INT
 #define MSG_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration."
 
@@ -548,6 +567,7 @@ int idaNlsInit(IDAMem IDA_mem);
 #define MSG_NEG_MAXORD     "maxord <= 0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
 #define MSG_NEG_HMAX       "hmax < 0 illegal."
+#define MSG_NEG_HMIN       "hmin < 0 illegal."
 #define MSG_NEG_EPCON      "epcon <= 0.0 illegal."
 #define MSG_BAD_CONSTR     "Illegal values in constraints vector."
 #define MSG_BAD_EPICCON    "epiccon <= 0.0 illegal."

@@ -122,6 +122,19 @@ nonlinear solver, linear solver, and other statistics in one call. The file
 ``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
 value output files.
 
+Added the functions
+:c:func:`CVodeSetEtaFixedStepBounds`,
+:c:func:`CVodeSetEtaMaxFirstStep`,
+:c:func:`CVodeSetEtaMaxEarlyStep`,
+:c:func:`CVodeSetNumStepsEtaMaxEarlyStep`,
+:c:func:`CVodeSetEtaMax`,
+:c:func:`CVodeSetEtaMin`,
+:c:func:`CVodeSetEtaMinErrFailEta`,
+:c:func:`CVodeSetEtaMaxErrFailEta`,
+:c:func:`CVodeSetNumFailsEtaMaxErrFail`, and
+:c:func:`CVodeSetEtaConvFail` to adjust various parameters controlling changes
+in step size.
+
 Added the functions :c:func:`CVodeSetDeltaGammaMaxLSetup` and
 :c:func:`CVodeSetDeltaGammaMaxBadJac` to adjust the :math:`\gamma` change
 thresholds to require a linear solver setup or Jacobian/precondition update,

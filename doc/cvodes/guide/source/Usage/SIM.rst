@@ -52,8 +52,8 @@ needed in this chapter, but for convenience are also listed separately in
 Access to library and header files
 ----------------------------------
 
-At this point, it is assumed that the installation of CVODES,
-following the procedure described in :numref:`Installation`, has been completed successfully.
+At this point, it is assumed that the installation of CVODES, following the
+procedure described in :numref:`Installation`, has been completed successfully.
 
 Regardless of where the user’s application program resides, its
 associated compilation and load commands must make reference to the
@@ -85,6 +85,14 @@ The directories ``libdir`` and ``incdir`` are the install library and
 include directories, respectively. For a default installation, these are
 ``<instdir>/lib`` and ``<instdir>/include``, respectively, where ``instdir`` is
 the directory where SUNDIALS was installed (:numref:`Installation`).
+
+.. warning::
+
+   Note that an application cannot link to both the CVODES and CVODE libraries
+   because both contain user-callable functions with the same names (to ensure
+   that CVODES is backward compatible with CVODE). Therefore, applications that
+   contain both ODE problems and ODEs with sensitivity analysis, should use
+   CVODES.
 
 .. _CVODES.Usage.SIM.data_types:
 
@@ -779,31 +787,58 @@ rootfinding.
 Optional input functions
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are numerous optional input parameters that control the behavior
-of the CVODES solver. CVODES provides functions that can be used
-to change these optional input parameters from their default values.
-:numref:`CVODES.Usage.SIM.optional_input.Table` lists all optional input functions in
-CVODES which are then described in detail in the remainder of this
-section, begining with those for the main CVODES solver and
-continuing with those for the linear solver interfaces. Note that the
-diagonal linear solver module has no optional inputs. For the most
+There are numerous optional input parameters that control the behavior of the
+CVODES solver. CVODES provides functions that can be used to change these optional
+input parameters from their default values. The main inputs are divided into the
+following categories:
+
+* :numref:`CVODES.Usage.SIM.optional_input.optin_main_table` lists the main CVODES
+  optional input functions,
+
+* :numref:`CVODES.Usage.SIM.optional_input.optin_ls_table` lists the CVLS linear
+  solver interface optional input functions,
+
+* :numref:`CVODES.Usage.SIM.optional_input.optin_nls_table` lists the CVNLS
+  nonlinear solver interface optional input functions,
+
+* :numref:`CVODES.Usage.SIM.optional_input.optin_step_adapt_table` lists the CVODES
+  step size adaptivity optional input functions, and
+
+* :numref:`CVODES.Usage.SIM.optional_input.optin_root_table` lists the rootfinding
+  optional input functions.
+
+* :numref:`CVODES.Usage.SIM.optional_input.optin_proj_table` lists the projection
+  optional input functions.
+
+These optional inputs are described in detail in the remainder of this section.
+Note that the diagonal linear solver module has no optional inputs. For the most
 casual use of CVODES, the reader can skip to
-:numref:`CVODES.Usage.SIM.user_supplied`.
+:numref:`CVODES.Usage.SIM.user_supplied`..
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function. All error return
-values are negative, so the test will catch all errors. Finally, a call
-to a function can be made from the user’s calling program at any time
-and, if successful, takes effect immediately.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so the test ``flag < 0`` will catch all errors.
 
-.. _CVODES.Usage.SIM.optional_input.Table:
-.. table:: Optional inputs for CVODES and CVLS
+The optional input calls can, unless otherwise noted, be executed in any order.
+However, if the user's program calls either :c:func:`CVodeSetErrFile` or
+:c:func:`CVodeSetErrHandlerFn`, then that call should appear first, in order to
+take effect for any later error message. Finally, a call to an ``CVodeSet***``
+function can, unless otherwise noted, be made at any time from the user's
+calling program and, if successful, takes effect immediately.
+
+
+.. _CVODES.Usage.SIM.optional_input.optin_main:
+
+Main solver optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _CVODES.Usage.SIM.optional_input.optin_main_table:
+
+.. table:: Optional inputs for CVODES
 
    +-------------------------------+---------------------------------------------+----------------+
    |      **Optional input**       |              **Function name**              |  **Default**   |
    +===============================+=============================================+================+
-   | **CVODES main solver**        |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
    | Pointer to an error file      | :c:func:`CVodeSetErrFile`                   | ``stderr``     |
    +-------------------------------+---------------------------------------------+----------------+
    | Error handler function        | :c:func:`CVodeSetErrHandlerFn`              | internal fn.   |
@@ -835,69 +870,10 @@ and, if successful, takes effect immediately.
    | Maximum no. of error test     | :c:func:`CVodeSetMaxErrTestFails`           | 7              |
    | failures                      |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
-   | Maximum no. of nonlinear      | :c:func:`CVodeSetMaxNonlinIters`            | 3              |
-   | iterations                    |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum no. of convergence    | :c:func:`CVodeSetMaxConvFails`              | 10             |
-   | failures                      |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Coefficient in the nonlinear  | :c:func:`CVodeSetNonlinConvCoef`            | 0.1            |
-   | convergence test              |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
    | Inequality constraints on     | :c:func:`CVodeSetConstraints`               |                |
    | solution                      |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
-   | Direction of zero-crossing    | :c:func:`CVodeSetRootDirection`             | both           |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Disable rootfinding warnings  | :c:func:`CVodeSetNoInactiveRootWarn`        | none           |
-   +-------------------------------+---------------------------------------------+----------------+
-   | **CVLS linear solver          |                                             |                |
-   | interface**                   |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Max allowed :math:`\gamma`    | :c:func:`CVodeSetDeltaGammaMaxLSetup`       | 0.3            |
-   | change without a linear       |                                             |                |
-   | solver setup                  |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Max allowed :math:`\gamma`    | :c:func:`CVodeSetDeltaGammaMaxBadJac`       | 0.2            |
-   | change to update the Jacobian |                                             |                |
-   | / preconditioner after a      |                                             |                |
-   | NLS failure                   |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Linear solver setup frequency | :c:func:`CVodeSetLSetupFrequency`           | 20             |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Jacobian / preconditioner     | :c:func:`CVodeSetJacEvalFrequency`          | 51             |
-   | update frequency              |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Jacobian function             | :c:func:`CVodeSetJacFn`                     | DQ             |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Linear System function        | :c:func:`CVodeSetLinSysFn`                  | internal       |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Enable or disable linear      | :c:func:`CVodeSetLinearSolutionScaling`     | on             |
-   | solution scaling              |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Jacobian-times-vector         | :c:func:`CVodeSetJacTimes`                  | NULL, DQ       |
-   | functions                     |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Jacobian-times-vector DQ RHS  | :c:func:`CVodeSetJacTimesRhsFn`             | NULL           |
-   | function                      |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Preconditioner functions      | :c:func:`CVodeSetPreconditioner`            | NULL, NULL     |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Ratio between linear and      | :c:func:`CVodeSetEpsLin`                    | 0.05           |
-   | nonlinear tolerances          |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Newton linear solve tolerance | :c:func:`CVodeSetLSNormFactor`              | vector length  |
-   | conversion factor             |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
 
-.. _CVODES.Usage.SIM.optional_input.optin_main:
-
-Main solver optional input functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The calls listed here can be executed in any order. However, if either
-of the functions or is to be called, that call should be first, in order
-to take effect for any later error message.
 
 .. c:function:: int CVodeSetErrFile(void* cvode_mem, FILE * errfp)
 
@@ -924,7 +900,7 @@ to take effect for any later error message.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``ehfun`` -- is the C error handler function.
+     * ``ehfun`` -- is the C error handler function of type :c:type:`CVErrHandlerFn`.
      * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is called.
 
    **Return value:**
@@ -1137,77 +1113,6 @@ to take effect for any later error message.
    **Notes:**
       The default value is 7.
 
-.. c:function:: int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
-
-   The function ``CVodeSetMaxNonlinIters`` specifies the maximum  number of nonlinear solver iterations permitted per step.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``maxcor`` -- maximum number of nonlinear solver iterations allowed per step :math:`(> 0)`.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The optional value has been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-     * ``CV_MEM_FAIL`` -- The ``SUNNonlinearSolver`` module is ``NULL``.
-
-   **Notes:**
-      The default value is 3.
-
-.. c:function:: int CVodeSetMaxConvFails(void* cvode_mem, int maxncf)
-
-   The function ``CVodeSetMaxConvFails`` specifies the  maximum number of nonlinear solver convergence failures permitted during  one step.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``maxncf`` -- maximum number of allowable nonlinear solver convergence failures per step :math:`(> 0)`.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The optional value has been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      The default value is 10.
-
-.. c:function:: int CVodeSetNonlinConvCoef(void* cvode_mem, realtype nlscoef)
-
-   The function ``CVodeSetNonlinConvCoef`` specifies the safety factor used in the nonlinear convergence test (see :numref:`CVODES.Mathematics.ivp_sol`).
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``nlscoef`` -- coefficient in nonlinear convergence test :math:`(> 0)`.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The optional value has been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      The default value is 0.1.
-
-.. c:function:: int CVodeSetNlsRhsFn(void* cvode_mem, CVRhsFn f)
-
-   The function ``CVodeSetNlsRhsFn`` specifies an alternative right-hand side function for use in nonlinear system function evaluations.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``f`` -- is the alternative C function which computes the right-hand side function :math:`f` in the ODE (for full details see :numref:`CVODES.Usage.SIM.user_supplied.rhsFn`).
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The optional value has been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      The default is to use the implicit right-hand side function provided to
-      :c:func:`CVodeInit` in nonlinear system function evaluations. If the input
-      right-hand side function is ``NULL``, the default is used.
-
-      When using a non-default nonlinear solver, this function must be called after
-      :c:func:`CVodeSetNonlinearSolver`.
-
-      When doing forward sensitivity analysis with the simultaneous solver strategy
-      and a non-default nonlinear solver, this function must be called after
-      :c:func:`CVodeSetNonlinearSolverSensSim`.
-
-
 .. c:function:: int CVodeSetConstraints(void* cvode_mem, N_Vector constraints)
 
    The function ``CVodeSetConstraints`` specifies a vector defining  inequality constraints for each component of the solution vector y.
@@ -1239,10 +1144,53 @@ to take effect for any later error message.
       illegal input return.
 
 
-.. _CVODES.Usage.SIM.optional_inputs.optin_ls:
+.. _CVODES.Usage.SIM.optional_input.optin_ls:
 
 Linear solver interface optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _CVODES.Usage.SIM.optional_input.optin_ls_table:
+
+.. table:: Optional inputs for the CVLS linear solver interface
+
+   +-------------------------------+---------------------------------------------+----------------+
+   |      **Optional input**       |              **Function name**              |  **Default**   |
+   +===============================+=============================================+================+
+   | Max allowed :math:`\gamma`    | :c:func:`CVodeSetDeltaGammaMaxLSetup`       | 0.3            |
+   | change without a linear       |                                             |                |
+   | solver setup                  |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Max allowed :math:`\gamma`    | :c:func:`CVodeSetDeltaGammaMaxBadJac`       | 0.2            |
+   | change to update the Jacobian |                                             |                |
+   | / preconditioner after a      |                                             |                |
+   | NLS failure                   |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Linear solver setup frequency | :c:func:`CVodeSetLSetupFrequency`           | 20             |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Jacobian / preconditioner     | :c:func:`CVodeSetJacEvalFrequency`          | 51             |
+   | update frequency              |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Jacobian function             | :c:func:`CVodeSetJacFn`                     | DQ             |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Linear System function        | :c:func:`CVodeSetLinSysFn`                  | internal       |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Enable or disable linear      | :c:func:`CVodeSetLinearSolutionScaling`     | on             |
+   | solution scaling              |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Jacobian-times-vector         | :c:func:`CVodeSetJacTimes`                  | NULL, DQ       |
+   | functions                     |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Jacobian-times-vector DQ RHS  | :c:func:`CVodeSetJacTimesRhsFn`             | NULL           |
+   | function                      |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Preconditioner functions      | :c:func:`CVodeSetPreconditioner`            | NULL, NULL     |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Ratio between linear and      | :c:func:`CVodeSetEpsLin`                    | 0.05           |
+   | nonlinear tolerances          |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Newton linear solve tolerance | :c:func:`CVodeSetLSNormFactor`              | vector length  |
+   | conversion factor             |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
 
 The mathematical explanation of the linear solver methods available to
 CVODES is provided in :numref:`CVODES.Mathematics.ivp_sol`. We group the
@@ -1301,8 +1249,7 @@ using the current :math:`\gamma` value.
    ``|gamma_current / gamma_previous - 1| > dgmax_lsetup``, the linear solver
    setup function is called.
 
-   Positive values of ``dgmax_lsetup`` specify the threshold, all other values
-   will result in using the default value (0.3).
+   If ``dgmax_lsetup`` is :math:`< 0`, the default value (0.3) will be used.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1498,8 +1445,8 @@ without using global data in the program.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``jtsetup`` -- user-defined Jacobian-vector setup function.
-     * ``jtimes`` -- user-defined Jacobian-vector product function.
+     * ``jtsetup`` -- user-defined Jacobian-vector setup function of type :c:type:`CVLsJacTimesSetupFn`.
+     * ``jtimes`` -- user-defined Jacobian-vector product function of type :c:type:`CVLsJacTimesVecFn`.
 
    **Return value:**
      * ``CVLS_SUCCESS`` -- The optional value has been successfully set.
@@ -1644,10 +1591,422 @@ the :c:func:`CVodeSetEpsLin` function.
       Prior to the introduction of ``N_VGetLength`` in SUNDIALS v5.0.0  (CVODES v5.0.0) the value of ``nrmfac`` was computed using the vector  dot product i.e., the ``nrmfac < 0`` case.
 
 
+.. _CVODES.Usage.SIM.optional_input.optin_nls:
+
+Linear solver interface optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _CVODES.Usage.SIM.optional_input.optin_nls_table:
+
+.. table:: Optional inputs for the CVNLS nonlinear solver interface
+
+   +-------------------------------+---------------------------------------------+----------------+
+   |      **Optional input**       |              **Function name**              |  **Default**   |
+   +===============================+=============================================+================+
+   | Maximum no. of nonlinear      | :c:func:`CVodeSetMaxNonlinIters`            | 3              |
+   | iterations                    |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Maximum no. of convergence    | :c:func:`CVodeSetMaxConvFails`              | 10             |
+   | failures                      |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Coefficient in the nonlinear  | :c:func:`CVodeSetNonlinConvCoef`            | 0.1            |
+   | convergence test              |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | ODE RHS function for          | :c:func:`CVodeSetNlsRhsFn`                  | ``NULL``       |
+   | nonlinear system evaluations  |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+
+The following functions can be called to set optional inputs controlling the
+nonlinear solver.
+
+.. c:function:: int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
+
+   The function ``CVodeSetMaxNonlinIters`` specifies the maximum  number of nonlinear solver iterations permitted per step.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``maxcor`` -- maximum number of nonlinear solver iterations allowed per step :math:`(> 0)`.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+     * ``CV_MEM_FAIL`` -- The ``SUNNonlinearSolver`` module is ``NULL``.
+
+   **Notes:**
+      The default value is 3.
+
+.. c:function:: int CVodeSetMaxConvFails(void* cvode_mem, int maxncf)
+
+   The function ``CVodeSetMaxConvFails`` specifies the  maximum number of nonlinear solver convergence failures permitted during  one step.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``maxncf`` -- maximum number of allowable nonlinear solver convergence failures per step :math:`(> 0)`.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   **Notes:**
+      The default value is 10.
+
+.. c:function:: int CVodeSetNonlinConvCoef(void* cvode_mem, realtype nlscoef)
+
+   The function ``CVodeSetNonlinConvCoef`` specifies the safety factor used in the nonlinear convergence test (see :numref:`CVODES.Mathematics.ivp_sol`).
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``nlscoef`` -- coefficient in nonlinear convergence test :math:`(> 0)`.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   **Notes:**
+      The default value is 0.1.
+
+.. c:function:: int CVodeSetNlsRhsFn(void* cvode_mem, CVRhsFn f)
+
+   The function ``CVodeSetNlsRhsFn`` specifies an alternative right-hand side function for use in nonlinear system function evaluations.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``f`` -- is the alternative C function which computes the right-hand side function :math:`f` in the ODE (for full details see :c:type:`CVRhsFn`).
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   **Notes:**
+      The default is to use the implicit right-hand side function provided to
+      :c:func:`CVodeInit` in nonlinear system function evaluations. If the input
+      right-hand side function is ``NULL``, the default is used.
+
+      When using a non-default nonlinear solver, this function must be called after
+      :c:func:`CVodeSetNonlinearSolver`.
+
+
+.. _CVODES.Usage.SIM.optional_input.optin_step_adapt:
+
+Time step adaptivity optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _CVODES.Usage.SIM.optional_input.optin_step_adapt_table:
+
+.. table:: Optional inputs for CVODES time step adaptivity
+
+   +-------------------------------------+---------------------------------------------+----------------+
+   | **Optional input**                  | **Function name**                           | **Default**    |
+   +=====================================+=============================================+================+
+   | Fixed step size factor bounds       | :c:func:`CVodeSetEtaFixedStepBounds`        | 0 and 1.5      |
+   | :math:`\eta_{\text{min\_fx}}` and   |                                             |                |
+   | :math:`\eta_{\text{max\_fx}}`       |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change    | :c:func:`CVodeSetEtaMaxFirstStep`           | :math:`10^4`   |
+   | factor in the first step            |                                             |                |
+   | :math:`\eta_{\text{max\_fs}}`       |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change    | :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`   | 10             |
+   | factor for early steps              |                                             |                |
+   | :math:`\eta_{\text{max\_es}}`       |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Number of time steps to use the     | :c:func:`CVodeSetNumStepsEtaMaxEarly`       | 10             |
+   | early step size change factor       |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change    | :c:func:`CVodeSetEtaMax`                    | 10             |
+   | factor after a successful step      |                                             |                |
+   | :math:`\eta_{\text{max\_gs}}`       |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Smallest allowed step size change   | :c:func:`CVodeSetEtaMin`                    | 1.0            |
+   | factor after a successful step      |                                             |                |
+   | :math:`\eta_{\text{min}}`           |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Smallest allowed step size change   | :c:func:`CVodeSetEtaMinErrFail`             | 0.1            |
+   | factor after an error test fail     |                                             |                |
+   | :math:`\eta_{\text{min\_ef}}`       |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change    | :c:func:`CVodeSetEtaMaxErrFail`             | 0.2            |
+   | factor after multiple error test    |                                             |                |
+   | fails :math:`\eta_{\text{max\_ef}}` |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Number of error failures necessary  | :c:func:`CVodeSetNumFailsEtaMaxErrFail`     | 2              |
+   | for :math:`\eta_{\text{max\_ef}}`   |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+   | Step size change factor after a     | :c:func:`CVodeSetEtaConvFail`               | 0.25           |
+   | nonlinear solver convergence        |                                             |                |
+   | failure :math:`\eta_{\text{cf}}`    |                                             |                |
+   +-------------------------------------+---------------------------------------------+----------------+
+
+The following functions can be called to set optional inputs to control the
+step size adaptivity.
+
+.. note::
+
+   The default values for the step size adaptivity tuning parameters have a long
+   history of success and changing the values is generally discouraged. However,
+   users that wish to experiment with alternative values should be careful to
+   make changes gradually and with testing to determine their effectiveness.
+
+
+.. c:function:: int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx, realtype eta_max_fx)
+
+   The function ``CVodeSetEtaFixedStepBounds`` specifies the interval lower
+   (:math:`\eta_{\text{min\_fx}}`) and upper (:math:`\eta_{\text{max\_fx}}`)
+   bounds in which the step size will remain unchanged i.e., if
+   :math:`\eta_{\text{min\_fx}} < \eta < \eta_{\text{max\_fx}}`, then
+   :math:`\eta = 1`.
+
+   The default values are :math:`\eta_{\text{min\_fx}} = 0` and
+   :math:`\eta_{\text{max\_fx}} = 1.5`
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_min_fx`` -- value of the lower bound of the fixed step interval. If
+       ``eta_min_fx`` is :math:`< 0` or :math:`\geq 1`, the default value is
+       used.
+     * ``eta_max_fx`` -- value of the upper bound of the fixed step interval. If
+       ``eta_max_fx`` is :math:`< 1`, the default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
+
+   The function ``CVodeSetEtaMaxFirstStep`` specifies the maximum step size
+   factor after the first time step, :math:`\eta_{\text{max\_fs}}`.
+
+   The default value is :math:`\eta_{\text{max\_fs}} = 10^4`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_max_fs`` -- value of the maximum step size factor after the first
+       time step. If ``eta_max_fs`` is :math:`\leq 1`, the default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es)
+
+   The function ``CVodeSetEtaMaxEarlyStepEtaMax`` specifies the maximum step size
+   factor for steps early in the integration,
+   :math:`\eta_{\text{max\_es}}`.
+
+   The default value is :math:`\eta_{\text{max\_es}} = 10`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_max_es`` -- value of the maximum step size factor for early in the
+       integration. If ``eta_max_es`` is :math:`\leq 1`, the default value is
+       used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. note::
+
+      The factor for the first time step is set by
+      :c:func:`CVodeSetEtaMaxFirstStep`.
+
+      The number of time steps that use the early integration maximum step size
+      factor :math:`\eta_{\text{max\_es}}` can be set with
+      :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst)
+
+   The function ``CVodeSetNumStepsEtaMaxEarlyStep`` specifies the number of steps to
+   use the early integration maximum step size factor,
+   :math:`\eta_{\text{max\_es}}`.
+
+   The default value is 10.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``small_nst`` -- value of the maximum step size factor for early in the
+       integration. If ``small_nst`` is :math:`< 0`, the default value is used.
+       If the ``small_nst`` is 0, then the value set by :c:func:`CVodeSetEtaMax`
+       is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. note::
+
+      The factor :math:`\eta_{\text{max\_es}}` can be set with
+      :c:func:`CVodeSetEtaMaxEarlyStep`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
+
+   The function ``CVodeSetEtaMax`` specifies the maximum step size factor,
+   :math:`\eta_{\text{max\_gs}}`.
+
+   The default value is :math:`\eta_{\text{max\_gs}} = 10`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_max_gs`` -- value of the maximum step size factor. If
+       ``eta_max_gs`` is :math:`\leq 1`, the default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. note::
+
+      The factor for the first time step is set by
+      :c:func:`CVodeSetEtaMaxFirstStep`.
+
+      The factor for steps early in the integration is set by
+      :c:func:`CVodeSetEtaMaxEarlyStep`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
+
+   The function ``CVodeSetEtaMin`` specifies the minimum step size factor,
+   :math:`\eta_{\text{min}}`.
+
+   The default value is :math:`\eta_{\text{min}} = 1.0`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_min`` -- value of the minimum step size factor. If ``eta_min`` is
+       :math:`\leq 0` or :math:`\geq 1`, the default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaMinErrFail(void *cvode_mem, realtype eta_min_ef)
+
+   The function ``CVodeSetEtaMinErrFail`` specifies the minimum step size
+   factor after an error test failure, :math:`\eta_{\text{min\_ef}}`.
+
+   The default value is :math:`\eta_{\text{min\_ef}} = 0.1`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_min_ef`` -- value of the minimum step size factor after an error
+       test failure. If ``eta_min_ef`` is :math:`\leq 0` or :math:`\geq 1`, the
+       default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
+
+   The function ``CVodeSetEtaMaxErrFail`` specifies the maximum step size
+   factor after multiple error test failures, :math:`\eta_{\text{max\_ef}}`.
+
+   The default value is :math:`\eta_{\text{min\_ef}} = 0.2`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_max_ef`` -- value of the maximum step size factor after an multiple
+       error test failures.  If ``eta_min_ef`` is :math:`\leq 0` or
+       :math:`\geq 1`, the default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. note::
+
+      The number of error test failures necessary to enforce the maximum step
+      size factor :math:`\eta_{\text{min\_ef}}` can be set with
+      :c:func:`CVodeSetNumFailsEtaMaxErrFail`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetNumFailsEtaMaxErrFail(void *cvode_mem, int small_nef)
+
+   The function ``CVodeSetNumFailsEtaMaxErrFail`` specifies the number of error
+   test failures necessary to enforce the maximum step size factor
+   :math:`\eta_{\text{max\_ef}}`.
+
+   The default value is 2.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``small_nst`` -- value of the maximum step size factor for early in the
+       integration. If ``small_nst`` is :math:`< 0`, the default value is used.
+       If the ``small_nst`` is 0, then the value set by :c:func:`CVodeSetEtaMax`
+       is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. note::
+
+      The factor :math:`\eta_{\text{max\_ef}}` can be set with
+      :c:func:`CVodeSetEtaMaxErrFail`.
+
+   .. versionadded:: 6.2.0
+
+.. c:function:: int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
+
+   The function ``CVodeSetEtaConvFail`` specifies the step size factor after a
+   nonlinear solver failure :math:`\eta_{\text{cf}}`.
+
+   The default value is :math:`\eta_{\text{cf}} = 0.25`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``eta_cf`` -- value of the maximum step size factor after a nonlinear
+       solver failure. If ``eta_cf`` is :math:`\leq 0` or :math:`\geq 1`, the
+       default value is used.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a
+       previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.2.0
+
+
 .. _CVODES.Usage.SIM.optional_input.optin_root:
 
 Rootfinding optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _CVODES.Usage.SIM.optional_input.optin_root_table:
+
+.. table:: Optional inputs for CVODES step size adaptivity
+
+   +-------------------------------+---------------------------------------------+----------------+
+   |      **Optional input**       |              **Function name**              |  **Default**   |
+   +===============================+=============================================+================+
+   | Direction of zero-crossing    | :c:func:`CVodeSetRootDirection`             | both           |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Disable rootfinding warnings  | :c:func:`CVodeSetNoInactiveRootWarn`        | none           |
+   +-------------------------------+---------------------------------------------+----------------+
+
 
 The following functions can be called to set optional inputs to control
 the rootfinding algorithm.
@@ -1687,6 +2046,27 @@ the rootfinding algorithm.
 
 Projection optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _CVODES.Usage.SIM.optional_input.optin_proj_table:
+
+.. table:: Optional inputs for the CVODE projection interface
+
+   +-------------------------------+---------------------------------------------+----------------+
+   |      **Optional input**       |              **Function name**              |  **Default**   |
+   +===============================+=============================================+================+
+   | Enable or disable error       | :c:func:`CVodeSetProjErrEst`                | ``SUNTRUE``    |
+   | estimate projection           |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Projection frequency          | :c:func:`CVodeSetProjFrequency`             | 1              |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Maximum number of projection  | :c:func:`CVodeSetMaxNumProjFails`           | 10             |
+   | failures                      |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Projection solve tolerance    | :c:func:`CVodeSetEpsProj`                   | 0.1            |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Step size reduction factor    | :c:func:`CVodeSetProjFailEta`               | 0.25           |
+   | after a failed projection     |                                             |                |
+   +-------------------------------+---------------------------------------------+----------------+
 
 The following functions can be called to set optional inputs to control
 the projection when solving an IVP with constraints.
@@ -1765,6 +2145,7 @@ the projection when solving an IVP with constraints.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
    .. versionadded:: 6.2.0
+
 
 .. _CVODES.Usage.SIM.optional_dky:
 
@@ -1911,7 +2292,7 @@ the preconditioner.
    | Get all linear solver statistics in one        | :c:func:`CVodeGetLinSolvStats`           |
    | function call                                  |                                          |
    +------------------------------------------------+------------------------------------------+
-   | Last return from a linear solver function      | :c:func:`CVodeGetLastLinSolvStats`       |
+   | Last return from a linear solver function      | :c:func:`CVodeGetLastLinFlag`            |
    +------------------------------------------------+------------------------------------------+
    | Name of constant associated with a return flag | :c:func:`CVodeGetLinReturnFlagName`      |
    +------------------------------------------------+------------------------------------------+

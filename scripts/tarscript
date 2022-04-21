@@ -204,6 +204,7 @@ mkdir $tmpdir/examples
 mkdir $tmpdir/include
 mkdir $tmpdir/scripts
 mkdir $tmpdir/src
+mkdir $tmpdir/test
 
 #----------------------------------
 # Copy appropriate files in $tmpdir
@@ -261,7 +262,8 @@ cp -r $sundialsdir/src/sunmemory $tmpdir/src/
 cp -r $sundialsdir/src/sunlinsol $tmpdir/src/
 cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/
 
-cp -r $sundialsdir/test $tmpdir/
+cp    $sundialsdir/test/testRunner $tmpdir/test/
+cp -r $sundialsdir/test/unit_tests $tmpdir/test/
 
 # Don't release MATLAB until brought current with new version(s)
 #if [ $do_sundials = "T" ]; then

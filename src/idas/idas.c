@@ -154,7 +154,6 @@
 
 #define ZERO      RCONST(0.0)    /* real 0.0    */
 #define HALF      RCONST(0.5)    /* real 0.5    */
-#define QUARTER   RCONST(0.25)   /* real 0.25   */
 #define TWOTHIRDS RCONST(0.667)  /* real 2/3    */
 #define ONE       RCONST(1.0)    /* real 1.0    */
 #define ONEPT5    RCONST(1.5)    /* real 1.5    */
@@ -171,6 +170,9 @@
 #define PT01      RCONST(0.01)   /* real 0.01   */
 #define PT001     RCONST(0.001)  /* real 0.001  */
 #define PT0001    RCONST(0.0001) /* real 0.0001 */
+
+/* real 1 + epsilon used in testing if the step size is below its bound */
+#define ONEPSM    RCONST(1.000001)
 
 /*
  * =================================================================
@@ -238,6 +240,7 @@
 /*=================================================================*/
 
 #define IDA_PROFILER IDA_mem->ida_sunctx->profiler
+
 
 /*
  * =================================================================
@@ -437,6 +440,14 @@ void *IDACreate(SUNContext sunctx)
   IDA_mem->ida_maxord         = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep         = MXSTEP_DEFAULT;
   IDA_mem->ida_hmax_inv       = HMAX_INV_DEFAULT;
+  IDA_mem->ida_hmin           = HMIN_DEFAULT;
+  IDA_mem->ida_eta_max_fx     = ETA_MAX_FX_DEFAULT;
+  IDA_mem->ida_eta_min_fx     = ETA_MIN_FX_DEFAULT;
+  IDA_mem->ida_eta_max        = ETA_MAX_DEFAULT;
+  IDA_mem->ida_eta_low        = ETA_LOW_DEFAULT;
+  IDA_mem->ida_eta_min        = ETA_MIN_DEFAULT;
+  IDA_mem->ida_eta_min_ef     = ETA_MIN_EF_DEFAULT;
+  IDA_mem->ida_eta_cf         = ETA_CF_DEFAULT;
   IDA_mem->ida_hin            = ZERO;
   IDA_mem->ida_epcon          = EPCON;
   IDA_mem->ida_maxnef         = MXNEF;
@@ -2385,6 +2396,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       return(IDA_ILL_INPUT);
     }
 
+    /* Set initial h */
+
     IDA_mem->ida_hh = IDA_mem->ida_hin;
     if ( (IDA_mem->ida_hh != ZERO) && ((tout-IDA_mem->ida_tn)*IDA_mem->ida_hh < ZERO) ) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_BAD_HINIT);
@@ -2410,8 +2423,14 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       if (tout < IDA_mem->ida_tn) IDA_mem->ida_hh = -IDA_mem->ida_hh;
     }
 
+    /* Enforce hmax and hmin */
+
     rh = SUNRabs(IDA_mem->ida_hh) * IDA_mem->ida_hmax_inv;
     if (rh > ONE) IDA_mem->ida_hh /= rh;
+    if (SUNRabs(IDA_mem->ida_hh) < IDA_mem->ida_hmin)
+      IDA_mem->ida_hh *= IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh);
+
+    /* Check for approach to tstop */
 
     if (IDA_mem->ida_tstopset) {
       if ( (IDA_mem->ida_tstop - IDA_mem->ida_tn)*IDA_mem->ida_hh <= ZERO) {
@@ -5800,11 +5819,17 @@ static int IDANls(IDAMem IDA_mem)
       return(IDA_SUCCESS);
     }
 
+    /* Return with error if |h| == hmin */
+    if (SUNRabs(IDA_mem->ida_hh) <= IDA_mem->ida_hmin * ONEPSM)
+      return(IDA_CONSTR_FAIL);
+
     /* Constraints correction is too large, reduce h by computing rr = h'/h */
     N_VLinearSum(ONE, IDA_mem->ida_phi[0], -ONE, IDA_mem->ida_yy, tmp);
     N_VProd(mm, tmp, tmp);
-    IDA_mem->ida_rr = PT9*N_VMinQuotient(IDA_mem->ida_phi[0], tmp);
-    IDA_mem->ida_rr = SUNMAX(IDA_mem->ida_rr, PT1);
+    IDA_mem->ida_eta = PT9*N_VMinQuotient(IDA_mem->ida_phi[0], tmp);
+    IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta, PT1);
+    IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta,
+                              IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
 
     /* Reattempt step with new step size */
     return(IDA_CONSTR_RECVR);
@@ -6517,6 +6542,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       if (nflag == IDA_LSOLVE_FAIL)      return(IDA_LSOLVE_FAIL);
       else if (nflag == IDA_LSETUP_FAIL) return(IDA_LSETUP_FAIL);
       else if (nflag == IDA_RES_FAIL)    return(IDA_RES_FAIL);
+      else if (nflag == IDA_CONSTR_FAIL) return(IDA_CONSTR_FAIL);
       else if (nflag == IDA_QRHS_FAIL)   return(IDA_QRHS_FAIL);
       else if (nflag == IDA_SRES_FAIL)   return(IDA_SRES_FAIL);
       else if (nflag == IDA_QSRHS_FAIL)  return(IDA_QSRHS_FAIL);
@@ -6524,19 +6550,25 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
 
     } else {          /* recoverable failure    */
 
+      /* Test if there were too many convergence failures or |h| = hmin */
+      if ((*ncfPtr == IDA_mem->ida_maxncf) ||
+          (SUNRabs(IDA_mem->ida_hh) <= IDA_mem->ida_hmin * ONEPSM)) {
+        if (nflag == IDA_RES_RECVR)    return(IDA_REP_RES_ERR);
+        if (nflag == IDA_QRHS_RECVR)   return(IDA_REP_QRHS_ERR);
+        if (nflag == IDA_SRES_RECVR)   return(IDA_REP_SRES_ERR);
+        if (nflag == IDA_QSRHS_RECVR)  return(IDA_REP_QSRHS_ERR);
+        if (nflag == IDA_CONSTR_RECVR) return(IDA_CONSTR_FAIL);
+        return(IDA_CONV_FAIL);
+      }
+
       /* Reduce step size for a new prediction
          Note that if nflag=IDA_CONSTR_RECVR then rr was already set in IDANls */
-      if (nflag != IDA_CONSTR_RECVR) IDA_mem->ida_rr = QUARTER;
-      IDA_mem->ida_hh *= IDA_mem->ida_rr;
+      if (nflag != IDA_CONSTR_RECVR)
+        IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_cf,
+                                  IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
+      IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-      /* Test if there were too many convergence failures */
-      if (*ncfPtr < IDA_mem->ida_maxncf)  return(PREDICT_AGAIN);
-      else if (nflag == IDA_RES_RECVR)    return(IDA_REP_RES_ERR);
-      else if (nflag == IDA_QRHS_RECVR)   return(IDA_REP_QRHS_ERR);
-      else if (nflag == IDA_SRES_RECVR)   return(IDA_REP_SRES_ERR);
-      else if (nflag == IDA_QSRHS_RECVR)  return(IDA_REP_QSRHS_ERR);
-      else if (nflag == IDA_CONSTR_RECVR) return(IDA_CONSTR_FAIL);
-      else                                return(IDA_CONV_FAIL);
+      return(PREDICT_AGAIN);
     }
 
   } else {
@@ -6556,9 +6588,12 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       err_knew = (IDA_mem->ida_kk == IDA_mem->ida_knew) ? err_k : err_km1;
 
       IDA_mem->ida_kk = IDA_mem->ida_knew;
-      IDA_mem->ida_rr = PT9 * SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
-      IDA_mem->ida_rr = SUNMAX(QUARTER, SUNMIN(PT9,IDA_mem->ida_rr));
-      IDA_mem->ida_hh *= IDA_mem->ida_rr;
+      IDA_mem->ida_eta = PT9 * SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
+      IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
+                                SUNMIN(IDA_mem->ida_eta_low, IDA_mem->ida_eta));
+      IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta,
+                                IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
+      IDA_mem->ida_hh *= IDA_mem->ida_eta;
       return(PREDICT_AGAIN);
 
     } else if (*nefPtr == 2) {
@@ -6567,8 +6602,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
          Reduce stepsize by factor of 1/4. */
 
       IDA_mem->ida_kk = IDA_mem->ida_knew;
-      IDA_mem->ida_rr = QUARTER;
-      IDA_mem->ida_hh *= IDA_mem->ida_rr;
+      IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
+                                IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
+      IDA_mem->ida_hh *= IDA_mem->ida_eta;
       return(PREDICT_AGAIN);
 
     } else if (*nefPtr < IDA_mem->ida_maxnef) {
@@ -6576,8 +6612,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       /* On third and subsequent error test failures, set order to 1.
          Reduce stepsize by factor of 1/4. */
       IDA_mem->ida_kk = 1;
-      IDA_mem->ida_rr = QUARTER;
-      IDA_mem->ida_hh *= IDA_mem->ida_rr;
+      IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
+                                IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
+      IDA_mem->ida_hh *= IDA_mem->ida_eta;
       return(PREDICT_AGAIN);
 
     } else {
@@ -6604,14 +6641,14 @@ static void IDAReset(IDAMem IDA_mem)
 
   IDA_mem->ida_psi[0] = IDA_mem->ida_hh;
 
-  N_VScale(IDA_mem->ida_rr, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]);
+  N_VScale(IDA_mem->ida_eta, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]);
 
   if (IDA_mem->ida_quadr)
-    N_VScale(IDA_mem->ida_rr, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]);
+    N_VScale(IDA_mem->ida_eta, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]);
 
   if (IDA_mem->ida_sensi || IDA_mem->ida_quadr_sensi)
     for(is=0; is<IDA_mem->ida_Ns; is++)
-      IDA_mem->ida_cvals[is] = IDA_mem->ida_rr;
+      IDA_mem->ida_cvals[is] = IDA_mem->ida_eta;
 
   if (IDA_mem->ida_sensi)
     (void) N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
@@ -6743,23 +6780,34 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     else if (action == LOWER) { IDA_mem->ida_kk--; err_knew = err_km1; }
     else                      {                    err_knew = err_k;   }
 
-    /* Compute rr = tentative ratio hnew/hh from error norm estimate.
-       Reduce hh if rr <= 1, double hh if rr >= 2, else leave hh as is.
-       If hh is reduced, hnew/hh is restricted to be between .5 and .9. */
+    /* Compute tmp = tentative ratio hnew/hh from error norm estimate.
+       1. If eta >= eta_max_fx (default = 2), increase hh to at most eta_max
+          (default = 2) i.e., double the step size
+       2. If eta <= eta_min_fx (default = 1), reduce hh to between eta_min
+          (default 0.5) and eta_low (default 0.9),
+       3. Otherwise leave hh as is i.e., eta = 1. */
 
-    hnew = IDA_mem->ida_hh;
-    IDA_mem->ida_rr = SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
+    IDA_mem->ida_eta = ONE;
+    tmp = SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
 
-    if (IDA_mem->ida_rr >= TWO) {
-      hnew = TWO * IDA_mem->ida_hh;
-      if( (tmp = SUNRabs(hnew) * IDA_mem->ida_hmax_inv) > ONE )
-        hnew /= tmp;
-    } else if (IDA_mem->ida_rr <= ONE ) {
-      IDA_mem->ida_rr = SUNMAX(HALF, SUNMIN(PT9,IDA_mem->ida_rr));
-      hnew = IDA_mem->ida_hh * IDA_mem->ida_rr;
+    if (tmp >= IDA_mem->ida_eta_max_fx)
+    {
+      /* Enforce max growth factor bound and max step size */
+      IDA_mem->ida_eta = SUNMIN(tmp, IDA_mem->ida_eta_max);
+      IDA_mem->ida_eta /= SUNMAX(ONE, IDA_mem->ida_eta * SUNRabs(IDA_mem->ida_hh)
+                                 * IDA_mem->ida_hmax_inv);
     }
-
-    IDA_mem->ida_hh = hnew;
+    else if (tmp <= IDA_mem->ida_eta_min_fx)
+    {
+      /* Enforce required reduction factor bound, min reduction bound, and min
+         step size. Note if eta = eta_min_fx = 1 and ida_eta_low < 1 the step
+         size is reduced. */
+      IDA_mem->ida_eta = SUNMIN(tmp, IDA_mem->ida_eta_low);
+      IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta, IDA_mem->ida_eta_min);
+      IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta,
+                                IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
+    }
+    IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
   } /* end of phase if block */
 

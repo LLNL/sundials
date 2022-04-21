@@ -108,10 +108,10 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             realtype ecur, long int nst)
+             realtype dsm, long int nst)
 {
   int ier, k;
-  realtype h_acc, h_cfl, int_dir;
+  realtype ecur, h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
@@ -119,6 +119,9 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Current error with bias factor */
+  ecur = hadapt_mem->bias * dsm;
 
   /* Set k as either p or q, based on pq flag */
   k = (hadapt_mem->pq) ? hadapt_mem->q : hadapt_mem->p;
@@ -202,9 +205,11 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(h_cfl));
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
-  if ( (SUNRabs(h_acc) > SUNRabs(hcur*hadapt_mem->lbound*ONEMSM)) &&
-       (SUNRabs(h_acc) < SUNRabs(hcur*hadapt_mem->ubound*ONEPSM)) )
-    h_acc = hcur;
+  if (dsm <= ONE) {
+    if ( (SUNRabs(h_acc) > SUNRabs(hcur*hadapt_mem->lbound*ONEMSM)) &&
+         (SUNRabs(h_acc) < SUNRabs(hcur*hadapt_mem->ubound*ONEPSM)) )
+      h_acc = hcur;
+  }
 
   /* set basic value of ark_eta */
   ark_mem->eta = h_acc / hcur;

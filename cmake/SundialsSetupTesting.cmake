@@ -23,11 +23,6 @@ sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test" O
 # Enable testing with 'make test'
 include(CTest)
 
-# Add unit tests to the build if they are enabled
-if(SUNDIALS_TEST_UNITTESTS)
-  add_subdirectory(test/unit_tests)
-endif()
-
 # Check if development tests are enabled
 if(SUNDIALS_TEST_DEVTESTS)
 

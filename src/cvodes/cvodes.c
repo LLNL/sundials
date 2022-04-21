@@ -292,32 +292,7 @@
  *
  *   CORTES       constant in nonlinear iteration convergence test
  *
- * cvStep
- *
- *    THRESH      if eta < THRESH reject a change in step size or order
- *    ETAMX1      -+
- *    ETAMX2       |
- *    ETAMX3       |-> bounds for eta (step size change)
- *    ETAMXF       |
- *    ETAMIN       |
- *    ETACF       -+
- *    ADDON       safety factor in computing eta
- *    BIAS1       -+
- *    BIAS2        |-> bias factors in eta selection
- *    BIAS3       -+
- *    ONEPSM      (1+epsilon) used in testing if the step size is below its bound
- *
- *    SMALL_NST   nst > SMALL_NST => use ETAMX3
- *    MXNCF       max no. of convergence failures during one step try
- *    MXNEF       max no. of error test failures during one step try
- *    MXNEF1      max no. of error test failures before forcing a reduction of order
- *    SMALL_NEF   if an error failure occurs and SMALL_NEF <= nef <= MXNEF1, then
- *                reset eta =  SUNMIN(eta, ETAMXF)
- *    LONG_WAIT   number of steps to wait before considering an order change when
- *                q==1 and MXNEF1 error test failures have occurred
- *
  */
-
 
 #define FUZZ_FACTOR RCONST(100.0)
 
@@ -327,26 +302,6 @@
 #define MAX_ITERS  4
 
 #define CORTES RCONST(0.1)
-
-#define THRESH RCONST(1.5)
-#define ETAMX1 RCONST(10000.0)
-#define ETAMX2 RCONST(10.0)
-#define ETAMX3 RCONST(10.0)
-#define ETAMXF RCONST(0.2)
-#define ETAMIN RCONST(0.1)
-#define ETACF  RCONST(0.25)
-#define ADDON  RCONST(0.000001)
-#define BIAS1  RCONST(6.0)
-#define BIAS2  RCONST(6.0)
-#define BIAS3  RCONST(10.0)
-#define ONEPSM RCONST(1.000001)
-
-#define SMALL_NST    10
-#define MXNCF        10
-#define MXNEF         7
-#define MXNEF1        3
-#define SMALL_NEF     2
-#define LONG_WAIT    10
 
 /*=================================================================*/
 /* Shortcuts                                                       */
@@ -570,6 +525,17 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_hin              = ZERO;
   cv_mem->cv_hmin             = HMIN_DEFAULT;
   cv_mem->cv_hmax_inv         = HMAX_INV_DEFAULT;
+  cv_mem->cv_eta_min_fx       = ETA_MIN_FX_DEFAULT;
+  cv_mem->cv_eta_max_fx       = ETA_MAX_FX_DEFAULT;
+  cv_mem->cv_eta_max_fs       = ETA_MAX_FS_DEFAULT;
+  cv_mem->cv_eta_max_es       = ETA_MAX_ES_DEFAULT;
+  cv_mem->cv_eta_max_gs       = ETA_MAX_GS_DEFAULT;
+  cv_mem->cv_eta_min          = ETA_MIN_DEFAULT;
+  cv_mem->cv_eta_min_ef       = ETA_MIN_EF_DEFAULT;
+  cv_mem->cv_eta_max_ef       = ETA_MAX_EF_DEFAULT;
+  cv_mem->cv_eta_cf           = ETA_CF_DEFAULT;
+  cv_mem->cv_small_nst        = SMALL_NST_DEFAULT;
+  cv_mem->cv_small_nef        = SMALL_NEF_DEFAULT;
   cv_mem->cv_tstopset         = SUNFALSE;
   cv_mem->cv_maxnef           = MXNEF;
   cv_mem->cv_maxncf           = MXNCF;
@@ -836,7 +802,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_q      = 1;
   cv_mem->cv_L      = 2;
   cv_mem->cv_qwait  = cv_mem->cv_L;
-  cv_mem->cv_etamax = ETAMX1;
+  cv_mem->cv_etamax = cv_mem->cv_eta_max_fs;
 
   cv_mem->cv_qu    = 0;
   cv_mem->cv_hu    = ZERO;
@@ -951,7 +917,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   cv_mem->cv_q      = 1;
   cv_mem->cv_L      = 2;
   cv_mem->cv_qwait  = cv_mem->cv_L;
-  cv_mem->cv_etamax = ETAMX1;
+  cv_mem->cv_etamax = cv_mem->cv_eta_max_fs;
 
   cv_mem->cv_qu    = 0;
   cv_mem->cv_hu    = ZERO;
@@ -2948,6 +2914,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         return(istate);
       }
     }
+
+    /* Enforce hmax and hmin */
+
     rh = SUNRabs(cv_mem->cv_h)*cv_mem->cv_hmax_inv;
     if (rh > ONE) cv_mem->cv_h /= rh;
     if (SUNRabs(cv_mem->cv_h) < cv_mem->cv_hmin)
@@ -5504,7 +5473,7 @@ static int cvStep(CVodeMem cv_mem)
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
     if (eflag == TRY_AGAIN) continue;
 
-    /* Return if error test failed and recovery not possible. */
+    /* Return if error test failed and recovery is not possible. */
     if (eflag != CV_SUCCESS) return(eflag);
 
     /* Error test passed (eflag=CV_SUCCESS, nflag=CV_SUCCESS), go on */
@@ -5651,7 +5620,8 @@ static int cvStep(CVodeMem cv_mem)
 
   if (cv_mem->cv_sldeton) cvBDFStab(cv_mem);
 
-  cv_mem->cv_etamax = (cv_mem->cv_nst <= SMALL_NST) ? ETAMX2 : ETAMX3;
+  cv_mem->cv_etamax = (cv_mem->cv_nst <= cv_mem->cv_small_nst) ?
+    cv_mem->cv_eta_max_es : cv_mem->cv_eta_max_gs;
 
   /*  Finally, we rescale the acor array to be the
       estimated local error vector. */
@@ -6800,7 +6770,7 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     else                                 return(CV_NLS_FAIL);
   }
 
-  /* At this point, a recoverable error occured. */
+  /* At this point, a recoverable error occurred. */
 
   (*ncfPtr)++;
   cv_mem->cv_etamax = ONE;
@@ -6820,7 +6790,8 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   /* Reduce step size; return to reattempt the step
      Note that if nflag = CONSTR_RECVR, then eta was already set in cvCheckConstraints */
   if (nflag != CONSTR_RECVR)
-    cv_mem->cv_eta = SUNMAX(ETACF, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+    cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_cf,
+                            cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
   *nflagPtr = PREV_CONV_FAIL;
   cvRescale(cv_mem);
 
@@ -6937,16 +6908,21 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   /* Set h ratio eta from dsm, rescale, and return for retry of step */
   if (*nefPtr <= MXNEF1) {
     cv_mem->cv_eta = ONE / (SUNRpowerR(BIAS2*dsm,ONE/cv_mem->cv_L) + ADDON);
-    cv_mem->cv_eta = SUNMAX(ETAMIN, SUNMAX(cv_mem->cv_eta,
-                                           cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h)));
-    if (*nefPtr >= SMALL_NEF) cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, ETAMXF);
+    cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_min_ef,
+                            SUNMAX(cv_mem->cv_eta,
+                                   cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h)));
+    if (*nefPtr >= cv_mem->cv_small_nef)
+      cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, cv_mem->cv_eta_max_ef);
+
     cvRescale(cv_mem);
+
     return(TRY_AGAIN);
   }
 
   /* After MXNEF1 failures, force an order reduction and retry step */
   if (cv_mem->cv_q > 1) {
-    cv_mem->cv_eta = SUNMAX(ETAMIN, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+    cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_min_ef,
+                            cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
     cvAdjustOrder(cv_mem,-1);
     cv_mem->cv_L = cv_mem->cv_q;
     cv_mem->cv_q--;
@@ -6957,7 +6933,8 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   /* If already at order 1, restart: reload zn, znQ, znS, znQS from scratch */
 
-  cv_mem->cv_eta = SUNMAX(ETAMIN, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+  cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_min_ef,
+                          cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
   cv_mem->cv_h *= cv_mem->cv_eta;
   cv_mem->cv_next_h = cv_mem->cv_h;
   cv_mem->cv_hscale = cv_mem->cv_h;
@@ -7177,16 +7154,29 @@ static void cvPrepareNextStep(CVodeMem cv_mem, realtype dsm)
 
 static void cvSetEta(CVodeMem cv_mem)
 {
-
-  /* If eta below the threshhold THRESH, reject a change of step size */
-  if (cv_mem->cv_eta < THRESH) {
+  if ((cv_mem->cv_eta > cv_mem->cv_eta_min_fx) &&
+      (cv_mem->cv_eta < cv_mem->cv_eta_max_fx))
+  {
+    /* Eta is within the fixed step bounds, retain step size */
     cv_mem->cv_eta = ONE;
     cv_mem->cv_hprime = cv_mem->cv_h;
-  } else {
-    /* Limit eta by etamax and hmax, then set hprime */
-    cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, cv_mem->cv_etamax);
-    cv_mem->cv_eta /= SUNMAX(ONE, SUNRabs(cv_mem->cv_h) *
-                             cv_mem->cv_hmax_inv*cv_mem->cv_eta);
+  }
+  else
+  {
+    if (cv_mem->cv_eta >= cv_mem->cv_eta_max_fx)
+    {
+      /* Increase the step size, limit eta by etamax and hmax */
+      cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, cv_mem->cv_etamax);
+      cv_mem->cv_eta /= SUNMAX(ONE, SUNRabs(cv_mem->cv_h) *
+                               cv_mem->cv_hmax_inv * cv_mem->cv_eta);
+    }
+    else
+    {
+      /* Reduce the step size, limit eta by etamin and hmin */
+      cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, cv_mem->cv_eta_min);
+      cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+    }
+    /* Set hprime */
     cv_mem->cv_hprime = cv_mem->cv_h * cv_mem->cv_eta;
     if (cv_mem->cv_qprime < cv_mem->cv_q) cv_mem->cv_nscon = 0;
   }
@@ -7283,7 +7273,7 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
  * corresponding value of q.  If there is a tie, the preference
  * order is to (1) keep the same order, then (2) decrease the order,
  * and finally (3) increase the order.  If the maximum eta value
- * is below the threshhold THRESH, the order is kept unchanged and
+ * is within the fixed step bounds, the order is kept unchanged and
  * eta is set to 1.
  */
 
@@ -7294,7 +7284,8 @@ static void cvChooseEta(CVodeMem cv_mem)
 
   etam = SUNMAX(cv_mem->cv_etaqm1, SUNMAX(cv_mem->cv_etaq, cv_mem->cv_etaqp1));
 
-  if (etam < THRESH) {
+  if ((etam > cv_mem->cv_eta_min_fx) && (etam < cv_mem->cv_eta_max_fx))
+  {
     cv_mem->cv_eta = ONE;
     cv_mem->cv_qprime = cv_mem->cv_q;
     return;
