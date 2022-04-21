@@ -1,0 +1,219 @@
+                         sundialsTB
+                A MATLAB interface to SUNDIALS
+                   Release 2.5.0, March 2012
+
+                        Radu Serban
+         Center for Applied Scientific Computing, LLNL
+
+
+sundialsTB provides a MATLAB interface to the following SUNDIALS solvers:
+  CVODES: a variable-order, variable-step ODE solver with sensitivity 
+          analysis capabilities
+  IDAS:   a variable-order, variable-sttp DAE and implicit ODE solver
+  KINSOL: a nonlinear system solver
+
+The core of each MATLAB interface in sundialsTB is a single mex file 
+which interfaces to the various user-callable functions for that solver. 
+However, this mex file should not be called directly, but rather through 
+the user-callable functions provided for each MATLAB interface.
+
+The distribution file also contains a user guide, as well as several examples. 
+
+sundialsTB v. 2.5.0 requires SUNDIALS v 2.5.0 and, optionally (for parallel 
+support), MPITB with LAM 7.1.1 for MPI-2 features.
+
+SUNDIALS: http://www.llnl.gov/CASC/sundials
+MPITB:    http://atc.ugr.es/javier-bin/mpitb_eng
+LAM:      http://www.lam-mpi.org/
+
+
+A. Documentation
+----------------
+
+/sundialsTB/doc contains a PDF file for the sundialsTB User Guide.
+
+
+B. Installation
+---------------
+
+B.1. Compilation and installation of sundialsTB
+
+As of version 2.3.0, sundialsTB is distributed only with the complete SUNDIALS 
+package and, on *nix systems (or under cygwin in Windows), the Matlab toolbox 
+can be configured, built, and installed using the main SUNDIALS configure script. 
+For details see the SUNDIALS file INSTALL_NOTES. 
+
+For systems that do not support configure scripts (or if the configure script 
+fails to configure sundialsTB), we provide a Matlab script (install_STB.m) which 
+can be used to build and install sundialsTB from within Matlab. In the sequel, 
+we assume that the SUNDIALS package was unpacked under the directory 'srcdir'. 
+The sundialsTB files are therefore in 'srcdir'/sundialsTB. 
+
+To facilitate the compilation of sundialsTB on platforms that do not have
+a make system, we rely on Matlab's mex command. Compilation of sundialsTB
+is done by running from under Matlab the install_STB.m script which is
+present in the sundialsTB top directory.
+
+1. Launch matlab in sundialsTB:
+     % cd 'srcdir'/sundialsTB
+     % matlab
+
+2. Run the install_STB matlab script.
+
+     Note that parallel support will be compiled into the MEX files only if
+     ALL of the following conditions are met:
+     - $LAMHOME is defined
+     - $MPITB_ROOT is defined
+     - 'srcdir'/src/nvec_par exists 
+
+     After the MEX files are generated, you will be asked if you wish to install 
+     the sundialsTB toolbox. If you answer yes, you will be then asked for the
+     installation directory (called in the sequel 'instdir'). 
+     To install sundialsTB for all Matlab users (not usual), assuming Matlab is 
+     installed under /usr/local/matlab7, specify
+        'instdir' = /usr/local/matlab7/toolbox
+     To install sundialsTB for just one user (usual configuration), install      
+     sundialsTB under a directory of your choice (typically under your 'matlab'
+     working directory). In other words, specify
+        'instdir' = /home/user/matlab
+
+
+B.2. Configuring Matlab's startup
+
+After a successful installation, a sundialsTB.m startup script is generated
+in 'instdir'/sundialsTB. This file must be called by Matlab at initialization.
+
+If sundialsTB was installed for all Matlab users (not usual), add the sundialsTB 
+startup to the system-wide startup file (by linking or copying):
+
+     % cd /usr/local/matlab7/toolbox/local
+     % ln -s ../sundialsTB/startup_STB.m .
+
+     and add these lines to your original local startup.m
+
+     % SUNDIALS Toolbox startup M-file, if it exists.
+     if exist('startup_STB','file')
+        startup_STB
+     end
+
+If sundialsTB was installed for just one user (usual configuration) and
+assuming you do not need to keep any previously existing startup.m, link 
+or copy the startup_STB.m script to your working 'matlab' directory:
+
+     % cd ~/matlab
+     % ln -s sundialsTB/startup_STB.m startup.m
+
+If you already have a startup.m, use the method described above, first linking 
+(or copying) startup_STB.m to the destination subdir and then editing 
+~/matlab/startup.m to run startup_STB.m
+
+B.3. Testing the installation
+
+If everything went fine, you should now be able to try one of the CVODES, IDAS,
+or KINSOL examples (in matlab, type 'help cvodes', 'help idas', or 'help kinsol' 
+to see a list of all examples available). For example, cd to the CVODES serial 
+example directory:
+     % cd 'instdir'/sundialsTB/cvode/examples_ser
+and then launch matlab and execute cvdx.
+
+
+C. References
+-------------
+
+[1] R. Serban, "sundialsTB, a MATLAB Interface to SUNDIALS", 
+    LLNL technical report UCRL-SM-212121, May 2005.
+
+[2] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
+    D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
+    Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
+    31(3), pp. 363-396, 2005.
+
+
+D. Releases
+-----------
+
+v. 2.5.0 - Mar. 2012
+v. 2.4.0 - May  2009
+v. 2.3.0 - Nov. 2006
+v. 2.2.0 - Mar. 2006
+v. 2.1.1 - May. 2005 (first sundialsTB release)
+
+E. Revision History
+-------------------
+
+v. 2.4.0 (May 2009) ---> v. 2.5.0 (Mar. 2012)
+---------------------------------------------------------
+
+- Minor bug fixes:
+  - in kimOpts.c, fixed lines setting etachoice.
+  - in cvm.c and idm.c, fixed size of rootsfound array; added lines to free
+    rootsfound and ckpnt arrays when done using each.
+  - in all .c files, changed mxCreateScalarDouble to mxCreateDoubleScalar.
+  - in all .c files, changed problem sizes, bandwidths, etc. from type int
+    to type long int.
+
+
+- Minor fixes to documentation
+
+v. 2.3.0 (Nov. 2006) ---> v. 2.4.0 (May 2009)
+---------------------------------------------------------
+
+- New features
+  - Updated IDAS monitoring functionality.
+  - Added functionality to reinitialize adjoint module.
+  - Added functions to allow changing optional inputs during integration.
+  - Added option to disable error message output.
+
+- Bug fixes
+  - Minor fixes to installation files.
+  - Bug fix in argument order in IDAS dense and band Jacobian interfaces.
+  - Fixed bug in CVODES reinitialization.
+  - Fixed a bug in initialization of backward quadratures in IDAS.
+
+- Changes to user interface
+  - Updated interfaces to linear solvers corresponding to DLS/SPILS split.
+  - Added several missing wrapper functions.
+  - Changed CVODES API to require LMM and ITER.
+  - Added return flags to all interface functions.
+
+-Other
+  - Added CVODES examples showing integration over a discontinuity.
+  - Added two KINSOL examples.
+  - Relocated user function type files to function_types subdirectories.
+  - Reorganized IDAS files to expose Sensitivity Analysis abilities.
+
+v. 2.2.0 (Mar. 2006) ---> v. 2.3.0 (Nov. 2006)
+---------------------------------------------------------
+
+- New features
+  - added IDAS module, a MEX interface to the SUNDIALS IDA integrator.
+  - startup_STB.m is automatically created from a template.
+
+- Bug fixes
+  - install_STB.m was modified to be more robust w.r.t. file naming 
+    conventions omn different platforms.
+
+- Changes to user interface
+  - updated to reflect changes to the SUNDIALS libraries in v.2.3.0
+
+v. 2.1.1 (May. 2005) ---> v. 2.2.0 (Mar. 2006)
+---------------------------------------------------------
+
+- New features
+  - modified installation procedure to use a Matlab script
+  - added sample Matlab startup file
+  - expanded CVodeMonitor
+  - added interface to KINSOL's performance monitoring function
+    ('Verbose' option to KINSetOptions)
+
+- Bug fixes
+  - fixed bug in interface to quadrature integration which was causing
+    a segmentatin violation when monitoring was turned on.
+
+- Changes to user interface
+  - updated to reflect changes to the SUNDIALS libraries in v.2.2.0
+  - changed the interface for sensitivity analysis (both forward and
+    adjoint) to follow more closely the CVODES calling sequence
+  - optional inputs for forward sensitivity analysis are now provided
+    through a separate function, CVodeSetFSAOptions
+  - removed NVM mex interface
