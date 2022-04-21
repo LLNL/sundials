@@ -14,7 +14,26 @@
 # Makefile for IDA documentation
 # -----------------------------------------------------------------
 
+USER_GUIDE = ida_guide
 EXAMPLES   = ida_examples
+
+# names of guide files
+UG_FILES = \
+${USER_GUIDE}.tex \
+ida_intro.tex \
+ida_install.tex \
+ida_gpu.tex \
+ida_math.tex \
+ida_usage.tex \
+ida_fcmix.tex \
+ida_nvec.tex \
+ida_org.tex \
+ida_newlinsolv.tex \
+ida_sunlinsol.tex \
+ida_sunmat.tex \
+ida_sunnonlinsol.tex \
+ida_sunmem.tex \
+ida_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex     \

@@ -11,10 +11,27 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Makefile for CVODE examples documentation
+# Makefile for CVODE documentation
 # -----------------------------------------------------------------
 
+USER_GUIDE = cv_guide
 EXAMPLES   = cv_examples
+
+# names of guide files
+UG_FILES = \
+${USER_GUIDE}.tex \
+cv_intro.tex \
+cv_math.tex \
+cv_org.tex \
+cv_usage.tex \
+cv_fcmix.tex \
+cv_gpu.tex \
+cv_nvec.tex \
+cv_newlinsolv.tex \
+cv_sunlinsol.tex \
+cv_sunnonlinsol.tex \
+cv_sunmem.tex \
+cv_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \

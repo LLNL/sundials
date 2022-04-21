@@ -1,0 +1,156 @@
+%===================================================================================
+\chapter{Description of the SUNLinearSolver module}\label{s:sunlinsol}
+%===================================================================================
+\index{SUNLinearSolver@\texttt{SUNLinearSolver} module}
+\input{sunlinsol_generic}
+
+
+%---------------------------------------------------------------------------
+\section{KINSOL SUNLinearSolver interface}
+\label{s:sunlinsol_interface}
+%---------------------------------------------------------------------------
+
+Table \ref{t:sunlinsoluse} below lists the {\sunlinsol} module linear solver
+functions used within the {\kinls} interface. As with the {\sunmatrix} module, we
+emphasize that the {\kinsol} user does not need to know detailed usage of linear
+solver functions by the {\kinsol} code modules in order to use {\kinsol}. The
+information is presented as an implementation detail for the interested reader.
+
+The linear solver functions listed below are marked with \cm to
+indicate that they are required, or with $\dagger$ to indicate that
+they are only called if they are non-\id{NULL} in the {\sunlinsol}
+implementation that is being used. Note:
+\begin{enumerate}
+\item \id{SUNLinSolNumIters} is only used to accumulate overall
+  iterative linear solver statistics.  If it is not implemented by
+  the {\sunlinsol} module, then {\kinls} will consider all solves as
+  requiring zero iterations.
+\item Although \id{SUNLinSolResNorm} is optional, if it is not
+  implemented by the {\sunlinsol} then {\kinls} will consider all
+   solves a being \emph{exact}.
+\item Although {\kinls} does not call \id{SUNLinSolLastFlag}
+  directly, this routine is available for users to query linear solver
+  issues directly.
+\item Although {\kinls} does not call \id{SUNLinSolFree}
+  directly, this routine should be available for users to call when
+  cleaning up from a simulation.
+\end{enumerate}
+
+\begin{table}[htb]
+\centering
+\caption{List of linear solver function usage in the {\kinls} interface}\label{t:sunlinsoluse}
+\medskip
+\begin{tabular}{|r|c|c|c|} \hline
+                                                    &
+\begin{sideways}{DIRECT}             \end{sideways} &
+\begin{sideways}{ITERATIVE}          \end{sideways} &
+\begin{sideways}{MATRIX\_ITERATIVE}  \end{sideways} \\ \hline\hline
+%                                  DIRECT       ITER    & MAT-ITER
+\id{SUNLinSolGetType}           &    \cm    &    \cm    &    \cm    \\ \hline
+\id{SUNLinSolSetATimes}         & $\dagger$ &    \cm    & $\dagger$ \\ \hline
+\id{SUNLinSolSetPreconditioner} & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
+\id{SUNLinSolSetScalingVectors} & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
+\id{SUNLinSolInitialize}        &    \cm    &    \cm    &    \cm    \\ \hline
+\id{SUNLinSolSetup}             &    \cm    &    \cm    &    \cm    \\ \hline
+\id{SUNLinSolSolve}             &    \cm    &    \cm    &    \cm    \\ \hline
+$^1$\id{SUNLinSolNumIters}      &           & $\dagger$ & $\dagger$ \\ \hline
+$^2$\id{SUNLinSolResNorm}       &           & $\dagger$ & $\dagger$ \\ \hline
+$^3$\id{SUNLinSolLastFlag}      &           &           &           \\ \hline
+$^4$\id{SUNLinSolFree}          &           &           &           \\ \hline
+\id{SUNLinSolSpace}             & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
+\end{tabular}
+\end{table}
+
+Since there are a wide range of potential {\sunlinsol} use cases, the following
+subsections describe some details of the {\kinls} interface, in the case that
+interested users wish to develop custom {\sunlinsol} modules.
+
+%---------------------------------------------------------------------------
+\subsection{Lagged matrix information}
+\label{ss:sunlinsol_lagged_matrix}
+%---------------------------------------------------------------------------
+
+If the {\sunlinsol} object self-identifies as having type
+\id{SUNLINEARSOLVER\_DIRECT} or \\ \noindent
+\id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE}, then the {\sunlinsol} object solves a
+linear system \emph{defined} by a {\sunmatrix} object. As a result,
+{\kinsol} can perform its optional residual monitoring scheme,
+described in \S\ref{ss:ModifiedNewtonResidualMon}.
+
+%---------------------------------------------------------------------------
+\subsection{Iterative linear solver tolerance}
+\label{ss:sunlinsol_iterative_tolerance}
+%---------------------------------------------------------------------------
+
+If the {\sunlinsol} object self-identifies as having type
+\id{SUNLINEARSOLVER\_ITERATIVE} or \newline
+\id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} then {\kinls} will adjust the linear solver
+tolerance \id{delta} as described in \S\ref{ss:InexactNewtonStopCrit}
+during the course of the nonlinear solve process. However, if the
+iterative linear solver does not support scaling matrices (i.e., the
+\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\kinls} will
+be unable to fully handle ill-conditioning in the nonlinear solve process
+through the solution and residual scaling operators described in
+\S\ref{ss:Scaling}. In this case, {\kinls} will attempt to adjust the linear
+solver tolerance to account for this lack of functionality. To this end, the
+following assumptions are made:
+\begin{enumerate}
+\item All residual components have similar magnitude; hence the
+  scaling matrix $D_F$ used in computing the linear residual norm (see
+  \S\ref{ss:Scaling}) should satisfy the assumption
+  \[
+    (D_F)_{i,i} \approx D_{F,mean},\quad \text{for}\quad i=0,\ldots,n-1.
+  \]
+\item The {\sunlinsol} object uses a standard 2-norm to measure
+  convergence.
+\end{enumerate}
+
+Since {\kinsol} uses $D_F$ as the left-scaling matrix, $S_1 = D_F$,
+then the linear solver convergence requirement is converted as follows
+(using the notation from equations
+\eqref{eq:transformed_linear_system}-\eqref{eq:transformed_linear_system_components}):
+\begin{align*}
+  &\left\| \tilde{b} - \tilde{A} \tilde{x} \right\|_2  <  \text{tol}\\
+  \Leftrightarrow \quad & \left\| D_F P_1^{-1} b - D_F P_1^{-1} A x \right\|_2  <  \text{tol}\\
+  \Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[(D_F)_{i,i} \left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
+  \Leftrightarrow \quad & D_{F,mean}^2 \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
+  \Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \left(\frac{\text{tol}}{D_{F,mean}}\right)^2\\
+  \Leftrightarrow \quad & \left\| P_1^{-1} (b - A x)\right\|_2  <  \frac{\text{tol}}{D_{F,mean}}
+\end{align*}
+Therefore the tolerance scaling factor
+\[
+  D_{F,mean} = \frac{1}{\sqrt{n}}\left(\sum_{i=0}^{n-1} (D_F)_{i,i}^2\right)^{1/2}
+\]
+is computed and the scaled tolerance \id{delta}$= \text{tol} / D_{F,mean}$ is
+supplied to the {\sunlinsol} object.
+
+%---------------------------------------------------------------------------
+\subsection{Matrix-embedded solver incompatibility}
+\label{ss:sunlinsol_matrix_embedded}
+%---------------------------------------------------------------------------
+
+At present, {\kinls} is incompatible with {\sunlinsol} objects that self-identify as having type
+\id{SUNLINEARSOLVER\_MATRIX\_EMBEDDED}.  Support for such user-supplied linear solvers may be 
+added in a future release.  Users interested in such support are recommended to contact the 
+{\sundials} development team.
+
+%---------------------------------------------------------------------------
+% sunlinsol module sections
+%---------------------------------------------------------------------------
+
+\input{sunlinsol_dense}
+\input{sunlinsol_band}
+\input{sunlinsol_lapackdense}
+\input{sunlinsol_lapackband}
+\input{sunlinsol_klu}
+\input{sunlinsol_superludist}
+\input{sunlinsol_superlumt}
+\input{sunlinsol_cusolversp}
+\input{sunlinsol_magmadense}
+\input{sunlinsol_onemkldense}
+\input{sunlinsol_spgmr}
+\input{sunlinsol_spfgmr}
+\input{sunlinsol_spbcgs}
+\input{sunlinsol_sptfqmr}
+\input{sunlinsol_pcg}
+\input{sunlinsol_examples}

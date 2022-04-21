@@ -11,10 +11,27 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Makefile for KINSOL examples documentation
+# Makefile for KINSOL documentation
 # -----------------------------------------------------------------
 
+USER_GUIDE = kin_guide
 EXAMPLES   = kin_examples
+
+# names of guide files
+UG_FILES = \
+${USER_GUIDE}.tex \
+kin_intro.tex \
+kin_gpu.tex \
+kin_math.tex \
+kin_org.tex \
+kin_use.tex \
+kin_fcmix.tex \
+kin_nvec.tex \
+kin_newlinsolv.tex \
+kin_sunmat.tex \
+kin_sunlinsol.tex \
+kin_sunmem.tex \
+kin_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \
