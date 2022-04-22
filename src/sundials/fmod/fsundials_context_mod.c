@@ -233,6 +233,34 @@ SWIGEXPORT int _wrap_FSUNContext_SetProfiler(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNContext_GetLogger(void *farg1, void *farg2) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNLogger *arg2 = (SUNLogger *) 0 ;
+  int result;
+  
+  arg1 = (SUNContext)(farg1);
+  arg2 = (SUNLogger *)(farg2);
+  result = (int)SUNContext_GetLogger(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNContext_SetLogger(void *farg1, void *farg2) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNLogger arg2 ;
+  int result;
+  
+  arg1 = (SUNContext)(farg1);
+  arg2 = (SUNLogger)(farg2);
+  result = (int)SUNContext_SetLogger(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 
 SWIGEXPORT int _wrap_FSUNContext_Free(void *farg1) {
   int fresult ;

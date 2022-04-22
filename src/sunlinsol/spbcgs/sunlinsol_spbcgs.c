@@ -23,7 +23,8 @@
 #include <sunlinsol/sunlinsol_spbcgs.h>
 #include <sundials/sundials_math.h>
 
-#include "sundials_debug.h"
+#include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -120,6 +121,9 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext s
   content->PData       = NULL;
   content->print_level = 0;
   content->info_file   = stdout;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  content->info_file   = (sunctx->logger->info_fp) ? sunctx->logger->info_fp : stdout;
+#endif
 
   /* Allocate content */
   content->r_star = N_VClone(y);
@@ -373,8 +377,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return(SUNLS_ILL_INPUT);
   }
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
-  if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file
+      && (SPBCGS_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
     fprintf(SPBCGS_CONTENT(S)->info_file, "SUNLINSOL_SPBCGS:\n");
 #endif
 
@@ -432,14 +437,18 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   *res_norm = r_norm = rho = SUNRsqrt(beta_denom);
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   /* print the initial residual */
-  if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
+  if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file
+     && (SPBCGS_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
   {
     fprintf(SPBCGS_CONTENT(S)->info_file,
             SUNLS_MSG_RESIDUAL,
             (long int) 0, *res_norm);
   }
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+    "SUNLinSolSolve_SPBCGS", "initial-residual",
+    "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
 
   if (r_norm <= delta) {
@@ -604,14 +613,18 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     /* print current iteration number and the residual */
-    if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
+    if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file
+        && (SPBCGS_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
     {
       fprintf(SPBCGS_CONTENT(S)->info_file,
               SUNLS_MSG_RESIDUAL,
               (long int) *nli, *res_norm);
     }
+    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+      "SUNLinSolSolve_SPBCGS", "iterate-residual",
+      "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
 
     if (rho <= delta) {
@@ -771,7 +784,6 @@ int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
 int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
                                 FILE* info_file)
 {
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
   /* check that the linear solver is non-null */
   if (S == NULL)
     return(SUNLS_MEM_NULL);
@@ -779,17 +791,12 @@ int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
   SPBCGS_CONTENT(S)->info_file = info_file;
 
   return(SUNLS_SUCCESS);
-#else
-  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_SPBCGS: SUNDIALS was not built with monitoring\n");
-  return(SUNLS_ILL_INPUT);
-#endif
 }
 
 
 int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
                                   int print_level)
 {
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
   /* check that the linear solver is non-null */
   if (S == NULL)
     return(SUNLS_MEM_NULL);
@@ -801,8 +808,4 @@ int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
   SPBCGS_CONTENT(S)->print_level = print_level;
 
   return(SUNLS_SUCCESS);
-#else
-  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_SPBCGS: SUNDIALS was not built with monitoring\n");
-  return(SUNLS_ILL_INPUT);
-#endif
 }

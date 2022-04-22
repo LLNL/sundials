@@ -122,6 +122,12 @@ kinsol_version = kinsol_version
 # a list of builtin themes.
 html_theme = 'sphinx_rtd_theme'
 
+# Set theme options
+html_theme_options = {
+    # Allow unlimited depth in table of contents tree
+    'navigation_depth': -1
+}
+
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
 #html_title = None

@@ -77,6 +77,8 @@ Optional inputs for MRIStep
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Maximum no. of internal steps before *tout*                   | :c:func:`MRIStepSetMaxNumSteps()`       | 500                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
+   | Select the default MRI method of a given order                | :c:func:`MRIStepSetOrder()`             | 3                      |
+   +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | :math:`\infty`         |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`          | ``NULL``               |
@@ -229,6 +231,9 @@ Optional inputs for MRIStep
    for this pointer, since statistics from all processes would be
    identical.
 
+   .. deprecated:: 5.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int MRIStepSetErrFile(void* arkode_mem, FILE* errfp)
@@ -445,6 +450,25 @@ Optional inputs for MRIStep
 
       **Notes:** Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
+
+.. c:function:: int MRIStepSetOrder(void* arkode_mem, int ord)
+
+   Select the default MRI method of a given order.
+
+   The default order is 3. An order less than 3 or greater than 4 will result in
+   using the default.
+
+   **Arguments:**
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *ord* -- the method order.
+
+   **Return value:**
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
 
 .. c:function:: int MRIStepSetStopTime(void* arkode_mem, realtype tstop)

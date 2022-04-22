@@ -27,12 +27,6 @@
 
 
 /*===============================================================
-  SHORTCUTS
-  ===============================================================*/
-
-#define ARK_PROFILER ark_mem->sunctx->profiler
-
-/*===============================================================
   ERKStep Exported functions -- Required
   ===============================================================*/
 
@@ -781,6 +775,13 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       fprintf(ark_mem->diagfp, "ERKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::erkStep_TakeStep", "start-step",
+                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
+                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+#endif
+
     /* Set ycur to current stage solution */
     nvec = 0;
     for (js=0; js<is; js++) {
@@ -834,6 +835,13 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ERKStep  etest  %li  %"RSYM"  %"RSYM"\n",
             ark_mem->nst, ark_mem->h, *dsmPtr);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::erkStep_TakeStep", "error-test",
+                     "step = %li, h = "RSYM", dsm = %"RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return(ARK_SUCCESS);
 }

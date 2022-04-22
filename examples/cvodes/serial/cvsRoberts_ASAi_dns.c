@@ -22,7 +22,7 @@
  * conditions: y1 = 1.0, y2 = y3 = 0. The reaction rates are:
  * p1=0.04, p2=1e4, and p3=3e7. The problem is stiff.
  * This program solves the problem with the BDF method, Newton
- * iteration with the DENSE linear solver, and a user-supplied
+ * iteration with the dense linear solver, and a user-supplied
  * Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance.
@@ -137,6 +137,7 @@ int main(int argc, char *argv[])
   SUNMatrix A, AB;
   SUNLinearSolver LS, LSB;
   void *cvode_mem;
+  FILE* FID;
 
   realtype reltolQ, abstolQ;
   N_Vector y, q;
@@ -150,8 +151,6 @@ int main(int argc, char *argv[])
 
   realtype time;
   int retval, ncheck;
-
-  long int nst, nstB;
 
   CVadjCheckPointRec *ckpnt;
 
@@ -226,7 +225,7 @@ int main(int argc, char *argv[])
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create dense SUNLinearSolver object */
+  /* Create dense SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
@@ -279,11 +278,8 @@ int main(int argc, char *argv[])
      saves checkpointing data */
   retval = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
   if (check_retval(&retval, "CVodeF", 1)) return(1);
-  retval = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_retval(&retval, "CVodeGetNumSteps", 1)) return(1);
 
-  printf("done ( nst = %ld )\n",nst);
-  printf("\nncheck = %d\n\n", ncheck);
+  printf("done (ncheck = %d)\n", ncheck);
 
   retval = CVodeGetQuad(cvode_mem, &time, q);
   if (check_retval(&retval, "CVodeGetQuad", 1)) return(1);
@@ -296,7 +292,16 @@ int main(int argc, char *argv[])
 #else
   printf("G:          %12.4e \n",Ith(q,1));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
+
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("cvsRoberts_ASAi_dns_fwd_stats.csv", "w");
+  retval = CVodePrintAllStats(cvode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Test check point linked list
      (uncomment next block to print check point information) */
@@ -345,7 +350,7 @@ int main(int argc, char *argv[])
   abstolQB = ATOLq;
 
   /* Create and allocate CVODES memory for backward run */
-  printf("Create and allocate CVODES memory for backward run\n");
+  printf("\nCreate and allocate CVODES memory for backward run\n");
 
   /* Call CVodeCreateB to specify the solution method for the backward
      problem. */
@@ -423,8 +428,6 @@ int main(int argc, char *argv[])
 
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
   if (check_retval(&retval, "CVodeB", 1)) return(1);
-  CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
-  printf("Done ( nst = %ld )\n", nstB);
 
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_retval(&retval, "CVodeGetB", 1)) return(1);
@@ -439,6 +442,17 @@ int main(int argc, char *argv[])
 
   PrintOutput(time, y, yB, qB);
 
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = CVodePrintAllStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB),
+                              stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("cvsRoberts_ASAi_dns_bkw1_stats.csv", "w");
+  retval = CVodePrintAllStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB),
+                              FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
+
   /* Reinitialize backward phase (new tB0) */
 
   Ith(yB,1) = ZERO;
@@ -449,7 +463,7 @@ int main(int argc, char *argv[])
   Ith(qB,2) = ZERO;
   Ith(qB,3) = ZERO;
 
-  printf("Re-initialize CVODES memory for backward run\n");
+  printf("\nRe-initialize CVODES memory for backward run\n");
 
   retval = CVodeReInitB(cvode_mem, indexB, TB2, yB);
   if (check_retval(&retval, "CVodeReInitB", 1)) return(1);
@@ -476,8 +490,6 @@ int main(int argc, char *argv[])
 
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
   if (check_retval(&retval, "CVodeB", 1)) return(1);
-  CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
-  printf("Done ( nst = %ld )\n", nstB);
 
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_retval(&retval, "CVodeGetB", 1)) return(1);
@@ -490,9 +502,18 @@ int main(int argc, char *argv[])
 
   PrintOutput(time, y, yB, qB);
 
-  /* Free memory */
-  printf("Free memory\n\n");
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = CVodePrintAllStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB),
+                              stdout, SUN_OUTPUTFORMAT_TABLE);
 
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("cvsRoberts_ASAi_dns_bkw2_stats.csv", "w");
+  retval = CVodePrintAllStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB),
+                              FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
+
+  /* Free memory */
   CVodeFree(&cvode_mem);
   N_VDestroy(y);
   N_VDestroy(q);
@@ -512,14 +533,14 @@ int main(int argc, char *argv[])
 }
 
 /*
- *--------------------------------------------------------------------
- * FUNCTIONS CALLED BY CVODES
- *--------------------------------------------------------------------
+ *-------------------------------
+ * Functions called by the solver
+ *-------------------------------
  */
 
 /*
- * f routine. Compute f(t,y).
-*/
+ * f routine. Compute function f(t,y).
+ */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
@@ -736,7 +757,7 @@ static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB)
   printf("y(t)      : %12.4e %12.4e %12.4e\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
 }
 
 /*
@@ -771,17 +792,17 @@ static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
   printf("dG/dp:      %12.4e %12.4e %12.4e\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
 }
 
 /*
- * Check function return value.
- *    opt == 0 means SUNDIALS function allocates memory so check if
- *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns an integer value so check if
- *             retval < 0
- *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -791,7 +812,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -799,13 +820,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

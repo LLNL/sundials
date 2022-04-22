@@ -1009,6 +1009,9 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       for this pointer, since statistics from all processes would be
       identical.
 
+   .. deprecated:: 5.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int ARKStepSetErrFile(void* arkode_mem, FILE* errfp)
@@ -1908,20 +1911,21 @@ the code, is provided in :numref:`ARKODE.Mathematics.Nonlinear`.
 
 .. cssclass:: table-bordered
 
-================================================  =========================================  ============
-Optional input                                    Function name                              Default
-================================================  =========================================  ============
-Specify that :math:`f^I` is linearly implicit     :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
-Specify that :math:`f^I` is nonlinearly implicit  :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
-Implicit predictor method                         :c:func:`ARKStepSetPredictorMethod()`      0
-User-provided implicit stage predictor            :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
-RHS function for nonlinear system evaluations     :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
-Maximum number of nonlinear iterations            :c:func:`ARKStepSetMaxNonlinIters()`       3
-Coefficient in the nonlinear convergence test     :c:func:`ARKStepSetNonlinConvCoef()`       0.1
-Nonlinear convergence rate constant               :c:func:`ARKStepSetNonlinCRDown()`         0.3
-Nonlinear residual divergence ratio               :c:func:`ARKStepSetNonlinRDiv()`           2.3
-Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFails()`         10
-================================================  =========================================  ============
+=========================================================  =========================================  ============
+Optional input                                             Function name                              Default
+=========================================================  =========================================  ============
+Specify that :math:`f^I` is linearly implicit              :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
+Specify that :math:`f^I` is nonlinearly implicit           :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
+Implicit predictor method                                  :c:func:`ARKStepSetPredictorMethod()`      0
+User-provided implicit stage predictor                     :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
+RHS function for nonlinear system evaluations              :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
+Maximum number of nonlinear iterations                     :c:func:`ARKStepSetMaxNonlinIters()`       3
+Coefficient in the nonlinear convergence test              :c:func:`ARKStepSetNonlinConvCoef()`       0.1
+Nonlinear convergence rate constant                        :c:func:`ARKStepSetNonlinCRDown()`         0.3
+Nonlinear residual divergence ratio                        :c:func:`ARKStepSetNonlinRDiv()`           2.3
+Maximum number of convergence failures                     :c:func:`ARKStepSetMaxConvFails()`         10
+Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`ARKStepSetDeduceImplicitRhs`      ``SUNFALSE``
+=========================================================  =========================================  ============
 
 
 
@@ -2174,6 +2178,24 @@ Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFail
       the factor *etacf* (set within :c:func:`ARKStepSetMaxCFailGrowth()`).
 
 
+
+.. c:function:: int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce)
+
+   Specifies if implicit stage derivatives are deduced without evaluating
+   :math:`f^I`. See :numref:`ARKODE.Mathematics.Nonlinear` for more details.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *deduce* -- If ``SUNFALSE`` (default), the stage derivative is obtained
+        by evaluating :math:`f^I` with the stage solution returned from the
+        nonlinear solver. If ``SUNTRUE``, the stage derivative is deduced
+        without an additional evaluation of :math:`f^I`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   .. versionadded:: 5.2.0
 
 
 .. _ARKODE.Usage.ARKStep.ARKLsInputs:
@@ -3109,32 +3131,34 @@ Main solver optional output functions
 
 .. cssclass:: table-bordered
 
-===================================================  ============================================
-Optional output                                      Function name
-===================================================  ============================================
-Size of ARKStep real and integer workspaces          :c:func:`ARKStepGetWorkSpace()`
-Cumulative number of internal steps                  :c:func:`ARKStepGetNumSteps()`
-Actual initial time step size used                   :c:func:`ARKStepGetActualInitStep()`
-Step size used for the last successful step          :c:func:`ARKStepGetLastStep()`
-Step size to be attempted on the next step           :c:func:`ARKStepGetCurrentStep()`
-Current internal time reached by the solver          :c:func:`ARKStepGetCurrentTime()`
-Current internal solution reached by the solver      :c:func:`ARKStepGetCurrentState()`
-Current :math:`\gamma` value used by the solver      :c:func:`ARKStepGetCurrentGamma()`
-Suggested factor for tolerance scaling               :c:func:`ARKStepGetTolScaleFactor()`
-Error weight vector for state variables              :c:func:`ARKStepGetErrWeights()`
-Residual weight vector                               :c:func:`ARKStepGetResWeights()`
-Single accessor to many statistics at once           :c:func:`ARKStepGetStepStats()`
-Name of constant associated with a return flag       :c:func:`ARKStepGetReturnFlagName()`
-No. of explicit stability-limited steps              :c:func:`ARKStepGetNumExpSteps()`
-No. of accuracy-limited steps                        :c:func:`ARKStepGetNumAccSteps()`
-No. of attempted steps                               :c:func:`ARKStepGetNumStepAttempts()`
-No. of calls to *fe* and *fi* functions              :c:func:`ARKStepGetNumRhsEvals()`
-No. of local error test failures that have occurred  :c:func:`ARKStepGetNumErrTestFails()`
-Current ERK and DIRK Butcher tables                  :c:func:`ARKStepGetCurrentButcherTables()`
-Estimated local truncation error vector              :c:func:`ARKStepGetEstLocalErrors()`
-Single accessor to many statistics at once           :c:func:`ARKStepGetTimestepperStats()`
-Number of constraint test failures                   :c:func:`ARKStepGetNumConstrFails()`
-===================================================  ============================================
+=====================================================  ============================================
+Optional output                                        Function name
+=====================================================  ============================================
+Size of ARKStep real and integer workspaces            :c:func:`ARKStepGetWorkSpace()`
+Cumulative number of internal steps                    :c:func:`ARKStepGetNumSteps()`
+Actual initial time step size used                     :c:func:`ARKStepGetActualInitStep()`
+Step size used for the last successful step            :c:func:`ARKStepGetLastStep()`
+Step size to be attempted on the next step             :c:func:`ARKStepGetCurrentStep()`
+Current internal time reached by the solver            :c:func:`ARKStepGetCurrentTime()`
+Current internal solution reached by the solver        :c:func:`ARKStepGetCurrentState()`
+Current :math:`\gamma` value used by the solver        :c:func:`ARKStepGetCurrentGamma()`
+Suggested factor for tolerance scaling                 :c:func:`ARKStepGetTolScaleFactor()`
+Error weight vector for state variables                :c:func:`ARKStepGetErrWeights()`
+Residual weight vector                                 :c:func:`ARKStepGetResWeights()`
+Single accessor to many statistics at once             :c:func:`ARKStepGetStepStats()`
+Print all statistics                                   :c:func:`ARKStepPrintAllStats`
+Name of constant associated with a return flag         :c:func:`ARKStepGetReturnFlagName()`
+No. of explicit stability-limited steps                :c:func:`ARKStepGetNumExpSteps()`
+No. of accuracy-limited steps                          :c:func:`ARKStepGetNumAccSteps()`
+No. of attempted steps                                 :c:func:`ARKStepGetNumStepAttempts()`
+No. of calls to *fe* and *fi* functions                :c:func:`ARKStepGetNumRhsEvals()`
+No. of local error test failures that have occurred    :c:func:`ARKStepGetNumErrTestFails()`
+No. of failed steps due to a nonlinear solver failure  :c:func:`ARKStepGetNumStepSolveFails()`
+Current ERK and DIRK Butcher tables                    :c:func:`ARKStepGetCurrentButcherTables()`
+Estimated local truncation error vector                :c:func:`ARKStepGetEstLocalErrors()`
+Single accessor to many statistics at once             :c:func:`ARKStepGetTimestepperStats()`
+Number of constraint test failures                     :c:func:`ARKStepGetNumConstrFails()`
+=====================================================  ============================================
 
 
 
@@ -3337,6 +3361,33 @@ Number of constraint test failures                   :c:func:`ARKStepGetNumConst
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
 
+.. c:function:: int ARKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   Outputs all of the integrator, nonlinear solver, linear solver, and other
+   statistics.
+
+   **Arguments:**
+     * *arkode_mem* -- pointer to the ARKStep memory block.
+     * *outfile* -- pointer to output file.
+     * *fmt* -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * *ARK_SUCCESS* -- if the output was successfully.
+     * *CV_MEM_NULL* -- if the ARKStep memory was ``NULL``.
+     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 5.2.0
+
 
 .. c:function:: char *ARKStepGetReturnFlagName(long int flag)
 
@@ -3425,6 +3476,20 @@ Number of constraint test failures                   :c:func:`ARKStepGetNumConst
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *netfails* -- number of error test failures.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+
+
+.. c:function:: int ARKStepGetNumStepSolveFails(void* arkode_mem, long int* ncnf)
+
+   Returns the number of failed steps due to a nonlinear solver failure (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *ncnf* -- number of step failures.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

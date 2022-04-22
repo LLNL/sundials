@@ -20,11 +20,29 @@
 #include <stdarg.h>
 
 #include "cvodes/cvodes.h"
+#include "cvodes_proj_impl.h"
 #include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials/sundials_math.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "19.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
+#endif
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define CV_PROFILER cv_mem->cv_sunctx->profiler
+#define CV_LOGGER cv_mem->cv_sunctx->logger
 
 /*
  * =================================================================
@@ -45,13 +63,132 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
-#define MSBP 20  /* max no. of steps between lsetup calls */
+#define MSBP_DEFAULT         20          /* max steps between lsetup calls */
+#define DGMAX_LSETUP_DEFAULT RCONST(0.3) /* gamma threshold to call lsetup */
 
-/* Return values for lower level routines used by CVode and functions
-   provided to the nonlinear solver */
+/* Step size change constants
+ * --------------------------
+ * ETA_MIN_FX_DEFAULT  if eta_min_fx < eta < eta_max_fx reject a change in step size or order
+ * ETA_MAX_FX_DEFAULT
+ * ETA_MAX_FS_DEFAULT  -+
+ * ETA_MAX_ES_DEFAULT   |
+ * ETA_MAX_GS_DEFAULT   |
+ * ETA_MIN_DEFAULT      |-> bounds for eta (step size change)
+ * ETA_MAX_EF_DEFAULT   |
+ * ETA_MIN_EF_DEFAULT   |
+ * ETA_CF_DEFAULT      -+
+ * SMALL_NST_DEFAULT   nst <= SMALL_NST => use eta_max_es
+ * SMALL_NEF_DEFAULT   if small_nef <= nef <= MXNEF1, then eta =  SUNMIN(eta, eta_max_ef)
+ * ONEPSM (1+epsilon)  used in testing if the step size is below its bound
+ */
 
-#define RHSFUNC_RECVR    +9
-#define SRHSFUNC_RECVR   +12
+#define ETA_MIN_FX_DEFAULT RCONST(0.0)
+#define ETA_MAX_FX_DEFAULT RCONST(1.5)
+#define ETA_MAX_FS_DEFAULT RCONST(10000.0)
+#define ETA_MAX_ES_DEFAULT RCONST(10.0)
+#define ETA_MAX_GS_DEFAULT RCONST(10.0)
+#define ETA_MIN_DEFAULT    RCONST(0.1)
+#define ETA_MAX_EF_DEFAULT RCONST(0.2)
+#define ETA_MIN_EF_DEFAULT RCONST(0.1)
+#define ETA_CF_DEFAULT     RCONST(0.25)
+#define SMALL_NST_DEFAULT  10
+#define SMALL_NEF_DEFAULT  2
+#define ONEPSM             RCONST(1.000001)
+
+/* Step size controller constants
+ * ------------------------------
+ * ADDON  safety factor in computing eta
+ * BIAS1  -+
+ * BIAS2   |-> bias factors in eta selection
+ * BIAS3  -+
+ */
+
+#define ADDON     RCONST(0.000001)
+#define BIAS1     RCONST(6.0)
+#define BIAS2     RCONST(6.0)
+#define BIAS3     RCONST(10.0)
+
+/* Order selection constants
+ * -------------------------
+ * LONG_WAIT   number of steps to wait before considering an order change when
+ *             q==1 and MXNEF1 error test failures have occurred
+ */
+
+#define LONG_WAIT    10
+
+/* Failure limits
+ * --------------
+ * MXNCF   max no. of convergence failures during one step try
+ * MXNEF   max no. of error test failures during one step try
+ * MXNEF1  max no. of error test failures before forcing a reduction of order
+ */
+
+#define MXNCF        10
+#define MXNEF         7
+#define MXNEF1        3
+
+/* Control constants for lower-level functions used by cvStep
+ * ----------------------------------------------------------
+ *
+ * cvHin return values:
+ *    CV_SUCCESS,
+ *    CV_RHSFUNC_FAIL,  CV_RPTD_RHSFUNC_ERR,
+ *    CV_QRHSFUNC_FAIL, CV_RPTD_QRHSFUNC_ERR,
+ *    CV_SRHSFUNC_FAIL, CV_RPTD_SRHSFUNC_ERR,
+ *    CV_TOO_CLOSE
+ *
+ * cvStep control constants:
+ *    DO_ERROR_TEST
+ *    PREDICT_AGAIN
+ *
+ * cvStep return values:
+ *    CV_SUCCESS,
+ *    CV_CONV_FAILURE,      CV_ERR_FAILURE,
+ *    CV_LSETUP_FAIL,       CV_LSOLVE_FAIL,
+ *    CV_RTFUNC_FAIL,
+ *    CV_RHSFUNC_FAIL,      CV_QRHSFUNC_FAIL,      CV_SRHSFUNC_FAIL,      CV_QSRHSFUNC_FAIL,
+ *    CV_FIRST_RHSFUNC_ERR, CV_FIRST_QRHSFUNC_ERR, CV_FIRST_SRHSFUNC_ERR, CV_FIRST_QSRHSFUNC_ERR,
+ *    CV_UNREC_RHSFUNC_ERR, CV_UNREC_QRHSFUNC_ERR, CV_UNREC_SRHSFUNC_ERR, CV_UNREC_QSRHSFUNC_ERR,
+ *    CV_REPTD_RHSFUNC_ERR, CV_REPTD_QRHSFUNC_ERR, CV_REPTD_SRHSFUNC_ERR, CV_REPTD_QSRHSFUNC_ERR,
+ *
+ * cvNls input nflag values:
+ *    FIRST_CALL
+ *    PREV_CONV_FAIL
+ *    PREV_PROJ_FAIL
+ *    PREV_ERR_FAIL
+ *
+ * cvNls return values:
+ *    CV_SUCCESS,
+ *    CV_LSETUP_FAIL,     CV_LSOLVE_FAIL,
+ *    CV_RHSFUNC_FAIL,    CV_SRHSFUNC_FAIL,
+ *    SUN_NLS_CONV_RECVR,
+ *    RHSFUNC_RECVR,      SRHSFUNC_RECVR
+ *
+ * cvNewtonIteration return values:
+ *    CV_SUCCESS,
+ *    CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL
+ *    RHSFUNC_RECVR,
+ *    TRY_AGAIN
+ *
+ */
+
+#define DO_ERROR_TEST    +2
+#define PREDICT_AGAIN    +3
+
+#define TRY_AGAIN        +5
+#define FIRST_CALL       +6
+#define PREV_CONV_FAIL   +7
+#define PREV_PROJ_FAIL   +8
+#define PREV_ERR_FAIL    +9
+
+#define RHSFUNC_RECVR    +10
+#define CONSTR_RECVR     +11
+#define CONSTRFUNC_RECVR +12
+#define PROJFUNC_RECVR   +13
+
+#define QRHSFUNC_RECVR   +14
+#define SRHSFUNC_RECVR   +15
+#define QSRHSFUNC_RECVR  +16
 
 /* nonlinear solver constants
    NLS_MAXCOR  maximum no. of corrector iterations for the nonlinear solver
@@ -298,16 +435,28 @@ typedef struct CVodeMemRec {
     Limits
     ------*/
 
-  int cv_qmax;          /* q <= qmax                                          */
-  long int cv_mxstep;   /* maximum number of internal steps for one user call */
-  int cv_mxhnil;        /* maximum number of warning messages issued to the
-                           user that t + h == t for the next internal step    */
-  int cv_maxnef;        /* maximum number of error test failures              */
-  int cv_maxncf;        /* maximum number of nonlinear convergence failures   */
+  int cv_qmax;            /* q <= qmax                                          */
+  long int cv_mxstep;     /* maximum number of internal steps for one user call */
+  int cv_mxhnil;          /* maximum number of warning messages issued to the
+                             user that t + h == t for the next internal step    */
+  int cv_maxnef;          /* maximum number of error test failures              */
+  int cv_maxncf;          /* maximum number of nonlinear convergence failures   */
 
-  realtype cv_hmin;     /* |h| >= hmin                                        */
-  realtype cv_hmax_inv; /* |h| <= 1/hmax_inv                                  */
-  realtype cv_etamax;   /* eta <= etamax                                      */
+  realtype cv_hmin;       /* |h| >= hmin                                        */
+  realtype cv_hmax_inv;   /* |h| <= 1/hmax_inv                                  */
+  realtype cv_etamax;     /* eta <= etamax                                      */
+  realtype cv_eta_min_fx; /* eta_min_fx < eta < eta_max_fx keep the current h   */
+  realtype cv_eta_max_fx;
+  realtype cv_eta_max_fs; /* eta <= eta_max_fs on the first step                */
+  realtype cv_eta_max_es; /* eta <= eta_max_es on early steps                   */
+  realtype cv_eta_max_gs; /* eta <= eta_max_gs on a general step                */
+  realtype cv_eta_min;    /* eta >= eta_min on a general step                   */
+  realtype cv_eta_min_ef; /* eta >= eta_min_ef after an error test failure      */
+  realtype cv_eta_max_ef; /* eta on multiple (>= small_nef) error test failures */
+  realtype cv_eta_cf;     /* eta on a nonlinear solver convergence failure      */
+
+  long int cv_small_nst; /* nst <= small_nst use eta_max_es */
+  int cv_small_nef;      /* nef >= small_nef use eta_max_ef */
 
   /*--------
     Counters
@@ -329,6 +478,10 @@ typedef struct CVodeMemRec {
   long int cv_nni;         /* number of nonlinear iterations performed        */
   long int cv_nniS;        /* number of total sensi. nonlinear iterations     */
   long int *cv_nniS1;      /* number of sensi. nonlinear iterations           */
+
+  long int cv_nnf;         /* number of nonlinear convergence fails           */
+  long int cv_nnfS;        /* number of total sensi. nonlinear conv. fails    */
+  long int *cv_nnfS1;      /* number of sensi. nonlinear conv. fails          */
 
   long int cv_netf;        /* number of error test failures                   */
   long int cv_netfQ;       /* number of quadr. error test failures            */
@@ -423,12 +576,11 @@ typedef struct CVodeMemRec {
 
   /* Linear Solver specific memory */
 
-  void     *cv_lmem;  /* linear solver interface memory structure */
-  long int  cv_msbp;  /* max number of steps between lsetip calls */
-
-  /* Flag to request a call to the setup routine */
-
-  booleantype cv_forceSetup;
+  void     *cv_lmem;         /* linear solver interface memory structure */
+  long int  cv_msbp;         /* max number of steps between lsetip calls */
+  realtype  cv_dgmax_lsetup; /* gamma ratio threshold to signal for a linear
+                              * solver setup */
+  booleantype cv_forceSetup; /* flag to request a call to the setup routine */
 
   /*------------
     Saved Values
@@ -512,6 +664,15 @@ typedef struct CVodeMemRec {
   long int cv_nge;         /* counter for g evaluations                       */
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
+
+  /*---------------
+    Projection Data
+    ---------------*/
+
+  CVodeProjMem proj_mem;      /* projection memory structure               */
+  booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
+  booleantype  proj_applied;  /* flag indicating if projection was applied */
+  realtype     proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
     Fused Vector Operations
@@ -994,6 +1155,21 @@ int cvNlsInitSensSim(CVodeMem cv_mem);
 int cvNlsInitSensStg(CVodeMem cv_mem);
 int cvNlsInitSensStg1(CVodeMem cv_mem);
 
+/* Projection functions */
+
+int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
+                   int *npfPtr);
+int cvProjInit(CVodeProjMem proj_mem);
+int cvProjFree(CVodeProjMem *proj_mem);
+
+/* Restore tn and undo prediction to reattempt a step */
+
+void cvRestore(CVodeMem cv_mem, realtype saved_t);
+
+/* Reset h and rescale history array to prepare for a step */
+
+void cvRescale(CVodeMem cv_mem);
+
 /* Prototypes for internal sensitivity rhs wrappers */
 
 int cvSensRhsWrapper(CVodeMem cv_mem, realtype time,
@@ -1148,6 +1324,15 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME ", the nonlinear solver setup failed unrecoverably."
 #define MSGCV_NLS_INPUT_NULL "At " MSG_TIME ", the nonlinear solver was passed a NULL input."
 #define MSGCV_NLS_FAIL "At " MSG_TIME ", the nonlinear solver failed in an unrecoverable manner."
+
+/* CVode Projection Error Messages */
+
+#define MSG_CV_MEM_NULL  "cvode_mem = NULL illegal."
+#define MSG_CV_MEM_FAIL  "A memory request failed."
+
+#define MSG_CV_PROJ_MEM_NULL       "proj_mem = NULL illegal."
+#define MSG_CV_PROJFUNC_FAIL       "At " MSG_TIME " the projection function failed with an unrecoverable error."
+#define MSG_CV_REPTD_PROJFUNC_ERR  "At " MSG_TIME " the projection function had repeated recoverable errors."
 
 #define MSGCV_NO_TOLQ "No integration tolerances for quadrature variables have been specified."
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."

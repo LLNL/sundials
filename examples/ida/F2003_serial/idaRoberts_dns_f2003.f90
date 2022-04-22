@@ -471,7 +471,7 @@ subroutine PrintHeader(rtol, avtol, y)
   print *, "         Three equation chemical kinetics problem."
   print *, " "
   print *, "Linear solver: DENSE, with user-supplied Jacobian."
-  print '(a,f6.4,a,3(es6.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
+  print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
   print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
   print *, "Constraints and id not used."
   print *, " "
@@ -525,7 +525,7 @@ subroutine PrintOutput(ida_mem, t, y)
      stop 1
   end if
 
-  print '(es10.4,1x,3(es12.4,1x),a,i3,2x,i1,1x,es12.4)', &
+  print '(es12.4,1x,3(es12.4,1x),a,i3,2x,i1,1x,es12.4)', &
        t, y(1), y(2), y(3), "| ", nst, kused(1), hused(1)
 
 end subroutine PrintOutput

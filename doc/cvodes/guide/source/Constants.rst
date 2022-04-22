@@ -217,6 +217,16 @@ CVODES output constants
    | ``CV_UNREC_QSRHSFUNC_ERR``       | -54  | The sensitivity right-hand side function had a         |
    |                                  |      | recoverable error, but no recovery is possible.        |
    +----------------------------------+------+--------------------------------------------------------+
+   | ``CV_CONTEXT_ERR``               | -55  | The ``SUNContext`` object is ``NULL``                  |
+   +----------------------------------+------+--------------------------------------------------------+
+   | ``CV_PROJ_MEM_NULL``             | -56  | The projection memory was ``NULL``.                    |
+   +----------------------------------+------+--------------------------------------------------------+
+   | ``CV_PROJFUNC_FAIL``             | -57  | The projection function failed in an unrecoverable     |
+   |                                  |      | manner.                                                |
+   +----------------------------------+------+--------------------------------------------------------+
+   | ``CV_REPTD_PROJFUNC_ERR``        | -58  | The projection function had repeated recoverable       |     
+   |                                  |      | errors.                                                |
+   +----------------------------------+------+--------------------------------------------------------+
    |                                  |      |                                                        |
    +----------------------------------+------+--------------------------------------------------------+
    | **CVODES adjoint solver module** |      |                                                        |

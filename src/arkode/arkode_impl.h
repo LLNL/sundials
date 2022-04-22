@@ -25,6 +25,7 @@
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
 #include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -37,6 +38,13 @@ extern "C" {
 #define RSYM  ".16g"
 #define RSYMW "23.16g"
 #endif
+
+/*===============================================================
+  SHORTCUTS
+  ===============================================================*/
+
+#define ARK_PROFILER ark_mem->sunctx->profiler
+#define ARK_LOGGER ark_mem->sunctx->logger
 
 /*===============================================================
   ARKode Private Constants
@@ -1007,9 +1015,12 @@ int arkGetNumConstrFails(void *arkode_mem, long int *nconstrfails);
 int arkGetNumExpSteps(void *arkode_mem, long int *nsteps);
 int arkGetNumAccSteps(void *arkode_mem, long int *nsteps);
 int arkGetNumErrTestFails(void *arkode_mem, long int *netfails);
+int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails);
 int arkGetStepStats(void *arkode_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);
+int arkPrintAllStats(void *arkode_mem, FILE *outfile,
+                     SUNOutputFormat fmt);
 char *arkGetReturnFlagName(long int flag);
 
 

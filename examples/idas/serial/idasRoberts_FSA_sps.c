@@ -793,8 +793,9 @@ static void PrintSensOutput(N_Vector *uS)
 static void PrintFinalStats(void *ida_mem, booleantype sensi)
 {
   long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nfe, nsetups, nni, nnf, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, nnfS, ncfnS, netfS;
+  long int nje, nfeLS;
   int retval;
 
   retval = IDAGetNumSteps(ida_mem, &nst);
@@ -807,8 +808,10 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
   check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
-  retval = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(ida_mem, &nnf);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumStepSolveFails(ida_mem, &ncfn);
+  check_retval(&retval, "IDAGetNumStepSolveFails", 1);
 
   if (sensi) {
     retval = IDAGetSensNumResEvals(ida_mem, &nfSe);
@@ -821,22 +824,34 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
     check_retval(&retval, "IDAGetSensNumErrTestFails", 1);
     retval = IDAGetSensNumNonlinSolvIters(ida_mem, &nniS);
     check_retval(&retval, "IDAGetSensNumNonlinSolvIters", 1);
-    retval = IDAGetSensNumNonlinSolvConvFails(ida_mem, &ncfnS);
+    retval = IDAGetSensNumNonlinSolvConvFails(ida_mem, &nnfS);
     check_retval(&retval, "IDAGetSensNumNonlinSolvConvFails", 1);
+    retval = IDAGetNumStepSensSolveFails(ida_mem, &ncfnS);
+    check_retval(&retval, "IDAGetNumStepSolveFails", 1);
   }
+
+  retval = IDAGetNumJacEvals(ida_mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
+  retval = IDAGetNumLinResEvals(ida_mem, &nfeLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);
   printf("nfe     = %5ld\n",   nfe);
   printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
-  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
+  printf("nni     = %5ld    nnf      = %5ld\n", nni, nnf);
+  printf("ncfn    = %5ld\n", ncfn);
 
   if(sensi) {
     printf("\n");
     printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
     printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
-    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
+    printf("nniS    = %5ld    nnfS     = %5ld\n", nniS, nnfS);
+    printf("ncfnS   = %5ld\n", ncfnS);
   }
+
+  printf("\n");
+  printf("nje    = %5ld    nfeLS     = %5ld\n", nje, nfeLS);
 
 }
 

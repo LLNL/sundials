@@ -82,7 +82,6 @@ int jacrob(realtype tt,  realtype cj,
 static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
-static void PrintFinalStats(void *mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
 
@@ -104,6 +103,7 @@ int main(void)
   SUNLinearSolver LS;
   SUNNonlinearSolver NLS;
   SUNContext ctx;
+  FILE* FID;
 
   mem = NULL;
   yy = yp = avtol = NULL;
@@ -214,7 +214,14 @@ int main(void)
     if (iout == NOUT) break;
   }
 
-  PrintFinalStats(mem);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idaRoberts_dns_stats.csv", "w");
+  retval = IDAPrintAllStats(mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* check the solution error */
   retval = check_ans(yy, tret, rtol, avtol);
@@ -380,42 +387,6 @@ static void PrintRootInfo(int root_f1, int root_f2)
 {
   printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
   return;
-}
-
-/*
- * Print final integrator statistics
- */
-
-static void PrintFinalStats(void *mem)
-{
-  int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn, nge;
-
-  retval = IDAGetNumSteps(mem, &nst);
-  check_retval(&retval, "IDAGetNumSteps", 1);
-  retval = IDAGetNumResEvals(mem, &nre);
-  check_retval(&retval, "IDAGetNumResEvals", 1);
-  retval = IDAGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "IDAGetNumJacEvals", 1);
-  retval = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
-  retval = IDAGetNumErrTestFails(mem, &netf);
-  check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDAGetNumLinResEvals(mem, &nreLS);
-  check_retval(&retval, "IDAGetNumLinResEvals", 1);
-  retval = IDAGetNumGEvals(mem, &nge);
-  check_retval(&retval, "IDAGetNumGEvals", 1);
-
-  printf("\nFinal Run Statistics: \n\n");
-  printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
-  printf("Number of Jacobian evaluations     = %ld\n", nje);
-  printf("Number of nonlinear iterations     = %ld\n", nni);
-  printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
-  printf("Number of root fn. evaluations     = %ld\n", nge);
 }
 
 /*

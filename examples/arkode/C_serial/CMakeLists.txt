@@ -48,8 +48,11 @@ set(ARKODE_examples
   "ark_kpr_mri\;5 0.002\;develop"
   "ark_kpr_mri\;6 0.005\;develop"
   "ark_kpr_mri\;7 0.001\;develop"
+  "ark_kpr_mri\;7 0.001 -100 100 0.5 1\;develop"
   "ark_kpr_mri\;8 0.001\;develop"
+  "ark_kpr_mri\;8 0.001 -100 100 0.5 1\;develop"
   "ark_kpr_mri\;9 0.001\;develop"
+  "ark_kpr_mri\;9 0.001 -100 100 0.5 1\;develop"
   "ark_brusselator1D_imexmri\;0 0.001\;develop"
   "ark_brusselator1D_imexmri\;2 0.001\;develop"
   "ark_brusselator1D_imexmri\;3 0.001\;develop"
@@ -81,6 +84,10 @@ set(ARKODE_extras
   plot_heat1D_adapt.py
   plot_sol.py
   plot_sol_log.py
+  ark_analytic_nonlin_stats.csv
+  ark_reaction_diffusion_mri_fast_stats.csv
+  ark_reaction_diffusion_mri_slow_stats.csv
+  ark_robertson_stats.csv
   )
 
 # Specify libraries to link against

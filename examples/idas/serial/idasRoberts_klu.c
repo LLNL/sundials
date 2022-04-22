@@ -57,10 +57,15 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *user_data);
 
-int jacrob(realtype tt,  realtype cj,
-           N_Vector yy, N_Vector yp, N_Vector resvec,
-           SUNMatrix JJ, void *user_data,
-           N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+int jacrobCSC(realtype tt,  realtype cj,
+              N_Vector yy, N_Vector yp, N_Vector resvec,
+              SUNMatrix JJ, void *user_data,
+              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+
+int jacrobCSR(realtype tt,  realtype cj,
+              N_Vector yy, N_Vector yp, N_Vector resvec,
+              SUNMatrix JJ, void *user_data,
+              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
 static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
@@ -148,7 +153,7 @@ int main(void)
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, ctx);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSR_MAT, ctx);
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
@@ -160,7 +165,7 @@ int main(void)
   if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine */
-  retval = IDASetJacFn(mem, jacrob);
+  retval = IDASetJacFn(mem, jacrobCSR);
   if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.
@@ -251,10 +256,10 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function.
  */
 
-int jacrob(realtype tt,  realtype cj,
-           N_Vector yy, N_Vector yp, N_Vector resvec,
-           SUNMatrix JJ, void *user_data,
-           N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+int jacrobCSC(realtype tt,  realtype cj,
+              N_Vector yy, N_Vector yp, N_Vector resvec,
+              SUNMatrix JJ, void *user_data,
+              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
@@ -293,6 +298,55 @@ int jacrob(realtype tt,  realtype cj,
   rowvals[7] = 1;
   data[8] = ONE;
   rowvals[8] = 2;
+
+  return(0);
+}
+
+/*
+ * Define the Jacobian function, where Jacobian is CSR matrix.
+ */
+int jacrobCSR(realtype tt,  realtype cj,
+              N_Vector yy, N_Vector yp, N_Vector resvec,
+              SUNMatrix JJ, void *user_data,
+              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+{
+  realtype *yval;
+  sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(JJ);
+  sunindextype *colvals = SUNSparseMatrix_IndexValues(JJ);
+  realtype *data = SUNSparseMatrix_Data(JJ);
+
+  yval = N_VGetArrayPointer(yy);
+
+  SUNMatZero(JJ);
+
+  rowptrs[0] = 0;
+  rowptrs[1] = 3;
+  rowptrs[2] = 6;
+  rowptrs[3] = 9;
+
+  /* row 0 */
+  data[0] = RCONST(-0.04) - cj;
+  colvals[0] = 0;
+  data[1] = RCONST(1.0e4)*yval[2];
+  colvals[1] = 1;
+  data[2] = RCONST(1.0e4)*yval[1];
+  colvals[2] = 2;
+
+  /* row 1 */
+  data[3] = RCONST(0.04);
+  colvals[3] = 0;
+  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]) - cj;
+  colvals[4] = 1;
+  data[5] = RCONST(-1.0e4)*yval[1];
+  colvals[5] = 2;
+
+  /* row 2 */
+  data[6] = ONE;
+  colvals[6] = 0;
+  data[7] = ONE;
+  colvals[7] = 1;
+  data[8] = ONE;
+  colvals[8] = 2;
 
   return(0);
 }
@@ -384,7 +438,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, netf, ncfn, nge;
+  long int nst, nni, nnf, nje, nre, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_retval(&retval, "IDAGetNumSteps", 1);
@@ -396,8 +450,10 @@ static void PrintFinalStats(void *mem)
   check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
+  check_retval(&retval, "IDAGetNumStepSolveFails", 1);
   retval = IDAGetNumGEvals(mem, &nge);
   check_retval(&retval, "IDAGetNumGEvals", 1);
 
@@ -407,7 +463,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
   printf("Number of root fn. evaluations     = %ld\n", nge);
 }
 

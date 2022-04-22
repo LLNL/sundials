@@ -19,17 +19,18 @@ Mathematical Considerations
 IDAS solves the initial-value problem (IVP) for a DAE system of the general form
 
 .. math::
-   F(t,y,\dot{y}) = 0 \, , \quad y(t_0) = y_0 \, , \quad \dot{y}(t_0) =
-   \dot{y}_0 \,
+   F(t,y,\dot{y}) = 0 \, ,
+   \quad y(t_0) = y_0 \, , \quad \dot{y}(t_0) = \dot{y}_0 \,
    :label: IDAS_DAE
 
-where :math:`y`, :math:`\dot{y}`, and :math:`F` are vectors in :math:`{\bf
-R}^N`, :math:`t` is the independent variable, :math:`\dot{y} = \mathrm
-dy/\mathrm dt`, and initial values :math:`y_0`, :math:`\dot{y}_0` are given.
-(Often :math:`t` is time, but it certainly need not be.)
+where :math:`y`, :math:`\dot{y}`, and :math:`F` are vectors in
+:math:`\mathbb{R}^N`, :math:`t` is the independent variable,
+:math:`\dot{y} = \mathrm dy/\mathrm dt`, and initial values :math:`y_0`,
+:math:`\dot{y}_0` are given. Often :math:`t` is time, but it certainly need not
+be.
 
 Additionally, if :eq:`IDAS_DAE` depends on some parameters
-:math:`p \in {\bf R}^{N_p}`, i.e.
+:math:`p \in \mathbb{R}^{N_p}`, i.e.
 
 .. math::
    \begin{split} & F(t, y, \dot y , p) = 0 \\ & y(t_0) = y_0(p) \, ,~ {\dot
@@ -42,10 +43,10 @@ case, IDAS computes the sensitivities of the solution with respect to the
 parameters :math:`p`, while in the second case, IDAS computes the gradient of a
 *derived function* with respect to the parameters :math:`p`.
 
-.. _IDAS.Mathematics.ivp_sol:
+.. _IDAS.Mathematics.ic:
 
-IVP solution
-============
+Initial Condition
+=================
 
 Prior to integrating a DAE initial-value problem, an important requirement is
 that the pair of vectors :math:`y_0` and :math:`\dot{y}_0` are both initialized
@@ -64,13 +65,18 @@ available option with this solver also computes all of :math:`y(t_0)` given
 :math:`\dot{y}(t_0)`; this is intended mainly for quasi-steady-state problems,
 where :math:`\dot{y}(t_0) = 0` is given.  In both cases, IDAS solves the system
 :math:`F(t_0,y_0, \dot{y}_0) = 0` for the unknown components of :math:`y_0` and
-:math:`\dot{y}_0`, using Newton iteration augmented with a line search global
-strategy. In doing this, it makes use of the existing machinery that is to be
-used for solving the linear systems during the integration, in combination with
-certain tricks involving the step size (which is set artificially for this
-calculation).  For problems that do not fall into either of these categories,
-the user is responsible for passing consistent values, or risks failure in the
-numerical integration.
+:math:`\dot{y}_0`, using a Newton iteration augmented with a line search
+globalization strategy. In doing this, it makes use of the existing machinery
+that is to be used for solving the linear systems during the integration, in
+combination with certain tricks involving the step size (which is set
+artificially for this calculation).  For problems that do not fall into either
+of these categories, the user is responsible for passing consistent values, or
+risks failure in the numerical integration.
+
+.. _IDAS.Mathematics.ivp_sol:
+
+IVP solution
+============
 
 The integration method used in IDAS is the variable-order, variable-coefficient
 BDF (Backward Differentiation Formula), in fixed-leading-coefficient form
@@ -85,14 +91,32 @@ where :math:`y_n` and :math:`\dot{y}_n` are the computed approximations to
 :math:`y(t_n)` and :math:`\dot{y}(t_n)`, respectively, and the step size is
 :math:`h_n = t_n - t_{n-1}`.  The coefficients :math:`\alpha_{n,i}` are uniquely
 determined by the order :math:`q`, and the history of the step sizes. The
-application of the BDF :eq:`IDAS_BDF` to the DAE system :eq:`IDAS_DAE` results in a
-nonlinear algebraic system to be solved at each step:
+application of the BDF :eq:`IDAS_BDF` to the DAE system :eq:`IDAS_DAE` results in
+a nonlinear algebraic system to be solved at each step:
 
 .. math::
    G(y_n) \equiv
    F \left( t_n , \, y_n , \,
       h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y_{n-i} \right) = 0 \, .
    :label: IDAS_DAE_nls
+
+In the process of controlling errors at various levels, IDAS uses a weighted
+root-mean-square norm, denoted :math:`\|\cdot\|_{\text{WRMS}}`, for all
+error-like quantities. The multiplicative weights used are based on the current
+solution and on the relative and absolute tolerances input by the user, namely
+
+.. math::
+   W_i = \frac{1}{\text{rtol} \cdot |y_i| + \text{atol}_i }\, .
+   :label: IDAS_errwt
+
+Because :math:`1/W_i` represents a tolerance in the component :math:`y_i`, a
+vector whose norm is 1 is regarded as “small.” For brevity, we will usually drop
+the subscript WRMS on norms in what follows.
+
+.. _IDAS.Mathematics.nls:
+
+Nonlinear Solve
+---------------
 
 By default IDAS solves :eq:`IDAS_DAE_nls` with a Newton iteration but IDAS also allows
 for user-defined nonlinear solvers (see Chapter :numref:`SUNNonlinSol`). Each
@@ -132,13 +156,17 @@ these modules are as follows:
   :cite:p:`DaPa:10, KLU_site`, SuperLU_MT :cite:p:`Li:05,DGL:99,SuperLUMT_site`,
   SuperLU_Dist :cite:p:`GDL:07,LD:03,SLUUG:99,SuperLUDIST_site`, and cuSPARSE :cite:p:`cuSPARSE_site`,
 
-* SPGMR, a scaled preconditioned GMRES (Generalized Minimal Residual method) solver,
+* SPGMR, a scaled preconditioned GMRES (Generalized Minimal Residual method)
+  solver with or without restarts,
 
-* SPFGMR, a scaled preconditioned FGMRES (Flexible Generalized Minimal Residual method) solver,
+* SPFGMR, a scaled preconditioned FGMRES (Flexible Generalized
+  Minimal Residual method) solver with or without restarts,
 
-* SPBCG, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable method) solver,
+* SPBCG, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
+  method) solver,
 
-* SPTFQMR, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal Residual method) solver, or
+* SPTFQMR, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
+  Residual method) solver, or
 
 * PCG, a scaled preconditioned CG (Conjugate Gradient method) solver.
 
@@ -152,19 +180,6 @@ IDAS, preconditioning is allowed only on the left (see
 :numref:`IDAS.Mathematics.preconditioning`).  Note that the dense, band, and sparse
 direct linear solvers can only be used with serial and threaded vector
 representations.
-
-In the process of controlling errors at various levels, IDAS uses a weighted
-root-mean-square norm, denoted :math:`\|\cdot\|_{\mbox{WRMS}}`, for all
-error-like quantities. The multiplicative weights used are based on the current
-solution and on the relative and absolute tolerances input by the user, namely
-
-.. math::
-   W_i = \frac{1}{\text{rtol} \cdot |y_i| + \text{atol}_i }\, .
-   :label: IDAS_errwt
-
-Because :math:`1/W_i` represents a tolerance in the component :math:`y_i`, a
-vector whose norm is 1 is regarded as “small.” For brevity, we will usually drop
-the subscript WRMS on norms in what follows.
 
 In the case of a matrix-based linear solver, the default Newton iteration is a
 Modified Newton iteration, in that the Jacobian :math:`J` is fixed (and usually
@@ -219,10 +234,11 @@ iteration if :math:`\|\delta_1\| < 0.33 \cdot 10^{-4}` (since such a
 evaluating :math:`R`).  We allow only a small number (default value 4) of
 nonlinear iterations.  If convergence fails with :math:`J` or :math:`P` current,
 we are forced to reduce the step size :math:`h_n`, and we replace :math:`h_n` by
-:math:`h_n/4`.  The integration is halted after a preset number (default
-value 10) of convergence failures. Both the maximum number of allowable
-nonlinear iterations and the maximum number of nonlinear convergence failures
-can be changed by the user from their default values.
+:math:`h_n \eta_{\text{cf}}` (by default :math:`\eta_{\text{cf}} = 0.25`). The
+integration is halted after a preset number (default value 10) of convergence
+failures. Both the maximum number of allowable nonlinear iterations and the
+maximum number of nonlinear convergence failures can be changed by the user from
+their default values.
 
 When an iterative method is used to solve the linear system, to minimize the
 effect of linear iteration errors on the nonlinear and local integration error
@@ -231,7 +247,7 @@ the allowed error in the nonlinear iteration, i.e., :math:`\| P^{-1}(Jx+G) \| <
 0.05 \cdot 0.33`.  The safety factor :math:`0.05` can be changed by the user.
 
 When the Jacobian is stored using either the :ref:`SUNMATRIX_DENSE <SUNMatrix.Dense>`
-or :ref:`SUNMATRIX_BAND <SUNMatrix.Band>`  matrix objects,
+or :ref:`SUNMATRIX_BAND <SUNMatrix.Band>` matrix objects,
 the Jacobian :math:`J` defined in :eq:`IDAS_DAE_Jacobian` can be either supplied by
 the user or IDAS can compute :math:`J` internally by difference quotients. In the
 latter case, we use the approximation
@@ -241,7 +257,7 @@ latter case, we use the approximation
      J_{ij} = [F_i(t,y+\sigma_j e_j,\dot{y}+\alpha\sigma_j e_j) -
                F_i(t,y,\dot{y})]/\sigma_j \, , \text{ with}\\
      \sigma_j = \sqrt{U} \max \left\{ |y_j|, |h\dot{y}_j|,1/W_j \right\}
-                \mbox{sign}(h \dot{y}_j) \, ,\end{gathered}
+                \text{sign}(h \dot{y}_j) \, ,\end{gathered}
 
 where :math:`U` is the unit roundoff, :math:`h` is the current step size, and
 :math:`W_j` is the error weight for the component :math:`y_j` defined by
@@ -256,17 +272,22 @@ supplied, such products are approximated by
 where the increment :math:`\sigma = 1/\|v\|`. As an option, the user can specify
 a constant factor that is inserted into this expression for :math:`\sigma`.
 
+.. _IDAS.Mathematics.err_test:
+
+Local Error Test
+----------------
+
 During the course of integrating the system, IDAS computes an estimate of the
 local truncation error, LTE, at the :math:`n`-th time step, and requires this to
 satisfy the inequality
 
-.. math:: \| \mbox{LTE} \|_{\mbox{WRMS}} \leq 1 \, .
+.. math:: \| \text{LTE} \|_{\text{WRMS}} \leq 1 \, .
 
 Asymptotically, LTE varies as :math:`h^{q+1}` at step size :math:`h` and order
 :math:`q`, as does the predictor-corrector difference :math:`\Delta_n \equiv
 y_n-y_{n(0)}`.  Thus there is a constant :math:`C` such that
 
-.. math:: \mbox{LTE} = C \Delta_n + O(h^{q+2}) \, ,
+.. math:: \text{LTE} = C \Delta_n + O(h^{q+2}) \, ,
 
 and so the norm of LTE is estimated as :math:`|C| \cdot \|\Delta_n\|`.  In
 addition, IDAS requires that the error in the associated polynomial interpolant
@@ -281,6 +302,11 @@ this error is bounded by :math:`\bar{C} \|\Delta_n\|` for another constant
 A user option is available by which the algebraic components of the error vector
 are omitted from the test :eq:`IDAS_lerrtest`, if these have been so identified.
 
+.. _IDAS.Mathematics.step_order_select:
+
+Step Size and Order Selection
+-----------------------------
+
 In IDAS, the local error test is tightly coupled with the logic for selecting the
 step size and order. First, there is an initial phase that is treated specially;
 for the first few steps, the step size is doubled and the order raised (from its
@@ -294,7 +320,7 @@ of the local error in the case of fixed step sizes.  At each of the orders
 :math:`C(q')` such that the norm of the local truncation error at order
 :math:`q'` satisfies
 
-.. math:: \mbox{LTE}(q') = C(q') \| \phi(q'+1) \| + O(h^{q'+2}) \, ,
+.. math:: \text{LTE}(q') = C(q') \| \phi(q'+1) \| + O(h^{q'+2}) \, ,
 
 where :math:`\phi(k)` is a modified divided difference of order :math:`k` that
 is retained by IDAS (and behaves asymptotically as :math:`h^k`).  Thus the local
@@ -304,7 +330,7 @@ that the scaled derivative norms, :math:`\|h^k y^{(k)}\|`, are monotonically
 decreasing with :math:`k`, for :math:`k` near :math:`q`. These norms are again
 estimated using the :math:`\phi(k)`, and in fact
 
-.. math:: \|h^{q'+1} y^{(q'+1)}\| \approx T(q') \equiv (q'+1) \mbox{ELTE}(q') \, .
+.. math:: \|h^{q'+1} y^{(q'+1)}\| \approx T(q') \equiv (q'+1) \text{ELTE}(q') \, .
 
 The step/order selection begins with a test for monotonicity that is made even
 *before* the local error test is performed. Namely, the order is reset to
@@ -313,41 +339,73 @@ The step/order selection begins with a test for monotonicity that is made even
 the local error test :eq:`IDAS_lerrtest` is performed, and if it fails, the step is
 redone at order :math:`q\leftarrow q'` and a new step size :math:`h'`. The
 latter is based on the :math:`h^{q+1}` asymptotic behavior of
-:math:`\mbox{ELTE}(q)`, and, with safety factors, is given by
+:math:`\text{ELTE}(q)`, and, with safety factors, is given by
 
-.. math:: \eta = h'/h = 0.9/[2 \, \mbox{ELTE}(q)]^{1/(q+1)} \, .
+.. math:: \eta = h'/h = 0.9/[2 \, \text{ELTE}(q)]^{1/(q+1)} \, .
 
-The value of :math:`\eta` is adjusted so that :math:`0.25 \leq \eta \leq 0.9`
-before setting :math:`h \leftarrow h' = \eta h`. If the local error test fails a
-second time, IDAS uses :math:`\eta = 0.25`, and on the third and subsequent
-failures it uses :math:`q = 1` and :math:`\eta = 0.25`. After 10 failures, IDAS
-returns with a give-up message.
+The value of :math:`\eta` is adjusted so that :math:`\eta_{\text{min\_ef}} \leq
+\eta \leq \eta_{\text{low}}` (by default :math:`\eta_{\text{min\_ef}} = 0.25`
+and :math:`\eta_{\text{low}} = 0.9`) before setting :math:`h \leftarrow h' =
+\eta h`. If the local error test fails a second time, IDA uses
+:math:`\eta = \eta_{\text{min\_ef}}`, and on the third and subsequent failures
+it uses :math:`q = 1` and :math:`\eta = \eta_{\text{min\_ef}}`. After 10
+failures, IDA returns with a give-up message.
 
 As soon as the local error test has passed, the step and order for the next step
-may be adjusted. No such change is made if :math:`q' = q-1` from the prior test,
+may be adjusted. No order change is made if :math:`q' = q-1` from the prior test,
 if :math:`q = 5`, or if :math:`q` was increased on the previous step. Otherwise,
 if the last :math:`q+1` steps were taken at a constant order :math:`q < 5` and a
 constant step size, IDAS considers raising the order to :math:`q+1`. The logic is
-as follows: (a) If :math:`q = 1`, then reset :math:`q = 2` if :math:`T(2) <
-T(1)/2`. (b) If :math:`q > 1` then
+as follows:
 
-* reset :math:`q \leftarrow q-1` if :math:`T(q-1) \leq \min\{T(q),T(q+1)\}`;
+a. If :math:`q = 1`, then set :math:`q = 2` if :math:`T(2) < T(1)/2`.
 
-* else reset :math:`q \leftarrow q+1` if :math:`T(q+1) < T(q)`;
+b. If :math:`q > 1` then
 
-* leave :math:`q` unchanged otherwise :math:`[`\ then :math:`T(q-1) > T(q) \leq
-  T(q+1)]`.
+   * set :math:`q \leftarrow q-1` if :math:`T(q-1) \leq \min\{T(q),T(q+1)\}`,
+     else
+
+   * set :math:`q \leftarrow q+1` if :math:`T(q+1) < T(q)`, otherwise
+
+   * leave :math:`q` unchanged, in this case :math:`T(q-1) > T(q) \leq  T(q+1)`
 
 In any case, the new step size :math:`h'` is set much as before:
 
-.. math:: \eta = h'/h = 1/[2 \, \mbox{ELTE}(q)]^{1/(q+1)} \, .
+.. math:: \eta = h'/h = 1/[2 \, \text{ELTE}(q)]^{1/(q+1)} \, .
 
-The value of :math:`\eta` is adjusted such that (a) if :math:`\eta > 2`,
-:math:`\eta` is reset to 2; (b) if :math:`\eta \leq 1`, :math:`\eta` is
-restricted to :math:`0.5 \leq \eta \leq 0.9`; and (c) if :math:`1 < \eta < 2` we
-use :math:`\eta = 1`.  Finally :math:`h` is reset to :math:`h' = \eta h`. Thus
-we do not increase the step size unless it can be doubled. See :cite:p:`BCP:96`
-for details.
+The value of :math:`\eta` is adjusted such that
+
+a. If :math:`\eta_{\text{min\_fx}} < \eta < \eta_{\text{max\_fx}}`, set
+   :math:`\eta = 1`. The defaults are :math:`\eta_{\text{min\_fx}} = 1` and
+   :math:`\eta_{\text{max\_fx}} = 2`.
+
+b. If :math:`\eta \geq \eta_{\text{max\_fx}}`, the step size growth is restricted
+   to :math:`\eta_{\text{max\_fx}} \leq \eta \leq \eta_{\text{max}}` with
+   :math:`\eta_{\text{max}} = 2` by default.
+
+c. If :math:`\eta \leq \eta_{\text{min\_fx}}`, the step size reduction is
+   restricted to :math:`\eta_{\text{min}} \leq \eta \leq \eta_{\text{low}}` with
+   :math:`\eta_{\text{min}} = 0.5` and  :math:`\eta_{\text{low}} = 0.9` by
+   default.
+
+Thus we do not increase the step size unless it can be doubled. If a step size
+reduction is called for, the step size will be cut by at least 10% and up to 50%
+for the next step. See :cite:p:`BCP:96` for details.
+
+Finally :math:`h` is set to :math:`h' = \eta h` and :math:`|h|` is restricted
+to :math:`h_{\text{min}} \leq |h| \leq h_{\text{max}}` with the defaults
+:math:`h_{\text{min}} = 0.0` and :math:`h_{\text{max}} = \infty`.
+
+Normally, IDAS takes steps until a user-defined output value :math:`t =
+t_{\text{out}}` is overtaken, and then computes :math:`y(t_{\text{out}})` by
+interpolation. However, a “one step” mode option is available, where control
+returns to the calling program after each step. There are also options to force
+IDAS not to integrate past a given stopping point :math:`t = t_{\text{stop}}`.
+
+.. _IDAS.Mathematics.ineq_constr:
+
+Inequality Constraints
+----------------------
 
 IDAS permits the user to impose optional inequality constraints on individual
 components of the solution vector :math:`y`. Any of the following four
@@ -364,12 +422,6 @@ satisfy the constraints repeatedly within a step attempt then the integration is
 halted and an error is returned. In this case the user may need to employ other
 strategies as discussed in :numref:`IDAS.Usage.SIM.user_callable.idatolerances` to
 satisfy the inequality constraints.
-
-Normally, IDAS takes steps until a user-defined output value :math:`t =
-t_{\mbox{out}}` is overtaken, and then computes :math:`y(t_{\mbox{out}})` by
-interpolation. However, a “one step” mode option is available, where control
-returns to the calling program after each step. There are also options to force
-IDAS not to integrate past a given stopping point :math:`t = t_{\mbox{stop}}`.
 
 .. _IDAS.Mathematics.preconditioning:
 
@@ -402,7 +454,7 @@ extensive study of preconditioners for reaction-transport systems).
 
 Typical preconditioners used with IDAS are based on approximations to the
 iteration matrix of the systems involved; in other words, :math:`P \approx
-{\partial F}/{\partial y} + \alpha\, {\partial F}/{\partial \dot{y}}`,
+\dfrac{\partial F}{\partial y} + \alpha\dfrac{\partial F}{\partial \dot{y}}`,
 where :math:`\alpha` is a scalar inversely proportional to the integration step
 size :math:`h`.  Because the Krylov iteration occurs within a nonlinear solver
 iteration and further also within a time integration, and since each of these
@@ -452,9 +504,9 @@ and adjusting has been done, IDAS has an interval :math:`(t_{lo},t_{hi}]` in
 which roots of the :math:`g_i(t)` are to be sought, such that :math:`t_{hi}` is
 further ahead in the direction of integration, and all :math:`g_i(t_{lo}) \neq
 0`. The endpoint :math:`t_{hi}` is either :math:`t_n`, the end of the time step
-last taken, or the next requested output time :math:`t_{\mbox{out}}` if this
+last taken, or the next requested output time :math:`t_{\text{out}}` if this
 comes sooner. The endpoint :math:`t_{lo}` is either :math:`t_{n-1}`, or the last
-output time :math:`t_{\mbox{out}}` (if this occurred within the last step), or
+output time :math:`t_{\text{out}}` (if this occurred within the last step), or
 the last root location (if a root was just located within this step), possibly
 adjusted slightly toward :math:`t_n` if an exact zero was found. The algorithm
 checks :math:`g` at :math:`t_{hi}` for zeros and for sign changes in
@@ -482,7 +534,6 @@ In the loop to locate the root of :math:`g_i(t)`, the formula for
 :math:`t_{mid}` is
 
 .. math::
-
    t_{mid} = t_{hi} - (t_{hi} - t_{lo})
                 g_i(t_{hi}) / [g_i(t_{hi}) - \alpha g_i(t_{lo})] ~,
 

@@ -2963,7 +2963,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   ttmp = (dsm <= ONE) ? ark_mem->tn + ark_mem->h : ark_mem->tn;
   nsttmp = (dsm <= ONE) ? ark_mem->nst+1 : ark_mem->nst;
   retval = arkAdapt((void*) ark_mem, hadapt_mem, ark_mem->ycur, ttmp,
-                    ark_mem->h, dsm*ark_mem->hadapt_mem->bias, nsttmp);
+                    ark_mem->h, dsm, nsttmp);
   if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
 
   /* If est. local error norm dsm passes test, return ARK_SUCCESS */
@@ -2983,6 +2983,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   /* Enforce failure bounds on eta, update h, and return for retry of step */
   if (*nefPtr >= hadapt_mem->small_nef)
     ark_mem->eta = SUNMIN(ark_mem->eta, hadapt_mem->etamxf);
+
   return(TRY_AGAIN);
 }
 

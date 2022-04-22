@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "kinsol_impl.h"
+#include "kinsol_ls_impl.h"
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -138,6 +139,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
 /*
  * -----------------------------------------------------------------
  * Function : KINSetInfoFile
+ * DEPRECATED: use SUNLogger_SetInfoFilename instead
  * -----------------------------------------------------------------
  */
 
@@ -160,6 +162,7 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
 /*
  * -----------------------------------------------------------------
  * Function : KINSetDebugFile
+ * DEPRECATED: use SUNLogger_SetDebugFilename instead
  * -----------------------------------------------------------------
  */
 
@@ -174,19 +177,9 @@ int KINSetDebugFile(void *kinmem, FILE *debugfp)
   }
 
   kin_mem = (KINMem) kinmem;
-
-#if defined(SUNDIALS_DEBUG)
-  if (debugfp)
-    kin_mem->kin_debugfp = debugfp;
-  else
-    kin_mem->kin_debugfp = stdout;
+  kin_mem->kin_debugfp = debugfp;
 
   return(KIN_SUCCESS);
-#else
-  KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetDebugFile",
-                  "SUNDIALS was not built with debugging enabled");
-  return(KIN_ILL_INPUT);
-#endif
 }
 
 
@@ -1125,6 +1118,106 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
 
   kin_mem = (KINMem) kinmem;
   *steplength = kin_mem->kin_stepl;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINPrintAllStats
+ * -----------------------------------------------------------------
+ */
+
+int KINPrintAllStats(void *kinmem, FILE* outfile, SUNOutputFormat fmt)
+{
+  KINMem kin_mem;
+  KINLsMem kinls_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINPrintAllStats",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* main solver stats */
+    fprintf(outfile, "Nonlinear iters         = %li\n", kin_mem->kin_nni);
+    fprintf(outfile, "Nonlinear fn evals      = %li\n", kin_mem->kin_nfe);
+    fprintf(outfile, "Beta condition fails    = %li\n", kin_mem->kin_nbcf);
+    fprintf(outfile, "Backtrack operations    = %li\n", kin_mem->kin_nbktrk);
+    fprintf(outfile, "Nonlinear fn norm       = %"RSYM"\n", kin_mem->kin_fnorm);
+    fprintf(outfile, "Step length             = %"RSYM"\n", kin_mem->kin_stepl);
+
+    /* linear solver stats */
+    if (kin_mem->kin_lmem)
+    {
+      kinls_mem = (KINLsMem) (kin_mem->kin_lmem);
+      fprintf(outfile, "Jac fn evals            = %ld\n", kinls_mem->nje);
+      fprintf(outfile, "LS Nonlinear fn evals   = %ld\n", kinls_mem->nfeDQ);
+      fprintf(outfile, "Prec setup evals        = %ld\n", kinls_mem->npe);
+      fprintf(outfile, "Prec solves             = %ld\n", kinls_mem->nps);
+      fprintf(outfile, "LS iters                = %ld\n", kinls_mem->nli);
+      fprintf(outfile, "LS fails                = %ld\n", kinls_mem->ncfl);
+      fprintf(outfile, "Jac-times evals         = %ld\n", kinls_mem->njtimes);
+      if (kin_mem->kin_nni > 0)
+      {
+        fprintf(outfile, "LS iters per NLS iter   = %"RSYM"\n",
+                (realtype) kinls_mem->nli / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, "Jac evals per NLS iter  = %"RSYM"\n",
+                (realtype) kinls_mem->nje / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, "Prec evals per NLS iter = %"RSYM"\n",
+                (realtype) kinls_mem->npe / (realtype) kin_mem->kin_nni);
+      }
+    }
+
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    /* main solver stats */
+    fprintf(outfile, "Nonlinear iters,%li", kin_mem->kin_nni);
+    fprintf(outfile, ",Nonlinear fn evals,%li", kin_mem->kin_nfe);
+    fprintf(outfile, ",Beta condition fails,%li", kin_mem->kin_nbcf);
+    fprintf(outfile, ",Backtrack operations,%li", kin_mem->kin_nbktrk);
+    fprintf(outfile, ",Nonlinear fn norm,%"RSYM, kin_mem->kin_fnorm);
+    fprintf(outfile, ",Step length,%"RSYM, kin_mem->kin_stepl);
+
+    /* linear solver stats */
+    if (kin_mem->kin_lmem)
+    {
+      kinls_mem = (KINLsMem) (kin_mem->kin_lmem);
+      fprintf(outfile, ",Jac fn evals,%ld", kinls_mem->nje);
+      fprintf(outfile, ",LS Nonlinear fn evals,%ld", kinls_mem->nfeDQ);
+      fprintf(outfile, ",Prec setup evals,%ld", kinls_mem->npe);
+      fprintf(outfile, ",Prec solves,%ld", kinls_mem->nps);
+      fprintf(outfile, ",LS iters,%ld", kinls_mem->nli);
+      fprintf(outfile, ",LS fails,%ld", kinls_mem->ncfl);
+      fprintf(outfile, ",Jac-times evals,%ld", kinls_mem->njtimes);
+      if (kin_mem->kin_nni > 0)
+      {
+        fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
+                (realtype) kinls_mem->nli / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
+                (realtype) kinls_mem->nje / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
+                (realtype) kinls_mem->npe / (realtype) kin_mem->kin_nni);
+      }
+      else
+      {
+        fprintf(outfile, ",LS iters per NLS iter,0");
+        fprintf(outfile, ",Jac evals per NLS iter,0");
+        fprintf(outfile, ",Prec evals per NLS iter,0");
+      }
+    }
+    fprintf(outfile, "\n");
+    break;
+  default:
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINPrintAllStats",
+                    "Invalid formatting option.");
+    return(KIN_ILL_INPUT);
+  }
 
   return(KIN_SUCCESS);
 }

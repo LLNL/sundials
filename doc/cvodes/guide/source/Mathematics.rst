@@ -32,6 +32,20 @@ systems. Roughly speaking, stiffness is characterized by the presence of
 at least one rapidly damped mode, whose time constant is small compared
 to the time scale of the solution itself.
 
+For problems :eq:`CVODES_ivp` where the analytical solution :math:`y(t)`
+satisfies an implicit constraint :math:`g(t,y)=0` (including the initial
+condition, :math:`g(t_0,y_0)=0`) for
+:math:`g(t,y): \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^{M}` with
+:math:`M<N`,  CVODES may be configured to explicitly enforce these constraints
+via solving the modified problem
+
+.. math::
+   \begin{aligned}
+      \dot{y} &= f(t,y) \, ,\quad y(t_0) = y_0 \, ,\\
+      0 &= g(t,y).
+   \end{aligned}
+   :label: CVODES_ivp_constr
+
 Additionally, if :eq:`CVODES_ivp` depends on some parameters :math:`p \in {\bf R}^{N_p}`, i.e.
 
 .. math::
@@ -91,6 +105,28 @@ or as a fixed-point problem
 
 where
 :math:`a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i} {\dot{y}}^{n-i})`.
+
+In the process of controlling errors at various levels, CVODES uses a
+weighted root-mean-square norm, denoted
+:math:`|\cdot|_{\text{WRMS}}`, for all error-like
+quantities. The multiplicative weights used are based on the current
+solution and on the relative and absolute tolerances input by the user,
+namely
+
+.. math::
+   W_i = 1 / [\text{rtol} \cdot |y_i| + \text{atol}_i ] \, .
+   :label: CVODES_errwt
+
+Because :math:`1/W_i` represents a tolerance in the component
+:math:`y_i`, a vector whose norm is 1 is regarded as “small.” For
+brevity, we will usually drop the subscript WRMS on norms in what
+follows.
+
+.. _CVODES.Mathematics.nls:
+
+Nonlinear Solve
+---------------
+
 CVODES provides several nonlinear solver choices as well as the
 option of using a user-defined nonlinear solver (see
 :numref:`SUNNonlinSol`). By default CVODES solves :eq:`CVODES_nonlinear` with a
@@ -161,22 +197,6 @@ form of the user-supplied preconditioner matrix
 In addition, CVODES also provides a linear solver module which only
 uses a diagonal approximation of the Jacobian matrix.
 
-In the process of controlling errors at various levels, CVODES uses a
-weighted root-mean-square norm, denoted
-:math:`|\cdot|_{\text{WRMS}}`, for all error-like
-quantities. The multiplicative weights used are based on the current
-solution and on the relative and absolute tolerances input by the user,
-namely
-
-.. math::
-   W_i = 1 / [\text{rtol} \cdot |y_i| + \text{atol}_i ] \, .
-   :label: CVODES_errwt
-
-Because :math:`1/W_i` represents a tolerance in the component
-:math:`y_i`, a vector whose norm is 1 is regarded as “small.” For
-brevity, we will usually drop the subscript WRMS on norms in what
-follows.
-
 In the case of a matrix-based linear solver, the default Newton
 iteration is a Modified Newton iteration, in that the iteration matrix
 :math:`M` is fixed throughout the nonlinear iterations. However, in the
@@ -191,7 +211,8 @@ matrix update occurs when:
 
    * starting the problem,
    * more than 20 steps have been taken since the last update,
-   * the value :math:`\bar{\gamma}` of :math:`\gamma` at the last update satisfies :math:`|\gamma/\bar{\gamma} - 1| > 0.3`,
+   * the value :math:`\bar{\gamma}` of :math:`\gamma` at the last update
+     satisfies :math:`|\gamma/\bar{\gamma} - 1| > 0.3`,
    * a non-fatal convergence failure just occurred, or
    * an error test failure just occurred.
 
@@ -204,7 +225,9 @@ reevaluate Jacobian data in :math:`P`) when:
 
    * starting the problem,
    * more than 50 steps have been taken since the last evaluation,
-   * a convergence failure occurred with an outdated matrix, and the value :math:`\bar{\gamma}` of :math:`\gamma` at the last update satisfies :math:`|\gamma/\bar{\gamma} - 1| < 0.2`, or
+   * a convergence failure occurred with an outdated matrix, and the value
+     :math:`\bar{\gamma}` of :math:`\gamma` at the last update satisfies
+     :math:`|\gamma/\bar{\gamma} - 1| < 0.2`, or
    * a convergence failure occurred that forced a step size reduction.
 
 The default stopping test for nonlinear solver iterations is related to
@@ -235,11 +258,12 @@ Therefore the convergence (stopping) test is
 
 .. math:: R \|\delta_m\| < 0.1 \epsilon \, .
 
-We allow at most 3 iterations (but this limit can be changed by the
-user). We also declare the iteration diverged if any
-:math:`\|\delta_m\| / \|\delta_{m-1}\| > 2` with :math:`m > 1`. If convergence fails with
-:math:`J` or :math:`P` current, we are forced to reduce the step size,
-and we replace :math:`h_n` by :math:`h_n/4`. The integration is halted
+We allow at most 3 iterations (but this limit can be changed by the user). We
+also declare the iteration diverged if any
+:math:`\|\delta_m\| / \|\delta_{m-1}\| > 2` with :math:`m > 1`. If convergence
+fails with :math:`J` or :math:`P` current, we are forced to reduce the step
+size, and we replace :math:`h_n` by :math:`h_n = \eta_{\text{cf}} * h_n` where
+the default is :math:`\eta_{\text{cf}} = 0.25`. The integration is halted
 after a preset number of convergence failures; the default value of this
 limit is 10, but this can be changed by the user.
 
@@ -288,6 +312,11 @@ is not supplied, these products are computed as
 The increment :math:`\sigma` is :math:`1/\|v\|`, so that
 :math:`\sigma v` has norm 1.
 
+.. _CVODES.Mathematics.err_test:
+
+Local Error Test
+----------------
+
 A critical part of CVODES — making it an ODE “solver” rather than
 just an ODE method, is its control of local error. At every step, the
 local error is estimated and required to satisfy tolerance conditions,
@@ -311,8 +340,13 @@ final iterate computed), and takes the form
 
 .. math:: \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, .
 
-If this test passes, the step is considered successful. If it fails, the
-step is rejected and a new step size :math:`h'` is computed based on the
+.. _CVODES.Mathematics.step_order_select:
+
+Step Size and Order Selection
+-----------------------------
+
+If the local error test passes, the step is considered successful. If it fails,
+the step is rejected and a new step size :math:`h'` is computed based on the
 asymptotic behavior of the local error, namely by the equation
 
 .. math:: (h'/h)^{q+1} \|\Delta_n\| = \epsilon/6 \, .
@@ -320,9 +354,10 @@ asymptotic behavior of the local error, namely by the equation
 Here 1/6 is a safety factor. A new attempt at the step is made, and the
 error test repeated. If it fails three times, the order :math:`q` is
 reset to 1 (if :math:`q > 1`), or the step is restarted from scratch (if
-:math:`q = 1`). The ratio :math:`h'/h` is limited above to 0.2 after two
-error test failures, and limited below to 0.1 after three. After seven
-failures, CVODES returns to the user with a give-up message.
+:math:`q = 1`). The ratio :math:`\eta = h'/h` is limited above to
+:math:`\eta_{\text{max\_ef}}` (default 0.2) after two error test failures,
+and limited below to :math:`\eta_{\text{min\_ef}}` (default 0.1) after three.
+After seven failures, CVODES returns to the user with a give-up message.
 
 In addition to adjusting the step size to meet the local error test,
 CVODES periodically adjusts the order, with the goal of maximizing
@@ -354,17 +389,30 @@ and
 
 The new order and step size are then set according to
 
-.. math:: \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, ,
+.. math:: \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} \, ,
 
-with :math:`q'` set to the index achieving the above maximum. However,
-if we find that :math:`\eta < 1.5`, we do not bother with the change.
-Also, :math:`h'/h` is always limited to 10, except on the first step,
-when it is limited to :math:`10^4`.
+with :math:`q'` set to the index achieving the above maximum. However, if we
+find that :math:`\eta < \eta_{\text{max\_fx}}` (default 1.5), we do not bother
+with the change. Also, :math:`\eta` is always limited to
+:math:`\eta_{\text{max\_gs}}` (default 10), except on the first step, when it is
+limited to :math:`\eta_{\text{max\_fs}} = 10^4`.
 
-The various algorithmic features of CVODES described above, as
-inherited from VODE and VODPK, are documented in
-:cite:p:`BBH:89,Byr:92,Hin:00`. They are also summarized in
-:cite:p:`HBGLSSW:05`.
+The various algorithmic features of CVODES described above, as inherited from
+VODE and VODPK, are documented in :cite:p:`BBH:89,Byr:92,Hin:00`. They are also
+summarized in :cite:p:`HBGLSSW:05`.
+
+Normally, CVODES takes steps until a user-defined output value
+:math:`t = t_{\text{out}}` is overtaken, and then it
+computes :math:`y(t_{\text{out}})` by interpolation.
+However, a “one step” mode option is available, where control returns to
+the calling program after each step. There are also options to force
+CVODES not to integrate past a given stopping point
+:math:`t = t_{\text{stop}}`.
+
+.. _CVODES.Mathematics.ineq_constr:
+
+Inequality Constraints
+----------------------
 
 CVODES permits the user to impose optional inequality constraints on
 individual components of the solution vector :math:`y`. Any of the
@@ -383,14 +431,75 @@ returned. In this case the user may need to employ other strategies as
 discussed in :numref:`CVODES.Usage.SIM.user_callable.cvtolerances` to satisfy
 the inequality constraints.
 
-Normally, CVODES takes steps until a user-defined output value
-:math:`t = t_{\text{out}}` is overtaken, and then it
-computes :math:`y(t_{\text{out}})` by interpolation.
-However, a “one step” mode option is available, where control returns to
-the calling program after each step. There are also options to force
-CVODES not to integrate past a given stopping point
-:math:`t = t_{\text{stop}}`.
+.. _CVODES.Mathematics.constraints:
 
+IVPs with constraints
+=====================
+
+For IVPs whose analytical solutions implicitly satisfy constraints as
+in :eq:`CVODES_ivp_constr`, CVODES ensures that the solution satisfies
+the constraint equation by projecting a successfully computed time step
+onto the invariant manifold. As discussed in
+:cite:p:`eich1993convergence` and
+:cite:p:`shampine1999conservation`, this approach reduces the
+error in the solution and retains the order of convergence of the
+numerical method. Therefore, in an attempt to advance the solution to a
+new point in time (i.e., taking a new integration step), CVODES
+performs the following operations:
+
+#. predict solution
+
+#. solve nonlinear system and correct solution
+
+#. project solution
+
+#. test error
+
+#. select order and step size for next step
+
+and includes several recovery attempts in case there are convergence
+failures (or difficulties) in the nonlinear solver or in the projection
+step, or if the solution fails to satisfy the error test. Note that at
+this time projection is only supported with BDF methods and the
+projection function must be user-defined. See :numref:`CVODES.Usage.SIM.cvprojinit` and
+:c:func:`CVodeSetProjFn` for more information on providing a
+projection function to CVODE.
+
+When using a coordinate projection method the solution :math:`y_n` is
+obtained by projecting (orthogonally or otherwise) the solution
+:math:`\tilde{y}_n` from step 2 above onto
+the manifold given by the constraint. As such :math:`y_n` is computed as
+the solution of the nonlinear constrained least squares problem
+
+.. math::
+   \begin{split}
+     \text{minimize}   &\quad \| y_n - \tilde{y}_n \| \\
+     \text{subject to} &\quad g(t_n,y_n) = 0.
+   \end{split}
+   :label: CVODES_proj
+
+The solution of :eq:`CVODES_proj` can be computed iteratively with
+a Newton method. Given an initial guess :math:`y_n^{(0)}` the iterations
+are computed as
+
+.. math:: y_n^{(i+1)} = y_n^{(i)} + \delta y_n^{(i)}
+
+where the increment :math:`\delta y_n^{(i)}` is the solution of the
+least-norm problem
+
+.. math::
+   \begin{split}
+       \text{minimize}   &\quad \| \delta y_n^{(i)} \| \\
+       \text{subject to} &\quad G(t_n,y_n^{(i)}) \; \delta y_n^{(i)} = -g(t_n,y_n^{(i)})
+   \end{split}
+   :label: CVODES_leastnorm
+
+where :math:`G(t,y) = \partial g(t,y) / \partial y`.
+
+If the projected solution satisfies the error test then the step is
+accepted and the correction to the unprojected solution,
+:math:`\Delta_p = y_n - \tilde{y}_n`, is used to update the Nordsieck
+history array for the next step.
 
 .. _CVODES.Mathematics.preconditioning:
 
@@ -398,23 +507,23 @@ Preconditioning
 ===============
 
 When using a nonlinear solver that requires the solution of the linear
-system (:numref:`SUNNonlinSol.Newton`) (e.g., the default Newton
-iteration), CVODES makes repeated use of a linear solver to solve
+system, e.g., the default Newton iteration (:numref:`SUNNonlinSol.Newton`),
+CVODES makes repeated use of a linear solver to solve
 linear systems of the form :math:`M x = - r`, where :math:`x` is a
 correction vector and :math:`r` is a residual vector. If this linear
 system solve is done with one of the scaled preconditioned iterative
 linear solvers supplied with SUNDIALS, these solvers are rarely
 successful if used without preconditioning; it is generally necessary to
 precondition the system in order to obtain acceptable efficiency. A
-system :math:`M x = b` can be preconditioned on the left, as
-:math:`(P^{-1}M) x = P^{-1} b`; on the right, as
-:math:`(M P^{-1}) P x = b`; or on both sides, as
-:math:`(P_L^{-1} M P_R^{-1}) P_R x = P_L^{-1}b`. The Krylov method is
-then applied to a system with the matrix :math:`P^{-1}M`, or
-:math:`MP^{-1}`, or :math:`P_L^{-1} M P_R^{-1}`, instead of :math:`M`.
+system :math:`A x = b` can be preconditioned on the left, as
+:math:`(P^{-1}A) x = P^{-1} b`; on the right, as
+:math:`(A P^{-1}) P x = b`; or on both sides, as
+:math:`(P_L^{-1} A P_R^{-1}) P_R x = P_L^{-1}b`. The Krylov method is
+then applied to a system with the matrix :math:`P^{-1}A`, or
+:math:`AP^{-1}`, or :math:`P_L^{-1} A P_R^{-1}`, instead of :math:`A`.
 In order to improve the convergence of the Krylov iteration, the
 preconditioner matrix :math:`P`, or the product :math:`P_L P_R` in the
-last case, should in some sense approximate the system matrix :math:`M`.
+last case, should in some sense approximate the system matrix :math:`A`.
 Yet at the same time, in order to be cost-effective, the matrix
 :math:`P`, or matrices :math:`P_L` and :math:`P_R`, should be reasonably
 efficient to evaluate and solve. Finding a good point in this tradeoff

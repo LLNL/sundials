@@ -204,13 +204,13 @@ int main()
 
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
-  cc  = N_VNew_Serial(NEQ, ctx);
+  cc = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)cc, "N_VNew_Serial", 0)) return(1);
 
-  cp  = N_VNew_Serial(NEQ, ctx);
+  cp = N_VClone(cc);
   if(check_retval((void *)cp, "N_VNew_Serial", 0)) return(1);
 
-  id  = N_VNew_Serial(NEQ, ctx);
+  id = N_VClone(cc);
   if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
 
   SetInitialProfiles(cc, cp, id, webdata);
@@ -539,7 +539,7 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 
 static void PrintFinalStats(void *mem)
 {
-  long int nst, nre, nreLS, nni, nje, netf, ncfn;
+  long int nst, nre, nreLS, nni, nnf, nje, netf, ncfn;
   int retval;
 
   retval = IDAGetNumSteps(mem, &nst);
@@ -550,8 +550,10 @@ static void PrintFinalStats(void *mem)
   check_retval(&retval, "IDAGetNumResEvals", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
+  check_retval(&retval, "IDAGetNumStepSolveFails", 1);
   retval = IDAGetNumJacEvals(mem, &nje);
   check_retval(&retval, "IDAGetNumJacEvals", 1);
   retval = IDAGetNumLinResEvals(mem, &nreLS);
@@ -564,7 +566,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
 
 }
 

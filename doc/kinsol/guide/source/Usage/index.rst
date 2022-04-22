@@ -617,6 +617,10 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    **Notes:**
       The default value for ``infofp`` is ``stdout``.
 
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
+
 
 .. c:function:: int KINSetInfoHandlerFn(void * kin_mem, KINInfoHandlerFn ihfun, void * ih_data)
 
@@ -1455,6 +1459,8 @@ Linear Solver) has been added here (e.g., ``lenrwLS``).
   Number of backtrack operations                           :c:func:`KINGetNumBacktrackOps`
   Scaled norm of :math:`F`                                 :c:func:`KINGetFuncNorm`
   Scaled norm of the step                                  :c:func:`KINGetStepLength`
+  Print all statistics                                     :c:func:`KINPrintAllStats`
+  Name of constant associated with a return flag           :c:func:`KINGetReturnFlagName`
   **KINLS linear solver interface**
   Size of real and integer workspaces                      :c:func:`KINGetLinWorkSpace`
   No. of Jacobian evaluations                              :c:func:`KINGetNumJacEvals`
@@ -1587,6 +1593,46 @@ functions are described next.
    **Return value:**
      * ``KIN_SUCCESS`` -- The optional output value has been successfully set.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
+
+
+.. c:function:: int KINPrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   The function :c:func:`KINPrintAllStats` outputs all of the nonlinear solver,
+   linear solver, and other statistics.
+
+   **Arguments:**
+     * ``kin_mem`` -- pointer to the KINSOL memory block.
+     * ``outfile`` -- pointer to output file.
+     * ``fmt`` -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * ``KIN_SUCCESS`` -- The output was successfully.
+     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
+     * ``KIN_ILL_INPUT`` -- An invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 6.2.0
+
+
+.. c:function:: char* KINGetReturnFlagName(int flag)
+
+   The function :c:func:`KINGetReturnFlagName` returns the name of the KINSOL
+   constant corresponding to ``flag``.
+
+   **Arguments:**
+     * ``flag`` -- return flag from a KINSOL function.
+
+   **Return value:**
+     * A string containing the name of the corresponding constant
 
 
 .. _KINSOL.Usage.CC.optional_output.optout_ls:

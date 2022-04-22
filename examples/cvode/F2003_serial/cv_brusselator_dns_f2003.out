@@ -17,7 +17,7 @@
   
   General Solver Stats:
     Total internal steps taken =      187
-    Total rhs function calls   =      255
+    Total rhs function calls   =      254
     Num lin solver setup calls =       40
     Num error test failures    =        8
     Last method order          =        5

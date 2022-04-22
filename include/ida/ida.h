@@ -131,6 +131,7 @@ SUNDIALS_EXPORT int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
 SUNDIALS_EXPORT int IDASetMaxBacksIC(void *ida_mem, int maxbacks);
 
 /* Optional input functions */
+SUNDIALS_EXPORT int IDASetDeltaCjLSetup(void *ida_max, realtype dcj);
 SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun,
                                        void *eh_data);
 SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);
@@ -139,18 +140,35 @@ SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
 SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
 SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, realtype hin);
 SUNDIALS_EXPORT int IDASetMaxStep(void *ida_mem, realtype hmax);
+SUNDIALS_EXPORT int IDASetMinStep(void *ida_mem, realtype hmin);
 SUNDIALS_EXPORT int IDASetStopTime(void *ida_mem, realtype tstop);
-SUNDIALS_EXPORT int IDASetNonlinConvCoef(void *ida_mem, realtype epcon);
 SUNDIALS_EXPORT int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
-SUNDIALS_EXPORT int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
-SUNDIALS_EXPORT int IDASetMaxConvFails(void *ida_mem, int maxncf);
 SUNDIALS_EXPORT int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
 SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
+/* Optional step adaptivity input functions */
+SUNDIALS_EXPORT
+int IDASetEtaFixedStepBounds(void *ida_mem, realtype eta_min_fx,
+                             realtype eta_max_fx);
+SUNDIALS_EXPORT
+int IDASetEtaMin(void *ida_mem, realtype eta_min);
+SUNDIALS_EXPORT
+int IDASetEtaMax(void *ida_mem, realtype eta_max);
+SUNDIALS_EXPORT
+int IDASetEtaLow(void *ida_mem, realtype eta_low);
+SUNDIALS_EXPORT
+int IDASetEtaMinErrFail(void *ida_mem, realtype eta_min_ef);
+SUNDIALS_EXPORT
+int IDASetEtaConvFail(void *ida_mem, realtype eta_cf);
+
+/* Nonlinear solve input functions */
+SUNDIALS_EXPORT int IDASetMaxConvFails(void *ida_mem, int maxncf);
+SUNDIALS_EXPORT int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
+SUNDIALS_EXPORT int IDASetNlsResFn(void *IDA_mem, IDAResFn res);
+SUNDIALS_EXPORT int IDASetNonlinConvCoef(void *ida_mem, realtype epcon);
 SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem,
                                           SUNNonlinearSolver NLS);
-SUNDIALS_EXPORT int IDASetNlsResFn(void *IDA_mem, IDAResFn res);
 
 /* Rootfinding initialization function */
 SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);
@@ -209,9 +227,13 @@ SUNDIALS_EXPORT int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur,
                                               void **user_data);
 SUNDIALS_EXPORT int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters);
 SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem,
-                                                 long int *nncfails);
+                                                 long int *nnfails);
 SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
-                                          long int *nncfails);
+                                          long int *nnfails);
+SUNDIALS_EXPORT int IDAGetNumStepSolveFails(void *ida_mem,
+                                            long int *nncfails);
+SUNDIALS_EXPORT int IDAPrintAllStats(void *ida_mem, FILE *outfile,
+                                     SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 /* Free function */

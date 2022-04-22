@@ -19,44 +19,57 @@
 #ifndef _SUNDIALS_CONTEXT_H
 #define _SUNDIALS_CONTEXT_H
 
-#include "sundials/sundials_types.h"
+#include "sundials/sundials_logger.h"
 #include "sundials/sundials_profiler.h"
+#include "sundials/sundials_types.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-typedef struct _SUNContext *SUNContext;
+typedef struct _SUNContext* SUNContext;
 
 SUNDIALS_EXPORT int SUNContext_Create(void* comm, SUNContext* ctx);
-SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
-SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx,
+                                           SUNProfiler* profiler);
+SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx,
+                                           SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
+SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 
 #ifdef __cplusplus
 }
 
-namespace sundials
-{
+#include <memory>
 
-class Context
-{
+namespace sundials {
+
+class Context {
 public:
-   Context(void* comm = NULL)
-   {
-      SUNContext_Create(comm, &sunctx_);
-   }
+  explicit Context(void* comm = NULL)
+  {
+    sunctx_ = std::unique_ptr<SUNContext>(new SUNContext());
+    SUNContext_Create(comm, sunctx_.get());
+  }
 
-   operator SUNContext() { return sunctx_; }
+  /* disallow copy, but allow move construction */
+  Context(const Context&) = delete;
+  Context(Context&&)      = default;
 
-   ~Context()
-   {
-      SUNContext_Free(&sunctx_);
-   }
+  /* disallow copy, but allow move operators */
+  Context& operator=(const Context&) = delete;
+  Context& operator=(Context&&) = default;
+
+  operator SUNContext() { return *sunctx_.get(); }
+
+  ~Context()
+  {
+    if (sunctx_) SUNContext_Free(sunctx_.get());
+  }
 
 private:
-   SUNContext sunctx_;
-
+  std::unique_ptr<SUNContext> sunctx_;
 };
 
 } /* namespace sundials */

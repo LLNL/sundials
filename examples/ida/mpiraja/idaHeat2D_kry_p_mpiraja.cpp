@@ -44,7 +44,6 @@
 #include <string.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spils.h>
 #include <nvector/nvector_mpiplusx.h>
 #include <nvector/nvector_raja.h>
 #include <sunlinsol/sunlinsol_spgmr.h>

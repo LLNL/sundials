@@ -32,20 +32,24 @@ set(ARKODE_examples
   "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;0 3 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
+  "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;develop"
+  "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 1\;develop"
   )
+
+# Header files to install
+set(ARKODE_headers)
+
+if(BUILD_CVODE)
+  list(APPEND ARKODE_examples
+    "ark_advection_diffusion_reaction.cpp\;\;develop")
+  list(APPEND ARKODE_headers
+    "ark_advection_diffusion_reaction.hpp")
+endif()
 
 # Auxiliary files to install
 set(ARKODE_extras
   plot_heat2D.py
-  plot_sol.py
-  )
-
-# Specify libraries to link against
-set(ARKODE_LIB sundials_arkode)
-set(NVECS_LIB sundials_nvecserial)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+  plot_sol.py)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
@@ -67,7 +71,14 @@ foreach(example_tuple ${ARKODE_examples})
     target_compile_features(${example_target} PRIVATE cxx_std_11)
 
     # libraries to link against
-    target_link_libraries(${example_target} ${SUNDIALS_LIBS})
+    target_link_libraries(${example_target}
+      sundials_arkode
+      sundials_nvecserial
+      ${EXTRA_LINK_LIBS})
+
+    if(BUILD_CVODE)
+      target_link_libraries(${example_target} sundials_cvode)
+    endif()
   endif()
 
   # check if example args are provided and set the test name
@@ -88,6 +99,10 @@ endforeach(example_tuple ${ARKODE_examples})
 
 if(EXAMPLES_INSTALL)
 
+  if(BUILD_CVODE)
+    set(_include_cvode cvode)
+  endif()
+
   sundials_install_examples(arkode ARKODE_examples
     CMAKE_TEMPLATE
       cmakelists_CXX_ex.in
@@ -97,11 +112,13 @@ if(EXAMPLES_INSTALL)
       sundials_arkode
     SUNDIALS_TARGETS
       arkode
+      ${_include_cvode}
     DESTINATION
       arkode/CXX_serial
     EXTRA_FILES
       README
       ${ARKODE_extras}
+      ${ARKODE_headers}
     TEST_INSTALL
       CXX_serial
   )

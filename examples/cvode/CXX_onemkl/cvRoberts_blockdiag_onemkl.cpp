@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   N_VCopyToDevice_Sycl(abstol);
 
   // Create CVODE with BDF methods
-  void* cvode_mem = CVodeCreate(CV_BDF, NULL);
+  void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
 
   // Initialize CVODE

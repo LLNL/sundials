@@ -24,6 +24,7 @@ in this section.
 
 .. toctree::
    SUNContext
+   Logging
    Profiling
    version_information
    GPU

@@ -785,6 +785,20 @@ SWIGEXPORT int _wrap_FMRIStepSetDefaults(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetOrder(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)MRIStepSetOrder(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepSetInterpolantType(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1203,6 +1217,20 @@ SWIGEXPORT int _wrap_FMRIStepSetStagePredictFn(void *farg1, ARKStagePredictFn fa
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetDeduceImplicitRhs(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)MRIStepSetDeduceImplicitRhs(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepSetJacFn(void *farg1, ARKLsJacFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1587,6 +1615,22 @@ SWIGEXPORT int _wrap_FMRIStepGetLastInnerStepFlag(void *farg1, int *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepPrintAllStats(void *farg1, void *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  SUNOutputFormat arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  arg3 = (SUNOutputFormat)(*farg3);
+  result = (int)MRIStepPrintAllStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FMRIStepGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
@@ -1693,6 +1737,20 @@ SWIGEXPORT int _wrap_FMRIStepGetNonlinSolvStats(void *farg1, long *farg2, long *
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)MRIStepGetNonlinSolvStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepGetNumStepSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)MRIStepGetNumStepSolveFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

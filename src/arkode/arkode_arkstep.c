@@ -28,12 +28,6 @@
 #define FIXED_LIN_TOL
 
 /*===============================================================
-  SHORTCUTS
-  ===============================================================*/
-
-#define ARK_PROFILER ark_mem->sunctx->profiler
-
-/*===============================================================
   ARKStep Exported functions -- Required
   ===============================================================*/
 
@@ -185,6 +179,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
   step_mem->nsetups   = 0;
   step_mem->nstlp     = 0;
   step_mem->nls_iters = 0;
+  step_mem->nls_fails = 0;
 
   /* Initialize fused op work space */
   step_mem->cvals        = NULL;
@@ -1558,6 +1553,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   int retval, is, nvec;
   booleantype implicit_stage;
+  booleantype deduce_stage;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -1663,6 +1659,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       fprintf(ark_mem->diagfp, "ARKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "start-step",
+                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
+                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+#endif
+
     /* perform implicit solve if required */
     if (implicit_stage) {
 
@@ -1713,9 +1716,21 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
-      retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->Fi[is], ark_mem->user_data);
-      step_mem->nfi++;
+      deduce_stage = step_mem->deduce_rhs && implicit_stage;
+
+      if (!deduce_stage) {
+        retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                              step_mem->Fi[is], ark_mem->user_data);
+        step_mem->nfi++;
+      } else if (step_mem->mass_type == MASS_FIXED)  {
+        retval = step_mem->mmult((void *) ark_mem, step_mem->zcor, ark_mem->tempv1);
+        if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+        N_VLinearSum(ONE / step_mem->gamma, ark_mem->tempv1,
+                     -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
+      } else {
+        N_VLinearSum(ONE / step_mem->gamma, step_mem->zcor,
+                     -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
+      }
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
       printf("    ARKStep implicit stage RHS Fi[%i]:\n",is);
@@ -1760,7 +1775,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* if using a time-dependent mass matrix, update Fe[is] and/or Fi[is] with M(t)^{-1} */
     if (step_mem->mass_type == MASS_TIMEDEP) {
-      if (step_mem->implicit) {
+      /* If the implicit stage was deduced, it already includes M(t)^{-1} */
+      if (step_mem->implicit && !deduce_stage) {
         *nflagPtr = step_mem->msolve((void *) ark_mem, step_mem->Fi[is], step_mem->nlscoef);
         if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
       }
@@ -1799,6 +1815,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKStep  etest  %li  %"RSYM"  %"RSYM"\n",
             ark_mem->nst, ark_mem->h, *dsmPtr);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkStep_TakeStep_Z", "error-test",
+                     "step = %li, h = "RSYM", dsm = %"RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return(ARK_SUCCESS);
 }

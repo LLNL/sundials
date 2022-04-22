@@ -58,10 +58,12 @@ typedef struct CVLsMemRec {
   booleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;  /* SUNTRUE if using internal DQ Jac approx.     */
-  CVLsJacFn jac;      /* Jacobian routine to be called                */
-  void *J_data;       /* user data is passed to jac                   */
-  booleantype jbad;   /* heuristic suggestion for pset                */
+  booleantype jacDQ;   /* SUNTRUE if using internal DQ Jac approx.     */
+  CVLsJacFn jac;       /* Jacobian routine to be called                */
+  void *J_data;        /* user data is passed to jac                   */
+  booleantype jbad;    /* heuristic suggestion for pset                */
+  realtype dgmax_jbad; /* if convfail = FAIL_BAD_J and the gamma ratio *
+                        * |gamma/gammap-1| < dgmax_jbad then J is bad  */
 
   /* Matrix-based solver, scale solution to account for change in gamma */
   booleantype scalesol;

@@ -201,12 +201,19 @@ fi
 
 if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
 
+    # turn off profiling so we have a case that tests it
+    export SUNDIALS_PROFILING=OFF
+
+    # turn off logging so we have a case that tests it
+    export SUNDIALS_LOGGING_LEVEL=0
+
     # threading
     export SUNDIALS_PTHREAD=OFF
     export SUNDIALS_OPENMP=OFF
 
     # mpi
     export SUNDIALS_MPI=OFF
+    export SUNDIALS_LOGGING_ENABLE_MPI=OFF
 
     # gpu
     export SUNDIALS_CUDA=OFF
@@ -237,6 +244,9 @@ fi
 
 # Print relevant environment variables to the log file
 for env_var in "${!CMAKE_@}"; do
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+done
+for env_var in "${!MPI@}"; do
     printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
 done
 for env_var in "${!SUNDIALS_@}"; do

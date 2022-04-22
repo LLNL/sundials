@@ -23,11 +23,6 @@ sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test" O
 # Enable testing with 'make test'
 include(CTest)
 
-# Add unit tests to the build if they are enabled
-if(SUNDIALS_TEST_UNITTESTS)
-  add_subdirectory(test/unit_tests)
-endif()
-
 # Check if development tests are enabled
 if(SUNDIALS_TEST_DEVTESTS)
 
@@ -74,11 +69,11 @@ if(SUNDIALS_TEST_DEVTESTS)
   endif()
 
   # Check if using non-default comparison precisions when testing
-  if(SUNDIALS_TEST_FLOAT_PRECISION)
+  if(SUNDIALS_TEST_FLOAT_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default float precision: ${SUNDIALS_TEST_FLOAT_PRECISION}")
   endif()
 
-  if(SUNDIALS_TEST_INTEGER_PRECISION)
+  if(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
   endif()
 

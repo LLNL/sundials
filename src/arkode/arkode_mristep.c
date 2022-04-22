@@ -28,12 +28,6 @@
 
 
 /*===============================================================
-  SHORTCUTS
-  ===============================================================*/
-
-#define ARK_PROFILER ark_mem->sunctx->profiler
-
-/*===============================================================
   MRIStep Exported functions -- Required
   ===============================================================*/
 
@@ -174,6 +168,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   step_mem->nsetups   = 0;
   step_mem->nstlp     = 0;
   step_mem->nls_iters = 0;
+  step_mem->nls_fails = 0;
 
   /* Initialize fused op work space */
   step_mem->cvals        = NULL;
@@ -1476,6 +1471,13 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       fprintf(ark_mem->diagfp, "MRIStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::mriStep_TakeStep", "start-step",
+                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
+                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+#endif
+
     /* Determine current stage type, and call corresponding routine; the
        vector ark_mem->ycur stores the previous stage solution on input, and
        should store the result of this stage solution on output. */
@@ -1536,10 +1538,18 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
       /* store implicit slow rhs  */
       if (step_mem->implicit_rhs) {
-        retval = step_mem->fsi(ark_mem->tcur, ark_mem->ycur,
-                               step_mem->Fsi[step_mem->stage_map[is]],
-                               ark_mem->user_data);
-        step_mem->nfsi++;
+        if (!step_mem->deduce_rhs ||
+            (step_mem->stagetypes[is] != MRISTAGE_DIRK_NOFAST)) {
+          retval = step_mem->fsi(ark_mem->tcur, ark_mem->ycur,
+                                 step_mem->Fsi[step_mem->stage_map[is]],
+                                 ark_mem->user_data);
+          step_mem->nfsi++;
+        } else {
+          N_VLinearSum(ONE / step_mem->gamma, step_mem->zcor,
+                       -ONE / step_mem->gamma, step_mem->sdata,
+                       step_mem->Fsi[step_mem->stage_map[is]]);
+        }
+
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
         if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
@@ -1560,6 +1570,13 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "MRIStep  etest  %li  %"RSYM"  %"RSYM"\n",
             ark_mem->nst, ark_mem->h, *dsmPtr);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::mriStep_TakeStep", "error-test",
+                     "step = %li, h = "RSYM", dsm = %"RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return(ARK_SUCCESS);
 }

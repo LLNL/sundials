@@ -98,11 +98,14 @@ export SPACK_ROOT=${APPROOT}/sundials-tpls-v0.17.0/spack
 # shellcheck disable=SC1090
 source ${SPACK_ROOT}/share/spack/setup-env.sh
 
-# load CMake
-spack load "cmake@3.12.4%${compiler}"
-
 # load compiler
 spack load "${compiler}"
+
+# make sure spack knows about the compiler
+spack compiler find
+
+# load CMake
+spack load "cmake@3.12.4%${compiler}"
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
@@ -200,6 +203,16 @@ export SUNDIALS_MONITORING=ON
 
 # Sundials profiling
 export SUNDIALS_PROFILING=ON
+
+# Sundials logging
+export SUNDIALS_LOGGING_LEVEL=4
+export SUNDIALS_LOGGING_ENABLE_MPI=ON
+
+# Uncomment to override the default output file comparison precisions. The float
+# precision is number of digits to compare (0 = all digits) and the integer
+# precision is allowed percentage difference (0 = no difference).
+export SUNDIALS_TEST_FLOAT_PRECISION=0
+export SUNDIALS_TEST_INTEGER_PRECISION=0
 
 # ------------------------------------------------------------------------------
 # Third party libraries

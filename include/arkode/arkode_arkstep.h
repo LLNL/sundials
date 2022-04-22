@@ -170,6 +170,7 @@ SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
+SUNDIALS_EXPORT int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce);
 SUNDIALS_EXPORT int ARKStepSetTables(void *arkode_mem, int q, int p,
                                      ARKodeButcherTable Bi,
                                      ARKodeButcherTable Be);
@@ -253,8 +254,8 @@ SUNDIALS_EXPORT int ARKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ARKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
-                                          FILE *diagfp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
+int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
@@ -357,6 +358,8 @@ SUNDIALS_EXPORT int ARKStepGetRootInfo(void *arkode_mem,
                                        int *rootsfound);
 SUNDIALS_EXPORT int ARKStepGetNumConstrFails(void *arkode_mem,
                                              long int *nconstrfails);
+SUNDIALS_EXPORT int ARKStepPrintAllStats(void *arkode_mem, FILE *outfile,
+                                         SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *ARKStepGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT int ARKStepWriteParameters(void *arkode_mem, FILE *fp);
@@ -391,12 +394,14 @@ SUNDIALS_EXPORT int ARKStepGetNonlinearSystemData(void *arkode_mem,
                                                   void     **user_data);
 
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
-                                                long int *nniters);
+                                                 long int *nniters);
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem,
-                                                    long int *nncfails);
+                                                     long int *nnfails);
 SUNDIALS_EXPORT int ARKStepGetNonlinSolvStats(void *arkode_mem,
-                                             long int *nniters,
-                                             long int *nncfails);
+                                              long int *nniters,
+                                              long int *nnfails);
+SUNDIALS_EXPORT int ARKStepGetNumStepSolveFails(void *arkode_mem,
+                                                long int *nncfails);
 
 /* Linear solver optional output functions */
 SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem,

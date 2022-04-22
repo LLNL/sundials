@@ -39,6 +39,6 @@ Number of residual evaluations     = 3339
 Number of Jacobian evaluations     = 36
 Number of nonlinear iterations     = 421
 Number of error test failures      = 3
-Number of nonlinear conv. failures = 0
+Number of nonlinear conv. failures = 10
 num_threads = 4
 

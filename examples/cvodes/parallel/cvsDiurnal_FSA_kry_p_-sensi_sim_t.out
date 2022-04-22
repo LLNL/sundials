@@ -132,7 +132,7 @@ nst     =  2619
 
 nfe     =  3582
 netf    =   150    nsetups  =   436
-nni     =  3580    ncfn     =     6
+nni     =  3580    ncfn     =    12
 
 nfSe    =  7164    nfeS     = 14328
 netfs   =     0    nsetupsS =     0

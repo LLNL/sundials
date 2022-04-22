@@ -37,8 +37,11 @@ set(CVODES_examples
   "cvsKrylovDemo_ls\;1\;develop"
   "cvsKrylovDemo_ls\;2\;develop"
   "cvsKrylovDemo_prec\;\;develop"
+  "cvsParticle_dns\;\;develop"
+  "cvsPendulum_dns\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
+  "cvsRoberts_FSA_dns\;-sensi sim t\;develop"
   "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
   "cvsRoberts_FSA_dns_Switch\;\;develop"
   "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
@@ -69,6 +72,18 @@ set(CVODES_examples_SUPERLUMT
   "cvsRoberts_ASAi_sps\;\;develop"
   "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
   "cvsRoberts_sps\;\;develop"
+  )
+
+# Auxiliary files to install
+set(CVODES_extras
+  plot_cvsParticle.py
+  plot_cvsPendulum.py
+  cvsRoberts_ASAi_dns_bkw1_stats.csv
+  cvsRoberts_ASAi_dns_bkw2_stats.csv
+  cvsRoberts_ASAi_dns_fwd_stats.csv
+  cvsRoberts_dns_stats.csv
+  cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
+  cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv
   )
 
 # Specify libraries to link against
@@ -309,6 +324,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+
+  # Install the extra files
+  foreach(extrafile ${CVODES_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODES")
