@@ -113,6 +113,7 @@ module fcvodes_mod
  public :: FCVodeSVtolerances
  public :: FCVodeWFtolerances
  public :: FCVodeSetConstraints
+ public :: FCVodeSetDeltaGammaMaxLSetup
  public :: FCVodeSetErrFile
  public :: FCVodeSetErrHandlerFn
  public :: FCVodeSetInitStep
@@ -357,6 +358,7 @@ module fcvodes_mod
  public :: FCVodeSetJacFn
  public :: FCVodeSetJacEvalFrequency
  public :: FCVodeSetLinearSolutionScaling
+ public :: FCVodeSetDeltaGammaMaxBadJac
  public :: FCVodeSetEpsLin
  public :: FCVodeSetLSNormFactor
  public :: FCVodeSetPreconditioner
@@ -454,6 +456,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetDeltaGammaMaxLSetup(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetDeltaGammaMaxLSetup") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -716,7 +727,7 @@ bind(C, name="_wrap_FCVodeSetNumFailsEtaMaxErrFail") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2417,6 +2428,15 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSetDeltaGammaMaxBadJac(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetDeltaGammaMaxBadJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeSetEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetEpsLin") &
 result(fresult)
@@ -2834,6 +2854,22 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(constraints)
 fresult = swigc_FCVodeSetConstraints(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetDeltaGammaMaxLSetup(cvode_mem, dgmax_lsetup) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: dgmax_lsetup
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = dgmax_lsetup
+fresult = swigc_FCVodeSetDeltaGammaMaxLSetup(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3296,10 +3332,10 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-integer(C_LONG), intent(in) :: small_nef
+integer(C_INT), intent(in) :: small_nef
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = cvode_mem
 farg2 = small_nef
@@ -6456,6 +6492,22 @@ integer(C_INT) :: farg2
 farg1 = cvode_mem
 farg2 = onoff
 fresult = swigc_FCVodeSetLinearSolutionScaling(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetDeltaGammaMaxBadJac(cvode_mem, dgmax_jbad) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: dgmax_jbad
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = dgmax_jbad
+fresult = swigc_FCVodeSetDeltaGammaMaxBadJac(farg1, farg2)
 swig_result = fresult
 end function
 

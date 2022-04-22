@@ -113,6 +113,7 @@ module fidas_mod
  public :: FIDASetLineSearchOffIC
  public :: FIDASetStepToleranceIC
  public :: FIDASetMaxBacksIC
+ public :: FIDASetDeltaCjLSetup
  public :: FIDASetErrHandlerFn
  public :: FIDASetErrFile
  public :: FIDASetUserData
@@ -130,6 +131,8 @@ module fidas_mod
  public :: FIDASetEtaMin
  public :: FIDASetEtaMax
  public :: FIDASetEtaLow
+ public :: FIDASetEtaMinErrFail
+ public :: FIDASetEtaConvFail
  public :: FIDASetMaxConvFails
  public :: FIDASetMaxNonlinIters
  public :: FIDASetNlsResFn
@@ -493,6 +496,15 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDASetDeltaCjLSetup(farg1, farg2) &
+bind(C, name="_wrap_FIDASetDeltaCjLSetup") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FIDASetErrHandlerFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FIDASetErrHandlerFn") &
 result(fresult)
@@ -641,6 +653,24 @@ end function
 
 function swigc_FIDASetEtaLow(farg1, farg2) &
 bind(C, name="_wrap_FIDASetEtaLow") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaMinErrFail(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaMinErrFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaConvFail(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaConvFail") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2813,6 +2843,22 @@ fresult = swigc_FIDASetMaxBacksIC(farg1, farg2)
 swig_result = fresult
 end function
 
+function FIDASetDeltaCjLSetup(ida_max, dcj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_max
+real(C_DOUBLE), intent(in) :: dcj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_max
+farg2 = dcj
+fresult = swigc_FIDASetDeltaCjLSetup(farg1, farg2)
+swig_result = fresult
+end function
+
 function FIDASetErrHandlerFn(ida_mem, ehfun, eh_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3088,6 +3134,38 @@ real(C_DOUBLE) :: farg2
 farg1 = ida_mem
 farg2 = eta_low
 fresult = swigc_FIDASetEtaLow(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetEtaMinErrFail(ida_mem, eta_min_ef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_min_ef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_min_ef
+fresult = swigc_FIDASetEtaMinErrFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetEtaConvFail(ida_mem, eta_cf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_cf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_cf
+fresult = swigc_FIDASetEtaConvFail(farg1, farg2)
 swig_result = fresult
 end function
 

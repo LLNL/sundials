@@ -520,6 +520,20 @@ SWIGEXPORT int _wrap_FIDASetMaxBacksIC(void *farg1, int const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FIDASetDeltaCjLSetup(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetDeltaCjLSetup(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDASetErrHandlerFn(void *farg1, IDAErrHandlerFn farg2, void *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -757,6 +771,34 @@ SWIGEXPORT int _wrap_FIDASetEtaLow(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)IDASetEtaLow(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetEtaMinErrFail(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetEtaMinErrFail(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetEtaConvFail(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetEtaConvFail(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
