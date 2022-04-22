@@ -28,12 +28,6 @@
 #define FIXED_LIN_TOL
 
 /*===============================================================
-  SHORTCUTS
-  ===============================================================*/
-
-#define ARK_PROFILER ark_mem->sunctx->profiler
-
-/*===============================================================
   ARKStep Exported functions -- Required
   ===============================================================*/
 
@@ -1665,6 +1659,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       fprintf(ark_mem->diagfp, "ARKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "start-step",
+                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
+                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+#endif
+
     /* perform implicit solve if required */
     if (implicit_stage) {
 
@@ -1814,6 +1815,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKStep  etest  %li  %"RSYM"  %"RSYM"\n",
             ark_mem->nst, ark_mem->h, *dsmPtr);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkStep_TakeStep_Z", "error-test",
+                     "step = %li, h = "RSYM", dsm = %"RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return(ARK_SUCCESS);
 }

@@ -539,33 +539,33 @@ fresult = swigc_FSUNLinSolFree_SPBCGS(farg1)
 swig_result = fresult
 end function
 
-function FSUNLinSolSetInfoFile_SPBCGS(s, info_file) &
+function FSUNLinSolSetInfoFile_SPBCGS(ls, info_file) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
+type(SUNLinearSolver), target, intent(inout) :: ls
 type(C_PTR) :: info_file
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = c_loc(s)
+farg1 = c_loc(ls)
 farg2 = info_file
 fresult = swigc_FSUNLinSolSetInfoFile_SPBCGS(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNLinSolSetPrintLevel_SPBCGS(s, print_level) &
+function FSUNLinSolSetPrintLevel_SPBCGS(ls, print_level) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
+type(SUNLinearSolver), target, intent(inout) :: ls
 integer(C_INT), intent(in) :: print_level
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c_loc(s)
+farg1 = c_loc(ls)
 farg2 = print_level
 fresult = swigc_FSUNLinSolSetPrintLevel_SPBCGS(farg1, farg2)
 swig_result = fresult

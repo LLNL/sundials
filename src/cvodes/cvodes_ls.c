@@ -1681,6 +1681,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm, deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
   booleantype do_sensi_sim, do_sensi_stg, do_sensi_stg1;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  realtype resnorm;
+  long int nps_inc;
+#endif
 
   /* access CVLsMem structure */
   if (cv_mem->cv_lmem==NULL) {
@@ -1768,6 +1772,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
   if (retval != SUNLS_SUCCESS) return(-1);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  /* Store previous nps value in nps_inc */
+  nps_inc = cvls_mem->nps;
+#endif
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup) {
     cvls_mem->last_flag = cvls_mem->jtsetup(cv_mem->cv_tn, ynow, fnow,
@@ -1790,9 +1799,19 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b);
 
   /* Retrieve statistics from iterative linear solvers */
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  resnorm = ZERO;
+#endif
   nli_inc = 0;
-  if (cvls_mem->iterative && cvls_mem->LS->ops->numiters)
-    nli_inc = SUNLinSolNumIters(cvls_mem->LS);
+  if (cvls_mem->iterative) {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    if (cvls_mem->LS->ops->resnorm)
+      resnorm = SUNLinSolResNorm(cvls_mem->LS);
+#endif
+    if (cvls_mem->LS->ops->numiters)
+      nli_inc = SUNLinSolNumIters(cvls_mem->LS);
+  }
+
 
   /* Increment counters nli and ncfl */
   cvls_mem->nli += nli_inc;
@@ -1800,6 +1819,13 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Interpret solver return value  */
   cvls_mem->last_flag = retval;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODES::cvLsSolve", "ls-stats",
+    "bnorm = %.16g, resnorm = %.16g, ls_iters = %i, prec_solves = %i",
+    bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
+#endif
 
   switch(retval) {
 

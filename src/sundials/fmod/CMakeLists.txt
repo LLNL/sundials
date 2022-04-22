@@ -17,6 +17,8 @@
 set(sundials_SOURCES
   fsundials_futils_mod.f90
   fsundials_futils_mod.c
+  fsundials_logger_mod.f90
+  fsundials_logger_mod.c
   fsundials_linearsolver_mod.f90
   fsundials_linearsolver_mod.c
   fsundials_matrix_mod.f90

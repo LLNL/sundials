@@ -262,8 +262,8 @@ SUNDIALS_EXPORT int MRIStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int MRIStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_EXPORT int MRIStepSetDiagnostics(void *arkode_mem,
-                                          FILE *diagfp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
+int MRIStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStageFn(void *arkode_mem,

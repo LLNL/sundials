@@ -36,7 +36,7 @@ endif()
 message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")
 
 set(DOCSTR "Enable C++ compiler specific extensions")
-sundials_option(CMAKE_CXX_EXTENSIONS BOOL "${DOCSTR}" OFF)
+sundials_option(CMAKE_CXX_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C++ extensions set to ${CMAKE_CXX_EXTENSIONS}")
 
 # SYCL requries C++17

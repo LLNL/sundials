@@ -2,6 +2,36 @@
 
 ## Changes to SUNDIALS in release 6.2.0
 
+Added the `SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated the following functions, it is recommended to use the `SUNLogger` API
+instead.
+
+* `ARKStepSetDiagnostics`
+* `ERKStepSetDiagnostics`
+* `MRIStepSetDiagnostics`
+* `KINSetInfoFile`
+* `SUNNonlinSolSetPrintLevel_Newton`
+* `SUNNonlinSolSetInfoFile_Newton`
+* `SUNNonlinSolSetPrintLevel_FixedPoint`
+* `SUNNonlinSolSetInfoFile_FixedPoint`
+* `SUNLinSolSetInfoFile_PCG`
+* `SUNLinSolSetPrintLevel_PCG`
+* `SUNLinSolSetInfoFile_SPGMR`
+* `SUNLinSolSetPrintLevel_SPGMR`
+* `SUNLinSolSetInfoFile_SPFGMR`
+* `SUNLinSolSetPrintLevel_SPFGMR`
+* `SUNLinSolSetInfoFile_SPTFQM`
+* `SUNLinSolSetPrintLevel_SPTFQMR`
+* `SUNLinSolSetInfoFile_SPBCGS`
+* `SUNLinSolSetPrintLevel_SPBCGS`
+
+The `SUNLinSolSetInfoFile_**` and  `SUNNonlinSolSetInfoFile_*` family of
+functions are now enabled by setting the CMake option `SUNDIALS_LOGGING_LEVEL`
+to a value `>= 3`.
+
 Added the function `SUNProfiler_Reset` to reset the region timings and counters
 to zero.
 

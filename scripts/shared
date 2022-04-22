@@ -130,6 +130,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_futils.h
 $tar $tarfile $distrobase/include/sundials/sundials_iterative.h
 $tar $tarfile $distrobase/include/sundials/sundials_lapack.h
 $tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
+$tar $tarfile $distrobase/include/sundials/sundials_logger.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_memory.h
@@ -211,6 +212,8 @@ $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.f90
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_logger_mod.c
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_logger_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.c
@@ -237,6 +240,8 @@ $tar $tarfile $distrobase/src/sundials/sundials_iterative_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_iterative.c
 $tar $tarfile $distrobase/src/sundials/sundials_lapack_defs.h
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c
+$tar $tarfile $distrobase/src/sundials/sundials_logger_impl.h
+$tar $tarfile $distrobase/src/sundials/sundials_logger.c
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
 $tar $tarfile $distrobase/src/sundials/sundials_matrix.c
 $tar $tarfile $distrobase/src/sundials/sundials_memory.c
@@ -246,6 +251,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 $tar $tarfile $distrobase/src/sundials/sundials_profiler.c
 $tar $tarfile $distrobase/src/sundials/sundials_reductions.hpp
 $tar $tarfile $distrobase/src/sundials/sundials_sycl.h
+$tar $tarfile $distrobase/src/sundials/sundials_utils.h
 $tar $tarfile $distrobase/src/sundials/sundials_version.c
 $tar $tarfile $distrobase/src/sundials/sundials_xbraid.c
 

@@ -213,8 +213,12 @@ user-callable functions.
    .. warning::
 
       SUNDIALS must be built with the CMake option
-      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
+      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
       See :numref:`Installation.CMake.Options` for more information.
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS, int print_level)
@@ -244,6 +248,10 @@ user-callable functions.
       SUNDIALS must be built with the CMake option
       ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
       See :numref:`Installation.CMake.Options` for more information.
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. _SUNNonlinSol.FixedPoint.Content:

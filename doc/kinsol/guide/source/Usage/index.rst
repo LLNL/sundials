@@ -617,6 +617,10 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    **Notes:**
       The default value for ``infofp`` is ``stdout``.
 
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
+
 
 .. c:function:: int KINSetInfoHandlerFn(void * kin_mem, KINInfoHandlerFn ihfun, void * ih_data)
 

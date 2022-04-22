@@ -24,6 +24,7 @@ in this section.
 .. toctree::
    Types_link
    SUNContext_link
+   Logging_link
    Profiling_link
    version_information_link
    Fortran_link

@@ -254,8 +254,8 @@ SUNDIALS_EXPORT int ARKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ARKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
-                                          FILE *diagfp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
+int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);

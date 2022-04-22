@@ -34,6 +34,7 @@ set(sundials_HEADERS
   sundials_nonlinearsolver.h
   sundials_nvector.h
   sundials_profiler.h
+  sundials_logger.h
   sundials_types.h
   sundials_version.h
   )
@@ -74,6 +75,7 @@ set(sundials_SOURCES
   sundials_direct.c
   sundials_iterative.c
   sundials_linearsolver.c
+  sundials_logger.c
   sundials_math.c
   sundials_matrix.c
   sundials_memory.c
@@ -95,7 +97,7 @@ endif()
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
-if(SUNDIALS_BUILD_WITH_PROFILING)
+if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
   if(ENABLE_MPI AND MPI_C_FOUND)
     # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
     set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})

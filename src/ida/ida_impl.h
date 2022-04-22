@@ -23,6 +23,7 @@
 
 #include "ida/ida.h"
 #include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -30,11 +31,18 @@ extern "C" {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define RSYM  ".32Lg"
-#define RSYMW "19.32Lg"
+#define RSYMW "41.32Lg"
 #else
 #define RSYM  ".16g"
 #define RSYMW "23.16g"
 #endif
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
+#define IDA_LOGGER IDA_mem->ida_sunctx->logger
 
 /*
  * =================================================================

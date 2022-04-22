@@ -22,6 +22,7 @@
 #include "cvodes/cvodes.h"
 #include "cvodes_proj_impl.h"
 #include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 #include "sundials/sundials_math.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -35,6 +36,13 @@ extern "C" {
 #define RSYM  ".16g"
 #define RSYMW "23.16g"
 #endif
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define CV_PROFILER cv_mem->cv_sunctx->profiler
+#define CV_LOGGER cv_mem->cv_sunctx->logger
 
 /*
  * =================================================================

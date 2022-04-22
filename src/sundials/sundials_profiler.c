@@ -228,7 +228,7 @@ int SUNProfiler_Free(SUNProfiler* p)
 
   if (*p)
   {
-    SUNHashMap_Free(&(*p)->map, sunTimerStructFree);
+    SUNHashMap_Destroy(&(*p)->map, sunTimerStructFree);
     sunTimerStructFree((void*) (*p)->overhead);
 #if SUNDIALS_MPI_ENABLED
     if ((*p)->comm)

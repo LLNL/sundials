@@ -139,6 +139,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
 /*
  * -----------------------------------------------------------------
  * Function : KINSetInfoFile
+ * DEPRECATED: use SUNLogger_SetInfoFilename instead
  * -----------------------------------------------------------------
  */
 
@@ -161,6 +162,7 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
 /*
  * -----------------------------------------------------------------
  * Function : KINSetDebugFile
+ * DEPRECATED: use SUNLogger_SetDebugFilename instead
  * -----------------------------------------------------------------
  */
 
@@ -175,19 +177,9 @@ int KINSetDebugFile(void *kinmem, FILE *debugfp)
   }
 
   kin_mem = (KINMem) kinmem;
-
-#if defined(SUNDIALS_DEBUG)
-  if (debugfp)
-    kin_mem->kin_debugfp = debugfp;
-  else
-    kin_mem->kin_debugfp = stdout;
+  kin_mem->kin_debugfp = debugfp;
 
   return(KIN_SUCCESS);
-#else
-  KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetDebugFile",
-                  "SUNDIALS was not built with debugging enabled");
-  return(KIN_ILL_INPUT);
-#endif
 }
 
 

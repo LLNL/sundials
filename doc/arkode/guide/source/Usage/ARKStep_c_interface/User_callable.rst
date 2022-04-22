@@ -1009,6 +1009,9 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       for this pointer, since statistics from all processes would be
       identical.
 
+   .. deprecated:: 5.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int ARKStepSetErrFile(void* arkode_mem, FILE* errfp)

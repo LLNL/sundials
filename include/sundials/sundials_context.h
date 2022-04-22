@@ -19,18 +19,23 @@
 #ifndef _SUNDIALS_CONTEXT_H
 #define _SUNDIALS_CONTEXT_H
 
-#include "sundials/sundials_types.h"
+#include "sundials/sundials_logger.h"
 #include "sundials/sundials_profiler.h"
+#include "sundials/sundials_types.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-typedef struct _SUNContext *SUNContext;
+typedef struct _SUNContext* SUNContext;
 
 SUNDIALS_EXPORT int SUNContext_Create(void* comm, SUNContext* ctx);
-SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
-SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx,
+                                           SUNProfiler* profiler);
+SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx,
+                                           SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
+SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 
 #ifdef __cplusplus
@@ -38,11 +43,9 @@ SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 
 #include <memory>
 
-namespace sundials
-{
+namespace sundials {
 
-class Context
-{
+class Context {
 public:
   explicit Context(void* comm = NULL)
   {
@@ -51,19 +54,18 @@ public:
   }
 
   /* disallow copy, but allow move construction */
-  Context(const Context &) = delete;
-  Context(Context &&) = default;
+  Context(const Context&) = delete;
+  Context(Context&&)      = default;
 
   /* disallow copy, but allow move operators */
-  Context & operator=(const Context &) = delete;
-  Context & operator=(Context &&) = default;
+  Context& operator=(const Context&) = delete;
+  Context& operator=(Context&&) = default;
 
   operator SUNContext() { return *sunctx_.get(); }
 
   ~Context()
   {
-    if (sunctx_)
-      SUNContext_Free(sunctx_.get());
+    if (sunctx_) SUNContext_Free(sunctx_.get());
   }
 
 private:

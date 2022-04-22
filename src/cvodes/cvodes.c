@@ -191,7 +191,6 @@
 #include <string.h>
 
 #include "cvodes_impl.h"
-#include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -302,12 +301,6 @@
 #define MAX_ITERS  4
 
 #define CORTES RCONST(0.1)
-
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define CV_PROFILER cv_mem->cv_sunctx->profiler
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -518,6 +511,9 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_monitorfun       = NULL;
   cv_mem->cv_monitor_interval = 0;
   cv_mem->cv_errfp            = stderr;
+#if SUNDIALS_LOGGING_LEVEL > 0
+  cv_mem->cv_errfp            = (CV_LOGGER->error_fp) ? CV_LOGGER->error_fp : stderr;
+#endif
   cv_mem->cv_qmax             = maxord;
   cv_mem->cv_mxstep           = MXSTEP_DEFAULT;
   cv_mem->cv_mxhnil           = MXHNIL_DEFAULT;
@@ -5437,6 +5433,13 @@ static int cvStep(CVodeMem cv_mem)
 
   for(;;) {
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+      "CVODES::cvStep", "enter-step-attempt-loop",
+      "step = %li, h = %.16g, q = %d, t_n = %.16g",
+      cv_mem->cv_nst, cv_mem->cv_next_h, cv_mem->cv_next_q, cv_mem->cv_tn);
+#endif
+
     cvPredict(cv_mem);
     cvSet(cv_mem);
 
@@ -6023,6 +6026,9 @@ void cvRescale(CVodeMem cv_mem)
 
 static void cvPredict(CVodeMem cv_mem)
 {
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  int i;
+#endif
   int j, k;
 
   cv_mem->cv_tn += cv_mem->cv_h;
@@ -6036,31 +6042,60 @@ static void cvPredict(CVodeMem cv_mem)
       N_VLinearSum(ONE, cv_mem->cv_zn[j-1], ONE,
                    cv_mem->cv_zn[j], cv_mem->cv_zn[j-1]);
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+    "CVODES::cvPredict", "forward", "predictor =", "");
+  N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
+#endif
+
   if (cv_mem->cv_quadr) {
     for (k = 1; k <= cv_mem->cv_q; k++)
       for (j = cv_mem->cv_q; j >= k; j--)
         N_VLinearSum(ONE, cv_mem->cv_znQ[j-1], ONE,
                      cv_mem->cv_znQ[j], cv_mem->cv_znQ[j-1]);
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+    "CVODES::cvPredict", "quad", "predictor =", "");
+  N_VPrintFile(cv_mem->cv_znQ[0], CV_LOGGER->debug_fp);
+#endif
   }
 
   if (cv_mem->cv_sensi) {
-    for (k = 1; k <= cv_mem->cv_q; k++)
-      for (j = cv_mem->cv_q; j >= k; j--)
+    for (k = 1; k <= cv_mem->cv_q; k++) {
+      for (j = cv_mem->cv_q; j >= k; j--) {
         (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
                                        ONE, cv_mem->cv_znS[j-1],
                                        ONE, cv_mem->cv_znS[j],
                                        cv_mem->cv_znS[j-1]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        for(i = 0; i < cv_mem->cv_Ns; i++) {
+          SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+            "CVODES::cvPredict", "sensi", " i = %d,  predictor_i = ", i);
+          N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp);
+        }
+#endif
+      }
+    }
   }
 
   if (cv_mem->cv_quadr_sensi) {
-    for (k = 1; k <= cv_mem->cv_q; k++)
-      for (j = cv_mem->cv_q; j >= k; j--)
+    for (k = 1; k <= cv_mem->cv_q; k++) {
+      for (j = cv_mem->cv_q; j >= k; j--) {
         (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
                                        ONE, cv_mem->cv_znQS[j-1],
                                        ONE, cv_mem->cv_znQS[j],
                                        cv_mem->cv_znQS[j-1]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        for(i = 0; i < cv_mem->cv_Ns; i++) {
+          SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+            "CVODES::cvPredict", "quad-sensi", " i = %d,  predictor_i = ", i);
+          N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp);
+        }
+#endif
+      }
+    }
   }
-
 }
 
 /*
@@ -6887,6 +6922,12 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   dsm = acor_nrm * cv_mem->cv_tq[2];
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODES::cvDoErrorTest", "error-test", "step = %li, h = %.16g, dsm = %.16g",
+    cv_mem->cv_nst, cv_mem->cv_h, dsm);
+#endif
+
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
   *dsmPtr = dsm;
   if (dsm <= ONE) return(CV_SUCCESS);
@@ -6916,6 +6957,12 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
     cvRescale(cv_mem);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+      "CVODES::cvDoErrorTest", "new-step-eta",
+      "eta = %.16g", cv_mem->cv_eta);
+#endif
+
     return(TRY_AGAIN);
   }
 
@@ -6928,6 +6975,11 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     cv_mem->cv_q--;
     cv_mem->cv_qwait = cv_mem->cv_L;
     cvRescale(cv_mem);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+      "CVODES::cvDoErrorTest", "new-step-eta-mxnef1",
+      "eta = %.16g", cv_mem->cv_eta);
+#endif
     return(TRY_AGAIN);
   }
 
@@ -6948,6 +7000,12 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if (retval > 0) return(CV_UNREC_RHSFUNC_ERR);
 
   N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODES::cvDoErrorTest", "new-step-eta-mxnef1-q1",
+    "eta = %.16g", cv_mem->cv_eta);
+#endif
 
   if (cv_mem->cv_quadr) {
 
@@ -7102,6 +7160,12 @@ static void cvCompleteStep(CVodeMem cv_mem)
     cv_mem->cv_monitorfun((void*) cv_mem, cv_mem->cv_user_data);
   }
 #endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODES::cvCompleteStep", "return",
+    "nst = %d, nscon = %d", cv_mem->cv_nst, cv_mem->cv_nscon);
+#endif
 }
 
 /*
@@ -7121,28 +7185,33 @@ static void cvPrepareNextStep(CVodeMem cv_mem, realtype dsm)
     cv_mem->cv_qprime = cv_mem->cv_q;
     cv_mem->cv_hprime = cv_mem->cv_h;
     cv_mem->cv_eta = ONE;
-    return;
+  } else {
+    /* etaq is the ratio of new to old h at the current order */
+    cv_mem->cv_etaq = ONE /(SUNRpowerR(BIAS2*dsm,ONE/cv_mem->cv_L) + ADDON);
+
+    /* If no order change, adjust eta and acor in cvSetEta and return */
+    if (cv_mem->cv_qwait != 0) {
+      cv_mem->cv_eta = cv_mem->cv_etaq;
+      cv_mem->cv_qprime = cv_mem->cv_q;
+      cvSetEta(cv_mem);
+    } else {
+      /* If qwait = 0, consider an order change.   etaqm1 and etaqp1 are
+        the ratios of new to old h at orders q-1 and q+1, respectively.
+        cvChooseEta selects the largest; cvSetEta adjusts eta and acor */
+      cv_mem->cv_qwait = 2;
+      cv_mem->cv_etaqm1 = cvComputeEtaqm1(cv_mem);
+      cv_mem->cv_etaqp1 = cvComputeEtaqp1(cv_mem);
+      cvChooseEta(cv_mem);
+      cvSetEta(cv_mem);
+    }
   }
 
-  /* etaq is the ratio of new to old h at the current order */
-  cv_mem->cv_etaq = ONE /(SUNRpowerR(BIAS2*dsm,ONE/cv_mem->cv_L) + ADDON);
-
-  /* If no order change, adjust eta and acor in cvSetEta and return */
-  if (cv_mem->cv_qwait != 0) {
-    cv_mem->cv_eta = cv_mem->cv_etaq;
-    cv_mem->cv_qprime = cv_mem->cv_q;
-    cvSetEta(cv_mem);
-    return;
-  }
-
-  /* If qwait = 0, consider an order change.   etaqm1 and etaqp1 are
-     the ratios of new to old h at orders q-1 and q+1, respectively.
-     cvChooseEta selects the largest; cvSetEta adjusts eta and acor */
-  cv_mem->cv_qwait = 2;
-  cv_mem->cv_etaqm1 = cvComputeEtaqm1(cv_mem);
-  cv_mem->cv_etaqp1 = cvComputeEtaqp1(cv_mem);
-  cvChooseEta(cv_mem);
-  cvSetEta(cv_mem);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODES::cvPrepareNextStep", "return",
+    "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d\n",
+    cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime, cv_mem->cv_qwait);
+#endif
 }
 
 /*
@@ -7288,51 +7357,55 @@ static void cvChooseEta(CVodeMem cv_mem)
   {
     cv_mem->cv_eta = ONE;
     cv_mem->cv_qprime = cv_mem->cv_q;
-    return;
   }
+  else
+  {
+    if (etam == cv_mem->cv_etaq)
+    {
+      cv_mem->cv_eta = cv_mem->cv_etaq;
+      cv_mem->cv_qprime = cv_mem->cv_q;
+    }
+    else if (etam == cv_mem->cv_etaqm1)
+    {
+      cv_mem->cv_eta = cv_mem->cv_etaqm1;
+      cv_mem->cv_qprime = cv_mem->cv_q - 1;
+    }
+    else
+    {
+      cv_mem->cv_eta = cv_mem->cv_etaqp1;
+      cv_mem->cv_qprime = cv_mem->cv_q + 1;
 
-  if (etam == cv_mem->cv_etaq) {
+      if (cv_mem->cv_lmm == CV_BDF)
+      {
+        /*
+         * Store Delta_n in zn[qmax] to be used in order increase
+         *
+         * This happens at the last step of order q before an increase
+         * to order q+1, so it represents Delta_n in the ELTE at q+1
+         */
 
-    cv_mem->cv_eta = cv_mem->cv_etaq;
-    cv_mem->cv_qprime = cv_mem->cv_q;
+        N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]);
 
-  } else if (etam == cv_mem->cv_etaqm1) {
+        if (cv_mem->cv_quadr && cv_mem->cv_errconQ)
+          N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]);
 
-    cv_mem->cv_eta = cv_mem->cv_etaqm1;
-    cv_mem->cv_qprime = cv_mem->cv_q - 1;
+        if (cv_mem->cv_sensi && cv_mem->cv_errconS)
+        {
+          for (is=0; is<cv_mem->cv_Ns; is++)
+            cv_mem->cv_cvals[is] = ONE;
 
-  } else {
+          (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                     cv_mem->cv_acorS, cv_mem->cv_znS[cv_mem->cv_qmax]);
+        }
 
-    cv_mem->cv_eta = cv_mem->cv_etaqp1;
-    cv_mem->cv_qprime = cv_mem->cv_q + 1;
+        if (cv_mem->cv_quadr_sensi && cv_mem->cv_errconQS)
+        {
+          for (is=0; is<cv_mem->cv_Ns; is++)
+            cv_mem->cv_cvals[is] = ONE;
 
-    if (cv_mem->cv_lmm == CV_BDF) {
-      /*
-       * Store Delta_n in zn[qmax] to be used in order increase
-       *
-       * This happens at the last step of order q before an increase
-       * to order q+1, so it represents Delta_n in the ELTE at q+1
-       */
-
-      N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]);
-
-      if (cv_mem->cv_quadr && cv_mem->cv_errconQ)
-        N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]);
-
-      if (cv_mem->cv_sensi && cv_mem->cv_errconS) {
-        for (is=0; is<cv_mem->cv_Ns; is++)
-          cv_mem->cv_cvals[is] = ONE;
-
-        (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
-                                   cv_mem->cv_acorS, cv_mem->cv_znS[cv_mem->cv_qmax]);
-      }
-
-      if (cv_mem->cv_quadr_sensi && cv_mem->cv_errconQS) {
-        for (is=0; is<cv_mem->cv_Ns; is++)
-          cv_mem->cv_cvals[is] = ONE;
-
-        (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
-                                   cv_mem->cv_acorQS, cv_mem->cv_znQS[cv_mem->cv_qmax]);
+          (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                     cv_mem->cv_acorQS, cv_mem->cv_znQS[cv_mem->cv_qmax]);
+        }
       }
     }
   }

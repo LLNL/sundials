@@ -121,6 +121,25 @@ Changes from previous versions
 Changes in v5.2.0
 -----------------
 
+Added the :c:type:`SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated :c:func:`ARKStepSetDiagnostics`,
+:c:func:`MRIStepSetDiagnostics`, :c:func:`ERKStepSetDiagnostics`,
+:c:func:`SUNNonlinSolSetPrintLevel_Newton`,
+:c:func:`SUNNonlinSolSetInfoFile_Newton`,
+:c:func:`SUNNonlinSolSetPrintLevel_FixedPoint`,
+:c:func:`SUNNonlinSolSetInfoFile_FixedPoint`,
+:c:func:`SUNLinSolSetInfoFile_PCG`, :c:func:`SUNLinSolSetPrintLevel_PCG`,
+:c:func:`SUNLinSolSetInfoFile_SPGMR`, :c:func:`SUNLinSolSetPrintLevel_SPGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPFGMR`, :c:func:`SUNLinSolSetPrintLevel_SPFGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPTFQM`, :c:func:`SUNLinSolSetPrintLevel_SPTFQMR`,
+:c:func:`SUNLinSolSetInfoFile_SPBCGS`, :c:func:`SUNLinSolSetPrintLevel_SPBCGS`
+it is recommended to use the `SUNLogger` API instead. The ``SUNLinSolSetInfoFile_**``
+and ``SUNNonlinSolSetInfoFile_*`` family of functions are now enabled
+by setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
+
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
 

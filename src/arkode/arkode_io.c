@@ -68,6 +68,9 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->ehfun                   = arkErrHandler;  /* default error handler fn */
   ark_mem->eh_data                 = ark_mem;        /* error handler data */
   ark_mem->errfp                   = stderr;         /* output stream for errors */
+#if SUNDIALS_LOGGING_LEVEL > 0
+  ark_mem->errfp                   = (ARK_LOGGER->error_fp) ? ARK_LOGGER->error_fp : stderr;
+#endif
   ark_mem->mxstep                  = MXSTEP_DEFAULT; /* max number of steps */
   ark_mem->mxhnil                  = MXHNIL;         /* max warns of t+h==t */
   ark_mem->maxnef                  = MAXNEF;         /* max error test fails */

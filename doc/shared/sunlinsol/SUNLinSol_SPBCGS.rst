@@ -141,6 +141,10 @@ user-callable routines:
       ``SUNDIALS_BUILD_WITH_MONITORING`` **to utilize this function.**
       See :numref:`Installation.CMake.Options` for more information.
 
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
+
 
 .. c:function:: int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver LS, int print_level)
 
@@ -165,9 +169,15 @@ user-callable routines:
       This function is intended for users that wish to monitor the linear
       solver progress. By default, the print level is 0.
 
-      **SUNDIALS must be built with the CMake option**
-      ``SUNDIALS_BUILD_WITH_MONITORING`` **to utilize this function.**
+   .. warning::
+
+      SUNDIALS must be built with the CMake option
+      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
       See :numref:`Installation.CMake.Options` for more information.
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 For backwards compatibility, we also provide the following wrapper functions,

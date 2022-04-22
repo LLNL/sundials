@@ -177,13 +177,6 @@
 #define EPCON RCONST(0.33)  /* Newton convergence test constant */
 #define MAXBACKS       100  /* max backtracks per Newton step in IDACalcIC */
 
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
-
-
 /*
  * =================================================================
  * PRIVATE FUNCTION PROTOTYPES
@@ -311,6 +304,9 @@ void *IDACreate(SUNContext sunctx)
   IDA_mem->ida_ehfun          = IDAErrHandler;
   IDA_mem->ida_eh_data        = IDA_mem;
   IDA_mem->ida_errfp          = stderr;
+#if SUNDIALS_LOGGING_LEVEL > 0
+  IDA_mem->ida_errfp          = (IDA_LOGGER->error_fp) ? IDA_LOGGER->error_fp : stderr;
+#endif
   IDA_mem->ida_maxord         = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep         = MXSTEP_DEFAULT;
   IDA_mem->ida_hmax_inv       = HMAX_INV_DEFAULT;
@@ -507,6 +503,9 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_nge = 0;
 
   IDA_mem->ida_irfnd = 0;
+
+  /* Initialize counters specific to IC calculation. */
+  IDA_mem->ida_nbacktr = 0;
 
   /* Initialize root-finding variables */
 
@@ -2307,6 +2306,12 @@ static int IDAStep(IDAMem IDA_mem)
 
   for(;;) {
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDA::IDAStep",
+                       "start-step-attempt", "step = %li, h = "RSYM,
+                       IDA_mem->ida_nst, IDA_mem->ida_hh);
+#endif
+
     /*-----------------------
       Set method coefficients
       -----------------------*/
@@ -2529,6 +2534,12 @@ static int IDANls(IDAMem IDA_mem)
   (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc);
   IDA_mem->ida_nnf += nnf_inc;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDA::IDANls",
+                     "nls-return", "flag = %i, iters = %li, fails = %li",
+                     retval, nni_inc, nni_inc);
+#endif
+
   /* return if nonlinear solver failed */
   if (retval != SUN_NLS_SUCCESS) return(retval);
 
@@ -2636,6 +2647,13 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
   *err_k = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enorm_k;
   terr_k = (IDA_mem->ida_kk + 1) * (*err_k);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                     "IDA::IDATestError", "estimate-error-order-k",
+                     "err_k = %"RSYM", terr_k = %"RSYM,
+                     *err_k, terr_k);
+#endif
+
   IDA_mem->ida_knew = IDA_mem->ida_kk;
 
   if ( IDA_mem->ida_kk > 1 ) {
@@ -2647,6 +2665,13 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
     *err_km1 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 1] * enorm_km1;
     terr_km1 = IDA_mem->ida_kk * (*err_km1);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                       "IDA::IDATestError", "estimate-error-order-km1",
+                       "err_km1 = %"RSYM", terr_km1 = %"RSYM,
+                       *err_km1, terr_km1);
+#endif
+
     if ( IDA_mem->ida_kk > 2 ) {
 
       /* Compute error at order k-2 */
@@ -2656,6 +2681,13 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
                               IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
       err_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;
       terr_km2 = (IDA_mem->ida_kk - 1) * err_km2;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                         "IDA::IDATestError", "estimate-error-order-km2",
+                         "err_km2 = %"RSYM", terr_km2 = %"RSYM,
+                         err_km2, terr_km2);
+#endif
 
       /* Decrease order if errors are reduced */
       if (SUNMAX(terr_km1, terr_km2) <= terr_k)
@@ -2670,6 +2702,16 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
     }
 
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                     "IDA::IDATestError", "new-order",
+                     "kk = %i, knew = %i", IDA_mem->ida_kk, IDA_mem->ida_knew);
+
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                     "IDA::IDATestError", "error-estimate",
+                     "ck_enorm_k = %"RSYM, ck * enorm_k);
+#endif
 
   /* Perform error test */
   if (ck * enorm_k > ONE) return(ERROR_TEST_FAIL);
@@ -2815,6 +2857,14 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                         "IDA::IDAHandleNFlag", "first-error-test_fail",
+                         "kk = %i, eta = %"RSYM", h = %"RSYM,
+                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
+#endif
+
       return(PREDICT_AGAIN);
 
     } else if (*nefPtr == 2) {
@@ -2826,6 +2876,14 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
+      
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                         "IDA::IDAHandleNFlag", "second-error-test-fail",
+                         "kk = %i, eta = %"RSYM", h = %"RSYM,
+                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
+#endif
+
       return(PREDICT_AGAIN);
 
     } else if (*nefPtr < IDA_mem->ida_maxnef) {
@@ -2836,6 +2894,14 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
+      
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                         "IDA::IDAHandleNFlag", "error-test-fail",
+                         "kk = %i, eta = %"RSYM", h = %"RSYM,
+                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
+#endif
+
       return(PREDICT_AGAIN);
 
     } else {
@@ -2917,37 +2983,79 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
 
     /* Set action = LOWER/MAINTAIN/RAISE to specify order decision */
 
-    if (IDA_mem->ida_knew == IDA_mem->ida_kk - 1)  {action = LOWER;    goto takeaction;}
-    if (IDA_mem->ida_kk == IDA_mem->ida_maxord)    {action = MAINTAIN; goto takeaction;}
-    if ( (IDA_mem->ida_kk + 1 >= IDA_mem->ida_ns ) ||
-         (kdiff == 1))                             {action = MAINTAIN; goto takeaction;}
-
-    /* Estimate the error at order k+1, unless already decided to
-       reduce order, or already using maximum order, or stepsize has not
-       been constant, or order was just raised. */
-
-    N_VLinearSum(ONE, IDA_mem->ida_ee, -ONE,
-                 IDA_mem->ida_phi[IDA_mem->ida_kk + 1], IDA_mem->ida_tempv1);
-    enorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1, IDA_mem->ida_ewt,
-                        IDA_mem->ida_suppressalg);
-    err_kp1= enorm/(IDA_mem->ida_kk + 2);
-
-    /* Choose among orders k-1, k, k+1 using local truncation error norms. */
-
-    terr_k   = (IDA_mem->ida_kk + 1) * err_k;
-    terr_kp1 = (IDA_mem->ida_kk + 2) * err_kp1;
-
-    if (IDA_mem->ida_kk == 1) {
-      if (terr_kp1 >= HALF * terr_k)         {action = MAINTAIN; goto takeaction;}
-      else                                   {action = RAISE;    goto takeaction;}
-    } else {
-      terr_km1 = IDA_mem->ida_kk * err_km1;
-      if (terr_km1 <= SUNMIN(terr_k, terr_kp1)) {action = LOWER;    goto takeaction;}
-      else if (terr_kp1 >= terr_k)           {action = MAINTAIN; goto takeaction;}
-      else                                   {action = RAISE;    goto takeaction;}
+    if (IDA_mem->ida_knew == IDA_mem->ida_kk - 1)
+    {
+      /* Already decided to reduce the order */
+      action = LOWER;
     }
+    else if (IDA_mem->ida_kk == IDA_mem->ida_maxord)
+    {
+      /* Already using the maximum order */
+      action = MAINTAIN;
+    }
+    else if ((IDA_mem->ida_kk + 1 >= IDA_mem->ida_ns) || (kdiff == 1))
+    {
+      /* Step size has not been constant or the order was just raised */
+      action = MAINTAIN;
+    }
+    else
+    {
+      /* Estimate the error at order k+1 */
 
-  takeaction:
+      N_VLinearSum(ONE, IDA_mem->ida_ee, -ONE,
+                   IDA_mem->ida_phi[IDA_mem->ida_kk + 1], IDA_mem->ida_tempv1);
+      enorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1, IDA_mem->ida_ewt,
+                          IDA_mem->ida_suppressalg);
+      err_kp1 = enorm / (IDA_mem->ida_kk + 2);
+
+      /* Choose among orders k-1, k, k+1 using local truncation error norms. */
+
+      terr_k   = (IDA_mem->ida_kk + 1) * err_k;
+      terr_kp1 = (IDA_mem->ida_kk + 2) * err_kp1;
+
+      if (IDA_mem->ida_kk == 1)
+      {
+        if (terr_kp1 >= HALF * terr_k)
+        {
+          action = MAINTAIN;
+        }
+        else
+        {
+          action = RAISE;
+        }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                           "IDA::IDACompleteStep", "order-selection-raise",
+                           "terr_k = %"RSYM", terr_kp1 = %"RSYM,
+                           terr_k, terr_kp1);
+#endif
+      }
+      else
+      {
+        terr_km1 = IDA_mem->ida_kk * err_km1;
+        if (terr_km1 <= SUNMIN(terr_k, terr_kp1))
+        {
+          action = LOWER;
+        }
+        else if (terr_kp1 >= terr_k)
+        {
+          action = MAINTAIN;
+        }
+        else
+        {
+          action = RAISE;
+        }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                           "IDA::IDACompleteStep",
+                           "order-selection-rasie-or-lower",
+                           "terr_km1 = %"RSYM", terr_k = %"RSYM", terr_kp1 = %"RSYM,
+                           terr_km1, terr_k, terr_kp1);
+#endif
+      }
+    }
 
     /* Set the estimated error norm and, on change of order, reset kk. */
     if      (action == RAISE) { IDA_mem->ida_kk++; err_knew = err_kp1; }
@@ -2982,6 +3090,14 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
     }
     IDA_mem->ida_hh *= IDA_mem->ida_eta;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
+                       "IDA::IDACompleteStep", "new-step-and-order",
+                       "knew = %i, err_knew = %"RSYM", eta = %"RSYM
+                       ", hnew = %"RSYM, IDA_mem->ida_kk, err_knew,
+                       IDA_mem->ida_eta, IDA_mem->ida_hh);
+#endif
 
   } /* end of phase if block */
 

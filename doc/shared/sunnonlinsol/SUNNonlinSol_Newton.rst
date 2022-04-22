@@ -171,8 +171,12 @@ user-callable function.
    .. warning::
 
       SUNDIALS must be built with the CMake option
-      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
+      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
       See :numref:`Installation.CMake.Options` for more information.
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS, int print_level)
@@ -202,6 +206,10 @@ user-callable function.
       SUNDIALS must be built with the CMake option
       ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
       See :numref:`Installation.CMake.Options` for more information.
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. _SUNNonlinSol.Newton.Content:
