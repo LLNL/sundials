@@ -45,7 +45,7 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
   cmake_parse_arguments(sundials_option "${options}" "${oneValueArgs}"
     "${multiValueArgs}" ${ARGN} )
 
-  # check if dependencies for this option have been met
+    # check if dependencies for this option have been met
   set(all_depends_on_dependencies_met TRUE)
   if(sundials_option_DEPENDS_ON)
     foreach(_dependency ${sundials_option_DEPENDS_ON})
@@ -57,9 +57,7 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
   endif()
 
   if(all_depends_on_dependencies_met)
-
     if(DEFINED ${NAME})
-      # if the variable is already defined, keep its value
       set(${NAME} ${${NAME}} CACHE ${TYPE} ${DOCSTR} FORCE)
     else()
       # if the variable is not already defined, use the default value
@@ -73,43 +71,27 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   else()
 
+    # don't set the normal variable unless all dependencies were met
     if(DEFINED ${NAME})
-
       if(${NAME})
         string(CONCAT _warn_msg_string
           "The variable ${NAME} was set to ${${NAME}} "
           "but not all of its dependencies "
           "(${depends_on_dependencies_not_met}) evaluate to TRUE."
-          )
-        if("${TYPE}" MATCHES "BOOL")
-          if(sundials_option_DEPENDS_ON_THROW_ERROR)
-            print_error("${_warn_msg_string}" "Setting ${NAME} to OFF.")
-          else()
-            print_warning("${_warn_msg_string}" "Setting ${NAME} to OFF.")
-          endif()
+        )
+        if(sundials_option_DEPENDS_ON_THROW_ERROR)
+          print_error("${_warn_msg_string}" "Setting ${NAME} to the default value \"${DEFAULT_VALUE}\".")
+        else()
+          print_warning("${_warn_msg_string}" "Setting ${NAME} to the default value \"${DEFAULT_VALUE}\".")
         endif()
+        set(${NAME} "${DEFAULT_VALUE}" CACHE INTERNAL ${DOCSTR} FORCE)
       endif()
-
-      if("${TYPE}" MATCHES "BOOL")
-        set(${NAME} OFF CACHE INTERNAL ${DOCSTR} FORCE)
-      else()
-        set(${NAME} ${${NAME}} CACHE INTERNAL ${DOCSTR} FORCE)
-      endif()
-
-    else()
-
-      if("${TYPE}" MATCHES "BOOL")
-        set(${NAME} OFF CACHE INTERNAL ${DOCSTR})
-      else()
-        set(${NAME} ${DEFAULT_VALUE} CACHE INTERNAL ${DOCSTR})
-      endif()
-
     endif()
 
   endif()
 
   # check for valid option choices
-  if(sundials_option_OPTIONS)
+  if((DEFINED ${NAME}) AND sundials_option_OPTIONS)
     if(NOT (${NAME} IN_LIST sundials_option_OPTIONS))
       list(JOIN sundials_option_OPTIONS ", " _options_msg)
       print_error("Value of ${NAME} must be one of ${_options_msg}")
