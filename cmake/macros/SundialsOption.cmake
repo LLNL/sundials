@@ -58,10 +58,8 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   if(all_depends_on_dependencies_met)
 
-    # retain the current variable value or create the variable with the default
-    if(DEFINED ${NAME})
-      set(${NAME} "${${NAME}}" CACHE ${TYPE} ${DOCSTR} FORCE)
-    else()
+    # if necessary, create the CACHE variable with its default value
+    if(NOT DEFINED ${NAME})
       set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
     endif()
 
@@ -72,33 +70,19 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   else()
 
-    # reset and hide the variable if it was already created and is active i.e.,
-    # all the variable dependencies were previously met
+    # if necessary, remove the CACHE variable i.e., all the variable
+    # dependencies were previously met but are no longer satisfied
     if(DEFINED ${NAME})
-      if(${NAME})
-        string(CONCAT _warn_msg_string
-          "The variable ${NAME} was set to ${${NAME}} "
-          "but not all of its dependencies "
-          "(${depends_on_dependencies_not_met}) evaluate to TRUE."
-          )
-        if("${TYPE}" MATCHES "BOOL")
-          set(action_msg "Setting ${NAME} to OFF.")
-        else()
-          set(action_msg "Setting ${NAME} to the default \"${DEFAULT_VALUE}\".")
-        endif()
-        if(sundials_option_DEPENDS_ON_THROW_ERROR)
-          print_error("${_warn_msg_string}" "${action_msg}")
-        else()
-          print_warning("${_warn_msg_string}" "${action_msg}")
-        endif()
-        unset(action_msg)
-        # ensure boolean variables are OFF if the dependencies are no longer met
-        # e.g., BUILD_** options default to ON and now need to be disabled.
-        if("${TYPE}" MATCHES "BOOL")
-          set(${NAME} OFF CACHE INTERNAL ${DOCSTR} FORCE)
-        else()
-          set(${NAME} "${DEFAULT_VALUE}" CACHE INTERNAL ${DOCSTR} FORCE)
-        endif()
+      string(CONCAT _warn_msg_string
+        "The variable ${NAME} was set to ${${NAME}} "
+        "but not all of its dependencies "
+        "(${depends_on_dependencies_not_met}) evaluate to TRUE."
+        )
+      unset(${NAME} CACHE)
+      if(sundials_option_DEPENDS_ON_THROW_ERROR)
+        print_error("${_warn_msg_string}" "Unsetting ${NAME}")
+      else()
+        print_warning("${_warn_msg_string}" "Unsetting ${NAME}")
       endif()
     endif()
 
