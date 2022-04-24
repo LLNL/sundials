@@ -18,19 +18,18 @@
 #                   [DEPNDS_ON_THROW_ERROR])
 #
 # Within CMake creates a cache variable <variable> and sets it to the value
-# <default value> if <variable> is not yet defined. <type> may be any of the
-# types valid for CMake's set command (FILEPATH, PATH, STRING, BOOL, INTERNAL).
-# <docstring> is a description of the <variable>.
+# <default value> if <variable> is not yet defined and, if provided, all of its
+# dependencies evaluate to true. Otherwise, <variable> is not created. <type>
+# may be any of the types valid for CMake's set command (FILEPATH, PATH, STRING,
+# BOOL, INTERNAL). <docstring> is a description of the <variable>.
 #
-# The DEPENDS_ON option can be used to provide variables which must evaluate
-# to true in order to be available to the user. If the dependencies do not all
-# evaluate to true, then a warning is printed and <variable> is set to OFF if
-# <type> is BOOL, otherwise the current value is retained.
+# The DEPENDS_ON option can be used to provide variables which must evaluate to
+# true for <variable> to be created. If the dependencies do not all evaluate to
+# true and <variable> exists, then a warning is printed and <variable> is unset.
 #
 # The DEPENDS_ON_THROW_ERROR option will change the warning to be an error.
 #
-# The OPTIONS macro can be used to provide a list of valid values for the
-# variable.
+# The OPTIONS option can be used to provide a list of valid <variable> values.
 #
 # The ADVANCED option can be used to make <variable> an advanced CMake option.
 # ---------------------------------------------------------------------------
