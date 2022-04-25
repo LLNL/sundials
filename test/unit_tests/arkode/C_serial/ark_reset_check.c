@@ -104,29 +104,38 @@ int main()
   check_retval(&retval, "ERKStepSetMaxNumSteps", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = ERKStepEvolve(arkode_mem, T0 + dTout, y, &t, ARK_NORMAL);
+  retval = ERKStepSetStopTime(arkode_mem, t + dTout);
+  check_retval(&retval, "ERKStepSetStopTime", 1);
+  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Initial ERKStepEvolve had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Initial ERKStepEvolve had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Initial ERKStepEvolve call successful\n");
   }
+
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
   retval = ERKStepReset(arkode_mem, t, y);
   check_retval(&retval, "ERKStepReset", 1);
-  retval = ERKStepEvolve(arkode_mem, T0 + RCONST(2.0)*dTout, y, &t, ARK_NORMAL);
+  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Second ERKStepEvolve call had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Second ERKStepEvolve call had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Second ERKStepEvolve call successful\n");
   }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
@@ -134,14 +143,17 @@ int main()
   N_VConst(ytrue(t), y);
   retval = ERKStepReset(arkode_mem, t, y);
   check_retval(&retval, "ERKStepReset", 1);
-  retval = ERKStepEvolve(arkode_mem, T0+RCONST(4.0)*dTout, y, &t, ARK_NORMAL);
+  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Third ERKStepEvolve call had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Third ERKStepEvolve call had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Third ERKStepEvolve call successful\n");
   }
 
   /* Free ERKStep memory structure */
@@ -171,14 +183,17 @@ int main()
   check_retval(&retval, "ARKStepSetMaxNumSteps", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = ARKStepEvolve(arkode_mem, T0 + dTout, y, &t, ARK_NORMAL);
+  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Initial ARKStepEvolve had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Initial ARKStepEvolve had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Initial ARKStepEvolve call successful\n");
   }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
@@ -186,14 +201,17 @@ int main()
   N_VConst(ytrue(t), y);
   retval = ARKStepReset(arkode_mem, t, y);
   check_retval(&retval, "ARKStepReset", 1);
-  retval = ARKStepEvolve(arkode_mem, T0 + RCONST(2.0)*dTout, y, &t, ARK_NORMAL);
+  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Second ARKStepEvolve call had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Second ARKStepEvolve call had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Second ARKStepEvolve call successful\n");
   }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
@@ -201,14 +219,17 @@ int main()
   N_VConst(ytrue(t), y);
   retval = ARKStepReset(arkode_mem, t, y);
   check_retval(&retval, "ARKStepReset", 1);
-  retval = ARKStepEvolve(arkode_mem, T0+RCONST(4.0)*dTout, y, &t, ARK_NORMAL);
+  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Third ARKStepEvolve call had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Third ARKStepEvolve call had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Third ARKStepEvolve call successful\n");
   }
 
   /* Free ARKStep memory structure */
@@ -246,14 +267,17 @@ int main()
   check_retval(&retval, "MRIStepSetFixedStep", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = MRIStepEvolve(arkode_mem, T0 + dTout, y, &t, ARK_NORMAL);
+  retval = MRIStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Initial MRIStepEvolve had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Initial MRIStepEvolve had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Initial MRIStepEvolve call successful\n");
   }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
@@ -261,14 +285,17 @@ int main()
   N_VConst(ytrue(t), y);
   retval = MRIStepReset(mristep_mem, t, y);
   check_retval(&retval, "MRIStepReset", 1);
-  retval = MRIStepEvolve(mristep_mem, T0 + RCONST(2.0)*dTout, y, &t, ARK_NORMAL);
+  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Second MRIStepEvolve call had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Second MRIStepEvolve call had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Second MRIStepEvolve call successful\n");
   }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
@@ -276,14 +303,17 @@ int main()
   N_VConst(ytrue(t), y);
   retval = MRIStepReset(mristep_mem, t, y);
   check_retval(&retval, "MRIStepReset", 1);
-  retval = MRIStepEvolve(mristep_mem, T0+RCONST(4.0)*dTout, y, &t, ARK_NORMAL);
+  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
-    printf("Third MRIStepEvolve call had insufficient accuracy\n");
-    printf("   t = %" GSYM "\n", t);
-    printf("   y = %" GSYM "\n", NV_Ith_S(y,0));
-    printf("   |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
+    printf("  Third MRIStepEvolve call had insufficient accuracy\n");
+    printf("    t = %" GSYM "\n", t);
+    printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
+    printf("    ytrue = %" GSYM "\n", ytrue(t));
+    printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t)-NV_Ith_S(y,0)));
     return 1;
+  } else {
+    printf("  Third MRIStepEvolve call successful\n");
   }
 
   /* Free MRIStep and ARKStep memory structures */
