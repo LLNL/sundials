@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's root-finding (in time)
+ * Implementation header file for ARKODE's root-finding (in time)
  * utility.
  *--------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Root-finding constants
+  ARKODE Root-finding constants
   ===============================================================*/
 
 #define ARK_ROOT_LRW   5
@@ -38,7 +38,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Root-finding Data Structure
+  ARKODE Root-finding Data Structure
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -46,7 +46,7 @@ extern "C" {
   -----------------------------------------------------------------
   The type ARKodeRootMem is type pointer to struct
   ARKodeRootMemRec.  This structure contains data pertaining to
-  the use of root-finding capabilities in ARKode.
+  the use of root-finding capabilities in ARKODE.
   ---------------------------------------------------------------*/
 typedef struct ARKodeRootMemRec {
 
@@ -73,7 +73,7 @@ typedef struct ARKodeRootMemRec {
 
 
 /*===============================================================
-  ARKode Root-finding Routines
+  ARKODE Root-finding Routines
 ===============================================================*/
 
 int arkRootFree(void* arkode_mem);

@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Implementation header file for ARKode's MRI time stepper module.
+ * Implementation header file for ARKODE's MRI time stepper module.
  * ---------------------------------------------------------------------------*/
 
 #ifndef _ARKODE_MRISTEP_IMPL_H
@@ -176,8 +176,8 @@ struct _MRIStepInnerStepper
   /* Space requirements */
   sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */
   sunindextype liw1;        /* no. of integer words in 1 N_Vector           */
-  long int lrw;             /* no. of realtype words in ARKode work vectors */
-  long int liw;             /* no. of integer words in ARKode work vectors  */
+  long int lrw;             /* no. of realtype words in ARKODE work vectors */
+  long int liw;             /* no. of integer words in ARKODE work vectors  */
 };
 
 
@@ -185,7 +185,7 @@ struct _MRIStepInnerStepper
   MRI time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
