@@ -366,7 +366,7 @@ program main
      stop 1
   end if
   print *, " "
-  print '(A,ES11.5,A)', "Computed solution (||F|| = ", fnorm,"):"
+  print '(A,ES12.5,A)', "Computed solution (||F|| = ", fnorm,"):"
   print *, " "
   call PrintOutput(u)
   call PrintFinalStats(kmem)

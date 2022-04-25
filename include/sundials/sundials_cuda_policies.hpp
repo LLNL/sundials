@@ -13,7 +13,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This header files defines the ExecPolicy classes which
- * are utilized to determine CUDA kernel launch paramaters.
+ * are utilized to determine CUDA kernel launch parameters.
  * -----------------------------------------------------------------
  */
 

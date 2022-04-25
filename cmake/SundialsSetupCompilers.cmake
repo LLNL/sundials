@@ -62,6 +62,46 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # ===============================================================
+# Configure compiler flags
+#
+# TODO(DJG): Set flags based on CMAKE_<language>_COMPILER_ID
+# ===============================================================
+
+if(ENABLE_ALL_WARNINGS)
+  message(STATUS "Enabling all compiler warnings")
+
+  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
+endif()
+
+if(ENABLE_WARNINGS_AS_ERRORS)
+  message(STATUS "Enabling compiler warnings as errors")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Werror")
+endif()
+
+if(ENABLE_ADDRESS_SANITIZER)
+  message(STATUS "Enabling address sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+endif()
+
+if(SUNDIALS_DEBUG)
+  message(STATUS "Adding debugging preprocessor directives")
+
+  foreach(debug ${_SUNDIALS_DEBUG_OPTIONS})
+    if (${${debug}})
+      add_compile_definitions(${debug})
+    endif()
+  endforeach()
+endif()
+
+# ===============================================================
 # C settings
 # ===============================================================
 
@@ -71,13 +111,35 @@ sundials_option(CMAKE_C_STANDARD STRING "${DOCSTR}" "99"
 message(STATUS "C standard set to ${CMAKE_C_STANDARD}")
 
 set(DOCSTR "Enable C compiler specific extensions")
-sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" OFF)
+sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
 
 # Profiling generally requires ISO C99 or newer for __func__ though some
 # compilers define __func__ even with ISO C90.
 if(SUNDIALS_BUILD_WITH_PROFILING AND (CMAKE_C_STANDARD STREQUAL "90"))
   message(WARNING "SUNDIALS_BUILD_WITH_PROFILING=ON requires __func__, compilation may fail with CMAKE_C_STANDARD=90")
+endif()
+
+# ---------------------------------------------------------------
+# Check for snprintf
+#
+# 199901L is the minimum ISO C standard for snprintf but some
+# C89 compilers provide extensions that define it.
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  #include <stdio.h>
+  int main() {
+    int size = snprintf(NULL, 0, \"%s\", \"snprintf works\");
+    va_list args;
+    va_list tmp;
+    va_copy(tmp, args);
+    printf(\"%d\", size);
+  }
+" COMPILER_HAS_SNPRINTF_AND_VA_COPY)
+if(NOT COMPILER_HAS_SNPRINTF_AND_VA_COPY)
+  sundials_option(SUNDIALS_MAX_SPRINTF_SIZE STRING
+    "Max size of buffer for sprintf" "5120" ADVANCED)
 endif()
 
 # ---------------------------------------------------------------
@@ -284,52 +346,13 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   mark_as_advanced(CLEAR CMAKE_${lang}_COMPILER CMAKE_${lang}_FLAGS)
 endforeach()
 
-# ===============================================================
-# Additional compiler flags
-#
-# TODO(DJG): Set flags based on CMAKE_<language>_COMPILER_ID
-# ===============================================================
-
-if(ENABLE_ALL_WARNINGS)
-  message(STATUS "Enabling all compiler warnings")
-
-  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function ${CMAKE_CXX_FLAGS}")
-  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
-endif()
-
-if(ENABLE_WARNINGS_AS_ERRORS)
-  message(STATUS "Enabling compiler warnings as errors")
-
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Werror")
-endif()
-
-if(ENABLE_ADDRESS_SANITIZER)
-  message(STATUS "Enabling address sanitizer")
-
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined")
-endif()
-
-if(SUNDIALS_DEBUG)
-  message(STATUS "Adding debugging preprocessor directives")
-
-  foreach(debug ${_SUNDIALS_DEBUG_OPTIONS})
-    if (${${debug}})
-      add_compile_definitions(${debug})
-    endif()
-  endforeach()
-endif()
 
 # ===============================================================
 # Configure compilers for installed examples
 # ===============================================================
 
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
-  if(SUNDIALS_BUILD_WITH_PROFILING AND ENABLE_MPI)
+  if((SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI) AND ENABLE_MPI)
     if(DEFINED MPI_${lang}_COMPILER)
       set(_EXAMPLES_${lang}_COMPILER "${MPI_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
     endif()

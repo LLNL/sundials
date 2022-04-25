@@ -157,6 +157,7 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_mels.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_mels.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin_stats.csv
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.c
@@ -194,8 +195,11 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_4_0.002.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_5_0.002.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_6_0.005.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001_-100_100_0.5_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_8_0.001.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_8_0.001_-100_100_0.5_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_9_0.001.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_9_0.001_-100_100_0.5_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec_1.out
@@ -204,8 +208,11 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri_fast_stats.csv
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri_slow_stats.csv
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_stats.csv
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_constraints.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_constraints.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c
@@ -254,6 +261,9 @@ $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/plot_heat2D_p.py
 
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/README
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_advection_diffusion_reaction.cpp
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_advection_diffusion_reaction.hpp
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_advection_diffusion_reaction.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_heat2D.cpp
@@ -269,6 +279,8 @@ $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_1_-5.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_4_0_-10_0.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_-5_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_8_0_-10.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_0_10_1.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_1_10_1.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 

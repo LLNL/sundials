@@ -56,7 +56,6 @@ static int func(N_Vector y, N_Vector f, void *user_data);
 static int jac(N_Vector y, N_Vector f, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector y);
-static void PrintFinalStats(void *kmem);
 static int check_retval(void *retvalvalue, const char *funcname, int opt);
 
 /*
@@ -74,6 +73,7 @@ int main()
   void *kmem;
   SUNMatrix J;
   SUNLinearSolver LS;
+  FILE* FID;
 
   y = scale = constraints = NULL;
   kmem = NULL;
@@ -166,10 +166,16 @@ int main()
   printf("\nComputed solution:\n");
   PrintOutput(y);
 
-  /* Print final statistics and free memory */
+  /* Print final statistics to screen and file */
 
-  PrintFinalStats(kmem);
+  printf("\nFinal statsistics:\n");
+  retval = KINPrintAllStats(kmem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
+  FID = fopen("kinRoboKin_dns_stats.csv", "w");
+  retval = KINPrintAllStats(kmem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
+
+  /* free memory */
   N_VDestroy(y);
   N_VDestroy(scale);
   N_VDestroy(constraints);
@@ -389,30 +395,6 @@ static void PrintOutput(N_Vector y)
 
   }
 
-}
-
-/*
- * Print final statistics
- */
-
-static void PrintFinalStats(void *kmem)
-{
-  long int nni, nfe, nje, nfeD;
-  int retval;
-
-  retval = KINGetNumNonlinSolvIters(kmem, &nni);
-  check_retval(&retval, "KINGetNumNonlinSolvIters", 1);
-  retval = KINGetNumFuncEvals(kmem, &nfe);
-  check_retval(&retval, "KINGetNumFuncEvals", 1);
-
-  retval = KINGetNumJacEvals(kmem, &nje);
-  check_retval(&retval, "KINGetNumJacEvals", 1);
-  retval = KINGetNumLinFuncEvals(kmem, &nfeD);
-  check_retval(&retval, "KINGetNumLinFuncEvals", 1);
-
-  printf("\nFinal Statistics.. \n");
-  printf("nni    = %5ld    nfe   = %5ld \n", nni, nfe);
-  printf("nje    = %5ld    nfeD  = %5ld \n", nje, nfeD);
 }
 
 /*

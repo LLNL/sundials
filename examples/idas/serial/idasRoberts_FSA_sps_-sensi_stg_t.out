@@ -106,8 +106,12 @@ nst     =  1215
 
 nfe     =  1467
 netf    =     2    nsetups  =    85
-nni     =  1464    ncfn     =     0
+nni     =  1464    nnf      =     1
+ncfn    =     0
 
 nfSe    =  1556    nfeS     =     0
 netfs   =     0    nsetupsS =     2
-nniS    =  1554    ncfnS    =     0
+nniS    =  1554    nnfS     =     2
+ncfnS   =     0
+
+nje    =    87    nfeLS     =     0

@@ -105,14 +105,7 @@ SUNDIALS_EXPORT int KINSol(void *kinmem, N_Vector uu, int strategy,
                            N_Vector u_scale, N_Vector f_scale);
 
 /* Optional input functions */
-SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun,
-                                       void *eh_data);
-SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
-SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun,
-                                        void *ih_data);
-SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
 SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
-SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmem, int printfl);
 SUNDIALS_EXPORT int KINSetDamping(void *kinmem, realtype beta);
 SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetOrthAA(void *kinmem, int orthaa);
@@ -140,6 +133,18 @@ SUNDIALS_EXPORT int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
 SUNDIALS_EXPORT int KINSetConstraints(void *kinmem, N_Vector constraints);
 SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
 
+/* Optional input functions for handling error/info/debug events */
+SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun,
+                                       void *eh_data);
+SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
+SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun,
+                                        void *ih_data);
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
+SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
+SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmem, int printfl);
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetDebugFilename instead")
+int KINSetDebugFile(void *kinmem, FILE *debugfp);
+
 
 /* Optional output functions */
 SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, long int *lenrw,
@@ -150,6 +155,8 @@ SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails);
 SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 SUNDIALS_EXPORT int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 SUNDIALS_EXPORT int KINGetStepLength(void *kinmem, realtype *steplength);
+SUNDIALS_EXPORT int KINPrintAllStats(void *kinmem, FILE *outfile,
+                                     SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);
 
 /* Free function */
@@ -157,9 +164,6 @@ SUNDIALS_EXPORT void KINFree(void **kinmem);
 
 /* KINLS interface function that depends on KINSysFn */
 SUNDIALS_EXPORT int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn);
-
-/* Debugging output file */
-SUNDIALS_EXPORT int KINSetDebugFile(void *kinmem, FILE *debugfp);
 
 #ifdef __cplusplus
 }

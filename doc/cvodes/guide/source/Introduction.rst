@@ -114,8 +114,103 @@ Changes from previous versions
 Changes in v6.2.0
 -----------------
 
+Added the :c:type:`SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated :c:func:`SUNNonlinSolSetPrintLevel_Newton`,
+:c:func:`SUNNonlinSolSetInfoFile_Newton`,
+:c:func:`SUNNonlinSolSetPrintLevel_FixedPoint`,
+:c:func:`SUNNonlinSolSetInfoFile_FixedPoint`,
+:c:func:`SUNLinSolSetInfoFile_PCG`, :c:func:`SUNLinSolSetPrintLevel_PCG`,
+:c:func:`SUNLinSolSetInfoFile_SPGMR`, :c:func:`SUNLinSolSetPrintLevel_SPGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPFGMR`, :c:func:`SUNLinSolSetPrintLevel_SPFGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPTFQM`, :c:func:`SUNLinSolSetPrintLevel_SPTFQMR`,
+:c:func:`SUNLinSolSetInfoFile_SPBCGS`, :c:func:`SUNLinSolSetPrintLevel_SPBCGS`
+it is recommended to use the `SUNLogger` API instead. The ``SUNLinSolSetInfoFile_**``
+and ``SUNNonlinSolSetInfoFile_*`` family of functions are now enabled
+by setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
+
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
+
+Added the function :c:func:`CVodePrintAllStats` to output all of the integrator,
+nonlinear solver, linear solver, and other statistics in one call. The file
+``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
+value output files.
+
+Added support for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user
+defined projection function. This implementation is accompanied by
+additions to user documentation and CVODES examples. See
+:c:func:`CVodeSetConstraints` for more information.
+
+Added the functions
+:c:func:`CVodeSetEtaFixedStepBounds`,
+:c:func:`CVodeSetEtaMaxFirstStep`,
+:c:func:`CVodeSetEtaMaxEarlyStep`,
+:c:func:`CVodeSetNumStepsEtaMaxEarlyStep`,
+:c:func:`CVodeSetEtaMax`,
+:c:func:`CVodeSetEtaMin`,
+:c:func:`CVodeSetEtaMinErrFailEta`,
+:c:func:`CVodeSetEtaMaxErrFailEta`,
+:c:func:`CVodeSetNumFailsEtaMaxErrFail`, and
+:c:func:`CVodeSetEtaConvFail` to adjust various parameters controlling changes
+in step size.
+
+Added the functions :c:func:`CVodeSetDeltaGammaMaxLSetup` and
+:c:func:`CVodeSetDeltaGammaMaxBadJac` to adjust the :math:`\gamma` change
+thresholds to require a linear solver setup or Jacobian/precondition update,
+respectively.
+
+The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+consistent with the CUDA and HIP vectors. The input execution policies are now
+cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
+Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
+vector execution policies to the defaults.
+
+Fixed the :c:type:`SUNContext` convenience class for C++ users to disallow copy
+construction and allow move construction.
+
+A memory leak in the SYCL vector was fixed where the execution policies were
+not freed when the vector was destroyed.
+
+The include guard in ``nvector_mpimanyvector.h`` has been corrected to enable
+using both the ManyVector and MPIManyVector NVector implementations in the same
+simulation.
+
+Changed exported SUNDIALS PETSc CMake targets to be INTERFACE IMPORTED instead
+of UNKNOWN IMPORTED.
+
+A bug was fixed in the functions
+:c:func:`CVodeGetNumNonlinSolvConvFails`,
+:c:func:`CVodeGetNonlinSolvStats`,
+:c:func:`CVodeGetSensNumNonlinSolvConvFails`,
+:c:func:`CVodeGetSensNonlinSolvStats`,
+:c:func:`CVodeGetStgrSensNumNonlinSolvConvFails`, and
+:c:func:`CVodeGetStgrSensNonlinSolvStats`
+where the number of nonlinear solver failures returned was the number of failed
+*steps* due to a nonlinear solver failure i.e., if a nonlinear solve failed
+with a stale Jacobian or preconditioner but succeeded after updating the
+Jacobian or preconditioner, the initial failure was not included in the
+nonlinear solver failure count. These functions have been updated to return the
+total number of nonlinear solver failures. As such users may see an increase in
+the number of failures reported.
+
+The functions
+:c:func:`CVodeGetNumStepSolveFails`,
+:c:func:`CVodeGetNumStepSensSolveFails`, and
+:c:func:`CVodeGetNumStepStgrSensSolveFails`
+have been added to retrieve the number of failed steps due to a nonlinear solver
+failure. The counts returned from these functions will match those previously
+returned by
+:c:func:`CVodeGetNumNonlinSolvConvFails`,
+:c:func:`CVodeGetNonlinSolvStats`,
+:c:func:`CVodeGetSensNumNonlinSolvConvFails`,
+:c:func:`CVodeGetSensNonlinSolvStats`,
+:c:func:`CVodeGetStgrSensNumNonlinSolvConvFails`, and
+:c:func:`CVodeGetStgrSensNonlinSolvStats`.
+
 
 Changes in v6.1.1
 -----------------

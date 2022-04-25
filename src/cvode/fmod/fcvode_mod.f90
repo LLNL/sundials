@@ -83,6 +83,7 @@ module fcvode_mod
  public :: FCVodeSVtolerances
  public :: FCVodeWFtolerances
  public :: FCVodeSetConstraints
+ public :: FCVodeSetDeltaGammaMaxLSetup
  public :: FCVodeSetErrFile
  public :: FCVodeSetErrHandlerFn
  public :: FCVodeSetInitStep
@@ -104,6 +105,16 @@ module fcvode_mod
  public :: FCVodeSetStopTime
  public :: FCVodeSetUseIntegratorFusedKernels
  public :: FCVodeSetUserData
+ public :: FCVodeSetEtaFixedStepBounds
+ public :: FCVodeSetEtaMaxFirstStep
+ public :: FCVodeSetEtaMaxEarlyStep
+ public :: FCVodeSetNumStepsEtaMaxEarlyStep
+ public :: FCVodeSetEtaMax
+ public :: FCVodeSetEtaMin
+ public :: FCVodeSetEtaMinErrFail
+ public :: FCVodeSetEtaMaxErrFail
+ public :: FCVodeSetNumFailsEtaMaxErrFail
+ public :: FCVodeSetEtaConvFail
  public :: FCVodeRootInit
  public :: FCVodeSetRootDirection
  public :: FCVodeSetNoInactiveRootWarn
@@ -134,6 +145,8 @@ module fcvode_mod
  public :: FCVodeGetNumNonlinSolvIters
  public :: FCVodeGetNumNonlinSolvConvFails
  public :: FCVodeGetNonlinSolvStats
+ public :: FCVodeGetNumStepSolveFails
+ public :: FCVodePrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -175,6 +188,7 @@ module fcvode_mod
  public :: FCVodeSetJacFn
  public :: FCVodeSetJacEvalFrequency
  public :: FCVodeSetLinearSolutionScaling
+ public :: FCVodeSetDeltaGammaMaxBadJac
  public :: FCVodeSetEpsLin
  public :: FCVodeSetLSNormFactor
  public :: FCVodeSetPreconditioner
@@ -268,6 +282,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetDeltaGammaMaxLSetup(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetDeltaGammaMaxLSetup") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -458,6 +481,97 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaFixedStepBounds(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeSetEtaFixedStepBounds") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaMaxFirstStep(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaMaxFirstStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaMaxEarlyStep(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaMaxEarlyStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetNumStepsEtaMaxEarlyStep(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNumStepsEtaMaxEarlyStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaMax(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaMax") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaMin(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaMin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaMinErrFail(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaMinErrFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaMaxErrFail(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaMaxErrFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetNumFailsEtaMaxErrFail(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNumFailsEtaMaxErrFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEtaConvFail(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEtaConvFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -755,6 +869,25 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeGetNumStepSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodePrintAllStats(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodePrintAllStats") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
  subroutine SWIG_free(cptr) &
   bind(C, name="free")
  use, intrinsic :: ISO_C_BINDING
@@ -939,6 +1072,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetDeltaGammaMaxBadJac(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetDeltaGammaMaxBadJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1309,6 +1451,22 @@ fresult = swigc_FCVodeSetConstraints(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeSetDeltaGammaMaxLSetup(cvode_mem, dgmax_lsetup) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: dgmax_lsetup
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = dgmax_lsetup
+fresult = swigc_FCVodeSetDeltaGammaMaxLSetup(farg1, farg2)
+swig_result = fresult
+end function
+
 function FCVodeSetErrFile(cvode_mem, errfp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1645,6 +1803,169 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = user_data
 fresult = swigc_FCVodeSetUserData(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaFixedStepBounds(cvode_mem, eta_min_fx, eta_max_fx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_min_fx
+real(C_DOUBLE), intent(in) :: eta_max_fx
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = cvode_mem
+farg2 = eta_min_fx
+farg3 = eta_max_fx
+fresult = swigc_FCVodeSetEtaFixedStepBounds(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaMaxFirstStep(cvode_mem, eta_max_fs) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_max_fs
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_max_fs
+fresult = swigc_FCVodeSetEtaMaxFirstStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaMaxEarlyStep(cvode_mem, eta_max_es) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_max_es
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_max_es
+fresult = swigc_FCVodeSetEtaMaxEarlyStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetNumStepsEtaMaxEarlyStep(cvode_mem, small_nst) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: small_nst
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = small_nst
+fresult = swigc_FCVodeSetNumStepsEtaMaxEarlyStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaMax(cvode_mem, eta_max_gs) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_max_gs
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_max_gs
+fresult = swigc_FCVodeSetEtaMax(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaMin(cvode_mem, eta_min) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_min
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_min
+fresult = swigc_FCVodeSetEtaMin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaMinErrFail(cvode_mem, eta_min_ef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_min_ef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_min_ef
+fresult = swigc_FCVodeSetEtaMinErrFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaMaxErrFail(cvode_mem, eta_max_ef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_max_ef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_max_ef
+fresult = swigc_FCVodeSetEtaMaxErrFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetNumFailsEtaMaxErrFail(cvode_mem, small_nef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: small_nef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = small_nef
+fresult = swigc_FCVodeSetNumFailsEtaMaxErrFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEtaConvFail(cvode_mem, eta_cf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta_cf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta_cf
+fresult = swigc_FCVodeSetEtaConvFail(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2165,7 +2486,42 @@ fresult = swigc_FCVodeGetNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails) &
+function FCVodeGetNumNonlinSolvConvFails(cvode_mem, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nnfails(1))
+fresult = swigc_FCVodeGetNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetNonlinSolvStats(cvode_mem, nniters, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(nniters(1))
+farg3 = c_loc(nnfails(1))
+fresult = swigc_FCVodeGetNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeGetNumStepSolveFails(cvode_mem, nncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -2177,26 +2533,26 @@ type(C_PTR) :: farg2
 
 farg1 = cvode_mem
 farg2 = c_loc(nncfails(1))
-fresult = swigc_FCVodeGetNumNonlinSolvConvFails(farg1, farg2)
+fresult = swigc_FCVodeGetNumStepSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails) &
+function FCVodePrintAllStats(cvode_mem, outfile, fmt) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nncfails
+type(C_PTR) :: outfile
+integer(SUNOutputFormat), intent(in) :: fmt
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+integer(C_INT) :: farg3 
 
 farg1 = cvode_mem
-farg2 = c_loc(nniters(1))
-farg3 = c_loc(nncfails(1))
-fresult = swigc_FCVodeGetNonlinSolvStats(farg1, farg2, farg3)
+farg2 = outfile
+farg3 = fmt
+fresult = swigc_FCVodePrintAllStats(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -2546,6 +2902,22 @@ integer(C_INT) :: farg2
 farg1 = cvode_mem
 farg2 = onoff
 fresult = swigc_FCVodeSetLinearSolutionScaling(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetDeltaGammaMaxBadJac(cvode_mem, dgmax_jbad) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: dgmax_jbad
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = dgmax_jbad
+fresult = swigc_FCVodeSetDeltaGammaMaxBadJac(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -14,7 +14,6 @@
 # Provides the macro:
 #
 #   SUNDIALS_OPTION(<variable> <type> <docstring> <default value>
-#                   [SHOW_IF dependencies]
 #                   [DEPENDS_ON dependencies]
 #                   [DEPNDS_ON_THROW_ERROR])
 #
@@ -23,13 +22,10 @@
 # types valid for CMake's set command (FILEPATH, PATH, STRING, BOOL, INTERNAL).
 # <docstring> is a description of the <variable>.
 #
-# The SHOW_IF option can be used to provide variables which must evaluate
-# to true in order to make <variable> a CACHE variable. If not all dependencies
-# are met <variable> is made an INTERNAL variable.
-#
-# The DEPENDS_ON option can be used to provide variable which must evaluate
-# to true in order to set <variable>. If the DEPENDS_ON dependencies do not
-# all evaluate to true, then <variable> is set to "" and a warning is printed.
+# The DEPENDS_ON option can be used to provide variables which must evaluate
+# to true in order to be available to the user. If the dependencies do not all
+# evaluate to true, then a warning is printed and <variable> is set to OFF if
+# <type> is BOOL, otherwise the current value is retained.
 #
 # The DEPENDS_ON_THROW_ERROR option will change the warning to be an error.
 #
@@ -39,37 +35,28 @@
 # The ADVANCED option can be used to make <variable> an advanced CMake option.
 # ---------------------------------------------------------------------------
 
-
 macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
-  set(options DEPENDS_ON_THROW_ERROR ADVANCED)   # macro options
-  set(multiValueArgs OPTIONS SHOW_IF DEPENDS_ON) # macro keyword inputs followed by multiple values
+
+  # macro options and keyword inputs followed by multiple values
+  set(options DEPENDS_ON_THROW_ERROR ADVANCED)
+  set(multiValueArgs OPTIONS DEPENDS_ON)
 
   # parse inputs and create variables sundials_option_<keyword>
   cmake_parse_arguments(sundials_option "${options}" "${oneValueArgs}"
     "${multiValueArgs}" ${ARGN} )
 
   # check if dependencies for this option have been met
-  set(all_show_if_dependencies_met TRUE)
-  if(sundials_option_SHOW_IF)
-      foreach(_dependency ${sundials_option_SHOW_IF})
-        if(NOT ${_dependency})
-          set(all_show_if_dependencies_met FALSE)
-        endif()
-    endforeach()
-  endif()
-
-  # check if dependencies for this option have been met
   set(all_depends_on_dependencies_met TRUE)
   if(sundials_option_DEPENDS_ON)
-      foreach(_dependency ${sundials_option_DEPENDS_ON})
-        if(NOT ${_dependency})
-          set(all_depends_on_dependencies_met FALSE)
-          list(APPEND depends_on_dependencies_not_met "${_dependency},")
-        endif()
+    foreach(_dependency ${sundials_option_DEPENDS_ON})
+      if(NOT ${_dependency})
+        set(all_depends_on_dependencies_met FALSE)
+        list(APPEND depends_on_dependencies_not_met "${_dependency},")
+      endif()
     endforeach()
   endif()
 
-  if(all_show_if_dependencies_met AND all_depends_on_dependencies_met)
+  if(all_depends_on_dependencies_met)
 
     if(DEFINED ${NAME})
       # if the variable is already defined, keep its value
@@ -84,36 +71,44 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
       mark_as_advanced(FORCE ${NAME})
     endif()
 
-  elseif(NOT all_depends_on_dependencies_met)
+  else()
 
-    # don't set the normal variable unless all dependencies were met
     if(DEFINED ${NAME})
+
       if(${NAME})
         string(CONCAT _warn_msg_string
           "The variable ${NAME} was set to ${${NAME}} "
           "but not all of its dependencies "
           "(${depends_on_dependencies_not_met}) evaluate to TRUE."
-        )
-        if(sundials_option_DEPENDS_ON_THROW_ERROR)
-          print_error("${_warn_msg_string}" "Setting ${NAME} to \"\".")
-        else()
-          print_warning("${_warn_msg_string}" "Setting ${NAME} to \"\".")
+          )
+        if("${TYPE}" MATCHES "BOOL")
+          if(sundials_option_DEPENDS_ON_THROW_ERROR)
+            print_error("${_warn_msg_string}" "Setting ${NAME} to OFF.")
+          else()
+            print_warning("${_warn_msg_string}" "Setting ${NAME} to OFF.")
+          endif()
         endif()
       endif()
-      set(${NAME} "" CACHE INTERNAL ${DOCSTR} FORCE)
-    endif()
 
-  elseif(NOT all_show_if_dependencies_met)
+      if("${TYPE}" MATCHES "BOOL")
+        set(${NAME} OFF CACHE INTERNAL ${DOCSTR} FORCE)
+      else()
+        set(${NAME} ${${NAME}} CACHE INTERNAL ${DOCSTR} FORCE)
+      endif()
 
-    # hide the normal variable if not all dependencies were met
-    if(DEFINED ${NAME})
-      set(${NAME} ${${NAME}} CACHE INTERNAL ${DOCSTR} FORCE)
     else()
-      set(${NAME} ${DEFAULT_VALUE} CACHE INTERNAL ${DOCSTR})
+
+      if("${TYPE}" MATCHES "BOOL")
+        set(${NAME} OFF CACHE INTERNAL ${DOCSTR})
+      else()
+        set(${NAME} ${DEFAULT_VALUE} CACHE INTERNAL ${DOCSTR})
+      endif()
+
     endif()
 
   endif()
 
+  # check for valid option choices
   if(sundials_option_OPTIONS)
     if(NOT (${NAME} IN_LIST sundials_option_OPTIONS))
       list(JOIN sundials_option_OPTIONS ", " _options_msg)
@@ -126,7 +121,6 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     unset(is_in_cache)
   endif()
 
-  unset(all_show_if_dependencies_met)
   unset(all_depends_on_dependencies_met)
   unset(depends_on_dependencies_not_met)
 

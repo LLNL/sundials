@@ -26,6 +26,8 @@
 %apply void* { SUNContext };
 %apply void* { SUNProfiler };
 %apply void** { SUNProfiler* };
+%apply void* { SUNLogger };
+%apply void** { SUNLogger* };
 
 // We have to manually insert the wrapper code for SUNContext_Create,
 // and SUNContext_Free to handle the Fortran to MPI MPI_Comm translation.

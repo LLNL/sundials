@@ -28,7 +28,7 @@
 # floating point values and 10% for integer values.
 #
 # The level of precision can be adjusted for an individual test with the
-# FLOAT_PRECISION AND INTEGER_PERCENTAGE keyword inputs to the macro or globally
+# FLOAT_PRECISION AND INTEGER_PRECISION keyword inputs to the macro or globally
 # for all tests with the cache variables SUNDIALS_TEST_FLOAT_PRECISION and
 # SUNDIALS_TEST_INTEGER_PRECISION.
 #
@@ -51,15 +51,15 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   set(options "NODIFF")
 
   # macro keyword inputs followed by a single value
-  # MPI_NPROCS         = number of mpi tasks to use in parallel tests
-  # FLOAT_PRECISION    = precision for floating point failure comparision (num digits),
-  #                      to use the default, either don't provide the keyword, or
-  #                      provide the value "default"
-  # INTEGER_PRECENTAGE = integer percentage difference for failure comparison
-  # ANSWER_DIR         = path to the directory containing the test answer file
-  # ANSWER_FILE        = name of test answer file
-  # EXAMPLE_TYPE       = release or develop examples
-  set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
+  # MPI_NPROCS        = number of mpi tasks to use in parallel tests
+  # FLOAT_PRECISION   = precision for floating point failure comparision (num digits),
+  #                     to use the default, either don't provide the keyword, or
+  #                     provide the value "default"
+  # INTEGER_PRECISION = integer percentage difference for failure comparison
+  # ANSWER_DIR        = path to the directory containing the test answer file
+  # ANSWER_FILE       = name of test answer file
+  # EXAMPLE_TYPE      = release or develop examples
+  set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
     "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
   # macro keyword inputs followed by multiple values
@@ -111,17 +111,18 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         list(APPEND TEST_ARGS "--nodiff")
       else()
         # set a non-default floating point precision (number of digits, default 4)
-        if(SUNDIALS_TEST_FLOAT_PRECISION)
-          list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_TEST_FLOAT_PRECISION}")
-        elseif(SUNDIALS_ADD_TEST_FLOAT_PRECISION AND
-               (NOT SUNDIALS_ADD_TEST_FLOAT_PRECISION MATCHES "DEFAULT|default"))
+        if(SUNDIALS_ADD_TEST_FLOAT_PRECISION AND
+            (NOT SUNDIALS_ADD_TEST_FLOAT_PRECISION MATCHES "DEFAULT|default"))
           list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
+        elseif(SUNDIALS_TEST_FLOAT_PRECISION GREATER_EQUAL "0")
+          list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_TEST_FLOAT_PRECISION}")
         endif()
         # set a non-default integer precision (percent difference, default 10%)
-        if(SUNDIALS_TEST_INTEGER_PRECISION)
+        if(SUNDIALS_ADD_TEST_INTEGER_PRECISION AND
+            (NOT SUNDIALS_ADD_TEST_INTEGER_PRECISION MATCHES "DEFAULT|default"))
+          list(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PRECISION}")
+        elseif(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
           list(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_TEST_INTEGER_PRECISION}")
-        elseif(SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE)
-          list(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
         endif()
       endif()
 

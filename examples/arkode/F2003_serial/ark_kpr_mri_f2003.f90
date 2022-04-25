@@ -795,7 +795,7 @@ program main
     call check_retval(retval, "FARKStepSetTables")
   else if (solve_type == 2) then
     ! esdirk-3-3 fast solver (full problem)
-    inner_arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(fn), T0, y, sunctx)
+    inner_arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(fn), T0, y, sunctx)
     beta  = sqrt(3.0d0)/6.0d0 + 0.5d00
     gamma = (-ONE/8.0d0)*(sqrt(3.0d0)+ONE)
     allocate(Af(3,3))
@@ -921,7 +921,7 @@ program main
     call check_retval(retval, "FMRIStepSetCoupling")
   else if (solve_type == 4) then
     ! dirk-2 (trapezoidal), solve-decoupled slow solver
-    arkode_mem = FMRIStepCreate(c_null_ptr, c_funloc(fn), T0, y, inner_stepper, sunctx)
+    arkode_mem = FMRIStepCreate(c_null_funptr, c_funloc(fn), T0, y, inner_stepper, sunctx)
     SC = FMRIStepCoupling_LoadTable(ARKODE_MRI_GARK_IRK21a)
     retval = FMRIStepSetCoupling(arkode_mem, SC)
     call check_retval(retval, "FMRIStepSetCoupling")
@@ -935,7 +935,7 @@ program main
     call check_retval(retval, "FMRIStepSStolerances")
   else if (solve_type == 7) then
     ! MRI-GARK-ESDIRK34a, solve-decoupled slow solver
-    arkode_mem = FMRIStepCreate(c_null_ptr, c_funloc(fs), T0, y, inner_stepper, sunctx)
+    arkode_mem = FMRIStepCreate(c_null_funptr, c_funloc(fs), T0, y, inner_stepper, sunctx)
     SC = FMRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a)
     retval = FMRIStepSetCoupling(arkode_mem, SC)
     call check_retval(retval, "FMRIStepSetCoupling")
@@ -1001,7 +1001,7 @@ program main
   errtot  = ZERO
   print *, "        t           u           v       uerr      verr"
   print *, "   ------------------------------------------------------"
-  print '(A, F10.6, A, F10.6, A, F10.6, A, E8.2, A, E8.2)', &
+  print '(A, F10.6, A, F10.6, A, F10.6, A, E9.2, A, E9.2)', &
     "   ", t, "  ", yarr(1), "  ", yarr(2), "  ", uerr, "  ", verr
 
   do iout = 1, Nt
@@ -1012,7 +1012,7 @@ program main
     ! access/print solution and error
     uerr = abs(yarr(1)-utrue(tret(1)))
     verr = abs(yarr(2)-vtrue(tret(1)))
-    print '(A, F10.6, A, F10.6, A, F10.6, A, E8.2, A, E8.2)', &
+    print '(A, F10.6, A, F10.6, A, F10.6, A, E9.2, A, E9.2)', &
     "   ", tret(1), "  ", yarr(1), "  ", yarr(2), "  ", uerr, "  ", verr
     uerrtot = uerrtot + uerr*uerr
     verrtot = verrtot + verr*verr
@@ -1044,7 +1044,7 @@ program main
   ! Print some final statistics
   print *, "Final Solver Statistics:"
   print '(A, I7, A, I7)', "   Steps: nsts = ", nsts, ", nstf = ", nstf
-  print '(A, E9.3, A, E9.3, A, E9.3)', "   u error = ", uerrtot, ", v error = ", verrtot, ", total error = ", errtot
+  print '(A, E10.3, A, E10.3, A, E10.3)', "   u error = ", uerrtot, ", v error = ", verrtot, ", total error = ", errtot
   if (imex_slow) then
     print '(A, I7, A, I7, A, I7)', "   Total RHS evals: Fse = ", nfse(1), ", Fsi = ", nfsi(1), ", Ff = ", nff(1)
   else if (implicit_slow) then

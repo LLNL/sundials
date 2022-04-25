@@ -23,19 +23,20 @@ the code, is provided in :numref:`ARKODE.Mathematics.Nonlinear`.
 
 .. cssclass:: table-bordered
 
-=============================================  =========================================  ============
-Optional input                                 Function name                              Default
-=============================================  =========================================  ============
-Specify linearly implicit :math:`f^I`          :c:func:`MRIStepSetLinear()`               ``SUNFALSE``
-Specify nonlinearly implicit :math:`f^I`       :c:func:`MRIStepSetNonlinear()`            ``SUNTRUE``
-Implicit predictor method                      :c:func:`MRIStepSetPredictorMethod()`      0
-Maximum number of nonlinear iterations         :c:func:`MRIStepSetMaxNonlinIters()`       3
-Coefficient in the nonlinear convergence test  :c:func:`MRIStepSetNonlinConvCoef()`       0.1
-Nonlinear convergence rate constant            :c:func:`MRIStepSetNonlinCRDown()`         0.3
-Nonlinear residual divergence ratio            :c:func:`MRIStepSetNonlinRDiv()`           2.3
-User-provided implicit stage predictor         :c:func:`MRIStepSetStagePredictFn()`       ``NULL``
-RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`             ``NULL``
-=============================================  =========================================  ============
+=========================================================  =========================================  ============
+Optional input                                             Function name                              Default
+=========================================================  =========================================  ============
+Specify linearly implicit :math:`f^I`                      :c:func:`MRIStepSetLinear()`               ``SUNFALSE``
+Specify nonlinearly implicit :math:`f^I`                   :c:func:`MRIStepSetNonlinear()`            ``SUNTRUE``
+Implicit predictor method                                  :c:func:`MRIStepSetPredictorMethod()`      0
+Maximum number of nonlinear iterations                     :c:func:`MRIStepSetMaxNonlinIters()`       3
+Coefficient in the nonlinear convergence test              :c:func:`MRIStepSetNonlinConvCoef()`       0.1
+Nonlinear convergence rate constant                        :c:func:`MRIStepSetNonlinCRDown()`         0.3
+Nonlinear residual divergence ratio                        :c:func:`MRIStepSetNonlinRDiv()`           2.3
+User-provided implicit stage predictor                     :c:func:`MRIStepSetStagePredictFn()`       ``NULL``
+RHS function for nonlinear system evaluations              :c:func:`MRIStepSetNlsRhsFn()`             ``NULL``
+Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`MRIStepSetDeduceImplicitRhs`      ``SUNFALSE``
+=========================================================  =========================================  ============
 
 
 
@@ -240,6 +241,25 @@ RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`   
 
    When using a non-default nonlinear solver, this function must be called
    *after* :c:func:`MRIStepSetNonlinearSolver()`.
+
+
+.. c:function:: int MRIStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce)
+
+   Specifies if implicit stage derivatives are deduced without evaluating
+   :math:`f^I`. See :numref:`ARKODE.Mathematics.Nonlinear` for more details.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *deduce* -- If ``SUNFALSE`` (default), the stage derivative is obtained
+        by evaluating :math:`f^I` with the stage solution returned from the
+        nonlinear solver. If ``SUNTRUE``, the stage derivative is deduced
+        without an additional evaluation of :math:`f^I`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   .. versionadded:: 5.2.0
 
 
 .. _ARKODE.Usage.MRIStep.ARKLsInputs:

@@ -176,6 +176,19 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
 #define SUNTRUE 1
 #endif
 
+/*
+ *------------------------------------------------------------------
+ * Type : sunoutputformat
+ *------------------------------------------------------------------
+ * Constants for different output formats
+ *------------------------------------------------------------------
+ */
+
+typedef enum {
+  SUN_OUTPUTFORMAT_TABLE,
+  SUN_OUTPUTFORMAT_CSV
+} SUNOutputFormat;
+
 #ifdef __cplusplus
 }
 #endif

@@ -212,6 +212,7 @@ int mriStep_NlsInit(ARKodeMem ark_mem)
 
   /* reset counters */
   step_mem->nls_iters = 0;
+  step_mem->nls_fails = 0;
 
   /* set the linear solver setup wrapper function */
   if (step_mem->lsetup)
@@ -267,7 +268,8 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
 {
   ARKodeMRIStepMem step_mem;
   booleantype callLSetup;
-  long int nls_iters_inc;
+  long int nls_iters_inc = 0;
+  long int nls_fails_inc = 0;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -320,18 +322,21 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   N_VPrint(step_mem->zcor);
 #endif
 
-  /* apply the correction to construct ycur */
-  N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
-
-  /* increment counter */
-  nls_iters_inc = 0;
-  (void) SUNNonlinSolGetNumIters(step_mem->NLS, &(nls_iters_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc);
   step_mem->nls_iters += nls_iters_inc;
 
-  /* on successful solve, reset the jcur flag */
-  if (retval == ARK_SUCCESS)  step_mem->jcur = SUNFALSE;
+  (void) SUNNonlinSolGetNumConvFails(step_mem->NLS, &nls_fails_inc);
+  step_mem->nls_fails += nls_fails_inc;
 
-  /* if convergence failure, return ARKode::CONV_FAIL */
+  /* successful solve -- reset the jcur flag and apply correction */
+  if (retval == SUN_NLS_SUCCESS) {
+    step_mem->jcur = SUNFALSE;
+    N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+    return(ARK_SUCCESS);
+  }
+
+  /* check for recoverable failure, return ARKode::CONV_FAIL */
   if (retval == SUN_NLS_CONV_RECVR) return(CONV_FAIL);
 
   return(retval);

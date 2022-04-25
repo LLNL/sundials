@@ -39,9 +39,8 @@
 #include <nvector/nvector_serial.h>         /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLUMT linear solver    */
-#include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype      */
 
-/* User-defined vector and matrix accessor macro: Ith */
+/* User-defined vector accessor macro: Ith */
 
 /* These macros are defined in order to write code which exactly matches
    the mathematical problem description given above.
@@ -51,7 +50,7 @@
    using the N_VIth macro in nvector.h. N_VIth numbers the components of
    a vector starting from 0. */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component, i=1..NEQ */
 
 
 /* Problem Constants */
@@ -104,37 +103,39 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype reltol, t, tout;
-  N_Vector y, abstol;
+  realtype t, tout;
+  N_Vector y;
+  N_Vector abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval, retvalr, iout;
+  int retval, iout;
+  int retvalr;
   int rootsfound[2];
 
-  y = abstol = NULL;
+  y = NULL;
+  abstol = NULL;
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
 
-  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
-  /* Create serial vector of length NEQ for I.C. and abstol */
+  /* Initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
-  /* Set the scalar relative tolerance */
-  reltol = RTOL;
   /* Set the vector absolute tolerance */
+  abstol = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
+
   Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
@@ -145,14 +146,14 @@ int main()
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in y'=f(t,y), the inital time T0, and
+   * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
-  retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
+  retval = CVodeSVtolerances(cvode_mem, RTOL, abstol);
   if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -161,19 +162,19 @@ int main()
 
   /* Create sparse SUNMatrix for use in linear solves */
   A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT, sunctx);
-  if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT solver object for use by CVode (one thread) */
   LS = SUNLinSol_SuperLUMT(y, A, 1, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
-  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -202,21 +203,13 @@ int main()
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y and abstol vectors */
-  N_VDestroy(y);
-  N_VDestroy(abstol);
-
-  /* Free integrator memory */
-  CVodeFree(&cvode_mem);
-
-  /* Free the linear solver memory */
-  SUNLinSolFree(LS);
-
-  /* Free the matrix memory */
-  SUNMatDestroy(A);
-
-  /* Free the SUNDIALS simulation context */
-  SUNContext_Free(&sunctx);
+  /* Free memory */
+  N_VDestroy(y);                            /* Free y vector */
+  N_VDestroy(abstol);                       /* Free abstol vector */
+  CVodeFree(&cvode_mem);                    /* Free CVODE memory */
+  SUNLinSolFree(LS);                        /* Free the linear solver memory */
+  SUNMatDestroy(A);                         /* Free the matrix memory */
+  SUNContext_Free(&sunctx);                 /* Free the SUNDIALS context */
 
   return(0);
 }
@@ -347,7 +340,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nni, nnf, ncfn, netf, nge;
   int retval;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
@@ -360,8 +353,10 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumErrTestFails", 1);
   retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
-  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &nnf);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumStepSolveFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumStepSolveFails", 1);
 
   retval = CVodeGetNumJacEvals(cvode_mem, &nje);
   check_retval(&retval, "CVodeGetNumJacEvals", 1);
@@ -370,10 +365,10 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
+  printf("nst = %-6ld nfe = %-6ld nsetups = %-6ld nje = %ld\n",
          nst, nfe, nsetups, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n \n",
-         nni, ncfn, netf, nge);
+  printf("nni = %-6ld nnf = %-6ld netf = %-6ld    ncfn = %-6ld nge = %ld\n\n",
+         nni, nnf, netf, ncfn, nge);
 }
 
 /*

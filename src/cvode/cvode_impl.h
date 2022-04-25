@@ -24,10 +24,27 @@
 #include <cvode/cvode.h>
 #include "cvode_proj_impl.h"
 #include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials/sundials_math.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "19.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
+#endif
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define CV_PROFILER cv_mem->cv_sunctx->profiler
+#define CV_LOGGER cv_mem->cv_sunctx->logger
 
 /*
  * =================================================================
@@ -48,8 +65,69 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
-#define MSBP 20  /* max no. of steps between lsetup calls */
+#define MSBP_DEFAULT         20          /* max steps between lsetup calls */
+#define DGMAX_LSETUP_DEFAULT RCONST(0.3) /* gamma threshold to call lsetup */
 
+/* Step size change constants
+ * --------------------------
+ * ETA_MIN_FX_DEFAULT  if eta_min_fx < eta < eta_max_fx reject a change in step size or order
+ * ETA_MAX_FX_DEFAULT
+ * ETA_MAX_FS_DEFAULT  -+
+ * ETA_MAX_ES_DEFAULT   |
+ * ETA_MAX_GS_DEFAULT   |
+ * ETA_MIN_DEFAULT      |-> bounds for eta (step size change)
+ * ETA_MAX_EF_DEFAULT   |
+ * ETA_MIN_EF_DEFAULT   |
+ * ETA_CF_DEFAULT      -+
+ * SMALL_NST_DEFAULT   nst <= SMALL_NST => use eta_max_es
+ * SMALL_NEF_DEFAULT   if small_nef <= nef <= MXNEF1, then eta =  SUNMIN(eta, eta_max_ef)
+ * ONEPSM (1+epsilon)  used in testing if the step size is below its bound
+ */
+
+#define ETA_MIN_FX_DEFAULT RCONST(0.0)
+#define ETA_MAX_FX_DEFAULT RCONST(1.5)
+#define ETA_MAX_FS_DEFAULT RCONST(10000.0)
+#define ETA_MAX_ES_DEFAULT RCONST(10.0)
+#define ETA_MAX_GS_DEFAULT RCONST(10.0)
+#define ETA_MIN_DEFAULT    RCONST(0.1)
+#define ETA_MAX_EF_DEFAULT RCONST(0.2)
+#define ETA_MIN_EF_DEFAULT RCONST(0.1)
+#define ETA_CF_DEFAULT     RCONST(0.25)
+#define SMALL_NST_DEFAULT  10
+#define SMALL_NEF_DEFAULT  2
+#define ONEPSM             RCONST(1.000001)
+
+/* Step size controller constants
+ * ------------------------------
+ * ADDON  safety factor in computing eta
+ * BIAS1  -+
+ * BIAS2   |-> bias factors in eta selection
+ * BIAS3  -+
+ */
+
+#define ADDON     RCONST(0.000001)
+#define BIAS1     RCONST(6.0)
+#define BIAS2     RCONST(6.0)
+#define BIAS3     RCONST(10.0)
+
+/* Order selection constants
+ * -------------------------
+ * LONG_WAIT   number of steps to wait before considering an order change when
+ *             q==1 and MXNEF1 error test failures have occurred
+ */
+
+#define LONG_WAIT    10
+
+/* Failure limits
+ * --------------
+ * MXNCF   max no. of convergence failures during one step try
+ * MXNEF   max no. of error test failures during one step try
+ * MXNEF1  max no. of error test failures before forcing a reduction of order
+ */
+
+#define MXNCF        10
+#define MXNEF         7
+#define MXNEF1        3
 
 /* Control constants for lower-level functions used by cvStep
  * ----------------------------------------------------------
@@ -84,7 +162,7 @@ extern "C" {
  * cvNewtonIteration return values:
  *    CV_SUCCESS,
  *    CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL
- *    CONV_FAIL, RHSFUNC_RECVR,
+ *    RHSFUNC_RECVR,
  *    TRY_AGAIN
  *
  */
@@ -222,16 +300,28 @@ typedef struct CVodeMemRec {
     Limits
     ------*/
 
-  int cv_qmax;          /* q <= qmax                                          */
-  long int cv_mxstep;   /* maximum number of internal steps for one user call */
-  int cv_mxhnil;        /* maximum number of warning messages issued to the
-                           user that t + h == t for the next internal step    */
-  int cv_maxnef;        /* maximum number of error test failures              */
-  int cv_maxncf;        /* maximum number of nonlinear convergence failures   */
+  int cv_qmax;            /* q <= qmax                                          */
+  long int cv_mxstep;     /* maximum number of internal steps for one user call */
+  int cv_mxhnil;          /* maximum number of warning messages issued to the
+                             user that t + h == t for the next internal step    */
+  int cv_maxnef;          /* maximum number of error test failures              */
+  int cv_maxncf;          /* maximum number of nonlinear convergence failures   */
 
-  realtype cv_hmin;     /* |h| >= hmin                                        */
-  realtype cv_hmax_inv; /* |h| <= 1/hmax_inv                                  */
-  realtype cv_etamax;   /* eta <= etamax                                      */
+  realtype cv_hmin;       /* |h| >= hmin                                        */
+  realtype cv_hmax_inv;   /* |h| <= 1/hmax_inv                                  */
+  realtype cv_etamax;     /* eta <= etamax                                      */
+  realtype cv_eta_min_fx; /* eta_min_fx < eta < eta_max_fx keep the current h   */
+  realtype cv_eta_max_fx;
+  realtype cv_eta_max_fs; /* eta <= eta_max_fs on the first step                */
+  realtype cv_eta_max_es; /* eta <= eta_max_es on early steps                   */
+  realtype cv_eta_max_gs; /* eta <= eta_max_gs on a general step                */
+  realtype cv_eta_min;    /* eta >= eta_min on a general step                   */
+  realtype cv_eta_min_ef; /* eta >= eta_min_ef after an error test failure      */
+  realtype cv_eta_max_ef; /* eta on multiple (>= small_nef) error test failures */
+  realtype cv_eta_cf;     /* eta on a nonlinear solver convergence failure      */
+
+  long int cv_small_nst; /* nst <= small_nst use eta_max_es */
+  int cv_small_nef;      /* nef >= small_nef use eta_max_ef */
 
   /*--------
     Counters
@@ -241,6 +331,7 @@ typedef struct CVodeMemRec {
   long int cv_nfe;         /* number of f calls                               */
   long int cv_ncfn;        /* number of corrector convergence failures        */
   long int cv_nni;         /* number of nonlinear iterations performed        */
+  long int cv_nnf;         /* number of nonlinear convergence failures        */
   long int cv_netf;        /* number of error test failures                   */
   long int cv_nsetups;     /* number of setup calls                           */
   int cv_nhnil;            /* number of messages issued to the user that
@@ -292,8 +383,10 @@ typedef struct CVodeMemRec {
 
   /* Linear Solver specific memory */
 
-  void     *cv_lmem;  /* linear solver interface memory structure */
-  long int  cv_msbp;  /* max number of steps between lsetip calls */
+  void     *cv_lmem;         /* linear solver interface memory structure */
+  long int  cv_msbp;         /* max number of steps between lsetip calls */
+  realtype  cv_dgmax_lsetup; /* gamma ratio threshold to signal for a linear
+                              * solver setup */
 
   /*------------
     Saved Values
@@ -369,7 +462,7 @@ typedef struct CVodeMemRec {
   CVodeProjMem proj_mem;      /* projection memory structure               */
   booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
   booleantype  proj_applied;  /* flag indicating if projection was applied */
-  realtype     cv_p[L_MAX];   /* coefficients of p(x) (degree q poly)      */
+  realtype     proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
     Fused Vector Operations

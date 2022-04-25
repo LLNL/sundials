@@ -283,66 +283,6 @@ SWIGEXPORT int _wrap_FKINSol(void *farg1, N_Vector farg2, int const *farg3, N_Ve
 }
 
 
-SWIGEXPORT int _wrap_FKINSetErrHandlerFn(void *farg1, KINErrHandlerFn farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  KINErrHandlerFn arg2 = (KINErrHandlerFn) 0 ;
-  void *arg3 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (KINErrHandlerFn)(farg2);
-  arg3 = (void *)(farg3);
-  result = (int)KINSetErrHandlerFn(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetErrFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)KINSetErrFile(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetInfoHandlerFn(void *farg1, KINInfoHandlerFn farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  KINInfoHandlerFn arg2 = (KINInfoHandlerFn) 0 ;
-  void *arg3 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (KINInfoHandlerFn)(farg2);
-  arg3 = (void *)(farg3);
-  result = (int)KINSetInfoHandlerFn(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetInfoFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)KINSetInfoFile(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FKINSetUserData(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -352,20 +292,6 @@ SWIGEXPORT int _wrap_FKINSetUserData(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (void *)(farg2);
   result = (int)KINSetUserData(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetPrintLevel(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)KINSetPrintLevel(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -711,6 +637,94 @@ SWIGEXPORT int _wrap_FKINSetSysFunc(void *farg1, KINSysFn farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINSetErrHandlerFn(void *farg1, KINErrHandlerFn farg2, void *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  KINErrHandlerFn arg2 = (KINErrHandlerFn) 0 ;
+  void *arg3 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (KINErrHandlerFn)(farg2);
+  arg3 = (void *)(farg3);
+  result = (int)KINSetErrHandlerFn(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetErrFile(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  result = (int)KINSetErrFile(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetInfoHandlerFn(void *farg1, KINInfoHandlerFn farg2, void *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  KINInfoHandlerFn arg2 = (KINInfoHandlerFn) 0 ;
+  void *arg3 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (KINInfoHandlerFn)(farg2);
+  arg3 = (void *)(farg3);
+  result = (int)KINSetInfoHandlerFn(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetInfoFile(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  result = (int)KINSetInfoFile(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetPrintLevel(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)KINSetPrintLevel(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetDebugFile(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  result = (int)KINSetDebugFile(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINGetWorkSpace(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -811,6 +825,22 @@ SWIGEXPORT int _wrap_FKINGetStepLength(void *farg1, double *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINPrintAllStats(void *farg1, void *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  SUNOutputFormat arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  arg3 = (SUNOutputFormat)(*farg3);
+  result = (int)KINPrintAllStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FKINGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
@@ -841,20 +871,6 @@ SWIGEXPORT int _wrap_FKINSetJacTimesVecSysFn(void *farg1, KINSysFn farg2) {
   arg1 = (void *)(farg1);
   arg2 = (KINSysFn)(farg2);
   result = (int)KINSetJacTimesVecSysFn(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetDebugFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)KINSetDebugFile(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

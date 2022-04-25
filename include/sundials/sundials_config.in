@@ -91,6 +91,18 @@
 /* BUILD SUNDIALS with profiling functionalities */
 #cmakedefine SUNDIALS_BUILD_WITH_PROFILING
 
+/* BUILD SUNDIALS with logging functionalities */
+#define SUNDIALS_LOGGING_LEVEL @SUNDIALS_LOGGING_LEVEL@
+
+/* BUILD SUNDIALS with MPI-enabled logging */
+#cmakedefine SUNDIALS_LOGGING_ENABLE_MPI
+
+/* Is snprintf available? */
+#cmakedefine SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#ifndef SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#define SUNDIALS_MAX_SPRINTF_SIZE @SUNDIALS_MAX_SPRINTF_SIZE@
+#endif
+
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
  * -----------------------------------------------------------------*/

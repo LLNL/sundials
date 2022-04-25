@@ -52,6 +52,11 @@ set(KINSOL_examples_SUPERLUMT
   "kinRoboKin_slu\;develop"
   )
 
+# Auxiliary files to install
+set(KINSOL_extras
+  kinRoboKin_dns_stats.csv
+  )
+
 # Specify libraries to link against
 set(KINSOL_LIB sundials_kinsol)
 set(NVECS_LIB sundials_nvecserial)
@@ -235,6 +240,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
+
+  # Install the extra files
+  foreach(extrafile ${KINSOL_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "KINSOL")

@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
   IDAadjCheckPointRec *ckpnt;
 
-  long int nst, nstB;
+  FILE* FID;
 
   data = NULL;
   ckpnt = NULL;
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDAAdjInit", 1)) return(1);
 
   /* Perform forward run */
-  printf("Forward integration ... ");
+  printf("Forward integration ...\n");
 
   /* Integrate till TB1 and get the solution (y, y') at that time. */
   retval = IDASolveF(ida_mem, TB1, &time, yy, yp, IDA_NORMAL, &ncheck);
@@ -287,11 +287,6 @@ int main(int argc, char *argv[])
   retval = IDASolveF(ida_mem, TOUT, &time, yy, yp, IDA_NORMAL, &ncheck);
   if (check_retval(&retval, "IDASolveF", 1)) return(1);
 
-  retval = IDAGetNumSteps(ida_mem, &nst);
-  if (check_retval(&retval, "IDAGetNumSteps", 1)) return(1);
-
-  printf("done ( nst = %ld )\n",nst);
-
   retval = IDAGetQuad(ida_mem, &time, q);
   if (check_retval(&retval, "IDAGetQuad", 1)) return(1);
 
@@ -303,7 +298,16 @@ int main(int argc, char *argv[])
 #else
   printf("G:          %12.4e \n",Ith(q,1));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
+
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(ida_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_ASAi_dns_fwd_stats.csv", "w");
+  retval = IDAPrintAllStats(ida_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Test check point linked list
      (uncomment next block to print check point information) */
@@ -361,7 +365,7 @@ int main(int argc, char *argv[])
   abstolQB = ATOLQ;
 
   /* Create and allocate IDAS memory for backward run */
-  printf("Create and allocate IDAS memory for backward run\n");
+  printf("\nCreate and allocate IDAS memory for backward run\n");
 
   retval = IDACreateB(ida_mem, &indexB);
   if (check_retval(&retval, "IDACreateB", 1)) return(1);
@@ -415,13 +419,10 @@ int main(int argc, char *argv[])
 
 
   /* Backward Integration */
-  printf("Backward integration ... ");
+  printf("Backward integration ...\n");
 
   retval = IDASolveB(ida_mem, T0, IDA_NORMAL);
   if (check_retval(&retval, "IDASolveB", 1)) return(1);
-
-  IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB), &nstB);
-  printf("done ( nst = %ld )\n", nstB);
 
   retval = IDAGetB(ida_mem, indexB, &time, yB, ypB);
   if (check_retval(&retval, "IDAGetB", 1)) return(1);
@@ -431,9 +432,19 @@ int main(int argc, char *argv[])
 
   PrintOutput(TB2, yB, ypB, qB);
 
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_ASAi_dns_bkw1_stats.csv", "w");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Reinitialize backward phase and start from a different time (TB1). */
-  printf("Re-initialize IDAS memory for backward run\n");
+  printf("\nRe-initialize IDAS memory for backward run\n");
 
   /* Both algebraic part from y and the entire y' are computed by IDACalcIC. */
   Ith(yB,1) = ZERO;
@@ -476,13 +487,8 @@ int main(int argc, char *argv[])
   retval = IDAGetConsistentICB(ida_mem, indexB, yB, ypB);
   if (check_retval(&retval, "IDAGetConsistentICB", 1)) return(1);
 
-  printf("Backward integration ... ");
-
   retval = IDASolveB(ida_mem, T0, IDA_NORMAL);
   if (check_retval(&retval, "IDASolveB", 1)) return(1);
-
-  IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB), &nstB);
-  printf("done ( nst = %ld )\n", nstB);
 
   retval = IDAGetB(ida_mem, indexB, &time, yB, ypB);
   if (check_retval(&retval, "IDAGetB", 1)) return(1);
@@ -492,9 +498,18 @@ int main(int argc, char *argv[])
 
   PrintOutput(TB1, yB, ypB, qB);
 
-  /* Free any memory used.*/
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("Free memory\n\n");
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_ASAi_dns_bkw1_stats.csv", "w");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
+
+  /* Free any memory used.*/
 
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
@@ -750,7 +765,7 @@ static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB)
   printf("lambda(t0): %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
 }
 
 /*

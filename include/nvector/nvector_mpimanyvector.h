@@ -34,8 +34,8 @@
  *     is legal.
  * -----------------------------------------------------------------*/
 
-#ifndef _NVECTOR_MANY_VECTOR_H
-#define _NVECTOR_MANY_VECTOR_H
+#ifndef _NVECTOR_MPI_MANY_VECTOR_H
+#define _NVECTOR_MPI_MANY_VECTOR_H
 
 #include <mpi.h>
 #include <sundials/sundials_mpi_types.h>

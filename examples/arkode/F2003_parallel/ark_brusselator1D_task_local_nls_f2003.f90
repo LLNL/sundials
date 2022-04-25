@@ -71,6 +71,7 @@ module ode_mod
   save
 
   type(c_ptr) :: sunctx ! SUNDIALS simulation context
+  type(c_ptr) :: logger ! SUNDIALS logger
 
   ! Number of chemical species
   integer, parameter :: Nvar = 3
@@ -1084,8 +1085,9 @@ program main
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
   use fsundials_context_mod      ! Access sundials context
+  use fsundials_logger_mod       ! Access SUNLogger
 
-  use ode_mod, only : sunctx, comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
+  use ode_mod, only : sunctx, logger, comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
 
   !======= Declarations =========
   implicit none
@@ -1119,8 +1121,38 @@ program main
   commptr => comm
   retval = FSUNContext_Create(c_loc(commptr), sunctx)
   if (retval /= 0) then
-     print *, "Error: FSUNContext_Create returned ",retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FSUNContext_Create returned ",retval
+    call MPI_Abort(comm, 1, ierr)
+  end if
+
+  ! Configure SUNDIALS logging via the runtime API.
+  ! This requires that SUNDIALS was configured with the CMake options
+  !   SUNDIALS_LOGGING_LEVEL=n
+  ! where n is one of:
+  !    1 --> log only errors,
+  !    2 --> log errors + warnings,
+  !    3 --> log errors + warnings + info output
+  !    4 --> all of the above plus debug output
+  !    5 --> all of the above and even more
+  ! SUNDIALS will only log up to the max level n, but a lesser level can
+  ! be configured at runtime by only providing output files for the
+  ! desired levels. We will enable informational logging here:
+  retval = FSUNLogger_Create(c_loc(commptr), 0, logger)
+  if (retval /= 0) then
+    print *, "Error: FSUNLogger_Create returned ",retval
+    call MPI_Abort(comm, 1, ierr)
+  end if
+
+  retval = FSUNLogger_SetInfoFilename(logger, "sundials.log")
+  if (retval /= 0) then
+    print *, "Error: FSUNLogger_SetInfoFilename returned ",retval
+    call MPI_Abort(comm, 1, ierr)
+  end if
+
+  retval = FSUNContext_SetLogger(sunctx, logger)
+  if (retval /= 0) then
+    print *, "Error: FSUNContext_SetLogger returned ",retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Process input args and setup the problem
@@ -2307,11 +2339,12 @@ subroutine FreeProblem()
   use, intrinsic :: iso_c_binding
 
   use fsundials_context_mod
+  use fsundials_logger_mod
   use fsundials_nvector_mod
   use fsundials_matrix_mod
   use fsundials_linearsolver_mod
 
-  use ode_mod, only : sunctx, myid, nout, umask_s, umask, vmask, wmask
+  use ode_mod, only : sunctx, logger, myid, nout, umask_s, umask, vmask, wmask
 
   !======= Declarations =========
   implicit none
@@ -2333,6 +2366,7 @@ subroutine FreeProblem()
      close(103)
   end if
 
+ ierr = FSUNLogger_Destroy(logger)
  ierr = FSUNContext_Free(sunctx)
 
 end subroutine FreeProblem

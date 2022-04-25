@@ -630,6 +630,9 @@ Optional inputs for ERKStep
       for this pointer, since statistics from all processes would be
       identical.
 
+   .. deprecated:: 5.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int ERKStepSetErrFile(void* arkode_mem, FILE* errfp)
@@ -1575,6 +1578,8 @@ Main solver optional output functions
    +------------------------------------------------------+-------------------------------------------+
    | Single accessor to many statistics at once           | :c:func:`ERKStepGetStepStats()`           |
    +------------------------------------------------------+-------------------------------------------+
+   | Print all statistics                                 | :c:func:`ERKStepPrintAllStats`            |
+   +------------------------------------------------------+-------------------------------------------+
    | Name of constant associated with a return flag       | :c:func:`ERKStepGetReturnFlagName()`      |
    +------------------------------------------------------+-------------------------------------------+
    | No. of explicit stability-limited steps              | :c:func:`ERKStepGetNumExpSteps()`         |
@@ -1743,6 +1748,33 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+
+.. c:function:: int ERKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   Outputs all of the integrator and other statistics.
+
+   **Arguments:**
+     * *arkode_mem* -- pointer to the ERKStep memory block.
+     * *outfile* -- pointer to output file.
+     * *fmt* -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * *ARK_SUCCESS* -- if the output was successfully.
+     * *CV_MEM_NULL* -- if the ERKStep memory was ``NULL``.
+     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 5.2.0
 
 
 

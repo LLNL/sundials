@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatCopy(A, 0);
   // fails += Test_SUNMatZero(A, 0);
   if (square) {
-    // fails += Test_SUNMatScaleAdd(A, I, 0);
+    if (A.get()->ops->scaleadd) fails += Test_SUNMatScaleAdd(A, I, 0);
     fails += Test_SUNMatScaleAddI(A, I, 0);
   }
   fails += Test_SUNMatMatvecSetup(A, 0);

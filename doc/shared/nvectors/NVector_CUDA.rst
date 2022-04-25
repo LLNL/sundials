@@ -167,6 +167,10 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
    the :cpp:type:`SUNCudaExecPolicy` class. Providing ``NULL`` for an argument
    will result in the default policy being restored.
 
+   The input execution policies are cloned and, as such, may be freed after
+   being attached to the desired vectors. A ``NULL`` input policy will reset the
+   execution policy to the default setting.
+
    .. note::
 
       Note: All vectors used in a single instance of a SUNDIALS package must use

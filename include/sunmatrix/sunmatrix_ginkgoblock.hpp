@@ -147,13 +147,13 @@ template<typename GkoBatchMatType> int SUNMatCopy_GinkgoBlock(SUNMatrix A, SUNMa
   return SUNMAT_SUCCESS;
 }
 
-template<typename GkoBatchMatType>
-int SUNMatScaleAdd_GinkgoBlock(sunrealtype c, SUNMatrix A, SUNMatrix B)
-{
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
-  ScaleAdd(c, *Amat, *static_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(B->content));
-  return SUNMAT_SUCCESS;
-}
+// template<typename GkoBatchMatType>
+// int SUNMatScaleAdd_GinkgoBlock(sunrealtype c, SUNMatrix A, SUNMatrix B)
+// {
+//   auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+//   ScaleAdd(c, *Amat, *static_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(B->content));
+//   return SUNMAT_SUCCESS;
+// }
 
 template<typename GkoBatchMatType>
 int SUNMatScaleAddI_GinkgoBlock(sunrealtype c, SUNMatrix A)
@@ -201,7 +201,7 @@ void BlockMatrix<GkoBatchMatType>::initSUNMatrix(SUNContext sunctx)
   sunmtx_->ops->clone       = SUNMatClone_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->zero        = SUNMatZero_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->copy        = SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->scaleadd    = SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType>;
+  // sunmtx_->ops->scaleadd    = SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->scaleaddi   = SUNMatScaleAddI_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->matvecsetup = SUNMatMatvecSetup_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->matvec      = SUNMatMatvec_GinkgoBlock<GkoBatchMatType>;
@@ -282,16 +282,16 @@ void Matvec(BlockMatrix<GkoBatchMatType>& A, N_Vector x, N_Vector y)
   }
 }
 
-template<typename GkoBatchMatType>
-void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A, BlockMatrix<GkoBatchMatType>& B)
-{
-  const auto I =
-      gko::matrix::Identity<sunrealtype>::create(A.gkoexec(), A.blockDim());
-  const auto one  = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
-  const auto cmat = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
-  // A = B + cA
-  // B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
-}
+// template<typename GkoBatchMatType>
+// void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A, BlockMatrix<GkoBatchMatType>& B)
+// {
+//   const auto I =
+//       gko::matrix::Identity<sunrealtype>::create(A.gkoexec(), A.blockDim());
+//   const auto one  = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
+//   const auto cmat = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
+//   // A = B + cA
+//   B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
+// }
 
 template<typename GkoBatchMatType>
 void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)

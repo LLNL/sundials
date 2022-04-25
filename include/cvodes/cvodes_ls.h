@@ -100,6 +100,8 @@ SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void *cvode_mem,
                                              long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void *cvode_mem,
                                                   booleantype onoff);
+SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem,
+                                                realtype dgmax_jbad);
 SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, realtype eplifac);
 SUNDIALS_EXPORT int CVodeSetLSNormFactor(void *arkode_mem,
                                          realtype nrmfac);

@@ -206,7 +206,6 @@ N_Vector N_VNewEmpty_Sycl(SUNContext sunctx)
 
   /* Initialize content */
   NVEC_SYCL_CONTENT(v)->length             = 0;
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNFALSE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNFALSE;
   NVEC_SYCL_CONTENT(v)->host_data          = NULL;
   NVEC_SYCL_CONTENT(v)->device_data        = NULL;
@@ -254,7 +253,6 @@ N_Vector N_VNew_Sycl(sunindextype length, ::sycl::queue *Q, SUNContext sunctx)
 
   /* Fill content */
   NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
@@ -321,7 +319,6 @@ N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
 
   /* Fill content */
   NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNFALSE;
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
@@ -366,7 +363,6 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, ::sycl::queue *Q,
 
   /* Fill content */
   NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
@@ -418,13 +414,12 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
   N_Vector v = N_VNewEmpty_Sycl(sunctx);
   if (v == NULL)
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VMake_Sycl: N_VNewEmpty_Sycl returned NULL\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMake_Sycl: N_VMake_Sycl returned NULL\n");
     return NULL;
   }
 
   /* Fill content */
   NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
@@ -485,7 +480,6 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
 
   /* Fill content */
   NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_SYCL_CONTENT(v)->host_data);
@@ -605,21 +599,26 @@ int N_VSetKernelExecPolicy_Sycl(N_Vector x,
                                 SUNSyclExecPolicy* stream_exec_policy,
                                 SUNSyclExecPolicy* reduce_exec_policy)
 {
-  if (x == NULL || stream_exec_policy == NULL || reduce_exec_policy == NULL)
+  if (!x)
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VSetKernelExecPolicy_Sycl: An input is NULL\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VSetKernelExecPolicy_Sycl: The input vector is NULL\n");
     return -1;
   }
 
-  if (NVEC_SYCL_CONTENT(x)->own_exec)
-  {
-    delete NVEC_SYCL_CONTENT(x)->stream_exec_policy;
-    delete NVEC_SYCL_CONTENT(x)->reduce_exec_policy;
-  }
+  /* Delete the old policies */
+  delete NVEC_SYCL_CONTENT(x)->stream_exec_policy;
+  delete NVEC_SYCL_CONTENT(x)->reduce_exec_policy;
 
-  NVEC_SYCL_CONTENT(x)->stream_exec_policy = stream_exec_policy;
-  NVEC_SYCL_CONTENT(x)->reduce_exec_policy = reduce_exec_policy;
-  NVEC_SYCL_CONTENT(x)->own_exec = SUNFALSE;
+  /* Clone input policy or use default */
+  if (stream_exec_policy)
+    NVEC_SYCL_CONTENT(x)->stream_exec_policy = stream_exec_policy->clone();
+  else
+    NVEC_SYCL_CONTENT(x)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(NVEC_SYCL_QUEUE(x)));
+
+  if (reduce_exec_policy)
+    NVEC_SYCL_CONTENT(x)->reduce_exec_policy = reduce_exec_policy->clone();
+  else
+    NVEC_SYCL_CONTENT(x)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(NVEC_SYCL_QUEUE(x)));
 
   return 0;
 }
@@ -751,7 +750,6 @@ N_Vector N_VClone_Sycl(N_Vector w)
   }
 
   /* Allocate content */
-  NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = NVEC_SYCL_CONTENT(w)->stream_exec_policy->clone();
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = NVEC_SYCL_CONTENT(w)->reduce_exec_policy->clone();
@@ -825,6 +823,12 @@ void N_VDestroy_Sycl(N_Vector v)
   {
     SUNDIALS_DEBUG_PRINT("WARNING in N_VDestroy_Sycl: mem_helper was NULL when trying to dealloc data, this could result in a memory leak\n");
   }
+
+  delete vc->stream_exec_policy;
+  delete vc->reduce_exec_policy;
+
+  vc->stream_exec_policy = nullptr;
+  vc->reduce_exec_policy = nullptr;
 
   /* free content struct and vector */
   free(vc);

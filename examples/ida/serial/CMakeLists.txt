@@ -48,6 +48,11 @@ set(IDA_examples_SUPERLUMT
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
+# Auxiliary files to install
+set(IDA_extras
+  idaRoberts_dns_stats.csv
+  )
+
 # Specify libraries to link against
 set(IDA_LIB sundials_ida)
 set(NVECS_LIB sundials_nvecserial)
@@ -286,6 +291,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+
+  # Install the extra files
+  foreach(extrafile ${IDA_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDA")

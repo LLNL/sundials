@@ -274,11 +274,8 @@ void *KINCreate(SUNContext sunctx)
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
   kin_mem->kin_eh_data          = kin_mem;
-  kin_mem->kin_errfp            = stderr;
   kin_mem->kin_ihfun            = KINInfoHandler;
   kin_mem->kin_ih_data          = kin_mem;
-  kin_mem->kin_infofp           = stdout;
-  kin_mem->kin_printfl          = PRINTFL_DEFAULT;
   kin_mem->kin_ret_newest       = SUNFALSE;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
   kin_mem->kin_noInitSetup      = SUNFALSE;
@@ -303,10 +300,18 @@ void *KINCreate(SUNContext sunctx)
   kin_mem->kin_omega_min        = OMEGA_MIN;
   kin_mem->kin_omega_max        = OMEGA_MAX;
 
-#ifdef SUNDIALS_DEBUG
-  kin_mem->kin_debugfp = stdout;
-#else
-  kin_mem->kin_debugfp = NULL;
+  kin_mem->kin_errfp            = stderr;
+  kin_mem->kin_infofp           = stdout;
+  kin_mem->kin_debugfp          = stdout;
+  kin_mem->kin_printfl          = PRINTFL_DEFAULT;
+#if SUNDIALS_LOGGING_LEVEL > 0
+  kin_mem->kin_errfp            = (KIN_LOGGER->error_fp) ? KIN_LOGGER->error_fp : stderr;
+#endif
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  kin_mem->kin_infofp           = (KIN_LOGGER->info_fp) ? KIN_LOGGER->info_fp : stdout;
+#endif
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  kin_mem->kin_debugfp          = (KIN_LOGGER->debug_fp) ? KIN_LOGGER->debug_fp : stdout;
 #endif
 
   /* initialize lrw and liw */
@@ -2339,7 +2344,6 @@ void KINPrintInfo(KINMem kin_mem,
     sprintf(msg1, msgfmt, ret);
     sprintf(msg,"%s (%s)",msg1,retstr);
 
-
   } else {
 
     /* Compose the message */
@@ -2375,14 +2379,17 @@ void KINInfoHandler(const char *module, const char *function,
   /* data points to kin_mem here */
 
   kin_mem = (KINMem) data;
-
 #ifndef NO_FPRINTF_OUTPUT
-  if (kin_mem->kin_infofp != NULL) {
+  if (kin_mem->kin_infofp != NULL &&
+      kin_mem->kin_infofp != kin_mem->kin_sunctx->logger->info_fp) {
     fprintf(kin_mem->kin_infofp,"\n[%s] %s\n",module, function);
     fprintf(kin_mem->kin_infofp,"   %s\n",msg);
   }
 #endif
-
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO,
+    "KINSOL::KINInfoHandler", function, "%s", msg);
+#endif
 }
 
 /*
@@ -2685,9 +2692,10 @@ static int KINFP(KINMem kin_mem)
   ret    = CONTINUE_ITERATIONS;
   tolfac = ONE;
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  fprintf(kin_mem->kin_debugfp, "KINSOL u_0:\n");
-  N_VPrintFile(kin_mem->kin_uu, kin_mem->kin_debugfp);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG,
+    "KINSOL::KINFP", "begin", "%s", "u_0:");
+  N_VPrintFile(kin_mem->kin_uu, KIN_LOGGER->debug_fp);
 #endif
 
   /* initialize iteration count */
@@ -2703,9 +2711,11 @@ static int KINFP(KINMem kin_mem)
                                kin_mem->kin_user_data);
     kin_mem->kin_nfe++;
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    fprintf(kin_mem->kin_debugfp, "KINSOL G_%ld:\n", kin_mem->kin_nni - 1);
-    N_VPrintFile(kin_mem->kin_fval, kin_mem->kin_debugfp);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG,
+      "KINSOL::KINFP", "while-loop-before-compute-new",
+      "G_%ld:", kin_mem->kin_nni - 1);
+    N_VPrintFile(kin_mem->kin_fval, KIN_LOGGER->debug_fp);
 #endif
 
     if (retval < 0) {
@@ -2763,9 +2773,11 @@ static int KINFP(KINMem kin_mem)
       }
     }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    fprintf(kin_mem->kin_debugfp, "KINSOL u_%ld:\n", kin_mem->kin_nni);
-    N_VPrintFile(kin_mem->kin_unew, kin_mem->kin_debugfp);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG,
+      "KINSOL::KINFP", "while-loop-after-compute-new",
+      "u_%ld:\n", kin_mem->kin_nni);
+    N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp);
 #endif
 
     /* compute change between iterations */

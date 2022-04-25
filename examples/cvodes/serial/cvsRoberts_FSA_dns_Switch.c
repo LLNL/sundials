@@ -18,7 +18,7 @@
  * conditions y1 = 1.0, y2 = y3 = 0. The reaction rates are: p1=0.04,
  * p2=1e4, and p3=3e7. The problem is stiff.
  * This program solves the problem with the BDF method, Newton
- * iteration with the DENSE linear solver, and a
+ * iteration with the dense linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance.

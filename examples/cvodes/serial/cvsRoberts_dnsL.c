@@ -25,7 +25,7 @@
  * While integrating the system, we also use the rootfinding
  * feature to find the points at which y1 = 1e-4 or at which
  * y3 = 0.01. This program solves the problem with the BDF method,
- * Newton iteration with the LAPACKDENSE linear solver, and a
+ * Newton iteration with the LAPACK dense linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
@@ -38,7 +38,6 @@
 #include <nvector/nvector_serial.h>          /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h>       /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_lapackdense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>         /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 
@@ -55,9 +54,8 @@
    SM_ELEMENT_D macro. SM_ELEMENT_D numbers rows and columns of
    a dense matrix starting from 0. */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
-#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
-
+#define Ith(v,i)    NV_Ith_S(v,i-1)         /* i-th vector component i=1..NEQ */
+#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* (i,j)-th matrix component i,j=1..NEQ */
 
 /* Problem Constants */
 
@@ -108,37 +106,39 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype reltol, t, tout;
-  N_Vector y, abstol;
+  realtype t, tout;
+  N_Vector y;
+  N_Vector abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval, retvalr, iout;
+  int retval, iout;
+  int retvalr;
   int rootsfound[2];
 
-  y = abstol = NULL;
+  y = NULL;
+  abstol = NULL;
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
 
-  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
-  /* Create serial vector of length NEQ for I.C. and abstol */
+  /* Initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
-  /* Set the scalar relative tolerance */
-  reltol = RTOL;
   /* Set the vector absolute tolerance */
+  abstol = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
+
   Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
   Ith(abstol,3) = ATOL3;
@@ -149,14 +149,14 @@ int main()
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in y'=f(t,y), the inital time T0, and
+   * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
-  retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
+  retval = CVodeSVtolerances(cvode_mem, RTOL, abstol);
   if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
@@ -165,19 +165,19 @@ int main()
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create SUNLinSol_LapackDense solver object for use by CVode */
   LS = SUNLinSol_LapackDense(y, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_LapackDense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_LapackDense", 0)) return(1);
 
-  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -206,21 +206,13 @@ int main()
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y and abstol vectors */
-  N_VDestroy(y);
-  N_VDestroy(abstol);
-
-  /* Free integrator memory */
-  CVodeFree(&cvode_mem);
-
-  /* Free the linear solver memory */
-  SUNLinSolFree(LS);
-
-  /* Free the matrix memory */
-  SUNMatDestroy(A);
-
-  /* Free the SUNDIALS context */
-  SUNContext_Free(&sunctx);
+  /* Free memory */
+  N_VDestroy(y);                            /* Free y vector */
+  N_VDestroy(abstol);                       /* Free abstol vector */
+  CVodeFree(&cvode_mem);                    /* Free CVODES memory */
+  SUNLinSolFree(LS);                        /* Free the linear solver memory */
+  SUNMatDestroy(A);                         /* Free the matrix memory */
+  SUNContext_Free(&sunctx);                 /* Free the SUNDIALS context */
 
   return(0);
 }
@@ -300,8 +292,10 @@ static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #else
-  printf("At t = %0.4e       y =%14.6e   %14.6e   %14.6e\n", t, y1, y2, y3);
+  printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #endif
 
   return;
@@ -320,7 +314,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nge;
   int retval;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
@@ -333,8 +327,10 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumErrTestFails", 1);
   retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
-  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &nnf);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumStepSolveFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumStepSolveFails", 1);
 
   retval = CVodeGetNumJacEvals(cvode_mem, &nje);
   check_retval(&retval, "CVodeGetNumJacEvals", 1);
@@ -345,10 +341,10 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
-	 nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n",
-	 nni, ncfn, netf, nge);
+  printf("nst = %-6ld nfe = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
+         nst, nfe, nsetups, nfeLS, nje);
+  printf("nni = %-6ld nnf = %-6ld netf = %-6ld    ncfn = %-6ld  nge = %ld\n\n",
+         nni, nnf, netf, ncfn, nge);
 }
 
 /*
@@ -368,7 +364,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -376,13 +372,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

@@ -1,5 +1,5 @@
 # CVODES
-### Version 6.1.1 (Feb 2022)
+### Version 6.2.0 (Apr 2022)
 
 **Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -45,11 +45,11 @@ the "SUNDIALS Release History" appendix of the CVODES User Guide.
 ## References
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
-  and C. S. Woodward, "User Documentation for CVODES v6.1.1,"
-  LLNL technical report UCRL-SM-208111, Feb 2022.
+  and C. S. Woodward, "User Documentation for CVODES v6.2.0,"
+  LLNL technical report UCRL-SM-208111, Apr 2022.
 
-* A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v6.1.1,"
-  LLNL technical report UCRL-SM-208115, Feb 2022.
+* A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v6.2.0,"
+  LLNL technical report UCRL-SM-208115, Apr 2022.
 
 * R. Serban and A. C. Hindmarsh, "CVODES: the Sensitivity-Enabled ODE
   solver in SUNDIALS," Proceedings of IDETC/CIE 2005, Sept. 2005,

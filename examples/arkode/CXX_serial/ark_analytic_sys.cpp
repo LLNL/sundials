@@ -50,6 +50,7 @@
 #include <sunmatrix/sunmatrix_dense.h>  // access to dense SUNMatrix
 #include <sunlinsol/sunlinsol_dense.h>  // access to dense SUNLinearSolver
 #include <sundials/sundials_types.h>    // def. of type 'realtype'
+#include <sundials/sundials_logger.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -100,26 +101,72 @@ int main()
   cout << "   abstol = " << abstol << "\n\n";
 
   // Create the SUNDIALS context object for this simulation
-  sundials::Context ctx;
+  sundials::Context sunctx;
+
+  // Configure SUNDIALS logging via the runtime API.
+  // This requires that SUNDIALS was configured with the CMake options
+  //   SUNDIALS_LOGGING_LEVEL=n
+  // where n is one of:
+  //   1 --> log only errors,
+  //   2 --> log errors + warnings,
+  //   3 --> log errors + warnings + info output
+  //   4 --> all of the above plus debugging output like internal integrator values
+  //   5 --> all of the above and even more
+  // SUNDIALS will only log up to the max level n, but a lesser level can
+  // be configured at runtime by only providing output files for the
+  // desired levels. We will enable all logging here on the condition
+  // that SUNDIALS was built with the correct logging level enabled.
+  SUNLogger logger = NULL;
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_ERROR) {
+    flag = SUNLogger_Create(
+      NULL, // no MPI communicator
+      0, // output on process 0 (the only one)
+      &logger
+    );
+    if (check_flag(&flag, "SUNLogger_Create", 1)) return 1;
+
+    // Attach the logger
+    flag = SUNContext_SetLogger(sunctx, logger);
+    if (check_flag(&flag, "SUNContext_SetLogger", 1)) return 1;
+
+    // Setup log files
+    flag = SUNLogger_SetErrorFilename(logger, "stderr");
+    if (check_flag(&flag, "SUNLogger_SetErrorFilename", 1)) return 1;
+  }
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_WARNING) {
+    flag = SUNLogger_SetWarningFilename(logger, "stderr");
+    if (check_flag(&flag, "SUNLogger_SetWarningFilename", 1)) return 1;
+  }
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_INFO) {
+    flag = SUNLogger_SetInfoFilename(logger, "ark_analytic_sys.info.log");
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+  }
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_DEBUG) {
+    flag = SUNLogger_SetDebugFilename(logger, "stderr");
+    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) return 1;
+  }
 
   // Initialize vector data structure and specify initial condition
-  y = N_VNew_Serial(NEQ, ctx);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = 1.0;
   NV_Ith_S(y,1) = 1.0;
   NV_Ith_S(y,2) = 1.0;
 
   // Initialize dense matrix data structure and solver
-  A = SUNDenseMatrix(NEQ, NEQ, ctx);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNLinSol_Dense(y, A, ctx);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* Call ARKStepCreate to initialize the ARK timestepper memory and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since
      this problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Set routines
@@ -207,6 +254,7 @@ int main()
   SUNLinSolFree(LS);           // Free linear solver
   SUNMatDestroy(A);            // Free A matrix
   N_VDestroy(y);               // Free y vector
+  if (logger) SUNLogger_Destroy(&logger);  // Free logger
   return 0;
 }
 
@@ -250,12 +298,12 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   realtype lam = rdata[0];                    // set shortcut for stiffness parameter
 
   // Get Jacobian context
-  SUNContext ctx = J->sunctx;
+  SUNContext sunctx = J->sunctx;
 
   // create temporary SUNMatrix objects
-  SUNMatrix V  = SUNDenseMatrix(3, 3, ctx);
-  SUNMatrix D  = SUNDenseMatrix(3, 3, ctx);
-  SUNMatrix Vi = SUNDenseMatrix(3, 3, ctx);
+  SUNMatrix V  = SUNDenseMatrix(3, 3, sunctx);
+  SUNMatrix D  = SUNDenseMatrix(3, 3, sunctx);
+  SUNMatrix Vi = SUNDenseMatrix(3, 3, sunctx);
 
   // initialize temporary matrices to zero (not technically required)
   SUNMatZero(V);
@@ -336,7 +384,7 @@ static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
   for (i=0; i<m; i++)
     for (j=0; j<n; j++)
       for (k=0; k<l; k++)
-        cdata[i][j] += adata[i][k] * bdata[k][j];
+        cdata[j][i] += adata[k][i] * bdata[j][k];
 
   return 0;                       // Return with success
 }

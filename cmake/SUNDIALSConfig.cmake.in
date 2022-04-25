@@ -81,15 +81,13 @@ if("@ENABLE_PETSC@")
   if(${_petsc_library_single})
     foreach(suffix SYS VEC MAT DM KSP SNES TS ALL)
       if(NOT TARGET SUNDIALS::PETSC_${suffix})
-        add_library(SUNDIALS::PETSC_${suffix} UNKNOWN IMPORTED)
+        add_library(SUNDIALS::PETSC_${suffix} INTERFACE IMPORTED)
         set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_INCLUDE_DIRECTORIES "@PETSC_INCLUDES_@")
         set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_LINK_LIBRARIES "@PETSC_LIBRARIES_@")
         set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_COMPILE_OPTIONS ${_petsc_definitions})
-        set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
-          IMPORTED_LOCATION "${_petsc_library_single}")
       endif()
     endforeach()
   else()
@@ -113,15 +111,13 @@ if("@ENABLE_PETSC@")
 
     foreach(suffix SYS VEC MAT DM KSP SNES TS ALL)
       if(NOT TARGET SUNDIALS::PETSC_${suffix})
-        add_library(SUNDIALS::PETSC_${suffix} UNKNOWN IMPORTED)
+        add_library(SUNDIALS::PETSC_${suffix} INTERFACE IMPORTED)
         set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_INCLUDE_DIRECTORIES "@PETSC_INCLUDES_@")
         set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_LINK_LIBRARIES "${PETSC_LIBRARIES_${suffix}}")
         set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_COMPILE_OPTIONS ${_petsc_definitions})
-        set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
-          IMPORTED_LOCATION "${PETSC_LIBRARY_${suffix}}")
       endif()
     endforeach()
   endif()

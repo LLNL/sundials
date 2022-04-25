@@ -63,6 +63,7 @@ set(CVODE_examples_SUPERLUMT
 set(CVODE_extras
   plot_cvParticle.py
   plot_cvPendulum.py
+  cvRoberts_dns_stats.csv
   )
 
 # Specify libraries to link against

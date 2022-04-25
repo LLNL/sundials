@@ -30,7 +30,6 @@ The vector content layout is as follows:
    struct _N_VectorContent_Sycl
    {
       sunindextype       length;
-      booleantype        own_exec;
       booleantype        own_helper;
       SUNMemory          host_data;
       SUNMemory          device_data;
@@ -182,6 +181,10 @@ for how SYCL kernels are launched on a device.
    :cpp:func:`SUNSyclBlockReduceExecPolicy`. See
    :numref:`NVectors.SYCL.SUNSyclExecPolicy` below for more information about the
    :cpp:type:`SUNSyclExecPolicy` class.
+
+   The input execution policies are cloned and, as such, may be freed after
+   being attached to the desired vectors. A ``NULL`` input policy will reset the
+   execution policy to the default setting.
 
    .. note::
 

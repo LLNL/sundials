@@ -110,3 +110,19 @@ convention  ``<class name>_<method>_<implementation>``. See
    +---------------+---------------------------+--------------------------------+
    | CUDA          | ``SUNMemoryHelper_Alloc`` | ``SUNMemoryHelper_Alloc_Cuda`` |
    +---------------+---------------------------+--------------------------------+
+
+For destructor functions, use ``Destroy`` rather than ``Free`` or some other alternative.
+
+
+.. _Style.Classes.Cpp:
+
+Naming Convention for C++ Classes
+---------------------------------
+
+C++ classes should have a descriptive name. The class name should not be
+prefixed with ``SUN``, but it should reside in the ``sundials::`` namespace.
+Public C++ class functions should use Pascal case (e.g. ``DoSomething``).
+Private C++ class functions should use camelcase (e.g. ``doSomething``).
+
+C++ private class members should use snake case with a trailing underscore
+(e.g. ``some_var_``).

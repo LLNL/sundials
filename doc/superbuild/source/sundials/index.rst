@@ -25,6 +25,7 @@ in this section.
 .. toctree::
    SUNContext_link
    Profiling_link
+   Logging_link
    version_information_link
    Fortran_link.rst
    GPU_link.rst
