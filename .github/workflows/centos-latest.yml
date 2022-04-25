@@ -4,7 +4,7 @@ name: Full Test
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: centos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
