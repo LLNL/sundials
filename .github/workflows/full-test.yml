@@ -10,4 +10,5 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Run test_driver.sh
-      run: ${{github.workspace}}/test/test_driver.sh --branchname ${GITHUB_REF_NAME}
+      working-directory: ${{github.workspace}}/test
+      run: ./test_driver.sh --branchname ${GITHUB_REF_NAME}
