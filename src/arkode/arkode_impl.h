@@ -1077,7 +1077,7 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 #define MSG_ARK_BAD_NVECTOR    "A required vector operation is not implemented."
 #define MSG_ARK_BAD_CONSTR     "Illegal values in constraints vector."
 #define MSG_ARK_NULL_DKY       "dky = NULL illegal."
-#define MSG_ARK_BAD_T          "Illegal value for t." MSG_TIME_INT
+#define MSG_ARK_BAD_T          "Illegal value for t. " MSG_TIME_INT
 #define MSG_ARK_NO_ROOT        "Rootfinding was not initialized."
 
 /* ARKode Error Messages */
