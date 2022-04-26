@@ -1,0 +1,6 @@
+# action.yml
+name: 'SUNDIALS CI Docker'
+description: 'SUNDIALS CI environment in a Docker containers'
+runs:
+  using: 'docker'
+  image: 'sundials-int32-double-e4s-22.02'

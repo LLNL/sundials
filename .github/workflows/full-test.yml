@@ -9,6 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: ./.github/actions/ci-docker
+
     - name: Run test_driver.sh
       working-directory: ${{github.workspace}}/test
-      run: ./test_driver.sh --branchname ${GITHUB_REF_NAME}
+      run: docker exec ./test_driver.sh --branchname ${GITHUB_REF_NAME}
