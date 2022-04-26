@@ -1,9 +1,9 @@
 #
-name: Full Test
+name: Build and Test with TPLs
 
 on: [push, pull_request]
 jobs:
-  run_tests_job:
+  run_int32_double:
     runs-on: ubuntu-latest
     container:
       image: balos1/sundials-ci:int32-double-latest

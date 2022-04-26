@@ -14,7 +14,7 @@
 # ------------------------------------------------------------------------------
 # Script that sets up the default SUNDIALS testing environment.
 #
-# Usage: source docker.sh [compiler spec] [build type]
+# Usage: source docker.sh <compiler spec> <build type>
 #
 # Optional Inputs:
 #   <compiler spec> = compiler to build SUNDIALS with
@@ -85,6 +85,15 @@ APPROOT=/opt
 
 # setup the python environment
 source ${APPROOT}/python-venv/sundocs/bin/activate
+
+# add CUDA
+if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
+    export PATH="/usr/local/cuda-11.5/bin${PATH:+:${PATH}}"
+fi
+
+if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/local/cuda-11.5/lib64:"* ]]; then
+    export LD_LIBRARY_PATH="/usr/local/cuda-11.5/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+fi
 
 # ------------------------------------------------------------------------------
 # Compilers and flags
@@ -186,6 +195,25 @@ export SUNDIALS_PTHREAD=ON
 export SUNDIALS_OPENMP=ON
 export OMP_NUM_THREADS=4
 
+# ---------------------
+# OpenMP Device Offload
+# ---------------------
+
+export SUNDIALS_OPENMP_OFFLOAD=OFF
+
+# ----
+# CUDA
+# ----
+
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    export SUNDIALS_CUDA=ON
+    export CUDAARCHS=60
+    export SUNDIALS_FUSED_KERNELS=ON
+else
+    export SUNDIALS_CUDA=OFF
+    export SUNDIALS_FUSED_KERNELS=OFF
+fi
+
 # ---
 # MPI
 # ---
@@ -211,39 +239,21 @@ else
     unset LAPACK_LIBRARIES
 fi
 
-# ---
-# KLU
-# ---
+# -----
+# MAGMA
+# -----
 
-if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_KLU=ON
-    export SUITE_SPARSE_ROOT=/opt/view
-    export SUITE_SPARSE_INCLUDE_DIR="${SUITE_SPARSE_ROOT}/include"
-    export SUITE_SPARSE_LIBRARY_DIR="${SUITE_SPARSE_ROOT}/lib"
+if [ "$SUNDIALS_PRECISION" != "extended" ] && \
+    [ "$SUNDIALS_INDEX_SIZE" == "32" ] && \
+    [ "$SUNDIALS_CUDA" == "ON" ]; then
+    export SUNDIALS_MAGMA=ON
+    export MAGMA_ROOT=/opt/view
+    export MAGMA_BACKENDS="CUDA"
 else
-    export SUNDIALS_KLU=OFF
-    unset SUITE_SPARSE_ROOT
+    export SUNDIALS_MAGMA=OFF
+    unset MAGMA_ROOT
+    unset MAGMA_BACKENDS
 fi
-
-# ----------
-# SuperLU_MT
-# ----------
-
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     export SUNDIALS_SUPERLU_MT=ON
-#     export SUPERLU_MT_ROOT=/opt/view
-#     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
-#     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-#     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
-#     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
-# else
-#     export SUNDIALS_SUPERLU_MT=OFF
-#     unset SUPERLU_MT_ROOT
-#     unset SUPERLU_MT_INCLUDE_DIR
-#     unset SUPERLU_MT_LIBRARY_DIR
-#     unset SUPERLU_MT_LIBRARIES
-#     unset SUPERLU_MT_THREAD_TYPE
-# fi
 
 # ------------
 # SuperLU_DIST
@@ -314,6 +324,20 @@ fi
 #     export SUNDIALS_TRILINOS=OFF
 #     unset TRILINOS_ROOT
 # fi
+
+# ----
+# raja
+# ----
+
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_RAJA=ON
+    export RAJA_ROOT="$(spack location -i raja % "$compiler")"
+    export RAJA_BACKENDS="CUDA"
+else
+    export SUNDIALS_RAJA=OFF
+    unset RAJA_ROOT
+    unset RAJA_BACKENDS
+fi
 
 # ------
 # xbraid
