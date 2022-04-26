@@ -1,0 +1,45 @@
+#
+name: Build and Test with GCC+TPLs (no GPUs)
+
+on: [push, pull_request]
+jobs:
+  run_int32_double:
+    runs-on: ubuntu-latest
+    container:
+      image: balos1/sundials-ci:int32-double-latest
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run test_driver.sh
+        run: |
+          git config --global --add safe.directory /__w/sundials/sundials
+          cd test
+          ./test_driver.sh --branchname ${GITHUB_REF_NAME} --env env/docker.sh --realtype double --indexsize 32
+      - name: Archive CMake log reults
+        uses: actions/upload-artifact@v3
+        with:
+          name: cmake-log
+          path: |
+            test/build_*/**/CMake*.log
+            test/build_*/**/LastTests.log
+  run_int64_double:
+    runs-on: ubuntu-latest
+    container:
+      image: balos1/sundials-ci:int64-double-latest
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run test_driver.sh
+        run: |
+          git config --global --add safe.directory /__w/sundials/sundials
+          cd test
+          ./test_driver.sh --branchname ${GITHUB_REF_NAME} --env env/docker.sh --realtype double --indexsize 64
+      - name: Archive CMake log reults
+        uses: actions/upload-artifact@v3
+        with:
+          name: cmake-log
+          path: |
+            test/build_*/**/CMake*.log
+            test/build_*/**/LastTests.log
