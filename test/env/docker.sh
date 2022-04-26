@@ -229,21 +229,21 @@ fi
 # SuperLU_MT
 # ----------
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     export SUNDIALS_SUPERLU_MT=ON
-#     export SUPERLU_MT_ROOT=/opt/view
-#     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
-#     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-#     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
-#     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
-# else
-#     export SUNDIALS_SUPERLU_MT=OFF
-#     unset SUPERLU_MT_ROOT
-#     unset SUPERLU_MT_INCLUDE_DIR
-#     unset SUPERLU_MT_LIBRARY_DIR
-#     unset SUPERLU_MT_LIBRARIES
-#     unset SUPERLU_MT_THREAD_TYPE
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    export SUNDIALS_SUPERLU_MT=ON
+    export SUPERLU_MT_ROOT=/opt/view
+    export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
+    export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
+    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
+    export SUPERLU_MT_THREAD_TYPE="PTHREAD"
+else
+    export SUNDIALS_SUPERLU_MT=OFF
+    unset SUPERLU_MT_ROOT
+    unset SUPERLU_MT_INCLUDE_DIR
+    unset SUPERLU_MT_LIBRARY_DIR
+    unset SUPERLU_MT_LIBRARIES
+    unset SUPERLU_MT_THREAD_TYPE
+fi
 
 # ------------
 # SuperLU_DIST
@@ -307,22 +307,22 @@ fi
 # trilinos
 # --------
 
-# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#     export SUNDIALS_TRILINOS=ON
-#     export TRILINOS_ROOT=/opt/view
-# else
-#     export SUNDIALS_TRILINOS=OFF
-#     unset TRILINOS_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+    export SUNDIALS_TRILINOS=ON
+    export TRILINOS_ROOT=/opt/view
+else
+    export SUNDIALS_TRILINOS=OFF
+    unset TRILINOS_ROOT
+fi
 
 # ------
 # xbraid
 # ------
 
-# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#     export SUNDIALS_XBRAID=ON
-#     export XBRAID_ROOT=/opt/view
-# else
-#     export SUNDIALS_XBRAID=OFF
-#     unset XBRAID_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+    export SUNDIALS_XBRAID=ON
+    export XBRAID_ROOT=/opt/view
+else
+    export SUNDIALS_XBRAID=OFF
+    unset XBRAID_ROOT
+fi

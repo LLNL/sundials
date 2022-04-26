@@ -86,13 +86,13 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
 &&   echo "  - hypre~int64~internal-superlu" \
-&&   echo "  - petsc+double~int64" \
+&&   echo "  - petsc~double~int64" \
 &&   echo "  - openmpi" \
 &&   echo "  - openblas~ilp64" \
 &&   echo "  - suite-sparse" \
 &&   echo "  - superlu-mt~int64~blas" \
 &&   echo "  - superlu-dist~int64 ^metis~int64" \
-&&   echo "  - trilinos+tpetra gotype=int" \
+&&   echo "  - trilinos+float+tpetra gotype=int" \
 &&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
@@ -125,17 +125,15 @@ RUN python3 -m venv /opt/python-venv/sundocs && \
     pip install sphinxcontrib.bibtex && \
     pip install sphinx-copybutton
 
-# Strip all the binaries
-RUN find -L /opt/view/* -type f -exec readlink -f '{}' \; | \
-    xargs file -i | \
-    grep 'charset=binary' | \
-    grep 'x-executable\|x-archive\|x-sharedlib' | \
-    awk -F: '{print $1}' | xargs strip -s
-
 # Modifications to the environment that are necessary to run
 RUN cd /opt/spack-environment && \
     spack env activate --sh -d . >> /etc/profile.d/z10_spack_environment.sh
 
+# Add spack installed binaries to path
 ENV PATH="/opt/view/bin:${PATH}"
+
+# Allow mpirun as root
+ENV OMP_ALLOW_RUN_AS_ROOT=1
+ENV OMP_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]

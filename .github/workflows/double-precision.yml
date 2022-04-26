@@ -15,7 +15,7 @@ jobs:
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --realtype double --indexsize 32
+          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
       - name: Archive CMake log reults
         uses: actions/upload-artifact@v3
         with:
@@ -35,7 +35,7 @@ jobs:
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --realtype double --indexsize 64
+          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 64
       - name: Archive CMake log reults
         uses: actions/upload-artifact@v3
         with:
