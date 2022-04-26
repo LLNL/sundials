@@ -10,7 +10,7 @@ jobs:
       options: --user root
     steps:
       - name: Checkout repository
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: Run test_driver.sh
         run: |
           cd sundials/test
