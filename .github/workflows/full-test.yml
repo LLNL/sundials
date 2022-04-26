@@ -3,14 +3,11 @@ name: Full Test
 
 on: [push, pull_request]
 jobs:
-  build:
+  run_tests_job:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-
-    - uses: ./.github/actions/ci-docker
-
-    - name: Run test_driver.sh
-      working-directory: ${{github.workspace}}/test
-      run: docker exec ./test_driver.sh --branchname ${GITHUB_REF_NAME}
+      - uses: actions/checkout@v2
+      - name: Run the test container
+        uses: ./.github/actions/ci-docker
+        with:
+          branchname: ${GITHUB_REF_NAME}
