@@ -6,12 +6,13 @@ jobs:
   run_tests_job:
     runs-on: ubuntu-latest
     container:
-      image: balos1/sundials:sundials-int32-double
+      image: balos1/sundials-ci:int32-double-latest
       options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Run test_driver.sh
         run: |
+          git config --global --add safe.directory /__w/sundials/sundials
           cd test
           ./test_driver.sh --branchname ${GITHUB_REF_NAME} --env env/docker.sh
