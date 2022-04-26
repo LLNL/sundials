@@ -5,9 +5,13 @@ on: [push, pull_request]
 jobs:
   run_tests_job:
     runs-on: ubuntu-latest
+    container:
+      image: balos1/sundials:sundials-int32-double
+      options: --user root
     steps:
+      - name: Checkout repository
       - uses: actions/checkout@v2
-      - name: Run the test container
-        uses: ./.github/actions/ci-docker
-        with:
-          branchname: ${GITHUB_REF_NAME}
+      - name: Run test_driver.sh
+        run: |
+          cd sundials/test
+          ./test_driver.sh --branchname ${GITHUB_REF_NAME} --env env/docker.sh
