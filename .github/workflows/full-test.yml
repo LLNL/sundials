@@ -11,7 +11,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Run test_driver.sh
+      - name: List filels
         run: |
-          cd sundials/test
-          ./test_driver.sh --branchname ${GITHUB_REF_NAME} --env env/docker.sh
+          ls .
+      # - name: Run test_driver.sh
+      #   run: |
+      #     cd sundials/test
+      #     ./test_driver.sh --branchname ${GITHUB_REF_NAME} --env env/docker.sh
