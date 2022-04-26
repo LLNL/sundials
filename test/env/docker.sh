@@ -58,7 +58,7 @@ case "$SUNDIALS_INDEX_SIZE" in
 esac
 
 case "$compiler" in
-    gcc@4.9.4);;
+    gcc);;
     *)
         echo "ERROR: Unknown compiler spec: $compiler"
         return 1
@@ -86,11 +86,11 @@ APPROOT=/opt
 # setup the python environment
 source ${APPROOT}/python-venv/sundocs/bin/activate
 
-# setup spack
-export SPACK_ROOT=${APPROOT}/spack
+# # setup spack
+# export SPACK_ROOT=${APPROOT}/spack
 
-# shellcheck disable=SC1090
-source ${SPACK_ROOT}/share/spack/setup-env.sh
+# # shellcheck disable=SC1090
+# source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 # # add CUDA
 # if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
@@ -107,10 +107,10 @@ source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 if [ "$compilername" == "gcc" ]; then
 
-    COMPILER_ROOT="$(spack location -i "$compiler")"
-    export CC="${COMPILER_ROOT}/bin/gcc"
-    export CXX="${COMPILER_ROOT}/bin/g++"
-    export FC="${COMPILER_ROOT}/bin/gfortran"
+    # COMPILER_ROOT="$(spack location -i "$compiler")"
+    export CC=$(which gcc)
+    export CXX=$(which g++)
+    export FC=$(which gfortran)
 
     # optimization flags
     if [ "$bldtype" == "dbg" ]; then
@@ -222,7 +222,8 @@ export SUNDIALS_OPENMP_OFFLOAD=OFF
 # MPI
 # ---
 
-MPI_ROOT="$(spack location -i openmpi % "$compiler")"
+# MPI_ROOT="$(spack location -i openmpi % "$compiler")"
+MPI_ROOT=/opt/view
 
 export SUNDIALS_MPI=ON
 export MPICC="${MPI_ROOT}/bin/mpicc"
@@ -230,22 +231,22 @@ export MPICXX="${MPI_ROOT}/bin/mpicxx"
 export MPIFC="${MPI_ROOT}/bin/mpifort"
 export MPIEXEC="${MPI_ROOT}/bin/mpirun"
 
-# -------------
-# LAPACK / BLAS
-# -------------
+# # -------------
+# # LAPACK / BLAS
+# # -------------
 
-if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-    export SUNDIALS_LAPACK=ON
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        LAPACK_ROOT="$(spack location -i openblas~ilp64 % "$compiler")"
-    else
-        LAPACK_ROOT="$(spack location -i openblas+ilp64 % "$compiler")"
-    fi
-    export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
-else
-    export SUNDIALS_LAPACK=OFF
-    unset LAPACK_LIBRARIES
-fi
+# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+#     export SUNDIALS_LAPACK=ON
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         LAPACK_ROOT="$(spack location -i openblas~ilp64 % "$compiler")"
+#     else
+#         LAPACK_ROOT="$(spack location -i openblas+ilp64 % "$compiler")"
+#     fi
+#     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
+# else
+#     export SUNDIALS_LAPACK=OFF
+#     unset LAPACK_LIBRARIES
+# fi
 
 # ---
 # KLU
@@ -253,7 +254,8 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KLU=ON
-    SUITE_SPARSE_ROOT="$(spack location -i suite-sparse % "$compiler")"
+    # SUITE_SPARSE_ROOT="$(spack location -i suite-sparse % "$compiler")"
+    SUITE_SPARSE_ROOT=/opt/view
     export SUITE_SPARSE_INCLUDE_DIR="${SUITE_SPARSE_ROOT}/include"
     export SUITE_SPARSE_LIBRARY_DIR="${SUITE_SPARSE_ROOT}/lib"
 else
@@ -281,88 +283,88 @@ fi
 # SuperLU_MT
 # ----------
 
-if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-    export SUNDIALS_SUPERLU_MT=ON
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        SUPERLU_MT_ROOT="$(spack location -i superlu-mt~int64~blas % "$compiler")"
-    else
-        SUPERLU_MT_ROOT="$(spack location -i superlu-mt+int64~blas % "$compiler")"
-    fi
-    export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
-    export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
-    export SUPERLU_MT_THREAD_TYPE="PTHREAD"
-else
-    export SUNDIALS_SUPERLU_MT=OFF
-    unset SUPERLU_MT_ROOT
-    unset SUPERLU_MT_INCLUDE_DIR
-    unset SUPERLU_MT_LIBRARY_DIR
-    unset SUPERLU_MT_LIBRARIES
-    unset SUPERLU_MT_THREAD_TYPE
-fi
+# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+#     export SUNDIALS_SUPERLU_MT=ON
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         SUPERLU_MT_ROOT="$(spack location -i superlu-mt~int64~blas % "$compiler")"
+#     else
+#         SUPERLU_MT_ROOT="$(spack location -i superlu-mt+int64~blas % "$compiler")"
+#     fi
+#     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
+#     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
+#     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
+#     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
+# else
+#     export SUNDIALS_SUPERLU_MT=OFF
+#     unset SUPERLU_MT_ROOT
+#     unset SUPERLU_MT_INCLUDE_DIR
+#     unset SUPERLU_MT_LIBRARY_DIR
+#     unset SUPERLU_MT_LIBRARIES
+#     unset SUPERLU_MT_THREAD_TYPE
+# fi
 
 # ------------
 # SuperLU_DIST
 # ------------
 
-if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_SUPERLU_DIST=ON
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        SUPERLU_DIST_ROOT="$(spack location -i superlu-dist~int64+openmp % "$compiler")"
-    else
-        SUPERLU_DIST_ROOT="$(spack location -i superlu-dist+int64+openmp % "$compiler")"
-    fi
-    export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
-    export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
+# if [ "$SUNDIALS_PRECISION" == "double" ]; then
+#     export SUNDIALS_SUPERLU_DIST=ON
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         SUPERLU_DIST_ROOT="$(spack location -i superlu-dist~int64+openmp % "$compiler")"
+#     else
+#         SUPERLU_DIST_ROOT="$(spack location -i superlu-dist+int64+openmp % "$compiler")"
+#     fi
+#     export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
+#     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
 
-    # built with 32-bit blas
-    BLAS_ROOT="$(spack location -i openblas~ilp64 % "$compiler")"
-    BLAS_LIBRARIES=${BLAS_ROOT}/lib/libopenblas.so
+#     # built with 32-bit blas
+#     BLAS_ROOT="$(spack location -i openblas~ilp64 % "$compiler")"
+#     BLAS_LIBRARIES=${BLAS_ROOT}/lib/libopenblas.so
 
-    # PARMETIS
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        PARMETIS_ROOT="$(spack location -i parmetis ^metis~int64~real64 % "$compiler")"
-    else
-        PARMETIS_ROOT="$(spack location -i parmetis ^metis+int64~real64 % "$compiler")"
-    fi
-    PARMETIS_LIBRARIES="${PARMETIS_ROOT}/lib/libparmetis.so"
+#     # PARMETIS
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         PARMETIS_ROOT="$(spack location -i parmetis ^metis~int64~real64 % "$compiler")"
+#     else
+#         PARMETIS_ROOT="$(spack location -i parmetis ^metis+int64~real64 % "$compiler")"
+#     fi
+#     PARMETIS_LIBRARIES="${PARMETIS_ROOT}/lib/libparmetis.so"
 
-    # METIS
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        METIS_ROOT="$(spack location -i metis~int64~real64 % "$compiler")"
-    else
-        METIS_ROOT="$(spack location -i metis+int64~real64 % "$compiler")"
-    fi
-    METIS_LIBRARIES="${METIS_ROOT}/lib/libmetis.so"
+#     # METIS
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         METIS_ROOT="$(spack location -i metis~int64~real64 % "$compiler")"
+#     else
+#         METIS_ROOT="$(spack location -i metis+int64~real64 % "$compiler")"
+#     fi
+#     METIS_LIBRARIES="${METIS_ROOT}/lib/libmetis.so"
 
-    export SUPERLU_DIST_LIBRARIES="${BLAS_LIBRARIES};${PARMETIS_LIBRARIES};${METIS_LIBRARIES};${SUPERLU_DIST_ROOT}/lib/libsuperlu_dist.a"
-    export SUPERLU_DIST_OPENMP=OFF
-else
-    export SUNDIALS_SUPERLU_DIST=OFF
-    unset SUPERLU_DIST_INCLUDE_DIR
-    unset SUPERLU_DIST_LIBRARY_DIR
-    unset SUPERLU_DIST_LIBRARIES
-    unset SUPERLU_DIST_OPENMP
-fi
+#     export SUPERLU_DIST_LIBRARIES="${BLAS_LIBRARIES};${PARMETIS_LIBRARIES};${METIS_LIBRARIES};${SUPERLU_DIST_ROOT}/lib/libsuperlu_dist.a"
+#     export SUPERLU_DIST_OPENMP=OFF
+# else
+#     export SUNDIALS_SUPERLU_DIST=OFF
+#     unset SUPERLU_DIST_INCLUDE_DIR
+#     unset SUPERLU_DIST_LIBRARY_DIR
+#     unset SUPERLU_DIST_LIBRARIES
+#     unset SUPERLU_DIST_OPENMP
+# fi
 
-# -----
-# hypre
-# -----
+# # -----
+# # hypre
+# # -----
 
-if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_HYPRE=ON
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        HYPRE_ROOT="$(spack location -i hypre~int64 % "$compiler")"
-    else
-        HYPRE_ROOT="$(spack location -i hypre+int64 % "$compiler")"
-    fi
-    export HYPRE_INCLUDE_DIR="${HYPRE_ROOT}/include"
-    export HYPRE_LIBRARY_DIR="${HYPRE_ROOT}/lib"
-else
-    export SUNDIALS_HYPRE=OFF
-    unset HYPRE_INCLUDE_DIR
-    unset HYPRE_LIBRARY_DIR
-fi
+# if [ "$SUNDIALS_PRECISION" == "double" ]; then
+#     export SUNDIALS_HYPRE=ON
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         HYPRE_ROOT="$(spack location -i hypre~int64 % "$compiler")"
+#     else
+#         HYPRE_ROOT="$(spack location -i hypre+int64 % "$compiler")"
+#     fi
+#     export HYPRE_INCLUDE_DIR="${HYPRE_ROOT}/include"
+#     export HYPRE_LIBRARY_DIR="${HYPRE_ROOT}/lib"
+# else
+#     export SUNDIALS_HYPRE=OFF
+#     unset HYPRE_INCLUDE_DIR
+#     unset HYPRE_LIBRARY_DIR
+# fi
 
 # -----
 # petsc
@@ -385,18 +387,18 @@ fi
 # trilinos
 # --------
 
-if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_TRILINOS=ON
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        TRILINOS_ROOT="$(spack location -i trilinos gotype=int % "$compiler")"
-    else
-        TRILINOS_ROOT="$(spack location -i trilinos gotype=long_long % "$compiler")"
-    fi
-    export TRILINOS_ROOT
-else
-    export SUNDIALS_TRILINOS=OFF
-    unset TRILINOS_ROOT
-fi
+# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#     export SUNDIALS_TRILINOS=ON
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         TRILINOS_ROOT="$(spack location -i trilinos gotype=int % "$compiler")"
+#     else
+#         TRILINOS_ROOT="$(spack location -i trilinos gotype=long_long % "$compiler")"
+#     fi
+#     export TRILINOS_ROOT
+# else
+#     export SUNDIALS_TRILINOS=OFF
+#     unset TRILINOS_ROOT
+# fi
 
 # # ----
 # # raja
@@ -412,14 +414,14 @@ fi
 #     unset RAJA_BACKENDS
 # fi
 
-# ------
-# xbraid
-# ------
+# # ------
+# # xbraid
+# # ------
 
-if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_XBRAID=ON
-    export XBRAID_ROOT="$(spack location -i xbraid % "$compiler")"
-else
-    export SUNDIALS_XBRAID=OFF
-    unset XBRAID_ROOT
-fi
+# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#     export SUNDIALS_XBRAID=ON
+#     export XBRAID_ROOT="$(spack location -i xbraid % "$compiler")"
+# else
+#     export SUNDIALS_XBRAID=OFF
+#     unset XBRAID_ROOT
+# fi
