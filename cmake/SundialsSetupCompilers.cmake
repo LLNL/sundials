@@ -129,6 +129,7 @@ endif()
 
 check_c_source_compiles("
   #include <stdio.h>
+  #include <stdarg.h>
   int main() {
     int size = snprintf(NULL, 0, \"%s\", \"snprintf works\");
     va_list args;
