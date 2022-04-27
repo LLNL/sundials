@@ -20,8 +20,14 @@
 # Currently only available in CVODE.
 # ---------------------------------------------------------------
 
+if(ENABLE_CUDA OR ENABLE_HIP)
+  set(CUDA_OR_HIP TRUE)
+else()
+  set(CUDA_OR_HIP FALSE)
+endif()
+
 sundials_option(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS BOOL "Build specialized fused GPU kernels" OFF
-                DEPENDS_ON BUILD_CVODE
+                DEPENDS_ON BUILD_CVODE CUDA_OR_HIP
                 DEPENDS_ON_THROW_ERROR)
 
 # ---------------------------------------------------------------
