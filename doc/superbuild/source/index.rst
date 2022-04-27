@@ -20,7 +20,7 @@ This is the documentation for `SUNDIALS
 <https://computing.llnl.gov/casc/sundials/main.html>`_ suite of
 nonlinear and differential/algebraic equation solvers.
 
-SUNDIALS is developed on GitHub, https://github.com/LLNL/sundials. 
+SUNDIALS is developed on `GitHub <https://github.com/LLNL/sundials>`_. 
 
 .. toctree::
    :maxdepth: 1
