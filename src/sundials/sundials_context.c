@@ -34,13 +34,20 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
 #endif
 
-#if SUNDIALS_LOGGING_LEVEL > 0
+#if SUNDIALS_LOGGING_LEVEL > 0 
+#if defined(SUNDIALS_LOGGING_ENABLE_MPI)
   if (SUNLogger_CreateFromEnv(comm, &logger))
+#else
+  if (SUNLogger_CreateFromEnv(NULL, &logger))
+#endif
   {
     return (-1);
   }
 #else
-  if (SUNLogger_Create(comm, 0, &logger)) return (-1);
+  if (SUNLogger_Create(NULL, 0, &logger)) 
+  {
+    return (-1);
+  }
   SUNLogger_SetErrorFilename(logger, "");
   SUNLogger_SetWarningFilename(logger, "");
   SUNLogger_SetInfoFilename(logger, "");
