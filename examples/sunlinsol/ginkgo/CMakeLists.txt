@@ -4,11 +4,11 @@
 
 # Examples using SUNDIALS Ginkgo dense matrix
 set(sunmatrix_ginkgo_examples
-  "test_sunlinsol_ginkgo.cpp\;100 100 1 0\;"
+  "test_sunlinsol_ginkgo.cpp\;100 10 1 100 0\;"
   )
 
 # Add source directory to include directories
-include_directories(..)
+include_directories(.. ${PROJECT_SOURCE_DIR}/examples/utilities)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_ginkgo_examples})
