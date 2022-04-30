@@ -12,62 +12,64 @@ include_directories(.. ${PROJECT_SOURCE_DIR}/examples/utilities)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_ginkgo_examples})
-  foreach(backend ${GINKGO_BACKENDS})
+  foreach(matrix_type CSR DENSE)
+    foreach(backend ${GINKGO_BACKENDS})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+      # parse the example tuple
+      list(GET example_tuple 0 example)
+      list(GET example_tuple 1 example_args)
+      list(GET example_tuple 2 example_type)
 
-    if(backend MATCHES "CUDA")
-      set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
-      set(vector nveccuda)
-    elseif(backend MATCHES "HIP")
-      set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
-      set(vector nvechip)
-    elseif(backend MATCHES "OMP")
-      set(vector nvecserial)
-    endif()
+      if(backend MATCHES "CUDA")
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+        set(vector nveccuda)
+      elseif(backend MATCHES "HIP")
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
+        set(vector nvechip)
+      elseif(backend MATCHES "OMP")
+        set(vector nvecserial)
+      endif()
 
-    # extract the file name without extension
-    get_filename_component(example_target ${example} NAME_WE)
-    set(example_target "${example_target}.${backend}")
+      # extract the file name without extension
+      get_filename_component(example_target ${example} NAME_WE)
+      set(example_target "${example_target}.${matrix_type}.${backend}")
 
-    if (NOT TARGET ${example_target})
-      # example source files
-      add_executable(${example_target} ${example})
+      if (NOT TARGET ${example_target})
+        # example source files
+        add_executable(${example_target} ${example})
 
-      # folder for IDEs
-      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+        # folder for IDEs
+        set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-      # which backend to use
-      target_compile_definitions(${example_target} PRIVATE USE_${backend})
+        # which backend to use
+        target_compile_definitions(${example_target} PRIVATE USE_${backend} USE_${matrix_type})
 
-      # libraries to link against
-      target_link_libraries(${example_target}
-        PRIVATE
-          test_sunlinsol_obj
-          sundials_${vector}
-          sundials_sunlinsolginkgo
-          ${EXTRA_LINK_LIBS}
-      )
-    endif()
+        # libraries to link against
+        target_link_libraries(${example_target}
+          PRIVATE
+            test_sunlinsol_obj
+            sundials_${vector}
+            sundials_sunlinsolginkgo
+            ${EXTRA_LINK_LIBS}
+        )
+      endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example_target})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
-    endif()
+      # check if example args are provided and set the test name
+      if("${example_args}" STREQUAL "")
+        set(test_name ${example_target})
+      else()
+        string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+      endif()
 
-    # add example to regression tests
-    sundials_add_test(${test_name} ${example_target}
-      TEST_ARGS ${example_args}
-      EXAMPLE_TYPE ${example_type}
-      NODIFF)
+      # add example to regression tests
+      sundials_add_test(${test_name} ${example_target}
+        TEST_ARGS ${example_args}
+        EXAMPLE_TYPE ${example_type}
+        NODIFF)
 
-  endforeach(backend ${GINKGO_BACKENDS})
-endforeach(example_tuple ${sunmatrix_ginkgo_examples})
+    endforeach(backend)
+  endforeach(matrix_type)
+endforeach(example_tuple)
 
 # if(EXAMPLES_INSTALL)
 

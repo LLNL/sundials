@@ -40,8 +40,14 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+#if defined(USE_CSR)
 using GkoMatrixType       = gko::matrix::Csr<sunrealtype>;
 using SUNMatrixType       = sundials::ginkgo::Matrix<GkoMatrixType>;
+#else
+using GkoMatrixType       = gko::matrix::Dense<sunrealtype>;
+using SUNMatrixType       = sundials::ginkgo::Matrix<GkoMatrixType>;
+#endif
+
 using GkoSolverType       = gko::solver::Gmres<sunrealtype>;
 using SUNLinearSolverType = sundials::ginkgo::LinearSolver<GkoSolverType, SUNMatrixType>;
 
@@ -104,7 +110,7 @@ int main(int argc, char* argv[])
 
   /* Create vectors and matrices */
   std::default_random_engine engine;
-  std::uniform_real_distribution<sunrealtype> distribution_real(-1, 1);
+  std::uniform_real_distribution<sunrealtype> distribution_real(8, 10);
 
   x = OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matcols, sunctx), N_VNew_Hip(matcols, sunctx), N_VNew_Cuda(matcols, sunctx));
   b = N_VClone(x);
@@ -118,6 +124,7 @@ int main(int argc, char* argv[])
   auto gko_ident   = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
 
   /* Fill matrices */
+  gko_matdata.remove_zeros();
   gko_matrixA->read(gko_matdata);
   gko_matrixB->read(gko_matdata);
   gko_ident->read(gko::matrix_data<sunrealtype>::diag(matrix_dim, 1.0));
