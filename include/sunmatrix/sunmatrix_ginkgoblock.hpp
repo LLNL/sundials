@@ -235,7 +235,7 @@ BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<GkoBatchCsrMat> gko_mat
 // Non-class methods
 //
 
-inline std::unique_ptr<GkoBatchVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec,
+inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
                                                    sunindextype num_blocks, N_Vector x)
 {
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
@@ -246,7 +246,7 @@ inline std::unique_ptr<GkoBatchVecType> WrapVector(std::shared_ptr<const gko::Ex
   return GkoBatchVecType::create(gko_exec, batch_xvec_size, std::move(xvec_view), batch_vec_stride);
 }
 
-inline std::unique_ptr<const GkoBatchVecType> WrapConstVector(std::shared_ptr<const gko::Executor> gko_exec,
+inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
                                                               sunindextype num_blocks, N_Vector x)
 {
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
@@ -267,13 +267,13 @@ template<typename GkoBatchMatType>
 void Matvec(BlockMatrix<GkoBatchMatType>& A, N_Vector x, N_Vector y)
 {
   if (x != y) {
-    auto x_vec = WrapConstVector(A.gkoexec(), A.numBlocks(), x);
-    auto y_vec = WrapVector(A.gkoexec(), A.numBlocks(), y);
+    auto x_vec = WrapConstBatchVector(A.gkoexec(), A.numBlocks(), x);
+    auto y_vec = WrapBatchVector(A.gkoexec(), A.numBlocks(), y);
 
     // y = Ax
     A.gkomtx()->apply(x_vec.get(), y_vec.get());
   } else {
-    auto x_vec = WrapVector(A.gkoexec(), A.numBlocks(), x);
+    auto x_vec = WrapBatchVector(A.gkoexec(), A.numBlocks(), x);
 
     // x = Ax
     A.gkomtx()->apply(x_vec.get(), x_vec.get());

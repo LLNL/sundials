@@ -54,12 +54,9 @@ template<typename LinearSolverType>
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Ginkgo(SUNLinearSolver S, N_Vector s1, N_Vector s2)
 {
   // auto solver = static_cast<LinearSolverType*>(S->content);
+
   return -1;
 }
-
-// Irrelavant since matrix-iterative.
-// int SUNLinSolSetZeroGuess_Ginkgo(SUNLinearSolver S,
-//                                  booleantype onff);
 
 template<typename LinearSolverType, typename MatrixType>
 SUNDIALS_EXPORT int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
@@ -157,8 +154,22 @@ bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized, gko::Arra
   return one_converged;
 }
 
+class LinearSolverInterface {
+public:
+  virtual gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol) = 0;
+  virtual std::shared_ptr<const gko::Executor> gkoexec() const       = 0;
+  virtual int numIters() const                                       = 0;
+  virtual sunrealtype resNorm() const                                = 0;
+  virtual bool logResNorm() const                                    = 0;
+  virtual bool logResNorm(bool onoff)                                = 0;
+  virtual SUNLinearSolver get()                                      = 0;
+  virtual SUNLinearSolver get() const                                = 0;
+  virtual operator SUNLinearSolver()                                 = 0;
+  virtual operator SUNLinearSolver() const                           = 0;
+};
+
 template<class GkoSolverType, class MatrixType>
-class LinearSolver {
+class LinearSolver : public LinearSolverInterface {
 public:
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory), sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
@@ -241,12 +252,12 @@ public:
       auto b_vec = WrapVector(gkoexec(), b);
 
       // x = A^{-1} b
-      result = gkosolver()->apply(gko::lend(b_vec), gko::lend(x_vec));
+      result = gkosolver()->apply(b_vec.get(), x_vec.get());
     } else {
       auto x_vec = WrapVector(gkoexec(), x);
 
       // x = A^{-1} x
-      result = gkosolver()->apply(gko::lend(x_vec), gko::lend(x_vec));
+      result = gkosolver()->apply(x_vec.get(), x_vec.get());
     }
 
     iter_count_ += logger->get_num_iterations();
@@ -256,7 +267,6 @@ public:
     return result;
   }
 
-  // protected:
 private:
   std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory_;
   std::unique_ptr<GkoSolverType> gko_solver_;
@@ -266,43 +276,6 @@ private:
   sunrealtype res_norm_;
   bool log_res_norm_;
 };
-
-// template<typename GkoSolverType, typename GkoMatType>
-// class BlockLinearSolver : public BaseLinearSolver<GkoSolverType, GkoMatType,
-// GkoBatchVecType>
-// {
-
-// public:
-//   using BaseLinearSolver<GkoSolverType, GkoMatType,
-//   GkoVecType>::BaseLinearSolver; using BaseLinearSolver<GkoSolverType,
-//   GkoMatType, GkoVecType>::gkoexec; using BaseLinearSolver<GkoSolverType,
-//   GkoMatType, GkoVecType>::gkofactory; using BaseLinearSolver<GkoSolverType,
-//   GkoMatType, GkoVecType>::gkosolver; using BaseLinearSolver<GkoSolverType,
-//   GkoMatType, GkoVecType>::useCustomCriteria; using
-//   BaseLinearSolver<GkoSolverType, GkoMatType, GkoVecType>::setup;
-
-//   // gko::LinOp* solve(N_Vector b, N_Vector x)
-//   // {
-//   //   gko::LinOp* result;
-//   //   if (x != b)
-//   //   {
-//   //     auto x_vec = WrapVector(gkoexec(), x);
-//   //     auto b_vec = WrapVector(gkoexec(), b);
-
-//   //     // x = A^{-1} b
-//   //     result = gko_solver_->apply(gko::lend(b_vec), gko::lend(x_vec));
-//   //   }
-//   //   else
-//   //   {
-//   //     auto x_vec = WrapVector(gkoexec(), x);
-
-//   //     // x = A^{-1} x
-//   //     result = gko_solver_->apply(gko::lend(x_vec), gko::lend(x_vec));
-//   //   }
-
-//   //   return result;
-//   // }
-// };
 
 } // namespace ginkgo
 } // namespace sundials
