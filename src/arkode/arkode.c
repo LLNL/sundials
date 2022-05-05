@@ -1954,10 +1954,11 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     ark_mem->hprime = ark_mem->h;
   } else {
     /* If next step would overtake tstop, adjust stepsize */
-    if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
-      ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
-      ark_mem->eta = ark_mem->hprime/ark_mem->h;
-    }
+    if (ark_mem->tstopset)
+      if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
+        ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
+        ark_mem->eta = ark_mem->hprime/ark_mem->h;
+      }
   }
 
   /* Check for zeros of root function g at and near t0. */
