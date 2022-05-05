@@ -39,7 +39,7 @@ protected:
 //
 
 template<typename GkoMatType>
-class Matrix : public BaseMatrix<GkoMatType> {
+class Matrix : public BaseMatrix<GkoMatType>, public SUNMatrixView {
 public:
   Matrix(sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
   {

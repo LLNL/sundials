@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
   auto precon = gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build() //
                     .on(gko_exec);
 
-  std::unique_ptr<LinearSolverInterface> LS;
+  std::unique_ptr<ILinearSolver> LS;
 
   if (method == "bicg") {
     using GkoSolverType       = gko::solver::Bicg<sunrealtype>;

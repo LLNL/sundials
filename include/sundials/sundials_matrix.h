@@ -139,5 +139,17 @@ SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
 
 #ifdef __cplusplus
 }
+
+namespace sundials
+{
+class SUNMatrixView {
+public:
+  virtual operator SUNMatrix()       = 0;
+  virtual operator SUNMatrix() const = 0;
+  virtual SUNMatrix get()            = 0;
+  virtual SUNMatrix get() const      = 0;
+};
+}
 #endif
-#endif
+
+#endif /* _SUNMATRIX_H */

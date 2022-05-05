@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include <sundials/sundials_linearsolver.h>
 #include <sunlinsol/sunlinsol_ginkgoblock.hpp>
 
 #include "test_sunlinsol.h"
@@ -43,6 +44,7 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+using SUNLinearSolverView = sundials::SUNLinearSolverView;
 using namespace sundials::ginkgo;
 
 #if defined(USE_CSR)
@@ -195,58 +197,31 @@ int main(int argc, char* argv[])
    * Create linear solver.
    */
 
-  std::unique_ptr<BlockLinearSolverInterface> LS;
+  std::unique_ptr<SUNLinearSolverView> LS;
 
   if (method == "bicgstab") {
-    using GkoSolverType       = gko::solver::BatchBicgstab<sunrealtype>;
-    using SUNLinearSolverType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
-    auto gko_solver_factory   = GkoSolverType::build()                //
-                                  .with_max_iterations(max_iters)     //
-                                  .with_residual_tol(solve_tolerance) // TODO(CJB): figure out how we can set this in
-                                                                      // the SUNDIALS solve call
-                                  .with_tolerance_type(gko::stop::batch::ToleranceType::absolute) //
-                                  .with_preconditioner(gko::preconditioner::batch::type::jacobi)  //
-                                  .on(gko_exec);
-    LS = std::make_unique<SUNLinearSolverType>(gko::share(gko_solver_factory), num_blocks, sunctx);
+    using GkoSolverType           = gko::solver::BatchBicgstab<sunrealtype>;
+    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
+    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
+                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
   } else if (method == "cg") {
-    using GkoSolverType       = gko::solver::BatchCg<sunrealtype>;
-    using SUNLinearSolverType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
-    auto gko_solver_factory   = GkoSolverType::build()                //
-                                  .with_max_iterations(max_iters)     //
-                                  .with_residual_tol(solve_tolerance) // TODO(CJB): figure out how we can set this in
-                                                                      // the SUNDIALS solve call
-                                  .with_tolerance_type(gko::stop::batch::ToleranceType::absolute) //
-                                  .with_preconditioner(gko::preconditioner::batch::type::jacobi)  //
-                                  .on(gko_exec);
-    LS = std::make_unique<SUNLinearSolverType>(gko::share(gko_solver_factory), num_blocks, sunctx);
+    using GkoSolverType           = gko::solver::BatchCg<sunrealtype>;
+    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
+    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
+                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
   } else if (method == "direct") {
-    using GkoSolverType       = gko::solver::BatchDirect<sunrealtype>;
-    using SUNLinearSolverType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
-    auto gko_solver_factory   = GkoSolverType::build() //
-                                  .on(gko_exec);
-    LS = std::make_unique<SUNLinearSolverType>(gko::share(gko_solver_factory), num_blocks, sunctx);
+    // using SUNLinearSolverViewType = BlockLinearSolver<SUNMatrixType>;
+    // LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, num_blocks, sunctx);
   } else if (method == "gmres") {
-    using GkoSolverType       = gko::solver::BatchGmres<sunrealtype>;
-    using SUNLinearSolverType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
-    auto gko_solver_factory   = GkoSolverType::build() //
-                                  .with_max_iterations(max_iters)
-                                  .with_residual_tol(solve_tolerance) // TODO(CJB): figure out how we can set this in
-                                                                      // the SUNDIALS solve call
-                                  .with_tolerance_type(gko::stop::batch::ToleranceType::absolute) //
-                                  .with_preconditioner(gko::preconditioner::batch::type::jacobi)  //
-                                  .on(gko_exec);
-    LS = std::make_unique<SUNLinearSolverType>(gko::share(gko_solver_factory), num_blocks, sunctx);
+    using GkoSolverType           = gko::solver::BatchGmres<sunrealtype>;
+    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
+    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
+                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
   } else if (method == "idr") {
-    using GkoSolverType       = gko::solver::BatchIdr<sunrealtype>;
-    using SUNLinearSolverType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
-    auto gko_solver_factory   = GkoSolverType::build()                //
-                                  .with_max_iterations(max_iters)     //
-                                  .with_residual_tol(solve_tolerance) // TODO(CJB): figure out how we can set this in
-                                                                      // the SUNDIALS solve call
-                                  .with_tolerance_type(gko::stop::batch::ToleranceType::absolute) //
-                                  .with_preconditioner(gko::preconditioner::batch::type::jacobi)  //
-                                  .on(gko_exec);
-    LS = std::make_unique<SUNLinearSolverType>(gko::share(gko_solver_factory), num_blocks, sunctx);
+    using GkoSolverType           = gko::solver::BatchIdr<sunrealtype>;
+    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
+    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
+                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
   }
 
   /* Run Tests */

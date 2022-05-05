@@ -153,7 +153,7 @@ bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized, gko::Arra
   return one_converged;
 }
 
-class LinearSolverInterface {
+class ILinearSolver : public SUNLinearSolverView {
 public:
   virtual gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol) = 0;
   virtual std::shared_ptr<const gko::Executor> gkoexec() const       = 0;
@@ -161,14 +161,10 @@ public:
   virtual sunrealtype resNorm() const                                = 0;
   virtual bool logResNorm() const                                    = 0;
   virtual bool logResNorm(bool onoff)                                = 0;
-  virtual SUNLinearSolver get()                                      = 0;
-  virtual SUNLinearSolver get() const                                = 0;
-  virtual operator SUNLinearSolver()                                 = 0;
-  virtual operator SUNLinearSolver() const                           = 0;
 };
 
 template<class GkoSolverType, class MatrixType>
-class LinearSolver : public LinearSolverInterface {
+class LinearSolver : public ILinearSolver {
 public:
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory), sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),

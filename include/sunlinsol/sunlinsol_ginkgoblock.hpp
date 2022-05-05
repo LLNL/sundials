@@ -67,11 +67,7 @@ template<typename GkoBatchLinearSolverType, typename BlockMatrixType>
 SUNDIALS_EXPORT int SUNLinSolSetup_GinkgoBlock(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  if (solver->setup(static_cast<BlockMatrixType*>(A->content))) {
-    return SUNLS_SUCCESS;
-  } else {
-    return SUNLS_ILL_INPUT;
-  }
+  return solver->setup(static_cast<BlockMatrixType*>(A->content));
 }
 
 template<typename GkoBatchLinearSolverType>
@@ -91,28 +87,139 @@ inline std::unique_ptr<gko::matrix::BatchDiagonal<sunrealtype>> WrapBatchDiagMat
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
   const sunindextype xvec_len = N_VGetLength(x);
   auto batch_xvec_size        = gko::batch_dim<>(num_blocks, gko::dim<2>(xvec_len / num_blocks, xvec_len / num_blocks));
-  auto xvec_view = gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr);
+  auto xvec_view              = gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr);
   return gko::matrix::BatchDiagonal<sunrealtype>::create(gko_exec, batch_xvec_size, std::move(xvec_view));
 }
 
-class BlockLinearSolverInterface {
-public:
-  virtual gko::BatchLinOp* solve(N_Vector b, N_Vector x, sunrealtype tol) = 0;
-  virtual SUNLinearSolver get()                                           = 0;
-  virtual SUNLinearSolver get() const                                     = 0;
-  virtual operator SUNLinearSolver()                                      = 0;
-  virtual operator SUNLinearSolver() const                                = 0;
-  virtual void setScalingVectors(N_Vector s1, N_Vector s2)                = 0;
-};
-
 template<class GkoBatchSolverType, class BlockMatrixType>
-class BlockLinearSolver : public BlockLinearSolverInterface {
+class BlockLinearSolver : public SUNLinearSolverView {
 public:
-  BlockLinearSolver(std::shared_ptr<typename GkoBatchSolverType::Factory> gko_solver_factory, sunindextype num_blocks,
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::stop::batch::ToleranceType tolerance_type,
+                    gko::preconditioner::batch::type preconditioner, int max_iters, sunindextype num_blocks,
                     SUNContext sunctx)
-      : gko_solver_factory_(gko_solver_factory), sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
+      : gko_exec_(gko_exec), tolerance_type_(tolerance_type), max_iters_(max_iters),
+        sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
         sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), num_blocks_(num_blocks),
         left_scale_vec_(nullptr), right_scale_vec_(nullptr)
+  {
+    initSUNLinSol(sunctx);
+  }
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, sunindextype num_blocks, SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, gko::stop::batch::ToleranceType::absolute, gko::preconditioner::batch::type::jacobi,
+                          default_max_iters_, num_blocks, sunctx)
+  {}
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::stop::batch::ToleranceType tolerance_type,
+                    sunindextype num_blocks, SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, tolerance_type, gko::preconditioner::batch::type::jacobi, default_max_iters_,
+                          num_blocks, sunctx)
+  {}
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::preconditioner::batch::type preconditioner,
+                    sunindextype num_blocks, SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, gko::stop::batch::ToleranceType::absolute, preconditioner, default_max_iters_,
+                          num_blocks, sunctx)
+  {}
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, int max_iters, sunindextype num_blocks,
+                    SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, gko::stop::batch::ToleranceType::absolute, gko::preconditioner::batch::type::jacobi,
+                          max_iters, num_blocks, sunctx)
+  {}
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::stop::batch::ToleranceType tolerance_type,
+                    int max_iters, sunindextype num_blocks, SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, tolerance_type, gko::preconditioner::batch::type::jacobi, max_iters, num_blocks,
+                          sunctx)
+  {}
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::preconditioner::batch::type preconditioner,
+                    int max_iters, sunindextype num_blocks, SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, gko::stop::batch::ToleranceType::absolute, preconditioner, max_iters, num_blocks,
+                          sunctx)
+  {}
+
+  BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::stop::batch::ToleranceType tolerance_type,
+                    gko::preconditioner::batch::type preconditioner, sunindextype num_blocks, SUNContext sunctx)
+      : BlockLinearSolver(gko_exec, tolerance_type, preconditioner, default_max_iters_, num_blocks, sunctx)
+  {}
+
+  std::shared_ptr<const gko::Executor> gkoExec() const { return gko_exec_; }
+
+  SUNLinearSolver get() override { return sunlinsol_.get(); }
+
+  SUNLinearSolver get() const override { return sunlinsol_.get(); }
+
+  operator SUNLinearSolver() override { return sunlinsol_.get(); }
+
+  operator SUNLinearSolver() const override { return sunlinsol_.get(); }
+
+  void setScalingVectors(N_Vector s1, N_Vector s2)
+  {
+    left_scale_vec_  = WrapBatchDiagMatrix(gkoExec(), numBlocks(), s1);
+    right_scale_vec_ = WrapBatchDiagMatrix(gkoExec(), numBlocks(), s2);
+  }
+
+  int setup(BlockMatrixType* A)
+  {
+    if (numBlocks() != A->numBlocks()) {
+      return SUNLS_ILL_INPUT;
+    }
+    matrix_ = std::shared_ptr<BlockMatrixType>(A);
+    return SUNLS_SUCCESS;
+  }
+
+  gko::BatchLinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
+  {
+    gko::BatchLinOp* result = nullptr;
+
+    auto solver_factory = GkoBatchSolverType::build()                                        //
+                              .with_max_iterations(max_iters_)                               //
+                              .with_residual_tol(tol)                                        //
+                              .with_tolerance_type(tolerance_type_)                          //
+                              .with_preconditioner(gko::preconditioner::batch::type::jacobi) //
+                              .on(gkoExec());
+
+    auto solver = solver_factory->generate(matrix()->gkomtx());
+
+    if (x != b) {
+      auto x_vec = WrapBatchVector(gkoExec(), numBlocks(), x);
+      auto b_vec = WrapBatchVector(gkoExec(), numBlocks(), b);
+
+      // scale A so that A' = diag(left) * A * diag(right)
+      if (left_scale_vec_ && right_scale_vec_)
+        solver->batch_scale(left_scale_vec_.get(), right_scale_vec_.get());
+
+      // x = A'^{-1} diag(left) b
+      result = solver->apply(b_vec.get(), x_vec.get());
+    } else {
+      auto x_vec = WrapBatchVector(gkoExec(), numBlocks(), x);
+
+      // x = A^'{-1} diag(right) x
+      result = solver->apply(x_vec.get(), x_vec.get());
+    }
+
+    return result;
+  }
+
+protected:
+  int maxIters() const { return max_iters_; };
+  int numBlocks() const { return num_blocks_; };
+  std::shared_ptr<BlockMatrixType> matrix() { return matrix_; }
+
+private:
+  std::shared_ptr<const gko::Executor> gko_exec_;
+  gko::stop::batch::ToleranceType tolerance_type_;
+  int max_iters_;
+  std::unique_ptr<struct _generic_SUNLinearSolver> sunlinsol_;
+  std::unique_ptr<struct _generic_SUNLinearSolver_Ops> sunlinsol_ops_;
+  sunindextype num_blocks_;
+  std::unique_ptr<gko::BatchLinOp> left_scale_vec_;
+  std::unique_ptr<gko::BatchLinOp> right_scale_vec_;
+  std::shared_ptr<BlockMatrixType> matrix_;
+
+  void initSUNLinSol(SUNContext sunctx)
   {
     // Attach function pointers for SUNLinearSolver
     using this_type = BlockLinearSolver<GkoBatchSolverType, BlockMatrixType>;
@@ -131,68 +238,7 @@ public:
     sunlinsol_->ops->free              = SUNLinSolFree_GinkgoBlock;
   }
 
-  std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_factory_->get_executor(); }
-
-  std::shared_ptr<typename GkoBatchSolverType::Factory> gkofactory() { return gko_solver_factory_; }
-
-  GkoBatchSolverType* gkosolver() { return gko_solver_.get(); }
-
-  SUNLinearSolver get() { return sunlinsol_.get(); }
-
-  SUNLinearSolver get() const { return sunlinsol_.get(); }
-
-  operator SUNLinearSolver() { return sunlinsol_.get(); }
-
-  operator SUNLinearSolver() const { return sunlinsol_.get(); }
-
-  void setScalingVectors(N_Vector s1, N_Vector s2)
-  {
-    left_scale_vec_  = WrapBatchDiagMatrix(gkoexec(), num_blocks_, s1);
-    right_scale_vec_ = WrapBatchDiagMatrix(gkoexec(), num_blocks_, s2);
-  }
-
-  GkoBatchSolverType* setup(BlockMatrixType* A)
-  {
-    gko_solver_ = gko_solver_factory_->generate(A->gkomtx());
-    if (gko_solver_->get_num_batch_entries() != num_blocks_) {
-      return nullptr;
-    } else {
-      return gko_solver_.get();
-    }
-  }
-
-  gko::BatchLinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
-  {
-    gko::BatchLinOp* result = nullptr;
-
-    if (x != b) {
-      auto x_vec = WrapBatchVector(gkoexec(), num_blocks_, x);
-      auto b_vec = WrapBatchVector(gkoexec(), num_blocks_, b);
-
-      // scale A so that A' = diag(left) * A * diag(right)
-      if (left_scale_vec_ && right_scale_vec_)
-        gkosolver()->batch_scale(left_scale_vec_.get(), right_scale_vec_.get());
-
-      // x = A'^{-1} diag(left) b
-      result = gkosolver()->apply(b_vec.get(), x_vec.get());
-    } else {
-      auto x_vec = WrapBatchVector(gkoexec(), num_blocks_, x);
-
-      // x = A^'{-1} diag(right) x
-      result = gkosolver()->apply(x_vec.get(), x_vec.get());
-    }
-
-    return result;
-  }
-
-private:
-  std::shared_ptr<typename GkoBatchSolverType::Factory> gko_solver_factory_;
-  std::unique_ptr<GkoBatchSolverType> gko_solver_;
-  std::unique_ptr<struct _generic_SUNLinearSolver> sunlinsol_;
-  std::unique_ptr<struct _generic_SUNLinearSolver_Ops> sunlinsol_ops_;
-  sunindextype num_blocks_;
-  std::unique_ptr<gko::BatchLinOp> left_scale_vec_;
-  std::unique_ptr<gko::BatchLinOp> right_scale_vec_;
+  static constexpr int default_max_iters_ = 50;
 };
 
 } // namespace ginkgo

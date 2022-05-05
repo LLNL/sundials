@@ -15,7 +15,7 @@ using GkoBatchCsrMat   = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
 using GkoBatchVecType  = GkoBatchDenseMat;
 
 template<typename GkoBatchMatType>
-class BlockMatrix {
+class BlockMatrix : public SUNMatrixView {
 public:
   BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec,
               SUNContext sunctx)
@@ -106,13 +106,13 @@ void SUNMatDestroy_GinkgoBlock(SUNMatrix A)
   return;
 }
 
-template<typename GkoBatchMatType>
-int SUNMatZero_GinkgoBlock(SUNMatrix A)
-{
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
-  Zero(*Amat);
-  return SUNMAT_SUCCESS;
-}
+// template<typename GkoBatchMatType>
+// int SUNMatZero_GinkgoBlock(SUNMatrix A)
+// {
+//   auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+//   Zero(*Amat);
+//   return SUNMAT_SUCCESS;
+// }
 
 template<typename GkoBatchMatType>
 int SUNMatCopy_GinkgoBlock(SUNMatrix A, SUNMatrix B)
@@ -175,7 +175,7 @@ void BlockMatrix<GkoBatchMatType>::initSUNMatrix(SUNContext sunctx)
   std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid = SUNMatGetID_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->clone = SUNMatClone_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->zero  = SUNMatZero_GinkgoBlock<GkoBatchMatType>;
+  // sunmtx_->ops->zero  = SUNMatZero_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->copy  = SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
   // Ginkgo does not provide what we need for ScaleAdd with BatchCsr yet
   sunmtx_->ops->scaleadd =
@@ -236,7 +236,7 @@ BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<GkoBatchCsrMat> gko_mat
 //
 
 inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
-                                                   sunindextype num_blocks, N_Vector x)
+                                                        sunindextype num_blocks, N_Vector x)
 {
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
   const sunindextype xvec_len = N_VGetLength(x);
@@ -247,7 +247,7 @@ inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(std::shared_ptr<const gk
 }
 
 inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
-                                                              sunindextype num_blocks, N_Vector x)
+                                                                   sunindextype num_blocks, N_Vector x)
 {
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
   const sunindextype xvec_len = N_VGetLength(x);
@@ -303,7 +303,7 @@ void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)
 template<typename GkoBatchMatType>
 void Zero(BlockMatrix<GkoBatchMatType>& A)
 {
-  // TODO(CJB): This seems really inefficient, need to find a better way.
+  // TODO(CJB): This doesnt work and also seems inefficent
   for (auto& block : A.gkomtx()->unbatch()) {
     block->scale(gko::initialize<GkoDenseMat>({0.0}, A.gkoexec()).get());
   }
