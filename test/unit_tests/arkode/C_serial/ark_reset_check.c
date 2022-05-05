@@ -267,7 +267,7 @@ int main()
   check_retval(&retval, "MRIStepSetFixedStep", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = MRIStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
   if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
     printf("  Initial MRIStepEvolve had insufficient accuracy\n");
