@@ -18,19 +18,18 @@
 #                   [DEPNDS_ON_THROW_ERROR])
 #
 # Within CMake creates a cache variable <variable> and sets it to the value
-# <default value> if <variable> is not yet defined. <type> may be any of the
-# types valid for CMake's set command (FILEPATH, PATH, STRING, BOOL, INTERNAL).
-# <docstring> is a description of the <variable>.
+# <default value> if <variable> is not yet defined and, if provided, all of its
+# dependencies evaluate to true. Otherwise, <variable> is not created. <type>
+# may be any of the types valid for CMake's set command (FILEPATH, PATH, STRING,
+# BOOL, INTERNAL). <docstring> is a description of the <variable>.
 #
-# The DEPENDS_ON option can be used to provide variables which must evaluate
-# to true in order to be available to the user. If the dependencies do not all
-# evaluate to true, then a warning is printed and <variable> is set to OFF if
-# <type> is BOOL, otherwise the current value is retained.
+# The DEPENDS_ON option can be used to provide variables which must evaluate to
+# true for <variable> to be created. If the dependencies do not all evaluate to
+# true and <variable> exists, then a warning is printed and <variable> is unset.
 #
 # The DEPENDS_ON_THROW_ERROR option will change the warning to be an error.
 #
-# The OPTIONS macro can be used to provide a list of valid values for the
-# variable.
+# The OPTIONS option can be used to provide a list of valid <variable> values.
 #
 # The ADVANCED option can be used to make <variable> an advanced CMake option.
 # ---------------------------------------------------------------------------
@@ -58,12 +57,9 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   if(all_depends_on_dependencies_met)
 
-    if(DEFINED ${NAME})
-      # if the variable is already defined, keep its value
-      set(${NAME} ${${NAME}} CACHE ${TYPE} ${DOCSTR} FORCE)
-    else()
-      # if the variable is not already defined, use the default value
-      set(${NAME} ${DEFAULT_VALUE} CACHE ${TYPE} ${DOCSTR})
+    # if necessary, create the CACHE variable with its default value
+    if(NOT DEFINED ${NAME})
+      set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
     endif()
 
     # make the option advanced if necessary
@@ -73,43 +69,26 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   else()
 
+    # if necessary, remove the CACHE variable i.e., all the variable
+    # dependencies were previously met but are no longer satisfied
     if(DEFINED ${NAME})
-
-      if(${NAME})
-        string(CONCAT _warn_msg_string
-          "The variable ${NAME} was set to ${${NAME}} "
-          "but not all of its dependencies "
-          "(${depends_on_dependencies_not_met}) evaluate to TRUE."
-          )
-        if("${TYPE}" MATCHES "BOOL")
-          if(sundials_option_DEPENDS_ON_THROW_ERROR)
-            print_error("${_warn_msg_string}" "Setting ${NAME} to OFF.")
-          else()
-            print_warning("${_warn_msg_string}" "Setting ${NAME} to OFF.")
-          endif()
-        endif()
-      endif()
-
-      if("${TYPE}" MATCHES "BOOL")
-        set(${NAME} OFF CACHE INTERNAL ${DOCSTR} FORCE)
+      string(CONCAT _warn_msg_string
+        "The variable ${NAME} was set to ${${NAME}} "
+        "but not all of its dependencies "
+        "(${depends_on_dependencies_not_met}) evaluate to TRUE."
+        )
+      unset(${NAME} CACHE)
+      if(sundials_option_DEPENDS_ON_THROW_ERROR)
+        print_error("${_warn_msg_string}" "Unsetting ${NAME}")
       else()
-        set(${NAME} ${${NAME}} CACHE INTERNAL ${DOCSTR} FORCE)
+        print_warning("${_warn_msg_string}" "Unsetting ${NAME}")
       endif()
-
-    else()
-
-      if("${TYPE}" MATCHES "BOOL")
-        set(${NAME} OFF CACHE INTERNAL ${DOCSTR})
-      else()
-        set(${NAME} ${DEFAULT_VALUE} CACHE INTERNAL ${DOCSTR})
-      endif()
-
     endif()
 
   endif()
 
   # check for valid option choices
-  if(sundials_option_OPTIONS)
+  if((DEFINED ${NAME}) AND sundials_option_OPTIONS)
     if(NOT (${NAME} IN_LIST sundials_option_OPTIONS))
       list(JOIN sundials_option_OPTIONS ", " _options_msg)
       print_error("Value of ${NAME} must be one of ${_options_msg}")
