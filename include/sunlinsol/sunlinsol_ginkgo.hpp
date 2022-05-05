@@ -47,14 +47,13 @@ SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S) { return SUNLINEARSO
 template<typename LinearSolverType>
 SUNDIALS_EXPORT int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S)
 {
-  return SUNMAT_SUCCESS;
+  return SUNLS_SUCCESS;
 }
 
 template<typename LinearSolverType>
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Ginkgo(SUNLinearSolver S, N_Vector s1, N_Vector s2)
 {
   // auto solver = static_cast<LinearSolverType*>(S->content);
-
   return -1;
 }
 
