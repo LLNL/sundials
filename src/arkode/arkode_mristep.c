@@ -450,6 +450,10 @@ int MRIStepReset(void* arkode_mem, realtype tR, N_Vector yR)
     return(retval);
   }
 
+  /* Reset the inner integrator with this same state */
+  retval = mriStepInnerStepper_Reset(step_mem->stepper, tR, yR);
+  if (retval != ARK_SUCCESS)  return(ARK_INNERSTEP_FAIL);
+
   return(ARK_SUCCESS);
 }
 
