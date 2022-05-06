@@ -1,3 +1,6 @@
+hwloc/linux: Ignoring PCI device with non-16bit domain.
+Pass --enable-32bits-pci-domain to configure to support such devices
+(warning: it would break the library ABI, don't enable unless really needed).
 
 2D Heat PDE test problem:
  --------------------------------- 
@@ -52,30 +55,30 @@
  6.500000000000000e-01    7.502605966973638e-02    4.576681070362631e-04
  7.000000000000001e-01    1.257964113977601e-01    8.457898377413064e-04
  7.500000000000001e-01    1.820944185535271e-01    1.318767636581897e-03
- 8.000000000000002e-01    2.384087203852070e-01    1.828962145097535e-03
- 8.500000000000002e-01    2.892272171327287e-01    2.327446157641688e-03
- 9.000000000000002e-01    3.295754296203942e-01    2.765080717683888e-03
- 9.500000000000003e-01    3.555038632193712e-01    3.099435546668361e-03
- 1.000000000000000e+00    3.644741937247666e-01    3.297054597400817e-03
+ 8.000000000000002e-01    2.384087203852489e-01    1.828962154654334e-03
+ 8.500000000000002e-01    2.892272171627214e-01    2.327446125983901e-03
+ 9.000000000000002e-01    3.295754289604610e-01    2.765085371867704e-03
+ 9.500000000000003e-01    3.555038635442770e-01    3.099438589956538e-03
+ 1.000000000000000e+00    3.644741980449761e-01    3.297101820500914e-03
  -----------------------------------------------------------------------
 
 Final integrator statistics:
-  Steps            = 201
-  Step attempts    = 225
-  Error test fails = 24
-  RHS evals        = 1578
-  NLS iters        = 675
+  Steps            = 199
+  Step attempts    = 218
+  Error test fails = 19
+  RHS evals        = 1529
+  NLS iters        = 654
   NLS fails        = 0
-  LS iters         = 13075
-  LS fails         = 623
-  LS setups        = 82
-  LS RHS evals     = 13075
-  Jv products      = 13075
+  LS iters         = 12644
+  LS fails         = 600
+  LS setups        = 70
+  LS RHS evals     = 12644
+  Jv products      = 12644
 
   Avg NLS iters per step attempt = 3.000000
-  Avg LS iters per NLS iter      = 19.370370
+  Avg LS iters per NLS iter      = 19.333333
 
-  Preconditioner setups = 26
-  Preconditioner solves = 13075
+  Preconditioner setups = 21
+  Preconditioner solves = 12644
 
-  Max error = 3.297054597400817e-03
+  Max error = 3.297101820500914e-03
