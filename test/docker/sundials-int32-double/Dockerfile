@@ -36,7 +36,7 @@ RUN apt-get -yqq update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02  && \
+    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02 && \
     mkdir -p $SPACK_ROOT/opt/spack
 
 RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
@@ -70,6 +70,16 @@ CMD ["interactive-shell"]
 # Build stage with Spack pre-installed and ready to be used
 FROM bootstrap as builder
 
+# Install python environment for docs
+RUN python3 -m venv /opt/python-venv/sundocs && \
+    . /opt/python-venv/sundocs/bin/activate && \
+    pip install wheel && \
+    pip install sphinx >=4.0.0 && \
+    pip install sphinx-fortran && \
+    pip install sphinx_rtd_theme && \
+    pip install sphinxcontrib.bibtex && \
+    pip install sphinx-copybutton
+
 # What we want to install and how we want to install it
 # is specified in a manifest file (spack.yaml)
 RUN mkdir /opt/spack-environment \
@@ -86,7 +96,7 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
 &&   echo "  - hypre~int64~internal-superlu" \
-&&   echo "  - petsc+double~int64" \
+&&   echo "  - petsc+double~int64~superlu-dist" \
 &&   echo "  - openmpi" \
 &&   echo "  - openblas~ilp64" \
 &&   echo "  - suite-sparse" \
@@ -97,33 +107,35 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
-&&   echo "    E4S: https://cache.e4s.io/22.02" \
+&&   echo "    local: /var/cache/spack-mirror" \
 &&   echo "  repos: []" \
 &&   echo "  upstreams: {}" \
 &&   echo "  concretization: together" \
 &&   echo "  view: /opt/view") > /opt/spack-environment/spack.yaml
 
-# Setup the build cache
-RUN cd /opt/spack-environment && \
-    spack env activate . && \
-    spack buildcache keys -it
-
-# Install the software, remove unnecessary deps
-RUN cd /opt/spack-environment && \
-    spack env activate . && \
-    spack env status && \
-    spack install --fail-fast --reuse && \
-    spack gc -y
-
-# Install python environment
-RUN python3 -m venv /opt/python-venv/sundocs && \
-    . /opt/python-venv/sundocs/bin/activate && \
-    pip install wheel && \
-    pip install sphinx >=4.0.0 && \
-    pip install sphinx-fortran && \
-    pip install sphinx_rtd_theme && \
-    pip install sphinxcontrib.bibtex && \
-    pip install sphinx-copybutton
+RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
+    cd /opt/spack-environment                                           \
+ && spack env activate .                                                \
+ && spack buildcache keys -it                                           \
+ && cd /opt/spack-environment                                           \
+ && status=0                                                            \
+ && spack install --reuse --no-check-signature                          \
+    || spack install --reuse --no-check-signature                       \
+    || spack install --reuse --no-check-signature                       \
+    || status=$?                                                        \
+ && mkdir -p /var/cache/spack-mirror/build_cache                        \
+ && spack buildcache update-index -d /var/cache/spack-mirror            \
+ && spack buildcache list --allarch --very-long                         \
+    | sed '/^$/d;/^--/d;s/@.\+//;s/\([a-z0-9]*\) \(.*\)/\2\/\1/'        \
+    | sort > tmp.buildcache.txt                                         \
+ && spack find --format {name}/{hash} | sort                            \
+    | comm -23 - tmp.buildcache.txt                                     \
+    | xargs --no-run-if-empty                                           \
+      spack buildcache create --allow-root --only package --unsigned    \
+                              --directory /var/cache/spack-mirror       \
+                              --rebuild-index                           \
+ && spack clean -a                                                      \
+ && exit $status
 
 # Modifications to the environment that are necessary to run
 RUN cd /opt/spack-environment && \

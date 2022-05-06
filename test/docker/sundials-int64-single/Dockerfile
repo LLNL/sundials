@@ -86,7 +86,7 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
 &&   echo "  - hypre+int64~internal-superlu" \
-&&   echo "  - petsc~double+int64" \
+&&   echo "  - petsc~double+int64~superlu-dist" \
 &&   echo "  - openmpi" \
 &&   echo "  - openblas+ilp64" \
 &&   echo "  - suite-sparse" \

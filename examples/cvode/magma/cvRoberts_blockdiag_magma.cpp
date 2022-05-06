@@ -15,8 +15,11 @@
  * simulate a scenario where a set of independent ODEs are grouped together to
  * form a larger system. For simplicity, each set of ODEs is the same problem.
  * The problem is from chemical kinetics, and consists of the following three
- * rate equations: dy1/dt = -.04*y1 + 1.e4*y2*y3 dy2/dt = .04*y1 - 1.e4*y2*y3 -
- * 3.e7*(y2)^2 dy3/dt = 3.e7*(y2)^2 on the interval from t = 0.0 to t = 4.e10,
+ * rate equations:
+ *  dy1/dt = -.04*y1 + 1.e4*y2*y3
+ *  dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
+ *  dy3/dt = 3.e7*(y2)^2
+ * on the interval from t = 0.0 to t = 4.e10,
  * with initial conditions: y1 = 1.0, y2 = y3 = 0. The problem is stiff. This
  * program solves the problem with the BDF method, Newton iteration, a
  * user-supplied Jacobian routine, and since the grouping of the independent
