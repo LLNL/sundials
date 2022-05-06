@@ -12,6 +12,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Run test_driver.sh
+        env:
+          OMP_ALLOW_RUN_AS_ROOT: 1
+          OMP_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
@@ -32,6 +35,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Run test_driver.sh
+        env:
+          OMP_ALLOW_RUN_AS_ROOT: 1
+          OMP_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
