@@ -22,6 +22,7 @@ jobs:
         with:
           name: cmake-logs
           path: |
+            ${{ github.workspace }}/test/build_*/Testing/output/test_nvector_parhyp_4_1000_0.out
             ${{ github.workspace }}/test/build_*/**/CMake*.log
             ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTest.log
   run_int64_double:
@@ -43,5 +44,6 @@ jobs:
         with:
           name: cmake-logs
           path: |
+            ${{ github.workspace }}/test/build_*/Testing/output/test_nvector_parhyp_4_1000_0.out
             ${{ github.workspace }}/test/build_*/**/CMake*.log
             ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTest.log
