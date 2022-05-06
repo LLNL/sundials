@@ -23,10 +23,10 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: CMake logs
+          name: cmake-logs
           path: |
-            ${{ github.workspace }}/test/**/build_*/**/CMake*.log
-            ${{ github.workspace }}/test/**/build_*/**/LastTest.log
+            ${{ github.workspace }}/test/build_*/**/CMake*.log
+            ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTest.log
   run_int64_double:
     runs-on: ubuntu-latest
     container:
@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: CMake logs
+          name: cmake-logs
           path: |
-            ${{ github.workspace }}/test/**/build_*/**/CMake*.log
-            ${{ github.workspace }}/test/**/build_*/**/LastTest.log
+            ${{ github.workspace }}/test/build_*/**/CMake*.log
+            ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTest.log
