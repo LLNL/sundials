@@ -207,7 +207,7 @@ BlockMatrix<GkoBatchDenseMat>::BlockMatrix(std::shared_ptr<GkoBatchDenseMat> gko
 template<>
 BlockMatrix<GkoBatchCsrMat>::BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N,
                                          std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
-    : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, num_blocks, gko::dim<2>(M, N)))),
+    : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, gko::batch_dim<>(num_blocks, gko::dim<2>(M, N))))),
       sunmtx_(std::make_unique<_generic_SUNMatrix>()), sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   initSUNMatrix(sunctx);
@@ -217,7 +217,7 @@ template<>
 BlockMatrix<GkoBatchCsrMat>::BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N,
                                          sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec,
                                          SUNContext sunctx)
-    : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, num_blocks, gko::dim<2>(M, N), num_nonzeros))),
+    : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, gko::batch_dim<>(num_blocks, gko::dim<2>(M, N)), num_nonzeros))),
       sunmtx_(std::make_unique<_generic_SUNMatrix>()), sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
 {
   initSUNMatrix(sunctx);

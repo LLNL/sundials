@@ -100,7 +100,7 @@ public:
   GKO_CREATE_FACTORY_PARAMETERS(parameters, Factory)
   {
     sunrealtype GKO_FACTORY_PARAMETER_SCALAR(tolerance, SUN_UNIT_ROUNDOFF);
-    sunrealtype GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
+    int GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
   };
   GKO_ENABLE_CRITERION_FACTORY(DefaultStop, parameters, Factory);
   GKO_ENABLE_BUILD_METHOD(Factory);
@@ -161,6 +161,7 @@ public:
   virtual sunrealtype resNorm() const                                = 0;
   virtual bool logResNorm() const                                    = 0;
   virtual bool logResNorm(bool onoff)                                = 0;
+  virtual ~ILinearSolver() {}
 };
 
 template<class GkoSolverType, class MatrixType>

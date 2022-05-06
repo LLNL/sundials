@@ -232,6 +232,7 @@ public:
   virtual SUNLinearSolver get() const      = 0;
   virtual operator SUNLinearSolver()       = 0;
   virtual operator SUNLinearSolver() const = 0;
+  virtual ~SUNLinearSolverView() {}
 };
 }
 

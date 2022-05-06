@@ -57,13 +57,13 @@ public:
     std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n");
   }
 
-  operator SUNMatrix() { return sunmtx_.get(); }
+  operator SUNMatrix() override { return sunmtx_.get(); }
 
-  operator SUNMatrix() const { return sunmtx_.get(); }
+  operator SUNMatrix() const override { return sunmtx_.get(); }
 
-  SUNMatrix get() { return sunmtx_.get(); }
+  SUNMatrix get() override { return sunmtx_.get(); }
 
-  SUNMatrix get() const { return sunmtx_.get(); }
+  SUNMatrix get() const override { return sunmtx_.get(); }
 
   using BaseMatrix<GkoMatType>::gkomtx;
 

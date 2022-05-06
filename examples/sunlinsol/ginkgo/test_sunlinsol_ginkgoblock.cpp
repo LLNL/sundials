@@ -197,18 +197,19 @@ int main(int argc, char* argv[])
    * Create linear solver.
    */
 
-  std::unique_ptr<SUNLinearSolverView> LS;
+  auto precond_factory = gko::share(gko::preconditioner::BatchJacobi<sunrealtype>::build().on(gko_exec));
 
+  std::unique_ptr<SUNLinearSolverView> LS;
   if (method == "bicgstab") {
     using GkoSolverType           = gko::solver::BatchBicgstab<sunrealtype>;
     using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
     LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
-                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
+                                                   precond_factory, num_blocks, sunctx);
   } else if (method == "cg") {
     using GkoSolverType           = gko::solver::BatchCg<sunrealtype>;
     using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
     LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
-                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
+                                                   precond_factory, num_blocks, sunctx);
   } else if (method == "direct") {
     // using SUNLinearSolverViewType = BlockLinearSolver<SUNMatrixType>;
     // LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, num_blocks, sunctx);
@@ -216,12 +217,12 @@ int main(int argc, char* argv[])
     using GkoSolverType           = gko::solver::BatchGmres<sunrealtype>;
     using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
     LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
-                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
+                                                   precond_factory, num_blocks, sunctx);
   } else if (method == "idr") {
     using GkoSolverType           = gko::solver::BatchIdr<sunrealtype>;
     using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, SUNMatrixType>;
     LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute,
-                                                   gko::preconditioner::batch::type::jacobi, num_blocks, sunctx);
+                                                   precond_factory, num_blocks, sunctx);
   }
 
   /* Run Tests */
