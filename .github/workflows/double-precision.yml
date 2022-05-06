@@ -21,11 +21,12 @@ jobs:
           ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
       - name: Archive CMake log reults
         uses: actions/upload-artifact@v3
+        if: failure()
         with:
-          name: cmake-log
+          name: CMake logs
           path: |
-            build_*/**/CMake*.log
-            build_*/**/LastTest.log
+            ${{ github.workspace }}/test/**/build_*/**/CMake*.log
+            ${{ github.workspace }}/test/**/build_*/**/LastTest.log
   run_int64_double:
     runs-on: ubuntu-latest
     container:
@@ -44,8 +45,9 @@ jobs:
           ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 64
       - name: Archive CMake log reults
         uses: actions/upload-artifact@v3
+        if: failure()
         with:
-          name: cmake-log
+          name: CMake logs
           path: |
-            build_*/**/CMake*.log
-            build_*/**/LastTest.log
+            ${{ github.workspace }}/test/**/build_*/**/CMake*.log
+            ${{ github.workspace }}/test/**/build_*/**/LastTest.log

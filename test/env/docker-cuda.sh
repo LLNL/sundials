@@ -131,7 +131,7 @@ fi
 # ------------------------------------------------------------------------------
 
 # Verbose build
-export CMAKE_VERBOSE_MAKEFILE=ON
+export CMAKE_VERBOSE_MAKEFILE=OFF
 
 # Number of build and test jobs
 export SUNDIALS_BUILD_JOBS=4
