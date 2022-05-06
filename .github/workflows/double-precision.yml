@@ -24,8 +24,8 @@ jobs:
         with:
           name: cmake-log
           path: |
-            test/build_*/**/CMake*.log
-            test/build_*/**/LastTests.log
+            build_*/**/CMake*.log
+            build_*/**/LastTest.log
   run_int64_double:
     runs-on: ubuntu-latest
     container:
@@ -47,5 +47,5 @@ jobs:
         with:
           name: cmake-log
           path: |
-            test/build_*/**/CMake*.log
-            test/build_*/**/LastTests.log
+            build_*/**/CMake*.log
+            build_*/**/LastTest.log
