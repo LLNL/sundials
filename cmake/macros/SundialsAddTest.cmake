@@ -128,7 +128,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # check if this test is run with MPI and set the MPI run command
       if((SUNDIALS_ADD_TEST_MPI_NPROCS) AND (MPIEXEC_EXECUTABLE))
-        set(RUN_COMMAND "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_PREFLAGS}")
+        set(RUN_COMMAND "${MPIEXEC_EXECUTABLE} ${SUNDIALS_MPIEXEC_EXTRA_FLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_PREFLAGS}")
         # remove trailing white space (empty MPIEXEC_PREFLAGS) as it can cause
         # erroneous test failures with some MPI implementations
         string(STRIP "${RUN_COMMAND}" RUN_COMMAND)

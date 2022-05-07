@@ -294,6 +294,9 @@ def main():
     add_arg(group, '--mpiexec', 'MPIEXEC', 'MPIEXEC_EXECUTABLE', None,
             'FILEPATH', 'MPI executable', dependson='--mpi')
 
+    add_arg(group, '--mpiexec-extra-flags', 'SUNDIALS_MPIEXEC_EXTRA_FLAGS', 'MPIEXEC_EXTRA_FLAGS', None,
+            'STRING', 'MPI executable extra flags', dependson='--mpi')
+
     # ----------
     # Threading
     # ----------
