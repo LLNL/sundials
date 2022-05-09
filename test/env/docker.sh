@@ -167,8 +167,8 @@ export SUNDIALS_LOGGING_ENABLE_MPI=ON
 # Uncomment to override the default output file comparison precisions. The float
 # precision is number of digits to compare (0 = all digits) and the integer
 # precision is allowed percentage difference (0 = no difference).
-export SUNDIALS_TEST_FLOAT_PRECISION=0
-export SUNDIALS_TEST_INTEGER_PRECISION=0
+export SUNDIALS_TEST_FLOAT_PRECISION=6
+export SUNDIALS_TEST_INTEGER_PRECISION=1
 
 # FindMPI fails with this ON
 export SUNDIALS_ENABLE_WARNINGS_AS_ERRORS=OFF
