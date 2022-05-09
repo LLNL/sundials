@@ -81,7 +81,8 @@ foreach(test_tuple ${ARKODE_unit_tests})
   # add test to regression tests
   sundials_add_test(${test_name} ${test}
     TEST_ARGS ${test_args}
-    MPI_NPROCS ${number_of_tasks})
+    MPI_NPROCS ${number_of_tasks}
+    NODIFF)
 endforeach()
 
 message(STATUS "Added ARKODE CXX parallel units tests")
