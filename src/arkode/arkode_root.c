@@ -186,7 +186,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->grout); ark_mem->root_mem->grout = NULL;
     free(ark_mem->root_mem->iroots); ark_mem->root_mem->iroots = NULL;
     free(ark_mem->root_mem->rootdir); ark_mem->root_mem->rootdir = NULL;
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODES",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
