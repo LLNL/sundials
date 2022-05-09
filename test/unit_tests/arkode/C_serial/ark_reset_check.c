@@ -13,6 +13,20 @@
  *---------------------------------------------------------------
  * Routine to test that ARKStepReset, ERKStepReset and
  * MRIStepReset function correctly.
+ *
+ * This runs the same test problem as in
+ * examples/arkode/C_serial/ark_analytic.c:
+ *    dy/dt = lamda*y + 1/(1+t^2) - lambda*atan(t)
+ * for t in various time intervals, with the initial condition
+ * y(0)=0, and having analytical solution y(t) = atan(t).
+ *
+ * To test each time stepper, we:
+ * 1. Initialize to analytical solution at 0, evolve over [0,0.1],
+ *    and check result
+ * 2. Reset to analytical solution at 0.1, evolve over [0.1,0.2],
+ *    and check result
+ * 2. Reset to analytical solution at 0.3, evolve over [0.3,0.4],
+ *    and check result
  *-----------------------------------------------------------------*/
 
 /* Header files */
