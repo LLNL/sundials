@@ -20,7 +20,7 @@ sundials_add_library(sundials_sunlinsolginkgo
     sunlinsol_ginkgo.cpp
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgo.hpp
-   #  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgoblock.hpp
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgoblock.hpp
   INCLUDE_SUBDIR
     sunlinsol
   OBJECT_LIBRARIES
