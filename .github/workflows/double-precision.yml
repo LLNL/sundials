@@ -16,13 +16,13 @@ jobs:
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
           ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
-      - name: Archive CMake log reults
+      - name: Archive CMake logs from failed build
         uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cmake-logs
           path: |
-            ${{ github.workspace }}/test/build_*/Testing/output/test_nvector_parhyp_4_1000_0.out
+            ${{ github.workspace }}/test/build_*/Testing/output/*.out
             ${{ github.workspace }}/test/build_*/**/CMake*.log
             ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTest.log
   run_int64_double:
@@ -38,12 +38,12 @@ jobs:
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
           ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 64
-      - name: Archive CMake log reults
+      - name: Archive CMake logs from failed build
         uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cmake-logs
           path: |
-            ${{ github.workspace }}/test/build_*/Testing/output/test_nvector_parhyp_4_1000_0.out
+            ${{ github.workspace }}/test/build_*/Testing/output/*.out
             ${{ github.workspace }}/test/build_*/**/CMake*.log
             ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTest.log
