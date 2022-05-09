@@ -87,10 +87,3 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   mark_as_advanced(MPI_${lang}_LIBRARIES)
   mark_as_advanced(MPI_${lang}_LINK_FLAGS)
 endforeach()
-
-# ----------------------------------------------------------
-# Allow additional flags to be passed to the MPIEXEC command
-# ----------------------------------------------------------
-sundials_option(SUNDIALS_MPIEXEC_EXTRA_FLAGS STRING "Flags to pass to the MPIEXEC command before any other flags/arguments" ""
-                DEPENDS_ON ENABLE_MPI
-                ADVANCED)

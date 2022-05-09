@@ -201,7 +201,7 @@ export MPICC="${MPI_ROOT}/bin/mpicc"
 export MPICXX="${MPI_ROOT}/bin/mpicxx"
 export MPIFC="${MPI_ROOT}/bin/mpifort"
 export MPIEXEC="${MPI_ROOT}/bin/mpirun"
-export MPIEXEC_EXTRA_FLAGS="--oversubscribe"
+export MPIEXEC_PREFLAGS="--oversubscribe"
 
 # -------------
 # LAPACK / BLAS
