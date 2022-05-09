@@ -1,6 +1,3 @@
-hwloc/linux: Ignoring PCI device with non-16bit domain.
-Pass --enable-32bits-pci-domain to configure to support such devices
-(warning: it would break the library ABI, don't enable unless really needed).
 
 Stationary 2D Heat PDE with Nonlinear Terms:
  --------------------------------- 
