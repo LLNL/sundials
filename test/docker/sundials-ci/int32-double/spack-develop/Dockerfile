@@ -1,4 +1,4 @@
-FROM ecpe4s/ubuntu20.04-runner-x86_64:2022-02-01 as bootstrap
+FROM spack/ubuntu-focal as bootstrap
 
 ENV SPACK_ROOT=/opt/spack \
     CURRENTLY_BUILDING_DOCKER_IMAGE=1 \
@@ -36,7 +36,7 @@ RUN apt-get -yqq update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02 && \
+    git clone https://github.com/spack/spack.git . && \
     mkdir -p $SPACK_ROOT/opt/spack
 
 RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
@@ -92,17 +92,17 @@ RUN mkdir /opt/spack-environment \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
-&&   echo "      - gcc@9.3.0" \
+&&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - hypre+int64~internal-superlu" \
-&&   echo "  - petsc~double+int64~superlu-dist" \
+&&   echo "  - hypre~int64~internal-superlu" \
+&&   echo "  - petsc+double~int64~superlu-dist" \
 &&   echo "  - openmpi" \
 &&   echo "  - openblas~ilp64" \
 &&   echo "  - suite-sparse" \
-&&   echo "  - superlu-mt+int64~blas" \
-&&   echo "  - superlu-dist+int64 ^metis+int64" \
-&&   echo "  - trilinos+float+tpetra gotype=long_long" \
+&&   echo "  - superlu-mt~int64~blas" \
+&&   echo "  - superlu-dist~int64 ^metis~int64" \
+&&   echo "  - trilinos+tpetra gotype=int" \
 &&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
@@ -145,7 +145,7 @@ RUN cd /opt/spack-environment && \
 ENV PATH="/opt/view/bin:${PATH}"
 
 # Allow mpirun as root
-ENV OMP_ALLOW_RUN_AS_ROOT=1
-ENV OMP_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]

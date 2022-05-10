@@ -36,7 +36,7 @@ RUN apt-get -yqq update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02 && \
+    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02  && \
     mkdir -p $SPACK_ROOT/opt/spack
 
 RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
@@ -70,7 +70,7 @@ CMD ["interactive-shell"]
 # Build stage with Spack pre-installed and ready to be used
 FROM bootstrap as builder
 
-# Install python environment for docs
+# Install python environment
 RUN python3 -m venv /opt/python-venv/sundocs && \
     . /opt/python-venv/sundocs/bin/activate && \
     pip install wheel && \
@@ -96,18 +96,19 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
 &&   echo "  - hypre+int64~internal-superlu" \
-&&   echo "  - petsc+double+int64~superlu-dist" \
+&&   echo "  - petsc~double+int64~superlu-dist~hypre" \
 &&   echo "  - openmpi" \
-&&   echo "  - openblas~ilp64" \
+&&   echo "  - openblas+ilp64" \
 &&   echo "  - suite-sparse" \
 &&   echo "  - superlu-mt+int64~blas" \
 &&   echo "  - superlu-dist+int64 ^metis+int64" \
-&&   echo "  - trilinos+tpetra gotype=int" \
+&&   echo "  - trilinos+float+tpetra gotype=long_long" \
 &&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
 &&   echo "    local: /var/cache/spack-mirror" \
+&&   echo "    E4S: https://cache.e4s.io" \
 &&   echo "  repos: []" \
 &&   echo "  upstreams: {}" \
 &&   echo "  concretization: together" \
@@ -145,7 +146,7 @@ RUN cd /opt/spack-environment && \
 ENV PATH="/opt/view/bin:${PATH}"
 
 # Allow mpirun as root
-ENV OMP_ALLOW_RUN_AS_ROOT=1
-ENV OMP_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]

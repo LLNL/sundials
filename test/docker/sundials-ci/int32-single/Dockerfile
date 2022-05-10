@@ -95,19 +95,20 @@ RUN mkdir /opt/spack-environment \
 &&   echo "      - gcc@9.3.0" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - hypre~int64~internal-superlu" \
-&&   echo "  - petsc+double~int64~superlu-dist" \
+&&   echo "  - hypre+int64~internal-superlu" \
+&&   echo "  - petsc~double+int64~superlu-dist" \
 &&   echo "  - openmpi" \
 &&   echo "  - openblas~ilp64" \
 &&   echo "  - suite-sparse" \
-&&   echo "  - superlu-mt~int64~blas" \
-&&   echo "  - superlu-dist~int64 ^metis~int64" \
-&&   echo "  - trilinos+tpetra gotype=int" \
+&&   echo "  - superlu-mt+int64~blas" \
+&&   echo "  - superlu-dist+int64 ^metis+int64" \
+&&   echo "  - trilinos+float+tpetra gotype=long_long" \
 &&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
 &&   echo "    local: /var/cache/spack-mirror" \
+&&   echo "    E4S: https://cache.e4s.io" \
 &&   echo "  repos: []" \
 &&   echo "  upstreams: {}" \
 &&   echo "  concretization: together" \
@@ -145,7 +146,7 @@ RUN cd /opt/spack-environment && \
 ENV PATH="/opt/view/bin:${PATH}"
 
 # Allow mpirun as root
-ENV OMP_ALLOW_RUN_AS_ROOT=1
-ENV OMP_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]
