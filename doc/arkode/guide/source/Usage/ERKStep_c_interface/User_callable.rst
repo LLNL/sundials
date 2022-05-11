@@ -2113,7 +2113,8 @@ performs the same input checking and initializations that are done in
 assumes that the existing internal memory is sufficient for the new
 problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous
-integration.  Following a successful call to
+integration, and deletes any previously-set *tstop* value specified via a
+call to :c:func:`ERKStepSetStopTime()`.  Following a successful call to
 :c:func:`ERKStepReInit()`, call :c:func:`ERKStepEvolve()` again for the
 solution of the new problem.
 
@@ -2182,7 +2183,9 @@ the current settings for all ERKStep module options and performs no memory
 allocations but, unlike :c:func:`ERKStepReInit()`, this routine performs only a
 *subset* of the input checking and initializations that are done in
 :c:func:`ERKStepCreate`. In particular this routine retains all internal
-counter values and the step size/error history. Following a successful call to
+counter values and the step size/error history. Like :c:func:`ERKStepReInit()`, a call to
+:c:func:`ERKStepReset()` will delete any previously-set *tstop* value specified
+via a call to :c:func:`ERKStepSetStopTime()`.  Following a successful call to
 :c:func:`ERKStepReset()`, call :c:func:`ERKStepEvolve()` again to continue
 solving the problem. By default the next call to :c:func:`ERKStepEvolve()` will
 use the step size computed by ERKStep prior to calling :c:func:`ERKStepReset()`.

@@ -118,6 +118,21 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.3.0
+-----------------
+
+Fixed a bug in :c:func:`ERKStepReset()`, :c:func:`ERKStepReInit()`,
+:c:func:`ARKStepReset()`, :c:func:`ARKStepReInit()`, :c:func:`MRIStepReset()`, and
+:c:func:`MRIStepReInit()` where a previously-set value of *tstop* (from a call to
+:c:func:`ERKStepSetStopTime()`, :c:func:`ARKStepSetStopTime()`, or
+:c:func:`MRIStepSetStopTime()`, respectively) would not be cleared.
+
+Updated :c:func:`MRIStepReset()` to call the corresponding
+:c:type:`MRIStepInnerResetFn` with the same :math:`(t_R,y_R)` arguments for the
+:c:type:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
+scale subproblems.
+
+
 Changes in v5.2.0
 -----------------
 
