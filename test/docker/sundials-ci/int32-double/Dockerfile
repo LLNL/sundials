@@ -92,7 +92,7 @@ RUN mkdir /opt/spack-environment \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
-&&   echo "      - gcc@9.3.0" \
+&&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
 &&   echo "  - hypre~int64~internal-superlu" \

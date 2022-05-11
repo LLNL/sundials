@@ -92,11 +92,11 @@ RUN mkdir /opt/spack-environment \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
-&&   echo "      - gcc@9.3.0" \
+&&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
 &&   echo "  - hypre+int64~internal-superlu" \
-&&   echo "  - petsc~double+int64~superlu-dist" \
+&&   echo "  - petsc~double+int64~superlu-dist~hypre" \
 &&   echo "  - openmpi" \
 &&   echo "  - openblas~ilp64" \
 &&   echo "  - suite-sparse" \
@@ -122,7 +122,7 @@ RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
  && status=0                                                            \
  && spack install --reuse --no-check-signature                          \
     || spack install --reuse --no-check-signature                       \
-    || spack install --reuse --no-check-signature                       \
+    || spack -v install --reuse --no-check-signature                    \
     || status=$?                                                        \
  && mkdir -p /var/cache/spack-mirror/build_cache                        \
  && spack buildcache update-index -d /var/cache/spack-mirror            \
