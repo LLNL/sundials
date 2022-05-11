@@ -2,8 +2,8 @@
 name: Extended Build and Test with GCC+TPLs (no GPUs)
 
 on:
-  push  # temporarily on push too for testing
-  pull_request
+  push:  # temporarily on push too for testing
+  pull_request:
   schedule:
     - cron:  '30 22 * * *'
 jobs:

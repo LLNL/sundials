@@ -2,10 +2,8 @@
 name: Double Build and Test with GCC+TPLs (no GPUs)
 
 on:
-  push
-  pull_request
-  schedule:
-    - cron:  '30 22 * * *'
+  push:
+  pull_request:
 jobs:
   run_int32_double:
     runs-on: ubuntu-latest
