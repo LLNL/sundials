@@ -10,8 +10,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-      with:
-        ref: feature/github-actions
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     - name: Login to DockerHub
@@ -22,14 +20,14 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.0.0
       with:
-          context: "{{defaultContext}}/test/docker/sundials-ci/int32-double/spack-develop"
+          context: "./test/docker/sundials-ci/int32-double/spack-develop"
           push: true
           tags: balos1/sundials-ci:int32-double-spack-develop
   build_int64_double:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     - name: Login to DockerHub
@@ -40,6 +38,6 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.0.0
       with:
-          context: "{{defaultContext}}/test/docker/sundials-ci/int64-double/spack-develop"
+          context: "./test/docker/sundials-ci/int64-double/spack-develop"
           push: true
           tags: balos1/sundials-ci:int64-double-spack-develop
