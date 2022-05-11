@@ -1,7 +1,11 @@
 #
 name: Single Build and Test with GCC+TPLs (no GPUs)
 
-on: [push, pull_request] # temporarily on push too for testing
+on:
+  push  # temporarily on push too for testing
+  pull_request
+  schedule:
+    - cron:  '30 22 * * *'
 jobs:
   run_int32_single:
     runs-on: ubuntu-latest

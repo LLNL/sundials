@@ -1,7 +1,11 @@
 #
 name: Extended Build and Test with GCC+TPLs (no GPUs)
 
-on: [push, pull_request] # temporarily on push too for testing
+on:
+  push  # temporarily on push too for testing
+  pull_request
+  schedule:
+    - cron:  '30 22 * * *'
 jobs:
   run_int32_extended:
     runs-on: ubuntu-latest
@@ -15,7 +19,7 @@ jobs:
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --realtype extended --indexsize 32
+          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype extended --indexsize 32
       - name: Archive CMake logs from failed build
         uses: actions/upload-artifact@v3
         if: failure()
@@ -35,7 +39,7 @@ jobs:
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
           cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --realtype extended --indexsize 64
+          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype extended --indexsize 64
       - name: Archive CMake logs from failed build
         uses: actions/upload-artifact@v3
         if: failure()
