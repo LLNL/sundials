@@ -88,22 +88,18 @@ RUN mkdir /opt/spack-environment \
 &&   echo "    all:" \
 &&   echo "      providers:" \
 &&   echo "        blas:" \
-&&   echo "        - openblas" \
+&&   echo "        - netlib-lapack" \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
 &&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - hypre+int64~internal-superlu" \
-&&   echo "  - petsc~double+int64~superlu-dist~hypre" \
+&&   echo "  - petsc~double+int64 ^netlib-lapack" \
 &&   echo "  - openmpi" \
-&&   echo "  - openblas+ilp64" \
-&&   echo "  - suite-sparse" \
-&&   echo "  - superlu-mt+int64~blas" \
-&&   echo "  - superlu-dist+int64 ^metis+int64" \
-&&   echo "  - trilinos+float+tpetra gotype=long_long" \
-&&   echo "  - xbraid" \
+&&   echo "  - netlib-lapack" \
+&&   echo "  - superlu-mt+int64+blas ^netlib-lapack" \
+&&   echo "  - trilinos+float+tpetra gotype=long_long ^netlib-lapack" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \

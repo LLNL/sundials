@@ -1,4 +1,4 @@
-FROM ecpe4s/ubuntu20.04-runner-x86_64:2022-02-01 as bootstrap
+FROM spack/ubuntu-focal as bootstrap
 
 ENV SPACK_ROOT=/opt/spack \
     CURRENTLY_BUILDING_DOCKER_IMAGE=1 \
@@ -36,7 +36,7 @@ RUN apt-get -yqq update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02 && \
+    git clone https://github.com/spack/spack.git . && \
     mkdir -p $SPACK_ROOT/opt/spack
 
 RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
@@ -88,23 +88,26 @@ RUN mkdir /opt/spack-environment \
 &&   echo "    all:" \
 &&   echo "      providers:" \
 &&   echo "        blas:" \
-&&   echo "        - netlib-lapack" \
+&&   echo "        - openblas" \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
 &&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - petsc~double+int64~superlu-dist~hypre ^netlib-lapack" \
+&&   echo "  - hypre+int64~internal-superlu" \
+&&   echo "  - petsc+double+int64~superlu-dist~hypre" \
 &&   echo "  - openmpi" \
-&&   echo "  - netlib-lapack" \
-&&   echo "  - superlu-mt+int64+blas ^netlib-lapack" \
-&&   echo "  - trilinos+float+tpetra gotype=long_long ^netlib-lapack" \
+&&   echo "  - openblas+ilp64" \
+&&   echo "  - suite-sparse" \
+&&   echo "  - superlu-mt+int64~blas" \
+&&   echo "  - superlu-dist+int64 ^metis+int64" \
+&&   echo "  - trilinos+tpetra gotype=long_long" \
+&&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
 &&   echo "    local: /var/cache/spack-mirror" \
-&&   echo "    E4S: https://cache.e4s.io" \
 &&   echo "  repos: []" \
 &&   echo "  upstreams: {}" \
 &&   echo "  concretization: together" \
@@ -118,7 +121,7 @@ RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
  && status=0                                                            \
  && spack install --reuse --no-check-signature                          \
     || spack install --reuse --no-check-signature                       \
-    || spack -v install --reuse --no-check-signature                    \
+    || spack install --reuse --no-check-signature                       \
     || status=$?                                                        \
  && mkdir -p /var/cache/spack-mirror/build_cache                        \
  && spack buildcache update-index -d /var/cache/spack-mirror            \
