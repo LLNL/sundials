@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's linear solver interface.
+ * Implementation header file for ARKODE's linear solver interface.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKLS_IMPL_H
@@ -164,7 +164,7 @@ typedef struct ARKLsMassMemRec {
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                */
   N_Vector x;         /* solution vector used by SUNLinearSolver     */
-  N_Vector ycur;      /* ptr to ARKode current y vector              */
+  N_Vector ycur;      /* ptr to ARKODE current y vector              */
 
   /* Preconditioner computation
     (a) user-provided:
@@ -221,7 +221,7 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                    ARKLsMem arkls_mem, ARKRhsFn fi,
                    N_Vector tmp1, N_Vector tmp2);
 
-/* Generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
+/* Generic linit/lsetup/lsolve/lfree interface routines for ARKODE to call */
 int arkLsInitialize(void* arkode_mem);
 
 int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
@@ -233,7 +233,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tcur,
 
 int arkLsFree(void* arkode_mem);
 
-/* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */
+/* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
 int arkLsMassInitialize(void* arkode_mem);
 
 int arkLsMassSetup(void* arkode_mem, realtype t, N_Vector vtemp1,
