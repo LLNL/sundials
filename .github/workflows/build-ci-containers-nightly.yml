@@ -1,10 +1,9 @@
-name: Build spack@develop CI containers
+name: Build spack-develop CI containers
 on:
+  push: #temporary
   workflow_dispatch:
-#on:
-#   workflow_dispatch:
-#   schedule:
-#   - cron: '30 02 * * *'
+  schedule:
+  - cron: '30 02 * * *'
 jobs:
   build_int32_double:
     runs-on: ubuntu-latest
