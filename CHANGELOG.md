@@ -1,5 +1,17 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.3.0
+
+Fixed a bug in `ERKStepReset`, `ERKStepReInit`, `ARKStepReset`, `ARKStepReInit`,
+`MRIStepReset`, and `MRIStepReInit` where a previously-set value of *tstop* (from
+a call to `ERKStepSetStopTime`, `ARKStepSetStopTime`, or `MRIStepSetStopTime`,
+respectively) would not be cleared.
+
+Updated `MRIStepReset` to call the corresponding `MRIStepInnerResetFn` with the same
+(*tR*,*yR*) arguments for the `MRIStepInnerStepper` object that is used to evolve the
+MRI "fast" time scale subproblems.
+
+
 ## Changes to SUNDIALS in release 6.2.0
 
 Added the `SUNLogger` API which provides a SUNDIALS-wide
