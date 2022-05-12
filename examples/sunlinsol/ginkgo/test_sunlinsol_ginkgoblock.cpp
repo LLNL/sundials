@@ -57,7 +57,7 @@ using GkoBatchMatrixType = gko::matrix::BatchDense<sunrealtype>;
 using SUNMatrixType      = BlockMatrix<GkoBatchMatrixType>;
 #endif
 
-std::map<std::string, int> methods{{"bicgstab", 0}, {"cg", 2},  {"direct", 3},
+std::unordered_map<std::string, int> methods{{"bicgstab", 0}, {"cg", 2},  {"direct", 3},
                                    {"gmres", 4},    {"idr", 5}, {"richardson", 6}};
 
 sunrealtype solve_tolerance = 1000 * std::numeric_limits<sunrealtype>::epsilon();

@@ -9,6 +9,7 @@
 
 namespace sundials {
 namespace ginkgo {
+namespace {
 
 using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
 using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
@@ -327,6 +328,7 @@ void Copy(Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
   B.gkomtx()->copy_from(A.gkomtx().get());
 }
 
+}
 } // namespace ginkgo
 } // namespace sundials
 

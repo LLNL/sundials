@@ -7,33 +7,9 @@
 #ifndef _SUNLINSOL_GINKGO_HPP
 #define _SUNLINSOL_GINKGO_HPP
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_Ginkgo(SUNLinearSolver S, void* A_data, SUNATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_Ginkgo(SUNLinearSolver S, void* P_data, SUNPSetupFn Pset,
-                                                      SUNPSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Ginkgo(SUNLinearSolver S, N_Vector s1, N_Vector s2);
-SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_Ginkgo(SUNLinearSolver S, booleantype onff);
-SUNDIALS_EXPORT int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT N_Vector SUNLinSolResid_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_Ginkgo(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_Ginkgo(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_Ginkgo(SUNLinearSolver S);
-
-#ifdef __cplusplus
-}
-#endif
-
 namespace sundials {
 namespace ginkgo {
+namespace {
 
 template<class GkoSolverType, class MatrixType>
 class LinearSolver;
@@ -100,12 +76,12 @@ public:
   GKO_CREATE_FACTORY_PARAMETERS(parameters, Factory)
   {
     sunrealtype GKO_FACTORY_PARAMETER_SCALAR(tolerance, SUN_UNIT_ROUNDOFF);
-    int GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
+    unsigned long GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
   };
   GKO_ENABLE_CRITERION_FACTORY(DefaultStop, parameters, Factory);
   GKO_ENABLE_BUILD_METHOD(Factory);
 
-  int get_max_iters() const { return parameters_.max_iters; }
+  unsigned long get_max_iters() const { return parameters_.max_iters; }
 
   sunrealtype get_tolerance() const { return parameters_.tolerance; }
 
@@ -273,7 +249,8 @@ private:
   bool log_res_norm_;
 };
 
+}
 } // namespace ginkgo
 } // namespace sundials
 
-#endif
+#endif // SUNLINSOL_GINKGO_HPP

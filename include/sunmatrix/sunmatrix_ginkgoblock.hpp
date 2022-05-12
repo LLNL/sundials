@@ -9,6 +9,7 @@
 
 namespace sundials {
 namespace ginkgo {
+namespace {
 
 using GkoBatchDenseMat = gko::matrix::BatchDense<sunrealtype>;
 using GkoBatchCsrMat   = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
@@ -327,6 +328,7 @@ void Print(BlockMatrix<GkoBatchMatType>& A, std::ostream& ost = std::cout)
   gko::write(ost, A.gkomtx().get());
 }
 
+}
 } // namespace ginkgo
 } // namespace sundials
 

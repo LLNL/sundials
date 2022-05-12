@@ -9,33 +9,9 @@
 #ifndef _SUNLINSOL_GINKGOBLOCK_HPP
 #define _SUNLINSOL_GINKGOBLOCK_HPP
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_GinkgoBlock(SUNLinearSolver S, void* A_data, SUNATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_GinkgoBlock(SUNLinearSolver S, void* P_data, SUNPSetupFn Pset,
-                                                           SUNPSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S, N_Vector s1, N_Vector s2);
-SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_GinkgoBlock(SUNLinearSolver S, booleantype onff);
-SUNDIALS_EXPORT int SUNLinSolSetup_GinkgoBlock(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT N_Vector SUNLinSolResid_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_GinkgoBlock(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_GinkgoBlock(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S);
-
-#ifdef __cplusplus
-}
-#endif
-
 namespace sundials {
 namespace ginkgo {
+namespace {
 
 template<class GkoBatchSolverType, class BlockMatrixType>
 class BlockLinearSolver;
@@ -236,7 +212,8 @@ private:
   static constexpr int default_restart_   = 0;
 };
 
+}
 } // namespace ginkgo
 } // namespace sundials
 
-#endif
+#endif // SUNLINSOL_GINKGOBLOCK_HPP

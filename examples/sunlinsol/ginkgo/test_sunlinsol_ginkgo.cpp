@@ -17,7 +17,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <map>
+#include <unordered_map>
 #include <random>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +53,7 @@ using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
 using SUNMatrixType = Matrix<GkoMatrixType>;
 #endif
 
-std::map<std::string, int> methods {
+std::unordered_map<std::string, int> methods {
   {"bicg",0}, {"bicgstab",1}, {"cg",2}, {"cgs",3},
   {"fcg",4}, {"gmres",5}, {"idr",6}
   // {"multigrid",7} // does not support the combined stopping criteria we use
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
   sunrealtype matcond;           /* matrix condition number      */
   sunindextype matcols, matrows; /* matrix columns, matrows      */
   sunindextype nblocks;          /* number of matrix blocks      */
-  sunindextype max_iters;        /* maximum number of iterations */
+  unsigned long max_iters;       /* maximum number of iterations */
   N_Vector x, y, b;              /* test vectors                 */
   int print_timing;
   realtype* xdata;
