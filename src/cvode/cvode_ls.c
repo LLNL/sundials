@@ -858,6 +858,21 @@ char *CVodeGetLinReturnFlagName(long int flag)
 }
 
 
+int CVodeGetSavedJac(void *cvode_mem, SUNMatrix *savedJ)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetSavedJac",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+  *savedJ = cvls_mem->savedJ;
+  return(CVLS_SUCCESS);
+}
+
+
 /*=================================================================
   CVLS private functions
   =================================================================*/
