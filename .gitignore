@@ -2,6 +2,7 @@
 /.cache
 /.project
 /build*
+/instdir
 /TPLs
 /autom4te.cache
 /.settings
