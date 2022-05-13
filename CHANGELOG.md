@@ -1,6 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 6.3.0
+## Changes to SUNDIALS in release x.x.x
 
 Fixed a bug in `ERKStepReset`, `ERKStepReInit`, `ARKStepReset`, `ARKStepReInit`,
 `MRIStepReset`, and `MRIStepReInit` where a previously-set value of *tstop* (from
@@ -11,6 +11,9 @@ Updated `MRIStepReset` to call the corresponding `MRIStepInnerResetFn` with the 
 (*tR*,*yR*) arguments for the `MRIStepInnerStepper` object that is used to evolve the
 MRI "fast" time scale subproblems.
 
+Added a new [example](examples/cvode/serial/cvRocket_dns.c) which
+demonstrates using CVODE with a discontinuous right-hand-side function
+and rootfinding.
 
 ## Changes to SUNDIALS in release 6.2.0
 
