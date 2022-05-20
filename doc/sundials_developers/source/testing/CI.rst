@@ -11,15 +11,10 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-CI Overview
-===========
-
-We use both GitHub and GitLab for CI testing.
-
 GitHub
 ======
 
-There are two types of CI testing that we run on GitHub via [GitHub actions](https://github.com/LLNL/sundials/actions):
+There are two types of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
 
 1. Comprehensive (excluding GPUs)
 2. Minimal/Short
@@ -44,35 +39,35 @@ to build the Docker container(s) used for the comprehensive CI testing.
 
 1. Create a `spack.yaml` for each configuration of SUNDIALS. E.g., int64 and double:
 
-```yaml
-# This is a Spack Environment file.
-#
-# It describes a set of packages to be installed, along with
-# configuration settings.
-spack:
-  packages:
-    all:
-      providers:
-        blas: [openblas]
-        mpi: [openmpi]
-  # add package specs to the `specs` list
-  specs:
-  - hypre+int64~internal-superlu
-  - petsc+double+int64
-  - openmpi
-  - openblas+ilp64
-  - suite-sparse
-  - superlu-dist+int64 ^metis+int64
-  - trilinos+tpetra gotype=long_long
-  config: {}
-  modules:
-    enable: []
-  repos: []
-  upstreams: {}
-  container:
-    images:
-      os: ubuntu:20.04
-```
+.. code-block:: yaml
+
+  # This is a Spack Environment file.
+  #
+  # It describes a set of packages to be installed, along with
+  # configuration settings.
+  spack:
+    packages:
+      all:
+        providers:
+          blas: [openblas]
+          mpi: [openmpi]
+    # add package specs to the `specs` list
+    specs:
+    - hypre+int64~internal-superlu
+    - petsc+double+int64
+    - openmpi
+    - openblas+ilp64
+    - suite-sparse
+    - superlu-dist+int64 ^metis+int64
+    - trilinos+tpetra gotype=long_long
+    config: {}
+    modules:
+      enable: []
+    repos: []
+    upstreams: {}
+    container:
+      images:
+        os: ubuntu:20.04
 
 2. Run `spack containerize > Dockerfile` in the directory of the `spack.yaml`
 

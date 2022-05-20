@@ -41,17 +41,7 @@ transaction.
 
         $ chmod -R go-rwx ~/.ssh
 
-#. Install the key in Bitbucket:
-
-   a. Log in to http://mybitbucket.llnl.gov
-
-   b. Click on the profile drop down in the far top right of the window and
-      select "Manage Account"
-
-   c. Click on the "SSH keys" link on the left of the screen and then "Add key"
-
-   d. Paste your key into the text box. The text of the key is the contents of
-      the file ``~/.ssh/id_rsa.pub``
+#. Install the key in GitHub following the instructions `here <https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account>`_
 
 .. _GitConfig:
 
@@ -191,19 +181,19 @@ To clone a copy of the SUNDIALS repository use one of the following commands:
 
    .. code-block:: none
 
-      $ git clone ssh://git@mybitbucket.llnl.gov:7999/sundials/sunrepo.git
+      $ git clone git@github.com:LLNL/sundials.git
 
 --- OR ---
 
-#. Clone the repository with your OUN and AD password:
+#. Clone the repository with https (requires authenticating with your username and password or access token to push)
 
    .. code-block:: none
 
-      $ git clone https://YourOUN@mybitbucket.llnl.gov/scm/sundials/sunrepo.git
+      $ git clone https://github.com/LLNL/sundials.git
 
-After cloning the repository you will be on the ``develop`` branch by default
-however, the ``develop`` and ``master`` branches are protected branches and can
+After cloning the repository you will be on the ``main`` branch by default
+however, the ``develop`` and ``main`` branches are protected branches and can
 not be updated directly. In order to make changes to either of these branch you
-must create a new branch, make the desired modifications, and issue a pull
-request to have the changes merged into the parent branch. See the
+must create a new branch from ``develop``, make the desired modifications, and
+issue a pull request to have the changes merged into the parent branch. See the
 :ref:`Workflow` section for more information.

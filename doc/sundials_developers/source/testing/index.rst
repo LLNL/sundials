@@ -14,8 +14,9 @@
 
 .. _Testing:
 
+*******
 Testing
-=======
+*******
 
 The following sections describe the SUNDIALS CI suite as well as a testing workflow for developers.
 

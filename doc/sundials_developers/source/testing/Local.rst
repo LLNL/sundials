@@ -11,6 +11,8 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
+Testing Locally
+===============
 
 Using sundials-ci Docker Containers
 -----------------------------------
@@ -32,4 +34,4 @@ run the test suite.
    ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
 
 
-On Macs, it is recommended to use `Podman <https://podman.io/>_` (and then the same steps above apply. using ``podman`` instead of ``docker``).
+On Macs, it is recommended to use `Podman <https://podman.io/>`_ (and then the same steps above apply. using ``podman`` instead of ``docker``).
