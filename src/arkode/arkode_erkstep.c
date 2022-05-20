@@ -774,9 +774,9 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
-                       "ARKODE::erkStep_TakeStep", "start-step",
-                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
-                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+                       "ARKODE::erkStep_TakeStep", "start-stage",
+                       "step = %li, stage = %i, h = %"RSYM", tcur = %"RSYM,
+                       ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
     /* Set ycur to current stage solution */
