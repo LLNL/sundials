@@ -832,9 +832,11 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       attempts++;
       ark_mem->nst_attempts++;
 
-#ifdef SUNDIALS_DEBUG
-      printf("ARKODE start step %li,  attempt %i,  h = %"RSYM",  t_n = %"RSYM"\n",
-             ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                         "ARKODE::arkEvolve", "start-step",
+                         "step = %li, attempt = %i, h = %"RSYM", tcur = %"RSYM,
+                         ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
 #endif
 
       /* Call time stepper module to attempt a step:
@@ -2362,9 +2364,11 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
       ark_mem->tcur = ark_mem->tstop;
   }
 
-#ifdef SUNDIALS_DEBUG
-  printf("ARKODE end step %li,  h = %"RSYM",  t_n = %"RSYM"\n",
-         ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkCompleteStep", "end-step",
+                     "step = %li, h = %"RSYM", tcur = %"RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
   /* apply user-supplied step postprocessing function (if supplied) */

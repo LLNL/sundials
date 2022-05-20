@@ -1463,13 +1463,6 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* Set current stage time  */
     ark_mem->tcur = ark_mem->tn + step_mem->MRIC->c[is]*ark_mem->h;
 
-#ifdef SUNDIALS_DEBUG
-    printf("    ------------------------------------"
-           "----------------------------------------\n");
-    printf("    MRIStep step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
-           ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
-#endif
-
     /* Solver diagnostics reporting */
     if (ark_mem->report)
       fprintf(ark_mem->diagfp, "MRIStep  step  %li  %"RSYM"  %i  %"RSYM"\n",

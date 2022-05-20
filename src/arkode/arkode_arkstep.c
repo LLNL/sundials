@@ -1589,15 +1589,23 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* store current stage index */
     step_mem->istage = is;
 
+    /* determine whether implicit solve is required */
+    implicit_stage = SUNFALSE;
+    if (step_mem->implicit)
+      if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
+        implicit_stage = SUNTRUE;
+
     /* set current stage time(s) */
     if (step_mem->implicit)
       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
     else
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
-#ifdef SUNDIALS_DEBUG
-    printf("    ARKStep step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
-           ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "start-stage",
+                       "step = %li, stage = %i, implicit = %i, h = %"RSYM", tcur = %"RSYM,
+                       ark_mem->nst, is, implicit_stage, ark_mem->h, ark_mem->tcur);
 #endif
 
     /* setup time-dependent mass matrix */
@@ -1607,19 +1615,6 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                 ark_mem->tempv3);
       if (retval != ARK_SUCCESS)  return(ARK_MASSSETUP_FAIL);
     }
-
-    /* determine whether implicit solve is required */
-    implicit_stage = SUNFALSE;
-    if (step_mem->implicit)
-      if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
-        implicit_stage = SUNTRUE;
-
-#ifdef SUNDIALS_DEBUG
-    if (implicit_stage)
-      printf("implicit stage\n");
-    else
-      printf("explicit stage\n");
-#endif
 
     /* if implicit, call built-in and user-supplied predictors
        (results placed in zpred) */
@@ -1658,13 +1653,6 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (ark_mem->report)
       fprintf(ark_mem->diagfp, "ARKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
-                       "ARKODE::arkStep_TakeStep_Z", "start-step",
-                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
-                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-#endif
 
     /* perform implicit solve if required */
     if (implicit_stage) {
