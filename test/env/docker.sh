@@ -167,12 +167,12 @@ export SUNDIALS_LOGGING_ENABLE_MPI=ON
 # Uncomment to override the default output file comparison precisions. The float
 # precision is number of digits to compare (0 = all digits) and the integer
 # precision is allowed percentage difference (0 = no difference).
-if [ "$SUNDIALS_PRECISION" == "double" || "$SUNDIALS_PRECISION" == "extended" ]; then
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_TEST_FLOAT_PRECISION=6
     export SUNDIALS_TEST_INTEGER_PRECISION=1
 else
-    export SUNDIALS_TEST_FLOAT_PRECISION=4
-    export SUNDIALS_TEST_INTEGER_PRECISION=5
+    export SUNDIALS_TEST_FLOAT_PRECISION=3
+    export SUNDIALS_TEST_INTEGER_PRECISION=10
 fi
 
 # FindMPI fails with this ON
@@ -255,7 +255,7 @@ elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUPERLU_MT_ROOT=/opt/view
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-    export SUPERLU_MT_LIBRARIES="${LAPACK_LIBRARIES};${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
+    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 else
     export SUNDIALS_SUPERLU_MT=OFF
