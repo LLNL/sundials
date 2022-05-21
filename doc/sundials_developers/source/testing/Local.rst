@@ -27,11 +27,9 @@ run the test suite.
 
 .. code-block:: shell
 
-   docker pull balos1/sundials-ci:int32-double-latest
-   docker run -t -d --name sundialsci-int32-double-latest --cap-add SYS_PTRACE -v "/path/to/your/sundials/development/repo":/sundials balos1/sundials-ci:int32-single-latest
-   docker exec -it sundialsci-int32-double-latest bash # drops you into a docker container
-   cd /sundials/test
-   ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
+   docker run -t -d --name sundialsci-int32-double-latest --cap-add SYS_PTRACE -v "/path/to/your/sundials/development/repo":/sundials balos1/sundials-ci:int32-double-latest
+   docker exec -w /sundials/test sundialsci-int32-double-latest ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
 
-
-On Macs, it is recommended to use `Podman <https://podman.io/>`_ (and then the same steps above apply. using ``podman`` instead of ``docker``).
+On Macs, it is recommended to use `Podman <https://podman.io/>`_ (and then the
+same steps above apply. using ``podman`` instead of ``docker``). Podman is
+useful on Linux too, as it can run rootless easily.

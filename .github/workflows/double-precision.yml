@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Run test_driver.sh
         run: |
           git config --global --add safe.directory /__w/sundials/sundials
@@ -33,6 +35,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Run test_driver.sh
         run: |
           git config --global --add safe.directory /__w/sundials/sundials

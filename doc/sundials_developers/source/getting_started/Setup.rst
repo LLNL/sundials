@@ -181,7 +181,7 @@ To clone a copy of the SUNDIALS repository use one of the following commands:
 
    .. code-block:: none
 
-      $ git clone git@github.com:LLNL/sundials.git
+      $ git clone --recurse-submodules git@github.com:LLNL/sundials.git
 
 --- OR ---
 
@@ -189,7 +189,7 @@ To clone a copy of the SUNDIALS repository use one of the following commands:
 
    .. code-block:: none
 
-      $ git clone https://github.com/LLNL/sundials.git
+      $ git clone --recurse-submodules https://github.com/LLNL/sundials.git
 
 After cloning the repository you will be on the ``main`` branch by default
 however, the ``develop`` and ``main`` branches are protected branches and can

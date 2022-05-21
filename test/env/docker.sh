@@ -164,15 +164,21 @@ export SUNDIALS_PROFILING=ON
 export SUNDIALS_LOGGING_LEVEL=4
 export SUNDIALS_LOGGING_ENABLE_MPI=ON
 
+# Answer files
+export SUNDIALS_TEST_ANSWER_DIR="${PWD}/answers/linux-ubuntu20.04-skylake_avx512/${SUNDIALS_PRECISION}"
+
 # Uncomment to override the default output file comparison precisions. The float
 # precision is number of digits to compare (0 = all digits) and the integer
 # precision is allowed percentage difference (0 = no difference).
-if [ "$SUNDIALS_PRECISION" == "double" ]; then
+if [ "$SUNDIALS_PRECISION" == "extended" ]; then
+    export SUNDIALS_TEST_FLOAT_PRECISION=8
+    export SUNDIALS_TEST_INTEGER_PRECISION=1
+elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_TEST_FLOAT_PRECISION=6
     export SUNDIALS_TEST_INTEGER_PRECISION=1
-else
-    export SUNDIALS_TEST_FLOAT_PRECISION=3
-    export SUNDIALS_TEST_INTEGER_PRECISION=10
+else # single
+    export SUNDIALS_TEST_FLOAT_PRECISION=4
+    export SUNDIALS_TEST_INTEGER_PRECISION=5
 fi
 
 # FindMPI fails with this ON
