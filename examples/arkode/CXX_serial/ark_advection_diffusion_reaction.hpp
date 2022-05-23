@@ -86,7 +86,7 @@ struct UserData
   sunindextype nx = 512;
 
   // Mesh spacing
-  realtype dx = (xu - xl) / nx;
+  realtype dx = (xu - xl) / (nx - 1);
 
   // Number of equations
   sunindextype neq = NSPECIES * nx;
@@ -719,7 +719,7 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   find_arg(args, "--nout", uopts.nout);
 
   // Recompute mesh spacing and total number of nodes
-  udata.dx  = (udata.xu - udata.xl) / udata.nx;
+  udata.dx  = (udata.xu - udata.xl) / (udata.nx - 1);
   udata.neq = NSPECIES * udata.nx;
 
   // Create workspace
