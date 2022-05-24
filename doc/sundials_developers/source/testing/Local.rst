@@ -23,12 +23,22 @@ for testing locally. This will allow you to get as close as possible to running 
 in the CI environment on your own machine.
 
 Developers with Linux machines can use Docker to pull the image(s) and then
-run the test suite.
+run the test suite. The ``run`` command will pull the image and start the container:
 
 .. code-block:: shell
 
    docker run -t -d --name sundialsci-int32-double-latest --cap-add SYS_PTRACE -v "/path/to/your/sundials/development/repo":/sundials balos1/sundials-ci:int32-double-latest
+
+The ``exec`` command can then be used to execute the test script:
+
+.. code-block:: shell
    docker exec -w /sundials/test sundialsci-int32-double-latest ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
+
+Alternatively, you can drop into a bash shell inside the container to run specific examples:
+
+.. code-block:: shell
+
+   docker exec -it sundialsci-int32-double-latest bash
 
 On Macs, it is recommended to use `Podman <https://podman.io/>`_ (and then the
 same steps above apply. using ``podman`` instead of ``docker``). Podman is

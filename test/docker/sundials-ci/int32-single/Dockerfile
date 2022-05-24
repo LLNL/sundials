@@ -95,11 +95,11 @@ RUN mkdir /opt/spack-environment \
 &&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - petsc~double+int64~superlu-dist~hypre ^netlib-lapack" \
+&&   echo "  - petsc~double~int64~superlu-dist~hypre ^netlib-lapack" \
 &&   echo "  - openmpi" \
 &&   echo "  - netlib-lapack" \
-&&   echo "  - superlu-mt+int64+blas ^netlib-lapack" \
-&&   echo "  - trilinos+float+tpetra gotype=long_long ^netlib-lapack" \
+&&   echo "  - superlu-mt~int64+blas ^netlib-lapack" \
+&&   echo "  - trilinos+float+tpetra gotype=int ^netlib-lapack" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \

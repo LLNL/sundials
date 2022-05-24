@@ -31,10 +31,10 @@ set(CVODE_examples
   "cvKrylovDemo_ls\;2\;develop"
   "cvKrylovDemo_prec\;\;develop"
   "cvParticle_dns\;\;develop"
-  "cvPendulum_dns\;\;develop"
+  "cvPendulum_dns\;\;exclude-single"
   "cvRoberts_dns\;\;"
   "cvRoberts_dns_constraints\;\;develop"
-  "cvRoberts_dns_negsol\;\;develop"
+  "cvRoberts_dns_negsol\;\;exclude-single"
   "cvRoberts_dns_uw\;\;develop"
   )
 

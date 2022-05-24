@@ -20,21 +20,21 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasAkzoNob_ASAi_dns\;\;develop"
-  "idasAkzoNob_dns\;\;develop"
-  "idasAnalytic_mels\;\;develop"
+  "idasAkzoNob_ASAi_dns\;\;exclude-single"
+  "idasAkzoNob_dns\;\;exclude-single"
+  "idasAnalytic_mels\;\;exclude-single"
   "idasFoodWeb_bnd\;\;develop"
-  "idasHeat2D_bnd\;\;develop"
-  "idasHeat2D_kry\;\;develop"
-  "idasHessian_ASA_FSA\;\;develop"
+  "idasHeat2D_bnd\;\;exclude-single"
+  "idasHeat2D_kry\;\;exclude-single"
+  "idasHessian_ASA_FSA\;\;exclude-single"
   "idasKrylovDemo_ls\;\;develop"
   "idasKrylovDemo_ls\;1\;develop"
   "idasKrylovDemo_ls\;2\;develop"
-  "idasRoberts_ASAi_dns\;\;develop"
-  "idasRoberts_FSA_dns\;-sensi stg t\;develop"
+  "idasRoberts_ASAi_dns\;\;exclude-single"
+  "idasRoberts_FSA_dns\;-sensi stg t\;exclude-single"
   "idasRoberts_dns\;\;"
-  "idasSlCrank_dns\;\;develop"
-  "idasSlCrank_FSA_dns\;\;develop"
+  "idasSlCrank_dns\;\;exclude-single"
+  "idasSlCrank_FSA_dns\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers

@@ -83,7 +83,7 @@
 #include <sundials/sundials_math.h>     /* def. math fcns, 'realtype'           */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
+#define GSYM ".20Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
@@ -167,10 +167,10 @@ int main(int argc, char *argv[])
 
   /* Retrieve the command-line options: solve_type h G w e */
   if (argc > 1)  solve_type = (sunindextype) atol(argv[1]);
-  if (argc > 2)  hs = (realtype) atof(argv[2]);
-  if (argc > 3)  G = (realtype) atof(argv[3]);
-  if (argc > 4)  w = (realtype) atof(argv[4]);
-  if (argc > 5)  e = (realtype) atof(argv[5]);
+  if (argc > 2)  hs = SUNStrToReal(argv[2]);
+  if (argc > 3)  G = SUNStrToReal(argv[3]);
+  if (argc > 4)  w = SUNStrToReal(argv[4]);
+  if (argc > 5)  e = SUNStrToReal(argv[5]);
   if (argc > 6)  deduce = (booleantype) atoi(argv[6]);
 
   /* Check arguments for validity */
