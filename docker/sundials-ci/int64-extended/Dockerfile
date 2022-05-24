@@ -87,23 +87,13 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  packages:" \
 &&   echo "    all:" \
 &&   echo "      providers:" \
-&&   echo "        blas:" \
-&&   echo "        - openblas" \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
 &&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - hypre+int64~internal-superlu" \
-&&   echo "  - petsc+double+int64~superlu-dist~hypre" \
 &&   echo "  - openmpi" \
-&&   echo "  - openblas+ilp64" \
-&&   echo "  - suite-sparse" \
-&&   echo "  - superlu-mt+int64~blas" \
-&&   echo "  - superlu-dist+int64 ^metis+int64" \
-&&   echo "  - trilinos+tpetra gotype=long_long" \
-&&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
@@ -122,7 +112,7 @@ RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
  && status=0                                                            \
  && spack install --reuse --no-check-signature                          \
     || spack install --reuse --no-check-signature                       \
-    || spack install --reuse --no-check-signature                       \
+    || spack -v install --reuse --no-check-signature                    \
     || status=$?                                                        \
  && mkdir -p /var/cache/spack-mirror/build_cache                        \
  && spack buildcache update-index -d /var/cache/spack-mirror            \
@@ -148,5 +138,7 @@ ENV PATH="/opt/view/bin:${PATH}"
 # Allow mpirun as root
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+# Suppress HWLOC errors
+ENV HWLOC_HIDE_ERRORS=2
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]

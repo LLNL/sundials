@@ -21,7 +21,7 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.0.0
       with:
-          context: "./test/docker/sundials-ci/int32-double/spack-develop"
+          context: "./docker/sundials-ci/int32-double/spack-develop"
           push: true
           tags: balos1/sundials-ci:int32-double-spack-develop
   build_int64_double:
@@ -41,6 +41,6 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.0.0
       with:
-          context: "./test/docker/sundials-ci/int64-double/spack-develop"
+          context: "./docker/sundials-ci/int64-double/spack-develop"
           push: true
           tags: balos1/sundials-ci:int64-double-spack-develop

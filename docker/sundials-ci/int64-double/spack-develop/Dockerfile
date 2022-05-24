@@ -1,13 +1,4 @@
-FROM ecpe4s/ubuntu20.04-runner-x86_64:2022-02-01 as bootstrap
-
-ENV SPACK_ROOT=/opt/spack \
-    CURRENTLY_BUILDING_DOCKER_IMAGE=1 \
-    container=docker
-
-ENV DEBIAN_FRONTEND=noninteractive   \
-    LANGUAGE=en_US.UTF-8 \
-    LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8
+FROM spack/ubuntu-focal as bootstrap
 
 RUN apt-get -yqq update \
  && apt-get -yqq install --no-install-recommends \
@@ -34,38 +25,6 @@ RUN apt-get -yqq update \
  && locale-gen en_US.UTF-8 \
  && pip3 install boto3 \
  && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02 && \
-    mkdir -p $SPACK_ROOT/opt/spack
-
-RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
-          /usr/local/bin/docker-shell \
- && ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
-          /usr/local/bin/interactive-shell \
- && ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
-          /usr/local/bin/spack-env
-
-RUN mkdir -p /root/.spack \
- && cp $SPACK_ROOT/share/spack/docker/modules.yaml \
-        /root/.spack/modules.yaml \
- && rm -rf /root/*.* /run/nologin $SPACK_ROOT/.git
-
-# [WORKAROUND]
-# https://superuser.com/questions/1241548/
-#     xubuntu-16-04-ttyname-failed-inappropriate-ioctl-for-device#1253889
-RUN [ -f ~/.profile ]                                               \
- && sed -i 's/mesg n/( tty -s \\&\\& mesg n || true )/g' ~/.profile \
- || true
-
-WORKDIR /root
-SHELL ["docker-shell"]
-
-# Creates the package cache
-RUN spack spec hdf5+mpi
-
-ENTRYPOINT ["/bin/bash", "/opt/spack/share/spack/docker/entrypoint.bash"]
-CMD ["interactive-shell"]
 
 # Build stage with Spack pre-installed and ready to be used
 FROM bootstrap as builder
@@ -95,20 +54,19 @@ RUN mkdir /opt/spack-environment \
 &&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - hypre~int64~internal-superlu" \
-&&   echo "  - petsc+double~int64~superlu-dist" \
+&&   echo "  - hypre+int64~internal-superlu" \
+&&   echo "  - petsc+double+int64~superlu-dist~hypre" \
 &&   echo "  - openmpi" \
-&&   echo "  - openblas~ilp64" \
+&&   echo "  - openblas+ilp64" \
 &&   echo "  - suite-sparse" \
-&&   echo "  - superlu-mt~int64~blas" \
-&&   echo "  - superlu-dist~int64 ^metis~int64" \
-&&   echo "  - trilinos+tpetra gotype=int" \
+&&   echo "  - superlu-mt+int64~blas" \
+&&   echo "  - superlu-dist+int64 ^metis+int64" \
+&&   echo "  - trilinos+tpetra gotype=long_long" \
 &&   echo "  - xbraid" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
 &&   echo "    local: /var/cache/spack-mirror" \
-&&   echo "    E4S: https://cache.e4s.io" \
 &&   echo "  repos: []" \
 &&   echo "  upstreams: {}" \
 &&   echo "  concretization: together" \
@@ -148,5 +106,7 @@ ENV PATH="/opt/view/bin:${PATH}"
 # Allow mpirun as root
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+# Suppress HWLOC errors
+ENV HWLOC_HIDE_ERRORS=2
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]

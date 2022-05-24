@@ -86,10 +86,6 @@ APPROOT=/opt
 # setup the python environment
 source ${APPROOT}/python-venv/sundocs/bin/activate
 
-# allow MPI to run as root in the docker container
-export OMPI_ALLOW_RUN_AS_ROOT=1
-export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-
 # ------------------------------------------------------------------------------
 # Compilers and flags
 # ------------------------------------------------------------------------------

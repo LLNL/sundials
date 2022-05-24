@@ -36,7 +36,7 @@ RUN apt-get -yqq update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02  && \
+    git clone https://github.com/spack/spack.git . && git checkout e4s-22.02 && \
     mkdir -p $SPACK_ROOT/opt/spack
 
 RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \
@@ -70,7 +70,7 @@ CMD ["interactive-shell"]
 # Build stage with Spack pre-installed and ready to be used
 FROM bootstrap as builder
 
-# Install python environment
+# Install python environment for docs
 RUN python3 -m venv /opt/python-venv/sundocs && \
     . /opt/python-venv/sundocs/bin/activate && \
     pip install wheel && \
@@ -87,19 +87,13 @@ RUN mkdir /opt/spack-environment \
 &&   echo "  packages:" \
 &&   echo "    all:" \
 &&   echo "      providers:" \
-&&   echo "        blas:" \
-&&   echo "        - netlib-lapack" \
 &&   echo "        mpi:" \
 &&   echo "        - openmpi" \
 &&   echo "      compiler:" \
 &&   echo "      - gcc" \
 &&   echo "  specs:" \
 &&   echo "  - cmake" \
-&&   echo "  - petsc~double+int64 ^netlib-lapack" \
 &&   echo "  - openmpi" \
-&&   echo "  - netlib-lapack" \
-&&   echo "  - superlu-mt+int64+blas ^netlib-lapack" \
-&&   echo "  - trilinos+float+tpetra gotype=long_long ^netlib-lapack" \
 &&   echo "  config:" \
 &&   echo "    install_tree: /opt/software" \
 &&   echo "  mirrors:" \
@@ -118,7 +112,7 @@ RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
  && status=0                                                            \
  && spack install --reuse --no-check-signature                          \
     || spack install --reuse --no-check-signature                       \
-    || spack install --reuse --no-check-signature                       \
+    || spack -v install --reuse --no-check-signature                    \
     || status=$?                                                        \
  && mkdir -p /var/cache/spack-mirror/build_cache                        \
  && spack buildcache update-index -d /var/cache/spack-mirror            \
@@ -144,5 +138,7 @@ ENV PATH="/opt/view/bin:${PATH}"
 # Allow mpirun as root
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+# Suppress HWLOC errors
+ENV HWLOC_HIDE_ERRORS=2
 
 ENTRYPOINT ["/bin/bash", "--rcfile", "/etc/profile", "-l"]
