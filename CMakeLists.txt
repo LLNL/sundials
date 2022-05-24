@@ -200,11 +200,6 @@ if(BUILD_BENCHMARKS)
   add_subdirectory(benchmarks)
 endif()
 
-# Add GPTune Optimization Drivers to the build
-if (BUILD_GPTUNEOPT)
-  add_subdirectory(gptune-optimization)
-endif()
-
 # Add unit tests to the build if they are enabled
 if(SUNDIALS_TEST_UNITTESTS)
   add_subdirectory(test/unit_tests)

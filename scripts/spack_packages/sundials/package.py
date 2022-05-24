@@ -823,11 +823,6 @@ class Sundials(CMakePackage, CudaPackage, ROCmPackage):
             'BUILD_BENCHMARKS=%s' % on_off('+benchmarks')
         ])
 
-		# GPTune Optimization
-		args.extend([
-			'BUILD_GPTUNEPT=%s' % on_off('+gptuneopt')
-		])
-
         # Examples
         args.extend([
             'EXAMPLES_ENABLE_C=%s'      % on_off('+examples'),

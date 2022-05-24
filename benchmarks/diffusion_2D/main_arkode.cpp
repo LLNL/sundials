@@ -16,6 +16,7 @@
 
 #include "diffusion_2D.hpp"
 #include "arkode/arkode_arkstep.h"
+#include <chrono>
 
 struct UserOptions
 {
@@ -61,7 +62,10 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
 
   // Create SUNDIALS context
-  MPI_Comm    comm = MPI_COMM_WORLD;
+  MPI_Comm    comm;
+  flag = MPI_Comm_get_parent(&comm);
+  if (check_flag(&flag, "MPI_Comm_get_parent", 1)) return 1;
+
   SUNContext  ctx  = NULL;
   SUNProfiler prof = NULL;
 
@@ -77,7 +81,7 @@ int main(int argc, char* argv[])
 
     // MPI process ID
     int myid;
-    flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+    flag = MPI_Comm_rank(comm, &myid);
     if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
     bool outproc = (myid == 0);
@@ -312,6 +316,7 @@ int main(int argc, char* argv[])
     flag = uout.write(t, u, &udata);
     if (check_flag(&flag, "UserOutput::write", 1)) return 1;
 
+	auto start = std::chrono::steady_clock::now();
     for (int iout = 0; iout < uout.nout; iout++)
     {
       SUNDIALS_MARK_BEGIN(prof, "Evolve");
@@ -330,6 +335,9 @@ int main(int argc, char* argv[])
       tout += dTout;
       tout = (tout > udata.tf) ? udata.tf : tout;
     }
+	auto end = std::chrono::steady_clock::now();
+	auto runtime = end - start;
+	double runtime_double = runtime.count();
 
     // Close output
     flag = uout.close(&udata);

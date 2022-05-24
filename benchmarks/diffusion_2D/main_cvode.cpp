@@ -56,7 +56,10 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
 
   // Create SUNDIALS context
-  MPI_Comm    comm = MPI_COMM_WORLD;
+  MPI_Comm    comm;
+  flag = MPI_Comm_get_parent(&comm);
+  if (check_flag(&flag, "MPI_Comm_get_parent", 1)) return 1;
+
   SUNContext  ctx  = NULL;
   SUNProfiler prof = NULL;
 
@@ -72,7 +75,7 @@ int main(int argc, char* argv[])
 
     // MPI process ID
     int myid;
-    flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+    flag = MPI_Comm_rank(comm, &myid);
     if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
     bool outproc = (myid == 0);

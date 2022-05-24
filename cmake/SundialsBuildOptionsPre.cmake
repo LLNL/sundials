@@ -190,12 +190,6 @@ endif()
 sundials_option(BUILD_BENCHMARKS BOOL "Build the SUNDIALS benchmark suite" OFF)
 
 # ---------------------------------------------------------------
-# Options for GPTune Optimization suite
-# ---------------------------------------------------------------
-
-sundials_option(BUILD_GPTUNEOPT BOOL "Build the SUNDIALS GPTune optimization suite" OFF)
-
-# ---------------------------------------------------------------
 # Options for CMake config installation
 # ---------------------------------------------------------------
 
