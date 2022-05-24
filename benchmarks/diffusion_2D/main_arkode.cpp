@@ -130,9 +130,9 @@ int main(int argc, char* argv[])
 
     if (outproc)
     {
-      udata.print();
-      uopts.print();
-      uout.print();
+      //udata.print();
+      //uopts.print();
+      //uout.print();
 
       // Open diagnostics output file
       if (uopts.diagnostics || uopts.lsinfo)
@@ -308,13 +308,14 @@ int main(int argc, char* argv[])
     realtype t     = ZERO;
     realtype dTout = udata.tf / uout.nout;
     realtype tout  = dTout;
+	realtype max_error = ZERO;
 
     // Inital output
-    flag = uout.open(&udata);
-    if (check_flag(&flag, "UserOutput::open", 1)) return 1;
+    //flag = uout.open(&udata);
+    //if (check_flag(&flag, "UserOutput::open", 1)) return 1;
 
-    flag = uout.write(t, u, &udata);
-    if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+    //flag = uout.write(t, u, &udata);
+    //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
 
 	auto start = std::chrono::steady_clock::now();
     for (int iout = 0; iout < uout.nout; iout++)
@@ -327,9 +328,11 @@ int main(int argc, char* argv[])
 
       SUNDIALS_MARK_END(prof, "Evolve");
 
+	  max_error = std::max(max_error, uout.SolutionError(t, u, uout.error, &udata)); 
+
       // Output solution and error
-      flag = uout.write(t, u, &udata);
-      if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+      //flag = uout.write(t, u, &udata);
+      //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
 
       // Update output time
       tout += dTout;
@@ -337,23 +340,31 @@ int main(int argc, char* argv[])
     }
 	auto end = std::chrono::steady_clock::now();
 	auto runtime = end - start;
-	double runtime_double = runtime.count();
+	realtype runtime_value = runtime.count();
 
     // Close output
-    flag = uout.close(&udata);
-    if (check_flag(&flag, "UserOutput::close", 1)) return 1;
+    //flag = uout.close(&udata);
+    //if (check_flag(&flag, "UserOutput::close", 1)) return 1;
 
     // --------------
     // Final outputs
     // --------------
 
     // Print final integrator stats
-    if (outproc)
-    {
-      cout << "Final integrator statistics:" << endl;
-      flag = OutputStats(arkode_mem, &udata);
-      if (check_flag(&flag, "OutputStats", 1)) return 1;
-    }
+    //if (outproc)
+    //{
+    //  cout << "Final integrator statistics:" << endl;
+    //  flag = OutputStats(arkode_mem, &udata);
+    //  if (check_flag(&flag, "OutputStats", 1)) return 1;
+    //}
+    
+	// ---------
+	// Return information to GPTune
+	// ---------
+	
+	double send_data[2] = { runtime, max_error };
+	MPI_Reduce(send_data, MPI_BOTTOM, 2, MPI_DOUBLE, MPI_MAX, 0, comm);
+	MPI_Comm_disconnect(&comm);
 
     // ---------
     // Clean up

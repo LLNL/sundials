@@ -872,6 +872,11 @@ int UserOutput::close(UserData *udata)
   return 0;
 }
 
+int UserOutput::SolutionError(realtype t, N_Vector u, N_Vector e, UserData *udata)
+{
+  return SolutionError(t, u, u, udata);
+}
+
 
 // -----------------------------------------------------------------------------
 // Output and utility functions
