@@ -266,6 +266,9 @@ def main():
     add_arg(group, '--benchmarks', 'SUNDIALS_BENCHMARKS',
             'BUILD_BENCHMARKS', 'OFF', 'BOOL', 'Benchmarks')
 
+	add_arg(group, '--gptuneopt', 'SUNDIALS_GPTUNEOPT',
+            'BUILD_GPTUNEOPT', 'OFF', 'BOOL', 'GPTuneOpt')
+
     # ------------
     # TPL Options
     # ------------
