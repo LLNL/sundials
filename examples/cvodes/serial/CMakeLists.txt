@@ -70,7 +70,7 @@ set(CVODES_examples_KLU
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
   "cvsRoberts_ASAi_sps\;\;exclude-single"
-  "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
+  "cvsRoberts_FSA_sps\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_sps\;\;develop"
   )
 

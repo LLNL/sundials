@@ -50,9 +50,9 @@ set(IDAS_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(IDAS_examples_SUPERLUMT
-  "idasRoberts_ASAi_sps\;\;develop"
-  "idasRoberts_FSA_sps\;-sensi stg t\;develop"
-  "idasRoberts_sps\;\;develop"
+  "idasRoberts_ASAi_sps\;\;exclude-single"
+  "idasRoberts_FSA_sps\;-sensi stg t\;exclude-single"
+  "idasRoberts_sps\;\;exclude-single"
   )
 
 # Auxiliary files to install

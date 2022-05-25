@@ -217,7 +217,7 @@ export MPIEXEC_PREFLAGS="--oversubscribe"
 if [ "$SUNDIALS_PRECISION" == "single" ]; then
     export SUNDIALS_LAPACK=ON
     export LAPACK_ROOT=/opt/view
-    export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libblas.so;${LAPACK_ROOT}/lib/liblapack.so"
+    export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_LAPACK=ON
     export LAPACK_ROOT=/opt/view
@@ -250,14 +250,14 @@ if [ "$SUNDIALS_PRECISION" == "single" ]; then
     export SUPERLU_MT_ROOT=/opt/view
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-    export SUPERLU_MT_LIBRARIES="${LAPACK_LIBRARIES};${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
+    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_MT=ON
     export SUPERLU_MT_ROOT=/opt/view
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
+    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 else
     export SUNDIALS_SUPERLU_MT=OFF
