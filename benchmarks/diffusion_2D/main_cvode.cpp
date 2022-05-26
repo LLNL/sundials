@@ -16,6 +16,7 @@
 
 #include "diffusion_2D.hpp"
 #include "cvode/cvode.h"
+#include <chrono>
 
 struct UserOptions
 {
@@ -55,10 +56,13 @@ int main(int argc, char* argv[])
   flag = MPI_Init(&argc, &argv);
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
 
-  // Create SUNDIALS context
-  MPI_Comm    comm;
-  flag = MPI_Comm_get_parent(&comm);
+  // GPTune Data Initialization
+  MPI_Comm parent_comm;
+  flag = MPI_Comm_get_parent(&parent_comm);
   if (check_flag(&flag, "MPI_Comm_get_parent", 1)) return 1;
+
+  // Create SUNDIALS context
+  MPI_Comm comm = MPI_COMM_WORLD;
 
   SUNContext  ctx  = NULL;
   SUNProfiler prof = NULL;
@@ -75,7 +79,7 @@ int main(int argc, char* argv[])
 
     // MPI process ID
     int myid;
-    flag = MPI_Comm_rank(comm, &myid);
+    flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
     if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
     bool outproc = (myid == 0);
@@ -124,9 +128,9 @@ int main(int argc, char* argv[])
 
     if (outproc)
     {
-      udata.print();
-      uopts.print();
-      uout.print();
+      //udata.print();
+      //uopts.print();
+      //uout.print();
 
       // Open diagnostics output file
       if (uopts.lsinfo)
@@ -275,13 +279,17 @@ int main(int argc, char* argv[])
     realtype t     = ZERO;
     realtype dTout = udata.tf / uout.nout;
     realtype tout  = dTout;
+	realtype max_error = ZERO;
+	realtype curr_error = ZERO;
 
     // Inital output
-    flag = uout.open(&udata);
-    if (check_flag(&flag, "UserOutput::open", 1)) return 1;
+    //flag = uout.open(&udata);
+    //if (check_flag(&flag, "UserOutput::open", 1)) return 1;
 
-    flag = uout.write(t, u, &udata);
-    if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+    //flag = uout.write(t, u, &udata);
+    //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+
+	auto start = std::chrono::steady_clock::now();
 
     for (int iout = 0; iout < uout.nout; iout++)
     {
@@ -291,36 +299,59 @@ int main(int argc, char* argv[])
       flag = CVode(cvode_mem, tout, u, &t, stepmode);
       if (check_flag(&flag, "CVode", 1)) break;
 
+	  SolutionError(t, u, uout.error, &udata);
+	  max_error = std::max(max_error, N_VMaxNorm(uout.error)); 
+
       SUNDIALS_MARK_END(prof, "Evolve");
 
+	  SolutionError(t, u, uout.error, &udata);
+	  max_error = std::max(max_error, N_VMaxNorm(uout.error)); 
+
       // Output solution and error
-      flag = uout.write(t, u, &udata);
-      if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+      //flag = uout.write(t, u, &udata);
+      //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
 
       // Update output time
       tout += dTout;
       tout = (tout > udata.tf) ? udata.tf : tout;
     }
 
+	auto end = std::chrono::steady_clock::now();
+	auto runtime = end - start;
+	double runtime_value = (double) runtime.count();
+
     // Close output
-    flag = uout.close(&udata);
-    if (check_flag(&flag, "UserOutput::close", 1)) return 1;
+    //flag = uout.close(&udata);
+    //if (check_flag(&flag, "UserOutput::close", 1)) return 1;
 
     // --------------
     // Final outputs
     // --------------
 
     // Print final integrator stats
-    if (outproc)
-    {
-      cout << "Final integrator statistics:" << endl;
-      flag = OutputStats(cvode_mem, &udata);
-      if (check_flag(&flag, "OutputStats", 1)) return 1;
-    }
+    //if (outproc)
+    //{
+    //  cout << "Final integrator statistics:" << endl;
+    //  flag = OutputStats(cvode_mem, &udata);
+    //  if (check_flag(&flag, "OutputStats", 1)) return 1;
+    //}
+
+	// ---------
+	// Return information to GPTune
+	// ---------
+	
+	double send_data[2] = { runtime_value, max_error };
+	if (parent_comm != MPI_COMM_NULL) {
+		MPI_Reduce(send_data, MPI_BOTTOM, 2, MPI_DOUBLE, MPI_MAX, 0, parent_comm);
+		MPI_Comm_disconnect(&parent_comm);
+	}
 
     // ---------
     // Clean up
     // ---------
+    
+	// Free GPTune communicator
+	if (parent_comm != MPI_COMM_NULL) MPI_Comm_free(&parent_comm);	
 
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));

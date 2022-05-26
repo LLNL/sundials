@@ -218,10 +218,7 @@ int UserData::setup()
   }
 
   // Get the number of processes
-  MPI_Comm    comm;
-  flag = MPI_Comm_get_parent(&comm);
-  if (check_flag(&flag, "MPI_Comm_get_parent", 1)) return 1;
-  flag = MPI_Comm_size(comm, &np);
+  flag = MPI_Comm_size(MPI_COMM_WORLD, &np);
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Comm_size = " << flag << endl;
@@ -247,7 +244,7 @@ int UserData::setup()
   npx = dims[0];
   npy = dims[1];
 
-  flag = MPI_Cart_create(comm, 2, dims, periods, 0, &comm_c);
+  flag = MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &comm_c);
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Cart_create = " << flag << endl;
@@ -872,10 +869,10 @@ int UserOutput::close(UserData *udata)
   return 0;
 }
 
-int UserOutput::SolutionError(realtype t, N_Vector u, N_Vector e, UserData *udata)
-{
-  return SolutionError(t, u, u, udata);
-}
+//int UserOutput::SolutionError(realtype t, N_Vector u, N_Vector e, UserData *udata)
+//{
+//  return SolutionError(t, u, u, udata);
+//}
 
 
 // -----------------------------------------------------------------------------

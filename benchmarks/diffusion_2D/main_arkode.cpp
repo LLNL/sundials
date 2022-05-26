@@ -61,10 +61,16 @@ int main(int argc, char* argv[])
   flag = MPI_Init(&argc, &argv);
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
 
-  // Create SUNDIALS context
-  MPI_Comm    comm;
-  flag = MPI_Comm_get_parent(&comm);
+  // GPTune Data Initialization
+  MPI_Comm parent_comm;
+  printf("starting get comm parent\n");
+  flag = MPI_Comm_get_parent(&parent_comm);
+  printf("got comm parent\n");
   if (check_flag(&flag, "MPI_Comm_get_parent", 1)) return 1;
+  printf("checked get parent flag\n");
+
+  // Create SUNDIALS context
+  MPI_Comm comm = MPI_COMM_WORLD;
 
   SUNContext  ctx  = NULL;
   SUNProfiler prof = NULL;
@@ -81,7 +87,7 @@ int main(int argc, char* argv[])
 
     // MPI process ID
     int myid;
-    flag = MPI_Comm_rank(comm, &myid);
+    flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
     if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
     bool outproc = (myid == 0);
@@ -124,7 +130,6 @@ int main(int argc, char* argv[])
 
     flag = udata.setup();
     if (check_flag(&flag, "UserData::setup", 1)) return 1;
-
     // Output problem setup/options
     FILE *diagfp = NULL;
 
@@ -309,6 +314,7 @@ int main(int argc, char* argv[])
     realtype dTout = udata.tf / uout.nout;
     realtype tout  = dTout;
 	realtype max_error = ZERO;
+	realtype curr_error = ZERO;
 
     // Inital output
     //flag = uout.open(&udata);
@@ -317,7 +323,9 @@ int main(int argc, char* argv[])
     //flag = uout.write(t, u, &udata);
     //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
 
+	printf("getting start time\n");
 	auto start = std::chrono::steady_clock::now();
+	printf("got start time, running\n");
     for (int iout = 0; iout < uout.nout; iout++)
     {
       SUNDIALS_MARK_BEGIN(prof, "Evolve");
@@ -328,7 +336,8 @@ int main(int argc, char* argv[])
 
       SUNDIALS_MARK_END(prof, "Evolve");
 
-	  max_error = std::max(max_error, uout.SolutionError(t, u, uout.error, &udata)); 
+	  SolutionError(t, u, uout.error, &udata);
+	  max_error = std::max(max_error, N_VMaxNorm(uout.error)); 
 
       // Output solution and error
       //flag = uout.write(t, u, &udata);
@@ -338,9 +347,11 @@ int main(int argc, char* argv[])
       tout += dTout;
       tout = (tout > udata.tf) ? udata.tf : tout;
     }
+	printf("finished running, postprocessing\n");
 	auto end = std::chrono::steady_clock::now();
-	auto runtime = end - start;
-	realtype runtime_value = runtime.count();
+	auto runtime = std::chrono::duration<double>(end - start);
+	double runtime_value = (double) runtime.count();
+	printf("finished computing and getting runtime\n");
 
     // Close output
     //flag = uout.close(&udata);
@@ -361,14 +372,26 @@ int main(int argc, char* argv[])
 	// ---------
 	// Return information to GPTune
 	// ---------
-	
-	double send_data[2] = { runtime, max_error };
-	MPI_Reduce(send_data, MPI_BOTTOM, 2, MPI_DOUBLE, MPI_MAX, 0, comm);
-	MPI_Comm_disconnect(&comm);
+	printf("preparing send data\n");
+	double send_data[2] = { runtime_value, max_error };
+	printf("runtime: %.16f, max_error: %.16f\n",runtime_value,max_error);
+	printf("prepared send data, reducing and disconnecting\n");
+	if (parent_comm != MPI_COMM_NULL && outproc) {
+		printf("reducing\n");
+		MPI_Bcast(send_data, 2, MPI_DOUBLE, 0, parent_comm);
+		printf("reduced. disconnecting.\n");
+		MPI_Comm_disconnect(&parent_comm);
+		printf("disconnected\n");
+	}
 
     // ---------
     // Clean up
     // ---------
+
+	// Free GPTune communicator
+	printf("freeing parent\n");
+	if (parent_comm != MPI_COMM_NULL) MPI_Comm_free(&parent_comm);	
+	printf("freed parent\n");
 
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
