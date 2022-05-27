@@ -24,9 +24,9 @@ help ()
     cat <<EOF
 
     $0 [--help] [--buildjobs NUM] [--testjobs NUM] [--testtype TYPE]
-       [--branchname NAME] [--changebranch NAME] [--tarball PACKAGE]
-       [--realtype TYPE] [--indexsize SIZE] [--libtype TYPE] [--tpls]
-       [--suntesttype TYPE] [--phase PHASE] [--env ENVFILE] [EXTRA INPUTS]
+       [--tarball PACKAGE] [--realtype TYPE] [--indexsize SIZE] [--libtype TYPE]
+       [--tpls] [--suntesttype TYPE] [--phase PHASE] [--env ENVFILE]
+       [EXTRA INPUTS]
 
     where:
 
@@ -38,10 +38,6 @@ help ()
                            pr      -- create tarball, test more configurations
                            release -- create tarball, test more configurations
                            custom  -- single user defined test configuration
-    --branchname NAME    Branch name or PR name (overrides --testtype,
-                         default NONE).
-    --changebranch NAME  Source branch name in a PR (overrides --testtype,
-                         default NONE).
     --tarball PACKAGE    Tarball to create in a custom test (default NONE):
                            [sundials|arkode|cvode|cvodes|ida|idas|kinsol|all]
     --realtype TYPE      Real type to use in a custom test (default double):
@@ -88,8 +84,6 @@ echo "./test_driver.sh $*" | tee -a suntest.log
 buildjobs=0
 testjobs=0
 testtype="CUSTOM"
-branchname=""
-changebranch=""
 tarball="NONE"
 realtype="double"
 indexsize="64"
@@ -154,14 +148,6 @@ while [[ $# -gt 0 ]]; do
                 help
                 exit 1
             fi
-            shift 2;;
-
-        --branchname)
-            branchname=$2
-            shift 2;;
-
-        --changebranch)
-            changebranch=$2
             shift 2;;
 
         --tarball)
@@ -300,31 +286,6 @@ done
 # Reset positional inputs to extra inputs
 set -- "${EXTRA_ARGS[@]}"
 
-# Update the test type based on the branch name or pull-request ID (PR-#). The
-# change branch check below will update the test type for a release branch PR.
-if [ -n "$branchname" ]; then
-    if [[ "${branchname:0:2}" == "PR" ]]; then
-        testtype="PR"
-    elif [[ "${branchname:0:7}" == "RELEASE" ||
-            "${branchname:0:7}" == "Release" ||
-            "${branchname:0:7}" == "release" ]]; then
-        testtype="RELEASE"
-    else
-        testtype="BRANCH"
-    fi
-fi
-
-# Update the test type based on the change branch name. If this is a release
-# branch, the test type is set to RELEASE to ensure a PR for a release branch
-# runs the release tests rather than the PR tests.
-if [ -n "$changebranch" ]; then
-    if [[ "${changebranch:0:7}" == "RELEASE" ||
-          "${changebranch:0:7}" == "Release" ||
-          "${changebranch:0:7}" == "release" ]]; then
-        testtype="RELEASE"
-    fi
-fi
-
 # Initialize failure counter (0 = success)
 passfail=0
 
@@ -336,7 +297,7 @@ testroot=$(pwd)
 # ------------------------------------------------------------------------------
 
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS $testtype test: $branchname " | tee -a suntest.log
+echo "SUNDIALS $testtype test" | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 git log -1 --pretty='Commit: %H%nAuthor: %an <%ae>%nDate:   %ad%n%n%s' | tee -a suntest.log
@@ -769,7 +730,7 @@ if [ $passfail -eq 0 ]; then
 fi
 
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS $testtype test: $branchname " | tee -a suntest.log
+echo "SUNDIALS $testtype test" | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 

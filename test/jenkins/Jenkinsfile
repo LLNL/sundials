@@ -1,34 +1,37 @@
 #!/usr/bin/env groovy
 pipeline {
     agent any
-
     stages {
         stage('Test') {
             steps {
-              // print the environment
-              sh("printenv")
-
-              // output for collapse setions plugin
-              echo "END JENKINS SETUP"
-
-              // run regression tests
-              sh("cd test && ./test_driver.sh --branchname ${env.BRANCH_NAME} --changebranch ${env.CHANGE_BRANCH}")
+                // print the environment
+                sh("printenv")
+                // output for collapse setions plugin
+                echo "END JENKINS SETUP"
+                // run regression tests
+                if ((env.BRANCH_NAME =~ '^(main|develop)$').matches()) {
+                    sh("cd test && ./test_driver.sh --testtype PR")
+                } else if ((env.BRANCH_NAME =~ '^(release(/|-).*)$').matches()) {
+                    sh("cd test && ./test_driver.sh --testtype Release")
+                } else {
+                    sh("cd test && ./test_driver.sh --testtype Branch")
+                }
             }
         }
     }
     post {
-         always {
-                 echo 'Tests Complete'
-                 archiveArtifacts artifacts: 'test/**/build_*/Testing/Temporary/LastTest.log'
-         }
-         success {
-                 sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-         }
-         failure {
-                 sh("cd test && ./notify.py failed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-         }
-         fixed {
-                 sh("cd test && ./notify.py fixed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-         }
+        always {
+            echo 'Tests Complete'
+            archiveArtifacts artifacts: 'test/**/build_*/Testing/Temporary/LastTest.log'
+        }
+        success {
+            sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")
+        }
+        failure {
+            sh("cd test && ./notify.py failed ${env.BRANCH_NAME} ${env.BUILD_URL}")
+        }
+        fixed {
+            sh("cd test && ./notify.py fixed ${env.BRANCH_NAME} ${env.BUILD_URL}")
+        }
     }
 }
