@@ -4,41 +4,31 @@ pipeline {
 
     stages {
         stage('Test') {
-            matrix {
-                axes {  
-                    axis {
-                        name 'REALTYPE'
-                        values 'single', 'double', 'extended'
-                    }
-                    axis {
-                        name 'INDEXSIZE'
-                        values '32', '64'
-                    }
-                }
+            steps {
+              // print the environment
+              sh("printenv")
 
-            }
-            stages {
-                stage('build-and-test') {
-                    steps {
-                        echo "Do test for ${REALTYPE} and ${INDEXSIZE}"
-                    }
-                }
+              // output for collapse setions plugin
+              echo "END JENKINS SETUP"
+
+              // run regression tests
+              sh("cd test && ./test_driver.sh --branchname ${env.BRANCH_NAME} --changebranch ${env.CHANGE_BRANCH}")
             }
         }
     }
-    // post {
-    //      always {
-    //              echo 'Tests Complete'
-    //              archiveArtifacts artifacts: 'test/**/build_*/Testing/Temporary/LastTest.log'
-    //      }
-    //      success {
-    //              sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-    //      }
-    //      failure {
-    //              sh("cd test && ./notify.py failed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-    //      }
-    //      fixed {
-    //              sh("cd test && ./notify.py fixed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-    //      }
-    // }
+    post {
+         always {
+                 echo 'Tests Complete'
+                 archiveArtifacts artifacts: 'test/**/build_*/Testing/Temporary/LastTest.log'
+         }
+         success {
+                 sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+         failure {
+                 sh("cd test && ./notify.py failed ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+         fixed {
+                 sh("cd test && ./notify.py fixed ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+    }
 }
