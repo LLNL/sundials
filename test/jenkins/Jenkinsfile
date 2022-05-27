@@ -15,11 +15,12 @@ pipeline {
                         values '32', '64'
                     }
                 }
-                stages {
-                    stage('build-and-test') {
-                        steps {
-                            echo "Do test for ${REALTYPE} and ${INDEXSIZE}"
-                        }
+
+            }
+            stages {
+                stage('build-and-test') {
+                    steps {
+                        echo "Do test for ${REALTYPE} and ${INDEXSIZE}"
                     }
                 }
             }
