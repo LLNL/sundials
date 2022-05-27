@@ -55,15 +55,15 @@
      ARKODE_KVAERNO_5_3_4             ESDIRK     Y         N       N
      ARKODE_ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
      ARKODE_ARK437L2SA_DIRK_7_3_4*    ESDIRK     Y         Y       N
-     ARKODE_ESDIRK436L2SA_6_3_4       ESDIRK     Y         Y       Y
-     ARKODE_ESDIRK43I6L2SA_6_3_4      ESDIRK     Y         Y       Y
-     ARKODE_QESDIRK436L2SA_6_3_4      ESDIRK     Y         Y       Y
-     ARKODE_ESDIRK437L2SA_7_3_4       ESDIRK     Y         Y       Y
+     ARKODE_ESDIRK436L2SA_6_3_4       ESDIRK     Y         Y       N
+     ARKODE_ESDIRK43I6L2SA_6_3_4      ESDIRK     Y         Y       N
+     ARKODE_QESDIRK436L2SA_6_3_4      ESDIRK     Y         Y       N
+     ARKODE_ESDIRK437L2SA_7_3_4       ESDIRK     Y         Y       N
      ARKODE_KVAERNO_7_4_5             ESDIRK     Y         Y       N
      ARKODE_ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y       N
      ARKODE_ARK548L2SAb_DIRK_8_4_5*   ESDIRK     Y         Y       N
-     ARKODE_ESDIRK547L2SA_7_4_5       ESDIRK     Y         Y       Y
-     ARKODE_ESDIRK547L2SA2_7_4_5      ESDIRK     Y         Y       Y
+     ARKODE_ESDIRK547L2SA_7_4_5       ESDIRK     Y         Y       N
+     ARKODE_ESDIRK547L2SA2_7_4_5      ESDIRK     Y         Y       N
     -----------------------------------------------------------------
 
   ---------------------------------------------------------------*/
