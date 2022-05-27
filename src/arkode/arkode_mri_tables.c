@@ -494,7 +494,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID imethod)
     break;
 
   default:
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode",
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
                     "MRIStepCoupling_LoadTable",
                     "Unknown coupling table");
     return(NULL);
