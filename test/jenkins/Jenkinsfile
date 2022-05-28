@@ -18,7 +18,7 @@ pipeline {
         }
         stage('release-tests') {
             when {
-                branch comparator: 'REGEXP', pattern: '^(release.*)'
+                branch comparator: 'REGEXP', pattern: '^(release.*)$'
             }
             steps {
                 sh("cd test && ./test_driver.sh --testtype Release")
@@ -30,7 +30,9 @@ pipeline {
                     branch comparator: 'REGEXP', pattern: '^(main|develop|release.*)$'
                 }
             }
-            sh("cd test && ./test_driver.sh --testtype Branch")
+            steps {
+                sh("cd test && ./test_driver.sh --testtype Branch")
+            }
         }
     }
     post {
