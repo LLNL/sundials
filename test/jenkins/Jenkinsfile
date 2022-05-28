@@ -29,8 +29,24 @@ pipeline {
                     branch comparator: 'REGEXP', pattern: '^(main|develop|release.*)$'
                 }
             }
-            steps {
-                sh("cd test && ./test_driver.sh --testtype Branch")
+            matrix {
+                axes {
+                    axis {
+                        name 'REALTYPE'
+                        values 'single', 'double', 'extended'
+                    }
+                    axis {
+                        name 'INDEXSIZE'
+                        values '32', '64'
+                    }
+                }
+                stages {
+                    stage('build-and-test') {
+                        steps {
+                            echo "Do test for ${REALTYPE} and ${INDEXSIZE}"
+                        }
+                    }
+                }
             }
         }
     }
