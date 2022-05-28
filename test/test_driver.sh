@@ -357,7 +357,7 @@ testroot=$(pwd)
 # ------------------------------------------------------------------------------
 
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS $testtype test" | tee -a suntest.log
+echo "SUNDIALS test" | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 git log -1 --pretty='Commit: %H%nAuthor: %an <%ae>%nDate:   %ad%n%n%s' | tee -a suntest.log
@@ -783,7 +783,7 @@ if [ $passfail -eq 0 ]; then
 fi
 
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS $testtype test" | tee -a suntest.log
+echo "SUNDIALS test" | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 
