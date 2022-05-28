@@ -19,7 +19,7 @@ pipeline {
                         } else if (env.BRANCH_NAME =~ '^(release(/|-).*)$') {
                             sh "./test_driver.sh --testtype Release"
                         } else {
-                            sh "cd test && ./test_driver.sh --testtype Branch"
+                            sh "./test_driver.sh --testtype Branch"
                         }
                     }
                 }
