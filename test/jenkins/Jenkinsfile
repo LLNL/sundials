@@ -4,13 +4,14 @@ pipeline {
     stages {
         stage('print-environment') {
             steps {
-                sh("printenv")
+                sh "printenv"
             }
         }
-        stage('branch-tests') {
+        // The stages below use scripted pipelines and for loops since the
+        // matrix directive does not currently support sequential execution of
+        // cells on a given runner.
+        stage('c90-tests') {
             steps {
-                // Use script and for loops since the matrix directive does not
-                // currently support sequential execution of cells.
                 script {
                     def realtypes = ['double']
                     def indexsizes = ['32', '64']
@@ -28,22 +29,42 @@ pipeline {
                 }
             }
         }
-        stage('main-develop-tests') {
-            when {
-                branch comparator: 'REGEXP', pattern: '^(main|develop)$'
-            }
+        stage('basic-tests') {
             steps {
-                sh("cd test && ./test_driver.sh --testtype PR")
+                script {
+                    def realtypes = ['double']
+                    def indexsizes = ['32', '64']
+                    for (int i = 0; i < realtypes.size(); ++i) {
+                        for (int j = 0; j < indexsizes.size(); ++j) {
+                            sh """cd test && ./test_driver.sh \
+                                  --phase TEST \
+                                  --realtype "${realtypes[i]}" \
+                                  --indexsize "${indexsizes[j]}" \
+                                  --libtype static \
+                                  --tpls \
+                                  --suntesttype DEV
+                            """
+                        }
+                    }
+                }
             }
         }
-        stage('release-tests') {
-            when {
-                branch comparator: 'REGEXP', pattern: '^(release.*)$'
-            }
-            steps {
-                sh("cd test && ./test_driver.sh --testtype Release")
-            }
-        }
+        // stage('main-develop-tests') {
+        //     when {
+        //         branch comparator: 'REGEXP', pattern: '^(main|develop)$'
+        //     }
+        //     steps {
+        //         sh("cd test && ./test_driver.sh --testtype PR")
+        //     }
+        // }
+        // stage('release-tests') {
+        //     when {
+        //         branch comparator: 'REGEXP', pattern: '^(release.*)$'
+        //     }
+        //     steps {
+        //         sh("cd test && ./test_driver.sh --testtype Release")
+        //     }
+        // }
     }
     post {
         always {
