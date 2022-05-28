@@ -48,7 +48,6 @@ help ()
                            [static|shared|both]
     --tpls               Enable TPLs in a custom test.
     --suntesttype TYPE   SUNDIALS test type for a custom test (default DEV):
-                           NONE -- compile test only
                            STD  -- run standard tests
                            DEV  -- run development tests
     --phase PHASE        Testing phase to stop after:
@@ -617,13 +616,6 @@ for ((j=0;j<ntestdirs;j++)); do
         rc=${PIPESTATUS[0]}
         echo -e "\nmake returned $rc\n" | tee -a make.log
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
-
-        # Check if tests should be skipped (compile check only)
-        if [ "${args_suntests[i]}" == "NONE" ]; then
-            echo "PASSED: ${env_config[*]}"
-            cd ..
-            continue
-        fi
 
         # Check if this is the last phase
         if [ "${phase}" == "BUILD" ]; then

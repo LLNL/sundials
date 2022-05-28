@@ -5,7 +5,6 @@ pipeline {
         stage('print-environment') {
             steps {
                 sh("printenv")
-                echo "END JENKINS SETUP"
             }
         }
         stage('main-develop-tests') {
