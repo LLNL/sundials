@@ -372,12 +372,23 @@ args_indexsizes=()
 args_libtypes=()
 args_tpls=()
 args_suntests=()
+args_phase=()
 
 case "$testtype" in
 
     BRANCH)
         # Don't creat tarballs
         tarball=NONE
+
+        # C90 compile test and sanitizer tests
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("BUILD")
+        done
 
         # Basic development tests
         for is in 32 64; do
@@ -386,6 +397,7 @@ case "$testtype" in
             args_libtypes+=("static")
             args_tpls+=("ON")
             args_suntests+=("DEV")
+            args_phase+=("TEST")
         done
         ;;
 
@@ -400,6 +412,7 @@ case "$testtype" in
             args_libtypes+=("static")
             args_tpls+=("OFF")
             args_suntests+=("DEV")
+            args_phase+=("BUILD")
         done
 
         for rt in single double extended; do
@@ -414,6 +427,7 @@ case "$testtype" in
                 else
                     args_suntests+=("STD")
                 fi
+                args_phase+=("")
             done
         done
         ;;
@@ -435,6 +449,7 @@ case "$testtype" in
                     else
                         args_suntests+=("STD")
                     fi
+                    args_phase+=("")
                 done
             done
         done
@@ -447,6 +462,7 @@ case "$testtype" in
         args_libtypes+=("${libtype}")
         args_tpls+=("${tpls}")
         args_suntests+=("${suntesttype}")
+        args_phase+=("${phase}")
         if [ "${realtype}" != "double" ] && [ "${suntesttype}" == "DEV" ]; then
             echo "WARNING: DEV tests may fail with ${realtype} precision"
         fi
@@ -607,7 +623,7 @@ for ((j=0;j<ntestdirs;j++)); do
         fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "ENV" ]; then
+        if [ "${args_phase[i]}" == "ENV" ]; then
             echo "PASSED: ${env_config[*]}"
             continue
         fi
@@ -660,7 +676,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "CONFIG" ]; then
+        if [ "${args_phase[i]}" == "CONFIG" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -679,7 +695,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "BUILD" ]; then
+        if [ "${args_phase[i]}" == "BUILD" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -698,7 +714,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "TEST" ]; then
+        if [ "${args_phase[i]}" == "TEST" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -717,7 +733,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "INSTALL" ]; then
+        if [ "${args_phase[i]}" == "INSTALL" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -736,7 +752,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "TEST_INSTALL" ]; then
+        if [ "${args_phase[i]}" == "TEST_INSTALL" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -751,7 +767,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "TEST_INSTALL_ALL" ]; then
+        if [ "${args_phase[i]}" == "TEST_INSTALL_ALL" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue

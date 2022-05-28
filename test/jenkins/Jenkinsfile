@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 pipeline {
     agent any
+
     stages {
 
         stage('print-environment') {
@@ -9,139 +10,16 @@ pipeline {
             }
         }
 
-        // The stages below use scripted pipelines and for loops since the
-        // matrix directive does not currently support sequential execution of
-        // cells on a given runner.
-
-        stage('c90-tests') {
-            matrix {
-                axes {
-                    axis {
-                        name 'REALTYPE'
-                        values 'double'
-                    }
-                    axis {
-                        name 'INDEXSIZE'
-                        values '32', '64'
-                    }
-                }
-                stages {
-                    stage('c90-test-matrix') {
-                        steps {
-                            dir('test') {
-                                sh """./test_driver.sh \
-                                      --phase BUILD \
-                                      --realtype "$REALTYPE" \
-                                      --indexsize "$INDEXSIZE" \
-                                      --libtype static \
-                                      --suntesttype DEV
-                                """
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('basic-tests') {
-            when {
-                not {
-                    changeRequest()
-                }
-            }
+        stage('build-and-test') {
             steps {
                 dir('test') {
                     script {
-                        def realtypes = ['double']
-                        def indexsizes = ['32', '64']
-                        for (int r = 0; r < realtypes.size(); ++r) {
-                            for (int i = 0; i < indexsizes.size(); ++i) {
-                                sh """./test_driver.sh \
-                                      --phase TEST \
-                                      --realtype "${realtypes[r]}" \
-                                      --indexsize "${indexsizes[i]}" \
-                                      --libtype static \
-                                      --tpls \
-                                      --suntesttype DEV
-                                """
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('pull-request-tests') {
-            when {
-                changeRequest()
-            }
-            steps {
-                dir('test') {
-                    script {
-                        def realtypes = ['single', 'double', 'extended']
-                        def indexsizes = ['32', '64']
-                        for (int r = 0; r < realtypes.size(); ++r) {
-                            for (int i = 0; i < indexsizes.size(); ++i) {
-                                if (realtypes[r] == 'double') {
-                                    sh """./test_driver.sh \
-                                          --tarball sundials \
-                                          --realtype "${realtypes[r]}" \
-                                          --indexsize "${indexsizes[i]}" \
-                                          --libtype static \
-                                          --tpls \
-                                          --suntesttype DEV
-                                    """
-                                } else {
-                                    sh """./test_driver.sh \
-                                          --tarball sundials \
-                                          --realtype "${realtypes[r]}" \
-                                          --indexsize "${indexsizes[i]}" \
-                                          --libtype static \
-                                          --tpls \
-                                          --suntesttype STD
-                                    """
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('release-tests') {
-            when {
-                branch comparator: 'REGEXP', pattern: '^(main|develop|release.*)$'
-            }
-            steps {
-                dir('test') {
-                    script {
-                        def realtypes = ['single', 'double', 'extended']
-                        def indexsizes = ['32', '64']
-                        def libtypes = ['static', 'shared']
-                        for (int l = 0; l < libtypes.size(); ++l) {
-                            for (int r = 0; r < realtypes.size(); ++r) {
-                                for (int i = 0; i < indexsizes.size(); ++i) {
-                                    if (realtypes[r] == 'double') {
-                                        sh """./test_driver.sh \
-                                              --tarball sundials \
-                                              --realtype "${realtypes[r]}" \
-                                              --indexsize "${indexsizes[i]}" \
-                                              --libtype "${libtypes[l]}" \
-                                              --tpls \
-                                              --suntesttype DEV
-                                        """
-                                    } else {
-                                        sh """./test_driver.sh \
-                                              --tarball sundials \
-                                              --realtype "${realtypes[r]}" \
-                                              --indexsize "${indexsizes[i]}" \
-                                              --libtype "${libtypes[l]}" \
-                                              --tpls \
-                                              --suntesttype STD
-                                        """
-                                    }
-                                }
-                            }
+                        if (env.BRANCH_NAME =~ '^(main|develop)$') {
+                            sh "./test_driver.sh --testtype PR"
+                        } else if (env.BRANCH_NAME =~ '^(release(/|-).*)$') {
+                            sh "./test_driver.sh --testtype Release"
+                        } else {
+                            sh "cd test && ./test_driver.sh --testtype Branch"
                         }
                     }
                 }
