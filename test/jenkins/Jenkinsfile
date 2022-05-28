@@ -14,17 +14,25 @@ pipeline {
         // cells on a given runner.
 
         stage('c90-tests') {
-            steps {
-                dir('test') {
-                    script {
-                        def realtypes = ['double']
-                        def indexsizes = ['32', '64']
-                        for (int r = 0; r < realtypes.size(); ++r) {
-                            for (int i = 0; i < indexsizes.size(); ++i) {
+            matrix {
+                axes {
+                    axis {
+                        name 'REALTYPE'
+                        values 'double'
+                    }
+                    axis {
+                        name 'INDEXSIZE'
+                        values '32', '64'
+                    }
+                }
+                stages {
+                    stage('c90-test-matrix') {
+                        steps {
+                            dir('test') {
                                 sh """./test_driver.sh \
                                       --phase BUILD \
-                                      --realtype "${realtypes[r]}" \
-                                      --indexsize "${indexsizes[i]}" \
+                                      --realtype "$REALTYPE" \
+                                      --indexsize "$INDEXSIZE" \
                                       --libtype static \
                                       --suntesttype DEV
                                 """
