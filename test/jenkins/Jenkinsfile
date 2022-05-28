@@ -39,9 +39,6 @@ pipeline {
             echo 'Tests Complete'
             archiveArtifacts artifacts: 'test/**/build_*/Testing/Temporary/LastTest.log'
         }
-        success {
-            sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")
-        }
         failure {
             sh("cd test && ./notify.py failed ${env.BRANCH_NAME} ${env.BUILD_URL}")
         }
