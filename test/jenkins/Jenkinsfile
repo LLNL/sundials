@@ -2,21 +2,35 @@
 pipeline {
     agent any
     stages {
-        stage('Test') {
+        stage('print-environment') {
             steps {
-                // print the environment
                 sh("printenv")
-                // output for collapse setions plugin
                 echo "END JENKINS SETUP"
-                // run regression tests
-                if ((env.BRANCH_NAME =~ '^(main|develop)$').matches()) {
-                    sh("cd test && ./test_driver.sh --testtype PR")
-                } else if ((env.BRANCH_NAME =~ '^(release(/|-).*)$').matches()) {
-                    sh("cd test && ./test_driver.sh --testtype Release")
-                } else {
-                    sh("cd test && ./test_driver.sh --testtype Branch")
+            }
+        }
+        stage('main-develop-tests') {
+            when {
+                branch comparator: 'REGEXP', pattern: '^(main|develop)$'
+            }
+            steps {
+                sh("cd test && ./test_driver.sh --testtype PR")
+            }
+        }
+        stage('release-tests') {
+            when {
+                branch comparator: 'REGEXP', pattern: '^(release.*)'
+            }
+            steps {
+                sh("cd test && ./test_driver.sh --testtype Release")
+            }
+        }
+        stage('branch-tests') {
+            when {
+                not {
+                    branch comparator: 'REGEXP', pattern: '^(main|develop|release.*)$'
                 }
             }
+            sh("cd test && ./test_driver.sh --testtype Branch")
         }
     }
     post {
