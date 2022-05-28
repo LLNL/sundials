@@ -44,6 +44,10 @@ pipeline {
                     stage('build-and-test') {
                         steps {
                             echo "Do test for ${REALTYPE} and ${INDEXSIZE}"
+                            sh '''
+                               cd test && ./test_driver.sh \
+                                              --phase BUILD
+                            '''
                         }
                     }
                 }
