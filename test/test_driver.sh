@@ -23,49 +23,110 @@ help ()
 {
     cat <<EOF
 
-    $0 [--help] [--buildjobs NUM] [--testjobs NUM] [--testtype TYPE]
-       [--tarball PACKAGE] [--realtype TYPE] [--indexsize SIZE] [--libtype TYPE]
-       [--tpls] [--suntesttype TYPE] [--phase PHASE] [--env ENVFILE]
-       [EXTRA INPUTS]
+    NAME
 
-    where:
+        $0 - SUNDIALS testing driver
 
-    --help               Displays this message and exit.
-    --buildjobs NUM      Set the number of build jobs (default 1).
-    --testjobs NUM       Set the number of test jobs (default 1).
-    --testtype TYPE      The test type to run (default custom):
-                           branch  -- quick tests with a few configurations
-                           pr      -- create tarball, test more configurations
-                           release -- create tarball, test more configurations
-                           custom  -- single user defined test configuration
-    --tarball PACKAGE    Tarball to create in a custom test (default NONE):
-                           [sundials|arkode|cvode|cvodes|ida|idas|kinsol|all]
-    --realtype TYPE      Real type to use in a custom test (default double):
-                           [single|double|extended]
-    --indexsize SIZE     Index size to use in a custom test (default 64):
-                           [32|64]
-    --libtype TYPE       Library type to create a custom test (default both):
-                           [static|shared|both]
-    --tpls               Enable TPLs in a custom test.
-    --suntesttype TYPE   SUNDIALS test type for a custom test (default DEV):
-                           STD  -- run standard tests
-                           DEV  -- run development tests
-    --phase PHASE        Testing phase to stop after:
-                           ENV -- after setting up the environment
-                           CONFIG -- after configuring with CMake
-                           BUILD -- after make
-                           TEST -- after make test
-                           INSTALL -- after make install
-                           TEST_INSTALL -- after make test_install
-                           TEST_INSTALL_ALL -- after make test_install_all
-    --env ENVFILE        Environment file to use
-    EXTRA INPUTS         Extra inputs passed to the environment file
+    USAGE
+
+        $0 [OPTIONS] [ENV SETUP OPTIONS]
+
+    OPTIONS
+
+        --help, -h
+            Display this message and exit.
+
+        --testtype TYPE
+            Run a predefined group of tests or specify the test configuration
+            using additional input options. TYPE must be one of:
+
+            custom  -- (default) single user defined test configuration
+            branch  -- quick tests with a few configurations
+            pr      -- create tarball, test more configurations
+            release -- create tarball, test more configurations
+
+    When running a custom test the following options may be provided to specify
+    the test configuration. If any of these options are a test type other than
+    "custom" their values will be ignored.
+
+        --tarball PACKAGE
+            Create a SUNDIALS release tarball and run test using the code
+             extracted from the tarball. PACKAGE must be one of:
+
+            NONE     -- (default) do not create a tarball
+            sundials -- create tarball containing all SUNDIALS packages together
+            arkode   -- create tarball containing ARKODE only
+            cvode    -- create tarball containing CVODE only
+            cvodes   -- create tarball containing CVODES only
+            ida      -- create tarball containing IDA only
+            idas     -- create tarball containing IDAS only
+            kinsol   -- create tarball containing KINSOL only
+            all      -- create all possible tarballs
+
+        --realtype TYPE
+            Real type to use in a custom test. TYPE must be one of:
+
+            double   -- (default) use double precision
+            single   -- use single precision
+            extended -- use extended precision
+
+        --indexsize SIZE
+            Index size to use in a custom test. SIZE must be one of:
+
+            64 -- (default) use 64-bit indexing
+            32 -- use 32-bit indexing
+
+        --libtype TYPE
+            Library type to create in a custom test. TYPE must be one of:
+
+            static -- build static libraries
+            shared -- build shared libraries
+            both   -- build static and shared libraries
+
+        --tpls
+            Enable external third-party libraries in a custom test.
+
+        --suntesttype TYPE
+            SUNDIALS test type for a custom test. TYPE must be one of:
+
+            STD -- run standard tests
+            DEV -- run development tests
+
+    With any test type the following options may be set to alter the test setup
+    or behavior.
+
+        --env ENVFILE
+            Environment file configuration file to use for testing.
+
+        --buildjobs NUM
+            Set the number of jobs for parallel builds (default 1).
+
+        --testjobs NUM
+            Set the number of jobs for parallel testing (default 1). Note this
+            is the number of jobs CTest will use to run test in parallel and
+            does not impact the number of MPI tasks used in MPI-parallel tests.
+
+        --phase PHASE
+            Testing phase to stop after. PHASE must be one of:
+
+            ENV              -- setup the environment
+            CONFIG           -- configuring with CMake
+            BUILD            -- build with make
+            TEST             -- test with make test
+            INSTALL          -- install with make install
+            TEST_INSTALL     -- test with make test_install
+            TEST_INSTALL_ALL -- test with make test_install_all
+
+    ENV SETUP OPTIONS
+
+        Any additional inputs provided will be forwared to the environment
+        script called before each test.
 
     Example usage:
 
-    $0
-    $0 --testtype release --buildjobs 4
-    $0 --phase CONFIG --indexsize 32 --tpls --env env/default.sh
+        $0
+        $0 --testtype release --buildjobs 4
+        $0 --phase CONFIG --indexsize 32 --tpls --env env/default.sh
 
 EOF
 }
@@ -105,7 +166,7 @@ while [[ $# -gt 0 ]]; do
 
     case $input in
 
-        --help)
+        --help|-h)
             help
             exit 1;;
 
