@@ -38,9 +38,6 @@ pipeline {
                     for (int i = 0; i < realtypes.size(); ++i) {
                         for (int j = 0; j < indexsizes.size(); ++j) {
                             echo "Do test for ${realtypes[i]} and ${indexsizes[j]}"
-                            sh '''cd test && ./test_driver.sh \\
-                                              --phase BUILD
-                               '''
                         }
                     }
                 }
