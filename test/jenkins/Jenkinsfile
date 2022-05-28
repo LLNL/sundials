@@ -7,6 +7,27 @@ pipeline {
                 sh("printenv")
             }
         }
+        stage('branch-tests') {
+            steps {
+                // Use script and for loops since the matrix directive does not
+                // currently support sequential execution of cells.
+                script {
+                    def realtypes = ['double']
+                    def indexsizes = ['32', '64']
+                    for (int i = 0; i < realtypes.size(); ++i) {
+                        for (int j = 0; j < indexsizes.size(); ++j) {
+                            sh """cd test && ./test_driver.sh \
+                                  --phase BUILD \
+                                  --realtype "${realtypes[i]}" \
+                                  --indexsize "${indexsizes[j]}" \
+                                  --libtype static \
+                                  --suntesttype DEV
+                            """
+                        }
+                    }
+                }
+            }
+        }
         stage('main-develop-tests') {
             when {
                 branch comparator: 'REGEXP', pattern: '^(main|develop)$'
@@ -21,31 +42,6 @@ pipeline {
             }
             steps {
                 sh("cd test && ./test_driver.sh --testtype Release")
-            }
-        }
-        stage('branch-tests') {
-            when {
-                not {
-                    branch comparator: 'REGEXP', pattern: '^(main|develop|release.*)$'
-                }
-            }
-            steps {
-                // Use script and for loops since the matrix directive does not
-                // currently support sequential execution of cells.
-                script {
-                    def realtypes = ['double']
-                    def indexsizes = ['32', '64']
-                    for (int i = 0; i < realtypes.size(); ++i) {
-                        for (int j = 0; j < indexsizes.size(); ++j) {
-                            echo "Do test for ${realtypes[i]} and ${indexsizes[j]}"
-                            sh """cd test && ./test_driver.sh \
-                                               --phase BUILD \
-                                               --realtype "${realtypes[i]}" \
-                                               --indexsize "${indexsizes[j]}"
-                            """
-                        }
-                    }
-                }
             }
         }
     }
