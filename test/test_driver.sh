@@ -507,11 +507,11 @@ if [ "$tarball" != NONE ]; then
                 "${args_tpls[0]}"
                 "${args_suntests[0]}")
 
-    # Setup environment (creates configure.log)
+    # Setup environment
     time source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"
 
     rc=${PIPESTATUS[0]}
-    echo -e "\nsetup_env.sh returned $rc\n" | tee -a configure.log
+    echo -e "\nsetup_env.sh returned $rc\n" | tee -a setup_env.log
     if [ "$rc" -ne 0 ]; then exit 1; fi
 
     # Remove old tarballs directory
@@ -534,6 +534,7 @@ if [ "$tarball" != NONE ]; then
 
     # Relocate log and tarballs
     mv tar.log "$testroot/tarballs/."
+    mv setup_env.log "$testroot/tarballs/."
     mv ../tarballs/* "$testroot/tarballs/."
 
     # Move to tarball directory
@@ -552,9 +553,6 @@ if [ "$tarball" != NONE ]; then
         rc=${PIPESTATUS[0]}
         echo -e "\ntar -xzvf returned $rc\n" | tee -a tar.log
         if [ "$rc" -ne 0 ]; then exit 1; fi
-
-        # Move log to package directory
-        mv tar.log "$package/."
 
         # Copy environment and testing scripts from original test directory
         cp -r "$testroot/env" "$package/test/."
@@ -596,11 +594,11 @@ for ((j=0;j<ntestdirs;j++)); do
         # Print test header for Jenkins section collapsing
         echo "TEST: ${env_config[*]}"
 
-        # Setup environment (creates configure.log)
+        # Setup environment
         time source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"
 
         rc=${PIPESTATUS[0]}
-        echo -e "\nsetup_env.sh returned $rc\n" | tee -a configure.log
+        echo -e "\nsetup_env.sh returned $rc\n" | tee -a setup_env.log
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if the environment sets the number of build and test jobs but do
@@ -665,7 +663,7 @@ for ((j=0;j<ntestdirs;j++)); do
         # Create and move to new build directory, move configure log
         mkdir "$builddir"
         cd "$builddir"
-        mv ../configure.log .
+        mv setup_env.log "$builddir/."
 
         # -----------------------
         # Create CMake cache file
