@@ -662,8 +662,8 @@ for ((j=0;j<ntestdirs;j++)); do
 
         # Create and move to new build directory, move configure log
         mkdir "$builddir"
-        cd "$builddir"
         mv setup_env.log "$builddir/."
+        cd "$builddir"
 
         # -----------------------
         # Create CMake cache file
