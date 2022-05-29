@@ -131,9 +131,6 @@ help ()
 EOF
 }
 
-# Remove old logs
-\rm -rf ./*.log
-
 # Print input args
 echo "./test_driver.sh $*" | tee -a suntest.log
 
