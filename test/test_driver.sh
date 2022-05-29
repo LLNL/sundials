@@ -37,21 +37,21 @@ help ()
             Display this message and exit.
 
         --testtype TYPE
-            Run a predefined group of tests or specify the test configuration
+            Run a predefined set of tests or specify the test configuration
             using additional input options. TYPE must be one of:
 
             custom  -- (default) single user defined test configuration
             branch  -- quick tests with a few configurations
-            pr      -- create tarball, test more configurations
-            release -- create tarball, test more configurations
+            pr      -- create sundials tarball and test more configurations
+            release -- create sundials tarball and test even more configurations
 
     When running a custom test the following options may be provided to specify
-    the test configuration. If any of these options are a test type other than
-    "custom" their values will be ignored.
+    the test configuration. If any of these options are provided with a test
+    type other than "custom," their values will be ignored.
 
         --tarball PACKAGE
-            Create a SUNDIALS release tarball and run test using the code
-             extracted from the tarball. PACKAGE must be one of:
+            Create a SUNDIALS release tarball and run tests using the code
+            extracted from the tarball. PACKAGE must be one of:
 
             NONE     -- (default) do not create a tarball
             sundials -- create tarball containing all SUNDIALS packages together
@@ -64,7 +64,7 @@ help ()
             all      -- create all possible tarballs
 
         --realtype TYPE
-            Real type to use in a custom test. TYPE must be one of:
+            Real type precision to use in a custom test. TYPE must be one of:
 
             double   -- (default) use double precision
             single   -- use single precision
@@ -96,14 +96,14 @@ help ()
     or behavior.
 
         --env ENVFILE
-            Environment file configuration file to use for testing.
+            Environment configuration file to use for testing.
 
         --buildjobs NUM
             Set the number of jobs for parallel builds (default 1).
 
         --testjobs NUM
             Set the number of jobs for parallel testing (default 1). Note this
-            is the number of jobs CTest will use to run test in parallel and
+            is the number of jobs CTest will use to run tests simultaneously and
             does not impact the number of MPI tasks used in MPI-parallel tests.
 
         --phase PHASE
@@ -119,7 +119,7 @@ help ()
 
     ENV SETUP OPTIONS
 
-        Any additional inputs provided will be forwared to the environment
+        Any additional inputs provided will be forwarded to the environment
         script called before each test.
 
     Example usage:
