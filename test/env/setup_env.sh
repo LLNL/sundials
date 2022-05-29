@@ -155,15 +155,6 @@ elif [ -f env/env.sh ]; then
         return 1;
     fi
 
-elif [ -f ~/.sundials_config/env.sh ]; then
-
-    echo "Setting up environment with ~/.sundials_config/env.sh"
-    # shellcheck source=/dev/null
-    if ! source "${HOME}/.sundials_config/env.sh" "$@"; then
-        echo "ERROR: ${HOME}/.sundials_config/env.sh $* failed"
-        return 1;
-    fi
-
 elif [ -f "env/${HOSTNAME}.sh" ]; then
 
     echo "Setting up environment with sundials/test/env/${HOSTNAME}.sh"

@@ -415,6 +415,7 @@ case "$testtype" in
             args_phase+=("BUILD")
         done
 
+        # More development tests
         for rt in single double extended; do
             for is in 32 64; do
                 args_realtypes+=("${rt}")
@@ -436,6 +437,17 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
+        # C90 compile test and sanitizer tests
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("BUILD")
+        done
+
+        # Even more development tests
         for rt in single double extended; do
             for is in 32 64; do
                 for lt in static shared; do
