@@ -88,11 +88,12 @@ int main()
   int retval;
   realtype t;
 
+  SUNContext ctx;
+
   /* Initial diagnostics output */
   printf("\nARKODE reset functionality tester:\n");
 
   /* Create the SUNDIALS context object for this simulation */
-  SUNContext ctx;
   retval = SUNContext_Create(NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
