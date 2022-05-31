@@ -357,7 +357,9 @@ int main(int argc, char* argv[])
     //  if (check_flag(&flag, "OutputStats", 1)) return 1;
     //}
     
-	printf("%.16f,%.16f\n",runtime_value,max_error);
+	if (outproc) { 
+		printf("%.16f,%.16f\n",runtime_value,max_error);
+	}
 
     // ---------
     // Clean up
