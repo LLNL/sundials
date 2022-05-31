@@ -44,8 +44,8 @@ endif()
 
 # Examples using LAPACK linear solvers
 set(CVODE_examples_BL
-  "cvAdvDiff_bndL\;\;develop"
-  "cvRoberts_dnsL\;\;develop"
+  "cvAdvDiff_bndL\;\;exclude-single"
+  "cvRoberts_dnsL\;\;exclude-single"
   )
 
 # Examples using KLU linear solver
