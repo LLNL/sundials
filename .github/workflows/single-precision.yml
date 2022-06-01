@@ -29,6 +29,7 @@ jobs:
           name: cmake-logs
           path: |
             ${{ github.workspace }}/test/build_*
+            ${{ github.workspace }}/test/configure.log
   run_int64_single:
     runs-on: ubuntu-latest
     container:
@@ -51,3 +52,4 @@ jobs:
           name: cmake-logs
           path: |
             ${{ github.workspace }}/test/build_*
+            ${{ github.workspace }}/test/configure.log
