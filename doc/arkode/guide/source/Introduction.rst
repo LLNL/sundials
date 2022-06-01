@@ -132,6 +132,7 @@ Updated :c:func:`MRIStepReset()` to call the corresponding
 :c:type:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
 scale subproblems.
 
+Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
 
 Changes in v5.2.0
 -----------------
