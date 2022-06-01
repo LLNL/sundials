@@ -531,7 +531,7 @@ if [ "$tarball" != NONE ]; then
 
     # Relocate log and tarballs
     mv tar.log "$testroot/tarballs/."
-    mv setup_env.log "$testroot/tarballs/."
+    mv "$testroot/setup_env.log" "$testroot/tarballs/."
     mv ../tarballs/* "$testroot/tarballs/."
 
     # Move to tarball directory
