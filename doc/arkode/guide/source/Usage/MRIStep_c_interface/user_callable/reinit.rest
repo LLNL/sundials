@@ -25,7 +25,8 @@ performs the same input checking and initializations that are done in
 assumes that the existing internal memory is sufficient for the new
 problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous
-integration.  Following a successful call to
+integration, and deletes any previously-set *tstop* value specified via a
+call to :c:func:`MRIStepSetStopTime()`.  Following a successful call to
 :c:func:`MRIStepReInit()`, call :c:func:`MRIStepEvolve()` again for the
 solution of the new problem.
 

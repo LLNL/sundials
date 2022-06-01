@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's time step adaptivity
+ * Implementation header file for ARKODE's time step adaptivity
  * utilities.
  *--------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Time Step Adaptivity Private Constants
+  ARKODE Time Step Adaptivity Private Constants
   ===============================================================*/
 
 /* size constants for the adaptivity memory structure */
@@ -67,7 +67,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Time Step Adaptivity Data Structure
+  ARKODE Time Step Adaptivity Data Structure
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -120,7 +120,7 @@ typedef struct ARKodeHAdaptMemRec {
 
 
 /*===============================================================
-  ARKode Time Step Adaptivity Routines
+  ARKODE Time Step Adaptivity Routines
   ===============================================================*/
 
 ARKodeHAdaptMem arkAdaptInit();

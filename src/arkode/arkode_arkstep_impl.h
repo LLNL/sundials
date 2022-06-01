@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ARK time stepper
+ * Implementation header file for ARKODE's ARK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -163,7 +163,7 @@ typedef struct ARKodeARKStepMemRec {
   ARK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,

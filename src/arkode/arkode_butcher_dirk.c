@@ -602,7 +602,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
 
   default:
 
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode",
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
                     "ARKodeButcherTable_LoadDIRK",
                     "Unknown Butcher table");
     return(NULL);
