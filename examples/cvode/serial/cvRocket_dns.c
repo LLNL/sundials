@@ -142,8 +142,7 @@ int main()
   NV_Ith_S(abstol, 0) = ATOL1;
   NV_Ith_S(abstol, 1) = ATOL2;
 
-  /* Call CVodeCreate to create the solver memory and specify the Backward Differentiation Formula
-   * */
+  /* Call CVodeCreate to create the solver memory and specify the Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0))
     return (1);
@@ -154,8 +153,7 @@ int main()
   if (check_retval(&retval, "CVodeInit", 1))
     return (1);
 
-  /* Call CVodeSVtolerances to specify the scalar relative tolerance and vector absolute tolerances
-   * */
+  /* Call CVodeSVtolerances to specify the scalar relative tolerance and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSVtolerances", 1))
     return (1);
