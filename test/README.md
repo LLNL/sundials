@@ -22,7 +22,7 @@ output is saved to the file `<build directory>/Testing/Temporary/LastTest.log`.
 
 Examples that do not return a pass/fail status are considered "development" only
 tests and are excluded by default when running `make test`. To enable all
-examples when testing set the CMake option `SUNDIALS_TEST_DEVTESTS` to `ON`.
+examples when testing, set the CMake option `SUNDIALS_TEST_DEVTESTS` to `ON`.
 With this option enabled tests are run using a Python test runner
 `test/testRunner`. The test runner determines if a test passes or fails by
 comparing the test output against saved output files that are deemed correct by
@@ -77,39 +77,37 @@ make test
 
 ## Testing Scripts
 
-Several shell scripts are provided for setting up and running SUNDIALS tests and
-are used with continuous integration tools to test each push and pull-request to
-the SUNDIALS repository. The primary driver script is `test_driver.sh` which
-selects which test type to run (BRANCH, PR, or RELEASE) and calls one of three
-driver scripts corresponding to the test type:
-* BRANCH tests (`test_branch.sh`) are run on each push to a branch in the
-SUNDIALS repository.
-* PR tests (`test_pr.sh`) are run for each pull-request issued to the SUNDIALS
-repository.
-* RELEASE tests (`test_release.sh`) are run for each push to a release branch or
-release pull-request.
+The script `test_driver.sh` is provided to setup and run SUNDIALS tests. The
+input option `--testtype` can be used to select from a predefined set of
+test configurations:
 
-The BRANCH, PR, and RELEASE scripts call one or more of the following test
-scripts to configure, build, and test SUNDIALS:
-* `suntest.sh` -- tests configured using standard options
-* `suntest_tarscript.sh` -- create tarballs and test with standard options
+* BRANCH -- C90 build tests and a small set of build and run tests.
 
-Any of the test scripts may be called independently of the driver scripts for
-manual testing. See the comment block at the top of each file for more
-information on running the scripts.
+* PR -- C90 build tests and a larger set of build, run, and install tests using
+  the SUNDIALS release tarball.
+
+* RELEASE -- C90 build test and an even larger set of build, run, and install
+  tests using the SUNDIALS release tarball.
+
+* CUSTOM -- run a single user-defined test configuration set using additional
+  input options.
+
+Run `test_driver.sh -h` for more information on the options available.
 
 Note: At this time the testing scripts only run development tests when SUNDIALS
 is configured with real type double (either index size can be used).
 
 ### Testing environment
 
-To setup the testing environment the test scripts will source one of the
-following environment scripts (listed in the order checked):
+The `env/setup_env.sh` script and a machine specific environment script are used
+to setup the testing environment. The machine specific environment script used
+(listed in the order checked) is:
 
-1. The script specified by the environment variable `SUNDIALS_ENV`
-2. A user's local environment script: `<sunrepo>/test/env.sh`
-3. A user's global environment script: `~/.sundials_config/env.sh`
-4. The default SUNDIALS environment script: `<sunrepo>/test/env.default.sh`
+#. The script specified by the environment variable `SUNDIALS_ENV_FILE`
+#. A user's local environment script: `<sunrepo>/test/env/env.sh`
+#. A machine environment script: `<sunrepo>/test/env/${HOSTNAME}.sh`
+#. A machine environment script: `<sunrepo>/test/env/${HOST}.sh`
+#. The default SUNDIALS environment script: `<sunrepo>/test/env/default.sh`
 
 Environment scripts must set the following environment variables that are used
 when configuring SUNDIALS for testing.
@@ -123,78 +121,97 @@ CXXFLAGS = C++ compiler flags
 FFLAGS   = Fortran compiler flags
 ```
 Note the test scripts will append the C standard flag (`-std=c90` or `-std=c99`)
-and C++ standard flag (`-std=c++11`) to the compiler flags provided by the
-environment variables.
+and C++ standard flag (`-std=c++11` or `-std=c++17`) to the compiler flags
+provided by the environment variables.
 
 An environment script may optionally set additional environment variables to
 enable or disable third party libraries (TPLs) in the SUNDIALS configuration.
-Variables of the form `<TPL>_STATUS` enable or disable the corresponding TPL
-when set to `ON` or `OFF` respectively. Note `<TPL>_STATUS` variables default to
-`OFF` if they are not set. Depending on the particular TPL, a variable of the
-from `<TPL>DIR` or `<TPL>LIBS` must be set when `<TPL>_STATUS = ON` to provide
-the full path to the the TPL installation directory or the list of TPL libraries
-to link to respectively.
-
 The currently supported TPL environment variables are as follows:
 ```
 # Enable/disable MPI support
-MPI_STATUS = ON or OFF
-MPICC      = MPI C compiler wrapper
-MPICXX     = MPI C++ compiler wrapper
-MPIFC      = MPI Fortran compiler wrapper
-MPIEXEC    = executable for launching MPI runs
+SUNDIALS_MPI = ON or OFF
+MPICC        = MPI C compiler wrapper
+MPICXX       = MPI C++ compiler wrapper
+MPIFC        = MPI Fortran compiler wrapper
+MPIEXEC      = executable for launching MPI runs
 
 # Enable/disable PThread support
-PTHREAD_STATUS = ON or OFF
+SUNDIALS_PTHREAD = ON or OFF
 
 # Enable/disable OpenMP support
-OPENMP_STATUS = ON or OFF
+SUNDIALS_OPENMP = ON or OFF
 
 # Enable/disable OpenMP device offloading support
-OPENMPDEV_STATUS = ON or OFF
+SUNDIALS_OPENMPDEV = ON or OFF
 
 # Enable/disable CUDA support
-CUDA_STATUS = ON or OFF
+SUNDIALS_CUDA = ON or OFF
 
-# Enable/disable LAPACK linear solvers
-LAPACK_STATUS = ON or OFF
-LAPACKLIBS    = full path to LAPACK library
-
-# Enable/disable KLU linear solver
-KLU_STATUS = ON or OFF
-KLUDIR     = full path to KLU installation
-
-# Enable/disable SuperLU_MT linear solver
-SLUMT_STATUS = ON or OFF
-SLUMTDIR     = full path to SuperLU_MT installation
-
-# Enable/disable SuperLU_DIST linear solver
-SLUDIST_STATUS = ON or OFF
-SLUDISTDIR     = full path to SuperLU_DIST installation
-
-# Enable/disable hypre support
-HYPRE_STATUS = ON or OFF
-HYPREDIR     = full path to hypre installation
-
-# Enable/disable PETSc support
-PETSCSTATUS = ON or OFF
-PETSCDIR    = full path to PETSc installation
-
-# Enable/disable Trilinos support
-TRILINOS_STATUS = ON or OFF
-TRILINOSDIR     = full path to Trilinos installation
+# Enable/disable HIP support
+SUNDIALS_HIP = ON or OFF
 
 # Enable/disable RAJA support
-RAJA_STATUS = ON or OFF
-RAJADIR     = full path to RAJA installation
+SUNDIALS_RAJA = ON or OFF
+RAJA_ROOT     = full path to RAJA installation
+RAJA_BACKENDS = RAJA backends
+
+# Enable/disable SYCL support
+SUNDIALS_SYCL = ON or OFF
+
+# Enable/disable LAPACK linear solvers
+SUNDIALS_LAPACK  = ON or OFF
+LAPACK_LIBRARIES = full path to LAPACK library
+
+# Enable/disable KLU linear solver
+SUNDIALS_KLU             = ON or OFF
+SUITE_SPARSE_INCLUDE_DIR = full path to SuiteSparse include directory
+SUITE_SPARSE_LIBRARY_DIR = full path to SuiteSparse library directory
+
+# Enable/disable SuperLU_MT linear solver
+SUNDIALS_SUPERLU_MT    = ON or OFF
+SUPERLU_MT_INCLUDE_DIR = full path to SuperLU_MT include directory
+SUPERLU_MT_LIBRARY_DIR = full path to SuperLU_MT library directory
+
+# Enable/disable SuperLU_DIST linear solver
+SUNDIALS_SUPERLU_DIST  = ON or OFF
+SUPERLU_DIST_INCLUDE_DIR = full path to SuperLU_DIST include directory
+SUPERLU_DIST_LIBRARY_DIR = full path to SuperLU_DIST library directory
+SUPERLU_DIST_LIBRARIES   = additional link libraries for SuperLU_DIST
+
+# Enable/disable MAGMA linear solver
+SUNDIALS_MAGMA = ON or OFF
+MAGMA_ROOT     = full path to MAGMA installation
+MAGMA_BAKCENDS = MAGMA backend
+
+# Enable/disable hypre support
+SUNDIALS_HYPRE    = ON or OFF
+HYPRE_INCLUDE_DIR = full path to hypre include directory
+HYPRE_LIBRARY_DIR = full path to hypre library directory
+
+# Enable/disable PETSc support
+SUNDIALS_PETSC = ON or OFF
+PETSC_ROOT     = full path to PETSc installation
+
+# Enable/disable Trilinos support
+SUNDIALS_TRILINOS = ON or OFF
+TRILINOS_ROOT     = full path to Trilinos installation
+
+# Enable/disable Trilinos support
+SUNDIALS_XBRAID = ON or OFF
+XBRAID_ROOT     = full path to XBraid installation
 ```
 
-To aid in setting the above variables appropriately, the test scripts pass the
-real type (`single`, `double`, or `extended`) and the index size (`32` or `64`)
-SUNDIALS will be configured with as the first and second inputs to the
-environment script respectively. Additionally, the test scripts may optionally
-pass a compiler spec (e.g., `gcc@4.9.4`) and a build type (e.g., `opt` for an
-optimized build) as the third and fourth inputs respectively.
+To aid in setting the above variables appropriately, `env/setup_env.sh` will set
+environment variables `SUNDIALS_PRECISION`, `SUNDIALS_INDEX_SIZE`, and
+`SUNDIALS_LIBRARY_TYPE` for the real type (`single`, `double`, or `extended`),
+index size (`32` or `64`), and library type (`shared`, `static` or `both`) used
+in the test. Additionally, `SUNDIALS_TPLS` is set to `ON` or `OFF` to indicate
+if the test will use third-party libraries.
+
+Any additional input options passed to `test_driver.sh` will be passed through
+to the environment script for additional setup information. For example, the
+machine script may accept a compiler spec (e.g., `gcc@4.9.4`) and/or a build
+type (e.g., `opt` for an optimized build).
 
 ## Using Spack to install TPLs
 

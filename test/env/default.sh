@@ -24,7 +24,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./default.sh $*" | tee -a configure.log
+echo "./default.sh $*" | tee -a setup_env.log
 
 # set defaults for optional inputs
 compiler="gcc@4.9.4" # compiler spec
@@ -173,7 +173,7 @@ fi
 export CMAKE_VERBOSE_MAKEFILE=OFF
 
 # Number of build and test jobs
-export SUNDIALS_BUILD_JOBS=4
+export SUNDIALS_BUILD_JOBS=6
 export SUNDIALS_TEST_JOBS=1
 
 # Sundials packages

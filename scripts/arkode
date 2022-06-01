@@ -345,6 +345,7 @@ $tar $tarfile $distrobase/test/unit_tests/arkode/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_arkstepsetforcing.c
 $tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_interp_check.c
+$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_reset_check.c
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_analytic_sys_mri.cpp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_dahlquist_mri.cpp

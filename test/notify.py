@@ -53,7 +53,7 @@ def main():
             log.write(args.testurl)
 
     # determine notification recipient
-    special_branches = ['master', 'develop', 'release']
+    special_branches = ['main', 'develop', 'release']
 
     if any(branch in args.testname for branch in special_branches):
         # SUNDIALS developers list
