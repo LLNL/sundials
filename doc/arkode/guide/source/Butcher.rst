@@ -1118,6 +1118,7 @@ Accessible via the constant ``ARKODE_ARK437L2SA_DIRK_7_3_4`` to
 :c:func:`ARKStepSetTableNum()` or
 :c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the implicit portion
 of the 4th order ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`.
+Both the method and embedding are A- and L-stable.
 
 .. math::
 
@@ -1239,8 +1240,9 @@ ARK548L2SAb-DIRK-8-4-5
 
 Accessible via the constant ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for
 :c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the implicit portion of the
-5th order ARK5(4)8L[2]SA method from :cite:p:`KenCarp:19`.
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Both the method and embedding are A-stable;
+additionally the method is L-stable (this is the implicit portion of the 5th order
+ARK5(4)8L[2]SA method from :cite:p:`KenCarp:19`).
 
 .. math::
 
@@ -1279,7 +1281,7 @@ ESDIRK324L2SA-4-2-3
 Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_25.png
    :scale: 50 %
@@ -1300,7 +1302,7 @@ ESDIRK325L2SA-5-2-3
 Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_26.png
    :scale: 50 %
@@ -1321,7 +1323,7 @@ ESDIRK32I5L2SA-5-2-3
 Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK3(2I)5L[2]SA method from :cite:p:`KenCarp:16`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_27.png
    :scale: 50 %
@@ -1341,7 +1343,7 @@ ESDIRK436L2SA-6-3-4
 Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_28.png
    :scale: 50 %
@@ -1361,7 +1363,7 @@ ESDIRK43I6L2SA-6-3-4
 Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK4(3I)6L[2]SA method from :cite:p:`KenCarp:16`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_29.png
    :scale: 50 %
@@ -1381,7 +1383,7 @@ QESDIRK436L2SA-6-3-4
 Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the QESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_30.png
    :scale: 50 %
@@ -1401,7 +1403,7 @@ ESDIRK437L2SA-7-3-4
 Accessible via the constant ``ARKODE_ESDIRK437L2SA_7_3_4`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK4(3)7L[2]SA method from :cite:p:`KenCarp:19b`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_31.png
    :scale: 50 %
@@ -1421,7 +1423,7 @@ ESDIRK547L2SA-7-4-5
 Accessible via the constant ``ARKODE_ESDIRK547L2SA_7_4_5`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK5(4)7L[2]SA method from :cite:p:`KenCarp:16`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_32.png
    :scale: 50 %
@@ -1441,7 +1443,7 @@ ESDIRK547L2SA2-7-4-5
 Accessible via the constant ``ARKODE_ESDIRK547L2SA2_7_4_5`` to
 :c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
 This is the ESDIRK5(4)7L[2]SA2 method from :cite:p:`KenCarp:19b`.
-The method and embedding are both A- and L-stable.
+Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_33.png
    :scale: 50 %
