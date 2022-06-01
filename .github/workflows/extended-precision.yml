@@ -23,7 +23,7 @@ jobs:
           cd test
           ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype extended --indexsize 32
       - name: Archive CMake logs from failed build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2.2.4
         if: failure()
         with:
           name: cmake-logs
@@ -45,7 +45,7 @@ jobs:
           cd test
           ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype extended --indexsize 64
       - name: Archive CMake logs from failed build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2.2.4
         if: failure()
         with:
           name: cmake-logs
