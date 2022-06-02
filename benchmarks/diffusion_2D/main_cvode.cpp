@@ -33,6 +33,10 @@ struct UserOptions
   int      liniters = 20;     // number of linear iterations
   int      msbp     = 0;      // preconditioner setup frequency
   realtype epslin   = ZERO;   // linear solver tolerance factor
+  realtype nlscoef  = 0.1;	  // nonlinear solver convergence safety factor
+  int maxncf		= 10; 	  // max nonlinear solver convergence failures per step
+  realtype dgmax 	= 0.2; 	  // step size ratio limit signalling re-setup of linear solver
+  int msbj 			= 51; 	  // preconditioner jacobian setup frequency
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -55,11 +59,6 @@ int main(int argc, char* argv[])
   // Initialize MPI
   flag = MPI_Init(&argc, &argv);
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
-
-  // GPTune Data Initialization
-  MPI_Comm parent_comm;
-  flag = MPI_Comm_get_parent(&parent_comm);
-  if (check_flag(&flag, "MPI_Comm_get_parent", 1)) return 1;
 
   // Create SUNDIALS context
   MPI_Comm comm = MPI_COMM_WORLD;
@@ -248,11 +247,27 @@ int main(int argc, char* argv[])
       // Set linear solver setup frequency (update preconditioner)
       flag = CVodeSetLSetupFrequency(cvode_mem, uopts.msbp);
       if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
+
+      // Set jacobian evaluation frequency (preconditioner)
+      flag = CVodeSetJacEvalFrequency(cvode_mem, uopts.msbj);
+      if (check_flag(&flag, "ARKStepSetJacEvalFrequency", 1)) return 1;
     }
 
     // Set linear solver tolerance factor
     flag = CVodeSetEpsLin(cvode_mem, uopts.epslin);
     if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
+
+    // Set nonlinear solver convergence safety factor
+    flag = CVodeSetNonlinConvCoef(cvode_mem, uopts.nlscoef);
+    if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;	
+
+    // Set max nonlinear solver convergence failures per step
+    flag = CVodeSetMaxConvFails(cvode_mem, uopts.maxncf);
+    if (check_flag(&flag, "ARKStepSetMaxConvFails", 1)) return 1;	
+
+    // Set step size ratio limit signalling re-setup of linear solver
+    flag = CVodeSetDeltaGammaMaxLSetup(cvode_mem, uopts.dgmax);
+    if (check_flag(&flag, "ARKStepSetDeltaGammaMax", 1)) return 1;	
 
     // Set max steps between outputs
     flag = CVodeSetMaxNumSteps(cvode_mem, uopts.maxsteps);
@@ -290,7 +305,6 @@ int main(int argc, char* argv[])
     //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
 
 	auto start = std::chrono::steady_clock::now();
-
     for (int iout = 0; iout < uout.nout; iout++)
     {
       SUNDIALS_MARK_BEGIN(prof, "Evolve");
@@ -315,9 +329,8 @@ int main(int argc, char* argv[])
       tout += dTout;
       tout = (tout > udata.tf) ? udata.tf : tout;
     }
-
 	auto end = std::chrono::steady_clock::now();
-	auto runtime = end - start;
+	auto runtime = std::chrono::duration<double>(end - start);
 	double runtime_value = (double) runtime.count();
 
     // Close output
@@ -335,24 +348,15 @@ int main(int argc, char* argv[])
     //  flag = OutputStats(cvode_mem, &udata);
     //  if (check_flag(&flag, "OutputStats", 1)) return 1;
     //}
-
-	// ---------
-	// Return information to GPTune
-	// ---------
 	
-	double send_data[2] = { runtime_value, max_error };
-	if (parent_comm != MPI_COMM_NULL) {
-		MPI_Reduce(send_data, MPI_BOTTOM, 2, MPI_DOUBLE, MPI_MAX, 0, parent_comm);
-		MPI_Comm_disconnect(&parent_comm);
+	if (outproc) {
+		printf("%.16f,%.16f\n",runtime_value,max_error);
 	}
 
     // ---------
     // Clean up
     // ---------
     
-	// Free GPTune communicator
-	if (parent_comm != MPI_COMM_NULL) MPI_Comm_free(&parent_comm);	
-
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
 
@@ -528,6 +532,34 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--nlscoef");
+  if (it != args.end())
+  {
+    nlscoef = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--maxncf");
+  if (it != args.end())
+  {
+    maxncf = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--dgmax");
+  if (it != args.end())
+  {
+    dgmax = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--msbj");
+  if (it != args.end())
+  {
+    msbj = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
   return 0;
 }
 
@@ -544,7 +576,12 @@ void UserOptions::help()
   cout << "  --liniters <iters>  : max number of iterations" << endl;
   cout << "  --epslin <factor>   : linear tolerance factor" << endl;
   cout << "  --noprec            : disable preconditioner" << endl;
+  cout << "  --nlscoef <coef>    : nonlinear solver safety factor " << endl;
+  cout << "  --maxncf <factor>   : max nonlinear solver congergence failures per step" << endl;
+  cout << "  --dgmax <factor>    : step size ratio limit to re-setup linear sovler" << endl;
+  cout << "  -------------------------------- " << endl; 
   cout << "  --msbp <steps>      : max steps between prec setups" << endl;
+  cout << "  --msbj <steps>      : prec jacobian setup frequency" << endl;
 }
 
 
@@ -568,6 +605,15 @@ void UserOptions::print()
   cout << " LS iters = " << liniters << endl;
   cout << " msbp     = " << msbp     << endl;
   cout << " epslin   = " << epslin   << endl;
+  cout << " dgmax    = " << dgmax    << endl;
+  cout << " msbj     = " << msbj     << endl; 
+  cout << " --------------------------------- " << endl;
+
+  cout << endl;
+  cout << " Nonlinear solver options:" << endl;
+  cout << " --------------------------------- " << endl;
+  cout << " nlscoef  = " << nlscoef  << endl;
+  cout << " maxncf   = " << maxncf   << endl;
   cout << " --------------------------------- " << endl;
 }
 

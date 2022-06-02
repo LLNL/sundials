@@ -21,15 +21,15 @@
 struct UserOptions
 {
   // Integrator settings
-  realtype rtol        = RCONST(1.0e-5);   // relative tolerance
-  realtype atol        = RCONST(1.0e-10);  // absolute tolerance
-  realtype hfixed      = ZERO;             // fixed step size
-  int      order       = 3;                // ARKode method order
-  int      controller  = 0;                // step size adaptivity method
-  int      maxsteps    = 0;                // max steps between outputs
-  int      onestep     = 0;                // one step mode, number of steps
-  bool     linear      = true;             // linearly implicit RHS
-  bool     diagnostics = false;            // output diagnostics
+  realtype rtol             = RCONST(1.0e-5);  				// relative tolerance
+  realtype atol             = RCONST(1.0e-10);  			// absolute tolerance
+  realtype hfixed           = ZERO;             			// fixed step size
+  ARKODE_DIRKTableID method = ARKODE_ARK324L2SA_DIRK_4_2_3; // ARKode method
+  int controller            = 0;                			// step size adaptivity method
+  int maxsteps              = 0;                			// max steps between outputs
+  int onestep               = 0;                			// one step mode, number of steps
+  bool linear               = true;             			// linearly implicit RHS
+  bool diagnostics          = false;            			// output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg      = true;   // use PCG (true) or GMRES (false)
@@ -285,9 +285,9 @@ int main(int argc, char* argv[])
     flag = ARKStepSetDeltaGammaMax(arkode_mem, uopts.dgmax);
     if (check_flag(&flag, "ARKStepSetDeltaGammaMax", 1)) return 1;	
 
-    // Select method order
-    flag = ARKStepSetOrder(arkode_mem, uopts.order);
-    if (check_flag(&flag, "ARKStepSetOrder", 1)) return 1;
+    // Select method
+    flag = ARKStepSetTableNum(arkode_mem, uopts.method, ARKODE_ERK_NONE);
+    if (check_flag(&flag, "ARKStepSetTableNum", 1)) return 1;
 
     // Set fixed step size or adaptivity method
     if (uopts.hfixed > ZERO)
@@ -537,10 +537,34 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
-  it = find(args.begin(), args.end(), "--order");
+  it = find(args.begin(), args.end(), "--method");
   if (it != args.end())
   {
-    order = stoi(*(it + 1));
+	string option = *(it + 1);
+
+	if (option.compare("ARKODE_SDIRK_2_1_2") == 0) method = ARKODE_SDIRK_2_1_2;
+	if (option.compare("ARKODE_BILLINGTON_3_3_2") == 0) method = ARKODE_BILLINGTON_3_3_2;
+	if (option.compare("ARKODE_TRBDF2_3_3_2") == 0) method = ARKODE_TRBDF2_3_3_2;
+	if (option.compare("ARKODE_KVAERNO_4_2_3") == 0) method = ARKODE_KVAERNO_4_2_3;	
+	if (option.compare("ARKODE_ARK324L2SA_DIRK_4_2_3") == 0) method = ARKODE_ARK324L2SA_DIRK_4_2_3;	
+	if (option.compare("ARKODE_CASH_5_2_4") == 0) method = ARKODE_CASH_5_2_4;	
+	if (option.compare("ARKODE_CASH_5_3_4") == 0) method = ARKODE_CASH_5_3_4;	
+	if (option.compare("ARKODE_SDIRK_5_3_4") == 0) method = ARKODE_SDIRK_5_3_4;	
+	if (option.compare("ARKODE_KVAERNO_5_3_4") == 0) method = ARKODE_KVAERNO_5_3_4;	
+	if (option.compare("ARKODE_ARK436L2SA_DIRK_6_3_4") == 0) method = ARKODE_ARK436L2SA_DIRK_6_3_4;	
+	if (option.compare("ARKODE_KVAERNO_7_4_5") == 0) method = ARKODE_KVAERNO_7_4_5;	
+	if (option.compare("ARKODE_ARK548L2SA_DIRK_8_4_5") == 0) method = ARKODE_ARK548L2SA_DIRK_8_4_5;	
+	if (option.compare("ARKODE_ARK437L2SA_DIRK_7_3_4") == 0) method = ARKODE_ARK437L2SA_DIRK_7_3_4;	
+	if (option.compare("ARKODE_ARK548L2SAb_DIRK_8_4_5") == 0) method = ARKODE_ARK548L2SAb_DIRK_8_4_5;
+	if (option.compare("ARKODE_ESDIRK324L2SA_4_2_3") == 0) method = ARKODE_ESDIRK324L2SA_4_2_3;	
+	if (option.compare("ARKODE_ESDIRK325L2SA_5_2_3") == 0) method = ARKODE_ESDIRK325L2SA_5_2_3;	
+	if (option.compare("ARKODE_ESDIRK32I5L2SA_5_2_3") == 0) method = ARKODE_ESDIRK32I5L2SA_5_2_3;	
+	if (option.compare("ARKODE_ESDIRK436L2SA_6_3_4") == 0) method = ARKODE_ESDIRK436L2SA_6_3_4;	
+	if (option.compare("ARKODE_ESDIRK43I6L2SA_6_3_4") == 0) method = ARKODE_ESDIRK43I6L2SA_6_3_4;	
+	if (option.compare("ARKODE_QESDIRK436L2SA_6_3_4") == 0) method = ARKODE_QESDIRK436L2SA_6_3_4;	
+	if (option.compare("ARKODE_ESDIRK437L2SA_7_3_4") == 0) method = ARKODE_ESDIRK437L2SA_7_3_4;	
+	if (option.compare("ARKODE_ESDIRK547L2SA_7_4_5") == 0) method = ARKODE_ESDIRK547L2SA_7_4_5;	
+	if (option.compare("ARKODE_ESDIRK547L2SA2_7_4_5") == 0) method = ARKODE_ESDIRK547L2SA2_7_4_5;	
     args.erase(it, it + 2);
   }
 
@@ -631,14 +655,14 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
   it = find(args.begin(), args.end(), "--nlscoef");
   if (it != args.end())
   {
-    nlscoef = stoi(*(it + 1));
+    nlscoef = stod(*(it + 1));
     args.erase(it, it + 2);
   }
 
   it = find(args.begin(), args.end(), "--maxncf");
   if (it != args.end())
   {
-    maxncf = stod(*(it + 1));
+    maxncf = stoi(*(it + 1));
     args.erase(it, it + 2);
   }
 
@@ -646,7 +670,7 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
   if (it != args.end())
   {
     deduce = true;
-    args.erase(it, it + 2);
+    args.erase(it);
   }
 
   it = find(args.begin(), args.end(), "--dgmax");
@@ -675,7 +699,7 @@ void UserOptions::help()
   cout << "  --rtol <rtol>       : relative tolerance" << endl;
   cout << "  --atol <atol>       : absoltue tolerance" << endl;
   cout << "  --nonlinear         : disable linearly implicit flag" << endl;
-  cout << "  --order <ord>       : method order" << endl;
+  cout << "  --method <method>   : method used" << endl;
   cout << "  --fixedstep <step>  : used fixed step size" << endl;
   cout << "  --controller <ctr>  : time step adaptivity controller" << endl;
   cout << "  --diagnostics       : output diagnostics" << endl;
@@ -692,7 +716,7 @@ void UserOptions::help()
   cout << "  --dgmax <factor>    : step size ratio limit to re-setup linear sovler" << endl;
   cout << " --------------------------------- " << endl;
   cout << "  --msbp <steps>      : max steps between prec setups" << endl;
-  cout << "  --msbj              : prec jacobian setup frequency" << endl; 
+  cout << "  --msbj <steps>      : prec jacobian setup frequency" << endl; 
 }
 
 
@@ -705,7 +729,7 @@ void UserOptions::print()
   cout << " rtol        = " << rtol        << endl;
   cout << " atol        = " << atol        << endl;
   cout << " hfixed      = " << hfixed      << endl;
-  cout << " order       = " << order       << endl;
+  cout << " method      = " << method       << endl;
   cout << " controller  = " << controller  << endl;
   cout << " max steps   = " << maxsteps    << endl;
   cout << " linear RHS  = " << linear      << endl;
