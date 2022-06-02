@@ -38,6 +38,14 @@ struct UserOptions
   int      liniters = 20;     // number of linear iterations
   int      msbp     = 0;      // preconditioner setup frequency
   realtype epslin   = ZERO;   // linear solver tolerance factor
+  int itype			= 0; 	  // dense output interpolation type
+  int idegree 		= 0;	  // dense output interpolant degree
+  realtype nlscoef  = 0.1;	  // nonlinear solver convergence safety factor
+  int maxncf		= 10; 	  // max nonlinear solver convergence failures per step
+  bool deduce 		= false;  // if implicit stage derivatives are deduced without evaluation
+  realtype dgmax 	= 0.2; 	  // step size ratio limit signalling re-setup of linear solver
+  int msbj 			= 51; 	  // preconditioner jacobian setup frequency
+  
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -243,11 +251,39 @@ int main(int argc, char* argv[])
       // Set linear solver setup frequency (update preconditioner)
       flag = ARKStepSetLSetupFrequency(arkode_mem, uopts.msbp);
       if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
+
+      // Set jacobian evaluation frequency (preconditioner)
+      flag = ARKStepSetJacEvalFrequency(arkode_mem, uopts.msbj);
+      if (check_flag(&flag, "ARKStepSetJacEvalFrequency", 1)) return 1;
     }
 
     // Set linear solver tolerance factor
     flag = ARKStepSetEpsLin(arkode_mem, uopts.epslin);
     if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
+
+    // Set dense output interpolation type
+    flag = ARKStepSetInterpolantType(arkode_mem, uopts.itype);
+    if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;	
+
+    // Set dense output interpolation degree
+    flag = ARKStepSetInterpolantDegree(arkode_mem, uopts.idegree);
+    if (check_flag(&flag, "ARKStepSetInterpolantDegree", 1)) return 1;	
+
+    // Set nonlinear solver convergence safety factor
+    flag = ARKStepSetNonlinConvCoef(arkode_mem, uopts.nlscoef);
+    if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;	
+
+    // Set max nonlinear solver convergence failures per step
+    flag = ARKStepSetMaxConvFails(arkode_mem, uopts.maxncf);
+    if (check_flag(&flag, "ARKStepSetMaxConvFails", 1)) return 1;	
+
+    // Set whether to implicit stage derivatives
+    flag = ARKStepSetDeduceImplicitRhs(arkode_mem, uopts.deduce);
+    if (check_flag(&flag, "ARKStepSetDeduceImplicitRhs", 1)) return 1;	
+
+    // Set step size ratio limit signalling re-setup of linear solver
+    flag = ARKStepSetDeltaGammaMax(arkode_mem, uopts.dgmax);
+    if (check_flag(&flag, "ARKStepSetDeltaGammaMax", 1)) return 1;	
 
     // Select method order
     flag = ARKStepSetOrder(arkode_mem, uopts.order);
@@ -578,6 +614,55 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--itype");
+  if (it != args.end())
+  {
+    itype = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--idegree");
+  if (it != args.end())
+  {
+    idegree = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--nlscoef");
+  if (it != args.end())
+  {
+    nlscoef = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--maxncf");
+  if (it != args.end())
+  {
+    maxncf = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--deduce");
+  if (it != args.end())
+  {
+    deduce = true;
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--dgmax");
+  if (it != args.end())
+  {
+    dgmax = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--msbj");
+  if (it != args.end())
+  {
+    msbj = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
   return 0;
 }
 
@@ -599,7 +684,15 @@ void UserOptions::help()
   cout << "  --liniters <iters>  : max number of iterations" << endl;
   cout << "  --epslin <factor>   : linear tolerance factor" << endl;
   cout << "  --noprec            : disable preconditioner" << endl;
+  cout << "  --itype <type>      : dense output inteprolant type" << endl;
+  cout << "  --idegree <deg>     : dense output interpoland degree" << endl;
+  cout << "  --nlscoef <coef>    : nonlinear solver safety factor " << endl;
+  cout << "  --maxncf <factor>   : max nonlinear solver congergence failures per step" << endl;
+  cout << "  --deduce            : whether to deduce implicit righthand side" << endl;
+  cout << "  --dgmax <factor>    : step size ratio limit to re-setup linear sovler" << endl;
+  cout << " --------------------------------- " << endl;
   cout << "  --msbp <steps>      : max steps between prec setups" << endl;
+  cout << "  --msbj              : prec jacobian setup frequency" << endl; 
 }
 
 
@@ -628,7 +721,19 @@ void UserOptions::print()
   cout << " LS iters = " << liniters << endl;
   cout << " msbp     = " << msbp     << endl;
   cout << " epslin   = " << epslin   << endl;
+  cout << " itype    = " << itype    << endl;
+  cout << " idegree  = " << idegree  << endl;
+  cout << " deduce   = " << deduce   << endl;
+  cout << " dgmax    = " << dgmax    << endl;
+  cout << " msbj     = " << msbj     << endl; 
   cout << " --------------------------------- " << endl;
+
+  cout << endl;
+  cout << " Nonlinear solver options:" << endl;
+  cout << " nlscoef  = " << nlscoef  << endl;
+  cout << " maxncf   = " << maxncf   << endl;
+  cout << " --------------------------------- " << endl;
+
 }
 
 //---- end of file ----
