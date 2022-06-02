@@ -86,7 +86,7 @@ struct UserData
   sunindextype nx = 512;
 
   // Mesh spacing
-  realtype dx = (xu - xl) / nx;
+  realtype dx = (xu - xl) / (nx - 1);
 
   // Number of equations
   sunindextype neq = NSPECIES * nx;
@@ -129,6 +129,7 @@ struct UserOptions
   // Method order
   int order      = 3;
   int order_fast = 3;
+  bool ark_dirk  = false;
 
   // Relative and absolute tolerances
   realtype rtol      = RCONST(1.e-4);
@@ -595,6 +596,7 @@ void InputHelp()
   cout << "  --integrator <int>       : integrator option\n";
   cout << "  --order <int>            : method order\n";
   cout << "  --order_fast <int>       : MRI fast method order\n";
+  cout << "  --ark_dirk               : Use DIRK method from ARK method\n";
   cout << "  --rtol <real>            : relative tolerance\n";
   cout << "  --atol <real>            : absoltue tolerance\n";
   cout << "  --rtol_fast <real>       : MRI fast relative tolerance\n";
@@ -698,6 +700,7 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   find_arg(args, "--integrator", uopts.integrator);
   find_arg(args, "--order", uopts.order);
   find_arg(args, "--order_fast", uopts.order_fast);
+  find_arg(args, "--ark_dirk", uopts.ark_dirk);
   find_arg(args, "--rtol", uopts.rtol);
   find_arg(args, "--atol", uopts.atol);
   find_arg(args, "--rtol_fast", uopts.rtol_fast);
@@ -719,7 +722,7 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   find_arg(args, "--nout", uopts.nout);
 
   // Recompute mesh spacing and total number of nodes
-  udata.dx  = (udata.xu - udata.xl) / udata.nx;
+  udata.dx  = (udata.xu - udata.xl) / (udata.nx - 1);
   udata.neq = NSPECIES * udata.nx;
 
   // Create workspace
@@ -833,7 +836,10 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
     cout << "  integrator       = ARK" << endl;
   else
     cout << "  integrator       = MRI" << endl;
-  cout << "  order            = " << uopts.order << endl;
+  if (uopts.ark_dirk)
+    cout << "  order (ark_dirk) = " << uopts.order << endl;
+  else
+    cout << "  order            = " << uopts.order << endl;
   cout << "  rtol             = " << uopts.rtol << endl;
   cout << "  atol             = " << uopts.atol << endl;
   cout << "  fixed h          = " << uopts.fixed_h << endl;

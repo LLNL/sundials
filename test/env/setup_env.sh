@@ -37,7 +37,7 @@
 # EXTRA ARGS = Additional inputs passed to the environment script
 # ------------------------------------------------------------------------------
 
-echo "./setup_env.sh $*" | tee -a configure.log
+echo "./setup_env.sh $*" | tee -a setup_env.log
 
 # Check number of inputs
 if [ "$#" -lt 5 ]; then
@@ -155,15 +155,6 @@ elif [ -f env/env.sh ]; then
         return 1;
     fi
 
-elif [ -f ~/.sundials_config/env.sh ]; then
-
-    echo "Setting up environment with ~/.sundials_config/env.sh"
-    # shellcheck source=/dev/null
-    if ! source "${HOME}/.sundials_config/env.sh" "$@"; then
-        echo "ERROR: ${HOME}/.sundials_config/env.sh $* failed"
-        return 1;
-    fi
-
 elif [ -f "env/${HOSTNAME}.sh" ]; then
 
     echo "Setting up environment with sundials/test/env/${HOSTNAME}.sh"
@@ -244,13 +235,13 @@ fi
 
 # Print relevant environment variables to the log file
 for env_var in "${!CMAKE_@}"; do
-    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> setup_env.log
 done
 for env_var in "${!MPI@}"; do
-    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> setup_env.log
 done
 for env_var in "${!SUNDIALS_@}"; do
-    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> setup_env.log
 done
 
 # Check that only one of SUNDIALS_TEST_OUTPUT_DIR and SUNDIALS_TEST_ANSWER_DIR

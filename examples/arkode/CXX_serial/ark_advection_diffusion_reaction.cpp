@@ -584,9 +584,37 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
     }
   }
 
-  // Select method order
-  flag = ARKStepSetOrder(*arkode_mem, uopts.order);
-  if (check_flag(flag, "ARKStepSetOrder")) return 1;
+  // Select method
+  if (!fe_RHS && uopts.ark_dirk)
+  {
+    // Use the DIRK method from the default ARK method
+    switch(uopts.order)
+    {
+    case(3):
+      flag = ARKStepSetTableNum(*arkode_mem, ARKODE_ARK324L2SA_DIRK_4_2_3,
+                                ARKODE_ERK_NONE);
+      break;
+    case(4):
+      flag = ARKStepSetTableNum(*arkode_mem, ARKODE_ARK436L2SA_DIRK_6_3_4,
+                                ARKODE_ERK_NONE);
+      break;
+    case(5):
+      flag = ARKStepSetTableNum(*arkode_mem, ARKODE_ARK548L2SA_DIRK_8_4_5,
+                                ARKODE_ERK_NONE);
+      break;
+    default:
+      cerr << "ERROR: Invalid order to use ARK DIRK method" << endl;
+      return -1;
+      break;
+    }
+    if (check_flag(flag, "ARKStepSetTableNum")) return 1;
+  }
+  else
+  {
+    // Select default method of a given order
+    flag = ARKStepSetOrder(*arkode_mem, uopts.order);
+    if (check_flag(flag, "ARKStepSetOrder")) return 1;
+  }
 
   // Set fixed step size or adaptivity method
   if (uopts.fixed_h > ZERO)
