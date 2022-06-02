@@ -16,6 +16,8 @@
 
 #include "diffusion_2D.hpp"
 #include "arkode/arkode_arkstep.h"
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
+#include "sunnonlinsol/sunnonlinsol_newton.h"
 #include <chrono>
 
 struct UserOptions
@@ -31,20 +33,25 @@ struct UserOptions
   bool linear               = true;             			// linearly implicit RHS
   bool diagnostics          = false;            			// output diagnostics
 
+  // Nonlinear solver settings
+  int maxncf	      = 10;      // max nonlinear solver convergence failures per step
+  realtype nlscoef    = 0.1;     // nonlinear solver convergence safety factor
+  int maxcor          = 3;       // max nonlinear solver iterations per step
+  bool use_fixedpoint = false;   // use fixedpoint iteration over default newton iteration
+  int fixedpoint_m    = 0;       // number of anderson acceleration vectors
+
   // Linear solver and preconditioner settings
-  bool     pcg      = true;   // use PCG (true) or GMRES (false)
-  bool     prec     = true;   // preconditioner on/off
-  bool     lsinfo   = false;  // output residual history
-  int      liniters = 20;     // number of linear iterations
-  int      msbp     = 0;      // preconditioner setup frequency
-  realtype epslin   = ZERO;   // linear solver tolerance factor
-  int itype			= 0; 	  // dense output interpolation type
-  int idegree 		= 0;	  // dense output interpolant degree
-  realtype nlscoef  = 0.1;	  // nonlinear solver convergence safety factor
-  int maxncf		= 10; 	  // max nonlinear solver convergence failures per step
-  bool deduce 		= false;  // if implicit stage derivatives are deduced without evaluation
-  realtype dgmax 	= 0.2; 	  // step size ratio limit signalling re-setup of linear solver
-  int msbj 			= 51; 	  // preconditioner jacobian setup frequency
+  bool     pcg            = true;   // use PCG (true) or GMRES (false)
+  bool     prec           = true;   // preconditioner on/off
+  bool     lsinfo         = false;  // output residual history
+  int      liniters       = 20;     // number of linear iterations
+  int      msbp     	  = 0;      // preconditioner setup frequency
+  realtype epslin   	  = ZERO;   // linear solver tolerance factor
+  int itype				  = 0; 	    // dense output interpolation type
+  int idegree 			  = 0;	    // dense output interpolant degree
+  bool deduce 			  = false;  // if implicit stage derivatives are deduced without evaluation
+  realtype dgmax 	 	  = 0.2; 	// step size ratio limit signalling re-setup of linear solver
+  int msbj 				  = 51; 	// preconditioner jacobian setup frequency
   
 
   // Helper functions
@@ -177,6 +184,20 @@ int main(int argc, char* argv[])
       if (check_flag((void *) (uout.error), "N_VClone", 0)) return 1;
     }
 
+	// ------------------------
+	// Create Nonlinear Solver
+	// ------------------------
+	// Set fixed-point solver if selected, otherwise set newton solver
+	SUNNonlinearSolver NLS = NULL;
+
+	if (uopts.use_fixedpoint) {
+		NLS = SUNNonlinSol_FixedPoint(u, uopts.fixedpoint_m, ctx);
+      	if (check_flag((void *) NLS, "SUNLinSol_FixedPoint", 0)) return 1;
+	} else {
+		NLS = SUNNonlinSol_Newton(u, ctx);
+      	if (check_flag((void *) NLS, "SUNLinSol_Newton", 0)) return 1;
+	}
+
     // ---------------------
     // Create linear solver
     // ---------------------
@@ -238,6 +259,10 @@ int main(int argc, char* argv[])
     flag = ARKStepSetUserData(arkode_mem, (void *) &udata);
     if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
 
+	// Attach nonlinear solver 
+	flag = ARKStepSetNonlinearSolver(arkode_mem, NLS);
+    if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
+ 
     // Attach linear solver
     flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
@@ -256,8 +281,8 @@ int main(int argc, char* argv[])
       flag = ARKStepSetJacEvalFrequency(arkode_mem, uopts.msbj);
       if (check_flag(&flag, "ARKStepSetJacEvalFrequency", 1)) return 1;
     }
-
-    // Set linear solver tolerance factor
+    
+	// Set linear solver tolerance factor
     flag = ARKStepSetEpsLin(arkode_mem, uopts.epslin);
     if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
 
@@ -284,6 +309,10 @@ int main(int argc, char* argv[])
     // Set step size ratio limit signalling re-setup of linear solver
     flag = ARKStepSetDeltaGammaMax(arkode_mem, uopts.dgmax);
     if (check_flag(&flag, "ARKStepSetDeltaGammaMax", 1)) return 1;	
+
+    // Set step size ratio limit signalling re-setup of linear solver
+    flag = ARKStepSetMaxNonlinIters(arkode_mem, uopts.maxcor);
+    if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;	
 
     // Select method
     flag = ARKStepSetTableNum(arkode_mem, uopts.method, ARKODE_ERK_NONE);
@@ -687,6 +716,21 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--maxcor");
+  if (it != args.end())
+  {
+    maxcor = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--fixedpoint");
+  if (it != args.end())
+  {
+	use_fixedpoint = true;
+    fixedpoint_m = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
   return 0;
 }
 
@@ -717,6 +761,9 @@ void UserOptions::help()
   cout << " --------------------------------- " << endl;
   cout << "  --msbp <steps>      : max steps between prec setups" << endl;
   cout << "  --msbj <steps>      : prec jacobian setup frequency" << endl; 
+  cout << "  --maxcor <iters>    : max nonlinear iterations per step" << endl;
+  cout << "  --fixedpoint <m>    : use fixed point nonlinear solver with m anderson vectors" << endl;
+  
 }
 
 
@@ -754,8 +801,11 @@ void UserOptions::print()
 
   cout << endl;
   cout << " Nonlinear solver options:" << endl;
-  cout << " nlscoef  = " << nlscoef  << endl;
-  cout << " maxncf   = " << maxncf   << endl;
+  cout << " --------------------------------- " << endl;
+  cout << " nlscoef        = " << nlscoef  << endl;
+  cout << " maxncf         = " << maxncf   << endl;
+  cout << " maxcor   = " << maxcor   << endl;
+  cout << " fixedpoint_m   = " << fixedpoint_m   << endl;
   cout << " --------------------------------- " << endl;
 
 }
