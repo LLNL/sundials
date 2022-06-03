@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Alan C. Hindmarsh
+ * Programmer(s): Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security and
