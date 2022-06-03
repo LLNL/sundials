@@ -60,7 +60,7 @@ realtype SUNRpowerR(realtype base, realtype exponent)
 {
   if (base <= RCONST(0.0)) return(RCONST(0.0));
 
-#if defined(SUNDIALS_USE_GENERIC_MATH)
+#if (__STDC_VERSION__ < 199901L) && defined(SUNDIALS_USE_GENERIC_MATH)
   return((realtype) pow((double) base, (double) exponent));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   return(pow(base, exponent));
