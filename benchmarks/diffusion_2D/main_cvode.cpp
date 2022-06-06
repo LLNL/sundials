@@ -27,6 +27,7 @@ struct UserOptions
   realtype atol        = RCONST(1.0e-10);  // absolute tolerance
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
+  int      maxord      = 5; 			   // maximum order of the linear multistep methods
 
   // Nonlinear solver settings
   int maxncf	      = 10;      // max nonlinear solver convergence failures per step
@@ -247,6 +248,10 @@ int main(int argc, char* argv[])
     flag = CVodeInit(cvode_mem, diffusion, ZERO, u);
     if (check_flag(&flag, "CVodeInit", 1)) return 1;
 
+	// Set max steps to large value 
+	flag = CVodeSetMaxNumSteps(cvode_mem, (long int) 100000);
+	if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
+	
     // Specify tolerances
     flag = CVodeSStolerances(cvode_mem, uopts.rtol, uopts.atol);
     if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
@@ -298,9 +303,12 @@ int main(int argc, char* argv[])
     flag = CVodeSetMaxNonlinIters(cvode_mem, uopts.maxcor);
     if (check_flag(&flag, "CVodeSetMaxNonlinIters", 1)) return 1;	
 
+	flag = CVodeSetMaxOrd(cvode_mem, uopts.maxord);
+	if (check_flag(&flag, "CvodeSetMaxOrd", 1)) return 1;
+
     // Set max steps between outputs
-    flag = CVodeSetMaxNumSteps(cvode_mem, uopts.maxsteps);
-    if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
+    //flag = CVodeSetMaxNumSteps(cvode_mem, uopts.maxsteps);
+    //if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
 
     // Set stopping time
     flag = CVodeSetStopTime(cvode_mem, udata.tf);
@@ -604,6 +612,13 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--maxord");
+  if (it != args.end())
+  {
+    maxord = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
   return 0;
 }
 
@@ -615,6 +630,7 @@ void UserOptions::help()
   cout << "Integrator command line options:" << endl;
   cout << "  --rtol <rtol>       : relative tolerance" << endl;
   cout << "  --atol <atol>       : absoltue tolerance" << endl;
+  cout << "  --maxord <order>    : maximum order of the linear multistep methods" << endl;
   cout << "  --gmres             : use GMRES linear solver" << endl;
   cout << "  --lsinfo            : output residual history" << endl;
   cout << "  --liniters <iters>  : max number of iterations" << endl;
@@ -640,6 +656,7 @@ void UserOptions::print()
   cout << " rtol        = " << rtol        << endl;
   cout << " atol        = " << atol        << endl;
   cout << " max steps   = " << maxsteps    << endl;
+  cout << " max order   = " << maxord      << endl;
   cout << " --------------------------------- " << endl;
 
   cout << endl;

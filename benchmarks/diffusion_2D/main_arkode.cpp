@@ -251,6 +251,10 @@ int main(int argc, char* argv[])
     void *arkode_mem = ARKStepCreate(NULL, diffusion, ZERO, u, ctx);
     if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
+	// Set max steps to large value 
+	flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);
+	if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+	
     // Specify tolerances
     flag = ARKStepSStolerances(arkode_mem, uopts.rtol, uopts.atol);
     if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
@@ -339,8 +343,8 @@ int main(int argc, char* argv[])
     }
 
     // Set max steps between outputs
-    flag = ARKStepSetMaxNumSteps(arkode_mem, uopts.maxsteps);
-    if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+    //flag = ARKStepSetMaxNumSteps(arkode_mem, uopts.maxsteps);
+    //if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
 
     // Set stopping time
     flag = ARKStepSetStopTime(arkode_mem, udata.tf);
