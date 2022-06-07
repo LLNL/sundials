@@ -70,10 +70,14 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   cmake_parse_arguments(SUNDIALS_ADD_TEST
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  # SGS add check to make sure parallel is integer
-
   # check that the test is not excluded
-  if(NOT ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude"))
+  string(TOLOWER "exclude-${SUNDIALS_PRECISION}" _exclude_precision)
+  if( ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude") OR
+      ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL _exclude_precision) )
+
+    message(STATUS "Skipped test ${NAME} because it had type ${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}")
+
+  else()
 
     if(SUNDIALS_TEST_DEVTESTS)
 

@@ -1,0 +1,28 @@
+spack:
+  packages:
+    all:
+      providers:
+        target: [x86_64]
+        blas:
+        - openblas
+        mpi:
+        - openmpi
+      compiler:
+      - gcc@9.4.0
+  specs:
+  - cmake %gcc@9.4.0
+  - petsc~double~int64~superlu-dist~hypre ^openblas %gcc@9.4.0
+  - openmpi %gcc@9.4.0
+  - openblas %gcc@9.4.0
+  - superlu-mt~int64~blas %gcc@9.4.0
+  - trilinos+float+tpetra gotype=int ^openblas %gcc@9.4.0
+  config:
+    install_tree: /opt/software
+  mirrors:
+    local: /var/cache/spack-mirror
+    E4S: https://cache.e4s.io
+  repos: []
+  upstreams: {}
+  concretizer:
+    unify: true
+  view: /opt/view

@@ -1,0 +1,31 @@
+spack:
+  packages:
+    all:
+      providers:
+        target: [x86_64]
+        blas:
+        - openblas
+        mpi:
+        - openmpi
+      compiler:
+      - gcc@9.4.0
+  specs:
+  - cmake %gcc@9.4.0
+  - hypre~int64~internal-superlu %gcc@9.4.0
+  - petsc+double~int64~superlu-dist %gcc@9.4.0
+  - openmpi %gcc@9.4.0
+  - openblas~ilp64 %gcc@9.4.0
+  - suite-sparse %gcc@9.4.0
+  - superlu-mt~int64~blas %gcc@9.4.0
+  - superlu-dist~int64 ^metis~int64 %gcc@9.4.0
+  - trilinos+tpetra gotype=int %gcc@9.4.0
+  - xbraid %gcc@9.4.0
+  config:
+    install_tree: /opt/software
+  mirrors:
+    local: /var/cache/spack-mirror
+  repos: []
+  upstreams: {}
+  concretizer:
+    unify: true
+  view: /opt/view

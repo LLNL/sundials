@@ -1,7 +1,7 @@
- -------
+ ------- 
 | SPGMR |
  -------
-
+ 
 2-species diurnal advection-diffusion problem
 
 t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.59e+02
@@ -53,7 +53,7 @@ c1 (bot.left/middle/top rt.) =    4.144e-14     2.072e-12     7.862e-14
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 
-Final Statistics..
+Final Statistics.. 
 
 lenrw   =  2696     leniw   =    65
 lenrwLS =  2454     leniwLS =    42
@@ -66,10 +66,10 @@ ncfn    =     0     ncfl    =     0
 
 ======================================================================
 
- ---------
+ --------- 
 | SPFGMR |
  ---------
-
+ 
 2-species diurnal advection-diffusion problem
 
 t = 7.20e+03   no. steps = 192   order = 5   stepsize = 1.34e+02
@@ -121,7 +121,7 @@ c1 (bot.left/middle/top rt.) =    5.687e-13    -9.924e-11    -1.149e-12
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.162e+11
 
 
-Final Statistics..
+Final Statistics.. 
 
 lenrw   =  2696     leniw   =    65
 lenrwLS =  3254     leniwLS =    46
@@ -134,10 +134,10 @@ ncfn    =     0     ncfl    =     0
 
 ======================================================================
 
- -------
+ ------- 
 | SPBCGS |
  -------
-
+ 
 2-species diurnal advection-diffusion problem
 
 t = 7.20e+03   no. steps = 190   order = 5   stepsize = 1.58e+02
@@ -189,7 +189,7 @@ c1 (bot.left/middle/top rt.) =   -9.999e-27    -1.866e-22    -1.581e-27
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 
-Final Statistics..
+Final Statistics.. 
 
 lenrw   =  2696     leniw   =    65
 lenrwLS =  2202     leniwLS =    41
@@ -200,10 +200,10 @@ nsetups =    72     netf    =    25
 npe     =     8     nps     =  1453
 ncfn    =     0     ncfl    =     0
 
- ---------
+ --------- 
 | SPTFQMR |
  ---------
-
+ 
 2-species diurnal advection-diffusion problem
 
 t = 7.20e+03   no. steps = 218   order = 5   stepsize = 1.44e+02
@@ -255,7 +255,7 @@ c1 (bot.left/middle/top rt.) =   -1.673e-20    -1.128e-15    -3.081e-21
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 
 
-Final Statistics..
+Final Statistics.. 
 
 lenrw   =  2696     leniw   =    65
 lenrwLS =  2602     leniwLS =    43
@@ -265,3 +265,4 @@ nni     =   555     nli     =   477
 nsetups =    67     netf    =    21
 npe     =     8     nps     =  1805
 ncfn    =     0     ncfl    =     0
+
