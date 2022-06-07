@@ -12,10 +12,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - id: verify-container-works
+    - id: container-information
       run: |
           cat /proc/cpuinfo
           uname -p
+      shell: bash
+    - id: python-information
           which python
           python --version
       shell: bash
