@@ -162,7 +162,7 @@ export SUNDIALS_LOGGING_ENABLE_MPI=ON
 
 # Answer files
 if [ -z "${SUNDIALS_TEST_ANSWER_DIR}" ]; then
-    export SUNDIALS_TEST_ANSWER_DIR="${PWD}/answers/linux-ubuntu20.04-skylake_avx512/gcc-9.4.0/${SUNDIALS_PRECISION}"
+    export SUNDIALS_TEST_ANSWER_DIR="${PWD}/answers/linux-ubuntu20.04-x86_64/gcc-9.4.0/${SUNDIALS_PRECISION}"
 fi
 
 # Uncomment to override the default output file comparison precisions. The float

@@ -44,3 +44,12 @@ Alternatively, you can drop into a bash shell inside the container to run specif
 On Macs, it is recommended to use `Podman <https://podman.io/>`_ (and then the
 same steps above apply. using ``podman`` instead of ``docker``). Podman is
 useful on Linux too, as it can run rootless easily.
+
+.. note::
+
+   Its possible that the difference in your local machine architecture, and the
+   one used to build the docker container(s), results in different answers and
+   failing tests. You can provide the path to your own directory with answer
+   files by setting the environment variable ``SUNDIALS_TEST_ANSWER_DIR`` with
+   the path, and adding the argument ``-e SUNDIALS_TEST_ANSWER_DIR`` to the
+   ``docker run`` command above.
