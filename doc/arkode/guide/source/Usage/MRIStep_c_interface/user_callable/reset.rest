@@ -25,7 +25,9 @@ allocations but, unlike :c:func:`MRIStepReInit()`, this routine performs only a
 :c:func:`MRIStepCreate()`. In particular this routine retains all internal
 counter values and the step size/error history and does not reinitialize the
 linear and/or nonlinear solver but it does indicate that a linear solver setup
-is necessary in the next step. Following a successful call to
+is necessary in the next step. Like :c:func:`MRIStepReInit()`, a call to
+:c:func:`MRIStepReset()` will delete any previously-set *tstop* value specified
+via a call to :c:func:`MRIStepSetStopTime()`.  Following a successful call to
 :c:func:`MRIStepReset()`, call :c:func:`MRIStepEvolve()` again to continue
 solving the problem. By default the next call to :c:func:`MRIStepEvolve()` will
 use the step size computed by MRIStep prior to calling :c:func:`MRIStepReset()`.
@@ -83,3 +85,9 @@ vector.
 
    If an error occurred, :c:func:`MRIStepReset()` also sends an error message to
    the error handler function.
+
+   .. versionchanged:: 5.3.0
+
+      This now calls the corresponding :c:type:`MRIStepInnerResetFn` with the same
+      (*tR*, *yR*) arguments for the :c:type:`MRIStepInnerStepper` object that is
+      used to evolve the MRI "fast" time scale subproblems.

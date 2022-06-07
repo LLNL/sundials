@@ -37,7 +37,7 @@
 # EXTRA ARGS = Additional inputs passed to the environment script
 # ------------------------------------------------------------------------------
 
-echo "./setup_env.sh $*" | tee -a configure.log
+echo "./setup_env.sh $*" | tee -a setup_env.log
 
 # Check number of inputs
 if [ "$#" -lt 5 ]; then
@@ -123,6 +123,18 @@ export CMAKE_CXX_STANDARD="11"
 export CMAKE_C_EXTENSIONS="OFF"
 export CMAKE_CXX_EXTENSIONS="OFF"
 
+# Enable compiler warnings (the environment script may disable)
+export SUNDIALS_ENABLE_ALL_WARNINGS=ON
+export SUNDIALS_ENABLE_WARNINGS_AS_ERRORS=ON
+
+# Enable address sanitizer (environment script may disable)
+# TODO(DJG): Always enable sanitizer not just when TPLs are OFF
+if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
+    export SUNDIALS_ENABLE_ADDRESS_SANITIZER=ON
+else
+    export SUNDIALS_ENABLE_ADDRESS_SANITIZER=OFF
+fi
+
 # Call the environment setup script
 
 if [ -n "$SUNDIALS_ENV_FILE" ]; then
@@ -140,15 +152,6 @@ elif [ -f env/env.sh ]; then
     # shellcheck source=/dev/null
     if ! source env/env.sh "$@"; then
         echo "ERROR: env/env.sh $* failed"
-        return 1;
-    fi
-
-elif [ -f ~/.sundials_config/env.sh ]; then
-
-    echo "Setting up environment with ~/.sundials_config/env.sh"
-    # shellcheck source=/dev/null
-    if ! source "${HOME}/.sundials_config/env.sh" "$@"; then
-        echo "ERROR: ${HOME}/.sundials_config/env.sh $* failed"
         return 1;
     fi
 
@@ -189,12 +192,19 @@ fi
 
 if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
 
+    # turn off profiling so we have a case that tests it
+    export SUNDIALS_PROFILING=OFF
+
+    # turn off logging so we have a case that tests it
+    export SUNDIALS_LOGGING_LEVEL=0
+
     # threading
     export SUNDIALS_PTHREAD=OFF
     export SUNDIALS_OPENMP=OFF
 
     # mpi
     export SUNDIALS_MPI=OFF
+    export SUNDIALS_LOGGING_ENABLE_MPI=OFF
 
     # gpu
     export SUNDIALS_CUDA=OFF
@@ -225,10 +235,13 @@ fi
 
 # Print relevant environment variables to the log file
 for env_var in "${!CMAKE_@}"; do
-    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> setup_env.log
+done
+for env_var in "${!MPI@}"; do
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> setup_env.log
 done
 for env_var in "${!SUNDIALS_@}"; do
-    printf '%s=%s\n' "$env_var" "${!env_var}" >> configure.log
+    printf '%s=%s\n' "$env_var" "${!env_var}" >> setup_env.log
 done
 
 # Check that only one of SUNDIALS_TEST_OUTPUT_DIR and SUNDIALS_TEST_ANSWER_DIR

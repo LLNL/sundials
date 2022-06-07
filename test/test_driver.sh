@@ -23,60 +23,113 @@ help ()
 {
     cat <<EOF
 
-    $0 [--help] [--buildjobs NUM] [--testjobs NUM] [--testtype TYPE]
-       [--branchname NAME] [--changebranch NAME] [--tarball PACKAGE]
-       [--realtype TYPE] [--indexsize SIZE] [--libtype TYPE] [--tpls]
-       [--suntesttype TYPE] [--phase PHASE] [--env ENVFILE] [EXTRA INPUTS]
+    NAME
 
-    where:
+        $0 - SUNDIALS testing driver
 
-    --help               Displays this message and exit.
-    --buildjobs NUM      Set the number of build jobs (default 1).
-    --testjobs NUM       Set the number of test jobs (default 1).
-    --testtype TYPE      The test type to run (default custom):
-                           branch  -- quick tests with a few configurations
-                           pr      -- create tarball, test more configurations
-                           release -- create tarball, test more configurations
-                           custom  -- single user defined test configuration
-    --branchname NAME    Branch name or PR name (overrides --testtype,
-                         default NONE).
-    --changebranch NAME  Source branch name in a PR (overrides --testtype,
-                         default NONE).
-    --tarball PACKAGE    Tarball to create in a custom test (default NONE):
-                           [sundials|arkode|cvode|cvodes|ida|idas|kinsol|all]
-    --realtype TYPE      Real type to use in a custom test (default double):
-                           [single|double|extended]
-    --indexsize SIZE     Index size to use in a custom test (default 64):
-                           [32|64]
-    --libtype TYPE       Library type to create a custom test (default both):
-                           [static|shared|both]
-    --tpls               Enable TPLs in a custom test.
-    --suntesttype TYPE   SUNDIALS test type for a custom test (default DEV):
-                           NONE -- compile test only
-                           STD  -- run standard tests
-                           DEV  -- run development tests
-    --phase PHASE        Testing phase to stop after:
-                           ENV -- after setting up the environment
-                           CONFIG -- after configuring with CMake
-                           BUILD -- after make
-                           TEST -- after make test
-                           INSTALL -- after make install
-                           TEST_INSTALL -- after make test_install
-                           TEST_INSTALL_ALL -- after make test_install_all
-    --env ENVFILE        Environment file to use
-    EXTRA INPUTS         Extra inputs passed to the environment file
+    USAGE
+
+        $0 [OPTIONS] [ENV SETUP OPTIONS]
+
+    OPTIONS
+
+        --help, -h
+            Display this message and exit.
+
+        --testtype TYPE
+            Run a predefined set of tests or specify the test configuration
+            using additional input options. TYPE must be one of:
+
+            custom  -- (default) single user defined test configuration
+            branch  -- quick tests with a few configurations
+            pr      -- create sundials tarball and test more configurations
+            release -- create sundials tarball and test even more configurations
+
+    When running a custom test the following options may be provided to specify
+    the test configuration. If any of these options are provided with a test
+    type other than "custom," their values will be ignored.
+
+        --tarball PACKAGE
+            Create a SUNDIALS release tarball and run tests using the code
+            extracted from the tarball. PACKAGE must be one of:
+
+            NONE     -- (default) do not create a tarball
+            sundials -- create tarball containing all SUNDIALS packages together
+            arkode   -- create tarball containing ARKODE only
+            cvode    -- create tarball containing CVODE only
+            cvodes   -- create tarball containing CVODES only
+            ida      -- create tarball containing IDA only
+            idas     -- create tarball containing IDAS only
+            kinsol   -- create tarball containing KINSOL only
+            all      -- create all possible tarballs
+
+        --realtype TYPE
+            Real type precision to use in a custom test. TYPE must be one of:
+
+            double   -- (default) use double precision
+            single   -- use single precision
+            extended -- use extended precision
+
+        --indexsize SIZE
+            Index size to use in a custom test. SIZE must be one of:
+
+            64 -- (default) use 64-bit indexing
+            32 -- use 32-bit indexing
+
+        --libtype TYPE
+            Library type to create in a custom test. TYPE must be one of:
+
+            static -- build static libraries
+            shared -- build shared libraries
+            both   -- build static and shared libraries
+
+        --tpls
+            Enable external third-party libraries in a custom test.
+
+        --suntesttype TYPE
+            SUNDIALS test type for a custom test. TYPE must be one of:
+
+            STD -- run standard tests
+            DEV -- run development tests
+
+    With any test type the following options may be set to alter the test setup
+    or behavior.
+
+        --env ENVFILE
+            Environment configuration file to use for testing.
+
+        --buildjobs NUM
+            Set the number of jobs for parallel builds (default 1).
+
+        --testjobs NUM
+            Set the number of jobs for parallel testing (default 1). Note this
+            is the number of jobs CTest will use to run tests simultaneously and
+            does not impact the number of MPI tasks used in MPI-parallel tests.
+
+        --phase PHASE
+            Testing phase to stop after. PHASE must be one of:
+
+            ENV              -- setup the environment
+            CONFIG           -- configuring with CMake
+            BUILD            -- build with make
+            TEST             -- test with make test
+            INSTALL          -- install with make install
+            TEST_INSTALL     -- test with make test_install
+            TEST_INSTALL_ALL -- test with make test_install_all
+
+    ENV SETUP OPTIONS
+
+        Any additional inputs provided will be forwarded to the environment
+        script called before each test.
 
     Example usage:
 
-    $0
-    $0 --testtype release --buildjobs 4
-    $0 --phase CONFIG --indexsize 32 --tpls --env env/default.sh
+        $0
+        $0 --testtype release --buildjobs 4
+        $0 --phase CONFIG --indexsize 32 --tpls --env env/default.sh
 
 EOF
 }
-
-# Remove old logs
-\rm -rf ./*.log
 
 # Print input args
 echo "./test_driver.sh $*" | tee -a suntest.log
@@ -88,8 +141,6 @@ echo "./test_driver.sh $*" | tee -a suntest.log
 buildjobs=0
 testjobs=0
 testtype="CUSTOM"
-branchname=""
-changebranch=""
 tarball="NONE"
 realtype="double"
 indexsize="64"
@@ -112,7 +163,7 @@ while [[ $# -gt 0 ]]; do
 
     case $input in
 
-        --help)
+        --help|-h)
             help
             exit 1;;
 
@@ -154,14 +205,6 @@ while [[ $# -gt 0 ]]; do
                 help
                 exit 1
             fi
-            shift 2;;
-
-        --branchname)
-            branchname=$2
-            shift 2;;
-
-        --changebranch)
-            changebranch=$2
             shift 2;;
 
         --tarball)
@@ -300,31 +343,6 @@ done
 # Reset positional inputs to extra inputs
 set -- "${EXTRA_ARGS[@]}"
 
-# Update the test type based on the branch name or pull-request ID (PR-#). The
-# change branch check below will update the test type for a release branch PR.
-if [ -n "$branchname" ]; then
-    if [[ "${branchname:0:2}" == "PR" ]]; then
-        testtype="PR"
-    elif [[ "${branchname:0:7}" == "RELEASE" ||
-            "${branchname:0:7}" == "Release" ||
-            "${branchname:0:7}" == "release" ]]; then
-        testtype="RELEASE"
-    else
-        testtype="BRANCH"
-    fi
-fi
-
-# Update the test type based on the change branch name. If this is a release
-# branch, the test type is set to RELEASE to ensure a PR for a release branch
-# runs the release tests rather than the PR tests.
-if [ -n "$changebranch" ]; then
-    if [[ "${changebranch:0:7}" == "RELEASE" ||
-          "${changebranch:0:7}" == "Release" ||
-          "${changebranch:0:7}" == "release" ]]; then
-        testtype="RELEASE"
-    fi
-fi
-
 # Initialize failure counter (0 = success)
 passfail=0
 
@@ -336,7 +354,7 @@ testroot=$(pwd)
 # ------------------------------------------------------------------------------
 
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS $testtype test: $branchname " | tee -a suntest.log
+echo "SUNDIALS test" | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 git log -1 --pretty='Commit: %H%nAuthor: %an <%ae>%nDate:   %ad%n%n%s' | tee -a suntest.log
@@ -351,6 +369,7 @@ args_indexsizes=()
 args_libtypes=()
 args_tpls=()
 args_suntests=()
+args_phase=()
 
 case "$testtype" in
 
@@ -358,24 +377,24 @@ case "$testtype" in
         # Don't creat tarballs
         tarball=NONE
 
-        # Compile tests
-        for rt in single double extended; do
-            for is in 32 64; do
-                args_realtypes+=("${rt}")
-                args_indexsizes+=("${is}")
-                args_libtypes+=("both")
-                args_tpls+=("OFF")
-                args_suntests+=("NONE")
-            done
-        done
-
-        # Development tests
+        # C90 compile test and sanitizer tests
         for is in 32 64; do
             args_realtypes+=("double")
             args_indexsizes+=("${is}")
-            args_libtypes+=("both")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("BUILD")
+        done
+
+        # Basic development tests
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
             args_tpls+=("ON")
             args_suntests+=("DEV")
+            args_phase+=("TEST")
         done
         ;;
 
@@ -383,6 +402,17 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
+        # C90 compile test and sanitizer tests
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("BUILD")
+        done
+
+        # More development tests
         for rt in single double extended; do
             for is in 32 64; do
                 args_realtypes+=("${rt}")
@@ -395,6 +425,7 @@ case "$testtype" in
                 else
                     args_suntests+=("STD")
                 fi
+                args_phase+=("")
             done
         done
         ;;
@@ -403,6 +434,17 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
+        # C90 compile test and sanitizer tests
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("BUILD")
+        done
+
+        # Even more development tests
         for rt in single double extended; do
             for is in 32 64; do
                 for lt in static shared; do
@@ -416,6 +458,7 @@ case "$testtype" in
                     else
                         args_suntests+=("STD")
                     fi
+                    args_phase+=("")
                 done
             done
         done
@@ -428,6 +471,7 @@ case "$testtype" in
         args_libtypes+=("${libtype}")
         args_tpls+=("${tpls}")
         args_suntests+=("${suntesttype}")
+        args_phase+=("${phase}")
         if [ "${realtype}" != "double" ] && [ "${suntesttype}" == "DEV" ]; then
             echo "WARNING: DEV tests may fail with ${realtype} precision"
         fi
@@ -460,11 +504,11 @@ if [ "$tarball" != NONE ]; then
                 "${args_tpls[0]}"
                 "${args_suntests[0]}")
 
-    # Setup environment (creates configure.log)
+    # Setup environment
     time source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"
 
     rc=${PIPESTATUS[0]}
-    echo -e "\nsetup_env.sh returned $rc\n" | tee -a configure.log
+    echo -e "\nsetup_env.sh returned $rc\n" | tee -a setup_env.log
     if [ "$rc" -ne 0 ]; then exit 1; fi
 
     # Remove old tarballs directory
@@ -487,6 +531,7 @@ if [ "$tarball" != NONE ]; then
 
     # Relocate log and tarballs
     mv tar.log "$testroot/tarballs/."
+    mv "$testroot/setup_env.log" "$testroot/tarballs/."
     mv ../tarballs/* "$testroot/tarballs/."
 
     # Move to tarball directory
@@ -505,9 +550,6 @@ if [ "$tarball" != NONE ]; then
         rc=${PIPESTATUS[0]}
         echo -e "\ntar -xzvf returned $rc\n" | tee -a tar.log
         if [ "$rc" -ne 0 ]; then exit 1; fi
-
-        # Move log to package directory
-        mv tar.log "$package/."
 
         # Copy environment and testing scripts from original test directory
         cp -r "$testroot/env" "$package/test/."
@@ -549,11 +591,11 @@ for ((j=0;j<ntestdirs;j++)); do
         # Print test header for Jenkins section collapsing
         echo "TEST: ${env_config[*]}"
 
-        # Setup environment (creates configure.log)
+        # Setup environment
         time source env/setup_env.sh "${env_config[@]}" "${EXTRA_ARGS[@]}"
 
         rc=${PIPESTATUS[0]}
-        echo -e "\nsetup_env.sh returned $rc\n" | tee -a configure.log
+        echo -e "\nsetup_env.sh returned $rc\n" | tee -a setup_env.log
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if the environment sets the number of build and test jobs but do
@@ -588,7 +630,7 @@ for ((j=0;j<ntestdirs;j++)); do
         fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "ENV" ]; then
+        if [ "${args_phase[i]}" == "ENV" ]; then
             echo "PASSED: ${env_config[*]}"
             continue
         fi
@@ -617,8 +659,8 @@ for ((j=0;j<ntestdirs;j++)); do
 
         # Create and move to new build directory, move configure log
         mkdir "$builddir"
+        mv setup_env.log "$builddir/."
         cd "$builddir"
-        mv ../configure.log .
 
         # -----------------------
         # Create CMake cache file
@@ -641,7 +683,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "CONFIG" ]; then
+        if [ "${args_phase[i]}" == "CONFIG" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -659,15 +701,8 @@ for ((j=0;j<ntestdirs;j++)); do
         echo -e "\nmake returned $rc\n" | tee -a make.log
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
-        # Check if tests should be skipped (compile check only)
-        if [ "${args_suntests[i]}" == "NONE" ]; then
-            echo "PASSED: ${env_config[*]}"
-            cd ..
-            continue
-        fi
-
         # Check if this is the last phase
-        if [ "${phase}" == "BUILD" ]; then
+        if [ "${args_phase[i]}" == "BUILD" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -686,7 +721,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "TEST" ]; then
+        if [ "${args_phase[i]}" == "TEST" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -705,7 +740,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "INSTALL" ]; then
+        if [ "${args_phase[i]}" == "INSTALL" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -724,7 +759,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "TEST_INSTALL" ]; then
+        if [ "${args_phase[i]}" == "TEST_INSTALL" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -739,7 +774,7 @@ for ((j=0;j<ntestdirs;j++)); do
         if [ "$rc" -ne 0 ]; then passfail=1; break; fi
 
         # Check if this is the last phase
-        if [ "${phase}" == "TEST_INSTALL_ALL" ]; then
+        if [ "${args_phase[i]}" == "TEST_INSTALL_ALL" ]; then
             echo "PASSED: ${env_config[*]}"
             cd ..
             continue
@@ -771,7 +806,7 @@ if [ $passfail -eq 0 ]; then
 fi
 
 echo "--------------------------------------------------" | tee -a suntest.log
-echo "SUNDIALS $testtype test: $branchname " | tee -a suntest.log
+echo "SUNDIALS test" | tee -a suntest.log
 date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 

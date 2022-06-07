@@ -230,7 +230,7 @@ Linear Solver           : Diagonal Jacobian
  Number of f-s                            =  359 
  Number of setups                         =   39 
  Number of nonlinear iterations           =  356 
- Number of nonlinear convergence failures =    0 
+ Number of nonlinear convergence failures =    1 
  Number of error test failures            =   17 
 
  Linear solver real workspace length      =    6 
@@ -297,7 +297,7 @@ Linear Solver           : Diagonal Jacobian
  Number of f-s                            =  218 
  Number of setups                         =   33 
  Number of nonlinear iterations           =  215 
- Number of nonlinear convergence failures =    0 
+ Number of nonlinear convergence failures =    4 
  Number of error test failures            =    5 
 
  Linear solver real workspace length      =   75 
@@ -419,7 +419,7 @@ Linear Solver           : Diagonal Jacobian
  Number of f-s                            =  270 
  Number of setups                         =   47 
  Number of nonlinear iterations           =  267 
- Number of nonlinear convergence failures =    2 
+ Number of nonlinear convergence failures =   12 
  Number of error test failures            =    5 
 
  Linear solver real workspace length      =   75 

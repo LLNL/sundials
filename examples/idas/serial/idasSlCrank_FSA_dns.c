@@ -563,14 +563,15 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
 static int PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn;
+  long int nst, nni, nnf, nje, nre, nreLS, netf, ncfn;
 
   retval = IDAGetNumSteps(mem, &nst);
   retval = IDAGetNumResEvals(mem, &nre);
   retval = IDAGetNumJacEvals(mem, &nje);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   retval = IDAGetNumErrTestFails(mem, &netf);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
   retval = IDAGetNumLinResEvals(mem, &nreLS);
 
   printf("\nFinal Run Statistics: \n\n");
@@ -579,7 +580,8 @@ static int PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
 
   return(retval);
 }
@@ -592,7 +594,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -600,13 +602,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

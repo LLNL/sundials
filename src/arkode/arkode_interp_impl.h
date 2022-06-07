@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's temporal interpolation
+ * Implementation header file for ARKODE's temporal interpolation
  * utilities.
  *--------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ARKode temporal interpolation constants
+  ARKODE temporal interpolation constants
   ===============================================================*/
 
 /* Numeric constants */
@@ -39,7 +39,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Hermite Temporal Interpolation Data Structure
+  ARKODE Hermite Temporal Interpolation Data Structure
   ===============================================================*/
 
 /* Hermite interpolation structure */
@@ -97,7 +97,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
 
 /*===============================================================
-  ARKode Lagrange Temporal Interpolation Data Structure
+  ARKODE Lagrange Temporal Interpolation Data Structure
   ===============================================================*/
 
 /* Lagrange interpolation structure */

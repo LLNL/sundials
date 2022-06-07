@@ -28,6 +28,7 @@ set(ARKODE_unit_tests
   "ark_interp_check\;-100"
   "ark_interp_check\;-10000"
   "ark_interp_check\;-1000000"
+  "ark_reset_check\;1"
   )
 
 set(ARKODE_LIB sundials_arkode)

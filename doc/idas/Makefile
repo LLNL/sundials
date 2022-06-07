@@ -11,30 +11,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Makefile for IDAS developer documentation
+# Makefile for IDAS examples documentation
 # -----------------------------------------------------------------
 
-USER_GUIDE = idas_guide
 EXAMPLES   = idas_examples
-
-# names of guide files
-UG_FILES = \
-${USER_GUIDE}.tex \
-idas_intro.tex \
-idas_gpu.tex \
-idas_math.tex \
-idas_org.tex \
-idas_sim.tex \
-idas_fwd.tex \
-idas_adj.tex \
-idas_fcmix.tex \
-idas_nvec.tex \
-idas_newlinsolv.tex \
-idas_sunlinsol.tex \
-idas_sunmat.tex \
-idas_sunnonlinsol.tex \
-idas_sunmem.tex \
-idas_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \

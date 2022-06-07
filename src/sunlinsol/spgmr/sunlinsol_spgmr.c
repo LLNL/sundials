@@ -23,7 +23,8 @@
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sundials/sundials_math.h>
 
-#include "sundials_debug.h"
+#include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -122,6 +123,9 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl, SUNContext su
   content->Xv           = NULL;
   content->print_level  = 0;
   content->info_file    = stdout;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  content->info_file    = (sunctx->logger->info_fp) ? sunctx->logger->info_fp : stdout;
+#endif
 
   /* Allocate content */
   content->xcor = N_VClone(y);
@@ -447,8 +451,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   scale1 = (s1 != NULL);
   scale2 = (s2 != NULL);
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
-  if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file)
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file
+      && (SPGMR_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
     fprintf(SPGMR_CONTENT(S)->info_file, "SUNLINSOL_SPGMR:\n");
 #endif
 
@@ -504,14 +509,18 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
      return if small  */
   *res_norm = r_norm = beta = SUNRsqrt(N_VDotProd(V[0], V[0]));
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   /* print initial residual */
-  if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file)
+  if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file
+      && (SPGMR_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
   {
     fprintf(SPGMR_CONTENT(S)->info_file,
             SUNLS_MSG_RESIDUAL,
             (long int) 0, *res_norm);
   }
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+    "SUNLinSolSolve_SPGMR", "initial-residual",
+    "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
 
   if (r_norm <= delta) {
@@ -617,14 +626,18 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       rotation_product *= givens[2*l+1];
       *res_norm = rho = SUNRabs(rotation_product*r_norm);
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       /* print current iteration number and the residual */
-      if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file)
+      if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file
+          && (SPGMR_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
       {
         fprintf(SPGMR_CONTENT(S)->info_file,
                 SUNLS_MSG_RESIDUAL,
                 (long int) *nli, *res_norm);
       }
+      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+        "SUNLinSolSolve_SPGMR", "iterate-residual",
+        "nli = %li, resnorm = %.16g", (long int) *nli, *res_norm);
 #endif
 
       if (rho <= delta) { converged = SUNTRUE; break; }
@@ -859,7 +872,6 @@ int SUNLinSolFree_SPGMR(SUNLinearSolver S)
 int SUNLinSolSetInfoFile_SPGMR(SUNLinearSolver S,
                                FILE* info_file)
 {
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
   /* check that the linear solver is non-null */
   if (S == NULL)
     return(SUNLS_MEM_NULL);
@@ -867,17 +879,12 @@ int SUNLinSolSetInfoFile_SPGMR(SUNLinearSolver S,
   SPGMR_CONTENT(S)->info_file = info_file;
 
   return(SUNLS_SUCCESS);
-#else
-  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_SPGMR: SUNDIALS was not built with monitoring\n");
-  return(SUNLS_ILL_INPUT);
-#endif
 }
 
 
 int SUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver S,
                                  int print_level)
 {
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
   /* check that the linear solver is non-null */
   if (S == NULL)
     return(SUNLS_MEM_NULL);
@@ -889,8 +896,4 @@ int SUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver S,
   SPGMR_CONTENT(S)->print_level = print_level;
 
   return(SUNLS_SUCCESS);
-#else
-  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_SPGMR: SUNDIALS was not built with monitoring\n");
-  return(SUNLS_ILL_INPUT);
-#endif
 }

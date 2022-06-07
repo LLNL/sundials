@@ -113,6 +113,7 @@ module fidas_mod
  public :: FIDASetLineSearchOffIC
  public :: FIDASetStepToleranceIC
  public :: FIDASetMaxBacksIC
+ public :: FIDASetDeltaCjLSetup
  public :: FIDASetErrHandlerFn
  public :: FIDASetErrFile
  public :: FIDASetUserData
@@ -120,16 +121,23 @@ module fidas_mod
  public :: FIDASetMaxNumSteps
  public :: FIDASetInitStep
  public :: FIDASetMaxStep
+ public :: FIDASetMinStep
  public :: FIDASetStopTime
- public :: FIDASetNonlinConvCoef
  public :: FIDASetMaxErrTestFails
- public :: FIDASetMaxNonlinIters
- public :: FIDASetMaxConvFails
  public :: FIDASetSuppressAlg
  public :: FIDASetId
  public :: FIDASetConstraints
- public :: FIDASetNonlinearSolver
+ public :: FIDASetEtaFixedStepBounds
+ public :: FIDASetEtaMin
+ public :: FIDASetEtaMax
+ public :: FIDASetEtaLow
+ public :: FIDASetEtaMinErrFail
+ public :: FIDASetEtaConvFail
+ public :: FIDASetMaxConvFails
+ public :: FIDASetMaxNonlinIters
  public :: FIDASetNlsResFn
+ public :: FIDASetNonlinConvCoef
+ public :: FIDASetNonlinearSolver
  public :: FIDARootInit
  public :: FIDASetRootDirection
  public :: FIDASetNoInactiveRootWarn
@@ -168,6 +176,8 @@ module fidas_mod
  public :: FIDAGetNumNonlinSolvIters
  public :: FIDAGetNumNonlinSolvConvFails
  public :: FIDAGetNonlinSolvStats
+ public :: FIDAGetNumStepSolveFails
+ public :: FIDAPrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -213,6 +223,7 @@ module fidas_mod
  public :: FIDAGetSensNumNonlinSolvIters
  public :: FIDAGetSensNumNonlinSolvConvFails
  public :: FIDAGetSensNonlinSolvStats
+ public :: FIDAGetNumStepSensSolveFails
  public :: FIDASensFree
  public :: FIDAQuadSensInit
  public :: FIDAQuadSensReInit
@@ -485,6 +496,15 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDASetDeltaCjLSetup(farg1, farg2) &
+bind(C, name="_wrap_FIDASetDeltaCjLSetup") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FIDASetErrHandlerFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FIDASetErrHandlerFn") &
 result(fresult)
@@ -549,6 +569,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDASetMinStep(farg1, farg2) &
+bind(C, name="_wrap_FIDASetMinStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FIDASetStopTime(farg1, farg2) &
 bind(C, name="_wrap_FIDASetStopTime") &
 result(fresult)
@@ -558,35 +587,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FIDASetNonlinConvCoef(farg1, farg2) &
-bind(C, name="_wrap_FIDASetNonlinConvCoef") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FIDASetMaxErrTestFails(farg1, farg2) &
 bind(C, name="_wrap_FIDASetMaxErrTestFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FIDASetMaxNonlinIters(farg1, farg2) &
-bind(C, name="_wrap_FIDASetMaxNonlinIters") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FIDASetMaxConvFails(farg1, farg2) &
-bind(C, name="_wrap_FIDASetMaxConvFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -621,12 +623,76 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FIDASetNonlinearSolver(farg1, farg2) &
-bind(C, name="_wrap_FIDASetNonlinearSolver") &
+function swigc_FIDASetEtaFixedStepBounds(farg1, farg2, farg3) &
+bind(C, name="_wrap_FIDASetEtaFixedStepBounds") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaMin(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaMin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaMax(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaMax") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaLow(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaLow") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaMinErrFail(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaMinErrFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetEtaConvFail(farg1, farg2) &
+bind(C, name="_wrap_FIDASetEtaConvFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetMaxConvFails(farg1, farg2) &
+bind(C, name="_wrap_FIDASetMaxConvFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetMaxNonlinIters(farg1, farg2) &
+bind(C, name="_wrap_FIDASetMaxNonlinIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -636,6 +702,24 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetNonlinConvCoef(farg1, farg2) &
+bind(C, name="_wrap_FIDASetNonlinConvCoef") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetNonlinearSolver(farg1, farg2) &
+bind(C, name="_wrap_FIDASetNonlinearSolver") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1013,6 +1097,25 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetNumStepSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAPrintAllStats(farg1, farg2, farg3) &
+bind(C, name="_wrap_FIDAPrintAllStats") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1410,6 +1513,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetNumStepSensSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetNumStepSensSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2731,6 +2843,22 @@ fresult = swigc_FIDASetMaxBacksIC(farg1, farg2)
 swig_result = fresult
 end function
 
+function FIDASetDeltaCjLSetup(ida_max, dcj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_max
+real(C_DOUBLE), intent(in) :: dcj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_max
+farg2 = dcj
+fresult = swigc_FIDASetDeltaCjLSetup(farg1, farg2)
+swig_result = fresult
+end function
+
 function FIDASetErrHandlerFn(ida_mem, ehfun, eh_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2846,6 +2974,22 @@ fresult = swigc_FIDASetMaxStep(farg1, farg2)
 swig_result = fresult
 end function
 
+function FIDASetMinStep(ida_mem, hmin) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: hmin
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = hmin
+fresult = swigc_FIDASetMinStep(farg1, farg2)
+swig_result = fresult
+end function
+
 function FIDASetStopTime(ida_mem, tstop) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2862,22 +3006,6 @@ fresult = swigc_FIDASetStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDASetNonlinConvCoef(ida_mem, epcon) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-real(C_DOUBLE), intent(in) :: epcon
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = ida_mem
-farg2 = epcon
-fresult = swigc_FIDASetNonlinConvCoef(farg1, farg2)
-swig_result = fresult
-end function
-
 function FIDASetMaxErrTestFails(ida_mem, maxnef) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2891,38 +3019,6 @@ integer(C_INT) :: farg2
 farg1 = ida_mem
 farg2 = maxnef
 fresult = swigc_FIDASetMaxErrTestFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FIDASetMaxNonlinIters(ida_mem, maxcor) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-integer(C_INT), intent(in) :: maxcor
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = ida_mem
-farg2 = maxcor
-fresult = swigc_FIDASetMaxNonlinIters(farg1, farg2)
-swig_result = fresult
-end function
-
-function FIDASetMaxConvFails(ida_mem, maxncf) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-integer(C_INT), intent(in) :: maxncf
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = ida_mem
-farg2 = maxncf
-fresult = swigc_FIDASetMaxConvFails(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2974,19 +3070,134 @@ fresult = swigc_FIDASetConstraints(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDASetNonlinearSolver(ida_mem, nls) &
+function FIDASetEtaFixedStepBounds(ida_mem, eta_min_fx, eta_max_fx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: ida_mem
-type(SUNNonlinearSolver), target, intent(inout) :: nls
+real(C_DOUBLE), intent(in) :: eta_min_fx
+real(C_DOUBLE), intent(in) :: eta_max_fx
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
 
 farg1 = ida_mem
-farg2 = c_loc(nls)
-fresult = swigc_FIDASetNonlinearSolver(farg1, farg2)
+farg2 = eta_min_fx
+farg3 = eta_max_fx
+fresult = swigc_FIDASetEtaFixedStepBounds(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDASetEtaMin(ida_mem, eta_min) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_min
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_min
+fresult = swigc_FIDASetEtaMin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetEtaMax(ida_mem, eta_max) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_max
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_max
+fresult = swigc_FIDASetEtaMax(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetEtaLow(ida_mem, eta_low) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_low
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_low
+fresult = swigc_FIDASetEtaLow(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetEtaMinErrFail(ida_mem, eta_min_ef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_min_ef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_min_ef
+fresult = swigc_FIDASetEtaMinErrFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetEtaConvFail(ida_mem, eta_cf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: eta_cf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = eta_cf
+fresult = swigc_FIDASetEtaConvFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetMaxConvFails(ida_mem, maxncf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_INT), intent(in) :: maxncf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = ida_mem
+farg2 = maxncf
+fresult = swigc_FIDASetMaxConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetMaxNonlinIters(ida_mem, maxcor) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_INT), intent(in) :: maxcor
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = ida_mem
+farg2 = maxcor
+fresult = swigc_FIDASetMaxNonlinIters(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3003,6 +3214,38 @@ type(C_FUNPTR) :: farg2
 farg1 = ida_mem
 farg2 = res
 fresult = swigc_FIDASetNlsResFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetNonlinConvCoef(ida_mem, epcon) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: epcon
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = epcon
+fresult = swigc_FIDASetNonlinConvCoef(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetNonlinearSolver(ida_mem, nls) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(SUNNonlinearSolver), target, intent(inout) :: nls
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(nls)
+fresult = swigc_FIDASetNonlinearSolver(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3684,7 +3927,42 @@ fresult = swigc_FIDAGetNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDAGetNumNonlinSolvConvFails(ida_mem, nncfails) &
+function FIDAGetNumNonlinSolvConvFails(ida_mem, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(nnfails(1))
+fresult = swigc_FIDAGetNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetNonlinSolvStats(ida_mem, nniters, nnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = c_loc(nniters(1))
+farg3 = c_loc(nnfails(1))
+fresult = swigc_FIDAGetNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDAGetNumStepSolveFails(ida_mem, nncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -3696,26 +3974,26 @@ type(C_PTR) :: farg2
 
 farg1 = ida_mem
 farg2 = c_loc(nncfails(1))
-fresult = swigc_FIDAGetNumNonlinSolvConvFails(farg1, farg2)
+fresult = swigc_FIDAGetNumStepSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDAGetNonlinSolvStats(ida_mem, nniters, nncfails) &
+function FIDAPrintAllStats(ida_mem, outfile, fmt) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: ida_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nncfails
+type(C_PTR) :: outfile
+integer(SUNOutputFormat), intent(in) :: fmt
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+integer(C_INT) :: farg3 
 
 farg1 = ida_mem
-farg2 = c_loc(nniters(1))
-farg3 = c_loc(nncfails(1))
-fresult = swigc_FIDAGetNonlinSolvStats(farg1, farg2, farg3)
+farg2 = outfile
+farg3 = fmt
+fresult = swigc_FIDAPrintAllStats(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -4425,7 +4703,42 @@ fresult = swigc_FIDAGetSensNumNonlinSolvIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FIDAGetSensNumNonlinSolvConvFails(ida_mem, nsncfails) &
+function FIDAGetSensNumNonlinSolvConvFails(ida_mem, nsnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(nsnfails(1))
+fresult = swigc_FIDAGetSensNumNonlinSolvConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetSensNonlinSolvStats(ida_mem, nsniters, nsnfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nsnfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = c_loc(nsniters(1))
+farg3 = c_loc(nsnfails(1))
+fresult = swigc_FIDAGetSensNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDAGetNumStepSensSolveFails(ida_mem, nsncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -4437,26 +4750,7 @@ type(C_PTR) :: farg2
 
 farg1 = ida_mem
 farg2 = c_loc(nsncfails(1))
-fresult = swigc_FIDAGetSensNumNonlinSolvConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FIDAGetSensNonlinSolvStats(ida_mem, nsniters, nsncfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nsncfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = ida_mem
-farg2 = c_loc(nsniters(1))
-farg3 = c_loc(nsncfails(1))
-fresult = swigc_FIDAGetSensNonlinSolvStats(farg1, farg2, farg3)
+fresult = swigc_FIDAGetNumStepSensSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 

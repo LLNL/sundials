@@ -868,19 +868,21 @@ detail in the remainder of this section.
 .. table:: Forward sensitivity optional outputs
    :align: center
 
-   ================================================== ================================================
-   **Optional output**                                **Routine name**
-   ================================================== ================================================
-   No. of calls to sensitivity r.h.s. function        :c:func:`CVodeGetSensNumRhsEvals`
-   No. of calls to r.h.s. function for sensitivity    :c:func:`CVodeGetNumRhsEvalsSens`
-   No. of sensitivity local error test failures       :c:func:`CVodeGetSensNumErrTestFails`
-   No. of calls to lin. solv. setup routine for sens. :c:func:`CVodeGetSensNumLinSolvSetups`
-   Error weight vector for sensitivity variables      :c:func:`CVodeGetSensErrWeights`
-   No. of sens. nonlinear solver iterations           :c:func:`CVodeGetSensNumNonlinSolvIters`
-   No. of sens. convergence failures                  :c:func:`CVodeGetSensNumNonlinSolvConvFails`
-   No. of staggered nonlinear solver iterations       :c:func:`CVodeGetStgrSensNumNonlinSolvIters`
-   No. of staggered convergence failures              :c:func:`CVodeGetStgrSensNumNonlinSolvConvFails`
-   ================================================== ================================================
+   ==========================================================================  ================================================
+   **Optional output**                                                         **Routine name**
+   ==========================================================================  ================================================
+   No. of calls to sensitivity r.h.s. function                                 :c:func:`CVodeGetSensNumRhsEvals`
+   No. of calls to r.h.s. function for sensitivity                             :c:func:`CVodeGetNumRhsEvalsSens`
+   No. of sensitivity local error test failures                                :c:func:`CVodeGetSensNumErrTestFails`
+   No. of failed steps due to sensitivity nonlinear solver failures            :c:func:`CVodeGetNumStepSensSolveFails`
+   No. of failed steps due to staggered sensitivity nonlinear solver failures  :c:func:`CVodeGetNumStepStgrSensSolveFails`
+   No. of calls to lin. solv. setup routine for sens.                          :c:func:`CVodeGetSensNumLinSolvSetups`
+   Error weight vector for sensitivity variables                               :c:func:`CVodeGetSensErrWeights`
+   No. of sens. nonlinear solver iterations                                    :c:func:`CVodeGetSensNumNonlinSolvIters`
+   No. of sens. convergence failures                                           :c:func:`CVodeGetSensNumNonlinSolvConvFails`
+   No. of staggered nonlinear solver iterations                                :c:func:`CVodeGetStgrSensNumNonlinSolvIters`
+   No. of staggered convergence failures                                       :c:func:`CVodeGetStgrSensNumNonlinSolvConvFails`
+   ==========================================================================  ================================================
 
 
 .. c:function:: int CVodeGetSensNumRhsEvals(void * cvode_mem, long int nfSevals)
@@ -946,6 +948,36 @@ detail in the remainder of this section.
       included in the error test (see :c:func:`CVodeSetSensErrCon`).  Even in
       that case, this counter is not incremented if the
       ``ism = CV_SIMULTANEOUS``  sensitivity solution method has been used.
+
+
+.. c:function:: int CVodeGetNumStepSensSolveFails(void* cvode_mem, long int* nSncfails)
+
+   Returns the number of failed steps due to a sensitivity nonlinear solver failure.
+
+   **Arguments:**
+      * ``cvode_mem`` -- pointer to the CVODE memory block.
+      * ``nSncfails`` -- number of step failures.
+
+   **Return value:**
+      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
+      * ``CV_NO_SENS`` -- Forward sensitivity analysis was not initialized.
+      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+
+.. c:function:: int CVodeGetNumStepStgrSensSolveFails(void* cvode_mem, long int* nSTGR1nfails)
+
+   Returns the number of failed steps due to staggered sensitivity nonlinear
+   solver failures for each sensitivity equation separately, in the
+   ``CV_STAGGERED1`` case.
+
+   **Arguments:**
+      * ``cvode_mem`` -- pointer to the CVODE memory block.
+      * ``nSTGR1nfails`` -- number of step failures.
+
+   **Return value:**
+      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
+      * ``CV_NO_SENS`` -- Forward sensitivity analysis was not initialized.
+      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
 
 .. c:function:: int CVodeGetSensNumLinSolvSetups(void * cvode_mem, long int nlinsetupsS)
@@ -1075,7 +1107,7 @@ detail in the remainder of this section.
 .. c:function:: int CVodeGetStgrSensNumNonlinSolvIters(void * cvode_mem, long int * nSTGR1niters)
 
    The function :c:func:`CVodeGetStgrSensNumNonlinSolvIters` returns the  number of
-   nonlinear iterations performed for  each sensitivity equation separately, in
+   nonlinear iterations performed for each sensitivity equation separately, in
    the ``CV_STAGGERED1`` case.
 
    **Arguments:**

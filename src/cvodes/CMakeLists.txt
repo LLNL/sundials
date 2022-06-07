@@ -32,6 +32,7 @@ set(cvodes_SOURCES
   cvodes_nls_sim.c
   cvodes_nls_stg.c
   cvodes_nls_stg1.c
+  cvodes_proj.c
   cvodes_spils.c
   )
 
@@ -43,6 +44,7 @@ set(cvodes_HEADERS
   cvodes_diag.h
   cvodes_direct.h
   cvodes_ls.h
+  cvodes_proj.h
   cvodes_spils.h
   )
 

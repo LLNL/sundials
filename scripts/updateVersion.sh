@@ -19,7 +19,7 @@
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
 sun_major=${1:-6}
-sun_minor=${2:-0}
+sun_minor=${2:-2}
 sun_patch=${3:-0}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
@@ -165,11 +165,9 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# Workaround to support different sed implementations
+# Wrapper for editing inplace with different sed implementations
 # ------------------------------------------------------------------------------
 
-# wrapper for that appends the correct flags for editing inplace with OS X or
-# Linux sed implementations
 sedi() {
     case $(uname) in
         Darwin*) sedi=('-i' '') ;;
@@ -311,7 +309,7 @@ do
     sedi "/Example Programs for KINSOL v/ s/v.*/v${kin_ver}}},/"   $fn
     # update dates for user guides and example doc by checking lines between the
     # first and second latex comment patterns
-    sedi "/% CURRENT.*/,/% ORIGINAL.*/ s/year=.*/year=${year}/" $fn
+    sedi "/% CURRENT.*/,/% ORIGINAL.*/ s/year.*/year        = ${year}/" $fn
 done
 
 # # insert new line in release table
@@ -329,7 +327,6 @@ done
 # Update rst documentation
 # ------------------------------------------------------------------------------
 
-# user guide
 fn="../doc/shared/versions.py"
 sedi "s/arkode_version =.*/arkode_version = \'v${ark_ver}\'/" $fn
 sedi "s/cvode_version =.*/cvode_version = \'v${cv_ver}\'/" $fn
@@ -339,17 +336,23 @@ sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
 sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
 sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
 
-# insert new release history row after line 23
+# release history table
 fn="../doc/shared/History.rst"
 new_entry=$(printf "| %-3s %-4s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s |" \
     ${month} ${year} ${sun_ver} ${ark_ver} ${cv_ver} ${cvs_ver} ${ida_ver} \
     ${idas_ver} ${kin_ver})
 divider="+----------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
-sedi '23 a\
-'"${divider}"''$'\n' $fn
-sedi '23 a\
-'"${new_entry}"''$'\n' $fn
 
+# Check if the entry already exists in the table and insert new release history
+# row after line 23
+if grep -xq "$new_entry" $fn; then
+    echo "WARNING: release history table not updated, version exists"
+else
+    sedi '23 a\
+    '"${divider}"''$'\n' $fn
+    sedi '23 a\
+    '"${new_entry}"''$'\n' $fn
+fi
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
@@ -365,3 +368,25 @@ sedi '75s/.*/\ \ year   = {'${year}'},/' $fn
 sedi '76s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
 sedi '84s/.*/\ \ year   = {'${year}'},/' $fn
 sedi '85s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
+
+# Update CHANGELOG and recent changes
+fn="../CHANGELOG.md"
+sedi "s/x.x.x/${sun_ver}/" $fn
+
+fn="../doc/arkode/guide/source/Introduction.rst"
+sedi "s/x.x.x/${ark_ver}/" $fn
+
+fn="../doc/cvode/guide/source/Introduction.rst"
+sedi "s/x.x.x/${cv_ver}/" $fn
+
+fn="../doc/cvodes/guide/source/Introduction.rst"
+sedi "s/x.x.x/${cvs_ver}/" $fn
+
+fn="../doc/ida/guide/source/Introduction.rst"
+sedi "s/x.x.x/${ida_ver}/" $fn
+
+fn="../doc/idas/guide/source/Introduction.rst"
+sedi "s/x.x.x/${idas_ver}/" $fn
+
+fn="../doc/kinsol/guide/source/Introduction.rst"
+sedi "s/x.x.x/${kin_ver}/" $fn

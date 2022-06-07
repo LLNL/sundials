@@ -23,12 +23,6 @@ set(nvector_serial_examples
   "test_nvector_serial\;10000 0\;"
   )
 
-# Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  sundials_nvector
-  )
-
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_serial_fortran_examples
@@ -90,7 +84,6 @@ foreach(example_tuple ${nvector_serial_examples})
     install(FILES ${example}.c
       ../test_nvector.c
       ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
   endif()
 
@@ -146,7 +139,8 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_nvecserial")
 
   examples2string(nvector_serial_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
+  set(nvector_serial_dependencies test_nvector.c)
+  examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -168,6 +162,9 @@ if(EXAMPLES_INSTALL)
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
   # for the user's own programs.
+  set(EXAMPLES_DEPENDENCIES )
+  set(nvector_serial_dependencies test_nvector)
+  examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

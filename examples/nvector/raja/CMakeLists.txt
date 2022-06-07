@@ -25,7 +25,6 @@ set(nvector_raja_examples
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
   test_nvector
-  sundials_nvector
   sundials_math
 )
 
@@ -107,7 +106,6 @@ foreach(example_tuple ${nvector_raja_examples})
       ../test_nvector.c
       ../test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_math.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
   endif()

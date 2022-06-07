@@ -26,6 +26,8 @@
 %apply void* { SUNContext };
 %apply void* { SUNProfiler };
 %apply void** { SUNProfiler* };
+%apply void* { SUNLogger };
+%apply void** { SUNLogger* };
 
 // We have to manually insert the wrapper code for SUNContext_Create,
 // and SUNContext_Free to handle the Fortran to MPI MPI_Comm translation.
@@ -125,7 +127,9 @@ type(C_PTR), target, intent(inout) :: ctx
 integer(C_INT) :: fresult
 type(C_PTR) :: farg1
 type(C_PTR) :: farg2
+#ifdef SUNDIALS_BUILD_WITH_PROFILING
 type(C_PTR) :: profiler
+#endif
 
 farg1 = comm
 farg2 = c_loc(ctx)

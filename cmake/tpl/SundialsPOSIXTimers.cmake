@@ -56,8 +56,8 @@ macro(posix_timers_test)
     "#include <unistd.h>\n"
     "int main(){\n"
     "struct timespec spec;\n"
-    "clock_gettime(CLOCK_MONOTONIC_RAW, &spec);\n"
-    "clock_getres(CLOCK_MONOTONIC_RAW, &spec);\n"
+    "clock_gettime(CLOCK_MONOTONIC, &spec);\n"
+    "clock_getres(CLOCK_MONOTONIC, &spec);\n"
     "return(0);\n"
     "}\n")
 

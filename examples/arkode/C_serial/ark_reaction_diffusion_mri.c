@@ -104,7 +104,6 @@ int main() {
   FILE *FID, *UFID;
   realtype t, tout;
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, tmp;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -226,22 +225,19 @@ int main() {
   printf("   -------------------------\n");
   fclose(UFID);
 
-  /* Get some slow integrator statistics */
-  retval = MRIStepGetNumSteps(arkode_mem, &nsts);
-  check_retval(&retval, "MRIStepGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  /* Print final statistics to the screen */
+  printf("\nFinal Slow Statistics:\n");
+  retval = MRIStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  printf("\nFinal Fast Statistics:\n");
+  retval = ARKStepPrintAllStats(inner_arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  /* Get some fast integrator statistics */
-  retval = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
-  check_retval(&retval, "ARKStepGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
-
-  /* Print some final statistics */
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Steps: nsts = %li, nstf = %li\n", nsts, nstf);
-  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff);
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("ark_reaction_diffusion_mri_slow_stats.csv", "w");
+  retval = MRIStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
+  FID = fopen("ark_reaction_diffusion_mri_fast_stats.csv", "w");
+  retval = ARKStepPrintAllStats(inner_arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Clean up and return */
   N_VDestroy(y);                             /* Free y vector */

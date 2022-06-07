@@ -105,8 +105,6 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS);
 static void PrintOutput(void *ida_mem, realtype t, N_Vector u);
 static void PrintSensOutput(N_Vector *uS);
 
-static void PrintFinalStats(void *ida_mem, booleantype sensi);
-
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 /*
  *--------------------------------------------------------------------
@@ -124,6 +122,8 @@ int main(int argc, char *argv[])
   realtype reltol, t, tout;
   N_Vector y, yp, abstol, id;
   int iout, retval;
+  FILE* FID;
+  char fname[256];
 
   realtype pbar[NS];
   int is;
@@ -348,8 +348,27 @@ int main(int argc, char *argv[])
 #endif
   }
 
-  /* Print final statistics */
-  PrintFinalStats(ida_mem, sensi);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(ida_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  strcpy(fname, "idasRoberts_FSA_dns_stats");
+  if (sensi)
+  {
+    if(sensi_meth == IDA_SIMULTANEOUS)
+      strcat(fname, "_-sensi_sim");
+    else
+      strcat(fname, "_-sensi_stg");
+    if(err_con)
+      strcat(fname, "_t");
+    else
+      strcat(fname, "_f");
+  }
+  strcat(fname, ".csv");
+  FID = fopen(fname, "w");
+  retval = IDAPrintAllStats(ida_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Free memory */
   N_VDestroy(y);
@@ -723,104 +742,40 @@ static void PrintSensOutput(N_Vector *uS)
 }
 
 /*
- * Print some final statistics from the IDAS memory.
- */
-
-static void PrintFinalStats(void *ida_mem, booleantype sensi)
-{
-  long int nst;
-  long int nfe, nsetups, nni, ncfn, netf;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int nje, nfeLS;
-  int retval;
-
-  retval = IDAGetNumSteps(ida_mem, &nst);
-  check_retval(&retval, "IDAGetNumSteps", 1);
-  retval = IDAGetNumResEvals(ida_mem, &nfe);
-  check_retval(&retval, "IDAGetNumRhsEvals", 1);
-  retval = IDAGetNumLinSolvSetups(ida_mem, &nsetups);
-  check_retval(&retval, "IDAGetNumLinSolvSetups", 1);
-  retval = IDAGetNumErrTestFails(ida_mem, &netf);
-  check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
-  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
-  retval = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-
-  if (sensi) {
-    retval = IDAGetSensNumResEvals(ida_mem, &nfSe);
-    check_retval(&retval, "IDAGetSensNumRhsEvals", 1);
-    retval = IDAGetNumResEvalsSens(ida_mem, &nfeS);
-    check_retval(&retval, "IDAGetNumResEvalsSens", 1);
-    retval = IDAGetSensNumLinSolvSetups(ida_mem, &nsetupsS);
-    check_retval(&retval, "IDAGetSensNumLinSolvSetups", 1);
-    retval = IDAGetSensNumErrTestFails(ida_mem, &netfS);
-    check_retval(&retval, "IDAGetSensNumErrTestFails", 1);
-    retval = IDAGetSensNumNonlinSolvIters(ida_mem, &nniS);
-    check_retval(&retval, "IDAGetSensNumNonlinSolvIters", 1);
-    retval = IDAGetSensNumNonlinSolvConvFails(ida_mem, &ncfnS);
-    check_retval(&retval, "IDAGetSensNumNonlinSolvConvFails", 1);
-  }
-
-  retval = IDAGetNumJacEvals(ida_mem, &nje);
-  check_retval(&retval, "IDAGetNumJacEvals", 1);
-  retval = IDAGetNumLinResEvals(ida_mem, &nfeLS);
-  check_retval(&retval, "IDAGetNumLinResEvals", 1);
-
-  printf("\nFinal Statistics\n\n");
-  printf("nst     = %5ld\n\n", nst);
-  printf("nfe     = %5ld\n",   nfe);
-  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
-  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
-
-  if(sensi) {
-    printf("\n");
-    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
-    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
-    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
-  }
-
-  printf("\n");
-  printf("nje    = %5ld    nfeLS     = %5ld\n", nje, nfeLS);
-
-}
-
-/*
- * Check function return value.
- *    opt == 0 means SUNDIALS function allocates memory so check if
- *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns an integer value so check if
- *             retval < 0
- *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
   int *retval;
-
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1); }
-
-  /* Check if retval < 0 */
-  else if (opt == 1) {
+            funcname);
+    return(1);
+  } else if (opt == 1) {
+    /* Check if retval < 0 */
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+              funcname, *retval);
+      return(1);
+    }
+  } else if (opt == 2 && returnvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr,
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1); }
+            funcname);
+    return(1);
+  }
 
   return(0);
 }

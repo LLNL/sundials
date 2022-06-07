@@ -30,9 +30,11 @@ Here we use :math:`\dot{y}` to denote :math:`\mathrm dy/\mathrm dt`. While we us
 it certainly need not be. CVODE solves both stiff and nonstiff
 systems. Roughly speaking, stiffness is characterized by the presence of
 at least one rapidly damped mode, whose time constant is small compared
-to the time scale of the solution itself. Additionally, for problems :eq:`CVODE_ivp`
-where the analytical solution :math:`y(t)` satisfies an implicit constraint
-:math:`g(t,y)=0` (including the initial condition, :math:`g(t_0,y_0)=0`) for
+to the time scale of the solution itself.
+
+For problems :eq:`CVODE_ivp` where the analytical solution :math:`y(t)`
+satisfies an implicit constraint :math:`g(t,y)=0` (including the initial
+condition, :math:`g(t_0,y_0)=0`) for
 :math:`g(t,y): \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^{M}` with
 :math:`M<N`,  CVODE may be configured to explicitly enforce these constraints
 via solving the modified problem
@@ -88,6 +90,28 @@ or as a fixed-point problem
 
 where
 :math:`a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i} {\dot{y}}^{n-i})`.
+
+In the process of controlling errors at various levels, CVODE uses a
+weighted root-mean-square norm, denoted
+:math:`|\cdot|_{\text{WRMS}}`, for all error-like
+quantities. The multiplicative weights used are based on the current
+solution and on the relative and absolute tolerances input by the user,
+namely
+
+.. math::
+   W_i = 1 / [\text{rtol} \cdot |y_i| + \text{atol}_i ] \, .
+   :label: CVODE_errwt
+
+Because :math:`1/W_i` represents a tolerance in the component
+:math:`y_i`, a vector whose norm is 1 is regarded as “small.” For
+brevity, we will usually drop the subscript WRMS on norms in what
+follows.
+
+.. _CVODE.Mathematics.nls:
+
+Nonlinear Solve
+---------------
+
 CVODE provides several nonlinear solver choices as well as the
 option of using a user-defined nonlinear solver (see
 :numref:`SUNNonlinSol`). By default CVODE solves :eq:`CVODE_nonlinear` with a
@@ -163,21 +187,6 @@ uses a diagonal approximation of the Jacobian matrix.
    used with the serial and threaded vector representations. The diagonal
    solver can be used with any vector representation.
 
-In the process of controlling errors at various levels, CVODE uses a
-weighted root-mean-square norm, denoted
-:math:`|\cdot|_{\text{WRMS}}`, for all error-like
-quantities. The multiplicative weights used are based on the current
-solution and on the relative and absolute tolerances input by the user,
-namely
-
-.. math::
-   W_i = 1 / [\text{rtol} \cdot |y_i| + \text{atol}_i ] \, .
-   :label: CVODE_errwt
-
-Because :math:`1/W_i` represents a tolerance in the component
-:math:`y_i`, a vector whose norm is 1 is regarded as “small.” For
-brevity, we will usually drop the subscript WRMS on norms in what
-follows.
 
 In the case of a matrix-based linear solver, the default Newton
 iteration is a Modified Newton iteration, in that the iteration matrix
@@ -193,7 +202,8 @@ matrix update occurs when:
 
    * starting the problem,
    * more than 20 steps have been taken since the last update,
-   * the value :math:`\bar{\gamma}` of :math:`\gamma` at the last update satisfies :math:`|\gamma/\bar{\gamma} - 1| > 0.3`,
+   * the value :math:`\bar{\gamma}` of :math:`\gamma` at the last update
+     satisfies :math:`|\gamma/\bar{\gamma} - 1| > 0.3`,
    * a non-fatal convergence failure just occurred, or
    * an error test failure just occurred.
 
@@ -206,7 +216,9 @@ reevaluate Jacobian data in :math:`P`) when:
 
    * starting the problem,
    * more than 50 steps have been taken since the last evaluation,
-   * a convergence failure occurred with an outdated matrix, and the value :math:`\bar{\gamma}` of :math:`\gamma` at the last update satisfies :math:`|\gamma/\bar{\gamma} - 1| < 0.2`, or
+   * a convergence failure occurred with an outdated matrix, and the value
+     :math:`\bar{\gamma}` of :math:`\gamma` at the last update satisfies
+     :math:`|\gamma/\bar{\gamma} - 1| < 0.2`, or
    * a convergence failure occurred that forced a step size reduction.
 
 The default stopping test for nonlinear solver iterations is related to
@@ -237,11 +249,12 @@ Therefore the convergence (stopping) test is
 
 .. math:: R \|\delta_m\| < 0.1 \epsilon \, .
 
-We allow at most 3 iterations (but this limit can be changed by the
-user). We also declare the iteration diverged if any
-:math:`\|\delta_m\| / \|\delta_{m-1}\| > 2` with :math:`m > 1`. If convergence fails with
-:math:`J` or :math:`P` current, we are forced to reduce the step size,
-and we replace :math:`h_n` by :math:`h_n/4`. The integration is halted
+We allow at most 3 iterations (but this limit can be changed by the user). We
+also declare the iteration diverged if any
+:math:`\|\delta_m\| / \|\delta_{m-1}\| > 2` with :math:`m > 1`. If convergence
+fails with :math:`J` or :math:`P` current, we are forced to reduce the step
+size, and we replace :math:`h_n` by :math:`h_n = \eta_{\text{cf}} * h_n` where
+the default is :math:`\eta_{\text{cf}} = 0.25`. The integration is halted
 after a preset number of convergence failures; the default value of this
 limit is 10, but this can be changed by the user.
 
@@ -290,6 +303,11 @@ is not supplied, these products are computed as
 The increment :math:`\sigma` is :math:`1/\|v\|`, so that
 :math:`\sigma v` has norm 1.
 
+.. _CVODE.Mathematics.err_test:
+
+Local Error Test
+----------------
+
 A critical part of CVODE — making it an ODE “solver” rather than
 just an ODE method, is its control of local error. At every step, the
 local error is estimated and required to satisfy tolerance conditions,
@@ -313,8 +331,13 @@ final iterate computed), and takes the form
 
 .. math:: \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, .
 
-If this test passes, the step is considered successful. If it fails, the
-step is rejected and a new step size :math:`h'` is computed based on the
+.. _CVODE.Mathematics.step_order_select:
+
+Step Size and Order Selection
+-----------------------------
+
+If the local error test passes, the step is considered successful. If it fails,
+the step is rejected and a new step size :math:`h'` is computed based on the
 asymptotic behavior of the local error, namely by the equation
 
 .. math:: (h'/h)^{q+1} \|\Delta_n\| = \epsilon/6 \, .
@@ -322,9 +345,10 @@ asymptotic behavior of the local error, namely by the equation
 Here 1/6 is a safety factor. A new attempt at the step is made, and the
 error test repeated. If it fails three times, the order :math:`q` is
 reset to 1 (if :math:`q > 1`), or the step is restarted from scratch (if
-:math:`q = 1`). The ratio :math:`h'/h` is limited above to 0.2 after two
-error test failures, and limited below to 0.1 after three. After seven
-failures, CVODE returns to the user with a give-up message.
+:math:`q = 1`). The ratio :math:`\eta = h'/h` is limited above to
+:math:`\eta_{\text{max\_ef}}` (default 0.2) after two error test failures,
+and limited below to :math:`\eta_{\text{min\_ef}}` (default 0.1) after three.
+After seven failures, CVODE returns to the user with a give-up message.
 
 In addition to adjusting the step size to meet the local error test,
 CVODE periodically adjusts the order, with the goal of maximizing
@@ -356,17 +380,30 @@ and
 
 The new order and step size are then set according to
 
-.. math:: \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, ,
+.. math:: \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} \, ,
 
-with :math:`q'` set to the index achieving the above maximum. However,
-if we find that :math:`\eta < 1.5`, we do not bother with the change.
-Also, :math:`h'/h` is always limited to 10, except on the first step,
-when it is limited to :math:`10^4`.
+with :math:`q'` set to the index achieving the above maximum. However, if we
+find that :math:`\eta < \eta_{\text{max\_fx}}` (default 1.5), we do not bother
+with the change. Also, :math:`\eta` is always limited to
+:math:`\eta_{\text{max\_gs}}` (default 10), except on the first step, when it is
+limited to :math:`\eta_{\text{max\_fs}} = 10^4`.
 
-The various algorithmic features of CVODE described above, as
-inherited from VODE and VODPK, are documented in
-:cite:p:`BBH:89,Byr:92,Hin:00`. They are also summarized in
-:cite:p:`HBGLSSW:05`.
+The various algorithmic features of CVODE described above, as inherited from
+VODE and VODPK, are documented in :cite:p:`BBH:89,Byr:92,Hin:00`. They are also
+summarized in :cite:p:`HBGLSSW:05`.
+
+Normally, CVODE takes steps until a user-defined output value
+:math:`t = t_{\text{out}}` is overtaken, and then it
+computes :math:`y(t_{\text{out}})` by interpolation.
+However, a “one step” mode option is available, where control returns to
+the calling program after each step. There are also options to force
+CVODE not to integrate past a given stopping point
+:math:`t = t_{\text{stop}}`.
+
+.. _CVODE.Mathematics.ineq_constr:
+
+Inequality Constraints
+----------------------
 
 CVODE permits the user to impose optional inequality constraints on
 individual components of the solution vector :math:`y`. Any of the
@@ -384,14 +421,6 @@ the minimum step size then the integration is halted and an error is
 returned. In this case the user may need to employ other strategies as
 discussed in :numref:`CVODE.Usage.CC.callable_fct_sim.cvtolerances` to satisfy
 the inequality constraints.
-
-Normally, CVODE takes steps until a user-defined output value
-:math:`t = t_{\text{out}}` is overtaken, and then it
-computes :math:`y(t_{\text{out}})` by interpolation.
-However, a “one step” mode option is available, where control returns to
-the calling program after each step. There are also options to force
-CVODE not to integrate past a given stopping point
-:math:`t = t_{\text{stop}}`.
 
 .. _CVODE.Mathematics.constraints:
 
@@ -469,8 +498,8 @@ Preconditioning
 ===============
 
 When using a nonlinear solver that requires the solution of the linear
-system (:numref:`SUNNonlinSol.Newton`) (e.g., the default Newton
-iteration), CVODE makes repeated use of a linear solver to solve
+system, e.g., the default Newton iteration (:numref:`SUNNonlinSol.Newton`),
+CVODE makes repeated use of a linear solver to solve
 linear systems of the form :math:`M x = - r`, where :math:`x` is a
 correction vector and :math:`r` is a residual vector. If this linear
 system solve is done with one of the scaled preconditioned iterative
@@ -532,7 +561,7 @@ which provides protection against potentially unstable behavior of the
 BDF multistep integration methods in certain situations, as described
 below.
 
-When the BDF option is selected, CVODES uses Backward
+When the BDF option is selected, CVODE uses Backward
 Differentiation Formula methods of orders 1 to 5. At order 1 or 2, the
 BDF method is A-stable, meaning that for any complex constant
 :math:`\lambda` in the open left half-plane, the method is
@@ -581,7 +610,7 @@ The STALD algorithm attempts to detect, in a direct manner, the
 presence of a stability region boundary that is limiting the step sizes
 in the presence of a weakly damped oscillation
 :cite:p:`Hin:92`. The algorithm supplements (but differs
-greatly from) the existing algorithms in CVODES for choosing step
+greatly from) the existing algorithms in CVODE for choosing step
 size and order based on estimated local truncation errors. The STALD
 algorithm works directly with history data that is readily available in
 CVODE. If it concludes that the step size is in fact
@@ -594,7 +623,7 @@ CVODE has been successfully tested on linear and nonlinear
 advection-diffusion problems, among others.
 
 This stability limit detection option adds some computational overhead
-to the CVODES solution. (In timing tests, these overhead costs have
+to the CVODE solution. (In timing tests, these overhead costs have
 ranged from 2% to 7% of the total, depending on the size and complexity
 of the problem, with lower relative costs for larger problems.)
 Therefore, it should be activated only when there is reasonable

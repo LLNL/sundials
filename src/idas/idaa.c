@@ -1862,7 +1862,7 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
   ck_mem->ck_ns        = IDA_mem->ida_ns;
   ck_mem->ck_hh        = IDA_mem->ida_hh;
   ck_mem->ck_hused     = IDA_mem->ida_hused;
-  ck_mem->ck_rr        = IDA_mem->ida_rr;
+  ck_mem->ck_eta       = IDA_mem->ida_eta;
   ck_mem->ck_cj        = IDA_mem->ida_cj;
   ck_mem->ck_cjlast    = IDA_mem->ida_cjlast;
   ck_mem->ck_cjold     = IDA_mem->ida_cjold;
@@ -2264,7 +2264,7 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
     IDA_mem->ida_ns        = ck_mem->ck_ns;
     IDA_mem->ida_hh        = ck_mem->ck_hh;
     IDA_mem->ida_hused     = ck_mem->ck_hused;
-    IDA_mem->ida_rr        = ck_mem->ck_rr;
+    IDA_mem->ida_eta       = ck_mem->ck_eta;
     IDA_mem->ida_cj        = ck_mem->ck_cj;
     IDA_mem->ida_cjlast    = ck_mem->ck_cjlast;
     IDA_mem->ida_cjold     = ck_mem->ck_cjold;

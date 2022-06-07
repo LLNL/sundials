@@ -15,34 +15,35 @@
 The SUNContext Type
 =====================
 
-In SUNDIALS v6.0.0, the concept of a SUNDIALS simulation context was introduced,
-in particular the ``SUNContext`` class. All of the SUNDIALS objects (vectors,
-linear and nonlinear solvers, matrices, etc) that collectively form a SUNDIALS
-simulation, hold a reference to a common ``SUNContext`` object.
+.. versionadded:: 6.0.0
 
-The ``SUNContext`` class/type is defined in the header file
+All of the SUNDIALS objects (vectors, linear and nonlinear solvers, matrices,
+etc.) that collectively form a SUNDIALS simulation, hold a reference to a common
+simulation context object defined by the :c:type:`SUNContext` class.
+
+The :c:type:`SUNContext` class/type is defined in the header file
 ``sundials/sundials_context.h`` as
 
 .. c:type:: struct _SUNContext *SUNContext
 
-Users should create a ``SUNContext`` object prior to any other calls to SUNDIALS library
-functions by calling:
+Users should create a :c:type:`SUNContext` object prior to any other calls to
+SUNDIALS library functions by calling:
 
 .. c:function:: int SUNContext_Create(void* comm, SUNContext* ctx)
 
-   Creates a ``SUNContext`` object associated with the thread of execution.
-   The data of the ``SUNContext`` class is private.
+   Creates a :c:type:`SUNContext` object associated with the thread of execution.
+   The data of the :c:type:`SUNContext` class is private.
 
    **Arguments**:
       * ``comm`` -- a pointer to the MPI communicator or NULL if not using MPI.
       * ``ctx`` --  [in,out] upon successful exit, a pointer to the newly
-        created ``SUNContext`` object.
+        created :c:type:`SUNContext` object.
 
    **Returns**:
       * Will return < 0 if an error occurs, and zero otherwise.
 
-The created ``SUNContext`` object should be provided to the constructor routines
-for different SUNDIALS classes/modules. E.g.,
+The created :c:type:`SUNContext` object should be provided to the constructor
+routines for different SUNDIALS classes/modules e.g.,
 
 .. code-block:: C
 
@@ -59,34 +60,37 @@ for different SUNDIALS classes/modules. E.g.,
 
    x = N_VNew_<SomeVector>(..., sunctx);
 
-After all other SUNDIALS code, the ``SUNContext`` object should be freed with a call to:
+After all other SUNDIALS code, the :c:type:`SUNContext` object should be freed
+with a call to:
 
 .. c:function:: int SUNContext_Free(SUNContext* ctx)
 
-   Frees the ``SUNContext`` object.
+   Frees the :c:type:`SUNContext` object.
 
    **Arguments**:
-      * ``ctx`` -- pointer to a valid ``SUNContext`` object, ``NULL`` upon successful return.
+      * ``ctx`` -- pointer to a valid :c:type:`SUNContext` object, ``NULL`` upon successful return.
 
    **Returns**:
       * Will return < 0 if an error occurs, and zero otherwise.
 
+   .. warning::
 
-.. warning::
-
-   When MPI is being used, the :c:func:`SUNContext_Free` must be called prior to ``MPI_Finalize``.
-
+      When MPI is being used, the :c:func:`SUNContext_Free` must be called prior
+      to ``MPI_Finalize``.
 
 
-The ``SUNContext`` API further consists of the following functions:
+The :c:type:`SUNContext` API further consists of the following functions:
 
 .. c:function:: int SUNContext_GetProfiler(SUNContext ctx, SUNProfiler* profiler)
 
-   Gets the ``SUNProfiler`` object associated with the ``SUNContext`` object.
+   Gets the :c:type:`SUNProfiler` object associated with the
+   :c:type:`SUNContext` object.
 
    **Arguments**:
-      * ``ctx`` -- a valid ``SUNContext`` object.
-      * ``profiler`` -- [in,out] a pointer to the ``SUNProfiler`` object associated with this context; will be ``NULL`` if profiling is not enabled.
+      * ``ctx`` -- a valid :c:type:`SUNContext` object.
+      * ``profiler`` -- [in,out] a pointer to the :c:type:`SUNProfiler` object
+        associated with this context; will be ``NULL`` if profiling is not
+        enabled.
 
    **Returns**:
       * Will return < 0 if an error occurs, and zero otherwise.
@@ -94,14 +98,46 @@ The ``SUNContext`` API further consists of the following functions:
 
 .. c:function:: int SUNContext_SetProfiler(SUNContext ctx, SUNProfiler profiler)
 
-   Sets the ``SUNProfiler`` object associated with the ``SUNContext`` object.
+   Sets the :c:type:`SUNProfiler` object associated with the
+   :c:type:`SUNContext` object.
 
    **Arguments**:
-      * ``ctx`` -- a valid ``SUNContext`` object.
-      * ``profiler`` -- a ``SUNProfiler`` object to associate with this context; this is ignored if profiling is not enabled.
+      * ``ctx`` -- a valid :c:type:`SUNContext` object.
+      * ``profiler`` -- a :c:type:`SUNProfiler` object to associate with this
+        context; this is ignored if profiling is not enabled.
 
    **Returns**:
       * Will return < 0 if an error occurs, and zero otherwise.
+
+
+.. c:function:: int SUNContext_SetLogger(SUNContext ctx, SUNLogger logger)
+
+   Sets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext`
+   object.
+
+   **Arguments**:
+      * ``ctx`` -- a valid :c:type:`SUNContext` object.
+      * ``logger`` -- a :c:type:`SUNLogger` object to associate with this
+        context; this is ignored if profiling is not enabled.
+
+   **Returns**:
+      * Will return < 0 if an error occurs, and zero otherwise.
+
+   .. versionadded:: 6.2.0
+
+
+.. c:function:: int SUNContext_GetLogger(SUNContext ctx, SUNLogger* logger)
+
+   Gets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext` object.
+
+   **Arguments**:
+      * ``ctx`` -- a valid :c:type:`SUNContext` object.
+      * ``logger`` -- [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if profiling is not enabled.
+
+   **Returns**:
+      * Will return < 0 if an error occurs, and zero otherwise.
+
+   .. versionadded:: 6.2.0
 
 
 .. _SUNDIALS.SUNContext.Threads:
@@ -112,19 +148,19 @@ Implications for task-based programming and multi-threading
 Applications that need to have *concurrently initialized* SUNDIALS simulations
 need to take care to understand the following:
 
-#. A ``SUNContext`` object must only be associated with *one* SUNDIALS simulation
+#. A :c:type:`SUNContext` object must only be associated with *one* SUNDIALS simulation
 (a solver object and its associated vectors etc.) at a time.
 
    - Concurrently initialized is not the same as concurrently executing. Even if
      two SUNDIALS simulations execute sequentially, if both are initialized
-     at the same time with the same ``SUNContext``, behavior is undefined.
+     at the same time with the same :c:type:`SUNContext`, behavior is undefined.
 
-   - It is OK to reuse a ``SUNContext`` object with another SUNDIALS simulation
+   - It is OK to reuse a :c:type:`SUNContext` object with another SUNDIALS simulation
      after the first simulation has completed and all of the simulation's
      associated objects (vectors, matrices, algebraic solvers, etc.) have been
      destroyed.
 
-#. The creation and destruction of a ``SUNContext`` object is cheap, especially
+#. The creation and destruction of a :c:type:`SUNContext` object is cheap, especially
 in comparison to the cost of creating/destroying a SUNDIALS solver object.
 
 The following (incomplete) code examples demonstrate these points using CVODE as
@@ -215,21 +251,30 @@ For C++ users, a class, ``sundials::Context``, that follows RAII is provided:
    class Context
    {
    public:
-      Context(void* comm = NULL)
+      explicit Context(void* comm = NULL)
       {
-         SUNContext_Create(comm, &sunctx_);
+         sunctx_ = std::unique_ptr<SUNContext>(new SUNContext());
+         SUNContext_Create(comm, sunctx_.get());
       }
 
-      operator SUNContext() { return sunctx_; }
+      /* disallow copy, but allow move construction */
+      Context(const Context &) = delete;
+      Context(Context &&) = default;
+
+      /* disallow copy, but allow move operators */
+      Context & operator=(const Context &) = delete;
+      Context & operator=(Context &&) = default;
+
+      operator SUNContext() { return *sunctx_.get(); }
 
       ~Context()
       {
-         SUNContext_Free(&sunctx_);
+         if (sunctx_)
+            SUNContext_Free(sunctx_.get());
       }
 
    private:
-      SUNContext sunctx_;
-
+      std::unique_ptr<SUNContext> sunctx_;
    };
 
    } // namespace sundials

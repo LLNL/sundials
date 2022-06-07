@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -54,12 +50,6 @@
 #define IC_LINESRCH_FAILED  3
 #define IC_CONV_FAIL        4
 #define IC_SLOW_CONVRG      5
-
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
 
 /*
  * =================================================================
@@ -123,7 +113,7 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  *   IDA_NO_RECOVERY     res, lsetup, or lsolve had a recoverable
  *                       error, but IDACalcIC could not recover
  *   IDA_CONSTR_FAIL     the inequality constraints could not be met
- *   IDA_LINESEARCH_FAIL if the linesearch failed (either on steptol test
+ *   IDA_LINESEARCH_FAIL the linesearch failed (either on steptol test
  *                       or on the maxbacks test)
  *   IDA_CONV_FAIL       the Newton iterations failed to converge
  * -----------------------------------------------------------------
@@ -676,6 +666,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
   return(IC_CONV_FAIL);
 }
 
+
 /*
  * -----------------------------------------------------------------
  * IDALineSrch
@@ -726,16 +717,14 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
     /* Update y and check constraints. */
     IDANewy(IDA_mem);
-    conOK = N_VConstrMask(IDA_mem->ida_constraints,
-                          IDA_mem->ida_ynew, mc);
+    conOK = N_VConstrMask(IDA_mem->ida_constraints, IDA_mem->ida_ynew, mc);
 
     if(!conOK) {
       /* Not satisfied.  Compute scaled step to satisfy constraints. */
       N_VProd(mc, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
       ratio = PT99*N_VMinQuotient(IDA_mem->ida_yy0, IDA_mem->ida_dtemp);
       (*delnorm) *= ratio;
-      if((*delnorm) <= IDA_mem->ida_steptol)
-        return(IC_CONSTR_FAILED);
+      if((*delnorm) <= IDA_mem->ida_steptol) return(IC_CONSTR_FAILED);
       N_VScale(ratio, IDA_mem->ida_delta, IDA_mem->ida_delta);
     }
 
@@ -764,8 +753,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
   for(;;) {
 
-    if (nbacks == IDA_mem->ida_maxbacks)
-      return(IC_LINESRCH_FAILED);
+    if (nbacks == IDA_mem->ida_maxbacks) return(IC_LINESRCH_FAILED);
     /* Get new (y,y') = (ynew,ypnew) and norm of new function value. */
     IDANewyyp(IDA_mem, lambda);
     retval = IDAfnorm(IDA_mem, &fnormp);
@@ -839,9 +827,9 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
   N_VScale(ONE, IDA_mem->ida_delnew, IDA_mem->ida_savres);
 
   /* Call the linear solve function to get J-inverse F; return if failed. */
-  retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt,
-                               IDA_mem->ida_ynew, IDA_mem->ida_ypnew,
-                               IDA_mem->ida_savres);
+  retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delnew,
+                               IDA_mem->ida_ewt, IDA_mem->ida_ynew,
+                               IDA_mem->ida_ypnew, IDA_mem->ida_savres);
   if(retval < 0) return(IDA_LSOLVE_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
 

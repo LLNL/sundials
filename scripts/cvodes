@@ -40,6 +40,7 @@ $tar $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_diag.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_direct.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_ls.h
+$tar $tarfile $distrobase/include/cvodes/cvodes_proj.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE
@@ -65,6 +66,8 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_nls.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_sim.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg1.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_proj.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_proj_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
 
 $tar $tarfile $distrobase/src/cvodes/fmod/CMakeLists.txt
@@ -109,12 +112,20 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_ls_1.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_ls_2.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_prec.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_prec.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsParticle_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsParticle_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsPendulum_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsPendulum_dns.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_bkw1_stats.csv
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_bkw2_stats.csv
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_fwd_stats.csv
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_stats.csv
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_constraints.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dnsL.c
@@ -126,6 +137,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_sps.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_uw.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_uw.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_sim_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_stg1_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_Switch.out
@@ -140,6 +153,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_klu.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_klu.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_sps.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_sps.out
+$tar $tarfile $distrobase/examples/cvodes/serial/plot_cvsParticle.py
+$tar $tarfile $distrobase/examples/cvodes/serial/plot_cvsPendulum.py
 
 $tar $tarfile $distrobase/examples/cvodes/C_openmp/README
 $tar $tarfile $distrobase/examples/cvodes/C_openmp/CMakeLists.txt
@@ -172,3 +187,21 @@ $tar $tarfile $distrobase/examples/cvodes/F2003_serial/cvs_analytic_fp_f2003.out
 $tar $tarfile $distrobase/examples/cvodes/F2003_serial/cvsAdvDiff_FSA_non_f2003.f90
 $tar $tarfile $distrobase/examples/cvodes/F2003_serial/cvsAdvDiff_FSA_non_f2003_-sensi_sim_t.out
 $tar $tarfile $distrobase/examples/cvodes/F2003_serial/cvsAdvDiff_FSA_non_f2003_-sensi_stg_t.out
+
+echo "   --- Add cvodes unit tests to $tarfile"
+
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr.cpp
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr.hpp
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--dgmax_jbad_1.0.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--dgmax_lsetup_0.0.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_cf_0.5.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_max_ef_0.1_--small_nef_1.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_max_fs_2.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_ef_0.5.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_es_2_--small_nst_5.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_fx_1.0_--eta_max_fx_2.0.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_fx_1.0_--eta_min_0.5.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_gs_2.out

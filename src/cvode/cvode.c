@@ -25,7 +25,6 @@
 #include <string.h>
 
 #include "cvode_impl.h"
-#include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -107,36 +106,7 @@
  *
  *   CORTES       constant in nonlinear iteration convergence test
  *
- * cvStep
- *
- *    THRESH      if eta < THRESH reject a change in step size or order
- *    ETAMX1      -+
- *    ETAMX2       |
- *    ETAMX3       |-> bounds for eta (step size change)
- *    ETAMXF       |
- *    ETAMIN       |
- *    ETACF       -+
- *    ADDON       safety factor in computing eta
- *    BIAS1       -+
- *    BIAS2        |-> bias factors in eta selection
- *    BIAS3       -+
- *    ONEPSM      (1+epsilon) used in testing if the step size is below its bound
- *
- *    SMALL_NST   nst > SMALL_NST => use ETAMX3
- *    MXNCF       max no. of convergence failures during one step try
- *    MXNEF       max no. of error test failures during one step try
- *    MXNEF1      max no. of error test failures before forcing a reduction of order
- *    SMALL_NEF   if an error failure occurs and SMALL_NEF <= nef <= MXNEF1, then
- *                reset eta =  SUNMIN(eta, ETAMXF)
- *    LONG_WAIT   number of steps to wait before considering an order change when
- *                q==1 and MXNEF1 error test failures have occurred
- *
- * cvNls
- *
- *    DGMAX       |gamma/gammap-1| > DGMAX => call lsetup
- *
  */
-
 
 #define FUZZ_FACTOR RCONST(100.0)
 
@@ -146,34 +116,6 @@
 #define MAX_ITERS  4
 
 #define CORTES RCONST(0.1)
-
-#define THRESH RCONST(1.5)
-#define ETAMX1 RCONST(10000.0)
-#define ETAMX2 RCONST(10.0)
-#define ETAMX3 RCONST(10.0)
-#define ETAMXF RCONST(0.2)
-#define ETAMIN RCONST(0.1)
-#define ETACF  RCONST(0.25)
-#define ADDON  RCONST(0.000001)
-#define BIAS1  RCONST(6.0)
-#define BIAS2  RCONST(6.0)
-#define BIAS3  RCONST(10.0)
-#define ONEPSM RCONST(1.000001)
-
-#define SMALL_NST    10
-#define MXNCF        10
-#define MXNEF         7
-#define MXNEF1        3
-#define SMALL_NEF     2
-#define LONG_WAIT    10
-
-#define DGMAX  RCONST(0.3)
-
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define CV_PROFILER cv_mem->cv_sunctx->profiler
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -359,6 +301,9 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_monitorfun       = NULL;
   cv_mem->cv_monitor_interval = 0;
   cv_mem->cv_errfp            = stderr;
+#if SUNDIALS_LOGGING_LEVEL > 0
+  cv_mem->cv_errfp            = (CV_LOGGER->error_fp) ? CV_LOGGER->error_fp : stderr;
+#endif
   cv_mem->cv_qmax             = maxord;
   cv_mem->cv_mxstep           = MXSTEP_DEFAULT;
   cv_mem->cv_mxhnil           = MXHNIL_DEFAULT;
@@ -366,11 +311,23 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_hin              = ZERO;
   cv_mem->cv_hmin             = HMIN_DEFAULT;
   cv_mem->cv_hmax_inv         = HMAX_INV_DEFAULT;
+  cv_mem->cv_eta_min_fx       = ETA_MIN_FX_DEFAULT;
+  cv_mem->cv_eta_max_fx       = ETA_MAX_FX_DEFAULT;
+  cv_mem->cv_eta_max_fs       = ETA_MAX_FS_DEFAULT;
+  cv_mem->cv_eta_max_es       = ETA_MAX_ES_DEFAULT;
+  cv_mem->cv_eta_max_gs       = ETA_MAX_GS_DEFAULT;
+  cv_mem->cv_eta_min          = ETA_MIN_DEFAULT;
+  cv_mem->cv_eta_min_ef       = ETA_MIN_EF_DEFAULT;
+  cv_mem->cv_eta_max_ef       = ETA_MAX_EF_DEFAULT;
+  cv_mem->cv_eta_cf           = ETA_CF_DEFAULT;
+  cv_mem->cv_small_nst        = SMALL_NST_DEFAULT;
+  cv_mem->cv_small_nef        = SMALL_NEF_DEFAULT;
   cv_mem->cv_tstopset         = SUNFALSE;
   cv_mem->cv_maxnef           = MXNEF;
   cv_mem->cv_maxncf           = MXNCF;
   cv_mem->cv_nlscoef          = CORTES;
-  cv_mem->cv_msbp             = MSBP;
+  cv_mem->cv_msbp             = MSBP_DEFAULT;
+  cv_mem->cv_dgmax_lsetup     = DGMAX_LSETUP_DEFAULT;
   cv_mem->convfail            = CV_NO_FAILURES;
   cv_mem->cv_constraints      = NULL;
   cv_mem->cv_constraintsSet   = SUNFALSE;
@@ -535,7 +492,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_q      = 1;
   cv_mem->cv_L      = 2;
   cv_mem->cv_qwait  = cv_mem->cv_L;
-  cv_mem->cv_etamax = ETAMX1;
+  cv_mem->cv_etamax = cv_mem->cv_eta_max_fs;
 
   cv_mem->cv_qu    = 0;
   cv_mem->cv_hu    = ZERO;
@@ -557,6 +514,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_ncfn    = 0;
   cv_mem->cv_netf    = 0;
   cv_mem->cv_nni     = 0;
+  cv_mem->cv_nnf     = 0;
   cv_mem->cv_nsetups = 0;
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
@@ -645,7 +603,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   cv_mem->cv_q      = 1;
   cv_mem->cv_L      = 2;
   cv_mem->cv_qwait  = cv_mem->cv_L;
-  cv_mem->cv_etamax = ETAMX1;
+  cv_mem->cv_etamax = cv_mem->cv_eta_max_fs;
 
   cv_mem->cv_qu    = 0;
   cv_mem->cv_hu    = ZERO;
@@ -662,6 +620,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   cv_mem->cv_ncfn    = 0;
   cv_mem->cv_netf    = 0;
   cv_mem->cv_nni     = 0;
+  cv_mem->cv_nnf     = 0;
   cv_mem->cv_nsetups = 0;
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
@@ -988,7 +947,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
     free(cv_mem->cv_grout); cv_mem->cv_grout = NULL;
     free(cv_mem->cv_iroots); cv_mem->cv_iroots = NULL;
     free(cv_mem->cv_rootdir); cv_mem->cv_rootdir = NULL;
-    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeRootInit",
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODE", "CVodeRootInit",
                    MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
@@ -1103,7 +1062,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     /* Check inputs for corectness */
 
     ier = cvInitialSetup(cv_mem);
-    if (ier!= CV_SUCCESS) {
+    if (ier != CV_SUCCESS) {
       SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
       return(ier);
     }
@@ -1157,6 +1116,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         return(istate);
       }
     }
+
+    /* Enforce hmax and hmin */
+
     rh = SUNRabs(cv_mem->cv_h)*cv_mem->cv_hmax_inv;
     if (rh > ONE) cv_mem->cv_h /= rh;
     if (SUNRabs(cv_mem->cv_h) < cv_mem->cv_hmin)
@@ -1449,7 +1411,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           }
         }
         if ((cv_mem->cv_mxgnull > 0) && inactive_roots) {
-          cvProcessError(cv_mem, CV_WARNING, "CVODES", "CVode",
+          cvProcessError(cv_mem, CV_WARNING, "CVODE", "CVode",
                          MSGCV_INACTIVE_ROOTS);
         }
       }
@@ -1583,7 +1545,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dky);
   if (ier != CV_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-    return (CV_VECTOROP_ERR);
+    return(CV_VECTOROP_ERR);
   }
 
   if (k == 0) {
@@ -2190,10 +2152,9 @@ static int cvStep(CVodeMem cv_mem)
   int eflag;                 /* error test return flag                   */
   booleantype doProjection;  /* flag to apply projection in this step    */
 
-  saved_t = cv_mem->cv_tn;
+  /* Initialize local counters for convergence and error test failures */
+
   ncf = npf = nef = 0;
-  nflag = FIRST_CALL;
-  doProjection = SUNFALSE;
 
   /* If the step size has changed, update the history array */
   if ((cv_mem->cv_nst > 0) && (cv_mem->cv_hprime != cv_mem->cv_h)) {
@@ -2201,13 +2162,25 @@ static int cvStep(CVodeMem cv_mem)
   }
 
   /* Check if this step should be projected */
+  doProjection = SUNFALSE;
   if (cv_mem->proj_enabled)
     doProjection = cv_mem->proj_mem->freq > 0 &&
       (cv_mem->cv_nst == 0 || (cv_mem->cv_nst >= cv_mem->proj_mem->nstlprj
                                + cv_mem->proj_mem->freq));
 
   /* Looping point for attempts to take a step */
+
+  saved_t = cv_mem->cv_tn;
+  nflag = FIRST_CALL;
+
   for(;;) {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+      "CVODE::cvStep", "enter-step-attempt-loop",
+      "step = %li, h = %.16g, q = %d, t_n = %.16g",
+      cv_mem->cv_nst, cv_mem->cv_next_h, cv_mem->cv_next_q, cv_mem->cv_tn);
+#endif
 
     cvPredict(cv_mem);
     cvSet(cv_mem);
@@ -2242,7 +2215,7 @@ static int cvStep(CVodeMem cv_mem)
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
     if (eflag == TRY_AGAIN) continue;
 
-    /* Return if error test failed and recovery not possible. */
+    /* Return if error test failed and recovery is not possible. */
     if (eflag != CV_SUCCESS) return(eflag);
 
     /* Error test passed (eflag=CV_SUCCESS), break from loop */
@@ -2262,7 +2235,8 @@ static int cvStep(CVodeMem cv_mem)
 
   if (cv_mem->cv_sldeton) cvBDFStab(cv_mem);
 
-  cv_mem->cv_etamax = (cv_mem->cv_nst <= SMALL_NST) ? ETAMX2 : ETAMX3;
+  cv_mem->cv_etamax = (cv_mem->cv_nst <= cv_mem->cv_small_nst) ?
+    cv_mem->cv_eta_max_es : cv_mem->cv_eta_max_gs;
 
   /*  Finally, we rescale the acor array to be the
       estimated local error vector. */
@@ -2522,6 +2496,12 @@ static void cvPredict(CVodeMem cv_mem)
     for (j = cv_mem->cv_q; j >= k; j--)
       N_VLinearSum(ONE, cv_mem->cv_zn[j-1], ONE,
                    cv_mem->cv_zn[j], cv_mem->cv_zn[j-1]);
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+    "CVODE::cvPredict", "return", "predictor =", "");
+  N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
+#endif
 }
 
 /*
@@ -2720,7 +2700,7 @@ static void cvSetBDF(CVodeMem cv_mem)
 
   if (cv_mem->proj_enabled)
     for (i=0; i <= cv_mem->cv_q; i++)
-      cv_mem->cv_p[i] = cv_mem->cv_l[i];
+      cv_mem->proj_p[i] = cv_mem->cv_l[i];
 
   if (cv_mem->cv_q > 1) {
     for (j=2; j < cv_mem->cv_q; j++) {
@@ -2740,7 +2720,7 @@ static void cvSetBDF(CVodeMem cv_mem)
 
     if (cv_mem->proj_enabled)
       for (i = cv_mem->cv_q; i >= 1; i--)
-        cv_mem->cv_p[i] = cv_mem->cv_l[i] + cv_mem->cv_p[i-1] * xi_inv;
+        cv_mem->proj_p[i] = cv_mem->cv_l[i] + cv_mem->proj_p[i-1] * xi_inv;
 
     for (i=cv_mem->cv_q; i >= 1; i--)
       cv_mem->cv_l[i] += cv_mem->cv_l[i-1]*xistar_inv;
@@ -2802,7 +2782,8 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
   booleantype callSetup;
-  long int nni_inc;
+  long int nni_inc = 0;
+  long int nnf_inc = 0;
 
   /* Decide whether or not to call setup routine (if one exists) and */
   /* set flag convfail (input to lsetup for its evaluation decision) */
@@ -2813,7 +2794,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) ||
       (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
-      (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
+      (SUNRabs(cv_mem->cv_gamrat-ONE) > cv_mem->cv_dgmax_lsetup);
   } else {
     cv_mem->cv_crate = ONE;
     callSetup = SUNFALSE;
@@ -2833,13 +2814,15 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-  /* increment counter */
-  nni_inc = 0;
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+  /* increment counters */
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc);
   cv_mem->cv_nni += nni_inc;
 
+  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc);
+  cv_mem->cv_nnf += nnf_inc;
+
   /* if the solve failed return */
-  if (flag != CV_SUCCESS) return(flag);
+  if (flag != SUN_NLS_SUCCESS) return(flag);
 
   /* solve successful */
 
@@ -2989,7 +2972,7 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     else                               return(CV_NLS_FAIL);
   }
 
-  /* At this point, a recoverable error occured. */
+  /* At this point, a recoverable error occurred. */
 
   (*ncfPtr)++;
   cv_mem->cv_etamax = ONE;
@@ -3006,7 +2989,8 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   /* Reduce step size; return to reattempt the step
      Note that if nflag = CONSTR_RECVR, then eta was already set in cvCheckConstraints */
   if (nflag != CONSTR_RECVR)
-    cv_mem->cv_eta = SUNMAX(ETACF, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+    cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_cf,
+                            cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
   *nflagPtr = PREV_CONV_FAIL;
   cvRescale(cv_mem);
 
@@ -3069,6 +3053,12 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   dsm = cv_mem->cv_acnrm * cv_mem->cv_tq[2];
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODE::cvDoErrorTest", "error-test", "step = %li, h = %.16g, dsm = %.16g",
+    cv_mem->cv_nst, cv_mem->cv_h, dsm);
+#endif
+
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
   *dsmPtr = dsm;
   if (dsm <= ONE) return(CV_SUCCESS);
@@ -3090,27 +3080,44 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   /* Set h ratio eta from dsm, rescale, and return for retry of step */
   if (*nefPtr <= MXNEF1) {
     cv_mem->cv_eta = ONE / (SUNRpowerR(BIAS2*dsm,ONE/cv_mem->cv_L) + ADDON);
-    cv_mem->cv_eta = SUNMAX(ETAMIN, SUNMAX(cv_mem->cv_eta,
-                                           cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h)));
-    if (*nefPtr >= SMALL_NEF) cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, ETAMXF);
+    cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_min_ef,
+                            SUNMAX(cv_mem->cv_eta,
+                                   cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h)));
+    if (*nefPtr >= cv_mem->cv_small_nef)
+      cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, cv_mem->cv_eta_max_ef);
+
     cvRescale(cv_mem);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+      "CVODE::cvDoErrorTest", "new-step-eta",
+      "eta = %.16g", cv_mem->cv_eta);
+#endif
+
     return(TRY_AGAIN);
   }
 
   /* After MXNEF1 failures, force an order reduction and retry step */
   if (cv_mem->cv_q > 1) {
-    cv_mem->cv_eta = SUNMAX(ETAMIN, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+    cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_min_ef,
+                            cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
     cvAdjustOrder(cv_mem,-1);
     cv_mem->cv_L = cv_mem->cv_q;
     cv_mem->cv_q--;
     cv_mem->cv_qwait = cv_mem->cv_L;
     cvRescale(cv_mem);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+      "CVODE::cvDoErrorTest", "new-step-eta-mxnef1",
+      "eta = %.16g", cv_mem->cv_eta);
+#endif
     return(TRY_AGAIN);
   }
 
   /* If already at order 1, restart: reload zn from scratch */
 
-  cv_mem->cv_eta = SUNMAX(ETAMIN, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+  cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_min_ef,
+                          cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
   cv_mem->cv_h *= cv_mem->cv_eta;
   cv_mem->cv_next_h = cv_mem->cv_h;
   cv_mem->cv_hscale = cv_mem->cv_h;
@@ -3124,6 +3131,12 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if (retval > 0) return(CV_UNREC_RHSFUNC_ERR);
 
   N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODE::cvDoErrorTest", "new-step-eta-mxnef1-q1",
+    "eta = %.16g", cv_mem->cv_eta);
+#endif
 
   return(TRY_AGAIN);
 }
@@ -3167,7 +3180,7 @@ static void cvCompleteStep(CVodeMem cv_mem)
   /* Apply the projection correction to column j of zn: p_j * Delta_n */
   if (cv_mem->proj_applied) {
     (void) N_VScaleAddMulti(cv_mem->cv_q+1,
-                            cv_mem->cv_p, cv_mem->cv_tempv, /* tempv = acorP */
+                            cv_mem->proj_p, cv_mem->cv_tempv, /* tempv = acorP */
                             cv_mem->cv_zn, cv_mem->cv_zn);
   }
 
@@ -3184,6 +3197,12 @@ static void cvCompleteStep(CVodeMem cv_mem)
       !(cv_mem->cv_nst % cv_mem->cv_monitor_interval)) {
     cv_mem->cv_monitorfun((void*) cv_mem, cv_mem->cv_user_data);
   }
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODE::cvCompleteStep", "return",
+    "nst = %d, nscon = %d", cv_mem->cv_nst, cv_mem->cv_nscon);
 #endif
 }
 
@@ -3204,28 +3223,33 @@ static void cvPrepareNextStep(CVodeMem cv_mem, realtype dsm)
     cv_mem->cv_qprime = cv_mem->cv_q;
     cv_mem->cv_hprime = cv_mem->cv_h;
     cv_mem->cv_eta = ONE;
-    return;
+  } else {
+    /* etaq is the ratio of new to old h at the current order */
+    cv_mem->cv_etaq = ONE /(SUNRpowerR(BIAS2*dsm,ONE/cv_mem->cv_L) + ADDON);
+
+    /* If no order change, adjust eta and acor in cvSetEta and return */
+    if (cv_mem->cv_qwait != 0) {
+      cv_mem->cv_eta = cv_mem->cv_etaq;
+      cv_mem->cv_qprime = cv_mem->cv_q;
+      cvSetEta(cv_mem);
+    } else {
+      /* If qwait = 0, consider an order change.   etaqm1 and etaqp1 are
+        the ratios of new to old h at orders q-1 and q+1, respectively.
+        cvChooseEta selects the largest; cvSetEta adjusts eta and acor */
+      cv_mem->cv_qwait = 2;
+      cv_mem->cv_etaqm1 = cvComputeEtaqm1(cv_mem);
+      cv_mem->cv_etaqp1 = cvComputeEtaqp1(cv_mem);
+      cvChooseEta(cv_mem);
+      cvSetEta(cv_mem);
+    }
   }
 
-  /* etaq is the ratio of new to old h at the current order */
-  cv_mem->cv_etaq = ONE /(SUNRpowerR(BIAS2*dsm,ONE/cv_mem->cv_L) + ADDON);
-
-  /* If no order change, adjust eta and acor in cvSetEta and return */
-  if (cv_mem->cv_qwait != 0) {
-    cv_mem->cv_eta = cv_mem->cv_etaq;
-    cv_mem->cv_qprime = cv_mem->cv_q;
-    cvSetEta(cv_mem);
-    return;
-  }
-
-  /* If qwait = 0, consider an order change.   etaqm1 and etaqp1 are
-     the ratios of new to old h at orders q-1 and q+1, respectively.
-     cvChooseEta selects the largest; cvSetEta adjusts eta and acor */
-  cv_mem->cv_qwait = 2;
-  cv_mem->cv_etaqm1 = cvComputeEtaqm1(cv_mem);
-  cv_mem->cv_etaqp1 = cvComputeEtaqp1(cv_mem);
-  cvChooseEta(cv_mem);
-  cvSetEta(cv_mem);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+    "CVODE::cvPrepareNextStep", "return",
+    "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d\n",
+    cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime, cv_mem->cv_qwait);
+#endif
 }
 
 /*
@@ -3237,16 +3261,29 @@ static void cvPrepareNextStep(CVodeMem cv_mem, realtype dsm)
 
 static void cvSetEta(CVodeMem cv_mem)
 {
-
-  /* If eta below the threshhold THRESH, reject a change of step size */
-  if (cv_mem->cv_eta < THRESH) {
+  if ((cv_mem->cv_eta > cv_mem->cv_eta_min_fx) &&
+      (cv_mem->cv_eta < cv_mem->cv_eta_max_fx))
+  {
+    /* Eta is within the fixed step bounds, retain step size */
     cv_mem->cv_eta = ONE;
     cv_mem->cv_hprime = cv_mem->cv_h;
-  } else {
-    /* Limit eta by etamax and hmax, then set hprime */
-    cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, cv_mem->cv_etamax);
-    cv_mem->cv_eta /= SUNMAX(ONE, SUNRabs(cv_mem->cv_h) *
-                             cv_mem->cv_hmax_inv*cv_mem->cv_eta);
+  }
+  else
+  {
+    if (cv_mem->cv_eta >= cv_mem->cv_eta_max_fx)
+    {
+      /* Increase the step size, limit eta by etamax and hmax */
+      cv_mem->cv_eta = SUNMIN(cv_mem->cv_eta, cv_mem->cv_etamax);
+      cv_mem->cv_eta /= SUNMAX(ONE, SUNRabs(cv_mem->cv_h) *
+                               cv_mem->cv_hmax_inv * cv_mem->cv_eta);
+    }
+    else
+    {
+      /* Reduce the step size, limit eta by etamin and hmin */
+      cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, cv_mem->cv_eta_min);
+      cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+    }
+    /* Set hprime */
     cv_mem->cv_hprime = cv_mem->cv_h * cv_mem->cv_eta;
     if (cv_mem->cv_qprime < cv_mem->cv_q) cv_mem->cv_nscon = 0;
   }
@@ -3303,7 +3340,7 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
  * corresponding value of q.  If there is a tie, the preference
  * order is to (1) keep the same order, then (2) decrease the order,
  * and finally (3) increase the order.  If the maximum eta value
- * is below the threshhold THRESH, the order is kept unchanged and
+ * is within the fixed step bounds, the order is kept unchanged and
  * eta is set to 1.
  */
 
@@ -3313,37 +3350,39 @@ static void cvChooseEta(CVodeMem cv_mem)
 
   etam = SUNMAX(cv_mem->cv_etaqm1, SUNMAX(cv_mem->cv_etaq, cv_mem->cv_etaqp1));
 
-  if (etam < THRESH) {
+  if ((etam > cv_mem->cv_eta_min_fx) && (etam < cv_mem->cv_eta_max_fx))
+  {
     cv_mem->cv_eta = ONE;
     cv_mem->cv_qprime = cv_mem->cv_q;
-    return;
   }
+  else
+  {
+    if (etam == cv_mem->cv_etaq)
+    {
+      cv_mem->cv_eta = cv_mem->cv_etaq;
+      cv_mem->cv_qprime = cv_mem->cv_q;
+    }
+    else if (etam == cv_mem->cv_etaqm1)
+    {
+      cv_mem->cv_eta = cv_mem->cv_etaqm1;
+      cv_mem->cv_qprime = cv_mem->cv_q - 1;
+    }
+    else
+    {
+      cv_mem->cv_eta = cv_mem->cv_etaqp1;
+      cv_mem->cv_qprime = cv_mem->cv_q + 1;
 
-  if (etam == cv_mem->cv_etaq) {
+      if (cv_mem->cv_lmm == CV_BDF)
+      {
+        /*
+         * Store Delta_n in zn[qmax] to be used in order increase
+         *
+         * This happens at the last step of order q before an increase
+         * to order q+1, so it represents Delta_n in the ELTE at q+1
+         */
 
-    cv_mem->cv_eta = cv_mem->cv_etaq;
-    cv_mem->cv_qprime = cv_mem->cv_q;
-
-  } else if (etam == cv_mem->cv_etaqm1) {
-
-    cv_mem->cv_eta = cv_mem->cv_etaqm1;
-    cv_mem->cv_qprime = cv_mem->cv_q - 1;
-
-  } else {
-
-    cv_mem->cv_eta = cv_mem->cv_etaqp1;
-    cv_mem->cv_qprime = cv_mem->cv_q + 1;
-
-    if (cv_mem->cv_lmm == CV_BDF) {
-      /*
-       * Store Delta_n in zn[qmax] to be used in order increase
-       *
-       * This happens at the last step of order q before an increase
-       * to order q+1, so it represents Delta_n in the ELTE at q+1
-       */
-
-      N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]);
-
+        N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]);
+      }
     }
   }
 }
@@ -3444,7 +3483,7 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
   default:
     /* This return should never happen */
     cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, "CVODE", "CVode",
-                   "CVODE encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+                   "CVODE encountered an unrecognized error. Please report this to the SUNDIALS developers at sundials-users@llnl.gov");
     return (CV_UNRECOGNIZED_ERR);
   }
 

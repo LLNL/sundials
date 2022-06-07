@@ -125,6 +125,23 @@ static void sunStopTiming(sunTimerStruct* entry)
   entry->maximum = entry->elapsed;
 }
 
+static void sunResetTiming(sunTimerStruct* entry)
+{
+#if SUNDIALS_MPI_ENABLED
+  entry->tic = 0.0;
+  entry->toc = 0.0;
+#else
+  entry->tic->tv_sec  = 0;
+  entry->tic->tv_nsec = 0;
+  entry->toc->tv_sec  = 0;
+  entry->toc->tv_nsec = 0;
+#endif
+  entry->elapsed = 0.0;
+  entry->average = 0.0;
+  entry->maximum = 0.0;
+  entry->count   = 0;
+}
+
 
 /*
   SUNProfiler.
@@ -211,7 +228,7 @@ int SUNProfiler_Free(SUNProfiler* p)
 
   if (*p)
   {
-    SUNHashMap_Free(&(*p)->map, sunTimerStructFree);
+    SUNHashMap_Destroy(&(*p)->map, sunTimerStructFree);
     sunTimerStructFree((void*) (*p)->overhead);
 #if SUNDIALS_MPI_ENABLED
     if ((*p)->comm)
@@ -283,6 +300,38 @@ int SUNProfiler_End(SUNProfiler p, const char* name)
 
   sunStopTiming(p->overhead);
   return(0);
+}
+
+int SUNProfiler_Reset(SUNProfiler p)
+{
+  int i = 0;
+  sunTimerStruct* timer = NULL;
+
+  /* Check for valid input */
+  if (!p) return -1;
+  if (!(p->overhead)) return -1;
+  if (!(p->map)) return -1;
+  if (!(p->map->buckets)) return -1;
+
+  /* Reset the overhead timer */
+  sunResetTiming(p->overhead);
+  sunStartTiming(p->overhead);
+
+  /* Reset all timers */
+  for (i = 0; i < p->map->max_size; i++)
+  {
+    if (!(p->map->buckets[i])) continue;
+    timer = p->map->buckets[i]->value;
+    if (timer) sunResetTiming(timer);
+  }
+
+  /* Reset the overall timer. */
+  p->sundials_time = 0.0;
+
+  SUNDIALS_MARK_BEGIN(p, SUNDIALS_ROOT_TIMER);
+  sunStopTiming(p->overhead);
+
+  return 0;
 }
 
 int SUNProfiler_Print(SUNProfiler p, FILE* fp)

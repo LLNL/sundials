@@ -19,8 +19,8 @@
 #include <stdlib.h>
 
 #include "cvodes_impl.h"
+#include "cvodes_ls_impl.h"
 #include "sundials/sundials_types.h"
-#include "sundials/sundials_math.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -32,6 +32,34 @@
  * CVODES optional input functions
  * =================================================================
  */
+
+
+/*
+ * CVodeSetDeltaGammaMaxLSetup
+ *
+ * Specifies the gamma ratio threshold to signal for a linear solver setup
+ */
+
+int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem, realtype dgmax_lsetup)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetDeltaGammaMaxLSetup",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Set value or use default */
+  if(dgmax_lsetup < ZERO)
+    cv_mem->cv_dgmax_lsetup = DGMAX_LSETUP_DEFAULT;
+  else
+    cv_mem->cv_dgmax_lsetup = dgmax_lsetup;
+
+  return(CV_SUCCESS);
+}
 
 /*
  * CVodeSetErrHandlerFn
@@ -74,6 +102,28 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_errfp = errfp;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetUserData
+ *
+ * Specifies the user data pointer for f
+ */
+
+int CVodeSetUserData(void *cvode_mem, void *user_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetUserData", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_user_data = user_data;
 
   return(CV_SUCCESS);
 }
@@ -134,28 +184,6 @@ int CVodeSetMonitorFrequency(void *cvode_mem, long int nst)
   cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetMonitorFrequency", "SUNDIALS was not built with monitoring enabled.");
   return(CV_ILL_INPUT);
 #endif
-}
-
-/*
- * CVodeSetUserData
- *
- * Specifies the user data pointer for f
- */
-
-int CVodeSetUserData(void *cvode_mem, void *user_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetUserData", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_user_data = user_data;
-
-  return(CV_SUCCESS);
 }
 
 /*
@@ -311,7 +339,7 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (hmin<0) {
+  if (hmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetMinStep", MSGCV_NEG_HMIN);
     return(CV_ILL_INPUT);
   }
@@ -350,7 +378,7 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (hmax < 0) {
+  if (hmax < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetMaxStep", MSGCV_NEG_HMAX);
     return(CV_ILL_INPUT);
   }
@@ -368,6 +396,287 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
   }
 
   cv_mem->cv_hmax_inv = hmax_inv;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaFixedStepBounds
+ *
+ * Specifies the bounds for retaining the current step size
+ */
+
+
+int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
+                               realtype eta_max_fx)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaFixedStepBounds",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_min_fx < ZERO || eta_min_fx >= ONE)
+    cv_mem->cv_eta_min_fx = ETA_MIN_FX_DEFAULT;
+  else
+    cv_mem->cv_eta_min_fx = eta_min_fx;
+
+  if (eta_max_fx <= ONE)
+    cv_mem->cv_eta_max_fx = ETA_MAX_FX_DEFAULT;
+  else
+    cv_mem->cv_eta_max_fx = eta_max_fx;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaMaxFirstStep
+ *
+ * Specifies the maximum step size change on the first step
+ */
+
+int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaMaxFirstStep",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_max_fs <= ONE)
+    cv_mem->cv_eta_max_fs = ETA_MAX_FS_DEFAULT;
+  else
+    cv_mem->cv_eta_max_fs = eta_max_fs;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaMaxEarlyStep
+ *
+ * Specifies the maximum step size change on steps early in the integration
+ * when nst <= small_nst
+ */
+
+int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaMaxEarlyStep",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_max_es <= ONE)
+    cv_mem->cv_eta_max_es = ETA_MAX_ES_DEFAULT;
+  else
+    cv_mem->cv_eta_max_es = eta_max_es;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetNumStepsEtaMaxEarlyStep
+ *
+ * Specifies the maximum number of steps for using the early integration change
+ * factor
+ */
+
+int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetNumStepsEtaMaxEarlyStep",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (small_nst < 0)
+    cv_mem->cv_small_nst = SMALL_NST_DEFAULT;
+  else
+    cv_mem->cv_small_nst = small_nst;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaMax
+ *
+ * Specifies the maximum step size change on a general steps (nst > small_nst)
+ */
+
+int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaMax",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_max_gs <= ONE)
+    cv_mem->cv_eta_max_gs = ETA_MAX_GS_DEFAULT;
+  else
+    cv_mem->cv_eta_max_gs = eta_max_gs;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaMin
+ *
+ * Specifies the minimum change on a general steps
+ */
+
+int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaMin",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_min <= ZERO || eta_min >= ONE)
+    cv_mem->cv_eta_min = ETA_MIN_DEFAULT;
+  else
+    cv_mem->cv_eta_min = eta_min;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaMinErrFail
+ *
+ * Specifies the minimum step size change after an error test failure
+ */
+
+int CVodeSetEtaMinErrFail(void* cvode_mem, realtype eta_min_ef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaMinErrFail",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_min_ef <= ZERO || eta_min_ef >= ONE)
+    cv_mem->cv_eta_min_ef = ETA_MIN_EF_DEFAULT;
+  else
+    cv_mem->cv_eta_min_ef = eta_min_ef;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaMaxErrFail
+ *
+ * Specifies the maximum step size change after multiple (>= small_nef) error
+ * test failures
+ */
+
+int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaMaxErrFail",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_max_ef <= ZERO || eta_max_ef >= ONE)
+    cv_mem->cv_eta_max_ef = ETA_MAX_EF_DEFAULT;
+  else
+    cv_mem->cv_eta_max_ef = eta_max_ef;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetNumFailsEtaMaxErrFail
+ *
+ * Specifies the maximum number of error test failures necessary to enforce
+ * eta_max_ef
+ */
+
+int CVodeSetNumFailsEtaMaxErrFail(void* cvode_mem, int small_nef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetNumFailsEtaMaxErrFail",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (small_nef < 0)
+    cv_mem->cv_small_nef = SMALL_NEF_DEFAULT;
+  else
+    cv_mem->cv_small_nef = small_nef;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetEtaConvFail
+ *
+ * Specifies the step size change after a nonlinear solver failure
+ */
+
+int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetEtaConvFail",
+                   MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* set allowed value or use default */
+  if (eta_cf <= ZERO || eta_cf >= ONE)
+    cv_mem->cv_eta_cf = ETA_CF_DEFAULT;
+  else
+    cv_mem->cv_eta_cf = eta_cf;
 
   return(CV_SUCCESS);
 }
@@ -552,7 +861,7 @@ int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp)
   }
 
   /* use default or user provided value */
-  cv_mem->cv_msbp = (msbp == 0) ? MSBP : msbp;
+  cv_mem->cv_msbp = (msbp == 0) ? MSBP_DEFAULT : msbp;
 
   return(CV_SUCCESS);
 }
@@ -586,7 +895,6 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
 
   return(CV_SUCCESS);
 }
-
 
 /*
  * CVodeSetNoInactiveRootWarn
@@ -1328,16 +1636,16 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nsteps = cv_mem->cv_nst;
-  *nfevals = cv_mem->cv_nfe;
+  *nsteps     = cv_mem->cv_nst;
+  *nfevals    = cv_mem->cv_nfe;
   *nlinsetups = cv_mem->cv_nsetups;
-  *netfails = cv_mem->cv_netf;
-  *qlast = cv_mem->cv_qu;
-  *qcur = cv_mem->cv_next_q;
-  *hinused = cv_mem->cv_h0u;
-  *hlast = cv_mem->cv_hu;
-  *hcur = cv_mem->cv_next_h;
-  *tcur = cv_mem->cv_tn;
+  *netfails   = cv_mem->cv_netf;
+  *qlast      = cv_mem->cv_qu;
+  *qcur       = cv_mem->cv_next_q;
+  *hinused    = cv_mem->cv_h0u;
+  *hlast      = cv_mem->cv_hu;
+  *hcur       = cv_mem->cv_next_h;
+  *tcur       = cv_mem->cv_tn;
 
   return(CV_SUCCESS);
 }
@@ -1401,8 +1709,8 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
-                   "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumNonlinSolvIters",
+                   MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
@@ -1420,7 +1728,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
  * nonlinear solver
  */
 
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nnfails)
 {
   CVodeMem cv_mem;
 
@@ -1431,7 +1739,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nncfails = cv_mem->cv_ncfn;
+  *nnfails = cv_mem->cv_nnf;
 
   return(CV_SUCCESS);
 }
@@ -1443,24 +1751,47 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
  */
 
 int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
-                            long int *nncfails)
+                            long int *nnfails)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
-                   "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNonlinSolvStats",
+                   MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters  = cv_mem->cv_nni;
-  *nncfails = cv_mem->cv_ncfn;
+  *nniters = cv_mem->cv_nni;
+  *nnfails = cv_mem->cv_nnf;
 
   return(CV_SUCCESS);
 }
 
+/*
+ * CVodeGetNumStepSolveFails
+ *
+ * Returns the current number of failed steps due to a nonlinear solver
+ * convergence failure
+ */
+
+int CVodeGetNumStepSolveFails(void *cvode_mem, long int *nncfails)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumStepSolveFails",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *nncfails = cv_mem->cv_ncfn;
+
+  return(CV_SUCCESS);
+}
 
 /*
  * =================================================================
@@ -1844,7 +2175,7 @@ int CVodeGetSensNumNonlinSolvIters(void *cvode_mem, long int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
+int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSnfails)
 {
   CVodeMem cv_mem;
 
@@ -1860,7 +2191,7 @@ int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
     return(CV_NO_SENS);
   }
 
-  *nSncfails = cv_mem->cv_ncfnS;
+  *nSnfails = cv_mem->cv_nnfS;
 
   return(CV_SUCCESS);
 }
@@ -1868,7 +2199,7 @@ int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 /*-----------------------------------------------------------------*/
 
 int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
-                                long int *nSncfails)
+                                long int *nSnfails)
 {
   CVodeMem cv_mem;
 
@@ -1886,7 +2217,30 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
     return(CV_NO_SENS);
   }
 
-  *nSniters  = cv_mem->cv_nniS;
+  *nSniters = cv_mem->cv_nniS;
+  *nSnfails = cv_mem->cv_nnfS;
+
+  return(CV_SUCCESS);
+}
+
+int CVodeGetNumStepSensSolveFails(void *cvode_mem, long int *nSncfails)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumStepSensSolveFails",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_sensi==SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetNumStepSensSolveFails", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  }
+
   *nSncfails = cv_mem->cv_ncfnS;
 
   return(CV_SUCCESS);
@@ -1921,7 +2275,7 @@ int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfails)
+int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1nfails)
 {
   CVodeMem cv_mem;
   int is, Ns;
@@ -1941,7 +2295,7 @@ int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
   }
 
   if(cv_mem->cv_ism==CV_STAGGERED1)
-    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_ncfnS1[is];
+    for(is=0; is<Ns; is++) nSTGR1nfails[is] = cv_mem->cv_nnfS1[is];
 
   return(CV_SUCCESS);
 }
@@ -1950,7 +2304,7 @@ int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
 
 int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
                                     long int *nSTGR1niters,
-                                    long int *nSTGR1ncfails)
+                                    long int *nSTGR1nfails)
 {
   CVodeMem cv_mem;
   int is, Ns;
@@ -1972,8 +2326,287 @@ int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
   }
 
   if(cv_mem->cv_ism == CV_STAGGERED1) {
-    for(is=0; is<Ns; is++) nSTGR1niters[is]  = cv_mem->cv_nniS1[is];
+    for(is=0; is<Ns; is++) nSTGR1niters[is] = cv_mem->cv_nniS1[is];
+    for(is=0; is<Ns; is++) nSTGR1nfails[is] = cv_mem->cv_nnfS1[is];
+  }
+
+  return(CV_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int CVodeGetNumStepStgrSensSolveFails(void *cvode_mem, long int *nSTGR1ncfails)
+{
+  CVodeMem cv_mem;
+  int is, Ns;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetNumStepStgrSensSolveFails", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  Ns = cv_mem->cv_Ns;
+
+  if (cv_mem->cv_sensi==SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetNumStepStgrSensSolveFails", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  }
+
+  if(cv_mem->cv_ism==CV_STAGGERED1)
     for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_ncfnS1[is];
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodePrintAllStats
+ *
+ * Print all integrator statistics
+ */
+
+int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  CVodeProjMem cvproj_mem;
+  int is;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodePrintAllStats",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* step and method stats */
+    fprintf(outfile, "Current time                 = %"RSYM"\n", cv_mem->cv_tn);
+    fprintf(outfile, "Steps                        = %ld\n", cv_mem->cv_nst);
+    fprintf(outfile, "Error test fails             = %ld\n", cv_mem->cv_netf);
+    fprintf(outfile, "NLS step fails               = %ld\n", cv_mem->cv_ncfn);
+    fprintf(outfile, "Initial step size            = %"RSYM"\n", cv_mem->cv_h0u);
+    fprintf(outfile, "Last step size               = %"RSYM"\n", cv_mem->cv_hu);
+    fprintf(outfile, "Current step size            = %"RSYM"\n", cv_mem->cv_next_h);
+    fprintf(outfile, "Last method order            = %d\n", cv_mem->cv_qu);
+    fprintf(outfile, "Current method order         = %d\n", cv_mem->cv_next_q);
+    fprintf(outfile, "Stab. lim. order reductions  = %ld\n", cv_mem->cv_nor);
+
+    /* function evaluations */
+    fprintf(outfile, "RHS fn evals                 = %ld\n", cv_mem->cv_nfe);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, "NLS iters                    = %ld\n", cv_mem->cv_nni);
+    fprintf(outfile, "NLS fails                    = %ld\n", cv_mem->cv_nnf);
+    if (cv_mem->cv_nst > 0)
+    {
+      fprintf(outfile, "NLS iters per step           = %"RSYM"\n",
+              (realtype) cv_mem->cv_nni / (realtype) cv_mem->cv_nst);
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, "LS setups                    = %ld\n", cv_mem->cv_nsetups);
+    if (cv_mem->cv_lmem)
+    {
+      cvls_mem = (CVLsMem) (cv_mem->cv_lmem);
+      fprintf(outfile, "Jac fn evals                 = %ld\n", cvls_mem->nje);
+      fprintf(outfile, "LS RHS fn evals              = %ld\n", cvls_mem->nfeDQ);
+      fprintf(outfile, "Prec setup evals             = %ld\n", cvls_mem->npe);
+      fprintf(outfile, "Prec solves                  = %ld\n", cvls_mem->nps);
+      fprintf(outfile, "LS iters                     = %ld\n", cvls_mem->nli);
+      fprintf(outfile, "LS fails                     = %ld\n", cvls_mem->ncfl);
+      fprintf(outfile, "Jac-times setups             = %ld\n", cvls_mem->njtsetup);
+      fprintf(outfile, "Jac-times evals              = %ld\n", cvls_mem->njtimes);
+      if (cv_mem->cv_nni > 0)
+      {
+        fprintf(outfile, "LS iters per NLS iter        = %"RSYM"\n",
+                (realtype) cvls_mem->nli / (realtype) cv_mem->cv_nni);
+        fprintf(outfile, "Jac evals per NLS iter       = %"RSYM"\n",
+                (realtype) cvls_mem->nje / (realtype) cv_mem->cv_nni);
+        fprintf(outfile, "Prec evals per NLS iter      = %"RSYM"\n",
+                (realtype) cvls_mem->npe / (realtype) cv_mem->cv_nni);
+      }
+    }
+
+    /* rootfinding stats */
+    fprintf(outfile, "Root fn evals                = %ld\n", cv_mem->cv_nge);
+
+    /* projection stats */
+    if (cv_mem->proj_mem)
+    {
+      cvproj_mem = (CVodeProjMem) (cv_mem->proj_mem);
+      fprintf(outfile, "Projection fn evals          = %ld\n", cvproj_mem->nproj);
+      fprintf(outfile, "Projection fails             = %ld\n", cvproj_mem->npfails);
+    }
+
+    /* quadrature stats */
+    if (cv_mem->cv_quadr)
+    {
+      fprintf(outfile, "Quad fn evals                = %ld\n", cv_mem->cv_nfQe);
+      fprintf(outfile, "Quad error test fails        = %ld\n", cv_mem->cv_netfQ);
+    }
+
+    /* sensitivity stats */
+    if (cv_mem->cv_sensi)
+    {
+      fprintf(outfile, "Sens fn evals                = %ld\n", cv_mem->cv_nfSe);
+      fprintf(outfile, "Sens RHS fn evals            = %ld\n", cv_mem->cv_nfeS);
+      fprintf(outfile, "Sens error test fails        = %ld\n", cv_mem->cv_netfS);
+      if (cv_mem->cv_ism != CV_SIMULTANEOUS)
+      {
+        fprintf(outfile, "Sens NLS iters               = %ld\n", cv_mem->cv_nniS);
+        fprintf(outfile, "Sens NLS fails               = %ld\n", cv_mem->cv_nnfS);
+        fprintf(outfile, "Sens NLS step fails          = %ld\n", cv_mem->cv_ncfnS);
+      }
+      if (cv_mem->cv_ism == CV_STAGGERED1)
+      {
+        fprintf(outfile, "Sens stgr1 NLS iters         = %ld", cv_mem->cv_nniS1[0]);
+        for (is = 1; is < cv_mem->cv_Ns; is++)
+          fprintf(outfile, ", %ld", cv_mem->cv_nniS1[is]);
+        fprintf(outfile, "\n");
+        fprintf(outfile, "Sens stgr1 NLS fails         = %ld", cv_mem->cv_nnfS1[0]);
+        for(is = 1; is < cv_mem->cv_Ns; is++)
+          fprintf(outfile, ", %ld", cv_mem->cv_nnfS1[is]);
+        fprintf(outfile, "\n");
+        fprintf(outfile, "Sens stgr1 NLS step fails    = %ld", cv_mem->cv_ncfnS1[0]);
+        for(is = 1; is < cv_mem->cv_Ns; is++)
+          fprintf(outfile, ", %ld", cv_mem->cv_ncfnS1[is]);
+        fprintf(outfile, "\n");
+      }
+      fprintf(outfile, "Sens LS setups               = %ld\n", cv_mem->cv_nsetupsS);
+    }
+
+    /* quadrature-sensitivity stats */
+    if (cv_mem->cv_quadr_sensi)
+    {
+      fprintf(outfile, "QuadSens fn evals            = %ld\n", cv_mem->cv_nfQSe);
+      fprintf(outfile, "QuadSens error test fails    = %ld\n", cv_mem->cv_netfQS);
+    }
+    break;
+
+  case SUN_OUTPUTFORMAT_CSV:
+    /* step and method stats */
+    fprintf(outfile, "Time,%"RSYM, cv_mem->cv_tn);
+    fprintf(outfile, ",Steps,%ld", cv_mem->cv_nst);
+    fprintf(outfile, ",Error test fails,%ld", cv_mem->cv_netf);
+    fprintf(outfile, ",NLS step fails,%ld", cv_mem->cv_ncfn);
+    fprintf(outfile, ",Initial step size,%"RSYM, cv_mem->cv_h0u);
+    fprintf(outfile, ",Last step size,%"RSYM, cv_mem->cv_hu);
+    fprintf(outfile, ",Current step size,%"RSYM, cv_mem->cv_next_h);
+    fprintf(outfile, ",Last method order,%d", cv_mem->cv_qu);
+    fprintf(outfile, ",Current method order,%d", cv_mem->cv_next_q);
+    fprintf(outfile, ",Stab. lim. order reductions,%ld", cv_mem->cv_nor);
+
+    /* function evaluations */
+    fprintf(outfile, ",RHS fn evals,%ld", cv_mem->cv_nfe);
+
+    /* nonlinear solver stats */
+    fprintf(outfile, ",NLS iters,%ld", cv_mem->cv_nni);
+    fprintf(outfile, ",NLS fails,%ld", cv_mem->cv_nnf);
+    if (cv_mem->cv_nst > 0)
+    {
+      fprintf(outfile, ",NLS iters per step,%"RSYM,
+              (realtype) cv_mem->cv_nni / (realtype) cv_mem->cv_nst);
+    }
+    else
+    {
+      fprintf(outfile, ",NLS iters per step,0");
+    }
+
+    /* linear solver stats */
+    fprintf(outfile, ",LS setups,%ld", cv_mem->cv_nsetups);
+    if (cv_mem->cv_lmem)
+    {
+      cvls_mem = (CVLsMem) (cv_mem->cv_lmem);
+      fprintf(outfile, ",Jac fn evals,%ld", cvls_mem->nje);
+      fprintf(outfile, ",LS RHS fn evals,%ld", cvls_mem->nfeDQ);
+      fprintf(outfile, ",Prec setup evals,%ld", cvls_mem->npe);
+      fprintf(outfile, ",Prec solves,%ld", cvls_mem->nps);
+      fprintf(outfile, ",LS iters,%ld", cvls_mem->nli);
+      fprintf(outfile, ",LS fails,%ld", cvls_mem->ncfl);
+      fprintf(outfile, ",Jac-times setups,%ld", cvls_mem->njtsetup);
+      fprintf(outfile, ",Jac-times evals,%ld", cvls_mem->njtimes);
+      if (cv_mem->cv_nni > 0)
+      {
+        fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
+                (realtype) cvls_mem->nli / (realtype) cv_mem->cv_nni);
+        fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
+                (realtype) cvls_mem->nje / (realtype) cv_mem->cv_nni);
+        fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
+                (realtype) cvls_mem->npe / (realtype) cv_mem->cv_nni);
+      }
+      else
+      {
+        fprintf(outfile, ",LS iters per NLS iter,0");
+        fprintf(outfile, ",Jac evals per NLS iter,0");
+        fprintf(outfile, ",Prec evals per NLS iter,0");
+      }
+    }
+
+    /* rootfinding stats */
+    fprintf(outfile, ",Root fn evals,%ld", cv_mem->cv_nge);
+
+    /* projection stats */
+    if (cv_mem->proj_mem)
+    {
+      cvproj_mem = (CVodeProjMem) (cv_mem->proj_mem);
+      fprintf(outfile, ",Projection fn evals,%ld", cvproj_mem->nproj);
+      fprintf(outfile, ",Projection fails,%ld", cvproj_mem->npfails);
+    }
+
+    /* quadrature stats */
+    if (cv_mem->cv_quadr)
+    {
+      fprintf(outfile, ",Quad fn evals,%ld", cv_mem->cv_nfQe);
+      fprintf(outfile, ",Quad error test fails,%ld", cv_mem->cv_netfQ);
+    }
+
+    /* sensitivity stats */
+    if (cv_mem->cv_sensi)
+    {
+      fprintf(outfile, ",Sens fn evals,%ld", cv_mem->cv_nfSe);
+      fprintf(outfile, ",Sens RHS fn evals,%ld", cv_mem->cv_nfeS);
+      fprintf(outfile, ",Sens error test fails,%ld", cv_mem->cv_netfS);
+      if (cv_mem->cv_ism != CV_SIMULTANEOUS)
+      {
+        fprintf(outfile, ",Sens NLS iters,%ld", cv_mem->cv_nniS);
+        fprintf(outfile, ",Sens NLS fails,%ld", cv_mem->cv_nnfS);
+        fprintf(outfile, ",Sens NLS step fails,%ld", cv_mem->cv_ncfnS);
+      }
+      if (cv_mem->cv_ism == CV_STAGGERED1)
+      {
+        for (is = 0; is < cv_mem->cv_Ns; is++)
+          fprintf(outfile, ",Sens stgr1[%i] NLS iters,%ld",
+                  is, cv_mem->cv_nniS1[is]);
+        for (is = 0; is < cv_mem->cv_Ns; is++)
+          fprintf(outfile, ",Sens stgr1[%i] NLS fails,%ld",
+                  is, cv_mem->cv_nnfS1[is]);
+        for (is = 0; is < cv_mem->cv_Ns; is++)
+          fprintf(outfile, ",Sens stgr1[%i] NLS step fails,%ld",
+                  is, cv_mem->cv_ncfnS1[is]);
+      }
+      fprintf(outfile, ",Sens LS setups,%ld", cv_mem->cv_nsetupsS);
+    }
+
+    /* quadrature-sensitivity stats */
+    if (cv_mem->cv_quadr_sensi)
+    {
+      fprintf(outfile, ",QuadSens fn evals,%ld", cv_mem->cv_nfQSe);
+      fprintf(outfile, ",QuadSens error test fails,%ld", cv_mem->cv_netfQS);
+    }
+    fprintf(outfile, "\n");
+    break;
+
+  default:
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodePrintAllStats",
+                   "Invalid formatting option.");
+    return(CV_ILL_INPUT);
   }
 
   return(CV_SUCCESS);

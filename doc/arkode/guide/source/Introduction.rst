@@ -118,14 +118,117 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in vx.x.x
+Changes in v5.3.0
 -----------------
 
-Additionally export ``SUNDIALS::<lib>`` targets with no static/shared suffix for
-use within the build directory (this mirrors how the targets are exported upon
-installation).
+Fixed a bug in :c:func:`ERKStepReset()`, :c:func:`ERKStepReInit()`,
+:c:func:`ARKStepReset()`, :c:func:`ARKStepReInit()`, :c:func:`MRIStepReset()`, and
+:c:func:`MRIStepReInit()` where a previously-set value of *tstop* (from a call to
+:c:func:`ERKStepSetStopTime()`, :c:func:`ARKStepSetStopTime()`, or
+:c:func:`MRIStepSetStopTime()`, respectively) would not be cleared.
 
-Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+Updated :c:func:`MRIStepReset()` to call the corresponding
+:c:type:`MRIStepInnerResetFn` with the same :math:`(t_R,y_R)` arguments for the
+:c:type:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
+scale subproblems.
+
+Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
+
+Changes in v5.2.0
+-----------------
+
+Added the :c:type:`SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated :c:func:`ARKStepSetDiagnostics`,
+:c:func:`MRIStepSetDiagnostics`, :c:func:`ERKStepSetDiagnostics`,
+:c:func:`SUNNonlinSolSetPrintLevel_Newton`,
+:c:func:`SUNNonlinSolSetInfoFile_Newton`,
+:c:func:`SUNNonlinSolSetPrintLevel_FixedPoint`,
+:c:func:`SUNNonlinSolSetInfoFile_FixedPoint`,
+:c:func:`SUNLinSolSetInfoFile_PCG`, :c:func:`SUNLinSolSetPrintLevel_PCG`,
+:c:func:`SUNLinSolSetInfoFile_SPGMR`, :c:func:`SUNLinSolSetPrintLevel_SPGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPFGMR`, :c:func:`SUNLinSolSetPrintLevel_SPFGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPTFQM`, :c:func:`SUNLinSolSetPrintLevel_SPTFQMR`,
+:c:func:`SUNLinSolSetInfoFile_SPBCGS`, :c:func:`SUNLinSolSetPrintLevel_SPBCGS`
+it is recommended to use the `SUNLogger` API instead. The ``SUNLinSolSetInfoFile_**``
+and ``SUNNonlinSolSetInfoFile_*`` family of functions are now enabled
+by setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
+
+Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
+counters to zero.
+
+Added the functions :c:func:`ARKStepPrintAllStats`,
+:c:func:`ERKStepPrintAllStats`, and :c:func:`MRIStepPrintAll` to output all of
+the integrator, nonlinear solver, linear solver, and other statistics in one
+call. The file ``scripts/sundials_csv.py`` contains functions for parsing the
+comma-separated value output files.
+
+Added the functions :c:func:`ARKStepSetDeduceImplicitRhs` and
+:c:func:`MRIStepSetDeduceImplicitRhs` to optionally remove an evaluation of the
+implicit right-hand side function after nonlinear solves. See
+:numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
+optimization.
+
+Added the function :c:func:`MRIStepSetOrder` to select the default MRI method of
+a given order.
+
+The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+consistent with the CUDA and HIP vectors. The input execution policies are now
+cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
+Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
+vector execution policies to the defaults.
+
+Fixed the :c:type:`SUNContext` convenience class for C++ users to disallow copy
+construction and allow move construction.
+
+A memory leak in the SYCL vector was fixed where the execution policies were
+not freed when the vector was destroyed.
+
+The include guard in ``nvector_mpimanyvector.h`` has been corrected to enable
+using both the ManyVector and MPIManyVector NVector implementations in the same
+simulation.
+
+Changed exported SUNDIALS PETSc CMake targets to be INTERFACE IMPORTED instead
+of UNKNOWN IMPORTED.
+
+A bug was fixed in the functions
+:c:func:`ARKStepGetNumNonlinSolvConvFails`,
+:c:func:`ARKStepGetNonlinSolvStats`,
+:c:func:`MRIStepGetNumNonlinSolvConvFails`, and
+:c:func:`MRIStepGetNonlinSolvStats`
+where the number of nonlinear solver failures returned was the number of failed
+*steps* due to a nonlinear solver failure i.e., if a nonlinear solve failed with
+a stale Jacobian or preconditioner but succeeded after updating the Jacobian or
+preconditioner, the initial failure was not included in the nonlinear solver
+failure count. These functions have been updated to return the total number of
+nonlinear solver failures. As such users may see an increase in the number of
+failures reported.
+
+The functions :c:func:`ARKStepGetNumStepSolveFails` and
+:c:func:`MRIStepGetNumStepSolveFails` have been added to retrieve the number of
+failed steps due to a nonlinear solver failure. The counts returned from these
+functions will match those previously returned by
+:c:func:`ARKStepGetNumNonlinSolvConvFails`,
+:c:func:`ARKStepGetNonlinSolvStats`,
+:c:func:`MRIStepGetNumNonlinSolvConvFails`, and
+:c:func:`MRIStepGetNonlinSolvStats`.
+
+Changes in v5.1.1
+-----------------
+
+Fixed exported ``SUNDIALSConfig.cmake``.
+
+Fixed Fortran interface to :c:type:`MRIStepInnerStepper` and :c:type:`MRIStepCoupling`
+structures and functions.
+
+Added new Fortran example program,
+``examples/arkode/F2003_serial/ark_kpr_mri_f2003.f90`` demonstrating MRI
+capabilities.
+
+Changes in v5.1.0
+-----------------
 
 Added new reduction implementations for the CUDA and HIP NVECTORs that use
 shared memory (local data storage) instead of atomics. These new implementations
@@ -135,11 +238,16 @@ these by default, but the :c:func:`N_VSetKernelExecPolicy_Cuda` and
 :c:func:`N_VSetKernelExecPolicy_Hip` functions can be used to choose between
 different reduction implementations.
 
+``SUNDIALS::<lib>`` targets with no static/shared suffix have been added for use
+within the build directory (this mirrors the targets exported on installation).
+
 :cmakeop:`CMAKE_C_STANDARD` is now set to 99 by default.
+
+Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
 
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
-Fixed exported ``SUNDIALSConfig.cmake`` when profiling is enabled without Caliper.
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
 Changes in v5.0.0
 -----------------

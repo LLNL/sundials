@@ -2589,10 +2589,10 @@ void SetTiming(int onoff, int myid)
 {
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  clock_gettime( CLOCK_MONOTONIC, &spec );
   base_time_tv_sec = spec.tv_sec;
 
-  clock_getres( CLOCK_MONOTONIC_RAW, &spec);
+  clock_getres( CLOCK_MONOTONIC, &spec);
   if (myid == 0)
     printf("Timer resolution: %ld ns = %g s\n", spec.tv_nsec, ((double)(spec.tv_nsec) / 1E9));
 #endif
@@ -2677,7 +2677,7 @@ static double get_time()
   double time;
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  clock_gettime( CLOCK_MONOTONIC, &spec );
   time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else
   time = 0;

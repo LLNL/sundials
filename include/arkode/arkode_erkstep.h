@@ -170,8 +170,8 @@ SUNDIALS_EXPORT int ERKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ERKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_EXPORT int ERKStepSetDiagnostics(void *arkode_mem,
-                                          FILE *diagfp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
+int ERKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ERKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
@@ -228,6 +228,8 @@ SUNDIALS_EXPORT int ERKStepGetNumConstrFails(void *arkode_mem,
                                              long int *nconstrfails);
 SUNDIALS_EXPORT int ERKStepGetUserData(void *arkode_mem,
                                        void **user_data);
+SUNDIALS_EXPORT int ERKStepPrintAllStats(void *arkode_mem, FILE *outfile,
+                                         SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *ERKStepGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT int ERKStepWriteParameters(void *arkode_mem, FILE *fp);

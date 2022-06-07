@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * This is the implementation file for Butcher table structure
- * for the ARKode infrastructure.
+ * for the ARKODE infrastructure.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>

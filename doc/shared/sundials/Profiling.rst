@@ -15,6 +15,8 @@
 Performance Profiling
 =====================
 
+.. versionadded:: 6.0.0
+
 SUNDIALS includes a lightweight performance profiling layer that can be enabled
 at compile-time. Optionally, this profiling layer can leverage Caliper
 :cite:p:`Caliper:2016` for more advanced instrumentation and profiling. By
@@ -156,6 +158,17 @@ are available.
    **Arguments:**
       * ``p`` -- a ``SUNProfiler`` object
       * ``fp`` -- the file handler to print to
+
+   **Returns:**
+      * Returns zero if successful, or non-zero if an error occurred
+
+
+.. c:function:: int SUNProfiler_Reset(SUNProfiler p)
+
+   Resets the region timings and counters to zero.
+
+   **Arguments:**
+      * ``p`` -- a ``SUNProfiler`` object
 
    **Returns:**
       * Returns zero if successful, or non-zero if an error occurred

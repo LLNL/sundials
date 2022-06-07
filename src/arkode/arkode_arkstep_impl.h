@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ARK time stepper
+ * Implementation header file for ARKODE's ARK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -71,6 +71,8 @@ typedef struct ARKodeARKStepMemRec {
   booleantype  linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
   booleantype  explicit;        /* SUNTRUE if fe is enabled       */
   booleantype  implicit;        /* SUNTRUE if fi is enabled       */
+  booleantype  deduce_rhs;      /* SUNTRUE if fi is deduced after
+                                   a nonlinear solve              */
 
   /* ARK method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */
@@ -139,6 +141,7 @@ typedef struct ARKodeARKStepMemRec {
   long int nfi;       /* num fi calls               */
   long int nsetups;   /* num setup calls            */
   long int nls_iters; /* num nonlinear solver iters */
+  long int nls_fails; /* num nonlinear solver fails */
 
   /* Reusable arrays for fused vector operations */
   realtype *cvals;         /* scalar array for fused ops       */
@@ -160,7 +163,7 @@ typedef struct ARKodeARKStepMemRec {
   ARK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,

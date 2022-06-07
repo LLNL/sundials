@@ -22,7 +22,8 @@
 #include <sunlinsol/sunlinsol_sptfqmr.h>
 #include <sundials/sundials_math.h>
 
-#include "sundials_debug.h"
+#include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -121,6 +122,9 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl, SUNContext 
   content->PData       = NULL;
   content->print_level = 0;
   content->info_file   = stdout;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  content->info_file   = (sunctx->logger->info_fp) ? sunctx->logger->info_fp : stdout;
+#endif
 
   /* Allocate content */
   content->r_star = N_VClone(y);
@@ -394,8 +398,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return(SUNLS_ILL_INPUT);
   }
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
-  if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file)
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file
+      && (SPTFQMR_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
     fprintf(SPTFQMR_CONTENT(S)->info_file, "SUNLINSOL_SPTFQMR:\n");
 #endif
 
@@ -452,14 +457,18 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
      to do anything */
   *res_norm = r_init_norm = SUNRsqrt(rho[0]);
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   /* print initial residual */
-  if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file)
+  if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file
+      && (SPTFQMR_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
   {
     fprintf(SPTFQMR_CONTENT(S)->info_file,
             SUNLS_MSG_RESIDUAL,
             (long int) 0, *res_norm);
   }
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+    "SUNLinSolSolve_SPFTQMR", "initial-residual",
+    "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
 
   if (r_init_norm <= delta) {
@@ -603,14 +612,18 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* NOTE: just use approximation to norm of residual, if possible */
       *res_norm = r_curr_norm = tau*SUNRsqrt(m+1);
 
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       /* print current iteration number and the residual */
-      if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file)
+      if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file
+          && (SPTFQMR_CONTENT(S)->info_file != S->sunctx->logger->info_fp))
       {
         fprintf(SPTFQMR_CONTENT(S)->info_file,
                 SUNLS_MSG_RESIDUAL,
                 (long int) *nli, *res_norm);
       }
+      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+        "SUNLinSolSolve_SPTFQMR", "iterate-residual",
+        "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
 
       /* Exit inner loop if iteration has converged based upon approximation
@@ -898,7 +911,6 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
 int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
                                  FILE* info_file)
 {
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
   /* check that the linear solver is non-null */
   if (S == NULL)
     return(SUNLS_MEM_NULL);
@@ -906,17 +918,12 @@ int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
   SPTFQMR_CONTENT(S)->info_file = info_file;
 
   return(SUNLS_SUCCESS);
-#else
-  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_SPTFQMR: SUNDIALS was not built with monitoring\n");
-  return(SUNLS_ILL_INPUT);
-#endif
 }
 
 
 int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
                                    int print_level)
 {
-#ifdef SUNDIALS_BUILD_WITH_MONITORING
   /* check that the linear solver is non-null */
   if (S == NULL)
     return(SUNLS_MEM_NULL);
@@ -928,8 +935,4 @@ int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
   SPTFQMR_CONTENT(S)->print_level = print_level;
 
   return(SUNLS_SUCCESS);
-#else
-  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_SPTFQMR: SUNDIALS was not built with monitoring\n");
-  return(SUNLS_ILL_INPUT);
-#endif
 }

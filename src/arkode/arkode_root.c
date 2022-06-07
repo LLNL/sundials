@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKode's root-finding (in
+ * This is the implementation file for ARKODE's root-finding (in
  * time) utility.
  *--------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
 
   /* Check ark_mem pointer */
   if (ark_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkRootInit", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -50,7 +50,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
   if (ark_mem->root_mem == NULL) {
     ark_mem->root_mem = (ARKodeRootMem) malloc(sizeof(struct ARKodeRootMemRec));
     if (ark_mem->root_mem == NULL) {
-      arkProcessError(ark_mem, 0, "ARKode", "arkRootInit",
+      arkProcessError(ark_mem, 0, "ARKODE", "arkRootInit",
                       MSG_ARK_ARKMEM_FAIL);
       return(ARK_MEM_FAIL);
     }
@@ -111,7 +111,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
         ark_mem->lrw -= 3*nrt;
         ark_mem->liw -= 3*nrt;
 
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                         "arkRootInit", MSG_ARK_NULL_G);
         return(ARK_ILL_INPUT);
       }
@@ -123,10 +123,10 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     else return(ARK_SUCCESS);
   }
 
-  /* Set variable values in ARKode memory block */
+  /* Set variable values in ARKODE memory block */
   ark_mem->root_mem->nrtfn = nrt;
   if (g == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                     "arkRootInit", MSG_ARK_NULL_G);
     return(ARK_ILL_INPUT);
   }
@@ -136,7 +136,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
   ark_mem->root_mem->glo = NULL;
   ark_mem->root_mem->glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (ark_mem->root_mem->glo == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
@@ -144,7 +144,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
   ark_mem->root_mem->ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ark_mem->root_mem->ghi == NULL) {
     free(ark_mem->root_mem->glo); ark_mem->root_mem->glo = NULL;
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
@@ -153,7 +153,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
   if (ark_mem->root_mem->grout == NULL) {
     free(ark_mem->root_mem->glo); ark_mem->root_mem->glo = NULL;
     free(ark_mem->root_mem->ghi); ark_mem->root_mem->ghi = NULL;
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
@@ -163,7 +163,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->glo); ark_mem->root_mem->glo = NULL;
     free(ark_mem->root_mem->ghi); ark_mem->root_mem->ghi = NULL;
     free(ark_mem->root_mem->grout); ark_mem->root_mem->grout = NULL;
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
@@ -174,7 +174,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->ghi); ark_mem->root_mem->ghi = NULL;
     free(ark_mem->root_mem->grout); ark_mem->root_mem->grout = NULL;
     free(ark_mem->root_mem->iroots); ark_mem->root_mem->iroots = NULL;
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
@@ -186,7 +186,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->grout); ark_mem->root_mem->grout = NULL;
     free(ark_mem->root_mem->iroots); ark_mem->root_mem->iroots = NULL;
     free(ark_mem->root_mem->rootdir); ark_mem->root_mem->rootdir = NULL;
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKodeS",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                     "arkRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
@@ -207,14 +207,14 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
 /*---------------------------------------------------------------
   arkRootFree
 
-  This routine frees all memory associated with ARKode's
+  This routine frees all memory associated with ARKODE's
   rootfinding module.
   ---------------------------------------------------------------*/
 int arkRootFree(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkRootFree", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -249,7 +249,7 @@ int arkPrintRootMem(void* arkode_mem, FILE *outfile)
   int i;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkPrintRootMem", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -308,7 +308,7 @@ int arkRootCheck1(void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkRootCheck1", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -369,7 +369,7 @@ int arkRootCheck1(void* arkode_mem)
   there, before returning to do a root search in the interval.
 
   On entry, tlo = tretlast is the last value of tret returned by
-  ARKode.  This may be the previous tn, the previous tout value, or
+  ARKODE.  This may be the previous tn, the previous tout value, or
   the last root location.
 
   This routine returns an int equal to:
@@ -386,7 +386,7 @@ int arkRootCheck2(void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkRootCheck2", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -478,7 +478,7 @@ int arkRootCheck3(void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkRootCheck3", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -611,7 +611,7 @@ int arkRootfind(void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkRootfind", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }

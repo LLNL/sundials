@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation file for ARKode's linear solver interface.
+ * Implementation file for ARKODE's linear solver interface.
  *---------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -958,7 +958,7 @@ int arkLSGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)
 
 /*---------------------------------------------------------------
   arkLSGetNumPrecEvals returns the number of calls to the
-  user- or ARKode-supplied preconditioner setup routine.
+  user- or ARKODE-supplied preconditioner setup routine.
   ---------------------------------------------------------------*/
 int arkLSGetNumPrecEvals(void *arkode_mem, long int *npevals)
 {
@@ -977,7 +977,7 @@ int arkLSGetNumPrecEvals(void *arkode_mem, long int *npevals)
 
 /*---------------------------------------------------------------
   arkLSGetNumPrecSolves returns the number of calls to the
-  user- or ARKode-supplied preconditioner solve routine.
+  user- or ARKODE-supplied preconditioner solve routine.
   ---------------------------------------------------------------*/
 int arkLSGetNumPrecSolves(void *arkode_mem, long int *npsolves)
 {
@@ -1448,7 +1448,7 @@ int arkLSGetNumMassSolves(void *arkode_mem, long int *nmsolves)
 
 /*---------------------------------------------------------------
   arkLSGetNumMassPrecEvals returns the number of calls to the
-  user- or ARKode-supplied preconditioner setup routine.
+  user- or ARKODE-supplied preconditioner setup routine.
   ---------------------------------------------------------------*/
 int arkLSGetNumMassPrecEvals(void *arkode_mem, long int *npevals)
 {
@@ -1467,7 +1467,7 @@ int arkLSGetNumMassPrecEvals(void *arkode_mem, long int *npevals)
 
 /*---------------------------------------------------------------
   arkLSGetNumMassPrecSolves returns the number of calls to the
-  user- or ARKode-supplied preconditioner solve routine.
+  user- or ARKODE-supplied preconditioner solve routine.
   ---------------------------------------------------------------*/
 int arkLSGetNumMassPrecSolves(void *arkode_mem, long int *npsolves)
 {
@@ -2548,10 +2548,10 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
 
 
 /*---------------------------------------------------------------
-  arkLsSolve: interfaces between ARKode and the generic
+  arkLsSolve: interfaces between ARKODE and the generic
   SUNLinearSolver object LS, by setting the appropriate tolerance
   and scaling vectors, calling the solver, and accumulating
-  statistics from the solve for use/reporting by ARKode.
+  statistics from the solve for use/reporting by ARKODE.
 
   When using a non-NULL SUNMatrix, this will additionally scale
   the solution appropriately when gamrat != 1.
@@ -2688,6 +2688,13 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKLS  kry  %"RSYM"  %"RSYM"  %i  %i\n",
             bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkLsSolve",
+                     "ls-stats", "bnorm = %"RSYM", resnorm = %"RSYM
+                     ", ls_iters = %i, prec_solves = %i",
+                     bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
+#endif
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;
@@ -3004,10 +3011,10 @@ int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
 
 
 /*---------------------------------------------------------------
-  arkLsMassSolve: interfaces between ARKode and the generic
+  arkLsMassSolve: interfaces between ARKODE and the generic
   SUNLinearSolver object LS, by setting the appropriate tolerance
   and scaling vectors, calling the solver, and accumulating
-  statistics from the solve for use/reporting by ARKode.
+  statistics from the solve for use/reporting by ARKODE.
   ---------------------------------------------------------------*/
 int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 {
@@ -3100,6 +3107,13 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKLS  mass  %"RSYM"  %i  %i\n",
             resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkLsMassSolve", "mass-ls-stats",
+                     "resnorm = %"RSYM", ls_iters = %i, prec_solves = %i",
+                     resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
+#endif
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;

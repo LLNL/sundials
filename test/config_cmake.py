@@ -92,6 +92,19 @@ def main():
     add_arg(group, '--cuda-arch', 'CUDAARCHS', 'CMAKE_CUDA_ARCHITECTURES',
             None, 'STRING', 'CUDA architecture')
 
+    # Additional compiler options
+    add_arg(group, '--Wall', 'SUNDIALS_ENABLE_ALL_WARNINGS',
+            'ENABLE_ALL_WARNINGS', 'OFF', 'BOOL',
+            'Enable all compiler warnings')
+
+    add_arg(group, '--Werror', 'SUNDIALS_ENABLE_WARNINGS_AS_ERRORS',
+            'ENABLE_WARNINGS_AS_ERRORS', 'OFF', 'BOOL',
+            'Enable compiler warnings as errors')
+
+    add_arg(group, '--address-sanitizer', 'SUNDIALS_ENABLE_ADDRESS_SANITIZER',
+            'ENABLE_ADDRESS_SANITIZER', 'OFF', 'BOOL',
+            'Enable address sanitizer')
+
     # ----------------
     # Install Options
     # ----------------
@@ -199,6 +212,14 @@ def main():
     add_arg(group, '--profiling', 'SUNDIALS_PROFILING',
             'SUNDIALS_BUILD_WITH_PROFILING', 'OFF', 'BOOL',
             'fine-grained profiling')
+
+    add_arg(group, '--logging-level', 'SUNDIALS_LOGGING_LEVEL',
+            'SUNDIALS_LOGGING_LEVEL', '0', 'STRING',
+            'logging', choices=['0', '1', '2', '3', '4', '5'])
+
+    add_arg(group, '--logging-mpi', 'SUNDIALS_LOGGING_ENABLE_MPI',
+            'SUNDIALS_LOGGING_ENABLE_MPI', 'OFF', 'BOOL',
+            'MPI-aware logging')
 
     # fused kernels
     add_arg(group, '--fused-kernels', 'SUNDIALS_FUSED_KERNELS',

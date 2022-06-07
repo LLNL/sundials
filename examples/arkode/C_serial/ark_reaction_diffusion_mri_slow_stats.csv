@@ -1,0 +1,1 @@
+Time,3.000999999999781,Steps,3001,Step attempts,3001,Stability limited steps,0,Accuracy limited steps,0,Error test fails,0,NLS step fails,0,Inequality constraint fails,0,Initial step size,0.001,Last step size,0.001,Current step size,0.001,Explicit slow RHS fn evals,9004,Implicit slow RHS fn evals,0,NLS iters,0,NLS fails,0,NLS iters per step,0,LS setups,0

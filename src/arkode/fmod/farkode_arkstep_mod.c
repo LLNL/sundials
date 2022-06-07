@@ -619,6 +619,20 @@ SWIGEXPORT int _wrap_FARKStepSetImEx(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetDeduceImplicitRhs(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKStepSetDeduceImplicitRhs(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetTables(void *farg1, int const *farg2, int const *farg3, void *farg4, void *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1815,6 +1829,22 @@ SWIGEXPORT int _wrap_FARKStepGetNumConstrFails(void *farg1, long *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepPrintAllStats(void *farg1, void *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  SUNOutputFormat arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  arg3 = (SUNOutputFormat)(*farg3);
+  result = (int)ARKStepPrintAllStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigArrayWrapper _wrap_FARKStepGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
@@ -1969,6 +1999,20 @@ SWIGEXPORT int _wrap_FARKStepGetNonlinSolvStats(void *farg1, long *farg2, long *
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)ARKStepGetNonlinSolvStats(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetNumStepSolveFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)ARKStepGetNumStepSolveFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

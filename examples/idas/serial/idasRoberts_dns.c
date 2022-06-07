@@ -35,12 +35,13 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <idas/idas.h>                        /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -81,7 +82,6 @@ int jacrob(realtype tt,  realtype cj,
 static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
-static void PrintFinalStats(void *mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
 
@@ -101,17 +101,20 @@ int main(void)
   int rootsfound[2];
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   SUNContext ctx;
+  FILE* FID;
 
   mem = NULL;
   yy = yp = avtol = NULL;
   yval = ypval = atval = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
 
-  /* Create the SUNDIALS context object for this simulation */
+  /* Create SUNDIALS context */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ, ctx);
@@ -174,6 +177,17 @@ int main(void)
   retval = IDASetJacFn(mem, jacrob);
   if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object. IDA uses a
+   * Newton SUNNonlinearSolver by default, so it is unecessary
+   * to create it and attach it. It is done in this example code
+   * solely for demonstration purposes. */
+  NLS = SUNNonlinSol_Newton(yy, ctx);
+  if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  retval = IDASetNonlinearSolver(mem, NLS);
+  if(check_retval(&retval, "IDASetNonlinearSolver", 1)) return(1);
+
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
 
@@ -200,13 +214,21 @@ int main(void)
     if (iout == NOUT) break;
   }
 
-  PrintFinalStats(mem);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_dns_stats.csv", "w");
+  retval = IDAPrintAllStats(mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* check the solution error */
   retval = check_ans(yy, tret, rtol, avtol);
 
   /* Free memory */
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(avtol);
@@ -365,42 +387,6 @@ static void PrintRootInfo(int root_f1, int root_f2)
 {
   printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
   return;
-}
-
-/*
- * Print final integrator statistics
- */
-
-static void PrintFinalStats(void *mem)
-{
-  int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn, nge;
-
-  retval = IDAGetNumSteps(mem, &nst);
-  check_retval(&retval, "IDAGetNumSteps", 1);
-  retval = IDAGetNumResEvals(mem, &nre);
-  check_retval(&retval, "IDAGetNumResEvals", 1);
-  retval = IDAGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "IDAGetNumJacEvals", 1);
-  retval = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
-  retval = IDAGetNumErrTestFails(mem, &netf);
-  check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDAGetNumLinResEvals(mem, &nreLS);
-  check_retval(&retval, "IDAGetNumLinResEvals", 1);
-  retval = IDAGetNumGEvals(mem, &nge);
-  check_retval(&retval, "IDAGetNumGEvals", 1);
-
-  printf("\nFinal Run Statistics: \n\n");
-  printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
-  printf("Number of Jacobian evaluations     = %ld\n", nje);
-  printf("Number of nonlinear iterations     = %ld\n", nni);
-  printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
-  printf("Number of root fn. evaluations     = %ld\n", nge);
 }
 
 /*

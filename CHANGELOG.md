@@ -1,12 +1,166 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release x.x.x
+## Changes to SUNDIALS in release 6.3.0
 
-Additionally export `SUNDIALS::<lib>` targets with no static/shared suffix for
-use within the build directory (this mirrors how the targets are exported upon
-installation).
+Fixed a bug in `ERKStepReset`, `ERKStepReInit`, `ARKStepReset`, `ARKStepReInit`,
+`MRIStepReset`, and `MRIStepReInit` where a previously-set value of *tstop* (from
+a call to `ERKStepSetStopTime`, `ARKStepSetStopTime`, or `MRIStepSetStopTime`,
+respectively) would not be cleared.
 
-Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
+Updated `MRIStepReset` to call the corresponding `MRIStepInnerResetFn` with the same
+(*tR*,*yR*) arguments for the `MRIStepInnerStepper` object that is used to evolve the
+MRI "fast" time scale subproblems.
+
+Added a variety of embedded DIRK methods from [Kennedy & Carpenter,
+NASA TM-2016-219173, 2016] and [Kennedy & Carpenter, Appl. Numer. Math., 146, 2019] to
+ARKODE.
+
+
+## Changes to SUNDIALS in release 6.2.0
+
+Added the `SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated the following functions, it is recommended to use the `SUNLogger` API
+instead.
+
+* `ARKStepSetDiagnostics`
+* `ERKStepSetDiagnostics`
+* `MRIStepSetDiagnostics`
+* `KINSetInfoFile`
+* `SUNNonlinSolSetPrintLevel_Newton`
+* `SUNNonlinSolSetInfoFile_Newton`
+* `SUNNonlinSolSetPrintLevel_FixedPoint`
+* `SUNNonlinSolSetInfoFile_FixedPoint`
+* `SUNLinSolSetInfoFile_PCG`
+* `SUNLinSolSetPrintLevel_PCG`
+* `SUNLinSolSetInfoFile_SPGMR`
+* `SUNLinSolSetPrintLevel_SPGMR`
+* `SUNLinSolSetInfoFile_SPFGMR`
+* `SUNLinSolSetPrintLevel_SPFGMR`
+* `SUNLinSolSetInfoFile_SPTFQM`
+* `SUNLinSolSetPrintLevel_SPTFQMR`
+* `SUNLinSolSetInfoFile_SPBCGS`
+* `SUNLinSolSetPrintLevel_SPBCGS`
+
+The `SUNLinSolSetInfoFile_**` and  `SUNNonlinSolSetInfoFile_*` family of
+functions are now enabled by setting the CMake option `SUNDIALS_LOGGING_LEVEL`
+to a value `>= 3`.
+
+Added the function `SUNProfiler_Reset` to reset the region timings and counters
+to zero.
+
+Added the functions `ARKStepPrintAllStats`, `ERKStepPrintAllStats`,
+`MRIStepPrintAll`, `CVodePrintAllStats`, `IDAPrintAllStats`, and
+`KINPrintAllStats` to output all of the integrator, nonlinear solver, linear
+solver, and other statistics in one call. The file `scripts/sundials_csv.py`
+contains functions for parsing the comma-separated value output files.
+
+Added functions to CVODE, CVODES, IDA, and IDAS to change the default step size
+adaptivity parameters. For more information see the documentation for:
+
+* `CVodeSetEtaFixedStepBounds`
+* `CVodeSetEtaMaxFirstStep`
+* `CVodeSetEtaMaxEarlyStep`
+* `CVodeSetNumStepsEtaMaxEarlyStep`
+* `CVodeSetEtaMax`
+* `CVodeSetEtaMin`
+* `CVodeSetEtaMinErrFailEta`
+* `CVodeSetEtaMaxErrFailEta`
+* `CVodeSetNumFailsEtaMaxErrFail`
+* `CVodeSetEtaConvFail`
+* `IDASetEtaFixedStepBounds`
+* `IDAsetEtaMax`
+* `IDASetEtaMin`
+* `IDASetEtaLow`
+* `IDASetEtaMinErrFail`
+* `IDASetEtaConvFail`
+
+Added the functions `CVodeSetDeltaGammaMaxLSetup` and
+`CVodeSetDeltaGammaMaxBadJac` in CVODE and CVODES to adjust the `gamma` change
+thresholds to require a linear solver setup or Jacobian/precondition update,
+respectively.
+
+Added the function `IDASetDetlaCjLSetup` in IDA and IDAS to adjust the parameter
+that determines when a change in `c_j` requires calling the linear solver setup
+function.
+
+Added the function `MRIStepSetOrder` to select the default MRI method of a given
+order.
+
+Added support to CVODES for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user defined
+projection function. This implementation is accompanied by additions to the
+CVODES user documentation and examples.
+
+The behavior of `N_VSetKernelExecPolicy_Sycl` has been updated to be consistent
+with the CUDA and HIP vectors. The input execution policies are now cloned and
+may be freed after calling `N_VSetKernelExecPolicy_Sycl`. Additionally, `NULL`
+inputs are now allowed and, if provided, will reset the vector execution
+policies to the defaults.
+
+Fixed the `SUNContext` convenience class for C++ users to disallow copy
+construction and allow move construction.
+
+A memory leak in the SYCL vector was fixed where the execution policies were
+not freed when the vector was destroyed.
+
+The include guard in `nvector_mpimanyvector.h` has been corrected to enable
+using both the ManyVector and MPIManyVector NVector implementations in the same
+simulation.
+
+Changed exported SUNDIALS PETSc CMake targets to be INTERFACE IMPORTED instead
+of UNKNOWN IMPORTED.
+
+A bug was fixed in the integrator functions to retrieve the number of nonlinear
+solver failures. The failure count returned was the number of failed *steps* due
+to a nonlinear solver failure i.e., if a nonlinear solve failed with a stale
+Jacobian or preconditioner but succeeded after updating the Jacobian or
+preconditioner, the initial failure was not included in the nonlinear solver
+failure count. The following functions have been updated to return the total
+number of nonlinear solver failures:
+
+* `ARKStepGetNumNonlinSolvConvFails`
+* `ARKStepGetNonlinSolvStats`
+* `MRIStepGetNumNonlinSolvConvFails`
+* `MRIStepGetNonlinSolvStats`
+* `CVodeGetNumNonlinSolvConvFails`
+* `CVodeGetNonlinSolvStats`
+* `CVodeGetSensNumNonlinSolvConvFails`
+* `CVodeGetSensNonlinSolvStats`
+* `CVodeGetStgrSensNumNonlinSolvConvFails`
+* `CVodeGetStgrSensNonlinSolvStats`
+* `IDAGetNumNonlinSolvConvFails`
+* `IDAGetNonlinSolvStats`
+* `IDAGetSensNumNonlinSolvConvFails`
+* `IDAGetSensNonlinSolvStats`
+
+As such users may see an increase in the number of failures reported from the
+above functions. The following functions have been added to retrieve the number
+of failed steps due to a nonlinear solver failure i.e., the counts previously
+returned by the above functions:
+
+* `ARKStepGetNumStepSolveFails`
+* `MRIStepGetNumStepSolveFails`
+* `CVodeGetNumStepSolveFails`
+* `CVodeGetNumStepSensSolveFails`
+* `CVodeGetNumStepStgrSensSolveFails`
+* `IDAGetNumStepSolveFails`
+* `IDAGetNumStepSensSolveFails`
+
+## Changes to SUNDIALS in release 6.1.1
+
+Fixed exported `SUNDIALSConfig.cmake`.
+
+Fixed Fortran interface to `MRIStepInnerStepper` and `MRIStepCoupling`
+structures and functions.
+
+Added new Fortran example program,
+`examples/arkode/F2003_serial/ark_kpr_mri_f2003.f90` demonstrating MRI
+capabilities.
+
+## Changes to SUNDIALS in release 6.1.0
 
 Added new reduction implementations for the CUDA and HIP NVECTORs that use
 shared memory (local data storage) instead of atomics. These new implementations
@@ -16,11 +170,16 @@ these by default, but the `N_VSetKernelExecPolicy_Cuda` and
 `N_VSetKernelExecPolicy_Hip` functions can be used to choose between
 different reduction implementations.
 
+`SUNDIALS::<lib>` targets with no static/shared suffix have been added for use
+within the build directory (this mirrors the targets exported on installation).
+
 ``CMAKE_C_STANDARD`` is now set to 99 by default.
+
+Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
 
 Fixed `sundials_export.h` include in `sundials_config.h`.
 
-Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
+Fixed memory leaks in the SUNLINSOL_SUPERLUMT linear solver.
 
 ## Changes to SUNDIALS in release 6.0.0
 

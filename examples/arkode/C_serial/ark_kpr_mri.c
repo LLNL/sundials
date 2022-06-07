@@ -52,9 +52,10 @@
  * explicitly.
  *
  * The program should be run with arguments in the following order:
- *   $ a.out solve_type h G w e
+ *   $ a.out solve_type h G w e deduce
  * Not all arguments are required, but these must be omitted from
  * end-to-beginning, i.e. any one of
+ *   $ a.out solve_type h G w e
  *   $ a.out solve_type h G w
  *   $ a.out solve_type h G
  *   $ a.out solve_type h
@@ -153,6 +154,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LSs = NULL;               /* slow linear solver object    */
   booleantype implicit_slow;
   booleantype imex_slow = SUNFALSE;
+  booleantype deduce = SUNFALSE;
   FILE *UFID;
   realtype hf, gamma, beta, t, tout, rpar[3];
   realtype uerr, verr, uerrtot, verrtot, errtot;
@@ -169,6 +171,7 @@ int main(int argc, char *argv[])
   if (argc > 3)  G = (realtype) atof(argv[3]);
   if (argc > 4)  w = (realtype) atof(argv[4]);
   if (argc > 5)  e = (realtype) atof(argv[5]);
+  if (argc > 6)  deduce = (booleantype) atoi(argv[6]);
 
   /* Check arguments for validity */
   /*   0 <= solve_type <= 9      */
@@ -535,6 +538,9 @@ int main(int argc, char *argv[])
   retval = MRIStepSetUserData(arkode_mem, (void *) rpar);
   if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
 
+  retval = MRIStepSetDeduceImplicitRhs(arkode_mem, deduce);
+  if (check_retval(&retval, "MRIStepSetDeduceImplicitRhs", 1)) return 1;
+
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
   if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
@@ -772,7 +778,7 @@ static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  N_VConst(ZERO,ydot);
+  N_VConst(ZERO, ydot);
   return(0);
 }
 
@@ -789,7 +795,7 @@ static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
      [                 0                             0           ] */
   SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))-rdot(t,rpar))/(2*u*u);
-  SM_ELEMENT_D(J,0,1) = e/TWO+e*(TWO+s(t,rpar))/(TWO*v*v);
+  SM_ELEMENT_D(J,0,1) = e/TWO + e*(TWO+s(t,rpar))/(TWO*v*v);
   SM_ELEMENT_D(J,1,0) = ZERO;
   SM_ELEMENT_D(J,1,1) = ZERO;
 
@@ -807,10 +813,10 @@ static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data
   const realtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
-     [G/2 + (G*(1+r(t)))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
-     [                 0                             0           ] */
+     [G/2 + (G*(1+r(t)))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
+     [                 0                       0           ] */
   SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar)))/(2*u*u);
-  SM_ELEMENT_D(J,0,1) = e/TWO+e*(TWO+s(t,rpar))/(TWO*v*v);
+  SM_ELEMENT_D(J,0,1) = e/TWO + e*(TWO+s(t,rpar))/(TWO*v*v);
   SM_ELEMENT_D(J,1,0) = ZERO;
   SM_ELEMENT_D(J,1,1) = ZERO;
 
@@ -828,11 +834,11 @@ static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   const realtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
-     [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2+e*(2+s(t))/(2*v^2)]
-     [e/2+e*(1+r(t))/(2*u^2)                -1/2 - (2+s(t))/(2*v^2)] */
+     [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
+     [e/2+e*(1+r(t))/(2*u^2)                -1/2 - (2+s(t))/(2*v^2)  ] */
   SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))-rdot(t,rpar))/(2*u*u);
-  SM_ELEMENT_D(J,0,1) = e/TWO+e*(TWO+s(t,rpar))/(TWO*v*v);
-  SM_ELEMENT_D(J,1,0) = e/TWO+e*(ONE+r(t,rpar))/(TWO*u*u);
+  SM_ELEMENT_D(J,0,1) = e/TWO + e*(TWO+s(t,rpar))/(TWO*v*v);
+  SM_ELEMENT_D(J,1,0) = e/TWO + e*(ONE+r(t,rpar))/(TWO*u*u);
   SM_ELEMENT_D(J,1,1) = -ONE/TWO - (TWO+s(t,rpar))/(TWO*v*v);
 
   /* Return with success */

@@ -10,7 +10,8 @@ Number of residual evaluations     = 1131
 Number of Jacobian evaluations     = 42
 Number of nonlinear iterations     = 711
 Number of error test failures      = 0
-Number of nonlinear conv. failures = 0
+Number of nonlinear conv. failures = 24
+Number of step solver failures     = 0
 --------------------------------------------
   G =       3.3366157997761721
 --------------------------------------------

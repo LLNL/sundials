@@ -111,7 +111,7 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsSuperLUDIST.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsTrilinos.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake
 
-echo "   --- Add shared module to $tarfile"
+echo "   --- Add include files to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_config.in
@@ -130,6 +130,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_futils.h
 $tar $tarfile $distrobase/include/sundials/sundials_iterative.h
 $tar $tarfile $distrobase/include/sundials/sundials_lapack.h
 $tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
+$tar $tarfile $distrobase/include/sundials/sundials_logger.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_memory.h
@@ -196,6 +197,12 @@ $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_newton.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_petscsnes.h
 
+echo "   --- Add scripts to $tarfile"
+
+$tar $tarfile $distrobase/scripts/sundials_csv.py
+
+echo "   --- Add shared source files to $tarfile"
+
 $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt
@@ -205,6 +212,8 @@ $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.f90
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_logger_mod.c
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_logger_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.c
@@ -231,6 +240,8 @@ $tar $tarfile $distrobase/src/sundials/sundials_iterative_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_iterative.c
 $tar $tarfile $distrobase/src/sundials/sundials_lapack_defs.h
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c
+$tar $tarfile $distrobase/src/sundials/sundials_logger_impl.h
+$tar $tarfile $distrobase/src/sundials/sundials_logger.c
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
 $tar $tarfile $distrobase/src/sundials/sundials_matrix.c
 $tar $tarfile $distrobase/src/sundials/sundials_memory.c
@@ -240,6 +251,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 $tar $tarfile $distrobase/src/sundials/sundials_profiler.c
 $tar $tarfile $distrobase/src/sundials/sundials_reductions.hpp
 $tar $tarfile $distrobase/src/sundials/sundials_sycl.h
+$tar $tarfile $distrobase/src/sundials/sundials_utils.h
 $tar $tarfile $distrobase/src/sundials/sundials_version.c
 $tar $tarfile $distrobase/src/sundials/sundials_xbraid.c
 
@@ -566,7 +578,7 @@ $tar $tarfile $distrobase/examples/nvector/C_openmp/test_nvector_openmp.c
 $tar $tarfile $distrobase/examples/nvector/cuda/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu
 $tar $tarfile $distrobase/examples/nvector/hip/CMakeLists.txt
-$tar $tarfile $distrobase/examples/nvector/hip/test_nvector_hip.hip.cpp
+$tar $tarfile $distrobase/examples/nvector/hip/test_nvector_hip.cpp
 $tar $tarfile $distrobase/examples/nvector/manyvector/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_fnvector_manyvector_mod.f90
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c
