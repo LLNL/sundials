@@ -1,0 +1,31 @@
+name: Build and Test
+description: Builds and tests SUNDIALS using the test_driver.sh script
+
+inputs:
+  precision:
+    description: SUNDIALS_PRECISION
+    required: true
+  indexsize:
+    description: SUNDIALS_INDEX_SIZE
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: verify-container-works
+      run: |
+          cat /proc/cpuinfo
+          uname -p
+          which python
+          python --version
+    - id: spack-find
+      run: |
+          eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
+          /opt/spack/bin/spack find -v
+      shell: bash
+    - id: run-test-driver
+      - name: Run test_driver.sh
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          cd test
+          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}

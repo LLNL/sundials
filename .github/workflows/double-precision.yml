@@ -10,21 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: balos1/sundials-ci-int32-double:latest
-      options: --user root --privileged --ulimit core=-1 --security-opt seccomp=unconfined
+      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Spack find
-        run: |
-          eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
-          /opt/spack/bin/spack find -v
       - name: Run test_driver.sh
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
+        uses: ./.github/actions/test-driver
+        with:
+          indexsize: 32
+          precision: double
       - name: Archive files from failed build
         uses: actions/upload-artifact@v2.2.4
         if: failure()
@@ -36,21 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: balos1/sundials-ci-int64-double:latest
-      options: --user root --privileged --ulimit core=-1 --security-opt seccomp=unconfined
+      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Spack find
-        run: |
-          eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
-          /opt/spack/bin/spack find -v
       - name: Run test_driver.sh
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 64
+        uses: ./.github/actions/test-driver
+        with:
+          indexsize: 64
+          precision: double
       - name: Archive files from failed build
         uses: actions/upload-artifact@v2.2.4
         if: failure()
