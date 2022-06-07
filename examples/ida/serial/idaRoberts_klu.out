@@ -25,7 +25,7 @@ Constraints and id not used.
 4.0000e+07   5.2043e-05   2.0818e-10   9.9995e-01 | 303  5   2.3562e+06
 4.0000e+08   5.2113e-06   2.0845e-11   9.9999e-01 | 336  4   3.7885e+07
 4.0000e+09   5.2515e-07   2.1006e-12   1.0000e+00 | 359  3   5.4083e+08
-4.0000e+10   5.1251e-08   2.0500e-13   1.0000e+00 | 375  3   8.6533e+09
+4.0000e+10   5.1251e-08   2.0500e-13   1.0000e+00 | 375  3   8.6532e+09
 
 Final Run Statistics: 
 
@@ -36,4 +36,4 @@ Number of nonlinear iterations     = 529
 Number of error test failures      = 10
 Number of nonlinear conv. failures = 4
 Number of step solver failures     = 0
-Number of root fn. evaluations     = 417
+Number of root fn. evaluations     = 409

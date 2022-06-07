@@ -17,7 +17,7 @@ At t = 4.0000e+12      y = -1.888303e+09   -4.000000e-06    1.888303e+09
 
 Final Statistics:
 nst = 983    nfe = 1613   nsetups = 233    nfeLS = 168    nje = 56
-nni = 1610   nnf = 46     netf = 59        ncfn = 5     
+nni = 1610   nnf = 46     netf = 59     ncfn = 5     
 
 Intercept negative solution components
 

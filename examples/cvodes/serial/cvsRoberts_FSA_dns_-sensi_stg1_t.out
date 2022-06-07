@@ -73,19 +73,19 @@ Sensitivity: YES ( STAGGERED1 + FULL ERROR CONTROL )
 -----------------------------------------------------------------------
 4.000e+10  3  1.237e+09   930
                   Solution         5.1573e-08   2.0629e-13   1.0000e+00 
-                  Sensitivity 1   -2.6618e-06  -5.4900e-12   2.6618e-06 
-                  Sensitivity 2    1.0763e-11   2.2421e-17  -1.0763e-11 
+                  Sensitivity 1   -2.6618e-06  -5.4901e-12   2.6619e-06 
+                  Sensitivity 2    1.0763e-11   2.2422e-17  -1.0763e-11 
                   Sensitivity 3   -1.7339e-15  -6.9355e-21   1.7339e-15 
 -----------------------------------------------------------------------
 
 Final Statistics:
-Current time                 = 41016872194.61566
+Current time                 = 41016848848.50709
 Steps                        = 930
 Error test fails             = 0
 NLS step fails               = 0
 Initial step size            = 8.236259832589498e-14
-Last step size               = 1236651497.958958
-Current step size            = 1236651497.958958
+Last step size               = 1236650880.556721
+Current step size            = 1236650880.556721
 Last method order            = 3
 Current method order         = 3
 Stab. lim. order reductions  = 0
