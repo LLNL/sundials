@@ -51,6 +51,8 @@ public:
 
   sunindextype blockDim(sunindextype block = 0, sunindextype dim = 0) const { return gkodim().at(block)[dim]; }
 
+  sunindextype blockNNZ(sunindextype block = 0) const { return gkomtx()->get_num_stored_elements() / gkomtx()->get_num_batch_entries(); }
+
   const gko::batch_dim<>& gkodim() const { return gkomtx_->get_size(); }
 
   std::shared_ptr<const gko::Executor> gkoexec() const { return gkomtx_->get_executor(); }
@@ -91,11 +93,12 @@ SUNMatrix SUNMatClone_GinkgoBlock(SUNMatrix A)
   auto new_mat =
       std::is_same<GkoBatchCsrMat, GkoBatchMatType>::value
           ? new ginkgo::BlockMatrix<GkoBatchMatType>(Amat->numBlocks(), Amat->blockDim(0, 0), Amat->blockDim(0, 1),
-                                                     Amat->gkomtx()->get_num_stored_elements(), Amat->gkoexec(),
+                                                     Amat->blockNNZ(), Amat->gkoexec(),
                                                      Amat->sunctx())
           : new ginkgo::BlockMatrix<GkoBatchMatType>(Amat->numBlocks(), Amat->blockDim(0, 0), Amat->blockDim(0, 1),
                                                      Amat->gkoexec(), Amat->sunctx());
 
+  printf(">>>>>>> Clone:gko_mtx:%p\n", (void*) new_mat->gkomtx().get());
   return new_mat->get();
 }
 

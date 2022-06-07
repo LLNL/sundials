@@ -28,7 +28,7 @@ include_directories(..)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_ginkgo_examples})
-  foreach(backend ${GINKGO_BACKENDS})
+  foreach(backend ${SUNDIALS_GINKGO_BACKENDS})
 
     # parse the example tuple
     list(GET example_tuple 0 example)
@@ -83,7 +83,7 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
       EXAMPLE_TYPE ${example_type}
       NODIFF)
 
-  endforeach(backend ${GINKGO_BACKENDS})
+  endforeach(backend ${SUNDIALS_GINKGO_BACKENDS})
 endforeach(example_tuple ${sunmatrix_ginkgo_examples})
 
 # if(EXAMPLES_INSTALL)

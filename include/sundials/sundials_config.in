@@ -110,6 +110,10 @@
 /* Caliper */
 #cmakedefine SUNDIALS_CALIPER_ENABLED
 
+/* Ginkgo backends */
+#cmakedefine SUNDIALS_GINKGO_BACKENDS_CUDA
+#cmakedefine SUNDIALS_GINKGO_BACKENDS_HIP
+
 /* MAGMA backends */
 #cmakedefine SUNDIALS_MAGMA_BACKENDS_CUDA
 #cmakedefine SUNDIALS_MAGMA_BACKENDS_HIP

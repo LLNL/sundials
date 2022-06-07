@@ -76,7 +76,7 @@ public:
       : gko_exec_(gko_exec), tolerance_type_(tolerance_type), precon_factory_(precon_factory), max_iters_(max_iters),
         sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
         sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), num_blocks_(num_blocks),
-        left_scale_vec_(nullptr), right_scale_vec_(nullptr)
+        left_scale_vec_(nullptr), right_scale_vec_(nullptr), matrix_(nullptr)
   {
     initSUNLinSol(sunctx);
   }
@@ -142,7 +142,8 @@ public:
     if (num_blocks_ != A->numBlocks()) {
       return SUNLS_ILL_INPUT;
     }
-    matrix_ = std::shared_ptr<BlockMatrixType>(A);
+    // printf(">>>>>>> Setup:gkomtx=%p\n", A->gkomtx().get());
+    matrix_ = A;
     return SUNLS_SUCCESS;
   }
 
@@ -154,11 +155,12 @@ public:
                               .with_max_iterations(max_iters_)                               //
                               .with_residual_tol(tol)                                        //
                               .with_tolerance_type(tolerance_type_)                          //
-                              .with_preconditioner(precon_factory_)           //
+                              .with_preconditioner(precon_factory_)                          //
                               .with_left_scaling_op(left_scale_vec_.get())                   //
                               .with_right_scaling_op(right_scale_vec_.get())                 //
                               .on(gkoExec());
 
+    // printf(">>>>>>> Solve:gkomtx=%p\n", matrix_->gkomtx().get());
     auto solver = solver_factory->generate(matrix_->gkomtx());
 
     if (x != b) {
@@ -187,7 +189,7 @@ private:
   sunindextype num_blocks_;
   std::unique_ptr<gko::BatchLinOp> left_scale_vec_;
   std::unique_ptr<gko::BatchLinOp> right_scale_vec_;
-  std::shared_ptr<BlockMatrixType> matrix_;
+  BlockMatrixType* matrix_;
 
   void initSUNLinSol(SUNContext sunctx)
   {

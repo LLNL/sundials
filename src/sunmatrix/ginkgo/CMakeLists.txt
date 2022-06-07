@@ -12,7 +12,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO with ${GINKGO_BACKENDS} backend(s)\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO with ${SUNDIALS_GINKGO_BACKENDS} backend(s)\n\")")
 
 # Add the sunmatrix_ginkgo library
 sundials_add_library(sundials_sunmatrixginkgo
@@ -36,4 +36,4 @@ sundials_add_library(sundials_sunmatrixginkgo
     ${sunmatrixlib_SOVERSION}
 )
 
-message(STATUS "Added SUNMATRIX_GINKGO module with ${GINKGO_BACKENDS} backend(s)")
+message(STATUS "Added SUNMATRIX_GINKGO module with ${SUNDIALS_GINKGO_BACKENDS} backend(s)")

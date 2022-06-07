@@ -18,7 +18,7 @@ include_directories(.. ${PROJECT_SOURCE_DIR}/examples/utilities)
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_ginkgo_examples})
   foreach(matrix_type CSR DENSE)
-    foreach(backend ${GINKGO_BACKENDS})
+    foreach(backend ${SUNDIALS_GINKGO_BACKENDS})
 
       # parse the example tuple
       list(GET example_tuple 0 example)
