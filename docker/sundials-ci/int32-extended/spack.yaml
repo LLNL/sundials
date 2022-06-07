@@ -8,8 +8,8 @@ spack:
       compiler:
       - gcc@9.4.0
   specs:
-  - cmake %gcc@9.4.0
-  - openmpi %gcc@9.4.0
+  - cmake %gcc@9.4.0 arch=x86_64
+  - openmpi %gcc@9.4.0 arch=x86_64
   config:
     install_tree: /opt/software
   mirrors:
