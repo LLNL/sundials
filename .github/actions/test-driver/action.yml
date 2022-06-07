@@ -18,6 +18,7 @@ runs:
           uname -p
       shell: bash
     - id: python-information
+      run: |
           which python
           python --version
       shell: bash
