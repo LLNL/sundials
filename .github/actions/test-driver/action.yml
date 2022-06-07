@@ -18,14 +18,15 @@ runs:
           uname -p
           which python
           python --version
+      shell: bash
     - id: spack-find
       run: |
           eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
           /opt/spack/bin/spack find -v
       shell: bash
     - id: run-test-driver
-      - name: Run test_driver.sh
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          cd test
-          ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+      run: |
+        git config --global --add safe.directory $GITHUB_WORKSPACE
+        cd test
+        ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+      shell: bash
