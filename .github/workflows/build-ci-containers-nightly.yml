@@ -1,6 +1,7 @@
 name: Containers - nightly spack@develop
 
 on:
+  push:
   workflow_dispatch:
   schedule:
   - cron: '30 02 * * *'
@@ -9,6 +10,9 @@ jobs:
   build_int32_double:
     runs-on: ubuntu-latest
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -29,6 +33,9 @@ jobs:
   build_int64_double:
     runs-on: ubuntu-latest
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU

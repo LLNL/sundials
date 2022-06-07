@@ -1,12 +1,16 @@
 name: Containers - spack@e4s
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
   build_e4s_base:
     runs-on: ubuntu-latest
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -29,6 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_e4s_base
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -56,6 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_e4s_base
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -83,6 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_e4s_base
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -110,6 +123,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_e4s_base
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -137,6 +153,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_e4s_base
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
@@ -164,6 +183,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_e4s_base
     steps:
+    - name: vm-information
+      run: |
+        cat /proc/cpuinfo
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up QEMU
