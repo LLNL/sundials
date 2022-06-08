@@ -122,7 +122,7 @@ float SUNNextafterf(float from, float to)
   u.f = from;
 
   /* if either are NaN, then return NaN via the sum */
-  if (sunIsNaN(from) || sunIsNaN(to)) { return from + to; }
+  if (sunIsNaN((sunrealtype) from) || sunIsNaN((sunrealtype) to)) { return from + to; }
 
   if (from == to) {
     return to;
@@ -159,7 +159,7 @@ double SUNNextafterd(double from, double to)
   u.f = from;
 
   /* if either are NaN, then return NaN via the sum */
-  if (sunIsNaN(from) || sunIsNaN(to)) { return from + to; }
+  if (sunIsNaN((sunrealtype) from) || sunIsNaN((sunrealtype) to)) { return from + to; }
 
   if (from == to) {
     return to;
@@ -197,7 +197,7 @@ long double SUNNextafterld(long double from, long double to)
   u.f = from;
 
   /* if either are NaN, then return NaN via the sum */
-  if (sunIsNaN(from) || sunIsNaN(to)) { return from + to; }
+  if (sunIsNaN((sunrealtype) from) || sunIsNaN((sunrealtype) to)) { return from + to; }
 
   if (from == to) {
     return to;
@@ -247,8 +247,6 @@ sunrealtype SUNStrToReal(const char* str)
   return strtod(str, &end);
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return strtod(str, &end);
-#else
-#error Should not be here, no SUNDIALS precision defined, report to https://github.com/LLNL/sundials/issues
 #endif
 #endif
 }
