@@ -1,6 +1,7 @@
 name: Windows short test
 
-on: [push, pull_request]
+on:
+  pull_request:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)

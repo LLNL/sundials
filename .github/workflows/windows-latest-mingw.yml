@@ -1,7 +1,6 @@
 name: Windows (mingw) short test
 
 on:
-  push:
   pull_request:
 
 env:

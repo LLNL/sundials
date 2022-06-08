@@ -2,7 +2,6 @@
 name: single precision build and test with GCC+TPLs (no GPUs)
 
 on:
-  push:
   pull_request:
 
 jobs:
