@@ -169,11 +169,11 @@ fi
 # precision is number of digits to compare (0 = all digits) and the integer
 # precision is allowed percentage difference (0 = no difference).
 if [ "$SUNDIALS_PRECISION" == "extended" ]; then
-    export SUNDIALS_TEST_FLOAT_PRECISION=8
-    export SUNDIALS_TEST_INTEGER_PRECISION=1
+    export SUNDIALS_TEST_FLOAT_PRECISION=7
+    export SUNDIALS_TEST_INTEGER_PRECISION=2
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_TEST_FLOAT_PRECISION=6
-    export SUNDIALS_TEST_INTEGER_PRECISION=1
+    export SUNDIALS_TEST_FLOAT_PRECISION=5
+    export SUNDIALS_TEST_INTEGER_PRECISION=3
 else # single
     export SUNDIALS_TEST_FLOAT_PRECISION=4
     export SUNDIALS_TEST_INTEGER_PRECISION=5
