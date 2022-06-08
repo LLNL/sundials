@@ -111,6 +111,12 @@ implementations.
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Added the function :c:func:`CVodeGetUserData` to retrieve the user data pointer
+provided to :c:func:`CVodeSetUserData`.
+
 Changes in v6.2.0
 -----------------
 
