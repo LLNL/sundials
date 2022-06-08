@@ -42,6 +42,8 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "sundials/sundials_nvector.h"
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
@@ -64,15 +66,15 @@
 #define grav   RCONST(32.0)   /* acceleration due to gravity */
 #define Hcut   RCONST(4000.0) /* height of engine cutoff */
 
-#define Y1    RCONST(0.0)     /* initial y components */
+#define Y1    RCONST(0.0) /* initial y components */
 #define Y2    RCONST(0.0)
-#define RTOL  RCONST(1.0e-5)  /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-2)  /* vector absolute tolerance components */
+#define RTOL  RCONST(1.0e-5) /* scalar relative tolerance            */
+#define ATOL1 RCONST(1.0e-2) /* vector absolute tolerance components */
 #define ATOL2 RCONST(1.0e-1)
-#define T0    RCONST(0.0)     /* initial time           */
-#define T1    RCONST(1.0)     /* first output time      */
-#define TINC  RCONST(1.0)     /* output time increment  */
-#define NOUT  70              /* number of output times */
+#define T0    RCONST(0.0) /* initial time           */
+#define T1    RCONST(1.0) /* first output time      */
+#define TINC  RCONST(1.0) /* output time increment  */
+#define NOUT  70          /* number of output times */
 
 #define ZERO RCONST(0.0)
 
@@ -113,11 +115,13 @@ int main()
   int numroot;
   int rootsfound[2];
   sunbooleantype engine_on;
+  sunrealtype *ydata, *adata;
 
   y = abstol = NULL;
   A          = NULL;
   LS         = NULL;
   cvode_mem  = NULL;
+  ydata      = NULL;
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -133,14 +137,16 @@ int main()
     return (1);
 
   /* Initialize y */
-  NV_Ith_S(y, 0) = Y1;
-  NV_Ith_S(y, 1) = Y2;
+  ydata    = N_VGetArrayPointer(y);
+  ydata[0] = Y1;
+  ydata[1] = Y2;
 
   /* Set the scalar relative tolerance */
   reltol = RTOL;
   /* Set the vector absolute tolerance */
-  NV_Ith_S(abstol, 0) = ATOL1;
-  NV_Ith_S(abstol, 1) = ATOL2;
+  adata    = N_VGetArrayPointer(abstol);
+  adata[0] = ATOL1;
+  adata[1] = ATOL2;
 
   /* Call CVodeCreate to create the solver memory and specify the Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
@@ -199,7 +205,10 @@ int main()
   numroot   = 2;
   while (1) {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    PrintOutput(t, NV_Ith_S(y, 0), NV_Ith_S(y, 1));
+    if (check_retval(&retval, "CVode", 1))
+      return (1);
+
+    PrintOutput(t, ydata[0], ydata[1]);
 
     if (engine_on && (retval == CV_ROOT_RETURN)) { /* engine cutoff */
       retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
@@ -223,8 +232,6 @@ int main()
       PrintRootInfo(rootsfound[0], rootsfound[1], numroot);
     }
 
-    if (check_retval(&retval, "CVode", 1))
-      break;
     if (retval == CV_SUCCESS) {
       iout++;
       tout += TINC;
@@ -232,7 +239,7 @@ int main()
 
     if (iout == NOUT)
       break;
-    if (NV_Ith_S(y, 0) < ZERO)
+    if (ydata[0] < ZERO)
       break;
   }
 
@@ -272,15 +279,18 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype v, acc;
   sunbooleantype engine_on;
+  sunrealtype *ydata, *yddata;
 
   engine_on = *((sunbooleantype*)user_data);
+  ydata     = N_VGetArrayPointer(y);
+  yddata    = N_VGetArrayPointer(ydot);
 
-  v                 = NV_Ith_S(y, 1);
-  NV_Ith_S(ydot, 0) = v;
+  v         = ydata[1];
+  yddata[0] = v;
 
   acc = engine_on ? Force / (massr + massf0 - brate * t) : ZERO;
 
-  NV_Ith_S(ydot, 1) = acc - Drag * v - grav;
+  yddata[1] = acc - Drag * v - grav;
 
   return (0);
 }
@@ -292,8 +302,11 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2,
                N_Vector tmp3)
 {
-  SM_ELEMENT_D(J, 1, 0) = RCONST(1.0);
-  SM_ELEMENT_D(J, 1, 1) = -Drag;
+  /* Jdata is column-major */
+  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
+
+  Jdata[1] = RCONST(1.0);
+  Jdata[3] = -Drag;
 
   return (0);
 }
@@ -306,15 +319,18 @@ static int g(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data)
 {
   sunrealtype H, v;
   sunbooleantype engine_on;
+  sunrealtype* ydata;
 
   engine_on = *((sunbooleantype*)user_data);
 
+  ydata = N_VGetArrayPointer(y);
+
   if (engine_on) {
     gout[0] = massf0 - brate * t;
-    H       = NV_Ith_S(y, 0);
+    H       = ydata[0];
     gout[1] = H - Hcut;
   } else {
-    v       = NV_Ith_S(y, 1);
+    v       = ydata[1];
     gout[0] = v;
   }
 
