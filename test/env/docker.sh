@@ -170,13 +170,13 @@ fi
 # precision is allowed percentage difference (0 = no difference).
 if [ "$SUNDIALS_PRECISION" == "extended" ]; then
     export SUNDIALS_TEST_FLOAT_PRECISION=7
-    export SUNDIALS_TEST_INTEGER_PRECISION=2
+    export SUNDIALS_TEST_INTEGER_PRECISION=3
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_TEST_FLOAT_PRECISION=5
-    export SUNDIALS_TEST_INTEGER_PRECISION=3
-else # single
-    export SUNDIALS_TEST_FLOAT_PRECISION=4
     export SUNDIALS_TEST_INTEGER_PRECISION=5
+else # single
+    export SUNDIALS_TEST_FLOAT_PRECISION=3
+    export SUNDIALS_TEST_INTEGER_PRECISION=10
 fi
 
 # FindMPI fails with this ON
