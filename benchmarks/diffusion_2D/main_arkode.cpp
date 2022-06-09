@@ -19,6 +19,9 @@
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 #include "sunnonlinsol/sunnonlinsol_newton.h"
 #include <chrono>
+#include <iostream>
+#include <iterator>
+#include <fstream>
 
 struct UserOptions
 {
@@ -32,6 +35,9 @@ struct UserOptions
   int onestep               = 0;                			// one step mode, number of steps
   bool linear               = true;             			// linearly implicit RHS
   bool diagnostics          = false;            			// output diagnostics
+  bool stats	            = false;						// whether to output integrator statistics
+  bool savesols             = false;						// whether to save solutions to disc
+  bool userefsols           = false;                        // whether to use generated solutions to compute error
 
   // Nonlinear solver settings
   int maxncf	      = 10;      // max nonlinear solver convergence failures per step
@@ -357,6 +363,21 @@ int main(int argc, char* argv[])
       if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
     }
 
+	// Load reference solutions if desired
+	vector<N_Vector> solutions_vec;
+	if (uopts.userefsols) {
+	  for (int iin = 0; iin < uout.nout; iin++) {
+		char filename[50];
+		sprintf(filename, "diffusion_arkode_u_%d_%d.out", iin, myid);
+		ifstream solfile(filename);
+		vector<realtype> soldata((istream_iterator<realtype>(solfile)),istream_iterator<realtype>());
+		realtype* solrawdata = soldata.data();
+		N_Vector solution_vec = N_VMake_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_LOCLENGTH_P(u), solrawdata, ctx);
+		solutions_vec.push_back(solution_vec);
+		solfile.close(); 
+	  } 
+	}
+
     // -----------------------
     // Loop over output times
     // -----------------------
@@ -394,13 +415,26 @@ int main(int argc, char* argv[])
       if (check_flag(&flag, "ARKStepEvolve", 1)) break;
 
       SUNDIALS_MARK_END(prof, "Evolve");
-
-	  SolutionError(t, u, uout.error, &udata);
+	
+	  // Compute solution error
+	  if (uopts.userefsols) {
+		N_VLinearSum(1.0, u, -1.0, solutions_vec.at(iout), uout.error);
+	  } else {
+	  	SolutionError(t, u, uout.error, &udata);
+	  }
 	  max_error = std::max(max_error, N_VMaxNorm(uout.error)); 
 
       // Output solution and error
       //flag = uout.write(t, u, &udata);
       //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+
+	  if (uopts.savesols) {
+		char filename[50];
+		sprintf(filename, "diffusion_arkode_u_%d_%d.out", iout, myid);
+		FILE* solfile = fopen(filename, "w");
+		N_VPrintFile_Parallel(u, solfile);
+		fclose(solfile);
+	  }
 
       // Update output time
       tout += dTout;
@@ -419,12 +453,12 @@ int main(int argc, char* argv[])
     // --------------
 
     // Print final integrator stats
-    //if (outproc)
-    //{
-    //  cout << "Final integrator statistics:" << endl;
-    //  flag = OutputStats(arkode_mem, &udata);
-    //  if (check_flag(&flag, "OutputStats", 1)) return 1;
-    //}
+    if (outproc && uopts.stats)
+    {
+      cout << "Final integrator statistics:" << endl;
+      flag = OutputStats(arkode_mem, &udata);
+      if (check_flag(&flag, "OutputStats", 1)) return 1;
+    }
     
 	if (outproc) { 
 		printf("%.16f,%.16f\n",runtime_value,max_error);
@@ -636,6 +670,27 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it);
   }
 
+  it = find(args.begin(), args.end(), "--stats");
+  if (it != args.end())
+  {
+    stats = true;
+    args.erase(it);
+  }
+
+  it = find(args.begin(), args.end(), "--savesols");
+  if (it != args.end())
+  {
+    savesols = true;
+    args.erase(it);
+  }
+
+  it = find(args.begin(), args.end(), "--userefsols");
+  if (it != args.end())
+  {
+    userefsols = true;
+    args.erase(it);
+  }
+
   it = find(args.begin(), args.end(), "--gmres");
   if (it != args.end())
   {
@@ -751,6 +806,9 @@ void UserOptions::help()
   cout << "  --fixedstep <step>  : used fixed step size" << endl;
   cout << "  --controller <ctr>  : time step adaptivity controller" << endl;
   cout << "  --diagnostics       : output diagnostics" << endl;
+  cout << "  --stats			 : output integrator statistics" << endl;
+  cout << "  --savesols			 : save solutions to disc" << endl;
+  cout << "  --userefsols		 : use generated solutions for error computation" << endl;
   cout << "  --gmres             : use GMRES linear solver" << endl;
   cout << "  --lsinfo            : output residual history" << endl;
   cout << "  --liniters <iters>  : max number of iterations" << endl;
@@ -780,11 +838,14 @@ void UserOptions::print()
   cout << " rtol        = " << rtol        << endl;
   cout << " atol        = " << atol        << endl;
   cout << " hfixed      = " << hfixed      << endl;
-  cout << " method      = " << method       << endl;
+  cout << " method      = " << method      << endl;
   cout << " controller  = " << controller  << endl;
   cout << " max steps   = " << maxsteps    << endl;
   cout << " linear RHS  = " << linear      << endl;
   cout << " diagnostics = " << diagnostics << endl;
+  cout << " stats       = " << stats       << endl;
+  cout << " savesols    = " << savesols    << endl;
+  cout << " userefsols  = " << userefsols  << endl;
   cout << " --------------------------------- " << endl;
 
   cout << endl;

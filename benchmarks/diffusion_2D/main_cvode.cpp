@@ -19,6 +19,9 @@
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 #include "sunnonlinsol/sunnonlinsol_newton.h"
 #include <chrono>
+#include <iostream>
+#include <iterator>
+#include <fstream>
 
 struct UserOptions
 {
@@ -28,6 +31,9 @@ struct UserOptions
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
   int      maxord      = 5; 			   // maximum order of the linear multistep methods
+  bool stats	            = false;	   // whether to output integrator statistics
+  bool savesols             = false;	   // whether to save solutions to disc
+  bool userefsols           = false;       // whether to use generated solutions to compute error
 
   // Nonlinear solver settings
   int maxncf	      = 10;      // max nonlinear solver convergence failures per step
@@ -314,6 +320,21 @@ int main(int argc, char* argv[])
     flag = CVodeSetStopTime(cvode_mem, udata.tf);
     if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
 
+	// Load reference solutions if desired
+	vector<N_Vector> solutions_vec;
+	if (uopts.userefsols) {
+	  for (int iin = 0; iin < uout.nout; iin++) {
+		char filename[50];
+		sprintf(filename, "diffusion_cvode_u_%d_%d.out", iin, myid);
+		ifstream solfile(filename);
+		vector<realtype> soldata((istream_iterator<realtype>(solfile)),istream_iterator<realtype>());
+		realtype* solrawdata = soldata.data();
+		N_Vector solution_vec = N_VMake_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_LOCLENGTH_P(u), solrawdata, ctx);
+		solutions_vec.push_back(solution_vec);
+		solfile.close(); 
+	  } 
+	}
+
     // -----------------------
     // Loop over output times
     // -----------------------
@@ -355,12 +376,25 @@ int main(int argc, char* argv[])
 
       SUNDIALS_MARK_END(prof, "Evolve");
 
-	  SolutionError(t, u, uout.error, &udata);
+	  // Compute solution error
+	  if (uopts.userefsols) {
+		N_VLinearSum(1.0, u, -1.0, solutions_vec.at(iout), uout.error);
+	  } else {
+	  	SolutionError(t, u, uout.error, &udata);
+	  }
 	  max_error = std::max(max_error, N_VMaxNorm(uout.error)); 
 
       // Output solution and error
       //flag = uout.write(t, u, &udata);
       //if (check_flag(&flag, "UserOutput::write", 1)) return 1;
+
+	  if (uopts.savesols) {
+		char filename[50];
+		sprintf(filename, "diffusion_cvode_u_%d_%d.out", iout, myid);
+		FILE* solfile = fopen(filename, "w");
+		N_VPrintFile_Parallel(u, solfile);
+		fclose(solfile);
+	  }
 
       // Update output time
       tout += dTout;
@@ -379,12 +413,12 @@ int main(int argc, char* argv[])
     // --------------
 
     // Print final integrator stats
-    //if (outproc)
-    //{
-    //  cout << "Final integrator statistics:" << endl;
-    //  flag = OutputStats(cvode_mem, &udata);
-    //  if (check_flag(&flag, "OutputStats", 1)) return 1;
-    //}
+    if (outproc)
+    {
+      cout << "Final integrator statistics:" << endl;
+      flag = OutputStats(cvode_mem, &udata);
+      if (check_flag(&flag, "OutputStats", 1)) return 1;
+    }
 	
 	if (outproc) {
 		printf("%.16f,%.16f\n",runtime_value,max_error);
@@ -520,6 +554,27 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--stats");
+  if (it != args.end())
+  {
+    stats = true;
+    args.erase(it);
+  }
+
+  it = find(args.begin(), args.end(), "--savesols");
+  if (it != args.end())
+  {
+    savesols = true;
+    args.erase(it);
+  }
+
+  it = find(args.begin(), args.end(), "--userefsols");
+  if (it != args.end())
+  {
+    userefsols = true;
+    args.erase(it);
+  }
+
   it = find(args.begin(), args.end(), "--maxsteps");
   if (it != args.end())
   {
@@ -630,6 +685,9 @@ void UserOptions::help()
   cout << "Integrator command line options:" << endl;
   cout << "  --rtol <rtol>       : relative tolerance" << endl;
   cout << "  --atol <atol>       : absoltue tolerance" << endl;
+  cout << "  --stats			 : output integrator statistics" << endl;
+  cout << "  --savesols			 : save solutions to disc" << endl;
+  cout << "  --userefsols		 : use generated solutions for error computation" << endl;
   cout << "  --maxord <order>    : maximum order of the linear multistep methods" << endl;
   cout << "  --gmres             : use GMRES linear solver" << endl;
   cout << "  --lsinfo            : output residual history" << endl;
@@ -657,6 +715,9 @@ void UserOptions::print()
   cout << " atol        = " << atol        << endl;
   cout << " max steps   = " << maxsteps    << endl;
   cout << " max order   = " << maxord      << endl;
+  cout << " stats       = " << stats       << endl;
+  cout << " savesols    = " << savesols    << endl;
+  cout << " userefsols  = " << userefsols  << endl;
   cout << " --------------------------------- " << endl;
 
   cout << endl;
