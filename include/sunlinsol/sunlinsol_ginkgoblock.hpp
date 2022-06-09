@@ -62,7 +62,7 @@ template<typename GkoBatchLinearSolverType>
 SUNDIALS_EXPORT int SUNLinSolNumIters_GinkgoBlock(SUNLinearSolver S)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  return std::round(solver->avgNumIters());
+  return std::round(solver->sumAvgNumIters());
 }
 
 inline std::unique_ptr<gko::matrix::BatchDiagonal<sunrealtype>> WrapBatchDiagMatrix(
@@ -156,6 +156,8 @@ public:
   sunrealtype avgNumIters() const { return avg_iter_count_; }
 
   sunrealtype stddevNumIters() const { return stddev_iter_count_; }
+
+  sunrealtype sumAvgNumIters () const { return sum_of_avg_iters_; }
 
   void setScalingVectors(N_Vector s1, N_Vector s2)
   {
