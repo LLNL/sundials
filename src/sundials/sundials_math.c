@@ -234,7 +234,7 @@ sunrealtype SUNStrToReal(const char* str)
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return strtod(str, &end);
 #else
-#error Should not be here, no SUNDIALS precision defined, report to https://github.com/LLNL/sundials/issues
+#error "Should not be here, no SUNDIALS precision defined, report to github.com/LLNL/sundials/issues"
 #endif
 #else
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -247,6 +247,8 @@ sunrealtype SUNStrToReal(const char* str)
   return strtod(str, &end);
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return strtod(str, &end);
+#else
+#error "Should not be here, no SUNDIALS precision defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
 }
