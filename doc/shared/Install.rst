@@ -1017,7 +1017,7 @@ illustration only.
 .. cmakeoption:: USE_GENERIC_MATH
 
    Use generic double precision math functions when ``CMAKE_C_STANDARD`` is
-   ``C90`` because single and extended precision variants are not supported.
+   ``90`` because single and extended precision variants are not supported.
    For newer standards, this option is ignored, and the math functions are
    based on ``SUNDIALS_PRECISION``.
 
