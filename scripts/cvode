@@ -121,6 +121,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRocket_dns.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRocket_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/plot_cvParticle.py
 $tar $tarfile $distrobase/examples/cvode/serial/plot_cvPendulum.py
 
