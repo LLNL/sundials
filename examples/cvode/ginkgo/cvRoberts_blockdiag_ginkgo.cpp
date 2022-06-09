@@ -338,9 +338,9 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   auto Jgko = static_cast<SUNMatrixViewType*>(J->content)->gkomtx();
 
 
-  for (auto& mat : Jgko->unbatch()) {
-    gko::write(std::cout, mat.get());
-  }
+  // for (auto& mat : Jgko->unbatch()) {
+  //   gko::write(std::cout, mat.get());
+  // }
 
 
   // Jdata   = SUNMatrix_MagmaDense_Data(J);
@@ -362,11 +362,11 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     return(-1);
   }
 
-  for (auto& mat : Jgko->unbatch()) {
-    gko::write(std::cout, mat.get());
-  }
+  // for (auto& mat : Jgko->unbatch()) {
+  //   gko::write(std::cout, mat.get());
+  // }
 
-  return(-1);
+  return(0);
 }
 
 /* Jacobian evaluation GPU kernel */

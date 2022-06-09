@@ -98,7 +98,6 @@ SUNMatrix SUNMatClone_GinkgoBlock(SUNMatrix A)
           : new ginkgo::BlockMatrix<GkoBatchMatType>(Amat->numBlocks(), Amat->blockDim(0, 0), Amat->blockDim(0, 1),
                                                      Amat->gkoexec(), Amat->sunctx());
 
-  printf(">>>>>>> Clone:gko_mtx:%p\n", (void*) new_mat->gkomtx().get());
   return new_mat->get();
 }
 

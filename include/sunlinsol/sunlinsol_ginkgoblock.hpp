@@ -5,6 +5,7 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgoblock.hpp>
+#include <sundials/sundials_logger.h>
 
 #ifndef _SUNLINSOL_GINKGOBLOCK_HPP
 #define _SUNLINSOL_GINKGOBLOCK_HPP
@@ -50,12 +51,19 @@ template<typename GkoBatchLinearSolverType>
 SUNDIALS_EXPORT int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  solver->solve(b, x, tol);
-  return SUNLS_SUCCESS;
+  if (solver->solve(b, x, tol)) { return SUNLS_SUCCESS; }
+  else                          { return SUNLS_RES_REDUCED; } // TODO: how can we know if it was reduced?
 }
 
 SUNDIALS_EXPORT
 int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S) { return SUNLS_SUCCESS; }
+
+template<typename GkoBatchLinearSolverType>
+SUNDIALS_EXPORT int SUNLinSolNumIters_GinkgoBlock(SUNLinearSolver S)
+{
+  auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
+  return std::round(solver->avgNumIters());
+}
 
 inline std::unique_ptr<gko::matrix::BatchDiagonal<sunrealtype>> WrapBatchDiagMatrix(
     std::shared_ptr<const gko::Executor> gko_exec, sunindextype num_blocks, N_Vector x)
@@ -76,7 +84,8 @@ public:
       : gko_exec_(gko_exec), tolerance_type_(tolerance_type), precon_factory_(precon_factory), max_iters_(max_iters),
         sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
         sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), num_blocks_(num_blocks),
-        left_scale_vec_(nullptr), right_scale_vec_(nullptr), matrix_(nullptr)
+        left_scale_vec_(nullptr), right_scale_vec_(nullptr), matrix_(nullptr),
+        log_res_norm_(false), avg_iter_count_(0.0), sum_of_avg_iters_(0.0), stddev_iter_count_(0.0)
   {
     initSUNLinSol(sunctx);
   }
@@ -131,10 +140,27 @@ public:
 
   operator SUNLinearSolver() const override { return sunlinsol_.get(); }
 
+  SUNLogger sunLogger() {
+    SUNContext_GetLogger(sunlinsol_->sunctx, &sunlogger_);
+    return sunlogger_;
+  }
+
+  bool logResNorm() const { return log_res_norm_; }
+
+  bool logResNorm(bool onoff)
+  {
+    log_res_norm_ = onoff;
+    return log_res_norm_;
+  }
+
+  sunrealtype avgNumIters() const { return avg_iter_count_; }
+
+  sunrealtype stddevNumIters() const { return stddev_iter_count_; }
+
   void setScalingVectors(N_Vector s1, N_Vector s2)
   {
-    left_scale_vec_  = WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1);
-    right_scale_vec_ = WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2);
+    left_scale_vec_  = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1));
+    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2));
   }
 
   int setup(BlockMatrixType* A)
@@ -142,27 +168,29 @@ public:
     if (num_blocks_ != A->numBlocks()) {
       return SUNLS_ILL_INPUT;
     }
-    // printf(">>>>>>> Setup:gkomtx=%p\n", A->gkomtx().get());
     matrix_ = A;
     return SUNLS_SUCCESS;
   }
 
   gko::BatchLinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
-    gko::BatchLinOp* result = nullptr;
-
-    auto solver_factory = GkoBatchSolverType::build()                                        //
-                              .with_max_iterations(max_iters_)                               //
-                              .with_residual_tol(tol)                                        //
-                              .with_tolerance_type(tolerance_type_)                          //
-                              .with_preconditioner(precon_factory_)                          //
-                              .with_left_scaling_op(left_scale_vec_.get())                   //
-                              .with_right_scaling_op(right_scale_vec_.get())                 //
+    auto solver_factory = GkoBatchSolverType::build()                     //
+                              .with_max_iterations(max_iters_)            //
+                              .with_residual_tol(tol)                     //
+                              .with_tolerance_type(tolerance_type_)       //
+                              .with_preconditioner(precon_factory_)       //
+                              .with_left_scaling_op(left_scale_vec_)      //
+                              .with_right_scaling_op(right_scale_vec_)    //
                               .on(gkoExec());
-
-    // printf(">>>>>>> Solve:gkomtx=%p\n", matrix_->gkomtx().get());
     auto solver = solver_factory->generate(matrix_->gkomtx());
+    // if (!logger_) {
+    //   logger_  = gko::share(gko::log::BatchConvergence<sunrealtype>::create(gkoExec()));
+    //   solver->add_logger(logger_);
+    // }
+    auto logger_ = gko::share(gko::log::BatchConvergence<sunrealtype>::create(gkoExec()));
+    solver->add_logger(logger_);
 
+    gko::BatchLinOp* result = nullptr;
     if (x != b) {
       auto x_vec = WrapBatchVector(gkoExec(), num_blocks_, x);
       auto b_vec = WrapBatchVector(gkoExec(), num_blocks_, b);
@@ -176,7 +204,56 @@ public:
       result = solver->apply(x_vec.get(), x_vec.get());
     }
 
-    return result;
+    solver->remove_logger(logger_.get());
+
+    auto num_iters = logger_->get_num_iterations();
+    num_iters.set_executor(gkoExec()->get_master()); // move data to host
+
+    // Check if any batch entry reached the max number of iterations.
+    // While we check, compute the average number of iterations across all batch entries.
+    bool at_least_one_maxed_out = false;
+    auto iter_count = num_iters.get_const_data();
+    auto max_iter_count = 0;
+    auto min_iter_count = max_iters_;
+    avg_iter_count_ = 0.0;
+    for (int i = 0; i < num_blocks_; i++) {
+      avg_iter_count_ += iter_count[i];
+      max_iter_count = std::max(max_iter_count, iter_count[i]);
+      min_iter_count = std::min(min_iter_count, iter_count[i]);
+      if (iter_count[i] >= max_iters_) {
+        at_least_one_maxed_out = true;
+      }
+    }
+    avg_iter_count_ /= num_blocks_;
+    sum_of_avg_iters_ += avg_iter_count_;
+
+    // Compute the std. dev. in iteration count across all batch enties.
+    stddev_iter_count_ = 0.0;
+    for (int i = 0; i < num_blocks_; i++) {
+      stddev_iter_count_ += std::pow(std::abs(iter_count[i] - avg_iter_count_), 2);
+    }
+    stddev_iter_count_ = std::sqrt(stddev_iter_count_ / num_blocks_);
+
+    if (logResNorm()) {
+      auto res_norm = logger_->get_residual_norm();
+      std::cout << ">>>>>>> ginkgo res_norms:\n";
+      for (auto& mat : res_norm->unbatch()) {
+        std::cout << mat->at(0) << ", ";
+      }
+      std::cout << "\n";
+    }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO,
+      "sundials::ginkgo::BlockLinearSolver::solve", "end-solve",
+      "avg. iter count = %.16g, stddev. iter count = %.16g, max iter count = %d, min iter count = %d", avg_iter_count_, stddev_iter_count_, max_iter_count, min_iter_count);
+#endif
+
+    if (at_least_one_maxed_out) {
+      return nullptr; // return no result to indicate we did not converge
+    } else {
+      return result;
+    }
   }
 
 private:
@@ -187,9 +264,16 @@ private:
   std::unique_ptr<struct _generic_SUNLinearSolver> sunlinsol_;
   std::unique_ptr<struct _generic_SUNLinearSolver_Ops> sunlinsol_ops_;
   sunindextype num_blocks_;
-  std::unique_ptr<gko::BatchLinOp> left_scale_vec_;
-  std::unique_ptr<gko::BatchLinOp> right_scale_vec_;
+  std::shared_ptr<gko::matrix::BatchDiagonal<sunrealtype>> left_scale_vec_;
+  std::shared_ptr<gko::matrix::BatchDiagonal<sunrealtype>> right_scale_vec_;
   BlockMatrixType* matrix_;
+  // std::shared_ptr<gko::log::BatchConvergence<sunrealtype>> logger_;
+  sunrealtype avg_iter_count_;
+  sunrealtype sum_of_avg_iters_;
+  sunrealtype stddev_iter_count_;
+  bool log_res_norm_;
+  // std::shared_ptr<const GkoBatchVecType> res_norm_;
+  SUNLogger sunlogger_;
 
   void initSUNLinSol(SUNContext sunctx)
   {
@@ -208,9 +292,10 @@ private:
     sunlinsol_->ops->setup             = SUNLinSolSetup_GinkgoBlock<this_type, BlockMatrixType>;
     sunlinsol_->ops->solve             = SUNLinSolSolve_GinkgoBlock<this_type>;
     sunlinsol_->ops->free              = SUNLinSolFree_GinkgoBlock;
+    sunlinsol_->ops->numiters          = SUNLinSolNumIters_GinkgoBlock<this_type>;
   }
 
-  static constexpr int default_max_iters_ = 50;
+  static constexpr int default_max_iters_ = 500;
   static constexpr int default_restart_   = 0;
 };
 
