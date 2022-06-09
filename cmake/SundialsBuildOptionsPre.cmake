@@ -93,7 +93,7 @@ sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "${ENABLE_MPI}"
 # ---------------------------------------------------------------
 
 if(UNIX)
-  sundials_option(USE_GENERIC_MATH BOOL "Use generic (std-c) math libraries" ON)
+  sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions for C90" ON)
   # all executables will be linked against -lm
   set(EXTRA_LINK_LIBS -lm)
 endif()
