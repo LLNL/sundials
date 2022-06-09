@@ -94,9 +94,9 @@ sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "${ENABLE_MPI}"
 
 if(UNIX)
   if(CMAKE_C_STANDARD STREQUAL "90")
-    sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions for C90" ON ADVANCED)
+    sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions" ON ADVANCED)
   else()
-    sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions for C90" OFF ADVANCED)
+    sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions" OFF ADVANCED)
   endif()
   # all executables will be linked against -lm
   set(EXTRA_LINK_LIBS -lm)

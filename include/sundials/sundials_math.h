@@ -75,7 +75,7 @@ extern "C" {
  */
 
 #ifndef SUNRsqrt
-#if (__STDC_VERSION__ < 199901L) && defined(SUNDIALS_USE_GENERIC_MATH)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
 #define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : ((realtype) sqrt((double) (x))))
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : (sqrt((x))))
@@ -98,7 +98,7 @@ extern "C" {
  */
 
 #ifndef SUNRabs
-#if (__STDC_VERSION__ < 199901L) && defined(SUNDIALS_USE_GENERIC_MATH)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
 #define SUNRabs(x) ((realtype) fabs((double) (x)))
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRabs(x) (fabs((x)))
@@ -121,7 +121,7 @@ extern "C" {
  */
 
 #ifndef SUNRexp
-#if (__STDC_VERSION__ < 199901L) && defined(SUNDIALS_USE_GENERIC_MATH)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
 #define SUNRexp(x) ((realtype) exp((double) (x)))
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRexp(x) (exp((x)))
@@ -144,7 +144,7 @@ extern "C" {
  */
 
 #ifndef SUNRceil
-#if (__STDC_VERSION__ < 199901L) && defined(SUNDIALS_USE_GENERIC_MATH)
+#if defined(SUNDIALS_USE_GENERIC_MATH)
 #define SUNRceil(x) ((realtype) ceil((double) (x)))
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRceil(x) (ceil((x)))

@@ -1016,12 +1016,13 @@ illustration only.
 
 .. cmakeoption:: USE_GENERIC_MATH
 
-   Use generic double precision math functions when ``CMAKE_C_STANDARD`` is
-   ``90`` because single and extended precision variants are not supported.
-   For newer standards, this option is ignored, and the math functions are
-   based on ``SUNDIALS_PRECISION``.
+   Use generic double precision math functions.  This is recommend when
+   ``CMAKE_C_STANDARD`` is ``90`` because single and extended precision
+   variants are not supported by the standard math library.  Setting this
+   option to ``OFF`` will cause math function to be determined by
+   ``SUNDIALS_PRECISION``.
 
-   Default: ``ON``
+   Default: ``ON`` if ``CMAKE_C_STANDARD`` is ``90`` and ``OFF`` otherwise
 
 .. cmakeoption:: XBRAID_DIR
 
