@@ -36,6 +36,7 @@ set(CVODE_examples
   "cvRoberts_dns_constraints\;\;develop"
   "cvRoberts_dns_negsol\;\;develop"
   "cvRoberts_dns_uw\;\;develop"
+  "cvRocket_dns\;\;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)

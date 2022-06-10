@@ -746,9 +746,11 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("    ERKStep step %li,  stage 0,  h = %"RSYM",  t_n = %"RSYM"\n",
-         ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::erkStep_TakeStep", "start-stage",
+                     "step = %li, stage = 0, h = %"RSYM", tcur = %"RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
@@ -765,11 +767,6 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
-#ifdef SUNDIALS_DEBUG
-    printf("    ERKStep step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
-           ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
-#endif
-
     /* Solver diagnostics reporting */
     if (ark_mem->report)
       fprintf(ark_mem->diagfp, "ERKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
@@ -777,9 +774,9 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
-                       "ARKODE::erkStep_TakeStep", "start-step",
-                       "step = %li, h = "RSYM", stage = %i, tcur = %"RSYM,
-                       ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+                       "ARKODE::erkStep_TakeStep", "start-stage",
+                       "step = %li, stage = %i, h = %"RSYM", tcur = %"RSYM,
+                       ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
     /* Set ycur to current stage solution */
@@ -839,7 +836,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::erkStep_TakeStep", "error-test",
-                     "step = %li, h = "RSYM", dsm = %"RSYM,
+                     "step = %li, h = %"RSYM", dsm = %"RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
 #endif
 
