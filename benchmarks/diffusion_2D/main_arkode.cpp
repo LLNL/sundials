@@ -372,21 +372,12 @@ int main(int argc, char* argv[])
 		ifstream solfile(filename);
 		vector<realtype> soldata((istream_iterator<realtype>(solfile)),istream_iterator<realtype>());
 		realtype* solrawdata = soldata.data();
-		N_Vector solution_vec = N_VMake_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_GLOBLENGTH_P(u), solrawdata, ctx);
+		N_Vector solution_vec = N_VNew_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_GLOBLENGTH_P(u), ctx);
+		memcpy(NV_DATA_P(solution_vec),solrawdata,NV_LOCLENGTH_P(solution_vec)*sizeof(realtype));
 		solutions_vec.push_back(solution_vec);
 		solfile.close(); 
 	  } 
-	  printf("Done reading in solutions\n");
 	}
-	printf("size of solutions_vec: %d\n",solutions_vec.size());
-	/*
-	if (uopts.userefsols && outproc) {
-	  for (int iin = 0; iin < uout.nout; iin++) {
-		realtype norm = N_VL1Norm(solutions_vec.at(iin));
-		printf("iin: %d, norm: %.16f\n",iin,norm);
-	  }
-	}
-	*/
 
     // -----------------------
     // Loop over output times
