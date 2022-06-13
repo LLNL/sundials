@@ -372,11 +372,21 @@ int main(int argc, char* argv[])
 		ifstream solfile(filename);
 		vector<realtype> soldata((istream_iterator<realtype>(solfile)),istream_iterator<realtype>());
 		realtype* solrawdata = soldata.data();
-		N_Vector solution_vec = N_VMake_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_LOCLENGTH_P(u), solrawdata, ctx);
+		N_Vector solution_vec = N_VMake_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_GLOBLENGTH_P(u), solrawdata, ctx);
 		solutions_vec.push_back(solution_vec);
 		solfile.close(); 
 	  } 
+	  printf("Done reading in solutions\n");
 	}
+	printf("size of solutions_vec: %d\n",solutions_vec.size());
+	/*
+	if (uopts.userefsols && outproc) {
+	  for (int iin = 0; iin < uout.nout; iin++) {
+		realtype norm = N_VL1Norm(solutions_vec.at(iin));
+		printf("iin: %d, norm: %.16f\n",iin,norm);
+	  }
+	}
+	*/
 
     // -----------------------
     // Loop over output times
@@ -418,7 +428,7 @@ int main(int argc, char* argv[])
 	
 	  // Compute solution error
 	  if (uopts.userefsols) {
-		N_VLinearSum(1.0, u, -1.0, solutions_vec.at(iout), uout.error);
+		N_VLinearSum(ONE, u, -ONE, solutions_vec.at(iout), uout.error);
 	  } else {
 	  	SolutionError(t, u, uout.error, &udata);
 	  }
