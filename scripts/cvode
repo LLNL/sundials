@@ -248,6 +248,8 @@ $tar $tarfile $distrobase/examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl.out
 echo "   --- Add cvode unit tests to $tarfile"
 
 $tar $tarfile $distrobase/test/unit_tests/cvode/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvode/C_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvode/C_serial/cv_test_getuserdata.c
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.cpp
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.hpp
