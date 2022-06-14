@@ -3604,7 +3604,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *user_data* -- pointer to a user data pointer.
+      * *user_data* -- memory reference to a user data pointer
 
    **Return value:**
       * *ARK_SUCCESS* if successful

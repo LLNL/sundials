@@ -2739,7 +2739,7 @@ Main solver optional output functions
 
    * *arkode_mem* -- pointer to the MRIStep memory block.
 
-   * *user_data* -- pointer to a user data pointer.
+   * *user_data* -- memory reference to a user data pointer
 
    **Return value:**
 

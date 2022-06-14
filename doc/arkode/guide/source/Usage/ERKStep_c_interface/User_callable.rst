@@ -1968,7 +1968,7 @@ Main solver optional output functions
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *user_data* -- pointer to a user data pointer.
+      * *user_data* -- memory reference to a user data pointer
 
    **Return value:**
       * *ARK_SUCCESS* if successful

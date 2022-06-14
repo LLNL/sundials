@@ -2676,7 +2676,7 @@ described next.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``user_data`` -- pointer to the user data pointer.
+     * ``user_data`` -- memory reference to a user data pointer.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The optional output value has been successfully set.

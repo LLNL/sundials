@@ -1607,7 +1607,7 @@ functions are described next.
 
    **Arguments:**
      * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``user_data`` -- pointer to the user data pointer.
+     * ``user_data`` -- memory reference to a user data pointer.
 
    **Return value:**
      * ``KIN_SUCCESS`` -- The optional output value has been successfully set.
