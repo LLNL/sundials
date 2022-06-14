@@ -36,7 +36,7 @@ if(BUILD_IDAS)
   add_subdirectory(idas)
 endif()
 
-if(BUILD_IDAS)
+if(BUILD_KINSOL)
   add_subdirectory(kinsol)
 endif()
 

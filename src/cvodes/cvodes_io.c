@@ -2619,7 +2619,7 @@ int CVodeGetUserData(void *cvode_mem, void** user_data)
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetUserData", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetUserData", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
