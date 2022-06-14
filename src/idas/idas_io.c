@@ -2062,7 +2062,7 @@ int IDAGetUserData(void *ida_mem, void** user_data)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDASs", "IDAGetUserData", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetUserData", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 

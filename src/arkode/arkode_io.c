@@ -1655,7 +1655,7 @@ int arkGetUserData(void *arkode_mem, void** user_data)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkGetUserData", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }

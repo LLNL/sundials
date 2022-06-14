@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   }
 
   /* Set user data */
-  retval = ARKStepSetUserData(arkode_mem, &udata_in);
+  retval = MRIStepSetUserData(arkode_mem, &udata_in);
   if (retval)
   {
     fprintf(stderr, "ARKStepSetUserData returned %i\n", retval);
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
   }
 
   /* Get user data */
-  retval = ARKStepGetUserData(arkode_mem, &udata_out);
+  retval = MRIStepGetUserData(arkode_mem, &udata_out);
   if (retval)
   {
     fprintf(stderr, "ARKStepGetUserData returned %i\n", retval);
