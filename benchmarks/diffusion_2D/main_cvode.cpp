@@ -22,6 +22,7 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include "string.h"
 
 struct UserOptions
 {
@@ -325,11 +326,12 @@ int main(int argc, char* argv[])
 	if (uopts.userefsols) {
 	  for (int iin = 0; iin < uout.nout; iin++) {
 		char filename[50];
-		sprintf(filename, "diffusion_cvode_u_%d_%d.out", iin, myid);
+		sprintf(filename, "diffusion_refsol_u_%d_%d.out", iin, myid);
 		ifstream solfile(filename);
 		vector<realtype> soldata((istream_iterator<realtype>(solfile)),istream_iterator<realtype>());
 		realtype* solrawdata = soldata.data();
-		N_Vector solution_vec = N_VMake_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_LOCLENGTH_P(u), solrawdata, ctx);
+		N_Vector solution_vec = N_VNew_Parallel(udata.comm_c, NV_LOCLENGTH_P(u), NV_GLOBLENGTH_P(u), ctx);
+		memcpy(NV_DATA_P(solution_vec),solrawdata,NV_LOCLENGTH_P(solution_vec)*sizeof(realtype));
 		solutions_vec.push_back(solution_vec);
 		solfile.close(); 
 	  } 
@@ -379,6 +381,7 @@ int main(int argc, char* argv[])
 	  // Compute solution error
 	  if (uopts.userefsols) {
 		N_VLinearSum(1.0, u, -1.0, solutions_vec.at(iout), uout.error);
+		N_VAbs(uout.error,uout.error);
 	  } else {
 	  	SolutionError(t, u, uout.error, &udata);
 	  }
@@ -390,7 +393,7 @@ int main(int argc, char* argv[])
 
 	  if (uopts.savesols) {
 		char filename[50];
-		sprintf(filename, "diffusion_cvode_u_%d_%d.out", iout, myid);
+		sprintf(filename, "diffusion_refsol_u_%d_%d.out", iout, myid);
 		FILE* solfile = fopen(filename, "w");
 		N_VPrintFile_Parallel(u, solfile);
 		fclose(solfile);
@@ -413,12 +416,12 @@ int main(int argc, char* argv[])
     // --------------
 
     // Print final integrator stats
-    if (outproc)
-    {
-      cout << "Final integrator statistics:" << endl;
-      flag = OutputStats(cvode_mem, &udata);
-      if (check_flag(&flag, "OutputStats", 1)) return 1;
-    }
+    //if (outproc)
+    //{
+    //  cout << "Final integrator statistics:" << endl;
+    //  flag = OutputStats(cvode_mem, &udata);
+    //  if (check_flag(&flag, "OutputStats", 1)) return 1;
+    //}
 	
 	if (outproc) {
 		printf("%.16f,%.16f\n",runtime_value,max_error);
