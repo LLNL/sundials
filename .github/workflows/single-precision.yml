@@ -5,11 +5,15 @@ on:
   pull_request:
 
 jobs:
-  run_int32_single:
+  build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: balos1/sundials-ci-int32-single:latest
+      image: balos1/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
       options: --user root
+    strategy:
+      matrix:
+        indexsize: [32, 64]
+        precision: ['single']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -18,30 +22,8 @@ jobs:
       - name: Run test_driver.sh
         uses: ./.github/actions/test-driver
         with:
-          indexsize: 32
-          precision: single
-      - name: Archive files from failed build
-        uses: actions/upload-artifact@v2.2.4
-        if: failure()
-        with:
-          name: build_files
-          path: |
-            ${{ github.workspace }}/test/build_*
-  run_int64_single:
-    runs-on: ubuntu-latest
-    container:
-      image: balos1/sundials-ci-int64-single:latest
-      options: --user root
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Run test_driver.sh
-        uses: ./.github/actions/test-driver
-        with:
-          indexsize: 64
-          precision: single
+          indexsize: ${{ matrix.indexsize }}
+          precision: ${{ matrix.precision }}
       - name: Archive files from failed build
         uses: actions/upload-artifact@v2.2.4
         if: failure()

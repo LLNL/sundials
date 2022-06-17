@@ -7,11 +7,15 @@ on:
   - cron: '00 22 * * *'
 
 jobs:
-  run_int32_double:
+  build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: balos1/sundials-ci-int32-double:spack-develop
+      image: balos1/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
       options: --user root
+    strategy:
+      matrix:
+        indexsize: [32, 64]
+        precision: ['double']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,30 +24,8 @@ jobs:
       - name: Run test_driver.sh
         uses: ./.github/actions/test-driver
         with:
-          indexsize: 32
-          precision: double
-      - name: Archive files from failed build
-        uses: actions/upload-artifact@v2.2.4
-        if: failure()
-        with:
-          name: build_files
-          path: |
-            ${{ github.workspace }}/test/build_*
-  run_int64_double:
-    runs-on: ubuntu-latest
-    container:
-      image: balos1/sundials-ci-int64-double:spack-develop
-      options: --user root
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Run test_driver.sh
-        uses: ./.github/actions/test-driver
-        with:
-          indexsize: 64
-          precision: double
+          indexsize: ${{ matrix.indexsize }}
+          precision: ${{ matrix.precision }}
       - name: Archive files from failed build
         uses: actions/upload-artifact@v2.2.4
         if: failure()
