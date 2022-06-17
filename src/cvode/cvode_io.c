@@ -1725,6 +1725,24 @@ int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
 
 /*-----------------------------------------------------------------*/
 
+int CVodeGetUserData(void *cvode_mem, void** user_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetUserData", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *user_data = cv_mem->cv_user_data;
+
+  return(CV_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 char *CVodeGetReturnFlagName(long int flag)
 {
   char *name;

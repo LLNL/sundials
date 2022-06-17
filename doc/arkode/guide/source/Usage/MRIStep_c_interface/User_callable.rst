@@ -2237,6 +2237,8 @@ Main solver optional output functions
    +------------------------------------------------------+-------------------------------------------+
    | Last inner stepper return value                      | :c:func:`MRIStepGetLastInnerStepFlag()`   |
    +------------------------------------------------------+-------------------------------------------+
+   | Retrieve a pointer for user data                     |  :c:func:`MRIStepGetUserData`             |
+   +------------------------------------------------------+-------------------------------------------+
 
 .. Functions not currently provided by MRIStep
 .. No. of explicit stability-limited steps              :c:func:`MRIStepGetNumExpSteps()`
@@ -2728,6 +2730,22 @@ Main solver optional output functions
 
    * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
+.. c:function:: int MRIStepGetUserData(void* arkode_mem, void** user_data)
+
+   Returns the user data pointer previously set with
+   :c:func:`MRIStepSetUserData`.
+
+   **Arguments:**
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *user_data* -- memory reference to a user data pointer
+
+   **Return value:**
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
 
 

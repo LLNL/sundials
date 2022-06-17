@@ -11,29 +11,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# ARKODE C serial unit tests
+# IDA C serial unit tests
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(ARKODE_unit_tests
-  "ark_test_arkstepsetforcing\;1 0"
-  "ark_test_arkstepsetforcing\;1 1"
-  "ark_test_arkstepsetforcing\;1 2"
-  "ark_test_arkstepsetforcing\;1 3"
-  "ark_test_arkstepsetforcing\;1 4"
-  "ark_test_arkstepsetforcing\;1 5"
-  "ark_test_arkstepsetforcing\;1 3 2.0 10.0"
-  "ark_test_arkstepsetforcing\;1 3 2.0 10.0 2.0 8.0"
-  "ark_test_arkstepsetforcing\;1 3 2.0 10.0 1.0 5.0"
-  "ark_test_getuserdata\;"
-  "ark_interp_check\;-100"
-  "ark_interp_check\;-10000"
-  "ark_interp_check\;-1000000"
-  "ark_reset_check\;1"
+set(unit_tests
+  "ida_test_getuserdata\;"
   )
 
 # Add the build and install targets for each test
-foreach(test_tuple ${ARKODE_unit_tests})
+foreach(test_tuple ${unit_tests})
 
   # parse the test tuple
   list(GET test_tuple 0 test)
@@ -56,7 +43,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
 
     # libraries to link against
     target_link_libraries(${test}
-      sundials_arkode
+      sundials_ida
       sundials_nvecserial
       ${EXTRA_LINK_LIBS})
 
@@ -75,4 +62,4 @@ foreach(test_tuple ${ARKODE_unit_tests})
 
 endforeach()
 
-message(STATUS "Added ARKODE C serial units tests")
+message(STATUS "Added IDA C serial units tests")

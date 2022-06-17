@@ -2260,6 +2260,8 @@ the preconditioner.
    +------------------------------------------------+------------------------------------------+
    | CVODES nonlinear solver statistics             | :c:func:`CVodeGetNonlinSolvStats`        |
    +------------------------------------------------+------------------------------------------+
+   | User data pointer                              | :c:func:`CVodeGetUserData`               |
+   +------------------------------------------------+------------------------------------------+
    | Array showing roots found                      | :c:func:`CVodeGetRootInfo`               |
    +------------------------------------------------+------------------------------------------+
    | No. of calls to user root function             | :c:func:`CVodeGetNumGEvals`              |
@@ -2665,6 +2667,20 @@ described next.
      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
      * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
      * ``CV_MEM_FAIL`` -- The ``SUNNonlinearSolver`` module is ``NULL``.
+
+
+.. c:function:: int CVodeGetUserData(void* cvode_mem, void** user_data)
+
+   The function ``CVodeGetUserData`` returns the user data pointer provided to
+   :c:func:`CVodeSetUserData`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``user_data`` -- memory reference to a user data pointer.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional output value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
 
 .. c:function:: int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)

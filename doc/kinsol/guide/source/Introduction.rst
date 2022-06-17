@@ -88,6 +88,12 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Added the function :c:func:`KINGetUserData` to retrieve the user data pointer
+provided to :c:func:`KINSetUserData`.
+
 Changes in v6.2.0
 -----------------
 
