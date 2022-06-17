@@ -14,6 +14,9 @@
 # CMakeLists.txt for CVODE unit tests
 # ---------------------------------------------------------------
 
+# C unit tests
+add_subdirectory(C_serial)
+
 # C++ unit tests
 if(CXX_FOUND)
   add_subdirectory(CXX_serial)

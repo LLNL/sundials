@@ -1124,6 +1124,28 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINGetUserData
+ * -----------------------------------------------------------------
+ */
+
+int KINGetUserData(void *kinmem, void** user_data)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetUserData", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  *user_data = kin_mem->kin_user_data;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINPrintAllStats
  * -----------------------------------------------------------------
  */

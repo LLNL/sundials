@@ -1600,7 +1600,8 @@ Main solver optional output functions
    +------------------------------------------------------+-------------------------------------------+
    | Number of constraint test failures                   | :c:func:`ERKStepGetNumConstrFails()`      |
    +------------------------------------------------------+-------------------------------------------+
-
+   | Retrieve a pointer for user data                     |  :c:func:`ERKStepGetUserData`             |
+   +------------------------------------------------------+-------------------------------------------+
 
 
 
@@ -1958,6 +1959,20 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+
+
+.. c:function:: int ERKStepGetUserData(void* arkode_mem, void** user_data)
+
+   Returns the user data pointer previously set with
+   :c:func:`ERKStepSetUserData`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *user_data* -- memory reference to a user data pointer
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
 
 .. _ARKODE.Usage.ERKStep.ERKStepRootOutputs:

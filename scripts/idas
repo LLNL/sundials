@@ -152,6 +152,8 @@ $tar $tarfile $distrobase/examples/idas/F2003_serial/idasHeat2D_kry_f2003.out
 echo "   --- Add idas unit tests to $tarfile"
 
 $tar $tarfile $distrobase/test/unit_tests/idas/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/idas/C_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/idas/C_serial/idas_test_getuserdata.c
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.cpp
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.hpp
