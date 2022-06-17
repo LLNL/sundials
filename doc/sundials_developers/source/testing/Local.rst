@@ -42,7 +42,7 @@ Alternatively, you can drop into a bash shell inside the container to run specif
    docker exec -it sundialsci-int32-double-latest bash
 
 On Macs, it is recommended to use `Podman <https://podman.io/>`_ (and then the
-same steps above apply. using ``podman`` instead of ``docker``). Podman is
+same steps above apply using ``podman`` instead of ``docker``). Podman is
 useful on Linux too, as it can run rootless easily.
 
 .. note::
