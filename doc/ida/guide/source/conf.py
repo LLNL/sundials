@@ -418,7 +418,7 @@ Ting Yan, and Ulrike M. Yang.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'ida', u'IDA Documentation',
+    ('index', 'IDA', u'IDA Documentation',
      [u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward'], 1)
 ]
 
