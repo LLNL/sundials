@@ -99,6 +99,10 @@ numfig_format = {
   'section': '§%s'
 }
 
+rst_prolog = """
+.. include:: <s5defs.txt>
+"""
+
 rst_epilog = """
 .. |YEAR| replace:: 2021
 .. |CVODE_VERSION| replace:: {cvode_version}

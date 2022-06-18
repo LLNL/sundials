@@ -101,3 +101,72 @@ div > .highlight {
 figure#adaptivity-figure > a > img {
    margin: 0 25%;
 }
+
+/* Define some of the color roles from s5defs.txt */
+.black {
+    color: black;
+}
+
+.gray {
+    color: gray;
+}
+
+.silver {
+    color: silver;
+}
+
+.white {
+    color: white;
+}
+
+.maroon {
+    color: maroon;
+}
+
+.red {
+    color: red;
+}
+
+.magenta {
+    color: magenta;
+}
+
+.pink {
+    color: pink;
+}
+
+.orange {
+    color: orange;
+}
+
+.yellow {
+    color: yellow;
+}
+
+.lime {
+    color: lime;
+}
+
+.green {
+    color: green;
+}
+
+.olive {
+    color: olive;
+}
+
+.teal {
+    color: teal;
+}
+
+.cyan {
+    color: cyan;
+}
+
+.blue {
+    color: blue;
+}
+
+.purple {
+    color: purple;
+}
