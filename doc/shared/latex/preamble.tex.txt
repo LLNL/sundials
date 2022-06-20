@@ -36,3 +36,22 @@
 \newcommand{\DUrolecyan}[1]{\textcolor{cyan}{#1}}
 \newcommand{\DUroleblue}[1]{\textcolor{blue}{#1}}
 \newcommand{\DUrolepurple}[1]{\textcolor{purple}{#1}}
+
+% Define color italic role macros
+\newcommand{\DUroleblackit}[1]{\textcolor{black}{\textit{#1}}}
+\newcommand{\DUrolegrayit}[1]{\textcolor{gray}{\textit{#1}}}
+\newcommand{\DUrolesilverit}[1]{\textcolor{lightgray}{\textit{#1}}}
+\newcommand{\DUrolewhiteit}[1]{\textcolor{white}{\textit{#1}}}
+\newcommand{\DUrolemaroonit}[1]{\textcolor{maroon}{\textit{#1}}}
+\newcommand{\DUroleredit}[1]{\textcolor{red}{\textit{#1}}}
+\newcommand{\DUrolemagentait}[1]{\textcolor{magenta}{\textit{#1}}}
+\newcommand{\DUrolepinkit}[1]{\textcolor{pink}{\textit{#1}}}
+\newcommand{\DUroleorangeit}[1]{\textcolor{orange}{\textit{#1}}}
+\newcommand{\DUroleyellowit}[1]{\textcolor{yellow}{\textit{#1}}}
+\newcommand{\DUrolelimeit}[1]{\textcolor{lime}{\textit{#1}}}
+\newcommand{\DUrolegreenit}[1]{\textcolor{green}{\textit{#1}}}
+\newcommand{\DUroleoliveit}[1]{\textcolor{olive}{\textit{#1}}}
+\newcommand{\DUroletealit}[1]{\textcolor{teal}{\textit{#1}}}
+\newcommand{\DUrolecyanit}[1]{\textcolor{cyan}{\textit{#1}}}
+\newcommand{\DUroleblueit}[1]{\textcolor{blue}{\textit{#1}}}
+\newcommand{\DUrolepurpleit}[1]{\textcolor{purple}{\textit{#1}}}

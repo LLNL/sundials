@@ -99,9 +99,7 @@ numfig_format = {
   'section': '§%s'
 }
 
-rst_prolog = """
-.. include:: <s5defs.txt>
-"""
+rst_prolog = open('../../../shared/global.rst.txt', 'r').read()
 
 rst_epilog = """
 .. |YEAR| replace:: 2021
