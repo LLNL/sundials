@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * This is the implementation file for the optional input and
- * output functions for the ARKode ERKStep time stepper module.
+ * output functions for the ARKODE ERKStep time stepper module.
  *
  * NOTE: many functions currently in arkode_io.c will move here,
  * with slightly different names.  The code transition will be
@@ -28,7 +28,7 @@
 
 
 /*===============================================================
-  ERKStep Optional input functions (wrappers for generic ARKode
+  ERKStep Optional input functions (wrappers for generic ARKODE
   utility routines).  All are documented in arkode_io.c.
   ===============================================================*/
 int ERKStepSetDenseOrder(void *arkode_mem, int dord) {
@@ -105,7 +105,7 @@ int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
 
 
 /*===============================================================
-  ERKStep Optional output functions (wrappers for generic ARKode
+  ERKStep Optional output functions (wrappers for generic ARKODE
   utility routines). All are documented in arkode_io.c.
   ===============================================================*/
 
@@ -143,6 +143,8 @@ int ERKStepGetNumAccSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumAccSteps(arkode_mem, nsteps)); }
 int ERKStepGetNumErrTestFails(void *arkode_mem, long int *netfails) {
   return(arkGetNumErrTestFails(arkode_mem, netfails)); }
+int ERKStepGetUserData(void *arkode_mem, void** user_data) {
+  return(arkGetUserData(arkode_mem, user_data)); }
 char *ERKStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 
@@ -169,12 +171,12 @@ int ERKStepSetDefaults(void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  /* Set default ARKode infrastructure parameters */
+  /* Set default ARKODE infrastructure parameters */
   retval = arkSetDefaults(arkode_mem);
   if (retval != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetDefaults",
-                    "Error setting ARKode infrastructure defaults");
+                    "Error setting ARKODE infrastructure defaults");
     return(retval);
   }
 
@@ -259,7 +261,7 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
 
   /* check for legal inputs */
   if (B == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -283,7 +285,7 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
   /* copy the table into step memory */
   step_mem->B = ARKodeButcherTable_Copy(B);
   if (step_mem->B == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -317,7 +319,7 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
 
   /* check that argument specifies an explicit table */
   if (itable<ARKODE_MIN_ERK_NUM || itable>ARKODE_MAX_ERK_NUM) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetTableNum",
                     "Illegal ERK table number");
     return(ARK_ILL_INPUT);
@@ -337,7 +339,7 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
   /* fill in table based on argument */
   step_mem->B = ARKodeButcherTable_LoadERK(itable);
   if (step_mem->B == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetTableNum",
                     "Error setting table with that index");
     return(ARK_ILL_INPUT);
@@ -489,7 +491,7 @@ int ERKStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     fprintf(outfile, "\n");
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ERKStepPrintAllStats",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "ERKStepPrintAllStats",
                     "Invalid formatting option.");
     return(ARK_ILL_INPUT);
   }
@@ -518,12 +520,12 @@ int ERKStepWriteParameters(void *arkode_mem, FILE *fp)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  /* output ARKode infrastructure parameters first */
+  /* output ARKODE infrastructure parameters first */
   retval = arkWriteParameters(arkode_mem, fp);
   if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepWriteParameters",
-                    "Error writing ARKode infrastructure parameters");
+                    "Error writing ARKODE infrastructure parameters");
     return(retval);
   }
 
@@ -554,7 +556,7 @@ int ERKStepWriteButcher(void *arkode_mem, FILE *fp)
 
   /* check that Butcher table is non-NULL (otherwise report error) */
   if (step_mem->B == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepWriteButcher", "Butcher table memory is NULL");
     return(ARK_MEM_NULL);
   }

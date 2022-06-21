@@ -86,6 +86,12 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in vx.x.x
+-----------------
+
+Added the function :c:func:`IDAGetUserData` to retrieve the user data pointer
+provided to :c:func:`IDASetUserData`.
+
 Changes in v5.2.0
 -----------------
 

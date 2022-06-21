@@ -3158,6 +3158,7 @@ Current ERK and DIRK Butcher tables                    :c:func:`ARKStepGetCurren
 Estimated local truncation error vector                :c:func:`ARKStepGetEstLocalErrors()`
 Single accessor to many statistics at once             :c:func:`ARKStepGetTimestepperStats()`
 Number of constraint test failures                     :c:func:`ARKStepGetNumConstrFails()`
+Retrieve a pointer for user data                       :c:func:`ARKStepGetUserData`
 =====================================================  ============================================
 
 
@@ -3589,6 +3590,21 @@ Number of constraint test failures                     :c:func:`ARKStepGetNumCon
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *nconstrfails* -- number of constraint test failures.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+
+
+.. c:function:: int ARKStepGetUserData(void* arkode_mem, void** user_data)
+
+   Returns the user data pointer previously set with
+   :c:func:`ARKStepSetUserData`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *user_data* -- memory reference to a user data pointer
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -4361,7 +4377,8 @@ performs the same input checking and initializations that are done in
 assumes that the existing internal memory is sufficient for the new
 problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous
-integration.  Following a successful call to
+integration, and deletes any previously-set *tstop* value specified via a
+call to :c:func:`ARKStepSetStopTime()`.  Following a successful call to
 :c:func:`ARKStepReInit()`, call :c:func:`ARKStepEvolve()` again for
 the solution of the new problem.
 
@@ -4445,7 +4462,9 @@ allocations but, unlike :c:func:`ARKStepReInit()`, this routine performs only a
 :c:func:`ARKStepCreate`. In particular this routine retains all internal
 counter values and the step size/error history and does not reinitialize the
 linear and/or nonlinear solver but it does indicate that a linear solver setup
-is necessary in the next step. Following a successful call to
+is necessary in the next step. Like :c:func:`ARKStepReInit()`, a call to
+:c:func:`ARKStepReset()` will delete any previously-set *tstop* value specified
+via a call to :c:func:`ARKStepSetStopTime()`.  Following a successful call to
 :c:func:`ARKStepReset()`, call :c:func:`ARKStepEvolve()` again to continue
 solving the problem. By default the next call to :c:func:`ARKStepEvolve()` will
 use the step size computed by ARKStep prior to calling :c:func:`ARKStepReset()`.

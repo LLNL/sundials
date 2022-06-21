@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKode's time step
+ * This is the implementation file for ARKODE's time step
  * adaptivity utilities.
  *--------------------------------------------------------------*/
 
@@ -114,7 +114,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   realtype ecur, h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkAdapt", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -155,12 +155,12 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                              &h_acc, hadapt_mem->HAdapt_data);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Illegal imethod.");
     return (ARK_ILL_INPUT);
   }
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Error in accuracy-based adaptivity function.");
     return (ARK_ILL_INPUT);
   }
@@ -171,7 +171,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   /* Call explicit stability function */
   ier = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
