@@ -155,6 +155,7 @@ SUNDIALS_EXPORT int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails);
 SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 SUNDIALS_EXPORT int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 SUNDIALS_EXPORT int KINGetStepLength(void *kinmem, realtype *steplength);
+SUNDIALS_EXPORT int KINGetUserData(void *kinmem, void **user_data);
 SUNDIALS_EXPORT int KINPrintAllStats(void *kinmem, FILE *outfile,
                                      SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);

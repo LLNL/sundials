@@ -136,6 +136,7 @@ check_c_source_compiles("
     va_list tmp;
     va_copy(tmp, args);
     printf(\"%d\", size);
+    return 0;
   }
 " COMPILER_HAS_SNPRINTF_AND_VA_COPY)
 if(NOT COMPILER_HAS_SNPRINTF_AND_VA_COPY)

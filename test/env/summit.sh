@@ -24,7 +24,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./summit.sh $*" | tee -a configure.log
+echo "./summit.sh $*" | tee -a setup_env.log
 
 # set defaults for optional inputs
 compiler="xl@16.1.1-5" # compiler spec

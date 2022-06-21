@@ -1,6 +1,11 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 6.3.0
+## Changes to SUNDIALS in release x.x.x
+
+Added `GetUserData` functions in each package to retrieve the user data pointer
+provided to `SetUserData` functions. See `ARKStepGetUserData`,
+`ERKStepGetUserData`, `MRIStepGetUserData`, `CVodeGetUserData`,
+`IDAGetUserData`, or `KINGetUserData` for more information.
 
 Fixed a bug in `ERKStepReset`, `ERKStepReInit`, `ARKStepReset`, `ARKStepReInit`,
 `MRIStepReset`, and `MRIStepReInit` where a previously-set value of *tstop* (from
@@ -10,6 +15,14 @@ respectively) would not be cleared.
 Updated `MRIStepReset` to call the corresponding `MRIStepInnerResetFn` with the same
 (*tR*,*yR*) arguments for the `MRIStepInnerStepper` object that is used to evolve the
 MRI "fast" time scale subproblems.
+
+Added a new [example](examples/cvode/serial/cvRocket_dns.c) which
+demonstrates using CVODE with a discontinuous right-hand-side function
+and rootfinding.
+
+Added a variety of embedded DIRK methods from [Kennedy & Carpenter,
+NASA TM-2016-219173, 2016] and [Kennedy & Carpenter, Appl. Numer. Math., 146, 2019] to
+ARKODE.
 
 
 ## Changes to SUNDIALS in release 6.2.0

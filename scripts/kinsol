@@ -142,3 +142,9 @@ $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.f90
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.out
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_picard_kry_f2003.f90
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_picard_kry_f2003.out
+
+echo "   --- Add kinsol unit tests to $tarfile"
+
+$tar $tarfile $distrobase/test/unit_tests/kinsol/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/kinsol/C_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/kinsol/C_serial/kin_test_getuserdata.c

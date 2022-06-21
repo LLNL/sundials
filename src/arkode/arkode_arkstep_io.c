@@ -193,6 +193,8 @@ int ARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails) {
   return(arkGetNumErrTestFails(arkode_mem, netfails)); }
 int ARKStepGetNumStepSolveFails(void *arkode_mem, long int *nncfails) {
   return(arkGetNumStepSolveFails(arkode_mem, nncfails)); }
+int ARKStepGetUserData(void *arkode_mem, void** user_data) {
+  return(arkGetUserData(arkode_mem, user_data)); }
 char *ARKStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 
