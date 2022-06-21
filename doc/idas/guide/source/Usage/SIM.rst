@@ -300,10 +300,10 @@ macro to be referenced.
    Call ``IDAGet***`` functions to obtain optional output. See
    :numref:`IDAS.Usage.SIM.user_callable.optional_output` for details.
 
-#. **Deallocate memory**
+#. **Destroy objects**
 
-   Upon completion of the integration call the following, as necessary, to free
-   any objects or memory allocated above:
+   Upon completion of the integration call the following functions, as
+   necessary, to destroy any objects created above:
 
    * Call :c:func:`N_VDestroy` to free vector objects.
    * Call :c:func:`SUNMatDestroy` to free matrix objects.
@@ -3674,78 +3674,80 @@ more efficient to treat the quadratures separately by excluding them from the
 nonlinear solution stage. To do this, begin by excluding the quadrature
 variables from the vectors ``yy`` and ``yp`` and the quadrature equations from
 within ``res``. Thus a separate vector ``yQ`` of quadrature variables is to
-satisfy :math:`(\mathrm d/\mathrm dt)\texttt{yQ} = f_Q(t,y,\dot{y})`. The following is an
-overview of the sequence of calls in a user’s main program in this situation.
-Steps that have changed from the skeleton program presented in
-:numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
+satisfy :math:`(\mathrm d/\mathrm dt)\texttt{yQ} = f_Q(t,y,\dot{y})`.
 
-  #. Initialize parallel or multi-threaded environment, if appropriate
+The following is an overview of the sequence of calls in a user’s main program
+in this situation. Steps that are unchanged from the skeleton program presented
+in :numref:`IDAS.Usage.SIM.skeleton_sim` are grayed out and new or modified
+steps are in bold.
 
-  #. Create the SUNDIALS context object with :c:func:`SUNContext_Create`
+#. :silver:`Initialize parallel or multi-threaded environment, if appropriate`
 
-  #. Set vector of initial values
+#. :silver:`Create the SUNDIALS context object`
 
-  #. Create matrix object
+#. :silver:`Set vector of initial values`
 
-  #. Create linear solver object
+#. :silver:`Create matrix object`
 
-  #. Create nonlinear solver object
+#. :silver:`Create linear solver object`
 
-  #. Create IDAS object
+#. :silver:`Create nonlinear solver object`
 
-  #. Initialize IDAS solver
+#. :silver:`Create IDAS object`
 
-  #. Specify integration tolerances
+#. :silver:`Initialize IDAS solver`
 
-  #. Set linear solver optional inputs
+#. :silver:`Specify integration tolerances`
 
-  #. Attach linear solver module
+#. :silver:`Set linear solver optional inputs`
 
-  #. Attach nonlinear solver module
+#. :silver:`Attach linear solver module`
 
-  #. Set nonlinear solver optional inputs
+#. :silver:`Attach nonlinear solver module`
 
-  #. **Set vector of initial values for quadrature variables**
+#. :silver:`Set nonlinear solver optional inputs`
 
-     Typically, the quadrature variables should be initialized to 0.
+#. **Set vector of initial values for quadrature variables**
 
-  #. **Initialize quadrature integration**
+   Typically, the quadrature variables should be initialized to 0.
 
-     Call :c:func:`IDAQuadInit` to specify the quadrature equation right-hand
-     side function and to allocate internal memory related to quadrature
-     integration. See :numref:`IDAS.Usage.Purequad.quad_init` for details.
+#. **Initialize quadrature integration**
 
-  #. **Set optional inputs for quadrature integration**
+   Call :c:func:`IDAQuadInit` to specify the quadrature equation right-hand
+   side function and to allocate internal memory related to quadrature
+   integration. See :numref:`IDAS.Usage.Purequad.quad_init` for details.
 
-     Call :c:func:`IDASetQuadErrCon` to indicate whether or not quadrature
-     variables shoule be used in the step size control mechanism, and to specify
-     the integration tolerances for quadrature variables. See
-     :numref:`IDAS.Usage.Purequad.quad_optional_input` for details.
+#. **Set optional inputs for quadrature integration**
 
-  #. Specify rootfinding problem
+   Call :c:func:`IDASetQuadErrCon` to indicate whether or not quadrature
+   variables shoule be used in the step size control mechanism, and to specify
+   the integration tolerances for quadrature variables. See
+   :numref:`IDAS.Usage.Purequad.quad_optional_input` for details.
 
-  #. Set optional inputs
+#. :silver:`Specify rootfinding problem`
 
-  #. Correct initial values
+#. :silver:`Set optional inputs`
 
-  #. Advance solution in time
+#. :silver:`Correct initial values`
 
-  #. **Extract quadrature variables**
+#. :silver:`Advance solution in time`
 
-     Call :c:func:`IDAGetQuad` to obtain the values of the quadrature
-     variables at the current time.
+#. **Extract quadrature variables**
 
-  #. Get optional outputs
+   Call :c:func:`IDAGetQuad` to obtain the values of the quadrature
+   variables at the current time.
 
-  #. **Get quadrature optional outputs**
+#. :silver:`Get optional outputs`
 
-     Call ``IDAGetQuad**`` functions to obtain optional output related to the
-     integration of quadratures. See
-     :numref:`IDAS.Usage.Purequad.quad_optional_output` for details.
+#. **Get quadrature optional outputs**
 
-  #. Deallocate memory
+   Call ``IDAGetQuad**`` functions to obtain optional output related to the
+   integration of quadratures. See
+   :numref:`IDAS.Usage.Purequad.quad_optional_output` for details.
 
-  #. Finalize MPI, if used
+#. :silver:`Destroy objects`
+
+#. :silver:`Finalize MPI, if used`
 
 
 .. _IDAS.Usage.Purequad.quad_init:
@@ -3778,7 +3780,7 @@ this function is as follows:
 
    In terms of the number of quadrature variables, :math:`N_q`, and maximum
    method order, ``maxord``, the size of the real and integer workspaces are
-   increased by :math:`(\text{\texttt{maxord}} + 5) N_q`. If
+   increased by :math:`(\texttt{maxord} + 5) N_q`. If
    :c:func:`IDAQuadSVtolerances` is called, the workspaces are further increased
    by :math:`N_q`.
 
@@ -4258,14 +4260,15 @@ must include the header file ``ida_bbdpre.h`` which declares the needed function
 prototypes.
 
 The following is a summary of the usage of this module and describes the
-sequence of calls in the user main program.  Steps that are changed from the
-user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
+sequence of calls in the user main program. Steps that are unchanged from the
+user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are grayed
+out and new or modified steps are in bold.
 
-#. Initialize parallel or multi-threaded environment
+#. :silver:`Initialize parallel or multi-threaded environment`
 
-#. Create the vector of initial values
+#. :silver:`Create the vector of initial values`
 
-#. Create matrix object
+#. :silver:`Create matrix object`
 
 #. **Create linear solver object**
 
@@ -4273,15 +4276,15 @@ user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
    preconditioning (``SUN_PREC_LEFT``) as IDAS only supports left
    preconditioning.
 
-#. Create nonlinear solver object
+#. :silver:`Create nonlinear solver object`
 
-#. Create IDAS object
+#. :silver:`Create IDAS object`
 
-#. Initialize IDAS solver
+#. :silver:`Initialize IDAS solver`
 
-#. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-#. Attach the linear solver
+#. :silver:`Attach the linear solver`
 
 #. **Set linear solver optional inputs**
 
@@ -4297,15 +4300,15 @@ user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
    preconditioner data. The last two arguments of :c:func:`IDABBDPrecInit` are
    the two user-supplied functions described above.
 
-#. Attach nonlinear solver module
+#. :silver:`Attach nonlinear solver module`
 
-#. Set nonlinear solver optional inputs
+#. :silver:`Set nonlinear solver optional inputs`
 
-#. Specify rootfinding problem
+#. :silver:`Specify rootfinding problem`
 
-#. Set optional inputs
+#. :silver:`Set optional inputs`
 
-#. Advance solution in time
+#. :silver:`Advance solution in time`
 
 #. **Get optional outputs**
 
@@ -4313,9 +4316,9 @@ user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
    two routines described below, :c:func:`IDABBDPrecGetWorkSpace` and
    :c:func:`IDABBDPrecGetNumGfnEvals`.
 
-#. Deallocate memory
+#. :silver:`Destroy objects`
 
-#. Finalize MPI, if used
+#. :silver:`Finalize MPI, if used`
 
 
 The user-callable functions that initialize or re-initialize the IDABBDPRE

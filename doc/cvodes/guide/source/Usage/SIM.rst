@@ -262,24 +262,17 @@ function to be called or macro to be referenced.
    #. **Get optional outputs**
       Call ``CV*Get*`` functions to obtain optional output. See :numref:`CVODES.Usage.SIM.optional_output` for details.
 
-   #. **Deallocate memory for solution vector**
-      Upon completion of the integration, deallocate memory for the vector ``y``
-      (or ``yout``) by calling the appropriate destructor function defined by
-      the ``N_Vector`` implementation.
+   #. **Destroy objects**
 
-   #. **Free solver memory**
-      Call :c:func:`CVodeFree` to free the memory allocated by CVODES.
+      Upon completion of the integration call the following functions, as
+      necessary, to destroy any objects created above:
 
-   #. **Free nonlinear solver memory** (*optional*)
-      If a non-default nonlinear solver was used, then call :c:func:`SUNNonlinSolFree` to free any
-      memory allocated for the ``SUNNonlinearSolver`` object.
-
-   #. **Free linear solver and matrix memory**
-      Call :c:func:`SUNLinSolFree` and :c:func:`SUNMatDestroy` to free any memory allocated for the linear solver and
-      matrix objects created above.
-
-   #. **Free the SUNContext object**
-      Call :c:func:`SUNContext_Free` to free the memory allocated for the ``SUNContext`` object.
+      * Call :c:func:`N_VDestroy` to free vector objects.
+      * Call :c:func:`SUNMatDestroy` to free matrix objects.
+      * Call :c:func:`SUNLinSolFree` to free linear solvers objects.
+      * Call :c:func:`SUNNonlinSolFree` to free nonlinear solvers objects.
+      * Call :c:func:`CVodeFree` to free the memory allocated by CVODES.
+      * Call :c:func:`SUNContext_Free` to free the SUNDIALS context.
 
    #. **Finalize MPI, if used**
       Call ``MPI_Finalize`` to terminate MPI.
@@ -3742,82 +3735,78 @@ more efficient to treat the quadratures separately by excluding them from the
 nonlinear solution stage. To do this, begin by excluding the quadrature
 variables from the vector ``y`` and excluding the quadrature equations from
 within ``res``. Thus a separate vector ``yQ`` of quadrature variables is to
-satisfy :math:`(d/dt)`\ ``yQ`` = :math:`f_Q(t,y)`. The following is an overview
-of the sequence of calls in a user’s main program in this situation. Steps that
-are unchanged from the skeleton program presented in
-:numref:`CVODES.Usage.SIM.skeleton_sim` are left unbolded.
+satisfy :math:`(d/dt)`\ ``yQ`` = :math:`f_Q(t,y)`.
 
-  #. Initialize parallel or multi-threaded environment, if appropriate
+The following is an overview of the sequence of calls in a user’s main program
+in this situation. Steps that are unchanged from the skeleton presented in
+:numref:`CVODES.Usage.SIM.skeleton_sim` are grayed out and new or modified steps
+are in bold.
 
-  #. Create the SUNDIALS context object
+#. :silver:`Initialize parallel or multi-threaded environment, if appropriate`
 
-  #. Set problem dimensions etc.
+#. :silver:`Create the SUNDIALS context object`
 
-  #. Set vector of initial values
+#. :silver:`Set vector of initial values`
 
-  #. Create CVODES object
+#. :silver:`Create CVODES object`
 
-  #. Initialize CVODES solver
+#. :silver:`Initialize CVODES solver`
 
-  #. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-  #. Create matrix object
+#. :silver:`Create matrix object`
 
-  #. Create linear solver object
+#. :silver:`Create linear solver object`
 
-  #. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-  #. Attach linear solver module
+#. :silver:`Attach linear solver module`
 
-  #. Set optional inputs
+#. :silver:`Set optional inputs`
 
-  #. Create nonlinear solver object (*optional*)
+#. :silver:`Create nonlinear solver object` :silverit:`(optional)`
 
-  #. Attach nonlinear solver module (*optional*)
+#. :silver:`Attach nonlinear solver module` :silverit:`(optional)`
 
-  #. Set nonlinear solver optional inputs (*optional*)
+#. :silver:`Set nonlinear solver optional inputs` :silverit:`(optional)`
 
-  #. **Set vector** ``yQ0`` **of initial values for quadrature variables**
-      Typically, the quadrature variables should be initialized to 0.
+#. **Set vector** ``yQ0`` **of initial values for quadrature variables**
 
-  #. **Initialize quadrature integration**
-      Call :c:func:`CVodeQuadInit` to specify the quadrature equation right-hand
-      side function and to allocate internal memory related to quadrature integration.
-      See :numref:`CVODES.Usage.purequad.quad_malloc` for details.
+   Typically, the quadrature variables should be initialized to 0.
 
-  #. **Set optional inputs for quadrature integration**
-      Call :c:func:`CVodeSetQuadErrCon` to indicate whether or not quadrature
-      variables shoule be used in the step size control mechanism, and to specify
-      the integration tolerances for quadrature variables. See
-      :numref:`CVODES.Usage.purequad.optional_inputs` for details.
+#. **Initialize quadrature integration**
 
-  #. Specify rootfinding problem (*optional*)
+   Call :c:func:`CVodeQuadInit` to specify the quadrature equation right-hand
+   side function and to allocate internal memory related to quadrature integration.
+   See :numref:`CVODES.Usage.purequad.quad_malloc` for details.
 
-  #. Advance solution in time
+#. **Set optional inputs for quadrature integration**
 
-  #. **Extract quadrature variables**
-      Call :c:func:`CVodeGetQuad` to obtain the values of the quadrature
-      variables at the current time.
+   Call :c:func:`CVodeSetQuadErrCon` to indicate whether or not quadrature
+   variables shoule be used in the step size control mechanism, and to specify
+   the integration tolerances for quadrature variables. See
+   :numref:`CVODES.Usage.purequad.optional_inputs` for details.
 
-  #. Get optional outputs
+#. :silver:`Specify rootfinding problem` :silverit:`(optional)`
 
-  #. **Get quadrature optional outputs**
-      Call ``CVodeGetQuad**`` functions to obtain optional output related
-      to the integration of quadratures. See :numref:`CVODES.Usage.purequad.optional_output`
-      for details.
+#. :silver:`Advance solution in time`
 
-  #. Deallocate memory for solution vector
+#. **Extract quadrature variables**
 
-  #. Free solver memory
+   Call :c:func:`CVodeGetQuad` to obtain the values of the quadrature
+   variables at the current time.
 
-  #. Free nonlinear solver memory (*optional*)
+#. :silver:`Get optional outputs`
 
-  #. Free linear solver and matrix memory
+#. **Get quadrature optional outputs**
 
-  #. Free the SUNContext object
+   Call ``CVodeGetQuad**`` functions to obtain optional output related
+   to the integration of quadratures. See :numref:`CVODES.Usage.purequad.optional_output`
+   for details.
 
-  #. Finalize MPI, if used
+#. :silver:`Destroy objects`
 
+#. :silver:`Finalize MPI, if used`
 
 :c:func:`CVodeQuadInit` can be called and quadrature-related optional inputs
 can be set anywhere between the steps creating the CVODES object and advancing
@@ -4175,71 +4164,65 @@ additional functions. Aside from the header files required for the
 integration of the ODE problem (see :numref:`CVODES.Usage.SIM.header_sim`), to use
 the CVBANDPRE module, the main program must include the header file
 ``cvode_bandpre.h`` which declares the needed function prototypes.
-The following is a summary of the usage of this module. Steps that are
-changed from the skeleton program presented in
-:numref:`CVODES.Usage.SIM.skeleton_sim` are shown in bold.
 
-  #. Initialize multi-threaded environment, if appropriate
+The following is a summary of the usage of this module. Steps that are unchanged
+from the skeleton presented in :numref:`CVODES.Usage.SIM.skeleton_sim` are
+grayed out and new steps are in bold.
 
-  #. Create the ``SUNContext`` object.
+#. :silver:`Initialize multi-threaded environment, if appropriate`
 
-  #. Set problem dimensions etc.
+#. :silver:`Create the SUNDIALS context object.`
 
-  #. Set vector of initial values
+#. :silver:`Set vector of initial values`
 
-  #. Create CVODES object
+#. :silver:`Create CVODES object`
 
-  #. Initialize CVODES solver
+#. :silver:`Initialize CVODES solver`
 
-  #. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-  #. **Create linear solver object**
+#. **Create linear solver object**
 
-      When creating the iterative linear solver object, specify the type of
-      preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
+   When creating the iterative linear solver object, specify the type of
+   preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
 
-  #. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-  #. Attach linear solver module
+#. :silver:`Attach linear solver module`
 
-  #. **Initialize the CVBANDPRE preconditioner module**
+#. **Initialize the CVBANDPRE preconditioner module**
 
-     Specify the upper and lower half-bandwidths (``mu`` and ``ml``, respectively) and call
+   Specify the upper and lower half-bandwidths (``mu`` and ``ml``, respectively) and call
 
-     .. code-block:: c
+   .. code-block:: c
 
-        flag = CVBandPrecInit(cvode_mem, N, mu, ml);
+      flag = CVBandPrecInit(cvode_mem, N, mu, ml);
 
-     to allocate memory and initialize the internal preconditioner data.
+   to allocate memory and initialize the internal preconditioner data.
 
-  #. Set optional inputs.
+#. :silver:`Set optional inputs`
 
-     Note that the user should not overwrite the preconditioner setup function or solve function through calls to the :c:func:`CVodeSetPreconditioner` optional input function.
+   .. warning::
 
-  #. Create nonlinear solver object
+      The user should not overwrite the preconditioner setup function or solve
+      function through calls to the :c:func:`CVodeSetPreconditioner` optional
+      input function.
 
-  #. Attach nonlinear solver module
+#. :silver:`Create nonlinear solver object`
 
-  #. Set nonlinear solver optional inputs
+#. :silver:`Attach nonlinear solver module`
 
-  #. Specify rootfinding problem
+#. :silver:`Set nonlinear solver optional inputs`
 
-  #. Advance solution in time
+#. :silver:`Specify rootfinding problem`
 
-  #. **Get optional outputs**
+#. :silver:`Advance solution in time`
 
-     Additional optional outputs associated with CVBANDPRE are available by way of two routines described below, :c:func:`CVBandPrecGetWorkSpace` and :c:func:`CVBandPrecGetNumRhsEvals`.
+#. **Get optional outputs**
 
-  #. Deallocate memory for solution vector
+   Additional optional outputs associated with CVBANDPRE are available by way of two routines described below, :c:func:`CVBandPrecGetWorkSpace` and :c:func:`CVBandPrecGetNumRhsEvals`.
 
-  #. Free solver memory
-
-  #. Free nonlinear solver memory
-
-  #. Free linear solver memory
-
-  #. Free the SUNContext object
-
+#. :silver:`Destroy objects`
 
 The CVBANDPRE preconditioner module is initialized and attached by
 calling the following function:
@@ -4463,32 +4446,30 @@ Besides the header files required for the integration of the ODE problem
 must include the header file ``cvode_bbdpre.h`` which declares the needed
 function prototypes.
 
-The following is a summary of the usage of this module. Steps that are
-changed from the skeleton program presented in
-:numref:`CVODES.Usage.SIM.skeleton_sim` are shown in bold.
+The following is a summary of the usage of this module. Steps that are unchanged
+from the skeleton presented in :numref:`CVODES.Usage.SIM.skeleton_sim` are
+grayed out and new or modified steps are in bold.
 
-  #. Initialize MPI environment
+  #. :silver:`Initialize MPI environment`
 
-  #. Create the ``SUNContext`` object
+  #. :silver:`Create the SUNDIALS context object`
 
-  #. Set problem dimensions etc.
+  #. :silver:`Set vector of initial values`
 
-  #. Set vector of initial values
+  #. :silver:`Create CVODES object`
 
-  #. Create CVODES object
+  #. :silver:`Initialize CVODES solver`
 
-  #. Initialize CVODES solver
-
-  #. Specify integration tolerances
+  #. :silver:`Specify integration tolerances`
 
   #. **Create linear solver object**
 
      When creating the iterative linear solver object, specify the type
      of preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
 
-  #. Set linear solver optional inputs
+  #. :silver:`Set linear solver optional inputs`
 
-  #. Attach linear solver module
+  #. :silver:`Attach linear solver module`
 
   #. **Initialize the CVBBDPRE preconditioner module**
 
@@ -4503,21 +4484,23 @@ changed from the skeleton program presented in
      The last two arguments of :c:func:`CVBBDPrecInit` are the two user-supplied
      functions described above.
 
-  #. Set optional inputs
+  #. :silver:`Set optional inputs`
 
-     Note that the user should not overwrite the preconditioner setup function
-     or solve function through calls to the :c:func:`CVodeSetPreconditioner`
-     optional input function.
+     .. warning::
 
-  #. Create nonlinear solver object
+        The user should not overwrite the preconditioner setup function or solve
+        function through calls to the :c:func:`CVodeSetPreconditioner` optional
+        input function.
 
-  #. Attach nonlinear solver module
+  #. :silver:`Create nonlinear solver object`
 
-  #. Set nonlinear solver optional inputs
+  #. :silver:`Attach nonlinear solver module`
 
-  #. Specify rootfinding problem
+  #. :silver:`Set nonlinear solver optional inputs`
 
-  #. Advance solution in time
+  #. :silver:`Specify rootfinding problem`
+
+  #. :silver:`Advance solution in time`
 
   #. **Get optional outputs**
 
@@ -4525,17 +4508,9 @@ changed from the skeleton program presented in
      way of two routines described below, :c:func:`CVBBDPrecGetWorkSpace`
      and :c:func:`CVBBDPrecGetNumGfnEvals`.
 
-  #. Deallocate memory for solution vector
+  #. :silver:`Destroy objects`
 
-  #. Free solver memory
-
-  #. Free nonlinear solver memory
-
-  #. Free linear solver memory
-
-  #. Free the ``SUNContext`` object
-
-  #. Finalize MPI
+  #. :silver:`Finalize MPI`
 
 
 
