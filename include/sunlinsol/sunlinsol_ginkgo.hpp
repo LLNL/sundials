@@ -49,8 +49,13 @@ SUNDIALS_EXPORT int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vect
   return SUNLS_SUCCESS;
 }
 
-SUNDIALS_EXPORT
-int SUNLinSolFree_Ginkgo(SUNLinearSolver S) { return SUNLS_SUCCESS; }
+template<typename LinearSolverType>
+SUNDIALS_EXPORT int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
+{
+  auto solver = static_cast<LinearSolverType*>(S->content);
+  delete solver;
+  return SUNLS_SUCCESS;
+}
 
 template<typename LinearSolverType>
 SUNDIALS_EXPORT int SUNLinSolNumIters_Ginkgo(SUNLinearSolver S)
@@ -164,7 +169,7 @@ public:
     sunlinsol_->ops->solve             = SUNLinSolSolve_Ginkgo<this_type>;
     sunlinsol_->ops->numiters          = SUNLinSolNumIters_Ginkgo<this_type>;
     sunlinsol_->ops->resnorm           = SUNLinSolResNorm_Ginkgo<this_type>;
-    sunlinsol_->ops->free              = SUNLinSolFree_Ginkgo;
+    sunlinsol_->ops->free              = SUNLinSolFree_Ginkgo<this_type>;
   }
 
   std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_->get_executor(); }
