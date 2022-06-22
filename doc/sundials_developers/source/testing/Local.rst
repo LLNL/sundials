@@ -18,7 +18,7 @@ Using sundials-ci Docker Containers
 -----------------------------------
 
 It is possible to use the sundials-ci Docker containers available at
-`https://hub.docker.com/r/balos1/sundials-ci <https://hub.docker.com/r/balos1/sundials-ci>_`
+`https://github.com/orgs/LLNL/packages?ecosystem=container <https://github.com/orgs/LLNL/packages?ecosystem=container>_`
 for testing locally. This will allow you to get as close as possible to running tests
 in the CI environment on your own machine.
 
@@ -27,7 +27,7 @@ run the test suite. The ``run`` command will pull the image and start the contai
 
 .. code-block:: shell
 
-   docker run -t -d --name sundialsci-int32-double-latest --cap-add SYS_PTRACE -v "/path/to/your/sundials/development/repo":/sundials balos1/sundials-ci-int32-double:latest
+   docker run -t -d --name sundialsci-int32-double-latest --cap-add SYS_PTRACE -v "/path/to/your/sundials/development/repo":/sundials ghcr.io/llnl/sundials-ci-int32-double:latest
 
 The ``exec`` command can then be used to execute the test script:
 
