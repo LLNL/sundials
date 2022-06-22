@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath('../../shared/versions.py')))
@@ -99,9 +99,7 @@ numfig_format = {
   'section': '§%s'
 }
 
-rst_prolog = """
-.. include:: <s5defs.txt>
-"""
+rst_prolog = open('../../shared/global.rst.txt', 'r').read()
 
 rst_epilog = """
 .. |YEAR| replace:: 2021
@@ -119,7 +117,6 @@ ida_version = ida_version,
 idas_version = idas_version,
 kinsol_version = kinsol_version
 )
-
 
 # -- Options for HTML output ---------------------------------------------------
 
