@@ -6,6 +6,9 @@ on:
   schedule:
   - cron: '30 02 * * *'
 
+permissions:
+  packages: write
+
 jobs:
   build_int32_double:
     runs-on: ubuntu-latest
@@ -33,6 +36,6 @@ jobs:
       uses: docker/build-push-action@v3.0.0
       with:
           context: "./docker/sundials-ci/spack-nightly"
-          build-args: spack_yaml=./docker/sundials-ci/spack-nightly/int${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
+          build-args: spack_yaml=${{ github.workspace }}/docker/sundials-ci/spack-nightly/int${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
           push: true
           tags: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
