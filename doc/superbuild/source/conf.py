@@ -107,7 +107,7 @@ rst_epilog = """
 .. |IDA_VERSION| replace:: {ida_version}
 .. |IDAS_VERSION| replace:: {idas_version}
 .. |KINSOL_VERSION| replace:: {kinsol_version}
-""".format(
+""".format(year = year,
 cvode_version = cvode_version,
 cvodes_version = cvodes_version,
 arkode_version = arkode_version,
