@@ -10,7 +10,7 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: balos1/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
+      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
       options: --user root
     strategy:
       matrix:

@@ -8,7 +8,7 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: balos1/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
+      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
       options: --user root
     strategy:
       matrix:
