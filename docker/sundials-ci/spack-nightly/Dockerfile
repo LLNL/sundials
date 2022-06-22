@@ -1,5 +1,7 @@
 FROM spack/ubuntu-focal as bootstrap
 
+ARG spack_yaml
+
 RUN apt-get -yqq update \
  && apt-get -yqq install --no-install-recommends \
         build-essential \
@@ -42,7 +44,7 @@ RUN python3 -m venv /opt/python-venv/sundocs && \
 # What we want to install and how we want to install it
 # is specified in a manifest file (spack.yaml)
 RUN mkdir /opt/spack-environment
-COPY spack.yaml /opt/spack-environment/spack.yaml
+COPY $spack_yaml /opt/spack-environment/spack.yaml
 
 # Install the spack environment
 RUN --mount=type=cache,target=/var/cache/spack-mirror                   \

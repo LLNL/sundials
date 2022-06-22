@@ -32,6 +32,7 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.0.0
       with:
-          context: "./docker/sundials-ci/int${{ matrix.indexsize }}-${{ matrix.precision }}/spack-develop"
+          context: "./docker/sundials-ci/spack-nightly"
+          build-args: spack_yaml=${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
+          tags: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop

@@ -1,6 +1,7 @@
 name: Containers - spack@e4s
 
 on:
+  pull_request: #temporary
   workflow_dispatch:
 
 jobs:
@@ -28,7 +29,7 @@ jobs:
           context: "./docker/sundials-ci/e4s-base"
           build-args: e4s_version=22.05
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sundials-ci-e4s-base:latest, ${{ secrets.DOCKERHUB_USERNAME }}/sundials-ci-e4s-base:e4s-22.05
+          tags: ghcr.io/llnl/sundials-ci-e4s-base:latest, ghcr.io/llnl/sundials-ci-e4s-base:e4s-22.05
   build_ci_containers:
     strategy:
       matrix:
@@ -61,6 +62,7 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.0.0
       with:
-          context: "./docker/sundials-ci/int${{ matrix.indexsize }}-${{ matrix.precision }}"
+          context: "./docker/sundials-ci/e4s-quarterly"
+          build-args: spack_yaml=${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest, ${{ secrets.DOCKERHUB_USERNAME }}/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:e4s-22.05
+          tags: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest, ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:e4s-22.05

@@ -134,18 +134,6 @@ EOF
 # Print input args
 echo "./test_driver.sh $*" | tee -a suntest.log
 
-# # Stuff specific to the GitHub CI environment
-# if [ ! -z "$GITHUB_WORKSPACE" ]; then
-#     # We need this to avoid git 'unsafe workspace' errors.
-#     git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-#     # GitHub CI workdir will be /github/workspace where the root
-#     # of SUNDIALS is workspace. We need to cd to the test/ dir.
-#     cd test/
-
-#     echo "change to $(pwd)"
-# fi
-
 # --------------
 # Default values
 # --------------

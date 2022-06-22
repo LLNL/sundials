@@ -1,30 +1,6 @@
-FROM spack/ubuntu-focal as bootstrap
+FROM ghcr.io/llnl/sundials-ci-e4s-base:22.05 as bootstrap
 
-RUN apt-get -yqq update \
- && apt-get -yqq install --no-install-recommends \
-        build-essential \
-        ca-certificates \
-        curl \
-        file \
-        g++ \
-        gcc \
-        gfortran \
-        git \
-        gnupg2 \
-        iproute2 \
-        locales \
-        lua-posix \
-        make \
-        python3 \
-        python3-pip \
-        python3-setuptools \
-        python3-wheel \
-        python3-venv \
-        unzip \
-        csh \
- && locale-gen en_US.UTF-8 \
- && pip3 install boto3 \
- && rm -rf /var/lib/apt/lists/*
+ARG spack_yaml
 
 # Build stage with Spack pre-installed and ready to be used
 FROM bootstrap as builder
@@ -42,7 +18,7 @@ RUN python3 -m venv /opt/python-venv/sundocs && \
 # What we want to install and how we want to install it
 # is specified in a manifest file (spack.yaml)
 RUN mkdir /opt/spack-environment
-COPY spack.yaml /opt/spack-environment/spack.yaml
+COPY $spack_yaml /opt/spack-environment/spack.yaml
 
 # Install the spack environment
 RUN --mount=type=cache,target=/var/cache/spack-mirror                   \

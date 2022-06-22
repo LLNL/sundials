@@ -223,23 +223,6 @@ SUNDIALS_EXPORT booleantype SUNRCompareTol(realtype a, realtype b, realtype tol)
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNNextafterl
- * -----------------------------------------------------------------
- * Usage : long double val, next_bigger_val;
- *         next_bigger_val = SUNNextafterl(val, 0.0);
- * -----------------------------------------------------------------
- * SUNNextafterl first converts both arguments to the type of the
- * function, then returns the next representable value of from in
- * the direction of to. If from equals to to, to is returned. Falls
- * back on nextafter if C99 or newer. Mimics behavior of nextafterl
- * in C89.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT long double SUNNextafterl(long double from, long double to);
-
-/*
- * -----------------------------------------------------------------
  * Function : SUNStrToReal
  * -----------------------------------------------------------------
  * Usage : realtype a = SUNStrToReal(const char* str)

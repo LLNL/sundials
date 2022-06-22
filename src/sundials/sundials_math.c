@@ -23,6 +23,8 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
+static long double sunNextafterl(long double from, long double to);
+
 static booleantype sunIsInf(realtype a)
 {
 #if (__STDC_VERSION__ >= 199901L)
@@ -108,7 +110,7 @@ booleantype SUNRCompareTol(realtype a, realtype b, realtype tol)
   return(diff >= SUNMAX(10*UNIT_ROUNDOFF, tol*norm));
 }
 
-long double SUNNextafterl(long double from, long double to)
+long double sunNextafterl(long double from, long double to)
 {
 #if (__STDC_VERSION__ >= 199901L)
   return nextafterl(from, to);
@@ -164,7 +166,7 @@ sunrealtype SUNStrToReal(const char* str)
   /* Use strtod, but then round down to the closest double value
      since strtod will effectively round up to the closest long double. */
   double val = strtod(str, &end);
-  return (sunrealtype) SUNNextafterl(val, -0.0);
+  return (sunrealtype) sunNextafterl(val, -0.0);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   return strtod(str, &end);
 #elif defined(SUNDIALS_SINGLE_PRECISION)

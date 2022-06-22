@@ -23,7 +23,7 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-echo "./docker.sh $*" | tee -a configure.log
+echo "./docker.sh $*" | tee -a setup_env.log
 
 # set defaults for optional inputs
 compiler="gcc" # compiler spec
