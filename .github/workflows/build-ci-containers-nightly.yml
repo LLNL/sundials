@@ -36,6 +36,6 @@ jobs:
       uses: docker/build-push-action@v3.0.0
       with:
           context: "./docker/sundials-ci/spack-nightly"
-          build-args: spack_yaml=${{ github.workspace }}/docker/sundials-ci/spack-nightly/int${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
+          build-args: spack_yaml=./int${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
           push: true
           tags: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop

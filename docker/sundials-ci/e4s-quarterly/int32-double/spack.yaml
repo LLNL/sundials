@@ -24,6 +24,7 @@ spack:
     install_tree: /opt/software
   mirrors:
     local: /var/cache/spack-mirror
+    E4S: https://cache.e4s.io
   repos: []
   upstreams: {}
   concretizer:

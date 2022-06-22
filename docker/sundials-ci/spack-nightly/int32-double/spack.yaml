@@ -24,6 +24,7 @@ spack:
     install_tree: /opt/software
   mirrors:
     local: /var/cache/spack-mirror
+    spack: https://binaries.spack.io/develop
   repos: []
   upstreams: {}
   concretizer:
