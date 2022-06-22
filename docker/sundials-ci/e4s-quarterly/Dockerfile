@@ -1,4 +1,4 @@
-FROM ghcr.io/llnl/sundials-ci-e4s-base:22.05 as bootstrap
+FROM ghcr.io/llnl/sundials-ci-e4s-base:e4s-22.05 as bootstrap
 
 ARG spack_yaml
 
