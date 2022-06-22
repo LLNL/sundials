@@ -1613,6 +1613,8 @@ functions are described next.
      * ``KIN_SUCCESS`` -- The optional output value has been successfully set.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
+   .. versionadded:: 6.3.0
+
 
 .. c:function:: int KINPrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 

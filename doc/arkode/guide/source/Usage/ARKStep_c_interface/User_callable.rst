@@ -3610,6 +3610,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+   .. versionadded:: 5.3.0
 
 
 .. _ARKODE.Usage.ARKStep.ARKStepImplicitSolverOutputs:
