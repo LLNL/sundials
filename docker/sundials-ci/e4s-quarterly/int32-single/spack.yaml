@@ -23,6 +23,5 @@ spack:
     E4S: https://cache.e4s.io
   repos: []
   upstreams: {}
-  concretizer:
-    unify: true
+  concretization: together
   view: /opt/view
