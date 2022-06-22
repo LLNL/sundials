@@ -15,6 +15,17 @@ reporting work done with SUNDIALS:
 
 .. code-block:: latex
 
+   @article{gardner2022sundials,
+     title     = {Enabling new flexibility in the {SUNDIALS} suite of nonlinear and differential/algebraic equation solvers},
+     author    = {Gardner, David J and Reynolds, Daniel R and Woodward, Carol S and Balos, Cody J},
+     journal   = {ACM Transactions on Mathematical Software (TOMS)},
+     publisher = {ACM},
+     year      = {2022},
+     doi       = {10.1145/3539801}
+   }
+
+.. code-block:: latex
+
    @article{hindmarsh2005sundials,
      title     = {{SUNDIALS}: Suite of nonlinear and differential/algebraic equation solvers},
      author    = {Hindmarsh, Alan C and Brown, Peter N and Grant, Keith E and Lee, Steven L and Serban, Radu and Shumaker, Dan E and Woodward, Carol S},
@@ -25,17 +36,6 @@ reporting work done with SUNDIALS:
      pages     = {363--396},
      year      = {2005},
      doi       = {10.1145/1089014.1089020}
-   }
-
-.. code-block:: latex
-
-   @article{gardner2022sundials,
-     title     = {Enabling new flexibility in the {SUNDIALS} suite of nonlinear and differential/algebraic equation solvers},
-     author    = {Gardner, David J and Reynolds, Daniel R and Woodward, Carol S and Balos, Cody J},
-     journal   = {ACM Transactions on Mathematical Software (TOMS)},
-     publisher = {ACM},
-     year      = {2022},
-     doi       = {10.1145/3539801}
    }
 
 If any GPU features of SUNDIALS were utilized, please also cite:
