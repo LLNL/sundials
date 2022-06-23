@@ -53,7 +53,7 @@ contributors. The current SUNDIALS team consists of Cody J.  Balos,
 David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S.
 Woodward. We thank Radu Serban for significant and critical past contributions.
 
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E.  Banks,
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
 Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M.  Sexton, Dan Shumaker,
@@ -72,7 +72,7 @@ rather than the combined SUNDIALS online guide:
 .. parsed-literal::
 
    @Misc{arkodeDocumentation,
-      author       = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
+      author       = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward, Rujeko Chinomona and Cody J. Balos},
       title        = {User Documentation for ARKODE},
       year.        = {|YEAR|},
       note         = {|ARKODE_VERSION|},

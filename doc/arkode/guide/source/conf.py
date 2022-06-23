@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for ARKODE'
-copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
+copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -218,11 +218,13 @@ im_number = "LLNL-SM-668082"
 tex_author = r'''
     Daniel R. Reynolds$^1$,
     David J. Gardner$^2$,
-    Carol S. Woodward$^2$, and
+    Carol S. Woodward$^2$,
+    Rujeko Chinomona$^3$, and
     Cody J. Balos$^2$ \\
     \\
     {\em $^1$Department of Mathematics, Southern Methodist University} \\
-    {\em $^2$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}
+    {\em $^2$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
+    {\em $^3$Department of Mathematics, Temple University}
     '''
 
 latex_documents = [('index', 'ark_guide.tex', project,
@@ -275,7 +277,7 @@ latex_elements = {
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'ARKODE', u'ARKODE Documentation',
-     [u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos'], 1)
+     [u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -289,7 +291,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'ARKODE', u'ARKODE Documentation',
-   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos', 'ARKODE',
+   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos', 'ARKODE',
    'Time integration package for multi-rate systems of ordinary differntial equations.',
    'Miscellaneous'),
 ]
