@@ -149,7 +149,7 @@ Added support for integrating IVPs with constraints using BDF methods
 and projecting the solution onto the constraint manifold with a user
 defined projection function. This implementation is accompanied by
 additions to user documentation and CVODES examples. See
-:c:func:`CVodeSetConstraints` for more information.
+:c:func:`CVodeSetProjFn` for more information.
 
 Added the functions
 :c:func:`CVodeSetEtaFixedStepBounds`,
