@@ -69,13 +69,29 @@ sundials_option(
 # ---------------------------------------------------------------
 sundials_option(ENABLE_LAPACK BOOL "Enable Lapack support" OFF)
 
-sundials_option(LAPACK_LIBRARIES STRING "Lapack and Blas libraries"
-                "${LAPACK_LIBRARIES}")
+sundials_option(LAPACK_LIBRARIES STRING "Lapack and Blas libraries" "${LAPACK_LIBRARIES}"
+                DEPENDS_ON ENABLE_LAPACK)
 
-sundials_option(
-  LAPACK_WORKS BOOL
-  "Set to ON to force CMake to accept a given LAPACK configuration" OFF
-  ADVANCED)
+sundials_option(SUNDIALS_LAPACK_FUNC_CASE STRING
+                "Case of LAPACK function names"
+                "lower"
+                OPTIONS "lower;upper"
+                ADVANCED)
+
+sundials_option(SUNDIALS_LAPACK_FUNC_SUFFIX STRING
+                "Suffix appended to LAPACK function names"
+                ""
+                ADVANCED)
+
+sundials_option(SUNDIALS_LAPACK_FUNC_UNDERSCORES STRING
+                "Number of underscores appended to LAPACK function names (none/one/two)"
+                "one"
+                OPTIONS "none;one;two"
+                ADVANCED)
+
+sundials_option(LAPACK_WORKS BOOL "Set to ON to force CMake to accept a given LAPACK configuration" OFF
+                DEPENDS_ON ENABLE_LAPACK
+                ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Ginkgo support?
