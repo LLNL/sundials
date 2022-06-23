@@ -1,7 +1,6 @@
 name: Containers - spack@e4s
 
 on:
-  pull_request: #temporary
   workflow_dispatch:
 
 permissions:
