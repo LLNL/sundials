@@ -51,6 +51,6 @@
          @Misc{arkodeDocumentation,
             author = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
             title  = {User Documentation for ARKODE},
-            year   = {|YEAR|}
+            year   = {|YEAR|},
             note   = {|ARKODE_VERSION|}
          }
