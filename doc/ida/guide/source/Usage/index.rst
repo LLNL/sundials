@@ -2223,7 +2223,7 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of local error test failures that have occurred                | :c:func:`IDAGetNumErrTestFails`        |
   +--------------------------------------------------------------------+----------------------------------------+
-  | No. of failed steps due to a nonlinear solver failure              | :c:func:`IDAGetNumStepSolveFails()`    |
+  | No. of failed steps due to a nonlinear solver failure              | :c:func:`IDAGetNumStepSolveFails`      |
   +--------------------------------------------------------------------+----------------------------------------+
   | Order used during the last step                                    | :c:func:`IDAGetLastOrder`              |
   +--------------------------------------------------------------------+----------------------------------------+
@@ -2243,9 +2243,15 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | Estimated local errors                                             | :c:func:`IDAGetEstLocalErrors`         |
   +--------------------------------------------------------------------+----------------------------------------+
+  | All IDA integrator statistics                                      | :c:func:`IDAGetIntegratorStats`        |
+  +--------------------------------------------------------------------+----------------------------------------+
   | No. of nonlinear solver iterations                                 | :c:func:`IDAGetNumNonlinSolvIters`     |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of nonlinear convergence failures                              | :c:func:`IDAGetNumNonlinSolvConvFails` |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | IDA nonlinear solver statistics                                    | :c:func:`IDAGetNonlinSolvStats`        |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | User data pointer                                                  | :c:func:`IDAGetUserData`               |
   +--------------------------------------------------------------------+----------------------------------------+
   | Array showing roots found                                          | :c:func:`IDAGetRootInfo`               |
   +--------------------------------------------------------------------+----------------------------------------+
@@ -2628,6 +2634,19 @@ described next.
       * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
       * ``IDA_MEM_FAIL`` -- The ``SUNNonlinearSolver`` object is ``NULL``.
+
+.. c:function:: int IDAGetUserData(void* ida_mem, void** user_data)
+
+   The function ``IDAGetUserData`` returns the user data pointer provided to
+   :c:func:`IDASetUserData`.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``user_data`` -- memory reference to a user data pointer.
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
 .. c:function:: int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
 

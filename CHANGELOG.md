@@ -2,6 +2,11 @@
 
 ## Changes to SUNDIALS in release x.x.x
 
+Added `GetUserData` functions in each package to retrieve the user data pointer
+provided to `SetUserData` functions. See `ARKStepGetUserData`,
+`ERKStepGetUserData`, `MRIStepGetUserData`, `CVodeGetUserData`,
+`IDAGetUserData`, or `KINGetUserData` for more information.
+
 Fixed a bug in `ERKStepReset`, `ERKStepReInit`, `ARKStepReset`, `ARKStepReInit`,
 `MRIStepReset`, and `MRIStepReInit` where a previously-set value of *tstop* (from
 a call to `ERKStepSetStopTime`, `ARKStepSetStopTime`, or `MRIStepSetStopTime`,

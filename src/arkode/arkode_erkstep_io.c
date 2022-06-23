@@ -143,6 +143,8 @@ int ERKStepGetNumAccSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumAccSteps(arkode_mem, nsteps)); }
 int ERKStepGetNumErrTestFails(void *arkode_mem, long int *netfails) {
   return(arkGetNumErrTestFails(arkode_mem, netfails)); }
+int ERKStepGetUserData(void *arkode_mem, void** user_data) {
+  return(arkGetUserData(arkode_mem, user_data)); }
 char *ERKStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 

@@ -114,6 +114,9 @@ Changes from previous versions
 Changes in vx.x.x
 -----------------
 
+Added the function :c:func:`CVodeGetUserData` to retrieve the user data pointer
+provided to :c:func:`CVodeSetUserData`.
+
 Added a new example, ``examples/cvode/serial/cvRocket_dns.c,`` which
 demonstrates using CVODE with a discontinuous right-hand-side function
 and rootfinding.
