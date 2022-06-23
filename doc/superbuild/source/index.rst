@@ -74,7 +74,7 @@ rather than the combined SUNDIALS online guide:
    @Misc{arkodeDocumentation,
       author       = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward, Rujeko Chinomona and Cody J. Balos},
       title        = {User Documentation for ARKODE},
-      year.        = {|YEAR|},
+      year         = {|YEAR|},
       note         = {|ARKODE_VERSION|},
       url          = {https://sundials.readthedocs.io/en/latest/arkode},
       howpublished = {\url{https://sundials.readthedocs.io/en/latest/arkode}}
