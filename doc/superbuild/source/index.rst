@@ -72,55 +72,67 @@ rather than the combined SUNDIALS online guide:
 .. parsed-literal::
 
    @Misc{arkodeDocumentation,
-      author = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
-      title  = {User Documentation for ARKODE},
-      year   = {|YEAR|},
-      note   = {|ARKODE_VERSION|}
+      author       = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
+      title        = {User Documentation for ARKODE},
+      year.        = {|YEAR|},
+      note         = {|ARKODE_VERSION|},
+      url          = {https://sundials.readthedocs.io/en/latest/arkode},
+      howpublished = {\url{https://sundials.readthedocs.io/en/latest/arkode}}
    }
 
 .. parsed-literal::
 
    @Misc{cvodeDocumentation,
-      author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-      title  = {User Documentation for CVODE},
-      year   = {|YEAR|},
-      note   = {|CVODE_VERSION|}
+      author       = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
+      title        = {User Documentation for CVODE},
+      year         = {|YEAR|},
+      note         = {|CVODE_VERSION|},
+      url          = {https://sundials.readthedocs.io/en/latest/cvode},
+      howpublished = {\url{https://sundials.readthedocs.io/en/latest/cvode}}
    }
 
 .. parsed-literal::
 
    @Misc{cvodesDocumentation,
-      author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-      title  = {User Documentation for CVODES},
-      year   = {|YEAR|},
-      note   = {|CVODES_VERSION|}
+      author       = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
+      title        = {User Documentation for CVODES},
+      year         = {|YEAR|},
+      note         = {|CVODES_VERSION|},
+      url          = {https://sundials.readthedocs.io/en/latest/cvodes},
+      howpublished = {\url{https://sundials.readthedocs.io/en/latest/cvodes}}
    }
 
 .. parsed-literal::
 
    @Misc{idaDocumentation,
-      author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-      title  = {User Documentation for IDA},
-      year   = {|YEAR|},
-      note   = {|IDA_VERSION|}
+      author       = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
+      title        = {User Documentation for IDA},
+      year         = {|YEAR|},
+      note         = {|IDA_VERSION|},
+      url          = {https://sundials.readthedocs.io/en/latest/ida},
+      howpublished = {\url{https://sundials.readthedocs.io/en/latest/ida}}
    }
 
 .. parsed-literal::
 
    @Misc{idasDocumentation,
-      author = {Radu Serban and Cosmin Petra and Alan C. Hindmarsh and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-      title  = {User Documentation for IDAS},
-      year   = {|YEAR|},
-      note   = {|IDAS_VERSION|}
+      author       = {Radu Serban and Cosmin Petra and Alan C. Hindmarsh and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
+      title        = {User Documentation for IDAS},
+      year         = {|YEAR|},
+      note         = {|IDAS_VERSION|},
+      url          = {https://sundials.readthedocs.io/en/latest/idas},
+      howpublished = {\url{https://sundials.readthedocs.io/en/latest/idas}}
    }
 
 .. parsed-literal::
 
    @Misc{kinsolDocumentation,
-      author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-      title  = {User Documentation for KINSOL},
-      year   = {|YEAR|},
-      note   = {|KINSOL_VERSION|}
+      author       = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
+      title        = {User Documentation for KINSOL},
+      year         = {|YEAR|},
+      note         = {|KINSOL_VERSION|},
+      url          = {https://sundials.readthedocs.io/en/latest/kinsol},
+      howpublished = {\url{https://sundials.readthedocs.io/en/latest/kinsol}}
    }
 
 
