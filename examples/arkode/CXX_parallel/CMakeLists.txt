@@ -132,10 +132,10 @@ list(APPEND ARKODE_extras plot_heat2D_p.py)
 
 if(BUILD_CVODE)
   set(examples_cvode
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;develop\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;develop\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;develop\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;develop\;default")
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default")
   set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel sundials_nvecmpiplusx)
   build_examples(examples_cvode CXX)
 endif()

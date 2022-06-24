@@ -120,6 +120,13 @@ caused the double precision math functions to be used regardless of the value of
 functions when they are vailable and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
+Added the function :c:func:`CVodeGetUserData` to retrieve the user data pointer
+provided to :c:func:`CVodeSetUserData`.
+
+Added a new example, ``examples/cvode/serial/cvRocket_dns.c,`` which
+demonstrates using CVODE with a discontinuous right-hand-side function
+and rootfinding.
+
 Changes in v6.2.0
 -----------------
 
@@ -785,7 +792,7 @@ Added support for integrating IVPs with constraints using BDF methods
 and projecting the solution onto the constraint manifold with a user
 defined projection function. This implementation is accompanied by
 additions to user documentation and CVODE examples. See
-:c:func:`CVodeSetConstraints` for more information.
+:c:func:`CVodeSetProjFn` for more information.
 
 Added support for CUDA v11.
 

@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_p\;\;1\;4\;develop\;default"
-  "ark_diurnal_kry_bbd_p\;\;1\;4\;develop\;default"
+  "ark_diurnal_kry_p\;\;1\;4\;exclude-single\;default"
+  "ark_diurnal_kry_bbd_p\;\;1\;4\;exclude-single\;default"
   )
 
 if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND

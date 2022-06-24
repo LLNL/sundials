@@ -2256,6 +2256,8 @@ the preconditioner.
    +------------------------------------------------+------------------------------------------+
    | CVODE nonlinear solver statistics              | :c:func:`CVodeGetNonlinSolvStats`        |
    +------------------------------------------------+------------------------------------------+
+   | User data pointer                              | :c:func:`CVodeGetUserData`               |
+   +------------------------------------------------+------------------------------------------+
    | Array showing roots found                      | :c:func:`CVodeGetRootInfo`               |
    +------------------------------------------------+------------------------------------------+
    | No. of calls to user root function             | :c:func:`CVodeGetNumGEvals`              |
@@ -2660,6 +2662,20 @@ described next.
      * ``CV_MEM_FAIL`` -- The ``SUNNonlinearSolver`` module is ``NULL``
 
 
+.. c:function:: int CVodeGetUserData(void* cvode_mem, void** user_data)
+
+   The function ``CVodeGetUserData`` returns the user data pointer provided to
+   :c:func:`CVodeSetUserData`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODE memory block.
+     * ``user_data`` -- memory reference to a user data pointer.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional output value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+
 .. c:function:: int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 
    The function ``CVodePrintAllStats`` outputs all of the integrator, nonlinear
@@ -2715,14 +2731,19 @@ There are two optional output functions associated with rootfinding.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
-     * ``rootsfound`` -- array of length ``nrtfn`` with the indices of the user functions :math:`g_i` found to have a root.  For :math:`i=0,\ldots,\texttt{nrtfn}-1`, ``rootsfound[i]`` :math:`\ne 0` if :math:`g_i` has a root, and ``rootsfound[i]`` :math:`= 0` if not.
+     * ``rootsfound`` -- array of length ``nrtfn`` with the indices of the user functions :math:`g_i` found to have a root. For :math:`i=0,\ldots,\texttt{nrtfn}-1`, ``rootsfound[i]`` :math:`\ne 0` if :math:`g_i` has a root, and ``rootsfound[i]`` :math:`= 0` if not.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The optional output values have been successfully set.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      Note that, for the components :math:`g_i` for which a root was found, the sign of ``rootsfound[i]`` indicates the direction of  zero-crossing. A value of +1 indicates that :math:`g_i` is increasing,  while a value of -1 indicates a decreasing :math:`g_i`.
+      Note that, for the components :math:`g_i` for which a root was found, the sign of
+      ``rootsfound[i]`` indicates the direction of  zero-crossing. A value of +1 indicates that
+      :math:`g_i` is increasing,  while a value of -1 indicates a decreasing :math:`g_i`. A value of
+      0 indicates that either no root was found for :math:`g_i`, or that :math:`g_i` varies in the direction
+      opposite to that indicated by ``rootdir[i]`` in the case that :c:func:`CVodeSetRootDirection`
+      was used to only track zero-crossings in one direction.
 
    .. warning::
 

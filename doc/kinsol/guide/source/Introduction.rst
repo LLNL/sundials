@@ -97,6 +97,9 @@ caused the double precision math functions to be used regardless of the value of
 functions when they are vailable and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
+Added the function :c:func:`KINGetUserData` to retrieve the user data pointer
+provided to :c:func:`KINSetUserData`.
+
 Changes in v6.2.0
 -----------------
 

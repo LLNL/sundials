@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# ARKode C serial unit tests
+# ARKODE C serial unit tests
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
@@ -25,17 +25,12 @@ set(ARKODE_unit_tests
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0"
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 2.0 8.0"
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 1.0 5.0"
+  "ark_test_getuserdata\;"
   "ark_interp_check\;-100"
   "ark_interp_check\;-10000"
   "ark_interp_check\;-1000000"
   "ark_reset_check\;1"
   )
-
-set(ARKODE_LIB sundials_arkode)
-set(NVECS_LIB sundials_nvecserial)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
@@ -60,7 +55,10 @@ foreach(test_tuple ${ARKODE_unit_tests})
       ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test} ${SUNDIALS_LIBS})
+    target_link_libraries(${test}
+      sundials_arkode
+      sundials_nvecserial
+      ${EXTRA_LINK_LIBS})
 
   endif()
 

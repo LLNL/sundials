@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cv_heat2D\;\;\;\;develop"
+  "cv_heat2D\;\;\;\;exclude-single"
   )
 
 # Auxiliary files to install

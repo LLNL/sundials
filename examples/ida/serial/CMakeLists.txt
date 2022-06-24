@@ -20,7 +20,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels\;\;develop"
+  "idaAnalytic_mels\;\;exclude-single"
   "idaFoodWeb_bnd\;\;develop"
   "idaFoodWeb_kry\;\;develop"
   "idaHeat2D_bnd\;\;develop"
@@ -29,7 +29,7 @@ set(IDA_examples
   "idaKrylovDemo_ls\;1\;develop"
   "idaKrylovDemo_ls\;2\;develop"
   "idaRoberts_dns\;\;"
-  "idaSlCrank_dns\;\;develop"
+  "idaSlCrank_dns\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers

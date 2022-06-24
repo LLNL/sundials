@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kinFoodWeb_kry_bbd_p\;1\;4\;develop"
-  "kinFoodWeb_kry_p\;1\;4\;develop"
+  "kinFoodWeb_kry_bbd_p\;1\;4\;exclude-single"
+  "kinFoodWeb_kry_p\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
