@@ -100,7 +100,7 @@ numfig_format = {
 }
 
 rst_epilog = """
-.. |YEAR| replace:: 2022
+.. |YEAR| replace:: {year}
 .. |CVODE_VERSION| replace:: {cvode_version}
 .. |CVODES_VERSION| replace:: {cvodes_version}
 .. |ARKODE_VERSION| replace:: {arkode_version}
