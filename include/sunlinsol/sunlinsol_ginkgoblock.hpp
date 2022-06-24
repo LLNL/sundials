@@ -90,7 +90,7 @@ public:
         sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), left_scale_vec_(nullptr),
         right_scale_vec_(nullptr), matrix_(nullptr), logger_(nullptr), num_blocks_(num_blocks), max_iters_(max_iters),
         setup_called_(false), scaling_changed_(false), avg_iter_count_(0.0), sum_of_avg_iters_(0.0),
-        stddev_iter_count_(0.0), previous_max_res_norm_(0.0)
+        stddev_iter_count_(0.0), previous_max_res_norm_(0.0), s2inv_(nullptr), ones_(nullptr)
   {
     initSUNLinSol(sunctx);
   }
@@ -134,6 +134,17 @@ public:
 
   std::shared_ptr<const gko::Executor> gkoExec() const { return gko_exec_; }
 
+  void setEnableScaling(bool onoff)
+  {
+    if (!onoff) {
+      sunlinsol_->ops->setscalingvectors = nullptr;
+      left_scale_vec_ = nullptr;
+      right_scale_vec_ = nullptr;
+    } else {
+      sunlinsol_->ops->setscalingvectors = SUNLinSolSetScalingVectors_GinkgoBlock<BlockLinearSolver<GkoBatchSolverType, BlockMatrixType>>;
+    }
+  }
+
   SUNLinearSolver get() override { return sunlinsol_.get(); }
 
   SUNLinearSolver get() const override { return sunlinsol_.get(); }
@@ -150,8 +161,16 @@ public:
 
   void setScalingVectors(N_Vector s1, N_Vector s2)
   {
+    if (!ones_) {
+      ones_ = N_VClone(s2);
+      N_VConst(sunrealtype{1.0}, ones_);
+    }
+    if (!s2inv_) {
+      s2inv_ = N_VClone(s2);
+    }
+    N_VDiv(ones_, s2, s2inv_); // ginkgo expects s2 to be s2inv already
     left_scale_vec_  = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1));
-    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2));
+    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2inv_));
     scaling_changed_ = true;
   }
 
@@ -168,34 +187,33 @@ public:
   int solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "start-solve",
+    SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "start",
                        "num_blocks = %d, tol = %.16g", num_blocks_, tol);
 #endif
 
-    // if (setup_called_ || scaling_changed_) {
-    if (setup_called_) {
-      SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
-      solver_factory_ = GkoBatchSolverType::build()                  //
-                            .with_max_iterations(max_iters_)         //
-                            .with_residual_tol(tol)                  //
-                            .with_tolerance_type(tolerance_type_)    //
-                            .with_preconditioner(precon_factory_)    //
-                            .with_left_scaling_op(left_scale_vec_)   //
-                            .with_right_scaling_op(right_scale_vec_) //
-                            .on(gkoExec());
-      SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
+    SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
+    solver_factory_ = GkoBatchSolverType::build()                   //
+                          .with_max_iterations(max_iters_)          //
+                          .with_residual_tol(tol)                   //
+                          .with_tolerance_type(tolerance_type_)     //
+                          .with_preconditioner(precon_factory_)     //
+                          .with_left_scaling_op(left_scale_vec_)    //
+                          .with_right_scaling_op(right_scale_vec_)  //
+                          .on(gkoExec());
+    SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
-      SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
-      solver_ = solver_factory_->generate(matrix_->gkomtx());
-      SUNDIALS_MARK_END(sunProfiler(), "generate solver");
+    SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
+    // auto tmp_matrix = Clone(matrix_); // protect the matrix since ginkgo scales it in place
+    // Copy(*matrix_, *tmp_matrix);
+    solver_ = solver_factory_->generate(matrix_->gkomtx());
+    SUNDIALS_MARK_END(sunProfiler(), "generate solver");
 
-      SUNDIALS_MARK_BEGIN(sunProfiler(), "add logger");
-      if (!logger_) {
-        logger_ = gko::share(gko::log::BatchConvergence<sunrealtype>::create(gkoExec()));
-      }
-      solver_->add_logger(logger_);
-      SUNDIALS_MARK_END(sunProfiler(), "add logger");
+    SUNDIALS_MARK_BEGIN(sunProfiler(), "add logger");
+    if (!logger_) {
+      logger_ = gko::share(gko::log::BatchConvergence<sunrealtype>::create(gkoExec()));
     }
+    solver_->add_logger(logger_);
+    SUNDIALS_MARK_END(sunProfiler(), "add logger");
 
     gko::BatchLinOp* result = nullptr;
     if (x != b) {
@@ -207,6 +225,7 @@ public:
       // x = A'^{-1} diag(left) b
       SUNDIALS_MARK_BEGIN(sunProfiler(), "solver apply");
       result = solver_->apply(b_vec.get(), x_vec.get());
+      // N_VPrint(x);
       SUNDIALS_MARK_END(sunProfiler(), "solver apply");
     } else {
       SUNDIALS_MARK_BEGIN(sunProfiler(), "Wrap vector(s) for solve");
@@ -216,6 +235,7 @@ public:
       // x = A^'{-1} diag(right) x
       SUNDIALS_MARK_BEGIN(sunProfiler(), "solver apply");
       result = solver_->apply(x_vec.get(), x_vec.get());
+      // N_VPrint(x);
       SUNDIALS_MARK_END(sunProfiler(), "solver apply");
     }
 
@@ -264,12 +284,14 @@ public:
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "end-solve",
-                       "avg. iter count = %.16g, stddev. iter count = %.16g, max iter count = %d, min iter count = %d "
-                       "max res. norm = %.16g, min res. norm = %.16g, tol = %.16g",
-                       avg_iter_count_, stddev_iter_count_, max_iter_count, min_iter_count, max_res_norm, min_res_norm,
-                       tol);
+                       "all converged = %d, avg. iter count = %.16g, stddev. iter count = %.16g, max iter count = %d, "
+                       "min iter count = %d, max res. norm = %.16g, max res. norm reduced = %d, min res. norm = %.16g, "
+                       "tol = %.16g",
+                       at_least_one_did_not_converge, avg_iter_count_, stddev_iter_count_, max_iter_count,
+                       min_iter_count, max_res_norm, !max_res_norm_did_not_reduce, min_res_norm, tol);
 #endif
 
+    // delete tmp_matrix;
     if (at_least_one_did_not_converge && max_res_norm_did_not_reduce) {
       return SUNLS_CONV_FAIL;
     } else if (at_least_one_did_not_converge) {
@@ -299,6 +321,7 @@ private:
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
   sunrealtype previous_max_res_norm_;
+  N_Vector ones_, s2inv_;
 
   void initSUNLinSol(SUNContext sunctx)
   {
@@ -334,7 +357,7 @@ private:
     return prof;
   }
 
-  static constexpr int default_max_iters_ = 50;
+  static constexpr int default_max_iters_ = 500;
   static constexpr int default_restart_   = 0;
 };
 

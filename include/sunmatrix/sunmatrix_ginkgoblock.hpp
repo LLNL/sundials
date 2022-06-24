@@ -178,7 +178,6 @@ void BlockMatrix<GkoBatchMatType>::initSUNMatrix(SUNContext sunctx)
   std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
   sunmtx_->ops->getid = SUNMatGetID_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->clone = SUNMatClone_GinkgoBlock<GkoBatchMatType>;
-  // sunmtx_->ops->zero  = SUNMatZero_GinkgoBlock<GkoBatchMatType>;
   sunmtx_->ops->copy  = SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
   // Ginkgo does not provide what we need for ScaleAdd with BatchCsr yet
   sunmtx_->ops->scaleadd =
@@ -304,18 +303,16 @@ void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)
 }
 
 template<typename GkoBatchMatType>
-void Zero(BlockMatrix<GkoBatchMatType>& A)
+BlockMatrix<GkoBatchMatType>* Clone(BlockMatrix<GkoBatchMatType>* A)
 {
-  // TODO(CJB): This doesnt work and also seems inefficent
-  for (auto& block : A.gkomtx()->unbatch()) {
-    block->scale(gko::initialize<GkoDenseMat>({0.0}, A.gkoexec()).get());
-  }
-}
-
-template<>
-inline void Zero(BlockMatrix<GkoBatchDenseMat>& A)
-{
-  A.gkomtx()->scale(gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {0.0}, A.gkoexec()).get());
+  auto new_mat =
+      std::is_same<GkoBatchCsrMat, GkoBatchMatType>::value
+          ? new ginkgo::BlockMatrix<GkoBatchMatType>(A->numBlocks(), A->blockDim(0, 0), A->blockDim(0, 1),
+                                                     A->blockNNZ(), A->gkoexec(),
+                                                     A->sunctx())
+          : new ginkgo::BlockMatrix<GkoBatchMatType>(A->numBlocks(), A->blockDim(0, 0), A->blockDim(0, 1),
+                                                     A->gkoexec(), A->sunctx());
+  return new_mat;
 }
 
 template<typename GkoBatchMatType>

@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * systems results in a block diagonal linear system, with the Gingko
  * SUNLinearSolver which supports batched iterative methods. It uses a scalar
  * relative tolerance and a vector absolute tolerance. Output is printed in
- * decades from t = .4 to t = 4.e10. Run statistics (optional outputs) are
+ * decades from t = .4 to t = 4.e10. Run statistics (optional outputsare
  * printed at the end.
  *
  * The program takes one optional argument, the number of groups
@@ -45,7 +45,7 @@
 #elif defined(SUNDIALS_GINKGO_BACKENDS_CUDA)
 #define HIP_OR_CUDA(a,b) b
 #else
-#define HIP_OR_CUDA(a,b) ((void)0);
+#define HIP_OR_CUDA(a,b((void)0);
 #endif
 
 #if defined(SUNDIALS_GINKGO_BACKENDS_CUDA)
@@ -86,7 +86,11 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 __global__
-static void j_kernel(int ngroups, realtype* ydata, realtype *Jdata);
+static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata);
+
+/* Private function to initialize Jacobian */
+
+static int JacInit(SUNMatrix J);
 
 /* Private function to output results */
 
@@ -104,10 +108,12 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 typedef struct {
   int ngroups;
   int neq;
+  sunindextype nnzper;
 } UserData;
 
-using SUNMatrixViewType = sundials::ginkgo::BlockMatrix<gko::matrix::BatchDense<sunrealtype>>;
-using SUNLinearSolverViewType = sundials::ginkgo::BlockLinearSolver<gko::solver::BatchGmres<sunrealtype>, SUNMatrixViewType>;
+using GkoMatType = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
+using SUNMatrixView = sundials::ginkgo::BlockMatrix<GkoMatType>;
+using SUNLinearSolverView = sundials::ginkgo::BlockLinearSolver<gko::solver::BatchGmres<sunrealtype>, SUNMatrixView>;
 
 /*
  *-------------------------------
@@ -147,14 +153,15 @@ int main(int argc, char *argv[])
   neq = ngroups * GROUPSIZE;
 
   udata.ngroups = ngroups;
+  udata.nnzper = GROUPSIZE*GROUPSIZE;
   udata.neq = neq;
 
   /* Create CUDA or HIP vector of length neq for I.C. and abstol */
   y = HIP_OR_CUDA( N_VNew_Hip(neq, sunctx);,
                    N_VNew_Cuda(neq, sunctx); )
-  if (check_retval((void *)y, "N_VNew", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew", 0)) { return(1); }
   abstol = N_VClone(y);
-  if (check_retval((void *)abstol, "N_VClone", 0)) return(1);
+  if (check_retval((void *)abstol, "N_VClone", 0)) { return(1); }
 
   /* Initialize y */
   ydata = N_VGetArrayPointer(y);
@@ -182,46 +189,49 @@ int main(int argc, char *argv[])
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) { return(1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return(1); }
 
   /* Call CVodeSetUserData to attach the user data structure */
   retval = CVodeSetUserData(cvode_mem, &udata);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return(1); }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) { return(1); }
 
   /* Create SUNMatrix for use in linear solves */
-  auto batch_mat_size = gko::batch_dim<>(ngroups, gko::dim<2>(GROUPSIZE, GROUPSIZE));
-  auto batch_vec_size = gko::batch_dim<>(ngroups, gko::dim<2>(GROUPSIZE, 1));
-  auto gko_matA = gko::share(gko::matrix::BatchDense<sunrealtype>::create(gko_exec, batch_mat_size));
-  SUNMatrixViewType A{gko_matA, sunctx};
-  // A = SUNMatrix_MagmaDenseBlock(ngroups, GROUPSIZE, GROUPSIZE, SUNMEMTYPE_DEVICE,
-  //                               memhelper, NULL, sunctx);
-  // if(check_retval((void *)A, "SUNMatrix_MagmaDenseBlock", 0)) return(1);
+  sunindextype block_rows = GROUPSIZE;
+  sunindextype block_cols = GROUPSIZE;
+  sunindextype nnzper = GROUPSIZE*GROUPSIZE;
+  auto block_size = gko::batch_dim<2>(ngroups, gko::dim<2>(block_rows , block_cols));
+  auto gko_matA = gko::share(GkoMatType::create(gko_exec, block_size, nnzper));
+  SUNMatrixView A{gko_matA, sunctx};
+
+  /* Initialiize the Jacobian with its fixed sparsity pattern */
+  JacInit(A);
 
   /* Create the SUNLinearSolver object for use by CVode */
   auto precond_factory = gko::share(gko::preconditioner::BatchJacobi<sunrealtype>::build().on(gko_exec));
-  SUNLinearSolverViewType LS{gko_exec, gko::stop::batch::ToleranceType::absolute,
-                             precond_factory, ngroups, sunctx};
-  // LS = SUNLinSol_MagmaDense(y, A, sunctx);
-  // if(check_retval((void *)LS, "SUNLinSol_MagmaDense", 0)) return(1);
+  SUNLinearSolverView LS{gko_exec, gko::stop::batch::ToleranceType::absolute,
+                         nullptr, ngroups, sunctx};
+  LS.setEnableScaling(true);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS.get(), A.get());
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
   if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  
+  //CVodeSetEpsLin(cvode_mem, 1e-10);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -260,15 +270,47 @@ int main(int argc, char *argv[])
   /* Free integrator memory */
   CVodeFree(&cvode_mem);
 
-  /* Free the linear solver memory */
-  SUNLinSolFree(LS);
-
-  /* Free the matrix memory */
-  SUNMatDestroy(A);
-
   return(0);
 }
 
+
+/*
+ * Jacobian initialization routine. This sets the sparisty pattern of
+ * the blocks of the Jacobian J(t,y) = df/dy. This is performed on the CPU,
+ * and only occurs at the beginning of the simulation.
+ */
+
+static int JacInit(SUNMatrix J)
+{
+  auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
+  auto gko_exec = Jgko->get_executor();
+
+  sunindextype* rowptrs = Jgko->get_row_ptrs();
+  sunindextype* colvals = Jgko->get_col_idxs();
+
+  /* there are 3 entries per row */
+  rowptrs[0] = 0;
+  rowptrs[1] = 3;
+  rowptrs[2] = 6;
+  rowptrs[3] = 9;
+
+  /* first row of block */
+  colvals[0] = 0;
+  colvals[1] = 1;
+  colvals[2] = 2;
+
+  /* second row of block */
+  colvals[3] = 0;
+  colvals[4] = 1;
+  colvals[5] = 2;
+
+  /* third row of block */
+  colvals[6] = 0;
+  colvals[7] = 1;
+  colvals[8] = 2;
+
+  return(0);
+}
 
 /*
  *-------------------------------
@@ -334,23 +376,19 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 {
   UserData *udata = (UserData*) user_data;
   realtype *Jdata, *ydata;
+  int *rowptrs, *colvals;
   unsigned block_size, grid_size;
-  auto Jgko = static_cast<SUNMatrixViewType*>(J->content)->gkomtx();
+  auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
 
-
-  // for (auto& mat : Jgko->unbatch()) {
-  //   gko::write(std::cout, mat.get());
-  // }
-
-
-  // Jdata   = SUNMatrix_MagmaDense_Data(J);
   Jdata = Jgko->get_values();
+  rowptrs = Jgko->get_row_ptrs();
+  colvals = Jgko->get_col_idxs();
   ydata = N_VGetDeviceArrayPointer(y);
 
   block_size = HIP_OR_CUDA( 64, 32 );
   grid_size = (udata->neq + block_size - 1) / block_size;
 
-  j_kernel<<<grid_size, block_size>>>(udata->ngroups, ydata, Jdata);
+  j_kernel<<<grid_size, block_size>>>(udata->ngroups, udata->nnzper, ydata, Jdata);
 
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
   HIP_OR_CUDA( hipError_t cuerr = hipGetLastError();,
@@ -362,19 +400,13 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     return(-1);
   }
 
-  // for (auto& mat : Jgko->unbatch()) {
-  //   gko::write(std::cout, mat.get());
-  // }
-
   return(0);
 }
 
 /* Jacobian evaluation GPU kernel */
 __global__
-static void j_kernel(int ngroups, realtype* ydata, realtype *Jdata)
+static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata)
 {
-  int N  = GROUPSIZE;
-  int NN = N*N;
   int groupj;
   realtype y2, y3;
 
@@ -383,23 +415,34 @@ static void j_kernel(int ngroups, realtype* ydata, realtype *Jdata)
        groupj += blockDim.x * gridDim.x)
   {
     /* get y values */
-    y2 = ydata[N*groupj + 1];
-    y3 = ydata[N*groupj + 2];
+    y2 = ydata[GROUPSIZE*groupj + 1];
+    y3 = ydata[GROUPSIZE*groupj + 2];
 
-    /* first col of block */
-    Jdata[NN*groupj]       = RCONST(-0.04);
-    Jdata[NN*groupj + 1]   = RCONST(0.04);
-    Jdata[NN*groupj + 2]   = ZERO;
+    /* first row of block */
+    Jdata[nnzper*groupj]       = RCONST(-0.04);
+    Jdata[nnzper*groupj + 1]   = RCONST(1.0e4)*y3;
+    Jdata[nnzper*groupj + 2]   = RCONST(1.0e4)*y2;
 
-    /* second col of block */
-    Jdata[NN*groupj + 3]   = RCONST(1.0e4)*y3;
-    Jdata[NN*groupj + 4]   = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
-    Jdata[NN*groupj + 5]   = RCONST(6.0e7)*y2;
+    /* second row of block */
+    Jdata[nnzper*groupj + 3]   = RCONST(0.04);
+    Jdata[nnzper*groupj + 4]   = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
+    Jdata[nnzper*groupj + 5]   = RCONST(-1.0e4)*y2;
 
-    /* third col of block */
-    Jdata[NN*groupj + 6]   = RCONST(1.0e4)*y2;
-    Jdata[NN*groupj + 7]   = RCONST(-1.0e4)*y2;
-    Jdata[NN*groupj + 8]   = ZERO;
+    /* third row of block */
+    Jdata[nnzper*groupj + 6]   = ZERO;
+    Jdata[nnzper*groupj + 7]   = RCONST(6.0e7)*y2;
+    Jdata[nnzper*groupj + 8]   = ZERO;
+
+    // printf("%.6f %.6f\n", y2, y3);
+    // printf("%.6f ", Jdata[nnzper*groupj]);
+    // printf("%.6f ", Jdata[nnzper*groupj + 1]);
+    // printf("%.6f\n", Jdata[nnzper*groupj + 2]);
+    // printf("%.6f ", Jdata[nnzper*groupj + 3]);
+    // printf("%.6f ", Jdata[nnzper*groupj + 4]);
+    // printf("%.6f\n", Jdata[nnzper*groupj + 5]);
+    // printf("%.6f ", Jdata[nnzper*groupj + 6]);
+    // printf("%.6f ", Jdata[nnzper*groupj + 7]);
+    // printf("%.6f\n\n", Jdata[nnzper*groupj + 8]);
   }
 }
 
@@ -473,7 +516,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s(failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
@@ -493,3 +536,4 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   return(0);
 }
+
