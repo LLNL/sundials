@@ -101,7 +101,7 @@ else()
   sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "" ADVANCED)
 endif()
 # all executables will be linked against the math library
-set(EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
+set(EXE_EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
 
 # ---------------------------------------------------------------
 # Options to enable static and/or shared libraries

@@ -51,7 +51,7 @@ foreach(example_tuple ${KINSOL_examples})
     sundials_nvecmpiplusx
     sundials_nveccuda
     ${MPI_CXX_LIBRARIES}
-    ${EXTRA_LINK_LIBS})
+    ${EXE_EXTRA_LINK_LIBS})
 
   # add example to regression tests
   sundials_add_test(${example_target} ${example_target}

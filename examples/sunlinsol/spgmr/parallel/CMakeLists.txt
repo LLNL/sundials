@@ -40,7 +40,7 @@ set(NVEC_LIB sundials_nvecparallel)
 set(SUNLINSOL_LIB sundials_sunlinsolspgmr)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNLINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler

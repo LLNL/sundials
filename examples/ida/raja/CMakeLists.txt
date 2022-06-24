@@ -57,7 +57,7 @@ foreach(example_tuple ${IDA_examples})
     PRIVATE
     sundials_ida
     sundials_nvecraja
-    ${EXTRA_LINK_LIBS}
+    ${EXE_EXTRA_LINK_LIBS}
     ${OTHER_LIBS})
 
   # add example to regression tests
