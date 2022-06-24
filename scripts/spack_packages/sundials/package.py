@@ -147,7 +147,7 @@ class Sundials(CMakePackage, CudaPackage, ROCmPackage):
 
     # Generic (std-c) math libraries (UNIX only)
     variant('generic-math', default=True,
-            description='Use generic double precision math functions')
+            description='Use generic (std-c) math libraries on unix systems')
 
     # Monitoring and profiling
     variant('monitoring', default=False,
