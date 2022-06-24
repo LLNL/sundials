@@ -134,6 +134,12 @@ scale subproblems.
 
 Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
 
+Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
+caused the double precision math functions to be used regardless of the value of
+:cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
+functions when they are vailable and the user may provide the math library to
+link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
 Changes in v5.2.0
 -----------------
 

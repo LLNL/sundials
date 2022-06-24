@@ -32,6 +32,18 @@
 #endif
 
 /* ------------------------------------------------------------------
+ * Define C version check macros
+ * -----------------------------------------------------------------*/
+
+#if defined(__STDC__)
+# if !defined(__STDC_VERSION__)
+#   define SUNDIALS_STDC_VERSION 198901L
+# else
+#   define SUNDIALS_STDC_VERSION __STDC_VERSION__
+# endif
+#endif
+
+/* ------------------------------------------------------------------
  * Define SUNDIALS version numbers
  * -----------------------------------------------------------------*/
 
@@ -184,10 +196,10 @@
 #endif
 
 #ifndef SUNDIALS_C_INLINE
-#ifndef __STDC_VERSION__ /* must be c89 or c90 */
-#define SUNDIALS_C_INLINE
-#else
+#if SUNDIALS_STDC_VERSION >= 199901L
 #define SUNDIALS_C_INLINE inline
+#else
+#define SUNDIALS_C_INLINE
 #endif
 #endif
 

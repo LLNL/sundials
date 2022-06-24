@@ -93,14 +93,15 @@ sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "${ENABLE_MPI}"
 # ---------------------------------------------------------------
 
 if(UNIX)
-  if(CMAKE_C_STANDARD STREQUAL "90")
-    sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions" ON ADVANCED)
-  else()
-    sundials_option(USE_GENERIC_MATH BOOL "Use generic double precision math functions" OFF ADVANCED)
+  sundials_option(USE_GENERIC_MATH BOOL "Use the C standard library math functions" ON ADVANCED)
+  if(USE_GENERIC_MATH)
+    sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "-lm" ADVANCED)
   endif()
-  # all executables will be linked against -lm
-  set(EXTRA_LINK_LIBS -lm)
+else()
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "" ADVANCED)
 endif()
+# all executables will be linked against the math library
+set(EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
 
 # ---------------------------------------------------------------
 # Options to enable static and/or shared libraries

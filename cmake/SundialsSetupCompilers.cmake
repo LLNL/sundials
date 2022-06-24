@@ -121,7 +121,7 @@ if(SUNDIALS_BUILD_WITH_PROFILING AND (CMAKE_C_STANDARD STREQUAL "90"))
 endif()
 
 # ---------------------------------------------------------------
-# Check for snprintf
+# Check for snprintf and va_copy
 #
 # 199901L is the minimum ISO C standard for snprintf but some
 # C89 compilers provide extensions that define it.

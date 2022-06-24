@@ -1000,6 +1000,12 @@ illustration only.
       The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
       a type not listed here.
 
+.. cmakeoption:: SUNDIALS_MATH_LIBRARY
+
+   The math library (e.g., ``libm``) to link with.
+
+   Default: ``-lm`` on Unix systems, none otherwise
+
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
@@ -1016,13 +1022,12 @@ illustration only.
 
 .. cmakeoption:: USE_GENERIC_MATH
 
-   Use generic double precision math functions.  This is recommend when
-   ``CMAKE_C_STANDARD`` is ``90`` because single and extended precision
-   variants are not supported by the standard math library.  Setting this
-   option to ``OFF`` will cause math function to be determined by
-   ``SUNDIALS_PRECISION``.
+   Use the std-c math functions. Results in linking to
+   :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
 
-   Default: ``ON`` if ``CMAKE_C_STANDARD`` is ``90`` and ``OFF`` otherwise
+   .. note:: This option only exists on Unix systems.
+
+   Default: ``ON``
 
 .. cmakeoption:: XBRAID_DIR
 

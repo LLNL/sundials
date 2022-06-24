@@ -22,18 +22,18 @@
 
 #include <sundials/sundials_math.h>
 
-static booleantype sunIsInf(realtype a)
+static booleantype sunIsInf(sunrealtype a)
 {
-#if (__STDC_VERSION__ >= 199901L)
+#if (SUNDIALS_STDC_VERSION >= 199901L)
   return(isinf(a));
 #else
   return(a < -BIG_REAL || a > BIG_REAL);
 #endif
 }
 
-static booleantype sunIsNaN(realtype a)
+static booleantype sunIsNaN(sunrealtype a)
 {
-#if ( __STDC_VERSION__ >= 199901L)
+#if (SUNDIALS_STDC_VERSION >= 199901L)
   return(isnan(a));
 #else
   /* Most compilers/platforms follow NaN != a,
@@ -44,10 +44,10 @@ static booleantype sunIsNaN(realtype a)
 #endif
 }
 
-realtype SUNRpowerI(realtype base, int exponent)
+sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {
   int i, expt;
-  realtype prod;
+  sunrealtype prod;
 
   prod = RCONST(1.0);
   expt = abs(exponent);
@@ -56,30 +56,32 @@ realtype SUNRpowerI(realtype base, int exponent)
   return(prod);
 }
 
-realtype SUNRpowerR(realtype base, realtype exponent)
+sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
   if (base <= RCONST(0.0)) return(RCONST(0.0));
 
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) pow((double) base, (double) exponent));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#if (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(SUNDIALS_DOUBLE_PRECISION)
   return(pow(base, exponent));
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return(powf(base, exponent));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(powl(base, exponent));
 #endif
+#else
+  return((sunrealtype) pow((double) base, (double) exponent));
+#endif
 }
 
-booleantype SUNRCompare(realtype a, realtype b)
+booleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
   return(SUNRCompareTol(a, b, 10*UNIT_ROUNDOFF));
 }
 
-booleantype SUNRCompareTol(realtype a, realtype b, realtype tol)
+booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 {
-  realtype diff;
-  realtype norm;
+  sunrealtype diff;
+  sunrealtype norm;
 
   /* If a and b are exactly equal.
    * This also covers the case where a and b are both inf under IEEE 754.
