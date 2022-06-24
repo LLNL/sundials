@@ -139,7 +139,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = '../../shared/figs/sundials_logo_blue.png'
+html_logo = 'figs/sundials_logo_blue.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -200,3 +200,97 @@ html_show_sourcelink = False
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'SUNDIALSdoc'
+
+
+# -- Options for LaTeX output --------------------------------------------------
+
+latex_additional_files = ['../../shared/latex/preamble.tex.txt',
+                          '../../shared/latex/cover_pages.tex.txt']
+
+im_number = ""
+
+# 1. the rst file name used to generate the LaTeX file
+# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
+# 3. the document title
+# 4. text for \author
+# 5. the LaTeX theme
+# 6. include the file from 1. in the output
+tex_author = "The SUNDIALS Development Team"
+
+latex_documents = [('index', 'dev_guide.tex', project,
+                    tex_author, 'manual', False)]
+
+# make sure the doc logo gets copied to the build directory
+latex_logo = 'figs/doc_logo_blue.pdf'
+
+# LaTeX customizations
+latex_elements = {
+# paper size option of the document class
+'papersize': 'letterpaper',
+# font size option of the document class
+'pointsize': '10pt',
+# set the version number/release name
+'releasename' : version,
+# arguments to the sphinxsetup macro
+'sphinxsetup':
+    # the color for titles
+    'TitleColor={RGB}{0,0,0},'+
+    # disable frames around code-blocks
+    'verbatimwithframe=false,'+
+    # do not wrap long lines in code-blocks
+    'verbatimwrapslines=false,'+
+    # background color for code-blocks
+    'VerbatimColor={RGB}{240.0,240.0,240.0},'+
+    # font used by heading
+    'HeaderFamily=\\rmfamily\\bfseries,' +
+    # line breaks are allowed inside inline literals
+    'inlineliteralwraps=true',
+# disable the fncychap package
+'fncychap':'',
+# figure alignment options
+'figure_align': 'htbp',
+# additional preamble content
+'preamble':
+    '\\input{preamble.tex.txt}\n'+
+    '\\newcommand{\\sunreleasename}{' + sun_version + '}\n' +
+    '\\newcommand{\\imnumber}{' + im_number + '}\n',
+# extra class options
+'extraclassoptions': 'twoside,openright',
+# custom maketitle
+'maketitle': '\\input{cover_pages.tex.txt}'
+}
+
+
+# -- Options for manual page output --------------------------------------------
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    ('index', 'SUNDEV', u'Developer Documentation for SUNDIALS',
+     [u'The SUNDIALS Development Team'], 1)
+]
+
+# If true, show URL addresses after external links.
+#man_show_urls = False
+
+
+# -- Options for Texinfo output ------------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+  ('index', 'SUNDEV', u'Developer Documentation for SUNDIALS',
+   u'The SUNDIALS Development Team', 'SUNDEV',
+   'SUNDIALS library of time integrators and nonlinear solvers.',
+   'Miscellaneous'),
+]
+
+# Documents to append as an appendix to all manuals.
+#texinfo_appendices = []
+
+# If false, no module index is generated.
+#texinfo_domain_indices = True
+
+# How to display URL addresses: 'footnote', 'no', or 'inline'.
+#texinfo_show_urls = 'footnote'
