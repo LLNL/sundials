@@ -714,7 +714,7 @@ for ((j=0;j<ntestdirs;j++)); do
 
         echo "START TEST"
 
-        time ctest -j "$testjobs" test 2>&1 | tee test.log
+        time ctest --output-on-failure -j "$testjobs" test 2>&1 | tee test.log
 
         rc=${PIPESTATUS[0]}
         echo -e "\nmake test returned $rc\n" | tee -a test.log

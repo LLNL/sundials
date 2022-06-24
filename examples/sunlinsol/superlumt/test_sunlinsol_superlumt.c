@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
   /* check input and set matrix dimensions */
   if (argc < 5){
-    printf("ERROR: FOUR (4) Inputs required: matrix size, matrix type (0/1), num_threads, print timing \n");
+    printf("ERROR: FOUR (4) Inputs required: matrix size, matrix type (0 = CSC / 1 = CSR), num_threads, print timing \n");
     return(-1);
   }
 

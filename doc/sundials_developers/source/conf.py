@@ -25,8 +25,8 @@ def setup(app: Sphinx):
 # -- General configuration ----------------------------------------------------
 
 # Set variable used to determine which package documentation this is
-# Can be one of 'arkode', 'cvode', 'cvodes', 'ida', 'idas', 'kinsol' or 'super'
-package_name = 'developer'
+# Can be one of 'arkode', 'cvode', 'cvodes', 'ida', 'idas', 'kinsol', 'dev', or 'super'
+package_name = 'dev'
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '4.0'
@@ -52,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'SUNDIALS Developers Guide'
+project = u'Developer Documentation for SUNDIALS'
 copyright = u'Copyright (c) 2002-2022, Lawrence Livermore National Security and Southern Methodist University.'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -102,14 +102,14 @@ numfig_format = {
 rst_prolog = open('../../shared/global.rst.txt', 'r').read()
 
 rst_epilog = """
-.. |YEAR| replace:: 2021
+.. |YEAR| replace:: {year}
 .. |CVODE_VERSION| replace:: {cvode_version}
 .. |CVODES_VERSION| replace:: {cvodes_version}
 .. |ARKODE_VERSION| replace:: {arkode_version}
 .. |IDA_VERSION| replace:: {ida_version}
 .. |IDAS_VERSION| replace:: {idas_version}
 .. |KINSOL_VERSION| replace:: {kinsol_version}
-""".format(
+""".format(year = year,
 cvode_version = cvode_version,
 cvodes_version = cvodes_version,
 arkode_version = arkode_version,
