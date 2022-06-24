@@ -20,7 +20,7 @@ Opening a Pull Request
 When a branch is ready to be reviewed for integration into the ``master`` or
 ``develop`` branches follow the steps below to open a pull request:
 
-#. Browse to https://mybitbucket.llnl.gov/projects/SUNDIALS/repos/sunrepo
+#. Browse to `https://github.com/LLNL/sundials <https://github.com/LLNL/sundials>`_
 
 #. Click on the branch icon on the left side of screen - you'll see a list
    of all available branches

@@ -12,5 +12,9 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
+**********
+References
+**********
+
 .. [GoogleStyle] `Google Style Guides
                  <https://google.github.io/styleguide/>`_

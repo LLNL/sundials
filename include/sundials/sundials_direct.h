@@ -417,7 +417,6 @@ sunindextype* newIndexArray(sunindextype n);
 SUNDIALS_EXPORT
 realtype* SUNDlsMat_newRealArray(sunindextype m);
 
-SUNDIALS_EXPORT
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newRealArray instead")
   realtype* newRealArray(sunindextype m);
 
