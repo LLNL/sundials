@@ -66,8 +66,19 @@ Citing
 
 .. include:: ../../shared/cite_sundials.rst
 
-We also ask that users cite the documentation for the package that they are using
-rather than the combined SUNDIALS online guide:
+When using the ARKODE package from SUNDIALS, please also cite:
+
+.. code-block:: latex
+
+   @article{reynolds2022arkode,
+     title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
+     author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
+     journal = {arXiv preprint arXiv:2205.14077},
+     year    = {2022}
+   }
+
+We also ask that users cite the documentation for the package and version that
+they are using rather than the combined SUNDIALS online guide:
 
 .. parsed-literal::
 
