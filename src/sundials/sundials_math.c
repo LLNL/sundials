@@ -152,7 +152,7 @@ long double sunNextafterl(long double from, long double to)
 sunrealtype SUNStrToReal(const char* str)
 {
   char* end;
-#if (__STDC_VERSION__ >= 199901L)
+#if (SUNDIALS_STDC_VERSION >= 199901L)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   return strtold(str, &end);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
