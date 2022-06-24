@@ -101,7 +101,7 @@ numfig_format = {
 }
 
 rst_epilog = """
-.. |YEAR| replace:: 2021
+.. |YEAR| replace:: {year}
 .. |CVODE_VERSION| replace:: {cvode_version}
 .. |CVODES_VERSION| replace:: {cvodes_version}
 .. |ARKODE_VERSION| replace:: {arkode_version}
@@ -109,7 +109,7 @@ rst_epilog = """
 .. |IDAS_VERSION| replace:: {idas_version}
 .. |KINSOL_VERSION| replace:: {kinsol_version}
 .. |SUNDIALS_VERSION| replace:: {sundials_version}
-""".format(
+""".format(year = year,
 cvode_version = cvode_version,
 cvodes_version = cvodes_version,
 arkode_version = arkode_version,
