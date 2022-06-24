@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for IDAS'
-copyright = u'2012-2021, Radu Serban, Cosmin Petra, Alan C. Hindmarsh, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward. Release number UCRL-SM-208112'
+copyright = """2009-{year}, Radu Serban, Cosmin Petra, Alan C. Hindmarsh, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Developer Documentation for SUNDIALS'
-copyright = u'Copyright (c) 2002-2022, Lawrence Livermore National Security and Southern Methodist University.'
+copyright = """2002-{year}, Lawrence Livermore National Security and Southern Methodist University""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
