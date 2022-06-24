@@ -1,0 +1,33 @@
+#
+name: single precision build and test with GCC+TPLs (no GPUs)
+
+on:
+  pull_request:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
+      options: --user root
+    strategy:
+      matrix:
+        indexsize: [32, 64]
+        precision: ['single']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Run test_driver.sh
+        uses: ./.github/actions/test-driver
+        with:
+          indexsize: ${{ matrix.indexsize }}
+          precision: ${{ matrix.precision }}
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v2.2.4
+        if: failure()
+        with:
+          name: build_files
+          path: |
+            ${{ github.workspace }}/test/build_*

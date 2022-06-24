@@ -17,6 +17,7 @@ SUNDIALS Developers Guide
 #########################
 
 .. toctree::
+   :numbered:
    :maxdepth: 2
 
    introduction/index
@@ -29,8 +30,3 @@ SUNDIALS Developers Guide
    releases/index
    appendix/index
    references
-
-..
-   Future chapters to add:
-   testing/index
-   pull_requests/index
