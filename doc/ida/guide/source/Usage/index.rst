@@ -2648,6 +2648,8 @@ described next.
      * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
+   .. versionadded:: 6.3.0
+
 .. c:function:: int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
 
    The function ``IDAPrintAllStats`` outputs all of the integrator, nonlinear
