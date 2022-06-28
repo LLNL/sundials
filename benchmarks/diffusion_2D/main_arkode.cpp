@@ -22,6 +22,7 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include "string.h"
 
 struct UserOptions
 {
