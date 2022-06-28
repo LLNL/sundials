@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
 	if (uopts.userefsols) {
 	  for (int iin = 0; iin < uout.nout; iin++) {
 		char filename[50];
-		sprintf(filename, "diffusion_arkode_u_%d_%d.out", iin, myid);
+		sprintf(filename, "diffusion_refsol_u_%d_%d.out", iin, myid);
 		ifstream solfile(filename);
 		vector<realtype> soldata((istream_iterator<realtype>(solfile)),istream_iterator<realtype>());
 		realtype* solrawdata = soldata.data();
@@ -420,8 +420,11 @@ int main(int argc, char* argv[])
 	
 	  // Compute solution error
 	  if (uopts.userefsols) {
+		if (outproc) printf("Using reference solutions for iout: %d\n",iout);
 		N_VLinearSum(ONE, u, -ONE, solutions_vec.at(iout), uout.error);
+		N_VAbs(uout.error,uout.error);
 	  } else {
+		if (outproc) printf("Using analytical solution for iout: %d\n",iout);
 	  	SolutionError(t, u, uout.error, &udata);
 	  }
 	  max_error = std::max(max_error, N_VMaxNorm(uout.error)); 
@@ -432,7 +435,7 @@ int main(int argc, char* argv[])
 
 	  if (uopts.savesols) {
 		char filename[50];
-		sprintf(filename, "diffusion_arkode_u_%d_%d.out", iout, myid);
+		sprintf(filename, "diffusion_refsol_u_%d_%d.out", iout, myid);
 		FILE* solfile = fopen(filename, "w");
 		N_VPrintFile_Parallel(u, solfile);
 		fclose(solfile);
