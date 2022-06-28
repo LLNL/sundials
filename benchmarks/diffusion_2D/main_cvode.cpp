@@ -31,6 +31,12 @@ struct UserOptions
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
   int      maxord      = 5; 			   // maximum order of the linear multistep methods
+  realtype eta_cf = 0.25;
+  realtype eta_max_fx = 1.5;
+  realtype eta_min_fx = 0.0;
+  realtype eta_max_gs = 10.0;
+  realtype eta_min = 1.0;
+  realtype eta_min_ef = 0.1;
   bool stats	            = false;	   // whether to output integrator statistics
   bool savesols             = false;	   // whether to save solutions to disc
   bool userefsols           = false;       // whether to use generated solutions to compute error
@@ -309,8 +315,30 @@ int main(int argc, char* argv[])
     flag = CVodeSetMaxNonlinIters(cvode_mem, uopts.maxcor);
     if (check_flag(&flag, "CVodeSetMaxNonlinIters", 1)) return 1;	
 
+	// Set max integrator order
 	flag = CVodeSetMaxOrd(cvode_mem, uopts.maxord);
 	if (check_flag(&flag, "CvodeSetMaxOrd", 1)) return 1;
+
+	// Set size change after solver failure
+	flag = CVodeSetEtaConvFail(cvode_mem, uopts.eta_cf);
+	if (check_flag(&flag, "CvodeSetEtaConvFail", 1)) return 1;
+
+	// Set fixed step eta bounds
+	flag = CVodeSetEtaFixedStepBounds(cvode_mem, uopts.eta_min_fx, uopts.eta_max_fx);
+	if (check_flag(&flag, "CvodeSetEtaFixedStepBounds", 1)) return 1;
+	
+	// Set max step size change 
+	flag = CVodeSetEtaMax(cvode_mem, uopts.eta_max_gs);
+	if (check_flag(&flag, "CvodeSetEtaMax", 1)) return 1;
+
+	// Set min step size change
+	flag = CVodeSetEtaMin(cvode_mem, uopts.eta_min);
+	if (check_flag(&flag, "CvodeSetEtaMin", 1)) return 1;
+
+	// Set min step size change on error test fail
+	flag = CVodeSetEtaMinErrFail(cvode_mem, uopts.eta_min_ef);
+	if (check_flag(&flag, "CvodeSetEtaMinErrFail", 1)) return 1;
+	
 
     // Set max steps between outputs
     //flag = CVodeSetMaxNumSteps(cvode_mem, uopts.maxsteps);
@@ -413,7 +441,7 @@ int main(int argc, char* argv[])
     // --------------
 
     // Print final integrator stats
-    if (outproc)
+    if (outproc && uopts.stats)
     {
       cout << "Final integrator statistics:" << endl;
       flag = OutputStats(cvode_mem, &udata);
@@ -674,6 +702,48 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--eta_cf");
+  if (it != args.end())
+  {
+    eta_cf = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--eta_max_fx");
+  if (it != args.end())
+  {
+    eta_max_fx = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--eta_min_fx");
+  if (it != args.end())
+  {
+    eta_min_fx = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--eta_max_gs");
+  if (it != args.end())
+  {
+    eta_max_gs = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--eta_min");
+  if (it != args.end())
+  {
+    eta_min = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--eta_min_ef");
+  if (it != args.end())
+  {
+    eta_min_ef = stod(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
   return 0;
 }
 
@@ -689,6 +759,11 @@ void UserOptions::help()
   cout << "  --savesols			 : save solutions to disc" << endl;
   cout << "  --userefsols		 : use generated solutions for error computation" << endl;
   cout << "  --maxord <order>    : maximum order of the linear multistep methods" << endl;
+  cout << "  --eta_cf <factor>    : step size change after solver failure" << endl;
+  cout << "  --eta_max_fx <factor> --eta_min_fx <factor>   : fixed step eta bounds" << endl;
+  cout << "  --eta_max_gs <factor>    : maximum step size change" << endl;
+  cout << "  --eta_min <factor>    : minimum step size change" << endl;
+  cout << "  --eta_min_ef <factor>    : minimum step size change on error test fail" << endl;
   cout << "  --gmres             : use GMRES linear solver" << endl;
   cout << "  --lsinfo            : output residual history" << endl;
   cout << "  --liniters <iters>  : max number of iterations" << endl;
@@ -715,6 +790,11 @@ void UserOptions::print()
   cout << " atol        = " << atol        << endl;
   cout << " max steps   = " << maxsteps    << endl;
   cout << " max order   = " << maxord      << endl;
+  cout << " post solver fail step size change   = " << eta_cf      << endl;
+  cout << " fixed step eta bounds   = " << eta_max_fx << "," << eta_min_fx      << endl;
+  cout << " max step size change   = " << eta_max_gs      << endl;
+  cout << " min step size change   = " << eta_min      << endl;
+  cout << " post error test fail min step size change    = " << eta_min_ef      << endl;
   cout << " stats       = " << stats       << endl;
   cout << " savesols    = " << savesols    << endl;
   cout << " userefsols  = " << userefsols  << endl;
