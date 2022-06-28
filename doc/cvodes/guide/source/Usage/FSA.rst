@@ -91,9 +91,12 @@ sensitivity analysis beyond those for IVP solution
 
 #. :silver:`Set nonlinear solver optional inputs` :silverit:`(optional)`
 
-#. **Set vector** ``yQ0`` **of initial values for quadrature variables**
+#. **Initialize the quadrature problem** *(optional)*
 
-   Typically, the quadrature variables should be initialized to 0.
+   If the quadrature is not sensitivity-dependent, initialize the quadrature
+   integration as described in :numref:`CVODES.Usage.Purequad`. For integrating
+   a problem where the quadrature depends on the forward sensitivities see
+   :numref:`CVODES.Usage.FSA.quad`.
 
 #. **Define the sensitivity problem**
 
