@@ -1002,7 +1002,7 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_MATH_LIBRARY
 
-   The math library (e.g., ``libm``) to link with.
+   The standard C math library (e.g., ``libm``) to link with.
 
    Default: ``-lm`` on Unix systems, none otherwise
 
@@ -1022,8 +1022,7 @@ illustration only.
 
 .. cmakeoption:: USE_GENERIC_MATH
 
-   Use the std-c math functions. Results in linking to
-   :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
+   Link to :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
 
    .. note:: This option only exists on Unix systems.
 
