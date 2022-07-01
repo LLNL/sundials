@@ -297,10 +297,10 @@ macro to be referenced.
    Call ``IDAGet***`` functions to obtain optional output. See
    :numref:`IDA.Usage.CC.optional_output` for details.
 
-#. **Deallocate memory**
+#. **Destroy objects**
 
-   Upon completion of the integration call the following, as necessary, to free
-   any objects or memory allocated above:
+   Upon completion of the integration call the following functions, as
+   necessary, to destroy any objects created above:
 
    * Call :c:func:`N_VDestroy` to free vector objects.
    * Call :c:func:`SUNMatDestroy` to free matrix objects.
