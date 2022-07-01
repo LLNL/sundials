@@ -95,7 +95,7 @@ user-callable routines:
    NVECTOR.
 
 
-.. c:function:: realtype *N_VGetArrayPointer_MPIPlusX(N_Vector v)
+.. c:function:: N_Vector_Data N_VGetArrayPointer_MPIPlusX(N_Vector v)
 
    This function returns the data array pointer for the local vector.
 

@@ -347,10 +347,10 @@ SWIGEXPORT void _wrap_FN_VSpace_Pthreads(N_Vector farg1, int64_t *farg2, int64_t
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Pthreads(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
+  N_Vector_Data result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_Pthreads(arg1);
+  result = (N_Vector_Data)N_VGetArrayPointer_Pthreads(arg1);
   fresult = result;
   return fresult;
 }

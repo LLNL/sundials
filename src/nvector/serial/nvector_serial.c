@@ -371,7 +371,7 @@ void N_VSpace_Serial(N_Vector v, sunindextype *lrw, sunindextype *liw)
   return;
 }
 
-realtype *N_VGetArrayPointer_Serial(N_Vector v)
+N_Vector_Data N_VGetArrayPointer_Serial(N_Vector v)
 {
   return((realtype *) NV_DATA_S(v));
 }

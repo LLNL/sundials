@@ -446,7 +446,7 @@ void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw)
  * then use HYPRE functions to get pointer to raw data of the local HYPRE
  * vector.
  */
-realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
+N_Vector_Data N_VGetArrayPointer_ParHyp(N_Vector v)
 {
   return NULL; /* ((realtype *) NV_DATA_PH(v)); */
 }

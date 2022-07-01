@@ -428,7 +428,7 @@ extern realtype *N_VGetHostArrayPointer_Raja(N_Vector x);
  * we just mark it as extern here.
  */
 
-extern realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x);
+extern N_Vector_Data N_VGetDeviceArrayPointer_Raja(N_Vector x);
 
 
 /* ----------------------------------------------------------------------------

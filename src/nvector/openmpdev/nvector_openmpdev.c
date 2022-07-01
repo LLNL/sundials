@@ -268,7 +268,7 @@ realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
 /* ----------------------------------------------------------------------------
  * Function to return a pointer to the data array on the device.
  */
-realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
+N_Vector_Data N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 {
   return((realtype *) NV_DATA_DEV_OMPDEV(v));
 }

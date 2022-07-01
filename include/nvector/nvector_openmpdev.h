@@ -100,7 +100,7 @@ SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMPDEV(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v);
 
-SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v);
+SUNDIALS_EXPORT N_Vector_Data N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v);
 
 SUNDIALS_EXPORT void N_VPrint_OpenMPDEV(N_Vector v);
 

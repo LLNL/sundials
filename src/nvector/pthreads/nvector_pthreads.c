@@ -470,7 +470,7 @@ void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw)
  * Get vector data pointer
  */
 
-realtype *N_VGetArrayPointer_Pthreads(N_Vector v)
+N_Vector_Data N_VGetArrayPointer_Pthreads(N_Vector v)
 {
   return((realtype *) NV_DATA_PT(v));
 }

@@ -75,7 +75,7 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
 
 SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec v, SUNContext sunctx);
 
-SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Petsc(N_Vector v);
+SUNDIALS_EXPORT N_Vector_Data N_VGetArrayPointer_Petsc(N_Vector v);
 
 SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 

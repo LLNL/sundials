@@ -317,12 +317,12 @@ void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw)
   return;
 }
 
-realtype *N_VGetArrayPointer(N_Vector v)
+N_Vector_Data N_VGetArrayPointer(N_Vector v)
 {
   return((realtype *) v->ops->nvgetarraypointer(v));
 }
 
-realtype *N_VGetDeviceArrayPointer(N_Vector v)
+N_Vector_Data N_VGetDeviceArrayPointer(N_Vector v)
 {
   if (v->ops->nvgetdevicearraypointer)
     return((realtype *) v->ops->nvgetdevicearraypointer(v));

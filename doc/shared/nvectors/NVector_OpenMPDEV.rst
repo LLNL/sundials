@@ -156,7 +156,7 @@ user-callable routines:
    This function returns a pointer to the host data array.
 
 
-.. c:function:: realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: N_Vector_Data N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the device data array.
 

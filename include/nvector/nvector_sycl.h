@@ -104,7 +104,7 @@ realtype *N_VGetHostArrayPointer_Sycl(N_Vector x)
 }
 
 SUNDIALS_STATIC_INLINE
-realtype *N_VGetDeviceArrayPointer_Sycl(N_Vector x)
+N_Vector_Data N_VGetDeviceArrayPointer_Sycl(N_Vector x)
 {
   N_VectorContent_Sycl content = (N_VectorContent_Sycl)x->content;
   return(content->device_data == NULL ? NULL : (realtype*)content->device_data->ptr);

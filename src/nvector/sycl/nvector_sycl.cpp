@@ -525,7 +525,7 @@ extern realtype *N_VGetHostArrayPointer_Sycl(N_Vector x);
 
 /* Return pointer to the raw device data. This is defined as an inline function
  * in nvector_sycl.h, so we just mark it as extern here. */
-extern realtype *N_VGetDeviceArrayPointer_Sycl(N_Vector x);
+extern N_Vector_Data N_VGetDeviceArrayPointer_Sycl(N_Vector x);
 
 
 /* Set pointer to the raw host data. Does not free the existing pointer. */

@@ -94,7 +94,7 @@ realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 }
 
 SUNDIALS_STATIC_INLINE
-realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
+N_Vector_Data N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
   N_VectorContent_Cuda content = (N_VectorContent_Cuda)x->content;
   return(content->device_data == NULL ? NULL : (realtype*)content->device_data->ptr);

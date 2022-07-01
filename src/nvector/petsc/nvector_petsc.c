@@ -422,7 +422,7 @@ void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw)
 /*
  * Not implemented for PETSc wrapper.
  */
-realtype *N_VGetArrayPointer_Petsc(N_Vector v)
+N_Vector_Data N_VGetArrayPointer_Petsc(N_Vector v)
 {
   return NULL;
 }

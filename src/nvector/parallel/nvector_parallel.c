@@ -417,7 +417,7 @@ void N_VSpace_Parallel(N_Vector v, sunindextype *lrw, sunindextype *liw)
   return;
 }
 
-realtype *N_VGetArrayPointer_Parallel(N_Vector v)
+N_Vector_Data N_VGetArrayPointer_Parallel(N_Vector v)
 {
   return((realtype *) NV_DATA_P(v));
 }

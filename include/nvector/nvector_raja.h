@@ -91,7 +91,7 @@ realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
 }
 
 SUNDIALS_STATIC_INLINE
-realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
+N_Vector_Data N_VGetDeviceArrayPointer_Raja(N_Vector x)
 {
   N_VectorContent_Raja content = (N_VectorContent_Raja)x->content;
   return(content->device_data == NULL ? NULL : (realtype*)content->device_data->ptr);

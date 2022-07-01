@@ -79,6 +79,7 @@ typedef enum {
   SUNDIALS_NVEC_CUSTOM
 } N_Vector_ID;
 
+typedef realtype* N_Vector_Data;
 
 /* -----------------------------------------------------------------
  * Generic definition of N_Vector
@@ -103,16 +104,16 @@ struct _generic_N_Vector_Ops {
    */
 
   /* constructors, destructors, and utility operations */
-  N_Vector_ID  (*nvgetvectorid)(N_Vector);
-  N_Vector     (*nvclone)(N_Vector);
-  N_Vector     (*nvcloneempty)(N_Vector);
-  void         (*nvdestroy)(N_Vector);
-  void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
-  realtype*    (*nvgetarraypointer)(N_Vector);
-  realtype*    (*nvgetdevicearraypointer)(N_Vector);
-  void         (*nvsetarraypointer)(realtype *, N_Vector);
-  void*        (*nvgetcommunicator)(N_Vector);
-  sunindextype (*nvgetlength)(N_Vector);
+  N_Vector_ID   (*nvgetvectorid)(N_Vector);
+  N_Vector      (*nvclone)(N_Vector);
+  N_Vector      (*nvcloneempty)(N_Vector);
+  void          (*nvdestroy)(N_Vector);
+  void          (*nvspace)(N_Vector, sunindextype *, sunindextype *);
+  N_Vector_Data (*nvgetarraypointer)(N_Vector);
+  N_Vector_Data (*nvgetdevicearraypointer)(N_Vector);
+  void          (*nvsetarraypointer)(realtype *, N_Vector);
+  void*         (*nvgetcommunicator)(N_Vector);
+  sunindextype  (*nvgetlength)(N_Vector);
 
   /* standard vector operations */
   void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
@@ -212,8 +213,8 @@ SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw);
-SUNDIALS_EXPORT realtype *N_VGetArrayPointer(N_Vector v);
-SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer(N_Vector v);
+SUNDIALS_EXPORT N_Vector_Data N_VGetArrayPointer(N_Vector v);
+SUNDIALS_EXPORT N_Vector_Data N_VGetDeviceArrayPointer(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);
