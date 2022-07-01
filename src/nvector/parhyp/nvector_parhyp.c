@@ -25,12 +25,12 @@
 #include <sundials/sundials_math.h>
 
 // HYPRE defines
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)		// Backend or Backends
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)		
 #include "VectorKernels.cuh"
 
 #define SUNDIALS_GPU_PREFIX(val) cuda ## val
 #define SUNDIALS_GPU_VERIFY SUNDIALS_CUDA_VERIFY
-#else if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 	// add HIP here 
+#elif defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 	// add HIP here 
 #else
 #error "Unknown HYPRE backend"
 #endif
@@ -605,8 +605,11 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+//#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
+//#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+
 
   return;
 }

@@ -102,7 +102,6 @@
 #ifndef SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
 #define SUNDIALS_MAX_SPRINTF_SIZE @SUNDIALS_MAX_SPRINTF_SIZE@
 #endif
-:set number
 
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
