@@ -16,15 +16,15 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 set(CVODE_examples
-  "cvRoberts_blockdiag_magma.cpp\;\;develop"
+  "cv_blockdiag_magma.cpp\;\;develop"
 )
 
 if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-  set_source_files_properties(cvRoberts_blockdiag_magma.cpp PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(cv_blockdiag_magma.cpp PROPERTIES LANGUAGE CUDA)
   set(vector nveccuda)
   set(cuda_or_hip CUDA)
 elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
-  set_source_files_properties(cvRoberts_blockdiag_magma.cpp PROPERTIES LANGUAGE CXX)
+  set_source_files_properties(cv_blockdiag_magma.cpp PROPERTIES LANGUAGE CXX)
   set(vector nvechip)
   set(cuda_or_hip HIP)
 endif()

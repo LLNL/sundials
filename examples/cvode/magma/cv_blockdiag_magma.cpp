@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * The problem is stiff. This program solves the problem with the BDF method,
  * Newton iteration, a user-supplied Jacobian routine, and since the grouping
  * of the independent systems results in a block diagonal linear system, with
- * the Ginkgo SUNLinearSolver which supports batched iterative methods.
+ * the MAGMADENSE SUNLinearSolver which supports batched LU factorization.
  * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
  *
@@ -32,7 +32,7 @@
  * or non-batched GMRES), and the test type (uniform_1, uniform_2, uniform_3,
  * or random).
  *
- *    ./cv_blockdiag_ginkgo [number of batches] [solver_type] [test_type]
+ *    ./cv_blockdiag_magma [number of batches] [solver_type] [test_type]
  * --------------------------------------------------------------------------*/
 
 #include <memory>
@@ -40,28 +40,27 @@
 #include <cstdio>
 
 #include <cvode/cvode.h>                              /* prototypes for CVODE fcts., consts.           */
-#include <sunmatrix/sunmatrix_ginkgoblock.hpp>        /* access to the MAGMA dense SUNMatrix           */
-#include <sunlinsol/sunlinsol_ginkgoblock.hpp>        /* access to MAGMA dense SUNLinearSolver         */
-#include <sunlinsol/sunlinsol_spgmr.h>
+#include <sunmatrix/sunmatrix_magmadense.h>           /* access to the MAGMA dense SUNMatrix           */
+#include <sunlinsol/sunlinsol_magmadense.h>           /* access to MAGMA dense SUNLinearSolver         */
+#include <sunlinsol/sunlinsol_spgmr.h>                /* access to GMRES SUNLinearSolver               */
 
 /* Convenience macro to help support both HIP and CUDA */
-#if defined(SUNDIALS_GINKGO_BACKENDS_HIP)
+#if defined(SUNDIALS_MAGMA_BACKENDS_HIP)
 #define HIP_OR_CUDA(a,b) a
-#elif defined(SUNDIALS_GINKGO_BACKENDS_CUDA)
+#elif defined(SUNDIALS_MAGMA_BACKENDS_CUDA)
 #define HIP_OR_CUDA(a,b) b
 #else
-#define HIP_OR_CUDA(a,b((void)0);
+#define HIP_OR_CUDA(a,b) ((void)0);
 #endif
 
 /* Include the appropriate vector and memory helper based on the GPU target */
-#if defined(SUNDIALS_GINKGO_BACKENDS_CUDA)
+#if defined(SUNDIALS_MAGMA_BACKENDS_CUDA)
 #include <nvector/nvector_cuda.h>
 #include <sunmemory/sunmemory_cuda.h>
-#elif defined(SUNDIALS_GINKGO_BACKENDS_HIP)
+#elif defined(SUNDIALS_MAGMA_BACKENDS_HIP)
 #include <nvector/nvector_hip.h>
 #include <sunmemory/sunmemory_hip.h>
 #endif
-
 
 /* Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
@@ -76,10 +75,7 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 __global__
 static void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtype* B,
-                     sunrealtype* Ep, int neq, int nbatches, int batchSize, int nnzper);
-
-/* Private function to initialize the Jacobian sparsity pattern */
-static int JacInit(SUNMatrix J);
+                     sunrealtype* Ep, int neq, int nbatches, int batchSize);
 
 /* Private function to output results */
 static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
@@ -108,25 +104,19 @@ using RealArray = Array<sunrealtype, int>;
 /* User data structure. This will be available
    in SUNDIALS callback functions. */
 struct UserData {
-  UserData(int nbatches, int batchSize, int nnzper, SUNMemoryHelper h)
-    : nbatches(nbatches), batchSize(batchSize), nnzper(nnzper), neq(batchSize*nbatches),
+  UserData(int nbatches, int batchSize, SUNMemoryHelper h)
+    : nbatches(nbatches), batchSize(batchSize), neq(batchSize*nbatches),
       u0{nbatches, h}, v0{nbatches, h}, w0{nbatches, h},
       a{nbatches, h}, b{nbatches, h}, ep{nbatches, h}
   { }
 
-  int nbatches;         /* number of chemical networks  */
-  int batchSize;        /* size of each network         */
-  int nnzper;           /* number of nonzeros per batch */
-  int neq;              /* total number of equations    */
+  int nbatches;         /* number of chemical networks */
+  int batchSize;        /* size of each network        */
+  int neq;              /* total number of equations   */
   RealArray u0, v0, w0; /* initial conditions */
   RealArray a, b;       /* chemical concentrations that are constant */
   RealArray ep;
 };
-
-/* Shortcuts */
-using GkoMatType = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
-using SUNMatrixView = sundials::ginkgo::BlockMatrix<GkoMatType>;
-using SUNLinearSolverView = sundials::ginkgo::BlockLinearSolver<gko::solver::BatchGmres<sunrealtype>, SUNMatrixView>;
 
 /*
  *-------------------------------
@@ -143,26 +133,22 @@ int main(int argc, char *argv[])
   const sunrealtype reltol = 1.0e-6;      /* relative integrator tolerance */
   int retval;
   N_Vector y, abstol;
-  SUNLinearSolver LS_GMRES;
+  SUNMatrix A;
+  SUNLinearSolver LS;
   void *cvode_mem;
 
   y = abstol = NULL;
-  LS_GMRES = NULL;
+  A = NULL;
+  LS = NULL;
   cvode_mem = NULL;
 
   /* Create the SUNDIALS context */
   sundials::Context sunctx;
 
-  /* Create the Ginkgo executor */
-  auto gko_exec =
-      HIP_OR_CUDA(gko::HipExecutor::create(0, gko::OmpExecutor::create(), true),
-                  gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true));
-
   /* Create a SUNMemoryHelper for HIP or CUDA depending on the target.
-     This will be used underneath the Arrays. */
+     This will be used underneath the Arrays and the Magma solver. */
   SUNMemoryHelper memhelper = HIP_OR_CUDA( SUNMemoryHelper_Hip(sunctx);,
                                            SUNMemoryHelper_Cuda(sunctx); )
-
   /* Set defaults */
   int batchSize = 3;
   int nbatches  = 100;
@@ -179,7 +165,7 @@ int main(int argc, char *argv[])
     test_type = atoi(argv[++argi]);
   }
 
-  UserData udata{ nbatches, batchSize, batchSize*batchSize, memhelper };
+  UserData udata{ nbatches, batchSize, memhelper };
 
   /* Set the Reaction parameters according to test_type_type */
   for (int batchj = 0; batchj < udata.nbatches; ++batchj) {
@@ -255,37 +241,31 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSVtolerances", 1)) { return(1); }
 
   /* Create SUNMatrix for use in linear solves */
-  sunindextype block_rows = udata.batchSize;
-  sunindextype block_cols = udata.batchSize;
-  auto block_size = gko::batch_dim<2>(udata.nbatches, gko::dim<2>(block_rows , block_cols));
-  auto gko_matA = gko::share(GkoMatType::create(gko_exec, block_size, udata.nnzper));
-  SUNMatrixView A{gko_matA, sunctx};
-
-  /* Initialiize the Jacobian with its fixed sparsity pattern */
-  JacInit(A);
+  A = SUNMatrix_MagmaDenseBlock(udata.nbatches, udata.batchSize, udata.batchSize, SUNMEMTYPE_DEVICE,
+                                memhelper, NULL, sunctx);
+  if(check_retval((void *)A, "SUNMatrix_MagmaDenseBlock", 0)) return(1);
 
   /* Create the SUNLinearSolver object for use by CVode */
-  auto precond_factory = gko::share(gko::preconditioner::BatchJacobi<sunrealtype>::build().on(gko_exec));
-  SUNLinearSolverView LS{gko_exec, gko::stop::batch::ToleranceType::absolute,
-                         nullptr, udata.nbatches, sunctx};
-  LS.setEnableScaling(false);
-
-  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0) {
-    retval = CVodeSetLinearSolver(cvode_mem, LS.get(), A.get());
-    if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
+    LS = SUNLinSol_MagmaDense(y, A, sunctx);
+    if(check_retval((void *)LS, "SUNLinSol_MagmaDense", 0)) return(1);
+
+    /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+    retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+    if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
     /* Set the user-supplied Jacobian routine Jac */
     retval = CVodeSetJacFn(cvode_mem, Jac);
     if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
-  } else if (solver_type == 1) {
-    LS_GMRES = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
-    retval = CVodeSetLinearSolver(cvode_mem, LS_GMRES, NULL);
-    if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
+  } else {
+    LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
+    if(check_retval((void *)LS, "SUNLinSol_MagmaDense", 0)) return(1);
+
+    /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+    retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+    if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
   }
 
-  // CVodeSetEpsLin(cvode_mem, SUN_UNIT_ROUNDOFF);
-  CVodeSetMaxNumSteps(cvode_mem, 1000);
 
   /* In loop, call CVode, print results, and test_type for error.
      Break out of loop when preset output times have been reached.  */
@@ -320,53 +300,18 @@ int main(int argc, char *argv[])
   N_VDestroy(y);
   N_VDestroy(abstol);
 
-  /* Free linear solver if needed */
-  if (LS_GMRES) SUNLinSolFree(LS_GMRES);
-
   /* Free integrator memory */
   CVodeFree(&cvode_mem);
 
-  return(0);
-}
+  /* Free the linear solver memory */
+  SUNLinSolFree(LS);
 
-
-/*
- * Jacobian initialization routine. This sets the sparisty pattern of
- * the blocks of the Jacobian J(t,y) = df/dy. This is performed on the CPU,
- * and only occurs at the beginning of the simulation.
- */
-
-int JacInit(SUNMatrix J)
-{
-  auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
-  auto gko_exec = Jgko->get_executor();
-
-  sunindextype* rowptrs = Jgko->get_row_ptrs();
-  sunindextype* colvals = Jgko->get_col_idxs();
-
-  /* there are 3 entries per row */
-  rowptrs[0] = 0;
-  rowptrs[1] = 3;
-  rowptrs[2] = 6;
-  rowptrs[3] = 9;
-
-  /* first row of block */
-  colvals[0] = 0;
-  colvals[1] = 1;
-  colvals[2] = 2;
-
-  /* second row of block */
-  colvals[3] = 0;
-  colvals[4] = 1;
-  colvals[5] = 2;
-
-  /* third row of block */
-  colvals[6] = 0;
-  colvals[7] = 1;
-  colvals[8] = 2;
+  /* Free the matrix memory */
+  SUNMatDestroy(A);
 
   return(0);
 }
+
 
 /*
  *-------------------------------
@@ -378,7 +323,7 @@ int JacInit(SUNMatrix J)
    to do the actual computation. At the very least, doing this
    saves moving the vector data in y and ydot to/from the device
    every evaluation of f. */
-int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData *udata;
   sunrealtype *ydata, *ydotdata;
@@ -434,25 +379,21 @@ void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
  * This is done on the GPU.
  */
 
-int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+        void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
-  realtype *Jdata, *ydata;
-  int *rowptrs, *colvals;
+  sunrealtype *Jdata, *ydata;
   unsigned block_size, grid_size;
-  auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
 
-  Jdata = Jgko->get_values();
-  rowptrs = Jgko->get_row_ptrs();
-  colvals = Jgko->get_col_idxs();
-  ydata = N_VGetDeviceArrayPointer(y);
+  Jdata   = SUNMatrix_MagmaDense_Data(J);
+  ydata   = N_VGetDeviceArrayPointer(y);
 
   block_size = HIP_OR_CUDA( 64, 32 );
   grid_size = (udata->neq + block_size - 1) / block_size;
 
   j_kernel<<<grid_size, block_size>>>(ydata, Jdata, udata->a.get(), udata->b.get(),
-    udata->ep.get(), udata->neq, udata->nbatches, udata->batchSize, udata->nnzper);
+    udata->ep.get(), udata->neq, udata->nbatches, udata->batchSize);
 
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
   HIP_OR_CUDA( hipError_t cuerr = hipGetLastError();,
@@ -470,8 +411,10 @@ int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 /* Jacobian evaluation GPU kernel */
 __global__
 void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtype* B,
-              sunrealtype* Ep, int neq, int nbatches, int batchSize, int nnzper)
+              sunrealtype* Ep, int neq, int nbatches, int batchSize)
 {
+  int N  = batchSize;
+  int NN = N*N;
   sunrealtype u, v, w, a, b, ep;
 
   for (int batchj = blockIdx.x*blockDim.x + threadIdx.x;
@@ -481,35 +424,35 @@ void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtyp
     a = A[batchj]; b = B[batchj], ep = Ep[batchj];
 
     /* get y values */
-    u = ydata[batchSize*batchj + 1];
-    v = ydata[batchSize*batchj + 1];
-    w = ydata[batchSize*batchj + 2];
+    u = ydata[N*batchj];
+    v = ydata[N*batchj + 1];
+    w = ydata[N*batchj + 2];
 
-    /* first row of block */
-    Jdata[nnzper*batchj]     = -(w+1.0) + 2.0*u*v;
-    Jdata[nnzper*batchj + 1] = u*u;
-    Jdata[nnzper*batchj + 2] = -w;
+    /* first col of block */
+    Jdata[NN*batchj]       = -(w+1.0) + 2.0*u*v;
+    Jdata[NN*batchj + 1]   = u*u;
+    Jdata[NN*batchj + 2]   = -u;
 
-    /* second row of block */
-    Jdata[nnzper*batchj + 3] = u*u;
-    Jdata[nnzper*batchj + 4] = -u*u;
-    Jdata[nnzper*batchj + 5] =  0.0;
+    /* second col of block */
+    Jdata[NN*batchj + 3]   = u*u;
+    Jdata[NN*batchj + 4]   = -u*u;
+    Jdata[NN*batchj + 5]   = u;
 
-    /* third row of block */
-    Jdata[nnzper*batchj + 6] = -u;
-    Jdata[nnzper*batchj + 7] = u;
-    Jdata[nnzper*batchj + 8] = -1.0/ep - u;
+    /* third col of block */
+    Jdata[NN*batchj + 6]   = -w;
+    Jdata[NN*batchj + 7]   = 0.0;
+    Jdata[NN*batchj + 8]   = -1.0/ep - u;
 
     // printf("%.6f %.6f\n", y2, y3);
-    // printf("%.6f ", Jdata[nnzper*batchj]);
-    // printf("%.6f ", Jdata[nnzper*batchj + 1]);
-    // printf("%.6f\n", Jdata[nnzper*batchj + 2]);
-    // printf("%.6f ", Jdata[nnzper*batchj + 3]);
-    // printf("%.6f ", Jdata[nnzper*batchj + 4]);
-    // printf("%.6f\n", Jdata[nnzper*batchj + 5]);
-    // printf("%.6f ", Jdata[nnzper*batchj + 6]);
-    // printf("%.6f ", Jdata[nnzper*batchj + 7]);
-    // printf("%.6f\n\n", Jdata[nnzper*batchj + 8]);
+    // printf("%.6f ", Jdata[NN*batchj]);
+    // printf("%.6f ", Jdata[NN*batchj + 3]);
+    // printf("%.6f\n", Jdata[NN*batchj + 6]);
+    // printf("%.6f ", Jdata[NN*batchj + 1]);
+    // printf("%.6f ", Jdata[NN*batchj + 4]);
+    // printf("%.6f\n", Jdata[NN*batchj + 7]);
+    // printf("%.6f ", Jdata[NN*batchj + 2]);
+    // printf("%.6f ", Jdata[NN*batchj + 5]);
+    // printf("%.6f\n\n", Jdata[NN*batchj + 8]);
   }
 }
 
@@ -519,7 +462,7 @@ void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtyp
  *-------------------------------
  */
 
-void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

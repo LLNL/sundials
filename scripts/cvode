@@ -207,8 +207,8 @@ $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.out
 
 $tar $tarfile $distrobase/examples/cvode/magma/README
 $tar $tarfile $distrobase/examples/cvode/magma/CMakeLists.txt
-$tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.cpp
-$tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.out
+$tar $tarfile $distrobase/examples/cvode/magma/cv_blockdiag_magma.cpp
+$tar $tarfile $distrobase/examples/cvode/magma/cv_blockdiag_magma.out
 
 $tar $tarfile $distrobase/examples/cvode/raja/README
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt

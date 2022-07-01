@@ -170,7 +170,7 @@ public:
     }
     N_VDiv(ones_, s2, s2inv_); // ginkgo expects s2 to be s2inv already
     left_scale_vec_  = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1));
-    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2inv_));
+    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2));
     scaling_changed_ = true;
   }
 
@@ -203,8 +203,8 @@ public:
     SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
     SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
-    // auto tmp_matrix = Clone(matrix_); // protect the matrix since ginkgo scales it in place
-    // Copy(*matrix_, *tmp_matrix);
+    auto tmp_matrix = Clone(matrix_); // protect the matrix since ginkgo scales it in place
+    Copy(*matrix_, *tmp_matrix);
     solver_ = solver_factory_->generate(matrix_->gkomtx());
     SUNDIALS_MARK_END(sunProfiler(), "generate solver");
 
@@ -225,7 +225,7 @@ public:
       // x = A'^{-1} diag(left) b
       SUNDIALS_MARK_BEGIN(sunProfiler(), "solver apply");
       result = solver_->apply(b_vec.get(), x_vec.get());
-      // N_VPrint(x);
+      N_VPrint(x);
       SUNDIALS_MARK_END(sunProfiler(), "solver apply");
     } else {
       SUNDIALS_MARK_BEGIN(sunProfiler(), "Wrap vector(s) for solve");
@@ -235,7 +235,7 @@ public:
       // x = A^'{-1} diag(right) x
       SUNDIALS_MARK_BEGIN(sunProfiler(), "solver apply");
       result = solver_->apply(x_vec.get(), x_vec.get());
-      // N_VPrint(x);
+      N_VPrint(x);
       SUNDIALS_MARK_END(sunProfiler(), "solver apply");
     }
 
