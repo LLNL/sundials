@@ -118,7 +118,7 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in vx.x.x
+Changes in v5.3.0
 -----------------
 
 Added the functions :c:func:`ARKStepGetUserData`, :c:func:`ERKStepGetUserData`,
