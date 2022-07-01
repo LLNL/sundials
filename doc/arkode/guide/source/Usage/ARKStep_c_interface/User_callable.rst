@@ -3158,6 +3158,7 @@ Current ERK and DIRK Butcher tables                    :c:func:`ARKStepGetCurren
 Estimated local truncation error vector                :c:func:`ARKStepGetEstLocalErrors()`
 Single accessor to many statistics at once             :c:func:`ARKStepGetTimestepperStats()`
 Number of constraint test failures                     :c:func:`ARKStepGetNumConstrFails()`
+Retrieve a pointer for user data                       :c:func:`ARKStepGetUserData`
 =====================================================  ============================================
 
 
@@ -3594,6 +3595,22 @@ Number of constraint test failures                     :c:func:`ARKStepGetNumCon
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+
+
+.. c:function:: int ARKStepGetUserData(void* arkode_mem, void** user_data)
+
+   Returns the user data pointer previously set with
+   :c:func:`ARKStepSetUserData`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *user_data* -- memory reference to a user data pointer
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   .. versionadded:: 5.3.0
 
 
 .. _ARKODE.Usage.ARKStep.ARKStepImplicitSolverOutputs:

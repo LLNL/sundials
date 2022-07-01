@@ -121,6 +121,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRocket_dns.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRocket_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/plot_cvParticle.py
 $tar $tarfile $distrobase/examples/cvode/serial/plot_cvPendulum.py
 
@@ -246,6 +248,8 @@ $tar $tarfile $distrobase/examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl.out
 echo "   --- Add cvode unit tests to $tarfile"
 
 $tar $tarfile $distrobase/test/unit_tests/cvode/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvode/C_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvode/C_serial/cv_test_getuserdata.c
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.cpp
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.hpp

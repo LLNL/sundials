@@ -2057,6 +2057,24 @@ int IDAGetNumStepSensSolveFails(void *ida_mem, long int *nSncfails)
 
 /*-----------------------------------------------------------------*/
 
+int IDAGetUserData(void *ida_mem, void** user_data)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetUserData", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *user_data = IDA_mem->ida_user_data;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDAPrintAllStats(void *ida_mem, FILE *outfile, SUNOutputFormat fmt)
 {
   IDAMem IDA_mem;

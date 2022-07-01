@@ -297,10 +297,10 @@ macro to be referenced.
    Call ``IDAGet***`` functions to obtain optional output. See
    :numref:`IDA.Usage.CC.optional_output` for details.
 
-#. **Deallocate memory**
+#. **Destroy objects**
 
-   Upon completion of the integration call the following, as necessary, to free
-   any objects or memory allocated above:
+   Upon completion of the integration call the following functions, as
+   necessary, to destroy any objects created above:
 
    * Call :c:func:`N_VDestroy` to free vector objects.
    * Call :c:func:`SUNMatDestroy` to free matrix objects.
@@ -1906,27 +1906,27 @@ Time step adaptivity optional input functions
 
 .. table:: Optional inputs for IDA time step adaptivity
 
-   +------------------------------------------------------+------------------------------------+----------------+
-   | **Optional input**                                   | **Function name**                  | **Default**    |
-   +======================================================+====================================+================+
-   | Fixed step size bounds :math:`\eta_{\text{min\_fx}}` | :c:func:`IDASetEtaFixedStepBounds` | 1.0 and 2.0    |
-   | and :math:`\eta_{\text{max\_fx}}`                    |                                    |                |
-   +------------------------------------------------------+------------------------------------+----------------+
-   | Maximum step size growth factor                      | :c:func:`IDASetEtaMax`             | 2.0            |
-   | :math:`\eta_{\text{max}}`                            |                                    |                |
-   +------------------------------------------------------+------------------------------------+----------------+
-   | Minimum step size reduction factor                   | :c:func:`IDASetEtaMin`             | 0.5            |
-   | :math:`\eta_{\text{min}}`                            |                                    |                |
-   +------------------------------------------------------+------------------------------------+----------------+
-   | Maximum step size reduction factor                   | :c:func:`IDASetEtaLow`             | 0.9            |
-   | :math:`\eta_{\text{low}}`                            |                                    |                |
-   +------------------------------------------------------+------------------------------------+----------------+
-   | Minimum step size reduction factor after an error    | :c:func:`IDASetEtaMinErrFail`      | 0.25           |
-   | test failure :math:`\eta_{\text{min\_ef}}`           |                                    |                |
-   +------------------------------------------------------+------------------------------------+----------------+
-   | Step size reduction factor after a nonlinear solver  | :c:func:`IDASetEtaConvFail`        | 0.25           |
-   | convergence failure :math:`\eta_{\text{cf}}`         |                                    |                |
-   +------------------------------------------------------+------------------------------------+----------------+
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | **Optional input**                                     | **Function name**                  | **Default**    |
+   +========================================================+====================================+================+
+   | Fixed step size bounds :math:`\eta_{\mathrm{min\_fx}}` | :c:func:`IDASetEtaFixedStepBounds` | 1.0 and 2.0    |
+   | and :math:`\eta_{\mathrm{max\_fx}}`                    |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size growth factor                        | :c:func:`IDASetEtaMax`             | 2.0            |
+   | :math:`\eta_{\mathrm{max}}`                            |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor                     | :c:func:`IDASetEtaMin`             | 0.5            |
+   | :math:`\eta_{\mathrm{min}}`                            |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size reduction factor                     | :c:func:`IDASetEtaLow`             | 0.9            |
+   | :math:`\eta_{\mathrm{low}}`                            |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor after an error      | :c:func:`IDASetEtaMinErrFail`      | 0.25           |
+   | test failure :math:`\eta_{\mathrm{min\_ef}}`           |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Step size reduction factor after a nonlinear solver    | :c:func:`IDASetEtaConvFail`        | 0.25           |
+   | convergence failure :math:`\eta_{\mathrm{cf}}`         |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
 
 
 The following functions can be called to set optional inputs to control the
@@ -1943,16 +1943,16 @@ step size adaptivity.
 .. c:function:: int IDASetEtaFixedStepBounds(void* ida_mem, realtype eta_min_fx, realtype eta_max_fx)
 
    The function ``IDASetEtaFixedStepBounds`` specifies the bounds
-   :math:`\eta_{\text{min\_fx}}` and :math:`\eta_{\text{max\_fx}}`. If step size
-   change factor :math:`\eta` satisfies :math:`\eta_{\text{min\_fx}} < \eta <
-   \eta_{\text{max\_fx}}` the current step size is retained.
+   :math:`\eta_{\mathrm{min\_fx}}` and :math:`\eta_{\mathrm{max\_fx}}`. If step size
+   change factor :math:`\eta` satisfies :math:`\eta_{\mathrm{min\_fx}} < \eta <
+   \eta_{\mathrm{max\_fx}}` the current step size is retained.
 
-   The default values are :math:`\eta_{\text{fxmin}} = 1` and
-   :math:`\eta_{\text{fxmax}} = 2`.
+   The default values are :math:`\eta_{\mathrm{fxmin}} = 1` and
+   :math:`\eta_{\mathrm{fxmax}} = 2`.
 
-   ``eta_fxmin`` should satisfy :math:`0 < \eta_{\text{fxmin}} \leq 1`,
+   ``eta_fxmin`` should satisfy :math:`0 < \eta_{\mathrm{fxmin}} \leq 1`,
    otherwise the default value is used. ``eta_fxmax`` should satisfy
-   :math:`\eta_{\text{fxmin}} \geq 1`, otherwise the default value is used.
+   :math:`\eta_{\mathrm{fxmin}} \geq 1`, otherwise the default value is used.
 
    **Arguments:**
       * ``ida_mem`` -- pointer to the IDA solver object.
@@ -1968,9 +1968,9 @@ step size adaptivity.
 .. c:function:: int IDASetEtaMax(void* ida_mem, realtype eta_max)
 
    The function ``IDASetEtaMax`` specifies the maximum step size growth
-   factor :math:`\eta_{\text{max}}`.
+   factor :math:`\eta_{\mathrm{max}}`.
 
-   The default value is :math:`\eta_{\text{max}} = 2`.
+   The default value is :math:`\eta_{\mathrm{max}} = 2`.
 
    **Arguments:**
       * ``ida_mem`` -- pointer to the IDA solver object.
@@ -1985,11 +1985,11 @@ step size adaptivity.
 .. c:function:: int IDASetEtaMin(void* ida_mem, realtype eta_min)
 
    The function ``IDASetEtaMin`` specifies the minimum step size reduction
-   factor :math:`\eta_{\text{min}}`.
+   factor :math:`\eta_{\mathrm{min}}`.
 
-   The default value is :math:`\eta_{\text{min}} = 0.5`.
+   The default value is :math:`\eta_{\mathrm{min}} = 0.5`.
 
-   ``eta_min`` should satisfy :math:`0 < \eta_{\text{min}} < 1`, otherwise the
+   ``eta_min`` should satisfy :math:`0 < \eta_{\mathrm{min}} < 1`, otherwise the
    default value is used.
 
    **Arguments:**
@@ -2005,11 +2005,11 @@ step size adaptivity.
 .. c:function:: int IDASetEtaLow(void* ida_mem, realtype eta_low)
 
    The function ``IDASetEtaLow`` specifies the maximum step size reduction
-   factor :math:`\eta_{\text{low}}`.
+   factor :math:`\eta_{\mathrm{low}}`.
 
-   The default value is :math:`\eta_{\text{low}} = 0.9`.
+   The default value is :math:`\eta_{\mathrm{low}} = 0.9`.
 
-   ``eta_low`` should satisfy :math:`0 < \eta_{\text{low}} \leq 1`, otherwise
+   ``eta_low`` should satisfy :math:`0 < \eta_{\mathrm{low}} \leq 1`, otherwise
    the default value is used.
 
    **Arguments:**
@@ -2025,9 +2025,9 @@ step size adaptivity.
 .. c:function:: int IDASetEtaMinErrFail(void* ida_mem, realtype eta_min_ef)
 
    The function ``IDASetEtaMinErrFail`` specifies the minimum step size
-   reduction factor :math:`\eta_{\text{min\_ef}}` after an error test failure.
+   reduction factor :math:`\eta_{\mathrm{min\_ef}}` after an error test failure.
 
-   The default value is :math:`\eta_{\text{min\_ef}} = 0.25`.
+   The default value is :math:`\eta_{\mathrm{min\_ef}} = 0.25`.
 
    If ``eta_min_ef`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
    used.
@@ -2045,9 +2045,9 @@ step size adaptivity.
 .. c:function:: int IDASetEtaConvFail(void* ida_mem, realtype eta_cf)
 
    The function ``IDASetEtaConvFail`` specifies the step size reduction factor
-   :math:`\eta_{\text{cf}}` after a nonlinear solver convergence failure.
+   :math:`\eta_{\mathrm{cf}}` after a nonlinear solver convergence failure.
 
-   The default value is :math:`\eta_{\text{cf}} = 0.25`.
+   The default value is :math:`\eta_{\mathrm{cf}} = 0.25`.
 
    If ``eta_cf`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
    used.
@@ -2223,7 +2223,7 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of local error test failures that have occurred                | :c:func:`IDAGetNumErrTestFails`        |
   +--------------------------------------------------------------------+----------------------------------------+
-  | No. of failed steps due to a nonlinear solver failure              | :c:func:`IDAGetNumStepSolveFails()`    |
+  | No. of failed steps due to a nonlinear solver failure              | :c:func:`IDAGetNumStepSolveFails`      |
   +--------------------------------------------------------------------+----------------------------------------+
   | Order used during the last step                                    | :c:func:`IDAGetLastOrder`              |
   +--------------------------------------------------------------------+----------------------------------------+
@@ -2243,9 +2243,15 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | Estimated local errors                                             | :c:func:`IDAGetEstLocalErrors`         |
   +--------------------------------------------------------------------+----------------------------------------+
+  | All IDA integrator statistics                                      | :c:func:`IDAGetIntegratorStats`        |
+  +--------------------------------------------------------------------+----------------------------------------+
   | No. of nonlinear solver iterations                                 | :c:func:`IDAGetNumNonlinSolvIters`     |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of nonlinear convergence failures                              | :c:func:`IDAGetNumNonlinSolvConvFails` |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | IDA nonlinear solver statistics                                    | :c:func:`IDAGetNonlinSolvStats`        |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | User data pointer                                                  | :c:func:`IDAGetUserData`               |
   +--------------------------------------------------------------------+----------------------------------------+
   | Array showing roots found                                          | :c:func:`IDAGetRootInfo`               |
   +--------------------------------------------------------------------+----------------------------------------+
@@ -2628,6 +2634,21 @@ described next.
       * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
       * ``IDA_MEM_FAIL`` -- The ``SUNNonlinearSolver`` object is ``NULL``.
+
+.. c:function:: int IDAGetUserData(void* ida_mem, void** user_data)
+
+   The function ``IDAGetUserData`` returns the user data pointer provided to
+   :c:func:`IDASetUserData`.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``user_data`` -- memory reference to a user data pointer.
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 6.3.0
 
 .. c:function:: int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
 

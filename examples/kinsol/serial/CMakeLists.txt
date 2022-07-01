@@ -29,13 +29,13 @@ set(KINSOL_examples
   "kinAnalytic_fp\;--m_aa 2 --orth_aa 2\;"
   "kinAnalytic_fp\;--m_aa 2 --orth_aa 3\;"
   "kinFerTron_dns\;\;develop"
-  "kinFoodWeb_kry\;\;develop"
-  "kinKrylovDemo_ls\;\;develop"
-  "kinLaplace_bnd\;\;develop"
-  "kinLaplace_picard_bnd\;\;develop"
-  "kinLaplace_picard_kry\;\;develop"
+  "kinFoodWeb_kry\;\;exclude-single"
+  "kinKrylovDemo_ls\;\;exclude-single"
+  "kinLaplace_bnd\;\;exclude-single"
+  "kinLaplace_picard_bnd\;\;exclude-single"
+  "kinLaplace_picard_kry\;\;exclude-single"
   "kinRoberts_fp\;\;develop"
-  "kinRoboKin_dns\;\;develop"
+  "kinRoboKin_dns\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers

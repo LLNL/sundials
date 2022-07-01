@@ -118,8 +118,13 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v5.3.0
+Changes in vx.x.x
 -----------------
+
+Added the functions :c:func:`ARKStepGetUserData`, :c:func:`ERKStepGetUserData`,
+and :c:func:`MRIStepGetUserData` to retrieve the user data pointer provided to
+:c:func:`ARKStepSetUserData`, :c:func:`ERKStepSetUserData`, and
+:c:func:`MRIStepSetUserData`, respectively.
 
 Fixed a bug in :c:func:`ERKStepReset()`, :c:func:`ERKStepReInit()`,
 :c:func:`ARKStepReset()`, :c:func:`ARKStepReInit()`, :c:func:`MRIStepReset()`, and
@@ -132,6 +137,7 @@ Updated :c:func:`MRIStepReset()` to call the corresponding
 :c:type:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
 scale subproblems.
 
+Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
 
 Changes in v5.2.0
 -----------------

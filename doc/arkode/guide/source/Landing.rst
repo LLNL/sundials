@@ -33,6 +33,17 @@
 
       .. include:: ../../../shared/cite_sundials.rst
 
+      Please also cite the following paper when using ARKODE:
+
+      .. code-block:: latex
+
+         @article{reynolds2022arkode,
+           title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
+           author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
+           journal = {arXiv preprint arXiv:2205.14077},
+           year    = {2022}
+         }
+
       The ARKODE documentation can be cited:
 
       .. parsed-literal::
@@ -40,6 +51,6 @@
          @Misc{arkodeDocumentation,
             author = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
             title  = {User Documentation for ARKODE},
-            year   = {|YEAR|}
+            year   = {|YEAR|},
             note   = {|ARKODE_VERSION|}
          }

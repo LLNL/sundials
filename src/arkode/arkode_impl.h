@@ -1019,6 +1019,7 @@ int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails);
 int arkGetStepStats(void *arkode_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);
+int arkGetUserData(void *arkode_mem, void** user_data);
 int arkPrintAllStats(void *arkode_mem, FILE *outfile,
                      SUNOutputFormat fmt);
 char *arkGetReturnFlagName(long int flag);

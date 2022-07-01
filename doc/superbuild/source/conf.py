@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath('../../shared/versions.py')))
@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for SUNDIALS'
-copyright = u'Copyright (c) 2002-2022, Lawrence Livermore National Security and Southern Methodist University.'
+copyright = """2002-{year}, Lawrence Livermore National Security and Southern Methodist University""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -99,15 +99,17 @@ numfig_format = {
   'section': '§%s'
 }
 
+rst_prolog = open('../../shared/global.rst.txt', 'r').read()
+
 rst_epilog = """
-.. |YEAR| replace:: 2021
+.. |YEAR| replace:: {year}
 .. |CVODE_VERSION| replace:: {cvode_version}
 .. |CVODES_VERSION| replace:: {cvodes_version}
 .. |ARKODE_VERSION| replace:: {arkode_version}
 .. |IDA_VERSION| replace:: {ida_version}
 .. |IDAS_VERSION| replace:: {idas_version}
 .. |KINSOL_VERSION| replace:: {kinsol_version}
-""".format(
+""".format(year = year,
 cvode_version = cvode_version,
 cvodes_version = cvodes_version,
 arkode_version = arkode_version,
@@ -115,7 +117,6 @@ ida_version = ida_version,
 idas_version = idas_version,
 kinsol_version = kinsol_version
 )
-
 
 # -- Options for HTML output ---------------------------------------------------
 
