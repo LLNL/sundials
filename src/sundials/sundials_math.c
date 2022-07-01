@@ -27,7 +27,7 @@ static long double sunNextafterl(long double from, long double to);
 
 static booleantype sunIsInf(sunrealtype a)
 {
-#if (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
   return(isinf(a));
 #else
   return(a < -BIG_REAL || a > BIG_REAL);
@@ -36,7 +36,7 @@ static booleantype sunIsInf(sunrealtype a)
 
 static booleantype sunIsNaN(sunrealtype a)
 {
-#if (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
   return(isnan(a));
 #else
   /* Most compilers/platforms follow NaN != a,
@@ -63,7 +63,7 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
   if (base <= RCONST(0.0)) return(RCONST(0.0));
 
-#if (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   return(pow(base, exponent));
 #elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -114,7 +114,7 @@ booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 
 long double sunNextafterl(long double from, long double to)
 {
-#if (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
   return nextafterl(from, to);
 #else
   union {
@@ -152,7 +152,7 @@ long double sunNextafterl(long double from, long double to)
 sunrealtype SUNStrToReal(const char* str)
 {
   char* end;
-#if (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   return strtold(str, &end);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
