@@ -70,6 +70,16 @@ if(Trilinos_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
 endif()
 
+# prepare substitution varibale SUNDIALS_HYPRE_BACKENDS
+
+if(SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
+  set(SUNDIALS_HYPRE_BACKENDS_SERIAL TRUE) 
+endif()		
+
+if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")   
+  set(SUNDIALS_HYPRE_BACKENDS_CUDA TRUE) 
+endif()
+
 # prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
 foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)

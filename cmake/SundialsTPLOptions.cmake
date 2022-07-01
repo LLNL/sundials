@@ -163,6 +163,9 @@ sundials_option(HYPRE_LIBRARY_DIR PATH "HYPRE library directory" "${HYPRE_LIBRAR
 sundials_option(HYPRE_WORKS BOOL "Set to ON to force CMake to accept a given hypre configuration" OFF
                 DEPENDS_ON ENABLE_HYPRE
                 ADVANCED)
+sundials_option(SUNDIALS_HYPRE_BACKENDS STRING "Which HYPRE backend under the SUNDIALS HYPRE interfaces (CUDA, HIP, SYCL, SERIAL)" "SERIAL"
+                OPTIONS "CUDA;HIP;SYCL;SERIAL"
+                DEPENDS_ON ENABLE_HYPRE)
 
 # ---------------------------------------------------------------
 # Enable PETSc support?

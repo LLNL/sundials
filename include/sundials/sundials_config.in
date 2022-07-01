@@ -102,6 +102,7 @@
 #ifndef SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
 #define SUNDIALS_MAX_SPRINTF_SIZE @SUNDIALS_MAX_SPRINTF_SIZE@
 #endif
+:set number
 
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
@@ -133,6 +134,12 @@
 #cmakedefine SUNDIALS_RAJA_BACKENDS_CUDA
 #cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
 #cmakedefine SUNDIALS_RAJA_BACKENDS_SYCL
+
+/* HYPRE backends */
+#cmakedefine SUNDIALS_HYPRE_BACKENDS_CUDA
+#cmakedefine SUNDIALS_HYPRE_BACKENDS_HIP
+#cmakedefine SUNDIALS_HYPRE_BACKENDS_SYCL
+#cmakedefine SUNDIALS_HYPRE_BACKENDS_SERIAL
 
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled

@@ -41,6 +41,10 @@ if(ENABLE_HYPRE)
   if(NOT ENABLE_MPI)
     print_error("MPI is required for hypre support. Set ENABLE_MPI to ON.")
   endif()
+  if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
+    print_error("HYPRE with CUDA backend requires you to enable CUDA. Set ENABLE_CUDA=ON")
+  endif()    
+
   # Using hypre requres C99 or newer
   if(CMAKE_C_STANDARD STREQUAL "90")
     message(SEND_ERROR "CMAKE_C_STANDARD must be >= c99 with ENABLE_HYPRE=ON")

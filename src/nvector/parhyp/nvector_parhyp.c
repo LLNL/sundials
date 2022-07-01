@@ -24,10 +24,25 @@
 #include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
 
+// HYPRE defines
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)		// Backend or Backends
+#include "VectorKernels.cuh"
+
+#define SUNDIALS_GPU_PREFIX(val) cuda ## val
+#define SUNDIALS_GPU_VERIFY SUNDIALS_CUDA_VERIFY
+#else if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 	// add HIP here 
+#else
+#error "Unknown HYPRE backend"
+#endif
+
+
+
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
+
+
 
 /*
  * -----------------------------------------------------------------
