@@ -162,8 +162,8 @@ Added the functions
 :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`,
 :c:func:`CVodeSetEtaMax`,
 :c:func:`CVodeSetEtaMin`,
-:c:func:`CVodeSetEtaMinErrFailEta`,
-:c:func:`CVodeSetEtaMaxErrFailEta`,
+:c:func:`CVodeSetEtaMinErrFail`,
+:c:func:`CVodeSetEtaMaxErrFail`,
 :c:func:`CVodeSetNumFailsEtaMaxErrFail`, and
 :c:func:`CVodeSetEtaConvFail` to adjust various parameters controlling changes
 in step size.

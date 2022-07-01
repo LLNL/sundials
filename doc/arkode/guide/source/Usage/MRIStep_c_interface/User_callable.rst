@@ -2747,6 +2747,7 @@ Main solver optional output functions
 
    * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+   .. versionadded:: 5.3.0
 
 
 .. _ARKODE.Usage.MRIStep.MRIStepImplicitSolverOutputs:

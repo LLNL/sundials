@@ -262,24 +262,17 @@ function to be called or macro to be referenced.
    #. **Get optional outputs**
       Call ``CV*Get*`` functions to obtain optional output. See :numref:`CVODES.Usage.SIM.optional_output` for details.
 
-   #. **Deallocate memory for solution vector**
-      Upon completion of the integration, deallocate memory for the vector ``y``
-      (or ``yout``) by calling the appropriate destructor function defined by
-      the ``N_Vector`` implementation.
+   #. **Destroy objects**
 
-   #. **Free solver memory**
-      Call :c:func:`CVodeFree` to free the memory allocated by CVODES.
+      Upon completion of the integration call the following functions, as
+      necessary, to destroy any objects created above:
 
-   #. **Free nonlinear solver memory** (*optional*)
-      If a non-default nonlinear solver was used, then call :c:func:`SUNNonlinSolFree` to free any
-      memory allocated for the ``SUNNonlinearSolver`` object.
-
-   #. **Free linear solver and matrix memory**
-      Call :c:func:`SUNLinSolFree` and :c:func:`SUNMatDestroy` to free any memory allocated for the linear solver and
-      matrix objects created above.
-
-   #. **Free the SUNContext object**
-      Call :c:func:`SUNContext_Free` to free the memory allocated for the ``SUNContext`` object.
+      * Call :c:func:`N_VDestroy` to free vector objects.
+      * Call :c:func:`SUNMatDestroy` to free matrix objects.
+      * Call :c:func:`SUNLinSolFree` to free linear solvers objects.
+      * Call :c:func:`SUNNonlinSolFree` to free nonlinear solvers objects.
+      * Call :c:func:`CVodeFree` to free the memory allocated by CVODES.
+      * Call :c:func:`SUNContext_Free` to free the SUNDIALS context.
 
    #. **Finalize MPI, if used**
       Call ``MPI_Finalize`` to terminate MPI.
@@ -1695,47 +1688,47 @@ Time step adaptivity optional input functions
 
 .. table:: Optional inputs for CVODES time step adaptivity
 
-   +-------------------------------------+---------------------------------------------+----------------+
-   | **Optional input**                  | **Function name**                           | **Default**    |
-   +=====================================+=============================================+================+
-   | Fixed step size factor bounds       | :c:func:`CVodeSetEtaFixedStepBounds`        | 0 and 1.5      |
-   | :math:`\eta_{\text{min\_fx}}` and   |                                             |                |
-   | :math:`\eta_{\text{max\_fx}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetEtaMaxFirstStep`           | :math:`10^4`   |
-   | factor in the first step            |                                             |                |
-   | :math:`\eta_{\text{max\_fs}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`   | 10             |
-   | factor for early steps              |                                             |                |
-   | :math:`\eta_{\text{max\_es}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Number of time steps to use the     | :c:func:`CVodeSetNumStepsEtaMaxEarly`       | 10             |
-   | early step size change factor       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetEtaMax`                    | 10             |
-   | factor after a successful step      |                                             |                |
-   | :math:`\eta_{\text{max\_gs}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Smallest allowed step size change   | :c:func:`CVodeSetEtaMin`                    | 1.0            |
-   | factor after a successful step      |                                             |                |
-   | :math:`\eta_{\text{min}}`           |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Smallest allowed step size change   | :c:func:`CVodeSetEtaMinErrFail`             | 0.1            |
-   | factor after an error test fail     |                                             |                |
-   | :math:`\eta_{\text{min\_ef}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetEtaMaxErrFail`             | 0.2            |
-   | factor after multiple error test    |                                             |                |
-   | fails :math:`\eta_{\text{max\_ef}}` |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Number of error failures necessary  | :c:func:`CVodeSetNumFailsEtaMaxErrFail`     | 2              |
-   | for :math:`\eta_{\text{max\_ef}}`   |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Step size change factor after a     | :c:func:`CVodeSetEtaConvFail`               | 0.25           |
-   | nonlinear solver convergence        |                                             |                |
-   | failure :math:`\eta_{\text{cf}}`    |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
+   +---------------------------------------+---------------------------------------------+----------------+
+   | **Optional input**                    | **Function name**                           | **Default**    |
+   +=======================================+=============================================+================+
+   | Fixed step size factor bounds         | :c:func:`CVodeSetEtaFixedStepBounds`        | 0 and 1.5      |
+   | :math:`\eta_{\mathrm{min\_fx}}` and   |                                             |                |
+   | :math:`\eta_{\mathrm{max\_fx}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMaxFirstStep`           | :math:`10^4`   |
+   | factor in the first step              |                                             |                |
+   | :math:`\eta_{\mathrm{max\_fs}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMaxEarlyStep`           | 10             |
+   | factor for early steps                |                                             |                |
+   | :math:`\eta_{\mathrm{max\_es}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Number of time steps to use the       | :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`   | 10             |
+   | early step size change factor         |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMax`                    | 10             |
+   | factor after a successful step        |                                             |                |
+   | :math:`\eta_{\mathrm{max\_gs}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Smallest allowed step size change     | :c:func:`CVodeSetEtaMin`                    | 1.0            |
+   | factor after a successful step        |                                             |                |
+   | :math:`\eta_{\mathrm{min}}`           |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Smallest allowed step size change     | :c:func:`CVodeSetEtaMinErrFail`             | 0.1            |
+   | factor after an error test fail       |                                             |                |
+   | :math:`\eta_{\mathrm{min\_ef}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMaxErrFail`             | 0.2            |
+   | factor after multiple error test      |                                             |                |
+   | fails :math:`\eta_{\mathrm{max\_ef}}` |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Number of error failures necessary    | :c:func:`CVodeSetNumFailsEtaMaxErrFail`     | 2              |
+   | for :math:`\eta_{\mathrm{max\_ef}}`   |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Step size change factor after a       | :c:func:`CVodeSetEtaConvFail`               | 0.25           |
+   | nonlinear solver convergence          |                                             |                |
+   | failure :math:`\eta_{\mathrm{cf}}`    |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
 
 The following functions can be called to set optional inputs to control the
 step size adaptivity.
@@ -1751,13 +1744,13 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx, realtype eta_max_fx)
 
    The function ``CVodeSetEtaFixedStepBounds`` specifies the interval lower
-   (:math:`\eta_{\text{min\_fx}}`) and upper (:math:`\eta_{\text{max\_fx}}`)
+   (:math:`\eta_{\mathrm{min\_fx}}`) and upper (:math:`\eta_{\mathrm{max\_fx}}`)
    bounds in which the step size will remain unchanged i.e., if
-   :math:`\eta_{\text{min\_fx}} < \eta < \eta_{\text{max\_fx}}`, then
+   :math:`\eta_{\mathrm{min\_fx}} < \eta < \eta_{\mathrm{max\_fx}}`, then
    :math:`\eta = 1`.
 
-   The default values are :math:`\eta_{\text{min\_fx}} = 0` and
-   :math:`\eta_{\text{max\_fx}} = 1.5`
+   The default values are :math:`\eta_{\mathrm{min\_fx}} = 0` and
+   :math:`\eta_{\mathrm{max\_fx}} = 1.5`
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1777,9 +1770,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
 
    The function ``CVodeSetEtaMaxFirstStep`` specifies the maximum step size
-   factor after the first time step, :math:`\eta_{\text{max\_fs}}`.
+   factor after the first time step, :math:`\eta_{\mathrm{max\_fs}}`.
 
-   The default value is :math:`\eta_{\text{max\_fs}} = 10^4`.
+   The default value is :math:`\eta_{\mathrm{max\_fs}} = 10^4`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1797,9 +1790,9 @@ step size adaptivity.
 
    The function ``CVodeSetEtaMaxEarlyStepEtaMax`` specifies the maximum step size
    factor for steps early in the integration,
-   :math:`\eta_{\text{max\_es}}`.
+   :math:`\eta_{\mathrm{max\_es}}`.
 
-   The default value is :math:`\eta_{\text{max\_es}} = 10`.
+   The default value is :math:`\eta_{\mathrm{max\_es}} = 10`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1818,7 +1811,7 @@ step size adaptivity.
       :c:func:`CVodeSetEtaMaxFirstStep`.
 
       The number of time steps that use the early integration maximum step size
-      factor :math:`\eta_{\text{max\_es}}` can be set with
+      factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`.
 
    .. versionadded:: 6.2.0
@@ -1827,7 +1820,7 @@ step size adaptivity.
 
    The function ``CVodeSetNumStepsEtaMaxEarlyStep`` specifies the number of steps to
    use the early integration maximum step size factor,
-   :math:`\eta_{\text{max\_es}}`.
+   :math:`\eta_{\mathrm{max\_es}}`.
 
    The default value is 10.
 
@@ -1845,7 +1838,7 @@ step size adaptivity.
 
    .. note::
 
-      The factor :math:`\eta_{\text{max\_es}}` can be set with
+      The factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetEtaMaxEarlyStep`.
 
    .. versionadded:: 6.2.0
@@ -1853,9 +1846,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
 
    The function ``CVodeSetEtaMax`` specifies the maximum step size factor,
-   :math:`\eta_{\text{max\_gs}}`.
+   :math:`\eta_{\mathrm{max\_gs}}`.
 
-   The default value is :math:`\eta_{\text{max\_gs}} = 10`.
+   The default value is :math:`\eta_{\mathrm{max\_gs}} = 10`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1880,9 +1873,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
 
    The function ``CVodeSetEtaMin`` specifies the minimum step size factor,
-   :math:`\eta_{\text{min}}`.
+   :math:`\eta_{\mathrm{min}}`.
 
-   The default value is :math:`\eta_{\text{min}} = 1.0`.
+   The default value is :math:`\eta_{\mathrm{min}} = 1.0`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1899,9 +1892,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMinErrFail(void *cvode_mem, realtype eta_min_ef)
 
    The function ``CVodeSetEtaMinErrFail`` specifies the minimum step size
-   factor after an error test failure, :math:`\eta_{\text{min\_ef}}`.
+   factor after an error test failure, :math:`\eta_{\mathrm{min\_ef}}`.
 
-   The default value is :math:`\eta_{\text{min\_ef}} = 0.1`.
+   The default value is :math:`\eta_{\mathrm{min\_ef}} = 0.1`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1919,9 +1912,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
 
    The function ``CVodeSetEtaMaxErrFail`` specifies the maximum step size
-   factor after multiple error test failures, :math:`\eta_{\text{max\_ef}}`.
+   factor after multiple error test failures, :math:`\eta_{\mathrm{max\_ef}}`.
 
-   The default value is :math:`\eta_{\text{min\_ef}} = 0.2`.
+   The default value is :math:`\eta_{\mathrm{min\_ef}} = 0.2`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1937,7 +1930,7 @@ step size adaptivity.
    .. note::
 
       The number of error test failures necessary to enforce the maximum step
-      size factor :math:`\eta_{\text{min\_ef}}` can be set with
+      size factor :math:`\eta_{\mathrm{min\_ef}}` can be set with
       :c:func:`CVodeSetNumFailsEtaMaxErrFail`.
 
    .. versionadded:: 6.2.0
@@ -1946,7 +1939,7 @@ step size adaptivity.
 
    The function ``CVodeSetNumFailsEtaMaxErrFail`` specifies the number of error
    test failures necessary to enforce the maximum step size factor
-   :math:`\eta_{\text{max\_ef}}`.
+   :math:`\eta_{\mathrm{max\_ef}}`.
 
    The default value is 2.
 
@@ -1964,7 +1957,7 @@ step size adaptivity.
 
    .. note::
 
-      The factor :math:`\eta_{\text{max\_ef}}` can be set with
+      The factor :math:`\eta_{\mathrm{max\_ef}}` can be set with
       :c:func:`CVodeSetEtaMaxErrFail`.
 
    .. versionadded:: 6.2.0
@@ -1972,9 +1965,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
 
    The function ``CVodeSetEtaConvFail`` specifies the step size factor after a
-   nonlinear solver failure :math:`\eta_{\text{cf}}`.
+   nonlinear solver failure :math:`\eta_{\mathrm{cf}}`.
 
-   The default value is :math:`\eta_{\text{cf}} = 0.25`.
+   The default value is :math:`\eta_{\mathrm{cf}} = 0.25`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -2681,6 +2674,8 @@ described next.
    **Return value:**
      * ``CV_SUCCESS`` -- The optional output value has been successfully set.
      * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.3.0
 
 
 .. c:function:: int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
@@ -3758,82 +3753,78 @@ more efficient to treat the quadratures separately by excluding them from the
 nonlinear solution stage. To do this, begin by excluding the quadrature
 variables from the vector ``y`` and excluding the quadrature equations from
 within ``res``. Thus a separate vector ``yQ`` of quadrature variables is to
-satisfy :math:`(d/dt)`\ ``yQ`` = :math:`f_Q(t,y)`. The following is an overview
-of the sequence of calls in a user’s main program in this situation. Steps that
-are unchanged from the skeleton program presented in
-:numref:`CVODES.Usage.SIM.skeleton_sim` are left unbolded.
+satisfy :math:`(d/dt)`\ ``yQ`` = :math:`f_Q(t,y)`.
 
-  #. Initialize parallel or multi-threaded environment, if appropriate
+The following is an overview of the sequence of calls in a user’s main program
+in this situation. Steps that are unchanged from the skeleton presented in
+:numref:`CVODES.Usage.SIM.skeleton_sim` are grayed out and new or modified steps
+are in bold.
 
-  #. Create the SUNDIALS context object
+#. :silver:`Initialize parallel or multi-threaded environment, if appropriate`
 
-  #. Set problem dimensions etc.
+#. :silver:`Create the SUNDIALS context object`
 
-  #. Set vector of initial values
+#. :silver:`Set vector of initial values`
 
-  #. Create CVODES object
+#. :silver:`Create CVODES object`
 
-  #. Initialize CVODES solver
+#. :silver:`Initialize CVODES solver`
 
-  #. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-  #. Create matrix object
+#. :silver:`Create matrix object`
 
-  #. Create linear solver object
+#. :silver:`Create linear solver object`
 
-  #. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-  #. Attach linear solver module
+#. :silver:`Attach linear solver module`
 
-  #. Set optional inputs
+#. :silver:`Set optional inputs`
 
-  #. Create nonlinear solver object (*optional*)
+#. :silver:`Create nonlinear solver object` :silverit:`(optional)`
 
-  #. Attach nonlinear solver module (*optional*)
+#. :silver:`Attach nonlinear solver module` :silverit:`(optional)`
 
-  #. Set nonlinear solver optional inputs (*optional*)
+#. :silver:`Set nonlinear solver optional inputs` :silverit:`(optional)`
 
-  #. **Set vector** ``yQ0`` **of initial values for quadrature variables**
-      Typically, the quadrature variables should be initialized to 0.
+#. **Set vector** ``yQ0`` **of initial values for quadrature variables**
 
-  #. **Initialize quadrature integration**
-      Call :c:func:`CVodeQuadInit` to specify the quadrature equation right-hand
-      side function and to allocate internal memory related to quadrature integration.
-      See :numref:`CVODES.Usage.purequad.quad_malloc` for details.
+   Typically, the quadrature variables should be initialized to 0.
 
-  #. **Set optional inputs for quadrature integration**
-      Call :c:func:`CVodeSetQuadErrCon` to indicate whether or not quadrature
-      variables shoule be used in the step size control mechanism, and to specify
-      the integration tolerances for quadrature variables. See
-      :numref:`CVODES.Usage.purequad.optional_inputs` for details.
+#. **Initialize quadrature integration**
 
-  #. Specify rootfinding problem (*optional*)
+   Call :c:func:`CVodeQuadInit` to specify the quadrature equation right-hand
+   side function and to allocate internal memory related to quadrature integration.
+   See :numref:`CVODES.Usage.purequad.quad_malloc` for details.
 
-  #. Advance solution in time
+#. **Set optional inputs for quadrature integration**
 
-  #. **Extract quadrature variables**
-      Call :c:func:`CVodeGetQuad` to obtain the values of the quadrature
-      variables at the current time.
+   Call :c:func:`CVodeSetQuadErrCon` to indicate whether or not quadrature
+   variables shoule be used in the step size control mechanism, and to specify
+   the integration tolerances for quadrature variables. See
+   :numref:`CVODES.Usage.purequad.optional_inputs` for details.
 
-  #. Get optional outputs
+#. :silver:`Specify rootfinding problem` :silverit:`(optional)`
 
-  #. **Get quadrature optional outputs**
-      Call ``CVodeGetQuad**`` functions to obtain optional output related
-      to the integration of quadratures. See :numref:`CVODES.Usage.purequad.optional_output`
-      for details.
+#. :silver:`Advance solution in time`
 
-  #. Deallocate memory for solution vector
+#. **Extract quadrature variables**
 
-  #. Free solver memory
+   Call :c:func:`CVodeGetQuad` to obtain the values of the quadrature
+   variables at the current time.
 
-  #. Free nonlinear solver memory (*optional*)
+#. :silver:`Get optional outputs`
 
-  #. Free linear solver and matrix memory
+#. **Get quadrature optional outputs**
 
-  #. Free the SUNContext object
+   Call ``CVodeGetQuad**`` functions to obtain optional output related
+   to the integration of quadratures. See :numref:`CVODES.Usage.purequad.optional_output`
+   for details.
 
-  #. Finalize MPI, if used
+#. :silver:`Destroy objects`
 
+#. :silver:`Finalize MPI, if used`
 
 :c:func:`CVodeQuadInit` can be called and quadrature-related optional inputs
 can be set anywhere between the steps creating the CVODES object and advancing
@@ -4191,71 +4182,65 @@ additional functions. Aside from the header files required for the
 integration of the ODE problem (see :numref:`CVODES.Usage.SIM.header_sim`), to use
 the CVBANDPRE module, the main program must include the header file
 ``cvode_bandpre.h`` which declares the needed function prototypes.
-The following is a summary of the usage of this module. Steps that are
-changed from the skeleton program presented in
-:numref:`CVODES.Usage.SIM.skeleton_sim` are shown in bold.
 
-  #. Initialize multi-threaded environment, if appropriate
+The following is a summary of the usage of this module. Steps that are unchanged
+from the skeleton presented in :numref:`CVODES.Usage.SIM.skeleton_sim` are
+grayed out and new steps are in bold.
 
-  #. Create the ``SUNContext`` object.
+#. :silver:`Initialize multi-threaded environment, if appropriate`
 
-  #. Set problem dimensions etc.
+#. :silver:`Create the SUNDIALS context object.`
 
-  #. Set vector of initial values
+#. :silver:`Set vector of initial values`
 
-  #. Create CVODES object
+#. :silver:`Create CVODES object`
 
-  #. Initialize CVODES solver
+#. :silver:`Initialize CVODES solver`
 
-  #. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-  #. **Create linear solver object**
+#. **Create linear solver object**
 
-      When creating the iterative linear solver object, specify the type of
-      preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
+   When creating the iterative linear solver object, specify the type of
+   preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
 
-  #. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-  #. Attach linear solver module
+#. :silver:`Attach linear solver module`
 
-  #. **Initialize the CVBANDPRE preconditioner module**
+#. **Initialize the CVBANDPRE preconditioner module**
 
-     Specify the upper and lower half-bandwidths (``mu`` and ``ml``, respectively) and call
+   Specify the upper and lower half-bandwidths (``mu`` and ``ml``, respectively) and call
 
-     .. code-block:: c
+   .. code-block:: c
 
-        flag = CVBandPrecInit(cvode_mem, N, mu, ml);
+      flag = CVBandPrecInit(cvode_mem, N, mu, ml);
 
-     to allocate memory and initialize the internal preconditioner data.
+   to allocate memory and initialize the internal preconditioner data.
 
-  #. Set optional inputs.
+#. :silver:`Set optional inputs`
 
-     Note that the user should not overwrite the preconditioner setup function or solve function through calls to the :c:func:`CVodeSetPreconditioner` optional input function.
+   .. warning::
 
-  #. Create nonlinear solver object
+      The user should not overwrite the preconditioner setup function or solve
+      function through calls to the :c:func:`CVodeSetPreconditioner` optional
+      input function.
 
-  #. Attach nonlinear solver module
+#. :silver:`Create nonlinear solver object`
 
-  #. Set nonlinear solver optional inputs
+#. :silver:`Attach nonlinear solver module`
 
-  #. Specify rootfinding problem
+#. :silver:`Set nonlinear solver optional inputs`
 
-  #. Advance solution in time
+#. :silver:`Specify rootfinding problem`
 
-  #. **Get optional outputs**
+#. :silver:`Advance solution in time`
 
-     Additional optional outputs associated with CVBANDPRE are available by way of two routines described below, :c:func:`CVBandPrecGetWorkSpace` and :c:func:`CVBandPrecGetNumRhsEvals`.
+#. **Get optional outputs**
 
-  #. Deallocate memory for solution vector
+   Additional optional outputs associated with CVBANDPRE are available by way of two routines described below, :c:func:`CVBandPrecGetWorkSpace` and :c:func:`CVBandPrecGetNumRhsEvals`.
 
-  #. Free solver memory
-
-  #. Free nonlinear solver memory
-
-  #. Free linear solver memory
-
-  #. Free the SUNContext object
-
+#. :silver:`Destroy objects`
 
 The CVBANDPRE preconditioner module is initialized and attached by
 calling the following function:
@@ -4479,32 +4464,30 @@ Besides the header files required for the integration of the ODE problem
 must include the header file ``cvode_bbdpre.h`` which declares the needed
 function prototypes.
 
-The following is a summary of the usage of this module. Steps that are
-changed from the skeleton program presented in
-:numref:`CVODES.Usage.SIM.skeleton_sim` are shown in bold.
+The following is a summary of the usage of this module. Steps that are unchanged
+from the skeleton presented in :numref:`CVODES.Usage.SIM.skeleton_sim` are
+grayed out and new or modified steps are in bold.
 
-  #. Initialize MPI environment
+  #. :silver:`Initialize MPI environment`
 
-  #. Create the ``SUNContext`` object
+  #. :silver:`Create the SUNDIALS context object`
 
-  #. Set problem dimensions etc.
+  #. :silver:`Set vector of initial values`
 
-  #. Set vector of initial values
+  #. :silver:`Create CVODES object`
 
-  #. Create CVODES object
+  #. :silver:`Initialize CVODES solver`
 
-  #. Initialize CVODES solver
-
-  #. Specify integration tolerances
+  #. :silver:`Specify integration tolerances`
 
   #. **Create linear solver object**
 
      When creating the iterative linear solver object, specify the type
      of preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
 
-  #. Set linear solver optional inputs
+  #. :silver:`Set linear solver optional inputs`
 
-  #. Attach linear solver module
+  #. :silver:`Attach linear solver module`
 
   #. **Initialize the CVBBDPRE preconditioner module**
 
@@ -4519,21 +4502,23 @@ changed from the skeleton program presented in
      The last two arguments of :c:func:`CVBBDPrecInit` are the two user-supplied
      functions described above.
 
-  #. Set optional inputs
+  #. :silver:`Set optional inputs`
 
-     Note that the user should not overwrite the preconditioner setup function
-     or solve function through calls to the :c:func:`CVodeSetPreconditioner`
-     optional input function.
+     .. warning::
 
-  #. Create nonlinear solver object
+        The user should not overwrite the preconditioner setup function or solve
+        function through calls to the :c:func:`CVodeSetPreconditioner` optional
+        input function.
 
-  #. Attach nonlinear solver module
+  #. :silver:`Create nonlinear solver object`
 
-  #. Set nonlinear solver optional inputs
+  #. :silver:`Attach nonlinear solver module`
 
-  #. Specify rootfinding problem
+  #. :silver:`Set nonlinear solver optional inputs`
 
-  #. Advance solution in time
+  #. :silver:`Specify rootfinding problem`
+
+  #. :silver:`Advance solution in time`
 
   #. **Get optional outputs**
 
@@ -4541,17 +4526,9 @@ changed from the skeleton program presented in
      way of two routines described below, :c:func:`CVBBDPrecGetWorkSpace`
      and :c:func:`CVBBDPrecGetNumGfnEvals`.
 
-  #. Deallocate memory for solution vector
+  #. :silver:`Destroy objects`
 
-  #. Free solver memory
-
-  #. Free nonlinear solver memory
-
-  #. Free linear solver memory
-
-  #. Free the ``SUNContext`` object
-
-  #. Finalize MPI
+  #. :silver:`Finalize MPI`
 
 
 

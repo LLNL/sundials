@@ -253,8 +253,8 @@ We allow at most 3 iterations (but this limit can be changed by the user). We
 also declare the iteration diverged if any
 :math:`\|\delta_m\| / \|\delta_{m-1}\| > 2` with :math:`m > 1`. If convergence
 fails with :math:`J` or :math:`P` current, we are forced to reduce the step
-size, and we replace :math:`h_n` by :math:`h_n = \eta_{\text{cf}} * h_n` where
-the default is :math:`\eta_{\text{cf}} = 0.25`. The integration is halted
+size, and we replace :math:`h_n` by :math:`h_n = \eta_{\mathrm{cf}} * h_n` where
+the default is :math:`\eta_{\mathrm{cf}} = 0.25`. The integration is halted
 after a preset number of convergence failures; the default value of this
 limit is 10, but this can be changed by the user.
 
@@ -346,8 +346,8 @@ Here 1/6 is a safety factor. A new attempt at the step is made, and the
 error test repeated. If it fails three times, the order :math:`q` is
 reset to 1 (if :math:`q > 1`), or the step is restarted from scratch (if
 :math:`q = 1`). The ratio :math:`\eta = h'/h` is limited above to
-:math:`\eta_{\text{max\_ef}}` (default 0.2) after two error test failures,
-and limited below to :math:`\eta_{\text{min\_ef}}` (default 0.1) after three.
+:math:`\eta_{\mathrm{max\_ef}}` (default 0.2) after two error test failures,
+and limited below to :math:`\eta_{\mathrm{min\_ef}}` (default 0.1) after three.
 After seven failures, CVODE returns to the user with a give-up message.
 
 In addition to adjusting the step size to meet the local error test,
@@ -383,10 +383,10 @@ The new order and step size are then set according to
 .. math:: \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} \, ,
 
 with :math:`q'` set to the index achieving the above maximum. However, if we
-find that :math:`\eta < \eta_{\text{max\_fx}}` (default 1.5), we do not bother
+find that :math:`\eta < \eta_{\mathrm{max\_fx}}` (default 1.5), we do not bother
 with the change. Also, :math:`\eta` is always limited to
-:math:`\eta_{\text{max\_gs}}` (default 10), except on the first step, when it is
-limited to :math:`\eta_{\text{max\_fs}} = 10^4`.
+:math:`\eta_{\mathrm{max\_gs}}` (default 10), except on the first step, when it is
+limited to :math:`\eta_{\mathrm{max\_fs}} = 10^4`.
 
 The various algorithmic features of CVODE described above, as inherited from
 VODE and VODPK, are documented in :cite:p:`BBH:89,Byr:92,Hin:00`. They are also

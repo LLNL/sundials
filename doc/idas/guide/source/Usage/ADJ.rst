@@ -51,45 +51,46 @@ to Chapters :numref:`NVectors`, :numref:`SUNMatrix`, :numref:`SUNLinSol`, and
 :numref:`SUNNonlinSol` for the specific name of the function to be called or
 macro to be referenced.
 
-Steps that are changed from the skeleton programs presented in
+Steps that are unchanged from the skeleton programs presented in
 :numref:`IDAS.Usage.SIM.skeleton_sim`, :numref:`IDAS.Usage.FSA.skeleton_sim`,
-and :numref:`IDAS.Usage.FSA.quad`, are bolded.
+and :numref:`IDAS.Usage.FSA.quad` are grayed out and new or modified steps are
+in bold.
 
-#. Initialize parallel or multi-threaded environment
+#. :silver:`Initialize parallel or multi-threaded environment`
 
-#. Create the SUNDIALS context object
+#. :silver:`Create the SUNDIALS context object`
 
 **Forward Problem**
 
-#. Set initial conditions for the forward problem
+3. :silver:`Set initial conditions for the forward problem`
 
-#. Create matrix object for the forward problem
+#. :silver:`Create matrix object for the forward problem`
 
-#. Create linear solver object for the forward problem
+#. :silver:`Create linear solver object for the forward problem`
 
-#. Create nonlinear solver module for the forward problem
+#. :silver:`Create nonlinear solver module for the forward problem`
 
-#. Create IDAS object for the forward problem
+#. :silver:`Create IDAS object for the forward problem`
 
-#. Initialize IDAS solver for the forward problem
+#. :silver:`Initialize IDAS solver for the forward problem`
 
-#. Specify integration tolerances for forward problem
+#. :silver:`Specify integration tolerances for forward problem`
 
-#. Attach linear solver module for the forward problem
+#. :silver:`Attach linear solver module for the forward problem`
 
-#. Set linear solver optional inputs for the forward problem
+#. :silver:`Set linear solver optional inputs for the forward problem`
 
-#. Attach nonlinear solver module for the forward problem
+#. :silver:`Attach nonlinear solver module for the forward problem`
 
-#. Set nonlinear solver optional inputs for the forward problem
+#. :silver:`Set nonlinear solver optional inputs for the forward problem`
 
-#. Initialize quadrature problem or problems for forward problems, using :c:func:`IDAQuadInit` and/or :c:func:`IDAQuadSensInit`.
+#. :silver:`Initialize quadrature problem or problems for forward problems`
 
-#. Initialize forward sensitivity problem
+#. :silver:`Initialize forward sensitivity problem`
 
-#. Specify rootfinding
+#. :silver:`Specify rootfinding`
 
-#. Set optional inputs for the forward problem
+#. :silver:`Set optional inputs for the forward problem`
 
 #. **Allocate space for the adjoint computation**
 
@@ -111,7 +112,7 @@ and :numref:`IDAS.Usage.FSA.quad`, are bolded.
 
 .. _IDAS.Usage.ADJ.skeleton_adj.back_start:
 
-18. **Create vectors of endpoint values for the backward problem**
+20. **Create vectors of endpoint values for the backward problem**
 
     Create the vectors ``yB0`` and ``ypB0`` at the endpoint time
     ``tB0`` :math:`= T` at which the backward problem starts.
@@ -156,7 +157,7 @@ and :numref:`IDAS.Usage.FSA.quad`, are bolded.
 
 .. _IDAS.Usage.ADJ.skeleton_adj.matrixB:
 
-23. **Create matrix object for the backward problem**
+25. **Create matrix object for the backward problem**
 
     If a nonlinear solver requiring a linear solve will be used (e.g., the the
     default Newton iteration) and the linear solver will be a direct linear
@@ -175,7 +176,7 @@ and :numref:`IDAS.Usage.FSA.quad`, are bolded.
 
 .. _IDAS.Usage.ADJ.skeleton_adj.lin_solverB:
 
-24. **Create linear solver object for the backward problem**
+26. **Create linear solver object for the backward problem**
 
     If a nonlinear solver requiring a linear solver is chosen (e.g., the default
     Newton iteration), then the desired linear solver object for the backward
@@ -220,7 +221,7 @@ and :numref:`IDAS.Usage.FSA.quad`, are bolded.
 
 .. _IDAS.Usage.ADJ.skeleton_adj.quadB:
 
-29. **Initialize quadrature calculation**
+31. **Initialize quadrature calculation**
 
     If additional quadrature equations must be evaluated, call
     :c:func:`IDAQuadInitB` or :c:func:`IDAQuadInitBS` (if quadrature depends
@@ -244,13 +245,13 @@ and :numref:`IDAS.Usage.FSA.quad`, are bolded.
 
 .. _IDAS.Usage.ADJ.skeleton_adj.back_end:
 
-31. **Extract quadrature variables**
+33. **Extract quadrature variables**
 
     If applicable, call :c:func:`IDAGetQuadB`, a wrapper around
     :c:func:`IDAGetQuad`, to extract the values of the quadrature variables at
     the time returned by the last call to :c:func:`IDASolveB`.
 
-#.  **Deallocate memory**
+#.  **Destroy objects**
 
     Upon completion of the backward integration, call all necessary deallocation
     functions. These include appropriate destructors for the vectors ``y`` and
@@ -261,7 +262,7 @@ and :numref:`IDAS.Usage.FSA.quad`, are bolded.
     deallocate the memory allocated for the backward problems, followed by a call
     to :c:func:`IDAAdjInit`.
 
-#.  Finalize MPI, if used
+#.  :silver:`Finalize MPI, if used`
 
 The above user interface to the adjoint sensitivity module in IDAS was motivated
 by the desire to keep it as close as possible in look and feel to the one for
