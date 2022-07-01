@@ -1024,8 +1024,6 @@ illustration only.
 
    Link to :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
 
-   .. note:: This option only exists on Unix systems.
-
    Default: ``ON``
 
 .. cmakeoption:: XBRAID_DIR

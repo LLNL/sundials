@@ -159,7 +159,7 @@ macro(sundials_add_library target)
     endif()
 
     # add all link libraries to object library
-    if(SUNDIALS_MATH_LIBRARY)
+    if(USE_GENERIC_MATH AND SUNDIALS_MATH_LIBRARY)
       target_link_libraries(${obj_target} PRIVATE "${SUNDIALS_MATH_LIBRARY}")
     endif()
     if(SUNDIALS_RT_LIBRARY)
@@ -245,7 +245,7 @@ macro(sundials_add_library target)
       endif()
 
       # add all link libraries
-      if(SUNDIALS_MATH_LIBRARY)
+      if(USE_GENERIC_MATH AND SUNDIALS_MATH_LIBRARY)
         target_link_libraries(${_actual_target_name} PRIVATE "${SUNDIALS_MATH_LIBRARY}")
       endif()
       if(SUNDIALS_RT_LIBRARY)
