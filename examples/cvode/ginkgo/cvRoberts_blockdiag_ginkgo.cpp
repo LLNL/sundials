@@ -20,7 +20,28 @@
  *    dv/dt = w*u - v*u^2
  *    dw/dt = (b-w)/ep - w*u
  * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].
- * The problem is stiff. This program solves the problem with the BDF method,
+ * The problem is stiff. We have 3 different testing scenarios:
+ *
+ * Test 1:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
+ *    Here, all three components exhibit a rapid transient change
+ *    during the first 0.2 time units, followed by a slow and
+ *    smooth evolution.
+ *
+ * Test 2:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
+ *    Here, all components undergo very rapid initial transients
+ *    during the first 0.3 time units, and all then proceed very
+ *    smoothly for the remainder of the simulation.
+
+ * Test 3:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
+ *    Here, w experiences a fast initial transient, jumping 0.5
+ *    within a few steps.  All values proceed smoothly until
+ *    around t=6.5, when both u and v undergo a sharp transition,
+ *    with u increaseing from around 0.5 to 5 and v decreasing
+ *    from around 6 to 1 in less than 0.5 time units.  After this
+ *    transition, both u and v continue to evolve somewhat
+ *    rapidly for another 1.4 time units, and finish off smoothly.
+ *
+ * This program solves the problem with the BDF method,
  * Newton iteration, a user-supplied Jacobian routine, and since the grouping
  * of the independent systems results in a block diagonal linear system, with
  * the Ginkgo SUNLinearSolver which supports batched iterative methods.
@@ -43,6 +64,8 @@
 #include <sunmatrix/sunmatrix_ginkgoblock.hpp>        /* access to the MAGMA dense SUNMatrix           */
 #include <sunlinsol/sunlinsol_ginkgoblock.hpp>        /* access to MAGMA dense SUNLinearSolver         */
 #include <sunlinsol/sunlinsol_spgmr.h>
+#include <sunlinsol/sunlinsol_spbcgs.h>
+
 
 /* Convenience macro to help support both HIP and CUDA */
 #if defined(SUNDIALS_GINKGO_BACKENDS_HIP)
@@ -126,6 +149,7 @@ struct UserData {
 /* Shortcuts */
 using GkoMatType = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
 using SUNMatrixView = sundials::ginkgo::BlockMatrix<GkoMatType>;
+// using SUNLinearSolverView = sundials::ginkgo::BlockLinearSolver<gko::solver::BatchBicgstab<sunrealtype>, SUNMatrixView>;
 using SUNLinearSolverView = sundials::ginkgo::BlockLinearSolver<gko::solver::BatchGmres<sunrealtype>, SUNMatrixView>;
 
 /*
@@ -137,17 +161,17 @@ using SUNLinearSolverView = sundials::ginkgo::BlockLinearSolver<gko::solver::Bat
 int main(int argc, char *argv[])
 {
   const sunrealtype T0 = RCONST(0.0);     /* initial time                   */
-  const sunrealtype Tf = RCONST(10.0);    /* final time                    */
+  const sunrealtype Tf = RCONST(10.0);     /* final time                    */
   const sunrealtype dTout = RCONST(1.0);  /* time between outputs          */
   const int Nt = (int) ceil(Tf/dTout);    /* number of output times        */
   const sunrealtype reltol = 1.0e-6;      /* relative integrator tolerance */
   int retval;
   N_Vector y, abstol;
-  SUNLinearSolver LS_GMRES;
+  SUNLinearSolver SUNLS;
   void *cvode_mem;
 
   y = abstol = NULL;
-  LS_GMRES = NULL;
+  SUNLS = NULL;
   cvode_mem = NULL;
 
   /* Create the SUNDIALS context */
@@ -166,16 +190,18 @@ int main(int argc, char *argv[])
   /* Set defaults */
   int batchSize = 3;
   int nbatches  = 100;
-  int test_type = 3;
+  int test_type = 1;
   int solver_type = 0;
 
   /* Parse command line arguments and setup UserData */
   int argi = 0;
   if (argc > 1) {
     nbatches = atoi(argv[++argi]);
-  } else if (argc > 2) {
+  }
+  if (argc > 2) {
     solver_type = atoi(argv[++argi]);
-  } else if (argc > 3) {
+  }
+  if (argc > 3) {
     test_type = atoi(argv[++argi]);
   }
 
@@ -279,18 +305,23 @@ int main(int argc, char *argv[])
     retval = CVodeSetJacFn(cvode_mem, Jac);
     if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
   } else if (solver_type == 1) {
-    LS_GMRES = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
-    retval = CVodeSetLinearSolver(cvode_mem, LS_GMRES, NULL);
+    SUNLS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
+    // SUNLS = SUNLinSol_SPBCGS(y, SUN_PREC_NONE, 0, sunctx);
+    retval = CVodeSetLinearSolver(cvode_mem, SUNLS, NULL);
     if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
   }
 
-  // CVodeSetEpsLin(cvode_mem, SUN_UNIT_ROUNDOFF);
-  CVodeSetMaxNumSteps(cvode_mem, 1000);
+  CVodeSetEpsLin(cvode_mem, SUN_UNIT_ROUNDOFF);
+  // CVodeSetNonlinConvCoef(cvode_mem, 0.01);
+  // CVodeSetMaxNonlinIters(cvode_mem, 10);
+
+  /* Increase the max number of time steps allowed */
+  CVodeSetMaxNumSteps(cvode_mem, 5000);
 
   /* In loop, call CVode, print results, and test_type for error.
      Break out of loop when preset output times have been reached.  */
   printf(" \nBatch of independent 3-species kinetics problems\n\n");
-  printf("number of batches = %d\n\n", udata.nbatches);
+  printf("number of batches = %d, solver_type = %d\n\n", udata.nbatches, solver_type);
 
   sunrealtype t = T0;
   sunrealtype tout = T0+dTout;
@@ -321,7 +352,7 @@ int main(int argc, char *argv[])
   N_VDestroy(abstol);
 
   /* Free linear solver if needed */
-  if (LS_GMRES) SUNLinSolFree(LS_GMRES);
+  if (SUNLS) SUNLinSolFree(SUNLS);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);

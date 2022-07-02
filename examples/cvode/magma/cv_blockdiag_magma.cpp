@@ -159,9 +159,11 @@ int main(int argc, char *argv[])
   int argi = 0;
   if (argc > 1) {
     nbatches = atoi(argv[++argi]);
-  } else if (argc > 2) {
+  }
+  if (argc > 2) {
     solver_type = atoi(argv[++argi]);
-  } else if (argc > 3) {
+  }
+  if (argc > 3) {
     test_type = atoi(argv[++argi]);
   }
 
