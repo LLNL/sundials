@@ -576,8 +576,12 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+(b*yd[i]);
+  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+    linearSumKernel(xd, yd, zd, N);
+  #endif
 
   return;
 }
@@ -604,10 +608,6 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   xd = NV_DATA_PH(x);
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
-/*
-  for(i=0; i<N; i++)
-   zd[i] = xd[i]*yd[i]; 
-*/	
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
