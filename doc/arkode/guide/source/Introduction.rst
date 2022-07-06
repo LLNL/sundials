@@ -139,6 +139,8 @@ scale subproblems.
 
 Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
 
+Fix mismatched definition and declaration bug in SuperLU_DIST matrix constructor.
+
 Changes in v5.2.0
 -----------------
 

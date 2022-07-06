@@ -78,6 +78,8 @@ Changes in vx.x.x
 Added the function :c:func:`IDAGetUserData` to retrieve the user data pointer
 provided to :c:func:`IDASetUserData`.
 
+Fix mismatched definition and declaration bug in SuperLU_DIST matrix constructor.
+
 Changes in v6.2.0
 -----------------
 

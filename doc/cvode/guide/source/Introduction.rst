@@ -121,6 +121,8 @@ Added a new example, ``examples/cvode/serial/cvRocket_dns.c,`` which
 demonstrates using CVODE with a discontinuous right-hand-side function
 and rootfinding.
 
+Fix mismatched definition and declaration bug in SuperLU_DIST matrix constructor.
+
 Changes in v6.2.0
 -----------------
 
