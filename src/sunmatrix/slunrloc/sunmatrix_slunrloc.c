@@ -76,7 +76,7 @@ static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
  * ----------------------------------------------------------------------------
  */
 
-SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid)
+SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid, SUNContext sunctx)
 {
   SUNMatrix A;
   SUNMatrix_Ops ops;
@@ -91,15 +91,10 @@ SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid)
       A_super->Mtype != SLU_GE)
     return(NULL);
 
-  /* Create the matrix */
+  /* Create an empty matrix object */
   A = NULL;
-  A = (SUNMatrix) malloc(sizeof(*A));
+  A = SUNMatNewEmpty(sunctx);
   if (A == NULL) return(NULL);
-
-  /* Create the matrix operations structure */
-  ops = NULL;
-  ops = (SUNMatrix_Ops) malloc(sizeof(struct _generic_SUNMatrix_Ops));
-  if (ops == NULL) { free(A); return(NULL); }
 
   /* Attach operations */
   ops->getid       = SUNMatGetID_SLUNRloc;
