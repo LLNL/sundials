@@ -5275,7 +5275,7 @@ static void N_VInitThreadData(Pthreads_Data *thread_data)
   thread_data->start = -1;
   thread_data->end   = -1;
 
-#if SUNDIALS_STDC_VERSION >= 199901L
+#ifdef NAN
   thread_data->c1 = NAN;
   thread_data->c2 = NAN;
 #else

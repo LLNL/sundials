@@ -75,7 +75,7 @@ extern "C" {
  */
 
 #ifndef SUNRsqrt
-#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #  if defined(SUNDIALS_DOUBLE_PRECISION)
 #    define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : (sqrt((x))))
 #  elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -100,7 +100,7 @@ extern "C" {
  */
 
 #ifndef SUNRabs
-#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #  if defined(SUNDIALS_DOUBLE_PRECISION)
 #    define SUNRabs(x) (fabs((x)))
 #  elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -125,7 +125,7 @@ extern "C" {
  */
 
 #ifndef SUNRexp
-#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #  if defined(SUNDIALS_DOUBLE_PRECISION)
 #    define SUNRexp(x) (exp((x)))
 #  elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -150,7 +150,7 @@ extern "C" {
  */
 
 #ifndef SUNRceil
-#if defined(__cplusplus) || (SUNDIALS_STDC_VERSION >= 199901L)
+#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #  if defined(SUNDIALS_DOUBLE_PRECISION)
 #    define SUNRceil(x) (ceil((x)))
 #  elif defined(SUNDIALS_SINGLE_PRECISION)

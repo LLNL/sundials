@@ -32,44 +32,6 @@
 #endif
 
 /* ------------------------------------------------------------------
- * Define C standard version macro
-
- * When C++, we define SUNDIALS_STDC_VERSION to be __STDC_VERSION__
- * if it is defined. Otherwise SUNDIALS_STDC_VERSION is undefined
- * (this is the only case that SUNDIALS_STDC_VERSION will be
- * undefined).
- *
- * When __STDC__ is defined, but __STDC_VERSION__ is not, we assume
- * C89/C90 is used and make up our own value (198901L) for
- * SUNDIALS_STDC_VERSION.
- *
- * When MSVC is the compiler, and __STDC__ is not defined then
- * we use the made up value 198901L as well (since it should
- * be MSVC with C89/C90 and no extensions). See
- * https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170.
- *
- * Finally, this can all be overriden by defining SUNDIALS_STDC_VERSION
- * before including this header file, or as part of the compilation
- * command.
- * -----------------------------------------------------------------*/
-
-#ifndef SUNDIALS_STDC_VERSION
-#  if defined(__cplusplus) && defined(__STDC_VERSION__)
-#    define SUNDIALS_STDC_VERSION __STDC_VERSION__
-#  elif defined(__STDC__)
-#    if !defined(__STDC_VERSION__)
-#      define SUNDIALS_STDC_VERSION 198901L
-#    else
-#      define SUNDIALS_STDC_VERSION __STDC_VERSION__
-#    endif
-#  else
-#    if defined(_MSC_VER)
-#      define SUNDIALS_STDC_VERSION 198901L
-#    endif
-#  endif
-#endif
-
-/* ------------------------------------------------------------------
  * Define SUNDIALS version numbers
  * -----------------------------------------------------------------*/
 
@@ -86,6 +48,9 @@
  * SUNDIALS build information
  * -----------------------------------------------------------------*/
 
+#cmakedefine SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS
+#cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
+#cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 
 /* Define precision of SUNDIALS data type 'realtype'
  * Depending on the precision level, one of the following
@@ -136,8 +101,8 @@
 #cmakedefine SUNDIALS_LOGGING_ENABLE_MPI
 
 /* Is snprintf available? */
-#cmakedefine SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
-#ifndef SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#cmakedefine SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#ifndef SUNDIALS_SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
 #define SUNDIALS_MAX_SPRINTF_SIZE @SUNDIALS_MAX_SPRINTF_SIZE@
 #endif
 
@@ -222,7 +187,7 @@
 #endif
 
 #ifndef SUNDIALS_C_INLINE
-#if SUNDIALS_STDC_VERSION >= 199901L
+#ifdef SUNDIALS_C_COMPILER_HAS_INLINE
 #define SUNDIALS_C_INLINE inline
 #else
 #define SUNDIALS_C_INLINE
