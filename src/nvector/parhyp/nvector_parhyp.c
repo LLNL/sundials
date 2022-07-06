@@ -586,7 +586,7 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   return;
 }
 
-void N_VConst_ParHyp(realtype c, N_Vector z)
+void N_VConst_ParHyp(realtype c, N_Vector z)	// already parallelized 
 {
   HYPRE_Complex value = c;
   HYPRE_ParVectorSetConstantValues( (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z), value);
@@ -624,6 +624,10 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
  * Compute componentwise division z[i] = x[i]/y[i]
  */
 
+/* ----------------------------------------------------------------------------
+ * Compute componentwise division z[i] = x[i]/y[i]
+ */
+
 void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
@@ -636,8 +640,12 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
-  for (i = 0; i < N; i++)
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  for (i = 0; i < N; i++)	
     zd[i] = xd[i]/yd[i];
+  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+  divKernel(xd, yd, zd, N);
+  #endif 
 
   return;
 }
@@ -685,7 +693,7 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   zd = NV_DATA_PH(z);
 
   for (i = 0; i < N; i++)
-    zd[i] = ONE/xd[i];
+    zd[i] = ONE/xd[i];			// kernel available 
 
   return;
 }
@@ -701,7 +709,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
-  for (i = 0; i < N; i++)
+  for (i = 0; i < N; i++)		// kernel available 
      zd[i] = xd[i] + b;
 
   return;
@@ -716,7 +724,7 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   yd = NV_DATA_PH(y);
 
   sum = ZERO;
-  for (i = 0; i < N; i++)
+  for (i = 0; i < N; i++)		// kernel available 
     sum += xd[i]*yd[i];
   return(sum);
 }
@@ -764,7 +772,7 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   sum = ZERO;
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
-    sum += SUNSQR(prodi);
+    sum += prodi*prodi; 
   }
   return(sum);
 }
@@ -1068,8 +1076,8 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
 }
 
 
-int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
-                             N_Vector* Z)
+int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,		
+                             N_Vector* Z)						//* means array here 
 {
   int          i;
   sunindextype j, N;
@@ -2045,10 +2053,6 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
 
   /* enable/disable operation */
   if (tf)
-    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_ParHyp;
-  else
-    v->ops->nvdotprodmultilocal = NULL;
-
   /* return success */
   return(0);
 }
