@@ -675,8 +675,12 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = SUNRabs(xd[i]);
+  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+  absKernel(xd, zd, N);
+  #endif
 
   return;
 }
@@ -692,8 +696,12 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)	
   for (i = 0; i < N; i++)
-    zd[i] = ONE/xd[i];			// kernel available 
+    zd[i] = ONE/xd[i];	
+  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)	
+  invKernel(xd, zd, N);
+  #endif	
 
   return;
 }
