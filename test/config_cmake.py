@@ -423,7 +423,7 @@ def main():
     group = parser.add_argument_group('SuperLU_DIST Options')
 
     add_arg(group, '--superlu-dist', 'SUNDIALS_SUPERLU_DIST',
-            'ENABLE_SUPERLU_DIST', 'OFF', 'BOOL',
+            'ENABLE_SUPERLUDIST', 'OFF', 'BOOL',
             'SUNDIALS SuperLU DIST support')
 
     add_arg(group, '--superlu-dist-incdir', 'SUPERLU_DIST_INCLUDE_DIR',
