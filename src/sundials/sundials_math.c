@@ -164,7 +164,6 @@ sunrealtype SUNStrToReal(const char* str)
 #endif
 #else
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#warning C89 does not support strtold so a loss of precision may occur
   /* Use strtod, but then round down to the closest double value
      since strtod will effectively round up to the closest long double. */
   double val = strtod(str, &end);
@@ -173,8 +172,6 @@ sunrealtype SUNStrToReal(const char* str)
   return strtod(str, &end);
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return strtod(str, &end);
-#else
-#error "Should not be here, no SUNDIALS precision defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
 }
