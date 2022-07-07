@@ -25,12 +25,16 @@
 #include <sundials/sundials_math.h>
 
 // HYPRE defines
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)		
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#include <sundials/sundials_cuda_policies.hpp>
+#include "sundials_cuda.h"
 #include "VectorKernels.cuh"
-
 #define SUNDIALS_GPU_PREFIX(val) cuda ## val
 #define SUNDIALS_GPU_VERIFY SUNDIALS_CUDA_VERIFY
-#elif defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 	// add HIP here 
+using namespace sundials;
+using namespace sundials::cuda;
+using namespace sundials::cuda::impl;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) // add HIP here
 #else
 #error "Unknown HYPRE backend"
 #endif
@@ -493,7 +497,10 @@ sunindextype N_VGetLength_ParHyp(N_Vector v)
  */
 void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
-  sunindextype i, N;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i;
+#endif
+  sunindextype N;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
@@ -576,12 +583,14 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+(b*yd[i]);
-  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
-    linearSumKernel(xd, yd, zd, N);
-  #endif
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  size_t blocksize = 256;
+  size_t gridsize = (N + blocksize - 1) / blocksize;
+  linearSumKernel<<<gridsize, blocksize, 0, 0 >>>(a, xd, b, yd, zd, N);
+#endif
 
   return;
 }
@@ -2111,8 +2120,6 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
   /* check that ops structure is non-NULL */
   if (v->ops == NULL) return(-1);
 
-  /* enable/disable operation */
-  if (tf)
   /* return success */
   return(0);
 }

@@ -14,22 +14,18 @@
 # CMakeLists.txt file for the parhyp NVECTOR library
 # ---------------------------------------------------------------
 
-
 install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP\n\")")
 
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
- #set(extra_include ${CMAKE_SOURCE_DIR}/src/nvector/cuda/VectorKernels.cuh)
- #include_directories(${CMAKE_SOURCE_DIR}/src/nvector/cuda/)
- set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)   
- set(_cxx_std cxx_std_11)		# add for HIP and SYCL 
-endif() 
-
+ include_directories(${CMAKE_SOURCE_DIR}/src/nvector/cuda)
+ set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
+ set(_cxx_std cxx_std_11)
+endif()
 
 # Create the library
 sundials_add_library(sundials_nvecparhyp
   SOURCES
     nvector_parhyp.c
-    #${extra_include}	#adding the VectorKernels.cuh 
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
   INCLUDE_SUBDIR
@@ -40,6 +36,8 @@ sundials_add_library(sundials_nvecparhyp
     PUBLIC
     SUNDIALS::HYPRE
     MPI::MPI_C
+  COMPILE_FEATURES
+    PUBLIC ${_cxx_std}
   OUTPUT_NAME
     sundials_nvecparhyp
   VERSION
