@@ -53,43 +53,42 @@ macro to be referenced.
 
 Steps that are unchanged from the skeleton programs presented in
 :numref:`CVODES.Usage.SIM.skeleton_sim`, :numref:`CVODES.Usage.FSA.skeleton_sim`,
-and :numref:`CVODES.Usage.purequad` are left unbolded.
+and :numref:`CVODES.Usage.purequad` are grayed out and new or modified steps are
+in bold.
 
-#. Initialize parallel or multi-threaded environment, if appropriate
+#. :silver:`Initialize parallel or multi-threaded environment, if appropriate`
 
-#. Create the SUNDIALS context object
+#. :silver:`Create the SUNDIALS context object`
 
-#. Set problem dimensions etc. for the forward problem
+#. :silver:`Set initial conditions for the forward problem`
 
-#. Set initial conditions for the forward problem
+#. :silver:`Create CVODES object for the forward problem`
 
-#. Create CVODES object for the forward problem
+#. :silver:`Initialize CVODES for the forward problem`
 
-#. Initialize CVODES for the forward problem
+#. :silver:`Specify integration tolerances for forward problem`
 
-#. Specify integration tolerances for forward problem
+#. :silver:`Create matrix object for the forward problem`
 
-#. Create matrix object for the forward problem
+#. :silver:`Create linear solver object for the forward problem`
 
-#. Create linear solver object for the forward problem
+#. :silver:`Set linear solver optional inputs for the forward problem`
 
-#. Set linear solver optional inputs for the forward problem
+#. :silver:`Attach linear solver module for the forward problem`
 
-#. Attach linear solver module for the forward problem
+#. :silver:`Set optional inputs for the forward problem`
 
-#. Set optional inputs for the forward problem
+#. :silver:`Create nonlinear solver object for the forward problem`
 
-#. Create nonlinear solver object for the forward problem
+#. :silver:`Attach nonlinear solver module for the forward problem`
 
-#. Attach nonlinear solver module for the forward problem
+#. :silver:`Set nonlinear solver optional inputs for the forward problem`
 
-#. Set nonlinear solver optional inputs for the forward problem
+#. :silver:`Initialize quadrature problem or problems for forward problems`
 
-#. Initialize quadrature problem or problems for forward problems, using :c:func:`CVodeQuadInit` and/or :c:func:`CVodeQuadSensInit`.
+#. :silver:`Initialize forward sensitivity problem`
 
-#. Initialize forward sensitivity problem
-
-#. Specify rootfinding
+#. :silver:`Specify rootfinding`
 
 #. **Allocate space for the adjoint computation**
 
@@ -259,13 +258,11 @@ and :numref:`CVODES.Usage.purequad` are left unbolded.
    free and deallocate memory allocated for the backward problems, followed by a
    call to :c:func:`CVodeAdjInit`.
 
-#. **Free the nonlinear solver memory for the forward and backward problems**
+   Free the nonlinear solver memory for the forward and backward problems
 
-#. **Free linear solver and matrix memory for the forward and backward problems**
+   Free linear solver and matrix memory for the forward and backward problems
 
-#. Free the SUNDIALS context with :c:func:`SUNContext_Free`
-
-#. Finalize MPI, if used
+#. :silver:`Finalize MPI, if used`
 
 
 The above user interface to the adjoint sensitivity module in CVODES was

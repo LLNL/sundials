@@ -4,3 +4,6 @@
 [submodule "uberenv"]
 	path = scripts/uberenv
 	url = https://github.com/LLNL/uberenv.git
+[submodule "test/answers"]
+	path = test/answers
+	url = https://github.com/sundials-codes/answers.git

@@ -75,8 +75,8 @@ adaptivity parameters. For more information see the documentation for:
 * `CVodeSetNumStepsEtaMaxEarlyStep`
 * `CVodeSetEtaMax`
 * `CVodeSetEtaMin`
-* `CVodeSetEtaMinErrFailEta`
-* `CVodeSetEtaMaxErrFailEta`
+* `CVodeSetEtaMinErrFail`
+* `CVodeSetEtaMaxErrFail`
 * `CVodeSetNumFailsEtaMaxErrFail`
 * `CVodeSetEtaConvFail`
 * `IDASetEtaFixedStepBounds`

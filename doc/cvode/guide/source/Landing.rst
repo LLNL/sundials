@@ -47,6 +47,6 @@
          @Misc{cvodeDocumentation,
             author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
             title  = {User Documentation for CVODE},
-            year   = {|YEAR|}
+            year   = {|YEAR|},
             notes  = {|CVODE_VERSION|}
          }

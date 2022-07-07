@@ -1,0 +1,41 @@
+.. reStructuredText that will be included at the beginning of every source file
+.. that is read.
+
+.. Colors
+   =======
+
+.. role:: black
+.. role:: gray
+.. role:: silver
+.. role:: white
+.. role:: maroon
+.. role:: red
+.. role:: magenta
+.. role:: pink
+.. role:: orange
+.. role:: yellow
+.. role:: lime
+.. role:: green
+.. role:: olive
+.. role:: teal
+.. role:: cyan
+.. role:: blue
+.. role:: purple
+
+.. role:: blackit
+.. role:: grayit
+.. role:: silverit
+.. role:: whiteit
+.. role:: maroonit
+.. role:: redit
+.. role:: magentait
+.. role:: pinkit
+.. role:: orangeit
+.. role:: yellowit
+.. role:: limeit
+.. role:: greenit
+.. role:: oliveit
+.. role:: tealit
+.. role:: cyanit
+.. role:: blueit
+.. role:: purpleit

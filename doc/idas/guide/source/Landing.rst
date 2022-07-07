@@ -47,6 +47,6 @@
          @Misc{idasDocumentation,
             author = {Radu Serban and Cosmin Petra and Alan C. Hindmarsh and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
             title  = {User Documentation for IDAS},
-            year   = {2021}
+            year   = {|YEAR|},
             note   = {|IDAS_VERSION|}
          }

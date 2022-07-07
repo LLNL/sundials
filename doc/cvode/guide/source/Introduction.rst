@@ -156,8 +156,8 @@ Added the functions
 :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`,
 :c:func:`CVodeSetEtaMax`,
 :c:func:`CVodeSetEtaMin`,
-:c:func:`CVodeSetEtaMinErrFailEta`,
-:c:func:`CVodeSetEtaMaxErrFailEta`,
+:c:func:`CVodeSetEtaMinErrFail`,
+:c:func:`CVodeSetEtaMaxErrFail`,
 :c:func:`CVodeSetNumFailsEtaMaxErrFail`, and
 :c:func:`CVodeSetEtaConvFail` to adjust various parameters controlling changes
 in step size.
@@ -786,7 +786,7 @@ Added support for integrating IVPs with constraints using BDF methods
 and projecting the solution onto the constraint manifold with a user
 defined projection function. This implementation is accompanied by
 additions to user documentation and CVODE examples. See
-:c:func:`CVodeSetConstraints` for more information.
+:c:func:`CVodeSetProjFn` for more information.
 
 Added support for CUDA v11.
 
