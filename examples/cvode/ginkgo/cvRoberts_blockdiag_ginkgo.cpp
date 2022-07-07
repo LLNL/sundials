@@ -22,17 +22,17 @@
  * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].
  * The problem is stiff. We have 3 different testing scenarios:
  *
- * Test 1:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
+ * Test 0:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
  *    Here, all three components exhibit a rapid transient change
  *    during the first 0.2 time units, followed by a slow and
  *    smooth evolution.
  *
- * Test 2:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
+ * Test 1:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
  *    Here, all components undergo very rapid initial transients
  *    during the first 0.3 time units, and all then proceed very
  *    smoothly for the remainder of the simulation.
 
- * Test 3:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
+ * Test 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
  *    Here, w experiences a fast initial transient, jumping 0.5
  *    within a few steps.  All values proceed smoothly until
  *    around t=6.5, when both u and v undergo a sharp transition,
@@ -97,9 +97,16 @@ static void f_kernel(sunrealtype t, sunrealtype* y, sunrealtype* ydot,
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+static int JacVec(N_Vector v, N_Vector Jv, realtype t,
+                  N_Vector y, N_Vector fy, void *user_data, N_Vector tmp);
+
 __global__
 static void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtype* B,
                      sunrealtype* Ep, int neq, int nbatches, int batchSize, int nnzper);
+
+__global__
+static void jv_kernel(sunrealtype* vdata, sunrealtype *Jvdata, sunrealtype* A, sunrealtype* B,
+                      sunrealtype* Ep, int neq, int nbatches, int batchSize, int nnzper);
 
 /* Private function to initialize the Jacobian sparsity pattern */
 static int JacInit(SUNMatrix J);
@@ -190,7 +197,7 @@ int main(int argc, char *argv[])
   /* Set defaults */
   int batchSize = 3;
   int nbatches  = 100;
-  int test_type = 1;
+  int test_type = 0;
   int solver_type = 0;
 
   /* Parse command line arguments and setup UserData */
@@ -209,21 +216,21 @@ int main(int argc, char *argv[])
 
   /* Set the Reaction parameters according to test_type_type */
   for (int batchj = 0; batchj < udata.nbatches; ++batchj) {
-    if (test_type == 1) {
+    if (test_type == 0) {
       udata.u0[batchj] = RCONST(3.9);
       udata.v0[batchj] = RCONST(1.1);
       udata.w0[batchj] = RCONST(2.8);
       udata.a[batchj]  = RCONST(1.2);
       udata.b[batchj]  = RCONST(2.5);
       udata.ep[batchj] = RCONST(1.0e-5);
-    } else if (test_type == 2) {
+    } else if (test_type == 1) {
       udata.u0[batchj] = RCONST(3.0);
       udata.v0[batchj] = RCONST(3.0);
       udata.w0[batchj] = RCONST(3.5);
       udata.a[batchj]  = RCONST(0.5);
       udata.b[batchj]  = RCONST(3.0);
       udata.ep[batchj] = RCONST(5.0e-4);
-    } else if (test_type == 3) {
+    } else if (test_type == 2) {
       udata.u0[batchj] = RCONST(1.2);
       udata.v0[batchj] = RCONST(3.1);
       udata.w0[batchj] = RCONST(3.0);
@@ -253,9 +260,9 @@ int main(int argc, char *argv[])
   /* Set the vector absolute tolerance */
   sunrealtype* abstol_data = N_VGetArrayPointer(abstol);
   for (int batchj = 0; batchj < udata.nbatches; ++batchj) {
-    abstol_data[batchj*udata.batchSize]   = 1.0e-10;
-    abstol_data[batchj*udata.batchSize+1] = 1.0e-10;
-    abstol_data[batchj*udata.batchSize+2] = 1.0e-10;
+    abstol_data[batchj*udata.batchSize]   = 1.0e-15;
+    abstol_data[batchj*udata.batchSize+1] = 1.0e-15;
+    abstol_data[batchj*udata.batchSize+2] = 1.0e-15;
   }
   HIP_OR_CUDA( N_VCopyToDevice_Hip(abstol);,
                N_VCopyToDevice_Cuda(abstol); )
@@ -294,24 +301,36 @@ int main(int argc, char *argv[])
   auto precond_factory = gko::share(gko::preconditioner::BatchJacobi<sunrealtype>::build().on(gko_exec));
   SUNLinearSolverView LS{gko_exec, gko::stop::batch::ToleranceType::absolute,
                          nullptr, udata.nbatches, sunctx};
-  LS.setEnableScaling(false);
+  LS.setEnableScaling(true);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0) {
     retval = CVodeSetLinearSolver(cvode_mem, LS.get(), A.get());
     if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
-
     /* Set the user-supplied Jacobian routine Jac */
     retval = CVodeSetJacFn(cvode_mem, Jac);
     if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
-  } else if (solver_type == 1) {
+  } else if (solver_type == 1 || solver_type == 2) {
     SUNLS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
-    // SUNLS = SUNLinSol_SPBCGS(y, SUN_PREC_NONE, 0, sunctx);
     retval = CVodeSetLinearSolver(cvode_mem, SUNLS, NULL);
     if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
+    if (solver_type == 2) {
+      /* Set the user-supplied Jacobian-vector product routine */
+      retval = CVodeSetJacTimes(cvode_mem, NULL, JacVec);
+      if(check_retval(&retval, "CVodeSetJacTimes", 1)) return(1);
+    }
+  } else if (solver_type == 3 || solver_type == 4) {
+    SUNLS = SUNLinSol_SPBCGS(y, SUN_PREC_NONE, 0, sunctx);
+    retval = CVodeSetLinearSolver(cvode_mem, SUNLS, NULL);
+    if(check_retval(&retval, "CVodeSetLinearSolver", 1)) { return(1); }
+    if (solver_type == 4) {
+      /* Set the user-supplied Jacobian-vector product routine */
+      retval = CVodeSetJacTimes(cvode_mem, NULL, JacVec);
+      if(check_retval(&retval, "CVodeSetJacTimes", 1)) return(1);
+    }
   }
 
-  CVodeSetEpsLin(cvode_mem, SUN_UNIT_ROUNDOFF);
+  // CVodeSetEpsLin(cvode_mem, SUN_UNIT_ROUNDOFF);
   // CVodeSetNonlinConvCoef(cvode_mem, 0.01);
   // CVodeSetMaxNonlinIters(cvode_mem, 10);
 
@@ -437,7 +456,7 @@ int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Right hand side function evalutation kernel.
-   This kernel needs threads >= nbatches. */
+   This kernel needs total number of threads >= nbatches. */
 __global__
 void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
               sunrealtype* A, sunrealtype* B, sunrealtype* Ep,
@@ -469,20 +488,17 @@ int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
-  realtype *Jdata, *ydata;
-  int *rowptrs, *colvals;
-  unsigned block_size, grid_size;
   auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
 
-  Jdata = Jgko->get_values();
-  rowptrs = Jgko->get_row_ptrs();
-  colvals = Jgko->get_col_idxs();
-  ydata = N_VGetDeviceArrayPointer(y);
+  sunrealtype* Jdata = Jgko->get_values();
+  int* rowptrs = Jgko->get_row_ptrs();
+  int* colvals = Jgko->get_col_idxs();
+  sunrealtype* ydata = N_VGetDeviceArrayPointer(y);
 
-  block_size = HIP_OR_CUDA( 64, 32 );
-  grid_size = (udata->neq + block_size - 1) / block_size;
+  unsigned threads_per_block = 256;
+  unsigned num_blocks = (udata->nbatches + threads_per_block - 1) / threads_per_block;
 
-  j_kernel<<<grid_size, block_size>>>(ydata, Jdata, udata->a.get(), udata->b.get(),
+  j_kernel<<<num_blocks, threads_per_block>>>(ydata, Jdata, udata->a.get(), udata->b.get(),
     udata->ep.get(), udata->neq, udata->nbatches, udata->batchSize, udata->nnzper);
 
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
@@ -498,40 +514,67 @@ int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   return(0);
 }
 
-/* Jacobian evaluation GPU kernel */
+int JacVec(N_Vector v, N_Vector Jv, realtype t,
+           N_Vector y, N_Vector fy, void *user_data, N_Vector tmp)
+{
+  UserData *udata = (UserData*) user_data;
+
+  sunrealtype* vdata = N_VGetDeviceArrayPointer(v);
+  sunrealtype* Jvdata = N_VGetDeviceArrayPointer(Jv);
+
+  unsigned threads_per_block = 256;
+  unsigned num_blocks = (udata->nbatches + threads_per_block - 1) / threads_per_block;
+
+  jv_kernel<<<num_blocks, threads_per_block>>>(vdata, Jvdata, udata->a.get(), udata->b.get(),
+    udata->ep.get(), udata->neq, udata->nbatches, udata->batchSize, udata->nnzper);
+
+  HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
+  HIP_OR_CUDA( hipError_t cuerr = hipGetLastError();,
+               cudaError_t cuerr = cudaGetLastError(); )
+  if (cuerr != HIP_OR_CUDA( hipSuccess, cudaSuccess )) {
+    fprintf(stderr,
+            ">>> ERROR in Jac: cudaGetLastError returned %s\n",
+            HIP_OR_CUDA( hipGetErrorName(cuerr), cudaGetErrorName(cuerr) ));
+    return(-1);
+  }
+
+  return(0);
+}
+
+/* Jacobian evaluation GPU kernel
+   This kernel needs total number of threads >= nbatches. */
 __global__
 void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtype* B,
               sunrealtype* Ep, int neq, int nbatches, int batchSize, int nnzper)
 {
   sunrealtype u, v, w, a, b, ep;
 
-  for (int batchj = blockIdx.x*blockDim.x + threadIdx.x;
-       batchj < nbatches;
-       batchj += blockDim.x * gridDim.x)
-  {
+  int batchj = blockIdx.x*blockDim.x + threadIdx.x;
+
+  if (batchj < nbatches) {
     a = A[batchj]; b = B[batchj], ep = Ep[batchj];
 
     /* get y values */
-    u = ydata[batchSize*batchj + 1];
+    u = ydata[batchSize*batchj];
     v = ydata[batchSize*batchj + 1];
     w = ydata[batchSize*batchj + 2];
 
     /* first row of block */
     Jdata[nnzper*batchj]     = -(w+1.0) + 2.0*u*v;
     Jdata[nnzper*batchj + 1] = u*u;
-    Jdata[nnzper*batchj + 2] = -w;
+    Jdata[nnzper*batchj + 2] = -u;
 
     /* second row of block */
-    Jdata[nnzper*batchj + 3] = u*u;
+    Jdata[nnzper*batchj + 3] =  w - 2.0*u*v;
     Jdata[nnzper*batchj + 4] = -u*u;
-    Jdata[nnzper*batchj + 5] =  0.0;
+    Jdata[nnzper*batchj + 5] = u;
 
     /* third row of block */
-    Jdata[nnzper*batchj + 6] = -u;
-    Jdata[nnzper*batchj + 7] = u;
+    Jdata[nnzper*batchj + 6] = -w;
+    Jdata[nnzper*batchj + 7] = 0.0;
     Jdata[nnzper*batchj + 8] = -1.0/ep - u;
 
-    // printf("%.6f %.6f\n", y2, y3);
+    // printf("\nJ:\n");
     // printf("%.6f ", Jdata[nnzper*batchj]);
     // printf("%.6f ", Jdata[nnzper*batchj + 1]);
     // printf("%.6f\n", Jdata[nnzper*batchj + 2]);
@@ -541,6 +584,46 @@ void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtyp
     // printf("%.6f ", Jdata[nnzper*batchj + 6]);
     // printf("%.6f ", Jdata[nnzper*batchj + 7]);
     // printf("%.6f\n\n", Jdata[nnzper*batchj + 8]);
+  }
+}
+
+/* Jacobian-vector product GPU kernel
+   This kernel needs total number of threads >= nbatches. */
+__global__
+void jv_kernel(sunrealtype* vdata, sunrealtype *Jvdata, sunrealtype* A, sunrealtype* B,
+               sunrealtype* Ep, int neq, int nbatches, int batchSize, int nnzper)
+{
+  sunrealtype u, v, w, a, b, ep;
+
+  int batchj = blockIdx.x*blockDim.x + threadIdx.x;
+
+  if (batchj < nbatches) {
+    a = A[batchj]; b = B[batchj], ep = Ep[batchj];
+
+    /* get v values */
+    u = vdata[batchSize*batchj];
+    v = vdata[batchSize*batchj + 1];
+    w = vdata[batchSize*batchj + 2];
+
+    /* initialize Jv to zero */
+    Jvdata[batchSize*batchj]     = 0.0;
+    Jvdata[batchSize*batchj + 1] = 0.0;
+    Jvdata[batchSize*batchj + 2] = 0.0;
+
+    /* add J[:,0]*v[0] */
+    Jvdata[batchSize*batchj]     += (-(w+1.0) + 2.0*u*v) * u;
+    Jvdata[batchSize*batchj + 1] += (w - 2.0*u*v) * u;
+    Jvdata[batchSize*batchj + 2] += -w * u;
+
+    /* add J[:,1]*v[1] */
+    Jvdata[batchSize*batchj]     += (u*u) * v;
+    Jvdata[batchSize*batchj + 1] += 0.0;
+    Jvdata[batchSize*batchj + 2] += u * v;
+
+    /* add J[:,2]*v[2] */
+    Jvdata[batchSize*batchj]     += -u * w;
+    Jvdata[batchSize*batchj + 1] += u * w;
+    Jvdata[batchSize*batchj + 2] += (-1.0/ep - u) * w;
   }
 }
 

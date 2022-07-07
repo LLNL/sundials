@@ -89,7 +89,7 @@ public:
         solver_(nullptr), sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
         sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), left_scale_vec_(nullptr),
         right_scale_vec_(nullptr), matrix_(nullptr), logger_(nullptr), num_blocks_(num_blocks), max_iters_(max_iters),
-        setup_called_(false), scaling_changed_(false), avg_iter_count_(0.0), sum_of_avg_iters_(0.0),
+        setup_called_(false), avg_iter_count_(0.0), sum_of_avg_iters_(0.0),
         stddev_iter_count_(0.0), previous_max_res_norm_(0.0), s2inv_(nullptr), ones_(nullptr)
   {
     initSUNLinSol(sunctx);
@@ -170,8 +170,7 @@ public:
     }
     N_VDiv(ones_, s2, s2inv_); // ginkgo expects s2 to be s2inv already
     left_scale_vec_  = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1));
-    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2));
-    scaling_changed_ = true;
+    right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2inv_));
   }
 
   int setup(BlockMatrixType* A)
@@ -191,6 +190,9 @@ public:
                        "num_blocks = %d, tol = %.16g", num_blocks_, tol);
 #endif
 
+    // Ideally we would only build and generate the solver when the matrix
+    // changes, but we cannot since the tolerance value is not known until now.
+    // TOOD(CJB): determine how expensive this build+generate is and ask Ginkgo for a way to avoid it if it is expensive
     SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
     solver_factory_ = GkoBatchSolverType::build()                   //
                           .with_max_iterations(max_iters_)          //
@@ -203,8 +205,6 @@ public:
     SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
     SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
-    auto tmp_matrix = Clone(matrix_); // protect the matrix since ginkgo scales it in place
-    Copy(*matrix_, *tmp_matrix);
     solver_ = solver_factory_->generate(matrix_->gkomtx());
     SUNDIALS_MARK_END(sunProfiler(), "generate solver");
 
@@ -224,8 +224,9 @@ public:
 
       // x = A'^{-1} diag(left) b
       SUNDIALS_MARK_BEGIN(sunProfiler(), "solver apply");
+      // printf("b:\n"); N_VPrint(b);
       result = solver_->apply(b_vec.get(), x_vec.get());
-      N_VPrint(x);
+      // printf("x:\n"); N_VPrint(x);
       SUNDIALS_MARK_END(sunProfiler(), "solver apply");
     } else {
       SUNDIALS_MARK_BEGIN(sunProfiler(), "Wrap vector(s) for solve");
@@ -234,8 +235,9 @@ public:
 
       // x = A^'{-1} diag(right) x
       SUNDIALS_MARK_BEGIN(sunProfiler(), "solver apply");
+      // printf("b:\n"); N_VPrint(b);
       result = solver_->apply(x_vec.get(), x_vec.get());
-      N_VPrint(x);
+      // printf("x:\n"); N_VPrint(x);
       SUNDIALS_MARK_END(sunProfiler(), "solver apply");
     }
 
@@ -282,23 +284,28 @@ public:
     stddev_iter_count_ = std::sqrt(stddev_iter_count_ / num_blocks_);
     SUNDIALS_MARK_END(sunProfiler(), "check num iters");
 
+    int retval;
+    if (at_least_one_did_not_converge && max_res_norm_did_not_reduce) {
+      // printf("return SUNLS_CONV_FAIL\n");
+      retval = SUNLS_CONV_FAIL;
+    } else if (at_least_one_did_not_converge) {
+      // printf("retval = SUNLS_RES_REDUCED\n");
+      retval = SUNLS_RES_REDUCED;
+    } else {
+      // printf("retval = SUNLS_SUCCESS\n");
+      retval = SUNLS_SUCCESS;
+    }
+
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "end-solve",
                        "all converged = %d, avg. iter count = %.16g, stddev. iter count = %.16g, max iter count = %d, "
-                       "min iter count = %d, max res. norm = %.16g, max res. norm reduced = %d, min res. norm = %.16g, "
-                       "tol = %.16g",
+                       "min iter count = %d, max res. norm = %.16g, min res. norm = %.16g, tol = %.16g,"
+                       " return code = %d",
                        at_least_one_did_not_converge, avg_iter_count_, stddev_iter_count_, max_iter_count,
-                       min_iter_count, max_res_norm, !max_res_norm_did_not_reduce, min_res_norm, tol);
+                       min_iter_count, max_res_norm, min_res_norm, tol, retval);
 #endif
 
-    // delete tmp_matrix;
-    if (at_least_one_did_not_converge && max_res_norm_did_not_reduce) {
-      return SUNLS_CONV_FAIL;
-    } else if (at_least_one_did_not_converge) {
-      return SUNLS_RES_REDUCED;
-    } else {
-      return SUNLS_SUCCESS;
-    }
+    return retval;
   }
 
 private:
@@ -316,7 +323,6 @@ private:
   sunindextype num_blocks_;
   int max_iters_;
   bool setup_called_;
-  bool scaling_changed_;
   sunrealtype avg_iter_count_;
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
