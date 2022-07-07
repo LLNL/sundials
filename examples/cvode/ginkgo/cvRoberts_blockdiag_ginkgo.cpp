@@ -330,17 +330,13 @@ int main(int argc, char *argv[])
     }
   }
 
-  // CVodeSetEpsLin(cvode_mem, SUN_UNIT_ROUNDOFF);
-  // CVodeSetNonlinConvCoef(cvode_mem, 0.01);
-  // CVodeSetMaxNonlinIters(cvode_mem, 10);
-
   /* Increase the max number of time steps allowed */
-  CVodeSetMaxNumSteps(cvode_mem, 5000);
+  CVodeSetMaxNumSteps(cvode_mem, 1500);
 
   /* In loop, call CVode, print results, and test_type for error.
      Break out of loop when preset output times have been reached.  */
   printf(" \nBatch of independent 3-species kinetics problems\n\n");
-  printf("number of batches = %d, solver_type = %d\n\n", udata.nbatches, solver_type);
+  printf("number of batches = %d, mechanism type = %d, solver_type = %d\n\n", udata.nbatches, test_type, solver_type);
 
   sunrealtype t = T0;
   sunrealtype tout = T0+dTout;
