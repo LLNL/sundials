@@ -168,7 +168,7 @@ public:
     if (!s2inv_) {
       s2inv_ = N_VClone(s2);
     }
-    N_VDiv(ones_, s2, s2inv_); // ginkgo expects s2 to be s2inv already
+    N_VDiv(ones_, s2, s2inv_); // Need to provide s2inv to match the SUNLinearSolver API
     left_scale_vec_  = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1));
     right_scale_vec_ = gko::share(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s2inv_));
   }

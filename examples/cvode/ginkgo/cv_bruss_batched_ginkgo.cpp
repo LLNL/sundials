@@ -20,19 +20,19 @@
  *    dv/dt = w*u - v*u^2
  *    dw/dt = (b-w)/ep - w*u
  * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].
- * The problem is stiff. We have 3 different testing scenarios:
+ * The problem is stiff. We have 3 different reactors for testing:
  *
- * Test 0:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
+ * Reactor 0:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
  *    Here, all three components exhibit a rapid transient change
  *    during the first 0.2 time units, followed by a slow and
  *    smooth evolution.
  *
- * Test 1:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
+ * Reactor 1:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
  *    Here, all components undergo very rapid initial transients
  *    during the first 0.3 time units, and all then proceed very
  *    smoothly for the remainder of the simulation.
 
- * Test 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
+ * Reactor 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
  *    Here, w experiences a fast initial transient, jumping 0.5
  *    within a few steps.  All values proceed smoothly until
  *    around t=6.5, when both u and v undergo a sharp transition,
@@ -41,23 +41,41 @@
  *    transition, both u and v continue to evolve somewhat
  *    rapidly for another 1.4 time units, and finish off smoothly.
  *
- * This program solves the problem with the BDF method,
- * Newton iteration, a user-supplied Jacobian routine, and since the grouping
- * of the independent systems results in a block diagonal linear system, with
- * the Ginkgo SUNLinearSolver which supports batched iterative methods.
- * 100 outputs are printed at equal intervals, and run statistics
- * are printed at the end.
+ * This program solves the problem with the BDF method, Newton iteration, a
+ * user-supplied Jacobian routine, and since the grouping of the independent
+ * systems results in a block diagonal linear system, with the Ginkgo
+ * SUNLinearSolver which supports batched iterative methods. 100 outputs are
+ * printed at equal intervals, and run statistics are printed at the end.
  *
  * The program takes three optional arguments, the number of independent ODE
- * systems (i.e. number of batches), the linear solver type (MAGMA batched LU,
- * or non-batched GMRES), and the test type (uniform_1, uniform_2, uniform_3,
- * or random).
+ * systems (i.e. number of batches), the linear solver type
+ * (ginkgo batched gmres, non-batched GMRES with the Jaocbian computed by
+ * difference quotients, or non-batched GMRES with analytical Jacobian), and
+ * the test type (uniform_1, uniform_2, uniform_3, or random).
  *
- *    ./cv_blockdiag_ginkgo [number of batches] [solver_type] [test_type]
+ *    ./cv_bruss_batched_ginkgo [num_batches] [solver_type] [test_type]
+ *
+ * Options:
+ *    num_batches <int>
+ *    solver_type:
+ *       0 - Ginkgo batched GMRES
+ *       1 - SUNDIALS non-batched GMRES with difference quotients Jacobian
+ *       2 - SUNDIALS non-batched GMRES with analytical Jacobian
+ *       3 - SUNDIALS non-batched BiCGSTAB with difference quotients Jacobian
+ *       4 - SUNDIALS non-batched BiCGSTAB with analytical Jacobian
+ *    test_type:
+ *       0 - all batches are reactor type 0
+ *       1 - all batches are reactor type 1
+ *       2 - all batches are reactor type 2
+ *       3 - random distribution of reactors
+ *       4 - all batches are reactor type 0 but with random distribution of ep (stiffness)
+ *       5 - all batches are reactor type 1 but with random distribution of ep (stiffness)
+ *       6 - all batches are reactor type 2 but with random distribution of ep (stiffness)
+ *       7 - random distribution of reactors and ep (stiffness)
  * --------------------------------------------------------------------------*/
 
 #include <memory>
-#include <vector>
+#include <random>
 #include <cstdio>
 
 #include <cvode/cvode.h>                              /* prototypes for CVODE fcts., consts.           */
@@ -167,9 +185,9 @@ using SUNLinearSolverView = sundials::ginkgo::BlockLinearSolver<gko::solver::Bat
 
 int main(int argc, char *argv[])
 {
-  const sunrealtype T0 = RCONST(0.0);     /* initial time                   */
-  const sunrealtype Tf = RCONST(10.0);     /* final time                    */
-  const sunrealtype dTout = RCONST(1.0);  /* time between outputs          */
+  const sunrealtype T0 = RCONST(0.0);     /* initial time                  */
+  const sunrealtype Tf = RCONST(10.0);    /* final time                    */
+  const sunrealtype dTout = RCONST(5.0);  /* time between outputs          */
   const int Nt = (int) ceil(Tf/dTout);    /* number of output times        */
   const sunrealtype reltol = 1.0e-6;      /* relative integrator tolerance */
   int retval;
@@ -214,30 +232,41 @@ int main(int argc, char *argv[])
 
   UserData udata{ nbatches, batchSize, batchSize*batchSize, memhelper };
 
-  /* Set the Reaction parameters according to test_type_type */
+  /* Set the Reaction parameters according to test_type */
+  std::random_device rd;
+  std::mt19937 gen(rd()); // TODO: allow seed to be reused for repeatable comparisons
+  std::uniform_real_distribution<sunrealtype> dist(0.0, 8.0); // TODO: make the range and type of distribution adjustable
+  std::uniform_int_distribution<> dist_int(0, 2);
+
+  bool random_reactors = test_type == 3 || test_type == 7;
+  bool random_stiffness = test_type == 4 || test_type == 5 || test_type == 6 || test_type == 7;
   for (int batchj = 0; batchj < udata.nbatches; ++batchj) {
-    if (test_type == 0) {
+    int reactor_type = random_reactors ? dist_int(gen) : test_type%4;
+    if (reactor_type == 0) {
       udata.u0[batchj] = RCONST(3.9);
       udata.v0[batchj] = RCONST(1.1);
       udata.w0[batchj] = RCONST(2.8);
       udata.a[batchj]  = RCONST(1.2);
       udata.b[batchj]  = RCONST(2.5);
-      udata.ep[batchj] = RCONST(1.0e-5);
-    } else if (test_type == 1) {
+      udata.ep[batchj] = random_stiffness ? std::pow(10.0, -dist(gen)) : RCONST(1.0e-5);
+    } else if (reactor_type == 1) {
       udata.u0[batchj] = RCONST(3.0);
       udata.v0[batchj] = RCONST(3.0);
       udata.w0[batchj] = RCONST(3.5);
       udata.a[batchj]  = RCONST(0.5);
       udata.b[batchj]  = RCONST(3.0);
-      udata.ep[batchj] = RCONST(5.0e-4);
-    } else if (test_type == 2) {
+      udata.ep[batchj] = random_stiffness ? std::pow(10.0, -dist(gen)) : RCONST(5.0e-4);
+    } else if (reactor_type == 2) {
       udata.u0[batchj] = RCONST(1.2);
       udata.v0[batchj] = RCONST(3.1);
       udata.w0[batchj] = RCONST(3.0);
       udata.a[batchj]  = RCONST(1.0);
       udata.b[batchj]  = RCONST(3.5);
-      udata.ep[batchj] = RCONST(5.0e-6);
+      udata.ep[batchj] = random_stiffness ? std::pow(10.0, -dist(gen)) : RCONST(5.0e-6);
     }
+    // printf("u0 = %g, v0 = %g, w0 = %g, a = %g, b = %g, ep = %g\n",
+    //   udata.u0[batchj], udata.v0[batchj], udata.w0[batchj],
+    //   udata.a[batchj], udata.b[batchj], udata.ep[batchj]);
   }
 
   /* Create CUDA or HIP vector of length neq for I.C. and abstol vector */
@@ -330,13 +359,18 @@ int main(int argc, char *argv[])
     }
   }
 
+  /* We need to adjust the norm factor to be the sqrt of the length of the batch
+     instead of the sqrt of the length of the overall system, since the linear
+     solver is batched. */
+  CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batchSize));
+
   /* Increase the max number of time steps allowed */
-  CVodeSetMaxNumSteps(cvode_mem, 1500);
+  CVodeSetMaxNumSteps(cvode_mem, 5000);
 
   /* In loop, call CVode, print results, and test_type for error.
      Break out of loop when preset output times have been reached.  */
-  printf(" \nBatch of independent 3-species kinetics problems\n\n");
-  printf("number of batches = %d, mechanism type = %d, solver_type = %d\n\n", udata.nbatches, test_type, solver_type);
+  printf(" \nBatch of independent 3-species kinetics problems\n");
+  printf("number of batches = %d, test type = %d, solver_type = %d\n\n", udata.nbatches, test_type, solver_type);
 
   sunrealtype t = T0;
   sunrealtype tout = T0+dTout;
@@ -345,7 +379,7 @@ int main(int argc, char *argv[])
 
     HIP_OR_CUDA( N_VCopyFromDevice_Hip(y);,
                  N_VCopyFromDevice_Cuda(y); )
-    for (int batchj = 0; batchj < udata.nbatches; batchj += 10) {
+    for (int batchj = 0; batchj < udata.nbatches; batchj++) {
       printf("batch_%d: ", batchj);
       PrintOutput(t, ydata[batchj*udata.batchSize],
                      ydata[batchj*udata.batchSize+1],

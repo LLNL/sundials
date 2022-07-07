@@ -20,19 +20,58 @@
  *    dv/dt = w*u - v*u^2
  *    dw/dt = (b-w)/ep - w*u
  * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].
- * The problem is stiff. This program solves the problem with the BDF method,
- * Newton iteration, a user-supplied Jacobian routine, and since the grouping
- * of the independent systems results in a block diagonal linear system, with
- * the MAGMADENSE SUNLinearSolver which supports batched LU factorization.
- * 100 outputs are printed at equal intervals, and run statistics
- * are printed at the end.
+ * The problem is stiff. We have 3 different testing scenarios:
+ *
+ * Reactor 0:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
+ *    Here, all three components exhibit a rapid transient change
+ *    during the first 0.2 time units, followed by a slow and
+ *    smooth evolution.
+ *
+ * Reactor 1:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
+ *    Here, all components undergo very rapid initial transients
+ *    during the first 0.3 time units, and all then proceed very
+ *    smoothly for the remainder of the simulation.
+
+ * Reactor 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
+ *    Here, w experiences a fast initial transient, jumping 0.5
+ *    within a few steps.  All values proceed smoothly until
+ *    around t=6.5, when both u and v undergo a sharp transition,
+ *    with u increaseing from around 0.5 to 5 and v decreasing
+ *    from around 6 to 1 in less than 0.5 time units.  After this
+ *    transition, both u and v continue to evolve somewhat
+ *    rapidly for another 1.4 time units, and finish off smoothly.
+ *
+ * This program solves the problem with the BDF method, Newton iteration, a
+ * user-supplied Jacobian routine, and since the grouping of the independent
+ * systems results in a block diagonal linear system, with the MAGMA
+ * SUNLinearSolver which supports batched iterative methods. 100 outputs are
+ * printed at equal intervals, and run statistics are printed at the end.
  *
  * The program takes three optional arguments, the number of independent ODE
- * systems (i.e. number of batches), the linear solver type (MAGMA batched LU,
- * or non-batched GMRES), and the test type (uniform_1, uniform_2, uniform_3,
- * or random).
+ * systems (i.e. number of batches), the linear solver type
+ * (MAGMA batched LU, non-batched GMRES with the Jacobian computed by
+ * difference quotients, or non-batched GMRES with analytical Jacobian), and
+ * the test type (uniform_1, uniform_2, uniform_3, or random).
  *
- *    ./cv_blockdiag_magma [number of batches] [solver_type] [test_type]
+ *    ./cv_bruss_batched_magma [num_batches] [solver_type] [test_type]
+ *
+ * Options:
+ *    num_batches <int>
+ *    solver_type:
+ *       0 - MAGMA batched GMRES
+ *       1 - SUNDIALS non-batched GMRES with difference quotients Jacobian
+ *       2 - SUNDIALS non-batched GMRES with analytical Jacobian
+ *       3 - SUNDIALS non-batched BiCGSTAB with difference quotients Jacobian
+ *       4 - SUNDIALS non-batched BiCGSTAB with analytical Jacobian
+ *    test_type:
+ *       0 - all batches are the same reactor type 0
+ *       1 - all batches are the same reactor type 1
+ *       2 - all batches are the same reactor type 2
+ *       3 - random distribution of reactors
+ *       4 - all reactor type 0 but with random distribution of ep (stiffness)
+ *       5 - all reactor type 1 but with random distribution of ep (stiffness)
+ *       6 - all reactor type 2 but with random distribution of ep (stiffness)
+ *       7 - random distribution of reactors and ep (stiffness)
  * --------------------------------------------------------------------------*/
 
 #include <memory>
