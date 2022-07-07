@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VBufSize(X, local_length, myid);
   fails += Test_N_VBufPack(X, local_length, myid);
   fails += Test_N_VBufUnpack(X, local_length, myid);
-
+ 
   /* Free vectors */
   N_VDestroy(X);
   N_VDestroy(Y);

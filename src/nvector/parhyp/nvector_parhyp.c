@@ -599,7 +599,10 @@ void N_VConst_ParHyp(realtype c, N_Vector z)	// already parallelized
 
 void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype i, N;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
+  sunindextype i; 
+#endif
+  sunindextype N;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
@@ -613,7 +616,9 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  prodKernel(xd, yd, zd, N);  
+ size_t blocksize = 256;
+ size_t gridsize = (N + blocksize - 1) / blocksize; 
+ prodKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);  
 #endif
 
   return;
@@ -717,8 +722,14 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
-  for (i = 0; i < N; i++)		// kernel available 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  printf("N_VAddConst_ParHyp serial check"); 
+  for (i = 0; i < N; i++)		
      zd[i] = xd[i] + b;
+  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+  addConstKernel(b, xd, zd, N); 
+  printf("N_VAddConst_ParHyp parallel check"); 
+  #endif
 
   return;
 }
@@ -732,9 +743,50 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   yd = NV_DATA_PH(y);
 
   sum = ZERO;
-  for (i = 0; i < N; i++)		// kernel available 
+/* 
+ #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  printf("hypre serial backend\n");
+  for (i = 0; i < N; i++)		
     sum += xd[i]*yd[i];
+  return(sum); 
+  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+  dotProdKernel(xd, yd, N);
+  printf("checking the output ", out);
   return(sum);
+  #endif 
+*/
+ #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+ printf("current check : hypre serial backend\n");
+ for (i = 0; i < N; i++)
+  sum += xd[i]*yd[i];
+ #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+ printf("hypre cuda backend\n");
+ // set kernel launch parameters
+ size_t blocksize = 256;
+ size_t gridsize = (N + blocksize - 1) / blocksize;
+ // allocate and initialize reduction buffers
+ realtype* sum_h; // host memory for sum
+ realtype* sum_d; // device memory for sum
+ cudaMallocHost(&(sum_h), sizeof(realtype)); // allocate pinned host memory
+ cudaMalloc(&(sum_d), sizeof(realtype));     // allocate device memory
+ // initial host value
+ *sum_h = ZERO; 
+ // copy host value to device to initialize device value
+ cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+ // launch the dot product kernel
+ dotProdKernel<sunrealtype, sunindexsize, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, yx, sum_d, N, nullptr);
+ // copy result from device to host
+ cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost);
+ // wait for copy to finish
+ cudaStreamSynchronize(0);
+ // copy solution in output variable
+ sum = *sum_h;
+ // free host and device buffers
+ cudaFreeHost(sum_h);
+ cudaFree(sum_d);
+ #endif
+ printf("sum = %g\n", sum); 
+ 
 }
 
 realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
