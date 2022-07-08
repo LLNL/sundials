@@ -345,6 +345,9 @@ double max_time(N_Vector X, double time)
 
 void sync_device(N_Vector x)
 {
-  /* not running on GPU, just return */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  /* sync with GPU */
+  cudaDeviceSynchronize();
+#endif
   return;
 }
