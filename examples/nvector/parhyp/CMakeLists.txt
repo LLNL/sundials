@@ -66,8 +66,19 @@ foreach(example_tuple ${nvector_parhyp_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
+
+    if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+      set_source_files_properties(${example}.c PROPERTIES LANGUAGE CUDA)
+    endif()
+
     # example source files
     add_executable(${example} ${example}.c)
+
+    if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+      # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX
+      target_include_directories(${example} PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+      target_link_libraries(${example} PRIVATE ${MPI_CXX_LIBRARIES})
+    endif()
 
     # link vector test utilties
     target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
