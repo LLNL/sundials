@@ -141,6 +141,19 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 
+// CUDA configuration helper functions  
+
+static size_t CUDAConfigBlockSize()
+{
+   size_t blocksize = 256; 
+   return blocksize;
+}
+
+static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
+{
+  return ((N + blocksize - 1) / blocksize);
+} 
+
 /*
  * -----------------------------------------------------------------
  * exported functions
@@ -587,8 +600,8 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+(b*yd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  size_t blocksize = 256;
-  size_t gridsize = (N + blocksize - 1) / blocksize;
+  size_t blocksize =  CUDAConfigBlockSize(); 
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);   
   linearSumKernel<<<gridsize, blocksize, 0, 0 >>>(a, xd, b, yd, zd, N);
 #endif
 
@@ -783,7 +796,7 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
  // copy host value to device to initialize device value
  cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
  // launch the dot product kernel
- dotProdKernel<sunrealtype, sunindexsize, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, yx, sum_d, N, nullptr);
+ dotProdKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, yd, sum_d, N, nullptr);
  // copy result from device to host
  cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost);
  // wait for copy to finish
