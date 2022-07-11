@@ -673,6 +673,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  printf("Hello world \n\n\n\n\n");
   divKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
 #endif 
 
@@ -748,14 +749,16 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   printf("N_VAddConst_ParHyp serial check"); 
   for (i = 0; i < N; i++)		
      zd[i] = xd[i] + b;
-  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
-  addConstKernel(b, xd, zd, N); 
+#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  addConstKernel<<<gridsize, blocksize, 0, 0>>>(b, xd, zd, N); 
   printf("N_VAddConst_ParHyp parallel check"); 
-  #endif
+#endif
 
   return;
 }
@@ -797,6 +800,7 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
  cudaMalloc(&(sum_d), sizeof(realtype));     // allocate device memory
  // initial host value
  *sum_h = ZERO; 
+
  // copy host value to device to initialize device value
  cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
  // launch the dot product kernel
@@ -833,8 +837,28 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   xd = NV_DATA_PH(x);
 
   max = ZERO;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+  realtype* max_d;
+  realtype* max_h;  
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  
+  cudaMallocHost(&(max_h), sizeof(realtype));
+  cudaMalloc(&(max_d), sizeof(realtype)); 
+  *max_h = ZERO;
+  cudaMemcpy(max_d, max_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+
+  maxNormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, max_d, N, nullptr); 
+  
+  cudaMemcpy(max_h, max_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
+  cudaStreamSynchronize(0); 
+  max = *max_h; 
+  cudaFreeHost(max_h);
+  cudaFree(max_d); 
+#endif 
   return(max);
 }
 
