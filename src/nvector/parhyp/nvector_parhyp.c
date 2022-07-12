@@ -670,7 +670,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)	
     zd[i] = xd[i]/yd[i];
-#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   printf("Hello world \n\n\n\n\n");
@@ -731,8 +731,10 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)	
   for (i = 0; i < N; i++)
     zd[i] = ONE/xd[i];	
-  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)	
-  invKernel(xd, zd, N);
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);	
+  invKernel<<<gridsize, blocksize, 0, 0>>>(xd, zd, N);
   #endif	
 
   return;
@@ -753,7 +755,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   printf("N_VAddConst_ParHyp serial check"); 
   for (i = 0; i < N; i++)		
      zd[i] = xd[i] + b;
-#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   addConstKernel<<<gridsize, blocksize, 0, 0>>>(b, xd, zd, N); 
