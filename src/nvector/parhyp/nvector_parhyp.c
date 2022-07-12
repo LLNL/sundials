@@ -988,10 +988,18 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
-
+  
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++) {
     zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
   }
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("Hello world\n\n\n\n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  compareKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, zd, N);
+#endif
 
   return;
 }
