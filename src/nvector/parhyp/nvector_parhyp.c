@@ -670,10 +670,10 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)	
     zd[i] = xd[i]/yd[i];
-#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
-  printf("Hello world \n\n\n\n\n");
   divKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
 #endif 
 
@@ -706,9 +706,9 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
   zd = NV_DATA_PH(z);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  for (i = 0; i < N; i++)
+ for (i = 0; i < N; i++)
     zd[i] = SUNRabs(xd[i]);
-#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   absKernel<<<gridsize, blocksize, 0, 0>>>(xd, zd, N);
@@ -728,12 +728,14 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)	
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)	
   for (i = 0; i < N; i++)
     zd[i] = ONE/xd[i];	
-  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)	
-  invKernel(xd, zd, N);
-  #endif	
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)	
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  invKernel<<<gridsize, blocksize, 0, 0>>>(xd, zd, N);
+#endif	
 
   return;
 }
@@ -750,14 +752,12 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   zd = NV_DATA_PH(z);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  printf("N_VAddConst_ParHyp serial check"); 
   for (i = 0; i < N; i++)		
      zd[i] = xd[i] + b;
-#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   addConstKernel<<<gridsize, blocksize, 0, 0>>>(b, xd, zd, N); 
-  printf("N_VAddConst_ParHyp parallel check"); 
 #endif
 
   return;
@@ -772,27 +772,14 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   yd = NV_DATA_PH(y);
 
   sum = ZERO;
-/* 
- #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  printf("hypre serial backend\n");
-  for (i = 0; i < N; i++)		
-    sum += xd[i]*yd[i];
-  return(sum); 
-  #elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
-  dotProdKernel(xd, yd, N);
-  printf("checking the output ", out);
-  return(sum);
-  #endif 
-*/
- #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
- printf("current check : hypre serial backend\n");
+ 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
  for (i = 0; i < N; i++)
   sum += xd[i]*yd[i];
- #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- printf("hypre cuda backend\n");
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
  // set kernel launch parameters
- size_t blocksize = 256;
- size_t gridsize = (N + blocksize - 1) / blocksize;
+ size_t blocksize =  CUDAConfigBlockSize();
+ size_t gridsize = CUDAConfigGridSize(N, blocksize);
  // allocate and initialize reduction buffers
  realtype* sum_h; // host memory for sum
  realtype* sum_d; // device memory for sum
@@ -814,8 +801,8 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
  // free host and device buffers
  cudaFreeHost(sum_h);
  cudaFree(sum_d);
- #endif
- printf("sum = %g\n", sum); 
+#endif
+ //printf("sum = %g\n", sum); 
  
 }
 
@@ -966,7 +953,25 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
   xd  = NV_DATA_PH(x);
   sum = ZERO;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+ size_t blocksize =  CUDAConfigBlockSize();
+ size_t gridsize = CUDAConfigGridSize(N, blocksize);
+ realtype* sum_h; // host memory for sum
+ realtype* sum_d; // device memory for sum
+ cudaMallocHost(&(sum_h), sizeof(realtype)); // allocate pinned host memory
+ cudaMalloc(&(sum_d), sizeof(realtype));     // allocate device memory
+ *sum_h = ZERO; 
+ cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+  
+  L1NormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, sum_d, N, nullptr);   
+  cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
+  cudaStreamSynchronize(0);
+  sum = *sum_h; 
+  cudaFreeHost(sum_h);
+  cudaFree(sum_d);
+#endif
   return(sum);
 }
 
@@ -995,7 +1000,6 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
   }
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("Hello world\n\n\n\n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   compareKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, zd, N);
