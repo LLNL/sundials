@@ -913,12 +913,34 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   idd = NV_DATA_PH(id);
 
   sum = ZERO;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       prodi = xd[i]*wd[i];
       sum += SUNSQR(prodi);
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype* sum_d;
+  realtype* sum_h;  
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+
+  printf("CUDA\n\n\n\n\n");
+  
+  cudaMallocHost(&(sum_h), sizeof(realtype));
+  cudaMalloc(&(sum_d), sizeof(realtype)); 
+  *sum_h = ZERO;
+  cudaMemcpy(sum_d,sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+
+  wL2NormSquareMaskKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, wd, idd, sum_d, N, nullptr); 
+  
+  cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
+  cudaStreamSynchronize(0); 
+  sum = *sum_h; 
+  cudaFreeHost(sum_h);
+  cudaFree(sum_d);
+#endif
   return(sum);
 }
 
@@ -942,8 +964,30 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
   if (N > 0) {
     xd = NV_DATA_PH(x);
     min = xd[0];
+    //#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
     for (i = 1; i < N; i++)
       if (xd[i] < min) min = xd[i];
+    /*#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+    realtype* min_d;
+    realtype* min_h;  
+    size_t blocksize =  CUDAConfigBlockSize();
+    size_t gridsize = CUDAConfigGridSize(N, blocksize);
+
+    printf("CUDA\n\n\n\n\n");
+  
+    cudaMallocHost(&(min_h), sizeof(realtype));
+    cudaMalloc(&(min_d), sizeof(realtype)); 
+    *min_h = ZERO;
+    cudaMemcpy(min_d, min_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+
+    findMinKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(T MAX_VAL, xd, min_d, N, nullptr); 
+  
+    cudaMemcpy(min_h, min_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
+    cudaStreamSynchronize(0); 
+    min = *min_h; 
+    cudaFreeHost(min_h);
+    cudaFree(min_d);
+    #endif*/
   }
   return(min);
 }
