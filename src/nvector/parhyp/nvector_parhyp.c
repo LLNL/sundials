@@ -867,10 +867,30 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   wd = NV_DATA_PH(w);
 
   sum = ZERO;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
     sum += prodi*prodi; 
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype* sum_d;
+  realtype* sum_h;  
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  
+  cudaMallocHost(&(sum_h), sizeof(realtype));
+  cudaMalloc(&(sum_d), sizeof(realtype)); 
+  *sum_h = ZERO;
+  cudaMemcpy(sum_d,sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+
+  wL2NormSquareKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, wd, sum_d, N, nullptr); 
+  
+  cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
+  cudaStreamSynchronize(0); 
+  sum = *sum_h; 
+  cudaFreeHost(sum_h);
+  cudaFree(sum_d); 
+#endif
   return(sum);
 }
 
@@ -956,6 +976,11 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+ printf("current check : hypre serial backend\n");
+  for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+ printf("current check : N_VL1NormLocal_ParHyp\n\n\n\n\n\n\n\n\n");
+>>>>>>> d70101e2b2b772fb5b8d929518d858341ceaf8aa
  size_t blocksize =  CUDAConfigBlockSize();
  size_t gridsize = CUDAConfigGridSize(N, blocksize);
  realtype* sum_h; // host memory for sum
