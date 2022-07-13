@@ -27,6 +27,7 @@
 struct UserOptions
 {
   // Integrator settings
+  realtype initial_condition_scalar = 1.0; // initial condition scalar factor
   realtype rtol        = RCONST(1.0e-5);   // relative tolerance
   realtype atol        = RCONST(1.0e-10);  // absolute tolerance
   int      maxsteps    = 0;                // max steps between outputs
@@ -182,6 +183,8 @@ int main(int argc, char* argv[])
     // Set initial condition
     flag = Solution(ZERO, u, &udata);
     if (check_flag(&flag, "Solution", 1)) return 1;
+
+	N_VScale(uopts.initial_condition_scalar,u,u);
 
     // Create vector for error
     if (udata.forcing)
@@ -571,6 +574,13 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     return 0;
   }
 
+  it = find(args.begin(), args.end(), "--initial_condition_scalar");
+  if (it != args.end())
+  {
+    initial_condition_scalar = stod(*(it+1));
+    args.erase(it, it + 2);
+  }
+
   it = find(args.begin(), args.end(), "--rtol");
   if (it != args.end())
   {
@@ -756,6 +766,7 @@ void UserOptions::help()
 {
   cout << endl;
   cout << "Integrator command line options:" << endl;
+  cout << "  --initial_condition_scalar : initial condition scaling factor" << endl;
   cout << "  --rtol <rtol>       : relative tolerance" << endl;
   cout << "  --atol <atol>       : absoltue tolerance" << endl;
   cout << "  --stats			 : output integrator statistics" << endl;
@@ -789,6 +800,7 @@ void UserOptions::print()
   cout << endl;
   cout << " Integrator options:" << endl;
   cout << " --------------------------------- " << endl;
+  cout << " initial_condition_scalar = " << initial_condition_scalar << endl;
   cout << " rtol        = " << rtol        << endl;
   cout << " atol        = " << atol        << endl;
   cout << " max steps   = " << maxsteps    << endl;
