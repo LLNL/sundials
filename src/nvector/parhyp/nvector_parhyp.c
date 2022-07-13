@@ -1018,10 +1018,13 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
   sum = ZERO;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
  printf("current check : hypre serial backend\n");
   for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
-#elif defined(SUNDIAL_HYPRE_BACKENDS_CUDA)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
  printf("current check : N_VL1NormLocal_ParHyp\n\n\n\n\n\n\n\n\n");
+>>>>>>> d70101e2b2b772fb5b8d929518d858341ceaf8aa
  size_t blocksize =  CUDAConfigBlockSize();
  size_t gridsize = CUDAConfigGridSize(N, blocksize);
  realtype* sum_h; // host memory for sum
@@ -1030,7 +1033,6 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
  cudaMalloc(&(sum_d), sizeof(realtype));     // allocate device memory
  *sum_h = ZERO; 
  cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice); 
-//df
   
   L1NormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, sum_d, N, nullptr);   
   cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
