@@ -29,6 +29,7 @@
 #include <sundials/sundials_cuda_policies.hpp>
 #include "sundials_cuda.h"
 #include "VectorKernels.cuh"
+#include "VectorArrayKernels.cuh"
 #define SUNDIALS_GPU_PREFIX(val) cuda ## val
 #define SUNDIALS_GPU_VERIFY SUNDIALS_CUDA_VERIFY
 using namespace sundials;
@@ -1157,6 +1158,7 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 
   temp = ZERO;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++) {
     md[i] = ZERO;
 
@@ -1171,8 +1173,33 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
       temp = md[i] = ONE;
     }
   }
+
   /* Return false if any constraint was violated */
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  //printf("\n N_VConstrMaskLocal using CUDA\n");  
+  realtype* temp_d; 
+  realtype* temp_h; 
+  size_t blocksize = CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize); 
+
+  cudaMallocHost(&(temp_h), sizeof(realtype));
+  cudaMalloc(&(temp_d), sizeof(realtype));
+  *temp_h = ZERO; 
+  cudaMemcpy(temp_d, temp_h, sizeof(realtype), cudaMemcpyHostToDevice);
+  constrMaskKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(cd, xd, md, temp_d, N, nullptr);
+  cudaMemcpy(temp_h, temp_d, sizeof(realtype), cudaMemcpyDeviceToHost);
+  cudaStreamSynchronize(0);
+  temp = *temp_h;
+  printf("The value of temp is %g", temp);
+  cudaFreeHost(temp_h); 
+  cudaFree(temp_d);
+  /* Return false if any constraint was violated 
+   CUDA returns the number of times constraint has been violated rather than setting it to ONE each time
+   Had to change the return statement accordingly  */
+  return (temp >= ONE) ? SUNFALSE : SUNTRUE;
+#endif  
 }
 
 booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
