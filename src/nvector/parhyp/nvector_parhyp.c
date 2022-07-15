@@ -809,8 +809,8 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
  cudaFreeHost(sum_h);
  cudaFree(sum_d);
 #endif
- //printf("sum = %g\n", sum); 
  
+ return(sum);
 }
 
 realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
@@ -1214,7 +1214,7 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
   sunindextype i, N;
-  realtype *nd, *dd, min;
+  realtype *nd, *dd, min, MAX=ZERO;
 
   nd = dd = NULL;
 
@@ -1225,6 +1225,7 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   notEvenOnce = SUNTRUE;
   min = BIG_REAL;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++) {
     if (dd[i] == ZERO) continue;
     else {
@@ -1235,6 +1236,26 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
       }
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype* min_d;
+  realtype* min_h;  
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+
+  cudaMallocHost(&(min_h), sizeof(realtype));
+  cudaMalloc(&(min_d), sizeof(realtype)); 
+  *min_h = BIG_REAL;
+  cudaMemcpy(min_d, min_h, sizeof(realtype), cudaMemcpyHostToDevice); 
+
+  minQuotientKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(MAX, nd, dd, min_d, N, nullptr); 
+  
+  cudaMemcpy(min_h, min_d, sizeof(realtype), cudaMemcpyDeviceToHost); 
+  cudaStreamSynchronize(0); 
+  min = *min_h; 
+  cudaFreeHost(min_h);
+  cudaFree(min_d);
+#endif
+
   return(min);
 }
 
