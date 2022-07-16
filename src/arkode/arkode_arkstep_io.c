@@ -341,6 +341,7 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->explicit         = SUNTRUE;        /* fe(t,y) will be used */
   step_mem->implicit         = SUNTRUE;        /* fi(t,y) will be used */
   step_mem->deduce_rhs       = SUNFALSE;       /* deduce fi on result of NLS */
+  step_mem->separable_rhs    = SUNFALSE;       /* fe and fi are separable */
   step_mem->maxcor           = MAXCOR;         /* max nonlinear iters/stage */
   step_mem->nlscoef          = NLSCOEF;        /* nonlinear tolerance coefficient */
   step_mem->crdown           = CRDOWN;         /* nonlinear convergence estimate coeff. */
@@ -1396,6 +1397,20 @@ int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce)
   if (retval != ARK_SUCCESS) return(retval);
 
   step_mem->deduce_rhs = deduce;
+  return(ARK_SUCCESS);
+}
+
+int ARKStepSetSeparableRhs(void *arkode_mem, sunbooleantype isseparable)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure and set function pointer */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetSeparableRhs",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+  step_mem->separable_rhs = isseparable;
   return(ARK_SUCCESS);
 }
 

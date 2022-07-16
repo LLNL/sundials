@@ -39,6 +39,7 @@ set(ARKODE_examples
   "ark_twowaycouple_mri\;\;develop"
   "ark_reaction_diffusion_mri\;\;develop"
   "ark_brusselator_1D_mri\;\;develop"
+  "ark_kepler\;\;develop"
   "ark_kpr_mri\;\;develop"
   "ark_kpr_mri\;0 0.002\;develop"
   "ark_kpr_mri\;1 0.002\;develop"

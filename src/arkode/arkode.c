@@ -1887,6 +1887,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
+  // printf(">>> arkInitialSetup\n");
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
                                  ark_mem->fn, ARK_FULLRHS_START);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
@@ -2317,6 +2318,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);
 
   /* compute y', via the ODE RHS routine */
+  // printf(">>> arkYddNorm\n");
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
                                  ark_mem->tempv1, ARK_FULLRHS_OTHER);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
@@ -2388,6 +2390,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   /* call fullrhs if needed */
   if (ark_mem->call_fullrhs) {
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    // printf(">>> arkCompleteStep\n");
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
