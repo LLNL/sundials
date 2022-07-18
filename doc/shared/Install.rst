@@ -1026,6 +1026,10 @@ illustration only.
 
    Default: ``ON``
 
+   .. note::
+
+      This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
 .. cmakeoption:: XBRAID_DIR
 
    The root directory of the XBraid installation.

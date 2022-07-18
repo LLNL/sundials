@@ -96,13 +96,9 @@ sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "${ENABLE_MPI}"
 # We also provide it for non-unix systems, but with different defaults,
 # in order to present a uniform CMake interface.
 if(UNIX)
-  sundials_option(USE_GENERIC_MATH BOOL "Use the C standard library math functions" ON ADVANCED)
-  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "-lm" ADVANCED
-                  DEPENDS_ON USE_GENERIC_MATH)
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "-lm" ADVANCED)
 else()
-  sundials_option(USE_GENERIC_MATH BOOL "Use the C standard library math functions" OFF ADVANCED)
-  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "" ADVANCED
-                  DEPENDS_ON USE_GENERIC_MATH)
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "" ADVANCED)
 endif()
 # all executables will be linked against the math library
 set(EXE_EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
