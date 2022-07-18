@@ -161,20 +161,20 @@ check_c_source_compiles("
     float a, a_result;
     long double b, b_result;
 
-    a = 1.0;
-    b = 1.0;
+    a = 1.0F;
+    b = 1.0L;
 
     a_result = sqrtf(a);
     a_result = fabsf(a);
     a_result = expf(a);
     a_result = ceilf(a);
-    a_result = powf(a, 1.0);
+    a_result = powf(a, 1.0F);
 
     b_result = sqrtl(b);
     b_result = fabsl(b);
     b_result = expl(b);
     b_result = ceill(b);
-    b_result = powl(b, 1.0);
+    b_result = powl(b, 1.0L);
 
     return 0;
   }
@@ -190,7 +190,7 @@ check_c_source_compiles("
     double a = 0.0;
     int result = isinf(a);
     result = isnan(a);
-    return a;
+    return result;
   }
 " SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
 
