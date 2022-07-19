@@ -12,20 +12,20 @@
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------
  * We consider the perturbed Kepler problem
- *    dq/dt = [ p_1 ]
- *            [ p_2 ]
- *    dp/dt = [ -q_1 / (q_1^2 + q_2^2)^(3/2) - delta*q_1 / (q_1^2 + q_2^2)^(5/2) ]
- *          = [ -q_2 / (q_1^2 + q_2^2)^(3/2) - delta*q_2 / (q_1^2 + q_2^2)^(5/2) ]
+ *    dq/dt = [ p1 ]
+ *            [ p2 ]
+ *    dp/dt = [ -q1 / (q1^2 + q2^2)^(3/2) - delta*q1 / (q1^2 + q2^2)^(5/2) ]
+ *          = [ -q2 / (q1^2 + q2^2)^(3/2) - delta*q2 / (q1^2 + q2^2)^(5/2) ]
  * (delta = 0.015) with the initial conditions
  *    q(0) = [ 1 - e ],  p(0) = [        0          ]
  *           [   0   ]          [ sqrt((1+e)/(1-e)) ]
  * where e = 0.6 is the eccentricity.
  *
  * The Hamiltonian for the system,
- *    H(p, q) = 1/2 * (p_1^2 + p_2^2 ) - 1/sqrt(q_1^2 + q_2^2)
- *            - 1/200 / (2 * sqrt(q_1^2 + q_2^2)^3))
+ *    H(p, q) = 1/2 * (p1^2 + p2^2) - 1/sqrt(q1^2 + q2^2)
+ *            - 1/200 / (2 * sqrt(q1^2 + q2^2)^3))
  * is conserved as well as the angular momentum,
- *    L(p, q) = q_1p_2 - q_2p_1.
+ *    L(p, q) = q1*p2 - q2*p1.
  *
  * We solve the problem by letting y = [ q, p ]^T then using
  * ARKStep.
@@ -68,23 +68,24 @@ int main(int argc, char* argv[])
   SUNNonlinearSolver NLS;
   UserData udata;
   sunrealtype tout, tret;
+  sunrealtype H0, L0;
   ARKodeButcherTable Mp, Mq;
   void* arkode_mem;
   int argi, iout, retval;
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  // sunrealtype Tf          = SUN_RCONST(0.1);
-  sunrealtype Tf          = SUN_RCONST(4000.0);
-  const sunrealtype dt    = SUN_RCONST(1e-3);
+  sunrealtype Tf          = SUN_RCONST(200.0);
+  // sunrealtype Tf          = SUN_RCONST(4000.0);
+  const sunrealtype dt    = SUN_RCONST(1e-4);
   const sunrealtype ecc   = SUN_RCONST(0.6);
   const sunrealtype delta = SUN_RCONST(0.015);
 
   /* Default integrator Options */
   int fixed_step_mode = 1;
   int method          = 1;
-  // const sunrealtype dTout = SUN_RCONST(0.01);
-  const sunrealtype dTout = SUN_RCONST(100.0);
+  const sunrealtype dTout = SUN_RCONST(10.0);
+  // const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
 
   /* Parse CLI args */
@@ -116,52 +117,52 @@ int main(int argc, char* argv[])
     arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
     /* Attach custom Butcher tables for 3rd order scheme [Candy, 1991] */
-    // Mq = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    // if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-    // Mq->b[0] = RCONST(2.0)/RCONST(3.0);
-    // Mq->b[1] = -RCONST(2.0)/RCONST(3.0);
-    // Mq->b[2] = RCONST(1.0);
-    // Mq->A[0][0] = Mq->b[0];
-    // Mq->A[1][0] = Mq->b[0];
-    // Mq->A[1][1] = Mq->b[1];
-    // Mq->A[2][0] = Mq->b[0];
-    // Mq->A[2][1] = Mq->b[1];
-    // Mq->A[2][2] = Mq->b[2];
-    // Mq->c[0] = Mq->b[0];
-    // Mq->c[1] = Mq->b[0] + Mq->b[1];
-    // Mq->c[2] = Mq->b[0] + Mq->b[1] + Mq->b[2];
-    // Mq->q = 3;
-    // Mq->p = 0;
-
-    // Mp = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    // if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-    // Mp->b[0] = RCONST(7.0)/RCONST(24.0);
-    // Mp->b[1] = RCONST(3.0)/RCONST(4.0);
-    // Mp->b[2] = -RCONST(1.0)/RCONST(24.0);
-    // Mp->A[1][0] = Mp->b[0];
-    // Mp->A[2][0] = Mp->b[0];
-    // Mp->A[2][1] = Mp->b[1];
-    // Mp->c[0] = Mp->b[0];
-    // Mp->c[1] = Mp->b[0] + Mp->b[1];
-    // Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
-    // Mp->q = 3;
-    // Mp->p = 0;
-
-    Mq = ARKodeButcherTable_Alloc(1, SUNTRUE);
+    Mq = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-    Mq->b[0] = RCONST(1.0);
-    Mq->A[0][0] = RCONST(1.0);
-    Mq->c[0] = RCONST(1.0);
-    Mq->q = 1;
+    Mq->b[0] = RCONST(2.0)/RCONST(3.0);
+    Mq->b[1] = -RCONST(2.0)/RCONST(3.0);
+    Mq->b[2] = RCONST(1.0);
+    Mq->A[0][0] = Mq->b[0];
+    Mq->A[1][0] = Mq->b[0];
+    Mq->A[1][1] = Mq->b[1];
+    Mq->A[2][0] = Mq->b[0];
+    Mq->A[2][1] = Mq->b[1];
+    Mq->A[2][2] = Mq->b[2];
+    Mq->c[0] = Mq->b[0];
+    Mq->c[1] = Mq->b[0] + Mq->b[1];
+    Mq->c[2] = Mq->b[0] + Mq->b[1] + Mq->b[2];
+    Mq->q = 3;
     Mq->p = 0;
 
-    Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
+    Mp = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-    Mp->b[0] = RCONST(1.0);
-    Mp->A[0][0] = RCONST(0.0);
-    Mp->c[0] = RCONST(0.0);
-    Mp->q = 1;
+    Mp->b[0] = RCONST(7.0)/RCONST(24.0);
+    Mp->b[1] = RCONST(3.0)/RCONST(4.0);
+    Mp->b[2] = -RCONST(1.0)/RCONST(24.0);
+    Mp->A[1][0] = Mp->b[0];
+    Mp->A[2][0] = Mp->b[0];
+    Mp->A[2][1] = Mp->b[1];
+    Mp->c[0] = Mp->b[0];
+    Mp->c[1] = Mp->b[0] + Mp->b[1];
+    Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
+    Mp->q = 3;
     Mp->p = 0;
+
+    // Mq = ARKodeButcherTable_Alloc(1, SUNTRUE);
+    // if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
+    // Mq->b[0] = RCONST(1.0);
+    // Mq->A[0][0] = RCONST(1.0);
+    // Mq->c[0] = RCONST(1.0);
+    // Mq->q = 1;
+    // Mq->p = 0;
+
+    // Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
+    // if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
+    // Mp->b[0] = RCONST(1.0);
+    // Mp->A[0][0] = RCONST(0.0);
+    // Mp->c[0] = RCONST(0.0);
+    // Mp->q = 1;
+    // Mp->p = 0;
 
     retval = ARKStepSetTables(arkode_mem, 1, 0, Mq, Mp);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
@@ -176,7 +177,7 @@ int main(int argc, char* argv[])
   retval = ARKStepSetUserData(arkode_mem, (void *) udata);
   if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
-  retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
+  retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
   if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
 
   if (fixed_step_mode) {
@@ -189,10 +190,12 @@ int main(int argc, char* argv[])
 
   tret = T0;
   tout = T0+dTout;
-  fprintf(stdout, "t = %.2f, H(p, q) = %.16f, L(p, q) = %.16f\n", tret, Hamiltonian(y), AngularMomentum(y));
+  H0 = Hamiltonian(y);
+  L0 = AngularMomentum(y);
+  fprintf(stdout, "t = %.2f, H(p, q) = %.16f, L(p, q) = %.16f\n", tret, H0, L0);
   for (iout = 0; iout < num_output_times; iout++) {
     retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-    fprintf(stdout, "t = %.2f, H(p, q) = %.16f, L(p, q) = %.16f\n", tret, Hamiltonian(y), AngularMomentum(y));
+    fprintf(stdout, "t = %.2f, H(p, q)-H0 = %.16f, L(p, q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
     N_VPrint(y);
     if (retval >= 0) {  /* successful solve: update time */
       tout += dTout;
@@ -231,13 +234,10 @@ sunrealtype Hamiltonian(N_Vector yvec)
 {
   sunrealtype H = 0.0;
   sunrealtype* y = N_VGetArrayPointer(yvec);
-  const sunrealtype q1 = y[0];
-  const sunrealtype q2 = y[1];
-  const sunrealtype p1 = y[2];
-  const sunrealtype p2 = y[3];
-
-  H = SUN_RCONST(0.5) * (p1*p1 + p2*p2) - SUN_RCONST(1.0)/SUNRsqrt(q1*q1 + q2*q2)
-    - SUN_RCONST(0.005) / (SUN_RCONST(2.0) * SUNRpowerR(SUNRsqrt(q1*q1 + q2*q2), SUN_RCONST(3.0)));
+  const sunrealtype sqrt_q1q1_plus_q2q2 = SUNRsqrt(y[0]*y[0] + y[1]*y[1]);
+  const sunrealtype p1p1_plus_p2p2 = y[2]*y[2] + y[3]*y[3];
+  H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2
+    - SUN_RCONST(0.005) / SUN_RCONST(2.0) / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0));
 
   return H;
 }
@@ -260,8 +260,8 @@ int dydt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   int retval = 0;
 
-  retval += dqdt(t, yvec, ydotvec, user_data);
   retval += dpdt(t, yvec, ydotvec, user_data);
+  retval += dqdt(t, yvec, ydotvec, user_data);
 
   return retval;
 }
@@ -289,11 +289,12 @@ int dpdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   const sunrealtype delta = udata->delta;
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
+  const sunrealtype q1q1_plus_q2q2 = q1*q1 + q2*q2;
 
-  ydot[2] = -q1 / SUNRpowerR(q1*q1 + q2*q2, SUN_RCONST(3.0)/SUN_RCONST(2.0))
-            -delta*q1 / SUNRpowerR(q1*q1 + q2*q2, SUN_RCONST(5.0)/SUN_RCONST(2.0));
-  ydot[3] = -q2 / SUNRpowerR(q1*q1 + q2*q2, SUN_RCONST(3.0)/SUN_RCONST(2.0))
-            -delta*q2 / SUNRpowerR(q1*q1 + q2*q2, SUN_RCONST(5.0)/SUN_RCONST(2.0));
+  ydot[2] = -q1 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(3.0)/SUN_RCONST(2.0))
+            -delta*q1 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(5.0)/SUN_RCONST(2.0));
+  ydot[3] = -q2 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(3.0)/SUN_RCONST(2.0))
+            -delta*q2 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(5.0)/SUN_RCONST(2.0));
 
   // printf("dpdt(t=%g, q=[%g, %g]) = [%g, %g]\n", t, q1, q2, ydot[2], ydot[3]);
 
