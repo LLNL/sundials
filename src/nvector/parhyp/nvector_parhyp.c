@@ -43,26 +43,46 @@ using namespace sundials::cuda::impl;
 #endif
 
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+
+/*
+ * Private structure definition
+ */
+
+struct _N_PrivateVectorContent_ParHyp
+{
+// fused op workspace
+  SUNMemory fused_buffer_dev;    // device memory for fused ops
+  SUNMemory fused_buffer_host;   // host memory for fused ops
+  size_t    fused_buffer_bytes;  // current size of the buffers
+  size_t    fused_buffer_offset; // current offset into the buffer
+  void*              priv; /* 'private' data */
+};  
+
+typedef struct _N_PrivateVectorContent_ParHyp *N_PrivateVectorContent_ParHyp;
+
+#endif 
+
+
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
 // Macros to access vector content
-#define NV_CONTENT(x)  ((N_VectorContent_Cuda)(x->content))
+//#define NV_CONTENT(x)  ((N_VectorContent_Cuda)(x->content))
+
+#define NV_CONTENT(x)  ((N_VectorContent_ParHyp)(x->content))
 #define NV_MEMHELP(x)  (NV_CONTENT(x)->mem_helper)
 #define NV_DDATAp(x)   ((realtype*) NV_CONTENT(x)->device_data->ptr)
 #define NV_STREAM(x)   (NV_CONTENT(x)->stream_exec_policy->stream())
 
 
 // Macros to access vector private content
-#define NV_PRIVATE(x)   ((N_PrivateVectorContent_Cuda)(NV_CONTENT(x)->priv))
+#define NV_PRIVATE(x)   ((N_PrivateVectorContent_ParHyp)(NV_CONTENT(x)->priv))
 #define NV_HBUFFERp(x)  ((realtype*) NV_PRIVATE(x)->reduce_buffer_host->ptr)
 #define NV_DBUFFERp(x)  ((realtype*) NV_PRIVATE(x)->reduce_buffer_dev->ptr)
 #define NV_DCOUNTERp(x) ((unsigned int*) NV_PRIVATE(x)->device_counter->ptr)
-
-
-
 
 
 /*
@@ -287,7 +307,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 
-  NV_CONTENT(v)->priv = malloc(sizeof(_N_PrivateVectorContent_Cuda));
+  NV_CONTENT(v)->priv = malloc(sizeof(_N_PrivateVectorContent_ParHyp));
   if (NV_CONTENT(v)->priv == NULL)
   {
     N_VDestroy(v);
@@ -445,6 +465,22 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  NV_CONTENT(v)->priv = malloc(sizeof(_N_PrivateVectorContent_ParHyp));
+  if (NV_CONTENT(v)->priv == NULL)
+  {
+    N_VDestroy(v);
+    return(NULL);
+  }  
+   // Initialize private content
+  NV_PRIVATE(v)->fused_buffer_dev     = NULL;
+  NV_PRIVATE(v)->fused_buffer_host    = NULL;
+  NV_PRIVATE(v)->fused_buffer_bytes   = 0;
+  NV_PRIVATE(v)->fused_buffer_offset  = 0; 
+
+#endif 
+
   return(v);
 }
 
@@ -479,26 +515,55 @@ N_Vector N_VClone_ParHyp(N_Vector w)
 
 void N_VDestroy_ParHyp(N_Vector v)
 {
+  N_VectorContent_ParHyp vc;
+  N_PrivateVectorContent_ParHyp vcp;
+
   if (v == NULL) return;
 
-  /* free content */
-  if (v->content != NULL) {
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
+  
+  /* extract content */
+  vc = NV_CONTENT(v);
+  if (vc == NULL)
+  {
+    free(v);
+    v = NULL;
+    return;
+  }
+
+  /* free private content */
+  vcp = (N_PrivateVectorContent_ParHyp) vc->priv;
+  if (vcp != NULL)
+  {
+    /* free items in private content */
+    FusedBuffer_Free(v);
+    free(vcp);
+    vc->priv = NULL;
+  }
+
+  /* free items in content */
+  if (NV_MEMHELP(v))
+  {
+    SUNMemoryHelper_Destroy(vc->mem_helper);
+    vc->mem_helper = NULL;
+  }
+
     /* free the hypre parvector if it's owned by the vector wrapper */
     if (NV_OWN_PARVEC_PH(v) && NV_HYPRE_PARVEC_PH(v) != NULL) {
       hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
       NV_HYPRE_PARVEC_PH(v) = NULL;
     }
-    free(v->content);
-    v->content = NULL;
-  }
 
-  /* free ops and vector */
-  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
-  free(v); v = NULL;
+  /* free content struct */
+  free(vc);
+
+  /* free vector */
+  free(v);
 
   return;
 }
-
+ 
 
 void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
@@ -2455,7 +2520,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 #endif
 
 // Get the vector private memory structure
-N_PrivateVectorContent_Cuda vcp = NV_PRIVATE(v);
+N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
 
   // Check if the existing memory is not large enough
   if (vcp->fused_buffer_bytes < bytes)
@@ -2507,7 +2572,7 @@ static int FusedBuffer_CopyRealArray(N_Vector v, realtype *rdata, int nval,
                                      realtype **shortcut)
 {
   // Get the vector private memory structure
-  N_PrivateVectorContent_Cuda vcp = NV_PRIVATE(v);
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
 
   // Check buffer space and fill the host buffer
   if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
@@ -2545,7 +2610,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
                                       realtype ***shortcut)
 {
   // Get the vector private memory structure
-  N_PrivateVectorContent_Cuda vcp = NV_PRIVATE(v);
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
 
   // Check buffer space and fill the host buffer
   if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
@@ -2576,7 +2641,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
                                       int nsum, realtype ***shortcut)
 {
   // Get the vector private memory structure
-  N_PrivateVectorContent_Cuda vcp = NV_PRIVATE(v);
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
 
   // Check buffer space and fill the host buffer
   if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
@@ -2610,7 +2675,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
 static int FusedBuffer_CopyToDevice(N_Vector v)
 {
   // Get the vector private memory structure
-  N_PrivateVectorContent_Cuda vcp = NV_PRIVATE(v);
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
 
   // Copy the fused buffer to the device
   int copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP(v),
@@ -2634,7 +2699,7 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
 
 static int FusedBuffer_Free(N_Vector v)
 {
-  N_PrivateVectorContent_Cuda vcp = NV_PRIVATE(v);
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
 
   if (vcp == NULL) return 0;
 
