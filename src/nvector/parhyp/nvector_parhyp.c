@@ -26,6 +26,8 @@
 
 // HYPRE defines
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#include <sunmemory/sunmemory_cuda.h>
+#include "sundials_debug.h"
 #include <sundials/sundials_cuda_policies.hpp>
 #include "sundials_cuda.h"
 #include "VectorKernels.cuh"
@@ -41,11 +43,25 @@ using namespace sundials::cuda::impl;
 #endif
 
 
-
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
+
+// Macros to access vector content
+#define NVEC_CUDA_CONTENT(x)  ((N_VectorContent_Cuda)(x->content))
+#define NVEC_CUDA_MEMHELP(x)  (NVEC_CUDA_CONTENT(x)->mem_helper)
+#define NVEC_CUDA_DDATAp(x)   ((realtype*) NVEC_CUDA_CONTENT(x)->device_data->ptr)
+#define NVEC_CUDA_STREAM(x)   (NVEC_CUDA_CONTENT(x)->stream_exec_policy->stream())
+
+
+// Macros to access vector private content
+#define NVEC_CUDA_PRIVATE(x)   ((N_PrivateVectorContent_Cuda)(NVEC_CUDA_CONTENT(x)->priv))
+#define NVEC_CUDA_HBUFFERp(x)  ((realtype*) NVEC_CUDA_PRIVATE(x)->reduce_buffer_host->ptr)
+#define NVEC_CUDA_DBUFFERp(x)  ((realtype*) NVEC_CUDA_PRIVATE(x)->reduce_buffer_dev->ptr)
+#define NVEC_CUDA_DCOUNTERp(x) ((unsigned int*) NVEC_CUDA_PRIVATE(x)->device_counter->ptr)
+
+
 
 
 
@@ -78,7 +94,8 @@ using namespace sundials::cuda::impl;
  *     NV_LOCLENGTH_PH(v) = llen_v generally should NOT be used! It
  *     will change locally stored value with the HYPRE local vector
  *     length, but it will NOT change the length of the actual HYPRE
- *     local vector.
+ ke -DENABLE_HYPRE=ON -DHYPRE_DIR=${HOME}/local/hypre-with-cuda -DENABLE_CUDA=ON -DENABLE_MPI=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS='-g' -DCMAKE_CXX_FLAGS='-g' -DMPI_C_COMPILER=$(which mpicc) -DMPI_CXX_COMPILER=$(which mpicxx)  -DSUNDIALS_HYPRE_BACKENDS=CUDA  -DCMAKE_VERBOSE_MAKEFILE=ON  ../.   | tee cmakeJul18_2.log 
+*     local vector.
  *
  *     The assignment v_glen = NV_GLOBLENGTH_PH(v) sets v_glen to
  *     be the global length of the vector v. The call
@@ -111,7 +128,7 @@ using namespace sundials::cuda::impl;
  *
  * -----------------------------------------------------------------
  */
-
+// Get the vector private memory structure
 #define NV_CONTENT_PH(v)    ( (N_VectorContent_ParHyp)(v->content) )
 
 #define NV_LOCLENGTH_PH(v)  ( NV_CONTENT_PH(v)->local_length )
@@ -126,6 +143,15 @@ using namespace sundials::cuda::impl;
 
 #define NV_COMM_PH(v)       ( NV_CONTENT_PH(v)->comm )
 
+// Added for Array based vector operations using CUDA  
+// Fused operation buffer functions
+
+static int FusedBuffer_Init(N_Vector v, int nreal, int nptr);
+static int FusedBuffer_CopyRealArray(N_Vector v, realtype *r_data, int nval, realtype **shortcut);
+static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,realtype ***shortcut);
+static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,int nsum, realtype ***shortcut);
+static int FusedBuffer_CopyToDevice(N_Vector v);
+static int FusedBuffer_Free(N_Vector v);
 
 /* Private function prototypes */
 
@@ -258,6 +284,22 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->comm          = comm;
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  NVEC_CUDA_CONTENT(v)->priv = malloc(sizeof(_N_PrivateVectorContent_Cuda));
+  if (NVEC_CUDA_CONTENT(v)->priv == NULL)
+  {
+    N_VDestroy(v);
+    return(NULL);
+  }  
+   // Initialize private content
+  NVEC_CUDA_PRIVATE(v)->fused_buffer_dev     = NULL;
+  NVEC_CUDA_PRIVATE(v)->fused_buffer_host    = NULL;
+  NVEC_CUDA_PRIVATE(v)->fused_buffer_bytes   = 0;
+  NVEC_CUDA_PRIVATE(v)->fused_buffer_offset  = 0; 
+
+#endif 
 
   return(v);
 }
@@ -1455,6 +1497,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
 
+//#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   /* compute multiple dot products */
   for (i=0; i<nvec; i++) {
     yd = NV_DATA_PH(Y[i]);
@@ -1463,7 +1506,15 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
       dotprods[i] += xd[j] * yd[j];
     }
   }
+/*#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("\n N_VDotProdMultiLocal using CUDA \n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  dotProdMultiKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(nvec, xd, yd, N);
 
+
+#endif 
+*/
   return 0;
 }
 
@@ -1489,11 +1540,19 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
                                    realtype b, N_Vector* Y,
                                    N_Vector* Z)
 {
+
   int          i;
   sunindextype j, N;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
   realtype*    xd=NULL;
   realtype*    yd=NULL;
   realtype*    zd=NULL;
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype** xd = NULL;
+  realtype** yd = NULL;
+  realtype** zd = NULL; 
+#endif
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1507,7 +1566,8 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
   /* get vector length */
   N = NV_LOCLENGTH_PH(Z[0]);
 
-  /* compute linear sum for each vector pair in vector arrays */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
+ /* compute linear sum for each vector pair in vector arrays */
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_PH(X[i]);
     yd = NV_DATA_PH(Y[i]);
@@ -1516,6 +1576,57 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
       zd[j] = a * xd[j] + b * yd[j];
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("\n Linear Sum Vector Array Kernel using CUDA\n");
+
+  if(FusedBuffer_Init(Z[0], 0, 3 * nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Y, nvec, &yd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(Z[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinaerSumVectorArray_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+/*
+  size_t grid, block, shMemSize;
+  cudaStream_t stream;
+
+  if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: GetKernelParameters returned nonzero\n");
+    return -1;
+  }
+*/
+ 
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  linearSumVectorArrayKernel<<<gridsize, blocksize, 0, 0>>>(nvec, a, xd, b, yd, zd,  NVEC_CUDA_CONTENT(Z[0])->length);
+  cudaStreamSynchronize(0);
+
+ 
+  //linearSumVectorArrayKernel<<<gridsize, blocksize, 0, 0>>>(nvec, a, &xd, b, &yd, &zd, N);
+#endif  
 
   return(0);
 }
@@ -2325,3 +2436,232 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
   /* return success */
   return(0);
 }
+
+
+// Added Fused operation buffer functions for array based kernels  
+  
+static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
+{
+  int         alloc_fail = 0;
+  booleantype alloc_mem  = SUNFALSE;
+
+  // pad buffer with single precision data
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  size_t bytes = nreal * 2 * sizeof(realtype) + nptr * sizeof(realtype*);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  size_t bytes = nreal * sizeof(realtype) + nptr * sizeof(realtype*);
+#else
+#error Incompatible precision for CUDA
+#endif
+
+// Get the vector private memory structure
+N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  // Check if the existing memory is not large enough
+  if (vcp->fused_buffer_bytes < bytes)
+  {
+    FusedBuffer_Free(v);
+    alloc_mem = SUNTRUE;
+  }
+if (alloc_mem)
+  {
+    // Allocate pinned memory on the host
+    alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
+                                       &(vcp->fused_buffer_host), bytes,
+                                       SUNMEMTYPE_PINNED, (void*) nullptr);
+    if (alloc_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
+
+      // If pinned alloc failed, allocate plain host memory
+      alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
+                                         &(vcp->fused_buffer_host), bytes,
+                                         SUNMEMTYPE_HOST, (void*) nullptr);
+      if (alloc_fail)
+      {
+        SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
+        return -1;
+      }
+    }
+// Allocate device memory
+    alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
+                                       &(vcp->fused_buffer_dev), bytes,
+                                       SUNMEMTYPE_DEVICE, (void*) nullptr);
+    if (alloc_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
+      return -1;
+    }
+
+    // Store the size of the fused op buffer
+    vcp->fused_buffer_bytes = bytes;
+  }
+
+  // Reset the buffer offset
+  vcp->fused_buffer_offset = 0;
+
+  return 0;
+}
+
+static int FusedBuffer_CopyRealArray(N_Vector v, realtype *rdata, int nval,
+                                     realtype **shortcut)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  // Check buffer space and fill the host buffer
+  if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyRealArray: Buffer offset is exceedes the buffer size\n");
+    return -1;
+  }
+
+  realtype* h_buffer = (realtype*) ((char*)(vcp->fused_buffer_host->ptr) +
+                                    vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nval; j++)
+  {
+    h_buffer[j] = rdata[j];
+  }
+
+  // Set shortcut to the device buffer and update offset
+  *shortcut = (realtype*) ((char*)(vcp->fused_buffer_dev->ptr) +
+                           vcp->fused_buffer_offset);
+
+  // accounting for buffer padding
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  vcp->fused_buffer_offset += nval * 2 * sizeof(realtype);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  vcp->fused_buffer_offset += nval * sizeof(realtype);
+#else
+#error Incompatible precision for CUDA
+#endif
+
+  return 0;
+}
+
+
+static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
+                                      realtype ***shortcut)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  // Check buffer space and fill the host buffer
+  if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray1D: Buffer offset is exceedes the buffer size\n");
+    return -1;
+  }
+
+  realtype** h_buffer = (realtype**) ((char*)(vcp->fused_buffer_host->ptr) +
+                                      vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nvec; j++)
+  {
+    h_buffer[j] = NVEC_CUDA_DDATAp(X[j]);
+  }
+
+  // Set shortcut to the device buffer and update offset
+  *shortcut = (realtype**) ((char*)(vcp->fused_buffer_dev->ptr) +
+                            vcp->fused_buffer_offset);
+
+  vcp->fused_buffer_offset += nvec * sizeof(realtype*);
+
+  return 0;
+}
+
+
+static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
+                                      int nsum, realtype ***shortcut)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  // Check buffer space and fill the host buffer
+  if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray2D: Buffer offset is exceedes the buffer size\n");
+    return -1;
+  }
+
+  realtype** h_buffer = (realtype**) ((char*)(vcp->fused_buffer_host->ptr) +
+                                      vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nvec; j++)
+  {
+    for (int k = 0; k < nsum; k++)
+    {
+      h_buffer[j * nsum + k] = NVEC_CUDA_DDATAp(X[k][j]);
+    }
+  }
+
+  // Set shortcut to the device buffer and update offset
+  *shortcut = (realtype**) ((char*)(vcp->fused_buffer_dev->ptr) +
+                            vcp->fused_buffer_offset);
+
+  // Update the offset
+  vcp->fused_buffer_offset += nvec * nsum * sizeof(realtype*);
+
+  return 0;
+}
+
+
+static int FusedBuffer_CopyToDevice(N_Vector v)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  // Copy the fused buffer to the device
+  int copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(v),
+                                            vcp->fused_buffer_dev,
+                                            vcp->fused_buffer_host,
+                                            vcp->fused_buffer_offset,
+                                            nullptr);
+  if (copy_fail)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyToDevice: SUNMemoryHelper_CopyAsync failed\n");
+    return -1;
+  }
+
+  // delete the next two lines
+  // Synchronize with respect to the host, but only in this stream
+ // SUNDIALS_CUDA_VERIFY(cudaStreamSynchronize(*NVEC_CUDA_STREAM(v)));
+
+  cudaStreamSynchronize(0);
+  return 0;
+}
+
+static int FusedBuffer_Free(N_Vector v)
+{
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  if (vcp == NULL) return 0;
+
+  if (vcp->fused_buffer_host)
+  {
+    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v),
+                            vcp->fused_buffer_host, nullptr);
+    vcp->fused_buffer_host = NULL;
+  }
+
+  if (vcp->fused_buffer_dev)
+  {
+    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v),
+                            vcp->fused_buffer_dev, nullptr);
+    vcp->fused_buffer_dev = NULL;
+  }
+
+  vcp->fused_buffer_bytes  = 0;
+  vcp->fused_buffer_offset = 0;
+
+  return 0;
+}
+
+
+
+
+
+
+
+

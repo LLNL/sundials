@@ -49,6 +49,10 @@
 /* hypre header files */
 #include <_hypre_parcsr_mv.h>
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#include <sundials/sundials_memory.h> 
+#endif 
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -70,6 +74,44 @@ struct _N_VectorContent_ParHyp {
 
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+/*
+ * -----------------------------------------------------------------
+ * CUDA implementation of N_Vector
+ * -----------------------------------------------------------------
+ */
+
+struct _N_VectorContent_Cuda
+{
+  sunindextype       length;
+  booleantype        own_helper;
+  SUNMemory          host_data;
+  SUNMemory          device_data;
+  SUNMemoryHelper    mem_helper;
+  void*              priv;  // 'private' data 
+};
+
+typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
+
+
+/*
+ * Private structure definition
+ */
+
+struct _N_PrivateVectorContent_Cuda
+{
+// fused op workspace
+  SUNMemory fused_buffer_dev;    // device memory for fused ops
+  SUNMemory fused_buffer_host;   // host memory for fused ops
+  size_t    fused_buffer_bytes;  // current size of the buffers
+  size_t    fused_buffer_offset; // current offset into the buffer
+  //void*              priv; /* 'private' data */
+};  
+
+typedef struct _N_PrivateVectorContent_Cuda *N_PrivateVectorContent_Cuda;
+
+#endif 
 
 /*
  * -----------------------------------------------------------------
