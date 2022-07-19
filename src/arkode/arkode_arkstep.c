@@ -1214,11 +1214,11 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
   /* set appropriate TakeStep routine based on problem configuration */
   /*    (only one choice for now) */
-  // if (step_mem->separable_rhs) {
-    // ark_mem->step = arkStep_TakeStep_Sym;
-  // } else {
+  if (step_mem->separable_rhs) {
+    ark_mem->step = arkStep_TakeStep_Sym;
+  } else {
     ark_mem->step = arkStep_TakeStep_Z;
-  // }
+  }
 
   /* Check for consistency between mass system and system linear system modules
      (e.g., if lsolve is direct, msolve needs to match) */
@@ -1857,8 +1857,6 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   realtype* cvals;
   N_Vector* Xvecs;
 
-  // printf(">>> arkStep_TakeStep_Sym\n");
-
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sym",
                                  &ark_mem, &step_mem);
@@ -1925,6 +1923,8 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
   *nflagPtr = 0;
   arkStep_ComputeSolutions(arkode_mem, dsmPtr);
+
+  return 0;
 }
 
 /*---------------------------------------------------------------

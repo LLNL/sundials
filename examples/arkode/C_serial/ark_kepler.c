@@ -74,8 +74,8 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = SUN_RCONST(0.1);
-  // sunrealtype Tf          = SUN_RCONST(4000.0);
+  // sunrealtype Tf          = SUN_RCONST(0.1);
+  sunrealtype Tf          = SUN_RCONST(4000.0);
   const sunrealtype dt    = SUN_RCONST(1e-3);
   const sunrealtype ecc   = SUN_RCONST(0.6);
   const sunrealtype delta = SUN_RCONST(0.015);
@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
   /* Default integrator Options */
   int fixed_step_mode = 1;
   int method          = 1;
-  const sunrealtype dTout = SUN_RCONST(0.01);
-  // const sunrealtype dTout = SUN_RCONST(100.0);
+  // const sunrealtype dTout = SUN_RCONST(0.01);
+  const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
 
   /* Parse CLI args */
@@ -150,16 +150,16 @@ int main(int argc, char* argv[])
     Mq = ARKodeButcherTable_Alloc(1, SUNTRUE);
     if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
     Mq->b[0] = RCONST(1.0);
-    Mq->A[0][0] = Mq->b[0];
-    Mq->c[0] = Mq->b[0];
+    Mq->A[0][0] = RCONST(1.0);
+    Mq->c[0] = RCONST(1.0);
     Mq->q = 1;
     Mq->p = 0;
 
     Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
     if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-    Mp->b[0] = RCONST(0.0);
-    Mp->A[0][0] = Mp->b[0];
-    Mp->c[0] = Mp->b[0];
+    Mp->b[0] = RCONST(1.0);
+    Mp->A[0][0] = RCONST(0.0);
+    Mp->c[0] = RCONST(0.0);
     Mp->q = 1;
     Mp->p = 0;
 
