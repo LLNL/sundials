@@ -1600,7 +1600,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     *nflagPtr = ARK_SUCCESS;
 
   /* call nonlinear solver setup if it exists */
-  if (step_mem->NLS)
+  if (step_mem->NLS) {
     if ((step_mem->NLS)->ops->setup) {
       zcor0 = ark_mem->tempv3;
       N_VConst(ZERO, zcor0);    /* set guess to all 0 (since using predictor-corrector form) */
@@ -1608,6 +1608,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval < 0) return(ARK_NLS_SETUP_FAIL);
       if (retval > 0) return(ARK_NLS_SETUP_RECVR);
     }
+  }
 
   /* loop over internal stages to the step */
   for (is=0; is<step_mem->stages; is++) {
@@ -1617,7 +1618,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* determine whether implicit solve is required */
     implicit_stage = SUNFALSE;
-    if (step_mem->implicit)
+    if (step_mem->implicit && !step_mem->separable_rhs)
       if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
         implicit_stage = SUNTRUE;
 
@@ -1648,20 +1649,18 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* if implicit, call built-in and user-supplied predictors
        (results placed in zpred) */
     if (implicit_stage) {
-
       retval = arkStep_Predict(ark_mem, is, step_mem->zpred);
       if (retval != ARK_SUCCESS)  return (retval);
 
       /* if a user-supplied predictor routine is provided, call that here.
-         Note that arkStep_Predict is *still* called, so this user-supplied
-         routine can just 'clean up' the built-in prediction, if desired. */
+        Note that arkStep_Predict is *still* called, so this user-supplied
+        routine can just 'clean up' the built-in prediction, if desired. */
       if (step_mem->stage_predict) {
         retval = step_mem->stage_predict(ark_mem->tcur, step_mem->zpred,
-                                         ark_mem->user_data);
+                                        ark_mem->user_data);
         if (retval < 0)  return(ARK_USER_PREDICT_FAIL);
         if (retval > 0)  return(TRY_AGAIN);
       }
-
     }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -1688,7 +1687,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
     /* perform implicit solve if required */
-    if (implicit_stage && !step_mem->separable_rhs) {
+    if (implicit_stage) {
 
       /* implicit solve result is stored in ark_mem->ycur;
          return with positive value on anything but success */
@@ -1743,7 +1742,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
       if (!deduce_stage) {
         retval = arkStep_Fi(step_mem, ark_mem->tcur, ark_mem->ycur,
-                                 step_mem->Fi[is], ark_mem->user_data);
+                            step_mem->Fi[is], ark_mem->user_data);
       } else if (step_mem->mass_type == MASS_FIXED)  {
         retval = step_mem->mmult((void *) ark_mem, step_mem->zcor, ark_mem->tempv1);
         if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
@@ -1776,7 +1775,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /*    store explicit RHS */
     if (step_mem->explicit) {
         retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-                              ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+                            ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1877,52 +1876,61 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* store current stage index */
     step_mem->istage = is;
 
+    N_Vector yn = is == 0 ? ark_mem->yn : ark_mem->ycur;
+
     /* set current stage time(s) */
     if (step_mem->implicit)
       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
     else
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
-    /* evaluate Fi so we can compute implicit stage */
-    retval = arkStep_Fi(step_mem, ark_mem->tcur, ark_mem->ycur,
+    /* evaluate Fi at the previous stage value */
+    // printf("yn =\n"); N_VPrint(yn);
+    retval = arkStep_Fi(step_mem, ark_mem->tcur, yn,
                         step_mem->Fi[is], ark_mem->user_data);
 
-    /* update implicit stage */
+    /* update the implicit stage */
     nvec = 0;
     for (js=0; js<=is; js++) {
-      cvals[nvec] = ark_mem->h * step_mem->Bi->A[is][js];
+      // cvals[nvec] = ark_mem->h * step_mem->Bi->A[is][js];
+      cvals[nvec] = ark_mem->h * step_mem->Bi->b[js];
       Xvecs[nvec] = step_mem->Fi[js];
       nvec += 1;
     }
-    /* call fused vector operation to do the work */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+    /* tempv1 = h*A_{ij}^I*f^I(tcur^I, y_n) */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv1);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
-    /* compute ycur at before evaluating explicit RHS */
-    N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
+    /* compute ycur before evaluating explicit RHS */
+    N_VLinearSum(ONE, ark_mem->yn, ONE, ark_mem->tempv1, ark_mem->ycur);
+    // printf("P_i =\n"); N_VPrint(ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
-    /* evaluate Fe so we can compute explicit stage */
-    retval = arkStep_Fe(step_mem, ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fe[is], ark_mem->user_data);
+    /* evaluate Fe with the current stage value */
+    retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
+                        ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
 
+    /* update the explicit stage */
     nvec = 0;
     for (js=0; js<=is; js++) {
-      cvals[nvec] = ark_mem->h * step_mem->Be->A[is][js];
+      // cvals[nvec] = ark_mem->h * step_mem->Be->A[is][js];
+      cvals[nvec] = ark_mem->h * step_mem->Be->b[js];
       Xvecs[nvec] = step_mem->Fe[js];
       nvec += 1;
     }
-    /* call fused vector operation to do the work */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+    /* tempv2 = h*A_{ij}^E*f^E(tcur^E, ycur) */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
+    // printf("Q_i =\n"); N_VPrint(ark_mem->tempv2);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
-    /* update state before finishing stage */
-    N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
+    /* update ycur before finishing stage */
+    N_VLinearSum(ONE, ark_mem->ycur, ONE, ark_mem->tempv2, ark_mem->ycur);
+    // printf("ycur =\n"); N_VPrint(ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }
 
   *nflagPtr = 0;
-  arkStep_ComputeSolutions(arkode_mem, dsmPtr);
+  *dsmPtr = 0;
 
   return 0;
 }
