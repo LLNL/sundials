@@ -25,15 +25,15 @@ def AngularMomentum(y):
   return L
 
 
-t = np.loadtxt('ark_kepler_times.txt', dtype=np.float64)
-y = np.loadtxt('ark_kepler_solution.txt', dtype=np.float64)
+t = np.loadtxt('ark_kepler_times_sprk-2.txt', dtype=np.float64)
+y = np.loadtxt('ark_kepler_solution_sprk-2.txt', dtype=np.float64)
 y = np.reshape(y, (y.shape[0]//4, 4))
 
 plt.figure(dpi=200)
 plt.plot(y[:,0], y[:,1])
 plt.savefig('ark_kepler_phase_plot.png')
 
-conserved = np.loadtxt('ark_kepler_conserved.txt', delimiter=',', dtype=np.float64)
+conserved = np.loadtxt('ark_kepler_conserved_sprk-2.txt', delimiter=',', dtype=np.float64)
 energy = conserved[:,0]
 energy_0 = Hamiltonian(y[0])
 L = conserved[:,1]

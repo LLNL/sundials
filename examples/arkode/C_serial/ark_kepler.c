@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
   // sunrealtype Tf          = SUN_RCONST(0.3);
-  sunrealtype Tf          = SUN_RCONST(6000.0);
+  sunrealtype Tf          = SUN_RCONST(10000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
   // const sunrealtype delta = SUN_RCONST(0.015);
@@ -86,6 +86,7 @@ int main(int argc, char* argv[])
   /* Default integrator Options */
   int fixed_step_mode = 1;
   int method          = 1;
+  int order           = 2;
   // const sunrealtype dTout = SUN_RCONST(0.1);
   const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
@@ -97,6 +98,9 @@ int main(int argc, char* argv[])
   }
   if (argc > 2) {
     method = atoi(argv[++argi]);
+  }
+  if (argc > 3) {
+    order = atoi(argv[++argi]);
   }
 
   /* Allocate and fill udata structure */
@@ -118,80 +122,83 @@ int main(int argc, char* argv[])
   if (method == 0) {
     arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
-    // /* Attach custom Butcher tables for 3rd order scheme [Candy, 1991] */
-    // const int q = 3;
-    // Mp = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    // if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-    // Mp->b[0] = RCONST(2.0)/RCONST(3.0);
-    // Mp->b[1] = -RCONST(2.0)/RCONST(3.0);
-    // Mp->b[2] = RCONST(1.0);
-    // Mp->A[0][0] = Mp->b[0];
-    // Mp->A[1][0] = Mp->b[0];
-    // Mp->A[1][1] = Mp->b[1];
-    // Mp->A[2][0] = Mp->b[0];
-    // Mp->A[2][1] = Mp->b[1];
-    // Mp->A[2][2] = Mp->b[2];
-    // Mp->c[0] = Mp->b[0];
-    // Mp->c[1] = Mp->b[0] + Mp->b[1];
-    // Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
-    // Mp->q = q;
-    // Mp->p = 0;
+    /* Attach custom Butcher tables for 3rd order scheme [Candy, 1991] */
+    if (order == 3) {
+      Mp = ARKodeButcherTable_Alloc(3, SUNTRUE);
+      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mp->b[0] = RCONST(2.0)/RCONST(3.0);
+      Mp->b[1] = -RCONST(2.0)/RCONST(3.0);
+      Mp->b[2] = RCONST(1.0);
+      Mp->A[0][0] = Mp->b[0];
+      Mp->A[1][0] = Mp->b[0];
+      Mp->A[1][1] = Mp->b[1];
+      Mp->A[2][0] = Mp->b[0];
+      Mp->A[2][1] = Mp->b[1];
+      Mp->A[2][2] = Mp->b[2];
+      Mp->c[0] = Mp->b[0];
+      Mp->c[1] = Mp->b[0] + Mp->b[1];
+      Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
+      Mp->q = order;
+      Mp->p = 0;
 
-    // Mq = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    // if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-    // Mq->b[0] = RCONST(7.0)/RCONST(24.0);
-    // Mq->b[1] = RCONST(3.0)/RCONST(4.0);
-    // Mq->b[2] = -RCONST(1.0)/RCONST(24.0);
-    // Mq->A[1][0] = Mq->b[0];
-    // Mq->A[2][0] = Mq->b[0];
-    // Mq->A[2][1] = Mq->b[1];
-    // Mq->c[0] = Mq->b[0];
-    // Mq->c[1] = Mq->b[0] + Mq->b[1];
-    // Mq->c[2] = Mq->b[0] + Mq->b[1] + Mq->b[2];
-    // Mq->q = q;
-    // Mq->p = 0;
+      Mq = ARKodeButcherTable_Alloc(3, SUNTRUE);
+      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mq->b[0] = RCONST(7.0)/RCONST(24.0);
+      Mq->b[1] = RCONST(3.0)/RCONST(4.0);
+      Mq->b[2] = -RCONST(1.0)/RCONST(24.0);
+      Mq->A[1][0] = Mq->b[0];
+      Mq->A[2][0] = Mq->b[0];
+      Mq->A[2][1] = Mq->b[1];
+      Mq->c[0] = Mq->b[0];
+      Mq->c[1] = Mq->b[0] + Mq->b[1];
+      Mq->c[2] = Mq->b[0] + Mq->b[1] + Mq->b[2];
+      Mq->q = order;
+      Mq->p = 0;
+    }
 
-    const int q = 2;
-    Mp = ARKodeButcherTable_Alloc(2, SUNTRUE);
-    if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-    Mp->b[0] = RCONST(0.5);
-    Mp->b[1] = RCONST(0.5);
-    Mp->A[0][0] = RCONST(0.5);
-    Mp->A[1][0] = RCONST(0.5);
-    Mp->A[1][1] = RCONST(0.5);
-    Mp->c[0] = RCONST(0.5);
-    Mp->c[1] = RCONST(1.0);
-    Mp->q = q;
-    Mp->p = 0;
+    if (order == 2) {
+      Mp = ARKodeButcherTable_Alloc(2, SUNTRUE);
+      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mp->b[0] = RCONST(0.5);
+      Mp->b[1] = RCONST(0.5);
+      Mp->A[0][0] = RCONST(0.5);
+      Mp->A[1][0] = RCONST(0.5);
+      Mp->A[1][1] = RCONST(0.5);
+      Mp->c[0] = RCONST(0.5);
+      Mp->c[1] = RCONST(1.0);
+      Mp->q = order;
+      Mp->p = 0;
 
-    Mq = ARKodeButcherTable_Alloc(2, SUNTRUE);
-    if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-    Mq->b[0] = RCONST(0.0);
-    Mq->b[1] = RCONST(1.0);
-    Mq->A[1][0] = RCONST(1.0);
-    Mq->c[0] = RCONST(0.0);
-    Mq->c[1] = RCONST(1.0);
-    Mq->q = q;
-    Mq->p = 0;
+      Mq = ARKodeButcherTable_Alloc(2, SUNTRUE);
+      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mq->b[0] = RCONST(0.0);
+      Mq->b[1] = RCONST(1.0);
+      Mq->A[1][0] = RCONST(1.0);
+      Mq->c[0] = RCONST(0.0);
+      Mq->c[1] = RCONST(1.0);
+      Mq->q = order;
+      Mq->p = 0;
+    }
 
-    // const int q = 1;
-    // Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
-    // if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-    // Mp->b[0] = RCONST(1.0);
-    // Mp->A[0][0] = RCONST(1.0);
-    // Mp->c[0] = RCONST(1.0);
-    // Mp->q = q;
-    // Mp->p = 0;
+    if (order == 1) {
+      Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
+      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mp->b[0] = RCONST(1.0);
+      Mp->A[0][0] = RCONST(1.0);
+      Mp->c[0] = RCONST(1.0);
+      Mp->q = order;
+      Mp->p = 0;
 
-    // Mq = ARKodeButcherTable_Alloc(1, SUNTRUE);
-    // if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-    // Mq->b[0] = RCONST(1.0);
-    // Mq->A[0][0] = RCONST(0.0);
-    // Mq->c[0] = RCONST(0.0);
-    // Mq->q = q;
-    // Mq->p = 0;
+      Mq = ARKodeButcherTable_Alloc(1, SUNTRUE);
+      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mq->b[0] = RCONST(1.0);
+      Mq->A[0][0] = RCONST(0.0);
+      Mq->c[0] = RCONST(0.0);
+      Mq->q = order;
+      Mq->p = 0;
+    }
 
-    retval = ARKStepSetTables(arkode_mem, q, 0, Mp, Mq);
+    retval = ARKStepSetTables(arkode_mem, order, 0, Mp, Mq);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
 
     retval = ARKStepSetSeparableRhs(arkode_mem, SUNTRUE);
@@ -199,7 +206,7 @@ int main(int argc, char* argv[])
   } else {
     arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
-    retval = ARKStepSetOrder(arkode_mem, 2);
+    retval = ARKStepSetOrder(arkode_mem, order);
     if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
   }
 
@@ -220,13 +227,27 @@ int main(int argc, char* argv[])
 
   /* Open output files */
   if (method == 0) {
-    conserved_fp = fopen("ark_kepler_conserved_sprk-2.txt", "w+");
-    solution_fp = fopen("ark_kepler_solution_sprk-2.txt", "w+");
-    times_fp = fopen("ark_kepler_times_sprk-2.txt", "w+");
+    const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
+    const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
+    const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
+    char fname[64];
+    sprintf(fname, fmt1, order);
+    conserved_fp = fopen(fname, "w+");
+    sprintf(fname, fmt2, order);
+    solution_fp = fopen(fname, "w+");
+    sprintf(fname, fmt3, order);
+    times_fp = fopen(fname, "w+");
   } else {
-    conserved_fp = fopen("ark_kepler_conserved_erk-2.txt", "w+");
-    solution_fp = fopen("ark_kepler_solution_erk-2.txt", "w+");
-    times_fp = fopen("ark_kepler_times_erk-2.txt", "w+");
+    const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
+    const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
+    const char* fmt3 = "ark_kepler_times_erk-%d.txt";
+    char fname[64];
+    sprintf(fname, fmt1, order);
+    conserved_fp = fopen(fname, "w+");
+    sprintf(fname, fmt2, order);
+    solution_fp = fopen(fname, "w+");
+    sprintf(fname, fmt3, order);
+    times_fp = fopen(fname, "w+");
   }
 
   /* Do integration */
