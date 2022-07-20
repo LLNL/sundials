@@ -37,6 +37,7 @@
 using namespace sundials;
 using namespace sundials::cuda;
 using namespace sundials::cuda::impl;
+SUNMemoryHelper SUNMemoryHelper_ParHyp(SUNContext sunctx); 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) // add HIP here
 #else
 #error "Unknown HYPRE backend"
@@ -306,14 +307,18 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->x             = NULL;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-
   NV_CONTENT(v)->priv = malloc(sizeof(_N_PrivateVectorContent_ParHyp));
   if (NV_CONTENT(v)->priv == NULL)
   {
     N_VDestroy(v);
     return(NULL);
   }  
+ NV_CONTENT(v)->mem_helper = NULL; 
+ NV_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
+ if(NV_CONTENT(v)->mem_helper == NULL) return NULL;
+
    // Initialize private content
+ 
   NV_PRIVATE(v)->fused_buffer_dev     = NULL;
   NV_PRIVATE(v)->fused_buffer_host    = NULL;
   NV_PRIVATE(v)->fused_buffer_bytes   = 0;
@@ -324,7 +329,27 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   return(v);
 }
 
+/*
+SUNMemoryHelper SUNMemoryHelper_ParHyp(SUNContext sunctx)
+{
+  SUNMemoryHelper helper;
 
+ // Allocate the helper 
+  helper = SUNMemoryHelper_NewEmpty(sunctx);
+
+ // Set the ops 
+  helper->ops->alloc     = SUNMemoryHelper_Alloc_ParHyp;
+  helper->ops->dealloc   = SUNMemoryHelper_Dealloc_ParHyp;
+  helper->ops->copy      = SUNMemoryHelper_Copy_ParHyp;
+  helper->ops->copyasync = SUNMemoryHelper_CopyAsync_ParHyp;
+
+  // Attach content and ops 
+  helper->content = NULL;
+
+  return helper;
+}
+
+*/
 /* ----------------------------------------------------------------
  * Function to create a parhyp N_Vector wrapper around user
  * supplie HYPRE vector.
@@ -510,6 +535,11 @@ N_Vector N_VClone_ParHyp(N_Vector w)
   NV_HYPRE_PARVEC_PH(v) = vx;
   NV_OWN_PARVEC_PH(v)   = SUNTRUE;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  NV_CONTENT(v)->mem_helper = NULL;
+  NV_MEMHELP(v) = SUNMemoryHelper_Clone(NV_MEMHELP(w));
+  if(NV_CONTENT(v)->mem_helper == NULL) return NULL;
+#endif 
   return(v);
 }
 

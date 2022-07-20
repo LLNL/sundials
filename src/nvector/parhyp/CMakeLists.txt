@@ -32,6 +32,7 @@ sundials_add_library(sundials_nvecparhyp
     vector
   OBJECT_LIBRARIES
     sundials_generic_obj
+    sundials_sunmemcuda_obj
   LINK_LIBRARIES
     PUBLIC
     SUNDIALS::HYPRE
