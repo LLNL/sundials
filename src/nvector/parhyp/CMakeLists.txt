@@ -20,6 +20,7 @@ if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
  include_directories(${CMAKE_SOURCE_DIR}/src/nvector/cuda)
  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
  set(_cxx_std cxx_std_11)
+ set(_memhelper sundials_sunmemcuda_obj)
 endif()
 
 # Create the library
@@ -29,10 +30,10 @@ sundials_add_library(sundials_nvecparhyp
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
   INCLUDE_SUBDIR
-    vector
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
-    sundials_sunmemcuda_obj
+    ${_memhelper}
   LINK_LIBRARIES
     PUBLIC
     SUNDIALS::HYPRE

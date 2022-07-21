@@ -203,6 +203,8 @@ int SUNMemoryHelper_CopyAsync(SUNMemoryHelper helper, SUNMemory dst,
 
 int SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 {
+  if (!helper) return 0;
+
   if (helper->ops->destroy == NULL)
   {
     if (helper->content != NULL)

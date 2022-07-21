@@ -50,8 +50,8 @@
 #include <_hypre_parcsr_mv.h>
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#include <sundials/sundials_memory.h> 
-#endif 
+#include <sundials/sundials_memory.h>
+#endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -64,18 +64,15 @@ extern "C" {
  */
 
 struct _N_VectorContent_ParHyp {
+  HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
   sunindextype local_length;  /* local vector length         */
   sunindextype global_length; /* global vector length        */
   booleantype own_parvector;  /* ownership of HYPRE vector   */
   MPI_Comm comm;              /* pointer to MPI communicator */
-
-  HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
-  sunindextype length;
-  SUNMemory          device_data;
-  SUNMemoryHelper    mem_helper;
-  void*              priv;  // 'private' data 
-#endif 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  SUNMemoryHelper mem_helper;
+  void*           priv;
+#endif
 };
 
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
