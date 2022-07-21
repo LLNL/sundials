@@ -1396,8 +1396,14 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
   int          i;
   sunindextype j, N;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype*    zd=NULL;
   realtype*    xd=NULL;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype*    cd=NULL;
+  realtype**   xd=NULL;
+  realtype*    zd=NULL;
+#endif
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1422,12 +1428,44 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
    * X[0] += c[i]*X[i], i = 1,...,nvec-1
    */
   if ((X[0] == z) && (c[0] == ONE)) {
+#if defined(SUNDIALS_BACKENDS_HYPRE_SERIAL)
     for (i=1; i<nvec; i++) {
       xd = NV_DATA_PH(X[i]);
       for (j=0; j<N; j++) {
         zd[j] += c[i] * xd[j];
       }
     }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  if (FusedBuffer_Init(z, nvec, nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyRealArray(z, c, nvec, &cd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyRealArray returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(z, X, nvec, &xd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(z))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  linearCombinationKernel<<<gridsize, blocksize, 0, 0>>>(nvec, cd, xd, NV_DATA_PH(z), N);
+  cudaStreamSynchronize(0);
+#endif
+
     return(0);
   }
 
@@ -1435,6 +1473,7 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
    * X[0] = c[0] * X[0] + sum{ c[i] * X[i] }, i = 1,...,nvec-1
    */
   if (X[0] == z) {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
     for (j=0; j<N; j++) {
       zd[j] *= c[0];
     }
@@ -1444,12 +1483,43 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
         zd[j] += c[i] * xd[j];
       }
     }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  if (FusedBuffer_Init(z, nvec, nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyRealArray(z, c, nvec, &cd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyRealArray returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(z, X, nvec, &xd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(z))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  linearCombinationKernel<<<gridsize, blocksize, 0, 0>>>(nvec, cd, xd, NV_DATA_PH(z), N);
+  cudaStreamSynchronize(0);
+#endif
     return(0);
   }
 
   /*
    * z = sum{ c[i] * X[i] }, i = 0,...,nvec-1
    */
+#if defined(SUNDIALS_BACKENDS_HYPRE_SERIAL)
   xd = NV_DATA_PH(X[0]);
   for (j=0; j<N; j++) {
     zd[j] = c[0] * xd[j];
@@ -1460,6 +1530,36 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
       zd[j] += c[i] * xd[j];
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  if (FusedBuffer_Init(z, nvec, nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyRealArray(z, c, nvec, &cd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyRealArray returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(z, X, nvec, &xd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(z))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  linearCombinationKernel<<<gridsize, blocksize, 0, 0>>>(nvec, cd, xd, NV_DATA_PH(z), N);
+  cudaStreamSynchronize(0);
+#endif
   return(0);
 }
 
@@ -1736,6 +1836,7 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
         xd[j] *= c[i];
       }
     }
+
     return(0);
   }
 
@@ -1758,7 +1859,11 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype*    zd=NULL;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype**   zd=NULL;
+#endif
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1773,12 +1878,38 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
   N = NV_LOCLENGTH_PH(Z[0]);
 
   /* set each vector in the vector array to a constant */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i=0; i<nvec; i++) {
     zd = NV_DATA_PH(Z[i]);
     for (j=0; j<N; j++) {
       zd[j] = c;
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  if (FusedBuffer_Init(Z[0], 0, nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zd))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(Z[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  constVectorArrayKernel<<<gridsize, blocksize, 0, 0>>>(nvec, c, zd, NV_LOCLENGTH_PH(Z[0]));
+  cudaStreamSynchronize(0);
+
+#endif
 
   return(0);
 }
