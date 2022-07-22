@@ -1016,6 +1016,8 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
   realtype s, tfuzz, tp, tn1;
   int retval;
 
+  printf(">>> arkGetDky\n");
+
   /* Check all inputs for legality */
   if (ark_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", "arkGetDky",
@@ -2390,7 +2392,6 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   /* call fullrhs if needed */
   if (ark_mem->call_fullrhs) {
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    // printf(">>> arkCompleteStep\n");
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);

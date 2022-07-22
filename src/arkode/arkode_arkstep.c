@@ -1855,6 +1855,7 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   int retval, js, is, nvec;
   realtype* cvals;
   N_Vector* Xvecs;
+  N_Vector yn;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sym",
@@ -1876,13 +1877,14 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* store current stage index */
     step_mem->istage = is;
 
-    N_Vector yn = is == 0 ? ark_mem->yn : ark_mem->ycur;
-
     /* set current stage time(s) */
     if (step_mem->implicit)
       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
     else
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
+
+    /* shortcut to previous stage vector */
+    yn = is == 0 ? ark_mem->yn : ark_mem->ycur;
 
     /* evaluate Fi at the previous stage value */
     // printf("yn =\n"); N_VPrint(yn);
@@ -1898,11 +1900,11 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       nvec += 1;
     }
     /* tempv1 = h*A_{ij}^I*f^I(tcur^I, y_n) */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv1);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* compute ycur before evaluating explicit RHS */
-    N_VLinearSum(ONE, ark_mem->yn, ONE, ark_mem->tempv1, ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
     // printf("P_i =\n"); N_VPrint(ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
@@ -1919,12 +1921,12 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       nvec += 1;
     }
     /* tempv2 = h*A_{ij}^E*f^E(tcur^E, ycur) */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
-    // printf("Q_i =\n"); N_VPrint(ark_mem->tempv2);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+    // printf("Q_i =\n"); N_VPrint(step_mem->sdata);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* update ycur before finishing stage */
-    N_VLinearSum(ONE, ark_mem->ycur, ONE, ark_mem->tempv2, ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->ycur, ONE, step_mem->sdata, ark_mem->ycur);
     // printf("ycur =\n"); N_VPrint(ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }

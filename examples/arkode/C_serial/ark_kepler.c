@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
   sunrealtype Tf          = SUN_RCONST(10000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
-  // const sunrealtype delta = SUN_RCONST(0.015);
-  const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
+  const sunrealtype delta = SUN_RCONST(0.015);
+  // const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
 
   /* Default integrator Options */
   int fixed_step_mode = 1;
@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
   int order           = 2;
   // const sunrealtype dTout = SUN_RCONST(0.1);
   const sunrealtype dTout = SUN_RCONST(100.0);
+  const int num_of_steps = (int) ceil(dTout/dt);
   const int num_output_times = (int) ceil(Tf/dTout);
 
   /* Parse CLI args */
@@ -221,7 +222,7 @@ int main(int argc, char* argv[])
     retval = ARKStepSetFixedStep(arkode_mem, dt);
     if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
   } else {
-    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-6), SUN_RCONST(10e-12));
+    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
     if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
   }
 
@@ -255,13 +256,16 @@ int main(int argc, char* argv[])
   tout = T0+dTout;
   H0 = Hamiltonian(y);
   L0 = AngularMomentum(y);
-  fprintf(stdout, "t = %.2f, H(p,q) = %.16f, L(p,q) = %.16f\n", tret, H0, L0);
+  fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f\n", tret, H0, L0);
   fprintf(times_fp, "%.16f\n", tret);
   fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
   N_VPrintFile(y, solution_fp);
   for (iout = 0; iout < num_output_times; iout++) {
-    retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-    fprintf(stdout, "t = %.2f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
+    for (int nst = 0; nst < num_of_steps; nst++) {
+      retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
+      if (retval < 0) break;
+    }
+    fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
     fprintf(times_fp, "%.16f\n", tret);
     fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
     N_VPrintFile(y, solution_fp);
@@ -309,11 +313,11 @@ sunrealtype Hamiltonian(N_Vector yvec)
   const sunrealtype p1p1_plus_p2p2 = y[2]*y[2] + y[3]*y[3];
 
   // Perturbed
-  // H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2
-  //   - SUN_RCONST(0.005) / SUN_RCONST(2.0) / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0));
+  H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2
+    - SUN_RCONST(0.005) / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0)) / SUN_RCONST(2.0);
 
   // Unperturbed
-  H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2;
+  // H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2;
 
   return H;
 }
@@ -326,6 +330,8 @@ sunrealtype AngularMomentum(N_Vector yvec)
   const sunrealtype q2 = y[1];
   const sunrealtype p1 = y[2];
   const sunrealtype p2 = y[3];
+
+  // printf("[%.8f  %.8f  %.8f  %.8f]\n", y[0], y[1], y[2], y[3]);
 
   L = q1*p2 - q2*p1;
 
@@ -352,7 +358,7 @@ int dqdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   ydot[0] = p1;
   ydot[1] = p2;
 
-  // printf("dqdt(t=%g, p=[%g, %g]) = [%g, %g]\n", t, p1, p2, ydot[0], ydot[1]);
+  // printf("dqdt(p=[%.16f, %.16f]) = [%.16f, %.16f]\n", p1, p2, ydot[0], ydot[1]);
 
   return 0;
 }
@@ -365,14 +371,14 @@ int dpdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   const sunrealtype delta = udata->delta;
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
-  const sunrealtype q1q1_plus_q2q2 = q1*q1 + q2*q2;
+  const sunrealtype sqrt_q1q1_plus_q2q2 = SUNRsqrt(q1*q1 + q2*q2);
 
-  ydot[2] = -q1 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(3.0)/SUN_RCONST(2.0))
-            -delta*q1 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(5.0)/SUN_RCONST(2.0));
-  ydot[3] = -q2 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(3.0)/SUN_RCONST(2.0))
-            -delta*q2 / SUNRpowerR(q1q1_plus_q2q2, SUN_RCONST(5.0)/SUN_RCONST(2.0));
+  ydot[2] =         - q1 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))
+            - delta * q1 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(5.0));
+  ydot[3] =         - q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))
+            - delta * q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(5.0));
 
-  // printf("dpdt(t=%g, q=[%g, %g]) = [%g, %g]\n", t, q1, q2, ydot[2], ydot[3]);
+  // printf("dpdt(q=[%.16f, %.16f]) = [%.16f, %.16f]\n", q1, q2, ydot[2], ydot[3]);
 
   return 0;
 }
