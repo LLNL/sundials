@@ -1659,6 +1659,10 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn))
     return(SUNFALSE);
 
+  /* Allocate yerr if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yerr))
+    return(SUNFALSE);
+
   /* Allocate fn if needed */
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->fn))
     return(SUNFALSE);
@@ -1882,6 +1886,9 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
       return(ARK_ILL_INPUT);
     }
   }
+
+  /* Zero yerr for compensated summation */
+  N_VConst(ZERO, ark_mem->yerr);
 
   /* If necessary, temporarily set h as it is used to compute the tolerance in a
      potential mass matrix solve when computing the full rhs */

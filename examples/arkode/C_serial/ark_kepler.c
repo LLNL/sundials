@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
   // sunrealtype Tf          = SUN_RCONST(0.3);
-  sunrealtype Tf          = SUN_RCONST(10000.0);
+  sunrealtype Tf          = SUN_RCONST(100000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
   const sunrealtype delta = SUN_RCONST(0.015);
@@ -231,6 +231,9 @@ int main(int argc, char* argv[])
     const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
     const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
+    // const char* fmt1 = "ark_kepler_conserved_sprkinc-%d.txt";
+    // const char* fmt2 = "ark_kepler_solution_sprkinc-%d.txt";
+    // const char* fmt3 = "ark_kepler_times_sprkinc-%d.txt";
     char fname[64];
     sprintf(fname, fmt1, order);
     conserved_fp = fopen(fname, "w+");

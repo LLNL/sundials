@@ -22,6 +22,8 @@
 #include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_nvector.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -1215,7 +1217,8 @@ int arkStep_Init(void* arkode_mem, int init_type)
   /* set appropriate TakeStep routine based on problem configuration */
   /*    (only one choice for now) */
   if (step_mem->separable_rhs) {
-    ark_mem->step = arkStep_TakeStep_Sym;
+    ark_mem->step = arkStep_TakeStep_SprkInc;
+    // ark_mem->step = arkStep_TakeStep_Sprk;
   } else {
     ark_mem->step = arkStep_TakeStep_Z;
   }
@@ -1848,23 +1851,23 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   return(ARK_SUCCESS);
 }
 
-int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval, js, is, nvec;
   realtype* cvals;
   N_Vector* Xvecs;
-  N_Vector yn;
+  N_Vector Yi;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sym",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sprk",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
   if (!ark_mem->fixedstep) {
     arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
-                    "arkStep_TakeStep_Sym", "!!!! This TakeStep only works with fixed steps !!!!");
+                    "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
     return(ARK_UNRECOGNIZED_ERROR);
   }
 
@@ -1884,11 +1887,10 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
     /* shortcut to previous stage vector */
-    yn = is == 0 ? ark_mem->yn : ark_mem->ycur;
+    Yi = is == 0 ? ark_mem->yn : ark_mem->ycur;
 
     /* evaluate Fi at the previous stage value */
-    // printf("yn =\n"); N_VPrint(yn);
-    retval = arkStep_Fi(step_mem, ark_mem->tcur, yn,
+    retval = arkStep_Fi(step_mem, ark_mem->tcur, Yi,
                         step_mem->Fi[is], ark_mem->user_data);
 
     /* update the implicit stage */
@@ -1905,7 +1907,6 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* compute ycur before evaluating explicit RHS */
     N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
-    // printf("P_i =\n"); N_VPrint(ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* evaluate Fe with the current stage value */
@@ -1922,12 +1923,10 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
     /* tempv2 = h*A_{ij}^E*f^E(tcur^E, ycur) */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-    // printf("Q_i =\n"); N_VPrint(step_mem->sdata);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* update ycur before finishing stage */
     N_VLinearSum(ONE, ark_mem->ycur, ONE, step_mem->sdata, ark_mem->ycur);
-    // printf("ycur =\n"); N_VPrint(ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }
 
@@ -1936,6 +1935,113 @@ int arkStep_TakeStep_Sym(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
   return 0;
 }
+
+/* Increment SPRK algorithm with compensated summation */
+int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval, js, is, nvec;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  N_Vector delta_Yi, yn_plus_delta_Yi;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sprk",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  if (!ark_mem->fixedstep) {
+    arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
+                    "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
+    return(ARK_UNRECOGNIZED_ERROR);
+  }
+
+  /* local shortcuts for fused vector operations */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  /* other shortcuts */
+  delta_Yi = ark_mem->tempv1;
+  yn_plus_delta_Yi = ark_mem->tempv2;
+
+  /* [ \Delta Q_0 ] = [ 0 ]
+     [ \Delta P_0 ] = [ 0 ] */
+  N_VConst(ZERO, delta_Yi);
+
+  /* loop over internal stages to the step */
+  for (is=0; is<step_mem->stages; is++) {
+    /* store current stage index */
+    step_mem->istage = is;
+
+    /* set current stage time(s) */
+    if (step_mem->implicit)
+      ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
+    else
+      ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
+
+    /* [ q_n ] + [ \Delta Q_i ]
+       [     ] + [            ] */
+    N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
+
+    /* evaluate Fi with previous stage increment */
+    retval = arkStep_Fi(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
+                        step_mem->Fi[is], ark_mem->user_data);
+    /* update the implicit stage */
+    nvec = 0;
+    for (js=0; js<=is; js++) {
+      // cvals[nvec] = ark_mem->h * step_mem->Bi->A[is][js];
+      cvals[nvec] = ark_mem->h * step_mem->Bi->b[js];
+      Xvecs[nvec] = step_mem->Fi[js];
+      nvec += 1;
+    }
+    /* h*A_{ij}^I*f^I(tcur^I, q_n + \Delta Q_i) */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+
+    /* [            ] = [                ] + [       ]
+       [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ] */
+    N_VLinearSum(ONE, delta_Yi, ONE, step_mem->sdata, delta_Yi);
+
+    /* [     ] + [            ]
+       [ p_n ] + [ \Delta P_i ] */
+    N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
+
+    /* evaluate Fe with the current p_n + \Delta P_i */
+    retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
+                        yn_plus_delta_Yi, step_mem->Fe[is], ark_mem->user_data);
+    /* update the explicit stage */
+    nvec = 0;
+    for (js=0; js<=is; js++) {
+      // cvals[nvec] = ark_mem->h * step_mem->Be->A[is][js];
+      cvals[nvec] = ark_mem->h * step_mem->Be->b[js];
+      Xvecs[nvec] = step_mem->Fe[js];
+      nvec += 1;
+    }
+    /* h*A_{ij}^E*f^E(tcur^E, p_n + \Delta P_i) */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+
+    /* [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
+       [            ] = [                ] + [       ] */
+    N_VLinearSum(ONE, delta_Yi, ONE, step_mem->sdata, delta_Yi);
+  }
+
+  /*
+    Now we compute the step solution via compensated summation.
+     [ q_{n+1} ] = [ q_n ] + [ \Delta Q_i ]
+     [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
+  N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
+  N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv3);
+  N_VLinearSum(ONE, ark_mem->tempv3, -ONE, delta_Yi, ark_mem->yerr);
+
+  *nflagPtr = 0;
+  *dsmPtr = 0;
+
+  return 0;
+}
+
 
 /*---------------------------------------------------------------
   Internal utility routines
