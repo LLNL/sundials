@@ -51,9 +51,12 @@ using namespace sundials::cuda::impl;
 
 struct _N_PrivateVectorContent_ParHyp
 {
-// fused op workspace
+// fused op & reduced op workspace
   SUNMemory fused_buffer_dev;    // device memory for fused ops
   SUNMemory fused_buffer_host;   // host memory for fused ops
+  SUNMemory reduce_buffer_dev;   // device memory for reductions
+  SUNMemory reduce_buffer_host;  // host memory for reductions
+  size_t    reduce_buffer_bytes; // current size of reduction buffers
   size_t    fused_buffer_bytes;  // current size of the buffers
   size_t    fused_buffer_offset; // current offset into the buffer
   void*     priv; /* 'private' data */
@@ -164,6 +167,12 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,realtype
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,int nsum, realtype ***shortcut);
 static int FusedBuffer_CopyToDevice(N_Vector v);
 static int FusedBuffer_Free(N_Vector v);
+
+// Reduction operation buffer functions 
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1); 
+static void FreeReductionBuffer(N_Vector v);
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1); 
+
 
 /* Private function prototypes */
 
@@ -312,6 +321,9 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   NV_PRIVATE(v)->fused_buffer_host    = NULL;
   NV_PRIVATE(v)->fused_buffer_bytes   = 0;
   NV_PRIVATE(v)->fused_buffer_offset  = 0;
+  NV_PRIVATE(v)->reduce_buffer_dev    = NULL;  
+  NV_PRIVATE(v)->reduce_buffer_host    = NULL; 
+  NV_PRIVATE(v)->reduce_buffer_bytes  = 0; 
 #endif
 
   return(v);
@@ -480,6 +492,9 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   NV_PRIVATE(v)->fused_buffer_host    = NULL;
   NV_PRIVATE(v)->fused_buffer_bytes   = 0;
   NV_PRIVATE(v)->fused_buffer_offset  = 0;
+  NV_PRIVATE(v)->reduce_buffer_host    = NULL;  
+  NV_PRIVATE(v)->reduce_buffer_dev    = NULL;  
+  NV_PRIVATE(v)->reduce_buffer_bytes  = 0;    
 #endif
 
   return(v);
@@ -1703,13 +1718,12 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 {
   int          i, retval;
   sunindextype j, N;
-  //#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype*    xd=NULL;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype*    yd=NULL;
-  /*#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  realtype*    xd=NULL;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   realtype**   yd=NULL;
-  #endif*/
+#endif
   MPI_Comm     comm;
 
   /* invalid number of vectors */
@@ -1727,7 +1741,7 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   comm = NV_COMM_PH(x);
 
   /* compute multiple dot products */
-  //#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i=0; i<nvec; i++) {
     yd = NV_DATA_PH(Y[i]);
     dotprods[i] = ZERO;
@@ -1735,8 +1749,8 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  /*#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("vector array cuda\n\n");
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("dotProdMulti using cuda\n\n");
   if (FusedBuffer_Init(x, 0, nvec))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
@@ -1754,13 +1768,24 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
-
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
-  linearCombinationKernel<<<gridsize, blocksize, 0, 0>>>(nvec, NV_DATA_PH(x), yd, dotprods, N);
+
+  InitializeReductionBuffer(x, ZERO, nvec);   
+  gridsize = nvec; 
+  dotProdMultiKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(nvec, NV_DATA_PH(x), yd, NV_DBUFFERp(x), N);
+  
+
+// Get result from the GPU
+  CopyReductionBufferFromDevice(x, nvec);
+  for (int i = 0; i < nvec; ++i)
+  {
+    dotprods[i] = NV_HBUFFERp(x)[i];
+  }
+ 
   cudaStreamSynchronize(0);
 
-  #endif*/
+#endif
   retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   return retval == MPI_SUCCESS ? 0 : -1;
@@ -1803,32 +1828,6 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  /*#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("vector array cuda\n\n");
-  if (FusedBuffer_Init(x, 0, nvec))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
-    return -1;
-  }
-
-  if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &yd))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
-  }
-
-  if (FusedBuffer_CopyToDevice(x))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
-  }
-
-  size_t blocksize =  CUDAConfigBlockSize();
-  size_t gridsize = CUDAConfigGridSize(N, blocksize);
-  linearCombinationKernel<<<gridsize, blocksize, 0, 0>>>(nvec, NV_DATA_PH(x), yd, dotprods, N);
-  cudaStreamSynchronize(0);
-
-  #endif*/
 
   return 0;
 }
@@ -3085,3 +3084,122 @@ static int FusedBuffer_Free(N_Vector v)
 
   return 0;
 }
+
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
+{
+  int         alloc_fail = 0;
+  int         copy_fail  = 0;
+  booleantype alloc_mem  = SUNFALSE;
+  size_t      bytes      = n * sizeof(realtype);
+
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
+
+  // Check if the existing reduction memory is not large enough
+  if (vcp->reduce_buffer_bytes < bytes)
+  {
+    FreeReductionBuffer(v);
+    alloc_mem = SUNTRUE;
+  }
+
+  if (alloc_mem)
+  {
+    // Allocate pinned memory on the host
+    alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP(v),
+                                       &(vcp->reduce_buffer_host), bytes,
+                                       SUNMEMTYPE_PINNED, nullptr);
+    if (alloc_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
+
+      // If pinned alloc failed, allocate plain host memory
+      alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP(v),
+                                         &(vcp->reduce_buffer_host), bytes,
+                                         SUNMEMTYPE_HOST, nullptr);
+      if (alloc_fail)
+      {
+        SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
+      }
+    }
+
+    // Allocate device memory
+    alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP(v),
+                                       &(vcp->reduce_buffer_dev), bytes,
+                                       SUNMEMTYPE_DEVICE, nullptr);
+    if (alloc_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
+    }
+  }
+
+  if (!alloc_fail)
+  {
+    // Store the size of the reduction memory buffer
+    vcp->reduce_buffer_bytes = bytes;
+
+    // Initialize the host memory with the value
+    for (int i = 0; i < n; ++i)
+      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
+
+    // Initialize the device memory with the value
+    copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP(v),
+                                          vcp->reduce_buffer_dev, vcp->reduce_buffer_host,
+                                          bytes, nullptr);
+
+    if (copy_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_CopyAsync failed\n");
+    }
+  }
+
+  return((alloc_fail || copy_fail) ? -1 : 0);
+}
+
+/* Free the reduction buffer
+ */
+static void FreeReductionBuffer(N_Vector v)
+{
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE(v);
+
+  if (vcp == NULL) return;
+
+  // Free device mem
+  if (vcp->reduce_buffer_dev != NULL)
+    SUNMemoryHelper_Dealloc(NV_MEMHELP(v), vcp->reduce_buffer_dev,
+                            nullptr);
+  vcp->reduce_buffer_dev  = NULL;
+
+  // Free host mem
+  if (vcp->reduce_buffer_host != NULL)
+    SUNMemoryHelper_Dealloc(NV_MEMHELP(v), vcp->reduce_buffer_host,
+                            nullptr);
+  vcp->reduce_buffer_host = NULL;
+
+  // Reset allocated memory size
+  vcp->reduce_buffer_bytes = 0;
+}
+
+/* Copy the reduction buffer from the device to the host.
+ */
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
+{
+  int copy_fail;
+  cudaError_t cuerr;
+
+  copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP(v),
+                                        NV_PRIVATE(v)->reduce_buffer_host,
+                                        NV_PRIVATE(v)->reduce_buffer_dev,
+                                        n * sizeof(realtype),
+                                        nullptr);
+
+  if (copy_fail)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in CopyReductionBufferFromDevice: SUNMemoryHelper_CopyAsync returned nonzero\n");
+  }
+
+  /* we synchronize with respect to the host, but only in this stream */
+  //cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(v));
+  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+}
+
+
