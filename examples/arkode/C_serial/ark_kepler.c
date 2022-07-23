@@ -264,10 +264,11 @@ int main(int argc, char* argv[])
   fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
   N_VPrintFile(y, solution_fp);
   for (iout = 0; iout < num_output_times; iout++) {
-    for (int nst = 0; nst < num_of_steps; nst++) {
-      retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-      if (retval < 0) break;
-    }
+    // for (int nst = 0; nst < num_of_steps; nst++) {
+    //   retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
+    //   if (retval < 0) break;
+    // }
+    retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
     fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
     fprintf(times_fp, "%.16f\n", tret);
     fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));

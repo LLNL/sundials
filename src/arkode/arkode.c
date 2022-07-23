@@ -952,7 +952,10 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
          (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = tout;
-      (void) arkGetDky(ark_mem, tout, 0, yout);
+      /* Only use dense output when we tcur is not within 10*eps of tout already.*/
+      if (SUNRCompare(ark_mem->tcur-tout, ZERO)) {
+        (void) arkGetDky(ark_mem, tout, 0, yout);
+      }
       ark_mem->next_h = ark_mem->hprime;
       break;
     }
@@ -1016,7 +1019,7 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
   realtype s, tfuzz, tp, tn1;
   int retval;
 
-  printf(">>> arkGetDky\n");
+  // printf(">>> arkGetDky t = %.16f, tcur = %.16f\n", t, ark_mem->tcur);
 
   /* Check all inputs for legality */
   if (ark_mem == NULL) {
@@ -1896,7 +1899,6 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
-  // printf(">>> arkInitialSetup\n");
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
                                  ark_mem->fn, ARK_FULLRHS_START);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
@@ -2327,7 +2329,6 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);
 
   /* compute y', via the ODE RHS routine */
-  // printf(">>> arkYddNorm\n");
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
                                  ark_mem->tempv1, ARK_FULLRHS_OTHER);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
@@ -2344,6 +2345,15 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   return(ARK_SUCCESS);
 }
 
+inline static
+void kahanSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
+{
+  sunrealtype err = *error;
+  volatile sunrealtype tmp1 = inc - err;
+  volatile sunrealtype tmp2 = base + tmp1;
+  *error = (tmp2 - base) - tmp1;
+  *sum = tmp2;
+}
 
 /*---------------------------------------------------------------
   arkCompleteStep
@@ -2362,12 +2372,15 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   int retval, mode;
   realtype troundoff;
 
+
   /* Set current time to the end of the step (in case the last
      stage time does not coincide with the step solution time).
      If tstop is enabled, it is possible for tn + h to be past
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
-  ark_mem->tcur = ark_mem->tn + ark_mem->h;
+  static realtype err = ZERO; /* TODO(CJB): Do we want to use this by default? It certainly helps based on my testing. */
+  kahanSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &err);
+  // ark_mem->tcur = ark_mem->tn + ark_mem->h;
   if ( ark_mem->tstopset ) {
     troundoff = FUZZ_FACTOR * ark_mem->uround *
       (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
