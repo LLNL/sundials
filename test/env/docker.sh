@@ -80,15 +80,11 @@ esac
 # set file permissions (rwxrwxr-x)
 umask 002
 
-# path to TPL installs
-TPL_ROOT=/opt/views/int${SUNDIALS_INDEX_SIZE}-${SUNDIALS_PRECISION}
+# path to shared installs
+APPROOT=/opt
 
 # setup the python environment
-source /opt/python-venv/sundocs/bin/activate
-
-ls ${TPL_ROOT} | tee -a setup_env.log
-ls ${TPL_ROOT}/*/* | tee -a setup_env.log
-echo "PATH=${PATH}"
+source ${APPROOT}/python-venv/sundocs/bin/activate
 
 # ------------------------------------------------------------------------------
 # Compilers and flags
@@ -206,7 +202,7 @@ export OMP_NUM_THREADS=4
 # MPI
 # ---
 
-MPI_ROOT=${TPL_ROOT}
+MPI_ROOT=/opt/view
 
 export SUNDIALS_MPI=ON
 export MPICC="${MPI_ROOT}/bin/mpicc"
@@ -221,11 +217,11 @@ export MPIEXEC_PREFLAGS="--oversubscribe"
 
 if [ "$SUNDIALS_PRECISION" == "single" ]; then
     export SUNDIALS_LAPACK=ON
-    export LAPACK_ROOT=${TPL_ROOT}/openblas
+    export LAPACK_ROOT=/opt/view
     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_LAPACK=ON
-    export LAPACK_ROOT=${TPL_ROOT}/openblas
+    export LAPACK_ROOT=/opt/view
     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
 else
     export SUNDIALS_LAPACK=OFF
@@ -238,7 +234,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KLU=ON
-    export SUITE_SPARSE_ROOT=${TPL_ROOT}/suite-sparse
+    export SUITE_SPARSE_ROOT=/opt/view
     export SUITE_SPARSE_INCLUDE_DIR="${SUITE_SPARSE_ROOT}/include"
     export SUITE_SPARSE_LIBRARY_DIR="${SUITE_SPARSE_ROOT}/lib"
 else
@@ -252,14 +248,14 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "single" ]; then
     export SUNDIALS_SUPERLU_MT=ON
-    export SUPERLU_MT_ROOT=${TPL_ROOT}/superlu-mt
+    export SUPERLU_MT_ROOT=/opt/view/superlu-mt
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_MT=ON
-    export SUPERLU_MT_ROOT=${TPL_ROOT}/superlu-mt
+    export SUPERLU_MT_ROOT=/opt/view/superlu-mt
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
@@ -279,9 +275,23 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_DIST=ON
-    export SUPERLU_DIST_ROOT=${TPL_ROOT}/superlu-dist
+    export SUPERLU_DIST_ROOT=/opt/view/superlu-dist
     export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
+
+    # built with 32-bit blas
+    export BLAS_ROOT=/opt/view/superlu-dist
+    export BLAS_LIBRARIES=${BLAS_ROOT}/lib/libopenblas.so
+
+    # PARMETIS
+    export PARMETIS_ROOT=/opt/view/superlu-dist
+    export PARMETIS_LIBRARIES="${PARMETIS_ROOT}/lib/libparmetis.so"
+
+    # METIS
+    export METIS_ROOT=/opt/view/superlu-dist
+    export METIS_LIBRARIES="${METIS_ROOT}/lib/libmetis.so"
+
+    export SUPERLU_DIST_LIBRARIES="${BLAS_LIBRARIES};${PARMETIS_LIBRARIES};${METIS_LIBRARIES};${SUPERLU_DIST_ROOT}/lib/libsuperlu_dist.a"
     export SUPERLU_DIST_OPENMP=OFF
 else
     export SUNDIALS_SUPERLU_DIST=OFF
@@ -297,7 +307,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_HYPRE=ON
-    export HYPRE_ROOT=${TPL_ROOT}/hypre
+    export HYPRE_ROOT=/opt/view
     export HYPRE_INCLUDE_DIR="${HYPRE_ROOT}/include"
     export HYPRE_LIBRARY_DIR="${HYPRE_ROOT}/lib"
 else
@@ -311,7 +321,7 @@ fi
 # -----
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export PETSC_ROOT=${TPL_ROOT}/petsc
+    export PETSC_ROOT=/opt/view
 else
     export SUNDIALS_PETSC=OFF
     unset PETSC_ROOT
@@ -323,7 +333,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
     export SUNDIALS_TRILINOS=ON
-    export TRILINOS_ROOT=${TPL_ROOT}/trilinos
+    export TRILINOS_ROOT=/opt/view
 else
     export SUNDIALS_TRILINOS=OFF
     unset TRILINOS_ROOT
@@ -335,7 +345,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
     export SUNDIALS_XBRAID=ON
-    export XBRAID_ROOT=${TPL_ROOT}/xbraid
+    export XBRAID_ROOT=/opt/view
 else
     export SUNDIALS_XBRAID=OFF
     unset XBRAID_ROOT

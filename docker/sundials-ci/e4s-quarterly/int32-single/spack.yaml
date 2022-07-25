@@ -29,3 +29,4 @@ spack:
       root: /opt/view
       projections:
         superlu-mt: '{name}'
+        superlu-dist: '{name}'
