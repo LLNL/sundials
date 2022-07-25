@@ -10,16 +10,15 @@ spack:
       compiler:
       - gcc@9.4.0
   specs:
-  - cmake arch=x86_64 %gcc@9.4.0
-  - hypre+int64~internal-superlu arch=x86_64 %gcc@9.4.0
-  - petsc+double+int64~superlu-dist~hypre arch=x86_64 %gcc@9.4.0
-  - openmpi arch=x86_64 %gcc@9.4.0
-  - openblas+ilp64 arch=x86_64 %gcc@9.4.0
-  - suite-sparse arch=x86_64 %gcc@9.4.0
-  - superlu-mt+int64~blas arch=x86_64 %gcc@9.4.0
-  - superlu-dist+int64 ^parmetis+int64 ^netlib-lapack arch=x86_64 %gcc@9.4.0
-  - trilinos+tpetra gotype=long_long arch=x86_64 %gcc@9.4.0
-  - xbraid arch=x86_64 %gcc@9.4.0
+  - cmake %gcc@9.4.0 arch=x86_64
+  - hypre+int64~internal-superlu %gcc@9.4.0 arch=x86_64
+  - petsc+double+int64~superlu-dist~hypre %gcc@9.4.0 arch=x86_64
+  - openmpi %gcc@9.4.0 arch=x86_64
+  - openblas+ilp64 %gcc@9.4.0 arch=x86_64
+  - suite-sparse %gcc@9.4.0 arch=x86_64
+  - superlu-dist+int64 ^metis+int64 %gcc@9.4.0 arch=x86_64
+  - trilinos+tpetra gotype=long_long %gcc@9.4.0 arch=x86_64
+  - xbraid %gcc@9.4.0 arch=x86_64
   config:
     install_tree: /opt/software
   mirrors:
@@ -29,9 +28,4 @@ spack:
   upstreams: {}
   concretizer:
     unify: true
-  view:
-    default:
-      root: /opt/view
-      projections:
-        superlu-mt: '{name}'
-        superlu-dist: '{name}'
+  view: /opt/view
