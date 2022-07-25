@@ -33,7 +33,7 @@ else()
 endif()
 
 # prepare substitution variable SUNDIALS_USE_GENERIC_MATH for sundials_config.h
-set(SUNDIALS_USE_GENERIC_MATH "SUNDIALS_MATH_LIBRARY")
+set(SUNDIALS_USE_GENERIC_MATH "${SUNDIALS_MATH_LIBRARY}")
 
 # ============================================================================
 # Generate macros and substitution variables related to TPLs

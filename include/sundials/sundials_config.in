@@ -74,9 +74,10 @@
  */
 #define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
 
-/* Generic math library to be used
+/* Use std-c math functions
+ * DEPRECATED SUNDIALS_USE_GENERIC_MATH
  */
-#define SUNDIALS_USE_GENERIC_MATH "@SUNDIALS_MATH_LIBRARY@"
+#cmakedefine SUNDIALS_USE_GENERIC_MATH
 
 /* Use POSIX timers if available.
  *     #define SUNDIALS_HAVE_POSIX_TIMERS
