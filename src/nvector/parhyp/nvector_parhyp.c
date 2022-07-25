@@ -2207,10 +2207,16 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
 {
   int          i, retval;
   sunindextype j, Nl, Ng;
+  MPI_Comm     comm;
+  realtype*    idd=NULL;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
   realtype*    wd=NULL;
   realtype*    xd=NULL;
-  realtype*    idd=NULL;
-  MPI_Comm     comm;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype**    wd=NULL;
+  realtype**    xd=NULL;
+#endif
+
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -2227,6 +2233,7 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   comm = NV_COMM_PH(X[0]);
   idd  = NV_DATA_PH(id);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   /* compute the WRMS norm for each vector in the vector array */
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_PH(X[i]);
@@ -2237,12 +2244,53 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+  //printf("VWrmsNormMaskVectorArray using cuda\n\n"); 
+  if (FusedBuffer_Init(W[0], 0, 2*nvec))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+  if (FusedBuffer_CopyPtrArray1D(W[0], X, nvec, &xd))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+  if (FusedBuffer_CopyPtrArray1D(W[0], W, nvec, &wd))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+  if (FusedBuffer_CopyToDevice(W[0]))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+  if (InitializeReductionBuffer(W[0], ZERO, nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: InitializeReductionBuffer returned nonzero\n");
+  }  
 
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(Nl, blocksize);
+
+  gridsize = nvec; 
+
+  wL2NormSquareMaskVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>> 
+  							(nvec, xd, wd, NV_DATA_PH(id), NV_DBUFFERp(W[0]), Nl);
+//NV_DBUFFERp(x)
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(W[0], nvec);
+  for (int i = 0; i < nvec; ++i)
+  {
+    nrm[i] = SUNRsqrt(NV_HBUFFERp(W[0])[i] /
+                         NV_CONTENT(W[0])->global_length);
+  } 
+  cudaStreamSynchronize(0);
+#endif
+  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
   return retval == MPI_SUCCESS ? 0 : -1;
+
 }
 
 
@@ -2523,7 +2571,7 @@ int N_VBufPack_ParHyp(N_Vector x, void *buf)
   for (i = 0; i < N; i++)
     bd[i] = xd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("bufPack using cuda \n\n");
+  //printf("bufPack using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   bufPackKernel<<<gridsize, blocksize, 0, 0>>>(xd, bd, N);
@@ -2549,7 +2597,7 @@ int N_VBufUnpack_ParHyp(N_Vector x, void *buf)
   for (i = 0; i < N; i++)
     xd[i] = bd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("bufUnpack using cuda \n\n");
+  //printf("bufUnpack using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   bufUnpackKernel<<<gridsize, blocksize, 0, 0>>>(xd, bd, N);
@@ -2581,7 +2629,7 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]+yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("sum using cuda \n\n");
+  //printf("sum using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   sumKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
@@ -2606,7 +2654,7 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]-yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("diff using cuda \n\n");
+  //printf("diff using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   diffKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
@@ -2632,7 +2680,7 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]+yd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("scaleSum using cuda \n\n");
+  //printf("scaleSum using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   scaleSumKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, yd, zd, N);
@@ -2657,7 +2705,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]-yd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("scaleDiff using cuda \n\n");
+  //printf("scaleDiff using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   scaleDiffKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, yd, zd, N);
@@ -2682,7 +2730,7 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("lin1 using cuda \n\n");
+  //printf("lin1 using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   lin1Kernel<<<gridsize, blocksize, 0, 0>>>(a, xd, yd, zd, N);
@@ -2707,7 +2755,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])-yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("lin2 using cuda \n\n");
+  //printf("lin2 using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   lin2Kernel<<<gridsize, blocksize, 0, 0>>>(a, xd, yd, zd, N);
