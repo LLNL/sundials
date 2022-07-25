@@ -268,6 +268,7 @@ int main(int argc, char* argv[])
     //   retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
     //   if (retval < 0) break;
     // }
+    ARKStepSetStopTime(arkode_mem, tout);
     retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
     fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
     fprintf(times_fp, "%.16f\n", tret);

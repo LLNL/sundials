@@ -965,7 +965,10 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
       if (SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+        // /* Only use dense output when we tcur is not within 10*eps of tstop already.*/
+        // if (SUNRCompare(ark_mem->tcur - ark_mem->tstop, ZERO)) {
+        //   (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+        // }
         ark_mem->tretlast = *tret = ark_mem->tstop;
         ark_mem->tstopset = SUNFALSE;
         istate = ARK_TSTOP_RETURN;
@@ -973,6 +976,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
       /* limit upcoming step if it will overcome tstop */
       if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
+        // printf(">>> hprime = %g\n", ark_mem->hprime);
         ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur) *
           (ONE-FOUR*ark_mem->uround);
         ark_mem->eta = ark_mem->hprime/ark_mem->h;
@@ -1019,7 +1023,7 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
   realtype s, tfuzz, tp, tn1;
   int retval;
 
-  // printf(">>> arkGetDky t = %.16f, tcur = %.16f\n", t, ark_mem->tcur);
+  printf(">>> arkGetDky t = %.16f, tcur = %.16f\n", t, ark_mem->tcur);
 
   /* Check all inputs for legality */
   if (ark_mem == NULL) {
@@ -2378,8 +2382,8 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
      If tstop is enabled, it is possible for tn + h to be past
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
-  compensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); /* TODO(CJB): I am guessing we would want this to be optional, but perhaps performance comparisons should be done (with small problems). */
-  // ark_mem->tcur = ark_mem->tn + ark_mem->h;
+  // compensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); /* TODO(CJB): I am guessing we would want this to be optional, but perhaps performance comparisons should be done (with small problems). */
+  ark_mem->tcur = ark_mem->tn + ark_mem->h;
   if ( ark_mem->tstopset ) {
     troundoff = FUZZ_FACTOR * ark_mem->uround *
       (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
