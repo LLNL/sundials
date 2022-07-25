@@ -94,6 +94,8 @@ Changes in vx.x.x
 Added the function :c:func:`KINGetUserData` to retrieve the user data pointer
 provided to :c:func:`KINSetUserData`.
 
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 Changes in v6.2.0
 -----------------
 

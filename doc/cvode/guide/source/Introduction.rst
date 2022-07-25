@@ -121,6 +121,8 @@ Added a new example, ``examples/cvode/serial/cvRocket_dns.c,`` which
 demonstrates using CVODE with a discontinuous right-hand-side function
 and rootfinding.
 
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 Changes in v6.2.0
 -----------------
 

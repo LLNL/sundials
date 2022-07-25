@@ -85,7 +85,7 @@ if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 1)
 endif()
 
 set(DOCSTR "Build SUNDIALS logging with MPI support")
-sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "${ENABLE_MPI}"
+sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "OFF"
                 DEPENDS_ON ENABLE_MPI)
 
 # ---------------------------------------------------------------

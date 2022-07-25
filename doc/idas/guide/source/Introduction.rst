@@ -92,6 +92,8 @@ Changes in vx.x.x
 Added the function :c:func:`IDAGetUserData` to retrieve the user data pointer
 provided to :c:func:`IDASetUserData`.
 
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 Changes in v5.2.0
 -----------------
 

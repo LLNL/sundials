@@ -24,6 +24,7 @@ Added a variety of embedded DIRK methods from [Kennedy & Carpenter,
 NASA TM-2016-219173, 2016] and [Kennedy & Carpenter, Appl. Numer. Math., 146, 2019] to
 ARKODE.
 
+Changed `SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
 
 ## Changes to SUNDIALS in release 6.2.0
 

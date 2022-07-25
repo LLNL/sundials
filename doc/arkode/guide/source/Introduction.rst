@@ -139,6 +139,8 @@ scale subproblems.
 
 Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
 
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 Changes in v5.2.0
 -----------------
 
