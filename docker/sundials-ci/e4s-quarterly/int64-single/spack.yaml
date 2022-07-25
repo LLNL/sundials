@@ -22,4 +22,9 @@ spack:
   repos: []
   upstreams: {}
   concretization: together
-  view: /opt/view
+  view:
+    default:
+      root: /opt/view
+      projections:
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
