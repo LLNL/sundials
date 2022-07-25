@@ -386,6 +386,7 @@ typedef struct ARKodeMemRec {
   /* Saved Values */
   realtype    h0u;          /* actual initial stepsize                     */
   realtype    tn;           /* time of last successful step                */
+  realtype    terr;         /* error in tn for compensated sums            */
   realtype    hold;         /* last successful h value used                */
   realtype    tolsf;        /* tolerance scale factor (suggestion to user) */
   booleantype VabstolMallocDone;

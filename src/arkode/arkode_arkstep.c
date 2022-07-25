@@ -1217,8 +1217,11 @@ int arkStep_Init(void* arkode_mem, int init_type)
   /* set appropriate TakeStep routine based on problem configuration */
   /*    (only one choice for now) */
   if (step_mem->separable_rhs) {
-    ark_mem->step = arkStep_TakeStep_SprkInc;
-    // ark_mem->step = arkStep_TakeStep_Sprk;
+    // if (ark_mem->compensated_sums) {
+      ark_mem->step = arkStep_TakeStep_SprkInc;
+    // } else {
+      // ark_mem->step = arkStep_TakeStep_Sprk;
+    // }
   } else {
     ark_mem->step = arkStep_TakeStep_Z;
   }

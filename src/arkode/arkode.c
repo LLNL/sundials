@@ -953,7 +953,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = tout;
       /* Only use dense output when we tcur is not within 10*eps of tout already.*/
-      if (SUNRCompare(ark_mem->tcur-tout, ZERO)) {
+      if (SUNRCompare(ark_mem->tcur - tout, ZERO)) {
         (void) arkGetDky(ark_mem, tout, 0, yout);
       }
       ark_mem->next_h = ark_mem->hprime;
@@ -964,7 +964,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if ( ark_mem->tstopset ) {
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
-      if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
+      if (SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
         (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
         ark_mem->tretlast = *tret = ark_mem->tstop;
         ark_mem->tstopset = SUNFALSE;
@@ -2346,7 +2346,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 }
 
 inline static
-void kahanSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
+void compensatedSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
 {
   sunrealtype err = *error;
   volatile sunrealtype tmp1 = inc - err;
@@ -2378,8 +2378,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
      If tstop is enabled, it is possible for tn + h to be past
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
-  static realtype err = ZERO; /* TODO(CJB): Do we want to use this by default? It certainly helps based on my testing. */
-  kahanSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &err);
+  compensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); /* TODO(CJB): I am guessing we would want this to be optional, but perhaps performance comparisons should be done (with small problems). */
   // ark_mem->tcur = ark_mem->tn + ark_mem->h;
   if ( ark_mem->tstopset ) {
     troundoff = FUZZ_FACTOR * ark_mem->uround *
