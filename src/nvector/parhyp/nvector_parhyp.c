@@ -1465,7 +1465,6 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
-
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   linearCombinationKernel<<<gridsize, blocksize, 0, 0>>>(nvec, cd, xd, NV_DATA_PH(z), N);
@@ -1965,7 +1964,7 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
       }
     }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("vector array cuda\n\n");
+  //printf("Scale vector array using cuda \n\n");
   if (FusedBuffer_Init(Z[0], nvec, 2 * nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2012,7 +2011,7 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  printf("vector array cuda\n\n");
+  //printf("Scale vector array using cuda\n\n");
   if (FusedBuffer_Init(Z[0], nvec, 2 * nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2079,6 +2078,7 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  //printf("ConstVectorArray using CUDA \n\n\n"); 
   if (FusedBuffer_Init(Z[0], 0, nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2109,8 +2109,15 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
 {
   int          i, retval;
   sunindextype j, Nl, Ng;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
   realtype*    wd=NULL;
   realtype*    xd=NULL;
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype**    wd=NULL;
+  realtype**    xd=NULL;
+#endif
+
   MPI_Comm     comm;
 
   /* invalid number of vectors */
@@ -2127,6 +2134,7 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
   Ng   = NV_GLOBLENGTH_PH(X[0]);
   comm = NV_COMM_PH(X[0]);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   /* compute the WRMS norm for each vector in the vector array */
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_PH(X[i]);
@@ -2136,10 +2144,59 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
-  for (i=0; i<nvec; i++)
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+  printf("VWrmsNormVectorArray using cuda\n\n"); 
+  if (FusedBuffer_Init(W[0], 0, 2*nvec))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+  if (FusedBuffer_CopyPtrArray1D(W[0], X, nvec, &xd))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+  if (FusedBuffer_CopyPtrArray1D(W[0], W, nvec, &wd))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+  if (FusedBuffer_CopyToDevice(W[0]))  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_CopyToDevice returned nonzero\n");
+    return -1;
+  }
+  if (InitializeReductionBuffer(W[0], ZERO, nvec))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: InitializeReductionBuffer returned nonzero\n");
+  }
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(Nl, blocksize);
+
+  gridsize = nvec; 
+
+  wL2NormSquareVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>
+  (
+    nvec,
+    xd,
+    wd,
+    NV_DBUFFERp(W[0]),
+    Nl
+  );
+
+   
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(W[0], nvec); 
+
+  for (int i = 0; i < nvec; ++i)
+    nrm[i] = SUNRsqrt(NV_HBUFFERp(W[0])[i] /
+                         NV_CONTENT(W[0])->global_length);
+ 
+ cudaStreamSynchronize(0);
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
+ for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
+#endif 
+  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   return retval == MPI_SUCCESS ? 0 : -1;
 }
@@ -2194,10 +2251,16 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
 {
   int          i, j;
   sunindextype k, N;
+//#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
   realtype*    xd=NULL;
   realtype*    yd=NULL;
   realtype*    zd=NULL;
-
+/*#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype**    xd=NULL;
+  realtype**    yd=NULL;
+  realtype*    zd=NULL;
+#endif 
+*/
   int          retval;
   N_Vector*    YY;
   N_Vector*    ZZ;
@@ -2251,6 +2314,8 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
   /* get vector length */
   N  = NV_LOCLENGTH_PH(X[0]);
 
+//#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
+
   /*
    * Y[i][j] += a[i] * x[j]
    */
@@ -2280,6 +2345,12 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
       }
     }
   }
+//#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  //printf("ScaleAddMultiVectorArray using cuda\n\n");
+
+
+
+
   return(0);
 }
 
@@ -2833,8 +2904,18 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-
-// Added Fused operation buffer functions for array based kernels
+/* 
+ * --------------------------------------------------------------------------
+ *                     Fused operations  buffer functions 
+ *
+ *  1. FusedBuffer_Init 
+ *  2. FusedBuffer_CopyRealArray 
+ *  3. FusedBuffer_CopyPtrArray1D
+ *  4. FusedBuffer_CopyPtrArray2D
+ *  5. FusedBuffer_CopyToDevice 
+ *  6. FusedBuffer_Free
+ * --------------------------------------------------------------------------
+ */ 
 
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 {
@@ -3032,7 +3113,15 @@ static int FusedBuffer_Free(N_Vector v)
 
   return 0;
 }
-
+/*
+ * --------------------------------------------------------------------
+ *                       Reduction buffer functions 
+ *
+ *  1. InitializeReductionBuffer 
+ *  2. FreeReductionBuffer
+ *  3. CopyReducitonBuffer 
+ * ---------------------------------------------------------------------
+ */
 static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
 {
   int         alloc_fail = 0;
