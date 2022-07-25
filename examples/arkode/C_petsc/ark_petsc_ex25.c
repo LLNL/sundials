@@ -117,7 +117,11 @@ int main(int argc, char **argv)
   if (check_retval((void *)nvecx,"N_VMake_Petsc",0)) return 1;
 
   /* Initialize user application context */
-  ierr = PetscOptionsBegin(PETSC_COMM_WORLD,NULL,"Advection-reaction options","");
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsBegin(PETSC_COMM_WORLD,NULL,"Advection-reaction options","");
+#else
+  ierr = PetscOptionsBegin(PETSC_COMM_WORLD,NULL,"Advection-reaction options","");CHKERRQ(ierr);
+#endif
   {
     rtol        = 1e-4;
     atol        = 1e-4;
@@ -138,7 +142,11 @@ int main(int argc, char **argv)
     ierr        = PetscOptionsReal("-vleft","Dirichlet boundary condition","",user.vleft,&user.vleft,NULL);CHKERRQ(ierr);
     ierr        = PetscOptionsReal("-vright","Dirichlet boundary condition","",user.vright,&user.vright,NULL);CHKERRQ(ierr);
   }
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsEnd();
+#else
   ierr = PetscOptionsEnd();CHKERRQ(ierr);
+#endif
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Set initial conditions
