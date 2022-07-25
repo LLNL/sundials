@@ -188,7 +188,7 @@ SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A)
 
   /* create the new SUNMatrix */
   B = NULL;
-  B = SUNMatrix_SLUNRloc(B_super, SM_GRID_SLUNRLOC(A));
+  B = SUNMatrix_SLUNRloc(B_super, SM_GRID_SLUNRLOC(A), A->sunctx);
   if (B == NULL) {
     /* call SuperLU-DIST destroy function */
     Destroy_CompRowLoc_Matrix_dist(B_super);
