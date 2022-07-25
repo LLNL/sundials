@@ -362,6 +362,94 @@ minQuotientKernel(const T MAX_VAL, const T *num, const T *den, T *min_quotient, 
   GridReducer<T, op>{}(minimum, Id, min_quotient, device_count);
 }
 
+
+
+/*
+ * Kernels added for HYPRE
+ *
+ */
+
+template <typename T, typename I>
+__global__ void
+bufPackKernel(const T *X, T *buf, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    buf[i] = X[i];
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+bufUnpackKernel (T *X, const T *buf, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    X[i] = buf[i];
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+sumKernel(const T *X, const T *Y, T *Z, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = X[i]+Y[i];
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+diffKernel(const T *X, const T *Y, T *Z, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = X[i]-Y[i];
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+scaleSumKernel(T a, const T *X, const T *Y, T *Z, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = a*(X[i]+Y[i]);
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+scaleDiffKernel(T a, const T *X, const T *Y, T *Z, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = a*(X[i]-Y[i]);
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+lin1Kernel(T a, const T *X, const T *Y, T *Z, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = (a*X[i]+Y[i]);
+  }
+}
+
+template <typename T, typename I>
+__global__ void
+lin2Kernel(T a, const T *X, const T *Y, T *Z, I n)
+{
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = (a*X[i]-Y[i]);
+  }
+}
+
+
 } // namespace impl
 } // namespace cuda
 } // namespace sundials

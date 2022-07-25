@@ -2519,8 +2519,15 @@ int N_VBufPack_ParHyp(N_Vector x, void *buf)
   xd = NV_DATA_PH(x);
   bd = (realtype*) buf;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     bd[i] = xd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("bufPack using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  bufPackKernel<<<gridsize, blocksize, 0, 0>>>(xd, bd, N);
+#endif
 
   return(0);
 }
@@ -2538,8 +2545,15 @@ int N_VBufUnpack_ParHyp(N_Vector x, void *buf)
   xd = NV_DATA_PH(x);
   bd = (realtype*) buf;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     xd[i] = bd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("bufUnpack using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  bufUnpackKernel<<<gridsize, blocksize, 0, 0>>>(xd, bd, N);
+#endif
 
   return(0);
 }
@@ -2563,8 +2577,15 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]+yd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("sum using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  sumKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
+#endif
 
   return;
 }
@@ -2581,8 +2602,15 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]-yd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("diff using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  diffKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
+#endif
 
   return;
 }
@@ -2600,8 +2628,15 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]+yd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("scaleSum using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  scaleSumKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, yd, zd, N);
+#endif
 
   return;
 }
@@ -2618,8 +2653,15 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]-yd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("scaleDiff using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  scaleDiffKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, yd, zd, N);
+#endif
 
   return;
 }
@@ -2636,8 +2678,15 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+yd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("lin1 using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  lin1Kernel<<<gridsize, blocksize, 0, 0>>>(a, xd, yd, zd, N);
+#endif
 
   return;
 }
@@ -2654,8 +2703,15 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])-yd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  printf("lin2 using cuda \n\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  lin2Kernel<<<gridsize, blocksize, 0, 0>>>(a, xd, yd, zd, N);
+#endif
 
   return;
 }
