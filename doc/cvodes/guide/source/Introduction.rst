@@ -114,14 +114,14 @@ Changes from previous versions
 Changes in v6.3.0
 -----------------
 
+Added the function :c:func:`CVodeGetUserData` to retrieve the user data pointer
+provided to :c:func:`CVodeSetUserData`.
+
 Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
 caused the double precision math functions to be used regardless of the value of
 :cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
 functions when they are available and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
-
-Added the function :c:func:`CVodeGetUserData` to retrieve the user data pointer
-provided to :c:func:`CVodeSetUserData`.
 
 Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
 
