@@ -1218,9 +1218,9 @@ int arkStep_Init(void* arkode_mem, int init_type)
   /*    (only one choice for now) */
   if (step_mem->separable_rhs) {
     // if (ark_mem->compensated_sums) {
-      // ark_mem->step = arkStep_TakeStep_SprkInc;
+      ark_mem->step = arkStep_TakeStep_SprkInc;
     // } else {
-      ark_mem->step = arkStep_TakeStep_Sprk;
+      // ark_mem->step = arkStep_TakeStep_Sprk;
     // }
   } else {
     ark_mem->step = arkStep_TakeStep_Z;
@@ -1930,8 +1930,8 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   }
 
   /* other shortcuts */
-  delta_Yi = ark_mem->tempv1;
-  yn_plus_delta_Yi = ark_mem->tempv2;
+  delta_Yi = step_mem->sdata;
+  yn_plus_delta_Yi = ark_mem->tempv1;
 
   /* [ \Delta Q_0 ] = [ 0 ]
      [ \Delta P_0 ] = [ 0 ] */
@@ -1983,8 +1983,8 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
      [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
   N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
   N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv3);
-  N_VLinearSum(ONE, ark_mem->tempv3, -ONE, delta_Yi, ark_mem->yerr);
+  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv2);
+  N_VLinearSum(ONE, ark_mem->tempv2, -ONE, delta_Yi, ark_mem->yerr);
 
   *nflagPtr = 0;
   *dsmPtr = 0;
