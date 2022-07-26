@@ -1218,9 +1218,9 @@ int arkStep_Init(void* arkode_mem, int init_type)
   /*    (only one choice for now) */
   if (step_mem->separable_rhs) {
     // if (ark_mem->compensated_sums) {
-      ark_mem->step = arkStep_TakeStep_SprkInc;
+      // ark_mem->step = arkStep_TakeStep_SprkInc;
     // } else {
-      // ark_mem->step = arkStep_TakeStep_Sprk;
+      ark_mem->step = arkStep_TakeStep_Sprk;
     // }
   } else {
     ark_mem->step = arkStep_TakeStep_Z;
@@ -1895,41 +1895,18 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* evaluate Fi at the previous stage value */
     retval = arkStep_Fi(step_mem, ark_mem->tcur, Yi,
                         step_mem->Fi[is], ark_mem->user_data);
+    if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
-    /* update the implicit stage */
-    nvec = 0;
-    for (js=0; js<=is; js++) {
-      // cvals[nvec] = ark_mem->h * step_mem->Bi->A[is][js];
-      cvals[nvec] = ark_mem->h * step_mem->Bi->b[js];
-      Xvecs[nvec] = step_mem->Fi[js];
-      nvec += 1;
-    }
-    /* tempv1 = h*A_{ij}^I*f^I(tcur^I, y_n) */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
-
-    /* compute ycur before evaluating explicit RHS */
-    N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
+    /* update ycur with the implicit stage */
+    N_VLinearSum(ONE, Yi, ark_mem->h * step_mem->Bi->b[is], step_mem->Fi[is], ark_mem->ycur);
 
     /* evaluate Fe with the current stage value */
     retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
                         ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+    if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
-    /* update the explicit stage */
-    nvec = 0;
-    for (js=0; js<=is; js++) {
-      // cvals[nvec] = ark_mem->h * step_mem->Be->A[is][js];
-      cvals[nvec] = ark_mem->h * step_mem->Be->b[js];
-      Xvecs[nvec] = step_mem->Fe[js];
-      nvec += 1;
-    }
-    /* tempv2 = h*A_{ij}^E*f^E(tcur^E, ycur) */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
-
-    /* update ycur before finishing stage */
-    N_VLinearSum(ONE, ark_mem->ycur, ONE, step_mem->sdata, ark_mem->ycur);
+    /* update ycur with the explicit stage */
+    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * step_mem->Be->b[is], step_mem->Fe[is], ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }
 
@@ -1944,9 +1921,7 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval, is, nvec;
-  realtype* cvals;
-  N_Vector* Xvecs;
+  int retval, is;
   N_Vector delta_Yi, yn_plus_delta_Yi;
 
   /* access ARKodeARKStepMem structure */
@@ -1959,10 +1934,6 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                     "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
     return(ARK_UNRECOGNIZED_ERROR);
   }
-
-  /* local shortcuts for fused vector operations */
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
 
   /* other shortcuts */
   delta_Yi = ark_mem->tempv1;
