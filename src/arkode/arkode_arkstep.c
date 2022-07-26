@@ -1944,7 +1944,7 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval, js, is, nvec;
+  int retval, is, nvec;
   realtype* cvals;
   N_Vector* Xvecs;
   N_Vector delta_Yi, yn_plus_delta_Yi;
@@ -1990,21 +1990,12 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* evaluate Fi with previous stage increment */
     retval = arkStep_Fi(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
                         step_mem->Fi[is], ark_mem->user_data);
-    /* update the implicit stage */
-    nvec = 0;
-    for (js=0; js<=is; js++) {
-      // cvals[nvec] = ark_mem->h * step_mem->Bi->A[is][js];
-      cvals[nvec] = ark_mem->h * step_mem->Bi->b[js];
-      Xvecs[nvec] = step_mem->Fi[js];
-      nvec += 1;
-    }
-    /* h*A_{ij}^I*f^I(tcur^I, q_n + \Delta Q_i) */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
+    if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
-    /* [            ] = [                ] + [       ]
+    /* update the implicit stage
+       [            ] = [                ] + [       ]
        [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ] */
-    N_VLinearSum(ONE, delta_Yi, ONE, step_mem->sdata, delta_Yi);
+    N_VLinearSum(ONE, delta_Yi,  ark_mem->h * step_mem->Bi->b[is], step_mem->Fi[is], delta_Yi);
 
     /* [     ] + [            ]
        [ p_n ] + [ \Delta P_i ] */
@@ -2013,21 +2004,12 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* evaluate Fe with the current p_n + \Delta P_i */
     retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
                         yn_plus_delta_Yi, step_mem->Fe[is], ark_mem->user_data);
-    /* update the explicit stage */
-    nvec = 0;
-    for (js=0; js<=is; js++) {
-      // cvals[nvec] = ark_mem->h * step_mem->Be->A[is][js];
-      cvals[nvec] = ark_mem->h * step_mem->Be->b[js];
-      Xvecs[nvec] = step_mem->Fe[js];
-      nvec += 1;
-    }
-    /* h*A_{ij}^E*f^E(tcur^E, p_n + \Delta P_i) */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
+    if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
-    /* [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
+    /* update the explicit stage
+       [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
        [            ] = [                ] + [       ] */
-    N_VLinearSum(ONE, delta_Yi, ONE, step_mem->sdata, delta_Yi);
+    N_VLinearSum(ONE, delta_Yi, ark_mem->h * step_mem->Be->b[is], step_mem->Fe[is], delta_Yi);
   }
 
   /*
