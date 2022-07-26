@@ -23,13 +23,13 @@
 #endif
 
 /* POSIX timers */
+#include <sundials/sundials_config.h>
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
 #include <stddef.h>
 #include <unistd.h>
 #endif
 
-#include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>

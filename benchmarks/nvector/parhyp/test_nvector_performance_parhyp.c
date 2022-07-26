@@ -40,6 +40,7 @@ static realtype* data;  /* host data   */
 int main(int argc, char *argv[])
 {
   N_Vector X;          /* test vector        */
+  SUNContext   ctx = NULL;  /* SUNDIALS context */ 
   sunindextype veclen; /* vector length      */
 
   HYPRE_ParVector Xhyp;    /* hypre parallel vector */
@@ -134,8 +135,11 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorInitialize(Xhyp);
 
   /* Create vectors */
-  X = N_VMake_ParHyp(Xhyp);
-
+    //X = N_VMake_ParHyp(Xhyp);
+  flag = SUNContext_Create(&comm, &ctx);
+  X = N_VMake_ParHyp(Xhyp,ctx); 
+    
+   // X = N_VMake_ParHyp(Xhyp,X); 
   /* run tests */
   if (myid == 0 && print_timing) {
     printf("\n\n standard operations:\n");
@@ -161,34 +165,37 @@ int main(int argc, char *argv[])
   flag = Test_N_VConstrMask(X, veclen, ntests);
   flag = Test_N_VMinQuotient(X, veclen, ntests);
 
-  if (myid == 0 && print_timing) {
-    printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
-    PrintTableHeader(2);
-  }
-  flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
-  flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
-  flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
-  flag = Test_N_VLinearSumVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VScaleVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VConstVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VWrmsNormVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VWrmsNormMaskVectorArray(X, veclen, nvecs, ntests);
+//  if (myid == 0 && print_timing) {
+//    printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
+ //   PrintTableHeader(2);
+ // }
+  //flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
+  //flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
+  //flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
+  //flag = Test_N_VLinearSumVectorArray(X, veclen, nvecs, ntests);
+  //flag = Test_N_VScaleVectorArray(X, veclen, nvecs, ntests);
+  //flag = Test_N_VConstVectorArray(X, veclen, nvecs, ntests);
+  //flag = Test_N_VWrmsNormVectorArray(X, veclen, nvecs, ntests);
+  //flag = Test_N_VWrmsNormMaskVectorArray(X, veclen, nvecs, ntests);
 
-  if (myid == 0 && print_timing) {
-    printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
-    PrintTableHeader(2);
-  }
-  flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
-  flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
-
+  //if (myid == 0 && print_timing) {
+  //  printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
+  //  PrintTableHeader(2);
+  //}
+  //flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
+  //flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
+// 
   /* Free vectors */
   N_VDestroy(X);
   HYPRE_ParVectorDestroy(Xhyp);
 
-  FinalizeClearCache();
+  FinalizeClearCache(); 
+
+  flag = SUNContext_Free(&ctx);
+  if (flag) return flag;  
 
   if (myid == 0)
-    printf("\nFinished Tests\n");
+    printf("\nFinished Tests HelloWWorld\n");
 
   MPI_Finalize();
 
