@@ -53,7 +53,7 @@ foreach(example_tuple ${CVODE_examples})
         sundials_cvode
         sundials_${vector}
         sundials_sunlinsolmagmadense
-        ${EXTRA_LINK_LIBS}
+        ${EXE_EXTRA_LINK_LIBS}
     )
   endif()
 

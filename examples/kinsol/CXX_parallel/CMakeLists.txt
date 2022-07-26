@@ -54,7 +54,7 @@ foreach(example_tuple ${KINSOL_examples})
       sundials_nvecmpiplusx
       sundials_nvecserial
       MPI::MPI_CXX
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

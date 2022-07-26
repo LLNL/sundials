@@ -45,7 +45,7 @@ foreach(example_tuple ${CVODE_examples})
     target_link_libraries(${example_target} PRIVATE
       sundials_cvode
       sundials_nvecsycl
-      ${EXTRA_LINK_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
       )
 
   endif()

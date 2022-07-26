@@ -28,7 +28,7 @@ set(IDAS_LIB sundials_idas)
 set(NVECOMP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDAS_examples})

@@ -49,7 +49,7 @@ if (BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler

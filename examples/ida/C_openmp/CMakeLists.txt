@@ -28,7 +28,7 @@ set(IDA_LIB sundials_ida)
 set(NVECS_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})

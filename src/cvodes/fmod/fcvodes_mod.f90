@@ -180,6 +180,7 @@ module fcvodes_mod
  public :: FCVodeGetNumNonlinSolvConvFails
  public :: FCVodeGetNonlinSolvStats
  public :: FCVodeGetNumStepSolveFails
+ public :: FCVodeGetUserData
  public :: FCVodePrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -1090,6 +1091,15 @@ end function
 
 function swigc_FCVodeGetNumStepSolveFails(farg1, farg2) &
 bind(C, name="_wrap_FCVodeGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetUserData(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetUserData") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -4031,6 +4041,22 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(nncfails(1))
 fresult = swigc_FCVodeGetNumStepSolveFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetUserData(cvode_mem, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(user_data)
+fresult = swigc_FCVodeGetUserData(farg1, farg2)
 swig_result = fresult
 end function
 

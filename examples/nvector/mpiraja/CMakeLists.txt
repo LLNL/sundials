@@ -74,7 +74,7 @@ foreach(example_tuple ${nvector_raja_examples})
       sundials_nvecmpiplusx
       sundials_nvecraja
       ${MPI_CXX_LIBRARIES}
-      ${EXTRA_LINK_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
       ${OTHER_LIBS})
 
   endif()

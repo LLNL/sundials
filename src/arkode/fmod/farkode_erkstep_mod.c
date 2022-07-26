@@ -1189,6 +1189,20 @@ SWIGEXPORT int _wrap_FERKStepGetNumConstrFails(void *farg1, long *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FERKStepGetUserData(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  void **arg2 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (void **)(farg2);
+  result = (int)ERKStepGetUserData(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepPrintAllStats(void *farg1, void *farg2, int const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

@@ -45,7 +45,7 @@ foreach(test_tuple ${unit_tests})
     target_link_libraries(${test}
       sundials_ida
       sundials_nvecserial
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
