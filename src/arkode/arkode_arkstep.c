@@ -1858,9 +1858,7 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval, js, is, nvec;
-  realtype* cvals;
-  N_Vector* Xvecs;
+  int retval, is;
   N_Vector Yi;
 
   /* access ARKodeARKStepMem structure */
@@ -1873,10 +1871,6 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                     "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
     return(ARK_UNRECOGNIZED_ERROR);
   }
-
-  /* local shortcuts for fused vector operations */
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
 
   /* loop over internal stages to the step */
   for (is=0; is<step_mem->stages; is++) {
