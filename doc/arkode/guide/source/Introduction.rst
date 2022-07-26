@@ -145,6 +145,9 @@ caused the double precision math functions to be used regardless of the value of
 functions when they are available and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
+
 Changes in v5.2.0
 -----------------
 

@@ -30,6 +30,8 @@ caused the double precision math functions to be used regardless of the value of
 functions when they are available and the user may provide the math library to
 link to via the advanced CMake option `SUNDIALS_MATH_LIBRARY`.
 
+Changed `SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 ## Changes to SUNDIALS in release 6.2.0
 
 Added the `SUNLogger` API which provides a SUNDIALS-wide

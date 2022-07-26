@@ -892,7 +892,7 @@ illustration only.
    Enables MPI support in the SUNLogger runtime API. I.e., makes the logger MPI
    aware and capable of outputting only on specific ranks.
 
-   Default: :cmakeop:`ENABLE_MPI`
+   Default: ``OFF``
 
    .. note::
 
