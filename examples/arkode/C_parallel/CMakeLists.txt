@@ -47,7 +47,7 @@ set(ARKODE_LIB sundials_arkode)
 set(NVECP_LIB sundials_nvecparallel sundials_nvecmpiplusx)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})

@@ -825,6 +825,20 @@ SWIGEXPORT int _wrap_FKINGetStepLength(void *farg1, double *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINGetUserData(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  void **arg2 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (void **)(farg2);
+  result = (int)KINGetUserData(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINPrintAllStats(void *farg1, void *farg2, int const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

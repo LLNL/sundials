@@ -110,6 +110,7 @@ module farkode_erkstep_mod
  public :: FERKStepGetNumGEvals
  public :: FERKStepGetRootInfo
  public :: FERKStepGetNumConstrFails
+ public :: FERKStepGetUserData
  public :: FERKStepPrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -726,6 +727,15 @@ end function
 
 function swigc_FERKStepGetNumConstrFails(farg1, farg2) &
 bind(C, name="_wrap_FERKStepGetNumConstrFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetUserData(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetUserData") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1925,6 +1935,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(nconstrfails(1))
 fresult = swigc_FERKStepGetNumConstrFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetUserData(arkode_mem, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(user_data)
+fresult = swigc_FERKStepGetUserData(farg1, farg2)
 swig_result = fresult
 end function
 

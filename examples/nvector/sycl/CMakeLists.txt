@@ -53,7 +53,7 @@ foreach(example_tuple ${nvector_sycl_examples})
       PRIVATE
       test_nvector_obj
       sundials_nvecsycl
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

@@ -38,7 +38,7 @@ set(SUNDIALS_LIBS sundials_nvecserial
                   sundials_sunmatrixdense
                   sundials_sunmatrixsparse
                   sundials_sunmatrixcusparse
-                  ${EXTRA_LINK_LIBS})
+                  ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_cusparse_examples})
