@@ -280,15 +280,15 @@ if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
 
     # built with 32-bit blas
-    export BLAS_ROOT=/opt/view/superlu-dist
+    export BLAS_ROOT=/opt/view
     export BLAS_LIBRARIES=${BLAS_ROOT}/lib/libopenblas.so
 
     # PARMETIS
-    export PARMETIS_ROOT=/opt/view/superlu-dist
+    export PARMETIS_ROOT=/opt/view
     export PARMETIS_LIBRARIES="${PARMETIS_ROOT}/lib/libparmetis.so"
 
     # METIS
-    export METIS_ROOT=/opt/view/superlu-dist
+    export METIS_ROOT=/opt/view
     export METIS_LIBRARIES="${METIS_ROOT}/lib/libmetis.so"
 
     export SUPERLU_DIST_LIBRARIES="${BLAS_LIBRARIES};${PARMETIS_LIBRARIES};${METIS_LIBRARIES};${SUPERLU_DIST_ROOT}/lib/libsuperlu_dist.a"
