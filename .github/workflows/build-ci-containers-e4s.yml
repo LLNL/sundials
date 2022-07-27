@@ -1,7 +1,6 @@
 name: Containers - spack@e4s
 
 on:
-  push: # temporary
   workflow_dispatch:
 
 permissions:
