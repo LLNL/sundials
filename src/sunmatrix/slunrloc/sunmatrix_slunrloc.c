@@ -79,7 +79,6 @@ static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
 SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid, SUNContext sunctx)
 {
   SUNMatrix A;
-  SUNMatrix_Ops ops;
   SUNMatrixContent_SLUNRloc content;
 
   /* Check for valid intputs */
@@ -97,22 +96,22 @@ SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid, SUNContext 
   if (A == NULL) return(NULL);
 
   /* Attach operations */
-  ops->getid       = SUNMatGetID_SLUNRloc;
-  ops->clone       = SUNMatClone_SLUNRloc;
-  ops->destroy     = SUNMatDestroy_SLUNRloc;
-  ops->zero        = SUNMatZero_SLUNRloc;
-  ops->copy        = SUNMatCopy_SLUNRloc;
-  ops->scaleadd    = SUNMatScaleAdd_SLUNRloc;
-  ops->scaleaddi   = SUNMatScaleAddI_SLUNRloc;
-  ops->matvecsetup = SUNMatMatvecSetup_SLUNRloc;
-  ops->matvec      = SUNMatMatvec_SLUNRloc;
-  ops->space       = SUNMatSpace_SLUNRloc;
+  A->ops->getid       = SUNMatGetID_SLUNRloc;
+  A->ops->clone       = SUNMatClone_SLUNRloc;
+  A->ops->destroy     = SUNMatDestroy_SLUNRloc;
+  A->ops->zero        = SUNMatZero_SLUNRloc;
+  A->ops->copy        = SUNMatCopy_SLUNRloc;
+  A->ops->scaleadd    = SUNMatScaleAdd_SLUNRloc;
+  A->ops->scaleaddi   = SUNMatScaleAddI_SLUNRloc;
+  A->ops->matvecsetup = SUNMatMatvecSetup_SLUNRloc;
+  A->ops->matvec      = SUNMatMatvec_SLUNRloc;
+  A->ops->space       = SUNMatSpace_SLUNRloc;
 
   /* Create content */
   content = NULL;
   content = (SUNMatrixContent_SLUNRloc)
             malloc(sizeof(struct _SUNMatrixContent_SLUNRloc));
-  if (content == NULL) { free(ops); free(A); return(NULL); }
+  if (content == NULL) { SUNMatDestroy(A); return(NULL); }
 
   /* Attach content to SuperMatrix */
   content->A_super     = A_super;
@@ -204,32 +203,46 @@ SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A)
 
 void SUNMatDestroy_SLUNRloc(SUNMatrix A)
 {
-  if (SM_OWNDATA_SLUNRLOC(A)) {
-    /* call SuperLU-DIST destroy function */
-    Destroy_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A));
-    free(SM_SUPERMATRIX_SLUNRLOC(A));
-  }
-  if (SM_COLSORTED_SLUNRLOC(A)) {
-    /* if CS exists, then the Matvec has been initialized and we must finalize
-       it by calling the SuperLU DIST pdgsmv_finalize routine to free up memory
-       allocated */
+  if (!A) return;
 
-    pdgsmv_finalize(SM_COMMPATTERN_SLUNRLOC(A));
-    Destroy_CompRowLoc_Matrix_dist(SM_COLSORTED_SLUNRLOC(A));
-    free(SM_COLSORTED_SLUNRLOC(A));
-    SM_COLSORTED_SLUNRLOC(A) = NULL;
+  if (A->content)
+  {
+    if (SM_OWNDATA_SLUNRLOC(A)) {
+      /* call SuperLU-DIST destroy function */
+      Destroy_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A));
+      free(SM_SUPERMATRIX_SLUNRLOC(A));
+    }
+    if (SM_COLSORTED_SLUNRLOC(A)) {
+      /* if CS exists, then the Matvec has been initialized and we must finalize
+         it by calling the SuperLU DIST pdgsmv_finalize routine to free up memory
+         allocated */
+
+      pdgsmv_finalize(SM_COMMPATTERN_SLUNRLOC(A));
+      Destroy_CompRowLoc_Matrix_dist(SM_COLSORTED_SLUNRLOC(A));
+      free(SM_COLSORTED_SLUNRLOC(A));
+      SM_COLSORTED_SLUNRLOC(A) = NULL;
+    }
+    if (SM_ROWTOPROC_SLUNRLOC(A)) {
+      free(SM_ROWTOPROC_SLUNRLOC(A));
+      SM_ROWTOPROC_SLUNRLOC(A) = NULL;
+    }
+    if (SM_COMMPATTERN_SLUNRLOC(A)) {
+      free(SM_COMMPATTERN_SLUNRLOC(A));
+      SM_COMMPATTERN_SLUNRLOC(A) = NULL;
+    }
+    free(A->content);
+    A->content = NULL;
   }
-  if (SM_ROWTOPROC_SLUNRLOC(A)) {
-    free(SM_ROWTOPROC_SLUNRLOC(A));
-    SM_ROWTOPROC_SLUNRLOC(A) = NULL;
+
+  if (A->ops)
+  {
+    free(A->ops);
+    A->ops = NULL;
   }
-  if (SM_COMMPATTERN_SLUNRLOC(A)) {
-    free(SM_COMMPATTERN_SLUNRLOC(A));
-    SM_COMMPATTERN_SLUNRLOC(A) = NULL;
-  }
-  free(A->content); A->content = NULL;
-  free(A->ops); A->ops = NULL;
-  free(A); A = NULL;
+
+  free(A);
+  A = NULL;
+
   return;
 }
 
