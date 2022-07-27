@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
   // Create the SUNDIALS context object for this simulation
   SUNContext ctx;
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* This example only allows 1 MPI rank because we are demonstrating
    * SuperLU_DIST on one node. */
