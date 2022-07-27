@@ -111,6 +111,7 @@ module fkinsol_mod
  public :: FKINGetNumBacktrackOps
  public :: FKINGetFuncNorm
  public :: FKINGetStepLength
+ public :: FKINGetUserData
  public :: FKINPrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -521,6 +522,15 @@ end function
 
 function swigc_FKINGetStepLength(farg1, farg2) &
 bind(C, name="_wrap_FKINGetStepLength") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FKINGetUserData(farg1, farg2) &
+bind(C, name="_wrap_FKINGetUserData") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1413,6 +1423,22 @@ type(C_PTR) :: farg2
 farg1 = kinmem
 farg2 = c_loc(steplength(1))
 fresult = swigc_FKINGetStepLength(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINGetUserData(kinmem, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = kinmem
+farg2 = c_loc(user_data)
+fresult = swigc_FKINGetUserData(farg1, farg2)
 swig_result = fresult
 end function
 

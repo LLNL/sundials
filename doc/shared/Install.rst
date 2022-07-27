@@ -892,7 +892,7 @@ illustration only.
    Enables MPI support in the SUNLogger runtime API. I.e., makes the logger MPI
    aware and capable of outputting only on specific ranks.
 
-   Default: :cmakeop:`ENABLE_MPI`
+   Default: ``OFF``
 
    .. note::
 
@@ -1000,6 +1000,12 @@ illustration only.
       The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
       a type not listed here.
 
+.. cmakeoption:: SUNDIALS_MATH_LIBRARY
+
+   The standard C math library (e.g., ``libm``) to link with.
+
+   Default: ``-lm`` on Unix systems, none otherwise
+
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
@@ -1016,9 +1022,13 @@ illustration only.
 
 .. cmakeoption:: USE_GENERIC_MATH
 
-   Use generic (``stdc``) math libraries
+   Link to :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
 
    Default: ``ON``
+
+   .. note::
+
+      This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 .. cmakeoption:: XBRAID_DIR
 

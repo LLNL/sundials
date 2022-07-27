@@ -56,7 +56,7 @@ foreach(example_tuple ${ARKODE_examples})
   target_link_libraries(${example}
     sundials_arkode
     sundials_nvecopenmp
-    ${EXTRA_LINK_LIBS})
+    ${EXE_EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)

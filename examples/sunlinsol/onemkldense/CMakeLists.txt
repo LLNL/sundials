@@ -51,7 +51,7 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
       sundials_nvecsycl
       sundials_sunlinsolonemkldense
       MKL::MKL_DPCPP
-      ${EXTRA_LINK_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
       )
 
   endif()

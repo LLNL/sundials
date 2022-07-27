@@ -73,7 +73,7 @@ foreach(example_tuple ${nvector_raja_examples})
     target_link_libraries(${example}
       PRIVATE
       sundials_nvecraja
-      ${EXTRA_LINK_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
       ${OTHER_LIBS})
 
   endif()

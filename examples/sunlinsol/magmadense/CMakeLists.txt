@@ -59,7 +59,7 @@ foreach(example_tuple ${sunlinsols_magmadense_examples})
       PRIVATE
         sundials_${vector}
         sundials_sunlinsolmagmadense
-        ${EXTRA_LINK_LIBS}
+        ${EXE_EXTRA_LINK_LIBS}
     )
   endif()
 
