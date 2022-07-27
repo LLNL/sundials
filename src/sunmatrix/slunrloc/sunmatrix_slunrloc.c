@@ -121,9 +121,8 @@ SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid, SUNContext 
   content->gsmv_comm   = NULL;
   content->ACS_super   = NULL;
 
-  /* Attach content and ops to SUNMatrix */
+  /* Attach content to SUNMatrix */
   A->content = content;
-  A->ops     = ops;
 
   return(A);
 }
