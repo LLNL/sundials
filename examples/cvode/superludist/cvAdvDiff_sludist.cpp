@@ -107,6 +107,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  MPI_Comm comm;
   SUNContext sunctx;
   realtype dx, reltol, abstol, t, tout, umax;
   UserData data;
@@ -135,24 +136,26 @@ int main(int argc, char *argv[])
   A         = NULL;
   LS        = NULL;
 
+  comm = MPI_COMM_WORLD;
+
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &npes);
-  MPI_Comm_rank(MPI_COMM_WORLD, &my_pe);
+  MPI_Comm_size(comm, &npes);
+  MPI_Comm_rank(comm, &my_pe);
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  retval = SUNContext_Create(&comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) return(1);
 
   /* check for nprow and npcol arguments */
   if (argc < 2) {
     printf("ERROR: number of process rows and columns must be provided as arguments: ./cvAdvDiff <nprow> <npcol>\n");
-    MPI_Abort(MPI_COMM_WORLD, 1);
+    MPI_Abort(comm, 1);
   }
 
   /* Initialize SuperLU-DIST process grid */
   nprow = atoi(argv[1]); npcol = atoi(argv[2]);
-  superlu_gridinit(MPI_COMM_WORLD, nprow, npcol, &grid);
+  superlu_gridinit(comm, nprow, npcol, &grid);
   /* Excess processes just exit */
   if (grid.iam >= nprow*npcol) {
     superlu_gridexit(&grid);
