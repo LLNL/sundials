@@ -69,7 +69,7 @@ foreach(example_tuple ${FCVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
    # install example source and out files
   if(EXAMPLES_INSTALL)

@@ -58,7 +58,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
     target_link_libraries(${test}
       sundials_arkode
       sundials_nvecserial
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

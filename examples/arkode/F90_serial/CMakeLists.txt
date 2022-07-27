@@ -57,7 +57,7 @@ set(FNVECS_LIB sundials_fnvecserial)
 set(FARKODE_LIB sundials_farkode${_STATIC_LIB_SUFFIX})
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example

@@ -169,15 +169,22 @@ int main(int argc, char *argv[])
   if(check_retval(&ierr, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Initialize user application context */
-  ierr = PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");
+#else
+  ierr = PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");CHKERRQ(ierr);
+#endif
   {
     jac = PETSC_FALSE;
     pre = PETSC_FALSE;
     ierr = PetscOptionsBool("-jac", "Utilize user-supplied Jacobian", "", jac, &jac, NULL); CHKERRQ(ierr);
     ierr = PetscOptionsBool("-pre", "Utilize user-supplied preconditioner", "", pre, &pre, NULL); CHKERRQ(ierr);
   }
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsEnd();
+#else
   ierr = PetscOptionsEnd(); CHKERRQ(ierr);
-
+#endif
   /* Allocate and initialize the data structure and N-vectors. */
   data = (UserData) malloc(sizeof *data);
   if(check_retval((void *)data, "malloc", 2, thispe))

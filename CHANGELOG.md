@@ -26,6 +26,14 @@ ARKODE.
 
 Fix mismatched definition and declaration bug in SuperLU_DIST matrix constructor.
 
+Fixed the unituitive behavior of the `USE_GENERIC_MATH` CMake option which
+caused the double precision math functions to be used regardless of the value of
+`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
+functions when they are available and the user may provide the math library to
+link to via the advanced CMake option `SUNDIALS_MATH_LIBRARY`.
+
+Changed `SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 ## Changes to SUNDIALS in release 6.2.0
 
 Added the `SUNLogger` API which provides a SUNDIALS-wide

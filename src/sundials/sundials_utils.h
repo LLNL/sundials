@@ -24,7 +24,7 @@
 static int sunvsnprintf(char* buffer, size_t bufsz, const char* format, va_list vlist)
 {
   int size = 0;
-#ifdef SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#ifdef SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
   va_list tmp;
   va_copy(tmp, vlist);
   size = vsnprintf(buffer, bufsz, format, tmp);
