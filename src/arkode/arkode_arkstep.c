@@ -1216,15 +1216,15 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
   /* set appropriate TakeStep routine based on problem configuration */
   /*    (only one choice for now) */
-  if (step_mem->separable_rhs) {
+  // if (step_mem->separable_rhs) {
     // if (ark_mem->compensated_sums) {
-      ark_mem->step = arkStep_TakeStep_SprkInc;
+      // ark_mem->step = arkStep_TakeStep_SprkInc;
     // } else {
       // ark_mem->step = arkStep_TakeStep_Sprk;
     // }
-  } else {
+  // } else {
     ark_mem->step = arkStep_TakeStep_Z;
-  }
+  // }
 
   /* Check for consistency between mass system and system linear system modules
      (e.g., if lsolve is direct, msolve needs to match) */
@@ -1624,7 +1624,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* determine whether implicit solve is required */
     implicit_stage = SUNFALSE;
-    if (step_mem->implicit && !step_mem->separable_rhs)
+    if (step_mem->implicit)
       if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
         implicit_stage = SUNTRUE;
 
@@ -1654,7 +1654,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* if implicit, call built-in and user-supplied predictors
        (results placed in zpred) */
-    if (implicit_stage) {
+    if (implicit_stage && !step_mem->separable_rhs) {
       retval = arkStep_Predict(ark_mem, is, step_mem->zpred);
       if (retval != ARK_SUCCESS)  return (retval);
 
@@ -1663,7 +1663,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
         routine can just 'clean up' the built-in prediction, if desired. */
       if (step_mem->stage_predict) {
         retval = step_mem->stage_predict(ark_mem->tcur, step_mem->zpred,
-                                        ark_mem->user_data);
+                                         ark_mem->user_data);
         if (retval < 0)  return(ARK_USER_PREDICT_FAIL);
         if (retval > 0)  return(TRY_AGAIN);
       }
@@ -1693,7 +1693,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
     /* perform implicit solve if required */
-    if (implicit_stage) {
+    if (implicit_stage && !step_mem->separable_rhs) {
 
       /* implicit solve result is stored in ark_mem->ycur;
          return with positive value on anything but success */
@@ -1708,6 +1708,31 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 #endif
 
     /* otherwise no implicit solve is needed */
+    } else if(step_mem->separable_rhs) {
+      /* we explicitly compute the 'implicit' part since
+         the right hand side is separable and only
+         depends on the previous stage value of the explicit part */
+
+      retval = arkStep_Fi(step_mem, ark_mem->tcur, step_mem->sdata,
+                          step_mem->Fi[is], ark_mem->user_data);
+      if (retval < 0)  return(ARK_RHSFUNC_FAIL);
+      if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
+
+      cvals[0] = ONE;
+      Xvecs[0] = ark_mem->yn;
+      nvec = 1;
+      for (int js=0; js<step_mem->stages; js++) {
+        cvals[nvec] = ark_mem->h * step_mem->Bi->A[is][js];
+        Xvecs[nvec] = step_mem->Fi[js];
+        nvec += 1;
+      }
+      retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
+      if (retval != 0) return(ARK_VECTOROP_ERR);
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+      printf("    ARKStep implicit stage %i solution:\n",is);
+      N_VPrint(ark_mem->ycur);
+#endif
     } else {
 
       /* if M is fixed, solve with it to compute update (place back in sdata) */
@@ -1746,7 +1771,9 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
 
-      if (!deduce_stage) {
+      if (step_mem->separable_rhs) {
+        /* do nothing */
+      } else if (!deduce_stage) {
         retval = arkStep_Fi(step_mem, ark_mem->tcur, ark_mem->ycur,
                             step_mem->Fi[is], ark_mem->user_data);
       } else if (step_mem->mass_type == MASS_FIXED)  {
@@ -2624,13 +2651,13 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit_stage)
 
   /* Update sdata with prior stage information */
   if (step_mem->explicit) {   /* Explicit pieces */
-    for (j=0; j<i; j++) {
+    for (j=0; j<step_mem->stages; j++) {
       cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
       Xvecs[nvec] = step_mem->Fe[j];
       nvec += 1;
     }
   }
-  if (step_mem->implicit) {   /* Implicit pieces */
+  if (step_mem->implicit && !step_mem->separable_rhs) {   /* Implicit pieces */
     for (j=0; j<i; j++) {
       cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][j];
       Xvecs[nvec] = step_mem->Fi[j];
