@@ -58,7 +58,7 @@ to build the Docker container(s) used for the comprehensive CI testing.
     - openmpi
     - openblas+ilp64
     - suite-sparse
-    - superlu-dist+int64 ^metis+int64
+    - superlu-dist+int64 ^parmetis+int64
     - trilinos+tpetra gotype=long_long
     config: {}
     modules:
