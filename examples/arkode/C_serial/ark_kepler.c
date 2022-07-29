@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  // sunrealtype Tf          = SUN_RCONST(0.3);
+  // sunrealtype Tf          = SUN_RCONST(0.1);
   sunrealtype Tf          = SUN_RCONST(100000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   int fixed_step_mode = 1;
   int method          = 1;
   int order           = 2;
-  // const sunrealtype dTout = SUN_RCONST(0.1);
+  // const sunrealtype dTout = SUN_RCONST(dt);
   const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_of_steps = (int) ceil(dTout/dt);
   const int num_output_times = (int) ceil(Tf/dTout);
@@ -172,8 +172,7 @@ int main(int argc, char* argv[])
 
       Mq = ARKodeButcherTable_Alloc(2, SUNTRUE);
       if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mq->b[0] = RCONST(0.0);
-      Mq->b[1] = RCONST(1.0);
+      Mq->b[0] = RCONST(1.0);
       Mq->A[1][0] = RCONST(1.0);
       Mq->c[0] = RCONST(0.0);
       Mq->c[1] = RCONST(1.0);
