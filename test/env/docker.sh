@@ -274,14 +274,20 @@ fi
 # ------------
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_SUPERLU_DIST=ON
     export SUPERLU_DIST_ROOT=/opt/view/superlu-dist
     export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
 
-    # built with 32-bit blas
+    # build with netlib blas/lapack if using 64-bit indices so that we can
+    # use 64-bit openblas for other TPLs
     export BLAS_ROOT=/opt/view
-    export BLAS_LIBRARIES=${BLAS_ROOT}/lib/libopenblas.so
+    if [ "$SUNDIALS_INDEX_SIZE" == "64" ]; then
+        if [ -f "${BLAS_ROOT}/lib/libblas.so" ]; then
+            export BLAS_LIBRARIES="${BLAS_ROOT}/lib/libblas.so;${BLAS_ROOT}/lib/liblapack.so"
+        fi
+    else
+        export BLAS_LIBRARIES="${BLAS_ROOT}/lib/libopenblas.so"
+    fi
 
     # PARMETIS
     export PARMETIS_ROOT=/opt/view
@@ -293,6 +299,13 @@ if [ "$SUNDIALS_PRECISION" == "double" ]; then
 
     export SUPERLU_DIST_LIBRARIES="${BLAS_LIBRARIES};${PARMETIS_LIBRARIES};${METIS_LIBRARIES};${SUPERLU_DIST_ROOT}/lib/libsuperlu_dist.a"
     export SUPERLU_DIST_OPENMP=OFF
+
+    # if BLAS wasnt found, then dont build SuperLU_DIST
+    if [ -z "$BLAS_LIBRARIES" ]; then
+        export SUNDIALS_SUPERLU_DIST=OFF
+    else
+        export SUNDIALS_SUPERLU_DIST=ON
+    fi
 else
     export SUNDIALS_SUPERLU_DIST=OFF
     unset SUPERLU_DIST_INCLUDE_DIR
