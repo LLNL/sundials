@@ -44,6 +44,9 @@
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
 #include <sundials/sundials_math.h>     /* def. math fcns, 'realtype'           */
+#include "sundials/sundials_nonlinearsolver.h"
+#include "sundials/sundials_types.h"
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
@@ -69,10 +72,14 @@ int main(int argc, char* argv[])
   UserData udata;
   sunrealtype tout, tret;
   sunrealtype H0, L0;
-  ARKodeButcherTable Mp = NULL, Mq = NULL;
+  ARKodeButcherTable Mp, Mq;
   void* arkode_mem;
   FILE *conserved_fp, *solution_fp, *times_fp;
   int argi, iout, retval;
+
+  Mp = Mq = NULL;
+  NLS = NULL;
+  y = NULL;
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
@@ -203,11 +210,19 @@ int main(int argc, char* argv[])
 
     retval = ARKStepSetSeparableRhs(arkode_mem, SUNTRUE);
     if (check_retval(&retval, "ARKStepSetSeparableRhs", 1)) return 1;
-  } else {
+  } else if (method == 1) {
     arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
     retval = ARKStepSetOrder(arkode_mem, order);
     if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
+  } else {
+    arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
+
+    retval = ARKStepSetOrder(arkode_mem, order);
+    if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
+
+    NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
+    ARKStepSetNonlinearSolver(arkode_mem, NLS);
   }
 
   /* Setup ARKStep */
@@ -287,6 +302,7 @@ int main(int argc, char* argv[])
   // ARKStepFree(arkode_mem); // TODO: figure out why this is segfaulting!
   if (Mq) ARKodeButcherTable_Free(Mq);
   if (Mp) ARKodeButcherTable_Free(Mp);
+  if (NLS) SUNNonlinSolFree(NLS);
   N_VDestroy(y);
   free(udata);
   fclose(times_fp);
@@ -361,6 +377,7 @@ int dqdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
   ydot[0] = p1;
   ydot[1] = p2;
+  // ydot[2] = ydot[3] = SUN_RCONST(0.0);
 
   // printf("dqdt(p=[%.16f, %.16f]) = [%.16f, %.16f]\n", p1, p2, ydot[0], ydot[1]);
 
@@ -377,6 +394,7 @@ int dpdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   const sunrealtype q2 = y[1];
   const sunrealtype sqrt_q1q1_plus_q2q2 = SUNRsqrt(q1*q1 + q2*q2);
 
+  // ydot[0] = ydot[1] = SUN_RCONST(0.0);
   ydot[2] =         - q1 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))
             - delta * q1 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(5.0));
   ydot[3] =         - q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))

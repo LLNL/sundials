@@ -1218,12 +1218,12 @@ int arkStep_Init(void* arkode_mem, int init_type)
   /*    (only one choice for now) */
   // if (step_mem->separable_rhs) {
     // if (ark_mem->compensated_sums) {
-      // ark_mem->step = arkStep_TakeStep_SprkInc;
+      ark_mem->step = arkStep_TakeStep_SprkInc;
     // } else {
       // ark_mem->step = arkStep_TakeStep_Sprk;
     // }
   // } else {
-    ark_mem->step = arkStep_TakeStep_Z;
+    // ark_mem->step = arkStep_TakeStep_Z;
   // }
 
   /* Check for consistency between mass system and system linear system modules
@@ -1914,20 +1914,22 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     Yi = is == 0 ? ark_mem->yn : ark_mem->ycur;
 
     /* evaluate Fi at the previous stage value */
+    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
     retval = arkStep_Fi(step_mem, ark_mem->tcur, Yi,
-                        step_mem->Fi[is], ark_mem->user_data);
+                        step_mem->sdata, ark_mem->user_data);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
     /* update ycur with the implicit stage */
-    N_VLinearSum(ONE, Yi, ark_mem->h * step_mem->Bi->b[is], step_mem->Fi[is], ark_mem->ycur);
+    N_VLinearSum(ONE, Yi, ark_mem->h * step_mem->Bi->b[is], step_mem->sdata, ark_mem->ycur);
 
     /* evaluate Fe with the current stage value */
+    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
     retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-                        ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+                        ark_mem->ycur, step_mem->sdata, ark_mem->user_data);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
     /* update ycur with the explicit stage */
-    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * step_mem->Be->b[is], step_mem->Fe[is], ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * step_mem->Be->b[is], step_mem->sdata, ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }
 
@@ -1957,8 +1959,8 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   }
 
   /* other shortcuts */
-  delta_Yi = step_mem->sdata;
-  yn_plus_delta_Yi = ark_mem->tempv1;
+  delta_Yi = ark_mem->tempv1;
+  yn_plus_delta_Yi = ark_mem->tempv2;
 
   /* [ \Delta Q_0 ] = [ 0 ]
      [ \Delta P_0 ] = [ 0 ] */
@@ -1980,28 +1982,30 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
 
     /* evaluate Fi with previous stage increment */
+    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
     retval = arkStep_Fi(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
-                        step_mem->Fi[is], ark_mem->user_data);
+                        step_mem->sdata, ark_mem->user_data);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
     /* update the implicit stage
        [            ] = [                ] + [       ]
        [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ] */
-    N_VLinearSum(ONE, delta_Yi,  ark_mem->h * step_mem->Bi->b[is], step_mem->Fi[is], delta_Yi);
+    N_VLinearSum(ONE, delta_Yi,  ark_mem->h * step_mem->Bi->b[is], step_mem->sdata, delta_Yi);
 
     /* [     ] + [            ]
        [ p_n ] + [ \Delta P_i ] */
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
 
     /* evaluate Fe with the current p_n + \Delta P_i */
+    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
     retval = arkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-                        yn_plus_delta_Yi, step_mem->Fe[is], ark_mem->user_data);
+                        yn_plus_delta_Yi, step_mem->sdata, ark_mem->user_data);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
     /* update the explicit stage
        [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
        [            ] = [                ] + [       ] */
-    N_VLinearSum(ONE, delta_Yi, ark_mem->h * step_mem->Be->b[is], step_mem->Fe[is], delta_Yi);
+    N_VLinearSum(ONE, delta_Yi, ark_mem->h * step_mem->Be->b[is], step_mem->sdata, delta_Yi);
   }
 
   /*
@@ -2010,8 +2014,8 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
      [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
   N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
   N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv2);
-  N_VLinearSum(ONE, ark_mem->tempv2, -ONE, delta_Yi, ark_mem->yerr);
+  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv3);
+  N_VLinearSum(ONE, ark_mem->tempv3, -ONE, delta_Yi, ark_mem->yerr);
 
   *nflagPtr = 0;
   *dsmPtr = 0;
