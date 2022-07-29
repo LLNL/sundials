@@ -15,6 +15,31 @@
 # This script plot data from the vector performance tests
 # -----------------------------------------------------------------------------
 
+def plotting(fig, args, x, y, ax, scale, colorLabel, v):
+    if scale=="linear": 
+        #ax.plot(x, y, colorLabel) 
+        ax.plot(x, y, colorLabel, label=v)
+        ax.grid(True)
+        ax.set_xlabel("Vector Length")
+        ax.set_ylabel("time (sec)")
+    elif scale=="logx":
+        ax.set_xscale('log') #, nonposx='clip')
+        ax.plot(x, y, colorLabel)
+    elif scale=="logy":
+        ax.set_yscale('log') 
+        ax.plot(x, y, colorLabel)
+    elif scale=="loglog":
+        ax.set_xscale('log') 
+        ax.set_yscale('log') 
+        ax.plot(x, y, colorLabel, label=v)
+        ax.legend(loc='upper left')
+        ax.set_xlabel("Vector Length")
+        ax.grid(True)
+        ax.set_ylabel("time (sec)")
+        ax.set_title(f"Average time for {args.operation} vector operation")
+        fig.savefig(args.operation)
+
+
 def main():
 
     import argparse
@@ -83,6 +108,11 @@ def main():
                                  'N_VLinearCombinationVectorArray-3'],
                         help='Which NVector operation to plot')
 
+    parser.add_argument('scale', type=str, default='scale', choices=['linear',
+                                'logx',
+                                'logy',
+                                'loglog'], help="measuring scale")
+
     parser.add_argument('datafiles', type=str, nargs='+',
                         help='Data files to plot')
 
@@ -95,8 +125,11 @@ def main():
     if args.debug > 0:
         print(args)
 
+    scale = args.scale
+    
     # check that data files exist
     for f in args.datafiles:
+        print("file name is ", args.datafiles);
         if not os.path.isfile(f):
             print(f"ERROR: {f} does not exist")
             sys.exit()
@@ -175,6 +208,7 @@ def main():
     # plot data for each vector type
     fig, ax = plt.subplots()
 
+    colorIndex=1 
     for v in vectors:
 
         # extract vector data
@@ -188,11 +222,15 @@ def main():
         # sort data by x values
         x, y = (list(i) for i in zip(*sorted(zip(x, y))))
 
+        
         if args.debug > 0:
             print(x)
             print(y)
 
-        ax.plot(x, y, label=v)
+    	# call the plotting function 
+        color = ["-k", "-b", "-g", "-c", "-m", "-y"] 
+        colorIndex+=1 if colorIndex%len(color)!=0 else 0
+        plotting(fig, args, x, y, ax, scale, color[colorIndex], v)
 
     plt.show()
 
