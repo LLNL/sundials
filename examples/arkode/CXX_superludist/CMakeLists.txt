@@ -39,7 +39,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+if(SUPERLUDIST_OpenMP)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 # Specify libraries to link against
 set(ARKODE_LIB sundials_arkode)

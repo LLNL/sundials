@@ -307,6 +307,11 @@ def main():
     add_arg(group, '--openmp', 'SUNDIALS_OPENMP', 'ENABLE_OPENMP', 'OFF',
             'BOOL', 'SUNDIALS OpenMP support')
 
+    add_arg(group, '--openmp-device-works', 'SUNDIALS_OPENMP_DEVICE_WORKS',
+            'OPENMP_DEVICE_WORKS', 'OFF', 'BOOL',
+            'Disable OpenMP Device Support Checks (assume OpenMP 4.5+)')
+
+
     # Pthread
     group = parser.add_argument_group('Pthread Options',
                                       '''Options for enabling
