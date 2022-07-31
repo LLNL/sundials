@@ -15,30 +15,30 @@
 # This script plot data from the vector performance tests
 # -----------------------------------------------------------------------------
 
-def plotting(fig, args, x, y, ax, scale, colorLabel, v):
-    if scale=="linear": 
-        #ax.plot(x, y, colorLabel) 
-        ax.plot(x, y, colorLabel, label=v)
-        ax.grid(True)
-        ax.set_xlabel("Vector Length")
-        ax.set_ylabel("time (sec)")
-    elif scale=="logx":
-        ax.set_xscale('log') #, nonposx='clip')
-        ax.plot(x, y, colorLabel)
-    elif scale=="logy":
-        ax.set_yscale('log') 
-        ax.plot(x, y, colorLabel)
-    elif scale=="loglog":
-        ax.set_xscale('log') 
-        ax.set_yscale('log') 
-        ax.plot(x, y, colorLabel, label=v)
-        ax.legend(loc='upper left')
-        ax.set_xlabel("Vector Length")
-        ax.grid(True)
-        ax.set_ylabel("time (sec)")
-        ax.set_title(f"Average time for {args.operation} vector operation")
-        fig.savefig(args.operation)
 
+# function to plot with different scale options 
+def plotting(fig,args, ax, x, y, scale, v): 
+
+        if scale=="linear":
+            pass
+        elif scale=="logx":
+            ax.set_xscale('log') 
+        elif scale=="logy":
+            ax.set_yscale('log')
+            ax.plot(x, y, colorLabel)
+        elif scale=="loglog":
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+
+        ax.plot(x, y, label=v)
+        ax.legend()
+        ax.set_xlabel("Vector Length")
+        ax.set_ylabel("time (sec)")
+        ax.grid(True)
+        ax.set_ylabel("time (sec)")
+        ax.set_title(f"Average Time for {args.operation} vector operation")
+        fig.savefig(args.operation)
+            
 
 def main():
 
@@ -227,11 +227,10 @@ def main():
             print(x)
             print(y)
 
-    	# call the plotting function 
-        color = ["-k", "-b", "-g", "-c", "-m", "-y"] 
-        colorIndex+=1 if colorIndex%len(color)!=0 else 0
-        plotting(fig, args, x, y, ax, scale, color[colorIndex], v)
-
+    	 	
+    	#call the plotting function 
+        plotting(fig, args, ax, x, y, scale, v) 
+        
     plt.show()
 
 
