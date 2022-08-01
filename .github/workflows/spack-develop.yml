@@ -2,7 +2,6 @@
 name: spack@develop build and test with GCC+TPLs (no GPUs)
 
 on:
-  pull_request:
   schedule:
   - cron: '00 22 * * *'
 
