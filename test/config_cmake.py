@@ -229,8 +229,6 @@ def main():
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
 
-    # -D USE_GENERIC_MATH="${C90MATH}"
-
     # -----------
     # Interfaces
     # -----------

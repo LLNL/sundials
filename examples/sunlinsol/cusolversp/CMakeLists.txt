@@ -38,7 +38,7 @@ set(SUNDIALS_LIBS sundials_nveccuda
                   sundials_sunmatrixdense
                   sundials_sunmatrixsparse
                   sundials_sunlinsolcusolversp
-                  ${EXTRA_LINK_LIBS})
+                  ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_cusolversp_examples})

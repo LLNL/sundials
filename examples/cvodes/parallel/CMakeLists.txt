@@ -43,7 +43,7 @@ set(CVODES_LIB sundials_cvodes)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
