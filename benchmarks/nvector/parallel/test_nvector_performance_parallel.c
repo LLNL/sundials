@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   if (flag) return flag;
 
   if (myid == 0)
-    printf("\nFinished Tests HelloWorld\n");
+    printf("\nFinished Tests\n");
 
   MPI_Finalize();
 

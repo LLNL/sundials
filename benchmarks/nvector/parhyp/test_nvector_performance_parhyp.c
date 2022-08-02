@@ -39,9 +39,9 @@ static realtype* data;  /* host data   */
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  N_Vector X;          /* test vector        */
-  SUNContext   ctx = NULL;  /* SUNDIALS context */ 
-  sunindextype veclen; /* vector length      */
+  N_Vector     X   = NULL; /* test vector      */
+  SUNContext   ctx = NULL; /* SUNDIALS context */
+  sunindextype veclen;     /* vector length    */
 
   HYPRE_ParVector Xhyp;    /* hypre parallel vector */
   HYPRE_Int *partitioning; /* vector partitioning   */
@@ -55,9 +55,6 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;          /* MPI Communicator   */
   int      nprocs, myid;  /* Num procs, proc id */
-
-  printf("\nStart Tests\n");
-  printf("Vector Name: ParHyp\n");
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -105,7 +102,14 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[6]);
   SetTiming(print_timing, myid);
 
-  if (myid == 0) {
+  if (myid == 0)
+  {
+    printf("\nStart Tests\n");
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+    printf("Vector Name: ParHyp\n");
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+    printf("Vector Name: ParHyp+CUDA\n");
+#endif
     printf("\nRunning with: \n");
     printf("  local vector length   %ld \n", (long int) veclen);
     printf("  max number of vectors %d  \n", nvecs);
@@ -114,6 +118,9 @@ int main(int argc, char *argv[])
     printf("  timing on/off         %d  \n", print_timing);
     printf("  number of MPI procs   %d  \n", nprocs);
   }
+
+  flag = SUNContext_Create(&comm, &ctx);
+  if (flag) return flag;
 
   /* set partitioning */
   if(HYPRE_AssumedPartitionCheck()) {
@@ -133,11 +140,8 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorInitialize(Xhyp);
 
   /* Create vectors */
-    //X = N_VMake_ParHyp(Xhyp);
-  flag = SUNContext_Create(&comm, &ctx);
-  X = N_VMake_ParHyp(Xhyp,ctx); 
-    
-   // X = N_VMake_ParHyp(Xhyp,X); 
+  X = N_VMake_ParHyp(Xhyp, ctx);
+
   /* run tests */
   if (myid == 0 && print_timing) {
     printf("\n\n standard operations:\n");
@@ -195,13 +199,13 @@ int main(int argc, char *argv[])
   N_VDestroy(X);
   HYPRE_ParVectorDestroy(Xhyp);
 
-  FinalizeClearCache(); 
+  FinalizeClearCache();
 
   flag = SUNContext_Free(&ctx);
-  if (flag) return flag;  
+  if (flag) return flag;
 
   if (myid == 0)
-    printf("\nFinished Tests HelloWWorld\n");
+    printf("\nFinished Tests\n");
 
   MPI_Finalize();
 
