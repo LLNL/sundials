@@ -30,18 +30,57 @@ static int InitializeClearCache(int cachesize);
 static int FinalizeClearCache();
 
 /* private data for clearing cache */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 static sunindextype N;  /* data length */
 static realtype* data;  /* host data   */
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+static realtype* Tdata;
+static sunindextype N;    /* data length */
+static realtype* h_data;  /* host data   */
+static realtype* h_sum;   /* host sum    */
+static realtype* d_data;  /* device data */
+static realtype* d_sum;   /* device sum  */
+static int blocksPerGrid;
 
+/* cuda reduction kernel to clearing cache between tests */
+__global__
+void ClearCacheKernel(sunindextype N, realtype* data, realtype* out)
+{
+  __shared__ realtype shared[256];
+
+  int sharedidx = blockIdx.x;
+  int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+  realtype tmp = 0;
+  while (tid < N) {
+    tmp += data[tid];
+    tid += blockDim.x * gridDim.x;
+  }
+  shared[sharedidx] = tmp;
+  __syncthreads();
+
+  /* assues blockDim is a power of 2 */
+  int i = blockDim.x/2;
+  while (i != 0) {
+    if (sharedidx < i)
+      shared[sharedidx] += shared[sharedidx + i];
+    __syncthreads();
+    i /= 2;
+  }
+
+  if (sharedidx == 0)
+    out[sharedidx] = shared[0];
+}
+#endif
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  N_Vector X;          /* test vector        */
-  SUNContext   ctx = NULL;  /* SUNDIALS context */ 
-  sunindextype veclen; /* vector length      */
+  N_Vector     X   = NULL; /* test vector      */
+  SUNContext   ctx = NULL; /* SUNDIALS context */
+  sunindextype veclen;     /* vector length    */
 
   HYPRE_ParVector Xhyp;    /* hypre parallel vector */
   HYPRE_Int *partitioning; /* vector partitioning   */
@@ -55,9 +94,6 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;          /* MPI Communicator   */
   int      nprocs, myid;  /* Num procs, proc id */
-
-  printf("\nStart Tests\n");
-  printf("Vector Name: ParHyp\n");
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -80,15 +116,13 @@ int main(int argc, char *argv[])
   }
 
   nvecs = (int) atol(argv[2]);
-  if (nvecs <= 0) {
-    printf("ERROR: number of vectors must be a positive integer \n");
-    return(-1);
+  if (nvecs < 1) {
+    printf("WARNING: Fused operation test disabled\n");
   }
 
   nsums = (int) atol(argv[3]);
-  if (nsums <= 0) {
-    printf("ERROR: number of sums must be a positive integer \n");
-    return(-1);
+  if (nsums < 1) {
+    printf("WARNING: Some fused operation tests disabled\n");
   }
 
   ntests = (int) atol(argv[4]);
@@ -107,7 +141,21 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[6]);
   SetTiming(print_timing, myid);
 
-  if (myid == 0) {
+  Tdata = NULL;
+  Tdata = (realtype*) malloc(veclen * sizeof(realtype));
+  if (!Tdata) {
+    printf("ERROR: malloc failed\n");
+    return(-1);
+  }
+
+  if (myid == 0)
+  {
+    printf("\nStart Tests\n");
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+    printf("Vector Name: ParHyp\n");
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+    printf("Vector Name: ParHyp+CUDA\n");
+#endif
     printf("\nRunning with: \n");
     printf("  local vector length   %ld \n", (long int) veclen);
     printf("  max number of vectors %d  \n", nvecs);
@@ -116,6 +164,9 @@ int main(int argc, char *argv[])
     printf("  timing on/off         %d  \n", print_timing);
     printf("  number of MPI procs   %d  \n", nprocs);
   }
+
+  flag = SUNContext_Create(&comm, &ctx);
+  if (flag) return flag;
 
   /* set partitioning */
   if(HYPRE_AssumedPartitionCheck()) {
@@ -135,11 +186,8 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorInitialize(Xhyp);
 
   /* Create vectors */
-    //X = N_VMake_ParHyp(Xhyp);
-  flag = SUNContext_Create(&comm, &ctx);
-  X = N_VMake_ParHyp(Xhyp,ctx); 
-    
-   // X = N_VMake_ParHyp(Xhyp,X); 
+  X = N_VMake_ParHyp(Xhyp, ctx);
+
   /* run tests */
   if (myid == 0 && print_timing) {
     printf("\n\n standard operations:\n");
@@ -165,37 +213,47 @@ int main(int argc, char *argv[])
   flag = Test_N_VConstrMask(X, veclen, ntests);
   flag = Test_N_VMinQuotient(X, veclen, ntests);
 
-//  if (myid == 0 && print_timing) {
-//    printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
- //   PrintTableHeader(2);
- // }
-  //flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
-  //flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
-  //flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
-  //flag = Test_N_VLinearSumVectorArray(X, veclen, nvecs, ntests);
-  //flag = Test_N_VScaleVectorArray(X, veclen, nvecs, ntests);
-  //flag = Test_N_VConstVectorArray(X, veclen, nvecs, ntests);
-  //flag = Test_N_VWrmsNormVectorArray(X, veclen, nvecs, ntests);
-  //flag = Test_N_VWrmsNormMaskVectorArray(X, veclen, nvecs, ntests);
+  if (nvecs > 0)
+  {
+    if (myid == 0 && print_timing)
+    {
+      printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
+      PrintTableHeader(2);
+    }
+    flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
+    flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
+    flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
+    flag = Test_N_VLinearSumVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VScaleVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VConstVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VWrmsNormVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VWrmsNormMaskVectorArray(X, veclen, nvecs, ntests);
 
-  //if (myid == 0 && print_timing) {
-  //  printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
-  //  PrintTableHeader(2);
-  //}
-  //flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
-  //flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
-// 
+    if (nsums > 0)
+    {
+      if (myid == 0 && print_timing)
+      {
+        printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
+        PrintTableHeader(2);
+      }
+      flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
+      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
+    }
+  }
+
   /* Free vectors */
   N_VDestroy(X);
   HYPRE_ParVectorDestroy(Xhyp);
 
-  FinalizeClearCache(); 
+  FinalizeClearCache();
 
   flag = SUNContext_Free(&ctx);
-  if (flag) return flag;  
+  if (flag) return flag;
 
   if (myid == 0)
-    printf("\nFinished Tests HelloWWorld\n");
+    printf("\nFinished Tests\n");
+
+  free(Tdata);
 
   MPI_Finalize();
 
@@ -215,7 +273,14 @@ void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   rand_realtype(Xdata, Xlen, lower, upper);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  rand_realtype(Tdata, Xlen, lower, upper);
+  cudaMemcpy(Xdata, Tdata,
+             Xlen * sizeof(realtype),
+             cudaMemcpyHostToDevice);
+#endif
 }
 
 /* series of 0 and 1 */
@@ -226,7 +291,14 @@ void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   rand_realtype_zero_one(Xdata, Xlen);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  rand_realtype_zero_one(Tdata, Xlen);
+  cudaMemcpy(Xdata, Tdata,
+             Xlen * sizeof(realtype),
+             cudaMemcpyHostToDevice);
+#endif
 }
 
 /* random values for constraint array */
@@ -237,7 +309,14 @@ void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   rand_realtype_constraints(Xdata, Xlen);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  rand_realtype_constraints(Tdata, Xlen);
+  cudaMemcpy(Xdata, Tdata,
+             Xlen * sizeof(realtype),
+             cudaMemcpyHostToDevice);
+#endif
 }
 
 
@@ -263,7 +342,9 @@ void collect_times(N_Vector X, double *times, int ntimes)
 
 void sync_device(N_Vector x)
 {
-  /* not running on GPU, just return */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  cudaDeviceSynchronize();
+#endif
   return;
 }
 
@@ -274,6 +355,8 @@ void sync_device(N_Vector x)
 
 static int InitializeClearCache(int cachesize)
 {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   size_t nbytes;  /* cache size in bytes */
 
   /* determine size of vector to clear cache, N = ceil(2 * nbytes/realtype) */
@@ -284,23 +367,97 @@ static int InitializeClearCache(int cachesize)
   data = (realtype*) malloc(N*sizeof(realtype));
   rand_realtype(data, N, RCONST(-1.0), RCONST(1.0));
 
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  cudaError_t err;     /* cuda error flag     */
+  size_t      nbytes;  /* cache size in bytes */
+
+  /* determine size of vector to clear cache, N = ceil(2 * nbytes/realtype) */
+  nbytes = (size_t) (2 * cachesize * 1024 * 1024);
+  N = (sunindextype) ((nbytes + sizeof(realtype) - 1)/sizeof(realtype));
+
+  /* allocate host data */
+  blocksPerGrid = SUNMIN(32,(N+255)/256);
+
+  h_data = (realtype*) malloc(N*sizeof(realtype));
+  h_sum  = (realtype*) malloc(blocksPerGrid*sizeof(realtype));
+
+  /* allocate device data */
+  err = cudaMalloc((void**) &d_data, N*sizeof(realtype));
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to allocate device vector (error code %d )!\n",err);
+    return(-1);
+  }
+
+  err = cudaMalloc((void**) &d_sum, blocksPerGrid*sizeof(realtype));
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to allocate device vector (error code %d )!\n",err);
+    return(-1);
+  }
+
+  /* fill host vector with random data and copy to device */
+  rand_realtype(h_data, N, RCONST(-1.0), RCONST(1.0));
+
+  err = cudaMemcpy(d_data, h_data, N*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to copy data from host to device (error code %d )!\n",err);
+    return(-1);
+  }
+
+#endif
+
   return(0);
 }
 
 static int FinalizeClearCache()
 {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   free(data);
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  cudaError_t err;  /* cuda error flag */
+
+  free(h_data);
+  free(h_sum);
+
+  err = cudaFree(d_data);
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to free device data (error code %d )!\n",err);
+    return(-1);
+  }
+
+  err = cudaFree(d_sum);
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to free device data (error code %d )!\n",err);
+    return(-1);
+  }
+
+#endif
+
   return(0);
 }
 
 void ClearCache()
 {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   realtype     sum;
   sunindextype i;
 
   sum = RCONST(0.0);
   for (i=0; i<N; i++)
     sum += data[i];
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  /* call cuda kernel to clear the cache */
+  ClearCacheKernel<<<SUNMIN(32,(N+255)/256), 256>>>(N, d_data, d_sum);
+  cudaMemcpy(h_sum, d_sum, blocksPerGrid*sizeof(realtype), cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
+
+#endif
 
   return;
 }

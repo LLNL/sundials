@@ -16,6 +16,9 @@
 
 message(STATUS "Added hypre NVECTOR benchmark")
 
+set_source_files_properties(test_nvector_performance_parhyp.c
+         PROPERTIES LANGUAGE CUDA)
+
 sundials_add_nvector_benchmark(nvector_parhyp_benchmark
   SOURCES test_nvector_performance_parhyp.c
   SUNDIALS_TARGETS sundials_nvecparhyp

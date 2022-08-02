@@ -15,31 +15,6 @@
 # This script plot data from the vector performance tests
 # -----------------------------------------------------------------------------
 
-
-# function to plot with different scale options 
-def plotting(fig,args, ax, x, y, scale, v): 
-
-        if scale=="linear":
-            pass
-        elif scale=="logx":
-            ax.set_xscale('log') 
-        elif scale=="logy":
-            ax.set_yscale('log')
-            ax.plot(x, y, colorLabel)
-        elif scale=="loglog":
-            ax.set_xscale('log')
-            ax.set_yscale('log')
-
-        ax.plot(x, y, label=v)
-        ax.legend()
-        ax.set_xlabel("Vector Length")
-        ax.set_ylabel("time (sec)")
-        ax.grid(True)
-        ax.set_ylabel("time (sec)")
-        ax.set_title(f"Average Time for {args.operation} vector operation")
-        fig.savefig(args.operation)
-            
-
 def main():
 
     import argparse
@@ -47,6 +22,7 @@ def main():
     import sys
     import shlex
     import matplotlib.pyplot as plt
+    from matplotlib import container
 
     parser = argparse.ArgumentParser(
         description='Plot data from NVector performance tests')
@@ -108,13 +84,16 @@ def main():
                                  'N_VLinearCombinationVectorArray-3'],
                         help='Which NVector operation to plot')
 
-    parser.add_argument('scale', type=str, default='scale', choices=['linear',
-                                'logx',
-                                'logy',
-                                'loglog'], help="measuring scale")
 
     parser.add_argument('datafiles', type=str, nargs='+',
                         help='Data files to plot')
+
+    parser.add_argument('--scale', type=str, default='loglog',
+                        choices=['linear', 'logx', 'logy', 'loglog'],
+                        help="Axis scaling")
+
+    parser.add_argument('-s', '--save', action='store_true',
+                        help='Save figure to file')
 
     parser.add_argument('-d', '--debug', action='count', default=0,
                         help='Enable debugging output')
@@ -126,10 +105,9 @@ def main():
         print(args)
 
     scale = args.scale
-    
+
     # check that data files exist
     for f in args.datafiles:
-        print("file name is ", args.datafiles);
         if not os.path.isfile(f):
             print(f"ERROR: {f} does not exist")
             sys.exit()
@@ -208,30 +186,61 @@ def main():
     # plot data for each vector type
     fig, ax = plt.subplots()
 
-    colorIndex=1 
+    colorIndex=1
     for v in vectors:
 
         # extract vector data
         x = []
         y = []
+        y_errmin = []
+        y_errmax = []
         for d in tests:
             if v == d["vector"]:
                 x.append(d["length"])
                 y.append(d["avg"])
+                y_errmin.append(d["avg"] - d["min"])
+                y_errmax.append(d["max"] - d["avg"])
 
         # sort data by x values
-        x, y = (list(i) for i in zip(*sorted(zip(x, y))))
+        x, y, y_errmin, y_errmax = \
+        (list(i) for i in zip(*sorted(zip(x, y, y_errmin, y_errmax))))
 
-        
         if args.debug > 0:
             print(x)
             print(y)
 
-    	 	
-    	#call the plotting function 
-        plotting(fig, args, ax, x, y, scale, v) 
-        
-    plt.show()
+        y_error = [y_errmin, y_errmax]
+
+        ax.errorbar(x, y, yerr = y_error, label=v)
+
+    # set axis scaling
+    if scale == "logx":
+        ax.set_xscale('log')
+    elif scale=="logy":
+        ax.set_yscale('log')
+    elif scale=="loglog":
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+
+
+    handles, labels = ax.get_legend_handles_labels()
+    new_handles = []
+    for h in handles:
+        # only need to edit the errorbar legend entries
+        if isinstance(h, container.ErrorbarContainer):
+            new_handles.append(h[0])
+        else:
+            new_handles.append(h)
+
+    ax.legend(new_handles, labels)
+    ax.set_xlabel("Vector Length")
+    ax.set_ylabel("time (sec)")
+    ax.grid(True)
+    ax.set_title(f"Average Time for {args.operation}")
+    if args.save:
+        fig.savefig(f"{args.operation}.pdf")
+    else:
+        plt.show()
 
 
 # =============================================================================
