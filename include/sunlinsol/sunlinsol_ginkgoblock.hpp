@@ -298,10 +298,10 @@ public:
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "end-solve",
-                       "all converged = %d, avg. iter count = %.16g, stddev. iter count = %.16g, max iter count = %d, "
+                       "avg. iter count = %.16g, stddev. iter count = %.16g, max iter count = %d, "
                        "min iter count = %d, max res. norm = %.16g, min res. norm = %.16g, tol = %.16g,"
                        " return code = %d",
-                       at_least_one_did_not_converge, avg_iter_count_, stddev_iter_count_, max_iter_count,
+                       avg_iter_count_, stddev_iter_count_, max_iter_count,
                        min_iter_count, max_res_norm, min_res_norm, tol, retval);
 #endif
 
