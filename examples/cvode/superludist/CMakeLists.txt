@@ -63,13 +63,24 @@ foreach(example_tuple ${CVODE_examples})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
+  if(SUNDIALS_INDEX_SIZE STREQUAL "32")
+    set(integer_precision "15") # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
+    set(float_precision "3")
+  else()
+    set(integer_precision "default")
+    set(float_precision "default")
+  endif()
+
   # add example to regression tests
   sundials_add_test(${example} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_nodes}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}_${SUNDIALS_INDEX_SIZE}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    INTEGER_PRECISION ${integer_precision}
+    FLOAT_PRECISION ${float_precision}
+  )
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
