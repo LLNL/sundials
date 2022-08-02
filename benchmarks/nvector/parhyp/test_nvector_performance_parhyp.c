@@ -273,7 +273,9 @@ void collect_times(N_Vector X, double *times, int ntimes)
 
 void sync_device(N_Vector x)
 {
-  /* not running on GPU, just return */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  cudaDeviceSynchronize();
+#endif
   return;
 }
 
