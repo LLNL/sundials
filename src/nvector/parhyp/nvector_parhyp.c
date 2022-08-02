@@ -73,13 +73,18 @@ typedef struct _N_PrivateVectorContent_ParHyp *N_PrivateVectorContent_ParHyp;
 
 // Macros to access vector content
 #define NV_CONTENT(x)  ((N_VectorContent_ParHyp)(x->content))
+
+
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
 #define NV_MEMHELP(x)  (NV_CONTENT(x)->mem_helper)
 
 // Macros to access vector private content
 #define NV_PRIVATE(x)   ((N_PrivateVectorContent_ParHyp)(NV_CONTENT(x)->priv))
 #define NV_HBUFFERp(x)  ((realtype*) NV_PRIVATE(x)->reduce_buffer_host->ptr)
 #define NV_DBUFFERp(x)  ((realtype*) NV_PRIVATE(x)->reduce_buffer_dev->ptr)
-
+#endif 
 
 /*
  * -----------------------------------------------------------------
@@ -158,6 +163,22 @@ typedef struct _N_PrivateVectorContent_ParHyp *N_PrivateVectorContent_ParHyp;
 
 #define NV_COMM_PH(v)       ( NV_CONTENT_PH(v)->comm )
 
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+// CUDA configuration helper functions
+
+static size_t CUDAConfigBlockSize()
+{
+   size_t blocksize = 256;
+   return blocksize;
+}
+
+static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
+{
+  return ((N + blocksize - 1) / blocksize);
+}
+
 // Added for Array based vector operations using CUDA
 // Fused operation buffer functions
 
@@ -172,7 +193,7 @@ static int FusedBuffer_Free(N_Vector v);
 static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1); 
 static void FreeReductionBuffer(N_Vector v);
 static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1); 
-
+#endif 
 
 /* Private function prototypes */
 
@@ -189,18 +210,6 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 
-// CUDA configuration helper functions
-
-static size_t CUDAConfigBlockSize()
-{
-   size_t blocksize = 256;
-   return blocksize;
-}
-
-static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
-{
-  return ((N + blocksize - 1) / blocksize);
-}
 
 /*
  * -----------------------------------------------------------------
@@ -305,10 +314,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->global_length = global_length;
   content->comm          = comm;
   content->own_parvector = SUNFALSE;
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   content->mem_helper    = NULL;
   content->priv          = NULL;
 
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   content->priv = malloc(sizeof(_N_PrivateVectorContent_ParHyp));
   if (content->priv == NULL)
   {
@@ -477,10 +486,10 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   content->comm          = NV_COMM_PH(w);
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   content->mem_helper    = NULL;
   content->priv          = NULL;
 
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   content->priv = malloc(sizeof(_N_PrivateVectorContent_ParHyp));
   if (content->priv == NULL)
   {
@@ -541,8 +550,9 @@ N_Vector N_VClone_ParHyp(N_Vector w)
 void N_VDestroy_ParHyp(N_Vector v)
 {
   N_VectorContent_ParHyp vc;
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   N_PrivateVectorContent_ParHyp vcp;
-
+#endif
   if (v == NULL) return;
 
   /* free ops and vector */
@@ -557,6 +567,7 @@ void N_VDestroy_ParHyp(N_Vector v)
     return;
   }
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   /* free private content */
   vcp = (N_PrivateVectorContent_ParHyp) vc->priv;
   if (vcp != NULL)
@@ -566,14 +577,14 @@ void N_VDestroy_ParHyp(N_Vector v)
     free(vcp);
     vc->priv = NULL;
   }
-
+ 
   /* free items in content */
   if (vc->mem_helper)
   {
     SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
   }
-
+#endif
   /* free the hypre parvector if it's owned by the vector wrapper */
   if (NV_OWN_PARVEC_PH(v) && NV_HYPRE_PARVEC_PH(v) != NULL) {
     hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
@@ -3098,6 +3109,8 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
 /* 
  * --------------------------------------------------------------------------
  *                     Fused operations  buffer functions 
@@ -3425,5 +3438,4 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   cudaStreamSynchronize(0); 
   return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
-
-
+#endif
