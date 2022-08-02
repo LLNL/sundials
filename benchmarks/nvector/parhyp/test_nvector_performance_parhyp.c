@@ -30,9 +30,48 @@ static int InitializeClearCache(int cachesize);
 static int FinalizeClearCache();
 
 /* private data for clearing cache */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 static sunindextype N;  /* data length */
 static realtype* data;  /* host data   */
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+static realtype* Tdata;
+static sunindextype N;    /* data length */
+static realtype* h_data;  /* host data   */
+static realtype* h_sum;   /* host sum    */
+static realtype* d_data;  /* device data */
+static realtype* d_sum;   /* device sum  */
+static int blocksPerGrid;
 
+/* cuda reduction kernel to clearing cache between tests */
+__global__
+void ClearCacheKernel(sunindextype N, realtype* data, realtype* out)
+{
+  __shared__ realtype shared[256];
+
+  int sharedidx = blockIdx.x;
+  int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+  realtype tmp = 0;
+  while (tid < N) {
+    tmp += data[tid];
+    tid += blockDim.x * gridDim.x;
+  }
+  shared[sharedidx] = tmp;
+  __syncthreads();
+
+  /* assues blockDim is a power of 2 */
+  int i = blockDim.x/2;
+  while (i != 0) {
+    if (sharedidx < i)
+      shared[sharedidx] += shared[sharedidx + i];
+    __syncthreads();
+    i /= 2;
+  }
+
+  if (sharedidx == 0)
+    out[sharedidx] = shared[0];
+}
+#endif
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -101,6 +140,13 @@ int main(int argc, char *argv[])
 
   print_timing = atoi(argv[6]);
   SetTiming(print_timing, myid);
+
+  Tdata = NULL;
+  Tdata = (realtype*) malloc(veclen * sizeof(realtype));
+  if (!Tdata) {
+    printf("ERROR: malloc failed\n");
+    return(-1);
+  }
 
   if (myid == 0)
   {
@@ -207,6 +253,8 @@ int main(int argc, char *argv[])
   if (myid == 0)
     printf("\nFinished Tests\n");
 
+  free(Tdata);
+
   MPI_Finalize();
 
   return(flag);
@@ -225,7 +273,14 @@ void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   rand_realtype(Xdata, Xlen, lower, upper);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  rand_realtype(Tdata, Xlen, lower, upper);
+  cudaMemcpy(Xdata, Tdata,
+             Xlen * sizeof(realtype),
+             cudaMemcpyHostToDevice);
+#endif
 }
 
 /* series of 0 and 1 */
@@ -236,7 +291,14 @@ void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   rand_realtype_zero_one(Xdata, Xlen);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  rand_realtype_zero_one(Tdata, Xlen);
+  cudaMemcpy(Xdata, Tdata,
+             Xlen * sizeof(realtype),
+             cudaMemcpyHostToDevice);
+#endif
 }
 
 /* random values for constraint array */
@@ -247,7 +309,14 @@ void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   rand_realtype_constraints(Xdata, Xlen);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  rand_realtype_constraints(Tdata, Xlen);
+  cudaMemcpy(Xdata, Tdata,
+             Xlen * sizeof(realtype),
+             cudaMemcpyHostToDevice);
+#endif
 }
 
 
@@ -286,6 +355,8 @@ void sync_device(N_Vector x)
 
 static int InitializeClearCache(int cachesize)
 {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   size_t nbytes;  /* cache size in bytes */
 
   /* determine size of vector to clear cache, N = ceil(2 * nbytes/realtype) */
@@ -296,23 +367,97 @@ static int InitializeClearCache(int cachesize)
   data = (realtype*) malloc(N*sizeof(realtype));
   rand_realtype(data, N, RCONST(-1.0), RCONST(1.0));
 
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  cudaError_t err;     /* cuda error flag     */
+  size_t      nbytes;  /* cache size in bytes */
+
+  /* determine size of vector to clear cache, N = ceil(2 * nbytes/realtype) */
+  nbytes = (size_t) (2 * cachesize * 1024 * 1024);
+  N = (sunindextype) ((nbytes + sizeof(realtype) - 1)/sizeof(realtype));
+
+  /* allocate host data */
+  blocksPerGrid = SUNMIN(32,(N+255)/256);
+
+  h_data = (realtype*) malloc(N*sizeof(realtype));
+  h_sum  = (realtype*) malloc(blocksPerGrid*sizeof(realtype));
+
+  /* allocate device data */
+  err = cudaMalloc((void**) &d_data, N*sizeof(realtype));
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to allocate device vector (error code %d )!\n",err);
+    return(-1);
+  }
+
+  err = cudaMalloc((void**) &d_sum, blocksPerGrid*sizeof(realtype));
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to allocate device vector (error code %d )!\n",err);
+    return(-1);
+  }
+
+  /* fill host vector with random data and copy to device */
+  rand_realtype(h_data, N, RCONST(-1.0), RCONST(1.0));
+
+  err = cudaMemcpy(d_data, h_data, N*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to copy data from host to device (error code %d )!\n",err);
+    return(-1);
+  }
+
+#endif
+
   return(0);
 }
 
 static int FinalizeClearCache()
 {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   free(data);
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  cudaError_t err;  /* cuda error flag */
+
+  free(h_data);
+  free(h_sum);
+
+  err = cudaFree(d_data);
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to free device data (error code %d )!\n",err);
+    return(-1);
+  }
+
+  err = cudaFree(d_sum);
+  if (err != cudaSuccess) {
+    fprintf(stderr,"Failed to free device data (error code %d )!\n",err);
+    return(-1);
+  }
+
+#endif
+
   return(0);
 }
 
 void ClearCache()
 {
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   realtype     sum;
   sunindextype i;
 
   sum = RCONST(0.0);
   for (i=0; i<N; i++)
     sum += data[i];
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  /* call cuda kernel to clear the cache */
+  ClearCacheKernel<<<SUNMIN(32,(N+255)/256), 256>>>(N, d_data, d_sum);
+  cudaMemcpy(h_sum, d_sum, blocksPerGrid*sizeof(realtype), cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
+
+#endif
 
   return;
 }
