@@ -1,7 +1,6 @@
 name: Containers - nightly spack@develop
 
 on:
-  push: #temp
   workflow_dispatch:
   schedule:
   - cron: '30 02 * * *'
