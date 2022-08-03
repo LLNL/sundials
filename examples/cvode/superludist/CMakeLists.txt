@@ -63,13 +63,13 @@ foreach(example_tuple ${CVODE_examples})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  if(SUNDIALS_INDEX_SIZE STREQUAL "32")
-    set(integer_precision "15") # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
-    set(float_precision "3")
-  else()
+  #if(SUNDIALS_INDEX_SIZE STREQUAL "32")
+  #  set(integer_precision "15") # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
+  #  set(float_precision "3")
+  #else()
     set(integer_precision "default")
     set(float_precision "default")
-  endif()
+  #endif()
 
   # add example to regression tests
   sundials_add_test(${example} ${example}
