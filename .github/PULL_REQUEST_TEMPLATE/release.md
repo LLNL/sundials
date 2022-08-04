@@ -39,6 +39,8 @@ This is a list of tasks that need to be done before a SUNDIALS release.
 
 - [ ] Tag the release on main
 
+- [ ] Sync develop with main
+
 - [ ] Update internal web pages for SUNDIALS:
    https://computing-staging.llnl.gov/user
 
