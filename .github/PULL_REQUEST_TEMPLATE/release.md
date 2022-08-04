@@ -45,3 +45,5 @@ This is a list of tasks that need to be done before a SUNDIALS release.
    https://computing-staging.llnl.gov/user
 
 - [ ] After web changes are pushed to production, verify content and functionality of https://computing.llnl.gov/projects/sundials.
+
+- [ ] Add the new release to the SUNDIALS Spack package
