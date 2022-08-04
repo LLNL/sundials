@@ -36,8 +36,8 @@ If any GPU features of SUNDIALS were utilized, please also cite:
   author    = {Balos, Cody J and Gardner, David J and Woodward, Carol S and Reynolds, Daniel R},
   journal   = {Parallel Computing},
   publisher = {Elsevier},
-  volume    = {108},
-  pages     = {102836},
+  year   = {2022},
+  note   = {v5.3.0}
   year      = {2021},
   doi       = {10.1016/j.parco.2021.102836}
 }
@@ -45,8 +45,8 @@ If any GPU features of SUNDIALS were utilized, please also cite:
 
 When using the ARKODE package from SUNDIALS, please also cite:
 
-```bibtex
-@article{reynolds2022arkode,
+  year   = {2022},
+  note   = {v6.3.0}
   title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
   author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
   journal = {arXiv preprint arXiv:2205.14077},
@@ -54,8 +54,8 @@ When using the ARKODE package from SUNDIALS, please also cite:
 }
 ```
 
-We also ask that users cite the documentation for the package and version that
-they are using rather than the combined SUNDIALS online guide:
+  year   = {2022},
+  note   = {v6.3.0}
 
 ```bibtex
 @Misc{arkodeDocumentation,
@@ -63,8 +63,8 @@ they are using rather than the combined SUNDIALS online guide:
   title  = {User Documentation for ARKODE},
   year   = {2022},
   note   = {v5.2.0}
-}
-```
+  year   = {2022},
+  note   = {v6.3.0}
 
 ```bibtex
 @Misc{cvodeDocumentation,
@@ -72,8 +72,8 @@ they are using rather than the combined SUNDIALS online guide:
   title  = {User Documentation for CVODE},
   year   = {2022},
   note   = {v6.2.0}
-}
-```
+  year   = {2022},
+  note   = {v5.3.0}
 
 ```bibtex
 @Misc{cvodesDocumentation,
@@ -81,8 +81,8 @@ they are using rather than the combined SUNDIALS online guide:
   title  = {User Documentation for CVODES},
   year   = {2022},
   note   = {v6.2.0}
-}
-```
+  year   = {2022},
+  note   = {v6.3.0}
 
 ```bibtex
 @Misc{idaDocumentation,
