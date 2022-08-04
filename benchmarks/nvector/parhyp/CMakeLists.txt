@@ -16,8 +16,10 @@
 
 message(STATUS "Added hypre NVECTOR benchmark")
 
+if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
 set_source_files_properties(test_nvector_performance_parhyp.c
          PROPERTIES LANGUAGE CUDA)
+endif()
 
 sundials_add_nvector_benchmark(nvector_parhyp_benchmark
   SOURCES test_nvector_performance_parhyp.c
@@ -25,3 +27,4 @@ sundials_add_nvector_benchmark(nvector_parhyp_benchmark
   LINK_LIBRARIES MPI::MPI_C SUNDIALS::HYPRE
   INSTALL_SUBDIR benchmarks/nvector/parhyp
   )
+

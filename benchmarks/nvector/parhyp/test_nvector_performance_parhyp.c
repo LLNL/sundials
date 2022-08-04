@@ -24,7 +24,7 @@
 #include "test_nvector_performance.h"
 
 #include <mpi.h>
-
+static realtype* Tdata;
 /* private functions */
 static int InitializeClearCache(int cachesize);
 static int FinalizeClearCache();
@@ -34,7 +34,7 @@ static int FinalizeClearCache();
 static sunindextype N;  /* data length */
 static realtype* data;  /* host data   */
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-static realtype* Tdata;
+//static realtype* Tdata;
 static sunindextype N;    /* data length */
 static realtype* h_data;  /* host data   */
 static realtype* h_sum;   /* host sum    */
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
     printf("Vector Name: ParHyp\n");
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-    printf("Vector Name: ParHyp+CUDA\n");
+    printf("Vector Name: ParHyp+CUDA_Unmanaged\n");
 #endif
     printf("\nRunning with: \n");
     printf("  local vector length   %ld \n", (long int) veclen);
