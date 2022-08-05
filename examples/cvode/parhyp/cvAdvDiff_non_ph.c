@@ -68,7 +68,8 @@
 #define XMAX  RCONST(2.0)    /* domain boundary           */
 #define MX    1000             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
+#define RTOL  RCONST(1.0e-4) /* scalar absolute tolerance */
+#define ATOL  RCONST(1.0e-9) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
 #define T1    RCONST(0.5)    /* first output time         */
 #define DTOUT RCONST(0.5)    /* output time increment     */
@@ -211,7 +212,7 @@ int main(int argc, char *argv[])
   cudaMalloc(&z, (local_N + 2) * sizeof(realtype));
 #endif
 
-  reltol = ZERO;  /* Set the tolerances */
+  reltol = RTOL;  /* Set the tolerances */
   abstol = ATOL;
 
   dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
