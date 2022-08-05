@@ -1170,9 +1170,8 @@ realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
   MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  sunindextype N  = NV_LOCLENGTH_PH(x);
   const realtype sum = N_VWSqrSumLocal_ParHyp(x, w);
-  return std::sqrt(sum/N);
+  return std::sqrt(sum/(NV_GLOBLENGTH_PH(x)));
 #endif
 }
 
@@ -1240,9 +1239,8 @@ realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  sunindextype N  = NV_LOCLENGTH_PH(x);
   const realtype sum = N_VWSqrSumMaskLocal_ParHyp(x, w, id);
-  return std::sqrt(sum/N);
+  return std::sqrt(sum/(NV_GLOBLENGTH_PH(x)));
 #endif
 }
 

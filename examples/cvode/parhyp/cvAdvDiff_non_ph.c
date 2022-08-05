@@ -63,7 +63,7 @@
 #define ZERO  RCONST(0.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary           */
-#define MX    100             /* mesh dimension            */
+#define MX    10             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
@@ -191,10 +191,6 @@ int main(int argc, char *argv[])
   nperpe = NEQ/npes;
   nrem = NEQ - npes*nperpe;
   local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
-// earlier z was static array; making it dynamic 
-// make changes to this line after the code works for serial & parallel 
-  HYPRE_Int my_length = local_N;
-
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
 
   /* Allocate hypre vector */
@@ -210,10 +206,10 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)  
-  z =(realtype *) malloc(my_length*sizeof(realtype));
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  z = (realtype *) malloc((local_N + 2) * sizeof(realtype));
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  cudaMalloc(&z, my_length*sizeof(realtype)); 
+  cudaMalloc(&z, (local_N + 2) * sizeof(realtype));
 #endif
 
   reltol = ZERO;  /* Set the tolerances */
@@ -289,7 +285,8 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
   free(data);                 /* Free user data */
-  SUNContext_Free(&sunctx);      /* Free context */
+  cudaFree(z);                /* Free buffer data */
+  SUNContext_Free(&sunctx);   /* Free context */
 
   MPI_Finalize();
 
@@ -433,16 +430,20 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Store local segment of u in the working array z. */
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
+  z[0] = ZERO;
   for (i = 1; i <= my_length; i++)
     z[i] = udata[i - 1];
+  Z[my_length + 1] = ZERO;
+
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-// z and udata are residing on device; write a kernel for copying 
- //printf("\n copyWitinDeviceKernel using CUDA\n");
- size_t blocksize =  CUDAConfigBlockSize();
- size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
- copyWithinDeviceKernel<<<gridsize, blocksize, 0, 0>>>(z, udata, my_length);  
+
+  cudaMemset(z, ZERO, (my_length + 2) * sizeof(realtype));
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
+  copyWithinDeviceKernel<<<gridsize, blocksize, 0, 0>>>(z, udata, my_length);
+
 #endif
- 
 
   /* Pass needed data to processes before and after current process. */
   if (my_pe != 0)
@@ -453,18 +454,11 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   /* Receive needed data from processes before and after current process. */
   if (my_pe != 0)
     MPI_Recv(z, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
-  else
-//    z = ZERO;  // do cudamemset 
-    cudaMemset(z, ZERO, sizeof(realtype));
   if (my_pe != last_pe)
-    MPI_Recv(z+(my_length+1), 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
-             &status);
-  else
-//    z[N + 1] = ZERO;  // do cudamemset i
-//    z+(N+1)=ZERO;
-    cudaMemset(z, ZERO, (my_length+2)*sizeof(realtype));
+    MPI_Recv(z+(my_length+1), 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm, &status);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+
   /* Loop over all grid points in current process. */
   for (i=1; i<=my_length; i++) {
 
