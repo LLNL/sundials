@@ -126,7 +126,7 @@ __global__ void copyWithinDeviceKernel(realtype *z, realtype *udata, int n)
 {
    GRID_STRIDE_XLOOP(int, i, n)
    {
-       z[i+1] = udata[i];
+       z[i] = udata[i];
    }
 }
 
@@ -148,9 +148,9 @@ __global__ void loadDiffAdvTermsKernel(realtype hordc, realtype horac, realtype 
 
    GRID_STRIDE_XLOOP(int, i, my_length)
    {
-      hdiff = hordc*(z[i-1] - RCONST(2.0)*z[i] + z[i+1]);
-      hadv = horac*(z[i+1] - z[i-1]);
-      udotdata[i-1] = hdiff + hadv;
+      hdiff = hordc*(z[i] - RCONST(2.0)*z[i+1] + z[i+2]);
+      hadv = horac*(z[i+2] - z[i]);
+      udotdata[i] = hdiff + hadv;
    }
 }
 #endif 
@@ -314,7 +314,6 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
   cudaMalloc(&iglobal, my_length*sizeof(HYPRE_Int));
 #endif
 
-
   /* Load initial profile into u vector */
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
@@ -323,7 +322,7 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
     x = (iglobal[i] + 1)*dx;
     udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
   }
-  HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
+  Hypre_IJVectorSetValues(Uij, my_length, iglobal, udata);
   free(iglobal);
   free(udata);
 
@@ -332,6 +331,7 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
  size_t blocksize =  CUDAConfigBlockSize();
  size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
  loadingInitialProfileKernel<<<gridsize, blocksize, 0, 0>>>(my_base, iglobal, udata, my_length, dx);  
+ HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
  cudaFree(iglobal);
  cudaFree(udata);   
 #endif 
