@@ -126,7 +126,7 @@ __global__ void copyWithinDeviceKernel(realtype *z, realtype *udata, int n)
 {
    GRID_STRIDE_XLOOP(int, i, n)
    {
-       z[i] = udata[i];
+       z[i+1] = udata[i];
    }
 }
 
@@ -230,12 +230,12 @@ int main(int argc, char *argv[])
 
   u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
   if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-
+  
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
-
+  
   retval = CVodeSetUserData(cvode_mem, data);
   if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
@@ -257,7 +257,6 @@ int main(int argc, char *argv[])
   /* attach nonlinear solver object to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
   if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) return(1);
-
   if (my_pe == 0) PrintIntro(npes);
 
   umax = N_VMaxNorm(u);
@@ -268,8 +267,8 @@ int main(int argc, char *argv[])
   }
 
   /* In loop over output points, call CVode, print results, test for error */
-
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+    //printf("Checking for error");
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_retval(&retval, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
@@ -277,8 +276,8 @@ int main(int argc, char *argv[])
     check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
     if (my_pe == 0) PrintData(t, umax, nst);
   }
-
-  if (my_pe == 0)
+ 
+ if (my_pe == 0)
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
   N_VDestroy(u);              /* Free hypre vector wrapper */
