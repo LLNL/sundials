@@ -46,9 +46,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#include <cuda_runtime.h>
-#endif
 #include <cvode/cvode.h>                          /* prototypes for CVODE fcts.                   */
 #include <sundials/sundials_types.h>              /* definition of realtype                       */
 #include <sundials/sundials_math.h>               /* definition of EXP                            */
@@ -60,42 +57,22 @@
 
 #include <mpi.h>                      /* MPI constants and types */
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#include <cuda_runtime.h>
+#endif
+
 /* Problem Constants */
 
 #define ZERO  RCONST(0.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary           */
-<<<<<<< HEAD
-#define MX    5000             /* mesh dimension            */
-=======
 #define MX    1000             /* mesh dimension            */
->>>>>>> d533df7cc6c7f62c3442388797fc0784d6cd4b68
 #define NEQ   MX             /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
 #define T1    RCONST(0.5)    /* first output time         */
 #define DTOUT RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
-
-
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-static size_t CUDAConfigBlockSize()
-{
-    size_t blocksize = 256;
-    return blocksize;
-}
-static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
-{
-     return ((N + blocksize - 1) / blocksize);
-}
-
-#endif 
-
-#define GRID_STRIDE_XLOOP(type, iter, max)  \
-  for (type iter = blockDim.x * blockIdx.x + threadIdx.x; \
-       iter < max; \
-       iter += blockDim.x * gridDim.x)
 
 /* Type : UserData
    contains grid constants, parhyp machine parameters, work array. */
@@ -104,7 +81,7 @@ typedef struct {
   realtype dx, hdcoef, hacoef;
   int npes, my_pe;
   MPI_Comm comm;
-  realtype *z;
+  realtype* z;
 } *UserData;
 
 /* Private Helper Functions */
@@ -126,40 +103,56 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
-// CUDA configuration helper functions
+// CUDA helper functions and kernles
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+static size_t CUDAConfigBlockSize()
+{
+  size_t blocksize = 256;
+  return blocksize;
+}
+
+static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
+{
+  return ((N + blocksize - 1) / blocksize);
+}
+
+#define GRID_STRIDE_XLOOP(type, iter, max)                      \
+  for (type iter = blockDim.x * blockIdx.x + threadIdx.x;       \
+       iter < max;                                              \
+       iter += blockDim.x * gridDim.x)
+
 __global__ void copyWithinDeviceKernel(realtype *z, realtype *udata, int n)
 {
-   GRID_STRIDE_XLOOP(int, i, n)
-   {
-       z[i+1] = udata[i];
-   }
+  GRID_STRIDE_XLOOP(int, i, n)
+  {
+    z[i+1] = udata[i];
+  }
 }
 
 __global__ void loadingInitialProfileKernel(sunindextype my_base, HYPRE_Int *iglobal, realtype *udata,
-                                            sunindextype my_length, realtype dx) 
-                                           {
-   realtype x;
-   GRID_STRIDE_XLOOP(int, i, my_length)
-   {
-       iglobal[i] = my_base + i;
-       x=(iglobal[i] + 1)*dx;
-       udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
-   }
+                                            sunindextype my_length, realtype dx)
+{
+  realtype x;
+  GRID_STRIDE_XLOOP(int, i, my_length)
+  {
+    iglobal[i] = my_base + i;
+    x=(iglobal[i] + 1)*dx;
+    udata[i] = x*(XMAX - x)*SUNRexp(RCONST(4.0) * x / XMAX );
+  }
 }
 
 __global__ void loadDiffAdvTermsKernel(realtype hordc, realtype horac, realtype *udotdata, realtype *z, sunindextype my_length)
 {
-      realtype hdiff, hadv;	
+  realtype hdiff, hadv;
 
-   GRID_STRIDE_XLOOP(int, i, my_length)
-   {
-      hdiff = hordc*(z[i] - RCONST(2.0)*z[i+1] + z[i+2]);
-      hadv = horac*(z[i+2] - z[i]);
-      udotdata[i] = hdiff + hadv;
-   }
+  GRID_STRIDE_XLOOP(int, i, my_length)
+  {
+    hdiff = hordc*(z[i] - RCONST(2.0)*z[i+1] + z[i+2]);
+    hadv = horac*(z[i+2] - z[i]);
+    udotdata[i] = hdiff + hadv;
+  }
 }
-#endif 
+#endif
 
 /***************************** Main Program ******************************/
 
@@ -224,7 +217,8 @@ int main(int argc, char *argv[])
   dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
   data->hdcoef = RCONST(1.0)/(dx*dx);
   data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
-  data->z=z;
+  data->z = z;
+
   /* Initialize solution vector. */
   SetIC(Uij, dx, local_N, my_base);
   HYPRE_IJVectorAssemble(Uij);
@@ -232,12 +226,12 @@ int main(int argc, char *argv[])
 
   u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
   if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
-  
+
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
-  
+
   retval = CVodeSetUserData(cvode_mem, data);
   if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
@@ -245,17 +239,16 @@ int main(int argc, char *argv[])
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-<<<<<<< HEAD
-  CVodeSetMaxNumSteps(cvode_mem, 10000000000); 
-=======
   CVodeSetMaxNumSteps(cvode_mem, 1000000); 
->>>>>>> d533df7cc6c7f62c3442388797fc0784d6cd4b68
   if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
+
+  retval = CVodeSetMaxNumSteps(cvode_mem, 100000);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1, my_pe)) return(1);
 
   /* create fixed point nonlinear solver object */
   NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
@@ -275,21 +268,31 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call CVode, print results, test for error */
   double tic, toc;
-  double totaltime = 0.0; 
-  for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+  double totaltime = 0.0;
+
+  for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT)
+  {
     tic = MPI_Wtime(); /* start timer */
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     toc = MPI_Wtime(); /* stop timer */
     totaltime += (toc - tic); /* update total time */
+
     if(check_retval(&retval, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
     if (my_pe == 0) PrintData(t, umax, nst);
   }
- printf("total time = %g", totaltime);
- if (my_pe == 0)
+
+  /* Get the max time across processes */
+  double maxtime = 0.0;
+  MPI_Reduce(&(totaltime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+
+  if (my_pe == 0)
+  {
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
+    printf("total time = %g\n", totaltime);
+  }
 
   N_VDestroy(u);              /* Free hypre vector wrapper */
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
@@ -320,11 +323,11 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
 
   /* Set pointer to data array and get local length of u. */
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  udata   = (realtype*) malloc(my_length*sizeof(realtype));
-  iglobal = (HYPRE_Int*) malloc(my_length*sizeof(HYPRE_Int));
+  udata   = (realtype*) malloc(my_length * sizeof(realtype));
+  iglobal = (HYPRE_Int*) malloc(my_length * sizeof(HYPRE_Int));
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  cudaMalloc(&udata, my_length*sizeof(realtype)); 
-  cudaMalloc(&iglobal, my_length*sizeof(HYPRE_Int));
+  cudaMalloc(&udata, my_length * sizeof(realtype));
+  cudaMalloc(&iglobal, my_length * sizeof(HYPRE_Int));
 #endif
 
   /* Load initial profile into u vector */
@@ -340,14 +343,16 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
   free(udata);
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-// printf("\n loadingInitialProfileKernel using CUDA\n");
- size_t blocksize =  CUDAConfigBlockSize();
- size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
- loadingInitialProfileKernel<<<gridsize, blocksize, 0, 0>>>(my_base, iglobal, udata, my_length, dx);  
- HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
- cudaFree(iglobal);
- cudaFree(udata);   
-#endif 
+  // printf("\n loadingInitialProfileKernel using CUDA\n");
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
+  loadingInitialProfileKernel<<<gridsize, blocksize, 0, 0>>>(my_base, iglobal,
+                                                             udata, my_length,
+                                                             dx);
+  HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
+  cudaFree(iglobal);
+  cudaFree(udata);
+#endif
 }
 
 /* Print problem introduction */
@@ -406,10 +411,9 @@ static void PrintFinalStats(void *cvode_mem)
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *udotdata, *z; 
-
-  int i, my_length;
-  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
+  realtype *udata, *udotdata, *z;
+  int i;
+  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -434,8 +438,9 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   npes = data->npes;                           /* Number of processes    */
   my_pe = data->my_pe;                         /* Current process number */
   my_length =  hypre_ParVectorLastIndex(uhyp)  /* Local length of uhyp   */
-             - hypre_ParVectorFirstIndex(uhyp) + 1;
-  z = data->z;   
+    - hypre_ParVectorFirstIndex(uhyp) + 1;
+  z = data->z;
+
   /* Compute related parameters. */
   my_pe_m1 = my_pe - 1;
   my_pe_p1 = my_pe + 1;
@@ -485,12 +490,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     hadv = horac*(urt - ult);
     udotdata[i-1] = hdiff + hadv;
   }
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)	
-// printf("loadDiffAdvTermsKernel using CUDA\n");
- blocksize =  CUDAConfigBlockSize();
- gridsize = CUDAConfigGridSize(my_length, blocksize);
- loadDiffAdvTermsKernel<<<gridsize, blocksize, 0, 0>>>(hordc, horac, udotdata, z, my_length);  
-#endif  
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  blocksize = CUDAConfigBlockSize();
+  gridsize = CUDAConfigGridSize(my_length, blocksize);
+  loadDiffAdvTermsKernel<<<gridsize, blocksize, 0, 0>>>(hordc, horac, udotdata,
+                                                        z, my_length);
+
+#endif
+
   return(0);
 }
 
