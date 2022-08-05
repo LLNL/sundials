@@ -63,7 +63,7 @@
 #define ZERO  RCONST(0.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary           */
-#define MX    10             /* mesh dimension            */
+#define MX    100             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
@@ -267,16 +267,20 @@ int main(int argc, char *argv[])
   }
 
   /* In loop over output points, call CVode, print results, test for error */
+  double tic, toc;
+  double totaltime = 0.0; 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    //printf("Checking for error");
+    tic = MPI_Wtime(); /* start timer */
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    toc = MPI_Wtime(); /* stop timer */
+    totaltime += (toc - tic); /* update total time */
     if(check_retval(&retval, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
     if (my_pe == 0) PrintData(t, umax, nst);
   }
- 
+ printf("total time = %g", totaltime);
  if (my_pe == 0)
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
