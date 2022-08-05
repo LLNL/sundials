@@ -46,7 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
+#include <cuda_runtime.h>
 #include <cvode/cvode.h>                          /* prototypes for CVODE fcts.                   */
 #include <sundials/sundials_types.h>              /* definition of realtype                       */
 #include <sundials/sundials_math.h>               /* definition of EXP                            */
@@ -71,6 +71,26 @@
 #define DTOUT RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
+
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+static size_t CUDAConfigBlockSize()
+{
+    size_t blocksize = 256;
+    return blocksize;
+}
+static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
+{
+     return ((N + blocksize - 1) / blocksize);
+}
+
+#endif 
+
+#define GRID_STRIDE_XLOOP(type, iter, max)  \
+  for (type iter = blockDim.x * blockIdx.x + threadIdx.x; \
+       iter < max; \
+       iter += blockDim.x * gridDim.x)
+
 /* Type : UserData
    contains grid constants, parhyp machine parameters, work array. */
 
@@ -78,7 +98,7 @@ typedef struct {
   realtype dx, hdcoef, hacoef;
   int npes, my_pe;
   MPI_Comm comm;
-  realtype z[100];
+  realtype *z;
 } *UserData;
 
 /* Private Helper Functions */
@@ -100,11 +120,46 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
+// CUDA configuration helper functions
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+__global__ void copyWithinDeviceKernel(realtype *z, realtype *udata, int n)
+{
+   GRID_STRIDE_XLOOP(int, i, n)
+   {
+       z[i+1] = udata[i];
+   }
+}
+
+__global__ void loadingInitialProfileKernel(sunindextype my_base, HYPRE_Int *iglobal, realtype *udata,
+                                            sunindextype my_length, realtype dx) 
+                                           {
+   realtype x;
+   GRID_STRIDE_XLOOP(int, i, my_length)
+   {
+       iglobal[i] = my_base + i;
+       x=(iglobal[i] + 1)*dx;
+       udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
+   }
+}
+
+__global__ void loadDiffAdvTermsKernel(realtype hordc, realtype horac, realtype *udotdata, realtype *z, sunindextype my_length)
+{
+      realtype hdiff, hadv;	
+
+   GRID_STRIDE_XLOOP(int, i, my_length)
+   {
+      hdiff = hordc*(z[i-1] - RCONST(2.0)*z[i] + z[i+1]);
+      hadv = horac*(z[i+1] - z[i-1]);
+      udotdata[i-1] = hdiff + hadv;
+   }
+}
+#endif 
+
 /***************************** Main Program ******************************/
 
 int main(int argc, char *argv[])
 {
-  realtype dx, reltol, abstol, t, tout, umax;
+  realtype dx, reltol, abstol, t, tout, umax, *z;
   N_Vector u;
   UserData data;
   void *cvode_mem;
@@ -136,6 +191,10 @@ int main(int argc, char *argv[])
   nperpe = NEQ/npes;
   nrem = NEQ - npes*nperpe;
   local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
+// earlier z was static array; making it dynamic 
+// make changes to this line after the code works for serial & parallel 
+  HYPRE_Int my_length = local_N;
+
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
 
   /* Allocate hypre vector */
@@ -151,13 +210,19 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)  
+  z =(realtype *) malloc(my_length*sizeof(realtype));
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  cudaMalloc(&z, my_length*sizeof(realtype)); 
+#endif
+
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
   dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
   data->hdcoef = RCONST(1.0)/(dx*dx);
   data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
-
+  data->z=z;
   /* Initialize solution vector. */
   SetIC(Uij, dx, local_N, my_base);
   HYPRE_IJVectorAssemble(Uij);
@@ -241,10 +306,18 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   udata   = (realtype*) malloc(my_length*sizeof(realtype));
   iglobal = (HYPRE_Int*) malloc(my_length*sizeof(HYPRE_Int));
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  cudaMalloc(&udata, my_length*sizeof(realtype)); 
+  cudaMalloc(&iglobal, my_length*sizeof(HYPRE_Int));
+#endif
+
 
   /* Load initial profile into u vector */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < my_length; i++) {
     iglobal[i] = my_base + i;
     x = (iglobal[i] + 1)*dx;
@@ -253,6 +326,15 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
   HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
   free(iglobal);
   free(udata);
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+// printf("\n loadingInitialProfileKernel using CUDA\n");
+ size_t blocksize =  CUDAConfigBlockSize();
+ size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
+ loadingInitialProfileKernel<<<gridsize, blocksize, 0, 0>>>(my_base, iglobal, udata, my_length, dx);  
+ cudaFree(iglobal);
+ cudaFree(udata);   
+#endif 
 }
 
 /* Print problem introduction */
@@ -311,9 +393,10 @@ static void PrintFinalStats(void *cvode_mem)
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *udotdata, *z;
-  int i;
-  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
+  realtype *udata, *udotdata, *z; 
+
+  int i, my_length;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -339,34 +422,46 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   my_pe = data->my_pe;                         /* Current process number */
   my_length =  hypre_ParVectorLastIndex(uhyp)  /* Local length of uhyp   */
              - hypre_ParVectorFirstIndex(uhyp) + 1;
-  z = data->z;
-
+  z = data->z;   
   /* Compute related parameters. */
   my_pe_m1 = my_pe - 1;
   my_pe_p1 = my_pe + 1;
   last_pe = npes - 1;
 
   /* Store local segment of u in the working array z. */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 1; i <= my_length; i++)
     z[i] = udata[i - 1];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+// z and udata are residing on device; write a kernel for copying 
+ //printf("\n copyWitinDeviceKernel using CUDA\n");
+ size_t blocksize =  CUDAConfigBlockSize();
+ size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
+ copyWithinDeviceKernel<<<gridsize, blocksize, 0, 0>>>(z, udata, my_length);  
+#endif
+ 
 
   /* Pass needed data to processes before and after current process. */
   if (my_pe != 0)
-    MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
+    MPI_Send(z+1, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
   if (my_pe != last_pe)
-    MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
+    MPI_Send(z+my_length, 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
 
   /* Receive needed data from processes before and after current process. */
   if (my_pe != 0)
-    MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
+    MPI_Recv(z, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
   else
-    z[0] = ZERO;
+//    z = ZERO;  // do cudamemset 
+    cudaMemset(z, ZERO, sizeof(realtype));
   if (my_pe != last_pe)
-    MPI_Recv(&z[my_length+1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
+    MPI_Recv(z+(my_length+1), 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
              &status);
   else
-    z[my_length + 1] = ZERO;
+//    z[N + 1] = ZERO;  // do cudamemset i
+//    z+(N+1)=ZERO;
+    cudaMemset(z, ZERO, (my_length+2)*sizeof(realtype));
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   /* Loop over all grid points in current process. */
   for (i=1; i<=my_length; i++) {
 
@@ -380,7 +475,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     hadv = horac*(urt - ult);
     udotdata[i-1] = hdiff + hadv;
   }
-
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)	
+// printf("loadDiffAdvTermsKernel using CUDA\n");
+ blocksize =  CUDAConfigBlockSize();
+ gridsize = CUDAConfigGridSize(my_length, blocksize);
+ loadDiffAdvTermsKernel<<<gridsize, blocksize, 0, 0>>>(hordc, horac, udotdata, z, my_length);  
+#endif  
   return(0);
 }
 
