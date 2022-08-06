@@ -87,8 +87,6 @@ typedef struct {
 static void SetIC(HYPRE_IJVector Uij, realtype XMAX, realtype dx,
                   sunindextype my_length, sunindextype my_base);
 
-static void PrintIntro(int npes, sunindextype MX);
-
 static void PrintData(realtype t, realtype umax, long int nst);
 
 /* Functions Called by the Solver */
@@ -166,11 +164,11 @@ int main(int argc, char *argv[])
   SUNNonlinearSolver NLS;
   SUNContext sunctx;
 
-  sunindextype MX  = 10;
-  realtype XMAX    = 2;
-  realtype dcoef   = RCONST(1.0);
-  realtype acoef   = RCONST(0.5);
-  int print_status = 1;
+  sunindextype MX  = 10;          /* mesh points (number of equations) */
+  realtype XMAX    = 2;           /* domain boundary                   */
+  realtype dcoef   = RCONST(1.0); /* diffusion coefficient D           */
+  realtype acoef   = RCONST(0.5); /* advection coefficient c           */
+  int print_status = 1;           /* integration status                */
 
   MPI_Comm comm;
 
@@ -184,14 +182,24 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
 
-  /* domain boundary */
-  /* mesh dimension (number of equations) */
-  /* print integration status */
+  /* Get input options */
   if (argc > 1) MX = atoi(argv[1]);
   if (argc > 2) XMAX = atof(argv[2]);
   if (argc > 3) dcoef = atof(argv[3]);
   if (argc > 4) acoef = atof(argv[4]);
   if (argc > 5) print_status = atoi(argv[5]);
+
+  /* Print problem introduction */
+  if (my_pe == 0)
+  {
+    printf("1-D advection-diffusion equation\n");
+    printf("  MPI tasks       = %d\n", npes);
+    printf("  mesh size       = %d\n", MX);
+    printf("  domain size     = %g\n", XMAX);
+    printf("  diffusion coeff = %g\n", dcoef);
+    printf("  advection coeff = %g\n", acoef);
+    printf("  print status    = %d\n", print_status);
+  }
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(&comm, &sunctx);
@@ -250,7 +258,7 @@ int main(int argc, char *argv[])
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  CVodeSetMaxNumSteps(cvode_mem, 1000000); 
+  CVodeSetMaxNumSteps(cvode_mem, 1000000);
   if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
@@ -272,8 +280,6 @@ int main(int argc, char *argv[])
 
   retval = CVodeSetMaxNonlinIters(cvode_mem, 10);
   if(check_retval(&retval, "CVodeSetMaxNonlinIters", 1, my_pe)) return(1);
-
-  if (my_pe == 0) PrintIntro(npes, MX);
 
   if (print_status)
   {
@@ -380,16 +386,6 @@ static void SetIC(HYPRE_IJVector Uij, realtype XMAX, realtype dx,
   cudaFree(iglobal);
   cudaFree(udata);
 #endif
-}
-
-/* Print problem introduction */
-
-static void PrintIntro(int npes, sunindextype MX)
-{
-  printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
-  printf("\n Number of PEs = %3d \n\n", npes);
-
-  return;
 }
 
 /* Print data */
