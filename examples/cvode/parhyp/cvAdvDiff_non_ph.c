@@ -263,12 +263,15 @@ int main(int argc, char *argv[])
 
 
   /* create fixed point nonlinear solver object */
-  NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
+  NLS = SUNNonlinSol_FixedPoint(u, 9, sunctx);
   if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) return(1);
 
   /* attach nonlinear solver object to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
   if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) return(1);
+
+  retval = CVodeSetMaxNonlinIters(cvode_mem, 10);
+  if(check_retval(&retval, "CVodeSetMaxNonlinIters", 1, my_pe)) return(1);
 
   if (my_pe == 0) PrintIntro(npes, MX);
 
