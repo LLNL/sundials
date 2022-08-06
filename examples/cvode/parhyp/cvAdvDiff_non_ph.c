@@ -322,7 +322,9 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
   free(data);                 /* Free user data */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  free(z);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   cudaFree(z);                /* Free buffer data */
 #endif
   SUNContext_Free(&sunctx);   /* Free context */
