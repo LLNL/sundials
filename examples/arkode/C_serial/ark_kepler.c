@@ -43,8 +43,9 @@
 #include <arkode/arkode_mristep.h>      /* prototypes for MRIStep fcts., consts */
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
-#include <sundials/sundials_math.h>     /* def. math fcns, 'realtype'           */
+#include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
 #include "sundials/sundials_nonlinearsolver.h"
+#include "sundials/sundials_nvector.h"
 #include "sundials/sundials_types.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
@@ -54,13 +55,25 @@ static void InitialConditions(N_Vector y0, sunrealtype ecc);
 static sunrealtype Hamiltonian(N_Vector y);
 static sunrealtype AngularMomentum(N_Vector y);
 
-static int dydt(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int dqdt(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int dpdt(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int dqdt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int dpdt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+
+static sunrealtype Q(N_Vector yvec, sunrealtype alpha);
+static sunrealtype G(N_Vector yvec, sunrealtype alpha);
+static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
+                 sunrealtype h3, sunrealtype e1, sunrealtype e2,
+                 sunrealtype e3, int q, int p, sunrealtype *hnew,
+                 void *user_data);
 
 typedef struct {
   sunrealtype ecc;
   sunrealtype delta;
+
+  /* for time-step control */
+  sunrealtype eps;
+  sunrealtype alpha;
+  sunrealtype rho_n;
 } *UserData;
 
 
@@ -83,12 +96,12 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  // sunrealtype Tf          = SUN_RCONST(0.1);
+  // sunrealtype Tf          = SUN_RCONST(10.0);
   sunrealtype Tf          = SUN_RCONST(100000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
-  const sunrealtype delta = SUN_RCONST(0.015);
-  // const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
+  // const sunrealtype delta = SUN_RCONST(0.015);
+  const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
 
   /* Default integrator Options */
   int fixed_step_mode = 1;
@@ -96,7 +109,6 @@ int main(int argc, char* argv[])
   int order           = 2;
   // const sunrealtype dTout = SUN_RCONST(dt);
   const sunrealtype dTout = SUN_RCONST(100.0);
-  const int num_of_steps = (int) ceil(dTout/dt);
   const int num_output_times = (int) ceil(Tf/dTout);
 
   /* Parse CLI args */
@@ -115,6 +127,9 @@ int main(int argc, char* argv[])
   udata = (UserData) malloc(sizeof(*udata));
   udata->ecc = ecc;
   udata->delta = delta;
+  udata->alpha = SUN_RCONST(3.0)/SUN_RCONST(2.0);
+  udata->eps = dt;
+  udata->rho_n = SUN_RCONST(1.0);
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -229,12 +244,25 @@ int main(int argc, char* argv[])
   retval = ARKStepSetUserData(arkode_mem, (void *) udata);
   if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
-  retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
-
   if (fixed_step_mode) {
     retval = ARKStepSetFixedStep(arkode_mem, dt);
     if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+
+    retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
+    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
+  } else if (method == 0) {
+    retval = ARKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
+    if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+
+    const sunrealtype rho_half = udata->rho_n + udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
+    retval = ARKStepSetInitStep(arkode_mem, udata->eps/rho_half);
+    if (check_retval(&retval, "ARKStepSetInitStep", 1)) return 1;
+
+    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-1), SUN_RCONST(10e-5));
+    if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+
+    // retval = ARKStepSetMaxNumSteps(arkode_mem, 20);
+    // if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
   } else {
     retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
     if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
@@ -278,12 +306,16 @@ int main(int argc, char* argv[])
   fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
   N_VPrintFile(y, solution_fp);
   for (iout = 0; iout < num_output_times; iout++) {
-    // for (int nst = 0; nst < num_of_steps; nst++) {
-    //   retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-    //   if (retval < 0) break;
-    // }
     ARKStepSetStopTime(arkode_mem, tout);
-    retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+    if (method == 0 && fixed_step_mode == 0) {
+      while(tret < tout) {
+        retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
+        // printf(">>> Q(q)/rho_n = %g\n", Q(y, udata->alpha)/udata->rho_n);
+        if (retval < 0) break;
+      }
+    } else {
+      retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+    }
     fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
     fprintf(times_fp, "%.16f\n", tret);
     fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
@@ -333,11 +365,11 @@ sunrealtype Hamiltonian(N_Vector yvec)
   const sunrealtype p1p1_plus_p2p2 = y[2]*y[2] + y[3]*y[3];
 
   // Perturbed
-  H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2
-    - SUN_RCONST(0.005) / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0)) / SUN_RCONST(2.0);
+  // H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2
+    // - SUN_RCONST(0.005) / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0)) / SUN_RCONST(2.0);
 
   // Unperturbed
-  // H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2;
+  H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2;
 
   return H;
 }
@@ -358,7 +390,7 @@ sunrealtype AngularMomentum(N_Vector yvec)
   return L;
 }
 
-int dydt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int dydt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   int retval = 0;
 
@@ -368,7 +400,7 @@ int dydt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   return retval;
 }
 
-int dqdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int dqdt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   sunrealtype* y = N_VGetArrayPointer(yvec);
   sunrealtype* ydot = N_VGetArrayPointer(ydotvec);
@@ -379,12 +411,10 @@ int dqdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   ydot[1] = p2;
   // ydot[2] = ydot[3] = SUN_RCONST(0.0);
 
-  // printf("dqdt(p=[%.16f, %.16f]) = [%.16f, %.16f]\n", p1, p2, ydot[0], ydot[1]);
-
   return 0;
 }
 
-int dpdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int dpdt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   UserData udata = (UserData) user_data;
   sunrealtype* y = N_VGetArrayPointer(yvec);
@@ -400,7 +430,45 @@ int dpdt(realtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   ydot[3] =         - q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))
             - delta * q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(5.0));
 
-  // printf("dpdt(q=[%.16f, %.16f]) = [%.16f, %.16f]\n", q1, q2, ydot[2], ydot[3]);
+  return 0;
+}
+
+sunrealtype G(N_Vector yvec, sunrealtype alpha)
+{
+  sunrealtype* y = N_VGetArrayPointer(yvec);
+  const sunrealtype q1 = y[0];
+  const sunrealtype q2 = y[1];
+  const sunrealtype p1 = y[2];
+  const sunrealtype p2 = y[3];
+
+  const sunrealtype pTq = p1*q1 + p2*q2;
+  const sunrealtype qTq = q1*q1 + q2*q2;
+
+  return (-alpha * pTq / qTq);
+}
+
+sunrealtype Q(N_Vector yvec, sunrealtype alpha)
+{
+  sunrealtype* y = N_VGetArrayPointer(yvec);
+  const sunrealtype q1 = y[0];
+  const sunrealtype q2 = y[1];
+
+  const sunrealtype qTq = q1*q1 + q2*q2;
+
+  return SUNRpowerR(qTq, -alpha/2);
+}
+
+int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
+          sunrealtype h3, sunrealtype e1, sunrealtype e2,
+          sunrealtype e3, int q, int p, sunrealtype *hnew,
+          void *user_data)
+{
+  UserData udata = (UserData) user_data;
+
+  const sunrealtype eps = udata->eps;
+  const sunrealtype rho_nphalf = udata->rho_n + eps*G(y, udata->alpha)/SUN_RCONST(2.0);
+
+  *hnew = eps/rho_nphalf;
 
   return 0;
 }

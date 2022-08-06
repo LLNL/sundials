@@ -1135,11 +1135,11 @@ int arkStep_Init(void* arkode_mem, int init_type)
     }
 
     /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */
-    if (!ark_mem->fixedstep && (step_mem->p == 0)) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
-                      "Adaptive timestepping cannot be performed without embedding coefficients");
-      return(ARK_ILL_INPUT);
-    }
+    // if (!ark_mem->fixedstep && (step_mem->p == 0)) {
+    //   arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
+    //                   "Adaptive timestepping cannot be performed without embedding coefficients");
+    //   return(ARK_ILL_INPUT);
+    // }
 
     /* Allocate ARK RHS vector memory, update storage requirements */
     /*   Allocate Fe[0] ... Fe[stages-1] if needed */
@@ -1218,9 +1218,9 @@ int arkStep_Init(void* arkode_mem, int init_type)
   /*    (only one choice for now) */
   // if (step_mem->separable_rhs) {
     // if (ark_mem->compensated_sums) {
-      ark_mem->step = arkStep_TakeStep_SprkInc;
+      // ark_mem->step = arkStep_TakeStep_SprkInc;
     // } else {
-      // ark_mem->step = arkStep_TakeStep_Sprk;
+      ark_mem->step = arkStep_TakeStep_Sprk;
     // }
   // } else {
     // ark_mem->step = arkStep_TakeStep_Z;
@@ -1893,11 +1893,11 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  if (!ark_mem->fixedstep) {
-    arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
-                    "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
-    return(ARK_UNRECOGNIZED_ERROR);
-  }
+  // if (!ark_mem->fixedstep) {
+  //   arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
+  //                   "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
+  //   return(ARK_UNRECOGNIZED_ERROR);
+  // }
 
   /* loop over internal stages to the step */
   for (is=0; is<step_mem->stages; is++) {
@@ -1930,7 +1930,6 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /* update ycur with the explicit stage */
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * step_mem->Be->b[is], step_mem->sdata, ark_mem->ycur);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
   }
 
   *nflagPtr = 0;
@@ -1952,11 +1951,11 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  if (!ark_mem->fixedstep) {
-    arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
-                    "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
-    return(ARK_UNRECOGNIZED_ERROR);
-  }
+  // if (!ark_mem->fixedstep) {
+  //   arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
+  //                   "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
+  //   return(ARK_UNRECOGNIZED_ERROR);
+  // }
 
   /* other shortcuts */
   delta_Yi = ark_mem->tempv1;
@@ -2280,33 +2279,33 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
     return(ARK_INVALID_TABLE);
   }
 
-  /* check that embedding order p > 0 */
-  if ((step_mem->p < 1) && (!ark_mem->fixedstep)) {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
-                    "arkStep_CheckButcherTables",
-                    "embedding order < 1!");
-    return(ARK_INVALID_TABLE);
-  }
+  // /* check that embedding order p > 0 */
+  // if ((step_mem->p < 1) && (!ark_mem->fixedstep)) {
+  //   arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+  //                   "arkStep_CheckButcherTables",
+  //                   "embedding order < 1!");
+  //   return(ARK_INVALID_TABLE);
+  // }
 
-  /* check that embedding exists */
-  if ((step_mem->p > 0) && (!ark_mem->fixedstep)) {
-    if (step_mem->implicit) {
-      if (step_mem->Bi->d == NULL) {
-        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
-                        "arkStep_CheckButcherTables",
-                        "no implicit embedding!");
-        return(ARK_INVALID_TABLE);
-      }
-    }
-    if (step_mem->explicit) {
-      if (step_mem->Be->d == NULL) {
-        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
-                        "arkStep_CheckButcherTables",
-                        "no explicit embedding!");
-        return(ARK_INVALID_TABLE);
-      }
-    }
-  }
+  // /* check that embedding exists */
+  // if ((step_mem->p > 0) && (!ark_mem->fixedstep)) {
+  //   if (step_mem->implicit) {
+  //     if (step_mem->Bi->d == NULL) {
+  //       arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+  //                       "arkStep_CheckButcherTables",
+  //                       "no implicit embedding!");
+  //       return(ARK_INVALID_TABLE);
+  //     }
+  //   }
+  //   if (step_mem->explicit) {
+  //     if (step_mem->Be->d == NULL) {
+  //       arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+  //                       "arkStep_CheckButcherTables",
+  //                       "no explicit embedding!");
+  //       return(ARK_INVALID_TABLE);
+  //     }
+  //   }
+  // }
 
   /* check that ERK table is strictly lower triangular */
   if (step_mem->explicit) {
