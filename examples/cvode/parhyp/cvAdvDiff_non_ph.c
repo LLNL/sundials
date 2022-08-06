@@ -91,8 +91,6 @@ static void PrintIntro(int npes, sunindextype MX);
 
 static void PrintData(realtype t, realtype umax, long int nst);
 
-static void PrintFinalStats(void *cvode_mem);
-
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
@@ -314,7 +312,8 @@ int main(int argc, char *argv[])
 
   if (my_pe == 0)
   {
-    PrintFinalStats(cvode_mem);  /* Print some final statistics */
+    /* Print some final statistics */
+    CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
     printf("total time = %g\n", totaltime);
   }
 
@@ -402,29 +401,6 @@ static void PrintData(realtype t, realtype umax, long int nst)
 #endif
 
   return;
-}
-
-/* Print some final statistics located in the iopt array */
-
-static void PrintFinalStats(void *cvode_mem)
-{
-  long int nst, nfe, nni, ncfn, netf;
-  int retval;
-
-  retval = CVodeGetNumSteps(cvode_mem, &nst);
-  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
-  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
-  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
-  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
-  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
-
-  printf("\nFinal Statistics: \n\n");
-  printf("nst = %-6ld  nfe  = %-6ld  ", nst, nfe);
-  printf("nni = %-6ld  ncfn = %-6ld  netf = %ld\n \n", nni, ncfn, netf);
 }
 
 /***************** Function Called by the Solver ***********************/
