@@ -65,7 +65,11 @@
 #define ZERO  RCONST(0.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary           */
+<<<<<<< HEAD
 #define MX    5000             /* mesh dimension            */
+=======
+#define MX    1000             /* mesh dimension            */
+>>>>>>> d533df7cc6c7f62c3442388797fc0784d6cd4b68
 #define NEQ   MX             /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
@@ -241,7 +245,11 @@ int main(int argc, char *argv[])
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
+<<<<<<< HEAD
   CVodeSetMaxNumSteps(cvode_mem, 10000000000); 
+=======
+  CVodeSetMaxNumSteps(cvode_mem, 1000000); 
+>>>>>>> d533df7cc6c7f62c3442388797fc0784d6cd4b68
   if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
