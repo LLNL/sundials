@@ -187,8 +187,8 @@ int main(int argc, char *argv[])
   /* domain boundary */
   /* mesh dimension (number of equations) */
   /* print integration status */
-  if (argc > 2) MX = atoi(argv[1]);
-  if (argc > 1) XMAX = atof(argv[2]);
+  if (argc > 1) MX = atoi(argv[1]);
+  if (argc > 2) XMAX = atof(argv[2]);
   if (argc > 3) dcoef = atof(argv[3]);
   if (argc > 4) acoef = atof(argv[4]);
   if (argc > 5) print_status = atoi(argv[5]);
