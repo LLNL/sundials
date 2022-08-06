@@ -46,7 +46,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 #include <cuda_runtime.h>
+#endif
 #include <cvode/cvode.h>                          /* prototypes for CVODE fcts.                   */
 #include <sundials/sundials_types.h>              /* definition of realtype                       */
 #include <sundials/sundials_math.h>               /* definition of EXP                            */
@@ -63,7 +65,7 @@
 #define ZERO  RCONST(0.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary           */
-#define MX    10             /* mesh dimension            */
+#define MX    5000             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
@@ -239,6 +241,7 @@ int main(int argc, char *argv[])
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
+  CVodeSetMaxNumSteps(cvode_mem, 10000000000); 
   if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
@@ -285,7 +288,9 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
   free(data);                 /* Free user data */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   cudaFree(z);                /* Free buffer data */
+#endif
   SUNContext_Free(&sunctx);   /* Free context */
 
   MPI_Finalize();
@@ -322,7 +327,7 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
     x = (iglobal[i] + 1)*dx;
     udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
   }
-  Hypre_IJVectorSetValues(Uij, my_length, iglobal, udata);
+  HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
   free(iglobal);
   free(udata);
 
@@ -434,7 +439,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   z[0] = ZERO;
   for (i = 1; i <= my_length; i++)
     z[i] = udata[i - 1];
-  Z[my_length + 1] = ZERO;
+  z[my_length + 1] = ZERO;
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 
