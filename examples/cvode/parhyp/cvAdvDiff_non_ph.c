@@ -21,7 +21,7 @@
  * The following is a simple example problem, with the program for
  * its solution by CVODE. The problem is the semi-discrete
  * form of the advection-diffusion equation in 1-D:
- *   du/dt = d^2 u / dx^2 + .5 du/dx
+ *   du/dt = D d^2 u / dx^2 + c du/dx
  * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.
  * Homogeneous Dirichlet boundary conditions are posed, and the
  * initial condition is the following:
@@ -65,9 +65,6 @@
 
 #define ZERO  RCONST(0.0)
 
-#define XMAX  RCONST(2.0)    /* domain boundary           */
-#define MX    1000             /* mesh dimension            */
-#define NEQ   MX             /* number of equations       */
 #define RTOL  RCONST(1.0e-4) /* scalar absolute tolerance */
 #define ATOL  RCONST(1.0e-9) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
@@ -87,10 +84,10 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
-                  sunindextype my_base);
+static void SetIC(HYPRE_IJVector Uij, realtype XMAX, realtype dx,
+                  sunindextype my_length, sunindextype my_base);
 
-static void PrintIntro(int npes);
+static void PrintIntro(int npes, sunindextype MX);
 
 static void PrintData(realtype t, realtype umax, long int nst);
 
@@ -131,7 +128,7 @@ __global__ void copyWithinDeviceKernel(realtype *z, realtype *udata, int n)
 }
 
 __global__ void loadingInitialProfileKernel(sunindextype my_base, HYPRE_Int *iglobal, realtype *udata,
-                                            sunindextype my_length, realtype dx)
+                                            sunindextype my_length, realtype XMAX, realtype dx)
 {
   realtype x;
   GRID_STRIDE_XLOOP(int, i, my_length)
@@ -171,6 +168,12 @@ int main(int argc, char *argv[])
   SUNNonlinearSolver NLS;
   SUNContext sunctx;
 
+  sunindextype MX  = 10;
+  realtype XMAX    = 2;
+  realtype dcoef   = RCONST(1.0);
+  realtype acoef   = RCONST(0.5);
+  int print_status = 1;
+
   MPI_Comm comm;
 
   u = NULL;
@@ -183,13 +186,22 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
 
+  /* domain boundary */
+  /* mesh dimension (number of equations) */
+  /* print integration status */
+  if (argc > 2) MX = atoi(argv[1]);
+  if (argc > 1) XMAX = atof(argv[2]);
+  if (argc > 3) dcoef = atof(argv[3]);
+  if (argc > 4) acoef = atof(argv[4]);
+  if (argc > 5) print_status = atoi(argv[5]);
+
   /* Create SUNDIALS context */
   retval = SUNContext_Create(&comm, &sunctx);
   if (check_retval(&retval, "SUNContex_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set partitioning. */
-  nperpe = NEQ/npes;
-  nrem = NEQ - npes*nperpe;
+  nperpe = MX / npes;
+  nrem = MX - npes*nperpe;
   local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
 
@@ -215,13 +227,13 @@ int main(int argc, char *argv[])
   reltol = RTOL;  /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
-  data->hdcoef = RCONST(1.0)/(dx*dx);
-  data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
+  dx = data->dx = XMAX / ((realtype)(MX+1));  /* Set grid coefficients in data */
+  data->hdcoef = dcoef / (dx * dx);
+  data->hacoef = acoef / (RCONST(2.0) * dx);
   data->z = z;
 
   /* Initialize solution vector. */
-  SetIC(Uij, dx, local_N, my_base);
+  SetIC(Uij, XMAX, dx, local_N, my_base);
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
@@ -251,6 +263,7 @@ int main(int argc, char *argv[])
   retval = CVodeSetMaxNumSteps(cvode_mem, 100000);
   if (check_retval(&retval, "CVodeSetMaxNumSteps", 1, my_pe)) return(1);
 
+
   /* create fixed point nonlinear solver object */
   NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
   if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) return(1);
@@ -258,13 +271,17 @@ int main(int argc, char *argv[])
   /* attach nonlinear solver object to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
   if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) return(1);
-  if (my_pe == 0) PrintIntro(npes);
 
-  umax = N_VMaxNorm(u);
+  if (my_pe == 0) PrintIntro(npes, MX);
 
-  if (my_pe == 0) {
-    t = T0;
-    PrintData(t, umax, 0);
+  if (print_status)
+  {
+    umax = N_VMaxNorm(u);
+    if (my_pe == 0)
+    {
+      t = T0;
+      PrintData(t, umax, 0);
+    }
   }
 
   /* In loop over output points, call CVode, print results, test for error */
@@ -279,10 +296,16 @@ int main(int argc, char *argv[])
     totaltime += (toc - tic); /* update total time */
 
     if(check_retval(&retval, "CVode", 1, my_pe)) break;
-    umax = N_VMaxNorm(u);
-    retval = CVodeGetNumSteps(cvode_mem, &nst);
-    check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
-    if (my_pe == 0) PrintData(t, umax, nst);
+
+    if (print_status)
+    {
+      umax = N_VMaxNorm(u);
+
+      retval = CVodeGetNumSteps(cvode_mem, &nst);
+      check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
+
+      if (my_pe == 0) PrintData(t, umax, nst);
+    }
   }
 
   /* Get the max time across processes */
@@ -314,8 +337,8 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
-                  sunindextype my_base)
+static void SetIC(HYPRE_IJVector Uij, realtype XMAX, realtype dx,
+                  sunindextype my_length, sunindextype my_base)
 {
   int i;
   HYPRE_Int *iglobal;
@@ -344,12 +367,11 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
   free(udata);
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  // printf("\n loadingInitialProfileKernel using CUDA\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
   loadingInitialProfileKernel<<<gridsize, blocksize, 0, 0>>>(my_base, iglobal,
                                                              udata, my_length,
-                                                             dx);
+                                                             XMAX, dx);
   HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
   cudaFree(iglobal);
   cudaFree(udata);
@@ -358,7 +380,7 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
 
 /* Print problem introduction */
 
-static void PrintIntro(int npes)
+static void PrintIntro(int npes, sunindextype MX)
 {
   printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
   printf("\n Number of PEs = %3d \n\n", npes);
