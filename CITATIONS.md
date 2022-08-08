@@ -36,8 +36,8 @@ If any GPU features of SUNDIALS were utilized, please also cite:
   author    = {Balos, Cody J and Gardner, David J and Woodward, Carol S and Reynolds, Daniel R},
   journal   = {Parallel Computing},
   publisher = {Elsevier},
-  year   = {2022},
-  note   = {v5.3.0}
+  volume    = {108},
+  pages     = {102836},
   year      = {2021},
   doi       = {10.1016/j.parco.2021.102836}
 }
@@ -45,8 +45,8 @@ If any GPU features of SUNDIALS were utilized, please also cite:
 
 When using the ARKODE package from SUNDIALS, please also cite:
 
-  year   = {2022},
-  note   = {v6.3.0}
+```bibtex
+@article{reynolds2022arkode,
   title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
   author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
   journal = {arXiv preprint arXiv:2205.14077},
@@ -54,42 +54,42 @@ When using the ARKODE package from SUNDIALS, please also cite:
 }
 ```
 
-  year   = {2022},
-  note   = {v6.3.0}
+We also ask that users cite the documentation for the package and version that
+they are using rather than the combined SUNDIALS online guide:
 
 ```bibtex
 @Misc{arkodeDocumentation,
   author = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Cody J. Balos},
   title  = {User Documentation for ARKODE},
   year   = {2022},
-  note   = {v5.2.0}
-  year   = {2022},
-  note   = {v6.3.0}
+  note   = {v5.3.0}
+}
+```
 
 ```bibtex
 @Misc{cvodeDocumentation,
   author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
   title  = {User Documentation for CVODE},
   year   = {2022},
-  note   = {v6.2.0}
-  year   = {2022},
-  note   = {v5.3.0}
+  note   = {v6.3.0}
+}
+```
 
 ```bibtex
 @Misc{cvodesDocumentation,
   author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
   title  = {User Documentation for CVODES},
   year   = {2022},
-  note   = {v6.2.0}
-  year   = {2022},
   note   = {v6.3.0}
+}
+```
 
 ```bibtex
 @Misc{idaDocumentation,
   author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
   title  = {User Documentation for IDA},
   year   = {2022},
-  note   = {v6.2.0}
+  note   = {v6.3.0}
 }
 ```
 
@@ -98,7 +98,7 @@ When using the ARKODE package from SUNDIALS, please also cite:
   author = {Radu Serban and Cosmin Petra and Alan C. Hindmarsh and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
   title  = {User Documentation for IDAS},
   year   = {2022},
-  note   = {v5.2.0}
+  note   = {v5.3.0}
 }
 ```
 
@@ -107,6 +107,6 @@ When using the ARKODE package from SUNDIALS, please also cite:
   author = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
   title  = {User Documentation for KINSOL},
   year   = {2022},
-  note   = {v6.2.0}
+  note   = {v6.3.0}
 }
 ```

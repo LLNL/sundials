@@ -357,18 +357,18 @@ fi
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
-sedi '39s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '40s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
-sedi '48s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '49s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
-sedi '57s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '58s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
-sedi '66s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '67s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
-sedi '75s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '76s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
-sedi '84s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '85s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
+sedi '64s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '65s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
+sedi '73s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '74s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
+sedi '82s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '83s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
+sedi '91s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '92s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
+sedi '100s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '101s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
+sedi '109s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '110s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
 # Update CHANGELOG and recent changes
 fn="../CHANGELOG.md"

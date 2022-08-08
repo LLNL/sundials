@@ -13,6 +13,7 @@ This is a list of tasks that need to be done before a SUNDIALS release.
 - [ ] Update version numbers and release date information using the `updateVerson.sh` script. This will update the following files:
 
    * `CITATIONS.md`
+   * `CHANGELOG.md`
    * `CMakeLists.txt`
    * `README.md`
    * `src/arkode/README`
