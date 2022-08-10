@@ -871,6 +871,35 @@ illustration only.
       and ``CMAKE_CXX_COMPILER`` must be set to a valid SYCL compiler i.e.,
       ``dpcpp`` in order to build with SYCL support.
 
+
+.. cmakeoption:: SUNDIALS_LOGGING_LEVEL
+
+   Set the maximum logging level for the SUNLogger runtime API. The higher this is set,
+   the more output that may be logged, and the more performance may degrade. The options are:
+
+   - ``0`` -- no logging
+   - ``1`` -- log errors
+   - ``2`` -- log errors + warnings
+   - ``3`` -- log errors + warnings + informational output
+   - ``4`` -- log errors + warnings + informational output + debug output
+   - ``5`` -- log all of the above and even more (e.g. vector valued variables may be logged)
+
+   Default: 0
+
+
+.. cmakeoption:: SUNDIALS_LOGGING_ENABLE_MPI
+
+   Enables MPI support in the SUNLogger runtime API. I.e., makes the logger MPI
+   aware and capable of outputting only on specific ranks.
+
+   Default: ``OFF``
+
+   .. note::
+
+      The logger may be used in an MPI application without MPI support turned on,
+      but it will output on all ranks.
+
+
 .. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
 
    Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
@@ -971,6 +1000,12 @@ illustration only.
       The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
       a type not listed here.
 
+.. cmakeoption:: SUNDIALS_MATH_LIBRARY
+
+   The standard C math library (e.g., ``libm``) to link with.
+
+   Default: ``-lm`` on Unix systems, none otherwise
+
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
@@ -987,9 +1022,13 @@ illustration only.
 
 .. cmakeoption:: USE_GENERIC_MATH
 
-   Use generic (``stdc``) math libraries
+   Link to :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
 
    Default: ``ON``
+
+   .. note::
+
+      This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 .. cmakeoption:: XBRAID_DIR
 

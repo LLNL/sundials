@@ -47,7 +47,7 @@ set(SUNMAT_LIB sundials_sunmatrixslunrloc)
 set(SUNLS_LIB sundials_sunlinsolsuperludist)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${SUNMAT_LIB} ${SUNLS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${SUNMAT_LIB} ${SUNLS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})

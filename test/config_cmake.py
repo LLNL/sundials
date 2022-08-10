@@ -213,12 +213,18 @@ def main():
             'SUNDIALS_BUILD_WITH_PROFILING', 'OFF', 'BOOL',
             'fine-grained profiling')
 
+    add_arg(group, '--logging-level', 'SUNDIALS_LOGGING_LEVEL',
+            'SUNDIALS_LOGGING_LEVEL', '0', 'STRING',
+            'logging', choices=['0', '1', '2', '3', '4', '5'])
+
+    add_arg(group, '--logging-mpi', 'SUNDIALS_LOGGING_ENABLE_MPI',
+            'SUNDIALS_LOGGING_ENABLE_MPI', 'OFF', 'BOOL',
+            'MPI-aware logging')
+
     # fused kernels
     add_arg(group, '--fused-kernels', 'SUNDIALS_FUSED_KERNELS',
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
-
-    # -D USE_GENERIC_MATH="${C90MATH}"
 
     # -----------
     # Interfaces
@@ -285,6 +291,9 @@ def main():
 
     add_arg(group, '--mpiexec', 'MPIEXEC', 'MPIEXEC_EXECUTABLE', None,
             'FILEPATH', 'MPI executable', dependson='--mpi')
+
+    add_arg(group, '--mpiexec-pre-flags', 'MPIEXEC_PREFLAGS', 'MPIEXEC_PREFLAGS', None,
+            'STRING', 'MPI executable extra flags', dependson='--mpi')
 
     # ----------
     # Threading

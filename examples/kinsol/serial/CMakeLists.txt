@@ -29,13 +29,13 @@ set(KINSOL_examples
   "kinAnalytic_fp\;--m_aa 2 --orth_aa 2\;"
   "kinAnalytic_fp\;--m_aa 2 --orth_aa 3\;"
   "kinFerTron_dns\;\;develop"
-  "kinFoodWeb_kry\;\;develop"
-  "kinKrylovDemo_ls\;\;develop"
-  "kinLaplace_bnd\;\;develop"
-  "kinLaplace_picard_bnd\;\;develop"
-  "kinLaplace_picard_kry\;\;develop"
+  "kinFoodWeb_kry\;\;exclude-single"
+  "kinKrylovDemo_ls\;\;exclude-single"
+  "kinLaplace_bnd\;\;exclude-single"
+  "kinLaplace_picard_bnd\;\;exclude-single"
+  "kinLaplace_picard_kry\;\;exclude-single"
   "kinRoberts_fp\;\;develop"
-  "kinRoboKin_dns\;\;develop"
+  "kinRoboKin_dns\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -52,12 +52,17 @@ set(KINSOL_examples_SUPERLUMT
   "kinRoboKin_slu\;develop"
   )
 
+# Auxiliary files to install
+set(KINSOL_extras
+  kinRoboKin_dns_stats.csv
+  )
+
 # Specify libraries to link against
 set(KINSOL_LIB sundials_kinsol)
 set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
@@ -235,6 +240,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
+
+  # Install the extra files
+  foreach(extrafile ${KINSOL_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "KINSOL")

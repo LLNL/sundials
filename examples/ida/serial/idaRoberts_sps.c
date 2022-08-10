@@ -384,7 +384,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, netf, ncfn, nge;
+  long int nst, nni, nnf, nje, nre, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_retval(&retval, "IDAGetNumSteps", 1);
@@ -396,8 +396,10 @@ static void PrintFinalStats(void *mem)
   check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
+  check_retval(&retval, "IDAGetNumStepSolveFails", 1);
   retval = IDAGetNumGEvals(mem, &nge);
   check_retval(&retval, "IDAGetNumGEvals", 1);
 
@@ -407,7 +409,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
   printf("Number of root fn. evaluations     = %ld\n", nge);
 }
 

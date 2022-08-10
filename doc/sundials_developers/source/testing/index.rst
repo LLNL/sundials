@@ -14,12 +14,14 @@
 
 .. _Testing:
 
+*******
 Testing
-=======
+*******
 
-The following sections describe how to test SUNDIALS.
+The following sections describe the SUNDIALS CI suite as well as a testing workflow for developers.
 
 .. toctree::
    :maxdepth: 2
 
-   GitLab
+   CI
+   Local

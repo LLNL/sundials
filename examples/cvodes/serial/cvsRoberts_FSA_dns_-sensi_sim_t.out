@@ -1,5 +1,5 @@
-
-3-species chemical kinetics problem
+ 
+3-species kinetics problem
 Sensitivity: YES ( SIMULTANEOUS + FULL ERROR CONTROL )
 
 =======================================================================
@@ -29,65 +29,84 @@ Sensitivity: YES ( SIMULTANEOUS + FULL ERROR CONTROL )
                   Sensitivity 2    2.2738e-05  -2.2605e-11  -2.2738e-05 
                   Sensitivity 3   -3.7896e-09  -4.9948e-14   3.7897e-09 
 -----------------------------------------------------------------------
-4.000e+03  2  1.090e+02   486
-                  Solution         1.8317e-01   8.9403e-07   8.1683e-01 
-                  Sensitivity 1   -4.7500e+00  -5.9957e-06   4.7500e+00 
-                  Sensitivity 2    1.8809e-05   2.3136e-11  -1.8809e-05 
-                  Sensitivity 3   -3.1348e-09  -1.8757e-14   3.1348e-09 
+4.000e+03  2  1.349e+02   457
+                  Solution         1.8320e-01   8.9423e-07   8.1680e-01 
+                  Sensitivity 1   -4.7501e+00  -5.9938e-06   4.7501e+00 
+                  Sensitivity 2    1.8809e-05   2.3126e-11  -1.8809e-05 
+                  Sensitivity 3   -3.1348e-09  -1.8758e-14   3.1348e-09 
 -----------------------------------------------------------------------
-4.000e+04  3  1.178e+03   588
+4.000e+04  3  1.928e+03   545
                   Solution         3.8977e-02   1.6215e-07   9.6102e-01 
-                  Sensitivity 1   -1.5748e+00  -2.7620e-06   1.5748e+00 
-                  Sensitivity 2    6.2869e-06   1.1002e-11  -6.2869e-06 
+                  Sensitivity 1   -1.5748e+00  -2.7619e-06   1.5748e+00 
+                  Sensitivity 2    6.2870e-06   1.1002e-11  -6.2870e-06 
                   Sensitivity 3   -1.0478e-09  -4.5362e-15   1.0478e-09 
 -----------------------------------------------------------------------
-4.000e+05  3  1.514e+04   645
-                  Solution         4.9387e-03   1.9852e-08   9.9506e-01 
-                  Sensitivity 1   -2.3639e-01  -4.5861e-07   2.3639e-01 
-                  Sensitivity 2    9.4525e-07   1.8334e-12  -9.4525e-07 
-                  Sensitivity 3   -1.5751e-10  -6.3629e-16   1.5751e-10 
+4.000e+05  3  1.751e+04   603
+                  Solution         4.9394e-03   1.9854e-08   9.9506e-01 
+                  Sensitivity 1   -2.3640e-01  -4.5856e-07   2.3640e-01 
+                  Sensitivity 2    9.4530e-07   1.8331e-12  -9.4530e-07 
+                  Sensitivity 3   -1.5753e-10  -6.3637e-16   1.5753e-10 
 -----------------------------------------------------------------------
-4.000e+06  4  2.323e+05   696
-                  Solution         5.1684e-04   2.0684e-09   9.9948e-01 
-                  Sensitivity 1   -2.5667e-02  -5.1064e-08   2.5667e-02 
-                  Sensitivity 2    1.0266e-07   2.0424e-13  -1.0266e-07 
-                  Sensitivity 3   -1.7111e-11  -6.8513e-17   1.7111e-11 
+4.000e+06  4  1.831e+05   655
+                  Solution         5.1681e-04   2.0683e-09   9.9948e-01 
+                  Sensitivity 1   -2.5663e-02  -5.1050e-08   2.5663e-02 
+                  Sensitivity 2    1.0265e-07   2.0418e-13  -1.0265e-07 
+                  Sensitivity 3   -1.7110e-11  -6.8509e-17   1.7110e-11 
 -----------------------------------------------------------------------
-4.000e+07  4  1.776e+06   753
+4.000e+07  4  2.417e+06   711
                   Solution         5.2039e-05   2.0817e-10   9.9995e-01 
-                  Sensitivity 1   -2.5991e-03  -5.1931e-09   2.5991e-03 
-                  Sensitivity 2    1.0396e-08   2.0772e-14  -1.0397e-08 
+                  Sensitivity 1   -2.5997e-03  -5.1956e-09   2.5997e-03 
+                  Sensitivity 2    1.0399e-08   2.0782e-14  -1.0399e-08 
                   Sensitivity 3   -1.7330e-12  -6.9328e-18   1.7330e-12 
 -----------------------------------------------------------------------
-4.000e+08  4  2.766e+07   802
-                  Solution         5.2106e-06   2.0842e-11   9.9999e-01 
-                  Sensitivity 1   -2.6063e-04  -5.2149e-10   2.6063e-04 
-                  Sensitivity 2    1.0425e-09   2.0859e-15  -1.0425e-09 
-                  Sensitivity 3   -1.7366e-13  -6.9467e-19   1.7367e-13 
+4.000e+08  3  2.636e+07   755
+                  Solution         5.2092e-06   2.0837e-11   9.9999e-01 
+                  Sensitivity 1   -2.6049e-04  -5.2122e-10   2.6049e-04 
+                  Sensitivity 2    1.0419e-09   2.0849e-15  -1.0419e-09 
+                  Sensitivity 3   -1.7362e-13  -6.9448e-19   1.7362e-13 
 -----------------------------------------------------------------------
-4.000e+09  2  4.183e+08   836
-                  Solution         5.1881e-07   2.0752e-12   1.0000e-00 
-                  Sensitivity 1   -2.5907e-05  -5.1717e-11   2.5907e-05 
-                  Sensitivity 2    1.0363e-10   2.0687e-16  -1.0363e-10 
-                  Sensitivity 3   -1.7293e-14  -6.9174e-20   1.7293e-14 
+4.000e+09  2  3.136e+08   794
+                  Solution         5.1691e-07   2.0676e-12   1.0000e+00 
+                  Sensitivity 1   -2.5902e-05  -5.1894e-11   2.5902e-05 
+                  Sensitivity 2    1.0361e-10   2.0757e-16  -1.0361e-10 
+                  Sensitivity 3   -1.7230e-14  -6.8920e-20   1.7230e-14 
 -----------------------------------------------------------------------
-4.000e+10  2  3.799e+09   859
-                  Solution         6.5181e-08   2.6072e-13   1.0000e-00 
-                  Sensitivity 1   -2.4884e-06  -3.3032e-12   2.4884e-06 
-                  Sensitivity 2    9.9534e-12   1.3213e-17  -9.9534e-12 
-                  Sensitivity 3   -2.1727e-15  -8.6908e-21   2.1727e-15 
+4.000e+10  3  7.184e+09   818
+                  Solution         5.5845e-08   2.2338e-13   1.0000e+00 
+                  Sensitivity 1   -2.6510e-06  -4.9641e-12   2.6510e-06 
+                  Sensitivity 2    1.0604e-11   1.9856e-17  -1.0604e-11 
+                  Sensitivity 3   -1.8615e-15  -7.4460e-21   1.8615e-15 
 -----------------------------------------------------------------------
 
-Final Statistics
-
-nst     =   859
-
-nfe     =  1222
-netf    =    29    nsetups  =   142
-nni     =  1218    ncfn     =     4
-
-nfSe    =  3666    nfeS     =     0
-netfs   =     0    nsetupsS =     0
-nniS    =     0    ncfnS    =     0
-
-nje    =    24    nfeLS     =     0
+Final Statistics:
+Current time                 = 43900737657.75381
+Steps                        = 818
+Error test fails             = 28
+NLS step fails               = 2
+Initial step size            = 8.236259832589498e-14
+Last step size               = 7184288709.869884
+Current step size            = 7184288709.869884
+Last method order            = 3
+Current method order         = 3
+Stab. lim. order reductions  = 0
+RHS fn evals                 = 1160
+NLS iters                    = 1157
+NLS fails                    = 6
+NLS iters per step           = 1.414425427872861
+LS setups                    = 136
+Jac fn evals                 = 20
+LS RHS fn evals              = 0
+Prec setup evals             = 0
+Prec solves                  = 0
+LS iters                     = 0
+LS fails                     = 0
+Jac-times setups             = 0
+Jac-times evals              = 0
+LS iters per NLS iter        = 0
+Jac evals per NLS iter       = 0.01728608470181504
+Prec evals per NLS iter      = 0
+Root fn evals                = 0
+Sens fn evals                = 3480
+Sens RHS fn evals            = 0
+Sens error test fails        = 0
+Sens LS setups               = 0

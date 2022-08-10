@@ -23,11 +23,20 @@
 #include <stdarg.h>
 
 #include <kinsol/kinsol.h>
+#include "sundials_logger_impl.h"
 #include "sundials_context_impl.h"
 #include "sundials_iterative_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
+#endif
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "19.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
 #endif
 
 /*
@@ -46,6 +55,13 @@ extern "C" {
 
 #define OMEGA_MIN RCONST(0.00001)
 #define OMEGA_MAX RCONST(0.9)
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define KIN_PROFILER kin_mem->kin_sunctx->profiler
+#define KIN_LOGGER kin_mem->kin_sunctx->logger
 
 /*
  * -----------------------------------------------------------------

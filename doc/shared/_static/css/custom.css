@@ -101,3 +101,158 @@ div > .highlight {
 figure#adaptivity-figure > a > img {
    margin: 0 25%;
 }
+
+/* Define color roles from global.rst.txt */
+.black {
+   color: black;
+}
+
+.gray {
+   color: gray;
+}
+
+.silver {
+   color: silver;
+}
+
+.white {
+   color: white;
+}
+
+.maroon {
+   color: maroon;
+}
+
+.red {
+   color: red;
+}
+
+.magenta {
+   color: magenta;
+}
+
+.pink {
+   color: pink;
+}
+
+.orange {
+   color: orange;
+}
+
+.yellow {
+   color: yellow;
+}
+
+.lime {
+   color: lime;
+}
+
+.green {
+   color: green;
+}
+
+.olive {
+   color: olive;
+}
+
+.teal {
+   color: teal;
+}
+
+.cyan {
+   color: cyan;
+}
+
+.blue {
+   color: blue;
+}
+
+.purple {
+   color: purple;
+}
+
+/* Define italic color roles from global.rst.txt */
+.blackit {
+   color: black;
+   font-style: italic;
+}
+
+.grayit {
+   color: gray;
+   font-style: italic;
+}
+
+.silverit {
+   color: silver;
+   font-style: italic;
+}
+
+.whiteit {
+   color: white;
+   font-style: italic;
+}
+
+.maroonit {
+   color: maroon;
+   font-style: italic;
+}
+
+.redit {
+   color: red;
+   font-style: italic;
+}
+
+.magentait {
+   color: magenta;
+   font-style: italic;
+}
+
+.pinkit {
+   color: pink;
+   font-style: italic;
+}
+
+.orangeit {
+   color: orange;
+   font-style: italic;
+}
+
+.yellowit {
+   color: yellow;
+   font-style: italic;
+}
+
+.limeit {
+   color: lime;
+   font-style: italic;
+}
+
+.greenit {
+   color: green;
+   font-style: italic;
+}
+
+.oliveit {
+   color: olive;
+   font-style: italic;
+}
+
+.tealit {
+   color: teal;
+   font-style: italic;
+}
+
+.cyanit {
+   color: cyan;
+   font-style: italic;
+}
+
+.blueit {
+   color: blue;
+   font-style: italic;
+}
+
+.purpleit {
+   color: purple;
+   font-style: italic;
+}

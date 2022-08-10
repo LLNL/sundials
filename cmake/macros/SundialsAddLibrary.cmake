@@ -159,8 +159,11 @@ macro(sundials_add_library target)
     endif()
 
     # add all link libraries to object library
-    if(USE_GENERIC_MATH)
-      target_link_libraries(${obj_target} PRIVATE m)
+    if(SUNDIALS_MATH_LIBRARY)
+      target_link_libraries(${obj_target} PRIVATE "${SUNDIALS_MATH_LIBRARY}")
+    endif()
+    if(SUNDIALS_RT_LIBRARY)
+      target_link_libraries(${obj_target} PRIVATE "${SUNDIALS_RT_LIBRARY}")
     endif()
     if(sundials_add_library_LINK_LIBRARIES)
       if(${_libtype} MATCHES "STATIC")
@@ -242,14 +245,17 @@ macro(sundials_add_library target)
       endif()
 
       # add all link libraries
-      if(USE_GENERIC_MATH)
-        target_link_libraries(${_actual_target_name} PRIVATE m)
+      if(SUNDIALS_MATH_LIBRARY)
+        target_link_libraries(${_actual_target_name} PRIVATE "${SUNDIALS_MATH_LIBRARY}")
+      endif()
+      if(SUNDIALS_RT_LIBRARY)
+        target_link_libraries(${_actual_target_name} PRIVATE "${SUNDIALS_RT_LIBRARY}")
       endif()
       if(sundials_add_library_LINK_LIBRARIES)
         target_link_libraries(${_actual_target_name} ${sundials_add_library_LINK_LIBRARIES})
       endif()
 
-      if(SUNDIALS_BUILD_WITH_PROFILING)
+      if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
         if(ENABLE_MPI AND MPI_C_FOUND)
           # Workaround issues with sundials_generic object library dependency on
           # MPI not getting propagated when building examples.

@@ -33,7 +33,9 @@ else()
 endif()
 
 # prepare substitution variable SUNDIALS_USE_GENERIC_MATH for sundials_config.h
-if(USE_GENERIC_MATH)
+if(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
+  set(SUNDIALS_USE_GENERIC_MATH FALSE)
+else()
   set(SUNDIALS_USE_GENERIC_MATH TRUE)
 endif()
 

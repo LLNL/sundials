@@ -19,15 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAp_non_p\;\;2\;2\;develop"
-  "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;develop"
-  "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;develop"
-  "cvsAdvDiff_non_p\;\;2\;2\;develop"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;develop"
-  "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;develop"
-  "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;develop"
-  "cvsDiurnal_kry_bbd_p\;\;2\;4\;develop"
-  "cvsDiurnal_kry_p\;\;2\;4\;develop"
+  "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single"
+  "cvsAdvDiff_non_p\;\;2\;2\;exclude-single"
+  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_p\;\;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -43,7 +43,7 @@ set(CVODES_LIB sundials_cvodes)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example

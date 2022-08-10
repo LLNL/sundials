@@ -88,11 +88,48 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in v6.3.0
+-----------------
+
+Added the function :c:func:`KINGetUserData` to retrieve the user data pointer
+provided to :c:func:`KINSetUserData`.
+
+Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
+caused the double precision math functions to be used regardless of the value of
+:cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
+functions when they are available and the user may provide the math library to
+link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
 Changes in v6.2.0
 -----------------
 
+Added the :c:type:`SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated :c:func:`KINSetInfoFile`, :c:func:`KINSetDebugFile`,
+:c:func:`SUNNonlinSolSetPrintLevel_Newton`,
+:c:func:`SUNNonlinSolSetInfoFile_Newton`,
+:c:func:`SUNNonlinSolSetPrintLevel_FixedPoint`,
+:c:func:`SUNNonlinSolSetInfoFile_FixedPoint`,
+:c:func:`SUNLinSolSetInfoFile_PCG`, :c:func:`SUNLinSolSetPrintLevel_PCG`,
+:c:func:`SUNLinSolSetInfoFile_SPGMR`, :c:func:`SUNLinSolSetPrintLevel_SPGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPFGMR`, :c:func:`SUNLinSolSetPrintLevel_SPFGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPTFQM`, :c:func:`SUNLinSolSetPrintLevel_SPTFQMR`,
+:c:func:`SUNLinSolSetInfoFile_SPBCGS`, :c:func:`SUNLinSolSetPrintLevel_SPBCGS`
+it is recommended to use the `SUNLogger` API instead. The ``SUNLinSolSetInfoFile_**``
+and ``SUNNonlinSolSetInfoFile_*`` family of functions are now enabled
+by setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
+
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
+
+Added the function :c:func:`KINPrintAllStats` to output all of the nonlinear
+solver, linear solver, and other statistics in one call.  The file
+``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
+value output files.
 
 The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
@@ -100,8 +137,18 @@ cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
 Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
 vector execution policies to the defaults.
 
+Fixed the :c:type:`SUNContext` convenience class for C++ users to disallow copy
+construction and allow move construction.
+
 A memory leak in the SYCL vector was fixed where the execution policies were
 not freed when the vector was destroyed.
+
+The include guard in ``nvector_mpimanyvector.h`` has been corrected to enable
+using both the ManyVector and MPIManyVector NVector implementations in the same
+simulation.
+
+Changed exported SUNDIALS PETSc CMake targets to be INTERFACE IMPORTED instead
+of UNKNOWN IMPORTED.
 
 Changes in v6.1.1
 -----------------

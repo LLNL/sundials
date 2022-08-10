@@ -44,7 +44,7 @@ Documentation superbuild
 
 An HTML build of the documentation can be generated that includes
 all of the package documentations (with shared parts unrepeated).
-This is what is built by readthedocs and what can be acessed
+This is what is built by readthedocs and what can be accessed
 at readthedocs.org/project/sundials.
 
 Headings
@@ -70,10 +70,47 @@ Note that by following this convention, the `#` headers should **never**
 occur in the package documentation directories. This is reserved for
 the documentation superbuild.
 
-Capatilization
+Colors
+======
+
++---------------------+--------------------+-----------------------+-----------------------------+
+| Color Roles         | Text               | Color Italic Roles    | Text                        |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:red:`text```     | :red:`red`         | ``:redit:`text```     | :redit:`red italic`         |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:black:`text```   | :black:`black`     | ``:blackit:`text```   | :blackit:`black italic`     |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:gray:`text```    | :gray:`gray`       | ``:grayit:`text```    | :grayit:`gray italic`       |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:silver:`text```  | :silver:`silver`   | ``:silverit:`text```  | :silverit:`silver italic`   |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:magenta:`text``` | :magenta:`magenta` | ``:magentait:`text``` | :magentait:`magenta italic` |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:pink:`text```    | :pink:`pink`       | ``:pinkit:`text```    | :pinkit:`pink italic`       |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:orange:`text```  | :orange:`orange`   | ``:orangeit:`text```  | :orangeit:`orange italic`   |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:yellow:`text```  | :yellow:`yellow`   | ``:yellowit:`text```  | :yellowit:`yellow italic`   |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:lime:`text```    | :lime:`lime`       | ``:limeit:`text```    | :limeit:`lime italic`       |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:green:`text```   | :green:`green`     | ``:greenit:`text```   | :greenit:`green italic`     |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:olive:`text```   | :olive:`olive`     | ``:oliveit:`text```   | :oliveit:`olive italic`     |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:teal:`text```    | :teal:`teal`       | ``:tealit:`text```    | :tealit:`teal italic`       |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:cyan:`text```    | :cyan:`cyan`       | ``:cyanit:`text```    | :cyanit:`cyan italic`       |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:blue:`text```    | :blue:`blue`       | ``:blueit:`text```    | :blueit:`blue italic`       |
++---------------------+--------------------+-----------------------+-----------------------------+
+| ``:purple:`text```  | :purple:`purple`   | ``:purpleit:`text```  | :purpleit:`purple italic`   |
++---------------------+--------------------+-----------------------+-----------------------------+
+
+Capitalization
 ==============
 
-Special terms in the SUNDIALS documentation that should be captialized:
+Special terms in the SUNDIALS documentation that should be capitalized:
 TODO: enumerate them
 
 Footnotes
@@ -84,7 +121,34 @@ therefore the use of footnotes is entirely banned. Restructure the
 text, use ``.. notes::``, or ``.. warning::`` directives instead.
 
 References
-----------
+==========
 
 All citations go into `doc/shared/sundials.bib`.
 TODO: add citation and reference key style.
+
+
+Documenting Functions
+=====================
+
+Adding New Functions
+--------------------
+
+The documentation for new functions should include the ``.. versionadded::``
+directive at the end of the documentation text noting the *package version*
+number in which the function was added.
+
+Changes to Existing Functions
+-----------------------------
+
+If the signature or behavior of a function changes in any release the
+``.. versionchanged::`` directive should be added to the function documentation
+noting the *package version* number in which the change happened and describing
+the change.
+
+Deprecating Functions
+---------------------
+
+When a function is deprecated the ``.. deprecated::`` directive should be added
+to the function documentation noting the *package version* number in which the
+function was deprecated and describing what function should be used instead
+if appropriate.

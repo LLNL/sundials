@@ -630,6 +630,9 @@ Optional inputs for ERKStep
       for this pointer, since statistics from all processes would be
       identical.
 
+   .. deprecated:: 5.2.0
+
+      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int ERKStepSetErrFile(void* arkode_mem, FILE* errfp)
@@ -1575,6 +1578,8 @@ Main solver optional output functions
    +------------------------------------------------------+-------------------------------------------+
    | Single accessor to many statistics at once           | :c:func:`ERKStepGetStepStats()`           |
    +------------------------------------------------------+-------------------------------------------+
+   | Print all statistics                                 | :c:func:`ERKStepPrintAllStats`            |
+   +------------------------------------------------------+-------------------------------------------+
    | Name of constant associated with a return flag       | :c:func:`ERKStepGetReturnFlagName()`      |
    +------------------------------------------------------+-------------------------------------------+
    | No. of explicit stability-limited steps              | :c:func:`ERKStepGetNumExpSteps()`         |
@@ -1595,7 +1600,8 @@ Main solver optional output functions
    +------------------------------------------------------+-------------------------------------------+
    | Number of constraint test failures                   | :c:func:`ERKStepGetNumConstrFails()`      |
    +------------------------------------------------------+-------------------------------------------+
-
+   | Retrieve a pointer for user data                     |  :c:func:`ERKStepGetUserData`             |
+   +------------------------------------------------------+-------------------------------------------+
 
 
 
@@ -1743,6 +1749,33 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+
+.. c:function:: int ERKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   Outputs all of the integrator and other statistics.
+
+   **Arguments:**
+     * *arkode_mem* -- pointer to the ERKStep memory block.
+     * *outfile* -- pointer to output file.
+     * *fmt* -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * *ARK_SUCCESS* -- if the output was successfully.
+     * *CV_MEM_NULL* -- if the ERKStep memory was ``NULL``.
+     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 5.2.0
 
 
 
@@ -1928,6 +1961,22 @@ Main solver optional output functions
 
 
 
+.. c:function:: int ERKStepGetUserData(void* arkode_mem, void** user_data)
+
+   Returns the user data pointer previously set with
+   :c:func:`ERKStepSetUserData`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *user_data* -- memory reference to a user data pointer
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   .. versionadded:: 5.3.0
+
+
 .. _ARKODE.Usage.ERKStep.ERKStepRootOutputs:
 
 Rootfinding optional output functions
@@ -2081,7 +2130,8 @@ performs the same input checking and initializations that are done in
 assumes that the existing internal memory is sufficient for the new
 problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous
-integration.  Following a successful call to
+integration, and deletes any previously-set *tstop* value specified via a
+call to :c:func:`ERKStepSetStopTime()`.  Following a successful call to
 :c:func:`ERKStepReInit()`, call :c:func:`ERKStepEvolve()` again for the
 solution of the new problem.
 
@@ -2150,7 +2200,9 @@ the current settings for all ERKStep module options and performs no memory
 allocations but, unlike :c:func:`ERKStepReInit()`, this routine performs only a
 *subset* of the input checking and initializations that are done in
 :c:func:`ERKStepCreate`. In particular this routine retains all internal
-counter values and the step size/error history. Following a successful call to
+counter values and the step size/error history. Like :c:func:`ERKStepReInit()`, a call to
+:c:func:`ERKStepReset()` will delete any previously-set *tstop* value specified
+via a call to :c:func:`ERKStepSetStopTime()`.  Following a successful call to
 :c:func:`ERKStepReset()`, call :c:func:`ERKStepEvolve()` again to continue
 solving the problem. By default the next call to :c:func:`ERKStepEvolve()` will
 use the step size computed by ERKStep prior to calling :c:func:`ERKStepReset()`.

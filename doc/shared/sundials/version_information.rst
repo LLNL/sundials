@@ -12,7 +12,7 @@
 
 .. _SUNDIALS.SUNVersionInfo:
 
-SUNDIALS version information
+SUNDIALS Version Information
 ==============================
 
 SUNDIALS provides additional utilities to all packages, that may be

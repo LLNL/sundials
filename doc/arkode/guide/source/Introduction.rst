@@ -118,11 +118,75 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.3.0
+-----------------
+
+Added the functions :c:func:`ARKStepGetUserData`, :c:func:`ERKStepGetUserData`,
+and :c:func:`MRIStepGetUserData` to retrieve the user data pointer provided to
+:c:func:`ARKStepSetUserData`, :c:func:`ERKStepSetUserData`, and
+:c:func:`MRIStepSetUserData`, respectively.
+
+Fixed a bug in :c:func:`ERKStepReset()`, :c:func:`ERKStepReInit()`,
+:c:func:`ARKStepReset()`, :c:func:`ARKStepReInit()`, :c:func:`MRIStepReset()`, and
+:c:func:`MRIStepReInit()` where a previously-set value of *tstop* (from a call to
+:c:func:`ERKStepSetStopTime()`, :c:func:`ARKStepSetStopTime()`, or
+:c:func:`MRIStepSetStopTime()`, respectively) would not be cleared.
+
+Updated :c:func:`MRIStepReset()` to call the corresponding
+:c:type:`MRIStepInnerResetFn` with the same :math:`(t_R,y_R)` arguments for the
+:c:type:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
+scale subproblems.
+
+Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
+
+Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
+caused the double precision math functions to be used regardless of the value of
+:cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
+functions when they are available and the user may provide the math library to
+link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
+
+
 Changes in v5.2.0
 -----------------
 
+Added the :c:type:`SUNLogger` API which provides a SUNDIALS-wide
+mechanism for logging of errors, warnings, informational output,
+and debugging output.
+
+Deprecated :c:func:`ARKStepSetDiagnostics`,
+:c:func:`MRIStepSetDiagnostics`, :c:func:`ERKStepSetDiagnostics`,
+:c:func:`SUNNonlinSolSetPrintLevel_Newton`,
+:c:func:`SUNNonlinSolSetInfoFile_Newton`,
+:c:func:`SUNNonlinSolSetPrintLevel_FixedPoint`,
+:c:func:`SUNNonlinSolSetInfoFile_FixedPoint`,
+:c:func:`SUNLinSolSetInfoFile_PCG`, :c:func:`SUNLinSolSetPrintLevel_PCG`,
+:c:func:`SUNLinSolSetInfoFile_SPGMR`, :c:func:`SUNLinSolSetPrintLevel_SPGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPFGMR`, :c:func:`SUNLinSolSetPrintLevel_SPFGMR`,
+:c:func:`SUNLinSolSetInfoFile_SPTFQM`, :c:func:`SUNLinSolSetPrintLevel_SPTFQMR`,
+:c:func:`SUNLinSolSetInfoFile_SPBCGS`, :c:func:`SUNLinSolSetPrintLevel_SPBCGS`
+it is recommended to use the `SUNLogger` API instead. The ``SUNLinSolSetInfoFile_**``
+and ``SUNNonlinSolSetInfoFile_*`` family of functions are now enabled
+by setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
+
 Added the function :c:func:`SUNProfiler_Reset` to reset the region timings and
 counters to zero.
+
+Added the functions :c:func:`ARKStepPrintAllStats`,
+:c:func:`ERKStepPrintAllStats`, and :c:func:`MRIStepPrintAll` to output all of
+the integrator, nonlinear solver, linear solver, and other statistics in one
+call. The file ``scripts/sundials_csv.py`` contains functions for parsing the
+comma-separated value output files.
+
+Added the functions :c:func:`ARKStepSetDeduceImplicitRhs` and
+:c:func:`MRIStepSetDeduceImplicitRhs` to optionally remove an evaluation of the
+implicit right-hand side function after nonlinear solves. See
+:numref:`ARKODE.Mathematics.Nonlinear`, for considerations on using this
+optimization.
+
+Added the function :c:func:`MRIStepSetOrder` to select the default MRI method of
+a given order.
 
 The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
@@ -130,8 +194,40 @@ cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
 Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
 vector execution policies to the defaults.
 
+Fixed the :c:type:`SUNContext` convenience class for C++ users to disallow copy
+construction and allow move construction.
+
 A memory leak in the SYCL vector was fixed where the execution policies were
 not freed when the vector was destroyed.
+
+The include guard in ``nvector_mpimanyvector.h`` has been corrected to enable
+using both the ManyVector and MPIManyVector NVector implementations in the same
+simulation.
+
+Changed exported SUNDIALS PETSc CMake targets to be INTERFACE IMPORTED instead
+of UNKNOWN IMPORTED.
+
+A bug was fixed in the functions
+:c:func:`ARKStepGetNumNonlinSolvConvFails`,
+:c:func:`ARKStepGetNonlinSolvStats`,
+:c:func:`MRIStepGetNumNonlinSolvConvFails`, and
+:c:func:`MRIStepGetNonlinSolvStats`
+where the number of nonlinear solver failures returned was the number of failed
+*steps* due to a nonlinear solver failure i.e., if a nonlinear solve failed with
+a stale Jacobian or preconditioner but succeeded after updating the Jacobian or
+preconditioner, the initial failure was not included in the nonlinear solver
+failure count. These functions have been updated to return the total number of
+nonlinear solver failures. As such users may see an increase in the number of
+failures reported.
+
+The functions :c:func:`ARKStepGetNumStepSolveFails` and
+:c:func:`MRIStepGetNumStepSolveFails` have been added to retrieve the number of
+failed steps due to a nonlinear solver failure. The counts returned from these
+functions will match those previously returned by
+:c:func:`ARKStepGetNumNonlinSolvConvFails`,
+:c:func:`ARKStepGetNonlinSolvStats`,
+:c:func:`MRIStepGetNumNonlinSolvConvFails`, and
+:c:func:`MRIStepGetNonlinSolvStats`.
 
 Changes in v5.1.1
 -----------------

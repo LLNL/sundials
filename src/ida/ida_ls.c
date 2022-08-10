@@ -566,7 +566,7 @@ int IDAGetNumJacEvals(void *ida_mem, long int *njevals)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
-  int          retval;
+  int      retval;
 
   /* access IDALsMem structure; store output and return */
   retval = idaLs_AccessLMem(ida_mem, "IDAGetNumJacEvals",

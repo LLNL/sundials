@@ -63,6 +63,7 @@
  * and KINSOL settings. Use the retval --help for more information.
  * ---------------------------------------------------------------------------*/
 
+#include <sundials/sundials_logger.h>
 // Header file containing UserData and function declarations
 #include "kin_em_mpicuda.hpp"
 
@@ -187,6 +188,33 @@ int main(int argc, char* argv[])
       if (check_retval(&retval, "PrintUserData", 1)) return 1;
     }
 
+    // ---------------
+    // Setup debugging
+    // ---------------
+    SUNLogger logger = NULL;
+    if (udata->debug)
+    {
+      char fname[MXSTR];
+      snprintf(fname, MXSTR, "kinsol_output_%06d.txt", myid);
+
+      /* This requires that SUNDIALS was configured with the CMake options
+         SUNDIALS_LOGGING_LEVEL=n where n is one of:
+            1 --> log only errors,
+            2 --> log errors + warnings,
+            3 --> log errors + warnings + informational output
+            4 --> all of the above plus debugging output
+            5 --> all of the above and even more
+          SUNDIALS will only log up to the max level n, but a lesser level can
+          be configured at runtime by only providing output files for the
+          desired levels. We will enable all logging here: */
+      retval = SUNLogger_Create((void*)&comm_w, -1, &logger); /* output on all ranks */
+      if (check_retval(&retval, "SUNLogger_Create", 1)) return 1;
+      retval = SUNLogger_SetDebugFilename(logger, fname);
+      if (check_retval(&retval, "SUNLogger_SetDebugFilename", 1)) return 1;
+      retval = SUNContext_SetLogger(sunctx, logger);
+      if (check_retval(&retval, "SUNContext_SetLogger", 1)) return 1;
+    }
+
     // --------------------------
     // Create MPI + Cuda vectors
     // --------------------------
@@ -280,18 +308,6 @@ int main(int argc, char* argv[])
     retval = KINSetUserData(kin_mem, (void *) udata);
     if (check_retval(&retval, "KINSetUserData", 1)) return 1;
 
-    // Set debugging output file
-    FILE* debugfp;
-    if (udata->debug)
-    {
-      char fname[MXSTR];
-      snprintf(fname, MXSTR, "kinsol_output_%06d.txt", myid);
-      debugfp = fopen(fname,"w");
-
-      retval = KINSetDebugFile(kin_mem, debugfp);
-      if (check_retval(&retval, "KINSetDebugFile", 1)) return 1;
-    }
-
     // ----------------------------
     // Call KINSol to solve problem
     // ----------------------------
@@ -352,7 +368,7 @@ int main(int argc, char* argv[])
     // Free memory
     // ------------------------------
 
-    if (udata->debug) fclose(debugfp);
+    if (udata->debug) SUNLogger_Destroy(&logger);
     KINFree(&kin_mem);         // Free solver memory
     N_VDestroy(u);             // Free vectors
     N_VDestroy(scale);
@@ -715,7 +731,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     }
     else if (arg == "--debug")
     {
-      udata->debug = true;
+      if (SUNDIALS_LOGGING_LEVEL > 4) {
+        udata->debug = true;
+      } else {
+        cerr << "ERROR: SUNDIALS_LOGGING_LEVEL set too low for debug output" << endl;
+      }
     }
     // Help
     else if (arg == "--help")

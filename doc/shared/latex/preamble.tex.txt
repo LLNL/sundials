@@ -1,0 +1,57 @@
+% Hyphenate verbatim text e.g., text in double backticks, :c:func:, etc.
+\usepackage[htt]{hyphenat}
+
+% Specify depths for section numbering and table of contents
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{3}
+
+% Link a footnote to its location in the text
+\usepackage{footnotebackref}
+
+% Replace macro to use same header font and color for tables
+\makeatletter
+\protected\def\sphinxstyletheadfamily{\py@HeaderFamily \py@TitleColor}
+\makeatother
+
+% Replace macro to use same font in continued tables
+\makeatletter
+\protected\def\sphinxtablecontinued#1{\textrm{#1}}
+\makeatother
+
+% Define color role macros
+\newcommand{\DUroleblack}[1]{\textcolor{black}{#1}}
+\newcommand{\DUrolegray}[1]{\textcolor{gray}{#1}}
+\newcommand{\DUrolesilver}[1]{\textcolor{lightgray}{#1}}
+\newcommand{\DUrolewhite}[1]{\textcolor{white}{#1}}
+\newcommand{\DUrolemaroon}[1]{\textcolor{maroon}{#1}}
+\newcommand{\DUrolered}[1]{\textcolor{red}{#1}}
+\newcommand{\DUrolemagenta}[1]{\textcolor{magenta}{#1}}
+\newcommand{\DUrolepink}[1]{\textcolor{pink}{#1}}
+\newcommand{\DUroleorange}[1]{\textcolor{orange}{#1}}
+\newcommand{\DUroleyellow}[1]{\textcolor{yellow}{#1}}
+\newcommand{\DUrolelime}[1]{\textcolor{lime}{#1}}
+\newcommand{\DUrolegreen}[1]{\textcolor{green}{#1}}
+\newcommand{\DUroleolive}[1]{\textcolor{olive}{#1}}
+\newcommand{\DUroleteal}[1]{\textcolor{teal}{#1}}
+\newcommand{\DUrolecyan}[1]{\textcolor{cyan}{#1}}
+\newcommand{\DUroleblue}[1]{\textcolor{blue}{#1}}
+\newcommand{\DUrolepurple}[1]{\textcolor{purple}{#1}}
+
+% Define color italic role macros
+\newcommand{\DUroleblackit}[1]{\textcolor{black}{\textit{#1}}}
+\newcommand{\DUrolegrayit}[1]{\textcolor{gray}{\textit{#1}}}
+\newcommand{\DUrolesilverit}[1]{\textcolor{lightgray}{\textit{#1}}}
+\newcommand{\DUrolewhiteit}[1]{\textcolor{white}{\textit{#1}}}
+\newcommand{\DUrolemaroonit}[1]{\textcolor{maroon}{\textit{#1}}}
+\newcommand{\DUroleredit}[1]{\textcolor{red}{\textit{#1}}}
+\newcommand{\DUrolemagentait}[1]{\textcolor{magenta}{\textit{#1}}}
+\newcommand{\DUrolepinkit}[1]{\textcolor{pink}{\textit{#1}}}
+\newcommand{\DUroleorangeit}[1]{\textcolor{orange}{\textit{#1}}}
+\newcommand{\DUroleyellowit}[1]{\textcolor{yellow}{\textit{#1}}}
+\newcommand{\DUrolelimeit}[1]{\textcolor{lime}{\textit{#1}}}
+\newcommand{\DUrolegreenit}[1]{\textcolor{green}{\textit{#1}}}
+\newcommand{\DUroleoliveit}[1]{\textcolor{olive}{\textit{#1}}}
+\newcommand{\DUroletealit}[1]{\textcolor{teal}{\textit{#1}}}
+\newcommand{\DUrolecyanit}[1]{\textcolor{cyan}{\textit{#1}}}
+\newcommand{\DUroleblueit}[1]{\textcolor{blue}{\textit{#1}}}
+\newcommand{\DUrolepurpleit}[1]{\textcolor{purple}{\textit{#1}}}

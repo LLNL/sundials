@@ -71,7 +71,7 @@ foreach(example_tuple ${all_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name

@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Implementation header file for ARKode's MRI time stepper module.
+ * Implementation header file for ARKODE's MRI time stepper module.
  * ---------------------------------------------------------------------------*/
 
 #ifndef _ARKODE_MRISTEP_IMPL_H
@@ -64,6 +64,8 @@ typedef struct ARKodeMRIStepMemRec {
   booleantype  linear_timedep;   /* SUNTRUE if dfi/dy depends on t */
   booleantype  explicit_rhs;     /* SUNTRUE if fse is provided     */
   booleantype  implicit_rhs;     /* SUNTRUE if fsi is provided     */
+  booleantype  deduce_rhs;       /* SUNTRUE if fi is deduced after
+                                    a nonlinear solve              */
 
   /* Outer RK method storage and parameters */
   N_Vector *Fse;                 /* explicit RHS at each stage               */
@@ -128,6 +130,7 @@ typedef struct ARKodeMRIStepMemRec {
   long int nfsi;          /* num fsi calls                    */
   long int nsetups;       /* num linear solver setup calls    */
   long int nls_iters;     /* num nonlinear solver iters       */
+  long int nls_fails;     /* num nonlinear solver fails       */
   int      nfusedopvecs;  /* length of cvals and Xvecs arrays */
 
   /* Reusable arrays for fused vector operations */
@@ -173,8 +176,8 @@ struct _MRIStepInnerStepper
   /* Space requirements */
   sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */
   sunindextype liw1;        /* no. of integer words in 1 N_Vector           */
-  long int lrw;             /* no. of realtype words in ARKode work vectors */
-  long int liw;             /* no. of integer words in ARKode work vectors  */
+  long int lrw;             /* no. of realtype words in ARKODE work vectors */
+  long int liw;             /* no. of integer words in ARKODE work vectors  */
 };
 
 
@@ -182,7 +185,7 @@ struct _MRIStepInnerStepper
   MRI time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,

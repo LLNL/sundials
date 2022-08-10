@@ -41,7 +41,7 @@ set(ARKODE_LIBS
   sundials_fnvecmpimanyvector_mod)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIBS} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FARKODE_examples})

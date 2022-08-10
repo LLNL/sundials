@@ -15,6 +15,8 @@
 Performance Profiling
 =====================
 
+.. versionadded:: 6.0.0
+
 SUNDIALS includes a lightweight performance profiling layer that can be enabled
 at compile-time. Optionally, this profiling layer can leverage Caliper
 :cite:p:`Caliper:2016` for more advanced instrumentation and profiling. By

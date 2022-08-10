@@ -20,14 +20,50 @@ Coding Style
 Naming conventions
 ------------------
 
-All exported symbols that will be publically available must be namespaced appropriately!
+All exported symbols that will be publically available must be namespaced
+appropriately!
 
+- ``SUN_`` or ``SUNDIALS_`` for macros
 - ``sun`` for typedef's to native types (e.g., ``sunindextype``)
-- ``SUN_`` for macros
-- ``SUN`` for functions that are not class functions (see :ref:`Style.Classes` for class naming conventions)
-- ``SUN`` for types that are non-native (e.g., ``SUNDlsMat``)
+- ``SUN`` for public functions that are not class functions (see
+  :numref:`Style.Classes` for class/struct naming conventions)
+- ``sun`` for private functions that are non-native.
 - ``sundials::`` for C++ code (nesting under `sundials::` is OK)
-- ``sundials::<somename>::impl`` for C++ code that is private (implementation only)
+- ``sundials::<somename>::impl`` for C++ code that is private (implementation
+  only)
+
+Themes
+^^^^^^
+
+Generally Pascal case (e.g. ``DoSomething``) is used for public names and
+camelcase for private names (e.g. ``doSomething``).
+
+Macros/Constants
+^^^^^^^^^^^^^^^^
+
+Upper case should be used for macros and constants.
+
+Variable names
+^^^^^^^^^^^^^^
+
+Snake case is preferred for local variable names e.g. ``foo_bar``.
+
+C function names
+^^^^^^^^^^^^^^^^
+
+Functions should have a descriptive name that lets a reader know what it does.
+For functions that return a boolean value, prefer the convention
+``Is<statement>``, e.g. ``IsOutputRank``. Pascal case (with the appropriate
+namespace prefix) should be used for all public function names that are not
+class functions (see :ref:`Style.Classes` for class naming conventions).
+
+C++ function names
+^^^^^^^^^^^^^^^^^^
+
+All functions should be in the ``sundials::`` namespace. Pascal case should be
+used for public function names. Camelcase should be used for private function
+names.
+
 
 Formatting
 ----------

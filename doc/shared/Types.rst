@@ -23,6 +23,8 @@ The header file ``sundials_types.h`` contains the definition of the types:
 
 * :c:type:`booleantype` -- the type used for logic operations within SUNDIALS
 
+* :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
+
 Floating point types
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -117,3 +119,26 @@ The advantage of using the name booleantype (instead of int) is an increase in
 code readability. It also allows the programmer to make a distinction between
 int and boolean data. Variables of type ``booleantype`` are intended to have
 only the two values ``SUNFALSE`` (``0``) and ``SUNTRUE`` (``1``).
+
+Output formatting type
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. c:enum:: SUNOutputFormat
+
+   The enumerated type :c:type:`SUNOutputFormat` defines the enumeration
+   constants for SUNDIALS output formats
+
+.. c:enumerator:: SUN_OUTPUTFORMAT_TABLE
+
+   The output will be a table of values
+
+.. c:enumerator:: SUN_OUTPUTFORMAT_CSV
+
+   The output will be a comma-separated list of key and value pairs e.g.,
+   ``key1,value1,key2,value2,...``
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.

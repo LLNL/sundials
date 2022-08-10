@@ -26,5 +26,12 @@ module fsundials_types_mod
  ! DECLARATION CONSTRUCTS
  integer(C_INT), parameter, public :: SUNFALSE = 0_C_INT
  integer(C_INT), parameter, public :: SUNTRUE = 1_C_INT
+ ! typedef enum SUNOutputFormat
+ enum, bind(c)
+  enumerator :: SUN_OUTPUTFORMAT_TABLE
+  enumerator :: SUN_OUTPUTFORMAT_CSV
+ end enum
+ integer, parameter, public :: SUNOutputFormat = kind(SUN_OUTPUTFORMAT_TABLE)
+ public :: SUN_OUTPUTFORMAT_TABLE, SUN_OUTPUTFORMAT_CSV
 
 end module

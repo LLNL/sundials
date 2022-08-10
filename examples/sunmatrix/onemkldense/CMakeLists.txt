@@ -53,7 +53,7 @@ foreach(example_tuple ${sunmatrix_onemkldense_examples})
       sundials_nvecsycl
       sundials_sunmatrixonemkldense
       MKL::MKL_DPCPP
-      ${EXTRA_LINK_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
       )
 
   endif()

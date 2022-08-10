@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ERK time stepper
+ * Implementation header file for ARKODE's ERK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -69,7 +69,7 @@ typedef struct ARKodeERKStepMemRec {
   ERK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int erkStep_Init(void* arkode_mem, int init_type);
 int erkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);

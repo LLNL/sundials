@@ -21,27 +21,30 @@
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
   "cvsAdvDiff_ASAi_bnd\;\;develop"
-  "cvsAdvDiff_FSA_non\;-sensi sim t\;develop"
-  "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
+  "cvsAdvDiff_FSA_non\;-sensi sim t\;exclude-single"
+  "cvsAdvDiff_FSA_non\;-sensi stg t\;exclude-single"
   "cvsAdvDiff_bnd\;\;develop"
   "cvsAnalytic_mels\;\;develop"
   "cvsDirectDemo_ls\;\;develop"
-  "cvsDiurnal_FSA_kry\;-sensi sim t\;develop"
-  "cvsDiurnal_FSA_kry\;-sensi stg t\;develop"
+  "cvsDiurnal_FSA_kry\;-sensi sim t\;exclude-single"
+  "cvsDiurnal_FSA_kry\;-sensi stg t\;exclude-single"
   "cvsDiurnal_kry\;\;develop"
   "cvsDiurnal_kry_bp\;\;develop"
   "cvsFoodWeb_ASAi_kry\;\;develop"
   "cvsFoodWeb_ASAp_kry\;\;develop"
-  "cvsHessian_ASA_FSA\;\;develop"
+  "cvsHessian_ASA_FSA\;\;exclude-single"
   "cvsKrylovDemo_ls\;\;develop"
   "cvsKrylovDemo_ls\;1\;develop"
   "cvsKrylovDemo_ls\;2\;develop"
   "cvsKrylovDemo_prec\;\;develop"
-  "cvsRoberts_ASAi_dns\;\;develop"
+  "cvsParticle_dns\;\;develop"
+  "cvsPendulum_dns\;\;exclude-single"
+  "cvsRoberts_ASAi_dns\;\;exclude-single"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
-  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
-  "cvsRoberts_FSA_dns_Switch\;\;develop"
-  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
+  "cvsRoberts_FSA_dns\;-sensi sim t\;exclude-single"
+  "cvsRoberts_FSA_dns\;-sensi stg1 t\;exclude-single"
+  "cvsRoberts_FSA_dns_Switch\;\;exclude-single"
+  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_dns\;\;"
   "cvsRoberts_dns_constraints\;\;develop"
   "cvsRoberts_dns_uw\;\;develop"
@@ -53,8 +56,8 @@ endif()
 
 # Examples using LAPACK linear solvers
 set(CVODES_examples_BL
-  "cvsAdvDiff_bndL\;\;develop"
-  "cvsRoberts_dnsL\;\;develop"
+  "cvsAdvDiff_bndL\;\;exclude-single"
+  "cvsRoberts_dnsL\;\;exclude-single"
   )
 
 # Examples using KLU linear solver
@@ -66,9 +69,21 @@ set(CVODES_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
-  "cvsRoberts_ASAi_sps\;\;develop"
-  "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
+  "cvsRoberts_ASAi_sps\;\;exclude-single"
+  "cvsRoberts_FSA_sps\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_sps\;\;develop"
+  )
+
+# Auxiliary files to install
+set(CVODES_extras
+  plot_cvsParticle.py
+  plot_cvsPendulum.py
+  cvsRoberts_ASAi_dns_bkw1_stats.csv
+  cvsRoberts_ASAi_dns_bkw2_stats.csv
+  cvsRoberts_ASAi_dns_fwd_stats.csv
+  cvsRoberts_dns_stats.csv
+  cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
+  cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv
   )
 
 # Specify libraries to link against
@@ -76,7 +91,7 @@ set(CVODES_LIB sundials_cvodes)
 set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
@@ -309,6 +324,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+
+  # Install the extra files
+  foreach(extrafile ${CVODES_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODES")

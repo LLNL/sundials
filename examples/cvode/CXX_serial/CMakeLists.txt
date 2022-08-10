@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cv_heat2D\;\;\;\;develop"
+  "cv_heat2D\;\;\;\;exclude-single"
   )
 
 # Auxiliary files to install
@@ -36,7 +36,7 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})

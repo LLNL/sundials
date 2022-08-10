@@ -62,7 +62,7 @@ foreach(example_tuple ${CVODE_examples})
     sundials_cvode
     sundials_nvecraja
     ${_fused_stubs}
-    ${EXTRA_LINK_LIBS}
+    ${EXE_EXTRA_LINK_LIBS}
     ${OTHER_LIBS})
 
   # add example to regression tests

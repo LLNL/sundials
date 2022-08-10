@@ -38,7 +38,6 @@
 
 #include <ida/ida.h>                   /* prototypes for IDA methods      */
 #include <nvector/nvector_raja.h>      /* access to RAJA N_Vector         */
-#include <ida/ida_spils.h>             /* access to IDASpils interface    */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver */
 #include <sundials/sundials_types.h>   /* definition of type realtype     */
 

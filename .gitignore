@@ -2,6 +2,7 @@
 /.cache
 /.project
 /build*
+/instdir
 /TPLs
 /autom4te.cache
 /.settings
@@ -17,6 +18,7 @@
 
 # directories and files created by testing scripts
 /test/answers*
+!/test/answers
 /test/build_*
 /test/install_*
 /test/tarballs

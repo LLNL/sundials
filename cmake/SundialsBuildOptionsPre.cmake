@@ -72,14 +72,36 @@ set(DOCSTR "Build with simulation profiling capabilities enabled")
 sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
-# Option to use the generic math libraries (UNIX only)
+# Option to enable logging
 # ---------------------------------------------------------------
 
-if(UNIX)
-  sundials_option(USE_GENERIC_MATH BOOL "Use generic (std-c) math libraries" ON)
-  # all executables will be linked against -lm
-  set(EXTRA_LINK_LIBS -lm)
+set(DOCSTR "Build with logging capabilities enabled (0 = no logging, 1 = errors, 2 = +warnings, 3 = +info, 4 = +debug, 5 = +extras")
+sundials_option(SUNDIALS_LOGGING_LEVEL STRING "${DOCSTR}" 0
+                OPTIONS "0;1;2;3;4;5")
+
+if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 1)
+  message(STATUS "SUNDIALS logging level set to ${SUNDIALS_LOGGING_LEVEL}")
+  message(WARNING "SUNDIALS built with logging turned on, performance may be affected.")
 endif()
+
+set(DOCSTR "Build SUNDIALS logging with MPI support")
+sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "OFF"
+                DEPENDS_ON ENABLE_MPI)
+
+# ---------------------------------------------------------------
+# Option to use the generic math libraries
+# ---------------------------------------------------------------
+
+# We still provide USE_GENERIC_MATH for backwards compatibility
+# We also provide it for non-unix systems, but with different defaults,
+# in order to present a uniform CMake interface.
+if(UNIX)
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "-lm" ADVANCED)
+else()
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "" ADVANCED)
+endif()
+# all executables will be linked against the math library
+set(EXE_EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
 
 # ---------------------------------------------------------------
 # Options to enable static and/or shared libraries
@@ -209,26 +231,50 @@ sundials_option(SUNDIALS_DEBUG BOOL
   "Enable additional debugging output and options" OFF
   ADVANCED)
 
+if(SUNDIALS_DEBUG AND SUNDIALS_LOGGING_LEVEL LESS 4)
+  set(DOCSTR "SUNDIALS_DEBUG=ON forced the logging level to 4")
+  message(STATUS "${DOCSTR}")
+  set(SUNDIALS_LOGGING_LEVEL "4" CACHE STRING "${DOCSTR}" FORCE)
+endif()
+
 sundials_option(SUNDIALS_DEBUG_ASSERT BOOL
   "Enable assert when debugging" OFF
   DEPENDS_ON SUNDIALS_DEBUG
-  SHOW_IF SUNDIALS_DEBUG
   ADVANCED)
 
 sundials_option(SUNDIALS_DEBUG_CUDA_LASTERROR BOOL
   "Enable CUDA last error checks when debugging" OFF
   DEPENDS_ON SUNDIALS_DEBUG ENABLE_CUDA
-  SHOW_IF SUNDIALS_DEBUG ENABLE_CUDA
   ADVANCED)
 
 sundials_option(SUNDIALS_DEBUG_HIP_LASTERROR BOOL
   "Enable HIP last error checks when debugging" OFF
   DEPENDS_ON SUNDIALS_DEBUG ENABLE_HIP
-  SHOW_IF SUNDIALS_DEBUG ENABLE_HIP
   ADVANCED)
 
 sundials_option(SUNDIALS_DEBUG_PRINTVEC BOOL
   "Enable vector printing when debugging" OFF
   DEPENDS_ON SUNDIALS_DEBUG
-  SHOW_IF SUNDIALS_DEBUG
   ADVANCED)
+
+if(SUNDIALS_DEBUG_PRINTVEC AND SUNDIALS_LOGGING_LEVEL LESS 5)
+  set(DOCSTR "SUNDIALS_DEBUG_PRINTVEC=ON forced the logging level to 5")
+  message(STATUS "${DOCSTR}")
+  set(SUNDIALS_LOGGING_LEVEL "5" CACHE STRING "${DOCSTR}" FORCE)
+endif()
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS testing
+# ---------------------------------------------------------------
+
+sundials_option(SUNDIALS_TEST_FLOAT_PRECISION STRING
+  "Precision for floating point comparisons (number of digits)" "-1" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_INTEGER_PRECISION STRING
+  "Precision for integer comparisons (percent difference)" "-1" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_OUTPUT_DIR PATH
+  "Location to write testing output files" "" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
+  "Location of testing answer files" "" ADVANCED)

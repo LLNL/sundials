@@ -78,18 +78,17 @@ int main()
   SUNMatrix A = NULL;            /* empty matrix for linear solver */
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  FILE *UFID;
+  FILE *UFID, *FID;
   realtype t, tout;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* set up the initial conditions, tolerances, initial time step size */
   realtype u0 = RCONST(1.0);
   realtype v0 = RCONST(0.0);
   realtype w0 = RCONST(0.0);
-  realtype reltol = 1.e-4;
-  realtype abstol = 1.e-11;
-  realtype h0 = 1.e-4 * reltol;
+  realtype reltol = RCONST(1.0e-4);
+  realtype abstol = RCONST(1.0e-11);
+  realtype h0 = RCONST(1.0e-4) * reltol;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -115,19 +114,19 @@ int main()
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
-  flag = ARKStepSetInitStep(arkode_mem, h0);                /* Set custom initial step */
+  flag = ARKStepSetInitStep(arkode_mem, h0);                  /* Set custom initial step */
   if (check_flag(&flag, "ARKStepSetInitStep", 1)) return 1;
-  flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);         /* Increase max error test fails */
+  flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);           /* Increase max error test fails */
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
-  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);           /* Increase max nonlin iters  */
+  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);       /* Set nonlinear convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);         /* Increase max num steps */
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
-  flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
+  flag = ARKStepSetPredictorMethod(arkode_mem, 1);            /* Specify maximum-order predictor */
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);   /* Specify tolerances */
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);     /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
@@ -163,7 +162,7 @@ int main()
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     printf("  %10.3"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",              /* access/print solution */
-        t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+           t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
             t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     if (flag >= 0) {                                          /* successful solve: update time */
@@ -177,36 +176,14 @@ int main()
   printf("   --------------------------------------------------\n");
   fclose(UFID);
 
-  /* Print some final statistics */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n",
-         nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
-  printf("   Total linear solver setups = %li\n", nsetups);
-  printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
-  printf("   Total number of Jacobian evaluations = %li\n", nje);
-  printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of nonlinear solver convergence failures = %li\n", ncfn);
-  printf("   Total number of error test failures = %li\n", netf);
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("ark_robertson_stats.csv", "w");
+  flag = ARKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);

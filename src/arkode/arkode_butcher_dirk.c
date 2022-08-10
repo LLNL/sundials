@@ -39,23 +39,32 @@
   The 'QP' column denotes whether the coefficients of the method are known
   precisely enough for use in quad precision (128-bit) calculations.
 
-     imeth                       type  A-stable  L-stable  QP
-    ----------------------------------------------------------
+     imeth                              type  A-stable  L-stable  QP
+    -----------------------------------------------------------------
      ARKODE_SDIRK_2_1_2                SDIRK     Y         N       Y
      ARKODE_BILLINGTON_3_3_2           SDIRK     N         N       N
      ARKODE_TRBDF2_3_3_2              ESDIRK     N         N       Y
      ARKODE_KVAERNO_4_2_3             ESDIRK     Y         Y       N
      ARKODE_ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y       N
+     ARKODE_ESDIRK324L2SA_4_2_3       ESDIRK     Y         Y       Y
+     ARKODE_ESDIRK325L2SA_5_2_3       ESDIRK     Y         Y       Y
+     ARKODE_ESDIRK32I5L2SA_5_2_3      ESDIRK     Y         Y       Y
      ARKODE_CASH_5_2_4                 SDIRK     Y         Y       N
      ARKODE_CASH_5_3_4                 SDIRK     Y         Y       N
      ARKODE_SDIRK_5_3_4                SDIRK     Y         Y       Y
      ARKODE_KVAERNO_5_3_4             ESDIRK     Y         N       N
      ARKODE_ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
      ARKODE_ARK437L2SA_DIRK_7_3_4*    ESDIRK     Y         Y       N
+     ARKODE_ESDIRK436L2SA_6_3_4       ESDIRK     Y         Y       N
+     ARKODE_ESDIRK43I6L2SA_6_3_4      ESDIRK     Y         Y       N
+     ARKODE_QESDIRK436L2SA_6_3_4      ESDIRK     Y         Y       N
+     ARKODE_ESDIRK437L2SA_7_3_4       ESDIRK     Y         Y       N
      ARKODE_KVAERNO_7_4_5             ESDIRK     Y         Y       N
      ARKODE_ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y       N
      ARKODE_ARK548L2SAb_DIRK_8_4_5*   ESDIRK     Y         Y       N
-    ----------------------------------------------------------
+     ARKODE_ESDIRK547L2SA_7_4_5       ESDIRK     Y         Y       N
+     ARKODE_ESDIRK547L2SA2_7_4_5      ESDIRK     Y         Y       N
+    -----------------------------------------------------------------
 
   ---------------------------------------------------------------*/
 ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
@@ -600,9 +609,434 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
     B->c[7] = RCONST(1.0);
     break;
 
+  case(ARKODE_ESDIRK324L2SA_4_2_3):   /* ESDIRK3(2)4L[2]SA (A,L stable) */
+#define g   RCONST(0.435866521508458999416019451193556843)
+#define g2  (g*g)
+#define g3  (g2*g)
+#define g4  (g3*g)
+#define g5  (g4*g)
+#define c3  RCONST(0.6)
+    B = ARKodeButcherTable_Alloc(4, SUNTRUE);
+    B->q = 3;
+    B->p = 2;
+
+    B->b[1] = (-RCONST(2.0)+RCONST(3.0)*c3+RCONST(6.0)*g*(RCONST(1.0)-c3))/(RCONST(12.0)*g*(c3-RCONST(2.0)*g));
+    B->b[2] = (RCONST(1.0)-RCONST(6.0)*g+RCONST(6.0)*g2)/(RCONST(3.0)*c3*(c3-RCONST(2.0)*g));
+    B->b[3] = g;
+    B->b[0] = RCONST(1.0) - g - B->b[1] - B->b[2];
+
+    B->d[1] = c3*(-RCONST(1.0)+RCONST(6.0)*g-RCONST(24.0)*g3+RCONST(12.0)*g4-RCONST(6.0)*g5)/(RCONST(4.0)*g*(RCONST(2.0)*g-c3)*(RCONST(1.0)-RCONST(6.0)*g+RCONST(6.0)*g2))
+      + (RCONST(3.0)-RCONST(27.0)*g+RCONST(68.0)*g2-RCONST(55.0)*g3+RCONST(21.0)*g4-RCONST(6.0)*g5)/(RCONST(2.0)*(RCONST(2.0)*g-c3)*(RCONST(1.0)-RCONST(6.0)*g+RCONST(6.0)*g2));
+    B->d[2] = -g*(-RCONST(2.0)+RCONST(21.0)*g-RCONST(68.0)*g2+RCONST(79.0)*g3-RCONST(33.0)*g4+RCONST(12.0)*g5)/(c3*(c3-RCONST(2.0)*g)*(RCONST(1.0)-RCONST(6.0)*g+RCONST(6.0)*g2));
+    B->d[3] = -RCONST(3.0)*g2*(-RCONST(1.0)+RCONST(4.0)*g-RCONST(2.0)*g2+g3)/(RCONST(1.0)-RCONST(6.0)*g+RCONST(6.0)*g2);
+    B->d[0] = RCONST(1.0) - B->d[1] - B->d[2] - B->d[3];
+
+    B->A[1][0] = g;
+    B->A[1][1] = g;
+    B->A[2][1] = c3*(c3-RCONST(2.0)*g)/(RCONST(4.0)*g);
+    B->A[2][0] = c3 - g - B->A[2][1];
+    B->A[2][2] = g;
+    B->A[3][0] = B->b[0];
+    B->A[3][1] = B->b[1];
+    B->A[3][2] = B->b[2];
+    B->A[3][3] = B->b[3];
+
+    B->c[1] = RCONST(2.0)*g;
+    B->c[2] = RCONST(3.0)/RCONST(5.0);
+    B->c[3] = RCONST(1.0);
+    break;
+
+  case(ARKODE_ESDIRK325L2SA_5_2_3):   /* ESDIRK3(2)5L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(5, SUNTRUE);
+    B->q = 3;
+    B->p = 2;
+
+    B->c[1] = RCONST(9.0)/RCONST(20.0);
+    B->c[2] = RCONST(9.0)*(RCONST(2.0)+SUNRsqrt(RCONST(2.0)))/RCONST(40.0);
+    B->c[3] = RCONST(3.0)/RCONST(5.0);
+    B->c[4] = RCONST(1.0);
+
+    B->b[0] = (RCONST(2398.0)+RCONST(1205.0)*SUNRsqrt(RCONST(2.0)))/RCONST(2835.0)/(RCONST(4.0)+RCONST(3.0)*SUNRsqrt(RCONST(2.0)));
+    B->b[1] = (RCONST(2398.0)+RCONST(1205.0)*SUNRsqrt(RCONST(2.0)))/RCONST(2835.0)/(RCONST(4.0)+RCONST(3.0)*SUNRsqrt(RCONST(2.0)));
+    B->b[2] = -RCONST(2374.0)*(RCONST(1.0)+RCONST(2.0)*SUNRsqrt(RCONST(2.0)))/RCONST(2835.0)/(RCONST(5.0)+RCONST(3.0)*SUNRsqrt(RCONST(2.0)));
+    B->b[3] = RCONST(5827.0)/RCONST(7560.0);
+    B->b[4] = RCONST(9.0)/RCONST(40.0);
+
+    B->d[0] = (SUNRsqrt(RCONST(2.0))*RCONST(5547709.0)-RCONST(4800247.0))/RCONST(16519545.0);
+    B->d[1] = (SUNRsqrt(RCONST(2.0))*RCONST(5547709.0)-RCONST(4800247.0))/RCONST(16519545.0);
+    B->d[2] = RCONST(11095418.0)*(RCONST(1.0)-SUNRsqrt(RCONST(2.0)))/RCONST(16519545.0);
+    B->d[3] = RCONST(30698249.0)/RCONST(44052120.0);
+    B->d[4] = RCONST(49563.0)/RCONST(233080.0);
+
+    B->A[1][0] = RCONST(9.0)/RCONST(40.0);
+    B->A[1][1] = RCONST(9.0)/RCONST(40.0);
+    B->A[2][0] = RCONST(9.0)*(RCONST(1.0)+SUNRsqrt(RCONST(2.0)))/RCONST(80.0);
+    B->A[2][1] = RCONST(9.0)*(RCONST(1.0)+SUNRsqrt(RCONST(2.0)))/RCONST(80.0);
+    B->A[2][2] = RCONST(9.0)/RCONST(40.0);
+    B->A[3][0] = (RCONST(22.0)+RCONST(15.0)*SUNRsqrt(RCONST(2.0)))/RCONST(80.0)/(RCONST(1.0)+SUNRsqrt(RCONST(2.0)));
+    B->A[3][1] = (RCONST(22.0)+RCONST(15.0)*SUNRsqrt(RCONST(2.0)))/RCONST(80.0)/(RCONST(1.0)+SUNRsqrt(RCONST(2.0)));
+    B->A[3][2] = -RCONST(7.0)/RCONST(40.0)/(RCONST(1.0)+SUNRsqrt(RCONST(2.0)));
+    B->A[3][3] = RCONST(9.0)/RCONST(40.0);
+    B->A[4][0] = B->b[0];
+    B->A[4][1] = B->b[1];
+    B->A[4][2] = B->b[2];
+    B->A[4][3] = B->b[3];
+    B->A[4][4] = B->b[4];
+    break;
+
+  case(ARKODE_ESDIRK32I5L2SA_5_2_3):   /* ESDIRK3(2I)5L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(5, SUNTRUE);
+    B->q = 3;
+    B->p = 2;
+
+    B->c[1] = RCONST(9.0)/RCONST(20.0);
+    B->c[2] = RCONST(4.0)/RCONST(5.0);
+    B->c[3] = RCONST(1.0);
+    B->c[4] = RCONST(1.0);
+
+    B->b[0] = RCONST(7415.0)/RCONST(34776.0);
+    B->b[1] = RCONST(9920.0)/RCONST(30429.0);
+    B->b[2] = RCONST(4845.0)/RCONST(9016.0);
+    B->b[3] = -RCONST(5827.0)/RCONST(19320.0);
+    B->b[4] = RCONST(9.0)/RCONST(40.0);
+
+    B->d[0] = RCONST(23705.0)/RCONST(104328.0);
+    B->d[1] = RCONST(29720.0)/RCONST(91287.0);
+    B->d[2] = RCONST(4225.0)/RCONST(9016.0);
+    B->d[3] = -RCONST(69304987.0)/RCONST(337732920.0);
+    B->d[4] = RCONST(42843.0)/RCONST(233080.0);
+
+    B->A[1][0] = RCONST(9.0)/RCONST(40.0);
+    B->A[1][1] = RCONST(9.0)/RCONST(40.0);
+    B->A[2][0] = RCONST(19.0)/RCONST(72.0);
+    B->A[2][1] = RCONST(14.0)/RCONST(45.0);
+    B->A[2][2] = RCONST(9.0)/RCONST(40.0);
+    B->A[3][0] = RCONST(3337.0)/RCONST(11520.0);
+    B->A[3][1] = RCONST(233.0)/RCONST(720.0);
+    B->A[3][2] = RCONST(207.0)/RCONST(1280.0);
+    B->A[3][3] = RCONST(9.0)/RCONST(40.0);
+    B->A[4][0] = B->b[0];
+    B->A[4][1] = B->b[1];
+    B->A[4][2] = B->b[2];
+    B->A[4][3] = B->b[3];
+    B->A[4][4] = B->b[4];
+    break;
+
+  case(ARKODE_ESDIRK436L2SA_6_3_4):   /* ESDIRK4(3)6L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
+    B->q = 4;
+    B->p = 3;
+
+    B->c[1] = RCONST(0.5);
+    B->c[2] = (RCONST(2.0)-SUNRsqrt(RCONST(2.0)))/RCONST(4.0);
+    B->c[3] = RCONST(5.0)/RCONST(8.0);
+    B->c[4] = RCONST(26.0)/RCONST(25.0);
+    B->c[5] = RCONST(1.0);
+
+    B->b[0] = (RCONST(1181.0)-RCONST(987.0)*SUNRsqrt(RCONST(2.0)))/RCONST(13782.0);
+    B->b[1] = (RCONST(1181.0)-RCONST(987.0)*SUNRsqrt(RCONST(2.0)))/RCONST(13782.0);
+    B->b[2] = RCONST(47.0)*(-RCONST(267.0)+RCONST(1783.0)*SUNRsqrt(RCONST(2.0)))/RCONST(273343.0);
+    B->b[3] = -RCONST(16.0)*(-RCONST(22922.0)+RCONST(3525.0)*SUNRsqrt(RCONST(2.0)))/RCONST(571953.0);
+    B->b[4] = -RCONST(15625.0)*(RCONST(97.0)+RCONST(376.0)*SUNRsqrt(RCONST(2.0)))/RCONST(90749876.0);
+    B->b[5] = RCONST(1.0)/RCONST(4.0);
+
+    B->d[0] = -RCONST(480923228411.0)/RCONST(4982971448372.0);
+    B->d[1] = -RCONST(480923228411.0)/RCONST(4982971448372.0);
+    B->d[2] = RCONST(6709447293961.0)/RCONST(12833189095359.0);
+    B->d[3] = RCONST(3513175791894.0)/RCONST(6748737351361.0);
+    B->d[4] = -RCONST(498863281070.0)/RCONST(6042575550617.0);
+    B->d[5] = RCONST(2077005547802.0)/RCONST(8945017530137.0);
+
+    B->A[1][1] = RCONST(0.25);
+    B->A[2][1] = (RCONST(1.0)-SUNRsqrt(RCONST(2.0)))/RCONST(8.0);
+    B->A[2][2] = RCONST(0.25);
+    B->A[3][1] = (RCONST(5.0)-RCONST(7.0)*SUNRsqrt(RCONST(2.0)))/RCONST(64.0);
+    B->A[3][2] = RCONST(7.0)*(RCONST(1.0)+SUNRsqrt(RCONST(2.0)))/RCONST(32.0);
+    B->A[3][3] = RCONST(0.25);
+    B->A[4][1] = -(RCONST(13796.0)+RCONST(54539.0)*SUNRsqrt(RCONST(2.0)))/RCONST(125000.0);
+    B->A[4][2] = (RCONST(506605.0)+RCONST(132109.0)*SUNRsqrt(RCONST(2.0)))/RCONST(437500.0);
+    B->A[4][3] = RCONST(166.0)*(-RCONST(97.0)+RCONST(376.0)*SUNRsqrt(RCONST(2.0)))/RCONST(109375.0);
+    B->A[4][4] = RCONST(0.25);
+    B->A[5][0] = B->b[0];
+    B->A[5][1] = B->b[1];
+    B->A[5][2] = B->b[2];
+    B->A[5][3] = B->b[3];
+    B->A[5][4] = B->b[4];
+    B->A[5][5] = B->b[5];
+    B->A[1][0] = B->c[1] - B->A[1][1];
+    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
+    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
+    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
+    break;
+
+  case(ARKODE_ESDIRK43I6L2SA_6_3_4):   /* ESDIRK4(3I)6L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
+    B->q = 4;
+    B->p = 3;
+
+    B->c[1] = RCONST(0.5);
+    B->c[2] = (RCONST(2.0)-SUNRsqrt(RCONST(2.0)))/RCONST(4.0);
+    B->c[3] = RCONST(2012122486997.0)/RCONST(3467029789466.0);
+    B->c[4] = RCONST(1.0);
+    B->c[5] = RCONST(1.0);
+
+    B->b[0] = RCONST(657241292721.0)/RCONST(9909463049845.0);
+    B->b[1] = RCONST(657241292721.0)/RCONST(9909463049845.0);
+    B->b[2] = RCONST(1290772910128.0)/RCONST(5804808736437.0);
+    B->b[3] = RCONST(1103522341516.0)/RCONST(2197678446715.0);
+    B->b[4] = -RCONST(3.0)/RCONST(28.0);
+    B->b[5] = RCONST(1.0)/RCONST(4.0);
+
+    B->d[0] = -RCONST(71925161075.0)/RCONST(3900939759889.0);
+    B->d[1] = -RCONST(71925161075.0)/RCONST(3900939759889.0);
+    B->d[2] = RCONST(2973346383745.0)/RCONST(8160025745289.0);
+    B->d[3] = RCONST(3972464885073.0)/RCONST(7694851252693.0);
+    B->d[4] = -RCONST(263368882881.0)/RCONST(4213126269514.0);
+    B->d[5] = RCONST(3295468053953.0)/RCONST(15064441987965.0);
+
+    B->A[1][1] = RCONST(0.25);
+    B->A[2][1] = -RCONST(1356991263433.0)/RCONST(26208533697614.0);
+    B->A[2][2] = RCONST(0.25);
+    B->A[3][1] = -RCONST(1778551891173.0)/RCONST(14697912885533.0);
+    B->A[3][2] = RCONST(7325038566068.0)/RCONST(12797657924939.0);
+    B->A[3][3] = RCONST(0.25);
+    B->A[4][1] = -RCONST(24076725932807.0)/RCONST(39344244018142.0);
+    B->A[4][2] = RCONST(9344023789330.0)/RCONST(6876721947151.0);
+    B->A[4][3] = RCONST(11302510524611.0)/RCONST(18374767399840.0);
+    B->A[4][4] = RCONST(0.25);
+    B->A[5][0] = B->b[0];
+    B->A[5][1] = B->b[1];
+    B->A[5][2] = B->b[2];
+    B->A[5][3] = B->b[3];
+    B->A[5][4] = B->b[4];
+    B->A[5][5] = B->b[5];
+    B->A[1][0] = B->c[1] - B->A[1][1];
+    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
+    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
+    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
+    break;
+
+  case(ARKODE_QESDIRK436L2SA_6_3_4):   /* QESDIRK4(3)6L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
+    B->q = 4;
+    B->p = 3;
+
+    B->c[1] = RCONST(16.0)/RCONST(75.0);
+    B->c[2] = RCONST(8.0)*(RCONST(2.0)-SUNRsqrt(RCONST(2.0)))/RCONST(25.0);
+    B->c[3] = RCONST(1298154247449.0)/RCONST(2478647287318.0);
+    B->c[4] = RCONST(11563539331134.0)/RCONST(11078645848867.0);
+    B->c[5] = RCONST(1.0);
+
+    B->b[0] = RCONST(540088238697.0)/RCONST(4693226184761.0);
+    B->b[2] = RCONST(1094762490994.0)/RCONST(7880993776667.0);
+    B->b[3] = RCONST(4016564763003.0)/RCONST(7185357966874.0);
+    B->b[4] = -RCONST(411820258827.0)/RCONST(3096789411938.0);
+    B->b[5] = RCONST(8.0)/RCONST(25.0);
+
+    B->d[0] = -RCONST(374484326677.0)/RCONST(8442488809460.0);
+    B->d[1] = -RCONST(41125091159938.0)/RCONST(25963879779069.0);
+    B->d[2] = RCONST(24025088270494.0)/RCONST(12927594097169.0);
+    B->d[3] = RCONST(5193917461301.0)/RCONST(8985383982321.0);
+    B->d[4] = -RCONST(1843122001830.0)/RCONST(16078617943063.0);
+    B->d[5] = RCONST(2439572212972.0)/RCONST(7960792257433.0);
+
+    B->A[1][0] = RCONST(8.0)/RCONST(75.0);
+    B->A[1][1] = RCONST(8.0)/RCONST(75.0);
+    B->A[2][0] = RCONST(605497861978.0)/RCONST(9136257189845.0);
+    B->A[2][1] = -RCONST(2127848798551.0)/RCONST(10702252975294.0);
+    B->A[2][2] = RCONST(8.0)/RCONST(25.0);
+    B->A[3][0] = -RCONST(3005106686955.0)/RCONST(6150333508049.0);
+    B->A[3][1] = -RCONST(68662668193799.0)/RCONST(11091168490809.0);
+    B->A[3][2] = RCONST(80786898110822.0)/RCONST(11737001380747.0);
+    B->A[3][3] = RCONST(8.0)/RCONST(25.0);
+    B->A[4][0] = -RCONST(26162805558846.0)/RCONST(8363194173203.0);
+    B->A[4][1] = -RCONST(291987295964487.0)/RCONST(9066074244437.0);
+    B->A[4][2] = RCONST(384682892278670.0)/RCONST(10959450712301.0);
+    B->A[4][3] = RCONST(13555548451102.0)/RCONST(14148104892819.0);
+    B->A[4][4] = RCONST(8.0)/RCONST(25.0);
+    B->A[5][0] = B->b[0];
+    B->A[5][1] = B->b[1];
+    B->A[5][2] = B->b[2];
+    B->A[5][3] = B->b[3];
+    B->A[5][4] = B->b[4];
+    B->A[5][5] = B->b[5];
+    break;
+
+  case(ARKODE_ESDIRK437L2SA_7_3_4):   /* ESDIRK4(3)7L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(7, SUNTRUE);
+    B->q = 4;
+    B->p = 3;
+
+    B->c[1] = RCONST(1.0)/RCONST(4.0);
+    B->c[2] = RCONST(1200237871921.0)/RCONST(16391473681546.0);
+    B->c[3] = RCONST(1.0)/RCONST(2.0);
+    B->c[4] = RCONST(395.0)/RCONST(567.0);
+    B->c[5] = RCONST(89.0)/RCONST(126.0);
+    B->c[6] = RCONST(1.0);
+
+    B->b[1] = -RCONST(5649241495537.0)/RCONST(14093099002237.0);
+    B->b[2] = RCONST(5718691255176.0)/RCONST(6089204655961.0);
+    B->b[3] = RCONST(2199600963556.0)/RCONST(4241893152925.0);
+    B->b[4] = RCONST(8860614275765.0)/RCONST(11425531467341.0);
+    B->b[5] = -RCONST(3696041814078.0)/RCONST(6641566663007.0);
+    B->b[6] = RCONST(1.0)/RCONST(8.0);
+    B->b[0] = RCONST(1.0) - B->b[1] - B->b[2] - B->b[3] - B->b[4] - B->b[5] - B->b[6];
+
+    B->d[1] = -RCONST(1517409284625.0)/RCONST(6267517876163.0);
+    B->d[2] = RCONST(8291371032348.0)/RCONST(12587291883523.0);
+    B->d[3] = RCONST(5328310281212.0)/RCONST(10646448185159.0);
+    B->d[4] = RCONST(5405006853541.0)/RCONST(7104492075037.0);
+    B->d[5] = -RCONST(4254786582061.0)/RCONST(7445269677723.0);
+    B->d[6] = RCONST(19.0)/RCONST(140.0);
+    B->d[0] = RCONST(1.0) - B->d[1] - B->d[2] - B->d[3] - B->d[4] - B->d[5] - B->d[6];
+
+    B->A[1][1] = RCONST(1.0)/RCONST(8.0);
+    B->A[2][1] = -RCONST(39188347878.0)/RCONST(1513744654945.0);
+    B->A[2][2] = RCONST(1.0)/RCONST(8.0);
+    B->A[3][1] = RCONST(1748874742213.0)/RCONST(5168247530883.0);
+    B->A[3][2] = -RCONST(1748874742213.0)/RCONST(5795261096931.0);
+    B->A[3][3] = RCONST(1.0)/RCONST(8.0);
+    B->A[4][1] = -RCONST(6429340993097.0)/RCONST(17896796106705.0);
+    B->A[4][2] = RCONST(9711656375562.0)/RCONST(10370074603625.0);
+    B->A[4][3] = RCONST(1137589605079.0)/RCONST(3216875020685.0);
+    B->A[4][4] = RCONST(1.0)/RCONST(8.0);
+    B->A[5][1] = RCONST(405169606099.0)/RCONST(1734380148729.0);
+    B->A[5][2] = -RCONST(264468840649.0)/RCONST(6105657584947.0);
+    B->A[5][3] = RCONST(118647369377.0)/RCONST(6233854714037.0);
+    B->A[5][4] = RCONST(683008737625.0)/RCONST(4934655825458.0);
+    B->A[5][5] = RCONST(1.0)/RCONST(8.0);
+    B->A[6][0] = B->b[0];
+    B->A[6][1] = B->b[1];
+    B->A[6][2] = B->b[2];
+    B->A[6][3] = B->b[3];
+    B->A[6][4] = B->b[4];
+    B->A[6][5] = B->b[5];
+    B->A[6][6] = B->b[6];
+    B->A[1][0] = B->c[1] - B->A[1][1];
+    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
+    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
+    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
+    B->A[5][0] = B->c[5] - B->A[5][1] - B->A[5][2] - B->A[5][3] - B->A[5][4] - B->A[5][5];
+    break;
+
+  case(ARKODE_ESDIRK547L2SA_7_4_5):   /* ESDIRK5(4)7L[2]SA (A,L stable) */
+    B = ARKodeButcherTable_Alloc(7, SUNTRUE);
+    B->q = 5;
+    B->p = 4;
+
+    B->c[1] = RCONST(46.0)/RCONST(125.0);
+    B->c[2] = RCONST(1518047795759.0)/RCONST(14084074382095.0);
+    B->c[3] = RCONST(13.0)/RCONST(25.0);
+    B->c[4] = RCONST(5906118540659.0)/RCONST(9042400211275.0);
+    B->c[5] = RCONST(26.0)/RCONST(25.0);
+    B->c[6] = RCONST(1.0);
+
+    B->b[1] = -RCONST(1319096626979.0)/RCONST(17356965168099.0);
+    B->b[2] = RCONST(4356877330928.0)/RCONST(10268933656267.0);
+    B->b[3] = RCONST(922991294344.0)/RCONST(3350617878647.0);
+    B->b[4] = RCONST(4729382008034.0)/RCONST(14755765856909.0);
+    B->b[5] = -RCONST(308199069217.0)/RCONST(5897303561678.0);
+    B->b[6] = RCONST(23.0)/RCONST(125.0);
+    B->b[0] = RCONST(1.0) - B->b[1] - B->b[2] - B->b[3] - B->b[4] - B->b[5] - B->b[6];
+
+    B->d[1] = -RCONST(12068858301481.0)/RCONST(111697653055985.0);
+    B->d[2] = RCONST(30204157393951.0)/RCONST(62440428688139.0);
+    B->d[3] = RCONST(26156819792768.0)/RCONST(110856972047457.0);
+    B->d[4] = RCONST(33531609809941.0)/RCONST(89326307438822.0);
+    B->d[5] = -RCONST(18686091006953.0)/RCONST(578397443530870.0);
+    B->d[6] = RCONST(10582397456777.0)/RCONST(69011126173064.0);
+    B->d[0] = RCONST(1.0) - B->d[1] - B->d[2] - B->d[3] - B->d[4] - B->d[5] - B->d[6];
+
+    B->A[1][1] = RCONST(23.0)/RCONST(125.0);
+    B->A[2][1] = -RCONST(121529886477.0)/RCONST(3189120653983.0);
+    B->A[2][2] = RCONST(23.0)/RCONST(125.0);
+    B->A[3][1] = RCONST(186345625210.0)/RCONST(8596203768457.0);
+    B->A[3][2] = RCONST(3681435451073.0)/RCONST(12579882114497.0);
+    B->A[3][3] = RCONST(23.0)/RCONST(125.0);
+    B->A[4][1] = -RCONST(9898129553915.0)/RCONST(11630542248213.0);
+    B->A[4][2] = RCONST(19565727496993.0)/RCONST(11159348038501.0);
+    B->A[4][3] = RCONST(2073446517052.0)/RCONST(4961027473423.0);
+    B->A[4][4] = RCONST(23.0)/RCONST(125.0);
+    B->A[5][1] = -RCONST(39752543191591.0)/RCONST(7894275939720.0);
+    B->A[5][2] = RCONST(52228808998390.0)/RCONST(5821762529307.0);
+    B->A[5][3] = RCONST(2756378382725.0)/RCONST(8748785577174.0);
+    B->A[5][4] = RCONST(17322065038796.0)/RCONST(10556643942083.0);
+    B->A[5][5] = RCONST(23.0)/RCONST(125.0);
+    B->A[6][0] = B->b[0];
+    B->A[6][1] = B->b[1];
+    B->A[6][2] = B->b[2];
+    B->A[6][3] = B->b[3];
+    B->A[6][4] = B->b[4];
+    B->A[6][5] = B->b[5];
+    B->A[6][6] = B->b[6];
+    B->A[1][0] = B->c[1] - B->A[1][1];
+    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
+    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
+    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
+    B->A[5][0] = B->c[5] - B->A[5][1] - B->A[5][2] - B->A[5][3] - B->A[5][4] - B->A[5][5];
+    break;
+
+  case(ARKODE_ESDIRK547L2SA2_7_4_5):   /* ESDIRK5(4)7L[2]SA2 (A,L stable) */
+    B = ARKodeButcherTable_Alloc(7, SUNTRUE);
+    B->q = 5;
+    B->p = 4;
+
+    B->c[1] = RCONST(46.0)/RCONST(125.0);
+    B->c[2] = RCONST(7121331996143.0)/RCONST(11335814405378.0);
+    B->c[3] = RCONST(49.0)/RCONST(353.0);
+    B->c[4] = RCONST(3706679970760.0)/RCONST(5295570149437.0);
+    B->c[5] = RCONST(347.0)/RCONST(382.0);
+    B->c[6] = RCONST(1.0);
+
+    B->b[1] = -RCONST(188593204321.0)/(4778616380481);
+    B->b[2] = RCONST(2809310203510.0)/RCONST(10304234040467.0);
+    B->b[3] = RCONST(1021729336898.0)/RCONST(2364210264653.0);
+    B->b[4] = RCONST(870612361811.0)/RCONST(2470410392208.0);
+    B->b[5] = -RCONST(1307970675534.0)/RCONST(8059683598661.0);
+    B->b[6] = RCONST(23.0)/RCONST(125.0);
+    B->b[0] = RCONST(1.0) - B->b[1] - B->b[2] - B->b[3] - B->b[4] - B->b[5] - B->b[6];
+
+    B->d[1] = -RCONST(582099335757.0)/RCONST(7214068459310.0);
+    B->d[2] = RCONST(615023338567.0)/RCONST(3362626566945.0);
+    B->d[3] = RCONST(3192122436311.0)/RCONST(6174152374399.0);
+    B->d[4] = RCONST(6156034052041.0)/RCONST(14430468657929.0);
+    B->d[5] = -RCONST(1011318518279.0)/RCONST(9693750372484.0);
+    B->d[6] = RCONST(1914490192573.0)/RCONST(13754262428401.0);
+    B->d[0] = RCONST(1.0) - B->d[1] - B->d[2] - B->d[3] - B->d[4] - B->d[5] - B->d[6];
+
+    B->A[1][1] = RCONST(23.0)/RCONST(125.0);
+    B->A[2][1] = RCONST(791020047304.0)/RCONST(3561426431547.0);
+    B->A[2][2] = RCONST(23.0)/RCONST(125.0);
+    B->A[3][1] = -RCONST(158159076358.0)/RCONST(11257294102345.0);
+    B->A[3][2] = -RCONST(85517644447.0)/RCONST(5003708988389.0);
+    B->A[3][3] = RCONST(23.0)/RCONST(125.0);
+    B->A[4][1] = -RCONST(1653327111580.0)/RCONST(4048416487981.0);
+    B->A[4][2] = RCONST(1514767744496.0)/RCONST(9099671765375.0);
+    B->A[4][3] = RCONST(14283835447591.0)/RCONST(12247432691556.0);
+    B->A[4][4] = RCONST(23.0)/RCONST(125.0);
+    B->A[5][1] = -RCONST(4540011970825.0)/RCONST(8418487046959.0);
+    B->A[5][2] = -RCONST(1790937573418.0)/RCONST(7393406387169.0);
+    B->A[5][3] = RCONST(10819093665085.0)/RCONST(7266595846747.0);
+    B->A[5][4] = RCONST(4109463131231.0)/RCONST(7386972500302.0);
+    B->A[5][5] = RCONST(23.0)/RCONST(125.0);
+    B->A[6][0] = B->b[0];
+    B->A[6][1] = B->b[1];
+    B->A[6][2] = B->b[2];
+    B->A[6][3] = B->b[3];
+    B->A[6][4] = B->b[4];
+    B->A[6][5] = B->b[5];
+    B->A[6][6] = B->b[6];
+    B->A[1][0] = B->c[1] - B->A[1][1];
+    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
+    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
+    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
+    B->A[5][0] = B->c[5] - B->A[5][1] - B->A[5][2] - B->A[5][3] - B->A[5][4] - B->A[5][5];
+    break;
+
+
   default:
 
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode",
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
                     "ARKodeButcherTable_LoadDIRK",
                     "Unknown Butcher table");
     return(NULL);

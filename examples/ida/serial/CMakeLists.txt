@@ -20,7 +20,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels\;\;develop"
+  "idaAnalytic_mels\;\;exclude-single"
   "idaFoodWeb_bnd\;\;develop"
   "idaFoodWeb_kry\;\;develop"
   "idaHeat2D_bnd\;\;develop"
@@ -29,7 +29,7 @@ set(IDA_examples
   "idaKrylovDemo_ls\;1\;develop"
   "idaKrylovDemo_ls\;2\;develop"
   "idaRoberts_dns\;\;"
-  "idaSlCrank_dns\;\;develop"
+  "idaSlCrank_dns\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -48,12 +48,17 @@ set(IDA_examples_SUPERLUMT
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
+# Auxiliary files to install
+set(IDA_extras
+  idaRoberts_dns_stats.csv
+  )
+
 # Specify libraries to link against
 set(IDA_LIB sundials_ida)
 set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
@@ -286,6 +291,11 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+
+  # Install the extra files
+  foreach(extrafile ${IDA_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+  endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDA")

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -54,12 +50,6 @@
 #define IC_LINESRCH_FAILED  3
 #define IC_CONV_FAIL        4
 #define IC_SLOW_CONVRG      5
-
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
 
 /*
  * =================================================================
@@ -438,7 +428,6 @@ static int IDANewtonIC(IDAMem IDA_mem)
   /* Return either IC_SLOW_CONVRG or recoverable fail flag. */
   if(rate <= ICRATEMAX || fnorm < PT1*fnorm0) return(IC_SLOW_CONVRG);
   return(IC_CONV_FAIL);
-
 }
 
 
@@ -564,7 +553,6 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
-
   int retval;
 
   /* Get residual vector F, return if failed, and save F in savres. */
@@ -654,8 +642,8 @@ static int IDANewy(IDAMem IDA_mem)
   }
 
   /* IDA_Y_INIT case: ynew = yy0 - delta. */
-  N_VLinearSum(ONE, IDA_mem->ida_yy0, -ONE,
-               IDA_mem->ida_delta, IDA_mem->ida_ynew);
+  N_VLinearSum(ONE, IDA_mem->ida_yy0, -ONE, IDA_mem->ida_delta,
+               IDA_mem->ida_ynew);
   return(IDA_SUCCESS);
 
 }

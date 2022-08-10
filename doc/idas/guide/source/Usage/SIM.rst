@@ -79,10 +79,13 @@ directories, respectively. For a default installation, these are
 respectively, where ``instdir`` is the directory where SUNDIALS was installed
 (see :numref:`Installation`).
 
-Note that an application cannot link to both the IDAS and IDA libraries because
-both contain user-callable functions with the same names (to ensure that IDAS is
-backward compatible with IDA). Therefore, applications that contain both DAE
-problems and DAEs with sensitivity analysis, should use IDAS.
+.. warning::
+
+   Note that an application cannot link to both the IDAS and IDA libraries
+   because both contain user-callable functions with the same names (to ensure
+   that IDAS is backward compatible with IDA). Therefore, applications that
+   contain both DAE problems and DAEs with sensitivity analysis, should use
+   IDAS.
 
 
 .. _IDAS.Usage.SIM.header_sim:
@@ -297,10 +300,10 @@ macro to be referenced.
    Call ``IDAGet***`` functions to obtain optional output. See
    :numref:`IDAS.Usage.SIM.user_callable.optional_output` for details.
 
-#. **Deallocate memory**
+#. **Destroy objects**
 
-   Upon completion of the integration call the following, as necessary, to free
-   any objects or memory allocated above:
+   Upon completion of the integration call the following functions, as
+   necessary, to destroy any objects created above:
 
    * Call :c:func:`N_VDestroy` to free vector objects.
    * Call :c:func:`SUNMatDestroy` to free matrix objects.
@@ -900,20 +903,23 @@ IDAS solver. IDAS provides functions that can be used to change these optional
 input parameters from their default values. The main inputs are divided in the
 following categories:
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.main.Table` list the main IDAS optional
-  inputs,
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.main.Table` list the main IDAS
+  optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ls.Table` lists the IDALS linear solver
-  interface optional inputs,
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ls.Table` lists the IDALS linear
+  solver interface optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.nls.Table` lists the IDANLS nonlinear solver
-  interface optional inputs,
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.nls.Table` lists the IDANLS
+  nonlinear solver interface optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ic.Table` lists the initial condition
-  calculation optional inputs, and
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.ic.Table` lists the initial
+  condition calculation optional input functions,
 
-* :numref:`IDAS.Usage.SIM.user_callable.optional_input.root.Table` lists the rootfinding optional
-  inputs.
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.step_adapt.Table` lists the IDAS
+  step size adaptivity optional input functions, and
+
+* :numref:`IDAS.Usage.SIM.user_callable.optional_input.root.Table` lists the rootfinding
+  optional input functions.
 
 These optional inputs are described in detail in the remainder of this section.
 For the most casual use of IDAS, the reader can skip to
@@ -955,7 +961,9 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Initial step size                                                  | :c:func:`IDASetInitStep`        | estimated      |
    +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Maximum absolute step size                                         | :c:func:`IDASetMaxStep`         | :math:`\infty` |
+   | Minimum absolute step size :math:`h_{\text{min}}`                  | :c:func:`IDASetMinStep`         | 0              |
+   +--------------------------------------------------------------------+---------------------------------+----------------+
+   | Maximum absolute step size :math:`h_{\text{max}}`                  | :c:func:`IDASetMaxStep`         | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -1095,6 +1103,24 @@ Main solver optional input functions
       By default, IDAS estimates the initial step as the solution of
       :math:`\|h \dot{y} \|_{{\scriptsize WRMS}} = 1/2`, with an added restriction
       that :math:`|h| \leq .001|t_{\text{out}} - t_0|`.
+
+.. c:function:: int IDASetMinStep(void * ida_mem, realtype hmin)
+
+   The function :c:func:`IDASetMinStep` specifies the minimum absolute value of
+   the step size.
+
+   Pass ``hmin = 0`` to obtain the default value of 0.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``hmin`` -- minimum absolute value of the step size.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+      * ``IDA_ILL_INPUT`` -- ``hmin`` is negative.
+
+   .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetMaxStep(void * ida_mem, realtype hmax)
 
@@ -1242,6 +1268,9 @@ Linear solver interface optional input functions
    +-------------------------------------------------+---------------------------------------+---------------+
    | Jacobian function                               | :c:func:`IDASetJacFn`                 | DQ            |
    +-------------------------------------------------+---------------------------------------+---------------+
+   | Set parameter determining if a :math:`c_j`      | :c:func:`IDASetDeltaCjLSetup`         | 0.25          |
+   | change requires a linear solver setup call      |                                       |               |
+   +-------------------------------------------------+---------------------------------------+---------------+
    | Enable or disable linear solution scaling       | :c:func:`IDASetLinearSolutionScaling` | on            |
    +-------------------------------------------------+---------------------------------------+---------------+
    | Jacobian-times-vector function                  | :c:func:`IDASetJacTimes`              | NULL, DQ      |
@@ -1321,6 +1350,27 @@ for the lagged value of :math:`\alpha`. See :numref:`SUNLinSol.IDAS.Lagged` for
 more details. The function :c:func:`IDASetLinearSolutionScaling` can be used to
 disable this scaling when necessary, e.g., when providing a custom linear solver
 that updates the matrix using the current :math:`\alpha` as part of the solve.
+
+.. c:function:: int IDASetDeltaCjLSetup(void* ida_mem, realtype dcj)
+
+   The function ``IDASetDeltaCjLSetup`` specifies the parameter that determines
+   the bounds on a change in :math:`c_j` that require a linear solver setup
+   call. If ``cj_current / cj_previous < (1 - dcj) / (1 + dcj)`` or
+   ``cj_current / cj_previous > (1 + dcj) / (1 - dcj)``, the linear solver
+   setup function is called.
+
+   If ``dcj`` is :math:`< 0` or :math:`\geq 1` then the default value (0.25) is
+   used.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDAS memory block.
+     * ``dcj`` -- the :math:`c_j` change threshold.
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The flag value has been successfully set.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetLinearSolutionScaling(void * ida_mem, booleantype onoff)
 
@@ -1873,6 +1923,171 @@ to set optional inputs controlling the initial condition calculation.
       The default value is :math:`(\text{unit roundoff})^{2/3}`.
 
 
+.. _IDAS.Usage.SIM.user_callable.optional_input.step_adapt:
+
+Time step adaptivity optional input functions
+"""""""""""""""""""""""""""""""""""""""""""""
+
+.. _IDAS.Usage.SIM.user_callable.optional_input.step_adapt.Table:
+
+.. table:: Optional inputs for IDAS time step adaptivity
+
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | **Optional input**                                     | **Function name**                  | **Default**    |
+   +========================================================+====================================+================+
+   | Fixed step size bounds :math:`\eta_{\mathrm{min\_fx}}` | :c:func:`IDASetEtaFixedStepBounds` | 1.0 and 2.0    |
+   | and :math:`\eta_{\mathrm{max\_fx}}`                    |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size growth factor                        | :c:func:`IDASetEtaMax`             | 2.0            |
+   | :math:`\eta_{\mathrm{max}}`                            |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor                     | :c:func:`IDASetEtaMin`             | 0.5            |
+   | :math:`\eta_{\mathrm{min}}`                            |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Maximum step size reduction factor                     | :c:func:`IDASetEtaLow`             | 0.9            |
+   | :math:`\eta_{\mathrm{low}}`                            |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Minimum step size reduction factor after an error      | :c:func:`IDASetEtaMinErrFail`      | 0.25           |
+   | test failure :math:`\eta_{\mathrm{min\_ef}}`           |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+   | Step size reduction factor after a nonlinear solver    | :c:func:`IDASetEtaConvFail`        | 0.25           |
+   | convergence failure :math:`\eta_{\mathrm{cf}}`         |                                    |                |
+   +--------------------------------------------------------+------------------------------------+----------------+
+
+
+The following functions can be called to set optional inputs to control the
+step size adaptivity.
+
+.. note::
+
+   The default values for the step size adaptivity tuning parameters have a long
+   history of success and changing the values is generally discouraged. However,
+   users that wish to experiment with alternative values should be careful to
+   make changes gradually and with testing to determine their effectiveness.
+
+
+.. c:function:: int IDASetEtaFixedStepBounds(void* ida_mem, realtype eta_min_fx, realtype eta_max_fx)
+
+   The function ``IDASetEtaFixedStepBounds`` specifies the bounds
+   :math:`\eta_{\mathrm{min\_fx}}` and :math:`\eta_{\mathrm{max\_fx}}`. If step size
+   change factor :math:`\eta` satisfies :math:`\eta_{\mathrm{min\_fx}} < \eta <
+   \eta_{\mathrm{max\_fx}}` the current step size is retained.
+
+   The default values are :math:`\eta_{\mathrm{fxmin}} = 1` and
+   :math:`\eta_{\mathrm{fxmax}} = 2`.
+
+   ``eta_fxmin`` should satisfy :math:`0 < \eta_{\mathrm{fxmin}} \leq 1`,
+   otherwise the default value is used. ``eta_fxmax`` should satisfy
+   :math:`\eta_{\mathrm{fxmin}} \geq 1`, otherwise the default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_min_fx`` -- value of the fixed step size lower bound.
+      * ``eta_max_fx`` -- value of the fixed step size upper bound.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaMax(void* ida_mem, realtype eta_max)
+
+   The function ``IDASetEtaMax`` specifies the maximum step size growth
+   factor :math:`\eta_{\mathrm{max}}`.
+
+   The default value is :math:`\eta_{\mathrm{max}} = 2`.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_max`` -- maximum step size growth factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaMin(void* ida_mem, realtype eta_min)
+
+   The function ``IDASetEtaMin`` specifies the minimum step size reduction
+   factor :math:`\eta_{\mathrm{min}}`.
+
+   The default value is :math:`\eta_{\mathrm{min}} = 0.5`.
+
+   ``eta_min`` should satisfy :math:`0 < \eta_{\mathrm{min}} < 1`, otherwise the
+   default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_min`` -- value of the minimum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaLow(void* ida_mem, realtype eta_low)
+
+   The function ``IDASetEtaLow`` specifies the maximum step size reduction
+   factor :math:`\eta_{\mathrm{low}}`.
+
+   The default value is :math:`\eta_{\mathrm{low}} = 0.9`.
+
+   ``eta_low`` should satisfy :math:`0 < \eta_{\mathrm{low}} \leq 1`, otherwise
+   the default value is used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_low`` -- value of the maximum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaMinErrFail(void* ida_mem, realtype eta_min_ef)
+
+   The function ``IDASetEtaMinErrFail`` specifies the minimum step size
+   reduction factor :math:`\eta_{\mathrm{min\_ef}}` after an error test failure.
+
+   The default value is :math:`\eta_{\mathrm{min\_ef}} = 0.25`.
+
+   If ``eta_min_ef`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
+   used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_low`` -- value of the minimum step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
+.. c:function:: int IDASetEtaConvFail(void* ida_mem, realtype eta_cf)
+
+   The function ``IDASetEtaConvFail`` specifies the step size reduction factor
+   :math:`\eta_{\mathrm{cf}}` after a nonlinear solver convergence failure.
+
+   The default value is :math:`\eta_{\mathrm{cf}} = 0.25`.
+
+   If ``eta_cf`` is :math:`\leq 0` or :math:`\geq 1`, the default value is
+   used.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``eta_low`` -- value of the step size reduction factor.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.2.0
+
 
 .. _IDAS.Usage.SIM.user_callable.optional_input.root:
 
@@ -2033,6 +2248,8 @@ preconditioner.
   | No. of calls to linear solver setup function                       | :c:func:`IDAGetNumLinSolvSetups`       |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of local error test failures that have occurred                | :c:func:`IDAGetNumErrTestFails`        |
+  +------------------------------------------------+------------------------------------------------------------+
+  | No. of failed steps due to a nonlinear solver failure              | :c:func:`IDAGetNumStepSolveFails`      |
   +--------------------------------------------------------------------+----------------------------------------+
   | Order used during the last step                                    | :c:func:`IDAGetLastOrder`              |
   +--------------------------------------------------------------------+----------------------------------------+
@@ -2052,13 +2269,21 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | Estimated local errors                                             | :c:func:`IDAGetEstLocalErrors`         |
   +--------------------------------------------------------------------+----------------------------------------+
+  | All IDA integrator statistics                                      | :c:func:`IDAGetIntegratorStats`        |
+  +--------------------------------------------------------------------+----------------------------------------+
   | No. of nonlinear solver iterations                                 | :c:func:`IDAGetNumNonlinSolvIters`     |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of nonlinear convergence failures                              | :c:func:`IDAGetNumNonlinSolvConvFails` |
   +--------------------------------------------------------------------+----------------------------------------+
+  | IDA nonlinear solver statistics                                    | :c:func:`IDAGetNonlinSolvStats`        |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | User data pointer                                                  | :c:func:`IDAGetUserData`               |
+  +--------------------------------------------------------------------+----------------------------------------+
   | Array showing roots found                                          | :c:func:`IDAGetRootInfo`               |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of calls to user root function                                 | :c:func:`IDAGetNumGEvals`              |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | Print all statistics                                               | :c:func:`IDAPrintAllStats`             |
   +--------------------------------------------------------------------+----------------------------------------+
   | Name of constant associated with a return flag                     | :c:func:`IDAGetReturnFlagName`         |
   +--------------------------------------------------------------------+----------------------------------------+
@@ -2211,6 +2436,18 @@ described next.
    **Arguments:**
       * ``ida_mem`` -- pointer to the IDAS solver object.
       * ``netfails`` -- number of error test failures.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
+      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+.. c:function:: int IDAGetNumStepSolveFails(void* ida_mem, long int* ncnf)
+
+   Returns the number of failed steps due to a nonlinear solver failure.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDAS solver object.
+      * ``ncnf`` -- number of step failures.
 
    **Return value:**
       * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
@@ -2431,6 +2668,48 @@ described next.
       * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
       * ``IDA_MEM_FAIL`` -- The ``SUNNonlinearSolver`` object is ``NULL``.
+
+.. c:function:: int IDAGetUserData(void* ida_mem, void** user_data)
+
+   The function ``IDAGetUserData`` returns the user data pointer provided to
+   :c:func:`IDASetUserData`.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDAS memory block.
+     * ``user_data`` -- memory reference to a user data pointer.
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The optional output value has been successfully set.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 5.3.0
+
+.. c:function:: int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
+
+   The function ``IDAPrintAllStats`` outputs all of the integrator, nonlinear
+   solver, linear solver, and other statistics.
+
+   **Arguments:**
+     * ``ida_mem`` -- pointer to the IDAS memory block.
+     * ``outfile`` -- pointer to output file.
+     * ``fmt`` -- the output format:
+
+       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
+       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   **Return value:**
+     * ``IDA_SUCCESS`` -- The output was successfully.
+     * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+     * ``IDA_ILL_INPUT`` -- An invalid formatting option was provided.
+
+   .. note::
+
+      The file ``scripts/sundials_csv.py`` provides python utility functions to
+      read and output the data from a SUNDIALS CSV output file using the key
+      and value pair format.
+
+   .. versionadded:: 5.2.0
 
 .. c:function:: char* IDAGetReturnFlagName(long int flag)
 
@@ -3411,83 +3690,85 @@ function of type :c:type:`IDALsPrecSetupFn`, defined as follows:
 Integration of pure quadrature equations
 ========================================
 
-IDA allows the DAE system to include *pure quadratures*. In this case, it is
+IDAS allows the DAE system to include *pure quadratures*. In this case, it is
 more efficient to treat the quadratures separately by excluding them from the
 nonlinear solution stage. To do this, begin by excluding the quadrature
 variables from the vectors ``yy`` and ``yp`` and the quadrature equations from
 within ``res``. Thus a separate vector ``yQ`` of quadrature variables is to
-satisfy :math:`(\mathrm d/\mathrm dt)\texttt{yQ} = f_Q(t,y,\dot{y})`. The following is an
-overview of the sequence of calls in a user’s main program in this situation.
-Steps that have changed from the skeleton program presented in
-:numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
+satisfy :math:`(\mathrm d/\mathrm dt)\texttt{yQ} = f_Q(t,y,\dot{y})`.
 
-  #. Initialize parallel or multi-threaded environment, if appropriate
+The following is an overview of the sequence of calls in a user’s main program
+in this situation. Steps that are unchanged from the skeleton program presented
+in :numref:`IDAS.Usage.SIM.skeleton_sim` are grayed out and new or modified
+steps are in bold.
 
-  #. Create the SUNDIALS context object with :c:func:`SUNContext_Create`
+#. :silver:`Initialize parallel or multi-threaded environment, if appropriate`
 
-  #. Set vector of initial values
+#. :silver:`Create the SUNDIALS context object`
 
-  #. Create matrix object
+#. :silver:`Set vector of initial values`
 
-  #. Create linear solver object
+#. :silver:`Create matrix object`
 
-  #. Create nonlinear solver object
+#. :silver:`Create linear solver object`
 
-  #. Create IDAS object
+#. :silver:`Create nonlinear solver object`
 
-  #. Initialize IDAS solver
+#. :silver:`Create IDAS object`
 
-  #. Specify integration tolerances
+#. :silver:`Initialize IDAS solver`
 
-  #. Set linear solver optional inputs
+#. :silver:`Specify integration tolerances`
 
-  #. Attach linear solver module
+#. :silver:`Set linear solver optional inputs`
 
-  #. Attach nonlinear solver module
+#. :silver:`Attach linear solver module`
 
-  #. Set nonlinear solver optional inputs
+#. :silver:`Attach nonlinear solver module`
 
-  #. **Set vector of initial values for quadrature variables**
+#. :silver:`Set nonlinear solver optional inputs`
 
-     Typically, the quadrature variables should be initialized to 0.
+#. **Set vector of initial values for quadrature variables**
 
-  #. **Initialize quadrature integration**
+   Typically, the quadrature variables should be initialized to 0.
 
-     Call :c:func:`IDAQuadInit` to specify the quadrature equation right-hand
-     side function and to allocate internal memory related to quadrature
-     integration. See :numref:`IDAS.Usage.Purequad.quad_init` for details.
+#. **Initialize quadrature integration**
 
-  #. **Set optional inputs for quadrature integration**
+   Call :c:func:`IDAQuadInit` to specify the quadrature equation right-hand
+   side function and to allocate internal memory related to quadrature
+   integration. See :numref:`IDAS.Usage.Purequad.quad_init` for details.
 
-     Call :c:func:`IDASetQuadErrCon` to indicate whether or not quadrature
-     variables shoule be used in the step size control mechanism, and to specify
-     the integration tolerances for quadrature variables. See
-     :numref:`IDAS.Usage.Purequad.quad_optional_input` for details.
+#. **Set optional inputs for quadrature integration**
 
-  #. Specify rootfinding problem
+   Call :c:func:`IDASetQuadErrCon` to indicate whether or not quadrature
+   variables shoule be used in the step size control mechanism, and to specify
+   the integration tolerances for quadrature variables. See
+   :numref:`IDAS.Usage.Purequad.quad_optional_input` for details.
 
-  #. Set optional inputs
+#. :silver:`Specify rootfinding problem`
 
-  #. Correct initial values
+#. :silver:`Set optional inputs`
 
-  #. Advance solution in time
+#. :silver:`Correct initial values`
 
-  #. **Extract quadrature variables**
+#. :silver:`Advance solution in time`
 
-     Call :c:func:`IDAGetQuad` to obtain the values of the quadrature
-     variables at the current time.
+#. **Extract quadrature variables**
 
-  #. Get optional outputs
+   Call :c:func:`IDAGetQuad` to obtain the values of the quadrature
+   variables at the current time.
 
-  #. **Get quadrature optional outputs**
+#. :silver:`Get optional outputs`
 
-     Call ``IDAGetQuad**`` functions to obtain optional output related to the
-     integration of quadratures. See
-     :numref:`IDAS.Usage.Purequad.quad_optional_output` for details.
+#. **Get quadrature optional outputs**
 
-  #. Deallocate memory
+   Call ``IDAGetQuad**`` functions to obtain optional output related to the
+   integration of quadratures. See
+   :numref:`IDAS.Usage.Purequad.quad_optional_output` for details.
 
-  #. Finalize MPI, if used
+#. :silver:`Destroy objects`
+
+#. :silver:`Finalize MPI, if used`
 
 
 .. _IDAS.Usage.Purequad.quad_init:
@@ -3504,13 +3785,13 @@ this function is as follows:
    The function :c:func:`IDAQuadInit` provides required problem specifications,  allocates internal memory, and initializes quadrature integration.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block returned by :c:func:`IDACreate`.
+     * ``ida_mem`` -- pointer to the IDAS memory block returned by :c:func:`IDACreate`.
      * ``rhsQ`` -- is the C function which computes :math:`f_Q` , the right-hand side of the quadrature equations. This function has the form ``f(Qt, yy, yp, rhsQ, user_data)`` for full details see :numref:`IDAS.Usage.Purequad.user_supplied`.
      * ``yQ0`` -- is the initial value of :math:`y_Q`.
 
    **Return value:**
      * ``IDA_SUCCESS`` -- The call to :c:func:`IDAQuadInit` was successful.
-     * ``IDA_MEM_NULL`` -- The IDA memory was not initialized by a prior call to :c:func:`IDACreate`.
+     * ``IDA_MEM_NULL`` -- The IDAS memory was not initialized by a prior call to :c:func:`IDACreate`.
      * ``IDA_MEM_FAIL`` -- A memory allocation request failed.
 
    **Notes:**
@@ -3520,7 +3801,7 @@ this function is as follows:
 
    In terms of the number of quadrature variables, :math:`N_q`, and maximum
    method order, ``maxord``, the size of the real and integer workspaces are
-   increased by :math:`(\text{\texttt{maxord}} + 5) N_q`. If
+   increased by :math:`(\texttt{maxord} + 5) N_q`. If
    :c:func:`IDAQuadSVtolerances` is called, the workspaces are further increased
    by :math:`N_q`.
 
@@ -3538,12 +3819,12 @@ unchanged from the prior call to :c:func:`IDAQuadInit`. The call to the
    reinitializes the quadrature integration.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``yQ0`` -- is the initial value of :math:`y_Q`.
 
    **Return value:**
      * ``IDA_SUCCESS`` -- The call to :c:func:`IDAReInit` was successful.
-     * ``IDA_MEM_NULL`` -- The IDA memory was not initialized by a prior call to :c:func:`IDACreate`.
+     * ``IDA_MEM_NULL`` -- The IDAS memory was not initialized by a prior call to :c:func:`IDACreate`.
      * ``IDA_NO_QUAD`` -- Memory space for the quadrature integration was not allocated by a prior call to :c:func:`IDAQuadInit`.
 
    **Notes:**
@@ -3557,7 +3838,7 @@ unchanged from the prior call to :c:func:`IDAQuadInit`. The call to the
    integration.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
 
   **Return value:**
      * The function has no return value.
@@ -3592,7 +3873,7 @@ Quadrature extraction functions
 
 If quadrature integration has been initialized by a call to
 :c:func:`IDAQuadInit`, or reinitialized by a call to :c:func:`IDAQuadReInit`,
-then IDA computes both a solution and quadratures at time ``t``. However,
+then IDAS computes both a solution and quadratures at time ``t``. However,
 :c:func:`IDASolve` will still return only the solution :math:`y` in ``y``.
 Solution quadratures can be obtained using the following function:
 
@@ -3647,19 +3928,19 @@ by the user.
 Optional inputs for quadrature integration
 ----------------------------------------------------
 
-IDA provides the following optional input functions to control the integration
+IDAS provides the following optional input functions to control the integration
 of quadrature equations.
 
 .. c:function:: int IDASetQuadErrCon(void * ida_mem, booleantype errconQ)
 
    The function :c:func:`IDASetQuadErrCon` specifies whether or not the
    quadrature variables are to be used in the step size control mechanism
-   within IDA.  If they are, the user must call either
+   within IDAS.  If they are, the user must call either
    :c:func:`IDAQuadSStolerances`  or :c:func:`IDAQuadSVtolerances` to specify
    the  integration tolerances for the quadrature variables.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``errconQ`` -- specifies whether quadrature variables are included ``SUNTRUE`` or not ``SUNFALSE`` in the error control mechanism.
 
    **Return value:**
@@ -3682,7 +3963,7 @@ quadrature variables.
    The function :c:func:`IDAQuadSStolerances` specifies scalar relative and absolute  tolerances.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``reltolQ`` --  tolerances is the scalar relative error tolerance.
      * ``abstolQ`` -- is the scalar absolute error tolerance.
 
@@ -3698,7 +3979,7 @@ quadrature variables.
    The function :c:func:`IDAQuadSVtolerances` specifies scalar relative and  vector absolute tolerances.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``reltolQ`` --  tolerances is the scalar relative error tolerance.
      * ``abstolQ`` -- is the vector absolute error tolerance.
 
@@ -3714,7 +3995,7 @@ quadrature variables.
 Optional outputs for quadrature integration
 ----------------------------------------------------
 
-IDA provides the following functions that can be used to obtain solver
+IDAS provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
 
 .. c:function:: int IDAGetQuadNumRhsEvals(void * ida_mem, long int* nrhsQevals)
@@ -3722,7 +4003,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadNumRhsEvals` returns the  number of calls made to the user's quadrature right-hand side function.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``nrhsQevals`` -- number of calls made to the user's ``rhsQ`` function.
 
    **Return value:**
@@ -3736,7 +4017,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadNumErrTestFails` returns the  number of local error test failures due to quadrature variables.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``nQetfails`` -- number of error test failures due to quadrature variables.
 
    **Return value:**
@@ -3750,7 +4031,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadErrWeights` returns the quadrature error weights  at the current time.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``eQweight`` -- quadrature error weights at the current time.
 
    **Return value:**
@@ -3771,7 +4052,7 @@ performance information related to quadrature integration.
    The function :c:func:`IDAGetQuadStats` returns the IDAS integrator statistics as a group.
 
    **Arguments:**
-     * ``ida_mem`` -- pointer to the IDA memory block.
+     * ``ida_mem`` -- pointer to the IDAS memory block.
      * ``nrhsQevals`` -- number of calls to the user's ``rhsQ`` function.
      * ``nQetfails`` -- number of error test failures due to quadrature variables.
 
@@ -4000,14 +4281,15 @@ must include the header file ``ida_bbdpre.h`` which declares the needed function
 prototypes.
 
 The following is a summary of the usage of this module and describes the
-sequence of calls in the user main program.  Steps that are changed from the
-user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
+sequence of calls in the user main program. Steps that are unchanged from the
+user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are grayed
+out and new or modified steps are in bold.
 
-#. Initialize parallel or multi-threaded environment
+#. :silver:`Initialize parallel or multi-threaded environment`
 
-#. Create the vector of initial values
+#. :silver:`Create the vector of initial values`
 
-#. Create matrix object
+#. :silver:`Create matrix object`
 
 #. **Create linear solver object**
 
@@ -4015,15 +4297,15 @@ user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
    preconditioning (``SUN_PREC_LEFT``) as IDAS only supports left
    preconditioning.
 
-#. Create nonlinear solver object
+#. :silver:`Create nonlinear solver object`
 
-#. Create IDAS object
+#. :silver:`Create IDAS object`
 
-#. Initialize IDAS solver
+#. :silver:`Initialize IDAS solver`
 
-#. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-#. Attach the linear solver
+#. :silver:`Attach the linear solver`
 
 #. **Set linear solver optional inputs**
 
@@ -4039,15 +4321,15 @@ user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
    preconditioner data. The last two arguments of :c:func:`IDABBDPrecInit` are
    the two user-supplied functions described above.
 
-#. Attach nonlinear solver module
+#. :silver:`Attach nonlinear solver module`
 
-#. Set nonlinear solver optional inputs
+#. :silver:`Set nonlinear solver optional inputs`
 
-#. Specify rootfinding problem
+#. :silver:`Specify rootfinding problem`
 
-#. Set optional inputs
+#. :silver:`Set optional inputs`
 
-#. Advance solution in time
+#. :silver:`Advance solution in time`
 
 #. **Get optional outputs**
 
@@ -4055,9 +4337,9 @@ user main program presented in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
    two routines described below, :c:func:`IDABBDPrecGetWorkSpace` and
    :c:func:`IDABBDPrecGetNumGfnEvals`.
 
-#. Deallocate memory
+#. :silver:`Destroy objects`
 
-#. Finalize MPI, if used
+#. :silver:`Finalize MPI, if used`
 
 
 The user-callable functions that initialize or re-initialize the IDABBDPRE
