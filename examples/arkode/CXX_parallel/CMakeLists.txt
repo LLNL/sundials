@@ -112,7 +112,7 @@ set(ARKODE_headers )
 set(ARKODE_extras)
 
 # Additional libraries to link against (appended to below)
-set(OTHER_LIBS ${EXTRA_LINK_LIBS})
+set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # ------------
 # MPI examples

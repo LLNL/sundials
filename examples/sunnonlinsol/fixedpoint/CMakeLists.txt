@@ -43,7 +43,7 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # Set-up linker flags and link libraries
-list(APPEND SUNDIALS_LIBS ${EXTRA_LINK_LIBS})
+list(APPEND SUNDIALS_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${examples})

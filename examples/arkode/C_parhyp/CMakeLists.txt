@@ -42,7 +42,7 @@ foreach(example_tuple ${ARKODE_examples})
   target_link_libraries(${example_target}
     sundials_arkode
     sundials_nvecparhyp
-    ${EXTRA_LINK_LIBS})
+    ${EXE_EXTRA_LINK_LIBS})
 
   # add to regression tests
   sundials_add_test(${example_target} ${example_target}

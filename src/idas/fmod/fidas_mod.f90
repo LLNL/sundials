@@ -177,6 +177,7 @@ module fidas_mod
  public :: FIDAGetNumNonlinSolvConvFails
  public :: FIDAGetNonlinSolvStats
  public :: FIDAGetNumStepSolveFails
+ public :: FIDAGetUserData
  public :: FIDAPrintAllStats
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -1102,6 +1103,15 @@ end function
 
 function swigc_FIDAGetNumStepSolveFails(farg1, farg2) &
 bind(C, name="_wrap_FIDAGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetUserData(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetUserData") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -3975,6 +3985,22 @@ type(C_PTR) :: farg2
 farg1 = ida_mem
 farg2 = c_loc(nncfails(1))
 fresult = swigc_FIDAGetNumStepSolveFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetUserData(ida_mem, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(user_data)
+fresult = swigc_FIDAGetUserData(farg1, farg2)
 swig_result = fresult
 end function
 

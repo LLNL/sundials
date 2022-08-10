@@ -38,7 +38,7 @@ foreach(test_tuple ${unit_tests})
       ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test} ${EXTRA_LINK_LIBS})
+    target_link_libraries(${test} ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
