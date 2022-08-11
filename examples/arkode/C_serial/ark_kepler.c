@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = SUN_RCONST(50.0);
+  sunrealtype Tf          = SUN_RCONST(1000.0);
   // sunrealtype Tf          = SUN_RCONST(100000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
@@ -357,6 +357,7 @@ int main(int argc, char* argv[])
     const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
     const char* fmt3 = "ark_kepler_times_erk-%d.txt";
+    const char* fmt4 = "ark_kepler_hhist_erk-%d.txt";
     char fname[64];
     sprintf(fname, fmt1, order);
     conserved_fp = fopen(fname, "w+");
@@ -364,7 +365,11 @@ int main(int argc, char* argv[])
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, order);
     times_fp = fopen(fname, "w+");
+    sprintf(fname, fmt4, order);
+    udata->hhist_fp = fopen(fname, "w+");
   }
+
+  printf("\n   Begin Kepler Problem\n\n");
 
   /* Do integration */
   tret = T0;
