@@ -179,6 +179,11 @@ static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
   return ((N + blocksize - 1) / blocksize);
 }
 
+static size_t CUDAConfigGridSizeReduce(sunindextype N, size_t &blocksize)
+{
+  return ((N + (2 * blocksize - 1)) / (2 * blocksize));
+}
+
 // Added for Array based vector operations using CUDA
 // Fused operation buffer functions
 
@@ -968,46 +973,27 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
  for (i = 0; i < N; i++)
   sum += xd[i]*yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- // printf("\n N_VDotProdLocal using CUDA\n");
- // set kernel launch parameters
  size_t blocksize =  CUDAConfigBlockSize();
- size_t gridsize = CUDAConfigGridSize(N, blocksize);
- // allocate and initialize reduction buffers
- //realtype* sum_h; // host memory for sum
- //realtype* sum_d; // device memory for sum
- //cudaMallocHost(&(sum_h), sizeof(realtype)); // allocate pinned host memory
- //cudaMalloc(&(sum_d), sizeof(realtype));     // allocate device memory
- // initial host value
- //*sum_h = ZERO;
+ size_t gridsize = CUDAConfigGridSizeReduce(N, blocksize);
 
- // copy host value to device to initialize device value
- // cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice);
+ bool atomic = true;
+ cudaStream_t stream;
 
-  bool atomic;
-  cudaStream_t stream;
+ realtype gpu_result = ZERO;
 
-  realtype gpu_result = ZERO;
+ const size_t buffer_size = atomic ? 1 : gridsize;
+ if (InitializeReductionBuffer(x, gpu_result, buffer_size))
+ {
+   SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Cuda: InitializeReductionBuffer returned nonzero\n");
+ }
 
-  const size_t buffer_size = atomic ? 1 : gridsize;
-  if (InitializeReductionBuffer(x, gpu_result, buffer_size))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Cuda: InitializeReductionBuffer returned nonzero\n");
-  }
  // launch the dot product kernel
  dotProdKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, yd, NV_DBUFFERp(x), N, nullptr);
- // copy result from device to host
- // cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost);
- // wait for copy to finish
  cudaStreamSynchronize(0);
- // copy solution in output variable
- // sum = *sum_h;
- // free host and device buffers
- // cudaFreeHost(sum_h);
- //cudaFree(sum_d);
-  CopyReductionBufferFromDevice(x);
-  gpu_result = NV_HBUFFERp(x)[0];
+ CopyReductionBufferFromDevice(x);
+ gpu_result = NV_HBUFFERp(x)[0];
 
-  return gpu_result;
+ return gpu_result;
 #endif
 
  return(sum);
@@ -1022,33 +1008,13 @@ realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
   return(gsum);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   sunindextype N;
-  realtype *xd, *yd;
+  realtype *xd, *yd, lsum, gsum;
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
   yd = NV_DATA_PH(y);
-
-  size_t blocksize =  CUDAConfigBlockSize();
-  size_t gridsize = CUDAConfigGridSize(N, blocksize);
-
-  bool atomic;
-  cudaStream_t stream;
-
-  realtype gpu_result = ZERO;
-
-  const size_t buffer_size = atomic ? 1 : gridsize;
-  if (InitializeReductionBuffer(x, gpu_result, buffer_size))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProd_Cuda: InitializeReductionBuffer returned nonzero\n");
-  }
-
-  dotProdKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, yd, NV_DBUFFERp(x), N, nullptr);
-
-  cudaStreamSynchronize(0);
-
-  CopyReductionBufferFromDevice(x);
-  gpu_result = NV_HBUFFERp(x)[0];
-
-  return gpu_result;
+  lsum = N_VDotProdLocal_ParHyp(x, y);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
+  return gsum;
 #endif
 
 }
@@ -1069,18 +1035,14 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   //printf("\n N_VMaxNormLocal using CUDA\n");
   //realtype* max_d;
   // realtype* max_h;
-  bool atomic;
+  bool atomic = true;
   cudaStream_t stream;
 
   realtype gpu_result = ZERO;
 
   size_t blocksize =  CUDAConfigBlockSize();
-  size_t gridsize = CUDAConfigGridSize(N, blocksize);
+  size_t gridsize = CUDAConfigGridSizeReduce(N, blocksize);
 
-  // cudaMallocHost(&(max_h), sizeof(realtype));
-  //cudaMalloc(&(max_d), sizeof(realtype));
-  //*max_h = ZERO;
-  //cudaMemcpy(max_d, max_h, sizeof(realtype), cudaMemcpyHostToDevice);
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(x, gpu_result, buffer_size))
   {
@@ -1089,11 +1051,7 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
 
   maxNormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, NV_DBUFFERp(x), N, nullptr);
 
-  //cudaMemcpy(max_h, max_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
-  //max = *max_h;
-  //cudaFreeHost(max_h);
-  //cudaFree(max_d);
   CopyReductionBufferFromDevice(x);
   gpu_result = NV_HBUFFERp(x)[0];
 
@@ -1129,7 +1087,7 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   //printf("\n N_VWSqrSumLocal using CUDA\n");
   //realtype* sum_d;
   //realtype* sum_h;
-  bool atomic;
+  bool atomic = true;
   cudaStream_t stream;
 
   realtype gpu_result = ZERO;
@@ -1164,15 +1122,10 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
 {
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype lsum, gsum;
   lsum = N_VWSqrSumLocal_ParHyp(x, w);
   MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  const realtype sum = N_VWSqrSumLocal_ParHyp(x, w);
-  return std::sqrt(sum/(NV_GLOBLENGTH_PH(x)));
-#endif
 }
 
 realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
@@ -1199,7 +1152,7 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
  // realtype* sum_h;
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
-  bool atomic;
+  bool atomic = true;
   cudaStream_t stream;
 
   realtype gpu_result = ZERO;
@@ -1233,15 +1186,10 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 {
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype lsum, gsum;
   lsum = N_VWSqrSumMaskLocal_ParHyp(x, w, id);
   MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  const realtype sum = N_VWSqrSumMaskLocal_ParHyp(x, w, id);
-  return std::sqrt(sum/(NV_GLOBLENGTH_PH(x)));
-#endif
 }
 
 realtype N_VMinLocal_ParHyp(N_Vector x)
@@ -1263,7 +1211,7 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
   //printf("\n N_VMinLocal using CUDA\n");
   //realtype* min_d;
   //realtype* min_h;
-  bool atomic;
+  bool atomic = true;
   cudaStream_t stream;
 
   realtype gpu_result = std::numeric_limits<realtype>::max();
@@ -1307,15 +1255,10 @@ realtype N_VMin_ParHyp(N_Vector x)
 
 realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w)
 {
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   realtype lsum, gsum;
   lsum = N_VWSqrSumLocal_ParHyp(x, w);
   MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(SUNRsqrt(gsum));
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  const realtype sum = N_VWSqrSumLocal_ParHyp(x, w);
-  return std::sqrt(sum);
-#endif
 }
 
 realtype N_VL1NormLocal_ParHyp(N_Vector x)
@@ -1332,7 +1275,7 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
  //printf("\n N_VL1NormLocal using CUDA\n");
-  bool atomic;
+  bool atomic = true;
   cudaStream_t stream;
 
   realtype gpu_result = ZERO;
