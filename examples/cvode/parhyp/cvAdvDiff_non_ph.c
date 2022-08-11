@@ -454,15 +454,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     z[i] = udata[i - 1];
   z[my_length + 1] = ZERO;
 
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-
-  cudaMemset(z, ZERO, (my_length + 2) * sizeof(realtype));
-  size_t blocksize =  CUDAConfigBlockSize();
-  size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
-  copyWithinDeviceKernel<<<gridsize, blocksize, 0, 0>>>(z, udata, my_length);
-
-#endif
-
   /* Pass needed data to processes before and after current process. */
   if (my_pe != 0)
     MPI_Send(z+1, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
@@ -474,8 +465,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     MPI_Recv(z, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
   if (my_pe != last_pe)
     MPI_Recv(z+(my_length+1), 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm, &status);
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 
   /* Loop over all grid points in current process. */
   for (i=1; i<=my_length; i++) {
@@ -492,6 +481,44 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   }
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+
+  cudaMemset(z, ZERO, (my_length + 2) * sizeof(realtype));
+  size_t blocksize =  CUDAConfigBlockSize();
+  size_t gridsize = CUDAConfigGridSize(my_length, blocksize);
+  copyWithinDeviceKernel<<<gridsize, blocksize, 0, 0>>>(z, udata, my_length);
+
+  /* ensure packing has finished */
+  cudaDeviceSynchronize();
+
+  /* Pass needed data to processes before and after current process. */
+  realtype send_l, send_r;
+  realtype recv_l, recv_r;
+
+  if (my_pe != 0)
+  {
+    cudaMemcpy(&send_l, z+1, sizeof(realtype), cudaMemcpyDeviceToHost);
+    MPI_Send(&send_l, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
+  }
+  if (my_pe != last_pe)
+  {
+    cudaMemcpy(&send_r, z+my_length, sizeof(realtype), cudaMemcpyDeviceToHost);
+    MPI_Send(&send_r, 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
+  }
+
+  /* Receive needed data from processes before and after current process. */
+  if (my_pe != 0)
+  {
+    MPI_Recv(&recv_l, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
+    cudaMemcpy(z, &recv_l, sizeof(realtype), cudaMemcpyHostToDevice);
+  }
+  if (my_pe != last_pe)
+  {
+    MPI_Recv(&recv_r, 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm, &status);
+    cudaMemcpy(z+my_length+1, &recv_r, sizeof(realtype), cudaMemcpyHostToDevice);
+  }
+
+  /* ensure unpacking has finished */
+  cudaDeviceSynchronize();
 
   blocksize = CUDAConfigBlockSize();
   gridsize = CUDAConfigGridSize(my_length, blocksize);
