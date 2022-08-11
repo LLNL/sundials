@@ -73,7 +73,12 @@ typedef struct {
   /* for time-step control */
   sunrealtype eps;
   sunrealtype alpha;
+  sunrealtype rho_nmhalf;
+  sunrealtype rho_nphalf;
   sunrealtype rho_n;
+  sunrealtype rho_np1;
+
+  FILE *hhist_fp;
 } *UserData;
 
 
@@ -96,25 +101,25 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  // sunrealtype Tf          = SUN_RCONST(10.0);
-  sunrealtype Tf          = SUN_RCONST(100000.0);
+  sunrealtype Tf          = SUN_RCONST(50.0);
+  // sunrealtype Tf          = SUN_RCONST(100000.0);
   const sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
   // const sunrealtype delta = SUN_RCONST(0.015);
   const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
 
   /* Default integrator Options */
-  int fixed_step_mode = 1;
-  int method          = 1;
-  int order           = 2;
-  // const sunrealtype dTout = SUN_RCONST(dt);
-  const sunrealtype dTout = SUN_RCONST(100.0);
+  int step_mode = 1;
+  int method    = 1;
+  int order     = 2;
+  const sunrealtype dTout = SUN_RCONST(dt);
+  // const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
 
   /* Parse CLI args */
   argi = 0;
   if (argc > 1) {
-    fixed_step_mode = atoi(argv[++argi]);
+    step_mode = atoi(argv[++argi]);
   }
   if (argc > 2) {
     method = atoi(argv[++argi]);
@@ -125,10 +130,10 @@ int main(int argc, char* argv[])
 
   /* Allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
-  udata->ecc = ecc;
+  udata->ecc   = ecc;
   udata->delta = delta;
   udata->alpha = SUN_RCONST(3.0)/SUN_RCONST(2.0);
-  udata->eps = dt;
+  udata->eps   = dt;
   udata->rho_n = SUN_RCONST(1.0);
 
   /* Create the SUNDIALS context object for this simulation */
@@ -145,19 +150,80 @@ int main(int argc, char* argv[])
   if (method == 0) {
     arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
-    /* Attach custom Butcher tables for 3rd order scheme [Candy, 1991] */
+    /* 4th order scheme [McLauchlan] */
+    if (order == 4) {
+      const sunrealtype a1 =  SUN_RCONST(0.515352837431122936);
+      const sunrealtype a2 = -SUN_RCONST(0.085782019412973646);
+      const sunrealtype a3 =  SUN_RCONST(0.441583023616466524);
+      const sunrealtype a4 =  SUN_RCONST(0.128846158365384185);
+      const sunrealtype b1 =  SUN_RCONST(0.134496199277431089);
+      const sunrealtype b2 = -SUN_RCONST(0.224819803079420806);
+      const sunrealtype b3 =  SUN_RCONST(0.756320000515668291);
+      const sunrealtype b4 =  SUN_RCONST(0.33400360328632142);
+
+      Mp = ARKodeButcherTable_Alloc(4, SUNTRUE);
+      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mp->b[0] = b1;
+      Mp->b[1] = b2;
+      Mp->b[2] = b3;
+      Mp->b[3] = b4;
+      Mp->A[0][0] = b1;
+      Mp->A[1][0] = b1;
+      Mp->A[1][1] = b2;
+      Mp->A[2][0] = b1;
+      Mp->A[2][1] = b2;
+      Mp->A[2][2] = b3;
+      Mp->A[3][0] = b1;
+      Mp->A[3][1] = b2;
+      Mp->A[3][2] = b3;
+      Mp->A[3][3] = b4;
+      Mp->c[0] = Mp->b[0];
+      Mp->c[1] = Mp->b[0] + Mp->b[1];
+      Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
+      Mp->c[3] = Mp->b[0] + Mp->b[1] + Mp->b[2] + Mp->b[3];
+      Mp->q = order;
+      Mp->p = 0;
+
+      Mq = ARKodeButcherTable_Alloc(4, SUNTRUE);
+      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
+      Mq->b[0] = a1;
+      Mq->b[1] = a2;
+      Mq->b[2] = a3;
+      Mq->b[3] = a4;
+      Mq->A[1][0] = a1;
+      Mq->A[2][0] = a1;
+      Mq->A[2][1] = a2;
+      Mq->A[3][0] = a1;
+      Mq->A[3][1] = a2;
+      Mq->A[3][2] = a3;
+      Mq->c[0] = SUN_RCONST(0.0);
+      Mq->c[1] = Mq->b[0];
+      Mq->c[2] = Mq->b[0] + Mq->b[1];
+      Mq->c[3] = Mq->b[0] + Mq->b[1] + Mq->b[2];
+      Mq->q = order;
+      Mq->p = 0;
+    }
+
+    /* 3rd order scheme [Ruth, 1983] */
     if (order == 3) {
+      const sunrealtype a1 =  SUN_RCONST(2.0)/SUN_RCONST(3.0);
+      const sunrealtype a2 = -SUN_RCONST(2.0)/SUN_RCONST(3.0);
+      const sunrealtype a3 =  SUN_RCONST(1.0);
+      const sunrealtype b1 =  SUN_RCONST(7.0)/SUN_RCONST(24.0);
+      const sunrealtype b2 =  SUN_RCONST(3.0)/SUN_RCONST(4.0);
+      const sunrealtype b3 = -SUN_RCONST(1.0)/SUN_RCONST(24.0);
+
       Mp = ARKodeButcherTable_Alloc(3, SUNTRUE);
       if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mp->b[0] = RCONST(2.0)/RCONST(3.0);
-      Mp->b[1] = -RCONST(2.0)/RCONST(3.0);
-      Mp->b[2] = RCONST(1.0);
-      Mp->A[0][0] = Mp->b[0];
-      Mp->A[1][0] = Mp->b[0];
-      Mp->A[1][1] = Mp->b[1];
-      Mp->A[2][0] = Mp->b[0];
-      Mp->A[2][1] = Mp->b[1];
-      Mp->A[2][2] = Mp->b[2];
+      Mp->b[0] = b1;
+      Mp->b[1] = b2;
+      Mp->b[2] = b3;
+      Mp->A[0][0] = b1;
+      Mp->A[1][0] = b1;
+      Mp->A[1][1] = b2;
+      Mp->A[2][0] = b1;
+      Mp->A[2][1] = b2;
+      Mp->A[2][2] = b3;
       Mp->c[0] = Mp->b[0];
       Mp->c[1] = Mp->b[0] + Mp->b[1];
       Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
@@ -166,12 +232,12 @@ int main(int argc, char* argv[])
 
       Mq = ARKodeButcherTable_Alloc(3, SUNTRUE);
       if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mq->b[0] = RCONST(7.0)/RCONST(24.0);
-      Mq->b[1] = RCONST(3.0)/RCONST(4.0);
-      Mq->b[2] = -RCONST(1.0)/RCONST(24.0);
-      Mq->A[1][0] = Mq->b[0];
-      Mq->A[2][0] = Mq->b[0];
-      Mq->A[2][1] = Mq->b[1];
+      Mq->b[0] = a1;
+      Mq->b[1] = a2;
+      Mq->b[2] = a3;
+      Mq->A[1][0] = a1;
+      Mq->A[2][0] = a1;
+      Mq->A[2][1] = a2;
       Mq->c[0] = Mq->b[0];
       Mq->c[1] = Mq->b[0] + Mq->b[1];
       Mq->c[2] = Mq->b[0] + Mq->b[1] + Mq->b[2];
@@ -179,6 +245,7 @@ int main(int argc, char* argv[])
       Mq->p = 0;
     }
 
+    /* Pseudo Leapfrog */
     if (order == 2) {
       Mp = ARKodeButcherTable_Alloc(2, SUNTRUE);
       if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -202,6 +269,7 @@ int main(int argc, char* argv[])
       Mq->p = 0;
     }
 
+    /* Symplectic Euler */
     if (order == 1) {
       Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
       if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -244,25 +312,24 @@ int main(int argc, char* argv[])
   retval = ARKStepSetUserData(arkode_mem, (void *) udata);
   if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
-  if (fixed_step_mode) {
+  if (step_mode == 1) {
     retval = ARKStepSetFixedStep(arkode_mem, dt);
     if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
     retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
     if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
-  } else if (method == 0) {
+  } else if (step_mode == 2 || step_mode == 3) {
+    /*  Adaptivity based on [Hairer and Soderlind, 2005] */
     retval = ARKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
     if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
-    const sunrealtype rho_half = udata->rho_n + udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
-    retval = ARKStepSetInitStep(arkode_mem, udata->eps/rho_half);
+    udata->rho_nmhalf = udata->rho_n - udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
+    udata->rho_nphalf = udata->rho_nmhalf + udata->eps*G(y, udata->alpha);
+    retval = ARKStepSetInitStep(arkode_mem, udata->eps/udata->rho_nphalf);
     if (check_retval(&retval, "ARKStepSetInitStep", 1)) return 1;
 
-    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-1), SUN_RCONST(10e-5));
-    if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
-
-    // retval = ARKStepSetMaxNumSteps(arkode_mem, 20);
-    // if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
+    retval = ARKStepSetMaxNumSteps(arkode_mem, (long int) 100*(ceil(Tf/dt) + 1));
+    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
   } else {
     retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
     if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
@@ -273,6 +340,7 @@ int main(int argc, char* argv[])
     const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
     const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
+    const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
     // const char* fmt1 = "ark_kepler_conserved_sprkinc-%d.txt";
     // const char* fmt2 = "ark_kepler_solution_sprkinc-%d.txt";
     // const char* fmt3 = "ark_kepler_times_sprkinc-%d.txt";
@@ -283,6 +351,8 @@ int main(int argc, char* argv[])
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, order);
     times_fp = fopen(fname, "w+");
+    sprintf(fname, fmt4, order);
+    udata->hhist_fp = fopen(fname, "w+");
   } else {
     const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
@@ -301,25 +371,35 @@ int main(int argc, char* argv[])
   tout = T0+dTout;
   H0 = Hamiltonian(y);
   L0 = AngularMomentum(y);
-  fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f\n", tret, H0, L0);
+  sunrealtype Q0 = Q(y, udata->alpha)/udata->rho_n;
+  fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f, Q(p,q) = %.16f\n",
+          tret, H0, L0, Q0);
   fprintf(times_fp, "%.16f\n", tret);
   fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
   N_VPrintFile(y, solution_fp);
   for (iout = 0; iout < num_output_times; iout++) {
     ARKStepSetStopTime(arkode_mem, tout);
-    if (method == 0 && fixed_step_mode == 0) {
+    if (step_mode == 3) {
       while(tret < tout) {
         retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-        // printf(">>> Q(q)/rho_n = %g\n", Q(y, udata->alpha)/udata->rho_n);
         if (retval < 0) break;
+        fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+                tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
+                Q(y, udata->alpha)/udata->rho_np1-Q0);
+        fprintf(times_fp, "%.16f\n", tret);
+        fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+        N_VPrintFile(y, solution_fp);
       }
     } else {
       retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+      fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+              tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
+              Q(y, udata->alpha)/udata->rho_np1-Q0);
+      fprintf(times_fp, "%.16f\n", tret);
+      fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+      N_VPrintFile(y, solution_fp);
     }
-    fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n", tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
-    fprintf(times_fp, "%.16f\n", tret);
-    fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
-    N_VPrintFile(y, solution_fp);
+
     if (retval >= 0) {  /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -336,6 +416,7 @@ int main(int argc, char* argv[])
   if (Mp) ARKodeButcherTable_Free(Mp);
   if (NLS) SUNNonlinSolFree(NLS);
   N_VDestroy(y);
+  fclose(udata->hhist_fp);
   free(udata);
   fclose(times_fp);
   fclose(conserved_fp);
@@ -361,15 +442,15 @@ sunrealtype Hamiltonian(N_Vector yvec)
 {
   sunrealtype H = 0.0;
   sunrealtype* y = N_VGetArrayPointer(yvec);
-  const sunrealtype sqrt_q1q1_plus_q2q2 = SUNRsqrt(y[0]*y[0] + y[1]*y[1]);
-  const sunrealtype p1p1_plus_p2p2 = y[2]*y[2] + y[3]*y[3];
+  const sunrealtype sqrt_qTq = SUNRsqrt(y[0]*y[0] + y[1]*y[1]);
+  const sunrealtype pTp = y[2]*y[2] + y[3]*y[3];
 
   // Perturbed
-  // H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2
-    // - SUN_RCONST(0.005) / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0)) / SUN_RCONST(2.0);
+  // H = SUN_RCONST(0.5)*pTp - SUN_RCONST(1.0)/sqrt_qTq
+    // - SUN_RCONST(0.005) / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0)) / SUN_RCONST(2.0);
 
   // Unperturbed
-  H = SUN_RCONST(0.5)*p1p1_plus_p2p2 - SUN_RCONST(1.0)/sqrt_q1q1_plus_q2q2;
+  H = SUN_RCONST(0.5)*pTp - SUN_RCONST(1.0)/sqrt_qTq;
 
   return H;
 }
@@ -382,8 +463,6 @@ sunrealtype AngularMomentum(N_Vector yvec)
   const sunrealtype q2 = y[1];
   const sunrealtype p1 = y[2];
   const sunrealtype p2 = y[3];
-
-  // printf("[%.8f  %.8f  %.8f  %.8f]\n", y[0], y[1], y[2], y[3]);
 
   L = q1*p2 - q2*p1;
 
@@ -422,13 +501,13 @@ int dpdt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   const sunrealtype delta = udata->delta;
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
-  const sunrealtype sqrt_q1q1_plus_q2q2 = SUNRsqrt(q1*q1 + q2*q2);
+  const sunrealtype sqrt_qTq = SUNRsqrt(q1*q1 + q2*q2);
 
   // ydot[0] = ydot[1] = SUN_RCONST(0.0);
-  ydot[2] =         - q1 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))
-            - delta * q1 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(5.0));
-  ydot[3] =         - q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(3.0))
-            - delta * q2 / SUNRpowerR(sqrt_q1q1_plus_q2q2, SUN_RCONST(5.0));
+  ydot[2] =         - q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0))
+            - delta * q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(5.0));
+  ydot[3] =         - q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0))
+            - delta * q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(5.0));
 
   return 0;
 }
@@ -455,7 +534,7 @@ sunrealtype Q(N_Vector yvec, sunrealtype alpha)
 
   const sunrealtype qTq = q1*q1 + q2*q2;
 
-  return SUNRpowerR(qTq, -alpha/2);
+  return SUNRpowerR(qTq, -alpha/SUN_RCONST(2.0));
 }
 
 int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
@@ -465,10 +544,15 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 {
   UserData udata = (UserData) user_data;
 
-  const sunrealtype eps = udata->eps;
-  const sunrealtype rho_nphalf = udata->rho_n + eps*G(y, udata->alpha)/SUN_RCONST(2.0);
+  fprintf(udata->hhist_fp, "%.16f\n", h1);
 
-  *hnew = eps/rho_nphalf;
+  const sunrealtype G_np1 = G(y, udata->alpha);
+  udata->rho_np1 = udata->rho_nphalf + udata->eps*G_np1/SUN_RCONST(2.0);
+
+  udata->rho_nmhalf = udata->rho_nphalf;
+  const sunrealtype rho_nphalf_next = udata->rho_nmhalf + udata->eps*G_np1;
+
+  *hnew = udata->eps/rho_nphalf_next;
 
   return 0;
 }
