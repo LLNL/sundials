@@ -22,6 +22,8 @@
 #define _POSIX_C_SOURCE 199309L
 #endif
 
+#include <sundials/sundials_config.h>
+
 /* POSIX timers */
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
@@ -29,7 +31,6 @@
 #include <unistd.h>
 #endif
 
-#include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
