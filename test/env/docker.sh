@@ -249,14 +249,14 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "single" ]; then
     export SUNDIALS_SUPERLU_MT=ON
-    export SUPERLU_MT_ROOT=/opt/view
+    export SUPERLU_MT_ROOT=/opt/view/superlu-mt
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_MT=ON
-    export SUPERLU_MT_ROOT=/opt/view
+    export SUPERLU_MT_ROOT=/opt/view/superlu-mt
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
@@ -276,7 +276,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_DIST=ON
-    export SUPERLU_DIST_ROOT=/opt/view
+    export SUPERLU_DIST_ROOT=/opt/view/superlu-dist
     export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
 
