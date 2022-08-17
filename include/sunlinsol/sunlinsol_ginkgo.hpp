@@ -26,13 +26,6 @@ SUNDIALS_EXPORT int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S)
   return SUNLS_SUCCESS;
 }
 
-template<typename LinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_Ginkgo(SUNLinearSolver S, N_Vector s1, N_Vector s2)
-{
-  // auto solver = static_cast<LinearSolverType*>(S->content);
-  return -1;
-}
-
 template<typename LinearSolverType, typename MatrixType>
 SUNDIALS_EXPORT int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 {
@@ -134,7 +127,7 @@ bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized, gko::Arra
   return one_converged;
 }
 
-class ILinearSolver : public SUNLinearSolverView {
+class ILinearSolver : public ConvertibleTo<SUNLinearSolver> {
 public:
   virtual gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol) = 0;
   virtual std::shared_ptr<const gko::Executor> gkoexec() const       = 0;
@@ -163,7 +156,6 @@ public:
     std::memset(sunlinsol_->ops, 0, sizeof(_generic_SUNLinearSolver_Ops));
     sunlinsol_->ops->gettype           = SUNLinSolGetType_Ginkgo;
     sunlinsol_->ops->getid             = SUNLinSolGetID_Ginkgo;
-    sunlinsol_->ops->setscalingvectors = SUNLinSolSetScalingVectors_Ginkgo<this_type>;
     sunlinsol_->ops->initialize        = SUNLinSolInitialize_Ginkgo<this_type>;
     sunlinsol_->ops->setup             = SUNLinSolSetup_Ginkgo<this_type, MatrixType>;
     sunlinsol_->ops->solve             = SUNLinSolSolve_Ginkgo<this_type>;
@@ -190,13 +182,13 @@ public:
     return log_res_norm_;
   }
 
-  operator SUNLinearSolver() { return sunlinsol_.get(); }
+  operator SUNLinearSolver() override { return sunlinsol_.get(); }
 
-  operator SUNLinearSolver() const { return sunlinsol_.get(); }
+  operator SUNLinearSolver() const override { return sunlinsol_.get(); }
 
-  SUNLinearSolver get() { return sunlinsol_.get(); }
+  SUNLinearSolver get() override { return sunlinsol_.get(); }
 
-  SUNLinearSolver get() const { return sunlinsol_.get(); }
+  SUNLinearSolver get() const override { return sunlinsol_.get(); }
 
   GkoSolverType* setup(MatrixType* A)
   {
