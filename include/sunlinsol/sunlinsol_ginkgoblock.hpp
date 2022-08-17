@@ -80,7 +80,7 @@ inline std::unique_ptr<gko::matrix::BatchDiagonal<sunrealtype>> WrapBatchDiagMat
 }
 
 template<class GkoBatchSolverType, class BlockMatrixType>
-class BlockLinearSolver : public SUNLinearSolverView {
+class BlockLinearSolver : public ConvertibleTo<SUNLinearSolver> {
 public:
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::stop::batch::ToleranceType tolerance_type,
                     std::shared_ptr<gko::BatchLinOpFactory> precon_factory, int max_iters, sunindextype num_blocks,

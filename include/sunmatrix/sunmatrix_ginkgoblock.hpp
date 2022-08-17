@@ -16,7 +16,7 @@ using GkoBatchCsrMat   = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
 using GkoBatchVecType  = GkoBatchDenseMat;
 
 template<typename GkoBatchMatType>
-class BlockMatrix : public SUNMatrixView {
+class BlockMatrix : public ConvertibleTo<SUNMatrix> {
 public:
   BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec,
               SUNContext sunctx)
@@ -35,13 +35,13 @@ public:
     std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n");
   }
 
-  operator SUNMatrix() { return sunmtx_.get(); }
+  operator SUNMatrix() override { return sunmtx_.get(); }
 
-  operator SUNMatrix() const { return sunmtx_.get(); }
+  operator SUNMatrix() const override { return sunmtx_.get(); }
 
-  SUNMatrix get() { return sunmtx_.get(); }
+  SUNMatrix get() override { return sunmtx_.get(); }
 
-  SUNMatrix get() const { return sunmtx_.get(); }
+  SUNMatrix get() const override { return sunmtx_.get(); }
 
   SUNContext sunctx() const { return sunmtx_->sunctx; }
 
