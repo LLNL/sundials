@@ -1,11 +1,7 @@
 
-#include <cstring>
 #include <ginkgo/ginkgo.hpp>
 #include <memory>
-#include <stdexcept>
 #include <sundials/sundials_matrix.h>
-#include <type_traits>
-#include <utility>
 
 #ifndef _SUNMATRIX_GINKGO_HPP
 #define _SUNMATRIX_GINKGO_HPP
