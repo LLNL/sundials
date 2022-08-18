@@ -14,9 +14,8 @@
  * -----------------------------------------------------------------
  */
 
+#include <iostream>
 #include <memory>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -44,9 +43,6 @@
 
 using namespace sundials::ginkgo;
 
-using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
-using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
-
 bool using_csr_matrix_type   = false;
 bool using_dense_matrix_type = false;
 
@@ -67,7 +63,7 @@ int main(int argc, char* argv[])
   /* check input and set vector length */
   if (argc < 4) {
     std::cerr << "ERROR: THREE (3) Input required: matrix rows, matrix cols, format (0 = csr, 1 = dense)\n";
-    return -1;
+    return 1;
   }
 
   int argi{0};
@@ -75,19 +71,19 @@ int main(int argc, char* argv[])
   auto matrows{static_cast<sunindextype>(atol(argv[++argi]))};
   if (matrows <= 0) {
     std::cerr << "ERROR: number of rows must be a positive integer \n";
-    return -1;
+    return 1;
   }
 
   auto matcols{static_cast<sunindextype>(atol(argv[++argi]))};
   if (matcols <= 0) {
     std::cerr << "ERROR: number of cols must be a positive integer \n";
-    return -1;
+    return 1;
   }
 
   auto format{static_cast<int>(atoi(argv[++argi]))};
   if (format != 0 && format != 1) {
     std::cerr << "ERROR: format must be 0 (csr) or 1 (dense) \n";
-    return -1;
+    return 1;
   }
 
   if (format == 0) {
@@ -209,7 +205,7 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
   /* check lengths */
   if (Amat->get_size() != Bmat->get_size()) {
     std::cerr << ">>> ERROR: check_matrix: Different data array lengths \n";
-    return (1);
+    return 1;
   }
 
   /* compare data */
@@ -232,19 +228,14 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
 
   /* check lengths */
   if (Amat->get_size() != Bmat->get_size()) {
-    printf(">>> ERROR: check_matrix: Different data array lengths \n");
-    return (1);
+    std::cerr << ">>> ERROR: check_matrix: Different data array lengths \n";
+    return 1;
   }
 
   /* compare data */
   for (sunindextype i = 0; i < rows; i++) {
     for (sunindextype j = 0; j < cols; j++) {
-      int check = SUNRCompareTol(Amat->at(i, j), Bmat->at(i, j), tol);
-      if (check) {
-        printf("  A[%ld,%ld] = %g != B[%ld,%ld] = %g (err = %g)\n", (long int)i, (long int)j, Amat->at(i, j),
-               (long int)i, (long int)j, Bmat->at(i, j), SUNRabs(Amat->at(i, j) - Bmat->at(i, j)));
-        failure += check;
-      }
+      failure += SUNRCompareTol(Amat->at(i, j), Bmat->at(i, j), tol);
     }
   }
 
@@ -258,7 +249,7 @@ extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   else if (using_dense_matrix_type)
     return check_matrix_dense(A, B, tol);
   else
-    return -1;
+    return 1;
 }
 
 int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
@@ -295,7 +286,8 @@ int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
     for (sunindextype j = 0; j < cols; j++) {
       int check = SUNRCompareTol(Amat->at(i, j), val, tol);
       if (check) {
-        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int)i, Amat->at(i, j), val, SUNRabs(Amat->at(i, j) - val));
+        std::cerr << "  actual[" << i << "," << j << "] = " << Amat->at(i, j) << " != " << val
+                  << " (err = " << SUNRabs(Amat->at(i, j) - val) << ")\n";
         failure += check;
       }
     }
@@ -311,7 +303,7 @@ extern "C" int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   } else if (using_dense_matrix_type) {
     return check_matrix_entry_dense(A, val, tol);
   } else {
-    return -1;
+    return 1;
   }
 }
 
@@ -333,7 +325,7 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 
   if (xldata != yldata) {
     std::cerr << "ERROR check_vector: different vector lengths\n";
-    return (1);
+    return 1;
   }
 
   /* check vector data */
@@ -353,21 +345,28 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 
 extern "C" booleantype has_data(SUNMatrix A)
 {
-  // auto Amat = static_cast<SUNMatrixType*>(A->content)->gkomtx();
-  // if (Amat->get_values() == NULL || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0)
-  // return SUNFALSE;
-  // else
-  return SUNTRUE;
+  if (using_csr_matrix_type) {
+    auto Amat{static_cast<Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
+    return !(Amat->get_values() == NULL || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0);
+  } else if (using_dense_matrix_type) {
+    auto Amat{static_cast<Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
+    return !(Amat->get_values() == NULL || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0);
+  } else {
+    return SUNFALSE;
+  }
 }
 
 extern "C" booleantype is_square(SUNMatrix A)
 {
-  // auto Amat = static_cast<SUNMatrixType*>(A->content)->gkomtx();
-  // if (Amat->get_size()[0] == Amat->get_size()[1])
-  // return SUNTRUE;
-  // else
-  // return SUNFALSE;
-  return SUNTRUE;
+  if (using_csr_matrix_type) {
+    auto Amat{static_cast<Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
+    return Amat->get_size()[0] == Amat->get_size()[1];
+  } else if (using_dense_matrix_type) {
+    auto Amat{static_cast<Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
+    return Amat->get_size()[0] == Amat->get_size()[1];
+  } else {
+    return SUNTRUE;
+  }
 }
 
 extern "C" void sync_device(SUNMatrix A)
