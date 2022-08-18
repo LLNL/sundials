@@ -9,7 +9,7 @@ set(sunmatrix_ginkgo_examples
   "test_sunlinsol_ginkgo.cpp\;cgs 100 10 1 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;gmres 100 10 1 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;idr 100 10 1 100 0\;"
-  "test_sunlinsol_ginkgoblock.cpp\;gmres 100 10 1 100 0\;"
+  # "test_sunlinsol_ginkgoblock.cpp\;gmres 100 10 1 100 0\;"
   )
 
 # Add source directory to include directories
@@ -32,6 +32,8 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
         set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
         set(vector nvechip)
       elseif(backend MATCHES "OMP")
+        set(vector nvecserial)
+      elseif(backend MATCHES "REF")
         set(vector nvecserial)
       endif()
 

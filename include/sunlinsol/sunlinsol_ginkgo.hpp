@@ -1,5 +1,6 @@
 
 #include <cstring>
+#include <ginkgo/core/solver/bicg.hpp>
 #include <memory>
 #include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
@@ -9,10 +10,11 @@
 
 namespace sundials {
 namespace ginkgo {
-namespace {
 
 template<class GkoSolverType, class MatrixType>
 class LinearSolver;
+
+namespace {
 
 SUNDIALS_EXPORT
 SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S) { return SUNLINEARSOLVER_MATRIX_ITERATIVE; }
@@ -20,49 +22,47 @@ SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S) { return SUNLINE
 SUNDIALS_EXPORT
 SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S) { return SUNLINEARSOLVER_GINKGO; }
 
-template<typename LinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S)
-{
-  return SUNLS_SUCCESS;
-}
+SUNDIALS_EXPORT int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S) { return SUNLS_SUCCESS; }
 
-template<typename LinearSolverType, typename MatrixType>
+template<class GkoSolverType, class MatrixType>
 SUNDIALS_EXPORT int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 {
-  auto solver = static_cast<LinearSolverType*>(S->content);
+  auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   solver->setup(static_cast<MatrixType*>(A->content));
   return SUNLS_SUCCESS;
 }
 
-template<typename LinearSolverType>
+template<class GkoSolverType, class MatrixType>
 SUNDIALS_EXPORT int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 {
-  auto solver = static_cast<LinearSolverType*>(S->content);
+  auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   solver->solve(b, x, tol);
   return SUNLS_SUCCESS;
 }
 
-template<typename LinearSolverType>
+template<class GkoSolverType, class MatrixType>
 SUNDIALS_EXPORT int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
 {
-  auto solver = static_cast<LinearSolverType*>(S->content);
+  auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   delete solver;
   return SUNLS_SUCCESS;
 }
 
-template<typename LinearSolverType>
+template<class GkoSolverType, class MatrixType>
 SUNDIALS_EXPORT int SUNLinSolNumIters_Ginkgo(SUNLinearSolver S)
 {
-  auto solver = static_cast<LinearSolverType*>(S->content);
+  auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   return solver->numIters();
 }
 
-template<typename LinearSolverType>
+template<class GkoSolverType, class MatrixType>
 SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
 {
-  auto solver = static_cast<LinearSolverType*>(S->content);
+  auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   return solver->resNorm();
 }
+
+} // namespace
 
 // Custom gko::stop::Criterion that does the normal SUNDIALS stopping checks:
 // 1. Was the absolute residual tolerance met?
@@ -127,42 +127,33 @@ bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized, gko::Arra
   return one_converged;
 }
 
-class ILinearSolver : public ConvertibleTo<SUNLinearSolver> {
-public:
-  virtual gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol) = 0;
-  virtual std::shared_ptr<const gko::Executor> gkoexec() const       = 0;
-  virtual int numIters() const                                       = 0;
-  virtual sunrealtype resNorm() const                                = 0;
-  virtual bool logResNorm() const                                    = 0;
-  virtual bool logResNorm(bool onoff)                                = 0;
-  virtual ~ILinearSolver() {}
-};
-
 template<class GkoSolverType, class MatrixType>
-class LinearSolver : public ILinearSolver {
+class LinearSolver : public ConvertibleTo<SUNLinearSolver> {
 public:
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory), sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
-        sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), iter_count_(0), res_norm_(sunrealtype{0.0}),
-        log_res_norm_(false)
+        sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), iter_count_(0), res_norm_(sunrealtype{0.0})
   {
-    // Attach function pointers for SUNLinearSolver
-    using this_type = LinearSolver<GkoSolverType, MatrixType>;
-
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
     sunlinsol_->sunctx  = sunctx;
 
     std::memset(sunlinsol_->ops, 0, sizeof(_generic_SUNLinearSolver_Ops));
-    sunlinsol_->ops->gettype           = SUNLinSolGetType_Ginkgo;
-    sunlinsol_->ops->getid             = SUNLinSolGetID_Ginkgo;
-    sunlinsol_->ops->initialize        = SUNLinSolInitialize_Ginkgo<this_type>;
-    sunlinsol_->ops->setup             = SUNLinSolSetup_Ginkgo<this_type, MatrixType>;
-    sunlinsol_->ops->solve             = SUNLinSolSolve_Ginkgo<this_type>;
-    sunlinsol_->ops->numiters          = SUNLinSolNumIters_Ginkgo<this_type>;
-    sunlinsol_->ops->resnorm           = SUNLinSolResNorm_Ginkgo<this_type>;
-    sunlinsol_->ops->free              = SUNLinSolFree_Ginkgo<this_type>;
+    sunlinsol_->ops->gettype    = SUNLinSolGetType_Ginkgo;
+    sunlinsol_->ops->getid      = SUNLinSolGetID_Ginkgo;
+    sunlinsol_->ops->initialize = SUNLinSolInitialize_Ginkgo;
+    sunlinsol_->ops->setup      = SUNLinSolSetup_Ginkgo<GkoSolverType, MatrixType>;
+    sunlinsol_->ops->solve      = SUNLinSolSolve_Ginkgo<GkoSolverType, MatrixType>;
+    sunlinsol_->ops->numiters   = SUNLinSolNumIters_Ginkgo<GkoSolverType, MatrixType>;
+    sunlinsol_->ops->resnorm    = SUNLinSolResNorm_Ginkgo<GkoSolverType, MatrixType>;
+    sunlinsol_->ops->free       = SUNLinSolFree_Ginkgo<GkoSolverType, MatrixType>;
   }
+
+  virtual operator SUNLinearSolver() override { return sunlinsol_.get(); }
+  virtual operator SUNLinearSolver() const override { return sunlinsol_.get(); }
+
+  virtual SUNLinearSolver get() override { return sunlinsol_.get(); }
+  virtual SUNLinearSolver get() const override { return sunlinsol_.get(); }
 
   std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_->get_executor(); }
 
@@ -173,22 +164,6 @@ public:
   int numIters() const { return iter_count_; }
 
   sunrealtype resNorm() const { return res_norm_; }
-
-  bool logResNorm() const { return log_res_norm_; }
-
-  bool logResNorm(bool onoff)
-  {
-    log_res_norm_ = onoff;
-    return log_res_norm_;
-  }
-
-  operator SUNLinearSolver() override { return sunlinsol_.get(); }
-
-  operator SUNLinearSolver() const override { return sunlinsol_.get(); }
-
-  SUNLinearSolver get() override { return sunlinsol_.get(); }
-
-  SUNLinearSolver get() const override { return sunlinsol_.get(); }
 
   GkoSolverType* setup(MatrixType* A)
   {
@@ -212,7 +187,7 @@ public:
                           .with_max_iters(crit->get_parameters().max_iters)
                           .on(gkoexec());
       new_crit->add_logger(logger);
-      gkosolver()->set_stop_criterion_factory(gko::share(new_crit));
+      gkosolver()->set_stop_criterion_factory(std::move(new_crit));
     }
 
     gko::LinOp* result;
@@ -230,8 +205,7 @@ public:
     }
 
     iter_count_ += logger->get_num_iterations();
-    if (logResNorm())
-      res_norm_ = gko::as<GkoDenseMat>(logger->get_residual_norm())->at(0);
+    res_norm_ = gko::as<GkoDenseMat>(logger->get_residual_norm())->at(0);
 
     return result;
   }
@@ -239,14 +213,12 @@ public:
 private:
   std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory_;
   std::unique_ptr<GkoSolverType> gko_solver_;
-  std::unique_ptr<struct _generic_SUNLinearSolver> sunlinsol_;
-  std::unique_ptr<struct _generic_SUNLinearSolver_Ops> sunlinsol_ops_;
+  std::unique_ptr<_generic_SUNLinearSolver> sunlinsol_;
+  std::unique_ptr<_generic_SUNLinearSolver_Ops> sunlinsol_ops_;
   int iter_count_;
   sunrealtype res_norm_;
-  bool log_res_norm_;
 };
 
-}
 } // namespace ginkgo
 } // namespace sundials
 
