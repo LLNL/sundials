@@ -207,7 +207,7 @@ int SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 
   if (helper->ops)
   {
-    if (helper->ops->destroy(helper))
+    if (helper->ops->destroy)
     {
       /* user helper defined destroy */
       return helper->ops->destroy(helper);
