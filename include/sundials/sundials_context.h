@@ -30,10 +30,8 @@ extern "C" {
 typedef struct _SUNContext* SUNContext;
 
 SUNDIALS_EXPORT int SUNContext_Create(void* comm, SUNContext* ctx);
-SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx,
-                                           SUNProfiler* profiler);
-SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx,
-                                           SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
+SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
 SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
 SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
@@ -44,6 +42,21 @@ SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 #include <memory>
 
 namespace sundials {
+
+/* TODO(CJB): find a better place to put this */
+template<class T>
+class ConvertibleTo {
+public:
+  // Explicit conversion to the underlying type
+  virtual T get()       = 0;
+  virtual T get() const = 0;
+
+  // Implicit conversion to the underlying type
+  virtual operator T()       = 0;
+  virtual operator T() const = 0;
+
+  virtual ~ConvertibleTo<T>() {}
+};
 
 class Context {
 public:
@@ -65,7 +78,8 @@ public:
 
   ~Context()
   {
-    if (sunctx_) SUNContext_Free(sunctx_.get());
+    if (sunctx_)
+      SUNContext_Free(sunctx_.get());
   }
 
 private:

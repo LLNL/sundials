@@ -17,10 +17,12 @@
 
 # Examples using SUNDIALS Ginkgo dense matrix
 set(sunmatrix_ginkgo_examples
-  "test_sunmatrix_ginkgoblockcsr.cpp\;20 10 0\;"
-  "test_sunmatrix_ginkgoblockdense.cpp\;20 10 0\;"
-  "test_sunmatrix_gkocsr.cpp\;100 100 0\;"
-  "test_sunmatrix_gkodense.cpp\;100 100 0\;"
+  "test_sunmatrix_gko.cpp\;100 100 0\;"
+  "test_sunmatrix_gko.cpp\;100 10 0\;"
+  "test_sunmatrix_gko.cpp\;10 100 0\;"
+  "test_sunmatrix_gko.cpp\;100 100 1\;"
+  "test_sunmatrix_gko.cpp\;100 10 1\;"
+  "test_sunmatrix_gko.cpp\;10 100 1\;"
 )
 
 # Add source directory to include directories
@@ -41,7 +43,8 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
     elseif(backend MATCHES "HIP")
       set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
       set(vector nvechip)
-    elseif(backend MATCHES "OMP")
+    else()
+      set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
       set(vector nvecserial)
     endif()
 
