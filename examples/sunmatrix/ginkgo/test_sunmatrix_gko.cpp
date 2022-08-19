@@ -84,10 +84,12 @@ int Test_CopyAndMove(std::shared_ptr<GkoDenseMat> gko_mat, sundials::Context& su
   // Copy assignment
   Matrix<GkoDenseMat> mat4;
   mat4 = mat3;
+  SUNMatZero(mat4);
 
   // Move assignment
   Matrix<GkoDenseMat> mat5;
   mat5 = std::move(mat4);
+  SUNMatZero(mat5);
 
   std::cout << "    PASSED test -- Test_CopyAndMove\n";
 

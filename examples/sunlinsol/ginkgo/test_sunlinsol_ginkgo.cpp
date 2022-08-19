@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cctype>
 #include <ginkgo/core/base/executor.hpp>
+#include <ginkgo/core/solver/bicg.hpp>
 #include <random>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,8 +64,33 @@ std::unordered_map<std::string, int> methods{
     // {"cbgmres", 8} // does not support setting stopping criteria
 };
 
-template<typename T>
-class TD;
+template<class GkoSolverType, class MatrixType>
+int Test_CopyAndMove(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, sundials::Context& sunctx)
+{
+  // Copy constructor
+  LinearSolver<GkoSolverType, MatrixType> solver{gko_solver_factory, sunctx};
+  LinearSolver<GkoSolverType, MatrixType> solver2{solver};
+  long int *lenrw, *leniw;
+  SUNLinSolNumIters(solver);
+
+  // Move constructor
+  LinearSolver<GkoSolverType, MatrixType> solver3{std::move(solver2)};
+  SUNLinSolNumIters(solver);
+
+  // Copy assignment
+  LinearSolver<GkoSolverType, MatrixType> solver4;
+  solver4 = solver3;
+  SUNLinSolNumIters(solver);
+
+  // Move assignment
+  LinearSolver<GkoSolverType, MatrixType> solver5;
+  solver5 = std::move(solver4);
+  SUNLinSolNumIters(solver);
+
+  std::cout << "    PASSED test -- Test_CopyAndMove\n";
+
+  return 0;
+}
 
 /* ----------------------------------------------------------------------
  * SUNLinSol_Ginkgo Testing Routine
@@ -206,6 +232,7 @@ int main(int argc, char* argv[])
                                            .with_criteria(std::move(crit))         //
                                            .with_preconditioner(std::move(precon)) //
                                            .on(gko_exec))};
+    Test_CopyAndMove<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory, sunctx);
     LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
   } else if (method == "bicgstab") {
     using GkoSolverType = gko::solver::Bicgstab<sunrealtype>;
