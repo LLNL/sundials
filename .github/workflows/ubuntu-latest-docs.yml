@@ -20,7 +20,7 @@ jobs:
           submodules: true
       - name: Build docs
         run: |
-          . /opt/python-venv/sundoc/bin/activate
+          . /opt/python-venv/sundocs/bin/activate
           cd doc/${{ matrix.package }}/guide
           make latexpdf
   build_sundials_docs:
@@ -35,6 +35,6 @@ jobs:
           submodules: true
       - name: Build docs
         run: |
-          . /opt/python-venv/sundoc/bin/activate
+          . /opt/python-venv/sundocs/bin/activate
           cd doc/superbuild
           make html
