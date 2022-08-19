@@ -166,7 +166,7 @@ public:
       : gko_solver_factory_(gko::give(gko_solver_factory_)), gko_solver_(gko::give(gko_solver_))
   {
     sunlinsol_          = std::move(that_solver.sunlinsol_);
-    sunlinsol_->ops     = std::move(that_solver.sunlinsol_ops_);
+    sunlinsol_ops_      = std::move(that_solver.sunlinsol_ops_);
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
   }
