@@ -46,6 +46,54 @@ using namespace sundials::ginkgo;
 bool using_csr_matrix_type   = false;
 bool using_dense_matrix_type = false;
 
+int Test_CopyAndMove(std::shared_ptr<GkoCsrMat> gko_mat, sundials::Context& sunctx)
+{
+  // Copy constructor
+  Matrix<GkoCsrMat> mat{gko_mat, sunctx};
+  Matrix<GkoCsrMat> mat2{mat};
+  SUNMatZero(mat2);
+
+  // Move constructor
+  Matrix<GkoCsrMat> mat3{std::move(mat2)};
+  SUNMatZero(mat3);
+
+  // Copy assignment
+  Matrix<GkoCsrMat> mat4;
+  mat4 = mat3;
+
+  // Move assignment
+  Matrix<GkoCsrMat> mat5;
+  mat5 = std::move(mat4);
+
+  std::cout << "    PASSED test -- Test_CopyAndMove\n";
+
+  return 0;
+}
+
+int Test_CopyAndMove(std::shared_ptr<GkoDenseMat> gko_mat, sundials::Context& sunctx)
+{
+  // Copy constructor
+  Matrix<GkoDenseMat> mat{gko_mat, sunctx};
+  Matrix<GkoDenseMat> mat2{mat};
+  SUNMatZero(mat2);
+
+  // Move constructor
+  Matrix<GkoDenseMat> mat3{std::move(mat2)};
+  SUNMatZero(mat3);
+
+  // Copy assignment
+  Matrix<GkoDenseMat> mat4;
+  mat4 = mat3;
+
+  // Move assignment
+  Matrix<GkoDenseMat> mat5;
+  mat5 = std::move(mat4);
+
+  std::cout << "    PASSED test -- Test_CopyAndMove\n";
+
+  return 0;
+}
+
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
  * --------------------------------------------------------------------*/
@@ -138,6 +186,7 @@ int main(int argc, char* argv[])
         SM_ELEMENT_D(Aref, irow, Acolidxs[inz]) = Avalues[inz];
       }
     }
+    fails += Test_CopyAndMove(gko::share(gko_matrix->clone()), sunctx);
     A = std::make_unique<Matrix<GkoCsrMat>>(gko_matrix, sunctx);
     I = std::make_unique<Matrix<GkoCsrMat>>(gko_ident, sunctx);
   } else if (using_dense_matrix_type) {
@@ -152,6 +201,7 @@ int main(int argc, char* argv[])
         SM_ELEMENT_D(Aref, i, j) = gko_matrix->at(i, j);
       }
     }
+    fails += Test_CopyAndMove(gko::share(gko_matrix->clone()), sunctx);
     A = std::make_unique<Matrix<GkoDenseMat>>(gko_matrix, sunctx);
     I = std::make_unique<Matrix<GkoDenseMat>>(gko_ident, sunctx);
   }
@@ -175,9 +225,9 @@ int main(int argc, char* argv[])
 
   /* Print result */
   if (fails) {
-    std::cerr << "FAIL: SUNMatrix module failed " << fails << " tests \n\n";
+    std::cerr << " FAIL: SUNMatrix module failed " << fails << " tests \n\n";
   } else {
-    std::cout << "SUCCESS: SUNMatrix module passed all tests \n\n";
+    std::cout << " SUCCESS: SUNMatrix module passed all tests \n\n";
   }
 
   /* Free vectors */

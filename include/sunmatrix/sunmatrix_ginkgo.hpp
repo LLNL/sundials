@@ -139,7 +139,6 @@ public:
   // Move assignment
   BaseMatrix& operator=(BaseMatrix&& rhs) noexcept
   {
-    std::cerr << "Move assignment\n";
     gkomtx_          = gko::give(rhs.gkomtx_);
     sunmtx_          = std::move(rhs.sunmtx_);
     sunmtx_ops_      = std::move(rhs.sunmtx_ops_);
