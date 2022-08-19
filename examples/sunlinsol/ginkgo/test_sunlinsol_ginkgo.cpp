@@ -107,8 +107,8 @@ int main(int argc, char* argv[])
                                             gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true));
 
   /* check input and set matrix dimensions */
-  if (argc < 7) {
-    printf("ERROR: SIX (6) Inputs required: method, number of matrix columns, condition number, number of blocks, "
+  if (argc < 6) {
+    printf("ERROR: SIX (5) Inputs required: method, number of matrix columns, condition number, "
            "max iterations, print timing \n");
     return (-1);
   }
@@ -137,12 +137,6 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  auto nblocks{static_cast<const sunindextype>(atol(argv[++argi]))};
-  if (nblocks <= 0) {
-    printf("ERROR: number of blocks must be a positive integer \n");
-    return (-1);
-  }
-
   auto max_iters{static_cast<const unsigned long>(atol(argv[++argi]))};
   if (max_iters <= 0) {
     printf("ERROR: max iterations must be a positive integer \n");
@@ -152,9 +146,9 @@ int main(int argc, char* argv[])
   int print_timing{atoi(argv[++argi])};
   SetTiming(print_timing);
 
-  printf("\nGinkgo linear solver test: method = %s, size = %ld x %ld, blocks = %ld, condition = %g, max iters. = "
+  printf("\nGinkgo linear solver test: method = %s, size = %ld x %ld, condition = %g, max iters. = "
          "%ld\n\n",
-         method.c_str(), (long int)matrows, (long int)matcols, (long int)nblocks, matcond, (long int)max_iters);
+         method.c_str(), (long int)matrows, (long int)matcols, matcond, (long int)max_iters);
 
   /* Create vectors and matrices */
   std::default_random_engine engine;

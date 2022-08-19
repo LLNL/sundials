@@ -16,15 +16,12 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 set(CVODE_examples
-  "cv_bruss_batched_ginkgo.cpp\;\;develop"
 )
 
 if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
-  set_source_files_properties(cv_bruss_batched_ginkgo.cpp PROPERTIES LANGUAGE CUDA)
   set(vector nveccuda)
   set(cuda_or_hip CUDA)
 elseif(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
-  set_source_files_properties(cv_bruss_batched_ginkgo.cpp PROPERTIES LANGUAGE CXX)
   set(vector nvechip)
   set(cuda_or_hip HIP)
 endif()
