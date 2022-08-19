@@ -1,0 +1,38 @@
+name: documentation tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build_package_docs:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials-ci-int32-double:latest
+      options: --user root
+    strategy:
+      matrix:
+        package: [arkode, cvode, cvodes, ida, idas, kinsol]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Build docs
+        run: |
+          cd doc/${{ matrix.package }}/guide
+          make latexpdf
+  build_sundials_docs:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials-ci-int32-double:latest
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Build docs
+        run: |
+          cd doc/superbuild
+          make html
