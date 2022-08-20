@@ -1,3 +1,6 @@
+% List all the files used by this document in the log file
+\listfiles
+
 % Hyphenate verbatim text e.g., text in double backticks, :c:func:, etc.
 \usepackage[htt]{hyphenat}
 
