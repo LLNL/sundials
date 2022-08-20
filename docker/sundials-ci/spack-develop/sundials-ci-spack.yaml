@@ -7,37 +7,37 @@ spack:
   - compilers:
     - gcc@9.4.0
   - cmake:
-    - cmake
+    - cmake arch=x86_64
   - mpi:
-    - openmpi
+    - openmpi arch=x86_64
   - blas-int32:
-    - openblas ~ilp64
+    - openblas ~ilp64 arch=x86_64
   - blas-int64:
-    - openblas +ilp64
+    - openblas +ilp64 arch=x86_64
   - hypre-int32:
-    - hypre ~int64 +mpi
+    - hypre ~int64 +mpi arch=x86_64
   - hypre-int64:
-    - hypre +int64 +mpi
+    - hypre +int64 +mpi arch=x86_64
   - petsc-int32:
-    - petsc ~int64 +double +mpi ~superlu-dist ~hypre ~hdf5
+    - petsc ~int64 +double +mpi ~superlu-dist ~hypre ~hdf5 arch=x86_64
   - petsc-int64:
-    - petsc +int64 +double +mpi ~superlu-dist ~hypre ~hdf5
+    - petsc +int64 +double +mpi ~superlu-dist ~hypre ~hdf5 arch=x86_64
   - suite-sparse:
-    - suite-sparse
+    - suite-sparse arch=x86_64
   - superlu-mt-int32:
-    - superlu-mt ~int64 ~blas
+    - superlu-mt ~int64 ~blas arch=x86_64
   - superlu-mt-int64:
-    - superlu-mt +int64 ~blas
+    - superlu-mt +int64 ~blas arch=x86_64
   - superlu-dist-int32:
-    - superlu-dist ~int64 ^parmetis~int64 ^metis~int64
+    - superlu-dist ~int64 arch=x86_64 ^parmetis~int64 ^metis~int64
   - superlu-dist-int64:
-    - superlu-dist +int64 ^parmetis+int64 ^metis+int64
+    - superlu-dist +int64 arch=x86_64 ^parmetis+int64 ^metis+int64
   - trilinos-int32:
-    - trilinos gotype=int +mpi +tpetra
+    - trilinos gotype=int +mpi +tpetra arch=x86_64
   - trilinos-int64:
-    - trilinos gotype=long_long +mpi +tpetra
+    - trilinos gotype=long_long +mpi +tpetra arch=x86_64
   - xbraid:
-    - xbraid
+    - xbraid arch=x86_64
 
   # Package specs to build
   specs:
