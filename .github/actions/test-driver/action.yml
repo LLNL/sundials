@@ -17,13 +17,13 @@ runs:
   steps:
     - id: container-information
       run: |
-          cat /proc/cpuinfo
-          uname -p
+        cat /proc/cpuinfo
+        uname -p
       shell: bash
     - id: spack-find
       run: |
-          eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
-          /opt/spack/bin/spack find -v
+        eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
+        /opt/spack/bin/spack find -v
       shell: bash
     - id: run-test-driver
       run: |
