@@ -14,6 +14,7 @@ RUN apt-get -yqq update \
         git \
         gnupg2 \
         iproute2 \
+        latexmk \
         locales \
         lua-posix \
         make \
