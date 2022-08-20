@@ -87,7 +87,7 @@ spack:
     - [$suite-sparse]
     - [$^blas-int64]
     - [$%compilers]
-  # superlu-MT
+  # SuperLU-MT
   - matrix:
     - [$superlu-mt-int32]
     - [$%compilers]
@@ -128,14 +128,14 @@ spack:
     spack: https://binaries.spack.io/develop
   view:
     int32-double:
-      root: /Users/gardner48/local/views/int32-double
+      root: /opt/views/int32-double
       projections:
         all: '{name}'
       exclude: [+int64, gotype=long_long, +ilp64, ^openblas+ilp64, ~double]
       link_type: symlink
       link: roots
     int64-double:
-      root: /Users/gardner48/local/views/int64-double
+      root: /opt/views/int64-double
       projections:
         all: '{name}'
       exclude: [~int64, gotype=int, ~ilp64, ^openblas~ilp64, ~double, xbraid]
