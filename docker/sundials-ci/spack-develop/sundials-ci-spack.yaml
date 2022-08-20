@@ -1,0 +1,138 @@
+# This is a Spack Environment file. It describes a set of packages to be
+# installed, along with configuration settings.
+spack:
+  # Note we currently define int32 and int64 versions of each spec rather than
+  # using a matrix to ensure a blas library with the correct indexing type is used.
+  definitions:
+  - compilers:
+    - gcc@12.1.0
+  - mpi:
+    - openmpi
+  # - blas-int32:
+  #   - openblas ~ilp64
+  # - blas-int64:
+  #   - openblas +ilp64
+  # - hypre-int32:
+  #   - hypre ~int64 +mpi
+  # - hypre-int64:
+  #   - hypre +int64 +mpi
+  # - petsc-int32:
+  #   - petsc ~int64 +double +mpi ~superlu-dist ~hypre ~hdf5
+  # - petsc-int64:
+  #   - petsc +int64 +double +mpi ~superlu-dist ~hypre ~hdf5
+  # - suite-sparse:
+  #   - suite-sparse
+  - superlu-mt-int32:
+    - superlu-mt ~int64 ~blas
+  - superlu-mt-int64:
+    - superlu-mt +int64 ~blas
+  # - superlu-dist-int32:
+  #   - superlu-dist ~int64 ^parmetis~int64 ^metis~int64
+  # - superlu-dist-int64:
+  #   - superlu-dist +int64 ^parmetis+int64 ^metis+int64
+  # - trilinos-int32:
+  #   - trilinos gotype=int +mpi +tpetra
+  # - trilinos-int64:
+  #   - trilinos gotype=long_long +mpi +tpetra
+  # - xbraid:
+  #   - xbraid
+
+  # Package specs to build
+  specs:
+  - cmake
+  # mpi
+  - matrix:
+    - [$mpi]
+    - [$%compilers]
+  #   # blas
+  # - matrix:
+  #   - [$blas-int32]
+  #   - [$%compilers]
+  # - matrix:
+  #   - [$blas-int64]
+  #   - [$%compilers]
+  #   # hypre
+  # - matrix:
+  #   - [$hypre-int32]
+  #   - [$^blas-int32]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  # - matrix:
+  #   - [$hypre-int64]
+  #   - [$^blas-int64]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  #   # petsc
+  # - matrix:
+  #   - [$petsc-int32]
+  #   - [$^blas-int32]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  # - matrix:
+  #   - [$petsc-int64]
+  #   - [$^blas-int64]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  #   # SuiteSparse
+  # - matrix:
+  #   - [$suite-sparse]
+  #   - [$^blas-int32]
+  #   - [$%compilers]
+  # - matrix:
+  #   - [$suite-sparse]
+  #   - [$^blas-int64]
+  #   - [$%compilers]
+    # SuperLU-MT
+  - matrix:
+    - [$superlu-mt-int32]
+    - [$%compilers]
+  - matrix:
+    - [$superlu-mt-int64]
+    - [$%compilers]
+    # SuperLU-DIST
+  # - matrix:
+  #   - [$superlu-dist-int32]
+  #   - [$^blas-int32]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  # - matrix:
+  #   - [$superlu-dist-int64]
+  #   - [$^blas-int64]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  #   # Trilinos
+  # - matrix:
+  #   - [$trilinos-int32]
+  #   - [$^blas-int32]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  # - matrix:
+  #   - [$trilinos-int64]
+  #   - [$^blas-int64]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  #   # XBraid
+  # - matrix:
+  #   - [$xbraid]
+  #   - [$^mpi]
+  #   - [$%compilers]
+  concretizer:
+    unify: when_possible
+  mirrors:
+    local: /var/cache/spack-mirror
+    spack: https://binaries.spack.io/develop
+  view:
+    int32-double:
+      root: /Users/gardner48/local/views/int32-double
+      projections:
+        all: '{name}'
+      exclude: [+int64, gotype=long_long, +ilp64, ^openblas+ilp64, ~double]
+      link_type: symlink
+      link: roots
+    int64-double:
+      root: /Users/gardner48/local/views/int64-double
+      projections:
+        all: '{name}'
+      exclude: [~int64, gotype=int, ~ilp64, ^openblas~ilp64, ~double, xbraid]
+      link_type: symlink
+      link: roots
