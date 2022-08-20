@@ -1,4 +1,4 @@
-name: documentation tests
+name: Documentation tests
 
 on:
   push:
@@ -8,7 +8,7 @@ jobs:
   build_package_docs:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/llnl/sundials-ci-int32-double:latest
+      image: ghcr.io/llnl/sundials-ci:spack-develop
       options: --user root
     strategy:
       matrix:
@@ -26,7 +26,7 @@ jobs:
   build_sundials_docs:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/llnl/sundials-ci-int32-double:latest
+      image: ghcr.io/llnl/sundials-ci:spack-develop
       options: --user root
     steps:
       - name: Checkout repository

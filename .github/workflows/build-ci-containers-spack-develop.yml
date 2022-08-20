@@ -1,7 +1,6 @@
 name: Containers - spack@develop
 
 on:
-  push: # testing
   workflow_dispatch:
 
 permissions:
