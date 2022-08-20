@@ -8,6 +8,7 @@ RUN apt-get -yqq update \
         ca-certificates \
         curl \
         file \
+        fonts-texgyre \
         g++ \
         gcc \
         gfortran \
@@ -23,7 +24,10 @@ RUN apt-get -yqq update \
         python3-setuptools \
         python3-wheel \
         python3-venv \
+        tex-gyre \
         texlive-latex-extra \
+        texlive-fonts-recommended \
+        texlive-plain-generic \
         unzip \
         csh \
  && locale-gen en_US.UTF-8 \
