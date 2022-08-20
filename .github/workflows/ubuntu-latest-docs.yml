@@ -1,8 +1,8 @@
 name: Documentation tests
 
 on:
-  push:
-  pull_request:
+  push: # testing
+  #pull_request:
 
 jobs:
   build_package_docs:
