@@ -127,6 +127,7 @@ spack:
     - [$%compilers]
   concretizer:
     unify: when_possible
+    reuse: true
   mirrors:
     local: /var/cache/spack-mirror
     spack: https://binaries.spack.io/develop

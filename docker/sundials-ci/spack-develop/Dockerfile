@@ -56,11 +56,11 @@ COPY $spack_yaml /opt/spack-environment/spack.yaml
 RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
     cd /opt/spack-environment                                           \
  && spack env activate .                                                \
- && spack buildcache keys -it                                           \
- && cd /opt/spack-environment                                           \
+ && spack buildcache keys --install --trust                             \
  && status=0                                                            \
+ && spack concretize --fresh                                            \
+    || status=$?                                                        \
  && spack install --fail-fast --reuse --no-check-signature              \
-    || spack -d -v install --fail-fast --reuse --no-check-signature     \
     || status=$?                                                        \
  && mkdir -p /var/cache/spack-mirror/build_cache                        \
  && spack buildcache update-index -d /var/cache/spack-mirror            \
@@ -73,7 +73,7 @@ RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
       spack buildcache create --allow-root --only package --unsigned    \
                               --directory /var/cache/spack-mirror       \
                               --rebuild-index                           \
- && spack clean -a                                                      \
+ && spack clean --all                                                   \
  && exit $status
 
 # Modifications to the environment that are necessary to run
