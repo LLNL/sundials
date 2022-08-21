@@ -24,7 +24,6 @@ RUN apt-get -yqq update \
         python3-setuptools \
         python3-wheel \
         python3-venv \
-        ssh \
         tex-gyre \
         texlive-latex-extra \
         texlive-fonts-recommended \
