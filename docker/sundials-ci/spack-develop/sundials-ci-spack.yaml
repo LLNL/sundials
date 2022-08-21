@@ -19,9 +19,13 @@ spack:
   - hypre-int64:
     - hypre +int64 +mpi arch=x86_64
   - petsc-int32:
-    - petsc ~int64 +double +mpi ~superlu-dist ~hypre ~hdf5 arch=x86_64
+    - matrix:
+      - [petsc ~int64 +mpi ~superlu-dist ~hypre ~hdf5 arch=x86_64]
+      - [+double, ~double]
   - petsc-int64:
-    - petsc +int64 +double +mpi ~superlu-dist ~hypre ~hdf5 arch=x86_64
+    - matrix:
+      - [petsc +int64 +mpi ~superlu-dist ~hypre ~hdf5 arch=x86_64]
+      - [+double, ~double]
   - suite-sparse:
     - suite-sparse arch=x86_64
   - superlu-mt-int32:
@@ -33,9 +37,9 @@ spack:
   - superlu-dist-int64:
     - superlu-dist +int64 arch=x86_64 ^parmetis+int64 ^metis+int64
   - trilinos-int32:
-    - trilinos gotype=int +mpi +tpetra arch=x86_64
+    - trilinos gotype=int +float +mpi +tpetra arch=x86_64
   - trilinos-int64:
-    - trilinos gotype=long_long +mpi +tpetra arch=x86_64
+    - trilinos gotype=long_long +float +mpi +tpetra arch=x86_64
   - xbraid:
     - xbraid arch=x86_64
 
@@ -131,13 +135,72 @@ spack:
       root: /opt/views/int32-double
       projections:
         all: '{name}'
-      exclude: [+int64, gotype=long_long, +ilp64, ^openblas+ilp64, ~double]
+      exclude:
+      - +int64
+      - +ilp64
+      - ^openblas+ilp64
+      - ~double
       link_type: symlink
       link: roots
     int64-double:
       root: /opt/views/int64-double
       projections:
         all: '{name}'
-      exclude: [~int64, gotype=int, ~ilp64, ^openblas~ilp64, ~double, xbraid]
+      exclude:
+      - ~int64
+      - ~ilp64
+      - ^openblas~ilp64
+      - ~double
+      - xbraid
+      link_type: symlink
+      link: roots
+    int32-single:
+      root: /opt/views/int32-single
+      projections:
+        all: '{name}'
+      exclude:
+      - +int64
+      - +ilp64
+      - ^openblas+ilp64
+      - +double
+      - hypre
+      - suite-sparse
+      - superlu-dist
+      - trilinos
+      - xbraid
+      link_type: symlink
+      link: roots
+    int64-single:
+      root: /opt/views/int64-single
+      projections:
+        all: '{name}'
+      exclude:
+      - ~int64
+      - ~ilp64
+      - ^openblas~ilp64
+      - +double
+      - hypre
+      - suite-sparse
+      - superlu-dist
+      - trilinos
+      - xbraid
+      link_type: symlink
+      link: roots
+    int32-extended:
+      root: /opt/views/int32-extended
+      projections:
+        all: '{name}'
+      select:
+      - cmake
+      - mpi
+      link_type: symlink
+      link: roots
+    int64-extended:
+      root: /opt/views/int64-extended
+      projections:
+        all: '{name}'
+      select:
+      - cmake
+      - mpi
       link_type: symlink
       link: roots
