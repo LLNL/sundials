@@ -134,30 +134,47 @@ spack:
     int32-double:
       root: /opt/views/int32-double
       projections:
-        all: '{name}'
+        blas: '{name}'
+        hypre: '{name}'
+        petsc: '{name}'
+        suite-sparse: '{name}'
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
+        trilinos: '{name}'
+        xbraid: '{name}'
       exclude:
       - +int64
       - +ilp64
       - ^openblas+ilp64
       - ~double
-      link_type: symlink
-      link: roots
     int64-double:
       root: /opt/views/int64-double
       projections:
-        all: '{name}'
+        blas: '{name}'
+        hypre: '{name}'
+        petsc: '{name}'
+        suite-sparse: '{name}'
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
+        trilinos: '{name}'
+        xbraid: '{name}'
       exclude:
       - ~int64
       - ~ilp64
       - ^openblas~ilp64
       - ~double
       - xbraid
-      link_type: symlink
-      link: roots
     int32-single:
       root: /opt/views/int32-single
       projections:
-        all: '{name}'
+        blas: '{name}'
+        hypre: '{name}'
+        petsc: '{name}'
+        suite-sparse: '{name}'
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
+        trilinos: '{name}'
+        xbraid: '{name}'
       exclude:
       - +int64
       - +ilp64
@@ -168,12 +185,17 @@ spack:
       - superlu-dist
       - trilinos
       - xbraid
-      link_type: symlink
-      link: roots
     int64-single:
       root: /opt/views/int64-single
       projections:
-        all: '{name}'
+        blas: '{name}'
+        hypre: '{name}'
+        petsc: '{name}'
+        suite-sparse: '{name}'
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
+        trilinos: '{name}'
+        xbraid: '{name}'
       exclude:
       - ~int64
       - ~ilp64
@@ -184,23 +206,31 @@ spack:
       - superlu-dist
       - trilinos
       - xbraid
-      link_type: symlink
-      link: roots
     int32-extended:
       root: /opt/views/int32-extended
       projections:
-        all: '{name}'
+        blas: '{name}'
+        hypre: '{name}'
+        petsc: '{name}'
+        suite-sparse: '{name}'
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
+        trilinos: '{name}'
+        xbraid: '{name}'
       select:
       - cmake
       - mpi
-      link_type: symlink
-      link: roots
     int64-extended:
       root: /opt/views/int64-extended
       projections:
-        all: '{name}'
+        blas: '{name}'
+        hypre: '{name}'
+        petsc: '{name}'
+        suite-sparse: '{name}'
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
+        trilinos: '{name}'
+        xbraid: '{name}'
       select:
       - cmake
       - mpi
-      link_type: symlink
-      link: roots
