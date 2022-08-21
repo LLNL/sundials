@@ -37,9 +37,9 @@ spack:
   - superlu-dist-int64:
     - superlu-dist +int64 arch=x86_64 ^parmetis+int64 ^metis+int64
   - trilinos-int32:
-    - trilinos gotype=int +float +mpi +tpetra arch=x86_64
+    - trilinos gotype=int +mpi +tpetra arch=x86_64
   - trilinos-int64:
-    - trilinos gotype=long_long +float +mpi +tpetra arch=x86_64
+    - trilinos gotype=long_long +mpi +tpetra arch=x86_64
   - xbraid:
     - xbraid arch=x86_64
 
