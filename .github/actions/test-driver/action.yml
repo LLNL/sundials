@@ -27,6 +27,8 @@ runs:
       shell: bash
     - id: run-test-driver
       run: |
+        eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
+        /opt/spack/bin/spack env view enable /opt/views/int${{ inputs.indexsize }}-${{ inputs.precision }}
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
         ./test_driver.sh \
