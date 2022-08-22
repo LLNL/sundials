@@ -20,13 +20,14 @@ runs:
         cat /proc/cpuinfo
         uname -p
       shell: bash
-    - id: run-test-driver
+    - id: spack-find
       run: |
         eval `/opt/spack/bin/spack env activate --sh /opt/spack-environment`
         /opt/spack/bin/spack find -vl
-        ls /opt/views/int${{ inputs.indexsize }}-${{ inputs.precision }}/*
-        ls /opt/views/int${{ inputs.indexsize }}-${{ inputs.precision }}/*/*
-        /opt/spack/bin/spack env view enable /opt/views/int${{ inputs.indexsize }}-${{ inputs.precision }}
+      shell: bash
+    - id: run-test-driver
+      run: |
+        export PATH="/opt/views/int${{ inputs.indexsize }}-${{ inputs.precision }}/bin:$PATH"
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
         ./test_driver.sh \
