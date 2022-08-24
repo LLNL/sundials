@@ -39,8 +39,9 @@ static realtype* data;  /* host data   */
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  N_Vector X;          /* test vector        */
-  sunindextype veclen; /* vector length      */
+  SUNContext   ctx = NULL;  /* SUNDIALS context */
+  N_Vector     X   = NULL;  /* test vector      */
+  sunindextype veclen;      /* vector length    */
 
   HYPRE_ParVector Xhyp;    /* hypre parallel vector */
   HYPRE_Int *partitioning; /* vector partitioning   */
@@ -114,6 +115,9 @@ int main(int argc, char *argv[])
     printf("  number of MPI procs   %d  \n", nprocs);
   }
 
+  flag = SUNContext_Create(&comm, &ctx);
+  if (flag) return flag;
+
   /* set partitioning */
   if(HYPRE_AssumedPartitionCheck()) {
     partitioning = (HYPRE_Int*) malloc(2*sizeof(HYPRE_Int));
@@ -132,7 +136,7 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorInitialize(Xhyp);
 
   /* Create vectors */
-  X = N_VMake_ParHyp(Xhyp);
+  X = N_VMake_ParHyp(Xhyp, ctx);
 
   /* run tests */
   if (myid == 0 && print_timing) {
@@ -190,6 +194,9 @@ int main(int argc, char *argv[])
   HYPRE_ParVectorDestroy(Xhyp);
 
   FinalizeClearCache();
+
+  flag = SUNContext_Free(&ctx);
+  if (flag) return flag;
 
   if (myid == 0)
     printf("\nFinished Tests\n");
