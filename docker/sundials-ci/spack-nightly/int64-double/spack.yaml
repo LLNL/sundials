@@ -29,4 +29,9 @@ spack:
   upstreams: {}
   concretizer:
     unify: true
-  view: /opt/view
+  view:
+    default:
+      root: /opt/view
+      projections:
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'
