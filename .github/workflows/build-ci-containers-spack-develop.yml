@@ -1,7 +1,7 @@
 name: Containers - spack@develop
 
 on:
-  #push: # testing
+  push: # testing
   workflow_dispatch:
 
 permissions:
@@ -32,4 +32,4 @@ jobs:
           context: "./docker/sundials-ci/spack-develop"
           build-args: spack_yaml=./sundials-ci-spack.yaml
           push: true
-          tags: ghcr.io/llnl/sundials-ci:spack-develop
+          tags: ghcr.io/llnl/sundials-ci-spack-develop:spack-develop

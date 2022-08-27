@@ -16,7 +16,7 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/llnl/sundials-ci:spack-develop
+      image: ghcr.io/llnl/sundials-ci-spack-develop:spack-develop
       options: --user root
     strategy:
       matrix:
