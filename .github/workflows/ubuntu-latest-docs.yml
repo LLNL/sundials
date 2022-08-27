@@ -8,7 +8,7 @@ jobs:
   build_package_docs:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/llnl/sundials-ci:spack-develop
+      image: ghcr.io/llnl/sundials-ci-spack-develop:spack-develop
       options: --user root
     strategy:
       matrix:
@@ -26,7 +26,7 @@ jobs:
   build_sundials_docs:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/llnl/sundials-ci:spack-develop
+      image: ghcr.io/llnl/sundials-ci-spack-develop:spack-develop
       options: --user root
     steps:
       - name: Checkout repository
