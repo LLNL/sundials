@@ -1,8 +1,8 @@
 name: Documentation tests
 
 on:
-  push: # testing
-  #pull_request:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build_package_docs:
