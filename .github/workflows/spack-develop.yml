@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         indexsize: [32, 64]
-        precision: ['double']
+        precision: ['single', 'double', 'extended']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
