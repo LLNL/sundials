@@ -218,9 +218,19 @@ spack:
         superlu-dist: '{name}'
         trilinos: '{name}'
         xbraid: '{name}'
-      select:
-      - cmake
-      - mpi
+      exclude:
+      - +int64
+      - +ilp64
+      - ^openblas+ilp64
+      - +double
+      - blas
+      - hypre
+      - petsc
+      - suite-sparse
+      - superlu-mt
+      - superlu-dist
+      - trilinos
+      - xbraid
     int64-extended:
       root: /opt/views/int64-extended
       projections:
@@ -232,6 +242,16 @@ spack:
         superlu-dist: '{name}'
         trilinos: '{name}'
         xbraid: '{name}'
-      select:
-      - cmake
-      - mpi
+      exclude:
+      - ~int64
+      - ~ilp64
+      - ^openblas~ilp64
+      - +double
+      - blas
+      - hypre
+      - petsc
+      - suite-sparse
+      - superlu-mt
+      - superlu-dist
+      - trilinos
+      - xbraid
