@@ -1,6 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release x.x.x
+## Changes to SUNDIALS in release 6.3.0
 
 Added `GetUserData` functions in each package to retrieve the user data pointer
 provided to `SetUserData` functions. See `ARKStepGetUserData`,
