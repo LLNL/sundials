@@ -17,12 +17,14 @@ RUN apt-get -yqq update \
         ca-certificates \
         curl \
         file \
+        fonts-texgyre \
         g++ \
         gcc \
         gfortran \
         git \
         gnupg2 \
         iproute2 \
+        latexmk \
         locales \
         lua-posix \
         make \
@@ -31,6 +33,10 @@ RUN apt-get -yqq update \
         python3-setuptools \
         python3-wheel \
         python3-venv \
+        tex-gyre \
+        texlive-latex-extra \
+        texlive-fonts-recommended \
+        texlive-plain-generic \
         unzip \
         csh \
  && locale-gen en_US.UTF-8 \
@@ -38,7 +44,9 @@ RUN apt-get -yqq update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $SPACK_ROOT && cd $SPACK_ROOT && \
-    git clone https://github.com/spack/spack.git . && git fetch origin refs/heads/e4s-$e4s_version && git checkout e4s-$e4s_version  && \
+    git clone https://github.com/spack/spack.git . && \
+    git fetch origin refs/heads/e4s-$e4s_version && \
+    git checkout e4s-$e4s_version && \
     mkdir -p $SPACK_ROOT/opt/spack
 
 RUN ln -s $SPACK_ROOT/share/spack/docker/entrypoint.bash \

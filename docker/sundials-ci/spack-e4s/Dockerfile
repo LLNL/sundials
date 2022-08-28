@@ -1,4 +1,4 @@
-FROM ghcr.io/llnl/sundials-ci-e4s-base:e4s-22.05 as bootstrap
+FROM ghcr.io/llnl/sundials-ci-spack-e4s-base:e4s-22.05 as bootstrap
 
 ARG spack_yaml
 
@@ -24,12 +24,11 @@ COPY $spack_yaml /opt/spack-environment/spack.yaml
 RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
     cd /opt/spack-environment                                           \
  && spack env activate .                                                \
- && spack buildcache keys -it                                           \
- && cd /opt/spack-environment                                           \
+ && spack buildcache keys --install --trust                             \
  && status=0                                                            \
- && spack install --reuse --no-check-signature                          \
-    || spack -d -v install --reuse --no-check-signature                 \
-    || spack -d -v install --reuse --no-check-signature                 \
+ && spack concretize --fresh                                            \
+    || status=$?                                                        \
+ && spack install --fail-fast --reuse --no-check-signature              \
     || status=$?                                                        \
  && mkdir -p /var/cache/spack-mirror/build_cache                        \
  && spack buildcache update-index -d /var/cache/spack-mirror            \
@@ -42,15 +41,12 @@ RUN --mount=type=cache,target=/var/cache/spack-mirror                   \
       spack buildcache create --allow-root --only package --unsigned    \
                               --directory /var/cache/spack-mirror       \
                               --rebuild-index                           \
- && spack clean -a                                                      \
+ && spack clean --all                                                   \
  && exit $status
 
 # Modifications to the environment that are necessary to run
 RUN cd /opt/spack-environment && \
     spack env activate --sh -d . >> /etc/profile.d/z10_spack_environment.sh
-
-# Add spack installed binaries to path
-ENV PATH="/opt/view/bin:${PATH}"
 
 # Allow mpirun as root
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
