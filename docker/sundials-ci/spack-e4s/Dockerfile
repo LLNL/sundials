@@ -1,6 +1,38 @@
-FROM ghcr.io/llnl/sundials-ci-spack-e4s-base:e4s-22.05 as bootstrap
+FROM spack/ubuntu-focal:0.18.1 as bootstrap
 
 ARG spack_yaml
+
+RUN apt-get -yqq update \
+ && apt-get -yqq install --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        file \
+        fonts-texgyre \
+        g++ \
+        gcc \
+        gfortran \
+        git \
+        gnupg2 \
+        iproute2 \
+        latexmk \
+        locales \
+        lua-posix \
+        make \
+        python3 \
+        python3-pip \
+        python3-setuptools \
+        python3-wheel \
+        python3-venv \
+        tex-gyre \
+        texlive-latex-extra \
+        texlive-fonts-recommended \
+        texlive-plain-generic \
+        unzip \
+        csh \
+ && locale-gen en_US.UTF-8 \
+ && pip3 install boto3 \
+ && rm -rf /var/lib/apt/lists/*
 
 # Build stage with Spack pre-installed and ready to be used
 FROM bootstrap as builder

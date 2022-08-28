@@ -1,4 +1,4 @@
-FROM spack/ubuntu-focal as bootstrap
+FROM spack/ubuntu-focal:latest as bootstrap
 
 ARG spack_yaml
 
