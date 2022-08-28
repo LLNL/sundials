@@ -1,7 +1,7 @@
 name: Containers - spack@latest
 
 on:
-  push: # testing
+  #push: # testing
   workflow_dispatch:
 
 permissions:
