@@ -1,4 +1,4 @@
-name: Containers - spack@develop
+name: Containers - spack@latest
 
 on:
   push: # testing
@@ -29,7 +29,7 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v3.0.0
         with:
-          context: "./docker/sundials-ci/spack-develop"
+          context: "./docker/sundials-ci/spack-latest"
           build-args: spack_yaml=./spack.yaml
           push: true
-          tags: ghcr.io/llnl/sundials-ci-spack-develop:spack-develop
+          tags: ghcr.io/llnl/sundials-ci-spack-latest:spack-latest
