@@ -3,6 +3,8 @@ name: Containers - spack@develop
 on:
   #push: # testing
   workflow_dispatch:
+  # schedule:
+  #   - cron: '00 22 * * *'
 
 permissions:
   packages: write
