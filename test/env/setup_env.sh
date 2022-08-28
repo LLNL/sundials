@@ -42,8 +42,8 @@ echo "./setup_env.sh $*" | tee -a setup_env.log
 # Check number of inputs
 if [ "$#" -lt 5 ]; then
     echo "ERROR: missing required inputs"
-    echo "  1) real type    : [single|double|extended]"
-    echo "  2) index size   : [32|64]"
+    echo "  1) index size   : [32|64]"
+    echo "  2) real type    : [single|double|extended]"
     echo "  3) library type : [static|shared|both]"
     echo "  4) TPL status   : [ON|OFF]"
     echo "  5) test type    : [STD|DEV]"
@@ -52,8 +52,8 @@ fi
 
 # These values should not be overridden by the environment script and may be
 # referenced as appropriate to load TPLs
-export SUNDIALS_PRECISION="$1"
-export SUNDIALS_INDEX_SIZE="$2"
+export SUNDIALS_INDEX_SIZE="$1"
+export SUNDIALS_PRECISION="$2"
 export SUNDIALS_LIBRARY_TYPE="$3"
 export SUNDIALS_TPLS="$4"
 export SUNDIALS_TEST_TYPE="$5"

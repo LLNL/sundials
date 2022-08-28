@@ -483,8 +483,8 @@ if [ "$tarball" != NONE ]; then
     # Setup the environment with the first test configuration. This is really in
     # case the environment needs to be setup to build the documentation in the
     # tarscript e.g., activates a Python virtual environment.
-    env_config=("${args_realtypes[0]}"
-                "${args_indexsizes[0]}"
+    env_config=("${args_indexsizes[0]}"
+                "${args_realtypes[0]}"
                 "${args_libtypes[0]}"
                 "${args_tpls[0]}"
                 "${args_suntests[0]}")
@@ -567,8 +567,8 @@ for ((j=0;j<ntestdirs;j++)); do
         # Setup the environment
         # ---------------------
 
-        env_config=("${args_realtypes[i]}"
-                    "${args_indexsizes[i]}"
+        env_config=("${args_indexsizes[i]}"
+                    "${args_realtypes[i]}"
                     "${args_libtypes[i]}"
                     "${args_tpls[i]}"
                     "${args_suntests[i]}")
