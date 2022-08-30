@@ -71,7 +71,7 @@ foreach(example_tuple ${CVODE_examples})
 endforeach(example_tuple ${CVODE_examples})
 
 # Install the targets
-if(EXAMPLES_INSTALL)
+if(EXAMPLES_INSTALL AND CVODE_examples)
 
   sundials_install_examples(cvode CVODE_examples
     CMAKE_TEMPLATE
