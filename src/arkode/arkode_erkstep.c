@@ -753,11 +753,15 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("    ERKStep stage 0 solution:\n");
-  N_VPrint(ark_mem->ycur);
-  printf("    ERKStep stage RHS F[0]:\n");
-  N_VPrint(step_mem->F[0]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::erkStep_TakeStep", "stage",
+                     "z[0] =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::erkStep_TakeStep", "stage RHS",
+                     "F[0] =", "");
+  N_VPrintFile(step_mem->F[0], ARK_LOGGER->debug_fp);
 #endif
 
   /* Loop over internal stages to the step; since the method is explicit
@@ -809,9 +813,11 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval < 0)  return(ARK_RHSFUNC_FAIL);
     if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    ERKStep stage RHS F[%i]:\n",is);
-    N_VPrint(step_mem->F[is]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::erkStep_TakeStep", "stage RHS",
+                       "F[%i] =", is);
+    N_VPrintFile(step_mem->F[is], ARK_LOGGER->debug_fp);
 #endif
 
   } /* loop over stages */
@@ -820,12 +826,11 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   retval = erkStep_ComputeSolutions(ark_mem, dsmPtr);
   if (retval < 0)  return(retval);
 
-#ifdef SUNDIALS_DEBUG
-  printf("    ERKStep error estimate = %"RSYM"\n", *dsmPtr);
-#endif
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("    ERKStep updated solution:\n");
-  N_VPrint(ark_mem->ycur);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::erkStep_TakeStep", "updated solution",
+                     "ycur =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
   /* Solver diagnostics reporting */
