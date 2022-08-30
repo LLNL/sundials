@@ -183,6 +183,7 @@ public:
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
     sunlinsol_->sunctx  = rhs.sunlinsol_->sunctx;
+    return *this;
   }
 
   // Move assignment
@@ -194,6 +195,7 @@ public:
     sunlinsol_ops_      = std::move(rhs.sunlinsol_ops_);
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
+    return *this;
   }
 
   ~LinearSolver() = default;
@@ -222,7 +224,7 @@ public:
 
   gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
-    auto logger = gko::share(gko::log::Convergence<sunrealtype>::create(gkoexec()));
+    auto logger = gko::share(gko::log::Convergence<sunrealtype>::create());
 
     // Ginkgo provides a lot of options for stopping criterion,
     // so we make it possible to use it, but default to using
