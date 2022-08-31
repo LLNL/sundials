@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
   printf("\nGinkgo linear solver test: method = %s, size = %ld x %ld, condition = %g, max iters. = "
          "%ld\n\n",
-         method.c_str(), (long int)matrows, (long int)matcols, matcond, (long int)max_iters);
+         method.c_str(), (long int) matrows, (long int) matcols, matcond, (long int)max_iters);
 
   /* Create vectors and matrices */
   std::default_random_engine engine;
