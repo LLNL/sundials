@@ -129,12 +129,6 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  auto nblocks{static_cast<const sunindextype>(atol(argv[++argi]))};
-  if (nblocks <= 0) {
-    printf("ERROR: number of blocks must be a positive integer \n");
-    return 1;
-  }
-
   auto max_iters{static_cast<const unsigned long>(atol(argv[++argi]))};
   if (max_iters <= 0) {
     printf("ERROR: max iterations must be a positive integer \n");
