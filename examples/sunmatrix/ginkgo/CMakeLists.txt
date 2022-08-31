@@ -67,7 +67,6 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
         PRIVATE
           test_sunmatrix_obj
           sundials_${vector}
-          sundials_sunmatrixginkgo
           Ginkgo::ginkgo
           ${EXTRA_LINK_LIBS}
       )

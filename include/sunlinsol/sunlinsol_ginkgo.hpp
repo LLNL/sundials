@@ -127,7 +127,7 @@ inline bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized,
 template<class GkoSolverType, class MatrixType>
 class LinearSolver : public ConvertibleTo<SUNLinearSolver> {
 public:
-  // Default constructor means the solver must be copied or moved to
+  // Default constructor means the solver must be moved to
   LinearSolver() = default;
 
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
@@ -139,7 +139,6 @@ public:
     sunlinsol_->ops     = sunlinsol_ops_.get();
     sunlinsol_->sunctx  = sunctx;
 
-    std::memset(sunlinsol_->ops, 0, sizeof(_generic_SUNLinearSolver_Ops));
     sunlinsol_->ops->gettype    = SUNLinSolGetType_Ginkgo;
     sunlinsol_->ops->getid      = SUNLinSolGetID_Ginkgo;
     sunlinsol_->ops->initialize = SUNLinSolInitialize_Ginkgo;
@@ -150,20 +149,13 @@ public:
     sunlinsol_->ops->free       = SUNLinSolFree_Ginkgo<GkoSolverType, MatrixType>;
   }
 
-  // Copy constructor
-  LinearSolver(const LinearSolver& that_solver)
-      : gko_solver_factory_(gko::clone(that_solver.gko_solver_factory_)), gko_solver_(nullptr),
-        sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
-        sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), iter_count_(0), res_norm_(sunrealtype{0.0})
-  {
-    sunlinsol_->content = this;
-    sunlinsol_->ops     = sunlinsol_ops_.get();
-    sunlinsol_->sunctx  = that_solver.sunlinsol_->sunctx;
-  }
+  // Don't allow copy constructor
+  LinearSolver(const LinearSolver& that_solver) = delete;
 
   // Move constructor
   LinearSolver(LinearSolver&& that_solver) noexcept
-      : gko_solver_factory_(gko::give(gko_solver_factory_)), gko_solver_(gko::give(gko_solver_))
+      : gko_solver_factory_(std::move(that_solver.gko_solver_factory_)), gko_solver_(std::move(that_solver.gko_solver_)),
+        iter_count_(that_solver.iter_count_), res_norm_(that_solver.res_norm_)
   {
     sunlinsol_          = std::move(that_solver.sunlinsol_);
     sunlinsol_ops_      = std::move(that_solver.sunlinsol_ops_);
@@ -171,28 +163,18 @@ public:
     sunlinsol_->ops     = sunlinsol_ops_.get();
   }
 
-  // Copy assignment
-  LinearSolver& operator=(const LinearSolver& rhs)
-  {
-    gko_solver_factory_ = gko::clone(rhs.gko_solver_factory_);
-    gko_solver_         = nullptr;
-    sunlinsol_          = std::make_unique<_generic_SUNLinearSolver>();
-    sunlinsol_ops_      = std::make_unique<_generic_SUNLinearSolver_Ops>();
-    iter_count_         = 0;
-    res_norm_           = sunrealtype{0.0};
-    sunlinsol_->content = this;
-    sunlinsol_->ops     = sunlinsol_ops_.get();
-    sunlinsol_->sunctx  = rhs.sunlinsol_->sunctx;
-    return *this;
-  }
+  // Don't allow copy assignment
+  LinearSolver& operator=(const LinearSolver& rhs) = delete;
 
   // Move assignment
   LinearSolver& operator=(LinearSolver&& rhs)
   {
-    gko_solver_factory_ = gko::give(gko_solver_factory_);
-    gko_solver_         = gko::give(gko_solver_);
+    gko_solver_factory_ = std::move(rhs.gko_solver_factory_);
+    gko_solver_         = std::move(rhs.gko_solver_);
     sunlinsol_          = std::move(rhs.sunlinsol_);
     sunlinsol_ops_      = std::move(rhs.sunlinsol_ops_);
+    iter_count_         = rhs.iter_count_;
+    res_norm_           = rhs.res_norm_;
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
     return *this;
@@ -206,11 +188,11 @@ public:
   virtual SUNLinearSolver get() override { return sunlinsol_.get(); }
   virtual SUNLinearSolver get() const override { return sunlinsol_.get(); }
 
-  std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_->get_executor(); }
+  std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_factory_->get_executor(); }
 
   std::shared_ptr<typename GkoSolverType::Factory> gkofactory() { return gko_solver_factory_; }
 
-  GkoSolverType* gkosolver() { return gko::lend(gko_solver_); }
+  GkoSolverType* gkosolver() { return gko_solver_.get(); }
 
   int numIters() const { return iter_count_; }
 
@@ -219,19 +201,19 @@ public:
   GkoSolverType* setup(MatrixType* A)
   {
     gko_solver_ = gko_solver_factory_->generate(A->gkomtx());
-    return gko::lend(gko_solver_);
+    return gko_solver_.get();
   }
 
   gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
-    auto logger = gko::share(gko::log::Convergence<sunrealtype>::create());
+    auto logger{gko::share(gko::log::Convergence<sunrealtype>::create())};
 
     // Ginkgo provides a lot of options for stopping criterion,
     // so we make it possible to use it, but default to using
     // our normal iterative linear solver criterion.
     // If the criterion on the solver is of type DefaultStop,
     // then we will override the tolerance.
-    auto crit = dynamic_cast<const DefaultStop::Factory*>(gkosolver()->get_stop_criterion_factory().get());
+    auto crit{dynamic_cast<const DefaultStop::Factory*>(gkosolver()->get_stop_criterion_factory().get())};
     if (crit != nullptr) {
       auto new_crit = DefaultStop::build()     //
                           .with_tolerance(tol) //

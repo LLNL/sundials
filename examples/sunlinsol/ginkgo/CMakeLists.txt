@@ -55,7 +55,7 @@ foreach(example_tuple ${sunmatrix_ginkgo_examples})
           PRIVATE
             test_sunlinsol_obj
             sundials_${vector}
-            sundials_sunlinsolginkgo
+            Ginkgo::ginkgo
             ${EXTRA_LINK_LIBS}
         )
       endif()
