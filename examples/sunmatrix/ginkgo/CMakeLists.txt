@@ -23,6 +23,12 @@ set(sunmatrix_ginkgo_examples
   "test_sunmatrix_gko.cpp\;100 100 1\;"
   "test_sunmatrix_gko.cpp\;100 10 1\;"
   "test_sunmatrix_gko.cpp\;10 100 1\;"
+  "test_sunmatrix_gkoblock.cpp\;10 10 4 0\;"
+  "test_sunmatrix_gkoblock.cpp\;10 100 4 0\;"
+  "test_sunmatrix_gkoblock.cpp\;100 10 4 0\;"
+  "test_sunmatrix_gkoblock.cpp\;10 10 4 1\;"
+  "test_sunmatrix_gkoblock.cpp\;10 100 4 1\;"
+  "test_sunmatrix_gkoblock.cpp\;100 10 4 1\;"
 )
 
 # Add source directory to include directories

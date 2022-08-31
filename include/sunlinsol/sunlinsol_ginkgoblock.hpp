@@ -1,5 +1,4 @@
-
-#include <cstring>
+#include <cmath>
 #include <memory>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_linearsolver.h>
@@ -12,25 +11,23 @@
 
 namespace sundials {
 namespace ginkgo {
-namespace {
 
 template<class GkoBatchSolverType, class BlockMatrixType>
 class BlockLinearSolver;
 
-SUNDIALS_EXPORT
+namespace {
 SUNLinearSolver_Type SUNLinSolGetType_GinkgoBlock(SUNLinearSolver S) { return SUNLINEARSOLVER_MATRIX_ITERATIVE; }
 
-SUNDIALS_EXPORT
 SUNLinearSolver_ID SUNLinSolGetID_GinkgoBlock(SUNLinearSolver S) { return SUNLINEARSOLVER_GINKGOBLOCK; }
 
 template<typename GkoBatchLinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S)
+int SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S)
 {
   return SUNLS_SUCCESS;
 }
 
 template<typename GkoBatchLinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S, N_Vector s1, N_Vector s2)
+int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S, N_Vector s1, N_Vector s2)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   if (s1 == NULL || s2 == NULL) {
@@ -41,21 +38,21 @@ SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S, N_
 }
 
 template<typename GkoBatchLinearSolverType, typename BlockMatrixType>
-SUNDIALS_EXPORT int SUNLinSolSetup_GinkgoBlock(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_GinkgoBlock(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   return solver->setup(static_cast<BlockMatrixType*>(A->content));
 }
 
 template<typename GkoBatchLinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
+int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   return solver->solve(b, x, tol);
 }
 
 template<typename GkoBatchLinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S)
+int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   delete solver;
@@ -63,11 +60,12 @@ SUNDIALS_EXPORT int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S)
 }
 
 template<typename GkoBatchLinearSolverType>
-SUNDIALS_EXPORT int SUNLinSolNumIters_GinkgoBlock(SUNLinearSolver S)
+int SUNLinSolNumIters_GinkgoBlock(SUNLinearSolver S)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   return std::round(solver->sumAvgNumIters());
 }
+} // namespace
 
 inline std::unique_ptr<gko::matrix::BatchDiagonal<sunrealtype>> WrapBatchDiagMatrix(
     std::shared_ptr<const gko::Executor> gko_exec, sunindextype num_blocks, N_Vector x)
@@ -367,7 +365,6 @@ private:
   static constexpr int default_restart_   = 0;
 };
 
-} // namespace
 } // namespace ginkgo
 } // namespace sundials
 

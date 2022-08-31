@@ -52,7 +52,7 @@ foreach(example_tuple ${CVODE_examples})
       PRIVATE
         sundials_cvode
         sundials_${vector}
-        sundials_sunlinsolginkgo
+        Ginkgo::ginkgo
         ${EXTRA_LINK_LIBS}
     )
   endif()

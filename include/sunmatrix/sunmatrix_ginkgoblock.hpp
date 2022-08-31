@@ -9,102 +9,36 @@
 
 namespace sundials {
 namespace ginkgo {
-namespace {
 
 using GkoBatchDenseMat = gko::matrix::BatchDense<sunrealtype>;
 using GkoBatchCsrMat   = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
 using GkoBatchVecType  = GkoBatchDenseMat;
 
+// Forward declare BlockMatrix class
 template<typename GkoBatchMatType>
-class BlockMatrix : public ConvertibleTo<SUNMatrix> {
-public:
-  BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec,
-              SUNContext sunctx)
-  {
-    std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n");
-  }
-
-  BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N, sunindextype num_nonzeros,
-              std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
-  {
-    std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n");
-  }
-
-  BlockMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)
-  {
-    std::runtime_error("Constructor is not implemented for the Ginkgo matrix type provided\n");
-  }
-
-  operator SUNMatrix() override { return sunmtx_.get(); }
-
-  operator SUNMatrix() const override { return sunmtx_.get(); }
-
-  SUNMatrix get() override { return sunmtx_.get(); }
-
-  SUNMatrix get() const override { return sunmtx_.get(); }
-
-  SUNContext sunctx() const { return sunmtx_->sunctx; }
-
-  std::shared_ptr<GkoBatchMatType> gkomtx() const { return gkomtx_; }
-
-  const gko::dim<2>& blockSize(sunindextype block = 0) const { return gkodim().at(block); }
-
-  sunindextype blockDim(sunindextype block = 0, sunindextype dim = 0) const { return gkodim().at(block)[dim]; }
-
-  sunindextype blockNNZ(sunindextype block = 0) const { return gkomtx()->get_num_stored_elements() / gkomtx()->get_num_batch_entries(); }
-
-  const gko::batch_dim<>& gkodim() const { return gkomtx_->get_size(); }
-
-  std::shared_ptr<const gko::Executor> gkoexec() const { return gkomtx_->get_executor(); }
-
-  std::shared_ptr<GkoBatchMatType> gkomtx() { return gkomtx_; }
-
-  sunindextype numBlocks() const { return gkodim().get_num_batch_entries(); }
-
-  bool isBlockDiagonal() const { return true; }
-
-  long int workspaceSize() const { return blockDim(0, 0) * blockDim(0, 1) * numBlocks(); }
-
-  gko::LinOp* gkolinop() { return static_cast<gko::LinOp*>(gkomtx().get()); }
-
-private:
-  std::shared_ptr<GkoBatchMatType> gkomtx_;
-  std::unique_ptr<struct _generic_SUNMatrix> sunmtx_;
-  std::unique_ptr<struct _generic_SUNMatrix_Ops> sunmtx_ops_;
-
-  void initSUNMatrix(SUNContext sunctx);
-};
+class BlockMatrix;
 
 //
 // Methods that operate on SUNMatrix
 //
-
 template<typename GkoBatchMatType>
 SUNMatrix_ID SUNMatGetID_GinkgoBlock(SUNMatrix A)
 {
-  return std::is_same<GkoBatchCsrMat, GkoBatchMatType>::value ? SUNMATRIX_GINKGOBLOCKCSR : SUNMATRIX_GINKGOBLOCKDENSE;
+  return SUNMATRIX_GINKGOBLOCK;
 }
 
 template<typename GkoBatchMatType>
 SUNMatrix SUNMatClone_GinkgoBlock(SUNMatrix A)
 {
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
-
-  auto new_mat =
-      std::is_same<GkoBatchCsrMat, GkoBatchMatType>::value
-          ? new ginkgo::BlockMatrix<GkoBatchMatType>(Amat->numBlocks(), Amat->blockDim(0, 0), Amat->blockDim(0, 1),
-                                                     Amat->blockNNZ(), Amat->gkoexec(),
-                                                     Amat->sunctx())
-          : new ginkgo::BlockMatrix<GkoBatchMatType>(Amat->numBlocks(), Amat->blockDim(0, 0), Amat->blockDim(0, 1),
-                                                     Amat->gkoexec(), Amat->sunctx());
-
+  auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
+  auto new_mat = new BlockMatrix<GkoBatchMatType>(*Amat);
   return new_mat->get();
 }
 
 template<typename GkoBatchMatType>
 void SUNMatDestroy_GinkgoBlock(SUNMatrix A)
 {
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+  auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
   delete Amat;
   return;
 }
@@ -112,7 +46,7 @@ void SUNMatDestroy_GinkgoBlock(SUNMatrix A)
 // template<typename GkoBatchMatType>
 // int SUNMatZero_GinkgoBlock(SUNMatrix A)
 // {
-//   auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+//   auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
 //   Zero(*Amat);
 //   return SUNMAT_SUCCESS;
 // }
@@ -120,7 +54,7 @@ void SUNMatDestroy_GinkgoBlock(SUNMatrix A)
 template<typename GkoBatchMatType>
 int SUNMatCopy_GinkgoBlock(SUNMatrix A, SUNMatrix B)
 {
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+  auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
   Copy(*Amat, *static_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(B->content));
   return SUNMAT_SUCCESS;
 }
@@ -128,7 +62,7 @@ int SUNMatCopy_GinkgoBlock(SUNMatrix A, SUNMatrix B)
 template<typename GkoBatchMatType>
 int SUNMatScaleAdd_GinkgoBlock(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+  auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
   ScaleAdd(c, *Amat, *static_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(B->content));
   return SUNMAT_SUCCESS;
 }
@@ -136,101 +70,92 @@ int SUNMatScaleAdd_GinkgoBlock(sunrealtype c, SUNMatrix A, SUNMatrix B)
 template<typename GkoBatchMatType>
 int SUNMatScaleAddI_GinkgoBlock(sunrealtype c, SUNMatrix A)
 {
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+  auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
   ScaleAddI(c, *Amat);
-  return SUNMAT_SUCCESS;
-}
-
-template<typename GkoBatchMatType>
-int SUNMatMatvecSetup_GinkgoBlock(SUNMatrix A)
-{
   return SUNMAT_SUCCESS;
 }
 
 template<typename GkoBatchMatType>
 int SUNMatMatvec_GinkgoBlock(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  auto Amat = static_cast<BlockMatrix<GkoBatchMatType>*>(A->content);
+  auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
   Matvec(*Amat, x, y);
   return SUNMAT_SUCCESS;
 }
 
 template<typename GkoBatchMatType>
-int SUNMatSpace_GinkgoBlock(SUNMatrix A, long int* lenrw, long int* leniw)
-{
-  auto Amat = static_cast<ginkgo::BlockMatrix<GkoBatchMatType>*>(A->content);
-  *lenrw    = Amat->workspaceSize();
-  *leniw    = 0;
-  return SUNMAT_SUCCESS;
-}
+class BlockMatrix : public impl::BaseMatrix<GkoBatchMatType> {
+public:
+  // Default constructor means the matrix must be copied or moved to
+  BlockMatrix() = default;
+
+  // We do not have implementations of these two constructors for general GkoBatchMatType
+  BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec,
+              SUNContext sunctx);
+  BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N, sunindextype num_nonzeros,
+              std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx);
+
+  BlockMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)
+      : impl::BaseMatrix<GkoBatchMatType>(gko_mat, sunctx)
+  {
+    initSUNMatrix();
+  }
+
+  // Use impl::BaseMatrix getters
+  using impl::BaseMatrix<GkoBatchMatType>::gkomtx;
+  using impl::BaseMatrix<GkoBatchMatType>::gkoexec;
+  using impl::BaseMatrix<GkoBatchMatType>::sunctx;
+
+  // Impl. specific getters
+  const gko::batch_dim<2>& gkodim() const { return gkomtx()->get_size(); }
+  const gko::dim<2>& blockSize(gko::size_type block = 0) const { return gkodim().at(block); }
+  sunindextype blockDim(gko::size_type block = 0, sunindextype dim = 0) const { return gkodim().at(block)[dim]; }
+  sunindextype blockNNZ(gko::size_type block = 0) const
+  {
+    return gkomtx()->get_num_stored_elements() / gkomtx()->get_num_batch_entries();
+  }
+  sunindextype numBlocks() const { return gkodim().get_num_batch_entries(); }
+
+private:
+  void initSUNMatrix()
+  {
+    this->sunmtx_->content = this;
+
+    this->sunmtx_->ops->getid = SUNMatGetID_GinkgoBlock<GkoBatchMatType>;
+    this->sunmtx_->ops->clone = SUNMatClone_GinkgoBlock<GkoBatchMatType>;
+    this->sunmtx_->ops->copy  = SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
+    // Ginkgo does not provide what we need for ScaleAdd except with BatchDense
+    this->sunmtx_->ops->scaleadd =
+        std::is_same<GkoBatchDenseMat, GkoBatchMatType>::value ? SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType> : nullptr;
+    this->sunmtx_->ops->scaleaddi = SUNMatScaleAddI_GinkgoBlock<GkoBatchMatType>;
+    this->sunmtx_->ops->matvec    = SUNMatMatvec_GinkgoBlock<GkoBatchMatType>;
+    this->sunmtx_->ops->destroy   = SUNMatDestroy_GinkgoBlock<GkoBatchMatType>;
+  }
+};
 
 //
 // Class method specializations.
 //
 
-template<typename GkoBatchMatType>
-void BlockMatrix<GkoBatchMatType>::initSUNMatrix(SUNContext sunctx)
+template<>
+inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N,
+                                                  std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
+    : impl::BaseMatrix<GkoBatchDenseMat>(GkoBatchDenseMat::create(gko_exec,
+                                                                  gko::batch_dim<2>(num_blocks, gko::dim<2>(M, N))),
+                                         sunctx)
 {
-  sunmtx_->content = this;
-  sunmtx_->ops     = sunmtx_ops_.get();
-  sunmtx_->sunctx  = sunctx;
-
-  std::memset(sunmtx_->ops, 0, sizeof(_generic_SUNMatrix_Ops));
-  sunmtx_->ops->getid = SUNMatGetID_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->clone = SUNMatClone_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->copy  = SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
-  // Ginkgo does not provide what we need for ScaleAdd with BatchCsr yet
-  sunmtx_->ops->scaleadd =
-      std::is_same<GkoBatchCsrMat, GkoBatchMatType>::value ? NULL : SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->scaleaddi   = SUNMatScaleAddI_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->matvecsetup = SUNMatMatvecSetup_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->matvec      = SUNMatMatvec_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->destroy     = SUNMatDestroy_GinkgoBlock<GkoBatchMatType>;
-  sunmtx_->ops->space       = SUNMatSpace_GinkgoBlock<GkoBatchMatType>;
+  initSUNMatrix();
 }
 
 template<>
-BlockMatrix<GkoBatchDenseMat>::BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N,
-                                           std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
-    : gkomtx_(gko::share(GkoBatchDenseMat::create(gko_exec, gko::batch_dim<2>(num_blocks, gko::dim<2>(M, N))))),
-      sunmtx_(std::make_unique<_generic_SUNMatrix>()), sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
-{
-  initSUNMatrix(sunctx);
-}
-
-template<>
-BlockMatrix<GkoBatchDenseMat>::BlockMatrix(std::shared_ptr<GkoBatchDenseMat> gko_mat, SUNContext sunctx)
-    : gkomtx_(gko_mat), sunmtx_(std::make_unique<_generic_SUNMatrix>()),
-      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
-{
-  initSUNMatrix(sunctx);
-}
-
-template<>
-BlockMatrix<GkoBatchCsrMat>::BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N,
-                                         std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
-    : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, gko::batch_dim<>(num_blocks, gko::dim<2>(M, N))))),
-      sunmtx_(std::make_unique<_generic_SUNMatrix>()), sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
-{
-  initSUNMatrix(sunctx);
-}
-
-template<>
-BlockMatrix<GkoBatchCsrMat>::BlockMatrix(sunindextype num_blocks, sunindextype M, sunindextype N,
+BlockMatrix<GkoBatchCsrMat>::BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N,
                                          sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec,
                                          SUNContext sunctx)
-    : gkomtx_(gko::share(GkoBatchCsrMat::create(gko_exec, gko::batch_dim<>(num_blocks, gko::dim<2>(M, N)), num_nonzeros))),
-      sunmtx_(std::make_unique<_generic_SUNMatrix>()), sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
+    : impl::BaseMatrix<GkoBatchCsrMat>(GkoBatchCsrMat::create(gko_exec, gko::batch_dim<>(num_blocks, gko::dim<2>(M, N)),
+                                                              num_nonzeros),
+                                       sunctx)
 {
-  initSUNMatrix(sunctx);
-}
-
-template<>
-BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<GkoBatchCsrMat> gko_mat, SUNContext sunctx)
-    : gkomtx_(gko_mat), sunmtx_(std::make_unique<_generic_SUNMatrix>()),
-      sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
-{
-  initSUNMatrix(sunctx);
+  initSUNMatrix();
 }
 
 //
@@ -238,7 +163,7 @@ BlockMatrix<GkoBatchCsrMat>::BlockMatrix(std::shared_ptr<GkoBatchCsrMat> gko_mat
 //
 
 inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
-                                                        sunindextype num_blocks, N_Vector x)
+                                                        gko::size_type num_blocks, N_Vector x)
 {
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
   const sunindextype xvec_len = N_VGetLength(x);
@@ -249,7 +174,7 @@ inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(std::shared_ptr<const gk
 }
 
 inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
-                                                                   sunindextype num_blocks, N_Vector x)
+                                                                   gko::size_type num_blocks, N_Vector x)
 {
   sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
   const sunindextype xvec_len = N_VGetLength(x);
@@ -303,19 +228,6 @@ void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)
 }
 
 template<typename GkoBatchMatType>
-BlockMatrix<GkoBatchMatType>* Clone(BlockMatrix<GkoBatchMatType>* A)
-{
-  auto new_mat =
-      std::is_same<GkoBatchCsrMat, GkoBatchMatType>::value
-          ? new ginkgo::BlockMatrix<GkoBatchMatType>(A->numBlocks(), A->blockDim(0, 0), A->blockDim(0, 1),
-                                                     A->blockNNZ(), A->gkoexec(),
-                                                     A->sunctx())
-          : new ginkgo::BlockMatrix<GkoBatchMatType>(A->numBlocks(), A->blockDim(0, 0), A->blockDim(0, 1),
-                                                     A->gkoexec(), A->sunctx());
-  return new_mat;
-}
-
-template<typename GkoBatchMatType>
 void Copy(BlockMatrix<GkoBatchMatType>& A, BlockMatrix<GkoBatchMatType>& B)
 {
   B.gkomtx()->copy_from(A.gkomtx().get());
@@ -327,7 +239,6 @@ void Print(BlockMatrix<GkoBatchMatType>& A, std::ostream& ost = std::cout)
   gko::write(ost, A.gkomtx().get());
 }
 
-}
 } // namespace ginkgo
 } // namespace sundials
 
