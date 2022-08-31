@@ -1,7 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Cody J. Balos @ LLNL
- * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -41,53 +39,35 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+using namespace sundials;
 using namespace sundials::ginkgo;
+
+using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
+using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
+using GkoVecType  = GkoDenseMat;
 
 bool using_csr_matrix_type   = false;
 bool using_dense_matrix_type = false;
 
-int Test_CopyAndMove(std::shared_ptr<GkoCsrMat> gko_mat, sundials::Context& sunctx)
+template<class GkoMatType>
+int Test_CopyAndMove(std::unique_ptr<GkoMatType>&& gko_mat, Context& sunctx)
 {
   // Copy constructor
-  Matrix<GkoCsrMat> mat{gko_mat, sunctx};
-  Matrix<GkoCsrMat> mat2{mat};
+  Matrix<GkoMatType> mat{std::move(gko_mat), sunctx};
+  Matrix<GkoMatType> mat2{mat};
   SUNMatZero(mat2);
 
   // Move constructor
-  Matrix<GkoCsrMat> mat3{std::move(mat2)};
+  Matrix<GkoMatType> mat3{std::move(mat2)};
   SUNMatZero(mat3);
 
   // Copy assignment
-  Matrix<GkoCsrMat> mat4;
-  mat4 = mat3;
-
-  // Move assignment
-  Matrix<GkoCsrMat> mat5;
-  mat5 = std::move(mat4);
-
-  std::cout << "    PASSED test -- Test_CopyAndMove\n";
-
-  return 0;
-}
-
-int Test_CopyAndMove(std::shared_ptr<GkoDenseMat> gko_mat, sundials::Context& sunctx)
-{
-  // Copy constructor
-  Matrix<GkoDenseMat> mat{gko_mat, sunctx};
-  Matrix<GkoDenseMat> mat2{mat};
-  SUNMatZero(mat2);
-
-  // Move constructor
-  Matrix<GkoDenseMat> mat3{std::move(mat2)};
-  SUNMatZero(mat3);
-
-  // Copy assignment
-  Matrix<GkoDenseMat> mat4;
+  Matrix<GkoMatType> mat4;
   mat4 = mat3;
   SUNMatZero(mat4);
 
   // Move assignment
-  Matrix<GkoDenseMat> mat5;
+  Matrix<GkoMatType> mat5;
   mat5 = std::move(mat4);
   SUNMatZero(mat5);
 
@@ -104,7 +84,7 @@ int main(int argc, char* argv[])
   int fails{0}; /* counter for test failures */
 
   /* Create SUNDIALS context before calling any other SUNDIALS function*/
-  sundials::Context sunctx;
+  Context sunctx;
 
   auto gko_exec{REF_OR_OMP_OR_HIP_OR_CUDA(gko::ReferenceExecutor::create(), gko::OmpExecutor::create(),
                                           gko::HipExecutor::create(0, gko::OmpExecutor::create(), true),
@@ -162,8 +142,8 @@ int main(int argc, char* argv[])
   /* Wrap ginkgo matrices for SUNDIALS.
      sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
 
-  std::unique_ptr<sundials::ConvertibleTo<SUNMatrix>> A;
-  std::unique_ptr<sundials::ConvertibleTo<SUNMatrix>> I;
+  std::unique_ptr<ConvertibleTo<SUNMatrix>> A;
+  std::unique_ptr<ConvertibleTo<SUNMatrix>> I;
 
   auto xdata{N_VGetArrayPointer(x)};
   for (sunindextype i = 0; i < matcols; i++) {
@@ -174,12 +154,13 @@ int main(int argc, char* argv[])
   /* Compute true solution */
   SUNMatrix Aref{SUNDenseMatrix(matrows, matcols, sunctx)};
   if (using_csr_matrix_type) {
-    auto gko_matrix{gko::share(GkoCsrMat::create(gko_exec, matrix_dim))};
-    auto gko_ident{gko::share(GkoCsrMat::create(gko_exec, matrix_dim))};
+    auto gko_matrix{GkoCsrMat::create(gko_exec, matrix_dim)};
     gko_matrix->read(gko_matdata);
+    auto gko_ident{GkoCsrMat::create(gko_exec, matrix_dim)};
     if (square) {
       gko_ident->read(gko::matrix_data<sunrealtype, sunindextype>::diag(matrix_dim, 1.0));
     }
+
     auto Arowptrs{gko_matrix->get_const_row_ptrs()};
     auto Acolidxs{gko_matrix->get_const_col_idxs()};
     auto Avalues{gko_matrix->get_const_values()};
@@ -188,24 +169,29 @@ int main(int argc, char* argv[])
         SM_ELEMENT_D(Aref, irow, Acolidxs[inz]) = Avalues[inz];
       }
     }
-    fails += Test_CopyAndMove(gko::share(gko_matrix->clone()), sunctx);
-    A = std::make_unique<Matrix<GkoCsrMat>>(gko_matrix, sunctx);
-    I = std::make_unique<Matrix<GkoCsrMat>>(gko_ident, sunctx);
+
+    fails += Test_CopyAndMove(gko_matrix->clone(), sunctx);
+
+    A = std::make_unique<Matrix<GkoCsrMat>>(std::move(gko_matrix), sunctx);
+    I = std::make_unique<Matrix<GkoCsrMat>>(std::move(gko_ident), sunctx);
   } else if (using_dense_matrix_type) {
-    auto gko_matrix = gko::share(GkoDenseMat::create(gko_exec, matrix_dim));
-    auto gko_ident{gko::share(GkoDenseMat::create(gko_exec, matrix_dim))};
+    auto gko_matrix{GkoDenseMat::create(gko_exec, matrix_dim)};
     gko_matrix->read(gko_matdata);
+    auto gko_ident{GkoDenseMat::create(gko_exec, matrix_dim)};
     if (square) {
       gko_ident->read(gko::matrix_data<sunrealtype, sunindextype>::diag(matrix_dim, 1.0));
     }
+
     for (sunindextype j = 0; j < matcols; j++) {
       for (sunindextype i = 0; i < matrows; i++) {
         SM_ELEMENT_D(Aref, i, j) = gko_matrix->at(i, j);
       }
     }
-    fails += Test_CopyAndMove(gko::share(gko_matrix->clone()), sunctx);
-    A = std::make_unique<Matrix<GkoDenseMat>>(gko_matrix, sunctx);
-    I = std::make_unique<Matrix<GkoDenseMat>>(gko_ident, sunctx);
+
+    fails += Test_CopyAndMove(gko_matrix->clone(), sunctx);
+
+    A = std::make_unique<Matrix<GkoDenseMat>>(std::move(gko_matrix), sunctx);
+    I = std::make_unique<Matrix<GkoDenseMat>>(std::move(gko_ident), sunctx);
   }
   SUNMatMatvec_Dense(Aref, x, y);
   SUNMatDestroy(Aref);

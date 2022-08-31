@@ -17,8 +17,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <ginkgo/core/base/executor.hpp>
-#include <ginkgo/core/solver/bicg.hpp>
+#include <ginkgo/ginkgo.hpp>
 #include <random>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +46,7 @@
 #include <nvector/nvector_serial.h>
 #endif
 
+using namespace sundials;
 using namespace sundials::ginkgo;
 
 #if defined(USE_CSR)
@@ -65,31 +65,23 @@ std::unordered_map<std::string, int> methods{
 };
 
 template<class GkoSolverType, class MatrixType>
-int Test_CopyAndMove(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, sundials::Context& sunctx)
+void Test_Move(std::unique_ptr<typename GkoSolverType::Factory>&& gko_solver_factory, sundials::Context& sunctx)
 {
-  // Copy constructor
-  LinearSolver<GkoSolverType, MatrixType> solver{gko_solver_factory, sunctx};
-  LinearSolver<GkoSolverType, MatrixType> solver2{solver};
-  long int *lenrw, *leniw;
-  SUNLinSolNumIters(solver);
-
   // Move constructor
-  LinearSolver<GkoSolverType, MatrixType> solver3{std::move(solver2)};
-  SUNLinSolNumIters(solver);
-
-  // Copy assignment
-  LinearSolver<GkoSolverType, MatrixType> solver4;
-  solver4 = solver3;
-  SUNLinSolNumIters(solver);
+  LinearSolver<GkoSolverType, MatrixType> solver{std::move(gko_solver_factory), sunctx};
+  LinearSolver<GkoSolverType, MatrixType> solver2{std::move(solver)};
+  assert(solver2.gkofactory());
+  assert(solver2.gkoexec());
+  assert(SUNLinSolNumIters(solver2) == 0);
 
   // Move assignment
-  LinearSolver<GkoSolverType, MatrixType> solver5;
-  solver5 = std::move(solver4);
-  SUNLinSolNumIters(solver);
+  LinearSolver<GkoSolverType, MatrixType> solver3;
+  solver3 = std::move(solver2);
+  assert(solver3.gkofactory());
+  assert(solver3.gkoexec());
+  assert(SUNLinSolNumIters(solver3) == 0);
 
-  std::cout << "    PASSED test -- Test_CopyAndMove\n";
-
-  return 0;
+  std::cout << "    PASSED test -- Test_Move\n";
 }
 
 /* ----------------------------------------------------------------------
@@ -110,7 +102,7 @@ int main(int argc, char* argv[])
   if (argc < 7) {
     printf("ERROR: SIX (6) Inputs required: method, number of matrix columns, condition number, number of blocks, "
            "max iterations, print timing \n");
-    return (-1);
+    return 1;
   }
 
   std::string method{argv[++argi]};
@@ -121,32 +113,32 @@ int main(int argc, char* argv[])
       std::cout << m.first << ", ";
     }
     printf("\n");
-    return (-1);
+    return 1;
   }
 
   auto matcols{static_cast<const sunindextype>(atol(argv[++argi]))};
   if (matcols <= 0) {
     printf("ERROR: number of matrix columns must be a positive integer \n");
-    return (-1);
+    return 1;
   }
   auto matrows{matcols};
 
   auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
   if (matcond <= 0) {
     printf("ERROR: matrix condition number must be positive\n");
-    return (-1);
+    return 1;
   }
 
   auto nblocks{static_cast<const sunindextype>(atol(argv[++argi]))};
   if (nblocks <= 0) {
     printf("ERROR: number of blocks must be a positive integer \n");
-    return (-1);
+    return 1;
   }
 
   auto max_iters{static_cast<const unsigned long>(atol(argv[++argi]))};
   if (max_iters <= 0) {
     printf("ERROR: max iterations must be a positive integer \n");
-    return (-1);
+    return 1;
   }
 
   int print_timing{atoi(argv[++argi])};
@@ -208,7 +200,7 @@ int main(int argc, char* argv[])
     N_VDestroy(y);
     N_VDestroy(b);
 
-    return (1);
+    return 1;
   }
 
   /*
@@ -228,54 +220,60 @@ int main(int argc, char* argv[])
 
   if (method == "bicg") {
     using GkoSolverType = gko::solver::Bicg<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    Test_CopyAndMove<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory, sunctx);
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   } else if (method == "bicgstab") {
     using GkoSolverType = gko::solver::Bicgstab<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   } else if (method == "cg") {
     using GkoSolverType = gko::solver::Cg<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   } else if (method == "cgs") {
     using GkoSolverType = gko::solver::Cgs<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   } else if (method == "fcg") {
     using GkoSolverType = gko::solver::Fcg<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   } else if (method == "gmres") {
     using GkoSolverType = gko::solver::Gmres<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   } else if (method == "idr") {
     using GkoSolverType = gko::solver::Idr<sunrealtype>;
-    auto gko_solver_factory{gko::share(GkoSolverType::build()                      //
-                                           .with_criteria(std::move(crit))         //
-                                           .with_preconditioner(std::move(precon)) //
-                                           .on(gko_exec))};
-    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(gko_solver_factory, sunctx);
+    auto gko_solver_factory{GkoSolverType::build()                      //
+                                .with_criteria(std::move(crit))         //
+                                .with_preconditioner(std::move(precon)) //
+                                .on(gko_exec)};
+    Test_Move<GkoSolverType, Matrix<GkoMatrixType>>(gko_solver_factory->clone(), sunctx);
+    LS = std::make_unique<LinearSolver<GkoSolverType, Matrix<GkoMatrixType>>>(std::move(gko_solver_factory), sunctx);
   }
 
   /* Run Tests */
@@ -338,7 +336,7 @@ int check_vector(N_Vector expected, N_Vector actual, realtype tol)
 
   if (xldata != yldata) {
     printf(">>> ERROR: check_vector: Different data array lengths \n");
-    return (1);
+    return 1;
   }
 
   /* check vector data */
