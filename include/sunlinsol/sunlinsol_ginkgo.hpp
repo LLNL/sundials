@@ -14,16 +14,14 @@ namespace ginkgo {
 template<class GkoSolverType, class MatrixType>
 class LinearSolver;
 
-SUNDIALS_EXPORT
 inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S) { return SUNLINEARSOLVER_MATRIX_ITERATIVE; }
 
-SUNDIALS_EXPORT
 inline SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S) { return SUNLINEARSOLVER_GINKGO; }
 
-inline SUNDIALS_EXPORT int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S) { return SUNLS_SUCCESS; }
+inline int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S) { return SUNLS_SUCCESS; }
 
 template<class GkoSolverType, class MatrixType>
-SUNDIALS_EXPORT int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   solver->setup(static_cast<MatrixType*>(A->content));
@@ -31,7 +29,7 @@ SUNDIALS_EXPORT int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 }
 
 template<class GkoSolverType, class MatrixType>
-SUNDIALS_EXPORT int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
+int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   solver->solve(b, x, tol);
@@ -39,7 +37,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vect
 }
 
 template<class GkoSolverType, class MatrixType>
-SUNDIALS_EXPORT int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
+int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   delete solver;
@@ -47,14 +45,14 @@ SUNDIALS_EXPORT int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
 }
 
 template<class GkoSolverType, class MatrixType>
-SUNDIALS_EXPORT int SUNLinSolNumIters_Ginkgo(SUNLinearSolver S)
+int SUNLinSolNumIters_Ginkgo(SUNLinearSolver S)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   return solver->numIters();
 }
 
 template<class GkoSolverType, class MatrixType>
-SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
   return solver->resNorm();
