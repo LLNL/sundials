@@ -148,9 +148,9 @@ inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(gko::size_type num_blocks, sun
 }
 
 template<>
-BlockMatrix<GkoBatchCsrMat>::BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N,
-                                         sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec,
-                                         SUNContext sunctx)
+inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N,
+                                                sunindextype num_nonzeros,
+                                                std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
     : impl::BaseMatrix<GkoBatchCsrMat>(GkoBatchCsrMat::create(gko_exec, gko::batch_dim<>(num_blocks, gko::dim<2>(M, N)),
                                                               num_nonzeros),
                                        sunctx)
