@@ -24,6 +24,19 @@ if(BUILD_SUNMATRIX_CUSPARSE)
   add_subdirectory(cusparse)
 endif()
 
+if(BUILD_SUNMATRIX_GINKGO)
+  install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO\n\")")
+  message(STATUS "Added BUILD_SUNMATRIX_GINKGO module")
+  add_library(sundials_sunmatrixginko INTERFACE)
+  target_include_directories(sundials_sunmatrixginko INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  install(FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
+endif()
+
 if(BUILD_SUNMATRIX_MAGMADENSE)
   add_subdirectory(magmadense)
 endif()
