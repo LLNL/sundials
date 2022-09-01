@@ -34,6 +34,7 @@ if(BUILD_SUNMATRIX_GINKGO)
     $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
   install(FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
+    ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgoblock.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
 endif()
 
