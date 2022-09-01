@@ -14,6 +14,9 @@
 # Setup the CUDA languge and CUDA libraries.
 # ---------------------------------------------------------------
 
+# For CUDA support, require CMake 3.17 so we can use FindCUDAToolkit
+cmake_minimum_required(3.17.0)
+
 # ===============================================================
 # Configure options needed prior to enabling the CUDA language
 # ===============================================================
@@ -62,22 +65,20 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -std=c++11")
 enable_language(CUDA)
 set(CUDA_FOUND TRUE)
 
-# Need this as long as CUDA libraries like cuSOLVER are not available
-# through some other way.
-find_package(CUDA REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
-# Hide legacy FindCUDA variables
-get_cmake_property(_variables VARIABLES)
-foreach(_var ${_variables})
-  if("${_var}" MATCHES "^CUDA_[A-z]+_LIBRARY")
-    # do nothing
-  elseif("${_var}" MATCHES "^CUDA_.*")
-    mark_as_advanced(${_var})
-  endif()
-endforeach()
+# # Hide legacy FindCUDA variables
+# get_cmake_property(_variables VARIABLES)
+# foreach(_var ${_variables})
+#   if("${_var}" MATCHES "^CUDA_[A-z]+_LIBRARY")
+#     # do nothing
+#   elseif("${_var}" MATCHES "^CUDA_.*")
+#     mark_as_advanced(${_var})
+#   endif()
+# endforeach()
 
 # Make the CUDA_rt_LIBRARY advanced like the other CUDA_*_LIBRARY variables
-mark_as_advanced(FORCE CUDA_rt_LIBRARY)
+# mark_as_advanced(FORCE CUDA_rt_LIBRARY)
 
 # Show CUDA flags
 mark_as_advanced(CLEAR CMAKE_CUDA_FLAGS)
