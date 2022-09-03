@@ -31,7 +31,7 @@ template<typename GkoBatchMatType>
 SUNMatrix SUNMatClone_GinkgoBlock(SUNMatrix A)
 {
   auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
-  auto new_mat = new BlockMatrix<GkoBatchMatType>(*Amat);
+  auto new_mat{new BlockMatrix<GkoBatchMatType>(*Amat)};
   return new_mat->get();
 }
 
@@ -39,7 +39,7 @@ template<typename GkoBatchMatType>
 void SUNMatDestroy_GinkgoBlock(SUNMatrix A)
 {
   auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
-  delete Amat;
+  delete Amat; // NOLINT
   return;
 }
 
@@ -165,22 +165,22 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(gko::size_type num_blocks, sunin
 inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
                                                         gko::size_type num_blocks, N_Vector x)
 {
-  sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
-  const sunindextype xvec_len = N_VGetLength(x);
-  auto batch_vec_stride       = gko::batch_stride(num_blocks, 1);
-  auto batch_xvec_size        = gko::batch_dim<>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1));
-  auto xvec_view              = gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr);
+  auto x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x)};
+  const auto xvec_len{N_VGetLength(x)};
+  auto batch_vec_stride{gko::batch_stride(num_blocks, 1)};
+  auto batch_xvec_size{gko::batch_dim<2>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1))};
+  auto xvec_view{gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr)};
   return GkoBatchVecType::create(gko_exec, batch_xvec_size, std::move(xvec_view), batch_vec_stride);
 }
 
 inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(std::shared_ptr<const gko::Executor> gko_exec,
                                                                    gko::size_type num_blocks, N_Vector x)
 {
-  sunrealtype* x_arr          = (x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x);
-  const sunindextype xvec_len = N_VGetLength(x);
-  auto batch_vec_stride       = gko::batch_stride(num_blocks, 1);
-  auto batch_xvec_size        = gko::batch_dim<>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1));
-  auto xvec_view              = gko::Array<sunrealtype>::const_view(gko_exec, xvec_len, x_arr);
+  auto x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x)};
+  const auto xvec_len{N_VGetLength(x)};
+  auto batch_vec_stride{gko::batch_stride(num_blocks, 1)};
+  auto batch_xvec_size{gko::batch_dim<2>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1))};
+  auto xvec_view{gko::Array<sunrealtype>::const_view(gko_exec, xvec_len, x_arr)};
   return GkoBatchVecType::create_const(gko_exec, batch_xvec_size, std::move(xvec_view), batch_vec_stride);
 }
 
@@ -211,9 +211,9 @@ template<typename GkoBatchMatrixType>
 void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatrixType>& A, BlockMatrix<GkoBatchMatrixType>& B)
 {
   // NOTE: This is not implemented by Ginkgo for BatchCsr yet
-  const auto I    = gko::matrix::BatchIdentity<sunrealtype>::create(A.gkoexec(), A.gkodim());
-  const auto one  = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
-  const auto cmat = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
+  const auto I{gko::matrix::BatchIdentity<sunrealtype>::create(A.gkoexec(), A.gkodim())};
+  const auto one{gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec())};
+  const auto cmat{gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec())};
   // A = B + cA
   B.gkomtx()->apply(one.get(), I.get(), cmat.get(), A.gkomtx().get());
 }
@@ -221,8 +221,8 @@ void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatrixType>& A, BlockMatr
 template<typename GkoBatchMatType>
 void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)
 {
-  const auto one  = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec());
-  const auto cmat = gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec());
+  const auto one{gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {1.0}, A.gkoexec())};
+  const auto cmat{gko::batch_initialize<GkoBatchDenseMat>(A.numBlocks(), {c}, A.gkoexec())};
   // A = 1*I + c*A = cA + I
   A.gkomtx()->add_scaled_identity(one.get(), cmat.get());
 }
