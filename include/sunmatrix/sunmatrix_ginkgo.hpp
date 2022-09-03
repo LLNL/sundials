@@ -2,6 +2,7 @@
 #include <ginkgo/ginkgo.hpp>
 #include <memory>
 #include <sundials/sundials_matrix.h>
+#include <utility>
 
 #ifndef _SUNMATRIX_GINKGO_HPP
 #define _SUNMATRIX_GINKGO_HPP
@@ -30,7 +31,7 @@ template<typename GkoMatType>
 SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
 {
   auto Amat{static_cast<Matrix<GkoMatType>*>(A->content)};
-  auto new_mat = new Matrix<GkoMatType>(*Amat);
+  auto new_mat{new Matrix<GkoMatType>(*Amat)}; // NOLINT
   return new_mat->get();
 }
 
@@ -38,7 +39,7 @@ template<typename GkoMatType>
 void SUNMatDestroy_Ginkgo(SUNMatrix A)
 {
   auto Amat{static_cast<Matrix<GkoMatType>*>(A->content)};
-  delete Amat;
+  delete Amat; // NOLINT
   return;
 }
 
@@ -95,7 +96,7 @@ public:
         sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
   {}
 
-  BaseMatrix(SUNContext sunctx)
+  explicit BaseMatrix(SUNContext sunctx)
       : gkomtx_(nullptr), sunmtx_(std::make_unique<_generic_SUNMatrix>()),
         sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
   {
@@ -104,7 +105,7 @@ public:
   }
 
   BaseMatrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx)
-      : gkomtx_(gko_mat), sunmtx_(std::make_unique<_generic_SUNMatrix>()),
+      : gkomtx_(std::move(gko_mat)), sunmtx_(std::make_unique<_generic_SUNMatrix>()),
         sunmtx_ops_(std::make_unique<_generic_SUNMatrix_Ops>())
   {
     sunmtx_->ops    = sunmtx_ops_.get();
@@ -112,10 +113,10 @@ public:
   }
 
   // Move constructor
-  BaseMatrix(BaseMatrix&& that_matrix) noexcept : gkomtx_(std::move(that_matrix.gkomtx_))
+  BaseMatrix(BaseMatrix&& that_matrix) noexcept
+      : gkomtx_(std::move(that_matrix.gkomtx_)), sunmtx_(std::move(that_matrix.sunmtx_)),
+        sunmtx_ops_(std::move(that_matrix.sunmtx_ops_))
   {
-    sunmtx_          = std::move(that_matrix.sunmtx_);
-    sunmtx_ops_      = std::move(that_matrix.sunmtx_ops_);
     sunmtx_->content = this;
     sunmtx_->ops     = sunmtx_ops_.get();
   }
@@ -157,10 +158,10 @@ public:
   virtual ~BaseMatrix() = 0;
 
   // Override the ConvertibleTo methods
-  virtual operator SUNMatrix() override { return sunmtx_.get(); }
-  virtual operator SUNMatrix() const override { return sunmtx_.get(); }
-  virtual SUNMatrix get() override { return sunmtx_.get(); }
-  virtual SUNMatrix get() const override { return sunmtx_.get(); }
+  operator SUNMatrix() override { return sunmtx_.get(); }
+  operator SUNMatrix() const override { return sunmtx_.get(); }
+  SUNMatrix get() override { return sunmtx_.get(); }
+  SUNMatrix get() const override { return sunmtx_.get(); }
 
   // Getters
   std::shared_ptr<GkoMatType> gkomtx() const { return gkomtx_; }
@@ -168,15 +169,17 @@ public:
   SUNContext sunctx() const { return this->sunmtx_->sunctx; }
 
 protected:
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
   std::shared_ptr<GkoMatType> gkomtx_;
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
   std::unique_ptr<_generic_SUNMatrix> sunmtx_;
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
   std::unique_ptr<_generic_SUNMatrix_Ops> sunmtx_ops_;
 };
 
 // Pure virtual destructor requires implementation
 template<class GkoMatType>
-BaseMatrix<GkoMatType>::~BaseMatrix()
-{}
+BaseMatrix<GkoMatType>::~BaseMatrix() = default;
 
 } // namespace impl
 

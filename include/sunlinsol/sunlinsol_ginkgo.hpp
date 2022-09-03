@@ -40,7 +40,7 @@ template<class GkoSolverType, class MatrixType>
 int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, MatrixType>*>(S->content)};
-  delete solver;
+  delete solver; // NOLINT
   return SUNLS_SUCCESS;
 }
 
@@ -67,13 +67,13 @@ class DefaultStop : public gko::EnablePolymorphicObject<DefaultStop, gko::stop::
 public:
   GKO_CREATE_FACTORY_PARAMETERS(parameters, Factory)
   {
-    sunrealtype GKO_FACTORY_PARAMETER_SCALAR(tolerance, SUN_UNIT_ROUNDOFF);
-    unsigned long GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
+    sunrealtype GKO_FACTORY_PARAMETER_SCALAR(tolerance, SUN_UNIT_ROUNDOFF); // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    gko::uint64 GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
   };
   GKO_ENABLE_CRITERION_FACTORY(DefaultStop, parameters, Factory);
   GKO_ENABLE_BUILD_METHOD(Factory);
 
-  unsigned long get_max_iters() const { return parameters_.max_iters; }
+  gko::uint64 get_max_iters() const { return parameters_.max_iters; }
 
   sunrealtype get_tolerance() const { return parameters_.tolerance; }
 
@@ -131,7 +131,7 @@ public:
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory), gko_solver_(nullptr),
         sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
-        sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), iter_count_(0), res_norm_(sunrealtype{0.0})
+        sunlinsol_ops_(std::make_unique<_generic_SUNLinearSolver_Ops>()), res_norm_(sunrealtype{0.0})
   {
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
@@ -153,10 +153,9 @@ public:
   // Move constructor
   LinearSolver(LinearSolver&& that_solver) noexcept
       : gko_solver_factory_(std::move(that_solver.gko_solver_factory_)), gko_solver_(std::move(that_solver.gko_solver_)),
+        sunlinsol_(std::move(that_solver.sunlinsol_)), sunlinsol_ops_(std::move(that_solver.sunlinsol_ops_)),
         iter_count_(that_solver.iter_count_), res_norm_(that_solver.res_norm_)
   {
-    sunlinsol_          = std::move(that_solver.sunlinsol_);
-    sunlinsol_ops_      = std::move(that_solver.sunlinsol_ops_);
     sunlinsol_->content = this;
     sunlinsol_->ops     = sunlinsol_ops_.get();
   }
@@ -178,13 +177,12 @@ public:
     return *this;
   }
 
-  ~LinearSolver() = default;
+  ~LinearSolver() override = default;
 
-  virtual operator SUNLinearSolver() override { return sunlinsol_.get(); }
-  virtual operator SUNLinearSolver() const override { return sunlinsol_.get(); }
-
-  virtual SUNLinearSolver get() override { return sunlinsol_.get(); }
-  virtual SUNLinearSolver get() const override { return sunlinsol_.get(); }
+  operator SUNLinearSolver() override { return sunlinsol_.get(); }
+  operator SUNLinearSolver() const override { return sunlinsol_.get(); }
+  SUNLinearSolver get() override { return sunlinsol_.get(); }
+  SUNLinearSolver get() const override { return sunlinsol_.get(); }
 
   std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_factory_->get_executor(); }
 
@@ -221,7 +219,7 @@ public:
       gkosolver()->set_stop_criterion_factory(std::move(new_crit));
     }
 
-    gko::LinOp* result;
+    gko::LinOp* result{nullptr};
     if (x != b) {
       auto x_vec = WrapVector(gkoexec(), x);
       auto b_vec = WrapVector(gkoexec(), b);
@@ -246,8 +244,8 @@ private:
   std::unique_ptr<GkoSolverType> gko_solver_;
   std::unique_ptr<_generic_SUNLinearSolver> sunlinsol_;
   std::unique_ptr<_generic_SUNLinearSolver_Ops> sunlinsol_ops_;
-  int iter_count_;
-  sunrealtype res_norm_;
+  int iter_count_{};
+  sunrealtype res_norm_{};
 };
 
 } // namespace ginkgo
