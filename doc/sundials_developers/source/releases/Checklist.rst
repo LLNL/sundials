@@ -127,7 +127,7 @@ web pages.
         https://computing-staging.llnl.gov/projects/sundials/sundials-software
 
         * Update main download table with links to new versions of solvers
-        * The documentation links do not need to be updated (they point to the PDFs on the GitHub master branch)
+        * The documentation links do not need to be updated (they point to the PDFs on the GitHub main branch)
         * Update Previous releases table with new entry for previous release of full SUNDIALS suite.
 
       * Edit FAQ if necessary:

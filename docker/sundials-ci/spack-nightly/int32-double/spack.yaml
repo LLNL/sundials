@@ -35,4 +35,3 @@ spack:
       projections:
         superlu-mt: '{name}'
         superlu-dist: '{name}'
-

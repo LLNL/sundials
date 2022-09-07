@@ -275,6 +275,7 @@ fi
 # ------------
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_SUPERLU_DIST=ON
     export SUPERLU_DIST_ROOT=/opt/view/superlu-dist
     export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"

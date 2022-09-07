@@ -24,7 +24,7 @@ if(BUILD_NVECTOR_MPIPLUSX)
   add_subdirectory(mpiplusx)
 endif()
 
-if(BUILD_NVECTOR_HYPRE)
+if(BUILD_NVECTOR_PARHYP)
   add_subdirectory(parhyp)
 endif()
 

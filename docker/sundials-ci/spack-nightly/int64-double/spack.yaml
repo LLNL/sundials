@@ -28,7 +28,7 @@ spack:
   repos: []
   upstreams: {}
   concretizer:
-    unify: when_possible
+    unify: true
   view:
     default:
       root: /opt/view
