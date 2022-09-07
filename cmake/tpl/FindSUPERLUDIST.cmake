@@ -14,11 +14,12 @@
 # SuperLUDIST find module that creates an imported target for
 # SuperLU_DIST. The target is SUNDIALS::SUPERLUDIST.
 #
-# The variable SUPERLUDIST_LIBRARY_DIR can be used to control
-# where the module looks for the library.
+# The variable SUPERLUDIST_DIR or SUPERLUDIST_LIBRARY_DIR can be
+# used to control where the module looks for the library.
 #
 # The variable SUPERLUDIST_INCLUDE_DIR can be used to set the
-# include path for the library.
+# include path for the library or it can be deduced from
+# SUPERLUDIST_DIR.
 #
 # Additional libraries can be passed in SUPERLUDIST_LIBRARIES.
 #
@@ -46,9 +47,9 @@ endif()
 if(NOT SUPERLUDIST_LIBRARY)
   # search user provided directory path
   find_library(SUPERLUDIST_LIBRARY superlu_dist
-    PATHS ${SUPERLUDIST_LIBRARY_DIR} NO_DEFAULT_PATH)
+    PATHS ${SUPERLUDIST_DIR}/lib ${SUPERLUDIST_DIR}/lib64 ${SUPERLUDIST_LIBRARY_DIR} NO_DEFAULT_PATH)
   # if user didn't provide a path, search anywhere
-  if(NOT (SUPERLUDIST_LIBRARY_DIR OR SUPERLUDIST_LIBRARY))
+  if(NOT (SUPERLUDIST_DIR OR SUPERLUDIST_LIBRARY_DIR OR SUPERLUDIST_LIBRARY))
     find_library(SUPERLUDIST_LIBRARY superlu_dist)
   endif()
   mark_as_advanced(SUPERLUDIST_LIBRARY)
@@ -73,6 +74,10 @@ if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
   file(STRINGS ${SUPERLUDIST_CONFIG_PATH} _strings_with_index_size REGEX "XSDK_INDEX_SIZE")
   list(GET _strings_with_index_size 0 _index_size_string)
   string(REGEX MATCHALL "[0-9][0-9]" SUPERLUDIST_INDEX_SIZE "${_index_size_string}")
+  file(STRINGS ${SUPERLUDIST_CONFIG_PATH} _strings_have_cuda REGEX "HAVE_CUDA")
+  string(REGEX MATCH "TRUE|FALSE" SUPERLUDIST_CUDA "${_strings_have_cuda}")
+  file(STRINGS ${SUPERLUDIST_CONFIG_PATH} _strings_have_rocm REGEX "HAVE_ROCM")
+  string(REGEX MATCH "TRUE|FALSE" SUPERLUDIST_ROCM "${_strings_have_rocm}")
   mark_as_advanced(FORCE SUPERLUDIST_CONFIG_PATH)
 endif()
 
@@ -94,6 +99,14 @@ if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
 
   set(SUPERLUDIST_VERSION "${_version_major}.${_version_minor}.${_version_patch}")
   mark_as_advanced(FORCE SUPERLUDIST_VERSION_PATH)
+endif()
+
+if(SUPERLUDIST_CUDA)
+  list(APPEND SUPERLUDIST_LIBRARIES CUDA::cublas)
+endif()
+
+if(SUPERLUDIST_HIP)
+  list(APPEND SUPERLUDIST_LIBRARIES roc::hipblas)
 endif()
 
 # set package variables including SUPERLUDIST_FOUND

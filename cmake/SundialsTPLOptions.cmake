@@ -94,11 +94,16 @@ sundials_option(MAGMA_WORKS BOOL "Set to ON to force CMake to accept a given MAG
 # ---------------------------------------------------------------
 sundials_option(ENABLE_SUPERLUDIST BOOL "Enable SuperLU_DIST support" OFF)
 
-sundials_option(SUPERLUDIST_INCLUDE_DIR PATH "SuperLU_DIST include directory" "${SUPERLUDIST_INCLUDE_DIR}"
+sundials_option(SUPERLUDIST_DIR PATH "SuperLU_DIST directory" "${SUPERLUDIST_DIR}"
                 DEPENDS_ON ENABLE_SUPERLUDIST)
 
+sundials_option(SUPERLUDIST_INCLUDE_DIR PATH "SuperLU_DIST include directory" "${SUPERLUDIST_INCLUDE_DIR}"
+                DEPENDS_ON ENABLE_SUPERLUDIST
+                ADVANCED)
+
 sundials_option(SUPERLUDIST_LIBRARY_DIR PATH "SuperLU_DIST library directory" "${SUPERLUDIST_LIBRARY_DIR}"
-                DEPENDS_ON ENABLE_SUPERLUDIST)
+                DEPENDS_ON ENABLE_SUPERLUDIST
+                ADVANCED)
 
 sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of additional libraries needed for SuperLU_DIST." "${SUPERLUDIST_LIBRARIES}"
                 DEPENDS_ON ENABLE_SUPERLUDIST)

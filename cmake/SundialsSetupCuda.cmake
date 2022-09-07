@@ -17,7 +17,7 @@
 # For CUDA support, require CMake 3.18 so we can use FindCUDAToolkit
 # FindCUDAToolkit was introduced in 3.17, but 3.18 fixes a lot
 # of issues with it and CUDA as a native language.
-cmake_minimum_required(3.18.0)
+cmake_minimum_required(VERSION 3.18.0)
 
 # ===============================================================
 # Configure options needed prior to enabling the CUDA language
