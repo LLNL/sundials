@@ -49,10 +49,9 @@ constexpr auto N_VNew = N_VNew_Serial;
 
 #if defined(USE_CSR)
 using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-using SUNMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
 #else
 using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-using SUNMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
+
 #endif
 
 const std::unordered_map<std::string, int> methods{
@@ -210,8 +209,8 @@ int main(int argc, char* argv[])
 
   /* Wrap ginkgo matrices for SUNDIALS->
      Matrix is overloaded to a SUNMatrix. */
-  SUNMatrixType A{gko_matrix_A, sunctx};
-  SUNMatrixType B{gko_matrix_B, sunctx};
+  sundials::ginkgo::Matrix<GkoMatrixType> A{gko_matrix_A, sunctx};
+  sundials::ginkgo::Matrix<GkoMatrixType> B{gko_matrix_B, sunctx};
 
   /* Copy A and x into B and y to print in case of solver failure */
   SUNMatCopy(A, B);
@@ -233,7 +232,7 @@ int main(int argc, char* argv[])
    * Create linear solver.
    */
 
-  /* Use default stopping critieria */
+  /* Use default stopping criteria */
   auto crit{sundials::ginkgo::DefaultStop::build()
             .with_max_iters(max_iters)
             .on(gko_exec)};
@@ -249,7 +248,7 @@ int main(int argc, char* argv[])
                                        .with_preconditioner(std::move(precon))
                                        .on(gko_exec));
 
-  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> LS{gko_solver_factory, sunctx};
+  sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>> LS{gko_solver_factory, sunctx};
 
   // if (method == "bicg")
   // {
