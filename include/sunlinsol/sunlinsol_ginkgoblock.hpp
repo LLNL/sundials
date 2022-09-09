@@ -16,9 +16,9 @@ namespace ginkgo {
 template<class GkoBatchSolverType, class BlockMatrixType>
 class BlockLinearSolver;
 
-SUNLinearSolver_Type SUNLinSolGetType_GinkgoBlock(SUNLinearSolver S) { return SUNLINEARSOLVER_MATRIX_ITERATIVE; }
+inline SUNLinearSolver_Type SUNLinSolGetType_GinkgoBlock(SUNLinearSolver S) { return SUNLINEARSOLVER_MATRIX_ITERATIVE; }
 
-SUNLinearSolver_ID SUNLinSolGetID_GinkgoBlock(SUNLinearSolver S) { return SUNLINEARSOLVER_GINKGOBLOCK; }
+inline SUNLinearSolver_ID SUNLinSolGetID_GinkgoBlock(SUNLinearSolver S) { return SUNLINEARSOLVER_GINKGOBLOCK; }
 
 template<typename GkoBatchLinearSolverType>
 int SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S)
