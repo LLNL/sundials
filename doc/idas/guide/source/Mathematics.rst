@@ -234,7 +234,7 @@ iteration if :math:`\|\delta_1\| < 0.33 \cdot 10^{-4}` (since such a
 evaluating :math:`R`).  We allow only a small number (default value 4) of
 nonlinear iterations.  If convergence fails with :math:`J` or :math:`P` current,
 we are forced to reduce the step size :math:`h_n`, and we replace :math:`h_n` by
-:math:`h_n \eta_{\text{cf}}` (by default :math:`\eta_{\text{cf}} = 0.25`). The
+:math:`h_n \eta_{\mathrm{cf}}` (by default :math:`\eta_{\mathrm{cf}} = 0.25`). The
 integration is halted after a preset number (default value 10) of convergence
 failures. Both the maximum number of allowable nonlinear iterations and the
 maximum number of nonlinear convergence failures can be changed by the user from
@@ -343,12 +343,12 @@ latter is based on the :math:`h^{q+1}` asymptotic behavior of
 
 .. math:: \eta = h'/h = 0.9/[2 \, \text{ELTE}(q)]^{1/(q+1)} \, .
 
-The value of :math:`\eta` is adjusted so that :math:`\eta_{\text{min\_ef}} \leq
-\eta \leq \eta_{\text{low}}` (by default :math:`\eta_{\text{min\_ef}} = 0.25`
-and :math:`\eta_{\text{low}} = 0.9`) before setting :math:`h \leftarrow h' =
+The value of :math:`\eta` is adjusted so that :math:`\eta_{\mathrm{min\_ef}} \leq
+\eta \leq \eta_{\mathrm{low}}` (by default :math:`\eta_{\mathrm{min\_ef}} = 0.25`
+and :math:`\eta_{\mathrm{low}} = 0.9`) before setting :math:`h \leftarrow h' =
 \eta h`. If the local error test fails a second time, IDA uses
-:math:`\eta = \eta_{\text{min\_ef}}`, and on the third and subsequent failures
-it uses :math:`q = 1` and :math:`\eta = \eta_{\text{min\_ef}}`. After 10
+:math:`\eta = \eta_{\mathrm{min\_ef}}`, and on the third and subsequent failures
+it uses :math:`q = 1` and :math:`\eta = \eta_{\mathrm{min\_ef}}`. After 10
 failures, IDA returns with a give-up message.
 
 As soon as the local error test has passed, the step and order for the next step
@@ -375,17 +375,17 @@ In any case, the new step size :math:`h'` is set much as before:
 
 The value of :math:`\eta` is adjusted such that
 
-a. If :math:`\eta_{\text{min\_fx}} < \eta < \eta_{\text{max\_fx}}`, set
-   :math:`\eta = 1`. The defaults are :math:`\eta_{\text{min\_fx}} = 1` and
-   :math:`\eta_{\text{max\_fx}} = 2`.
+a. If :math:`\eta_{\mathrm{min\_fx}} < \eta < \eta_{\mathrm{max\_fx}}`, set
+   :math:`\eta = 1`. The defaults are :math:`\eta_{\mathrm{min\_fx}} = 1` and
+   :math:`\eta_{\mathrm{max\_fx}} = 2`.
 
-b. If :math:`\eta \geq \eta_{\text{max\_fx}}`, the step size growth is restricted
-   to :math:`\eta_{\text{max\_fx}} \leq \eta \leq \eta_{\text{max}}` with
-   :math:`\eta_{\text{max}} = 2` by default.
+b. If :math:`\eta \geq \eta_{\mathrm{max\_fx}}`, the step size growth is restricted
+   to :math:`\eta_{\mathrm{max\_fx}} \leq \eta \leq \eta_{\mathrm{max}}` with
+   :math:`\eta_{\mathrm{max}} = 2` by default.
 
-c. If :math:`\eta \leq \eta_{\text{min\_fx}}`, the step size reduction is
-   restricted to :math:`\eta_{\text{min}} \leq \eta \leq \eta_{\text{low}}` with
-   :math:`\eta_{\text{min}} = 0.5` and  :math:`\eta_{\text{low}} = 0.9` by
+c. If :math:`\eta \leq \eta_{\mathrm{min\_fx}}`, the step size reduction is
+   restricted to :math:`\eta_{\mathrm{min}} \leq \eta \leq \eta_{\mathrm{low}}` with
+   :math:`\eta_{\mathrm{min}} = 0.5` and  :math:`\eta_{\mathrm{low}} = 0.9` by
    default.
 
 Thus we do not increase the step size unless it can be doubled. If a step size

@@ -60,7 +60,7 @@ foreach(example_tuple ${IDA_examples})
     sundials_nvecmpiplusx
     sundials_nvecraja
     ${MPI_CXX_LIBRARIES}
-    ${EXTRA_LINK_LIBS}
+    ${EXE_EXTRA_LINK_LIBS}
     ${OTHER_LIBS})
 
   # add example to regression tests

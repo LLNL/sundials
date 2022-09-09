@@ -19,8 +19,8 @@
 
 # Examples to build
 set(KINSOL_examples
-  "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;develop"
-  "kin_em_p.cpp\;\;1\;2\;develop")
+  "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single"
+  "kin_em_p.cpp\;\;1\;2\;exclude-single")
 
 # Header files to install
 set(KINSOL_headers
@@ -54,7 +54,7 @@ foreach(example_tuple ${KINSOL_examples})
       sundials_nvecmpiplusx
       sundials_nvecserial
       MPI::MPI_CXX
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

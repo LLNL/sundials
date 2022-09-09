@@ -45,7 +45,7 @@ list(APPEND SUNMATS_LIB sundials_sunmatrixsparse)
 set(SUNLINSOLS_LIB sundials_sunlinsolsuperlumt)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${SUNLINSOLS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${SUNLINSOLS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_superlumt_examples})

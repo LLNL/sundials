@@ -29,7 +29,7 @@ set(ARKODE_LIB sundials_arkode)
 set(NVECOMP_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})

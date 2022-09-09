@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasBruss_ASAp_kry_bbd_p\;\;1\;4\;develop"
-  "idasBruss_FSA_kry_bbd_p\;\;1\;4\;develop"
-  "idasBruss_kry_bbd_p\;\;1\;4\;develop"
-  "idasFoodWeb_kry_bbd_p\;\;1\;4\;develop"
-  "idasFoodWeb_kry_p\;\;1\;4\;develop"
-  "idasHeat2D_FSA_kry_bbd_p\;-sensi stg t\;1\;4\;develop"
-  "idasHeat2D_kry_bbd_p\;\;1\;4\;develop"
-  "idasHeat2D_kry_p\;\;1\;4\;develop"
+  "idasBruss_ASAp_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasBruss_FSA_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasBruss_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_p\;\;1\;4\;exclude-single"
+  "idasHeat2D_FSA_kry_bbd_p\;-sensi stg t\;1\;4\;exclude-single"
+  "idasHeat2D_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasHeat2D_kry_p\;\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -42,7 +42,7 @@ set(IDAS_LIB sundials_idas)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example

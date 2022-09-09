@@ -19,7 +19,7 @@
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
 sun_major=${1:-6}
-sun_minor=${2:-2}
+sun_minor=${2:-3}
 sun_patch=${3:-0}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
@@ -335,6 +335,7 @@ sedi "s/ida_version =.*/ida_version = \'v${ida_ver}\'/" $fn
 sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
 sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
 sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
+sedi "s/year =.*/year = \'${year}\'/" $fn
 
 # release history table
 fn="../doc/shared/History.rst"
@@ -356,18 +357,18 @@ fi
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
-sedi '39s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '40s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
-sedi '48s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '49s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
-sedi '57s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '58s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
-sedi '66s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '67s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
-sedi '75s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '76s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
-sedi '84s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '85s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
+sedi '64s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '65s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
+sedi '73s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '74s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
+sedi '82s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '83s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
+sedi '91s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '92s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
+sedi '100s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '101s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
+sedi '109s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '110s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
 # Update CHANGELOG and recent changes
 fn="../CHANGELOG.md"

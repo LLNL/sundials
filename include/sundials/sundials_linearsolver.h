@@ -90,6 +90,8 @@ typedef enum {
   SUNLINEARSOLVER_CUSOLVERSP_BATCHQR,
   SUNLINEARSOLVER_MAGMADENSE,
   SUNLINEARSOLVER_ONEMKLDENSE,
+  SUNLINEARSOLVER_GINKGO,
+  SUNLINEARSOLVER_GINKGOBLOCK,
   SUNLINEARSOLVER_CUSTOM
 } SUNLinearSolver_ID;
 
@@ -221,6 +223,19 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 #endif
 
 #ifdef __cplusplus
+
+namespace sundials
+{
+class SUNLinearSolverView {
+public:
+  virtual SUNLinearSolver get()            = 0;
+  virtual SUNLinearSolver get() const      = 0;
+  virtual operator SUNLinearSolver()       = 0;
+  virtual operator SUNLinearSolver() const = 0;
+  virtual ~SUNLinearSolverView() {}
+};
+}
+
 }
 #endif
 #endif

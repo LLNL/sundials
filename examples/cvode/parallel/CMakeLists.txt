@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_diag_p\;2\;4\;develop"
-  "cvAdvDiff_non_p\;2\;2\;develop"
-  "cvDiurnal_kry_bbd_p\;2\;4\;develop"
-  "cvDiurnal_kry_p\;2\;4\;develop"
+  "cvAdvDiff_diag_p\;2\;4\;exclude-single"
+  "cvAdvDiff_non_p\;2\;2\;exclude-single"
+  "cvDiurnal_kry_bbd_p\;2\;4\;exclude-sigle"
+  "cvDiurnal_kry_p\;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -64,7 +64,7 @@ foreach(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
   if(NOT MPI_C_COMPILER)
     target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

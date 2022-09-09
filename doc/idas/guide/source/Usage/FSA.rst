@@ -57,34 +57,35 @@ First, note that no additional header files need be included for forward
 sensitivity analysis beyond those for IVP solution
 :numref:`IDAS.Usage.SIM.skeleton_sim`.
 
-Differences from the user main program skeleton in
-:numref:`IDAS.Usage.SIM.skeleton_sim` are bolded.
+Steps that are unchanged from the user main program skeleton in
+:numref:`IDAS.Usage.SIM.skeleton_sim` are grayed out and new or modified steps
+are in bold.
 
-#. Initialize parallel or multi-threaded environment
+#. :silver:`Initialize parallel or multi-threaded environment`
 
-#. Create the SUNDIALS context object
+#. :silver:`Create the SUNDIALS context object`
 
-#. Set the vector of initial values
+#. :silver:`Set the vector of initial values`
 
-#. Create matrix object
+#. :silver:`Create matrix object`
 
-#. Create linear solver object
+#. :silver:`Create linear solver object`
 
-#. Create nonlinear solver object
+#. :silver:`Create nonlinear solver object`
 
-#. Create IDAS object
+#. :silver:`Create IDAS object`
 
-#. Initialize IDAS solver
+#. :silver:`Initialize IDAS solver`
 
-#. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-#. Attach linear solver
+#. :silver:`Attach linear solver`
 
-#. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-#. Attach nonlinear solver
+#. :silver:`Attach nonlinear solver`
 
-#. Set nonlinear solver optional inputs
+#. :silver:`Set nonlinear solver optional inputs`
 
 #. **Initialize quadrature integration**
 
@@ -173,7 +174,7 @@ Differences from the user main program skeleton in
    optional inputs will be overridden by IDAS defaults. See
    :numref:`SUNNonlinSol` for more information on optional inputs.
 
-#. Specify rootfinding problem
+#. :silver:`Specify rootfinding problem`
 
 #. **Set optional inputs**
 
@@ -182,9 +183,9 @@ Differences from the user main program skeleton in
    sensitivities. See :numref:`IDAS.Usage.FSA.user_callable.optional_inputs`
    for details.
 
-#. Correct initial values
+#. :silver:`Correct initial values`
 
-#. Advance solution in time
+#. :silver:`Advance solution in time`
 
 #. **Extract sensitivity solution**
 
@@ -195,14 +196,14 @@ Differences from the user main program skeleton in
    :c:func:`IDAGetSens`, :c:func:`IDAGetSens1`, :c:func:`IDAGetSensDky`, or
    :c:func:`IDAGetSensDky1`.
 
-#. Get optional outputs
+#. :silver:`Get optional outputs`
 
-#. Deallocate memory
+#. **Deallocate memory**
 
    Upon completion of the integration, deallocate memory for the vectors ``yS0``
    and ``yps0`` using :c:func:`N_VDestroyVectorArray`.
 
-#. Finalize MPI, if used
+#. :silver:`Finalize MPI, if used`
 
 
 .. _IDAS.Usage.FSA.user_callable:
@@ -1109,49 +1110,49 @@ IDAS provides support for integration of quadrature equations that depends not
 only on the state variables but also on forward sensitivities.
 
 The following is an overview of the sequence of calls in a user's main program
-in this situation. Steps that are changed from the skeleton program presented
-in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded. See also
-:numref:`IDAS.Usage.Purequad`.
+in this situation. Steps that are unchanged from the skeleton program presented
+in :numref:`IDAS.Usage.SIM.skeleton_sim` are grayed out and new or modified
+steps are in bold. See also :numref:`IDAS.Usage.Purequad`.
 
-#. Initialize parallel or multi-threaded environment, if appropriate
+#. :silver:`Initialize parallel or multi-threaded environment, if appropriate`
 
-#. Create the SUNDIALS context object
+#. :silver:`Create the SUNDIALS context object`
 
-#. Set vector of initial values
+#. :silver:`Set vector of initial values`
 
-#. Create matrix object
+#. :silver:`Create matrix object`
 
-#. Create linear solver object
+#. :silver:`Create linear solver object`
 
-#. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-#. Create nonlinear solver object
+#. :silver:`Create nonlinear solver object`
 
-#. Create IDAS object
+#. :silver:`Create IDAS object`
 
-#. Initialize IDAS solver
+#. :silver:`Initialize IDAS solver`
 
-#. Specify integration tolerances
+#. :silver:`Specify integration tolerances`
 
-#. Attach linear solver
+#. :silver:`Attach linear solver`
 
-#. Set linear solver optional inputs
+#. :silver:`Set linear solver optional inputs`
 
-#. Attach nonlinear solver
+#. :silver:`Attach nonlinear solver`
 
-#. Set nonlinear solver optional inputs
+#. :silver:`Set nonlinear solver optional inputs`
 
-#. Set sensitivity initial values
+#. :silver:`Set sensitivity initial values`
 
-#. Activate sensitivity calculations
+#. :silver:`Activate sensitivity calculations`
 
-#. Set sensitivity integration tolerances
+#. :silver:`Set sensitivity integration tolerances`
 
-#. Create sensitivity nonlinear solver
+#. :silver:`Create sensitivity nonlinear solver`
 
-#. Attach the sensitivity nonlinear solver
+#. :silver:`Attach the sensitivity nonlinear solver`
 
-#. Set sensitivity nonlinear solver optional inputs
+#. :silver:`Set sensitivity nonlinear solver optional inputs`
 
 #. **Set vector of initial values for quadrature variables**
 
@@ -1163,7 +1164,7 @@ in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded. See also
    right-hand side function and to allocate internal memory related to
    quadrature integration.
 
-#. Specify rootfinding problem
+#. :silver:`Specify rootfinding problem`
 
 #. **Set optional inputs**
 
@@ -1173,11 +1174,11 @@ in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded. See also
    integration tolerances for quadrature variables. See
    :numref:`IDAS.Usage.Purequad.quad_optional_input` for details.
 
-#. Correct initial values
+#. :silver:`Correct initial values`
 
-#. Advance solution in time
+#. :silver:`Advance solution in time`
 
-#. Extract sensitivity solution
+#. :silver:`Extract sensitivity solution`
 
 #. **Extract sensitivity-dependent quadrature variables**
 
@@ -1191,9 +1192,9 @@ in :numref:`IDAS.Usage.SIM.skeleton_sim` are bolded. See also
    integration of sensitivity-dependent quadratures. See
    :numref:`IDAS.Usage.FSA.quad.quad_sens_optional_output` for details.
 
-#. Deallocate memory
+#. :silver:`Destroy objects`
 
-#. Finalize MPI, if used
+#. :silver:`Finalize MPI, if used`
 
 
 .. _IDAS.Usage.FSA.quad.quad_init:

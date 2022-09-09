@@ -48,6 +48,9 @@
  * SUNDIALS build information
  * -----------------------------------------------------------------*/
 
+#cmakedefine SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS
+#cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
+#cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 
 /* Define precision of SUNDIALS data type 'realtype'
  * Depending on the precision level, one of the following
@@ -71,9 +74,8 @@
  */
 #define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
 
-/* Use generic math functions
- * If it was decided that generic math functions can be used, then
- *     #define SUNDIALS_USE_GENERIC_MATH
+/* Use std-c math functions
+ * DEPRECATED SUNDIALS_USE_GENERIC_MATH
  */
 #cmakedefine SUNDIALS_USE_GENERIC_MATH
 
@@ -98,8 +100,8 @@
 #cmakedefine SUNDIALS_LOGGING_ENABLE_MPI
 
 /* Is snprintf available? */
-#cmakedefine SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
-#ifndef SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#cmakedefine SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
+#ifndef SUNDIALS_SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
 #define SUNDIALS_MAX_SPRINTF_SIZE @SUNDIALS_MAX_SPRINTF_SIZE@
 #endif
 
@@ -109,6 +111,10 @@
 
 /* Caliper */
 #cmakedefine SUNDIALS_CALIPER_ENABLED
+
+/* Ginkgo backends */
+#cmakedefine SUNDIALS_GINKGO_BACKENDS_CUDA
+#cmakedefine SUNDIALS_GINKGO_BACKENDS_HIP
 
 /* MAGMA backends */
 #cmakedefine SUNDIALS_MAGMA_BACKENDS_CUDA
@@ -184,10 +190,10 @@
 #endif
 
 #ifndef SUNDIALS_C_INLINE
-#ifndef __STDC_VERSION__ /* must be c89 or c90 */
-#define SUNDIALS_C_INLINE
-#else
+#ifdef SUNDIALS_C_COMPILER_HAS_INLINE
 #define SUNDIALS_C_INLINE inline
+#else
+#define SUNDIALS_C_INLINE
 #endif
 #endif
 

@@ -24,16 +24,16 @@ set(ARKODE_examples
   "ark_analytic_mels\;\;develop"
   "ark_analytic_nonlin\;\;develop"
   "ark_brusselator\;\;develop"
-  "ark_brusselator_fp\;\;develop"
-  "ark_brusselator1D\;\;develop"
+  "ark_brusselator_fp\;\;exclude-single"
+  "ark_brusselator1D\;\;exclude-single"
   "ark_heat1D\;\;develop"
   "ark_heat1D_adapt\;\;develop"
-  "ark_KrylovDemo_prec\;\;develop"
-  "ark_KrylovDemo_prec\;1\;develop"
-  "ark_KrylovDemo_prec\;2\;develop"
-  "ark_robertson\;\;develop"
-  "ark_robertson_constraints\;\;develop"
-  "ark_robertson_root\;\;develop"
+  "ark_KrylovDemo_prec\;\;exclude-single"
+  "ark_KrylovDemo_prec\;1\;exclude-single"
+  "ark_KrylovDemo_prec\;2\;exclude-single"
+  "ark_robertson\;\;exclude-single"
+  "ark_robertson_constraints\;\;exclude-single"
+  "ark_robertson_root\;\;exclude-single"
   "ark_brusselator_mri\;\;develop"
   "ark_onewaycouple_mri\;\;develop"
   "ark_twowaycouple_mri\;\;develop"
@@ -47,23 +47,23 @@ set(ARKODE_examples
   "ark_kpr_mri\;4 0.002\;develop"
   "ark_kpr_mri\;5 0.002\;develop"
   "ark_kpr_mri\;6 0.005\;develop"
-  "ark_kpr_mri\;7 0.001\;develop"
-  "ark_kpr_mri\;7 0.001 -100 100 0.5 1\;develop"
-  "ark_kpr_mri\;8 0.001\;develop"
-  "ark_kpr_mri\;8 0.001 -100 100 0.5 1\;develop"
-  "ark_kpr_mri\;9 0.001\;develop"
-  "ark_kpr_mri\;9 0.001 -100 100 0.5 1\;develop"
-  "ark_brusselator1D_imexmri\;0 0.001\;develop"
-  "ark_brusselator1D_imexmri\;2 0.001\;develop"
-  "ark_brusselator1D_imexmri\;3 0.001\;develop"
-  "ark_brusselator1D_imexmri\;4 0.001\;develop"
-  "ark_brusselator1D_imexmri\;5 0.001\;develop"
-  "ark_brusselator1D_imexmri\;6 0.001\;develop"
-  "ark_brusselator1D_imexmri\;7 0.001\;develop"
+  "ark_kpr_mri\;7 0.001\;exclude-single"
+  "ark_kpr_mri\;7 0.001 -100 100 0.5 1\;exclude-single"
+  "ark_kpr_mri\;8 0.001\;exclude-single"
+  "ark_kpr_mri\;8 0.001 -100 100 0.5 1\;exclude-single"
+  "ark_kpr_mri\;9 0.001\;exclude-single"
+  "ark_kpr_mri\;9 0.001 -100 100 0.5 1\;exclude-single"
+  "ark_brusselator1D_imexmri\;0 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri\;2 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri\;3 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri\;4 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri\;5 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri\;6 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri\;7 0.001\;exclude-single"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND ARKODE_examples "ark_brusselator_fp\;1\;develop")
+  list(APPEND ARKODE_examples "ark_brusselator_fp\;1\;exclude-single")
 endif()
 
 # Examples using KLU linear solver
@@ -73,7 +73,7 @@ set(ARKODE_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(ARKODE_examples_SUPERLUMT
-  "ark_brusselator1D_FEM_slu\;develop"
+  "ark_brusselator1D_FEM_slu\;exclude-single"
   )
 
 # Auxiliary files to install
@@ -95,7 +95,7 @@ set(ARKODE_LIB sundials_arkode)
 set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each ARKODE example

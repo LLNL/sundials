@@ -36,14 +36,10 @@ interface routines.
 
 ARKODE is written in C, with C++ and Fortran interfaces.
 
-ARKODE is developed by `Southern Methodist University <http://www.smu.edu>`_,
+ARKODE is developed by `Southern Methodist University <https://www.smu.edu>`_ and
+`Lawrence Livermore National Security <https://www.llnl.gov>`_,
 with support by the `US Department of Energy <http://www.doe.gov>`_,
-`Office of Science <https://www.energy.gov/science/office-science>`_,
-`Office of Advanced Scientific Computing Research <https://www.energy.gov/science/ascr/advanced-scientific-computing-research>`_,
-`Scientific Discovery through Advanced Computing (SciDAC) <https://www.scidac.gov/>`_
-Program through the `FASTMath <http://www.fastmath-scidac.org/>`_ Institute, under
-subcontracts B598130 and B626484 from `Lawrence Livermore National Laboratory
-<http://www.llnl.gov>`_, and under DOE award DE-SC0021354.
+`Office of Science <https://www.energy.gov/science/office-science>`_.
 
 
 .. include:: Landing.rst

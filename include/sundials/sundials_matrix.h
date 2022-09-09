@@ -65,6 +65,8 @@ typedef enum {
   SUNMATRIX_SPARSE,
   SUNMATRIX_SLUNRLOC,
   SUNMATRIX_CUSPARSE,
+  SUNMATRIX_GINKGO,
+  SUNMATRIX_GINKGOBLOCK,
   SUNMATRIX_CUSTOM
 } SUNMatrix_ID;
 
@@ -136,4 +138,5 @@ SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
 #ifdef __cplusplus
 }
 #endif
-#endif
+
+#endif /* _SUNMATRIX_H */

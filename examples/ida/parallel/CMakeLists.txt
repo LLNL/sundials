@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaFoodWeb_kry_bbd_p\;1\;4\;develop"
-  "idaFoodWeb_kry_p\;1\;4\;develop"
-  "idaHeat2D_kry_bbd_p\;1\;4\;develop"
-  "idaHeat2D_kry_p\;1\;4\;develop"
+  "idaFoodWeb_kry_bbd_p\;1\;4\;exclude-single"
+  "idaFoodWeb_kry_p\;1\;4\;exclude-single"
+  "idaHeat2D_kry_bbd_p\;1\;4\;exclude-single"
+  "idaHeat2D_kry_p\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -38,7 +38,7 @@ set(IDA_LIB sundials_ida)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})

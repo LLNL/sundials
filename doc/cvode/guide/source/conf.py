@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for CVODE'
-copyright = u'2012-2021, Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward. Release number UCRL-SM-208108'
+copyright = """2002-{year}, Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -99,15 +99,17 @@ numfig_format = {
   'section': '§%s'
 }
 
+rst_prolog = open('../../../shared/global.rst.txt', 'r').read()
+
 rst_epilog = """
-.. |YEAR| replace:: 2021
+.. |YEAR| replace:: {year}
 .. |CVODE_VERSION| replace:: {cvode_version}
 .. |CVODES_VERSION| replace:: {cvodes_version}
 .. |ARKODE_VERSION| replace:: {arkode_version}
 .. |IDA_VERSION| replace:: {ida_version}
 .. |IDAS_VERSION| replace:: {idas_version}
 .. |KINSOL_VERSION| replace:: {kinsol_version}
-""".format(
+""".format(year = year,
 cvode_version = cvode_version,
 cvodes_version = cvodes_version,
 arkode_version = arkode_version,
@@ -202,6 +204,11 @@ htmlhelp_basename = 'CVODEdoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
+latex_additional_files = ['../../../shared/latex/preamble.tex.txt',
+                          '../../../shared/latex/cover_pages.tex.txt']
+
+im_number = "UCRL-SM-208108"
+
 # 1. the rst file name used to generate the LaTeX file
 # 2. the name of the LaTeX file to generate (and the resulting PDF file name)
 # 3. the document title
@@ -254,152 +261,14 @@ latex_elements = {
 # figure alignment options
 'figure_align': 'htbp',
 # additional preamble content
-'preamble': r'''
-% =====================================================
-% Start custom preamble (see latex_elements in conf.py)
-% =====================================================
-
-% Use ragged-right for the whole document
-% Commented out after adding hyphenat below to get better spacing
-% \usepackage[document]{ragged2e}
-
-% Hyphenate verbatim text e.g., text in double backticks, :c:func:, etc.
-\usepackage[htt]{hyphenat}
-
-% Specify depths for section numbering and table of contents
-\setcounter{tocdepth}{1}
-\setcounter{secnumdepth}{3}
-
-% Link a footnote to its location in the text
-\usepackage{footnotebackref}
-
-% Replace macro to use same header font and color for tables
-\makeatletter
-\protected\def\sphinxstyletheadfamily{\py@HeaderFamily \py@TitleColor}
-\makeatother
-
-% Replace macro to use same font in continued tables
-\makeatletter
-\protected\def\sphinxtablecontinued#1{\textrm{#1}}
-\makeatother
-
-% Add new command for SUNDIALS version
-'''
-+
-r'\newcommand{\sunreleasename}{' + sun_version + r'}'
-+
-r'''
-
-% ===================================================
-% End custom preamble (see latex_elements in conf.py)
-% ===================================================
-''',
+'preamble':
+    '\\input{preamble.tex.txt}\n'+
+    '\\newcommand{\\sunreleasename}{' + sun_version + '}\n' +
+    '\\newcommand{\\imnumber}{' + im_number + '}\n',
 # extra class options
 'extraclassoptions': 'twoside,openright',
 # custom maketitle
-'maketitle': r'''
-% =======================================================
-% Start custom cover page (see latex_elements in conf.py)
-% =======================================================
-
-\makeatletter
-
-% Start roman numbering
-\pagenumbering{Roman}
-
-% Title page
-\begin{titlepage}
-  \newpage
-  \null
-  \vskip 2em%
-  \begin{center}%
-    \let \footnote \thanks
-    {\huge \rmfamily \@title \space \releasename \par}
-    {\Large \rmfamily SUNDIALS \space \sunreleasename \par}
-    \vskip 3.0em%
-    {\large \lineskip .5em%
-     \begin{tabular}[t]{c}%
-       \@author
-     \end{tabular}\par}%
-    \vskip 1em%
-    {\large \@date \par}%
-    \vfill
-    {\includegraphics[width=0.5\textwidth]{doc_logo_blue}}
-    \vfill
-    {\large \rmfamily UCRL-SM-208108}
-    \vfill
-  \end{center}
-  \par
-  \vskip 1.5em
-\end{titlepage}
-
-\makeatother
-
-\clearpage
-
-% Disclaimer
-\thispagestyle{empty}% no number of this page
-\vglue5\baselineskip
-\begin{center}
-  {\bf DISCLAIMER}
-\end{center}
-\noindent
-This document was prepared as an account of work sponsored by an agency of
-the United States government. Neither the United States government nor
-Lawrence Livermore National Security, LLC, nor any of their employees makes
-any warranty, expressed or implied, or assumes any legal liability or responsibility
-for the accuracy, completeness, or usefulness of any information, apparatus, product,
-or process disclosed, or represents that its use would not infringe privately owned rights.
-Reference herein to any specific commercial product, process, or service by trade name,
-trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement,
-recommendation, or favoring by the United States government or Lawrence Livermore National
-Security, LLC. The views and opinions of authors expressed herein do not necessarily state
-or reflect those of the United States government or Lawrence Livermore National Security, LLC,
-and shall not be used for advertising or product endorsement purposes.
-
-\vskip2\baselineskip
-\noindent
-This work was performed under the auspices of the U.S. Department of Energy by Lawrence
-Livermore National Laboratory under Contract DE-AC52-07NA27344.
-\vfill
-\begin{center}
-  Approved for public release; further dissemination unlimited
-\end{center}
-
-\clearpage
-
-% Contributors
-\thispagestyle{empty}% no number of this page
-\vglue5\baselineskip
-\begin{center}
-{\bf CONTRIBUTORS}
-\end{center}
-\noindent
-The SUNDIALS library has been developed over many years by a number of
-contributors. The current SUNDIALS team consists of Cody J. Balos,
-David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and
-Carol S. Woodward. We thank Radu Serban for significant and critical past
-contributions.\\
-\vskip 2em%
-\noindent
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
-Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
-Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
-Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
-Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
-Ting Yan, and Ulrike M. Yang.
-\clearpage
-
-% clear empty double page
-\newpage{\pagestyle{empty}\cleardoublepage}
-
-% Start arabic numbering
-\pagenumbering{arabic}
-
-% =====================================================
-% End custom cover page (see latex_elements in conf.py)
-% =====================================================
-'''
+'maketitle': '\\input{cover_pages.tex.txt}'
 }
 
 
@@ -408,7 +277,7 @@ Ting Yan, and Ulrike M. Yang.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'cvode', u'CVODE Documentation',
+    ('index', 'CVODE', u'CVODE Documentation',
      [u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward'], 1)
 ]
 

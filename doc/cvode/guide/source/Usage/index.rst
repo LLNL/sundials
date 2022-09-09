@@ -1691,47 +1691,47 @@ Time step adaptivity optional input functions
 
 .. table:: Optional inputs for CVODE time step adaptivity
 
-   +-------------------------------------+---------------------------------------------+----------------+
-   | **Optional input**                  | **Function name**                           | **Default**    |
-   +=====================================+=============================================+================+
-   | Fixed step size factor bounds       | :c:func:`CVodeSetEtaFixedStepBounds`        | 0 and 1.5      |
-   | :math:`\eta_{\text{min\_fx}}` and   |                                             |                |
-   | :math:`\eta_{\text{max\_fx}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetEtaMaxFirstStep`           | :math:`10^4`   |
-   | factor in the first step            |                                             |                |
-   | :math:`\eta_{\text{max\_fs}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`   | 10             |
-   | factor for early steps              |                                             |                |
-   | :math:`\eta_{\text{max\_es}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Number of time steps to use the     | :c:func:`CVodeSetNumStepsEtaMaxEarly`       | 10             |
-   | early step size change factor       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetEtaMax`                    | 10             |
-   | factor after a successful step      |                                             |                |
-   | :math:`\eta_{\text{max\_gs}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Smallest allowed step size change   | :c:func:`CVodeSetEtaMin`                    | 1.0            |
-   | factor after a successful step      |                                             |                |
-   | :math:`\eta_{\text{min}}`           |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Smallest allowed step size change   | :c:func:`CVodeSetEtaMinErrFail`             | 0.1            |
-   | factor after an error test fail     |                                             |                |
-   | :math:`\eta_{\text{min\_ef}}`       |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Largest allowed step size change    | :c:func:`CVodeSetEtaMaxErrFail`             | 0.2            |
-   | factor after multiple error test    |                                             |                |
-   | fails :math:`\eta_{\text{max\_ef}}` |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Number of error failures necessary  | :c:func:`CVodeSetNumFailsEtaMaxErrFail`     | 2              |
-   | for :math:`\eta_{\text{max\_ef}}`   |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
-   | Step size change factor after a     | :c:func:`CVodeSetEtaConvFail`               | 0.25           |
-   | nonlinear solver convergence        |                                             |                |
-   | failure :math:`\eta_{\text{cf}}`    |                                             |                |
-   +-------------------------------------+---------------------------------------------+----------------+
+   +---------------------------------------+---------------------------------------------+----------------+
+   | **Optional input**                    | **Function name**                           | **Default**    |
+   +=======================================+=============================================+================+
+   | Fixed step size factor bounds         | :c:func:`CVodeSetEtaFixedStepBounds`        | 0 and 1.5      |
+   | :math:`\eta_{\mathrm{min\_fx}}` and   |                                             |                |
+   | :math:`\eta_{\mathrm{max\_fx}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMaxFirstStep`           | :math:`10^4`   |
+   | factor in the first step              |                                             |                |
+   | :math:`\eta_{\mathrm{max\_fs}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMaxEarlyStep`           | 10             |
+   | factor for early steps                |                                             |                |
+   | :math:`\eta_{\mathrm{max\_es}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Number of time steps to use the       | :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`   | 10             |
+   | early step size change factor         |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMax`                    | 10             |
+   | factor after a successful step        |                                             |                |
+   | :math:`\eta_{\mathrm{max\_gs}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Smallest allowed step size change     | :c:func:`CVodeSetEtaMin`                    | 1.0            |
+   | factor after a successful step        |                                             |                |
+   | :math:`\eta_{\mathrm{min}}`           |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Smallest allowed step size change     | :c:func:`CVodeSetEtaMinErrFail`             | 0.1            |
+   | factor after an error test fail       |                                             |                |
+   | :math:`\eta_{\mathrm{min\_ef}}`       |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Largest allowed step size change      | :c:func:`CVodeSetEtaMaxErrFail`             | 0.2            |
+   | factor after multiple error test      |                                             |                |
+   | fails :math:`\eta_{\mathrm{max\_ef}}` |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Number of error failures necessary    | :c:func:`CVodeSetNumFailsEtaMaxErrFail`     | 2              |
+   | for :math:`\eta_{\mathrm{max\_ef}}`   |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
+   | Step size change factor after a       | :c:func:`CVodeSetEtaConvFail`               | 0.25           |
+   | nonlinear solver convergence          |                                             |                |
+   | failure :math:`\eta_{\mathrm{cf}}`    |                                             |                |
+   +---------------------------------------+---------------------------------------------+----------------+
 
 The following functions can be called to set optional inputs to control the
 step size adaptivity.
@@ -1747,13 +1747,13 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx, realtype eta_max_fx)
 
    The function ``CVodeSetEtaFixedStepBounds`` specifies the interval lower
-   (:math:`\eta_{\text{min\_fx}}`) and upper (:math:`\eta_{\text{max\_fx}}`)
+   (:math:`\eta_{\mathrm{min\_fx}}`) and upper (:math:`\eta_{\mathrm{max\_fx}}`)
    bounds in which the step size will remain unchanged i.e., if
-   :math:`\eta_{\text{min\_fx}} < \eta < \eta_{\text{max\_fx}}`, then
+   :math:`\eta_{\mathrm{min\_fx}} < \eta < \eta_{\mathrm{max\_fx}}`, then
    :math:`\eta = 1`.
 
-   The default values are :math:`\eta_{\text{min\_fx}} = 0` and
-   :math:`\eta_{\text{max\_fx}} = 1.5`
+   The default values are :math:`\eta_{\mathrm{min\_fx}} = 0` and
+   :math:`\eta_{\mathrm{max\_fx}} = 1.5`
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1773,9 +1773,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
 
    The function ``CVodeSetEtaMaxFirstStep`` specifies the maximum step size
-   factor after the first time step, :math:`\eta_{\text{max\_fs}}`.
+   factor after the first time step, :math:`\eta_{\mathrm{max\_fs}}`.
 
-   The default value is :math:`\eta_{\text{max\_fs}} = 10^4`.
+   The default value is :math:`\eta_{\mathrm{max\_fs}} = 10^4`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1793,9 +1793,9 @@ step size adaptivity.
 
    The function ``CVodeSetEtaMaxEarlyStepEtaMax`` specifies the maximum step size
    factor for steps early in the integration,
-   :math:`\eta_{\text{max\_es}}`.
+   :math:`\eta_{\mathrm{max\_es}}`.
 
-   The default value is :math:`\eta_{\text{max\_es}} = 10`.
+   The default value is :math:`\eta_{\mathrm{max\_es}} = 10`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1814,7 +1814,7 @@ step size adaptivity.
       :c:func:`CVodeSetEtaMaxFirstStep`.
 
       The number of time steps that use the early integration maximum step size
-      factor :math:`\eta_{\text{max\_es}}` can be set with
+      factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`.
 
    .. versionadded:: 6.2.0
@@ -1823,7 +1823,7 @@ step size adaptivity.
 
    The function ``CVodeSetNumStepsEtaMaxEarlyStep`` specifies the number of steps to
    use the early integration maximum step size factor,
-   :math:`\eta_{\text{max\_es}}`.
+   :math:`\eta_{\mathrm{max\_es}}`.
 
    The default value is 10.
 
@@ -1841,7 +1841,7 @@ step size adaptivity.
 
    .. note::
 
-      The factor :math:`\eta_{\text{max\_es}}` can be set with
+      The factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetEtaMaxEarlyStep`.
 
    .. versionadded:: 6.2.0
@@ -1849,9 +1849,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
 
    The function ``CVodeSetEtaMax`` specifies the maximum step size factor,
-   :math:`\eta_{\text{max\_gs}}`.
+   :math:`\eta_{\mathrm{max\_gs}}`.
 
-   The default value is :math:`\eta_{\text{max\_gs}} = 10`.
+   The default value is :math:`\eta_{\mathrm{max\_gs}} = 10`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1876,9 +1876,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
 
    The function ``CVodeSetEtaMin`` specifies the minimum step size factor,
-   :math:`\eta_{\text{min}}`.
+   :math:`\eta_{\mathrm{min}}`.
 
-   The default value is :math:`\eta_{\text{min}} = 1.0`.
+   The default value is :math:`\eta_{\mathrm{min}} = 1.0`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1895,9 +1895,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMinErrFail(void *cvode_mem, realtype eta_min_ef)
 
    The function ``CVodeSetEtaMinErrFail`` specifies the minimum step size
-   factor after an error test failure, :math:`\eta_{\text{min\_ef}}`.
+   factor after an error test failure, :math:`\eta_{\mathrm{min\_ef}}`.
 
-   The default value is :math:`\eta_{\text{min\_ef}} = 0.1`.
+   The default value is :math:`\eta_{\mathrm{min\_ef}} = 0.1`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1915,9 +1915,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
 
    The function ``CVodeSetEtaMaxErrFail`` specifies the maximum step size
-   factor after multiple error test failures, :math:`\eta_{\text{max\_ef}}`.
+   factor after multiple error test failures, :math:`\eta_{\mathrm{max\_ef}}`.
 
-   The default value is :math:`\eta_{\text{min\_ef}} = 0.2`.
+   The default value is :math:`\eta_{\mathrm{min\_ef}} = 0.2`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1933,7 +1933,7 @@ step size adaptivity.
    .. note::
 
       The number of error test failures necessary to enforce the maximum step
-      size factor :math:`\eta_{\text{min\_ef}}` can be set with
+      size factor :math:`\eta_{\mathrm{min\_ef}}` can be set with
       :c:func:`CVodeSetNumFailsEtaMaxErrFail`.
 
    .. versionadded:: 6.2.0
@@ -1942,7 +1942,7 @@ step size adaptivity.
 
    The function ``CVodeSetNumFailsEtaMaxErrFail`` specifies the number of error
    test failures necessary to enforce the maximum step size factor
-   :math:`\eta_{\text{max\_ef}}`.
+   :math:`\eta_{\mathrm{max\_ef}}`.
 
    The default value is 2.
 
@@ -1960,7 +1960,7 @@ step size adaptivity.
 
    .. note::
 
-      The factor :math:`\eta_{\text{max\_ef}}` can be set with
+      The factor :math:`\eta_{\mathrm{max\_ef}}` can be set with
       :c:func:`CVodeSetEtaMaxErrFail`.
 
    .. versionadded:: 6.2.0
@@ -1968,9 +1968,9 @@ step size adaptivity.
 .. c:function:: int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
 
    The function ``CVodeSetEtaConvFail`` specifies the step size factor after a
-   nonlinear solver failure :math:`\eta_{\text{cf}}`.
+   nonlinear solver failure :math:`\eta_{\mathrm{cf}}`.
 
-   The default value is :math:`\eta_{\text{cf}} = 0.25`.
+   The default value is :math:`\eta_{\mathrm{cf}} = 0.25`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -2255,6 +2255,8 @@ the preconditioner.
    | All CVODE integrator statistics                | :c:func:`CVodeGetIntegratorStats`        |
    +------------------------------------------------+------------------------------------------+
    | CVODE nonlinear solver statistics              | :c:func:`CVodeGetNonlinSolvStats`        |
+   +------------------------------------------------+------------------------------------------+
+   | User data pointer                              | :c:func:`CVodeGetUserData`               |
    +------------------------------------------------+------------------------------------------+
    | Array showing roots found                      | :c:func:`CVodeGetRootInfo`               |
    +------------------------------------------------+------------------------------------------+
@@ -2660,6 +2662,22 @@ described next.
      * ``CV_MEM_FAIL`` -- The ``SUNNonlinearSolver`` module is ``NULL``
 
 
+.. c:function:: int CVodeGetUserData(void* cvode_mem, void** user_data)
+
+   The function ``CVodeGetUserData`` returns the user data pointer provided to
+   :c:func:`CVodeSetUserData`.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODE memory block.
+     * ``user_data`` -- memory reference to a user data pointer.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional output value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.3.0
+
+
 .. c:function:: int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 
    The function ``CVodePrintAllStats`` outputs all of the integrator, nonlinear
@@ -2715,14 +2733,19 @@ There are two optional output functions associated with rootfinding.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
-     * ``rootsfound`` -- array of length ``nrtfn`` with the indices of the user functions :math:`g_i` found to have a root.  For :math:`i=0,\ldots,\texttt{nrtfn}-1`, ``rootsfound[i]`` :math:`\ne 0` if :math:`g_i` has a root, and ``rootsfound[i]`` :math:`= 0` if not.
+     * ``rootsfound`` -- array of length ``nrtfn`` with the indices of the user functions :math:`g_i` found to have a root. For :math:`i=0,\ldots,\texttt{nrtfn}-1`, ``rootsfound[i]`` :math:`\ne 0` if :math:`g_i` has a root, and ``rootsfound[i]`` :math:`= 0` if not.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The optional output values have been successfully set.
      * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      Note that, for the components :math:`g_i` for which a root was found, the sign of ``rootsfound[i]`` indicates the direction of  zero-crossing. A value of +1 indicates that :math:`g_i` is increasing,  while a value of -1 indicates a decreasing :math:`g_i`.
+      Note that, for the components :math:`g_i` for which a root was found, the sign of
+      ``rootsfound[i]`` indicates the direction of  zero-crossing. A value of +1 indicates that
+      :math:`g_i` is increasing,  while a value of -1 indicates a decreasing :math:`g_i`. A value of
+      0 indicates that either no root was found for :math:`g_i`, or that :math:`g_i` varies in the direction
+      opposite to that indicated by ``rootdir[i]`` in the case that :c:func:`CVodeSetRootDirection`
+      was used to only track zero-crossings in one direction.
 
    .. warning::
 

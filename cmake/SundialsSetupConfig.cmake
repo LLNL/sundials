@@ -32,12 +32,10 @@ else()
   set(SUNDIALS_DEPRECATED_MSG_MACRO "SUNDIALS_DEPRECATED")
 endif()
 
-if(COMPILER_HAS_SNPRINTF_AND_VA_COPY)
-  set(SUNDIALS_COMPILER_HAS_SNPRINTF_AND_VA_COPY "${COMPILER_HAS_SNPRINTF_AND_VA_COPY}")
-endif()
-
 # prepare substitution variable SUNDIALS_USE_GENERIC_MATH for sundials_config.h
-if(USE_GENERIC_MATH)
+if(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
+  set(SUNDIALS_USE_GENERIC_MATH FALSE)
+else()
   set(SUNDIALS_USE_GENERIC_MATH TRUE)
 endif()
 
@@ -73,6 +71,11 @@ endif()
 # prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
 foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)
+endforeach()
+
+# prepare substitution variable(s) SUNDIALS_GINKGO_BACKENDS_*
+foreach(backend ${SUNDIALS_GINKGO_BACKENDS})
+  set(SUNDIALS_GINKGO_BACKENDS_${backend} TRUE)
 endforeach()
 
 # prepare substitution variable(s) SUNDIALS_MAGMA_BACKENDS_*

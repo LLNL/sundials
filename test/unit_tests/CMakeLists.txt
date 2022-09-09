@@ -36,6 +36,10 @@ if(BUILD_IDAS)
   add_subdirectory(idas)
 endif()
 
+if(BUILD_KINSOL)
+  add_subdirectory(kinsol)
+endif()
+
 if(CXX_FOUND)
   add_subdirectory(reductions)
 endif()

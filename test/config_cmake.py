@@ -89,6 +89,9 @@ def main():
     add_arg(group, '--cuda-flags', 'CUDAFLAGS', 'CMAKE_CUDA_FLAGS', None,
             'STRING', 'CUDA compiler flags')
 
+    add_arg(group, '--cuda-std', 'CMAKE_CUDA_STANDARD', 'CMAKE_CUDA_STANDARD',
+            '11', 'STRING', 'CUDA standard')
+
     add_arg(group, '--cuda-arch', 'CUDAARCHS', 'CMAKE_CUDA_ARCHITECTURES',
             None, 'STRING', 'CUDA architecture')
 
@@ -226,8 +229,6 @@ def main():
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
 
-    # -D USE_GENERIC_MATH="${C90MATH}"
-
     # -----------
     # Interfaces
     # -----------
@@ -293,6 +294,9 @@ def main():
 
     add_arg(group, '--mpiexec', 'MPIEXEC', 'MPIEXEC_EXECUTABLE', None,
             'FILEPATH', 'MPI executable', dependson='--mpi')
+
+    add_arg(group, '--mpiexec-pre-flags', 'MPIEXEC_PREFLAGS', 'MPIEXEC_PREFLAGS', None,
+            'STRING', 'MPI executable extra flags', dependson='--mpi')
 
     # ----------
     # Threading

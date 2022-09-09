@@ -42,7 +42,7 @@ set(SUNMAT_LIB sundials_sunmatrixband)
 set(SUNLINSOL_LIB sundials_sunlinsollapackband)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 list(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 

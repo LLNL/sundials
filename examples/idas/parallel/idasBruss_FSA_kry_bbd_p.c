@@ -1186,7 +1186,7 @@ static int integr(MPI_Comm comm, N_Vector uv, void *user_data, realtype *intval)
   buf[0] = *intval;
 
   /* Sum local values and get the result on all processors. */
-  retval = MPI_Allreduce(buf, buf+1, 1, MPI_DOUBLE, MPI_SUM, comm);
+  retval = MPI_Allreduce(buf, buf+1, 1, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   *intval = buf[1];
   return(retval);

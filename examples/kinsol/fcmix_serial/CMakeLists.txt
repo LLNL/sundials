@@ -29,7 +29,7 @@ set(FNVECS_LIB sundials_fnvecserial)
 set(FKINSOL_LIB sundials_fkinsol${_STATIC_LIB_SUFFIX})
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FKINSOL_LIB} ${FNVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${FKINSOL_LIB} ${FNVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example

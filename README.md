@@ -1,5 +1,5 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
-### Version 6.2.0 (Apr 2022) ###
+### Version 6.3.0 (Aug 2022) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 
@@ -16,35 +16,34 @@ nonlinear algebraic systems:
 
 * ARKODE - for integrating stiff, nonstiff, and multirate ODEs of the form
 
-  `M(t) y' = f1(t,y) + f2(t,y), y(t0) = y0`
+  $$ M(t) \\, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0 $$
 
 * CVODE - for integrating stiff and nonstiff ODEs of the form
 
-  `y' = f(t,y), y(t0) = y0`
+  $$ y' = f(t,y), \quad y(t_0) = y_0 $$
 
 * CVODES - for integrating and sensitivity analysis (forward and adjoint) of
   ODEs of the form
 
-  `y' = f(t,y,p), y(t0) = y0(p)`
+  $$ y' = f(t,y,p), \quad y(t_0) = y_0(p) $$
 
 * IDA - for integrating DAEs of the form
 
-  `F(t,y,y') = 0, y(t0) = y0, y'(t0) = y0'`
+  $$ F(t,y,y') = 0, \quad y(t_0) = y_0, \quad y'(t_0) = y_0' $$
 
 * IDAS - for integrating and sensitivity analysis (forward and adjoint) of DAEs
   of the form
 
-  `F(t,y,y',p) = 0, y(t0) = y0(p), y'(t0) = y0'(p)`
+  $$ F(t,y,y',p) = 0, \quad y(t_0) = y_0(p), \quad y'(t_0) = y_0'(p) $$
 
 * KINSOL - for solving nonlinear algebraic systems of the form
 
-  `F(u) = 0` or `G(u) = u`
+  $$ F(u) = 0 \quad \text{or} \quad G(u) = u $$
 
 ## Installation ##
 
-For installation directions see the [online documentation](https://sundials.readthedocs.io/en/latest/Install_link.html),
-the [INSTALL_GUIDE](./INSTALL_GUIDE.pdf), or the installation chapter in any of
-the package user guides.
+For installation directions see the [online install guide](https://sundials.readthedocs.io/en/latest/Install_link.html),
+the installation chapter in any of the package user guides, or INSTALL_GUIDE.pdf.
 
 Warning to users who receive more than one of the individual packages at
 different times: Mixing old and new versions of SUNDIALS may fail. To avoid

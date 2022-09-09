@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_brusselator1D_omp\;4\;develop\;default\;default"
+  "ark_brusselator1D_omp\;4\;exclude-single\;default\;default"
   "ark_heat1D_omp\;4\;develop\;default\;10"
   )
 
@@ -56,7 +56,7 @@ foreach(example_tuple ${ARKODE_examples})
   target_link_libraries(${example}
     sundials_arkode
     sundials_nvecopenmp
-    ${EXTRA_LINK_LIBS})
+    ${EXE_EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
