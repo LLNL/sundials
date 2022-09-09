@@ -4,6 +4,7 @@
 #include <memory>
 #include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
+#include "sundials/sundials_matrix.h"
 
 #ifndef _SUNLINSOL_GINKGO_HPP
 #define _SUNLINSOL_GINKGO_HPP

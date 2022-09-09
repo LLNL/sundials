@@ -12,6 +12,7 @@
  * -----------------------------------------------------------------
  */
 
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <sundials/sundials_math.h>
