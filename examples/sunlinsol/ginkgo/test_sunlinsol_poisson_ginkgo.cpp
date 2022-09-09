@@ -241,92 +241,86 @@ int main(int argc, char* argv[])
   auto precon{gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build()
               .on(gko_exec)};
 
-  using GkoSolverType = gko::solver::Gmres<sunrealtype>;
 
-  auto gko_solver_factory = gko::share(GkoSolverType::build()
-                                       .with_criteria(std::move(crit))
-                                       .with_preconditioner(std::move(precon))
-                                       .on(gko_exec));
+  std::unique_ptr<sundials::ConvertibleTo<SUNLinearSolver>> LS;
 
-  sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>> LS{gko_solver_factory, sunctx};
-
-  // if (method == "bicg")
-  // {
-  //   using GkoSolverType = gko::solver::Bicg<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
-  // else if (method == "bicgstab")
-  // {
-  //   using GkoSolverType = gko::solver::Bicgstab<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
-  // else if (method == "cg")
-  // {
-  //   using GkoSolverType = gko::solver::Cg<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
-  // else if (method == "cgs")
-  // {
-  //   using GkoSolverType = gko::solver::Cgs<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
-  // else if (method == "fcg")
-  // {
-  //   using GkoSolverType = gko::solver::Fcg<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
-  // else if (method == "gmres")
-  // {
-  //   using GkoSolverType = gko::solver::Gmres<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
-  // else if (method == "idr")
-  // {
-  //   using GkoSolverType = gko::solver::Idr<sunrealtype>;
-  //   auto gko_solver_factory{GkoSolverType::build()
-  //                           .with_criteria(std::move(crit))
-  //                           .with_preconditioner(std::move(precon))
-  //                           .on(gko_exec)};
-  //   LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
-  //     (std::move(gko_solver_factory), sunctx);
-  // }
+  if (method == "bicg")
+  {
+    using GkoSolverType = gko::solver::Bicg<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
+  else if (method == "bicgstab")
+  {
+    using GkoSolverType = gko::solver::Bicgstab<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
+  else if (method == "cg")
+  {
+    using GkoSolverType = gko::solver::Cg<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
+  else if (method == "cgs")
+  {
+    using GkoSolverType = gko::solver::Cgs<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
+  else if (method == "fcg")
+  {
+    using GkoSolverType = gko::solver::Fcg<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
+  else if (method == "gmres")
+  {
+    using GkoSolverType = gko::solver::Gmres<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
+  else if (method == "idr")
+  {
+    using GkoSolverType = gko::solver::Idr<sunrealtype>;
+    auto gko_solver_factory{GkoSolverType::build()
+                            .with_criteria(std::move(crit))
+                            .with_preconditioner(std::move(precon))
+                            .on(gko_exec)};
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+      (std::move(gko_solver_factory), sunctx);
+  }
 
   /* Run Tests */
-  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_GINKGO, 0);
-  fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
-  fails += Test_SUNLinSolInitialize(LS, 0);
-  fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000 * std::numeric_limits<sunrealtype>::epsilon(), SUNTRUE, 0);
+  fails += Test_SUNLinSolGetID(LS->get(), SUNLINEARSOLVER_GINKGO, 0);
+  fails += Test_SUNLinSolGetType(LS->get(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
+  fails += Test_SUNLinSolInitialize(LS->get(), 0);
+  fails += Test_SUNLinSolSetup(LS->get(), A, 0);
+  fails += Test_SUNLinSolSolve(LS->get(), A, x, b, 1000 * std::numeric_limits<sunrealtype>::epsilon(), SUNTRUE, 0);
 
   /* Print result */
   if (fails)
@@ -350,10 +344,10 @@ int main(int argc, char* argv[])
 
   /* Print solve information */
   std::cout << "Number of linear solver iterations: "
-            << static_cast<long int>(SUNLinSolNumIters(LS))
+            << static_cast<long int>(SUNLinSolNumIters(LS->get()))
             << std::endl;
   std::cout << "Final residual norm: "
-            << SUNLinSolResNorm(LS)
+            << SUNLinSolResNorm(LS->get())
             << std::endl;
 
   /* Free solver, matrix and vectors */
