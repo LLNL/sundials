@@ -89,7 +89,8 @@ namespace impl {
 // Common base matrix class which makes RAII work.
 //
 template<class GkoMatType>
-class BaseMatrix : public ConvertibleTo<SUNMatrix> {
+class BaseMatrix : public ConvertibleTo<SUNMatrix>
+{
 public:
   BaseMatrix()
       : gkomtx_(nullptr), sunmtx_(std::make_unique<_generic_SUNMatrix>()),
@@ -187,7 +188,8 @@ BaseMatrix<GkoMatType>::~BaseMatrix() = default;
 // Standard matrix class
 //
 template<typename GkoMatType>
-class Matrix : public impl::BaseMatrix<GkoMatType> {
+class Matrix : public impl::BaseMatrix<GkoMatType>
+{
 public:
   // Default constructor means the matrix must be copied or moved to
   Matrix() = default;
@@ -308,7 +310,8 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 
     // y = Ax
     A.gkomtx()->apply(x_vec.get(), y_vec.get());
-  } else {
+  }
+  else {
     auto x_vec{WrapVector(A.gkoexec(), x)};
 
     // x = Ax

@@ -63,7 +63,8 @@ sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
 // Custom gko::stop::Criterion that does the normal SUNDIALS stopping checks:
 // 1. Was the absolute residual tolerance met?
 // 2. Was the max iteration count reached?
-class DefaultStop : public gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion> {
+class DefaultStop : public gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion>
+{
   friend class gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion>;
 
 public:
@@ -126,7 +127,8 @@ inline bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized,
 }
 
 template<class GkoSolverType, class GkoMatrixType>
-class LinearSolver : public ConvertibleTo<SUNLinearSolver> {
+class LinearSolver : public ConvertibleTo<SUNLinearSolver>
+{
 public:
   // Default constructor means the solver must be moved to
   LinearSolver() = default;
@@ -229,7 +231,8 @@ public:
 
       // x = A^{-1} b
       result = gkosolver()->apply(b_vec.get(), x_vec.get());
-    } else {
+    }
+    else {
       auto x_vec = WrapVector(gkoexec(), x);
 
       // x = A^{-1} x
