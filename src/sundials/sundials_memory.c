@@ -205,39 +205,22 @@ int SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 {
   if (!helper) return 0;
 
-  if (helper->ops)
+  if (helper->ops->destroy)
   {
-    if (helper->ops->destroy)
-    {
-      /* user helper defined destroy */
-      return helper->ops->destroy(helper);
-    }
-    else if (helper->content)
-    {
-      /* helper should have defined destroy */
-      return -1;
-    }
-    else
-    {
-      /* default destroy */
-      free(helper->ops);
-      free(helper);
-      return 0;
-    }
+    /* user helper defined destroy */
+    return helper->ops->destroy(helper);
+  }
+  else if (helper->content)
+  {
+    /* helper should have defined destroy */
+    return -1;
   }
   else
   {
-    if (helper->content)
-    {
-      /* helper should have defined destroy */
-      return -1;
-    }
-    else
-    {
-      /* default destroy */
-      free(helper);
-      return 0;
-    }
+    /* default destroy */
+    free(helper->ops);
+    free(helper);
+    return 0;
   }
 
   return 0;
