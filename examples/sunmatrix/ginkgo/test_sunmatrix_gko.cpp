@@ -40,9 +40,6 @@
 #include <nvector/nvector_serial.h>
 #endif
 
-using namespace sundials;
-using namespace sundials::ginkgo;
-
 using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
 using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
 using GkoVecType  = GkoDenseMat;
@@ -51,24 +48,24 @@ bool using_csr_matrix_type   = false;
 bool using_dense_matrix_type = false;
 
 template<class GkoMatType>
-int Test_CopyAndMove(std::unique_ptr<GkoMatType>&& gko_mat, Context& sunctx)
+int Test_CopyAndMove(std::unique_ptr<GkoMatType>&& gko_mat, SUNContext sunctx)
 {
   // Copy constructor
-  Matrix<GkoMatType> mat{std::move(gko_mat), sunctx};
-  Matrix<GkoMatType> mat2{mat};
+  sundials::ginkgo::Matrix<GkoMatType> mat{std::move(gko_mat), sunctx};
+  sundials::ginkgo::Matrix<GkoMatType> mat2{mat};
   SUNMatZero(mat2);
 
   // Move constructor
-  Matrix<GkoMatType> mat3{std::move(mat2)};
+  sundials::ginkgo::Matrix<GkoMatType> mat3{std::move(mat2)};
   SUNMatZero(mat3);
 
   // Copy assignment
-  Matrix<GkoMatType> mat4;
+  sundials::ginkgo::Matrix<GkoMatType> mat4;
   mat4 = mat3;
   SUNMatZero(mat4);
 
   // Move assignment
-  Matrix<GkoMatType> mat5;
+  sundials::ginkgo::Matrix<GkoMatType> mat5;
   mat5 = std::move(mat4);
   SUNMatZero(mat5);
 
@@ -85,7 +82,7 @@ int main(int argc, char* argv[])
   int fails{0}; /* counter for test failures */
 
   /* Create SUNDIALS context before calling any other SUNDIALS function*/
-  Context sunctx;
+  sundials::Context sunctx;
 
   auto gko_exec{REF_OR_OMP_OR_HIP_OR_CUDA(gko::ReferenceExecutor::create(), gko::OmpExecutor::create(),
                                           gko::HipExecutor::create(0, gko::OmpExecutor::create(), true),
@@ -119,7 +116,8 @@ int main(int argc, char* argv[])
 
   if (format == 0) {
     using_csr_matrix_type = true;
-  } else if (format == 1) {
+  }
+  else if (format == 1) {
     using_dense_matrix_type = true;
   }
 
@@ -143,8 +141,8 @@ int main(int argc, char* argv[])
   /* Wrap ginkgo matrices for SUNDIALS.
      sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
 
-  std::unique_ptr<ConvertibleTo<SUNMatrix>> A;
-  std::unique_ptr<ConvertibleTo<SUNMatrix>> I;
+  std::unique_ptr<sundials::ConvertibleTo<SUNMatrix>> A;
+  std::unique_ptr<sundials::ConvertibleTo<SUNMatrix>> I;
 
   auto xdata{N_VGetArrayPointer(x)};
   for (sunindextype i = 0; i < matcols; i++) {
@@ -173,9 +171,10 @@ int main(int argc, char* argv[])
 
     fails += Test_CopyAndMove(gko_matrix->clone(), sunctx);
 
-    A = std::make_unique<Matrix<GkoCsrMat>>(std::move(gko_matrix), sunctx);
-    I = std::make_unique<Matrix<GkoCsrMat>>(std::move(gko_ident), sunctx);
-  } else if (using_dense_matrix_type) {
+    A = std::make_unique<sundials::ginkgo::Matrix<GkoCsrMat>>(std::move(gko_matrix), sunctx);
+    I = std::make_unique<sundials::ginkgo::Matrix<GkoCsrMat>>(std::move(gko_ident), sunctx);
+  }
+  else if (using_dense_matrix_type) {
     auto gko_matrix{GkoDenseMat::create(gko_exec, matrix_dim)};
     gko_matrix->read(gko_matdata);
     auto gko_ident{GkoDenseMat::create(gko_exec, matrix_dim)};
@@ -191,8 +190,8 @@ int main(int argc, char* argv[])
 
     fails += Test_CopyAndMove(gko_matrix->clone(), sunctx);
 
-    A = std::make_unique<Matrix<GkoDenseMat>>(std::move(gko_matrix), sunctx);
-    I = std::make_unique<Matrix<GkoDenseMat>>(std::move(gko_ident), sunctx);
+    A = std::make_unique<sundials::ginkgo::Matrix<GkoDenseMat>>(std::move(gko_matrix), sunctx);
+    I = std::make_unique<sundials::ginkgo::Matrix<GkoDenseMat>>(std::move(gko_ident), sunctx);
   }
   SUNMatMatvec_Dense(Aref, x, y);
   SUNMatDestroy(Aref);
@@ -215,7 +214,8 @@ int main(int argc, char* argv[])
   /* Print result */
   if (fails) {
     std::cerr << " FAIL: SUNMatrix module failed " << fails << " tests \n\n";
-  } else {
+  }
+  else {
     std::cout << " SUCCESS: SUNMatrix module passed all tests \n\n";
   }
 
@@ -232,8 +232,8 @@ int main(int argc, char* argv[])
 int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
-  auto Bmat{static_cast<Matrix<GkoCsrMat>*>(B->content)->gkomtx()};
+  auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
+  auto Bmat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(B->content)->gkomtx()};
   auto Arowptrs{Amat->get_const_row_ptrs()};
   auto Acolidxs{Amat->get_const_col_idxs()};
   auto Avalues{Amat->get_const_values()};
@@ -260,8 +260,8 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
 int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
-  auto Bmat{static_cast<Matrix<GkoDenseMat>*>(B->content)->gkomtx()};
+  auto Amat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
+  auto Bmat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(B->content)->gkomtx()};
   auto rows{Amat->get_size()[0]};
   auto cols{Amat->get_size()[1]};
 
@@ -283,18 +283,15 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
 
 extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
-  if (using_csr_matrix_type)
-    return check_matrix_csr(A, B, tol);
-  else if (using_dense_matrix_type)
-    return check_matrix_dense(A, B, tol);
-  else
-    return 1;
+  if (using_csr_matrix_type) return check_matrix_csr(A, B, tol);
+  else if (using_dense_matrix_type) return check_matrix_dense(A, B, tol);
+  else return 1;
 }
 
 int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
+  auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
   auto Arowptrs{Amat->get_const_row_ptrs()};
   auto Acolidxs{Amat->get_const_col_idxs()};
   auto Avalues{Amat->get_const_values()};
@@ -316,7 +313,7 @@ int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
 int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
+  auto Amat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
   auto rows{Amat->get_size()[0]};
   auto cols{Amat->get_size()[1]};
 
@@ -339,9 +336,11 @@ extern "C" int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
   if (using_csr_matrix_type) {
     return check_matrix_entry_csr(A, val, tol);
-  } else if (using_dense_matrix_type) {
+  }
+  else if (using_dense_matrix_type) {
     return check_matrix_entry_dense(A, val, tol);
-  } else {
+  }
+  else {
     return 1;
   }
 }
@@ -368,8 +367,7 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
   }
 
   /* check vector data */
-  for (sunindextype i = 0; i < xldata; i++)
-    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+  for (sunindextype i = 0; i < xldata; i++) failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
   if (failure > ZERO) {
     std::cerr << "Check_vector failures:\n";
@@ -385,12 +383,14 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 extern "C" booleantype has_data(SUNMatrix A)
 {
   if (using_csr_matrix_type) {
-    auto Amat{static_cast<Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
-    return !(Amat->get_values() == NULL || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0);
-  } else if (using_dense_matrix_type) {
-    auto Amat{static_cast<Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
-    return !(Amat->get_values() == NULL || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0);
-  } else {
+    auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
+    return !(Amat->get_values() == nullptr || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0);
+  }
+  else if (using_dense_matrix_type) {
+    auto Amat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
+    return !(Amat->get_values() == nullptr || Amat->get_size()[0] == 0 || Amat->get_size()[1] == 0);
+  }
+  else {
     return SUNFALSE;
   }
 }
@@ -398,12 +398,14 @@ extern "C" booleantype has_data(SUNMatrix A)
 extern "C" booleantype is_square(SUNMatrix A)
 {
   if (using_csr_matrix_type) {
-    auto Amat{static_cast<Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
+    auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->gkomtx()};
     return Amat->get_size()[0] == Amat->get_size()[1];
-  } else if (using_dense_matrix_type) {
-    auto Amat{static_cast<Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
+  }
+  else if (using_dense_matrix_type) {
+    auto Amat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->gkomtx()};
     return Amat->get_size()[0] == Amat->get_size()[1];
-  } else {
+  }
+  else {
     return SUNTRUE;
   }
 }

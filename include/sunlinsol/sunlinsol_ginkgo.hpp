@@ -1,11 +1,21 @@
+/* -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * ----------------------------------------------------------------*/
 
 #include <cstring>
 #include <ginkgo/core/solver/bicg.hpp>
 #include <memory>
 #include <sundials/sundials_linearsolver.h>
+#include <sundials/sundials_matrix.hpp>"
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
-
-#include "sundials/sundials_matrix.h"
 
 #ifndef _SUNLINSOL_GINKGO_HPP
 #define _SUNLINSOL_GINKGO_HPP
