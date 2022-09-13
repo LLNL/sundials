@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
   else if (method == "bicgstab")
@@ -261,7 +261,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
   else if (method == "cg")
@@ -271,7 +271,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
   else if (method == "cgs")
@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
   else if (method == "fcg")
@@ -291,7 +291,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
   else if (method == "gmres")
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
   else if (method == "idr")
@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
                             .with_criteria(std::move(crit))
                             .with_preconditioner(std::move(precon))
                             .on(gko_exec)};
-    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, sundials::ginkgo::Matrix<GkoMatrixType>>>
+    LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>
       (std::move(gko_solver_factory), sunctx);
   }
 
