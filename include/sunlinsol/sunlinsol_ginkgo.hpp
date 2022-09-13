@@ -14,7 +14,7 @@
 #include <ginkgo/core/solver/bicg.hpp>
 #include <memory>
 #include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_matrix.hpp>"
+#include <sundials/sundials_matrix.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
 #ifndef _SUNLINSOL_GINKGO_HPP
