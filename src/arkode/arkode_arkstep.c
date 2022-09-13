@@ -1180,7 +1180,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
     /* Limit interpolant degree based on method order (use negative
        argument to specify update instead of overwrite) */
     if (ark_mem->interp != NULL) {
-      retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
+      retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q));
       if (retval != ARK_SUCCESS) {
         arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
                         "Unable to update interpolation polynomial degree");
