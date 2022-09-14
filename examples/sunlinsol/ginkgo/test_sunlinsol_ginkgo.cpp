@@ -31,7 +31,7 @@
 #if defined(USE_HIP)
 #include <nvector/nvector_hip.h>
 #define HIP_OR_CUDA(a, b) a
-constexpr auto N_VNew = N_VNew_Raja;
+constexpr auto N_VNew = N_VNew_Hip;
 #elif defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
 #define HIP_OR_CUDA(a, b) b
