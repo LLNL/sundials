@@ -16,7 +16,7 @@
 #include <memory>
 #include <utility>
 #include <ginkgo/ginkgo.hpp>
-#include <sundials/core/sundials_base.hpp>
+#include <sundials/sundials_base.hpp>
 #include <sundials/sundials_matrix.hpp>
 
 namespace sundials {

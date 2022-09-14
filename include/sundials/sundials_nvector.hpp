@@ -10,20 +10,20 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_MATRIX_HPP
-#define _SUNDIALS_MATRIX_HPP
+#ifndef _SUNDIALS_NVECTOR_HPP
+#define _SUNDIALS_NVECTOR_HPP
 
 #include <memory>
 #include <sundials/sundials_base.hpp>
-#include <sundials/sundials_matrix.h>
+#include <sundials/sundials_nvector.h>
 
 namespace sundials {
 namespace impl {
 
-const auto SUNMatrixDeleter = [](SUNMatrix A) { SUNMatDestroy(A); };
+const auto NvectorDeleter = [](N_Vector v) { N_VDestroy(v); };
 
-using BaseMatrix    = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
-using SUNMatrixView = ClassView<_generic_SUNMatrix, std::unique_ptr<_generic_SUNMatrix>, decltype(SUNMatrixDeleter)>;
+using BaseNvector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
+using NvectorView = ClassView<_generic_N_Vector, std::unique_ptr<_generic_N_Vector>, decltype(NvectorDeleter)>;
 
 } // namespace impl
 } // namespace sundials

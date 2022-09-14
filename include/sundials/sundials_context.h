@@ -39,54 +39,9 @@ SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 #ifdef __cplusplus
 }
 
-#include <memory>
-
-namespace sundials {
-
-/* TODO(CJB): find a better place to put this */
-template<class T>
-class ConvertibleTo {
-public:
-  // Explicit conversion to the underlying type
-  virtual T get()       = 0;
-  virtual T get() const = 0;
-
-  // Implicit conversion to the underlying type
-  virtual operator T()       = 0;
-  virtual operator T() const = 0;
-
-  virtual ~ConvertibleTo<T>() {}
-};
-
-class Context {
-public:
-  explicit Context(void* comm = NULL)
-  {
-    sunctx_ = std::unique_ptr<SUNContext>(new SUNContext());
-    SUNContext_Create(comm, sunctx_.get());
-  }
-
-  /* disallow copy, but allow move construction */
-  Context(const Context&) = delete;
-  Context(Context&&)      = default;
-
-  /* disallow copy, but allow move operators */
-  Context& operator=(const Context&) = delete;
-  Context& operator=(Context&&) = default;
-
-  operator SUNContext() { return *sunctx_.get(); }
-
-  ~Context()
-  {
-    if (sunctx_)
-      SUNContext_Free(sunctx_.get());
-  }
-
-private:
-  std::unique_ptr<SUNContext> sunctx_;
-};
-
-} /* namespace sundials */
+/* We include this here for backwards compatibility
+   (the contents used to be defined here directly) */
+#include "sundials_context.hpp"
 
 #endif
 #endif

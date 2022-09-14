@@ -10,20 +10,20 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_MATRIX_HPP
-#define _SUNDIALS_MATRIX_HPP
+#ifndef _SUNDIALS_NONLINEARSOLVER_HPP
+#define _SUNDIALS_NONLINEARSOLVER_HPP
 
 #include <memory>
 #include <sundials/sundials_base.hpp>
-#include <sundials/sundials_matrix.h>
+#include <sundials/sundials_nonlinearsolver.h>
 
 namespace sundials {
 namespace impl {
 
-const auto SUNMatrixDeleter = [](SUNMatrix A) { SUNMatDestroy(A); };
+const auto SUNNonlinearSolverDeleter = [](SUNNonlinearSolver LS) { SUNNonlinSolFree(LS); };
 
-using BaseMatrix    = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
-using SUNMatrixView = ClassView<_generic_SUNMatrix, std::unique_ptr<_generic_SUNMatrix>, decltype(SUNMatrixDeleter)>;
+using BaseSUNNonlinearSolver = BaseObject<_generic_SUNNonlinearSolver, _generic_SUNNonlinearSolver_Ops>;
+using SUNNonlinearSolverView = ClassView<_generic_SUNNonlinearSolver, std::unique_ptr<_generic_SUNNonlinearSolver>, decltype(SUNNonlinearSolverDeleter)>;
 
 } // namespace impl
 } // namespace sundials
