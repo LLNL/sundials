@@ -818,7 +818,6 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- //printf("\n N_VProd using CUDA\n");
  size_t blocksize =  CUDAConfigBlockSize();
  size_t gridsize = CUDAConfigGridSize(N, blocksize);
  prodKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
@@ -848,7 +847,6 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]/yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- // printf("\n N_VDiv using CUDA\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   divKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
@@ -880,7 +878,6 @@ void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   scaleKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, zd, N);
 
-  // cudaStreamSynchronize(0); 
 #endif
 
   return;
@@ -902,7 +899,6 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
  for (i = 0; i < N; i++)
     zd[i] = SUNRabs(xd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VAbs using CUDA\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   absKernel<<<gridsize, blocksize, 0, 0>>>(xd, zd, N);
@@ -926,7 +922,6 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = ONE/xd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VInv using CUDA\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   invKernel<<<gridsize, blocksize, 0, 0>>>(xd, zd, N);
@@ -950,7 +945,6 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   for (i = 0; i < N; i++)
      zd[i] = xd[i] + b;
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VAddConst using CUDA\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   addConstKernel<<<gridsize, blocksize, 0, 0>>>(b, xd, zd, N);
@@ -1032,9 +1026,6 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   for (i = 0; i < N; i++)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VMaxNormLocal using CUDA\n");
-  //realtype* max_d;
-  // realtype* max_h;
   bool atomic = true;
   cudaStream_t stream;
 
@@ -1084,9 +1075,6 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
     sum += prodi*prodi;
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VWSqrSumLocal using CUDA\n");
-  //realtype* sum_d;
-  //realtype* sum_h;
   bool atomic = true;
   cudaStream_t stream;
 
@@ -1095,10 +1083,6 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
 
-  //cudaMallocHost(&(sum_h), sizeof(realtype));
-  //cudaMalloc(&(sum_d), sizeof(realtype));
-  //*sum_h = ZERO;
-  // cudaMemcpy(sum_d,sum_h, sizeof(realtype), cudaMemcpyHostToDevice);
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(x, gpu_result, buffer_size))
   {
@@ -1107,11 +1091,7 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 
   wL2NormSquareKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, wd, NV_DBUFFERp(x), N, nullptr);
 
-  //cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
-  //sum = *sum_h;
-  //cudaFreeHost(sum_h);
-  //cudaFree(sum_d);
   CopyReductionBufferFromDevice(x);
   gpu_result = NV_HBUFFERp(x)[0];
 
@@ -1147,9 +1127,6 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- // printf("\n N_VWSqrSumMaskLocal using CUDA\n");
- // realtype* sum_d;
- // realtype* sum_h;
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   bool atomic = true;
@@ -1157,26 +1134,16 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 
   realtype gpu_result = ZERO;
 
-  // cudaMallocHost(&(sum_h), sizeof(realtype));
-  // cudaMalloc(&(sum_d), sizeof(realtype))
-
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(x, gpu_result, buffer_size))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumMaskLocal_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
 
-  //*sum_h = ZERO;
-  //cudaMemcpy(sum_d,sum_h, sizeof(realtype), cudaMemcpyHostToDevice);
-
   wL2NormSquareMaskKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, wd, idd, NV_DBUFFERp(x), N, nullptr);
 
-  //cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   CopyReductionBufferFromDevice(x);
   cudaStreamSynchronize(0);
-  //sum = *sum_h;
-  // cudaFreeHost(sum_h);
-  //cudaFree(sum_d);
   gpu_result = NV_HBUFFERp(x)[0];
 
   return gpu_result;
@@ -1208,9 +1175,6 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
     for (i = 1; i < N; i++)
       if (xd[i] < min) min = xd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VMinLocal using CUDA\n");
-  //realtype* min_d;
-  //realtype* min_h;
   bool atomic = true;
   cudaStream_t stream;
 
@@ -1219,10 +1183,6 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
 
-  //cudaMallocHost(&(min_h), sizeof(realtype));
-  //cudaMalloc(&(min_d), sizeof(realtype));
-  //*min_h = xd[0];
-  // cudaMemcpy(min_d, min_h, sizeof(realtype), cudaMemcpyHostToDevice);
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(x, gpu_result, buffer_size))
   {
@@ -1231,11 +1191,7 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
 
   findMinKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(gpu_result, xd, NV_DBUFFERp(x), N, nullptr);
 
-  // cudaMemcpy(min_h, min_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
-  //min = *min_h;
-  //cudaFreeHost(min_h);
-  //cudaFree(min_d);
   CopyReductionBufferFromDevice(x);
   gpu_result = NV_HBUFFERp(x)[0];
 
@@ -1274,7 +1230,6 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
   for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- //printf("\n N_VL1NormLocal using CUDA\n");
   bool atomic = true;
   cudaStream_t stream;
 
@@ -1282,12 +1237,6 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
 
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
- //realtype* sum_h; // host memory for sum
- //realtype* sum_d; // device memory for sum
- //cudaMallocHost(&(sum_h), sizeof(realtype)); // allocate pinned host memory
- //cudaMalloc(&(sum_d), sizeof(realtype));     // allocate device memory
- //*sum_h = ZERO;
- // cudaMemcpy(sum_d, sum_h, sizeof(realtype), cudaMemcpyHostToDevice);
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(x, gpu_result, buffer_size))
   {
@@ -1296,11 +1245,7 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
 
   L1NormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, NV_DBUFFERp(x), N, nullptr);
  
- //cudaMemcpy(sum_h, sum_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
- //sum = *sum_h;
- //cudaFreeHost(sum_h);
- // cudaFree(sum_d);
   CopyReductionBufferFromDevice(x);
   gpu_result = NV_HBUFFERp(x)[0];
 
@@ -1335,7 +1280,6 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
   }
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- // printf("\n N_VCompare using CUDA\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   compareKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, zd, N);
@@ -1368,9 +1312,6 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
     return(SUNTRUE);
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- // printf("\n N_VInvTestLocal using CUDA\n");
-  //realtype* flag_d;
-  //realtype* flag_h;
   bool atomic;
   cudaStream_t stream;
 
@@ -1379,10 +1320,6 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
 
-  //cudaMallocHost(&(flag_h), sizeof(realtype));
-  //cudaMalloc(&(flag_d), sizeof(realtype));
-  //*flag_h = ONE;
-  //cudaMemcpy(flag_d, flag_h, sizeof(realtype), cudaMemcpyHostToDevice);
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(x, gpu_result, buffer_size))
   {
@@ -1391,15 +1328,7 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 
   invTestKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(xd, zd, NV_DBUFFERp(x), N, nullptr);
 
-  //cudaMemcpy(flag_h, flag_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
-  //flag = *flag_h;
-  //cudaFreeHost(flag_h);
-  //cudaFree(flag_d);
-  //if (flag == ONE)
-  //return(SUNTRUE);
-  //else
-  // return(SUNFALSE);
   CopyReductionBufferFromDevice(x);
   gpu_result = NV_HBUFFERp(x)[0];
 
@@ -1453,9 +1382,6 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("\n N_VConstrMaskLocal using CUDA\n");
-  //realtype* temp_d;
-  //realtype* temp_h;
   bool atomic;
   cudaStream_t stream;
 
@@ -1470,19 +1396,9 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstrMask_Cuda: InitializeReductionBuffer returned nonzero\n");
   }
 
-  //cudaMallocHost(&(temp_h), sizeof(realtype));
-  //cudaMalloc(&(temp_d), sizeof(realtype));
-  //*temp_h = ZERO;
-  //cudaMemcpy(temp_d, temp_h, sizeof(realtype), cudaMemcpyHostToDevice);
-
-
   constrMaskKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(cd, xd, md, NV_DBUFFERp(x), N, nullptr);
   
-  //cudaMemcpy(temp_h, temp_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
-  // temp = *temp_h;
-  //cudaFreeHost(temp_h);
-  // cudaFree(temp_d);
   /* Return false if any constraint was violated
    CUDA returns the number of times constraint has been violated rather than setting it to ONE each time
    Had to change the return statement accordingly  */
@@ -1529,8 +1445,6 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  // realtype* min_d;
-  //realtype* min_h;
   bool atomic;
   size_t grid, block, shMemSize;
   cudaStream_t stream;
@@ -1540,10 +1454,6 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
 
-  //cudaMallocHost(&(min_h), sizeof(realtype));
-  //cudaMalloc(&(min_d), sizeof(realtype));
-  //*min_h = BIG_REAL;
-  //cudaMemcpy(min_d, min_h, sizeof(realtype), cudaMemcpyHostToDevice);
   const size_t buffer_size = atomic ? 1 : gridsize;
   if (InitializeReductionBuffer(num, gpu_result, buffer_size))
   {
@@ -1553,11 +1463,7 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 
   minQuotientKernel<sunrealtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>>(gpu_result, nd, dd, NV_DBUFFERp(num), N, nullptr);
 
-  //cudaMemcpy(min_h, min_d, sizeof(realtype), cudaMemcpyDeviceToHost);
   cudaStreamSynchronize(0);
-  //min = *min_h;
-  //cudaFreeHost(min_h);
-  //cudaFree(min_d);
   CopyReductionBufferFromDevice(num);
   gpu_result = NV_HBUFFERp(num)[0];
 
@@ -1783,7 +1689,6 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
       }
     }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("scaleAddMulti using cuda\n\n");
   if (FusedBuffer_Init(x, nvec, 2 * nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -1904,7 +1809,6 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("dotProdMulti using cuda\n\n");
   if (FusedBuffer_Init(x, 0, nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -1980,7 +1884,6 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   }
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("dotProdMultiLocal using cuda\n\n");
   if (FusedBuffer_Init(x, 0, nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2072,7 +1975,6 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
- //printf("\n Linear Sum Vector Array Kernel using CUDA\n");
 
   if(FusedBuffer_Init(Z[0], 0, 3 * nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
@@ -2135,7 +2037,6 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   /* get vector length */
   N = NV_LOCLENGTH_PH(Z[0]);
 
-  //X[i] *= c[i]
   if (X == Z) {
 #if defined(SUNDIAL_HYPRE_BACKENDS_SERIAL)
     for (i=0; i<nvec; i++) {
@@ -2145,7 +2046,6 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
       }
     }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("Scale vector array using cuda \n\n");
   if (FusedBuffer_Init(Z[0], nvec, 2 * nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2192,7 +2092,6 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("Scale vector array using cuda\n\n");
   if (FusedBuffer_Init(Z[0], nvec, 2 * nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2259,7 +2158,6 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("ConstVectorArray using CUDA \n\n\n"); 
   if (FusedBuffer_Init(Z[0], 0, nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2429,7 +2327,6 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
-  //printf("VWrmsNormMaskVectorArray using cuda\n\n"); 
   if (FusedBuffer_Init(W[0], 0, 2*nvec))  {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_ParHyp: FusedBuffer_Init returned nonzero\n");
     return -1;
@@ -2458,7 +2355,6 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
 
   wL2NormSquareMaskVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<gridsize, blocksize, 0, 0>>> 
   							(nvec, xd, wd, NV_DATA_PH(id), NV_DBUFFERp(W[0]), Nl);
-//NV_DBUFFERp(x)
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(W[0], nvec);
@@ -2767,7 +2663,6 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("LinearCombinationVectorArray using CUDA\n\n\n"); 
 // Setup the fused op workspace
   if (FusedBuffer_Init(Z[0], nsum, nvec + nvec * nsum))
   {
@@ -2842,7 +2737,6 @@ int N_VBufPack_ParHyp(N_Vector x, void *buf)
   for (i = 0; i < N; i++)
     bd[i] = xd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("bufPack using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   bufPackKernel<<<gridsize, blocksize, 0, 0>>>(xd, bd, N);
@@ -2868,7 +2762,6 @@ int N_VBufUnpack_ParHyp(N_Vector x, void *buf)
   for (i = 0; i < N; i++)
     xd[i] = bd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("bufUnpack using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   bufUnpackKernel<<<gridsize, blocksize, 0, 0>>>(xd, bd, N);
@@ -2900,7 +2793,6 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]+yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("sum using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   sumKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
@@ -2925,7 +2817,6 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]-yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("diff using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   diffKernel<<<gridsize, blocksize, 0, 0>>>(xd, yd, zd, N);
@@ -2951,7 +2842,6 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]+yd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("scaleSum using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   scaleSumKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, yd, zd, N);
@@ -2976,7 +2866,6 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]-yd[i]);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("scaleDiff using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   scaleDiffKernel<<<gridsize, blocksize, 0, 0>>>(c, xd, yd, zd, N);
@@ -3001,7 +2890,6 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("lin1 using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   lin1Kernel<<<gridsize, blocksize, 0, 0>>>(a, xd, yd, zd, N);
@@ -3026,7 +2914,6 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])-yd[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  //printf("lin2 using cuda \n\n");
   size_t blocksize =  CUDAConfigBlockSize();
   size_t gridsize = CUDAConfigGridSize(N, blocksize);
   lin2Kernel<<<gridsize, blocksize, 0, 0>>>(a, xd, yd, zd, N);
@@ -3604,7 +3491,6 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   }
 
   /* we synchronize with respect to the host, but only in this stream */
-  //cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(v));
   cudaStreamSynchronize(0); 
   return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
