@@ -182,7 +182,6 @@ int main(int argc, char* argv[])
 
   N_Vector x{N_VNew(matcols, sunctx)};
   N_Vector b{N_VClone(x)};
-  N_Vector y{N_VClone(x)};
 
   auto matrix_dim{gko::dim<2>(matrows, matcols)};
   auto matrix_nnz{3 * matrows - 2};
@@ -190,11 +189,8 @@ int main(int argc, char* argv[])
 #if defined(USE_CSR)
   auto gko_matrix_A = gko::share(GkoMatrixType::create(gko_exec, matrix_dim,
                                                        matrix_nnz));
-  auto gko_matrix_B = gko::share(GkoMatrixType::create(gko_exec, matrix_dim,
-                                                       matrix_nnz));
 #else
   auto gko_matrix_A = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
-  auto gko_matrix_B = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
 #endif
 
   fill_matrix(gko::lend(gko_matrix_A));
@@ -210,11 +206,6 @@ int main(int argc, char* argv[])
   /* Wrap ginkgo matrices for SUNDIALS->
      Matrix is overloaded to a SUNMatrix. */
   sundials::ginkgo::Matrix<GkoMatrixType> A{gko_matrix_A, sunctx};
-  sundials::ginkgo::Matrix<GkoMatrixType> B{gko_matrix_B, sunctx};
-
-  /* Copy A and x into B and y to print in case of solver failure */
-  SUNMatCopy(A, B);
-  N_VScale(ONE, x, y);
 
   /* Create right-hand side vector for linear solve */
   fails += SUNMatMatvecSetup(A);
@@ -223,7 +214,6 @@ int main(int argc, char* argv[])
   {
     std::cerr << "FAIL: SUNLinSol SUNMatMatvec failure\n";
     N_VDestroy(x);
-    N_VDestroy(y);
     N_VDestroy(b);
     return 1;
   }
@@ -326,16 +316,6 @@ int main(int argc, char* argv[])
   if (fails)
   {
     std::cerr << "FAIL: SUNLinSol module failed " << fails << " tests\n\n";
-    /* only print if its a small problem */
-    if (matcols < 4)
-    {
-      std::cout << "\nx (original) =\n";
-      N_VPrint(y);
-      std::cout << "\nx (computed) =\n";
-      N_VPrint(x);
-      std::cout << "\nb =\n";
-      N_VPrint(b);
-    }
   }
   else
   {
@@ -352,7 +332,6 @@ int main(int argc, char* argv[])
 
   /* Free solver, matrix and vectors */
   N_VDestroy(x);
-  N_VDestroy(y);
   N_VDestroy(b);
 
   return fails;
