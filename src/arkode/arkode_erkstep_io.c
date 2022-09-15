@@ -355,6 +355,13 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
   return(ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  ERKStepSetTableName:
+
+  Specifies to use a pre-existing Butcher table for the problem,
+  based on the string passed to ARKodeButcherTable_LoadERKByNmae()
+  within the file arkode_butcher_erk.c.
+  ---------------------------------------------------------------*/
 int ERKStepSetTableName(void *arkode_mem, const char *table)
 {
   return ERKStepSetTableNum(arkode_mem,

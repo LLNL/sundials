@@ -29,7 +29,7 @@
   Input:  imeth -- integer key for the desired method
   ---------------------------------------------------------------*/
 ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod) {
-
+  // Use X-macro to test each method name
   switch (imethod) {
 #define ARK_BUTCHER_TABLE(name, coeff) case name: coeff break;
 #include "arkode_butcher_dirk.def"
@@ -44,12 +44,23 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod) {
 }
 
 
+/*---------------------------------------------------------------
+  Returns Butcher table structure for pre-set DIRK methods.
+
+  Input:  method -- string key for the desired method
+  ---------------------------------------------------------------*/
 ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *method) {
   return ARKodeButcherTable_LoadDIRK(arkButcherTableDIRKNameToID(method));
 }
 
 
+/*---------------------------------------------------------------
+  Returns Butcher table ID for pre-set DIRK methods.
+
+  Input:  method -- string key for the desired method
+  ---------------------------------------------------------------*/
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *method) {
+  // Use X-macro to test each method name
 #define ARK_BUTCHER_TABLE(name, coeff) if (strcmp(#name, method) == 0) { return name; }
 #include "arkode_butcher_dirk.def"
 #undef ARK_BUTCHER_TABLE
