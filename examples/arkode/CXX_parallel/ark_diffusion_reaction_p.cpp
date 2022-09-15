@@ -1105,8 +1105,8 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
-  if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
+  MRIStepCoupling C = MRIStepCoupling_LoadTableByName("ARKODE_MRI_GARK_ESDIRK34a");
+  if (check_flag((void*)C, "MRIStepCoupling_LoadTableByName", 1)) return 1;
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
   if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
@@ -1265,8 +1265,8 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
-  if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
+  MRIStepCoupling C = MRIStepCoupling_LoadTableByName("ARKODE_MRI_GARK_ESDIRK34a");
+  if (check_flag((void*)C, "MRIStepCoupling_LoadTableByName", 1)) return 1;
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
   if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;

@@ -91,6 +91,9 @@ typedef enum {
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID imethod);
 
 
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char *method);
+
+
 #ifdef __cplusplus
 }
 #endif

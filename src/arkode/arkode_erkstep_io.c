@@ -355,6 +355,11 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
   return(ARK_SUCCESS);
 }
 
+int ERKStepSetTableName(void *arkode_mem, const char *table)
+{
+  return ERKStepSetTableNum(arkode_mem,
+                            arkButcherTableERKNameToID(table));
+}
 
 /*===============================================================
   ERKStep optional output functions -- stepper-specific

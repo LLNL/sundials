@@ -1078,6 +1078,14 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
 }
 
 
+int ARKStepSetTableName(void *arkode_mem, const char *itable, const char *etable)
+{
+  return ARKStepSetTableNum(arkode_mem,
+                            arkButcherTableDIRKNameToID(itable),
+                            arkButcherTableERKNameToID(etable));
+}
+
+
 /*---------------------------------------------------------------
   ARKStepSetNonlinCRDown:
 
