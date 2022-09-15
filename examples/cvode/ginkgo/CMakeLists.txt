@@ -16,15 +16,19 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 set(CVODE_examples
+  "cv_kpr_ginkgo.cpp\;\;"
 )
 
-if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
-  set(vector nveccuda)
-  set(cuda_or_hip CUDA)
-elseif(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
-  set(vector nvechip)
-  set(cuda_or_hip HIP)
-endif()
+# if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
+#   set(vector nveccuda)
+#   set(cuda_or_hip CUDA)
+# elseif(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
+#   set(vector nvechip)
+#   set(cuda_or_hip HIP)
+# endif()
+
+set(vector nvecserial)
+set(cmake_template CXX)
 
 # Add the build targets for each CVODE example
 foreach(example_tuple ${CVODE_examples})
@@ -47,10 +51,10 @@ foreach(example_tuple ${CVODE_examples})
     # libraries to link against
     target_link_libraries(${example_target}
       PRIVATE
-        sundials_cvode
-        sundials_${vector}
-        sundials_sunlinsolginkgo
-        ${EXTRA_LINK_LIBS}
+      sundials_cvode
+      sundials_${vector}
+      Ginkgo::ginkgo
+      ${EXTRA_LINK_LIBS}
     )
   endif()
 
@@ -75,13 +79,13 @@ if(EXAMPLES_INSTALL AND CVODE_examples)
 
   sundials_install_examples(cvode CVODE_examples
     CMAKE_TEMPLATE
-      cmakelists_${cuda_or_hip}_ex.in
+      cmakelists_${cmake_template}_ex.in
     SUNDIALS_TARGETS
       cvode
       ${vector}
       sunlinsolGINKGOdense
     DESTINATION
-      cvode/GINKGO
+      cvode/ginkgo
   )
 
 endif()
