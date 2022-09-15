@@ -17,12 +17,12 @@
 
 # Examples using SUNDIALS Ginkgo dense matrix
 set(sunmatrix_ginkgo_examples
-  "test_sunmatrix_gko.cpp\;100 100 0\;"
-  "test_sunmatrix_gko.cpp\;100 10 0\;"
-  "test_sunmatrix_gko.cpp\;10 100 0\;"
-  "test_sunmatrix_gko.cpp\;100 100 1\;"
-  "test_sunmatrix_gko.cpp\;100 10 1\;"
-  "test_sunmatrix_gko.cpp\;10 100 1\;"
+  "test_sunmatrix_ginkgo.cpp\;100 100 0\;"
+  "test_sunmatrix_ginkgo.cpp\;100 10 0\;"
+  "test_sunmatrix_ginkgo.cpp\;10 100 0\;"
+  "test_sunmatrix_ginkgo.cpp\;100 100 1\;"
+  "test_sunmatrix_ginkgo.cpp\;100 10 1\;"
+  "test_sunmatrix_ginkgo.cpp\;10 100 1\;"
 )
 
 # Add source directory to include directories
