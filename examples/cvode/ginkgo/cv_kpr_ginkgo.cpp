@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 
   // Use default stopping criteria
   auto crit{sundials::ginkgo::DefaultStop::build()
-            .with_max_iters(2)
+            .with_max_iters(gko::uint64{2})
             .on(gko_exec)};
 
   auto gko_solver_factory = gko::share(GkoSolverType::build()

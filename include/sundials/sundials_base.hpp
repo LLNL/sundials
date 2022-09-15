@@ -20,18 +20,22 @@
 namespace sundials {
 
 template<class T>
-class ConvertibleTo {
+class ConvertibleTo
+{
 public:
   // Explicit conversion to the underlying type
-  virtual T get() = 0;
+  virtual T get()       = 0;
   virtual T get() const = 0;
 
   // Implicit conversion to the underlying type
-  virtual operator T() = 0;
+  virtual operator T()       = 0;
   virtual operator T() const = 0;
 
-  virtual ~ConvertibleTo() = default;
+  virtual ~ConvertibleTo() = 0;
 };
+
+template<class T>
+ConvertibleTo<T>::~ConvertibleTo() = default;
 
 namespace impl {
 
@@ -114,40 +118,35 @@ protected:
 template<class ObjectStruct, class ObjectOps>
 BaseObject<ObjectStruct, ObjectOps>::~BaseObject() = default;
 
-template<class T, class PtrType = std::unique_ptr<T>, class Deleter = std::default_delete<T*>>
-class ClassView : public ConvertibleTo<T*> {
+template<class T, class Deleter>
+class ClassView : public sundials::ConvertibleTo<T>
+{
 public:
-  ClassView<T, PtrType, Deleter>()
-    : underlying_ptr_(new T()) {};
+  ClassView() : object_(nullptr) {}
+  ClassView(T&& object) : object_(std::make_unique<T>(object)) {}
 
-  // Only allow construction from Rvalue since we take complete ownership
-  ClassView<T, PtrType, Deleter>(T*&& val) : underlying_ptr_(val) {}
-  ClassView<T, PtrType, Deleter>(T*& val) = delete;
+  ClassView(const ClassView&)  = delete;
+  ClassView(ClassView&& other) = default;
 
-  // Disallow copy constructor, use default move constructor
-  ClassView<T, PtrType, Deleter>(const ClassView<T, PtrType, Deleter>&) = delete;
-  ClassView<T>(ClassView<T, PtrType, Deleter>&&) noexcept = default;
+  ClassView& operator=(const ClassView&) = delete;
+  ClassView& operator=(ClassView&& rhs)  = default;
 
-  // Disallow copy assignment, use default move assignment
-  ClassView<T, PtrType, Deleter>& operator=(const ClassView<T, PtrType, Deleter>&) = delete;
-  ClassView<T, PtrType, Deleter>& operator=(ClassView<T, PtrType, Deleter>&&) noexcept = default;
-
-  // ClassView is an abstract class
-  virtual ~ClassView<T, PtrType, Deleter>() = 0;
+  ~ClassView()
+  {
+    if (object_) {
+      Deleter{}(this->get());
+    }
+  };
 
   // Override ConvertibleTo functions
-  virtual T* get() override { return underlying_ptr_.get(); }
-  virtual T* get() const override { return underlying_ptr_.get(); }
-  virtual operator T*() override { return underlying_ptr_.get(); }
-  virtual operator T*() const override { return underlying_ptr_.get(); }
+  T get() override { return *object_.get(); }
+  T get() const override { return *object_.get(); }
+  operator T() override { return *object_.get(); }
+  operator T() const override { return *object_.get(); }
 
-protected:
-  PtrType underlying_ptr_;
+private:
+  std::unique_ptr<T> object_;
 };
-
-// Pure virtual destructor requires a definition.
-template<class T, class PtrType, class Deleter>
-ClassView<T, PtrType, Deleter>::~ClassView<T, PtrType, Deleter> () = default;
 
 } // namespace impl
 } // namespace sundials

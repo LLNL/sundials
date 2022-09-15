@@ -20,10 +20,16 @@
 namespace sundials {
 namespace impl {
 
-const auto SUNLinearSolverDeleter = [](SUNLinearSolver LS) { SUNLinSolFree(LS); };
+struct SUNLinearSolverDeleter
+{
+  constexpr void operator()(SUNLinearSolver LS)
+  {
+    if (LS) SUNLinSolFree(LS);
+  }
+};
 
-using BaseSUNLinearSolver = BaseObject<_generic_SUNLinearSolver, _generic_SUNLinearSolver_Ops>;
-using SUNLinearSolverView = ClassView<_generic_SUNLinearSolver, std::unique_ptr<_generic_SUNLinearSolver>, decltype(SUNLinearSolverDeleter)>;
+using BaseLinearSolver    = BaseObject<_generic_SUNLinearSolver, _generic_SUNLinearSolver_Ops>;
+using SUNLinearSolverView = ClassView<SUNLinearSolver, SUNLinearSolverDeleter>;
 
 } // namespace impl
 } // namespace sundials

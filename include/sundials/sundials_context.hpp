@@ -19,15 +19,36 @@
 
 namespace sundials {
 
-// RAII wrapper of SUNContext.
-// NOTE: SUNContext_Free should not be called on the underlying or a double free will occur!
-class Context : public impl::ClassView<_SUNContext, std::unique_ptr<_SUNContext>> {
+class Context : public ConvertibleTo<SUNContext> {
 public:
-  explicit Context(void* comm = nullptr);
-  virtual ~Context() override;
+  explicit Context(void* comm = nullptr)
+  {
+    sunctx_ = std::make_unique<SUNContext>();
+    SUNContext_Create(comm, sunctx_.get());
+  }
+
+  /* disallow copy, but allow move construction */
+  Context(const Context&) = delete;
+  Context(Context&&)      = default;
+
+  /* disallow copy, but allow move operators */
+  Context& operator=(const Context&) = delete;
+  Context& operator=(Context&&) = default;
+
+  SUNContext get() override { return *sunctx_.get(); }
+  SUNContext get() const override { return *sunctx_.get(); }
+  operator SUNContext() override { return *sunctx_.get(); }
+  operator SUNContext() const override { return *sunctx_.get(); }
+
+  ~Context()
+  {
+    if (sunctx_) SUNContext_Free(sunctx_.get());
+  }
+
 private:
-  SUNContext sunctx;
+  std::unique_ptr<SUNContext> sunctx_;
 };
+
 
 } // namespace sundials
 

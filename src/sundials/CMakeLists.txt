@@ -24,6 +24,7 @@ set(sundials_HEADERS
   sundials_base.hpp
   sundials_band.h
   sundials_context.h
+  sundials_context.hpp
   sundials_dense.h
   sundials_direct.h
   sundials_iterative.h
@@ -89,8 +90,6 @@ set(sundials_SOURCES
   sundials_nvector_senswrapper.c
   sundials_version.c
   )
-
-list(APPEND sundials_SOURCES sundials_context.cpp)
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   message(WARNING "SUNDIALS built with profiling turned on, performance may be affected.")

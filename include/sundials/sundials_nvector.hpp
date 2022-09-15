@@ -20,10 +20,16 @@
 namespace sundials {
 namespace impl {
 
-const auto NvectorDeleter = [](N_Vector v) { N_VDestroy(v); };
+struct NvectorDeleter
+{
+  constexpr void operator()(N_Vector v)
+  {
+    if (v) N_VDestroy(v);
+  }
+};
 
 using BaseNvector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
-using NvectorView = ClassView<_generic_N_Vector, std::unique_ptr<_generic_N_Vector>, decltype(NvectorDeleter)>;
+using NvectorView = ClassView<N_Vector, NvectorDeleter>;
 
 } // namespace impl
 } // namespace sundials

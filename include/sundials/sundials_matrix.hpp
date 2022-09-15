@@ -20,10 +20,16 @@
 namespace sundials {
 namespace impl {
 
-const auto SUNMatrixDeleter = [](SUNMatrix A) { SUNMatDestroy(A); };
+struct SUNMatrixDeleter
+{
+  constexpr void operator()(SUNMatrix A)
+  {
+    if (A) SUNMatDestroy(A);
+  }
+};
 
 using BaseMatrix    = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
-using SUNMatrixView = ClassView<_generic_SUNMatrix, std::unique_ptr<_generic_SUNMatrix>, decltype(SUNMatrixDeleter)>;
+using SUNMatrixView = ClassView<SUNMatrix, SUNMatrixDeleter>;
 
 } // namespace impl
 } // namespace sundials

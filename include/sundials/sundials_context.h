@@ -41,7 +41,7 @@ SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 
 /* We include this here for backwards compatibility
    (the contents used to be defined here directly) */
-#include "sundials_context.hpp"
+#include <sundials/sundials_context.hpp>
 
 #endif
 #endif
