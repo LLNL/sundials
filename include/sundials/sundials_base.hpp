@@ -14,29 +14,10 @@
 #define _SUNDIALS_BASE_HPP
 
 #include <memory>
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_types.h>
+#include <sundials/sundials_convertibleto.hpp>
+#include <sundials/sundials_context.hpp>
 
 namespace sundials {
-
-template<class T>
-class ConvertibleTo
-{
-public:
-  // Explicit conversion to the underlying type
-  virtual T get()       = 0;
-  virtual T get() const = 0;
-
-  // Implicit conversion to the underlying type
-  virtual operator T()       = 0;
-  virtual operator T() const = 0;
-
-  virtual ~ConvertibleTo() = 0;
-};
-
-template<class T>
-ConvertibleTo<T>::~ConvertibleTo() = default;
-
 namespace impl {
 
 //

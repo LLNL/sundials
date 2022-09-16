@@ -10,15 +10,15 @@
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------*/
 
-#include <cstring>
-#include <ginkgo/core/solver/bicg.hpp>
-#include <memory>
-#include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_matrix.hpp>
-#include <sunmatrix/sunmatrix_ginkgo.hpp>
-
 #ifndef _SUNLINSOL_GINKGO_HPP
 #define _SUNLINSOL_GINKGO_HPP
+
+#include <cstring>
+#include <memory>
+#include <ginkgo/ginkgo.hpp>
+#include <sundials/sundials_matrix.hpp>
+#include <sundials/sundials_linearsolver.hpp>
+#include <sunmatrix/sunmatrix_ginkgo.hpp>
 
 namespace sundials {
 namespace ginkgo {

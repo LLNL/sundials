@@ -21,8 +21,8 @@
 #include <map>
 #include <ginkgo/ginkgo.hpp>
 #include <random>
+#include <sundials/sundials_context.hpp>
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <unordered_map>

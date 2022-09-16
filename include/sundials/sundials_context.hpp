@@ -14,12 +14,12 @@
 #define _SUNDIALS_CONTEXT_HPP
 
 #include <memory>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_convertibleto.hpp>
 #include <sundials/sundials_context.h>
 
 namespace sundials {
 
-class Context : public ConvertibleTo<SUNContext> {
+class Context : public sundials::ConvertibleTo<SUNContext> {
 public:
   explicit Context(void* comm = nullptr)
   {

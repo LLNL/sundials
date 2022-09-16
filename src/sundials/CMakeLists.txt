@@ -25,6 +25,7 @@ set(sundials_HEADERS
   sundials_band.h
   sundials_context.h
   sundials_context.hpp
+  sundials_convertibleto.hpp
   sundials_dense.h
   sundials_direct.h
   sundials_iterative.h
