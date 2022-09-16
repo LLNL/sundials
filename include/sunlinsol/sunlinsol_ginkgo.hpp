@@ -84,7 +84,7 @@ class DefaultStop : public gko::EnablePolymorphicObject<DefaultStop, gko::stop::
 public:
   GKO_CREATE_FACTORY_PARAMETERS(parameters, Factory)
   {
-    sunrealtype GKO_FACTORY_PARAMETER_SCALAR(tolerance,
+    sunrealtype GKO_FACTORY_PARAMETER_SCALAR(reduction_factor,
                                              SUN_UNIT_ROUNDOFF); // NOLINT(cppcoreguidelines-avoid-magic-numbers)
     gko::uint64 GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
   };
@@ -93,7 +93,7 @@ public:
 
   gko::uint64 get_max_iters() const { return parameters_.max_iters; }
 
-  sunrealtype get_tolerance() const { return parameters_.tolerance; }
+  sunrealtype get_reduction_factor() const { return parameters_.reduction_factor; }
 
 protected:
   bool check_impl(gko::uint8 stoppingId, bool setFinalized, gko::array<gko::stopping_status>* stop_status,
@@ -107,14 +107,15 @@ protected:
       : EnablePolymorphicObject<DefaultStop, gko::stop::Criterion>(factory->get_executor()), parameters_{
                                                                                                  factory->get_parameters()}
   {
-    criteria_.push_back(gko::stop::AbsoluteResidualNorm<sunrealtype>::build() //
-                            .with_tolerance(parameters_.tolerance)            //
-                            .on(factory->get_executor())
-                            ->generate(args));
-    criteria_.push_back(gko::stop::Iteration::build()              //
-                            .with_max_iters(parameters_.max_iters) //
-                            .on(factory->get_executor())
-                            ->generate(args));
+    criteria_.push_back(gko::stop::ResidualNorm<sunrealtype>::build()
+                        .with_reduction_factor(parameters_.reduction_factor)
+                        .with_baseline(gko::stop::mode::absolute)
+                        .on(factory->get_executor())
+                        ->generate(args));
+    criteria_.push_back(gko::stop::Iteration::build()
+                        .with_max_iters(parameters_.max_iters)
+                        .on(factory->get_executor())
+                        ->generate(args));
   }
 
 private:
@@ -227,13 +228,13 @@ public:
     // so we make it possible to use it, but default to using
     // our normal iterative linear solver criterion.
     // If the criterion on the solver is of type DefaultStop,
-    // then we will override the tolerance.
+    // then we will override the reduction_factor (tolerance).
     auto crit{dynamic_cast<const DefaultStop::Factory*>(gkosolver()->get_stop_criterion_factory().get())};
     if (crit != nullptr) {
-      auto new_crit = DefaultStop::build()     //
-                          .with_tolerance(tol) //
-                          .with_max_iters(crit->get_parameters().max_iters)
-                          .on(gkoexec());
+      auto new_crit = DefaultStop::build()
+        .with_reduction_factor(tol)
+        .with_max_iters(crit->get_parameters().max_iters)
+        .on(gkoexec());
       new_crit->add_logger(logger);
       gkosolver()->set_stop_criterion_factory(std::move(new_crit));
     }
