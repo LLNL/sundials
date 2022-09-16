@@ -1,3 +1,19 @@
+/* -----------------------------------------------------------------------------
+ * Programmer(s): David J. Gardner @ LLNL
+ * -----------------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * Kvaerno-Prothero-Robinson ODE test problem, see .cpp file for details
+ * ---------------------------------------------------------------------------*/
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -7,8 +23,6 @@
 #include <limits>
 #include <sstream>
 #include <vector>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_nvector.h>
 
 // Include integrator, matrix, linear solver, and vector headers
 #include <cvode/cvode.h>

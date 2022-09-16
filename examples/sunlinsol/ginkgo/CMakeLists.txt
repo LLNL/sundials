@@ -1,7 +1,19 @@
+# ------------------------------------------------------------------------------
+# Programmer(s): Cody J. Balos @ LLNL
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS Ginkgo dense matrix
 set(sunmatrix_ginkgo_examples
   "test_sunlinsol_ginkgo.cpp\;bicg csr 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;bicg dense 100 0 100 0\;"

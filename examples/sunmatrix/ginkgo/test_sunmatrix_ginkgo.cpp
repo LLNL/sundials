@@ -1,5 +1,6 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -9,8 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------------------
+ * Test the Ginkgo SUNMatrix implementation
+ * ---------------------------------------------------------------------------*/
 
 #include <cstring>
 #include <iostream>

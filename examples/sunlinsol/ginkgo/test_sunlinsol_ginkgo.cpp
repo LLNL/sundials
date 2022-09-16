@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * This is the testing routine to check the Ginkgo SUNLinSol implementation.
- * -------------------------------------------------------------------------- */
+ * Test the Ginkgo SUNLinearSolver implementation
+ * ---------------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <cctype>

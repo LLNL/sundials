@@ -1,4 +1,6 @@
-/* -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -8,7 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * ----------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ * SUNLinearSolver interface to Ginkgo linear solvers
+ * ---------------------------------------------------------------------------*/
 
 #ifndef _SUNLINSOL_GINKGO_HPP
 #define _SUNLINSOL_GINKGO_HPP

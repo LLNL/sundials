@@ -1,4 +1,6 @@
-/* -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -8,7 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * ----------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ * Base class for converting C++ wappers (views) to SUNDIALS objects
+ * ---------------------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_CONVERTIBLETO_HPP
 #define _SUNDIALS_CONVERTIBLETO_HPP

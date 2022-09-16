@@ -1,4 +1,6 @@
-/* -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -8,7 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ * C++ view of SUNDIALS SUNMatrix
+ * ---------------------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_MATRIX_HPP
 #define _SUNDIALS_MATRIX_HPP
