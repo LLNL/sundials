@@ -111,7 +111,6 @@ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
                  sunrealtype* mat_data)
 {
   const sunindextype row = blockIdx.x * blockDim.x + threadIdx.x;
-  const sunindextype nnz = 3 * mat_rows - 2;
 
   if (row == 0)
   {
@@ -303,29 +302,29 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  auto matcols{static_cast<const sunindextype>(atoll(argv[++argi]))};
+  const auto matcols{static_cast<sunindextype>(atoll(argv[++argi]))};
   if (matcols <= 0)
   {
     std::cerr << "ERROR: number of matrix columns must be a positive integer\n";
     return 1;
   }
-  auto matrows{matcols};
+  const auto matrows{matcols};
 
-  auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
+  const auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
   if (matcond < 0)
   {
     std::cerr << "ERROR: matrix condition number must be positive or 0 (poisson test)\n";
     return 1;
   }
 
-  auto max_iters{static_cast<const unsigned long>(atoll(argv[++argi]))};
+  const auto max_iters{static_cast<unsigned long>(atoll(argv[++argi]))};
   if (max_iters <= 0)
   {
     std::cerr << "ERROR: max iterations must be a positive integer\n";
     return 1;
   }
 
-  int print_timing{atoi(argv[++argi])};
+  const int print_timing{atoi(argv[++argi])};
   SetTiming(print_timing);
 
   std::cout << "Ginkgo linear solver test:\n"

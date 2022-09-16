@@ -116,19 +116,21 @@ public:
          std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx);
 
   Matrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx)
-      : gkomtx_(gko_mat), sundials::impl::BaseMatrix(sunctx)
+    : sundials::impl::BaseMatrix(sunctx), gkomtx_(gko_mat)
   {
     initSUNMatrix();
   }
 
   // Move constructor
   Matrix(Matrix&& that_matrix) noexcept
-      : gkomtx_(std::move(that_matrix.gkomtx_)), sundials::impl::BaseMatrix(std::forward<Matrix>(that_matrix))
+    : sundials::impl::BaseMatrix(std::forward<Matrix>(that_matrix)),
+      gkomtx_(std::move(that_matrix.gkomtx_))
   {}
 
   // Copy constructor clones the gko::matrix and SUNMatrix
   Matrix(const Matrix& that_matrix)
-      : gkomtx_(gko::clone(that_matrix.gkomtx_)), sundials::impl::BaseMatrix(that_matrix)
+    : sundials::impl::BaseMatrix(that_matrix),
+      gkomtx_(gko::clone(that_matrix.gkomtx_))
   {}
 
   // Move assignment
@@ -189,7 +191,8 @@ template<>
 inline Matrix<GkoDenseMat>::Matrix(sunindextype num_rows, sunindextype num_cols,
                                    std::shared_ptr<const gko::Executor> gko_exec,
                                    SUNContext sunctx)
-    : gkomtx_(GkoDenseMat::create(gko_exec, gko::dim<2>(num_rows, num_cols))), sundials::impl::BaseMatrix(sunctx)
+  : sundials::impl::BaseMatrix(sunctx),
+    gkomtx_(GkoDenseMat::create(gko_exec, gko::dim<2>(num_rows, num_cols)))
 {
   initSUNMatrix();
 }
@@ -197,8 +200,8 @@ inline Matrix<GkoDenseMat>::Matrix(sunindextype num_rows, sunindextype num_cols,
 template<>
 inline Matrix<GkoCsrMat>::Matrix(sunindextype num_rows, sunindextype num_cols, sunindextype num_nonzeros,
                                  std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
-    : gkomtx_(GkoCsrMat::create(gko_exec, gko::dim<2>(num_rows, num_cols), num_nonzeros)),
-      sundials::impl::BaseMatrix(sunctx)
+  : sundials::impl::BaseMatrix(sunctx),
+    gkomtx_(GkoCsrMat::create(gko_exec, gko::dim<2>(num_rows, num_cols), num_nonzeros))
 {
   initSUNMatrix();
 }

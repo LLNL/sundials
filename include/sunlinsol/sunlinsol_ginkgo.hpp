@@ -96,7 +96,7 @@ public:
   sunrealtype get_tolerance() const { return parameters_.tolerance; }
 
 protected:
-  bool check_impl(gko::uint8 stoppingId, bool setFinalized, gko::Array<gko::stopping_status>* stop_status,
+  bool check_impl(gko::uint8 stoppingId, bool setFinalized, gko::array<gko::stopping_status>* stop_status,
                   bool* one_changed, const Updater&) override;
 
   explicit DefaultStop(std::shared_ptr<const gko::Executor> exec)
@@ -122,7 +122,7 @@ private:
 };
 
 inline bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized,
-                                    gko::Array<gko::stopping_status>* stop_status, bool* one_changed,
+                                    gko::array<gko::stopping_status>* stop_status, bool* one_changed,
                                     const Updater& updater)
 {
   bool one_converged = false;
