@@ -26,9 +26,9 @@ namespace impl {
 
 struct SUNNonlinearSolverDeleter
 {
-  constexpr void operator()(SUNNonlinearSolver LS)
+  constexpr void operator()(SUNNonlinearSolver NLS)
   {
-    if (LS) SUNLinSolFree(LS);
+    if (NLS) SUNNonlinSolFree(NLS);
   }
 };
 
