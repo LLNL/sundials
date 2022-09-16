@@ -250,7 +250,10 @@ public:
     }
 
     iter_count_ += logger->get_num_iterations();
-    res_norm_ = gko::as<GkoDenseMat>(logger->get_residual_norm())->at(0);
+    gkoexec()->get_master()->copy_from(gko::lend(gkoexec()),
+                                       1,
+                                       gko::as<GkoDenseMat>(logger->get_residual_norm())->get_const_values(),
+                                       &res_norm_);
 
     return result;
   }
