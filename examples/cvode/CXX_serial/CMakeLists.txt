@@ -20,6 +20,7 @@
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
   "cv_heat2D\;\;\;\;exclude-single"
+  "cv_kpr\;\;\;\;"
   )
 
 # Auxiliary files to install
