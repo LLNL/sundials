@@ -23,6 +23,7 @@
 #include <random>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include <sunmatrix/sunmatrix_ginkgo.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <unordered_map>
 
@@ -63,19 +64,99 @@ const std::unordered_map<std::string, int> matrix_types
  * Matrix fill functions                                                      *
  * -------------------------------------------------------------------------- */
 
+#if defined(USE_CUDA) || defined(USE_HIP)
+__global__
+void fill_kernel(sunindextype mat_rows,  sunindextype mat_cols,
+                 sunindextype* row_ptrs, sunindextype* col_idxs,
+                 sunrealtype* mat_data)
+{
+  const sunindextype row = blockIdx.x * blockDim.x + threadIdx.x;
+  const sunindextype nnz = 3 * mat_rows - 2;
+
+  if (row == 0)
+  {
+    // first row
+    mat_data[0] =  2;
+    mat_data[1] = -1;
+    col_idxs[0] =  0;
+    col_idxs[1] =  1;
+    row_ptrs[0] =  0;
+  }
+  else if (row == mat_rows - 1)
+  {
+    // last row
+    mat_data[nnz - 2] = -1;
+    mat_data[nnz - 1] =  2;
+    col_idxs[nnz - 2] = mat_rows - 2;
+    col_idxs[nnz - 1] = mat_rows - 1;
+    row_ptrs[mat_rows - 1] = nnz - 2;
+    row_ptrs[mat_rows]     = nnz;
+  }
+  else if (row < mat_rows)
+  {
+    // other rows
+    sunindextype idx = 3 * row - 1;
+    mat_data[idx]     = -1;
+    mat_data[idx + 1] =  2;
+    mat_data[idx + 2] = -1;
+    col_idxs[idx]     = row - 1;
+    col_idxs[idx + 1] = row;
+    col_idxs[idx + 2] = row + 1;
+    row_ptrs[row]     = idx;
+  }
+}
+
+__global__
+void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
+                 sunrealtype* mat_data)
+{
+  const sunindextype row = blockIdx.x * blockDim.x + threadIdx.x;
+  const sunindextype nnz = 3 * mat_rows - 2;
+
+  if (row == 0)
+  {
+    // first row
+    mat_data[0] =  2;
+    mat_data[1] = -1;
+  }
+  else if (row == mat_rows - 1)
+  {
+    // last row
+    mat_data[mat_cols * mat_rows - 2] = -1;
+    mat_data[mat_cols * mat_rows - 1] =  2;
+  }
+  else if (row < mat_rows)
+  {
+    // other rows
+    sunindextype idx = mat_cols * row + row;
+    mat_data[idx - 1] = -1;
+    mat_data[idx]     =  2;
+    mat_data[idx + 1] = -1;
+  }
+}
+#endif
+
 void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
 {
-  const auto mat_rows = matrix->get_size()[0];
-  const auto mat_cols = matrix->get_size()[1];
-  auto row_ptrs = matrix->get_row_ptrs();
-  auto col_idxs = matrix->get_col_idxs();
-  auto mat_data = matrix->get_values();
-  int idx = 0;
+  sunindextype  mat_rows = matrix->get_size()[0];
+  sunindextype  mat_cols = matrix->get_size()[1];
+  sunindextype* row_ptrs = matrix->get_row_ptrs();
+  sunindextype* col_idxs = matrix->get_col_idxs();
+  sunrealtype*  mat_data = matrix->get_values();
 
+#if defined(USE_CUDA) || defined(USE_HIP)
+  unsigned threads_per_block = 256;
+  unsigned num_blocks = (mat_rows + threads_per_block - 1) / threads_per_block;
+
+  fill_kernel<<<num_blocks, threads_per_block>>>
+    (mat_rows, mat_cols, row_ptrs, col_idxs, mat_data);
+  HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); );
+#else
   // Matrix entries
   const sunrealtype vals[] = {-1, 2, -1};
 
   // Fill matrix
+  int idx = 0;
   row_ptrs[0] = idx;
   for (auto row = 0; row < mat_rows; ++row)
   {
@@ -91,13 +172,23 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
     }
     row_ptrs[row + 1] = idx;
   }
+#endif
 }
 
 void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
 {
-  const auto mat_rows = matrix->get_size()[0];
-  const auto mat_cols = matrix->get_size()[1];
+  sunindextype mat_rows = matrix->get_size()[0];
+  sunindextype mat_cols = matrix->get_size()[1];
+  sunrealtype* mat_data = matrix->get_values();
 
+#if defined(USE_CUDA)
+  unsigned threads_per_block = 256;
+  unsigned num_blocks = (mat_rows + threads_per_block - 1) / threads_per_block;
+
+  fill_kernel<<<num_blocks, threads_per_block>>>
+    (mat_rows, mat_cols, mat_data);
+  HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); );
+#else
   // Matrix entries
   const sunrealtype vals[] = {-1, 2, -1};
 
@@ -109,10 +200,13 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
       auto col = row + diag_offset;
       if (0 <= col && col < mat_cols)
       {
-        matrix->at(row, col) = vals[diag_offset + 1];
+        // Data stored in row-major format
+        auto idx = row * mat_cols + col;
+        mat_data[idx] = vals[diag_offset + 1];
       }
     }
   }
+#endif
 }
 
 /* -------------------------------------------------------------------------- *
@@ -152,9 +246,11 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
 #if defined(USE_HIP)
-  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), true)};
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
+                                         gko::allocation_mode::device)};
 #elif defined(USE_CUDA)
-  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true)};
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
+                                          gko::allocation_mode::device)};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
 #else
@@ -304,6 +400,7 @@ int main(int argc, char* argv[])
     }
     else
     {
+      gko_matrix->fill(0.0);
       fill_matrix(gko::lend(gko_matrix));
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>
