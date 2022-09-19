@@ -58,6 +58,12 @@ foreach(example_tuple ${CVODE_examples})
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
+    # directories to include
+    target_include_directories(${example}
+      PRIVATE
+      ${PROJECT_SOURCE_DIR}/examples/utilities
+    )
+
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
   endif()
