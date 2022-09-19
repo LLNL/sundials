@@ -30,6 +30,9 @@
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 
+// Common utility functions
+#include <example_utilities.hpp>
+
 // Macros for problem constants
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)
@@ -104,70 +107,6 @@ static int true_sol(realtype t, realtype* u, realtype* v)
 // Utility functions
 // -----------------------------------------------------------------------------
 
-// Check function return flag
-int check_flag(int flag, const std::string funcname)
-{
-  if (!flag) return 0;
-  if (flag < 0) std::cerr << "ERROR: ";
-  std::cerr << funcname << " returned " << flag << std::endl;
-  return 1;
-}
-
-// Check if a function returned a NULL pointer
-int check_ptr(void *ptr, const std::string funcname)
-{
-  if (ptr) return 0;
-  std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
-  return 1;
-}
-
-inline void find_arg(std::vector<std::string> &args, const std::string key, realtype &dest)
-{
-  auto it = find(args.begin(), args.end(), key);
-  if (it != args.end())
-  {
-#if defined(SUNDIALS_SINGLE_PRECISION)
-    dest = stof(*(it + 1));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    dest = stod(*(it + 1));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-    dest = stold(*(it + 1));
-#endif
-    args.erase(it, it + 2);
-  }
-}
-
-inline void find_arg(std::vector<std::string> &args, const std::string key, long int &dest)
-{
-  auto it = find(args.begin(), args.end(), key);
-  if (it != args.end())
-  {
-    dest = stoll(*(it + 1));
-    args.erase(it, it + 2);
-  }
-}
-
-inline void find_arg(std::vector<std::string> &args, const std::string key, int &dest)
-{
-  auto it = find(args.begin(), args.end(), key);
-  if (it != args.end())
-  {
-    dest = stoi(*(it + 1));
-    args.erase(it, it + 2);
-  }
-}
-
-inline void find_arg(std::vector<std::string> &args, const std::string key, bool &dest,
-                     bool store = true)
-{
-  auto it = find(args.begin(), args.end(), key);
-  if (it != args.end())
-  {
-    dest = store;
-    args.erase(it);
-  }
-}
-
 // Print command line options
 void InputHelp()
 {
@@ -180,7 +119,7 @@ void InputHelp()
   std::cout << "  --nout         : number of outputs\n";
 }
 
-int ReadInputs(std::vector<std::string> &args, Options &opts, SUNContext ctx)
+int ReadInputs(std::vector<std::string> &args, Options &opts)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {

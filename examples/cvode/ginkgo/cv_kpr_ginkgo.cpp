@@ -36,6 +36,10 @@ using SUNGkoMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
 using SUNGkoSolverType = sundials::ginkgo::LinearSolver<GkoSolverType,
                                                         GkoMatrixType>;
 
+// -----------------------------------------------------------------------------
+// Main Program
+// -----------------------------------------------------------------------------
+
 int main(int argc, char* argv[])
 {
   // SUNDIALS context object for this simulation
@@ -45,7 +49,7 @@ int main(int argc, char* argv[])
   Options opts;
   std::vector<std::string> args(argv + 1, argv + argc);
 
-  int flag = ReadInputs(args, opts, sunctx);
+  int flag = ReadInputs(args, opts);
   if (check_flag(flag, "ReadInputs")) return 1;
 
   // Create initial condition vector
