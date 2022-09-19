@@ -24,11 +24,9 @@
 #include <sstream>
 #include <vector>
 
-// Include integrator, matrix, linear solver, and vector headers
-#include <cvode/cvode.h>
-#include <nvector/nvector_serial.h>
-#include <sunmatrix/sunmatrix_ginkgo.hpp>
-#include <sunlinsol/sunlinsol_ginkgo.hpp>
+// SUNDIALS types
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_nvector.h>
 
 // Common utility functions
 #include <example_utilities.hpp>
@@ -47,55 +45,44 @@
 struct Options
 {
   // Relative and absolute tolerances
-  realtype rtol = RCONST(1.0e-6);
-  realtype atol = RCONST(1.0e-10);
+  sunrealtype rtol = RCONST(1.0e-6);
+  sunrealtype atol = RCONST(1.0e-10);
 
   // Output options
-  realtype dtout = ONE; // output interval
-  int      nout  = 10;  // number of outputs
+  sunrealtype dtout = ONE; // output interval
+  int         nout  = 10;  // number of outputs
 };
-
-// -----------------------------------------------------------------------------
-// Functions provided to the SUNDIALS integrators
-// -----------------------------------------------------------------------------
-
-// ODE right-hand side function
-int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-
-// Jacobian of RHS function
-int J(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
 // Helper functions
 // -----------------------------------------------------------------------------
 
 // Compute r(t)
-static realtype r(realtype t)
+inline sunrealtype r(sunrealtype t)
 {
   return HALF * cos(t);
 }
 
 // Compute the derivative of r(t)
-static realtype rdot(realtype t)
+inline sunrealtype rdot(sunrealtype t)
 {
   return -HALF * sin(t);
 }
 
 // Compute s(t)
-static realtype s(realtype t)
+inline sunrealtype s(sunrealtype t)
 {
   return cos(TWENTY * t);
 }
 
 // Compute the derivative of s(t)
-static realtype sdot(realtype t)
+inline sunrealtype sdot(sunrealtype t)
 {
   return -TWENTY * sin(TWENTY * t);
 }
 
 // Compute the true solution
-static int true_sol(realtype t, realtype* u, realtype* v)
+inline int true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
 {
   *u = sqrt(ONE + r(t));
   *v = sqrt(TWO + s(t));

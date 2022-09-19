@@ -29,12 +29,29 @@
 
 #include "cv_kpr_ginkgo.hpp"
 
+// Include integrator, matrix, linear solver, and vector headers
+#include <cvode/cvode.h>
+#include <nvector/nvector_serial.h>
+#include <sunmatrix/sunmatrix_ginkgo.hpp>
+#include <sunlinsol/sunlinsol_ginkgo.hpp>
+
 using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
 using GkoSolverType = gko::solver::Gmres<sunrealtype>;
 
 using SUNGkoMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
 using SUNGkoSolverType = sundials::ginkgo::LinearSolver<GkoSolverType,
                                                         GkoMatrixType>;
+
+// -----------------------------------------------------------------------------
+// Functions provided to the SUNDIALS integrators
+// -----------------------------------------------------------------------------
+
+// ODE right-hand side function
+int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+
+// Jacobian of RHS function
+int J(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -122,7 +139,7 @@ int main(int argc, char* argv[])
   std::cout << "          u              ";
   std::cout << "          v              ";
   std::cout << "        u err            ";
-  std::cout << "        v err            " << std::endl;
+  std::cout << "        v err" << std::endl;
   for (int i = 0; i < 9; i++)
     std::cout << "--------------";
   std::cout << std::endl;
