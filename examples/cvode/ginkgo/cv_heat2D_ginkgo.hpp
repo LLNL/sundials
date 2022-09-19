@@ -48,9 +48,6 @@ struct UserData
   sunrealtype kx = ONE;
   sunrealtype ky = ONE;
 
-  // Enable/disable forcing
-  bool forcing = true;
-
   // Final time
   sunrealtype tf = ONE;
 
@@ -196,7 +193,7 @@ void PrintUserData(UserData &udata)
 {
   std::cout
     << std::endl
-    << "2D Heat PDE test problem:\n"
+    << "2D Heat problem:\n"
     << " ----------------------------\n"
     << "  kx        = " << udata.kx << "\n"
     << "  ky        = " << udata.ky << "\n"
@@ -227,7 +224,7 @@ int OpenOutput(UserData &udata)
     << std::scientific
     << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
     << "          t                     ||u||_rms      "
-    << "          max error      \n"
+    << "          max error\n"
     << " ----------------------------------------------"
     << "-------------------------\n";
 
