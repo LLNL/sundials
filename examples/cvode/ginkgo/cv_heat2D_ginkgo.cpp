@@ -133,8 +133,13 @@ int main(int argc, char* argv[])
             .with_max_iters(static_cast<gko::uint64>(udata.liniters))
             .on(gko_exec)};
 
+  // Use Jacobi preconditioner
+  auto precon{gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build()
+              .on(gko_exec)};
+
   auto gko_solver_factory = gko::share(GkoSolverType::build()
                                        .with_criteria(std::move(crit))
+                                       .with_preconditioner(std::move(precon))
                                        .on(gko_exec));
 
   SUNGkoSolverType LS{gko_solver_factory, sunctx};
