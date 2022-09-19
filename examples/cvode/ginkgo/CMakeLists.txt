@@ -16,6 +16,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 set(CVODE_examples
+  "cv_heat2D_ginkgo.cpp\;\;"
   "cv_kpr_ginkgo.cpp\;\;"
 )
 
