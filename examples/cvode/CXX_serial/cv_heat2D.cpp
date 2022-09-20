@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 
   // Create solution vector
   N_Vector u = N_VNew_Serial(udata.nodes, sunctx);
-  if (check_ptr(u, "N_VNew_Parallel")) return 1;
+  if (check_ptr(u, "N_VNew_Serial")) return 1;
 
   // Set initial condition
   int flag = Solution(ZERO, u, udata);
