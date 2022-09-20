@@ -28,6 +28,12 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
 
+#if defined(USE_CUDA)
+#include <nvector/nvector_cuda.h>
+#elif defined(USE_HIP)
+#include <nvector/nvector_hip.h>
+#endif
+
 // Common utility functions
 #include <example_utilities.hpp>
 
@@ -86,32 +92,77 @@ struct UserData
 // Utility functions
 // -----------------------------------------------------------------------------
 
+// GPU kernel to compute the ODE RHS function f(t,y).
+__global__
+void solution_kernel(const sunindextype nx, const sunindextype ny,
+                     const sunrealtype dx, const sunrealtype dy,
+                     const sunrealtype cos_sqr_t,
+                     sunrealtype* uarray)
+{
+  const sunindextype i = blockIdx.x * blockDim.x + threadIdx.x;
+  const sunindextype j = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1)
+  {
+    auto x = i * dx;
+    auto y = j * dy;
+
+    auto sin_sqr_x = sin(PI * x) * sin(PI * x);
+    auto sin_sqr_y = sin(PI * y) * sin(PI * y);
+
+    auto idx = i + j * nx;
+    uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
+  }
+}
+
 // Compute the exact solution
 int Solution(sunrealtype t, N_Vector u, UserData &udata)
 {
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
-
-  // Initialize u to zero (handles boundary conditions)
-  N_VConst(ZERO, u);
+  // Access problem data and set shortcuts
+  const auto nx = udata.nx;
+  const auto ny = udata.ny;
+  const auto dx = udata.dx;
+  const auto dy = udata.dy;
 
   // Compute the true solution
   auto cos_sqr_t = cos(PI * t) * cos(PI * t);
 
-  for (sunindextype j = 1; j < udata.ny - 1; j++)
+  // Initialize u to zero (handles boundary conditions)
+  N_VConst(ZERO, u);
+
+#if defined(USE_CUDA) || defined(USE_HIP)
+
+  sunrealtype *uarray = N_VGetDeviceArrayPointer(u);
+  if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
+
+  dim3 threads_per_block{16, 16};
+  dim3 num_blocks{(nx + threads_per_block.x - 1) / threads_per_block.x,
+                  (ny + threads_per_block.y - 1) / threads_per_block.y};
+
+  solution_kernel<<<num_blocks, threads_per_block>>>
+    (nx, ny, dx, dy, cos_sqr_t, uarray);
+
+#else
+
+  sunrealtype *uarray = N_VGetArrayPointer(u);
+  if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
+
+  for (sunindextype j = 1; j < ny - 1; j++)
   {
-    for (sunindextype i = 1; i < udata.nx - 1; i++)
+    for (sunindextype i = 1; i < nx - 1; i++)
     {
-      auto x = i * udata.dx;
-      auto y = j * udata.dy;
+      auto x = i * dx;
+      auto y = j * dy;
 
       auto sin_sqr_x = sin(PI * x) * sin(PI * x);
       auto sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      auto idx = i + j * udata.nx;
+      auto idx = i + j * nx;
       uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
     }
   }
+
+#endif
 
   return 0;
 }
@@ -273,6 +324,16 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
   // Write solution and error to disk
   if (udata.output)
   {
+    // Copy data from the device if necessary
+#if defined(USE_CUDA)
+    N_VCopyFromDevice_Cuda(u);
+    N_VCopyFromDevice_Cuda(e);
+#elif defined(USE_HIP)
+    N_VCopyFromDevice_Hip(u);
+    N_VCopyFromDevice_Hip(e);
+#endif
+
+    // Access host data array
     sunrealtype *uarray = N_VGetArrayPointer(u);
     if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
 
@@ -283,7 +344,7 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
     }
     udata.uout << std::endl;
 
-    // Output error to disk
+    // Access host data array
     sunrealtype *earray = N_VGetArrayPointer(e);
     if (check_ptr(earray, "N_VGetArrayPointer")) return -1;
 

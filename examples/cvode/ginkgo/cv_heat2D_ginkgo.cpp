@@ -51,14 +51,14 @@
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 
-#if defined(USE_HIP)
-#include <nvector/nvector_hip.h>
-#define HIP_OR_CUDA(a, b) a
-constexpr auto N_VNew = N_VNew_Hip;
-#elif defined(USE_CUDA)
+#if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
 #define HIP_OR_CUDA(a, b) b
 constexpr auto N_VNew = N_VNew_Cuda;
+#elif defined(USE_HIP)
+#include <nvector/nvector_hip.h>
+#define HIP_OR_CUDA(a, b) a
+constexpr auto N_VNew = N_VNew_Hip;
 #elif defined(USE_OMP)
 #include <nvector/nvector_serial.h>
 #define HIP_OR_CUDA(a, b)
@@ -323,13 +323,6 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
   const auto kx = udata->kx;
   const auto ky = udata->ky;
 
-  // Access data arrays
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
-
-  sunrealtype *farray = N_VGetArrayPointer(f);
-  if (check_ptr(farray, "N_VGetArrayPointer")) return -1;
-
   // Constants for computing f(t,y)
   const sunrealtype cx = kx / (dx * dx);
   const sunrealtype cy = ky / (dy * dy);
@@ -346,6 +339,14 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 
 #if defined(USE_CUDA) || defined(USE_HIP)
 
+  // Access device data arrays
+  sunrealtype *uarray = N_VGetDeviceArrayPointer(u);
+  if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
+
+  sunrealtype *farray = N_VGetDeviceArrayPointer(f);
+  if (check_ptr(farray, "N_VGetDeviceArrayPointer")) return -1;
+
+
   dim3 threads_per_block{16, 16};
   dim3 num_blocks{(nx + threads_per_block.x - 1) / threads_per_block.x,
                   (ny + threads_per_block.y - 1) / threads_per_block.y};
@@ -357,6 +358,13 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); );
 
 #else
+
+  // Access host data arrays
+  sunrealtype *uarray = N_VGetArrayPointer(u);
+  if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
+
+  sunrealtype *farray = N_VGetArrayPointer(f);
+  if (check_ptr(farray, "N_VGetArrayPointer")) return -1;
 
   // Iterate over domain interior and fill the RHS vector
   for (sunindextype j = 1; j < ny - 1; j++)
@@ -420,7 +428,7 @@ void J_sn_kernel(const sunindextype nx, const sunindextype ny,
     row_ptrs[col] = idx;
   }
 
-  if (i == nx)
+  if (i == nx - 1)
     row_ptrs[nx * ny] = (5 * (nx - 2) + 2) * (ny - 2) + 2 * nx;
 }
 
