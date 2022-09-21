@@ -25,7 +25,7 @@ set(examples
   "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
-  )
+)
 
 # Add source directory to include directories
 include_directories(..)
@@ -53,10 +53,7 @@ if(EXAMPLES_INSTALL)
     CPU_GPU_EXAMPLES_VAR
       examples
     SUNDIALS_COMPONENTS
-      generic
       ${vectors}
-    SUNDIALS_TARGETS
-      generic
     DEPENDENCIES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
