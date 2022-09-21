@@ -26,11 +26,11 @@
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set Runge Kutta methods.
 
-  Input:  imeth -- integer key for the desired method
+  Input:  emthod -- integer key for the desired method
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID imethod) {
+ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod) {
   // Use X-macro to test each method name
-  switch (imethod) {
+  switch (emethod) {
 #define ARK_BUTCHER_TABLE(name, coeff) case name: coeff break;
 #include "arkode_butcher_erk.def"
 #undef ARK_BUTCHER_TABLE
@@ -47,21 +47,21 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID imethod) {
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set Runge Kutta methods.
 
-  Input:  method -- string key for the desired method
+  Input:  emethod -- string key for the desired method
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char *method) {
-  return ARKodeButcherTable_LoadERK(arkButcherTableERKNameToID(method));
+ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char *emethod) {
+  return ARKodeButcherTable_LoadERK(arkButcherTableERKNameToID(emethod));
 }
 
 
 /*---------------------------------------------------------------
   Returns Butcher table ID for pre-set Runge Kutta methods.
 
-  Input:  method -- string key for the desired method
+  Input:  emethod -- string key for the desired method
   ---------------------------------------------------------------*/
-ARKODE_ERKTableID arkButcherTableERKNameToID(const char *method) {
+ARKODE_ERKTableID arkButcherTableERKNameToID(const char *emethod) {
   // Use X-macro to test each method name
-#define ARK_BUTCHER_TABLE(name, coeff) if (strcmp(#name, method) == 0) { return name; }
+#define ARK_BUTCHER_TABLE(name, coeff) if (strcmp(#name, emethod) == 0) { return name; }
 #include "arkode_butcher_erk.def"
 #undef ARK_BUTCHER_TABLE
 

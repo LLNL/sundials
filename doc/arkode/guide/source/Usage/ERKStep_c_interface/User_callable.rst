@@ -992,6 +992,8 @@ Optional inputs for IVP method selection
    +----------------------------------+---------------------------------+------------------+
    | Specify explicit RK table number | :c:func:`ERKStepSetTableNum()`  | internal         |
    +----------------------------------+---------------------------------+------------------+
+   | Specify explicit RK table name   | :c:func:`ERKStepSetTableName()` | internal         |
+   +----------------------------------+---------------------------------+------------------+
 
 
 
@@ -1068,6 +1070,25 @@ Optional inputs for IVP method selection
       to ensure that the table exists, and is not implicit.
 
 
+
+.. c:function:: int ERKStepSetTableName(void* arkode_mem, const char *etable)
+
+   Indicates to use a specific built-in Butcher table for the ERK method.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *etable* -- name of the Butcher table.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      *etable* should match an existing explicit method from
+      :numref:`Butcher.explicit`.  Error-checking is performed
+      to ensure that the table exists, and is not implicit.
+      This function is case sensitive.
 
 
 

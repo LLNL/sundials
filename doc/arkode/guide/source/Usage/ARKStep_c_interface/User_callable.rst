@@ -1,4 +1,4 @@
-.. ----------------------------------------------------------------
+
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -1399,6 +1399,7 @@ Specify explicit problem           :c:func:`ARKStepSetExplicit()`     ``SUNFALSE
 Specify implicit problem           :c:func:`ARKStepSetImplicit()`     ``SUNFALSE``
 Set additive RK tables             :c:func:`ARKStepSetTables()`       internal
 Specify additive RK table numbers  :c:func:`ARKStepSetTableNum()`     internal
+Specify additive RK table names    :c:func:`ARKStepSetTableName()`    internal
 =================================  =================================  ==============
 
 
@@ -1581,6 +1582,45 @@ Specify additive RK table numbers  :c:func:`ARKStepSetTableNum()`     internal
       In all cases, error-checking is performed to ensure that the tables
       exist.
 
+
+
+
+.. c:function:: int ARKStepSetTableName(void* arkode_mem, const char *itable, const char *etable)
+
+   Indicates to use specific built-in Butcher tables for the ERK, DIRK
+   or ARK method.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *itable* -- name of the DIRK Butcher table.
+      * *etable* -- name of the ERK Butcher table.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      The allowable values for both the *itable* and *etable* arguments
+      corresponding to built-in tables may be found in :numref:`Butcher`.
+      This function is case sensitive.
+
+      To choose an explicit table, set *itable* to ``"ARKODE_DIRK_NONE"``.
+      This automatically calls :c:func:`ARKStepSetExplicit()`.  However,
+      if the problem is posed in explicit form, i.e. :math:`\dot{y} =
+      f(t,y)`, then we recommend that the ERKStep time-stepper module be
+      used instead of ARKStep.
+
+      To select an implicit table, set *etable* to ``"ARKODE_ERK_NONE"``.
+      This automatically calls :c:func:`ARKStepSetImplicit()`.
+
+      If both *itable* and *etable* are not none, then these should match
+      an existing implicit/explicit pair, listed in
+      :numref:`Butcher.additive`.  This automatically calls
+      :c:func:`ARKStepSetImEx()`.
+
+      In all cases, error-checking is performed to ensure that the tables
+      exist.
 
 
 

@@ -26,7 +26,7 @@
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set DIRK methods.
 
-  Input:  imeth -- integer key for the desired method
+  Input:  imethod -- integer key for the desired method
   ---------------------------------------------------------------*/
 ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod) {
   // Use X-macro to test each method name
@@ -49,8 +49,8 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod) {
 
   Input:  method -- string key for the desired method
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *method) {
-  return ARKodeButcherTable_LoadDIRK(arkButcherTableDIRKNameToID(method));
+ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *imethod) {
+  return ARKodeButcherTable_LoadDIRK(arkButcherTableDIRKNameToID(imethod));
 }
 
 
@@ -59,9 +59,9 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *method) {
 
   Input:  method -- string key for the desired method
   ---------------------------------------------------------------*/
-ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *method) {
+ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *imethod) {
   // Use X-macro to test each method name
-#define ARK_BUTCHER_TABLE(name, coeff) if (strcmp(#name, method) == 0) { return name; }
+#define ARK_BUTCHER_TABLE(name, coeff) if (strcmp(#name, imethod) == 0) { return name; }
 #include "arkode_butcher_dirk.def"
 #undef ARK_BUTCHER_TABLE
 

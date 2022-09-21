@@ -148,7 +148,7 @@ struct MRIStepCouplingMem
 typedef _SUNDIALS_STRUCT_ MRIStepCouplingMem *MRIStepCoupling;
 
 /* Accessor routine to load built-in MRI table */
-SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID imethod);
+SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method);
 
 /* Accessor routine to load built-in MRI table from string */
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTableByName(const char *method);

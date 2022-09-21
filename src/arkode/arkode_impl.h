@@ -1026,8 +1026,8 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile,
                      SUNOutputFormat fmt);
 char *arkGetReturnFlagName(long int flag);
 
-ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *method);
-ARKODE_ERKTableID arkButcherTableERKNameToID(const char *method);
+ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *imethod);
+ARKODE_ERKTableID arkButcherTableERKNameToID(const char *emethod);
 
 /* XBraid interface functions */
 int arkSetForcePass(void *arkode_mem, booleantype force_pass);

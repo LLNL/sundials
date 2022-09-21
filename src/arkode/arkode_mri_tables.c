@@ -34,9 +34,9 @@
 
   Input:  imeth -- integer key for the desired method
   ---------------------------------------------------------------*/
-MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID imethod)
+MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
 {
-  switch (imethod) {
+  switch (method) {
 #define ARK_BUTCHER_TABLE(name, coeff) case name: coeff break;
 #include "arkode_mri_tables.def"
 #undef ARK_BUTCHER_TABLE
