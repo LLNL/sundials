@@ -81,15 +81,13 @@ int main(int argc, char *argv[])
   }
 
   nvecs = (int) atol(argv[2]);
-  if (nvecs <= 0) {
-    printf("ERROR: number of vectors must be a positive integer \n");
-    return(-1);
+  if (nvecs < 1) {
+    printf("WARNING: Fused operation tests disabled\n");
   }
 
   nsums = (int) atol(argv[3]);
-  if (nsums <= 0) {
-    printf("ERROR: number of sums must be a positive integer \n");
-    return(-1);
+  if (nsums < 1) {
+    printf("WARNING: Some fused operation tests disabled\n");
   }
 
   ntests = (int) atol(argv[4]);
@@ -149,25 +147,31 @@ int main(int argc, char *argv[])
   flag = Test_N_VConstrMask(X, veclen, ntests);
   flag = Test_N_VMinQuotient(X, veclen, ntests);
 
-  if (myid == 0 && print_timing) {
-    printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
-    PrintTableHeader(2);
-  }
-  flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
-  flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
-  flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
-  flag = Test_N_VLinearSumVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VScaleVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VConstVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VWrmsNormVectorArray(X, veclen, nvecs, ntests);
-  flag = Test_N_VWrmsNormMaskVectorArray(X, veclen, nvecs, ntests);
+  if (nvecs > 0)
+  {
+    if (myid == 0 && print_timing) {
+      printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
+      PrintTableHeader(2);
+    }
+    flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
+    flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
+    flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
+    flag = Test_N_VLinearSumVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VScaleVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VConstVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VWrmsNormVectorArray(X, veclen, nvecs, ntests);
+    flag = Test_N_VWrmsNormMaskVectorArray(X, veclen, nvecs, ntests);
 
-  if (myid == 0 && print_timing) {
-    printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
-    PrintTableHeader(2);
+    if (nsums > 0)
+    {
+      if (myid == 0 && print_timing) {
+        printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
+        PrintTableHeader(2);
+      }
+      flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
+      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
+    }
   }
-  flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
-  flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
 
   /* Free vectors */
   N_VDestroy(N_VGetLocalVector_MPIPlusX(X));

@@ -1635,18 +1635,22 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    ARKStep predictor:\n");
-    N_VPrint(step_mem->zpred);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::arkStep_TakeStep_Z", "predictor",
+                       "zpred =", "");
+    N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
     /* set up explicit data for evaluation of ARK stage (store in sdata) */
     retval = arkStep_StageSetup(ark_mem, implicit_stage);
     if (retval != ARK_SUCCESS)  return (retval);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    ARKStep rhs data:\n");
-    N_VPrint(step_mem->sdata);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::arkStep_TakeStep_Z", "rhs data",
+                       "sdata =", "");
+    N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
     /* solver diagnostics reporting */
@@ -1662,9 +1666,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       *nflagPtr = arkStep_Nls(ark_mem, *nflagPtr);
       if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-      printf("    ARKStep implicit stage %i solution:\n",is);
-      N_VPrint(ark_mem->ycur);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                         "ARKODE::arkStep_TakeStep_Z", "implicit stage",
+                         "z[%i] =", is);
+      N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
     /* otherwise no implicit solve is needed */
@@ -1684,11 +1690,12 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
          or updated in prev. block) */
       N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-      printf("    ARKStep explicit stage %i solution:\n",is);
-      N_VPrint(ark_mem->ycur);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                         "ARKODE::arkStep_TakeStep_Z", "explicit stage",
+                         "z[%i] =", is);
+      N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
-
     }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1720,9 +1727,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                      -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
       }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-      printf("    ARKStep implicit stage RHS Fi[%i]:\n",is);
-      N_VPrint(step_mem->Fi[is]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                         "ARKODE::arkStep_TakeStep_Z", "implicit RHS",
+                         "Fi[%i] =", is);
+      N_VPrintFile(step_mem->Fi[is], ARK_LOGGER->debug_fp);
 #endif
 
       if (retval < 0)  return(ARK_RHSFUNC_FAIL);
@@ -1743,9 +1752,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                               ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
         step_mem->nfe++;
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-        printf("    ARKStep explicit stage RHS Fe[%i]:\n",is);
-        N_VPrint(step_mem->Fe[is]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
+                           "Fe[%i] =", is);
+        N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
 #endif
 
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
@@ -1790,13 +1801,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     return(TRY_AGAIN);
   }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    ARKStep updated solution:\n");
-    N_VPrint(ark_mem->ycur);
-#endif
-
-#ifdef SUNDIALS_DEBUG
-  printf("    ARKStep error estimate = %"RSYM"\n", *dsmPtr);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::arkStep_TakeStep_Z", "updated solution",
+                     "ycur =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
   /* solver diagnostics reporting */
