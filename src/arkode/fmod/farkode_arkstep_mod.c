@@ -669,6 +669,22 @@ SWIGEXPORT int _wrap_FARKStepSetTableNum(void *farg1, int const *farg2, int cons
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  result = (int)ARKStepSetTableName(arg1,(char const *)arg2,(char const *)arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetCFLFraction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
