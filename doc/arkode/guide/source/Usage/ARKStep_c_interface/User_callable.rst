@@ -1496,8 +1496,7 @@ Specify additive RK table names    :c:func:`ARKStepSetTableName()`    internal
 
 .. c:function:: int ARKStepSetTables(void* arkode_mem, int q, int p, ARKodeButcherTable Bi, ARKodeButcherTable Be)
 
-   Specifies a customized Butcher table (or pair) for the ERK, DIRK,
-   or ARK method.
+   Specifies a customized Butcher table (or pair) for the ERK, DIRK, or ARK method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1535,8 +1534,13 @@ Specify additive RK table names    :c:func:`ARKStepSetTableName()`    internal
       checking is performed to ensure that either *p* or *q* correctly describe the
       coefficients that were input.
 
-      Error checking is performed on *Bi* and *Be* (if non-NULL) to ensure
-      that they specify DIRK and ERK methods, respectively.
+      Error checking is subsequently performed at ARKStep initialization to ensure
+      that *Bi* and *Be* (if non-NULL) specify DIRK and ERK methods, respectively.
+      Specifically, the *A* member of *Bi* must be lower triangular with at least
+      one nonzero value on the diagonal, and the *A* member of *Be* must be strictly
+      lower triangular.  When both *Bi* and *Be* are non-NULL, they must agree on
+      the number of internal stages, i.e., the *stages* members of both structures
+      must match.
 
       If the inputs *Bi* or *Be* do not contain an embedding (when the
       corresponding explicit or implicit table is non-NULL), the user *must* call

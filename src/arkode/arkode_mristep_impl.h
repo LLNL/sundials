@@ -251,8 +251,8 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper,
                                   FILE* outfile);
 
 /* Compute forcing for inner stepper */
-int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem, int stage,
-                                realtype cdiff);
+int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
+                                int stage, realtype cdiff);
 
 /* Return effective RK coefficients (nofast stage) */
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int *stage_map,
