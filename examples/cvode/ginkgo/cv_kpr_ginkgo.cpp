@@ -178,8 +178,6 @@ int main(int argc, char* argv[])
 
   // Clean up and return with successful completion
   N_VDestroy(y);
-  SUNMatDestroy(A);
-  SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);
 
   return 0;
