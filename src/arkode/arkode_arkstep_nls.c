@@ -335,9 +335,11 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
                              ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("    ARKStep nonlinear solution zcor:\n");
-  N_VPrint(step_mem->zcor);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::arkStep_Nls", "correction",
+                     "zcor =", "");
+  N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp);
 #endif
 
   /* increment counters */
