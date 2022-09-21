@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
   std::cout << std::setw(22) << tret
        << std::setw(25) << ydata[0]
        << std::setw(25) << ydata[1]
-       << std::setw(25) << abs(ydata[0] - utrue)
-       << std::setw(25) << abs(ydata[1] - vtrue) << std::endl;
+       << std::setw(25) << std::abs(ydata[0] - utrue)
+       << std::setw(25) << std::abs(ydata[1] - vtrue) << std::endl;
 
   // Advance in time
   for (int i = 0; i < opts.nout; i++)
@@ -143,8 +143,8 @@ int main(int argc, char* argv[])
     std::cout << std::setw(22) << tret
          << std::setw(25) << ydata[0]
          << std::setw(25) << ydata[1]
-         << std::setw(25) << abs(ydata[0] - utrue)
-         << std::setw(25) << abs(ydata[1] - vtrue) << std::endl;
+         << std::setw(25) << std::abs(ydata[0] - utrue)
+         << std::setw(25) << std::abs(ydata[1] - vtrue) << std::endl;
 
     // update output time
     tout += opts.dtout;
