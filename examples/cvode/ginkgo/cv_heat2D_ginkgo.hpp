@@ -92,6 +92,7 @@ struct UserData
 // Utility functions
 // -----------------------------------------------------------------------------
 
+#if defined(USE_CUDA) || defined(USE_HIP)
 // GPU kernel to compute the ODE RHS function f(t,y).
 __global__
 void solution_kernel(const sunindextype nx, const sunindextype ny,
@@ -114,6 +115,7 @@ void solution_kernel(const sunindextype nx, const sunindextype ny,
     uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
   }
 }
+#endif
 
 // Compute the exact solution
 int Solution(sunrealtype t, N_Vector u, UserData &udata)
