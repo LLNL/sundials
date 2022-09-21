@@ -49,9 +49,11 @@ if(EXAMPLES_INSTALL)
       cpu_examples
     CPU_GPU_EXAMPLES_VAR
       cpu_gpu_examples
-    SUNDIALS_TARGETS
+    SUNDIALS_COMPONENTS
       cvode
       ${vectors}
+    SUNDIALS_TARGETS
+      cvode
     EXTRA_FILES
       "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
     DESTINATION

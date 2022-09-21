@@ -149,14 +149,13 @@ macro(add_examples EXAMPLES_VAR)
       target_compile_definitions(${example_target}
         PRIVATE USE_${backend})
 
-      # libraries to link against >>> NEED TO REMOVE SUNDIALS::cvode use sundials_generic? <<<
+      # libraries to link against
       target_link_libraries(${example_target}
         PRIVATE
-        SUNDIALS::cvode
+        @EXAMPLES_CMAKE_TARGETS@
         SUNDIALS::${vector}
         Ginkgo::ginkgo
-        ${EXTRA_LIBS}
-      )
+        ${EXTRA_LIBS})
 
       # add the example to ctest
       add_test(NAME ${example_target} COMMAND ${example_target})

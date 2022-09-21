@@ -52,8 +52,11 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples_ginkgo(sunlinsol
     CPU_GPU_EXAMPLES_VAR
       examples
-    SUNDIALS_TARGETS
+    SUNDIALS_COMPONENTS
+      generic
       ${vectors}
+    SUNDIALS_TARGETS
+      generic
     DEPENDENCIES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h

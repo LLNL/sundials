@@ -14,23 +14,30 @@
 # The macro:
 #
 #   sundials_install_examples_ginkgo(<MODULE>
-#     [DESTINATION path]
 #     [CPU_EXAMPLES_VAR var]
 #     [GPU_EXAMPLES_VAR var]
 #     [CPU_GPU_EXAMPLES_VAR var]
+#     [DESTINATION path]
+#     [SUNDIALS_COMPONENTS components]
 #     [SUNDIALS_TARGETS targets]
-#     [EXTRA_FILES files]
 #     [DEPENDENCIES files]
+#     [EXTRA_FILES files]
 #   )
 #
-# adds an install target for examples in EXAMPLES_VAR that go with MODULE (e.g.
-# arkode, nvecserial).
+# adds an install target for each example tuple in CPU_EXAMPLES_VAR,
+# GPU_EXAMPLES_VAR, and CPU_GPU_EXAMPLES_VAR that go with MODULE (e.g. cvode,
+# sunlinsol).
 #
 # The DESTINATION option is the path *within* EXAMPLES_INSTALL_PATH that the
-# files should be installed.
+# files should be installed under.
+#
+# The SUNDIALS_COMPONENTS option is a list of CMake targets in the SUNDIALS::
+# namespace provided to find_package. Note this may be the same as or a superset
+# of SUNDIALS_TARGETS depending on the CMakeLists.txt template.
 #
 # The SUNDIALS_TARGETS option is a list of CMake targets in the SUNDIALS::
-# namespace that the examples need to be linked to.
+# namespace provided to target_link_libraries. Note this may be the same as or a
+# subset of SUNDIALS_COMPONENTS depending on the CMakeLists.txt template.
 #
 # The DEPENDENCIES option is a list of additional source files that the
 # examples are dependent on.
@@ -44,7 +51,7 @@ macro(sundials_install_examples_ginkgo MODULE)
   set(options )
   set(oneValueArgs DESTINATION)
   set(multiValueArgs CPU_EXAMPLES_VAR GPU_EXAMPLES_VAR CPU_GPU_EXAMPLES_VAR
-    SUNDIALS_TARGETS EXTRA_FILES DEPENDENCIES)
+    SUNDIALS_COMPONENTS SUNDIALS_TARGETS EXTRA_FILES DEPENDENCIES)
 
   # Parse keyword arguments/options
   cmake_parse_arguments(arg
@@ -93,8 +100,16 @@ macro(sundials_install_examples_ginkgo MODULE)
   endif()
 
   # components for find_package
-  if(arg_SUNDIALS_TARGETS)
-    list2string(arg_SUNDIALS_TARGETS EXAMPLES_CMAKE_COMPONENTS)
+  if(arg_SUNDIALS_COMPONENTS)
+    list2string(arg_SUNDIALS_COMPONENTS EXAMPLES_CMAKE_COMPONENTS)
+  endif()
+
+  # targets for target_link_libraries
+  foreach(target ${arg_SUNDIALS_TARGETS})
+    list(APPEND target_list SUNDIALS::${target})
+  endforeach()
+  if(target_list)
+    list2string(target_list EXAMPLES_CMAKE_TARGETS)
   endif()
 
   # Generate CMakelists.txt in the binary directory

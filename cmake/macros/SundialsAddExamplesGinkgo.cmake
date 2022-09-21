@@ -13,49 +13,23 @@
 # ------------------------------------------------------------------------------
 # The macro:
 #
-#   SUNDIALS_INSTALL_EXAMPLES(<MODULE> <EXAMPLES_VAR>
-#     DESTINATION path
-#     CMAKE_TEMPLATE name
-#     [MAKE_TEMPLATE name [SOLVER_LIBRARY target]]
-#     [TEST_INSTALL target]
-#     [SUNDIALS_TARGETS targets]
-#     [EXTRA_FILES files]
-#     [EXTRA_INCLUDES includes]
+#   sundials_install_examples_ginkgo(EXAMPLES_VAR
+#     [TARGETS targets]
+#     [BACKENDS backends]
+#     [UNIT_TEST]
 #   )
 #
-# adds an install target for examples in EXAMPLES_VAR that go with MODULE (e.g.
-# arkode, nvecserial).
+# adds a build target for each example tuple in EXAMPLES_VAR.
 #
-# The DESTINATION option is the path *within* EXAMPLES_INSTALL_PATH
-# that the files should be installed.
+# The TARGETS option is a list of CMake targets provided to
+# target_link_libraries.
 #
-# The CMAKE_TEMPLATE option is the name of the examples/templates
-# CMake template to use (e.g. cmakelists_CXX_ex.in)
+# The BACKENDS is a list of Ginkgo backends compatible with the examples in
+# EXAMPLES_VAR.
 #
-# The MAKE_TEMPLATE option is the name of the examples/templates Make
-# template to use
-#
-# The SOLVER_LIBRARY option is used when a MAKE_TEMPLATE is
-# provided. It should be the library name for SUNDIALS solver
-# (e.g. arkode, cvode, ...)
-#
-# The TEST_INSTALL option adds a test_install target with the given
-# target name for the MODULE.
-#
-# The SUNDIALS_TARGETS option is a list of CMake targets in the
-# SUNDIALS:: namespace that the examples need to be linked to.
-#
-# The OTHER_TARGETS option is a list of CMake targets that the
-# examples need to be linked to.
-#
-# The EXAMPLES_DEPENDENCIES option is a list of additional source
-# files that the examples are dependent on.
-#
-# The EXTRA_FILES option is a list of files to install that are not
-# example source code.
-#
-# The EXTRA_INCLUDES option is a list of additional includes to set
-# with INCLUDE_DIRECTORIES.
+# When the UNIT_TEST option is provided sundials_add_test is called with NODIFF
+# so the example return value determines pass/fail. Otherwise, the ANSWER_DIR
+# and ANSWER_FILE are used to set an output file for comparison.
 # ------------------------------------------------------------------------------
 
 # Add the build targets for each CVODE example
@@ -133,15 +107,15 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       # add example to regression tests
       if(${arg_UNIT_TEST})
         sundials_add_test(${test_name} ${example_target}
-          TEST_ARGS ${example_args}
           EXAMPLE_TYPE ${example_type}
+          TEST_ARGS ${example_args}
           NODIFF)
       else()
         sundials_add_test(${test_name} ${example_target}
+          EXAMPLE_TYPE ${example_type}
           TEST_ARGS ${example_args}
           ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-          ANSWER_FILE ${test_name}.out
-          EXAMPLE_TYPE ${example_type})
+          ANSWER_FILE ${test_name}.out)
       endif()
 
     endforeach()
