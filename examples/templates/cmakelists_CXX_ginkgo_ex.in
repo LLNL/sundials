@@ -142,12 +142,14 @@ macro(add_examples EXAMPLES_VAR)
       set(example_target "${example_target}.${backend}")
 
       # create target
-      add_executable(${example_target} ${example} @EXAMPLES_DEPENDENCIES@)
+      add_executable(${example_target}
+        ${example} @EXAMPLES_DEPENDENCIES@)
 
       # which backend to use
-      target_compile_definitions(${example_target} PRIVATE USE_${backend})
+      target_compile_definitions(${example_target}
+        PRIVATE USE_${backend})
 
-      # libraries to link against
+      # libraries to link against >>> NEED TO REMOVE SUNDIALS::cvode use sundials_generic? <<<
       target_link_libraries(${example_target}
         PRIVATE
         SUNDIALS::cvode
@@ -183,23 +185,3 @@ if(cpu_gpu_examples)
   add_examples(cpu_gpu_examples
     BACKENDS REF OMP CUDA HIP)
 endif()
-
-# # Create targets for each example
-# foreach(example ${examples})
-
-#   # get filename without extension
-#   get_filename_component(example_target ${example} NAME_WE)
-
-#   # set the source language
-#   set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
-
-#   # create target with example source files
-#   add_executable(${example_target} ${example} ${examples_dependencies})
-
-#   # libraries to link against
-#   target_link_libraries(${example_target} ${SUNDIALS_TARGETS} ${EXTRA_LIBS})
-
-#   # add the example to ctest
-#   add_test(NAME ${example_target} COMMAND ${example_target})
-
-# endforeach()
