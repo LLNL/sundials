@@ -37,9 +37,9 @@
 MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
 {
   switch (method) {
-#define ARK_BUTCHER_TABLE(name, coeff) case name: coeff break;
+#define ARK_MRI_TABLE(name, coeff) case name: coeff break;
 #include "arkode_mri_tables.def"
-#undef ARK_BUTCHER_TABLE
+#undef ARK_MRI_TABLE
 
     default:
       arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
@@ -57,9 +57,9 @@ MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
   ---------------------------------------------------------------*/
 MRIStepCoupling MRIStepCoupling_LoadTableByName(const char *method)
 {
-#define ARK_BUTCHER_TABLE(name, coeff) if (strcmp(#name, method) == 0) coeff
+#define ARK_MRI_TABLE(name, coeff) if (strcmp(#name, method) == 0) coeff
 #include "arkode_mri_tables.def"
-#undef ARK_BUTCHER_TABLE
+#undef ARK_MRI_TABLE
 
   arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
 	   "MRIStepCoupling_LoadTable",

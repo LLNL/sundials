@@ -28,18 +28,18 @@
     ------------------------------------------------
 */
 
-ARK_BUTCHER_TABLE(ARKODE_MRI_NONE, {
+ARK_MRI_TABLE(ARKODE_MRI_NONE, {
     return NULL;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_MIS_KW3, { /* Schlegel et al., JCAM 226:345-357, 2009 */
+ARK_MRI_TABLE(ARKODE_MIS_KW3, { /* Schlegel et al., JCAM 226:345-357, 2009 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_KNOTH_WOLKE_3_3);
     MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 3, 0);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ERK33a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
+ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK33a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
 
     C->q = 3;
@@ -60,7 +60,7 @@ ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ERK33a, { /* A. Sandu, SINUM 57:2300-2327, 201
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ERK45a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
+ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK45a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 6, MRISTEP_EXPLICIT);
 
     C->q = 4;
@@ -105,7 +105,7 @@ ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ERK45a, { /* A. Sandu, SINUM 57:2300-2327, 201
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
+ARK_MRI_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C;
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNFALSE);
 
@@ -126,7 +126,7 @@ ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 201
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ESDIRK34a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
+ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK34a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(1, 7, MRISTEP_IMPLICIT);
     realtype beta = RCONST(0.4358665215084589994160194511935568425);
 
@@ -156,7 +156,7 @@ ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ESDIRK34a, { /* A. Sandu, SINUM 57:2300-2327, 
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ESDIRK46a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
+ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK46a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 11, MRISTEP_IMPLICIT);
 
     C->q = 4;
@@ -240,7 +240,7 @@ ARK_BUTCHER_TABLE(ARKODE_MRI_GARK_ESDIRK46a, { /* A. Sandu, SINUM 57:2300-2327, 
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_IMEX_MRI_GARK3a, { /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK3a, { /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(1, 8, MRISTEP_IMEX);
     realtype beta = RCONST(0.4358665215084589994160194511935568425);
 
@@ -284,7 +284,7 @@ ARK_BUTCHER_TABLE(ARKODE_IMEX_MRI_GARK3a, { /* R. Chinomona & D. Reynolds SINUM 
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_IMEX_MRI_GARK3b, { /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK3b, { /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(1, 8, MRISTEP_IMEX);
     realtype beta = RCONST(0.4358665215084589994160194511935568425);
 
@@ -333,7 +333,7 @@ ARK_BUTCHER_TABLE(ARKODE_IMEX_MRI_GARK3b, { /* R. Chinomona & D. Reynolds SINUM 
     return C;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_IMEX_MRI_GARK4, { /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK4, { /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 12, MRISTEP_IMEX);
 
     C->q = 4;
