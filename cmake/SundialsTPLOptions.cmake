@@ -108,7 +108,7 @@ sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of libra
 sundials_option(SUPERLUDIST_OpenMP BOOL "Enable SUNDIALS support for SuperLU_DIST OpenMP on-node parallelism" OFF
                 DEPENDS_ON ENABLE_SUPERLUDIST)
 
-sundials_option(SUPERLUDIST_WORKS BOOL "Set to ON to force CMake to accept a given SUPERLUDIST configuration" OFF
+sundials_option(SUPERLUDIST_WORKS BOOL "Set to ON to force CMake to accept a given SuperLU_DIST configuration" OFF
                 DEPENDS_ON ENABLE_SUPERLUDIST
                 ADVANCED)
 
