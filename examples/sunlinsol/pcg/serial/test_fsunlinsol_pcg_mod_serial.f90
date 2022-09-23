@@ -211,6 +211,7 @@ contains
     call FN_VDestroy(b)
     call FN_VDestroy(probdata%d)
     call FN_VDestroy(probdata%s)
+    deallocate(probdata)
 
   end function unit_tests
 
