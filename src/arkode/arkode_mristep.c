@@ -2530,6 +2530,9 @@ int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper)
   /* free the inner forcing and fused op workspace vector */
   mriStepInnerStepper_FreeVecs(*stepper);
 
+  /* free operations structure */
+  free((*stepper)->ops);
+
   /* free inner stepper mem */
   free(*stepper);
   *stepper = NULL;
