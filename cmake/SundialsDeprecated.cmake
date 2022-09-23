@@ -95,14 +95,14 @@ if(DEFINED SUPERLUDIST_LIBRARY_DIR)
   print_warning("The CMake option SUPERLUDIST_LIBRARY_DIR is deprecated"
                 "Use SUPERLUDIST_DIR instead"
                 MODE DEPRECATION)
-  set(SUPERLUDIST_DIR "${SUPERLUDIST_LIBRARY_DIR}/../" CACHE BOOL "SuperLU_DIST directory" FORCE)
+  set(SUPERLUDIST_DIR "${SUPERLUDIST_LIBRARY_DIR}/../" CACHE BOOL "SuperLU_DIST root directory" FORCE)
   unset(SUPERLUDIST_LIBRARY_DIR CACHE)
 endif()
 if(DEFINED SUPERLUDIST_INCLUDE_DIR)
   print_warning("The CMake option SUPERLUDIST_INCLUDE_DIR is deprecated"
                 "Use SUPERLUDIST_INCLUDE_DIRS instead"
                 MODE DEPRECATION)
-  set(SUPERLUDIST_INCLUDE_DIRS "${SUPERLUDIST_INCLUDE_DIR}/../" CACHE BOOL "SuperLU_DIST include directoroes" FORCE)
+  set(SUPERLUDIST_INCLUDE_DIRS "${SUPERLUDIST_INCLUDE_DIR}" CACHE BOOL "SuperLU_DIST include directoroes" FORCE)
   unset(SUPERLUDIST_INCLUDE_DIR CACHE)
 endif()
 

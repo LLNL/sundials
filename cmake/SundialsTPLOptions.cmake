@@ -97,7 +97,7 @@ sundials_option(ENABLE_SUPERLUDIST BOOL "Enable SuperLU_DIST support" OFF)
 sundials_option(SUPERLUDIST_DIR PATH "SuperLU_DIST directory" "${SUPERLUDIST_DIR}"
                 DEPENDS_ON ENABLE_SUPERLUDIST)
 
-sundials_option(SUPERLUDIST_INCLUDE_DIR PATH "SuperLU_DIST include directory" "${SUPERLUDIST_INCLUDE_DIR}"
+sundials_option(SUPERLUDIST_INCLUDE_DIRS PATH "SuperLU_DIST include directories" "${SUPERLUDIST_INCLUDE_DIRS}"
                 DEPENDS_ON ENABLE_SUPERLUDIST
                 ADVANCED)
 
