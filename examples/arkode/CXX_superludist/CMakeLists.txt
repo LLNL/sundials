@@ -17,13 +17,7 @@
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS linear solvers
-if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "6.3.0")
-  list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist.cpp\;1\;1\;develop")
-else()
-  print_warning("The ark_brusselator1D_FEM_sludist example requires SuperLU_DIST >= 6.3.0, but the version found is less."
-                "SUPERLUDIST_VERSION: ${SUPERLUDIST_VERSION}")
-endif()
+list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist.cpp\;1\;1\;develop")
 
 # Auxiliary files to install
 set(ARKODE_extras
@@ -61,10 +55,10 @@ foreach(example_tuple ${ARKODE_examples})
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  sundials_add_test(${example_target} ${example}
+  sundials_add_test(${example_target} ${example_target}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${example_target}.out
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
