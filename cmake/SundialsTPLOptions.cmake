@@ -101,12 +101,9 @@ sundials_option(SUPERLUDIST_INCLUDE_DIR PATH "SuperLU_DIST include directory" "$
                 DEPENDS_ON ENABLE_SUPERLUDIST
                 ADVANCED)
 
-sundials_option(SUPERLUDIST_LIBRARY_DIR PATH "SuperLU_DIST library directory" "${SUPERLUDIST_LIBRARY_DIR}"
+sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of libraries needed for SuperLU_DIST." "${SUPERLUDIST_LIBRARIES}"
                 DEPENDS_ON ENABLE_SUPERLUDIST
                 ADVANCED)
-
-sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of additional libraries needed for SuperLU_DIST." "${SUPERLUDIST_LIBRARIES}"
-                DEPENDS_ON ENABLE_SUPERLUDIST)
 
 sundials_option(SUPERLUDIST_OpenMP BOOL "Enable SUNDIALS support for SuperLU_DIST OpenMP on-node parallelism" OFF
                 DEPENDS_ON ENABLE_SUPERLUDIST)

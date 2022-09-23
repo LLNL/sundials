@@ -58,30 +58,15 @@ endif()
 # We need MPI for SuperLU_DIST support
 include(SundialsMPI)
 
-# SuperLU_DIST OpenMP node parallelism is on, make sure OpenMP as found and is
-# at least version 4.5.
-if(SUPERLUDIST_OpenMP)
-  include(SundialsOpenMP)
-
-  if(NOT OPENMP_FOUND)
-    print_error("SUPERLUDIST_OpenMP is set to ON but OpenMP was not found.")
-  elseif(NOT OPENMP45_FOUND)
-    string(CONCAT ERRSTR "SuperLUDIST requires OpenMP 4.5+ but it was not found. "
-      "If you are sure OpenMP 4.5+ is available set the OPENMP_DEVICE_WORKS "
-      "advanced option to ON.")
-    print_error(${ERRSTR})
-  endif()
-endif()
-
 # Try to find SuperLU_DIST
 find_package(SUPERLUDIST 6.1.1 REQUIRED)
 
-message(STATUS "SUPERLUDIST_LIBRARIES:   ${SUPERLUDIST_LIBRARIES}")
-message(STATUS "SUPERLUDIST_INCLUDE_DIR: ${SUPERLUDIST_INCLUDE_DIR}")
-message(STATUS "SUPERLUDIST_INDEX_SIZE:  ${SUPERLUDIST_INDEX_SIZE}")
-message(STATUS "SUPERLUDIST_OpenMP:      ${SUPERLUDIST_OpenMP}")
-message(STATUS "SUPERLUDIST_CUDA:        ${SUPERLUDIST_CUDA}")
-message(STATUS "SUPERLUDIST_ROCM:        ${SUPERLUDIST_ROCM}")
+message(STATUS "SUPERLUDIST_INTERFACE_LINK_LIBRARIES: ${SUPERLUDIST_INTERFACE_LINK_LIBRARIES}")
+message(STATUS "SUPERLUDIST_INCLUDE_DIRS: ${SUPERLUDIST_INCLUDE_DIR}")
+message(STATUS "SUPERLUDIST_INDEX_SIZE:   ${SUPERLUDIST_INDEX_SIZE}")
+message(STATUS "SUPERLUDIST_OpenMP:       ${SUPERLUDIST_OpenMP}")
+message(STATUS "SUPERLUDIST_CUDA:         ${SUPERLUDIST_CUDA}")
+message(STATUS "SUPERLUDIST_ROCM:         ${SUPERLUDIST_ROCM}")
 
 
 # -----------------------------------------------------------------------------
