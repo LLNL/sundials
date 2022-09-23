@@ -417,12 +417,15 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_RAJA=ON
-    export RAJA_ROOT="$(spack location -i raja@2022.03.1 +cuda %"$compiler")"
+    export RAJA_ROOT="$(spack location -i raja@2022.03.1 ~openmp +cuda %"$compiler")"
     export RAJA_BACKENDS="CUDA"
+    # RAJA does not find camp on its own?
+    export camp_ROOT="$(spack location -i camp@2022.03.2 +cuda %"$compiler")"
 else
     export SUNDIALS_RAJA=OFF
     unset RAJA_ROOT
     unset RAJA_BACKENDS
+    unset camp_ROOT
 fi
 
 # ------
