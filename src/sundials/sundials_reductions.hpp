@@ -60,7 +60,7 @@ struct maximum : public BinaryOperator<Arg1, Arg2, Ret>
 
   static SUNDIALS_HOST_DEVICE SUNDIALS_DEVICE_INLINE constexpr Ret identity()
   {
-    return std::numeric_limits<Ret>::min();
+    return std::numeric_limits<Ret>::lowest();
   }
 };
 

@@ -86,6 +86,12 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in v5.4.0
+-----------------
+
+Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
+the minimum positive floating-point value for the zero vector.
+
 Changes in v5.3.0
 -----------------
 

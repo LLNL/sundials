@@ -1,5 +1,10 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.4.0
+
+Fixed a bug in the CUDA and HIP vectors where `N_VMaxNorm` would return the
+minimum positive floating-point value for the zero vector.
+
 ## Changes to SUNDIALS in release 6.3.0
 
 Added `GetUserData` functions in each package to retrieve the user data pointer
