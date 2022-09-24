@@ -105,7 +105,7 @@ spack load "${compiler}"
 spack compiler find
 
 # load CMake
-spack load "cmake@3.12.4%${compiler}"
+spack load "cmake@3.21.4%${compiler}"
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
