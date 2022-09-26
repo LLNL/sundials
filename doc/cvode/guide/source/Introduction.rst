@@ -117,6 +117,9 @@ Changes in v6.4.0
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
 
+Fixed a memory leak where the projection memory would not be deallocated when
+calling :c:func:`CVodeFree`.
+
 Changes in v6.3.0
 -----------------
 
