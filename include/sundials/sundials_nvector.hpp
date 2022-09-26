@@ -26,7 +26,7 @@ namespace impl {
 
 struct NvectorDeleter
 {
-  constexpr void operator()(N_Vector v)
+  void operator()(N_Vector v)
   {
     if (v) N_VDestroy(v);
   }

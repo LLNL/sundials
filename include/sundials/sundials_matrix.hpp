@@ -26,7 +26,7 @@ namespace impl {
 
 struct SUNMatrixDeleter
 {
-  constexpr void operator()(SUNMatrix A)
+  void operator()(SUNMatrix A)
   {
     if (A) SUNMatDestroy(A);
   }
