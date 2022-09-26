@@ -245,18 +245,18 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # ==========================================================================
     # Patches
     # ==========================================================================
-    # # https://github.com/spack/spack/issues/29526
-    # patch("nvector-pic.patch", when="@6.1.0:6.2.0 +rocm")
 
-    # # remove OpenMP header file and function from hypre vector test code
-    # patch("test_nvector_parhyp.patch", when="@2.7.0:3.0.0")
-    # patch("FindPackageMultipass.cmake.patch", when="@5.0.0")
-    # patch("5.5.0-xsdk-patches.patch", when="@5.5.0")
-    # patch("0001-add-missing-README-to-examples-cvode-hip.patch", when="@5.6.0:5.7.0")
-    # # remove sundials_nvecopenmp target from ARKODE SuperLU_DIST example
-    # patch("remove-links-to-OpenMP-vector.patch", when="@5.5.0:5.7.0")
-    # # fix issues with exported PETSc target(s) in SUNDIALSConfig.cmake
-    # patch("sundials-v5.8.0.patch", when="@5.8.0")
+    # remove OpenMP header file and function from hypre vector test code
+    patch("test_nvector_parhyp.patch", when="@2.7.0:3.0.0")
+    patch("FindPackageMultipass.cmake.patch", when="@5.0.0")
+    patch("5.5.0-xsdk-patches.patch", when="@5.5.0")
+    patch("0001-add-missing-README-to-examples-cvode-hip.patch", when="@5.6.0:5.7.0")
+    # remove sundials_nvecopenmp target from ARKODE SuperLU_DIST example
+    patch("remove-links-to-OpenMP-vector.patch", when="@5.5.0:5.7.0")
+    # fix issues with exported PETSc target(s) in SUNDIALSConfig.cmake
+    patch("sundials-v5.8.0.patch", when="@5.8.0")
+    # https://github.com/spack/spack/issues/29526
+    patch("nvector-pic.patch", when="@6.1.0:6.2.0 +rocm")
 
     # ==========================================================================
     # SUNDIALS Settings
