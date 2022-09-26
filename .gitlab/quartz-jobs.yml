@@ -39,7 +39,7 @@
 # quartz_intel:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: intel@19.0.4.227
+#       - COMPILER_SPEC: intel@19.0.4
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -75,7 +75,7 @@ quartz_gcc_tpls:
 quartz_intel_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: intel@19.0.4.227
+      - COMPILER_SPEC: intel@19.0.4
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
