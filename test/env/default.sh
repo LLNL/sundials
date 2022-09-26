@@ -297,6 +297,27 @@ else
     unset SUITE_SPARSE_ROOT
 fi
 
+# ------
+# Ginkgo
+# ------
+
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    # @develop install is GitHub hash 4c3320c9c4e116a2d5aedf9d042b36d1f327a217
+    if [ "$SUNDIALS_CUDA" == "ON" ]; then
+        export SUNDIALS_GINKGO=ON
+        export GINKGO_ROOT="$(spack location -i ginkgo@develop +cuda %"$compiler")"
+        export GINKGO_BACKENDS="REF;OMP;CUDA"
+    else
+        export SUNDIALS_GINKGO=ON
+        export GINKGO_ROOT="$(spack location -i ginkgo@develop ~cuda %"$compiler")"
+        export GINKGO_BACKENDS="REF;OMP"
+    fi
+else
+    export SUNDIALS_GINKGO=OFF
+    unset GINKGO_ROOT
+    unset GINKGO_BACKENDS
+fi
+
 # -----
 # MAGMA
 # -----
