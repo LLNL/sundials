@@ -5,6 +5,11 @@
 Fixed a bug in the CUDA and HIP vectors where `N_VMaxNorm` would return the
 minimum positive floating-point value for the zero vector.
 
+Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x.
+Removed support for SuperLU_DIST v6.x.x or older.
+
+CMake 3.18.0 or newer is now required for CUDA support.
+
 ## Changes to SUNDIALS in release 6.3.0
 
 Added `GetUserData` functions in each package to retrieve the user data pointer
