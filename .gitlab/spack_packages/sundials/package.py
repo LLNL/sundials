@@ -792,7 +792,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
         return options
 
-    def initconfig(self):
+    def initconfig_package_entries(self):
         # Convert args into cmake cache entries
         entries = []
         for arg in cmake_args_uncached(self):
