@@ -88,12 +88,12 @@ then
 
     if [[ "${shared_spack}" == "UPSTREAM" ]]
     then
-        python3 scripts/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
     elif [[ "${shared_spack}" == "ON" ]]
     then
-        python3 scripts/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
     else
-        python3 scripts/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
     fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
