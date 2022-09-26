@@ -214,7 +214,7 @@ inline std::unique_ptr<GkoVecType> WrapVector(std::shared_ptr<const gko::Executo
 {
   sunrealtype* x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x)};
   const sunindextype x_len{N_VGetLength(x)};
-  return GkoVecType::create(gko_exec, gko::dim<2>(x_len, 1), gko::Array<sunrealtype>::view(gko_exec, x_len, x_arr), 1);
+  return GkoVecType::create(gko_exec, gko::dim<2>(x_len, 1), gko::array<sunrealtype>::view(gko_exec, x_len, x_arr), 1);
 }
 
 inline std::unique_ptr<const GkoVecType> WrapConstVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
@@ -222,7 +222,7 @@ inline std::unique_ptr<const GkoVecType> WrapConstVector(std::shared_ptr<const g
   sunrealtype* x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x)};
   const sunindextype x_len{N_VGetLength(x)};
   return GkoVecType::create_const(gko_exec, gko::dim<2>(x_len, 1),
-                                  gko::Array<sunrealtype>::const_view(gko_exec, x_len, x_arr), 1);
+                                  gko::array<sunrealtype>::const_view(gko_exec, x_len, x_arr), 1);
 }
 
 template<typename GkoMatType>
