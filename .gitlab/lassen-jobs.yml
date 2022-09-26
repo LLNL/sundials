@@ -18,7 +18,7 @@
 # lassen_gcc:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: gcc@7.3.1
+#       - COMPILER_SPEC: gcc@8.3.1
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -52,7 +52,7 @@
 # lassen_gcc_cuda:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: gcc@7.3.1
+#       - COMPILER_SPEC: gcc@8.3.1
 #         CUDA_SPEC: [cuda@10.2.89, cuda@11.2.0]
 #   variables:
 #     SPEC: "%${COMPILER_SPEC} ~int64 precision=double +cuda cuda_arch=70 ^${CUDA_SPEC}"
@@ -69,16 +69,16 @@ lassen_xl_cuda_tpls:
       - COMPILER_SPEC: xl@16.1.1.10
         CUDA_SPEC: [cuda@10.1.243]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 precision=double ~int64 +openmp+cuda+raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +openmp+cuda+raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
   extends: .lassen_build_and_test
 
 lassen_gcc_cuda_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: gcc@7.3.1
+      - COMPILER_SPEC: gcc@8.3.1
         CUDA_SPEC: [cuda@10.1.243, cuda@11.5.0]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 precision=double ~int64 +openmp+cuda+raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +openmp+cuda+raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
   extends: .lassen_build_and_test
 
 # ------------------------------------------------------------------------------
@@ -88,9 +88,9 @@ lassen_gcc_cuda_tpls:
 lassen_gcc_cuda_bench:
   parallel:
     matrix:
-      - COMPILER_SPEC: gcc@7.3.1
+      - COMPILER_SPEC: gcc@8.3.1
         CUDA_SPEC: [cuda@11.5.0]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 build_type=Release precision=double ~int64 +benchmarks+profiling+caliper +openmp+cuda+raja cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^caliper+cuda cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double ~int64 +benchmarks+profiling+caliper +openmp+cuda+raja cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^caliper+cuda cuda_arch=70 ^${CUDA_SPEC}"
   extends: .lassen_build_and_bench
 
