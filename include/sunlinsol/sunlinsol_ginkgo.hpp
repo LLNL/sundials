@@ -254,7 +254,7 @@ public:
       result = gkosolver()->apply(x_vec.get(), x_vec.get());
     }
 
-    iter_count_ = logger->get_num_iterations();
+    iter_count_ = static_cast<int>(logger->get_num_iterations());
     gkoexec()->get_master()->copy_from(gko::lend(gkoexec()),
                                        1,
                                        gko::as<GkoDenseMat>(logger->get_residual_norm())->get_const_values(),
