@@ -1,7 +1,7 @@
 {
   "package_name": "sundials",
   "package_version": "develop",
-  "package_final_phase": "hostconfig",
+  "package_final_phase": "initconfig",
   "package_source_dir": "../..",
   "spack_url": "https://github.com/spack/spack",
   "spack_commit": "13e6f87ef6527954b152eaea303841978e83b992",
