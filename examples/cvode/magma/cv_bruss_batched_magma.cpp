@@ -107,14 +107,14 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 __global__
 static void f_kernel(sunrealtype t, sunrealtype* y, sunrealtype* ydot,
                      sunrealtype* A, sunrealtype* B, sunrealtype* Ep,
-                     int neq, int nbatches, int batchSize);
+                     int nbatches, int batchSize);
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 __global__
 static void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtype* B,
-                     sunrealtype* Ep, int neq, int nbatches, int batchSize);
+                     sunrealtype* Ep, int nbatches, int batchSize);
 
 /* Private function to output results */
 static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
@@ -144,14 +144,13 @@ using RealArray = Array<sunrealtype, int>;
    in SUNDIALS callback functions. */
 struct UserData {
   UserData(int nbatches, int batchSize, SUNMemoryHelper h)
-    : nbatches(nbatches), batchSize(batchSize), neq(batchSize*nbatches),
+    : nbatches(nbatches), batchSize(batchSize),
       u0{nbatches, h}, v0{nbatches, h}, w0{nbatches, h},
       a{nbatches, h}, b{nbatches, h}, ep{nbatches, h}
   { }
 
   int nbatches;         /* number of chemical networks */
   int batchSize;        /* size of each network        */
-  int neq;              /* total number of equations   */
   RealArray u0, v0, w0; /* initial conditions */
   RealArray a, b;       /* chemical concentrations that are constant */
   RealArray ep;
@@ -234,9 +233,9 @@ int main(int argc, char *argv[])
     }
   }
 
-  /* Create CUDA or HIP vector of length neq for I.C. and abstol vector */
-  y = HIP_OR_CUDA( N_VNew_Hip(udata.neq, sunctx);,
-                   N_VNew_Cuda(udata.neq, sunctx); )
+  /* Create CUDA or HIP vector for I.C. and abstol vector */
+  y = HIP_OR_CUDA( N_VNew_Hip(batchSize * nbatches, sunctx);,
+                   N_VNew_Cuda(batchSize * nbatches, sunctx); )
   if (check_retval((void *)y, "N_VNew", 0)) { return(1); }
   abstol = N_VClone(y);
   if (check_retval((void *)abstol, "N_VClone", 0)) { return(1); }
@@ -375,8 +374,9 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   unsigned threads_per_block = 256;
   unsigned num_blocks = (udata->nbatches + threads_per_block - 1) / threads_per_block;
-  f_kernel<<<num_blocks, threads_per_block>>>(t, ydata, ydotdata, udata->a.get(), udata->b.get(),
-    udata->ep.get(), udata->neq, udata->nbatches, udata->batchSize);
+  f_kernel<<<num_blocks, threads_per_block>>>
+    (t, ydata, ydotdata, udata->a.get(), udata->b.get(), udata->ep.get(),
+     udata->nbatches, udata->batchSize);
 
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
   HIP_OR_CUDA( hipError_t cuerr = hipGetLastError();,
@@ -396,13 +396,14 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 __global__
 void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
               sunrealtype* A, sunrealtype* B, sunrealtype* Ep,
-              int neq, int nbatches, int batchSize)
+              int nbatches, int batchSize)
 {
   sunrealtype u, v, w, a, b, ep;
 
-  int batchj = blockIdx.x*blockDim.x + threadIdx.x;
-
-  if (batchj < nbatches) {
+  for (int batchj = blockIdx.x * blockDim.x + threadIdx.x;
+       batchj < nbatches;
+       batchj += blockDim.x * gridDim.x)
+  {
     a = A[batchj]; b = B[batchj], ep = Ep[batchj];
 
     u = ydata[batchj*batchSize];
@@ -424,17 +425,16 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
         void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
-  sunrealtype *Jdata, *ydata;
-  unsigned block_size, grid_size;
 
-  Jdata   = SUNMatrix_MagmaDense_Data(J);
-  ydata   = N_VGetDeviceArrayPointer(y);
+  sunrealtype* Jdata = SUNMatrix_MagmaDense_Data(J);
+  sunrealtype* ydata = N_VGetDeviceArrayPointer(y);
 
-  block_size = HIP_OR_CUDA( 64, 32 );
-  grid_size = (udata->neq + block_size - 1) / block_size;
+  unsigned block_size = HIP_OR_CUDA( 64, 32 );
+  unsigned grid_size  = (udata->nbatches + block_size - 1) / block_size;
 
-  j_kernel<<<grid_size, block_size>>>(ydata, Jdata, udata->a.get(), udata->b.get(),
-    udata->ep.get(), udata->neq, udata->nbatches, udata->batchSize);
+  j_kernel<<<grid_size, block_size>>>
+    (ydata, Jdata, udata->a.get(), udata->b.get(), udata->ep.get(),
+     udata->nbatches, udata->batchSize);
 
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
   HIP_OR_CUDA( hipError_t cuerr = hipGetLastError();,
@@ -452,7 +452,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 /* Jacobian evaluation GPU kernel */
 __global__
 void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtype* B,
-              sunrealtype* Ep, int neq, int nbatches, int batchSize)
+              sunrealtype* Ep, int nbatches, int batchSize)
 {
   int N  = batchSize;
   int NN = N*N;
@@ -483,17 +483,6 @@ void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtyp
     Jdata[NN*batchj + 6]   = -w;
     Jdata[NN*batchj + 7]   = 0.0;
     Jdata[NN*batchj + 8]   = -1.0/ep - u;
-
-    // printf("%.6f %.6f\n", y2, y3);
-    // printf("%.6f ", Jdata[NN*batchj]);
-    // printf("%.6f ", Jdata[NN*batchj + 3]);
-    // printf("%.6f\n", Jdata[NN*batchj + 6]);
-    // printf("%.6f ", Jdata[NN*batchj + 1]);
-    // printf("%.6f ", Jdata[NN*batchj + 4]);
-    // printf("%.6f\n", Jdata[NN*batchj + 7]);
-    // printf("%.6f ", Jdata[NN*batchj + 2]);
-    // printf("%.6f ", Jdata[NN*batchj + 5]);
-    // printf("%.6f\n\n", Jdata[NN*batchj + 8]);
   }
 }
 
