@@ -166,7 +166,7 @@ GitLab CI pipeline. The SUNDIALS CI configuration file is organized as follows:
        script:
        - echo ${ALLOC_NAME}
        - srun -p pdebug -N 1 -n ${NCPUS} --interactive -t ${DEFAULT_TIME}
-         --job-name=${ALLOC_NAME} scripts/gitlab/build_and_test.sh
+         --job-name=${ALLOC_NAME} .gitlab/build_and_test.sh
 
      # ...
 
@@ -250,8 +250,8 @@ available as job artifacts.
 GitLab CI Test Script
 ---------------------
 
-The GitLab CI uses the script ``scripts/gitlab/build_and_test.sh``, and when
-benchmarking ``scripts/gitlab/build_and_bench.sh``, to configure,
+The GitLab CI uses the script ``.gitlab/build_and_test.sh``, and when
+benchmarking ``.gitlab/build_and_bench.sh``, to configure,
 build, and test SUNDIALS. This script leverages two Git submodules:
 
 * `uberenv <https://github.com/LLNL/uberenv>`_ -- automates using a package
