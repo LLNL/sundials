@@ -305,6 +305,8 @@ if [ "$SUNDIALS_PRECISION" != "extended" ] && \
     [ "$SUNDIALS_INDEX_SIZE" == "32" ] && \
     [ "$SUNDIALS_CUDA" == "ON" ]; then
     export SUNDIALS_MAGMA=ON
+    # Bug in magma@2.6.2 causes tests to fail with certain system sizes
+    #export MAGMA_ROOT="$(spack location -i magma@2.6.2 +cuda %"$compiler")"
     export MAGMA_ROOT="$(spack location -i magma@2.6.1 +cuda %"$compiler")"
     export MAGMA_BACKENDS="CUDA"
 else
