@@ -170,42 +170,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     )
 
     # ==========================================================================
-    # Conflicts
-    # ==========================================================================
-
-    conflicts("+cuda", when="@:2.7.0")
-    conflicts("+rocm", when="@:5.6.0")
-    conflicts("~int64", when="@:2.7.0")
-    conflicts("+f2003", when="@:4.1.0")
-
-    # External libraries incompatible with 64-bit indices
-    conflicts("+lapack", when="@3.0.0: +int64")
-    conflicts("+hypre", when="+hypre@:2.6.1a +int64")
-
-    # External libraries incompatible with single precision
-    conflicts("+klu", when="precision=single")
-    conflicts("+hypre", when="+hypre@:2.12.0 precision=single")
-    conflicts("+superlu-dist", when="precision=single")
-
-    # External libraries incompatible with extended (quad) precision
-    conflicts("+lapack", when="precision=extended")
-    conflicts("+superlu-mt", when="precision=extended")
-    conflicts("+superlu-dist", when="precision=extended")
-    conflicts("+klu", when="precision=extended")
-    conflicts("+hypre", when="+hypre@:2.12.0 precision=extended")
-
-    # SuperLU_MT interface requires lapack for external blas (before v3.0.0)
-    conflicts("+superlu-mt", when="@:2.7.0 ~lapack")
-
-    # rocm+examples and cstd do not work together in 6.0.0
-    conflicts("+rocm+examples", when="@6.0.0")
-
-    # ==========================================================================
     # Dependencies
     # ==========================================================================
 
     # Build dependencies
-    depends_on("cmake@3.12:", type="build")
+    depends_on("cmake@3.12:", when="~cuda", type="build")
     depends_on("cmake@3.18:", when="+cuda", type="build")
 
     # MPI related dependencies
@@ -222,29 +191,64 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # External libraries
     depends_on("caliper", when="+caliper")
     depends_on("lapack", when="+lapack")
-    depends_on("hypre+mpi~int64", when="@5.7.1: +hypre ~int64")
-    depends_on("hypre+mpi+int64", when="@5.7.1: +hypre +int64")
-    depends_on("hypre@:2.22.0+mpi~int64", when="@:5.7.0 +hypre ~int64")
-    depends_on("hypre@:2.22.0+mpi+int64", when="@:5.7.0 +hypre +int64")
+    depends_on("hypre+mpi@2.22.1:", when="@5.7.1: +hypre")
+    depends_on("hypre+mpi@:2.22.0", when="@:5.7.0 +hypre")
     depends_on("magma", when="+magma")
     depends_on("petsc+mpi", when="+petsc")
     depends_on("suite-sparse", when="+klu")
-    depends_on("superlu-dist@6.1.1:", when="@:5.4.0 +superlu-dist")
-    depends_on("superlu-dist@6.3.0:", when="@5.5.0: +superlu-dist")
     depends_on("superlu-dist@7.0.0:", when="@6.4.0: +superlu-dist")
+    depends_on("superlu-dist@6.3.0:", when="@5.5.0:6.3.0 +superlu-dist")
+    depends_on("superlu-dist@6.1.1:", when="@:5.4.0 +superlu-dist")
+    depends_on("superlu-mt+blas", when="+superlu-mt")
     depends_on("trilinos+tpetra", when="+trilinos")
 
     # Require that external libraries built with the same precision
     depends_on("petsc~double~complex", when="+petsc precision=single")
     depends_on("petsc+double~complex", when="+petsc precision=double")
-
+    
     # Require that external libraries built with the same index type
-    depends_on("petsc~int64", when="+petsc ~int64")
-    depends_on("petsc+int64", when="+petsc +int64")
-    depends_on("superlu-dist+int64", when="+superlu-dist +int64")
+    with when('+int64'):
+        depends_on("hypre+mpi+int64", when="+hypre +int64")
+        depends_on("petsc+int64", when="+petsc +int64")
+        depends_on("superlu-dist+int64", when="+superlu-dist +int64")
+    
+    with when('~int64'):
+        depends_on("hypre+mpi~int64", when="+hypre ~int64")
+        depends_on("petsc~int64", when="+petsc ~int64")
+        depends_on("superlu-dist~int64", when="+superlu-dist ~int64")
 
-    # Require that SuperLU_MT built with external blas
-    depends_on("superlu-mt+blas", when="+superlu-mt")
+    # ==========================================================================
+    # Conflicts
+    # ==========================================================================
+
+    conflicts("+cuda", when="@:2.7.0")
+    conflicts("+f2003", when="@:4.1.0")
+    conflicts("~int64", when="@:2.7.0")
+    conflicts("+rocm", when="@:5.6.0")
+
+    # External libraries incompatible with 64-bit indices
+    conflicts("+lapack", when="@3.0.0: +int64")
+    conflicts("+hypre", when="+hypre@:2.6.1a +int64")
+
+    # External libraries incompatible with single precision
+    with when("precision=single"):
+        conflicts("+hypre", when="+hypre@:2.12.0")
+        conflicts("+klu")
+        conflicts("+superlu-dist")
+
+    # External libraries incompatible with extended (quad) precision
+    with when("precision=extended"):
+        conflicts("+hypre", when="+hypre@:2.12.0")
+        conflicts("+klu")
+        conflicts("+lapack")
+        conflicts("+superlu-dist")
+        conflicts("+superlu-mt")
+
+    # SuperLU_MT interface requires lapack for external blas (before v3.0.0)
+    conflicts("+superlu-mt", when="@:2.7.0 ~lapack")
+
+    # rocm+examples and cstd do not work together in 6.0.0
+    conflicts("+rocm+examples", when="@6.0.0")
 
     # ==========================================================================
     # Patches
