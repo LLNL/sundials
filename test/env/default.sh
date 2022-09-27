@@ -205,7 +205,7 @@ export SUNDIALS_MONITORING=ON
 export SUNDIALS_PROFILING=ON
 
 # Sundials logging
-export SUNDIALS_LOGGING_LEVEL=4
+export SUNDIALS_LOGGING_LEVEL=3
 export SUNDIALS_LOGGING_ENABLE_MPI=ON
 
 # Uncomment to override the default output file comparison precisions. The float
