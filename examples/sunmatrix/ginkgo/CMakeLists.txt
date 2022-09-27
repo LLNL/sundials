@@ -27,7 +27,7 @@ set(examples
 include_directories(..)
 
 sundials_add_examples_ginkgo(examples
-  TARGETS test_sunmatrix_obj
+  TARGETS test_sunmatrix_obj sundials_sunmatrixdense
   BACKENDS REF OMP CUDA HIP
   UNIT_TEST)
 

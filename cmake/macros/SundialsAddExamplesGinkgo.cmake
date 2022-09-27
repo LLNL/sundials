@@ -36,8 +36,8 @@
 macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
 
   set(options UNIT_TEST)
-  set(oneValueArgs TARGETS)
-  set(multiValueArgs BACKENDS)
+  set(oneValueArgs)
+  set(multiValueArgs TARGETS BACKENDS)
 
   # Parse keyword arguments and options
   cmake_parse_arguments(arg
