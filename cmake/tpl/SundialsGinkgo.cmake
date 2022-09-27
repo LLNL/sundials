@@ -37,7 +37,11 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(SUNDIALS_PRECISION MATCHES "extended")
-  print_error("SUNDIALS GINKGO interface is not compatible with extended precision")
+  message(FATAL_ERROR "SUNDIALS GINKGO interface is not compatible with extended precision")
+endif()
+
+if((SUNDIALS_INDEX_SIZE MATCHES "64") AND (SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA"))
+  message(FATAL_ERROR "GINKGO is not compatible with 64-bit indices when using the CUDA backend")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -52,7 +56,6 @@ message(STATUS "GINKGO BUILD TYPE:  ${GINKGO_BUILD_TYPE}")
 message(STATUS "GINKGO LIBRARIES:   ${GINKGO_INTERFACE_LINK_LIBRARIES}")
 message(STATUS "GINKGO LINK FLAGS:  ${GINKGO_INTERFACE_LINK_FLAGS}")
 message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
-
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
