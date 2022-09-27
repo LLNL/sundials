@@ -126,7 +126,14 @@ int main(int argc, char* argv[])
   SetTiming(0);
 
   int square{matrows == matcols ? 1 : 0};
-  std::cout << "\n SUNMATRIX_GINKGO test: size " << matrows << " x " << matcols << ", format " << format << "\n";
+  std::cout << "\n SUNMATRIX_GINKGO test: size " << matrows << " x " << matcols
+            << ", format ";
+  if (using_csr_matrix_type) {
+    std::cout << "csr\n";
+  }
+  else if (using_dense_matrix_type) {
+    std::cout << "dense\n";
+  }
 
   /* Create vectors and matrices */
   std::default_random_engine generator;
@@ -206,9 +213,14 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatCopy(*A, 0);
   fails += Test_SUNMatZero(*A, 0);
   if (square) {
-    if (!using_dense_matrix_type) { // TODO(CJB): I think this is fixed on the batch-develop branch?
+#if !defined(USE_OMP)
+    // TODO(CJB): ScaleAdd with a dense matrix is not supported in develop
+    // branch, possibly supported on the batch-develop branch. CSR matrix with
+    // OMP executor currently fails on the develop branch.
+    if (!using_dense_matrix_type) {
       fails += Test_SUNMatScaleAdd(*A, *I, 0);
     }
+#endif
     fails += Test_SUNMatScaleAddI(*A, *I, 0);
   }
   fails += Test_SUNMatMatvec(*A, x, y, 0);
