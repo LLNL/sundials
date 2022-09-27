@@ -69,7 +69,7 @@ constexpr auto N_VNew = N_VNew_Serial;
 constexpr auto N_VNew = N_VNew_Serial;
 #endif
 
-using GkoMatrixType = gko::matrix::Csr<sunrealtype>;
+using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
 using GkoSolverType = gko::solver::Cg<sunrealtype>;
 
 using SUNGkoMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
