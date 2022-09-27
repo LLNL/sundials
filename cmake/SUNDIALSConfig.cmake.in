@@ -146,6 +146,9 @@ if("@ENABLE_SUPERLUMT@" AND NOT TARGET SUNDIALS::SUPERLUMT)
 endif()
 
 if("@ENABLE_RAJA@" AND NOT TARGET RAJA)
+  if(NOT TARGET camp AND NOT camp_DIR)
+    set(camp_DIR "@camp_DIR@")
+  endif()
   find_package(RAJA PATHS "@RAJA_DIR@")
 endif()
 
