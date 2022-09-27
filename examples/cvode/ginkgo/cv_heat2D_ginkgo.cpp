@@ -19,7 +19,7 @@
  *
  * for t in [0, 1] and (x,y) in [0, 1]^2, with initial conditions
  *
- *   u(0,x,y) = sin^2(pi x) sin^2(pi y),
+ *   u(0,x,y) = sin^2(pi x) sin^2(pi y) + 1,
  *
  * stationary boundary conditions
  *
@@ -33,7 +33,7 @@
  *
  * Under this setup, the problem has the analytical solution
  *
- *    u(t,x,y) = sin^2(pi x) sin^2(pi y) cos^2(pi t).
+ *    u(t,x,y) = sin^2(pi x) sin^2(pi y) cos^2(pi t) + 1.
  *
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The

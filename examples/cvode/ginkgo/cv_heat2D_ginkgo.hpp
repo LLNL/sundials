@@ -20,7 +20,6 @@
 #include <iomanip>
 #include <fstream>
 #include <limits>
-#include <chrono>
 #include <cmath>
 #include <string>
 
@@ -112,7 +111,7 @@ void solution_kernel(const sunindextype nx, const sunindextype ny,
     auto sin_sqr_y = sin(PI * y) * sin(PI * y);
 
     auto idx = i + j * nx;
-    uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
+    uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t + ONE;
   }
 }
 #endif
@@ -129,8 +128,8 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
   // Compute the true solution
   auto cos_sqr_t = cos(PI * t) * cos(PI * t);
 
-  // Initialize u to zero (handles boundary conditions)
-  N_VConst(ZERO, u);
+  // Initialize u to one (handles boundary conditions)
+  N_VConst(ONE, u);
 
 #if defined(USE_CUDA) || defined(USE_HIP)
 
@@ -160,7 +159,7 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
       auto sin_sqr_y = sin(PI * y) * sin(PI * y);
 
       auto idx = i + j * nx;
-      uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
+      uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t + ONE;
     }
   }
 

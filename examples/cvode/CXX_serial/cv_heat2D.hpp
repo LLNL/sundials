@@ -112,8 +112,8 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
   sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
 
-  // Initialize u to zero (handles boundary conditions)
-  N_VConst(ZERO, u);
+  // Initialize u to one (handles boundary conditions)
+  N_VConst(ONE, u);
 
   // Compute the true solution
   auto cos_sqr_t = cos(PI * t) * cos(PI * t);
@@ -129,7 +129,7 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
       auto sin_sqr_y = sin(PI * y) * sin(PI * y);
 
       auto idx = i + j * udata.nx;
-      uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
+      uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t + ONE;
     }
   }
 
