@@ -603,7 +603,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         return cmake_cache_option(cmake_var, value)
 
     def initconfig_compiler_entries(self):
-        spec = self.spec
         entries = []
 
         entries.extend(
@@ -623,10 +622,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+mpi" in spec:
             entries.extend(
                 [
+                    self.cache_option_from_variant("MPI_ENABLE", "mpi"),
                     cmake_cache_path("MPI_MPICC", spec["mpi"].mpicc),
                     cmake_cache_path("MPI_MPICXX", spec["mpi"].mpicxx),
                     cmake_cache_path("MPI_MPIF77", spec["mpi"].mpif77),
-                    cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc),
+                    cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc)
                 ]
             )
 
@@ -647,7 +647,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
                     cmake_cache_path("ROCM_PATH", spec["llvm-amdgpu"].prefix),
-                    cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value),
+                    cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value)
                 ]
             )
 
@@ -680,7 +680,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_MONITORING", "monitoring"),
                 # Profiling
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_PROFILING", "profiling"),
-                self.cache_option_from_variant("ENABLE_CALIPER", "caliper"),
+                self.cache_option_from_variant("ENABLE_CALIPER", "caliper")
             ]
         )
 
@@ -690,7 +690,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     cmake_cache_string("SUNDIALS_INDEX_SIZE", intsize),
-                    cmake_cache_string("SUNDIALS_INDEX_TYPE", "int{}_t".format(intsize)),
+                    cmake_cache_string("SUNDIALS_INDEX_TYPE", "int{}_t".format(intsize))
                 ]
             )
 
@@ -704,14 +704,13 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("HYPRE_ENABLE", "hypre"),
                 self.cache_option_from_variant("KLU_ENABLE", "klu"),
                 self.cache_option_from_variant("LAPACK_ENABLE", "lapack"),
-                self.cache_option_from_variant("MPI_ENABLE", "mpi"),
                 self.cache_option_from_variant("OPENMP_ENABLE", "openmp"),
                 self.cache_option_from_variant("PETSC_ENABLE", "petsc"),
                 self.cache_option_from_variant("PTHREAD_ENABLE", "pthread"),
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
             ]
         )
 
@@ -724,7 +723,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     cmake_cache_path("HYPRE_INCLUDE_DIR", spec["hypre"].prefix.include),
-                    cmake_cache_path("HYPRE_LIBRARY_DIR", spec["hypre"].prefix.lib),
+                    cmake_cache_path("HYPRE_LIBRARY_DIR", spec["hypre"].prefix.lib)
                 ]
             )
             if not spec["hypre"].variants["shared"].value:
@@ -736,7 +735,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     cmake_cache_path("KLU_INCLUDE_DIR", spec["suite-sparse"].prefix.include),
-                    cmake_cache_path("KLU_LIBRARY_DIR", spec["suite-sparse"].prefix.lib),
+                    cmake_cache_path("KLU_LIBRARY_DIR", spec["suite-sparse"].prefix.lib)
                 ]
             )
 
@@ -748,9 +747,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+magma" in spec:
             entries.extend([cmake_cache_option("ENABLE_MAGMA", True), cmake_cache_path("MAGMA_DIR", spec["magma"].prefix)])
             if "+cuda" in spec:
-                cmake_cache_string("SUNDIALS_MAGMA_BACKENDS", "CUDA")
+                entries.append(cmake_cache_string("SUNDIALS_MAGMA_BACKENDS", "CUDA"))
             if "+rocm" in spec:
-                cmake_cache_string("SUNDIALS_MAGMA_BACKENDS", "HIP")
+                entries.append(cmake_cache_string("SUNDIALS_MAGMA_BACKENDS", "HIP"))
 
         # Building with PETSc
         if "+petsc" in spec:
