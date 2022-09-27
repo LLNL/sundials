@@ -27,6 +27,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # Versions
     # ==========================================================================
     version("develop", branch="develop")
+    version("6.4.0", branch="develop")
     version("6.3.0", sha256="89a22bea820ff250aa7239f634ab07fa34efe1d2dcfde29cc8d3af11455ba2a7")
     version("6.2.0", sha256="195d5593772fc483f63f08794d79e4bab30c2ec58e6ce4b0fb6bcc0e0c48f31d")
     version("6.1.1", sha256="cfaf637b792c330396a25ef787eb59d58726c35918ebbc08e33466e45d50470c")
@@ -230,6 +231,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     depends_on("suite-sparse", when="+klu")
     depends_on("superlu-dist@6.1.1:", when="@:5.4.0 +superlu-dist")
     depends_on("superlu-dist@6.3.0:", when="@5.5.0: +superlu-dist")
+    depends_on("superlu-dist@7.0.0:", when="@6.4.0: +superlu-dist")
     depends_on("trilinos+tpetra", when="+trilinos")
 
     # Require that external libraries built with the same precision
@@ -637,11 +639,19 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         entries = []
 
         if "+cuda" in spec:
-            entries.append(cmake_cache_string("CMAKE_CUDA_ARCHITECTURES", spec.variants["cuda_arch"].value))
+            entries.append(
+                self.cache_option_from_variant("CUDA_ENABLE", "cuda")
+            )
+            if not spec.satisfies("cuda_arch=none"):
+                cuda_arch = spec.variants["cuda_arch"].value
+                entries.append(
+                    cmake_cache_string("CMAKE_CUDA_ARCHITECTURES", "{0}".format(cuda_arch[0]))
+                )
 
         if "+rocm" in spec:
             entries.extend(
                 [
+                    self.cache_option_from_variant("ENABLE_HIP", "rocm"),
                     cmake_cache_path("CMAKE_C_COMPILER", spec["llvm-amdgpu"].prefix.bin.clang),
                     cmake_cache_path("CMAKE_CXX_COMPILER", spec["hip"].hipcc),
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
@@ -697,8 +707,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         # TPLs
         entries.extend(
             [
-                self.cache_option_from_variant("CUDA_ENABLE", "cuda"),
-                self.cache_option_from_variant("ENABLE_HIP", "rocm"),
                 self.cache_option_from_variant("ENABLE_SYCL", "sycl"),
                 self.cache_option_from_variant("EXAMPLES_INSTALL", "examples-install"),
                 self.cache_option_from_variant("HYPRE_ENABLE", "hypre"),
