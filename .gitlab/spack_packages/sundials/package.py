@@ -782,6 +782,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         # Building with RAJA
         if "+raja" in spec:
             entries.append(cmake_cache_path("RAJA_DIR", spec["raja"].prefix))
+            if "camp" in self.spec:
+                entries.append(cmake_cache_path("camp_DIR", spec["camp"].prefix))
 
         # Building with SuperLU_MT
         if "+superlu-mt" in spec:
