@@ -216,6 +216,7 @@ if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
     export SUNDIALS_SYCL=OFF
 
     # linear solvers
+    export SUNDIALS_GINKGO=OFF
     export SUNDIALS_LAPACK=OFF
     export SUNDIALS_KLU=OFF
     export SUNDIALS_SUPERLU_MT=OFF
