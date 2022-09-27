@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import os
+import re
 import sys
 
 from llnl.util import tty
@@ -795,13 +796,17 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     def initconfig_package_entries(self):
         # Convert args into cmake cache entries
         entries = []
-        for arg in self.cmake_args_uncached():
-            lvalue, rvalue = arg.split('=', 1)
-            if rvalue == 'ON':
+        args = self.cmake_args_uncached()
+        for arg in args:
+            if arg:
+                lvalue, rvalue = arg.split('=', 1)
+            else:
+                break
+            lvalue = re.match('-D(.*?):', lvalue).group(1)
+            if rvalue == 'ON' or rvalue == 'TRUE':
                 entries.append(cmake_cache_option(lvalue, True))
-            elif rvalue == 'OFF':
+            elif rvalue == 'OFF' or rvalue == 'FALSE':
                 entries.append(cmake_cache_option(lvalue, False))
             else:
                 entries.append(cmake_cache_string(lvalue, rvalue))
-
         return entries
