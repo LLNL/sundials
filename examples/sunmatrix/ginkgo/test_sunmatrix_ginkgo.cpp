@@ -134,8 +134,8 @@ int main(int argc, char* argv[])
 
   N_Vector x{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matcols, sunctx), N_VNew_Serial(matcols, sunctx),
                                        N_VNew_Hip(matcols, sunctx), N_VNew_Cuda(matcols, sunctx))};
-  N_Vector y{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matcols, sunctx), N_VNew_Serial(matcols, sunctx),
-                                       N_VNew_Hip(matcols, sunctx), N_VNew_Cuda(matcols, sunctx))};
+  N_Vector y{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matrows, sunctx), N_VNew_Serial(matrows, sunctx),
+                                       N_VNew_Hip(matrows, sunctx), N_VNew_Cuda(matrows, sunctx))};
 
   auto matrix_dim{gko::dim<2>(matrows, matcols)};
   auto gko_matdata{gko::matrix_data<sunrealtype, sunindextype>(matrix_dim, distribution, generator)};
