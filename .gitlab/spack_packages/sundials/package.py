@@ -226,6 +226,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     conflicts("~int64", when="@:2.7.0")
     conflicts("+rocm", when="@:5.6.0")
 
+    conflicts("~openmp", when="^superlu-dist+openmp")
+
     # External libraries incompatible with 64-bit indices
     conflicts("+lapack", when="@3.0.0: +int64")
     conflicts("+hypre", when="+hypre@:2.6.1a +int64")
@@ -809,11 +811,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+superlu-dist" in spec:
             entries.extend(
                 [
-                    cmake_cache_option("OPENMP_ENABLE", "^superlu-dist+openmp" in spec),
                     cmake_cache_path("SUPERLUDIST_INCLUDE_DIR", spec["superlu-dist"].prefix.include),
                     cmake_cache_path("SUPERLUDIST_LIBRARY_DIR", spec["superlu-dist"].prefix.lib),
-                    cmake_cache_string("SUPERLUDIST_LIBRARIES", spec["blas"].libs),
-                    cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec),
+                    cmake_cache_string("SUPERLUDIST_LIBRARIES", spec["superlu-dist"].prefix.libs + spec["blas"].libs),
+                    cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec), 
                 ]
             )
 
