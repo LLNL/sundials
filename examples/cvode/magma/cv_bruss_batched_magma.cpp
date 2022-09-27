@@ -456,13 +456,13 @@ void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtyp
 {
   int N  = batchSize;
   int NN = N*N;
-  sunrealtype u, v, w, a, b, ep;
+  sunrealtype u, v, w, ep;
 
   for (int batchj = blockIdx.x*blockDim.x + threadIdx.x;
        batchj < nbatches;
        batchj += blockDim.x * gridDim.x)
   {
-    a = A[batchj]; b = B[batchj], ep = Ep[batchj];
+    ep = Ep[batchj];
 
     /* get y values */
     u = ydata[N*batchj];
