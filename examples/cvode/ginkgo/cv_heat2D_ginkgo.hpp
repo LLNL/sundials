@@ -72,9 +72,9 @@ struct UserData
   sunrealtype dy = yu / (ny - 1);
 
   // Integrator settings
-  sunrealtype rtol     = SUN_RCONST(1.0e-5);  // relative tolerance
-  sunrealtype atol     = SUN_RCONST(1.0e-10); // absolute tolerance
-  int         maxsteps = 0;                   // max number of steps between outputs
+  sunrealtype rtol     = SUN_RCONST(1.0e-4); // relative tolerance
+  sunrealtype atol     = SUN_RCONST(1.0e-8); // absolute tolerance
+  int         maxsteps = 0;                  // max number of steps between outputs
 
   // Linear solver settings
   int         liniters = 20;   // number of linear iterations
