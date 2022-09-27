@@ -225,7 +225,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     conflicts("+f2003", when="@:4.1.0")
     conflicts("~int64", when="@:2.7.0")
     conflicts("+rocm", when="@:5.6.0")
-
     conflicts("~openmp", when="^superlu-dist+openmp")
 
     # External libraries incompatible with 64-bit indices
