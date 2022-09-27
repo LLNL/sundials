@@ -137,8 +137,11 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
   if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
 
   dim3 threads_per_block{16, 16};
-  dim3 num_blocks{(nx + threads_per_block.x - 1) / threads_per_block.x,
-                  (ny + threads_per_block.y - 1) / threads_per_block.y};
+  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block.x - 1)
+      / threads_per_block.x};
+  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block.y - 1)
+      / threads_per_block.y};
+  dim3 num_blocks{nbx, nby};
 
   solution_kernel<<<num_blocks, threads_per_block>>>
     (nx, ny, dx, dy, cos_sqr_t, uarray);

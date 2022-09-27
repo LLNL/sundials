@@ -346,10 +346,12 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
   sunrealtype *farray = N_VGetDeviceArrayPointer(f);
   if (check_ptr(farray, "N_VGetDeviceArrayPointer")) return -1;
 
-
   dim3 threads_per_block{16, 16};
-  dim3 num_blocks{(nx + threads_per_block.x - 1) / threads_per_block.x,
-                  (ny + threads_per_block.y - 1) / threads_per_block.y};
+  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block.x - 1)
+      / threads_per_block.x};
+  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block.y - 1)
+      / threads_per_block.y};
+  dim3 num_blocks{nbx, nby};
 
   f_kernel<<<num_blocks, threads_per_block>>>
     (nx, ny, dx, dy, cx, cy, cc, bx, by, sin_t_cos_t, cos_sqr_t,
@@ -544,8 +546,11 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
     (nx, ny, row_ptrs, col_idxs, mat_data);
 
   dim3 threads_per_block_i{16, 16};
-  dim3 num_blocks_i{(nx + threads_per_block_i.x - 1) / threads_per_block_i.x,
-                    (ny + threads_per_block_i.y - 1) / threads_per_block_i.y};
+  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block_i.x - 1)
+      / threads_per_block_i.x};
+  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block_i.y - 1)
+      / threads_per_block_i.y};
+  dim3 num_blocks_i{nbx, nby};
 
   J_kernel<<<num_blocks_i, threads_per_block_i>>>
     (nx, ny, cx, cy, cc, row_ptrs, col_idxs, mat_data);
