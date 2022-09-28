@@ -200,7 +200,6 @@ $tar $tarfile $distrobase/examples/cvode/ginkgo/README
 $tar $tarfile $distrobase/examples/cvode/ginkgo/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.cpp
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.hpp
-$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.out
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.CUDA.out
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.OMP.out
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.REF.out
