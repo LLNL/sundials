@@ -74,7 +74,8 @@ typedef struct ARKodeMRIStepMemRec {
   int q;                         /* method order                             */
   int p;                         /* embedding order                          */
   int stages;                    /* total number of stages                   */
-  int nstages_stored;            /* total number of stage RHS vectors stored */
+  int nstages_active;            /* number of active stage RHS vectors       */
+  int nstages_allocated;         /* number of stage RHS vectors allocated    */
   int *stage_map;                /* index map for storing stage RHS vectors  */
   int *stagetypes;               /* type flags for stages                    */
   realtype *Ae_row;              /* equivalent explicit RK coeffs            */
@@ -163,11 +164,12 @@ struct _MRIStepInnerStepper
   SUNContext  sunctx;
 
   /* base class data */
-  N_Vector*  forcing;    /* array of forcing vectors   */
-  int        nforcing;   /* number of forcing vectors  */
-  int        last_flag;  /* last stepper return flag   */
-  realtype   tshift;     /* time normalization shift   */
-  realtype   tscale;     /* time normalization scaling */
+  N_Vector*  forcing;             /* array of forcing vectors            */
+  int        nforcing;            /* number of forcing vectors active    */
+  int        nforcing_allocated;  /* number of forcing vectors allocated */
+  int        last_flag;           /* last stepper return flag            */
+  realtype   tshift;              /* time normalization shift            */
+  realtype   tscale;              /* time normalization scaling          */
 
   /* fused op workspace */
   realtype* vals;

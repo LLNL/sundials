@@ -122,6 +122,9 @@ Removed support for SuperLU_DIST v6.x.x or older.
 
 CMake 3.18.0 or newer is now required for CUDA support.
 
+Fixed a memory leak where the projection memory would not be deallocated when
+calling :c:func:`CVodeFree`.
+
 Changes in v6.3.0
 -----------------
 

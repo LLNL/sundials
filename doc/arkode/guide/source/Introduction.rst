@@ -129,6 +129,10 @@ Removed support for SuperLU_DIST v6.x.x or older.
 
 CMake 3.18.0 or newer is now required for CUDA support.
 
+Fixed memory leaks/out of bounds memory accesses in the ARKODE MRIStep module
+that could occur when attaching a coupling table after reinitialization with a
+different number of stages than originally selected.
+
 Changes in v5.3.0
 -----------------
 
