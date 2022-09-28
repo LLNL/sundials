@@ -807,6 +807,37 @@ illustration only.
 
    Default: none
 
+.. cmakeoption:: SUPERLUDIST_OpenMP
+
+   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
+
+   Default: none
+
+   Note: SuperLU_DIST must be built with OpenMP support for this option to function.
+   Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
+   number of threads.
+
+.. cmakeoption:: SUPERLUDIST_INCLUDE_DIRS
+
+   List of include paths for SuperLU_DIST (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. Prefer to use :cmakeop:`SUPERLUDIST_DIR`.
+
+.. cmakeoption:: SUPERLUDIST_LIBRARIES
+
+   Semi-colon separated list of libraries needed for SuperLU_DIST
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. Prefer to use :cmakeop:`SUPERLUDIST_DIR`.
+
 .. cmakeoption:: SUPERLUDIST_INCLUDE_DIR
 
    Path to SuperLU_DIST header files (under a typical SuperLU_DIST
@@ -827,22 +858,6 @@ illustration only.
    .. note::
 
       This option is deprecated. Use :cmakeop:`SUPERLUDIST_DIR`.
-
-.. cmakeoption:: SUPERLUDIST_LIBRARIES ()
-
-   Semi-colon separated list of libraries needed for SuperLU_DIST
-
-   Default: none
-
-.. cmakeoption:: SUPERLUDIST_OpenMP
-
-   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
-
-   Default: none
-
-   Note: SuperLU_DIST must be built with OpenMP support for this option to function.
-   Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
-   number of threads.
 
 .. cmakeoption:: ENABLE_SUPERLUMT
 

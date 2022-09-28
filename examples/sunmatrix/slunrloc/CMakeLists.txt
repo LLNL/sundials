@@ -38,10 +38,6 @@ if(MPI_C_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 endif()
 
-if(SUPERLUDIST_OpenMP)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_slunrloc_examples})
   # parse the example tuple

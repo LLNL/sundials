@@ -38,10 +38,6 @@ if(MPI_C_COMPILER AND MPI_CXX_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 endif()
 
-if(SUPERLUDIST_OpenMP)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # Add source directory to include directories
 include_directories(. ..)
 
