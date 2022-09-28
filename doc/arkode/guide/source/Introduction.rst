@@ -124,6 +124,10 @@ Changes in v5.4.0
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
 
+Fixed memory leaks/out of bounds memory accesses in the ARKODE MRIStep module
+that could occur when attaching a coupling table after reinitialization with a
+different number of stages than originally selected.
+
 Changes in v5.3.0
 -----------------
 
