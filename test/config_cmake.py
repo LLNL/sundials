@@ -433,6 +433,18 @@ def main():
             'SUPERLUDIST_DIR', None, 'PATH',
             'SuperLU_DIST installation directory', dependson='--superlu-dist')
 
+    add_arg(group, '--superlu-dist-incdir', 'SUPERLU_DIST_INCLUDE_DIR',
+            'SUPERLUDIST_INCLUDE_DIR', None, 'PATH',
+            'SuperLU_DIST include directory', dependson='--superlu-dist')
+
+    add_arg(group, '--superlu-dist-libdir', 'SUPERLU_DIST_LIBRARY_DIR',
+            'SUPERLUDIST_LIBRARY_DIR', None, 'PATH',
+            'SuperLU_DIST library directory', dependson='--superlu-dist')
+
+    add_arg(group, '--superlu-dist-libs', 'SUPERLU_DIST_LIBRARIES',
+            'SUPERLUDIST_LIBRARIES', None, 'STRING',
+            'SuperLU_DIST additional libraries', dependson='--superlu-dist')
+
     add_arg(group, '--superlu-dist-openmp', 'SUPERLU_DIST_OPENMP',
             'SUPERLUDIST_OpenMP', 'OFF', 'BOOL', 'SuperLU_DIST OpenMP enabled',
             dependson='--superlu-dist')
