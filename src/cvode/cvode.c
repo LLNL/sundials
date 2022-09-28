@@ -1622,6 +1622,10 @@ void CVodeFree(void **cvode_mem)
     free(cv_mem->cv_gactive); cv_mem->cv_gactive = NULL;
   }
 
+  if (cv_mem->proj_mem) {
+    cvProjFree(&(cv_mem->proj_mem));
+  }
+
   free(*cvode_mem);
   *cvode_mem = NULL;
 }

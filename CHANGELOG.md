@@ -5,6 +5,13 @@
 Fixed a bug in the CUDA and HIP vectors where `N_VMaxNorm` would return the
 minimum positive floating-point value for the zero vector.
 
+Fixed memory leaks/out of bounds memory accesses in the ARKODE MRIStep module
+that could occur when attaching a coupling table after reinitialization with a
+different number of stages than originally selected.
+
+Fixed a memory leak in CVODE and CVODES where the projection memory would not be
+deallocated when calling `CVodeFree`.
+
 ## Changes to SUNDIALS in release 6.3.0
 
 Added `GetUserData` functions in each package to retrieve the user data pointer

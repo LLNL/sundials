@@ -294,7 +294,9 @@ int main(int argc, char* argv[])
   PrintStats(cvode_mem);
 
   /* Free memory */
+  free(udata);
   N_VDestroy(y);
+  N_VDestroy(e);
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);

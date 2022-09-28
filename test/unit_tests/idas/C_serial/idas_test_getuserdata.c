@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
   /* Clean up */
   IDAFree(&ida_mem);
   N_VDestroy(y);
+  N_VDestroy(yp);
   SUNContext_Free(&sunctx);
 
   printf("SUCCESS\n");
