@@ -84,7 +84,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 __global__
 static void f_kernel(realtype t, realtype* y, realtype* ydot,
-                     int neq, int ngroups);
+                     int ngroups);
 
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -107,7 +107,6 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* user data structure */
 typedef struct {
   int ngroups;
-  int neq;
 } UserData;
 
 /*
@@ -149,7 +148,6 @@ int main(int argc, char *argv[])
   neq = ngroups * GROUPSIZE;
 
   udata.ngroups = ngroups;
-  udata.neq = neq;
 
   /* Create CUDA or HIP vector of length neq for I.C. and abstol */
   y = HIP_OR_CUDA( N_VNew_Hip(neq, sunctx);,
@@ -285,8 +283,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   ydotdata = N_VGetDeviceArrayPointer(ydot);
 
   unsigned block_size = HIP_OR_CUDA( 64, 32 );
-  unsigned grid_size = (udata->neq + block_size - 1) / block_size;
-  f_kernel<<<grid_size, block_size>>>(t, ydata, ydotdata, udata->neq, udata->ngroups);
+  unsigned grid_size = (udata->ngroups + block_size - 1) / block_size;
+  f_kernel<<<grid_size, block_size>>>(t, ydata, ydotdata, udata->ngroups);
 
   HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); )
   HIP_OR_CUDA( hipError_t cuerr = hipGetLastError();,
@@ -304,18 +302,25 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 /* Right hand side function evalutation kernel. */
 __global__
 static void f_kernel(realtype t, realtype* ydata, realtype* ydotdata,
-                     int neq, int ngroups)
+                     int ngroups)
 {
+  int N = GROUPSIZE;
   realtype y1, y2, y3, yd1, yd3;
-  int i = blockIdx.x*blockDim.x + threadIdx.x;
-  int groupj = i*GROUPSIZE;
+  int groupj;
 
-  if (i < neq) {
-    y1 = ydata[groupj]; y2 = ydata[groupj+1]; y3 = ydata[groupj+2];
+  for (groupj = blockIdx.x*blockDim.x + threadIdx.x;
+       groupj < ngroups;
+       groupj += blockDim.x * gridDim.x)
+  {
+    auto idx0 = N * groupj;
+    auto idx1 = N * groupj + 1;
+    auto idx2 = N * groupj + 2;
 
-    yd1 = ydotdata[groupj]   = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-    yd3 = ydotdata[groupj+2] = RCONST(3.0e7)*y2*y2;
-          ydotdata[groupj+1] = -yd1 - yd3;
+    y1 = ydata[idx0]; y2 = ydata[idx1]; y3 = ydata[idx2];
+
+    yd1 = ydotdata[idx0] = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
+    yd3 = ydotdata[idx2] = RCONST(3.0e7)*y2*y2;
+          ydotdata[idx1] = -yd1 - yd3;
   }
 }
 
@@ -335,7 +340,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   ydata   = N_VGetDeviceArrayPointer(y);
 
   block_size = HIP_OR_CUDA( 64, 32 );
-  grid_size = (udata->neq + block_size - 1) / block_size;
+  grid_size = (udata->ngroups + block_size - 1) / block_size;
 
   j_kernel<<<grid_size, block_size>>>(udata->ngroups, ydata, Jdata);
 

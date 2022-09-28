@@ -234,18 +234,20 @@ if(EXAMPLES_INSTALL)
     list(APPEND _sundials_targets cvode nvecmpiplusx)
   endif()
 
-  if(serial_raja_examples)
-    list(APPEND examples_to_install "${serial_raja_examples}")
-    list(APPEND _sundials_targets nvecmpiplusx)
+  # For now do not install the RAJA examples because they need to built as CUDA
+  # code when RAJA is built with CUDA
+  # if(serial_raja_examples)
+  #   list(APPEND examples_to_install "${serial_raja_examples}")
+  #   list(APPEND _sundials_targets nvecmpiplusx)
 
-    if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
-      set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
-    endif()
+  #   if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  #     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
+  #   endif()
 
-    if(RAJA_NEEDS_THREADS)
-      set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
-    endif()
-  endif()
+  #   if(RAJA_NEEDS_THREADS)
+  #     set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+  #   endif()
+  # endif()
 
   sundials_install_examples(arkode examples_to_install
     CMAKE_TEMPLATE
@@ -253,7 +255,7 @@ if(EXAMPLES_INSTALL)
     SUNDIALS_TARGETS
       ${_sundials_targets}
     OTHER_TARGETS
-      ${OTHER_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
     DESTINATION
       arkode/CXX_parallel
     EXTRA_FILES
