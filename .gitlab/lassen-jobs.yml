@@ -78,7 +78,7 @@ lassen_gcc_cuda_tpls:
       - COMPILER_SPEC: gcc@8.3.1
         CUDA_SPEC: [cuda@11.5.0]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
   extends: .lassen_build_and_test
 
 # ------------------------------------------------------------------------------
@@ -91,6 +91,6 @@ lassen_gcc_cuda_bench:
       - COMPILER_SPEC: gcc@8.3.1
         CUDA_SPEC: [cuda@11.5.0]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double ~int64 +benchmarks+profiling+caliper +mpi+openmp+cuda+raja cuda_arch=70 ^raja+cuda~examples~exercises cuda_arch=70 ^caliper+cuda cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double ~int64 +benchmarks+profiling+caliper +mpi+openmp+cuda+raja cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^caliper+cuda cuda_arch=70 ^${CUDA_SPEC}"
   extends: .lassen_build_and_bench
 
