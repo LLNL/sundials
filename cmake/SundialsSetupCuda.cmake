@@ -57,8 +57,8 @@ if( (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   endif()
 endif()
 
-# Need c++11 for the CUDA compiler check.
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -std=c++11")
+# Need c++14 for the CUDA compiler check.
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -std=c++14")
 
 # ===============================================================
 # Enable CUDA lang and find the CUDA libraries.
@@ -69,27 +69,14 @@ set(CUDA_FOUND TRUE)
 
 find_package(CUDAToolkit REQUIRED)
 
-# # Hide legacy FindCUDA variables
-# get_cmake_property(_variables VARIABLES)
-# foreach(_var ${_variables})
-#   if("${_var}" MATCHES "^CUDA_[A-z]+_LIBRARY")
-#     # do nothing
-#   elseif("${_var}" MATCHES "^CUDA_.*")
-#     mark_as_advanced(${_var})
-#   endif()
-# endforeach()
-
-# Make the CUDA_rt_LIBRARY advanced like the other CUDA_*_LIBRARY variables
-# mark_as_advanced(FORCE CUDA_rt_LIBRARY)
-
 # Show CUDA flags
 mark_as_advanced(CLEAR CMAKE_CUDA_FLAGS)
 
-# We need c++11 for the CUDA compiler check, but if we don't remove it,
+# We need c++14 for the CUDA compiler check, but if we don't remove it,
 # then we will get a redefinition error. CMAKE_CUDA_STANDARD ends up
 # setting the proper version.
 if(CMAKE_CUDA_FLAGS)
-  STRING(REPLACE "-std=c++11" " " CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS})
+  STRING(REPLACE "-std=c++14" " " CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS})
 endif()
 set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
 
@@ -97,12 +84,12 @@ set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
 # Print out information about CUDA.
 # ===============================================================
 
-message(STATUS "CUDA Version:               ${CUDA_VERSION_STRING}")
+message(STATUS "CUDA Toolkit Version:       ${CUDAToolkit_VERSION}")
 message(STATUS "CUDA Architectures:         ${CMAKE_CUDA_ARCHITECTURES}")
 message(STATUS "CUDA Compiler:              ${CMAKE_CUDA_COMPILER}")
 message(STATUS "CUDA Host Compiler:         ${CMAKE_CUDA_HOST_COMPILER}")
-message(STATUS "CUDA Include Path:          ${CUDA_INCLUDE_DIRS}")
-message(STATUS "CUDA Libraries:             ${CUDA_LIBRARIES}")
+message(STATUS "CUDA Toolkit Includes:      ${CUDAToolkit_INCLUDE_DIRS}")
+message(STATUS "CUDA Library Directory:     ${CUDAToolkit_LIBRARY_DIR}")
 message(STATUS "CUDA Compile Flags:         ${CMAKE_CUDA_FLAGS}")
 message(STATUS "CUDA Link Flags:            ${CMAKE_CUDA_LINK_FLAGS}")
 message(STATUS "CUDA Link Executable:       ${CMAKE_CUDA_LINK_EXECUTABLE}")
