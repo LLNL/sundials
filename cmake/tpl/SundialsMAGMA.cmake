@@ -51,11 +51,6 @@ message(STATUS "MAGMA_LIBRARIES:         ${MAGMA_LIBRARIES}")
 message(STATUS "MAGMA_INCLUDE_DIR:       ${MAGMA_INCLUDE_DIR}")
 message(STATUS "SUNDIALS_MAGMA_BACKENDS: ${SUNDIALS_MAGMA_BACKENDS}")
 
-# TODO(CJB): we will need to know what version of MAGMA is next and code this appropriately
-if(MAGMA_VERSION VERSION_LESS_EQUAL 2.6.2)
-  find_package(CUDA REQUIRED) # MAGMA <= 2.6.2 needs the CUDA package still
-endif()
-
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
