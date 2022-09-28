@@ -76,12 +76,18 @@ endforeach()
 message(STATUS "RAJA Version:  ${RAJA_VERSION_MAJOR}.${RAJA_VERSION_MINOR}.${RAJA_VERSION_PATCHLEVEL}")
 message(STATUS "RAJA Backends: ${RAJA_BACKENDS}")
 
-if("CUDA" MATCHES "${RAJA_BACKENDS}")
+if("${RAJA_BACKENDS}" MATCHES "CUDA")
   if(NOT TARGET Threads::Threads)
     find_package(Threads)
   endif()
+  # The RAJA target links to camp which links to a target 'cuda_runtime'
+  # which is normally provided by BLT. Since we do not use BLT, we instead
+  # create the target here and tell it to link to CUDA::cudart.
+  if(NOT TARGET cuda_runtime)
+    add_library(cuda_runtime INTERFACE IMPORTED)
+    target_link_libraries(cuda_runtime INTERFACE CUDA::cudart)
+  endif()
 endif()
-
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
