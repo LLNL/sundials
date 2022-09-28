@@ -46,9 +46,10 @@ endif()
 
 find_package(MAGMA REQUIRED)
 
-message(STATUS "MAGMA_VERSION:     ${MAGMA_VERSION}")
-message(STATUS "MAGMA_LIBRARIES:   ${MAGMA_LIBRARIES}")
-message(STATUS "MAGMA_INCLUDE_DIR: ${MAGMA_INCLUDE_DIR}")
+message(STATUS "MAGMA_VERSION:           ${MAGMA_VERSION}")
+message(STATUS "MAGMA_LIBRARIES:         ${MAGMA_LIBRARIES}")
+message(STATUS "MAGMA_INCLUDE_DIR:       ${MAGMA_INCLUDE_DIR}")
+message(STATUS "SUNDIALS_MAGMA_BACKENDS: ${SUNDIALS_MAGMA_BACKENDS}")
 
 # TODO(CJB): we will need to know what version of MAGMA is next and code this appropriately
 if(MAGMA_VERSION VERSION_LESS_EQUAL 2.6.2)
@@ -73,13 +74,18 @@ if(MAGMA_FOUND AND (NOT MAGMA_WORKS))
 
   if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
     set(lang CXX)
-    set(ext cxx)
+    set(ext cpp)
     set(define_have "\#define HAVE_HIP")
     set(lib hip::host)
   elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
     set(lang CUDA)
     set(ext cu)
     set(define_have "\#define HAVE_CUBLAS")
+    set(lib )
+  else()
+    set(lang CXX)
+    set(ext cpp)
+    set(define_have )
     set(lib )
   endif()
 
@@ -97,6 +103,7 @@ if(MAGMA_FOUND AND (NOT MAGMA_WORKS))
     LINK_LIBRARIES ${MAGMA_LIBRARIES} ${lib}
     OUTPUT_VARIABLE COMPILE_OUTPUT
     ${lang}_STANDARD ${CMAKE_${lang}_STANDARD}
+    ${lang}_STANDARD_REQUIRED
   )
 
   # Process test result
