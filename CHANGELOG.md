@@ -18,6 +18,11 @@ different number of stages than originally selected.
 Fixed a memory leak in CVODE and CVODES where the projection memory would not be
 deallocated when calling `CVodeFree`.
 
+Added support for the [Ginkgo](https://ginkgo-project.github.io/>)  linear
+algebra library. This support includes new `SUNMatrix` and `SUNLinearSolvers`
+implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
+sections in the documentation for more info.
+
 ## Changes to SUNDIALS in release 6.3.0
 
 Added `GetUserData` functions in each package to retrieve the user data pointer

@@ -100,6 +100,10 @@ declaration bug in SuperLU_DIST matrix constructor.
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
 
+Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_  linear algebra library. 
+This support includes new ``SUNMatrix`` and ``SUNLinearSolver`` implementations,
+see the sections :numref:`SUNMatrix.Ginkgo` and :numref:`SUNLinSol.Ginkgo`.
+
 Changes in v6.3.0
 -----------------
 
