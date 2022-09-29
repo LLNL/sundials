@@ -18,10 +18,10 @@
 #define _SUNLINSOL_GINKGO_HPP
 
 #include <cstring>
-#include <memory>
 #include <ginkgo/ginkgo.hpp>
-#include <sundials/sundials_matrix.hpp>
+#include <memory>
 #include <sundials/sundials_linearsolver.hpp>
+#include <sundials/sundials_matrix.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
 namespace sundials {
@@ -30,17 +30,26 @@ namespace ginkgo {
 template<class GkoSolverType, class GkoMatrixType>
 class LinearSolver;
 
-inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S) { return SUNLINEARSOLVER_MATRIX_ITERATIVE; }
+inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S)
+{
+  return SUNLINEARSOLVER_MATRIX_ITERATIVE;
+}
 
-inline SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S) { return SUNLINEARSOLVER_GINKGO; }
+inline SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S)
+{
+  return SUNLINEARSOLVER_GINKGO;
+}
 
-inline int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S) { return SUNLS_SUCCESS; }
+inline int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S)
+{
+  return SUNLS_SUCCESS;
+}
 
 template<class GkoSolverType, class GkoMatrixType>
 int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
-  solver->setup(static_cast<Matrix<GkoMatrixType>*>(A->content));
+  solver->Setup(static_cast<Matrix<GkoMatrixType>*>(A->content));
   return SUNLS_SUCCESS;
 }
 
@@ -48,7 +57,7 @@ template<class GkoSolverType, class GkoMatrixType>
 int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
-  solver->solve(b, x, tol);
+  solver->Solve(b, x, tol);
   return SUNLS_SUCCESS;
 }
 
@@ -64,14 +73,14 @@ template<class GkoSolverType, class GkoMatrixType>
 int SUNLinSolNumIters_Ginkgo(SUNLinearSolver S)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
-  return solver->numIters();
+  return solver->NumIters();
 }
 
 template<class GkoSolverType, class GkoMatrixType>
 sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
-  return solver->resNorm();
+  return solver->ResNorm();
 }
 
 // Custom gko::stop::Criterion that does the normal SUNDIALS stopping checks:
@@ -91,9 +100,15 @@ public:
   GKO_ENABLE_CRITERION_FACTORY(DefaultStop, parameters, Factory);
   GKO_ENABLE_BUILD_METHOD(Factory);
 
-  gko::uint64 get_max_iters() const { return parameters_.max_iters; }
+  gko::uint64 get_max_iters() const
+  {
+    return parameters_.max_iters;
+  }
 
-  sunrealtype get_reduction_factor() const { return parameters_.reduction_factor; }
+  sunrealtype get_reduction_factor() const
+  {
+    return parameters_.reduction_factor;
+  }
 
 protected:
   bool check_impl(gko::uint8 stoppingId, bool setFinalized, gko::array<gko::stopping_status>* stop_status,
@@ -108,14 +123,12 @@ protected:
                                                                                                  factory->get_parameters()}
   {
     criteria_.push_back(gko::stop::ResidualNorm<sunrealtype>::build()
-                        .with_reduction_factor(parameters_.reduction_factor)
-                        .with_baseline(gko::stop::mode::absolute)
-                        .on(factory->get_executor())
-                        ->generate(args));
-    criteria_.push_back(gko::stop::Iteration::build()
-                        .with_max_iters(parameters_.max_iters)
-                        .on(factory->get_executor())
-                        ->generate(args));
+                            .with_reduction_factor(parameters_.reduction_factor)
+                            .with_baseline(gko::stop::mode::absolute)
+                            .on(factory->get_executor())
+                            ->generate(args));
+    criteria_.push_back(
+        gko::stop::Iteration::build().with_max_iters(parameters_.max_iters).on(factory->get_executor())->generate(args));
   }
 
 private:
@@ -199,28 +212,55 @@ public:
 
   ~LinearSolver() override = default;
 
-  operator SUNLinearSolver() override { return sunlinsol_.get(); }
-  operator SUNLinearSolver() const override { return sunlinsol_.get(); }
-  SUNLinearSolver get() override { return sunlinsol_.get(); }
-  SUNLinearSolver get() const override { return sunlinsol_.get(); }
-
-  std::shared_ptr<const gko::Executor> gkoexec() const { return gko_solver_factory_->get_executor(); }
-
-  std::shared_ptr<typename GkoSolverType::Factory> gkofactory() { return gko_solver_factory_; }
-
-  GkoSolverType* gkosolver() { return gko_solver_.get(); }
-
-  int numIters() const { return iter_count_; }
-
-  sunrealtype resNorm() const { return res_norm_; }
-
-  GkoSolverType* setup(Matrix<GkoMatrixType>* A)
+  operator SUNLinearSolver() override
   {
-    gko_solver_ = gko_solver_factory_->generate(A->gkomtx());
+    return sunlinsol_.get();
+  }
+  operator SUNLinearSolver() const override
+  {
+    return sunlinsol_.get();
+  }
+  SUNLinearSolver get() override
+  {
+    return sunlinsol_.get();
+  }
+  SUNLinearSolver get() const override
+  {
+    return sunlinsol_.get();
+  }
+
+  std::shared_ptr<const gko::Executor> GkoExec() const
+  {
+    return gko_solver_factory_->get_executor();
+  }
+
+  std::shared_ptr<typename GkoSolverType::Factory> gkofactory()
+  {
+    return gko_solver_factory_;
+  }
+
+  GkoSolverType* GkoSolver()
+  {
     return gko_solver_.get();
   }
 
-  gko::LinOp* solve(N_Vector b, N_Vector x, sunrealtype tol)
+  int NumIters() const
+  {
+    return iter_count_;
+  }
+
+  sunrealtype ResNorm() const
+  {
+    return res_norm_;
+  }
+
+  GkoSolverType* Setup(Matrix<GkoMatrixType>* A)
+  {
+    gko_solver_ = gko_solver_factory_->generate(A->GkoMtx());
+    return gko_solver_.get();
+  }
+
+  gko::LinOp* Solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
     auto logger{gko::share(gko::log::Convergence<sunrealtype>::create())};
 
@@ -229,35 +269,32 @@ public:
     // our normal iterative linear solver criterion.
     // If the criterion on the solver is of type DefaultStop,
     // then we will override the reduction_factor (tolerance).
-    auto crit{dynamic_cast<const DefaultStop::Factory*>(gkosolver()->get_stop_criterion_factory().get())};
+    auto crit{dynamic_cast<const DefaultStop::Factory*>(GkoSolver()->get_stop_criterion_factory().get())};
     if (crit != nullptr) {
-      auto new_crit = DefaultStop::build()
-        .with_reduction_factor(tol)
-        .with_max_iters(crit->get_parameters().max_iters)
-        .on(gkoexec());
+      auto new_crit =
+          DefaultStop::build().with_reduction_factor(tol).with_max_iters(crit->get_parameters().max_iters).on(GkoExec());
       new_crit->add_logger(logger);
-      gkosolver()->set_stop_criterion_factory(std::move(new_crit));
+      GkoSolver()->set_stop_criterion_factory(std::move(new_crit));
     }
 
     gko::LinOp* result{nullptr};
     if (x != b) {
-      auto x_vec = WrapVector(gkoexec(), x);
-      auto b_vec = WrapVector(gkoexec(), b);
+      auto x_vec = impl::WrapVector(GkoExec(), x);
+      auto b_vec = impl::WrapVector(GkoExec(), b);
 
       // x = A^{-1} b
-      result = gkosolver()->apply(b_vec.get(), x_vec.get());
+      result = GkoSolver()->apply(b_vec.get(), x_vec.get());
     }
     else {
-      auto x_vec = WrapVector(gkoexec(), x);
+      auto x_vec = impl::WrapVector(GkoExec(), x);
 
       // x = A^{-1} x
-      result = gkosolver()->apply(x_vec.get(), x_vec.get());
+      result = GkoSolver()->apply(x_vec.get(), x_vec.get());
     }
 
     iter_count_ = static_cast<int>(logger->get_num_iterations());
-    gkoexec()->get_master()->copy_from(gko::lend(gkoexec()),
-                                       1,
-                                       gko::as<GkoDenseMat>(logger->get_residual_norm())->get_const_values(),
+    GkoExec()->get_master()->copy_from(gko::lend(GkoExec()), 1,
+                                       gko::as<impl::GkoDenseMat>(logger->get_residual_norm())->get_const_values(),
                                        &res_norm_);
 
     return result;

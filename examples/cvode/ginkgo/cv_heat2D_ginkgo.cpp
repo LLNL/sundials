@@ -48,8 +48,8 @@
 
 // Include integrator, vector, matrix, and linear solver headers
 #include <cvode/cvode.h>
-#include <sunmatrix/sunmatrix_ginkgo.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
+#include <sunmatrix/sunmatrix_ginkgo.hpp>
 
 #if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
@@ -73,19 +73,17 @@ using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
 using GkoSolverType = gko::solver::Cg<sunrealtype>;
 
 using SUNGkoMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
-using SUNGkoSolverType = sundials::ginkgo::LinearSolver<GkoSolverType,
-                                                        GkoMatrixType>;
+using SUNGkoSolverType = sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>;
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrator
 // -----------------------------------------------------------------------------
 
 // ODE right hand side function
-int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Jacobian of RHS function
-int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -122,16 +120,14 @@ int main(int argc, char* argv[])
   N_Vector e = N_VClone(u);
   if (check_ptr(e, "N_VClone")) return 1;
 
-  // ---------------------------------------
-  // Create Ginkgo matrix and linear solver
-  // ---------------------------------------
+    // ---------------------------------------
+    // Create Ginkgo matrix and linear solver
+    // ---------------------------------------
 
 #if defined(USE_CUDA)
-  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
-                                          gko::allocation_mode::device)};
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false, gko::allocation_mode::device)};
 #elif defined(USE_HIP)
-  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
-                                         gko::allocation_mode::device)};
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false, gko::allocation_mode::device)};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
 #else
@@ -140,24 +136,18 @@ int main(int argc, char* argv[])
 
   auto gko_matrix_dim = gko::dim<2>(udata.nodes, udata.nodes);
   auto gko_matrix_nnz{(5 * (udata.nx - 2) + 2) * (udata.ny - 2) + 2 * udata.nx};
-  auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, gko_matrix_dim,
-                                                     gko_matrix_nnz));
+  auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, gko_matrix_dim, gko_matrix_nnz));
 
   SUNGkoMatrixType A{gko_matrix, sunctx};
 
   // Use default stopping criteria
-  auto crit{sundials::ginkgo::DefaultStop::build()
-            .with_max_iters(static_cast<gko::uint64>(udata.liniters))
-            .on(gko_exec)};
+  auto crit{sundials::ginkgo::DefaultStop::build().with_max_iters(static_cast<gko::uint64>(udata.liniters)).on(gko_exec)};
 
   // Use Jacobi preconditioner
-  auto precon{gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build()
-              .on(gko_exec)};
+  auto precon{gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build().on(gko_exec)};
 
-  auto gko_solver_factory = gko::share(GkoSolverType::build()
-                                       .with_criteria(std::move(crit))
-                                       .with_preconditioner(std::move(precon))
-                                       .on(gko_exec));
+  auto gko_solver_factory = gko::share(
+      GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec));
 
   SUNGkoSolverType LS{gko_solver_factory, sunctx};
 
@@ -178,7 +168,7 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSStolerances")) return 1;
 
   // Attach user data
-  flag = CVodeSetUserData(cvode_mem, (void *) &udata);
+  flag = CVodeSetUserData(cvode_mem, (void*)&udata);
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Attach linear solver
@@ -216,8 +206,7 @@ int main(int argc, char* argv[])
   flag = WriteOutput(t, u, e, udata);
   if (check_flag(flag, "WriteOutput")) return 1;
 
-  for (int iout = 0; iout < udata.nout; iout++)
-  {
+  for (int iout = 0; iout < udata.nout; iout++) {
     // Evolve in time
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if (check_flag(flag, "CVode")) break;
@@ -250,8 +239,7 @@ int main(int argc, char* argv[])
 
   sunrealtype maxerr = N_VMaxNorm(e);
 
-  std::cout << std::scientific
-            << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
+  std::cout << std::scientific << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
             << "\nMax error = " << maxerr << std::endl;
 
   // --------------------
@@ -271,21 +259,17 @@ int main(int argc, char* argv[])
 
 #if defined(USE_CUDA) || defined(USE_HIP)
 // GPU kernel to compute the ODE RHS function f(t,y).
-__global__
-void f_kernel(const sunindextype nx, const sunindextype ny,
-              const sunrealtype dx, const sunrealtype dy,
-              const sunrealtype cx, const sunrealtype cy, const sunrealtype cc,
-              const sunrealtype bx, const sunrealtype by,
-              const sunrealtype sin_t_cos_t, const sunrealtype cos_sqr_t,
-              sunrealtype* uarray, sunrealtype* farray)
+__global__ void f_kernel(const sunindextype nx, const sunindextype ny, const sunrealtype dx, const sunrealtype dy,
+                         const sunrealtype cx, const sunrealtype cy, const sunrealtype cc, const sunrealtype bx,
+                         const sunrealtype by, const sunrealtype sin_t_cos_t, const sunrealtype cos_sqr_t,
+                         sunrealtype* uarray, sunrealtype* farray)
 {
   const sunindextype i = blockIdx.x * blockDim.x + threadIdx.x;
   const sunindextype j = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1)
-  {
-    auto x  = i * dx;
-    auto y  = j * dy;
+  if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1) {
+    auto x = i * dx;
+    auto y = j * dy;
 
     auto sin_sqr_x = sin(PI * x) * sin(PI * x);
     auto sin_sqr_y = sin(PI * y) * sin(PI * y);
@@ -300,22 +284,19 @@ void f_kernel(const sunindextype nx, const sunindextype ny,
     auto idx_e = (i + 1) + j * nx;
     auto idx_w = (i - 1) + j * nx;
 
-    farray[idx_c] =
-      cc * uarray[idx_c]
-      + cx * (uarray[idx_w] + uarray[idx_e])
-      + cy * (uarray[idx_s] + uarray[idx_n])
-      -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-      -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-      -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+    farray[idx_c] = cc * uarray[idx_c] + cx * (uarray[idx_w] + uarray[idx_e]) + cy * (uarray[idx_s] + uarray[idx_n]) -
+                    TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t -
+                    bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t -
+                    by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
   }
 }
 #endif
 
 // f routine to compute the ODE RHS function f(t,y).
-int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
+int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 {
   // Access problem data and set shortcuts
-  auto udata = static_cast<UserData*>(user_data);
+  auto udata    = static_cast<UserData*>(user_data);
   const auto nx = udata->nx;
   const auto ny = udata->ny;
   const auto dx = udata->dx;
@@ -340,41 +321,35 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 #if defined(USE_CUDA) || defined(USE_HIP)
 
   // Access device data arrays
-  sunrealtype *uarray = N_VGetDeviceArrayPointer(u);
+  sunrealtype* uarray = N_VGetDeviceArrayPointer(u);
   if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
 
-  sunrealtype *farray = N_VGetDeviceArrayPointer(f);
+  sunrealtype* farray = N_VGetDeviceArrayPointer(f);
   if (check_ptr(farray, "N_VGetDeviceArrayPointer")) return -1;
 
   dim3 threads_per_block{16, 16};
-  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block.x - 1)
-      / threads_per_block.x};
-  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block.y - 1)
-      / threads_per_block.y};
+  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block.x - 1) / threads_per_block.x};
+  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block.y - 1) / threads_per_block.y};
   dim3 num_blocks{nbx, nby};
 
-  f_kernel<<<num_blocks, threads_per_block>>>
-    (nx, ny, dx, dy, cx, cy, cc, bx, by, sin_t_cos_t, cos_sqr_t,
-     uarray, farray);
+  f_kernel<<<num_blocks, threads_per_block>>>(nx, ny, dx, dy, cx, cy, cc, bx, by, sin_t_cos_t, cos_sqr_t, uarray, farray);
 
-  HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); );
+  HIP_OR_CUDA(hipDeviceSynchronize();, cudaDeviceSynchronize(););
 
 #else
 
   // Access host data arrays
-  sunrealtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype* uarray = N_VGetArrayPointer(u);
   if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
 
-  sunrealtype *farray = N_VGetArrayPointer(f);
+  sunrealtype* farray = N_VGetArrayPointer(f);
   if (check_ptr(farray, "N_VGetArrayPointer")) return -1;
 
   // Iterate over domain interior and fill the RHS vector
-  for (sunindextype j = 1; j < ny - 1; j++)
-  {
-    for (sunindextype i = 1; i < nx - 1; i++)
-    {
-      auto x  = i * dx;
-      auto y  = j * dy;
+  for (sunindextype j = 1; j < ny - 1; j++) {
+    for (sunindextype i = 1; i < nx - 1; i++) {
+      auto x = i * dx;
+      auto y = j * dy;
 
       auto sin_sqr_x = sin(PI * x) * sin(PI * x);
       auto sin_sqr_y = sin(PI * y) * sin(PI * y);
@@ -389,13 +364,10 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
       auto idx_e = (i + 1) + j * nx;
       auto idx_w = (i - 1) + j * nx;
 
-      farray[idx_c] =
-        cc * uarray[idx_c]
-        + cx * (uarray[idx_w] + uarray[idx_e])
-        + cy * (uarray[idx_s] + uarray[idx_n])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+      farray[idx_c] = cc * uarray[idx_c] + cx * (uarray[idx_w] + uarray[idx_e]) + cy * (uarray[idx_s] + uarray[idx_n]) -
+                      TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t -
+                      bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t -
+                      by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
     }
   }
 
@@ -408,53 +380,46 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 #if defined(USE_CUDA) || defined(USE_HIP)
 // GPU kernel to fill southern (j = 0) and northern (j = nx - 1) boundary
 // entries including the corners.
-__global__
-void J_sn_kernel(const sunindextype nx, const sunindextype ny,
-                 sunindextype* row_ptrs, sunindextype* col_idxs,
-                 sunrealtype* mat_data)
+__global__ void J_sn_kernel(const sunindextype nx, const sunindextype ny, sunindextype* row_ptrs,
+                            sunindextype* col_idxs, sunrealtype* mat_data)
 {
   const sunindextype i = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i >= 0 && i < nx)
-  {
+  if (i >= 0 && i < nx) {
     // Southern face
     mat_data[i] = ZERO;
     col_idxs[i] = i;
     row_ptrs[i] = i;
 
     // Northern face
-    auto col = i + (ny - 1) * nx;
-    auto idx = (5 * (nx - 2) + 2) * (ny - 2) + nx + i;
+    auto col      = i + (ny - 1) * nx;
+    auto idx      = (5 * (nx - 2) + 2) * (ny - 2) + nx + i;
     mat_data[idx] = ZERO;
     col_idxs[idx] = col;
     row_ptrs[col] = idx;
   }
 
-  if (i == nx - 1)
-    row_ptrs[nx * ny] = (5 * (nx - 2) + 2) * (ny - 2) + 2 * nx;
+  if (i == nx - 1) row_ptrs[nx * ny] = (5 * (nx - 2) + 2) * (ny - 2) + 2 * nx;
 }
 
 // GPU kernel to fill western (i = 0) and eastern (i = nx - 1) boundary entries
 // excluding the corners (set by J_sn_kernel).
-__global__
-void J_we_kernel(const sunindextype nx, const sunrealtype ny,
-                 sunindextype* row_ptrs, sunindextype* col_idxs,
-                 sunrealtype* mat_data)
+__global__ void J_we_kernel(const sunindextype nx, const sunrealtype ny, sunindextype* row_ptrs, sunindextype* col_idxs,
+                            sunrealtype* mat_data)
 {
   const sunindextype j = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (j > 0 && j < ny - 1)
-  {
+  if (j > 0 && j < ny - 1) {
     // Western face
-    auto col = j * nx;
-    auto idx = (5 * (nx - 2) + 2) * (j - 1) + nx;
+    auto col      = j * nx;
+    auto idx      = (5 * (nx - 2) + 2) * (j - 1) + nx;
     mat_data[idx] = ZERO;
     col_idxs[idx] = col;
     row_ptrs[col] = idx;
 
     // Eastern face
-    col = (nx - 1) + j * nx;
-    idx = (5 * (nx - 2) + 2) * (j - 1) + nx + 1 + 5 * (nx - 2);
+    col           = (nx - 1) + j * nx;
+    idx           = (5 * (nx - 2) + 2) * (j - 1) + nx + 1 + 5 * (nx - 2);
     mat_data[idx] = ZERO;
     col_idxs[idx] = col;
     row_ptrs[col] = idx;
@@ -462,17 +427,13 @@ void J_we_kernel(const sunindextype nx, const sunrealtype ny,
 }
 
 // GPU kernel to compute the ODE RHS Jacobian function df/dy(t,y).
-__global__
-void J_kernel(const sunindextype nx, const sunindextype ny,
-              const sunrealtype cx, const sunrealtype cy, const sunrealtype cc,
-              sunindextype* row_ptrs, sunindextype* col_idxs,
-              sunrealtype* mat_data)
+__global__ void J_kernel(const sunindextype nx, const sunindextype ny, const sunrealtype cx, const sunrealtype cy,
+                         const sunrealtype cc, sunindextype* row_ptrs, sunindextype* col_idxs, sunrealtype* mat_data)
 {
   const sunindextype i = blockIdx.x * blockDim.x + threadIdx.x;
   const sunindextype j = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1)
-  {
+  if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1) {
     auto row   = i + j * nx;
     auto col_s = row - nx;
     auto col_w = row - 1;
@@ -506,11 +467,10 @@ void J_kernel(const sunindextype nx, const sunindextype ny,
 // J routine to compute the ODE RHS Jacobian function df/dy(t,y). This
 // explicitly set boundary entries to zero so J(t,y) has the same sparsity
 // pattern as A = I - gamma * J(t,y).
-int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   // Access problem data
-  auto udata = static_cast<UserData*>(user_data);
+  auto udata    = static_cast<UserData*>(user_data);
   const auto nx = udata->nx;
   const auto ny = udata->ny;
   const auto dx = udata->dx;
@@ -523,75 +483,64 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   const sunrealtype cy = ky / (dy * dy);
   const sunrealtype cc = -TWO * (cx + cy);
 
-  auto J_gko = static_cast<SUNGkoMatrixType*>(J->content)->gkomtx();
+  auto J_gko = static_cast<SUNGkoMatrixType*>(J->content)->GkoMtx();
 
   sunindextype* row_ptrs = J_gko->get_row_ptrs();
   sunindextype* col_idxs = J_gko->get_col_idxs();
-  sunrealtype*  mat_data = J_gko->get_values();
+  sunrealtype* mat_data  = J_gko->get_values();
 
 #if defined(USE_CUDA) || defined(USE_HIP)
 
   unsigned threads_per_block_bx = 16;
-  unsigned num_blocks_bx = ((nx + threads_per_block_bx - 1) /
-                            threads_per_block_bx);
+  unsigned num_blocks_bx        = ((nx + threads_per_block_bx - 1) / threads_per_block_bx);
 
-  J_sn_kernel<<<num_blocks_bx, threads_per_block_bx>>>
-    (nx, ny, row_ptrs, col_idxs, mat_data);
+  J_sn_kernel<<<num_blocks_bx, threads_per_block_bx>>>(nx, ny, row_ptrs, col_idxs, mat_data);
 
   unsigned threads_per_block_by = 16;
-  unsigned num_blocks_by = ((ny + threads_per_block_by - 1) /
-                            threads_per_block_by);
+  unsigned num_blocks_by        = ((ny + threads_per_block_by - 1) / threads_per_block_by);
 
-  J_we_kernel<<<num_blocks_by, threads_per_block_by>>>
-    (nx, ny, row_ptrs, col_idxs, mat_data);
+  J_we_kernel<<<num_blocks_by, threads_per_block_by>>>(nx, ny, row_ptrs, col_idxs, mat_data);
 
   dim3 threads_per_block_i{16, 16};
-  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block_i.x - 1)
-      / threads_per_block_i.x};
-  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block_i.y - 1)
-      / threads_per_block_i.y};
+  const auto nbx{(static_cast<unsigned int>(nx) + threads_per_block_i.x - 1) / threads_per_block_i.x};
+  const auto nby{(static_cast<unsigned int>(ny) + threads_per_block_i.y - 1) / threads_per_block_i.y};
   dim3 num_blocks_i{nbx, nby};
 
-  J_kernel<<<num_blocks_i, threads_per_block_i>>>
-    (nx, ny, cx, cy, cc, row_ptrs, col_idxs, mat_data);
+  J_kernel<<<num_blocks_i, threads_per_block_i>>>(nx, ny, cx, cy, cc, row_ptrs, col_idxs, mat_data);
 
-  HIP_OR_CUDA( hipDeviceSynchronize();, cudaDeviceSynchronize(); );
+  HIP_OR_CUDA(hipDeviceSynchronize();, cudaDeviceSynchronize(););
 
 #else
 
   // Fill southern boundary entries (j = 0)
-  for (sunindextype i = 0; i < nx; i++)
-  {
+  for (sunindextype i = 0; i < nx; i++) {
     mat_data[i] = ZERO;
     col_idxs[i] = i;
     row_ptrs[i] = i;
   }
 
   // Fill western boundary entries (i = 0)
-  for (sunindextype j = 1; j < ny - 1; j++)
-  {
-    auto col = j * nx;
-    auto idx = (5 * (nx - 2) + 2) * (j - 1) + nx;
+  for (sunindextype j = 1; j < ny - 1; j++) {
+    auto col      = j * nx;
+    auto idx      = (5 * (nx - 2) + 2) * (j - 1) + nx;
     mat_data[idx] = ZERO;
     col_idxs[idx] = col;
     row_ptrs[col] = idx;
   }
 
   // Fill eastern boundary entries (i = nx - 1)
-  for (sunindextype j = 1; j < ny - 1; j++)
-  {
-    auto col = (nx - 1) + j * nx;
-    auto idx = (5 * (nx - 2) + 2) * (j - 1) + nx + 1 + 5 * (nx - 2);
+  for (sunindextype j = 1; j < ny - 1; j++) {
+    auto col      = (nx - 1) + j * nx;
+    auto idx      = (5 * (nx - 2) + 2) * (j - 1) + nx + 1 + 5 * (nx - 2);
     mat_data[idx] = ZERO;
     col_idxs[idx] = col;
     row_ptrs[col] = idx;
   }
 
   // Fill northern boundary entries (j = ny - 1)
-  for (sunindextype i = 0; i < nx; i++)
-  {
-    auto col = i + (ny - 1) * nx;
-    auto idx = (5 * (nx - 2) + 2) * (ny - 2) + nx + i;
+  for (sunindextype i = 0; i < nx; i++) {
+    auto col      = i + (ny - 1) * nx;
+    auto idx      = (5 * (nx - 2) + 2) * (ny - 2) + nx + i;
     mat_data[idx] = ZERO;
     col_idxs[idx] = col;
     row_ptrs[col] = idx;
@@ -599,10 +548,8 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   row_ptrs[nx * ny] = (5 * (nx - 2) + 2) * (ny - 2) + 2 * nx;
 
   // Fill interior entries
-  for (sunindextype j = 1; j < ny - 1; j++)
-  {
-    for (sunindextype i = 1; i < nx - 1; i++)
-    {
+  for (sunindextype j = 1; j < ny - 1; j++) {
+    for (sunindextype i = 1; i < nx - 1; i++) {
       auto row   = i + j * nx;
       auto col_s = row - nx;
       auto col_w = row - 1;
