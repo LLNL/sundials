@@ -117,6 +117,11 @@ Changes in v6.4.0
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
 
+Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x.
+Removed support for SuperLU_DIST v6.x.x or older.
+
+CMake 3.18.0 or newer is now required for CUDA support.
+
 Fixed a memory leak where the projection memory would not be deallocated when
 calling :c:func:`CVodeFree`.
 
@@ -129,6 +134,8 @@ provided to :c:func:`CVodeSetUserData`.
 Added a new example, ``examples/cvode/serial/cvRocket_dns.c,`` which
 demonstrates using CVODE with a discontinuous right-hand-side function
 and rootfinding.
+
+Fix mismatched definition and declaration bug in SuperLU_DIST matrix constructor.
 
 Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
 caused the double precision math functions to be used regardless of the value of

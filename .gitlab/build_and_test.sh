@@ -75,8 +75,16 @@ then
         fi
 
         prefix="${prefix}/${job_unique_id}"
-        mkdir -p "${prefix}"
+        mkdir -p ${prefix}
         prefix_opt="--prefix=${prefix}"
+
+        # We force Spack to put all generated files (cache and configuration of
+        # all sorts) in a unique location so that there can be no collision
+        # with existing or concurrent Spack.
+        spack_user_cache="${prefix}/spack-user-cache"
+        export SPACK_DISABLE_LOCAL_CONFIG=""
+        export SPACK_USER_CACHE_PATH="${spack_user_cache}"
+        mkdir -p ${spack_user_cache}
     fi
 
     if [[ -d /usr/workspace/sundials ]]
@@ -88,21 +96,23 @@ then
 
     if [[ "${shared_spack}" == "UPSTREAM" ]]
     then
-        python3 scripts/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
     elif [[ "${shared_spack}" == "ON" ]]
     then
-        python3 scripts/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
     else
-        python3 scripts/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
     fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
-    # convention on Lassen. Only on needed for CUDA 11 (unclear why).
+    # convention on Lassen. Only needed for CUDA 11 (unclear why).
     if [[ -n "${CUDA_SPEC}" ]]; then
         cuda_version="${CUDA_SPEC##*@}"
         echo "module load cuda/${cuda_version}"
         module load cuda/"${cuda_version}"
     fi
+
+    module load cmake/3.23
 fi
 date
 
@@ -111,18 +121,18 @@ if [[ -z ${hostconfig} ]]
 then
     # If no host config file was provided, we assume it was generated.
     # This means we are looking of a unique one in project dir.
-    hostconfigs=( $( ls "${project_dir}/"hc-*.cmake ) )
+    hostconfigs=( $( ls "${project_dir}/"*.cmake ) )
     if [[ ${#hostconfigs[@]} == 1 ]]
     then
         hostconfig_path=${hostconfigs[0]}
         echo "Found host config file: ${hostconfig_path}"
     elif [[ ${#hostconfigs[@]} == 0 ]]
     then
-        echo "No result for: ${project_dir}/hc-*.cmake"
+        echo "No result for: ${project_dir}/*.cmake"
         echo "Spack generated host-config not found."
         exit 1
     else
-        echo "More than one result for: ${project_dir}/hc-*.cmake"
+        echo "More than one result for: ${project_dir}/*.cmake"
         echo "${hostconfigs[@]}"
         echo "Please specify one with HOST_CONFIG variable"
         exit 1
@@ -135,10 +145,15 @@ fi
 # Build Directory
 if [[ -z ${build_root} ]]
 then
-    build_root=$(pwd)
+    build_root="/dev/shm$(pwd)"
+else
+    build_root="/dev/shm${build_root}"
 fi
 
-build_dir="${build_root}/build_${job_unique_id}"
+build_dir="${build_root}/build_${job_unique_id}_${hostconfig//.cmake/}"
+install_dir="${build_root}/install_${job_unique_id}_${hostconfig//.cmake/}"
+
+cmake_exe=`grep 'CMake executable' ${hostconfig_path} | cut -d ':' -f 2 | xargs`
 
 # Build
 if [[ "${option}" != "--deps-only" && "${option}" != "--test-only" ]]
@@ -159,18 +174,25 @@ then
     mkdir -p "${build_dir}" && cd "${build_dir}"
 
     date
-    cmake --version
+    
+    $cmake_exe --version
 
     # configure
-    cmake -C "${hostconfig_path}" "${project_dir}"
+    $cmake_exe \
+        -C "${hostconfig_path}" \
+        -DCMAKE_INSTALL_PREFIX=${install_dir} \
+        "${project_dir}"
 
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}
     if [[ "${VERBOSE_BUILD}" == "ON" ]]; then
         verbose_build='--verbose'
     fi
+    $cmake_exe --build . -j ${BUILD_JOBS} ${verbose_build}
 
-    cmake --build . -j ${BUILD_JOBS} ${verbose_build}
+    # install
+    make install
+
     date
 fi
 
