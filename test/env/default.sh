@@ -104,8 +104,11 @@ spack load "${compiler}"
 # make sure spack knows about the compiler
 spack compiler find
 
-# load CMake
-spack load "cmake@3.12.4%${compiler}"
+if [ "$SUNDIALS_TPLS" == "ON" ]; then
+  spack load cmake@3.18.6
+else
+  spack load cmake@3.12.4
+fi
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
@@ -373,17 +376,14 @@ fi
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_DIST=ON
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 ~int64 ~cuda %"$compiler")"
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 ~int64 ~cuda %"$compiler")"
     else
-        SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 +int64 ~cuda %"$compiler")"
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 +int64 ~cuda ^parmetis+int64 ^metis+int64 ^openblas~ilp64 %"$compiler")"
     fi
-    export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
-    export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
     export SUPERLU_DIST_OPENMP=OFF
 else
     export SUNDIALS_SUPERLU_DIST=OFF
-    unset SUPERLU_DIST_INCLUDE_DIR
-    unset SUPERLU_DIST_LIBRARY_DIR
+    unset SUPERLU_DIST_ROOT
     unset SUPERLU_DIST_OPENMP
 fi
 

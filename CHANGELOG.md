@@ -2,8 +2,21 @@
 
 ## Changes to SUNDIALS in release 6.4.0
 
+CMake 3.18.0 or newer is now required for CUDA support.
+
+Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x. Removed
+support for SuperLU_DIST v6.x.x or older. Fix mismatched definition and
+declaration bug in SuperLU_DIST matrix constructor.
+
 Fixed a bug in the CUDA and HIP vectors where `N_VMaxNorm` would return the
 minimum positive floating-point value for the zero vector.
+
+Fixed memory leaks/out of bounds memory accesses in the ARKODE MRIStep module
+that could occur when attaching a coupling table after reinitialization with a
+different number of stages than originally selected.
+
+Fixed a memory leak in CVODE and CVODES where the projection memory would not be
+deallocated when calling `CVodeFree`.
 
 ## Changes to SUNDIALS in release 6.3.0
 
