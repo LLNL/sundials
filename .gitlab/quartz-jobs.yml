@@ -39,7 +39,7 @@
 # quartz_intel:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: intel@19.0.4.227
+#       - COMPILER_SPEC: intel@19.0.4
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -59,7 +59,7 @@ quartz_clang_tpls:
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 ${INDEX_SPEC} precision=${PRECISION_SPEC} +openmp +hypre +lapack +klu"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu"
   extends: .quartz_build_and_test
 
 quartz_gcc_tpls:
@@ -69,15 +69,15 @@ quartz_gcc_tpls:
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 ${INDEX_SPEC} precision=${PRECISION_SPEC} +openmp +hypre +lapack +klu"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu"
   extends: .quartz_build_and_test
 
 quartz_intel_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: intel@19.0.4.227
+      - COMPILER_SPEC: intel@19.0.4
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 ${INDEX_SPEC} precision=${PRECISION_SPEC} +openmp +hypre +lapack +klu"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre ~superlu-dist +lapack +klu"
   extends: .quartz_build_and_test

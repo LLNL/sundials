@@ -46,64 +46,24 @@ endif()
 
 find_package(MAGMA REQUIRED)
 
-message(STATUS "MAGMA_VERSION:     ${MAGMA_VERSION}")
-message(STATUS "MAGMA_LIBRARIES:   ${MAGMA_LIBRARIES}")
-message(STATUS "MAGMA_INCLUDE_DIR: ${MAGMA_INCLUDE_DIR}")
+message(STATUS "MAGMA_VERSION:           ${MAGMA_VERSION}")
+message(STATUS "MAGMA_LIBRARIES:         ${MAGMA_LIBRARIES}")
+message(STATUS "MAGMA_INCLUDE_DIR:       ${MAGMA_INCLUDE_DIR}")
+message(STATUS "SUNDIALS_MAGMA_BACKENDS: ${SUNDIALS_MAGMA_BACKENDS}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
-  print_error("SUNDIALS_MAGMA_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
-endif()
-if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
-  print_error("SUNDIALS_MAGMA_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
-endif()
-
 if(MAGMA_FOUND AND (NOT MAGMA_WORKS))
-  # Create the MAGMA_TEST directory
-  set(MAGMA_TEST_DIR ${PROJECT_BINARY_DIR}/CMakeFiles/MAGMA_TEST)
-  file(MAKE_DIRECTORY ${MAGMA_TEST_DIR})
-
-  if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
-    set(lang CXX)
-    set(ext cxx)
-    set(define_have "\#define HAVE_HIP")
-    set(lib hip::host)
-  elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-    set(lang CUDA)
-    set(ext cu)
-    set(define_have "\#define HAVE_CUBLAS")
-    set(lib )
+  if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
+    print_error("SUNDIALS_MAGMA_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
   endif()
-
-  file(WRITE ${MAGMA_TEST_DIR}/ltest.${ext}
-  "${define_have}\n"
-  "\#include \"magma_v2.h\"\n"
-  "int main(){\n"
-  "magma_int_t a=0;\n"
-  "return(a);\n"
-  "}\n")
-
-  try_compile(COMPILE_OK ${MAGMA_TEST_DIR} ${MAGMA_TEST_DIR}/ltest.${ext}
-    CMAKE_FLAGS
-      "-DINCLUDE_DIRECTORIES=${MAGMA_INCLUDE_DIR}"
-    LINK_LIBRARIES ${MAGMA_LIBRARIES} ${lib}
-    OUTPUT_VARIABLE COMPILE_OUTPUT
-    ${lang}_STANDARD ${CMAKE_${lang}_STANDARD}
-  )
-
-  # Process test result
-  if(COMPILE_OK)
-    message(STATUS "Checking if MAGMA works... OK")
-    set(MAGMA_WORKS TRUE CACHE BOOL "MAGMA works with SUNDIALS as configured" FORCE)
-  else()
-    message(STATUS "Checking if MAGMA works... FAILED")
-    message(STATUS "Check output: ")
-    message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to MAGMA is not functional.")
+  if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
+    print_error("SUNDIALS_MAGMA_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
   endif()
+  
+  set(MAGMA_WORKS TRUE CACHE BOOL "MAGMA works with SUNDIALS as configured" FORCE)
 elseif(MAGMA_FOUND AND MAGMA_WORKS)
   message(STATUS "Skipped MAGMA tests, assuming MAGMA works with SUNDIALS.")
 endif()

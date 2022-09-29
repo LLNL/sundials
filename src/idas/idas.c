@@ -5353,7 +5353,7 @@ static int IDAStep(IDAMem IDA_mem)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAStep",
-                       "start-step-attempt", "step = %li, h = "RSYM,
+                       "start-step-attempt", "step = %li, h = %"RSYM,
                        IDA_mem->ida_nst, IDA_mem->ida_hh);
 #endif
 
@@ -5765,7 +5765,7 @@ static int IDANls(IDAMem IDA_mem)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDANls",
                      "nls-return", "flag = %i, iters = %li, fails = %li",
-                     retval, nni_inc, nni_inc);
+                     retval, nni_inc, nnf_inc);
 #endif
 
   /* return if nonlinear solver failed */
@@ -6623,7 +6623,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
-      
+
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
                          "IDAS::IDAHandleNFlag", "first-error-test_fail",
@@ -6642,7 +6642,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
-      
+
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
                          "IDAS::IDAHandleNFlag", "second-error-test-fail",
@@ -6660,7 +6660,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta_min_ef,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
-      
+
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
                          "IDAS::IDAHandleNFlag", "error-test-fail",

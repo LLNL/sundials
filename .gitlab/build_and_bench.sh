@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Build and test first
-source "$BUILD_ROOT/scripts/gitlab/build_and_test.sh" --no-clean
+source "$BUILD_ROOT/.gitlab/build_and_test.sh" --no-clean
 
 benchmark_dir="${build_dir}/benchmarks"
 ar3d_dir="${benchmark_dir}/advection_reaction_3D"

@@ -116,7 +116,7 @@ then
 else
     export CMAKE_C_STANDARD="99"
 fi
-export CMAKE_CXX_STANDARD="11"
+export CMAKE_CXX_STANDARD="14"
 
 # Disable compiler extensions by default. The user's environment script may
 # override this setting if necessary.

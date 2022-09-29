@@ -801,22 +801,9 @@ illustration only.
    .. note:: See additional information on building wtih
              SuperLU_DIST enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
-.. cmakeoption:: SUPERLUDIST_INCLUDE_DIR
+.. cmakeoption:: SUPERLUDIST_DIR
 
-   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
-   install, this is typically the SuperLU_DIST ``SRC`` directory)
-
-   Default: none
-
-.. cmakeoption:: SUPERLUDIST_LIBRARY_DIR
-
-   Path to SuperLU_DIST installed library files
-
-   Default: none
-
-.. cmakeoption:: SUPERLUDIST_LIBRARIES
-
-   Semi-colon separated list of libraries needed for SuperLU_DIST
+   Path to SuperLU_DIST installation.
 
    Default: none
 
@@ -829,6 +816,48 @@ illustration only.
    Note: SuperLU_DIST must be built with OpenMP support for this option to function.
    Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
    number of threads.
+
+.. cmakeoption:: SUPERLUDIST_INCLUDE_DIRS
+
+   List of include paths for SuperLU_DIST (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. Prefer to use :cmakeop:`SUPERLUDIST_DIR`.
+
+.. cmakeoption:: SUPERLUDIST_LIBRARIES
+
+   Semi-colon separated list of libraries needed for SuperLU_DIST
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. Prefer to use :cmakeop:`SUPERLUDIST_DIR`.
+
+.. cmakeoption:: SUPERLUDIST_INCLUDE_DIR
+
+   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. This option is deprecated. Use :cmakeop:`SUPERLUDIST_INCLUDE_DIRS`.
+
+.. cmakeoption:: SUPERLUDIST_LIBRARY_DIR
+
+   Path to SuperLU_DIST installed library files
+
+   Default: none
+
+   .. note::
+
+      This option is deprecated. Use :cmakeop:`SUPERLUDIST_DIR`.
 
 .. cmakeoption:: ENABLE_SUPERLUMT
 
@@ -1182,17 +1211,13 @@ setting. The library is developed by Lawrence Berkeley National Laboratory and
 is available from the `SuperLU_DIST GitHub repository
 <https://github.com/xiaoyeli/superlu_dist>`_.
 
-To enable SuperLU_DIST, set ``ENABLE_SUPERLUDIST`` to ``ON``, set
-``SUPERLUDIST_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_DIST
-installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the ``lib`` path
-of the SuperLU_DIST installation.  At the same time, the variable
-``SUPERLUDIST_LIBRARIES`` must be set to a semi-colon separated list of other
-libraries SuperLU_DIST depends on. For example, if SuperLU_DIST was built with
-LAPACK, then include the LAPACK library in this list.  If SuperLU_DIST was built
-with OpenMP support, then you may set ``SUPERLUDIST_OpenMP`` to ``ON`` utilize
-the OpenMP functionality of SuperLU_DIST.
+To enable SuperLU_DIST, set :cmakeop:`ENABLE_SUPERLUDIST` to ``ON``, set
+:cmakeop:`SUPERLUDIST_DIR` to the path where SuperLU_DIST is installed.
+If SuperLU_DIST was built with OpenMP then the option :cmakeop:`SUPERLUDIST_OpenMP`
+and :cmakeop:`ENABLE_OPENMP` should be set to ``ON``.
 
-SUNDIALS has been tested with SuperLU_DIST 7.1.1.
+SUNDIALS supports SuperLU_DIST v7.0.0 -- v8.x.x and has been tested with 
+v7.2.0 and v8.1.0.
 
 
 .. _Installation.CMake.ExternalLibraries.SuperLU_MT:
@@ -1281,7 +1306,7 @@ To enable the SUNDIALS MAGMA interface set ``ENABLE_MAGMA`` to ``ON``,
 ``MAGMA_DIR`` to the MAGMA installation path, and ``SUNDIALS_MAGMA_BACKENDS`` to
 the desired MAGMA backend to use with SUNDIALS e.g., ``CUDA`` or ``HIP``.
 
-SUNDIALS has been tested with MAGMA version 2.6.1.
+SUNDIALS has been tested with MAGMA version v2.6.1 and v2.6.2.
 
 
 .. _Installation.CMake.ExternalLibraries.OneMKL:

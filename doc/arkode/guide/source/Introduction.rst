@@ -124,6 +124,15 @@ Changes in v5.4.0
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
 
+Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x.
+Removed support for SuperLU_DIST v6.x.x or older.
+
+CMake 3.18.0 or newer is now required for CUDA support.
+
+Fixed memory leaks/out of bounds memory accesses in the ARKODE MRIStep module
+that could occur when attaching a coupling table after reinitialization with a
+different number of stages than originally selected.
+
 Changes in v5.3.0
 -----------------
 
@@ -145,6 +154,8 @@ scale subproblems.
 
 Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and :cite:p:`KenCarp:19b`.
 
+Fix mismatched definition and declaration bug in SuperLU_DIST matrix constructor.
+
 Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
 caused the double precision math functions to be used regardless of the value of
 :cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
@@ -152,7 +163,6 @@ functions when they are available and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
-
 
 Changes in v5.2.0
 -----------------

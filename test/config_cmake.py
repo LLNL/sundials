@@ -310,6 +310,11 @@ def main():
     add_arg(group, '--openmp', 'SUNDIALS_OPENMP', 'ENABLE_OPENMP', 'OFF',
             'BOOL', 'SUNDIALS OpenMP support')
 
+    add_arg(group, '--openmp-device-works', 'SUNDIALS_OPENMP_DEVICE_WORKS',
+            'OPENMP_DEVICE_WORKS', 'OFF', 'BOOL',
+            'Disable OpenMP Device Support Checks (assume OpenMP 4.5+)')
+
+
     # Pthread
     group = parser.add_argument_group('Pthread Options',
                                       '''Options for enabling
@@ -437,8 +442,12 @@ def main():
     group = parser.add_argument_group('SuperLU_DIST Options')
 
     add_arg(group, '--superlu-dist', 'SUNDIALS_SUPERLU_DIST',
-            'ENABLE_SUPERLU_DIST', 'OFF', 'BOOL',
+            'ENABLE_SUPERLUDIST', 'OFF', 'BOOL',
             'SUNDIALS SuperLU DIST support')
+
+    add_arg(group, '--superlu-dist-dir', 'SUPERLU_DIST_ROOT',
+            'SUPERLUDIST_DIR', None, 'PATH',
+            'SuperLU_DIST installation directory', dependson='--superlu-dist')
 
     add_arg(group, '--superlu-dist-incdir', 'SUPERLU_DIST_INCLUDE_DIR',
             'SUPERLUDIST_INCLUDE_DIR', None, 'PATH',
