@@ -81,7 +81,7 @@ SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   auto new_mat{new Matrix<GkoMatType>(*A_mat)}; // NOLINT
-  return new_mat->get();
+  return new_mat->Convert();
 }
 
 template<typename GkoMatType>
@@ -201,11 +201,11 @@ public:
   {
     return object_.get();
   }
-  SUNMatrix get() override
+  SUNMatrix Convert() override
   {
     return object_.get();
   }
-  SUNMatrix get() const override
+  SUNMatrix Convert() const override
   {
     return object_.get();
   }

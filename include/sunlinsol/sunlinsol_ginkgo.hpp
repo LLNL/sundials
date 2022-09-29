@@ -220,11 +220,11 @@ public:
   {
     return sunlinsol_.get();
   }
-  SUNLinearSolver get() override
+  SUNLinearSolver Convert() override
   {
     return sunlinsol_.get();
   }
-  SUNLinearSolver get() const override
+  SUNLinearSolver Convert() const override
   {
     return sunlinsol_.get();
   }

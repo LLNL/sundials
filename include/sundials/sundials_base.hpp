@@ -19,8 +19,8 @@
 #define _SUNDIALS_BASE_HPP
 
 #include <memory>
-#include <sundials/sundials_convertibleto.hpp>
 #include <sundials/sundials_context.hpp>
+#include <sundials/sundials_convertibleto.hpp>
 
 namespace sundials {
 namespace impl {
@@ -89,7 +89,10 @@ public:
   virtual ~BaseObject() = 0;
 
   // Getters
-  SUNContext sunctx() const { return this->object_->sunctx; }
+  SUNContext sunctx() const
+  {
+    return this->object_->sunctx;
+  }
 
 protected:
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
@@ -115,7 +118,7 @@ public:
   ClassView(ClassView&& other) = default;
 
   ClassView& operator=(const ClassView&) = delete;
-  ClassView& operator=(ClassView&& rhs)  = default;
+  ClassView& operator=(ClassView&& rhs) = default;
 
   ~ClassView()
   {
@@ -125,10 +128,22 @@ public:
   };
 
   // Override ConvertibleTo functions
-  T get() override { return *object_.get(); }
-  T get() const override { return *object_.get(); }
-  operator T() override { return *object_.get(); }
-  operator T() const override { return *object_.get(); }
+  T Convert() override
+  {
+    return *object_.get();
+  }
+  T Convert() const override
+  {
+    return *object_.get();
+  }
+  operator T() override
+  {
+    return *object_.get();
+  }
+  operator T() const override
+  {
+    return *object_.get();
+  }
 
 private:
   std::unique_ptr<T> object_;

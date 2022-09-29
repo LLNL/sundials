@@ -18,12 +18,13 @@
 #define _SUNDIALS_CONTEXT_HPP
 
 #include <memory>
-#include <sundials/sundials_convertibleto.hpp>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_convertibleto.hpp>
 
 namespace sundials {
 
-class Context : public sundials::ConvertibleTo<SUNContext> {
+class Context : public sundials::ConvertibleTo<SUNContext>
+{
 public:
   explicit Context(void* comm = nullptr)
   {
@@ -39,10 +40,22 @@ public:
   Context& operator=(const Context&) = delete;
   Context& operator=(Context&&) = default;
 
-  SUNContext get() override { return *sunctx_.get(); }
-  SUNContext get() const override { return *sunctx_.get(); }
-  operator SUNContext() override { return *sunctx_.get(); }
-  operator SUNContext() const override { return *sunctx_.get(); }
+  SUNContext Convert() override
+  {
+    return *sunctx_.get();
+  }
+  SUNContext Convert() const override
+  {
+    return *sunctx_.get();
+  }
+  operator SUNContext() override
+  {
+    return *sunctx_.get();
+  }
+  operator SUNContext() const override
+  {
+    return *sunctx_.get();
+  }
 
   ~Context()
   {
@@ -52,7 +65,6 @@ public:
 private:
   std::unique_ptr<SUNContext> sunctx_;
 };
-
 
 } // namespace sundials
 
