@@ -587,9 +587,28 @@ illustration only.
 
 .. cmakeoption:: BUILD_FORTRAN_MODULE_INTERFACE
 
-   Enable Fortran2003 interface
+   Enable Fortran 2003 interface
 
    Default: ``OFF``
+
+.. cmakeoption:: ENABLE_GINKGO
+
+   Enable interfaces to the Ginkgo linear algebra library.
+
+   Default: ``OFF``
+
+.. cmakeoption:: Ginkgo_DIR
+
+   Path to the Ginkgo installation.
+
+   Default: None
+
+.. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
+
+   Semi-colon separated list of Ginkgo target architecutres/executors to build for.
+   Options currenty supported are REF, OMP, CUDA, HIP, DPC++.
+
+   Default: "REF;OMP"
 
 .. cmakeoption:: ENABLE_HYPRE
 
@@ -1113,6 +1132,27 @@ addressing specific configurations when using the supported third
 party libraries.
 
 
+.. _Installation.CMake.ExternalLibraries.Ginkgo:
+
+Building with Ginkgo
+^^^^^^^^^^^^^^^^^^^^
+
+`Ginkgo <https://ginkgo-project.github.io/>`_ is a high-performance linear algebra library for
+manycore systems, with a focus on solution of sparse linear systems. It is implemented using modern
+C++ (you will need at least a C++14 compliant compiler to build it), with GPU kernels implemented in
+CUDA (for NVIDIA devices), HIP (for AMD devices) and SYCL/DPC++ (for Intel devices and other
+supported hardware). To enable Ginkgo in SUNDIALS, set the :cmakeop:`ENABLE_GINKGO` to ``ON``
+and provide the path to the root of the Ginkgo installation in :cmakeop:`Ginkgo_DIR`. 
+Additionally, :cmakeop:`SUNDIALS_GINKGO_BACKENDS` must be set to a list of Ginkgo target
+architecutres/executors. E.g.,
+
+.. code-block:: bash
+
+   % cmake \
+   > -DENABLE_GINKGO=ON \
+   > -DGinkgo_DIR=/path/to/ginkgo/installation
+   > -DSUNDIALS_GINKGO_BACKENDS="REF;OMP;CUDA"
+   > /home/myname/sundials/srcdir
 
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 
@@ -1648,6 +1688,8 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_dense.h``              |
    +------------------------------+--------------+----------------------------------------------+
+   | Ginkgo                       | Headers      | ``sunmatrix/sunmatrix_ginkgo.hpp``           |
+   +------------------------------+--------------+----------------------------------------------+
    | MAGMADENSE                   | Libraries    | ``libsundials_sunmatrixmagmadense.LIB``      |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_magmadense.h``         |
@@ -1679,6 +1721,8 @@ configuration file to build against SUNDIALS in their own CMake project.
    | DENSE                        | Libraries    | ``libsundials_sunlinsoldense.LIB``           |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunlinsol/sunlinsol_dense.h``              |
+   +------------------------------+--------------+----------------------------------------------+
+   | Ginkgo                       | Headers      | ``sunlinsol/sunlinsol_ginkgo.hpp``           |
    +------------------------------+--------------+----------------------------------------------+
    | KLU                          | Libraries    | ``libsundials_sunlinsolklu.LIB``             |
    |                              +--------------+----------------------------------------------+

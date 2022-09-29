@@ -60,58 +60,21 @@ message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
-
-if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
-  print_error("SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
-endif()
-
-if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
-  print_error("SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
-endif()
-
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
-  # # Create the GINKGO_TEST directory
-  # set(GINKGO_TEST_DIR ${PROJECT_BINARY_DIR}/CMakeFiles/GINKGO_TEST)
-  # file(MAKE_DIRECTORY ${GINKGO_TEST_DIR})
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
+    print_error("SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
+  endif()
 
-  # if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
-  #   set(lang CXX)
-  #   set(ext cxx)
-  #   set(define_have "\#define HAVE_HIP")
-  #   set(lib hip::host)
-  # elseif(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
-  #   set(lang CUDA)
-  #   set(ext cu)
-  #   set(define_have "\#define HAVE_CUBLAS")
-  #   set(lib )
-  # endif()
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
+    print_error("SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
+  endif()
 
-  # file(WRITE ${GINKGO_TEST_DIR}/ltest.${ext}
-  # "${define_have}\n"
-  # "\#include \"magma_v2.h\"\n"
-  # "int main(){\n"
-  # "magma_int_t a=0;\n"
-  # "return(a);\n"
-  # "}\n")
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "DPC++" AND NOT ENABLE_SYCL)
+    print_error("SUNDIALS_GINKGO_BACKENDS includes DPC++ but SYCL/DPC++ is not enabled. Set ENABLE_SYCL=ON or change the backend.")
+  endif()
 
-  # try_compile(COMPILE_OK ${GINKGO_TEST_DIR} ${GINKGO_TEST_DIR}/ltest.${ext}
-  #   CMAKE_FLAGS
-  #     "-DINCLUDE_DIRECTORIES=${GINKGO_INCLUDE_DIR}"
-  #   LINK_LIBRARIES ${GINKGO_LIBRARIES} ${lib}
-  #   OUTPUT_VARIABLE COMPILE_OUTPUT
-  #   ${lang}_STANDARD ${CMAKE_${lang}_STANDARD}
-  # )
-
-  # # Process test result
-  # if(COMPILE_OK)
-    message(STATUS "Checking if GINKGO works... OK")
-    set(GINKGO_WORKS TRUE CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
-  # else()
-  #   message(STATUS "Checking if GINKGO works... FAILED")
-  #   message(STATUS "Check output: ")
-  #   message("${COMPILE_OUTPUT}")
-  #   print_error("SUNDIALS interface to GINKGO is not functional.")
-  # endif()
+  message(STATUS "Checking if GINKGO works... OK")
+  set(GINKGO_WORKS TRUE CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
 elseif(GINKGO_FOUND AND GINKGO_WORKS)
   message(STATUS "Skipped GINKGO tests, assuming GINKGO works with SUNDIALS.")
 endif()

@@ -198,14 +198,14 @@ void Test_Move(std::unique_ptr<typename GkoSolverType::Factory>&& gko_solver_fac
   // Move constructor
   sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> solver{std::move(gko_solver_factory), sunctx};
   sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> solver2{std::move(solver)};
-  assert(solver2.gkofactory());
+  assert(solver2.GkoFactory());
   assert(solver2.GkoExec());
   assert(SUNLinSolNumIters(solver2) == 0);
 
   // Move assignment
   sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> solver3;
   solver3 = std::move(solver2);
-  assert(solver3.gkofactory());
+  assert(solver3.GkoFactory());
   assert(solver3.GkoExec());
   assert(SUNLinSolNumIters(solver3) == 0);
 

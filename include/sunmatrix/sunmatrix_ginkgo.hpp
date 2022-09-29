@@ -134,31 +134,32 @@ int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
   return SUNMAT_SUCCESS;
 }
 
-//
-// Standard (i.e., non-batch) matrix class
-//
+/// Class that wraps a Ginkgo matrix and allows it to convert to a fully functioning `SUNMatrix`.
 template<typename GkoMatType>
 class Matrix : public sundials::impl::BaseMatrix, public sundials::ConvertibleTo<SUNMatrix>
 {
 public:
-  // Default constructor means the matrix must be copied or moved to
+  /// Default constructor - means the matrix must be copied or moved to
   Matrix() = default;
 
+  /// Constructs a Matrix from an existing Ginkgo matrix object.
+  /// \param gko_mat A Ginkgo matrix object
+  /// \param sunctx The SUNDIALS simulation context object
   Matrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx) : sundials::impl::BaseMatrix(sunctx), gkomtx_(gko_mat)
   {
     initSUNMatrix();
   }
 
-  // Move constructor
+  /// Move constructor
   Matrix(Matrix&& that_matrix) noexcept
       : sundials::impl::BaseMatrix(std::forward<Matrix>(that_matrix)), gkomtx_(std::move(that_matrix.gkomtx_))
   {}
 
-  // Copy constructor clones the gko::matrix and SUNMatrix
+  /// Copy constructor clones the ``gko::matrix`` and ``SUNMatrix``
   Matrix(const Matrix& that_matrix) : sundials::impl::BaseMatrix(that_matrix), gkomtx_(gko::clone(that_matrix.gkomtx_))
   {}
 
-  // Move assignment
+  /// Move assignment
   Matrix& operator=(Matrix&& rhs) noexcept
   {
     gkomtx_                             = std::move(rhs.gkomtx_);
@@ -166,7 +167,7 @@ public:
     return *this;
   }
 
-  // Copy assignment clones the gko::matrix and SUNMatrix
+  /// Copy assignment clones the gko::matrix and SUNMatrix
   Matrix& operator=(const Matrix& rhs)
   {
     gkomtx_                             = gko::clone(rhs.gkomtx_);
@@ -174,37 +175,51 @@ public:
     return *this;
   }
 
-  // Default destructor is fine since all members are RAII
+  /// Default destructor
+  // fine since all members are RAII
   virtual ~Matrix() = default;
 
-  // Getters
+  /// Get the underlying Ginkgo matrix object
   std::shared_ptr<GkoMatType> GkoMtx() const
   {
     return gkomtx_;
   }
+
+  /// Get the ``gko::Executor`` associated with the Ginkgo matrix
   std::shared_ptr<const gko::Executor> GkoExec() const
   {
     return GkoMtx()->get_executor();
   }
+
+  /// Get the size, i.e. ``gko::dim``, for the Ginkgo matrix
   const gko::dim<2>& GkoSize() const
   {
     return GkoMtx()->get_size();
   }
+
   using sundials::impl::BaseMatrix::sunctx;
 
   // Override the ConvertibleTo methods
+
+  /// Implicit conversion to a :c:type:`SUNMatrix`
   operator SUNMatrix() override
   {
     return object_.get();
   }
+
+  /// Implicit conversion to a :c:type:`SUNMatrix`
   operator SUNMatrix() const override
   {
     return object_.get();
   }
+
+  /// Explicit conversion to a :c:type:`SUNMatrix`
   SUNMatrix Convert() override
   {
     return object_.get();
   }
+
+  /// Explicit conversion to a :c:type:`SUNMatrix`
   SUNMatrix Convert() const override
   {
     return object_.get();

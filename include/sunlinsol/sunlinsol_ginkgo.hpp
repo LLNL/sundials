@@ -30,6 +30,7 @@ namespace ginkgo {
 template<class GkoSolverType, class GkoMatrixType>
 class LinearSolver;
 
+namespace impl {
 inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_MATRIX_ITERATIVE;
@@ -83,9 +84,12 @@ sunrealtype SUNLinSolResNorm_Ginkgo(SUNLinearSolver S)
   return solver->ResNorm();
 }
 
-// Custom gko::stop::Criterion that does the normal SUNDIALS stopping checks:
-// 1. Was the absolute residual tolerance met?
-// 2. Was the max iteration count reached?
+} // namespace impl
+
+/// Custom gko::stop::Criterion that does the normal SUNDIALS stopping checks.
+/// This checks if:
+/// 1. Was the absolute residual tolerance met?
+/// 2. Was the max iteration count reached?
 class DefaultStop : public gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion>
 {
   friend class gko::EnablePolymorphicObject<DefaultStop, gko::stop::Criterion>;
@@ -154,13 +158,17 @@ inline bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized,
   return one_converged;
 }
 
+/// Class that wraps a Ginkgo solver (factory) and is convertible to a fully functioning ``SUNLinearSolver``.
 template<class GkoSolverType, class GkoMatrixType>
 class LinearSolver : public ConvertibleTo<SUNLinearSolver>
 {
 public:
-  // Default constructor means the solver must be moved to
+  /// Default constructor - means the solver must be moved to
   LinearSolver() = default;
 
+  /// Constructs a new LinearSolver from a Ginkgo solver factory
+  /// \param gko_solver_factory The Ginkgo solver factory (typically `gko::matrix::<type>::Factory`)
+  /// \param sunctx The SUNDIALS simulation context (:c:type:`SUNContext`)
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory), gko_solver_(nullptr),
         sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),
@@ -170,20 +178,20 @@ public:
     sunlinsol_->ops     = sunlinsol_ops_.get();
     sunlinsol_->sunctx  = sunctx;
 
-    sunlinsol_->ops->gettype    = SUNLinSolGetType_Ginkgo;
-    sunlinsol_->ops->getid      = SUNLinSolGetID_Ginkgo;
-    sunlinsol_->ops->initialize = SUNLinSolInitialize_Ginkgo;
-    sunlinsol_->ops->setup      = SUNLinSolSetup_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->solve      = SUNLinSolSolve_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->numiters   = SUNLinSolNumIters_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->resnorm    = SUNLinSolResNorm_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->free       = SUNLinSolFree_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->gettype    = impl::SUNLinSolGetType_Ginkgo;
+    sunlinsol_->ops->getid      = impl::SUNLinSolGetID_Ginkgo;
+    sunlinsol_->ops->initialize = impl::SUNLinSolInitialize_Ginkgo;
+    sunlinsol_->ops->setup      = impl::SUNLinSolSetup_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->solve      = impl::SUNLinSolSolve_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->numiters   = impl::SUNLinSolNumIters_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->resnorm    = impl::SUNLinSolResNorm_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->free       = impl::SUNLinSolFree_Ginkgo<GkoSolverType, GkoMatrixType>;
   }
 
-  // Don't allow copy constructor
+  // Copy constructor is deleted
   LinearSolver(const LinearSolver& that_solver) = delete;
 
-  // Move constructor
+  /// Move constructor
   LinearSolver(LinearSolver&& that_solver) noexcept
       : gko_solver_factory_(std::move(that_solver.gko_solver_factory_)), gko_solver_(std::move(that_solver.gko_solver_)),
         sunlinsol_(std::move(that_solver.sunlinsol_)), sunlinsol_ops_(std::move(that_solver.sunlinsol_ops_)),
@@ -196,7 +204,7 @@ public:
   // Don't allow copy assignment
   LinearSolver& operator=(const LinearSolver& rhs) = delete;
 
-  // Move assignment
+  /// Move assignment
   LinearSolver& operator=(LinearSolver&& rhs)
   {
     gko_solver_factory_ = std::move(rhs.gko_solver_factory_);
@@ -210,56 +218,79 @@ public:
     return *this;
   }
 
+  /// Default destructor
   ~LinearSolver() override = default;
 
+  /// Implicit conversion to a :c:type:`SUNLinearSolver`
   operator SUNLinearSolver() override
   {
     return sunlinsol_.get();
   }
+
+  /// Implicit conversion to a :c:type:`SUNLinearSolver`
   operator SUNLinearSolver() const override
   {
     return sunlinsol_.get();
   }
+
+  /// Explicit conversion to a :c:type:`SUNLinearSolver`
   SUNLinearSolver Convert() override
   {
     return sunlinsol_.get();
   }
+
+  /// Explicit conversion to a :c:type:`SUNLinearSolver`
   SUNLinearSolver Convert() const override
   {
     return sunlinsol_.get();
   }
 
+  /// Get the ``gko::Executor`` associated with the Ginkgo solver
   std::shared_ptr<const gko::Executor> GkoExec() const
   {
     return gko_solver_factory_->get_executor();
   }
 
-  std::shared_ptr<typename GkoSolverType::Factory> gkofactory()
+  /// Get the underlying Ginkgo solver factory
+  std::shared_ptr<typename GkoSolverType::Factory> GkoFactory()
   {
     return gko_solver_factory_;
   }
 
+  /// Get the underlying Ginkgo solver
+  /// \note This will be `nullptr` until the linear solver setup phase.
   GkoSolverType* GkoSolver()
   {
     return gko_solver_.get();
   }
 
+  /// Get the number of linear solver iterations since the object was created.
   int NumIters() const
   {
     return iter_count_;
   }
 
+  /// Get the residual norm of the solution at the end of the last solve.
+  /// The type of residual norm depends on the Ginkgo stopping criteria
+  /// used with the solver. With the \ref DefaultStop "DefaultStop" criteria
+  /// this would be the absolute residual 2-norm.
   sunrealtype ResNorm() const
   {
     return res_norm_;
   }
 
+  /// Setup the linear system
+  /// \param A the linear system matrix
   GkoSolverType* Setup(Matrix<GkoMatrixType>* A)
   {
     gko_solver_ = gko_solver_factory_->generate(A->GkoMtx());
     return gko_solver_.get();
   }
 
+  /// Solve the linear system Ax = b to the specificed tolerance.
+  /// \param b the right-hand side vector
+  /// \param x the solution vector
+  /// \param tol the tolerance to solve the system to
   gko::LinOp* Solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
     auto logger{gko::share(gko::log::Convergence<sunrealtype>::create())};
