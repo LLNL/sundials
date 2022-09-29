@@ -429,7 +429,7 @@ def main():
             'ENABLE_SUPERLUDIST', 'OFF', 'BOOL',
             'SUNDIALS SuperLU DIST support')
 
-    add_arg(group, '--superlu-dist-dir', 'SUPERLU_DIST_DIR',
+    add_arg(group, '--superlu-dist-dir', 'SUPERLU_DIST_ROOT',
             'SUPERLUDIST_DIR', None, 'PATH',
             'SuperLU_DIST installation directory', dependson='--superlu-dist')
 

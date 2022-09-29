@@ -349,14 +349,14 @@ fi
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_SUPERLU_DIST=ON
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        export SUPERLU_DIST_DIR="$(spack location -i superlu-dist@7.2.0 ~int64 ~cuda %"$compiler")"
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 ~int64 ~cuda %"$compiler")"
     else
-        export SUPERLU_DIST_DIR="$(spack location -i superlu-dist@7.2.0 +int64 ~cuda %"$compiler")"
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 +int64 ~cuda %"$compiler")"
     fi
     export SUPERLU_DIST_OPENMP=OFF
 else
     export SUNDIALS_SUPERLU_DIST=OFF
-    unset SUPERLU_DIST_DIR
+    unset SUPERLU_DIST_ROOT
     unset SUPERLU_DIST_OPENMP
 fi
 
