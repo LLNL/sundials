@@ -2214,14 +2214,14 @@ the preconditioner.
    +------------------------------------------------+------------------------------------------+
    | Cumulative number of internal steps            | :c:func:`CVodeGetNumSteps`               |
    +------------------------------------------------+------------------------------------------+
-   | No. of calls to r.h.s. function                | :c:func:`CVodeGetNumLinSolvSetups`       |
+   | No. of calls to r.h.s. function                | :c:func:`CVodeGetNumRhsEvals`            |
    +------------------------------------------------+------------------------------------------+
    | No. of calls to linear solver setup function   | :c:func:`CVodeGetNumLinSolvSetups`       |
    +------------------------------------------------+------------------------------------------+
    | No. of local error test failures that have     | :c:func:`CVodeGetNumErrTestFails`        |
    | occurred                                       |                                          |
    +------------------------------------------------+------------------------------------------+
-   | No. of failed steps due to a nonlinear solver  | :c:func:`CVodeGetNumStepSolveFails()`    |
+   | No. of failed steps due to a nonlinear solver  | :c:func:`CVodeGetNumStepSolveFails`      |
    | failure                                        |                                          |
    +------------------------------------------------+------------------------------------------+
    | Order used during the last step                | :c:func:`CVodeGetLastOrder`              |
