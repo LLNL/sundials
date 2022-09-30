@@ -16,7 +16,7 @@
 
 # Examples that support CPU and GPU Ginkgo backends
 set(cpu_gpu_examples
-  "cv_heat2D_ginkgo.cpp\;\;")
+  "cv_heat2D_ginkgo.cpp\;\;develop")
 
 sundials_add_examples_ginkgo(cpu_gpu_examples
   TARGETS sundials_cvode
@@ -24,7 +24,7 @@ sundials_add_examples_ginkgo(cpu_gpu_examples
 
 # Examples that only support CPU Ginkgo backends
 set(cpu_examples
-  "cv_kpr_ginkgo.cpp\;\;")
+  "cv_kpr_ginkgo.cpp\;\;develop")
 
 sundials_add_examples_ginkgo(cpu_examples
   TARGETS sundials_cvode
