@@ -41,7 +41,7 @@ Using SUNLINEARSOLVER_GINKGO
 
 To use the SUNLINEARSOLVER_GINKGO module, we begin by creating Ginkgo stopping criteria.
 Importantly, the :cpp:type:`sundials::ginkgo::DefaultStop` class provided by SUNDIALS
-implements stopping critierion that matches the normal SUNDIALS stopping critierion.
+implements a stopping critierion that matches the normal SUNDIALS stopping critierion.
 The critierion can be created like so:
 
 .. code-block:: cpp
@@ -52,7 +52,7 @@ The critierion can be created like so:
    It is *highly* recommended to employ this criterion when using Ginkgo solvers with SUNDIALS,
    but it is optional. 
 
-Once we have created out stopping critierion, we create a Ginkgo solver factory object and
+Once we have created our stopping critierion, we create a Ginkgo solver factory object and
 wrap it in a :cpp:type:`sundials::ginkgo::LinearSolver` object. In this example, we create
 a Ginkgo conjugate gradient solver:
 
