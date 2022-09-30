@@ -349,7 +349,7 @@ static booleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
 static booleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector y)
 {
   /* Vectors must provide nvgetarraypointer and cannot be a parallel vector */
-  if ((!x->ops->nvgetarraypointer || N_VGetCommunicator(x)) || (!y->ops->nvgetarraypointer || N_VGetCommunicator(y))) {
+  if (!x->ops->nvgetarraypointer || !y->ops->nvgetarraypointer) {
     return SUNFALSE;
   }
 

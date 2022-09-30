@@ -1,8 +1,6 @@
 # ------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
-# ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,7 +10,8 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 # clang-format style configuration file based on Google style
-# clang-format -style = file src/cvode/cvode.c > cvode-format.c
+# clang-format -style=.clang-format -i src/cvode/cvode.c
+# This should be applied to all new code. See the developer documentation.
 # ------------------------------------------------------------------------------
 ---
 Language                                      : Cpp

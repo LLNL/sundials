@@ -24,12 +24,12 @@ set(CXX_FOUND TRUE)
 # compiler and related options.
 # ---------------------------------------------------------------
 
-set(DOCSTR "The C++ standard to use if C++ is enabled (14, 17, 20)")
-
 if(ENABLE_SYCL)
+  set(DOCSTR "The C++ standard to use if C++ is enabled (17, 20)")
   sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17"
-                  OPTIONS "11;14;17;20")
+                  OPTIONS "17;20")
 else()
+  set(DOCSTR "The C++ standard to use if C++ is enabled (14, 17, 20)")
   sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "14"
                   OPTIONS "14;17;20")
 endif()

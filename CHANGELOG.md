@@ -19,7 +19,7 @@ Fixed a memory leak in CVODE and CVODES where the projection memory would not be
 deallocated when calling `CVodeFree`.
 
 Added support for the [Ginkgo](https://ginkgo-project.github.io/>)  linear
-algebra library. This support includes new `SUNMatrix` and `SUNLinearSolvers`
+algebra library. This support includes new `SUNMatrix` and `SUNLinearSolver`
 implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
 sections in the documentation for more info.
 
