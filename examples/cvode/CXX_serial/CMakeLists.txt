@@ -25,6 +25,9 @@ set(CVODE_examples
 
 # Auxiliary files to install
 set(CVODE_extras
+  cv_heat2D.hpp
+  cv_kpr.hpp
+  "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
   plot_heat2D.py
   )
 
