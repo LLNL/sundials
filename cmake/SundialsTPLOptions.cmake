@@ -82,7 +82,6 @@ sundials_option(Ginkgo_DIR PATH "Path to the root of a Ginkgo installation" "${G
                 DEPENDS_ON ENABLE_GINKGO)
 
 sundials_option(SUNDIALS_GINKGO_BACKENDS STRING "Which Ginkgo backend(s) to build the SUNDIALS Ginkgo interfaces for (REF, OMP, CUDA, HIP, DPCPP)" "REF;OMP"
-                OPTIONS "REF;OMP;CUDA;HIP;DPCPP"
                 DEPENDS_ON ENABLE_GINKGO)
 
 sundials_option(GINKGO_WORKS BOOL "Set to ON to force CMake to accept a given Ginkgo configuration" OFF
