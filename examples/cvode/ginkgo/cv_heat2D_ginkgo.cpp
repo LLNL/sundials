@@ -38,7 +38,7 @@
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The
  * problem is advanced in time with BDF methods using an inexact Newton method
- * paired with the CG linear solver from Ginkgo.Several command line options are
+ * paired with the CG linear solver from Ginkgo. Several command line options are
  * available to change the problem parameters and CVODE settings. Use the flag
  * --help for more information.
  * ---------------------------------------------------------------------------*/

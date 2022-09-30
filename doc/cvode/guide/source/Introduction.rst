@@ -126,6 +126,10 @@ the minimum positive floating-point value for the zero vector.
 Fixed a memory leak where the projection memory would not be deallocated when
 calling :c:func:`CVodeFree`.
 
+Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_  linear algebra library. 
+This support includes new ``SUNMatrix`` and ``SUNLinearSolver`` implementations,
+see the sections :numref:`SUNMatrix.Ginkgo` and :numref:`SUNLinSol.Ginkgo`.
+
 Changes in v6.3.0
 -----------------
 
