@@ -58,13 +58,16 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       if(backend MATCHES "CUDA")
         set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
         set(vector nveccuda)
+        set(float_precision "4")
       elseif(backend MATCHES "HIP")
         set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
         set(vector nvechip)
+        set(float_precision "default")
       elseif(backend MATCHES "OMP")
         set(vector nvecserial)
       elseif(backend MATCHES "REF")
         set(vector nvecserial)
+        set(float_precision "default")
       endif()
 
       # extract the file name without extension
@@ -115,7 +118,8 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
           EXAMPLE_TYPE ${example_type}
           TEST_ARGS ${example_args}
           ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-          ANSWER_FILE ${test_name}.out)
+          ANSWER_FILE ${test_name}.out
+          FLOAT_PRECISION ${float_precision})
       endif()
 
     endforeach()
