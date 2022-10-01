@@ -31,7 +31,7 @@ Ginkgo itself, refer to the `Ginkgo website and documentation <https://ginkgo-pr
 
   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
   try to encapsulate Ginkgo matrices, rather it provides a lightweight iteroperability layer
-  between Ginkgo ans SUNDIALS.
+  between Ginkgo and SUNDIALS.
 
 The SUNMATRIX_GINKGO module is defined by the ``sundials::ginkgo::Matrix`` templated class:
 
@@ -39,6 +39,23 @@ The SUNMATRIX_GINKGO module is defined by the ``sundials::ginkgo::Matrix`` templ
 
   template<typename GkoMatType>
   class Matrix : public sundials::impl::BaseMatrix, public sundials::ConvertibleTo<SUNMatrix>;
+
+.. _SUNMatrix.Ginkgo.CompatibleNVectors:
+
+Compatible ``N_Vectors``
+------------------------
+
+The  ``N_Vector`` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor``
+utilized. I.e., when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
+(e.g., :numref:`NVectors.CUDA`), ``gko::HipExecutor`` goes with a HIP capable ``N_Vector`` (e.g.,
+:numref:`NVectors.HIP`), ``gko::DpcppExecutor`` goes with a DPC++/SYCL capable ``N_Vector`` (e.g.,
+:numref:`NVectors.SYCL`),  and ``gko::OmpExecutor`` goes with a CPU based N_Vector (e.g.,
+:numref:`NVectors.OpenMP`). Specifically, what makes a ``N_Vector`` compatible with different Ginkgo
+executors is where they store the data. The GPU enabled Ginkgo executors need the data to reside on
+the GPU, so the ``N_Vector`` must implement :c:func:`N_VGetDeviceArrayPointer` and keep the data in
+GPU memory. The CPU-only enabled Ginkgo executors (e.g, ``gko::OmpExecutor`` and
+``gko::ReferenceExecutor``) need data to reside on the CPU and will use
+:c:func:`N_VGetArraryPointer` to access the ``N_Vector`` data.
 
 .. _SUNMatrix.Ginkgo.Usage:
 
@@ -55,7 +72,7 @@ and then fill the diagonal of the matrix with ones to make an identity matrix:
    gko_matrix->read(gko::matrix_data<sunrealtype, sunindextype>::diag(matrix_dim, 1.0));
 
 After we have a Ginkgo matrix object, we wrap it in an instance of the ``sundials::ginkgo::Matrix``
-class. This object can be provided to other SUNDIALS function which expect a ``SUNMatrix`` object 
+class. This object can be provided to other SUNDIALS functions that expect a ``SUNMatrix`` object 
 via implicit conversion, or the ``Convert()`` method:
 
 .. code-block:: cpp
@@ -103,7 +120,7 @@ In this section we list the public API of the ``sundials::ginkgo::Matrix`` class
 
   .. cpp:function:: Matrix(Matrix&& that_matrix) noexcept
 
-      Move constructor
+      Move constructor.
 
   .. cpp:function:: Matrix(const Matrix& that_matrix)
 
@@ -111,40 +128,41 @@ In this section we list the public API of the ``sundials::ginkgo::Matrix`` class
 
   .. cpp:function:: Matrix& operator=(Matrix&& rhs) noexcept
 
-      Move assignment
+      Move assignment.
 
   .. cpp:function:: Matrix& operator=(const Matrix& rhs)
 
-      Copy assignment clones the ``gko::matrix`` and :c:type:`SUNMatrix`
+      Copy assignment clones the ``gko::matrix`` and :c:type:`SUNMatrix`.
+      This is a deep copy (i.e. a new data array is created).
 
   .. cpp:function:: virtual ~Matrix() = default;
 
-      Default destructor
+      Default destructor.
 
   .. cpp:function:: std::shared_ptr<GkoMatType> GkoMtx() const
 
-      Get the underlying Ginkgo matrix object
+      Get the underlying Ginkgo matrix object.
 
   .. cpp:function:: std::shared_ptr<const gko::Executor> GkoExec() const
 
-      Get the ``gko::Executor`` associated with the Ginkgo matrix
+      Get the ``gko::Executor`` associated with the Ginkgo matrix.
 
   .. cpp:function:: const gko::dim<2>& GkoSize() const
 
-      Get the size, i.e. ``gko::dim``, for the Ginkgo matrix
+      Get the size, i.e. ``gko::dim``, for the Ginkgo matrix.
 
   .. cpp:function:: operator SUNMatrix() override
 
-      Implicit conversion to a :c:type:`SUNMatrix`
+      Implicit conversion to a :c:type:`SUNMatrix`.
 
   .. cpp:function:: operator SUNMatrix() const override
 
-      Implicit conversion to a :c:type:`SUNMatrix`
+      Implicit conversion to a :c:type:`SUNMatrix`.
 
   .. cpp:function:: SUNMatrix Convert() override
 
-      Explicit conversion to a :c:type:`SUNMatrix`
+      Explicit conversion to a :c:type:`SUNMatrix`.
 
   .. cpp:function:: SUNMatrix Convert() const override
 
-      Explicit conversion to a :c:type:`SUNMatrix`
+      Explicit conversion to a :c:type:`SUNMatrix`.

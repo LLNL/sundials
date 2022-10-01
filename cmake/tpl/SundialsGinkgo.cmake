@@ -36,13 +36,6 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-if(SUNDIALS_PRECISION MATCHES "extended")
-  message(FATAL_ERROR "SUNDIALS GINKGO interface is not compatible with extended precision")
-endif()
-
-if((SUNDIALS_INDEX_SIZE MATCHES "64") AND (SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA"))
-  message(FATAL_ERROR "GINKGO is not compatible with 64-bit indices when using the CUDA backend")
-endif()
 
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
@@ -61,6 +54,10 @@ message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
+  if(SUNDIALS_PRECISION MATCHES "extended|EXTENDED")
+    print_error("SUNDIALS GINKGO interface is not compatible with extended precision")
+  endif()
+
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
     print_error("SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
   endif()

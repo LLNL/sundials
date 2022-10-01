@@ -606,7 +606,7 @@ illustration only.
 .. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
 
    Semi-colon separated list of Ginkgo target architecutres/executors to build for.
-   Options currenty supported are REF, OMP, CUDA, HIP, DPC++.
+   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, DPC++.
 
    Default: "REF;OMP"
 
@@ -1182,6 +1182,9 @@ architecutres/executors. E.g.,
    > -DGinkgo_DIR=/path/to/ginkgo/installation
    > -DSUNDIALS_GINKGO_BACKENDS="REF;OMP;CUDA"
    > /home/myname/sundials/srcdir
+
+The SUNDIALS interfaces to Ginkgo are not compatible with :cmakeop:`SUNDIALS_PRECISION` set
+to ``extended``. 
 
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 

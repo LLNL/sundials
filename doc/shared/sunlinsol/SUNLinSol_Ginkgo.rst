@@ -32,17 +32,19 @@ building and using Ginkgo itself, refer to the
 
   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
   try to encapsulate Ginkgo linear solvers, rather it provides a lightweight iteroperability layer
-  between Ginkgo ans SUNDIALS.
+  between Ginkgo and SUNDIALS.
 
 .. _SUNLinSol.Ginkgo.Usage:
 
 Using SUNLINEARSOLVER_GINKGO
 ----------------------------
 
-To use the SUNLINEARSOLVER_GINKGO module, we begin by creating Ginkgo stopping criteria.
-Importantly, the :cpp:type:`sundials::ginkgo::DefaultStop` class provided by SUNDIALS
-implements a stopping critierion that matches the normal SUNDIALS stopping critierion.
-The critierion can be created like so:
+After choosing a compatible ``N_Vector`` and creating a Ginkgo-enabled ``SUNMatrix`` (see
+:numref:`SUNMatrix.Ginkgo`) to use the SUNLINEARSOLVER_GINKGO module, we first create a Ginkgo
+stopping criteria object. Importantly, the :cpp:type:`sundials::ginkgo::DefaultStop` class provided
+by SUNDIALS implements a stopping critierion that matches the default SUNDIALS stopping critierion.
+Namely, it checks if the max iterations (5 by default) were reached or if the absolute residual
+norm was below a speicified tolerance. The critierion can be created like so:
 
 .. code-block:: cpp
    
@@ -70,12 +72,6 @@ a Ginkgo conjugate gradient solver:
 Finally, we can pass the instance of :cpp:type:`sundials::ginkgo::LinearSolver` to any function
 expecting a ``SUNLinearSolver`` object through the implicit conversion operator or explicit conversion function.
 
-.. note::
-
-  The ``N_Vector`` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor`` utilized.
-  I.e., when using the ``gko::CudaExecutor`` you should use a CUDA capable N_Vector  (e.g., :numref:`NVectors.CUDA`),
-  when using  ``gko::OmpExecutor`` you should use a CPU based N_Vector, etc.
-
 .. code-block:: cpp
 
    // Attach linear solver and matrix to CVODE.
@@ -89,6 +85,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
    // Alternatively with explicit conversion of LS to a SUNLinearSolver
    // and A to a SUNMatrix:
    CVodeSetLinearSolver(cvode_mem, LS->Convert(), A->Convert());
+
 
 .. warning::
 
@@ -108,46 +105,46 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
 
    .. cpp:function:: LinearSolver() = default;
 
-      Default constructor - means the solver must be moved to
+      Default constructor - means the solver must be moved to.
 
    .. cpp:function:: LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
 
-      Constructs a new LinearSolver from a Ginkgo solver factory
+      Constructs a new LinearSolver from a Ginkgo solver factory.
 
       :param gko_solver_factory: The Ginkgo solver factory (typically `gko::matrix::<type>::Factory``)
       :param sunctx: The SUNDIALS simulation context (:c:type:`SUNContext`)
 
    .. cpp:function:: LinearSolver(LinearSolver&& that_solver) noexcept
 
-      Move constructor
+      Move constructor.
 
    .. cpp:function:: LinearSolver& operator=(LinearSolver&& rhs)
 
-      Move assignment
+      Move assignment.
 
    .. cpp:function:: ~LinearSolver() override = default
 
-      Default destructor
+      Default destructor.
 
    .. cpp:function:: operator SUNLinearSolver() override
 
-      Implicit conversion to a :c:type:`SUNLinearSolver`
+      Implicit conversion to a :c:type:`SUNLinearSolver`.
    
    .. cpp:function:: operator SUNLinearSolver() const override
 
-      Implicit conversion to a :c:type:`SUNLinearSolver`
+      Implicit conversion to a :c:type:`SUNLinearSolver`.
 
    .. cpp:function:: SUNLinearSolver Convert() override
 
-      Explicit conversion to a :c:type:`SUNLinearSolver`
+      Explicit conversion to a :c:type:`SUNLinearSolver`.
 
    .. cpp:function:: SUNLinearSolver Convert() const override
 
-      Explicit conversion to a :c:type:`SUNLinearSolver`
+      Explicit conversion to a :c:type:`SUNLinearSolver`.
 
    .. cpp:function:: std::shared_ptr<const gko::Executor> GkoExec() const
 
-      Get the ``gko::Executor`` associated with the Ginkgo solver
+      Get the ``gko::Executor`` associated with the Ginkgo solver.
 
    .. cpp:function:: std::shared_ptr<typename GkoSolverType::Factory> GkoFactory()
 
@@ -175,7 +172,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
 
    .. cpp:function:: GkoSolverType* Setup(Matrix<GkoMatrixType>* A)
 
-      Setup the linear system
+      Setup the linear system.
 
       :param A: the linear system matrix
 
