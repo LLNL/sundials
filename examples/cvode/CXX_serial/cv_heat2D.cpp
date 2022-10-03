@@ -58,15 +58,13 @@
 // -----------------------------------------------------------------------------
 
 // ODE right hand side function
-int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Preconditioner Setup and Solve functions
-int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-           booleantype *jcurPtr, realtype gamma, void *user_data);
+int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok, booleantype* jcurPtr, realtype gamma, void* user_data);
 
-int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-           N_Vector z, realtype gamma, realtype delta, int lr,
-           void *user_data);
+int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z, realtype gamma, realtype delta, int lr,
+           void* user_data);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -111,20 +109,17 @@ int main(int argc, char* argv[])
   int prectype = (udata.prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   SUNLinearSolver LS = nullptr;
-  if (udata.pcg)
-  {
+  if (udata.pcg) {
     LS = SUNLinSol_PCG(u, prectype, udata.liniters, sunctx);
     if (check_ptr(LS, "SUNLinSol_PCG")) return 1;
   }
-  else
-  {
+  else {
     LS = SUNLinSol_SPGMR(u, prectype, udata.liniters, sunctx);
     if (check_ptr(LS, "SUNLinSol_SPGMR")) return 1;
   }
 
   // Allocate preconditioner workspace
-  if (udata.prec)
-  {
+  if (udata.prec) {
     udata.d = N_VClone(u);
     if (check_ptr((udata.d), "N_VClone")) return 1;
   }
@@ -146,15 +141,14 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSStolerances")) return 1;
 
   // Attach user data
-  flag = CVodeSetUserData(cvode_mem, (void *) &udata);
+  flag = CVodeSetUserData(cvode_mem, (void*)&udata);
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Attach linear solver
   flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_flag(flag, "CVodeSetLinearSolver")) return 1;
 
-  if (udata.prec)
-  {
+  if (udata.prec) {
     // Attach preconditioner
     flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
     if (check_flag(flag, "CVodeSetPreconditioner")) return 1;
@@ -180,9 +174,9 @@ int main(int argc, char* argv[])
   // Loop over output times
   // -----------------------
 
-  sunrealtype t     = ZERO;
-  sunrealtype dTout = udata.tf / udata.nout;
-  sunrealtype tout  = dTout;
+  auto t     = static_cast<sunrealtype>(ZERO);
+  auto dTout = static_cast<sunrealtype>(udata.tf / udata.nout);
+  auto tout  = dTout;
 
   // Inital output
   flag = OpenOutput(udata);
@@ -191,8 +185,7 @@ int main(int argc, char* argv[])
   flag = WriteOutput(t, u, e, udata);
   if (check_flag(flag, "WriteOutput")) return 1;
 
-  for (int iout = 0; iout < udata.nout; iout++)
-  {
+  for (int iout = 0; iout < udata.nout; iout++) {
     // Evolve in time
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if (check_flag(flag, "CVode")) break;
@@ -237,32 +230,28 @@ int main(int argc, char* argv[])
   flag = CVodeGetNumJtimesEvals(cvode_mem, &nJv);
   if (check_flag(flag, "CVodeGetNumJtimesEvals")) return -1;
 
-  std::cout
-    << std::fixed
-    << std::setprecision(6)
-    << "Final integrator statistics:\n"
-    << "  Steps            = " << nst     << "\n"
-    << "  Error test fails = " << netf    << "\n"
-    << "  RHS evals        = " << nf      << "\n"
-    << "  NLS iters        = " << nni     << "\n"
-    << "  NLS fails        = " << ncfn    << "\n"
-    << "  LS iters         = " << nli     << "\n"
-    << "  LS fails         = " << nlcf    << "\n"
-    << "  LS setups        = " << nsetups << "\n"
-    << "  LS RHS evals     = " << nf_ls   << "\n"
-    << "  Jv products      = " << nJv     << "\n"
-    << std::endl;
+  std::cout << std::fixed << std::setprecision(6) << "Final integrator statistics:\n"
+            << "  Steps            = " << nst << "\n"
+            << "  Error test fails = " << netf << "\n"
+            << "  RHS evals        = " << nf << "\n"
+            << "  NLS iters        = " << nni << "\n"
+            << "  NLS fails        = " << ncfn << "\n"
+            << "  LS iters         = " << nli << "\n"
+            << "  LS fails         = " << nlcf << "\n"
+            << "  LS setups        = " << nsetups << "\n"
+            << "  LS RHS evals     = " << nf_ls << "\n"
+            << "  Jv products      = " << nJv << "\n"
+            << std::endl;
 
   // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst;
-  realtype avgli  = (realtype) nli / (realtype) nni;
+  auto avgnli = static_cast<sunrealtype>(nni) / static_cast<sunrealtype>(nst);
+  auto avgli  = static_cast<sunrealtype>(nli) / static_cast<sunrealtype>(nni);
   std::cout << "  Avg NLS iters per step    = " << avgnli << "\n";
-  std::cout << "  Avg LS iters per NLS iter = " << avgli  << "\n";
+  std::cout << "  Avg LS iters per NLS iter = " << avgli << "\n";
   std::cout << std::endl;
 
   // Get preconditioner stats
-  if (udata.prec)
-  {
+  if (udata.prec) {
     long int npe, nps;
     flag = CVodeGetNumPrecEvals(cvode_mem, &npe);
     if (check_flag(flag, "CVodeGetNumPrecEvals")) return -1;
@@ -280,8 +269,7 @@ int main(int argc, char* argv[])
 
   sunrealtype maxerr = N_VMaxNorm(e);
 
-  std::cout << std::scientific
-            << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
+  std::cout << std::scientific << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
             << "  Max error = " << maxerr << std::endl;
 
   // --------------------
@@ -301,10 +289,10 @@ int main(int argc, char* argv[])
 // -----------------------------------------------------------------------------
 
 // f routine to compute the ODE RHS function f(t,y).
-int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
+int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 {
   // Access problem data and set shortcuts
-  auto udata = static_cast<UserData*>(user_data);
+  auto udata    = static_cast<UserData*>(user_data);
   const auto nx = udata->nx;
   const auto ny = udata->ny;
   const auto dx = udata->dx;
@@ -313,16 +301,16 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
   const auto ky = udata->ky;
 
   // Access data arrays
-  sunrealtype *uarray = N_VGetArrayPointer(u);
+  auto uarray = N_VGetArrayPointer(u);
   if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
 
-  sunrealtype *farray = N_VGetArrayPointer(f);
+  auto farray = N_VGetArrayPointer(f);
   if (check_ptr(farray, "N_VGetArrayPointer")) return -1;
 
   // Constants for computing f(t,y)
-  const sunrealtype cx = kx / (dx * dx);
-  const sunrealtype cy = ky / (dy * dy);
-  const sunrealtype cc = -TWO * (cx + cy);
+  const auto cx = kx / (dx * dx);
+  const auto cy = ky / (dy * dy);
+  const auto cc = -TWO * (cx + cy);
 
   const auto bx = kx * TWO * PI * PI;
   const auto by = ky * TWO * PI * PI;
@@ -334,12 +322,10 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
   N_VConst(ZERO, f);
 
   // Iterate over domain interior and fill the RHS vector
-  for (sunindextype j = 1; j < ny - 1; j++)
-  {
-    for (sunindextype i = 1; i < nx - 1; i++)
-    {
-      auto x  = i * dx;
-      auto y  = j * dy;
+  for (sunindextype j = 1; j < ny - 1; j++) {
+    for (sunindextype i = 1; i < nx - 1; i++) {
+      auto x = i * dx;
+      auto y = j * dy;
 
       auto sin_sqr_x = sin(PI * x) * sin(PI * x);
       auto sin_sqr_y = sin(PI * y) * sin(PI * y);
@@ -354,13 +340,10 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
       auto idx_e = (i + 1) + j * nx;
       auto idx_w = (i - 1) + j * nx;
 
-      farray[idx_c] =
-        cc * uarray[idx_c]
-        + cx * (uarray[idx_w] + uarray[idx_e])
-        + cy * (uarray[idx_s] + uarray[idx_n])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+      farray[idx_c] = cc * uarray[idx_c] + cx * (uarray[idx_w] + uarray[idx_e]) + cy * (uarray[idx_s] + uarray[idx_n]) -
+                      TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t -
+                      bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t -
+                      by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
     }
   }
 
@@ -368,22 +351,20 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
   return 0;
 }
 
-
 // Preconditioner setup routine
-int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-           booleantype *jcurPtr, realtype gamma, void *user_data)
+int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok, booleantype* jcurPtr, realtype gamma, void* user_data)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  auto udata = static_cast<UserData*>(user_data);
 
   // Access data array
-  sunrealtype *diag = N_VGetArrayPointer(udata->d);
+  sunrealtype* diag = N_VGetArrayPointer(udata->d);
   if (check_ptr(diag, "N_VGetArrayPointer")) return -1;
 
   // Constants for computing diffusion
-  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
-  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
-  sunrealtype cc = -TWO * (cx + cy);
+  auto cx = udata->kx / (udata->dx * udata->dx);
+  auto cy = udata->ky / (udata->dy * udata->dy);
+  auto cc = -TWO * (cx + cy);
 
   // Set all entries of d to the inverse diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
@@ -395,12 +376,11 @@ int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
 }
 
 // Preconditioner solve routine for Pz = r
-int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-           N_Vector z, realtype gamma, realtype delta, int lr,
-           void *user_data)
+int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z, realtype gamma, realtype delta, int lr,
+           void* user_data)
 {
   // Access user_data structure
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = static_cast<UserData*>(user_data);
 
   // Perform Jacobi iteration
   N_VProd(udata->d, r, z);

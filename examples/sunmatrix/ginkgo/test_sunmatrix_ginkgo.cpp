@@ -38,6 +38,8 @@
 #include <nvector/nvector_cuda.h>
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
+#elif defined(USE_OMP)
+#include <nvector/nvector_openmp.h>
 #else
 #include <nvector/nvector_serial.h>
 #endif
@@ -56,20 +58,24 @@ int Test_CopyAndMove(std::unique_ptr<GkoMatType>&& gko_mat, SUNContext sunctx)
   sundials::ginkgo::Matrix<GkoMatType> mat{std::move(gko_mat), sunctx};
   sundials::ginkgo::Matrix<GkoMatType> mat2{mat};
   SUNMatZero(mat2);
+  check_matrix_entry(mat2, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   // Move constructor
   sundials::ginkgo::Matrix<GkoMatType> mat3{std::move(mat2)};
   SUNMatZero(mat3);
+  check_matrix_entry(mat3, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   // Copy assignment
   sundials::ginkgo::Matrix<GkoMatType> mat4;
   mat4 = mat3;
   SUNMatZero(mat4);
+  check_matrix_entry(mat4, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   // Move assignment
   sundials::ginkgo::Matrix<GkoMatType> mat5;
   mat5 = std::move(mat4);
   SUNMatZero(mat5);
+  check_matrix_entry(mat5, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   std::cout << "    PASSED test -- Test_CopyAndMove\n";
 
@@ -123,6 +129,14 @@ int main(int argc, char* argv[])
     using_dense_matrix_type = true;
   }
 
+  int num_threads{1};
+#if defined(USE_OMP)
+  auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
+  if (omp_num_threads_var) {
+    num_threads = std::atoi(omp_num_threads_var);
+  }
+#endif
+
   SetTiming(0);
 
   int square{matrows == matcols ? 1 : 0};
@@ -138,9 +152,9 @@ int main(int argc, char* argv[])
   std::default_random_engine generator;
   std::uniform_real_distribution<sunrealtype> distribution{0.0, static_cast<sunrealtype>(matrows)};
 
-  N_Vector x{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matcols, sunctx), N_VNew_Serial(matcols, sunctx),
+  N_Vector x{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matcols, sunctx), N_VNew_OpenMP(matcols, num_threads, sunctx),
                                        N_VNew_Hip(matcols, sunctx), N_VNew_Cuda(matcols, sunctx))};
-  N_Vector y{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matrows, sunctx), N_VNew_Serial(matrows, sunctx),
+  N_Vector y{REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(matrows, sunctx), N_VNew_OpenMP(matrows, num_threads, sunctx),
                                        N_VNew_Hip(matrows, sunctx), N_VNew_Cuda(matrows, sunctx))};
 
   auto matrix_dim{gko::dim<2>(matrows, matcols)};

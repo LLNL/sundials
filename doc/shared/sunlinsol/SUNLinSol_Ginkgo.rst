@@ -32,7 +32,8 @@ building and using Ginkgo itself, refer to the
 
   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
   try to encapsulate Ginkgo linear solvers, rather it provides a lightweight iteroperability layer
-  between Ginkgo and SUNDIALS.
+  between Ginkgo and SUNDIALS. Most, if not all, of the Ginkgo linear solver should work with this
+  interface.
 
 .. _SUNLinSol.Ginkgo.Usage:
 
@@ -44,7 +45,8 @@ After choosing a compatible ``N_Vector`` and creating a Ginkgo-enabled ``SUNMatr
 stopping criteria object. Importantly, the :cpp:type:`sundials::ginkgo::DefaultStop` class provided
 by SUNDIALS implements a stopping critierion that matches the default SUNDIALS stopping critierion.
 Namely, it checks if the max iterations (5 by default) were reached or if the absolute residual
-norm was below a speicified tolerance. The critierion can be created like so:
+norm was below a speicified tolerance. The critierion can be created just like any other
+Ginkgo stopping criteria:
 
 .. code-block:: cpp
    
@@ -52,7 +54,8 @@ norm was below a speicified tolerance. The critierion can be created like so:
 
 .. warning:: 
    It is *highly* recommended to employ this criterion when using Ginkgo solvers with SUNDIALS,
-   but it is optional. 
+   but it is optional. However, to use the Ginkgo multigrid or cbgmres linear solvers, different
+   Ginkgo criterion must be used. 
 
 Once we have created our stopping critierion, we create a Ginkgo solver factory object and
 wrap it in a :cpp:type:`sundials::ginkgo::LinearSolver` object. In this example, we create

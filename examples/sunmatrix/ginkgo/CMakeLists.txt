@@ -40,8 +40,10 @@ if(EXAMPLES_INSTALL)
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
     list(APPEND vectors nvechip)
   endif()
-  if((SUNDIALS_GINKGO_BACKENDS MATCHES "OMP") OR
-      (SUNDIALS_GINKGO_BACKENDS MATCHES "REF"))
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP")
+    list(APPEND vectors nvecopenmp)
+  endif()
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "REF")
     list(APPEND vectors nvecserial)
   endif()
 

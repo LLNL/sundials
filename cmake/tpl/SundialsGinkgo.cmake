@@ -70,6 +70,10 @@ if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
     print_error("SUNDIALS_GINKGO_BACKENDS includes DPC++ but SYCL/DPC++ is not enabled. Set ENABLE_SYCL=ON or change the backend.")
   endif()
 
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP" AND NOT ENABLE_OPENMP)
+    print_error("SUNDIALS_GINKGO_BACKENDS includes OMP but OpenMP is not enabled. Set ENABLE_OPENMP=ON or change the backend.")
+  endif()
+
   message(STATUS "Checking if GINKGO works... OK")
   set(GINKGO_WORKS TRUE CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
 elseif(GINKGO_FOUND AND GINKGO_WORKS)

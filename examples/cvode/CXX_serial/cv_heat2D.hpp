@@ -16,17 +16,17 @@
  * See cv_heat2D.cpp for more information.
  * ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <limits>
 #include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
 #include <string>
 
 // SUNDIALS types
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
 
 // Common utility functions
 #include <example_utilities.hpp>
@@ -67,25 +67,25 @@ struct UserData
   sunrealtype dy = yu / (ny - 1);
 
   // Integrator settings
-  sunrealtype rtol     = SUN_RCONST(1.0e-4); // relative tolerance
-  sunrealtype atol     = SUN_RCONST(1.0e-8); // absolute tolerance
-  int         maxsteps = 0;                  // max number of steps between outputs
+  sunrealtype rtol = SUN_RCONST(1.0e-4); // relative tolerance
+  sunrealtype atol = SUN_RCONST(1.0e-8); // absolute tolerance
+  int maxsteps     = 0;                  // max number of steps between outputs
 
   // Linear solver and preconditioner settings
-  bool     pcg      = true; // use PCG (true) or GMRES (false)
-  bool     prec     = true; // preconditioner on/off
-  int      liniters = 20;   // number of linear iterations
-  int      msbp     = 0;    // max number of steps between preconditioner setups
-  realtype epslin   = ZERO; // linear solver tolerance factor
+  bool pcg           = true; // use PCG (true) or GMRES (false)
+  bool prec          = true; // preconditioner on/off
+  int liniters       = 20;   // number of linear iterations
+  int msbp           = 0;    // max number of steps between preconditioner setups
+  sunrealtype epslin = ZERO; // linear solver tolerance factor
 
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d = nullptr;
 
   // Ouput variables
-  bool          output = false; // write solution to disk
-  int           nout   = 20;    // number of output times
-  std::ofstream uout;           // output file stream
-  std::ofstream eout;           // error file stream
+  bool output = false; // write solution to disk
+  int nout    = 20;    // number of output times
+  std::ofstream uout;  // output file stream
+  std::ofstream eout;  // error file stream
 
   // Destructor
   ~UserData();
@@ -95,8 +95,7 @@ struct UserData
 UserData::~UserData()
 {
   // Free preconditioner data
-  if (d)
-  {
+  if (d) {
     N_VDestroy(d);
     d = nullptr;
   }
@@ -107,9 +106,9 @@ UserData::~UserData()
 // -----------------------------------------------------------------------------
 
 // Compute the exact solution
-int Solution(sunrealtype t, N_Vector u, UserData &udata)
+int Solution(sunrealtype t, N_Vector u, UserData& udata)
 {
-  sunrealtype *uarray = N_VGetArrayPointer(u);
+  auto uarray = N_VGetArrayPointer(u);
   if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
 
   // Initialize u to one (handles boundary conditions)
@@ -118,17 +117,15 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
   // Compute the true solution
   auto cos_sqr_t = cos(PI * t) * cos(PI * t);
 
-  for (sunindextype j = 1; j < udata.ny - 1; j++)
-  {
-    for (sunindextype i = 1; i < udata.nx - 1; i++)
-    {
+  for (sunindextype j = 1; j < udata.ny - 1; j++) {
+    for (sunindextype i = 1; i < udata.nx - 1; i++) {
       auto x = i * udata.dx;
       auto y = j * udata.dy;
 
       auto sin_sqr_x = sin(PI * x) * sin(PI * x);
       auto sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      auto idx = i + j * udata.nx;
+      auto idx    = i + j * udata.nx;
       uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t + ONE;
     }
   }
@@ -137,10 +134,10 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
 }
 
 // Compute the solution error
-int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
+int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 {
   // Compute true solution
-  int flag = Solution(t, e, udata);
+  auto flag = Solution(t, e, udata);
   if (flag != 0) return -1;
 
   // Compute absolute error
@@ -153,34 +150,32 @@ int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
 // Print command line options
 void InputHelp()
 {
-  std::cout
-    << std::endl
-    << "Command line options:\n"
-    << "  --nx <nx>          : number of x mesh points\n"
-    << "  --nx <nx>          : number of y mesh points\n"
-    << "  --xu <xu>          : x upper bound\n"
-    << "  --yu <yu>          : y upper bound\n"
-    << "  --kx <kx>          : x diffusion coefficient\n"
-    << "  --kx <ky>          : y diffusion coefficient\n"
-    << "  --tf <time>        : final time\n"
-    << "  --rtol <rtol>      : relative tolerance\n"
-    << "  --atol <atol>      : absoltue tolerance\n"
-    << "  --gmres            : use GMRES linear solver\n"
-    << "  --noprec           : disable preconditioner\n"
-    << "  --liniters <iters> : max number of iterations\n"
-    << "  --epslin <factor>  : linear tolerance factor\n"
-    << "  --msbp <steps>     : max steps between prec setups\n"
-    << "  --output           : write solution to disk\n"
-    << "  --nout <nout>      : number of outputs\n"
-    << "  --maxsteps <steps> : max steps between outputs\n"
-    << "  --help             : print this message and exit\n";
+  std::cout << std::endl
+            << "Command line options:\n"
+            << "  --nx <nx>          : number of x mesh points\n"
+            << "  --nx <nx>          : number of y mesh points\n"
+            << "  --xu <xu>          : x upper bound\n"
+            << "  --yu <yu>          : y upper bound\n"
+            << "  --kx <kx>          : x diffusion coefficient\n"
+            << "  --kx <ky>          : y diffusion coefficient\n"
+            << "  --tf <time>        : final time\n"
+            << "  --rtol <rtol>      : relative tolerance\n"
+            << "  --atol <atol>      : absoltue tolerance\n"
+            << "  --gmres            : use GMRES linear solver\n"
+            << "  --noprec           : disable preconditioner\n"
+            << "  --liniters <iters> : max number of iterations\n"
+            << "  --epslin <factor>  : linear tolerance factor\n"
+            << "  --msbp <steps>     : max steps between prec setups\n"
+            << "  --output           : write solution to disk\n"
+            << "  --nout <nout>      : number of outputs\n"
+            << "  --maxsteps <steps> : max steps between outputs\n"
+            << "  --help             : print this message and exit\n";
 }
 
 // Read command line inputs
-int ReadInputs(std::vector<std::string> &args, UserData &udata)
+int ReadInputs(std::vector<std::string>& args, UserData& udata)
 {
-  if (find(args.begin(), args.end(), "--help") != args.end())
-  {
+  if (find(args.begin(), args.end(), "--help") != args.end()) {
     InputHelp();
     return 1;
   }
@@ -212,89 +207,79 @@ int ReadInputs(std::vector<std::string> &args, UserData &udata)
   return 0;
 }
 
-
 // Print user data
-void PrintUserData(UserData &udata)
+void PrintUserData(UserData& udata)
 {
-  std::cout
-    << std::endl
-    << "2D Heat problem:\n"
-    << " ----------------------------\n"
-    << "  kx        = " << udata.kx << "\n"
-    << "  ky        = " << udata.ky << "\n"
-    << "  tf        = " << udata.tf << "\n"
-    << "  xu        = " << udata.xu << "\n"
-    << "  yu        = " << udata.yu << "\n"
-    << "  nx        = " << udata.nx << "\n"
-    << "  ny        = " << udata.ny << "\n"
-    << "  dx        = " << udata.dx << "\n"
-    << "  dy        = " << udata.dy << "\n"
-    << " ----------------------------\n";
-  if (udata.pcg)
-  {
+  std::cout << std::endl
+            << "2D Heat problem:\n"
+            << " ----------------------------\n"
+            << "  kx        = " << udata.kx << "\n"
+            << "  ky        = " << udata.ky << "\n"
+            << "  tf        = " << udata.tf << "\n"
+            << "  xu        = " << udata.xu << "\n"
+            << "  yu        = " << udata.yu << "\n"
+            << "  nx        = " << udata.nx << "\n"
+            << "  ny        = " << udata.ny << "\n"
+            << "  dx        = " << udata.dx << "\n"
+            << "  dy        = " << udata.dy << "\n"
+            << " ----------------------------\n";
+  if (udata.pcg) {
     std::cout << "  linear solver  = PCG\n";
   }
-  else
-  {
+  else {
     std::cout << "  linear solver  = GMRES\n";
   }
-  std::cout
-    << "  rtol      = " << udata.rtol << "\n"
-    << "  atol      = " << udata.atol << "\n"
-    << " ----------------------------\n"
-    << "  lin iters = " << udata.liniters << "\n"
-    << "  eps lin   = " << udata.epslin << "\n"
-    << "  prec      = " << udata.prec << "\n"
-    << "  msbp      = " << udata.msbp << "\n"
-    << " ----------------------------\n"
-    << "  output    = " << udata.output << "\n"
-    << " ----------------------------\n"
-    << std::endl;
+  std::cout << "  rtol      = " << udata.rtol << "\n"
+            << "  atol      = " << udata.atol << "\n"
+            << " ----------------------------\n"
+            << "  lin iters = " << udata.liniters << "\n"
+            << "  eps lin   = " << udata.epslin << "\n"
+            << "  prec      = " << udata.prec << "\n"
+            << "  msbp      = " << udata.msbp << "\n"
+            << " ----------------------------\n"
+            << "  output    = " << udata.output << "\n"
+            << " ----------------------------\n"
+            << std::endl;
 }
 
 // Initialize output
-int OpenOutput(UserData &udata)
+int OpenOutput(UserData& udata)
 {
   // Header for status output
-  std::cout
-    << std::scientific
-    << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
-    << "          t                     ||u||_rms      "
-    << "          max error\n"
-    << " ----------------------------------------------"
-    << "-------------------------\n";
+  std::cout << std::scientific << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
+            << "          t                     ||u||_rms      "
+            << "          max error\n"
+            << " ----------------------------------------------"
+            << "-------------------------\n";
 
   // Output problem information and open output streams
-  if (udata.output)
-  {
+  if (udata.output) {
     // Each processor outputs subdomain information
     std::ofstream dout;
     dout.open("heat2d_info.txt");
-    dout <<  "xu  " << udata.xu       << std::endl;
-    dout <<  "yu  " << udata.yu       << std::endl;
-    dout <<  "nx  " << udata.nx       << std::endl;
-    dout <<  "ny  " << udata.ny       << std::endl;
-    dout <<  "nt  " << udata.nout + 1 << std::endl;
+    dout << "xu  " << udata.xu << std::endl;
+    dout << "yu  " << udata.yu << std::endl;
+    dout << "nx  " << udata.nx << std::endl;
+    dout << "ny  " << udata.ny << std::endl;
+    dout << "nt  " << udata.nout + 1 << std::endl;
     dout.close();
 
     // Open output streams for solution and error
     udata.uout.open("heat2d_solution.txt");
-    udata.uout << std::scientific
-               << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+    udata.uout << std::scientific << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
 
     udata.eout.open("heat2d_error.txt");
-    udata.eout << std::scientific
-               << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+    udata.eout << std::scientific << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
   }
 
   return 0;
 }
 
 // Write output
-int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
+int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 {
   // Compute the error
-  int flag = SolutionError(t, u, e, udata);
+  auto flag = SolutionError(t, u, e, udata);
   if (check_flag(flag, "SolutionError")) return 1;
 
   // Compute max error
@@ -307,25 +292,22 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
   std::cout << std::setw(22) << t << std::setw(25) << urms << std::setw(25) << max << std::endl;
 
   // Write solution and error to disk
-  if (udata.output)
-  {
-    sunrealtype *uarray = N_VGetArrayPointer(u);
+  if (udata.output) {
+    sunrealtype* uarray = N_VGetArrayPointer(u);
     if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
 
     udata.uout << t << " ";
-    for (sunindextype i = 0; i < udata.nodes; i++)
-    {
+    for (sunindextype i = 0; i < udata.nodes; i++) {
       udata.uout << uarray[i] << " ";
     }
     udata.uout << std::endl;
 
     // Output error to disk
-    sunrealtype *earray = N_VGetArrayPointer(e);
+    sunrealtype* earray = N_VGetArrayPointer(e);
     if (check_ptr(earray, "N_VGetArrayPointer")) return -1;
 
     udata.eout << t << " ";
-    for (sunindextype i = 0; i < udata.nodes; i++)
-    {
+    for (sunindextype i = 0; i < udata.nodes; i++) {
       udata.eout << earray[i] << " ";
     }
     udata.eout << std::endl;
@@ -335,14 +317,13 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
 }
 
 // Finalize output
-int CloseOutput(UserData &udata)
+int CloseOutput(UserData& udata)
 {
   // Footer for status output
   std::cout << " ----------------------------------------------"
             << "-------------------------\n\n";
 
-  if (udata.output)
-  {
+  if (udata.output) {
     // Close output streams
     udata.uout.close();
     udata.eout.close();

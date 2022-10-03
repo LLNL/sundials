@@ -38,9 +38,16 @@ constexpr auto N_VNew = N_VNew_Hip;
 #define HIP_OR_CUDA(a, b) b
 constexpr auto N_VNew = N_VNew_Cuda;
 #elif defined(USE_OMP)
-#include <nvector/nvector_serial.h>
+#include <nvector/nvector_openmp.h>
 #define HIP_OR_CUDA(a, b)
-constexpr auto N_VNew = N_VNew_Serial;
+auto N_VNew = [](sunindextype length, SUNContext sunctx) {
+  auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
+  int num_threads{1};
+  if (omp_num_threads_var) {
+    num_threads = std::atoi(omp_num_threads_var);
+  }
+  return N_VNew_OpenMP(length, num_threads, sunctx);
+};
 #else
 #include <nvector/nvector_serial.h>
 #define HIP_OR_CUDA(a, b)

@@ -60,9 +60,6 @@
  *    solver_type:
  *       0 - MAGMA batched GMRES
  *       1 - SUNDIALS non-batched GMRES with difference quotients Jacobian
- *       2 - SUNDIALS non-batched GMRES with analytical Jacobian
- *       3 - SUNDIALS non-batched BiCGSTAB with difference quotients Jacobian
- *       4 - SUNDIALS non-batched BiCGSTAB with analytical Jacobian
  *    test_type:
  *       0 - all batches are the same reactor type 0
  *       1 - all batches are the same reactor type 1
@@ -99,6 +96,8 @@
 #elif defined(SUNDIALS_MAGMA_BACKENDS_HIP)
 #include <nvector/nvector_hip.h>
 #include <sunmemory/sunmemory_hip.h>
+#else
+#error SUNDIALS_MAGMA_BACKENDS value is not recognized
 #endif
 
 /* Functions Called by the Solver */
@@ -280,13 +279,13 @@ int main(int argc, char *argv[])
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSVtolerances", 1)) { return(1); }
 
-  /* Create SUNMatrix for use in linear solves */
-  A = SUNMatrix_MagmaDenseBlock(udata.nbatches, udata.batchSize, udata.batchSize, SUNMEMTYPE_DEVICE,
-                                memhelper, NULL, sunctx);
-  if(check_retval((void *)A, "SUNMatrix_MagmaDenseBlock", 0)) return(1);
-
   /* Create the SUNLinearSolver object for use by CVode */
   if (solver_type == 0) {
+    /* Create SUNMatrix for use in linear solves */
+    A = SUNMatrix_MagmaDenseBlock(udata.nbatches, udata.batchSize, udata.batchSize, SUNMEMTYPE_DEVICE,
+                                  memhelper, NULL, sunctx);
+    if(check_retval((void *)A, "SUNMatrix_MagmaDenseBlock", 0)) return(1);
+
     LS = SUNLinSol_MagmaDense(y, A, sunctx);
     if(check_retval((void *)LS, "SUNLinSol_MagmaDense", 0)) return(1);
 
@@ -347,7 +346,7 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);
 
   /* Free the matrix memory */
-  SUNMatDestroy(A);
+  if (A) { SUNMatDestroy(A); }
 
   return(0);
 }
@@ -494,9 +493,7 @@ void j_kernel(sunrealtype* ydata, sunrealtype *Jdata, sunrealtype* A, sunrealtyp
 
 void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#if defined(SUNDIALS_DOUBLE_PRECISION)
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #else
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);

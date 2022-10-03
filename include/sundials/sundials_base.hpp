@@ -51,7 +51,7 @@ public:
     object_->ops     = object_ops_.get();
   }
 
-  // Copy constructor clones the gko::matrix and SUNMatrix
+  // Copy constructor
   BaseObject(const BaseObject& other)
       : sunctx_(other.sunctx_), object_(std::make_unique<ObjectStruct>()),
         object_ops_(std::make_unique<ObjectOps>(*other.object_ops_))
@@ -73,7 +73,7 @@ public:
     return *this;
   }
 
-  // Copy assignment clones the gko::matrix and SUNMatrix
+  // Copy assignment
   BaseObject& operator=(const BaseObject& rhs)
   {
     sunctx_          = rhs.sunctx_;

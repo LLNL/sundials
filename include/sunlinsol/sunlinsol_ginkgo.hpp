@@ -99,7 +99,7 @@ public:
   {
     sunrealtype GKO_FACTORY_PARAMETER_SCALAR(reduction_factor,
                                              SUN_UNIT_ROUNDOFF); // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-    gko::uint64 GKO_FACTORY_PARAMETER_SCALAR(max_iters, 50);
+    gko::uint64 GKO_FACTORY_PARAMETER_SCALAR(max_iters, 5);
   };
   GKO_ENABLE_CRITERION_FACTORY(DefaultStop, parameters, Factory);
   GKO_ENABLE_BUILD_METHOD(Factory);
