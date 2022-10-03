@@ -158,7 +158,8 @@ inline bool DefaultStop::check_impl(gko::uint8 stoppingId, bool setFinalized,
   return one_converged;
 }
 
-/// Class that wraps a Ginkgo solver (factory) and is convertible to a fully functioning ``SUNLinearSolver``.
+/// Class that wraps a Ginkgo solver (factory) and is convertible to a fully
+/// functioning ``SUNLinearSolver``.
 template<class GkoSolverType, class GkoMatrixType>
 class LinearSolver : public ConvertibleTo<SUNLinearSolver>
 {
@@ -167,8 +168,9 @@ public:
   LinearSolver() = default;
 
   /// Constructs a new LinearSolver from a Ginkgo solver factory
-  /// \param gko_solver_factory The Ginkgo solver factory (typically `gko::matrix::<type>::Factory`)
-  /// \param sunctx The SUNDIALS simulation context (:c:type:`SUNContext`)
+  /// \param gko_solver_factory The Ginkgo solver factory (typically
+  /// `gko::matrix::<type>::Factory`) \param sunctx The SUNDIALS simulation
+  /// context (:c:type:`SUNContext`)
   LinearSolver(std::shared_ptr<typename GkoSolverType::Factory> gko_solver_factory, SUNContext sunctx)
       : gko_solver_factory_(gko_solver_factory), gko_solver_(nullptr),
         sunlinsol_(std::make_unique<_generic_SUNLinearSolver>()),

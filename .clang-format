@@ -31,7 +31,7 @@ AllowShortBlocksOnASingleLine                 : true
 AllowShortCaseLabelsOnASingleLine             : true
 AllowShortFunctionsOnASingleLine              : All
 AllowShortLambdasOnASingleLine                : All
-AllowShortIfStatementsOnASingleLine           : AllIfsAndElse
+AllowShortIfStatementsOnASingleLine           : Always
 AllowShortLoopsOnASingleLine                  : true
 AlwaysBreakAfterDefinitionReturnType          : None
 AlwaysBreakAfterReturnType                    : None

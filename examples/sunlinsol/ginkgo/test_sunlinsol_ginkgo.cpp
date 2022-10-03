@@ -289,7 +289,8 @@ int main(int argc, char* argv[])
 
   const auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
   if (matcond < 0) {
-    std::cerr << "ERROR: matrix condition number must be positive or 0 (poisson test)\n";
+    std::cerr << "ERROR: matrix condition number must be positive or 0 "
+                 "(poisson test)\n";
     return 1;
   }
 
@@ -520,7 +521,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
-  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1000 * std::numeric_limits<sunrealtype>::epsilon(),
+  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 100 * std::numeric_limits<sunrealtype>::epsilon(),
                                SUNTRUE, 0);
 
   /* Print result */
