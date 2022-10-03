@@ -196,7 +196,6 @@ $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.cu
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.out
 
-$tar $tarfile $distrobase/examples/cvode/ginkgo/README
 $tar $tarfile $distrobase/examples/cvode/ginkgo/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.cpp
 $tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.hpp
