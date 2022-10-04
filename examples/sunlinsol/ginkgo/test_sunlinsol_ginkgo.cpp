@@ -521,8 +521,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
-  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 10 * std::numeric_limits<sunrealtype>::epsilon(),
-                               SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1e4 * SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
 
   /* Print result */
   if (fails) {
@@ -548,7 +547,7 @@ int main(int argc, char* argv[])
  * Implementation-specific 'check' routines                                   *
  * -------------------------------------------------------------------------- */
 
-int check_vector(N_Vector expected, N_Vector actual, realtype tol)
+int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
 {
   int failure{0};
 
@@ -571,13 +570,13 @@ int check_vector(N_Vector expected, N_Vector actual, realtype tol)
 
   /* check vector data */
   for (sunindextype i = 0; i < xldata; i++) {
-    failure += SUNRCompareTol(xdata[i], ydata[i], 10 * tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], check_tol);
   }
 
   if (failure > ZERO) {
-    std::cerr << "Check_vector failures:\n";
+    std::cerr << "check_vector failures:\n";
     for (sunindextype i = 0; i < xldata; i++) {
-      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0) {
+      if (SUNRCompareTol(xdata[i], ydata[i], check_tol) != 0) {
         std::cerr << "  x[" << i << "] = " << xdata[i] << " != " << ydata[i] << " (err = " << abs(xdata[i] - ydata[i])
                   << ")\n";
       }
