@@ -521,7 +521,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
-  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 100 * std::numeric_limits<sunrealtype>::epsilon(),
+  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 10 * std::numeric_limits<sunrealtype>::epsilon(),
                                SUNTRUE, 0);
 
   /* Print result */
@@ -571,7 +571,7 @@ int check_vector(N_Vector expected, N_Vector actual, realtype tol)
 
   /* check vector data */
   for (sunindextype i = 0; i < xldata; i++) {
-    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], 10 * tol);
   }
 
   if (failure > ZERO) {
