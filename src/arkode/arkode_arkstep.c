@@ -227,6 +227,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  // TODO(CJB): I think this is redundant (arkResize does it)
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL)
@@ -1214,17 +1215,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
     if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
   }
 
-  /* set appropriate TakeStep routine based on problem configuration */
-  /*    (only one choice for now) */
-  // if (step_mem->separable_rhs) {
-    // if (ark_mem->compensated_sums) {
-      // ark_mem->step = arkStep_TakeStep_SprkInc;
-    // } else {
-      ark_mem->step = arkStep_TakeStep_Sprk;
-    // }
-  // } else {
-    // ark_mem->step = arkStep_TakeStep_Z;
-  // }
+  ark_mem->step = arkStep_TakeStep_Z;
 
   /* Check for consistency between mass system and system linear system modules
      (e.g., if lsolve is direct, msolve needs to match) */

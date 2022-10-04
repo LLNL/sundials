@@ -40,7 +40,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode_mristep.h>      /* prototypes for MRIStep fcts., consts */
+#include <arkode/arkode_sprkstep.h>      /* prototypes for MRIStep fcts., consts */
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
 #include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
@@ -146,9 +146,12 @@ int main(int argc, char* argv[])
   /* Fill the initial conditions */
   InitialConditions(y, ecc);
 
-  /* Create ARKStep integrator where we treat dqdt explicitly and dpdt implicitly */
+  /* Create SPRKStep integrator where we treat dqdt explicitly and dpdt implicitly */
   if (method == 0) {
-    arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
+    const int num_rhs = 2;
+    ARKRhsFn rhs[2] = { dqdt, dpdt };
+
+    arkode_mem = SPRKStepCreate(rhs, T0, y, SPRKStepDefaultSPRK(order), sunctx);
 
     /* 4th order scheme [McLauchlan] */
     if (order == 4) {
@@ -288,49 +291,50 @@ int main(int argc, char* argv[])
       Mq->p = 0;
     }
 
-    retval = ARKStepSetTables(arkode_mem, order, 0, Mp, Mq);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    retval = SPRKStepSetTables(arkode_mem, order, 0, Mp, Mq);
+    if (check_retval(&retval, "SPRKStepSetTables", 1)) return 1;
 
-    retval = ARKStepSetSeparableRhs(arkode_mem, SUNTRUE);
-    if (check_retval(&retval, "ARKStepSetSeparableRhs", 1)) return 1;
-  } else if (method == 1) {
-    arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
+    if (step_mode == 1) {
+      retval = SPRKStepSetFixedStep(arkode_mem, dt);
+      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-    retval = ARKStepSetOrder(arkode_mem, order);
-    if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-  } else {
-    arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
+      retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
+      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+    } else if (step_mode == 2 || step_mode == 3) {
+      /*  Adaptivity based on [Hairer and Soderlind, 2005] */
+      retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
+      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-    retval = ARKStepSetOrder(arkode_mem, order);
-    if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
+      udata->rho_nmhalf = udata->rho_n - udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
+      udata->rho_nphalf = udata->rho_nmhalf + udata->eps*G(y, udata->alpha);
+      retval = SPRKStepSetInitStep(arkode_mem, udata->eps/udata->rho_nphalf);
+      if (check_retval(&retval, "SPRKStepSetInitStep", 1)) return 1;
 
-    NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
-    ARKStepSetNonlinearSolver(arkode_mem, NLS);
-  }
+      retval = SPRKStepSetMaxNumSteps(arkode_mem, (long int) 100*(ceil(Tf/dt) + 1));
+      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+    }
 
-  /* Setup ARKStep */
-  retval = ARKStepSetUserData(arkode_mem, (void *) udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+    retval = SPRKStepSetUserData(arkode_mem, (void *) udata);
+    if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
+  } else if (method >= 1) {
+    if (method == 1) {
+      arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
-  if (step_mode == 1) {
-    retval = ARKStepSetFixedStep(arkode_mem, dt);
-    if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+      retval = ARKStepSetOrder(arkode_mem, order);
+      if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
+    } else {
+      arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
-    retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
-    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
-  } else if (step_mode == 2 || step_mode == 3) {
-    /*  Adaptivity based on [Hairer and Soderlind, 2005] */
-    retval = ARKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
-    if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+      retval = ARKStepSetOrder(arkode_mem, order);
+      if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
 
-    udata->rho_nmhalf = udata->rho_n - udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
-    udata->rho_nphalf = udata->rho_nmhalf + udata->eps*G(y, udata->alpha);
-    retval = ARKStepSetInitStep(arkode_mem, udata->eps/udata->rho_nphalf);
-    if (check_retval(&retval, "ARKStepSetInitStep", 1)) return 1;
+      NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
+      ARKStepSetNonlinearSolver(arkode_mem, NLS);
+    }
 
-    retval = ARKStepSetMaxNumSteps(arkode_mem, (long int) 100*(ceil(Tf/dt) + 1));
-    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
-  } else {
+    retval = ARKStepSetUserData(arkode_mem, (void *) udata);
+    if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+
     retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
     if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
   }
