@@ -65,6 +65,7 @@ typedef enum {
   SUNMATRIX_SPARSE,
   SUNMATRIX_SLUNRLOC,
   SUNMATRIX_CUSPARSE,
+  SUNMATRIX_GINKGO,
   SUNMATRIX_CUSTOM
 } SUNMatrix_ID;
 
@@ -91,6 +92,9 @@ struct _generic_SUNMatrix_Ops {
   int          (*matvecsetup)(SUNMatrix);
   int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
   int          (*space)(SUNMatrix, long int*, long int*);
+#ifdef __cplusplus
+  _generic_SUNMatrix_Ops() = default;
+#endif
 };
 
 /* A matrix is a structure with an implementation-dependent
@@ -100,6 +104,9 @@ struct _generic_SUNMatrix {
   void *content;
   SUNMatrix_Ops ops;
   SUNContext sunctx;
+#ifdef __cplusplus
+  _generic_SUNMatrix() = default;
+#endif
 };
 
 
@@ -136,4 +143,5 @@ SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
 #ifdef __cplusplus
 }
 #endif
-#endif
+
+#endif /* _SUNMATRIX_H */

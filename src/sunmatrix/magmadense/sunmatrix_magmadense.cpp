@@ -228,6 +228,16 @@ sunindextype SUNMatrix_MagmaDense_LData(SUNMatrix Amat)
     return(SUNMAT_ILL_INPUT);
 }
 
+sunindextype SUNMatrix_MagmaDense_BlockLData(SUNMatrix Amat)
+{
+  SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
+
+  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE)
+    return A->M * A->N;
+  else
+    return SUNMAT_ILL_INPUT;
+}
+
 realtype* SUNMatrix_MagmaDense_Data(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);

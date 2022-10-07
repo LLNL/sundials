@@ -30,6 +30,10 @@ add_subdirectory(spbcgs/serial)
 add_subdirectory(sptfqmr/serial)
 add_subdirectory(pcg/serial)
 
+# Build the sunlinsol test utilities
+add_library(test_sunlinsol_obj OBJECT test_sunlinsol.c test_sunlinsol.h)
+target_link_libraries(test_sunlinsol_obj PRIVATE sundials_sunlinsoldense)
+
 if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(spgmr/parallel)
   add_subdirectory(spfgmr/parallel)
@@ -41,6 +45,10 @@ if(BUILD_SUNMATRIX_CUSPARSE)
   if(SUNDIALS_INDEX_SIZE MATCHES "32")
     add_subdirectory(cusolversp)
   endif()
+endif()
+
+if(BUILD_SUNLINSOL_GINKGO)
+  add_subdirectory(ginkgo)
 endif()
 
 if(BUILD_SUNLINSOL_KLU)

@@ -13,7 +13,7 @@
 .. only:: html
 
    This is the documentation for CVODE, a component of the `SUNDIALS
-   <https://computing.llnl.gov/casc/sundials/main.html>`_ suite of
+   <https://computing.llnl.gov/projects/sundials>`_ suite of
    nonlinear and differential/algebraic equation solvers.
 
    This work was performed under the auspices of the U.S. Department of Energy by Lawrence

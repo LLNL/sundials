@@ -1,0 +1,133 @@
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+# clang-format style configuration file based on Google style
+# clang-format -style=.clang-format -i src/cvode/cvode.c
+# This should be applied to all new code. See the developer documentation.
+# ------------------------------------------------------------------------------
+---
+Language                                      : Cpp
+BasedOnStyle                                  : Google
+AccessModifierOffset                          : -2
+AlignAfterOpenBracket                         : Align
+AlignConsecutiveMacros                        : true
+AlignConsecutiveAssignments                   : true
+AlignConsecutiveDeclarations                  : false
+AlignEscapedNewlines                          : Left
+AlignOperands                                 : true
+AlignTrailingComments                         : true
+AllowAllArgumentsOnNextLine                   : true
+AllowAllConstructorInitializersOnNextLine     : false
+AllowAllParametersOfDeclarationOnNextLine     : false
+AllowShortBlocksOnASingleLine                 : true
+AllowShortCaseLabelsOnASingleLine             : true
+AllowShortFunctionsOnASingleLine              : All
+AllowShortLambdasOnASingleLine                : All
+AllowShortIfStatementsOnASingleLine           : AllIfsAndElse
+AllowShortLoopsOnASingleLine                  : true
+AlwaysBreakAfterDefinitionReturnType          : None
+AlwaysBreakAfterReturnType                    : None
+AlwaysBreakBeforeMultilineStrings             : false
+AlwaysBreakTemplateDeclarations               : true
+BinPackArguments                              : true
+BinPackParameters                             : true
+BreakBeforeBraces                             : Custom
+BraceWrapping                                 :
+  AfterCaseLabel                                : true
+  AfterClass                                    : true
+  AfterControlStatement                         : MultiLine
+  AfterEnum                                     : true
+  AfterFunction                                 : true
+  AfterNamespace                                : false
+  AfterStruct                                   : true
+  AfterUnion                                    : true
+  AfterExternBlock                              : true
+  BeforeCatch                                   : true
+  BeforeElse                                    : true
+  IndentBraces                                  : false
+  SplitEmptyFunction                            : false
+  SplitEmptyRecord                              : false
+  SplitEmptyNamespace                           : false
+BreakBeforeBinaryOperators                    : None
+BreakBeforeInheritanceComma                   : false
+BreakInheritanceList                          : BeforeColon
+BreakBeforeTernaryOperators                   : true
+BreakConstructorInitializersBeforeComma       : false
+BreakConstructorInitializers                  : BeforeColon
+BreakStringLiterals                           : true
+ColumnLimit                                   : 120
+CommentPragmas                                : '^ IWYU pragma:'
+CompactNamespaces                             : false
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth             : 4
+ContinuationIndentWidth                       : 4
+Cpp11BracedListStyle                          : true
+DeriveLineEnding                              : false
+DerivePointerAlignment                        : false
+DisableFormat                                 : false
+ExperimentalAutoDetectBinPacking              : false
+FixNamespaceComments                          : true
+IncludeBlocks                   : Regroup
+IncludeCategories               :
+- Regex                           : '^(<|"(gtest|gmock|isl|json)/)'
+  Priority                        : 1
+  SortPriority                    : 0
+- Regex                           : '.*'
+  Priority                        : 2
+  SortPriority                    : 0
+IncludeIsMainRegex              : '(Test)?$'
+IncludeIsMainSourceRegex        : ''
+IndentCaseLabels                : false
+IndentGotoLabels                : true
+IndentPPDirectives              : None
+IndentWidth                     : 2
+IndentWrappedFunctionNames      : false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MacroBlockBegin                 : ''
+MacroBlockEnd                   : ''
+MaxEmptyLinesToKeep             : 1
+NamespaceIndentation            : None
+# Keep our penalties in the range [1, 100,000]
+PenaltyBreakAssignment              : 1
+PenaltyBreakBeforeFirstCallParameter: 10000  # (penalize more)
+PenaltyBreakComment                 : 10     # (prefer breaking comment)
+PenaltyBreakFirstLessLess           : 100
+PenaltyBreakString                  : 1000
+PenaltyBreakTemplateDeclaration     : 10
+PenaltyExcessCharacter              : 10     # (loosen to allow possibly a couple extra characters)
+PenaltyReturnTypeOnItsOwnLine       : 10000  # (penalize more)
+PointerAlignment                    : Left
+ReflowComments                      : true
+SortIncludes                        : true
+SortUsingDeclarations               : true
+SpaceAfterCStyleCast                : false
+SpaceAfterLogicalNot                : false
+SpaceAfterTemplateKeyword           : false
+SpaceBeforeAssignmentOperators      : true
+SpaceBeforeCpp11BracedList          : false
+SpaceBeforeCtorInitializerColon     : true
+SpaceBeforeInheritanceColon         : true
+SpaceBeforeParens                   : ControlStatements
+SpaceBeforeRangeBasedForLoopColon   : true
+SpaceInEmptyBlock                   : false
+SpaceInEmptyParentheses             : false
+SpacesBeforeTrailingComments        : 1
+SpacesInAngles                      : false
+SpacesInConditionalStatement        : false
+SpacesInContainerLiterals           : true
+SpacesInCStyleCastParentheses       : false
+SpacesInParentheses                 : false
+SpacesInSquareBrackets              : false
+SpaceBeforeSquareBrackets           : false
+Standard                            : c++14
+TabWidth: 2
+UseCRLF : false
+UseTab  : Never
