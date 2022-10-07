@@ -23,6 +23,7 @@ def main():
     import argparse
     import fnmatch
     import os
+    import re
     from subprocess import call
 
     parser = argparse.ArgumentParser(
@@ -34,6 +35,9 @@ def main():
 
     parser.add_argument('--cmake', action='store_true',
                         help='Test CMake build')
+
+    parser.add_argument('--regex', type=str,
+                        help='Regular expression for filtering example directories')
 
     parser.add_argument('--debug', action='store_true',
                         help='Enable debugging output')
@@ -61,10 +65,15 @@ def main():
         for bf in buildfiles:
             print(bf)
 
+    regex_string = re.compile(args.regex)
+
     # run make for each makefile
     buildfail = False
     errors = []
     for bf in buildfiles:
+
+        if not re.search(regex_string, bf):
+            continue
 
         # move to example directory
         os.chdir(os.path.dirname(bf))
