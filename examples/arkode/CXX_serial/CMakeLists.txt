@@ -101,6 +101,9 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_CVODE)
     set(_include_cvode cvode)
+    if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+      set(_include_cvode_stubs cvode_fused_stubs)
+    endif()
   endif()
 
   sundials_install_examples(arkode ARKODE_examples
@@ -112,6 +115,7 @@ if(EXAMPLES_INSTALL)
       nvecserial
       arkode
       ${_include_cvode}
+      ${_include_cvode_stubs}
     DESTINATION
       arkode/CXX_serial
     EXTRA_FILES
