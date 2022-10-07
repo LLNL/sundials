@@ -108,9 +108,8 @@ if(EXAMPLES_INSTALL)
       cmakelists_CXX_ex.in
     MAKE_TEMPLATE
       makefile_serial_CXX_ex.in
-    SOLVER_LIBRARY
-      sundials_arkode
     SUNDIALS_TARGETS
+      nvecserial
       arkode
       ${_include_cvode}
     DESTINATION
