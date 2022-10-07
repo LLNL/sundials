@@ -124,7 +124,7 @@ In this section we list the public API of the ``sundials::ginkgo::Matrix`` class
 
   .. cpp:function:: Matrix(const Matrix& that_matrix)
 
-      Copy constructor (performs a deep copy)
+      Copy constructor (performs a deep copy).
 
   .. cpp:function:: Matrix& operator=(Matrix&& rhs) noexcept
 

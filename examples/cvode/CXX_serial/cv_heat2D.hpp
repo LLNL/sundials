@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Header file for 2D heat equation example problem using Ginkgo linear solvers.
+ * Header file for 2D heat equation example problem.
  * See cv_heat2D.cpp for more information.
  * ---------------------------------------------------------------------------*/
 
