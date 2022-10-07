@@ -162,16 +162,20 @@ public:
   /// Move assignment
   Matrix& operator=(Matrix&& rhs) noexcept
   {
-    gkomtx_                             = std::move(rhs.gkomtx_);
+    gkomtx_ = std::move(rhs.gkomtx_);
+
     sundials::impl::BaseMatrix::operator=(std::forward<Matrix>(rhs));
+
     return *this;
   }
 
   /// Copy assignment clones the gko::matrix and SUNMatrix
   Matrix& operator=(const Matrix& rhs)
   {
-    gkomtx_                             = gko::clone(rhs.gkomtx_);
+    gkomtx_ = gko::clone(rhs.gkomtx_);
+
     sundials::impl::BaseMatrix::operator=(rhs);
+
     return *this;
   }
 
