@@ -85,13 +85,17 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
     EXAMPLES_CMAKE_COMPONENTS)
 
   set(target_list "")
+  set(libs_list "")
   foreach(target ${sundials_install_examples_SUNDIALS_TARGETS})
     list(APPEND target_list SUNDIALS::${target})
+    list(APPEND libs_list -lsundials_${target})
   endforeach()
   foreach(target ${sundials_install_examples_OTHER_TARGETS})
     list(APPEND target_list ${target})
+    list(APPEND libs_list ${target})
   endforeach()
   list2string(target_list EXAMPLES_CMAKE_TARGETS)
+  list2string(libs_list EXAMPLES_MAKEFILE_LIBS)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
