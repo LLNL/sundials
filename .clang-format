@@ -87,6 +87,7 @@ IncludeIsMainRegex              : '(Test)?$'
 IncludeIsMainSourceRegex        : ''
 IndentCaseLabels                : false
 IndentGotoLabels                : true
+IndentExternBlock               : false
 IndentPPDirectives              : None
 IndentWidth                     : 2
 IndentWrappedFunctionNames      : false
