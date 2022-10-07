@@ -29,9 +29,6 @@ set(nvector_examples_dependencies
   sundials_math
 )
 
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_kokkos_examples})
 
@@ -52,6 +49,7 @@ foreach(example_tuple ${nvector_kokkos_examples})
     target_link_libraries(${example} PRIVATE test_nvector_obj)
     target_link_libraries(${example} PRIVATE sundials_nveckokkos)
 
+    # Organize examples for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
 

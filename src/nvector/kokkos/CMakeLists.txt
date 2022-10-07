@@ -37,7 +37,7 @@ sundials_add_library(sundials_nveckokkos
   COMPILE_DEFINITIONS
     PRIVATE ${_compile_defs}
   COMPILE_FEATURES
-    PUBLIC ${_cxx_std}
+    PUBLIC cxx_std_14
   OUTPUT_NAME
     ${_lib_output_name}
   VERSION
