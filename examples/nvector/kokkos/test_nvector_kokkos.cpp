@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   Kokkos::initialize(argc, argv);
   {
     /* Create new vectors */
-    X = N_VNew_Kokkos(length);
+    X = N_VNew_Kokkos(length, sunctx);
 
     if (X == NULL) {
       printf("FAIL: Unable to create a new vector \n\n");
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
     printf("\nTesting fused and vector array operations (disabled):\n\n");
 
     /* create vector and disable all fused and vector array operations */
-    U = N_VNew_Kokkos(length);
+    U = N_VNew_Kokkos(length, sunctx);
 
     retval = N_VEnableFusedOps_Kokkos(U, SUNFALSE);
     if (U == NULL || retval != 0) {
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     printf("\nTesting fused and vector array operations (enabled):\n\n");
 
     /* create vector and enable all fused and vector array operations */
-    V = N_VNew_Kokkos(length);
+    V = N_VNew_Kokkos(length, sunctx);
 
     retval = N_VEnableFusedOps_Kokkos(V, SUNTRUE);
     if (V == NULL || retval != 0) {
@@ -243,7 +243,7 @@ int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid)
   d_data = N_VGetDeviceArrayPointer_Kokkos(X);
 
   /* Case 1: h_data and d_data are not null */
-  Y = N_VMake_Kokkos(length, h_data, d_data);
+  Y = N_VMake_Kokkos(length, h_data, d_data, sunctx);
   if (Y == NULL) {
     printf(">>> FAILED test -- N_VMake_Kokkos, Proc %d \n", myid);
     printf("    Vector is NULL \n \n");
@@ -280,7 +280,7 @@ int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid)
   N_VDestroy(Y);
 
   /* Case 2: data is null */
-  Y = N_VMake_Kokkos(length, NULL, NULL);
+  Y = N_VMake_Kokkos(length, NULL, NULL, sunctx);
   if (Y != NULL) {
     printf(">>> FAILED test -- N_VMake_Kokkos Case 2, Proc %d \n", myid);
     printf("    Vector is not NULL \n \n");
@@ -299,7 +299,7 @@ int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid)
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-extern "C" int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
   sunindextype i;
@@ -310,26 +310,26 @@ extern "C" int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    failure += SUNRCompare(Xdata[i], ans);
   }
 
   return (failure > ZERO) ? (1) : (0);
 }
 
-extern "C" booleantype has_data(N_Vector X)
+booleantype has_data(N_Vector X)
 {
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Kokkos(X) == NULL) && (N_VGetDeviceArrayPointer_Kokkos(X) == NULL)) return SUNFALSE;
   return SUNTRUE;
 }
 
-extern "C" void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, realtype val)
 {
   /* set i-th element of data array */
   set_element_range(X, i, i, val);
 }
 
-extern "C" void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
 {
   sunindextype i;
   realtype* xd;
@@ -341,20 +341,20 @@ extern "C" void set_element_range(N_Vector X, sunindextype is, sunindextype ie, 
   N_VCopyToDevice_Kokkos(X);
 }
 
-extern "C" realtype get_element(N_Vector X, sunindextype i)
+realtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
   N_VCopyFromDevice_Kokkos(X);
   return (N_VGetHostArrayPointer_Kokkos(X))[i];
 }
 
-extern "C" double max_time(N_Vector X, double time)
+double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
   return (time);
 }
 
-extern "C" void sync_device()
+void sync_device(N_Vector x)
 {
   /* sync with GPU */
   Kokkos::fence();

@@ -31,7 +31,7 @@ static constexpr sunindextype zeroIdx = 0;
 
 // Helpful macros
 #define NVEC_KOKKOS_CONTENT(x) ((N_VectorContent_Kokkos)(x->content))
-#define NVEC_KOKKOS_MEMSIZE(x) (NVEC_KOKKOS_CONTENT(x)->length * sizeof(realtype))
+#define NVEC_KOKKOS_MEMSIZE(x) (NVEC_KOKKOS_CONTENT(x)->length * sizeof(sunrealtype))
 
 static void AllocateData(N_Vector v);
 
@@ -44,13 +44,13 @@ N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v)
   return SUNDIALS_NVEC_KOKKOS;
 }
 
-N_Vector N_VNewEmpty_Kokkos()
+N_Vector N_VNewEmpty_Kokkos(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return (NULL);
 
   /* Attach operations */
@@ -110,12 +110,12 @@ N_Vector N_VNewEmpty_Kokkos()
   return (v);
 }
 
-N_Vector N_VNew_Kokkos(sunindextype length)
+N_Vector N_VNew_Kokkos(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Kokkos();
+  v = N_VNewEmpty_Kokkos(sunctx);
   if (v == NULL) return (NULL);
 
   NVEC_KOKKOS_CONTENT(v)->length = length;
@@ -125,14 +125,14 @@ N_Vector N_VNew_Kokkos(sunindextype length)
   return (v);
 }
 
-N_Vector N_VMake_Kokkos(sunindextype length, realtype* h_vdata, realtype* d_vdata)
+N_Vector N_VMake_Kokkos(sunindextype length, sunrealtype* h_vdata, sunrealtype* d_vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (h_vdata == NULL || d_vdata == NULL) return (NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Kokkos();
+  v = N_VNewEmpty_Kokkos(sunctx);
   if (v == NULL) return (NULL);
 
   NVEC_KOKKOS_CONTENT(v)->length = length;
@@ -155,7 +155,7 @@ sunindextype N_VGetLength_Kokkos(N_Vector v)
  * Return pointer to the raw host data
  */
 
-realtype* N_VGetHostArrayPointer_Kokkos(N_Vector x)
+sunrealtype* N_VGetHostArrayPointer_Kokkos(N_Vector x)
 {
   if (NVEC_KOKKOS_CONTENT(x)->host_data == NULL) return NULL;
   else return NVEC_KOKKOS_CONTENT(x)->host_data->data();
@@ -165,7 +165,7 @@ realtype* N_VGetHostArrayPointer_Kokkos(N_Vector x)
  * Return pointer to the raw device data
  */
 
-realtype* N_VGetDeviceArrayPointer_Kokkos(N_Vector x)
+sunrealtype* N_VGetDeviceArrayPointer_Kokkos(N_Vector x)
 {
   if (NVEC_KOKKOS_CONTENT(x)->device_data == NULL) return NULL;
   else return NVEC_KOKKOS_CONTENT(x)->device_data->data();
@@ -204,8 +204,8 @@ void N_VPrint_Kokkos(N_Vector X)
 
 void N_VPrintFile_Kokkos(N_Vector X, FILE* outfile)
 {
-  const realtype* xd   = NVEC_KOKKOS_CONTENT(X)->host_data->data();
-  const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
+  const sunrealtype* xd = NVEC_KOKKOS_CONTENT(X)->host_data->data();
+  const sunindextype N  = NVEC_KOKKOS_CONTENT(X)->length;
   sunindextype i;
 
   for (i = 0; i < N; ++i) {
@@ -236,7 +236,7 @@ N_Vector N_VCloneEmpty_Kokkos(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_Kokkos();
+  v = N_VNewEmpty_Kokkos(w->sunctx);
   if (v == NULL) return (NULL);
 
   /* Attach operations */
@@ -302,7 +302,7 @@ void N_VSpace_Kokkos(N_Vector X, sunindextype* lrw, sunindextype* liw)
   *liw = 2;
 }
 
-void N_VConst_Kokkos(realtype c, N_Vector Z)
+void N_VConst_Kokkos(sunrealtype c, N_Vector Z)
 {
   const sunindextype N = NVEC_KOKKOS_CONTENT(Z)->length;
   auto zdata           = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
@@ -311,7 +311,7 @@ void N_VConst_Kokkos(realtype c, N_Vector Z)
       "N_VConst", range_policy(zeroIdx, N), KOKKOS_LAMBDA(sunindextype i) { zdata(i) = c; });
 }
 
-void N_VLinearSum_Kokkos(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
+void N_VLinearSum_Kokkos(sunrealtype a, N_Vector X, sunrealtype b, N_Vector Y, N_Vector Z)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const auto ydata     = *(NVEC_KOKKOS_CONTENT(Y)->device_data);
@@ -345,7 +345,7 @@ void N_VDiv_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
       "N_VDiv", range_policy(zeroIdx, N), KOKKOS_LAMBDA(sunindextype i) { zdata(i) = xdata(i) / ydata(i); });
 }
 
-void N_VScale_Kokkos(realtype c, N_Vector X, N_Vector Z)
+void N_VScale_Kokkos(sunrealtype c, N_Vector X, N_Vector Z)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
@@ -375,7 +375,7 @@ void N_VInv_Kokkos(N_Vector X, N_Vector Z)
       "N_VInv", range_policy(zeroIdx, N), KOKKOS_LAMBDA(sunindextype i) { zdata(i) = ONE / xdata(i); });
 }
 
-void N_VAddConst_Kokkos(N_Vector X, realtype b, N_Vector Z)
+void N_VAddConst_Kokkos(N_Vector X, sunrealtype b, N_Vector Z)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
@@ -385,124 +385,124 @@ void N_VAddConst_Kokkos(N_Vector X, realtype b, N_Vector Z)
       "N_VAddConst", range_policy(zeroIdx, N), KOKKOS_LAMBDA(sunindextype i) { zdata(i) = xdata(i) + b; });
 }
 
-realtype N_VDotProd_Kokkos(N_Vector X, N_Vector Y)
+sunrealtype N_VDotProd_Kokkos(N_Vector X, N_Vector Y)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const auto ydata     = *(NVEC_KOKKOS_CONTENT(Y)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VDotProd", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) { update += xdata(i) * ydata(i); }, gpu_result);
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) { update += xdata(i) * ydata(i); }, gpu_result);
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
-realtype N_VMaxNorm_Kokkos(N_Vector X)
+sunrealtype N_VMaxNorm_Kokkos(N_Vector X)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VMaxNorm", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) {
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) {
         if (abs(xdata(i)) > update) update = abs(xdata(i));
       },
-      Kokkos::Max<realtype>(gpu_result));
+      Kokkos::Max<sunrealtype>(gpu_result));
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
-realtype N_VWSqrSumLocal_Kokkos(N_Vector X, N_Vector W)
+sunrealtype N_VWSqrSumLocal_Kokkos(N_Vector X, N_Vector W)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const auto wdata     = *(NVEC_KOKKOS_CONTENT(W)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VWSqrSumLocal", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) { update += (xdata(i) * wdata(i) * xdata(i) * wdata(i)); },
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) { update += (xdata(i) * wdata(i) * xdata(i) * wdata(i)); },
       gpu_result);
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
-realtype N_VWrmsNorm_Kokkos(N_Vector X, N_Vector W)
+sunrealtype N_VWrmsNorm_Kokkos(N_Vector X, N_Vector W)
 {
-  const realtype sum   = N_VWSqrSumLocal_Kokkos(X, W);
-  const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
+  const sunrealtype sum = N_VWSqrSumLocal_Kokkos(X, W);
+  const sunindextype N  = NVEC_KOKKOS_CONTENT(X)->length;
   return std::sqrt(sum / N);
 }
 
-realtype N_VWSqrSumMaskLocal_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
+sunrealtype N_VWSqrSumMaskLocal_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const auto wdata     = *(NVEC_KOKKOS_CONTENT(W)->device_data);
   const auto iddata    = *(NVEC_KOKKOS_CONTENT(ID)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VWSqrSumMaskLocal", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) {
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) {
         if (iddata(i) > ZERO) update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
       },
       gpu_result);
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
-realtype N_VWrmsNormMask_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
+sunrealtype N_VWrmsNormMask_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
 {
-  const realtype sum   = N_VWSqrSumMaskLocal_Kokkos(X, W, ID);
-  const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
+  const sunrealtype sum = N_VWSqrSumMaskLocal_Kokkos(X, W, ID);
+  const sunindextype N  = NVEC_KOKKOS_CONTENT(X)->length;
   return std::sqrt(sum / N);
 }
 
-realtype N_VMin_Kokkos(N_Vector X)
+sunrealtype N_VMin_Kokkos(N_Vector X)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_result = std::numeric_limits<realtype>::max();
+  sunrealtype gpu_result = std::numeric_limits<sunrealtype>::max();
 
   Kokkos::parallel_reduce(
       "N_VMin", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) {
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) {
         if (xdata(i) < update) update = xdata(i);
       },
-      Kokkos::Min<realtype>(gpu_result));
+      Kokkos::Min<sunrealtype>(gpu_result));
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
-realtype N_VWL2Norm_Kokkos(N_Vector X, N_Vector W)
+sunrealtype N_VWL2Norm_Kokkos(N_Vector X, N_Vector W)
 {
   return std::sqrt(N_VWSqrSumLocal_Kokkos(X, W));
 }
 
-realtype N_VL1Norm_Kokkos(N_Vector X)
+sunrealtype N_VL1Norm_Kokkos(N_Vector X)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VL1Norm", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) { update += (abs(xdata(i))); }, gpu_result);
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) { update += (abs(xdata(i))); }, gpu_result);
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
-void N_VCompare_Kokkos(realtype c, N_Vector X, N_Vector Z)
+void N_VCompare_Kokkos(sunrealtype c, N_Vector X, N_Vector Z)
 {
   const auto xdata     = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
@@ -519,11 +519,11 @@ booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
   const sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
   auto zdata           = *(NVEC_KOKKOS_CONTENT(z)->device_data);
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VInvTest", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) {
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) {
         if (xdata(i) == ZERO) {
           update += ONE;
         }
@@ -533,7 +533,7 @@ booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
       },
       gpu_result);
 
-  realtype minimum = static_cast<realtype>(gpu_result);
+  sunrealtype minimum = static_cast<sunrealtype>(gpu_result);
   return (minimum < HALF);
 }
 
@@ -544,11 +544,11 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
   const sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
   auto mdata           = *(NVEC_KOKKOS_CONTENT(m)->device_data);
 
-  realtype gpu_result = 0.0;
+  sunrealtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce(
       "N_VConstrMask", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) {
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) {
         bool test = (abs(cdata(i)) > ONEPT5 && cdata(i) * xdata(i) <= ZERO) ||
                     (abs(cdata(i)) > HALF && cdata(i) * xdata(i) < ZERO);
         mdata(i) = test ? ONE : ZERO;
@@ -556,28 +556,28 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
       },
       gpu_result);
 
-  realtype sum = static_cast<realtype>(gpu_result);
+  sunrealtype sum = static_cast<sunrealtype>(gpu_result);
   return (sum < HALF);
 }
 
-realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
 {
   const auto ndata     = *(NVEC_KOKKOS_CONTENT(num)->device_data);
   const auto ddata     = *(NVEC_KOKKOS_CONTENT(denom)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(num)->length;
 
-  realtype gpu_result = std::numeric_limits<realtype>::max();
+  sunrealtype gpu_result = std::numeric_limits<sunrealtype>::max();
 
   Kokkos::parallel_reduce(
       "N_VMinQuotient", range_policy(zeroIdx, N),
-      KOKKOS_LAMBDA(sunindextype i, realtype & update) {
+      KOKKOS_LAMBDA(sunindextype i, sunrealtype & update) {
         if (ddata(i) != ZERO) {
           if ((ndata(i) / ddata(i)) < update) update = ndata(i) / ddata(i);
         }
       },
-      Kokkos::Min<realtype>(gpu_result));
+      Kokkos::Min<sunrealtype>(gpu_result));
 
-  return (static_cast<realtype>(gpu_result));
+  return (static_cast<sunrealtype>(gpu_result));
 }
 
 /*
@@ -586,7 +586,7 @@ realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
+int N_VLinearCombination_Kokkos(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(z)->length;
   auto d_zd      = *(NVEC_KOKKOS_CONTENT(z)->device_data);
@@ -616,7 +616,7 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   return (0);
 }
 
-int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
+int N_VScaleAddMulti_Kokkos(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
   auto d_xd      = *(NVEC_KOKKOS_CONTENT(x)->device_data);
@@ -656,7 +656,7 @@ int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Ve
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearSumVectorArray_Kokkos(int nvec, realtype a, N_Vector* X, realtype b, N_Vector* Y, N_Vector* Z)
+int N_VLinearSumVectorArray_Kokkos(int nvec, sunrealtype a, N_Vector* X, sunrealtype b, N_Vector* Y, N_Vector* Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
@@ -690,7 +690,7 @@ int N_VLinearSumVectorArray_Kokkos(int nvec, realtype a, N_Vector* X, realtype b
   return (0);
 }
 
-int N_VScaleVectorArray_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+int N_VScaleVectorArray_Kokkos(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
@@ -723,7 +723,7 @@ int N_VScaleVectorArray_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   return (0);
 }
 
-int N_VConstVectorArray_Kokkos(int nvec, realtype c, N_Vector* Z)
+int N_VConstVectorArray_Kokkos(int nvec, sunrealtype c, N_Vector* Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
@@ -743,7 +743,7 @@ int N_VConstVectorArray_Kokkos(int nvec, realtype c, N_Vector* Z)
   return (0);
 }
 
-int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c, N_Vector* X, N_Vector** Y, N_Vector** Z)
+int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, sunrealtype* c, N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(X[0])->length;
 
@@ -786,7 +786,7 @@ int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c, N_Vector
   return (0);
 }
 
-int N_VLinearCombinationVectorArray_Kokkos(int nvec, int nsum, realtype* c, N_Vector** X, N_Vector* Z)
+int N_VLinearCombinationVectorArray_Kokkos(int nvec, int nsum, sunrealtype* c, N_Vector** X, N_Vector* Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 

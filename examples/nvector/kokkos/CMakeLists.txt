@@ -29,6 +29,8 @@ set(nvector_examples_dependencies
   sundials_math
 )
 
+include_directories(..)
+
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_kokkos_examples})
 
