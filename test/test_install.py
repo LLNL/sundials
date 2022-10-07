@@ -65,18 +65,20 @@ def main():
         for bf in buildfiles:
             print(bf)
 
-    regex_string = re.compile(args.regex)
+    if args.regex:
+        regex_string = re.compile(args.regex)
 
     # run make for each makefile
     buildfail = False
     errors = []
     for bf in buildfiles:
 
-        if not re.search(regex_string, bf):
-            print(f"Skip: {bf}")
-            continue
-        else:
-            print(f"Build: {bf}")
+        if args.regex:
+            if not re.search(regex_string, bf):
+                print(f"Skip: {bf}")
+                continue
+
+        print(f"Build: {bf}")
 
         # move to example directory
         os.chdir(os.path.dirname(bf))
