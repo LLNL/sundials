@@ -116,6 +116,8 @@ Changes in v6.4.0
 
 CMake 3.18.0 or newer is now required for CUDA support.
 
+A C++14 compliant compiler is now required for C++ based features and examples e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, and GINKGO.
+
 Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x. Removed
 support for SuperLU_DIST v6.x.x or older. Fix mismatched definition and
 declaration bug in SuperLU_DIST matrix constructor.

@@ -390,7 +390,7 @@ def main():
 
     add_arg(group, '--ginkgo-backends', 'GINKGO_BACKENDS',
             'SUNDIALS_GINKGO_BACKENDS', 'REF;OMP', 'STRING', 'Ginkgo backends',
-            choices=['REF', 'OMP', 'CUDA', 'HIP'], dependson='--ginkgo')
+            choices=['REF', 'OMP', 'CUDA', 'HIP', 'DPCPP'], dependson='--ginkgo')
 
     # LAPACK
     group = parser.add_argument_group('LAPACK Options')

@@ -75,7 +75,7 @@ All new code added to SUNDIALS should be linted with  `clang-tidy
 for the tools respectively.
 
 It may be necessary to override clang-tidy at times. This can be done with the
-``NOLINT`` magic comments. E.g.,
+``NOLINT`` magic comments e.g.,
 
 .. code-block:: cpp
 

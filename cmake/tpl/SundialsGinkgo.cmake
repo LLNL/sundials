@@ -76,6 +76,6 @@ if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
 
   message(STATUS "Checking if GINKGO works... OK")
   set(GINKGO_WORKS TRUE CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
-elseif(GINKGO_FOUND AND GINKGO_WORKS)
+elseif(Ginkgo_FOUND AND GINKGO_WORKS)
   message(STATUS "Skipped GINKGO tests, assuming GINKGO works with SUNDIALS.")
 endif()

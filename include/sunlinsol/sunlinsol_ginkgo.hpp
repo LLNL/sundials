@@ -266,7 +266,7 @@ public:
     return gko_solver_.get();
   }
 
-  /// Get the number of linear solver iterations since the object was created.
+  /// Get the number of linear solver iterations in the most recent solve.
   int NumIters() const
   {
     return iter_count_;

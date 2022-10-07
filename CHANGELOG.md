@@ -4,6 +4,8 @@
 
 CMake 3.18.0 or newer is now required for CUDA support.
 
+A C++14 compliant compiler is now required for C++ based features and examples e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, and GINKGO.
+
 Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x. Removed
 support for SuperLU_DIST v6.x.x or older. Fix mismatched definition and
 declaration bug in SuperLU_DIST matrix constructor.
@@ -18,7 +20,7 @@ different number of stages than originally selected.
 Fixed a memory leak in CVODE and CVODES where the projection memory would not be
 deallocated when calling `CVodeFree`.
 
-Added support for the [Ginkgo](https://ginkgo-project.github.io/>)  linear
+Added support for the [Ginkgo](https://ginkgo-project.github.io/)  linear
 algebra library. This support includes new `SUNMatrix` and `SUNLinearSolver`
 implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
 sections in the documentation for more info.

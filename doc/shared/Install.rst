@@ -606,7 +606,7 @@ illustration only.
 .. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
 
    Semi-colon separated list of Ginkgo target architecutres/executors to build for.
-   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, DPC++.
+   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and DPC++.
 
    Default: "REF;OMP"
 
@@ -1167,7 +1167,7 @@ Building with Ginkgo
 ^^^^^^^^^^^^^^^^^^^^
 
 `Ginkgo <https://ginkgo-project.github.io/>`_ is a high-performance linear algebra library for
-manycore systems, with a focus on solution of sparse linear systems. It is implemented using modern
+manycore systems, with a focus on solving sparse linear systems. It is implemented using modern
 C++ (you will need at least a C++14 compliant compiler to build it), with GPU kernels implemented in
 CUDA (for NVIDIA devices), HIP (for AMD devices) and SYCL/DPC++ (for Intel devices and other
 supported hardware). To enable Ginkgo in SUNDIALS, set the :cmakeop:`ENABLE_GINKGO` to ``ON``
