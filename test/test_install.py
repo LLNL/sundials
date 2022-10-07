@@ -24,7 +24,7 @@ def main():
     import fnmatch
     import os
     import re
-    from subprocess import call
+    import subprocess
 
     parser = argparse.ArgumentParser(
         description='Find and test installed build files in a given directory',
@@ -73,14 +73,19 @@ def main():
     for bf in buildfiles:
 
         if not re.search(regex_string, bf):
+            print(f"Skip: {bf}")
             continue
+        else:
+            print(f"Build: {bf}")
 
         # move to example directory
         os.chdir(os.path.dirname(bf))
 
         # confgure cmake if necessary
         if args.cmake:
-            ret = call('cmake -DCMAKE_VERBOSE_MAKEFILE=ON .', shell=True)
+            ret = subprocess.call('cmake -DCMAKE_VERBOSE_MAKEFILE=ON .',
+                                  shell=True, stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL)
             if ret != 0:
                 errors.append(os.path.dirname(bf))
                 buildfail = True
@@ -88,7 +93,8 @@ def main():
                 continue
 
         # make examples
-        ret = call('make', shell=True)
+        ret = subprocess.call('make', shell=True, stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
         if ret != 0:
             errors.append(os.path.dirname(bf))
             buildfail = True
