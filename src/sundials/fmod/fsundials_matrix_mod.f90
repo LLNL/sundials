@@ -6,7 +6,9 @@
 module fsundials_matrix_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types_mod
+ use fsundials_context_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -15,6 +17,8 @@ module fsundials_matrix_mod
  ! typedef enum SUNMatrix_ID
  enum, bind(c)
   enumerator :: SUNMATRIX_DENSE
+  enumerator :: SUNMATRIX_MAGMADENSE
+  enumerator :: SUNMATRIX_ONEMKLDENSE
   enumerator :: SUNMATRIX_BAND
   enumerator :: SUNMATRIX_SPARSE
   enumerator :: SUNMATRIX_SLUNRLOC
@@ -22,7 +26,8 @@ module fsundials_matrix_mod
   enumerator :: SUNMATRIX_CUSTOM
  end enum
  integer, parameter, public :: SUNMatrix_ID = kind(SUNMATRIX_DENSE)
- public :: SUNMATRIX_DENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_SLUNRLOC, SUNMATRIX_CUSPARSE, SUNMATRIX_CUSTOM
+ public :: SUNMATRIX_DENSE, SUNMATRIX_MAGMADENSE, SUNMATRIX_ONEMKLDENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_SLUNRLOC, &
+    SUNMATRIX_CUSPARSE, SUNMATRIX_CUSTOM
  ! struct struct _generic_SUNMatrix_Ops
  type, bind(C), public :: SUNMatrix_Ops
   type(C_FUNPTR), public :: getid
@@ -40,6 +45,7 @@ module fsundials_matrix_mod
  type, bind(C), public :: SUNMatrix
   type(C_PTR), public :: content
   type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
  end type SUNMatrix
  public :: FSUNMatNewEmpty
  public :: FSUNMatFreeEmpty
@@ -62,10 +68,11 @@ module fsundials_matrix_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FSUNMatNewEmpty() &
+function swigc_FSUNMatNewEmpty(farg1) &
 bind(C, name="_wrap_FSUNMatNewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -175,13 +182,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FSUNMatNewEmpty() &
+function FSUNMatNewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), pointer :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FSUNMatNewEmpty()
+farg1 = sunctx
+fresult = swigc_FSUNMatNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 

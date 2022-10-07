@@ -5,7 +5,7 @@
  * Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -53,19 +53,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
-{ return(SUNLinSol_SuperLUMT(y, A, num_threads)); }
-
-int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
-{ return(SUNLinSol_SuperLUMTSetOrdering(S, ordering_choice)); }
-
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -74,7 +61,7 @@ int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
  * Function to create a new SuperLUMT linear solver
  */
 
-SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
+SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_SuperLUMT content;
@@ -95,7 +82,7 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */
@@ -370,10 +357,12 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
     }
     if (SM_L(S)) {
       Destroy_SuperNode_SCP(SM_L(S));
+      free(SM_L(S));
       SM_L(S) = NULL;
     }
     if (SM_U(S)) {
       Destroy_CompCol_NCP(SM_U(S));
+      free(SM_U(S));
       SM_U(S) = NULL;
     }
     if (GSTAT(S)) {
@@ -383,6 +372,7 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
     }
     if (SM_B(S)) {
       Destroy_SuperMatrix_Store(SM_B(S));
+      free(SM_B(S));
       SM_B(S) = NULL;
     }
     if (SM_A(S)) {
@@ -393,21 +383,9 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
       free(SM_A(S));
       SM_A(S) = NULL;
     }
-    if (SM_B(S)) {
-      free(SM_B(S));
-      SM_B(S) = NULL;
-    }
     if (SM_AC(S)) {
       free(SM_AC(S));
       SM_AC(S) = NULL;
-    }
-    if (SM_L(S)) {
-      free(SM_L(S));
-      SM_L(S) = NULL;
-    }
-    if (SM_U(S)) {
-      free(SM_U(S));
-      SM_U(S) = NULL;
     }
     free(S->content);
     S->content = NULL;

@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -64,8 +64,12 @@ typedef struct _SUNNonlinearSolverContent_Newton *SUNNonlinearSolverContent_Newt
  * ---------------------------------------------------------------------------*/
 
 /* Constructor to create solver and allocates memory */
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y);
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y);
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx);
+
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
+                                           SUNContext sunctx);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS);
@@ -109,9 +113,11 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_Newton(SUNNonlinearSolver NLS,
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
                                                 SUNNonlinSolSysFn *SysFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS,
-                                                   FILE* info_file);
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
+int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS,
+                                   FILE* info_file);
 
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
 SUNDIALS_EXPORT int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,
                                                      int print_level);
 

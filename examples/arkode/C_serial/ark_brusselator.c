@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -104,7 +104,12 @@ int main()
   FILE *UFID;
   realtype t, tout;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf;
+
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
@@ -140,7 +145,7 @@ int main()
   rdata[0] = a;     /* set user data  */
   rdata[1] = b;
   rdata[2] = ep;
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);           /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
   NV_Ith_S(y,1) = v0;
@@ -150,7 +155,7 @@ int main()
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -160,11 +165,13 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
   flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);  /* Specify stiff interpolant */
   if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
-  
+  flag = ARKStepSetDeduceImplicitRhs(arkode_mem, 1);  /* Avoid eval of f after stage */
+  if (check_flag(&flag, "ARKStepSetDeduceImplicitRhs", 1)) return 1;
+
   /* Initialize dense matrix data structure and solver */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, ctx);
   if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* Linear solver interface */
@@ -220,9 +227,11 @@ int main()
   check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
   flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumStepSolveFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumStepSolveFails", 1);
   flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &nnf);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
   flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
   check_flag(&flag, "ARKStepGetNumJacEvals", 1);
@@ -236,14 +245,17 @@ int main()
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
   printf("   Total number of Jacobian evaluations = %li\n", nje);
   printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of linear solver convergence failures = %li\n", ncfn);
-  printf("   Total number of error test failures = %li\n\n", netf);
+  printf("   Total number of nonlinear solver convergence failures = %li\n", nnf);
+  printf("   Total number of error test failures = %li\n", netf);
+  printf("   Total number of failed steps from solver failure = %li\n", ncfn);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
   ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 

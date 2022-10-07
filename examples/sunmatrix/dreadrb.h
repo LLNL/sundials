@@ -4,7 +4,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 
-void dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout);
+void dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout, SUNContext sunctx);
 
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

@@ -5,7 +5,7 @@
  * George Byrne, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -107,6 +107,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  MPI_Comm comm;
+  SUNContext sunctx;
   realtype dx, reltol, abstol, t, tout, umax;
   UserData data;
   void *cvode_mem;
@@ -115,9 +117,9 @@ int main(int argc, char *argv[])
   long int nst;
 
   gridinfo_t grid;
-  LUstruct_t LUstruct;
-  ScalePermstruct_t scaleperm;
-  SOLVEstruct_t solve;
+  dLUstruct_t LUstruct;
+  dScalePermstruct_t scaleperm;
+  dSOLVEstruct_t solve;
   SuperLUStat_t stat;
   superlu_dist_options_t options;
   SuperMatrix Asuper;
@@ -134,20 +136,26 @@ int main(int argc, char *argv[])
   A         = NULL;
   LS        = NULL;
 
+  comm = MPI_COMM_WORLD;
+
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &npes);
-  MPI_Comm_rank(MPI_COMM_WORLD, &my_pe);
+  MPI_Comm_size(comm, &npes);
+  MPI_Comm_rank(comm, &my_pe);
+
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) return(1);
 
   /* check for nprow and npcol arguments */
   if (argc < 2) {
     printf("ERROR: number of process rows and columns must be provided as arguments: ./cvAdvDiff <nprow> <npcol>\n");
-    MPI_Abort(MPI_COMM_WORLD, 1);
+    MPI_Abort(comm, 1);
   }
 
   /* Initialize SuperLU-DIST process grid */
   nprow = atoi(argv[1]); npcol = atoi(argv[2]);
-  superlu_gridinit(MPI_COMM_WORLD, nprow, npcol, &grid);
+  superlu_gridinit(comm, nprow, npcol, &grid);
   /* Excess processes just exit */
   if (grid.iam >= nprow*npcol) {
     superlu_gridexit(&grid);
@@ -169,7 +177,7 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  u = N_VNew_Parallel(grid.comm, local_N, NEQ);  /* Allocate u vector */
+  u = N_VNew_Parallel(grid.comm, local_N, NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(grid.comm, 1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -198,12 +206,12 @@ int main(int argc, char *argv[])
   options.PrintStat = NO;
 
   /* Initialize SuperLU-DIST solver structures */
-  ScalePermstructInit(NEQ, NEQ, &scaleperm);
-  LUstructInit(NEQ, &LUstruct);
+  dScalePermstructInit(NEQ, NEQ, &scaleperm);
+  dLUstructInit(NEQ, &LUstruct);
   PStatInit(&stat);
 
   /* Call CVodeCreate to create the solver memory and specify the Adams-Moulton LMM */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(grid.comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -221,11 +229,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(grid.comm, 1);
 
   /* create the SuperLU SLU_NR_loc SUNMatrix */
-  A = SUNMatrix_SLUNRloc(&Asuper, &grid);
+  A = SUNMatrix_SLUNRloc(&Asuper, &grid, sunctx);
   if (check_retval((void *)A, "SUNMatrix_SLUNRloc", 0, my_pe)) MPI_Abort(grid.comm, 1);
 
   /* create SuperLU-DIST linear solver object */
-  LS = SUNLinSol_SuperLUDIST(u, A, &grid, &LUstruct, &scaleperm, &solve, &stat, &options);
+  LS = SUNLinSol_SuperLUDIST(u, A, &grid, &LUstruct, &scaleperm, &solve, &stat, &options, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SuperLUDIST", 0, my_pe)) MPI_Abort(grid.comm, 1);
 
   /* attach linear solver object to CVode */
@@ -265,11 +273,12 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);              /* Free the A matrix */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
+  SUNContext_Free(&sunctx);
 
   /* Free the SuperLU_DIST structures */
   PStatFree(&stat);
-  ScalePermstructFree(&scaleperm);
-  LUstructFree(&LUstruct);
+  dScalePermstructFree(&scaleperm);
+  dLUstructFree(&LUstruct);
   Destroy_CompRowLoc_Matrix_dist(&Asuper);
   superlu_gridexit(&grid);
 

@@ -6,7 +6,9 @@
 module fsundials_nonlinearsolver_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types_mod
+ use fsundials_context_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -39,6 +41,7 @@ module fsundials_nonlinearsolver_mod
  type, bind(C), public :: SUNNonlinearSolver
   type(C_PTR), public :: content
   type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
  end type SUNNonlinearSolver
  public :: FSUNNonlinSolNewEmpty
  public :: FSUNNonlinSolFreeEmpty
@@ -66,10 +69,11 @@ module fsundials_nonlinearsolver_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FSUNNonlinSolNewEmpty() &
+function swigc_FSUNNonlinSolNewEmpty(farg1) &
 bind(C, name="_wrap_FSUNNonlinSolNewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -205,13 +209,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FSUNNonlinSolNewEmpty() &
+function FSUNNonlinSolNewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNNonlinearSolver), pointer :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FSUNNonlinSolNewEmpty()
+farg1 = sunctx
+fresult = swigc_FSUNNonlinSolNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 

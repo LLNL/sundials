@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -20,63 +20,78 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
+  "cvsAdvDiff_ASAi_bnd\;\;develop"
+  "cvsAdvDiff_FSA_non\;-sensi sim t\;exclude-single"
+  "cvsAdvDiff_FSA_non\;-sensi stg t\;exclude-single"
+  "cvsAdvDiff_bnd\;\;develop"
+  "cvsAnalytic_mels\;\;develop"
+  "cvsDirectDemo_ls\;\;develop"
+  "cvsDiurnal_FSA_kry\;-sensi sim t\;exclude-single"
+  "cvsDiurnal_FSA_kry\;-sensi stg t\;exclude-single"
+  "cvsDiurnal_kry\;\;develop"
+  "cvsDiurnal_kry_bp\;\;develop"
+  "cvsFoodWeb_ASAi_kry\;\;develop"
+  "cvsFoodWeb_ASAp_kry\;\;develop"
+  "cvsHessian_ASA_FSA\;\;exclude-single"
+  "cvsKrylovDemo_ls\;\;develop"
+  "cvsKrylovDemo_ls\;1\;develop"
+  "cvsKrylovDemo_ls\;2\;develop"
+  "cvsKrylovDemo_prec\;\;develop"
+  "cvsParticle_dns\;\;develop"
+  "cvsPendulum_dns\;\;exclude-single"
+  "cvsRoberts_ASAi_dns\;\;exclude-single"
+  "cvsRoberts_ASAi_dns_constraints\;\;develop"
+  "cvsRoberts_FSA_dns\;-sensi sim t\;exclude-single"
+  "cvsRoberts_FSA_dns\;-sensi stg1 t\;exclude-single"
+  "cvsRoberts_FSA_dns_Switch\;\;exclude-single"
+  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_dns\;\;"
   "cvsRoberts_dns_constraints\;\;develop"
   "cvsRoberts_dns_uw\;\;develop"
-  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
-  "cvsRoberts_FSA_dns_Switch\;\;develop"
-  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
-  "cvsAdvDiff_ASAi_bnd\;\;develop"
-  "cvsAdvDiff_bnd\;\;develop"
-  "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
-  "cvsAdvDiff_FSA_non\;-sensi sim t\;develop"
-  "cvsDirectDemo_ls\;\;develop"
-  "cvsDiurnal_FSA_kry\;-sensi stg t\;develop"
-  "cvsDiurnal_FSA_kry\;-sensi sim t\;develop"
-  "cvsDiurnal_kry_bp\;\;develop"
-  "cvsDiurnal_kry\;\;develop"
-  "cvsFoodWeb_ASAi_kry\;\;develop"
-  "cvsFoodWeb_ASAp_kry\;\;develop"
-  "cvsHessian_ASA_FSA\;\;develop"
-  "cvsKrylovDemo_ls\;\;develop"
-  "cvsKrylovDemo_prec\;\;develop"
-  "cvsRoberts_ASAi_dns\;\;develop"
-  "cvsRoberts_ASAi_dns_constraints\;\;develop"
   )
+
+if(SUNDIALS_BUILD_WITH_MONITORING)
+  list(APPEND CVODE_examples "cvsKrylovDemo_ls\;0 1\;develop")
+endif()
 
 # Examples using LAPACK linear solvers
 set(CVODES_examples_BL
-  "cvsAdvDiff_bndL\;\;develop"
-  "cvsRoberts_dnsL\;\;develop"
+  "cvsAdvDiff_bndL\;\;exclude-single"
+  "cvsRoberts_dnsL\;\;exclude-single"
   )
 
 # Examples using KLU linear solver
 set(CVODES_examples_KLU
-  "cvsRoberts_klu\;\;develop"
   "cvsRoberts_ASAi_klu\;\;develop"
   "cvsRoberts_FSA_klu\;-sensi stg1 t\;develop"
+  "cvsRoberts_klu\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
+  "cvsRoberts_ASAi_sps\;\;exclude-single"
+  "cvsRoberts_FSA_sps\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_sps\;\;develop"
-  "cvsRoberts_ASAi_sps\;\;develop"
-  "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODES_LIB sundials_cvodes_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-else()
-  set(CVODES_LIB sundials_cvodes_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-endif()
+# Auxiliary files to install
+set(CVODES_extras
+  plot_cvsParticle.py
+  plot_cvsPendulum.py
+  cvsRoberts_ASAi_dns_bkw1_stats.csv
+  cvsRoberts_ASAi_dns_bkw2_stats.csv
+  cvsRoberts_ASAi_dns_fwd_stats.csv
+  cvsRoberts_dns_stats.csv
+  cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
+  cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv
+  )
+
+# Specify libraries to link against
+set(CVODES_LIB sundials_cvodes)
+set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
+set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
@@ -126,26 +141,15 @@ endforeach(example_tuple ${CVODES_examples})
 
 
 # Add the build and install targets for each LAPACK example (if needed)
-if(LAPACK_FOUND)
+if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   # Sundials LAPACK linear solver modules
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_static
-      sundials_sunlinsollapackdense_static)
-  else()
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_shared
-      sundials_sunlinsollapackdense_shared)
-  endif()
+  set(SUNLINSOLLAPACK_LIBS
+    sundials_sunlinsollapackband
+    sundials_sunlinsollapackdense)
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
 
   foreach(example_tuple ${CVODES_examples_BL})
 
@@ -192,21 +196,17 @@ if(LAPACK_FOUND)
 
   endforeach(example_tuple ${CVODES_examples_BL})
 
-endif(LAPACK_FOUND)
+endif()
 
 
 # Add the build and install targets for each KLU example (if needed)
-if(KLU_FOUND)
+if(BUILD_SUNLINSOL_KLU)
 
   # Sundials KLU linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu_static)
-  else()
-    set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu_shared)
-  endif()
+  set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu)
 
   # KLU libraries
-  list(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
+  list(APPEND SUNLINSOLKLU_LIBS)
 
   foreach(example_tuple ${CVODES_examples_KLU})
 
@@ -253,26 +253,17 @@ if(KLU_FOUND)
 
   endforeach(example_tuple ${CVODES_examples_KLU})
 
-endif(KLU_FOUND)
+endif()
 
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
-if(SUPERLUMT_FOUND)
+if(BUILD_SUNLINSOL_SUPERLUMT)
 
   # Sundials SuperLU_MT linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt_static)
-  else()
-    set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt_shared)
-  endif()
+  set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt)
 
   # SuperLU_MT libraries
   list(APPEND SUNLINSOLSLUMT_LIBS ${SUPERLUMT_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
 
   foreach(example_tuple ${CVODES_examples_SUPERLUMT})
 
@@ -325,7 +316,7 @@ if(SUPERLUMT_FOUND)
 
   endforeach(example_tuple ${CVODES_examples_SUPERLUMT})
 
-endif(SUPERLUMT_FOUND)
+endif()
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -334,25 +325,30 @@ if(EXAMPLES_INSTALL)
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
 
+  # Install the extra files
+  foreach(extrafile ${CVODES_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+  endforeach()
+
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODES")
   set(SOLVER_LIB "sundials_cvodes")
 
   examples2string(CVODES_examples EXAMPLES)
 
-  if(LAPACK_FOUND)
+  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     examples2string(CVODES_examples_BL EXAMPLES_BL)
   else()
     set(EXAMPLES_BL "")
   endif()
 
-  if(KLU_FOUND)
+  if(BUILD_SUNLINSOL_KLU)
     examples2string(CVODES_examples_KLU EXAMPLES_KLU)
   else()
     set(EXAMPLES_KLU "")
   endif()
 
-  if(SUPERLUMT_FOUND)
+  if(BUILD_SUNLINSOL_SUPERLUMT)
     examples2string(CVODES_examples_SUPERLUMT EXAMPLES_SLUMT)
     if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
@@ -398,9 +394,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvodes serial EXECUTABLE cvsRoberts_dns)
 
-endif(EXAMPLES_INSTALL)
+endif()

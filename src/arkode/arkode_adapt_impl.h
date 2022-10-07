@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's time step adaptivity
+ * Implementation header file for ARKODE's time step adaptivity
  * utilities.
  *--------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Time Step Adaptivity Private Constants
+  ARKODE Time Step Adaptivity Private Constants
   ===============================================================*/
 
 /* size constants for the adaptivity memory structure */
@@ -67,7 +67,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKode Time Step Adaptivity Data Structure
+  ARKODE Time Step Adaptivity Data Structure
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -120,14 +120,14 @@ typedef struct ARKodeHAdaptMemRec {
 
 
 /*===============================================================
-  ARKode Time Step Adaptivity Routines
+  ARKODE Time Step Adaptivity Routines
   ===============================================================*/
 
 ARKodeHAdaptMem arkAdaptInit();
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             realtype ecur, long int nst);
+             realtype dsm, long int nst);
 int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k,
                 realtype hcur, realtype ecur, realtype *hnew);
 int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k,

@@ -3,7 +3,7 @@
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -67,14 +67,14 @@ N_Vector_ID N_VGetVectorID_Serial(N_Vector v)
  * Function to create a new empty serial vector
  */
 
-N_Vector N_VNewEmpty_Serial(sunindextype length)
+N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Serial content;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -123,6 +123,14 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
+
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_Serial;
+  v->ops->nvbufpack   = N_VBufPack_Serial;
+  v->ops->nvbufunpack = N_VBufUnpack_Serial;
+
   /* debugging functions */
   v->ops->nvprint     = N_VPrint_Serial;
   v->ops->nvprintfile = N_VPrintFile_Serial;
@@ -147,13 +155,13 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
  * Function to create a new serial vector
  */
 
-N_Vector N_VNew_Serial(sunindextype length)
+N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_Serial(length);
+  v = N_VNewEmpty_Serial(length, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -177,12 +185,12 @@ N_Vector N_VNew_Serial(sunindextype length)
  * Function to create a serial N_Vector with user data component
  */
 
-N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
+N_Vector N_VMake_Serial(sunindextype length, realtype *v_data, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Serial(length);
+  v = N_VNewEmpty_Serial(length, sunctx);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -200,25 +208,7 @@ N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
 
 N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Serial(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Serial(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -227,25 +217,7 @@ N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Serial(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Serial(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -254,12 +226,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Serial(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Serial(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -296,11 +263,11 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", xd[i]);
+    fprintf(outfile, "%35.32Le\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", xd[i]);
+    fprintf(outfile, "%19.16e\n", xd[i]);
 #else
-    fprintf(outfile, "%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8e\n", xd[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -323,7 +290,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -1527,6 +1494,59 @@ int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
 
 /*
  * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_Serial(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = NV_LENGTH_S(x) * ((sunindextype)sizeof(realtype));
+  return(0);
+}
+
+
+int N_VBufPack_Serial(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  bd = (realtype*) buf;
+
+  for (i = 0; i < N; i++)
+    bd[i] = xd[i];
+
+  return(0);
+}
+
+
+int N_VBufUnpack_Serial(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  bd = (realtype*) buf;
+
+  for (i = 0; i < N; i++)
+    xd[i] = bd[i];
+
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
  * private functions for special cases of vector operations
  * -----------------------------------------------------------------
  */
@@ -1920,6 +1940,8 @@ int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Serial;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Serial;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Serial;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -1933,6 +1955,8 @@ int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1985,10 +2009,13 @@ int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_Serial;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Serial;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);

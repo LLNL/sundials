@@ -2,7 +2,7 @@
 # Programmer(s): Steven Smith @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -27,23 +27,17 @@ set(nvector_petsc_examples
 set(nvector_examples_dependencies
   test_nvector
   test_mpinvector
-  sundials_nvector
   )
 
 # Add source directory to include directories
 include_directories(. ..)
 include_directories(${PETSC_INCLUDE_DIR})
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecpetsc_static)
-else()
-  set(NVECS_LIB sundials_nvecpetsc_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecpetsc)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -68,19 +62,19 @@ foreach(example_tuple ${nvector_petsc_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARIES})
+      target_link_libraries(${example} PRIVATE ${MPI_LIBRARIES})
     endif()
   endif()
 
@@ -112,7 +106,6 @@ foreach(example_tuple ${nvector_petsc_examples})
       ../test_nvector.c
       ../test_mpinvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)
   endif()
 
@@ -164,6 +157,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

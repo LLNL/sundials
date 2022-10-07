@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -37,19 +37,26 @@ typedef KINLsJacFn KINDlsJacFn;
   Exported Functions (wrappers for equivalent routines in kinsol_ls.h)
   ===================================================================*/
 
-SUNDIALS_EXPORT int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetLinearSolver instead")
+int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
 
-SUNDIALS_EXPORT int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetJacFn instead")
+int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
 
-SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinWorkSpace instead")
+int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
 
-SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumJacEvals instead")
+int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
 
-SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinFuncEvals instead")
+int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
 
-SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLastLinFlag instead")
+int KINDlsGetLastFlag(void *kinmem, long int *flag);
 
-SUNDIALS_EXPORT char *KINDlsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinReturnFlagName instead")
+char *KINDlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

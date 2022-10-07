@@ -3,7 +3,7 @@
  * Programmer(s): David Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,21 +23,12 @@
 
 #include "sundials_cuda_kernels.cuh"
 
-using namespace sundials::cuda;
-
 namespace sundials
 {
-namespace nvector_cuda
+namespace cuda
 {
-
-/* -----------------------------------------------------------------
- * The namespace for CUDA kernels
- *
- * Reduction CUDA kernels in nvector are based in part on "reduction"
- * example in NVIDIA Corporation CUDA Samples, and parallel reduction
- * examples in textbook by J. Cheng at al. "CUDA C Programming".
- * -----------------------------------------------------------------
- */
+namespace impl
+{
 
 /*
  * -----------------------------------------------------------------------------
@@ -79,23 +70,22 @@ scaleAddMultiKernel(int nv, T* c, T* xd, T** yd, T** zd, I n)
  * Dot product of one vector with nv other vectors.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
 dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
+  using op = sundials::reductions::impl::plus<T>;
+  constexpr T Id = op::identity();
   const I k = blockIdx.x;
 
   // Initialize to zero.
-  T sum = 0.0;
+  T sum = Id;
   for (I i = threadIdx.x; i < n; i += blockDim.x)
   { // each thread computes n/blockDim.x elements
     sum += xd[i] * yd[k][i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(&out[k], sum);
+  GridReducer<T, op>{}(sum, Id, &out[k], nullptr);
 }
 
 
@@ -105,7 +95,7 @@ dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
  * -----------------------------------------------------------------------------
  */
 
- 
+
 /*
  * Computes the linear sum of multiple vectors
  */
@@ -155,11 +145,13 @@ constVectorArrayKernel(int nv, T c, T** zd, I n)
  * WRMS norm of nv vectors.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
 wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
+  using op = sundials::reductions::impl::plus<T>;
+  constexpr T Id = op::identity();
   const I k = blockIdx.x;
 
   // Initialize to zero.
@@ -168,10 +160,7 @@ wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
   { // each thread computes n/blockDim.x elements
     sum += xd[k][i] * wd[k][i] * xd[k][i] * wd[k][i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0);
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(&out[k], sum);
+  GridReducer<T, op>{}(sum, Id, &out[k], nullptr);
 }
 
 
@@ -179,11 +168,13 @@ wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
  * Masked WRMS norm of nv vectors.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
 wL2NormSquareMaskVectorArrayKernel(int nv, T** xd, T** wd, T* id, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
+  using op = sundials::reductions::impl::plus<T>;
+  constexpr T Id = op::identity();
   const I k = blockIdx.x;
 
   // Initialize to zero.
@@ -192,10 +183,7 @@ wL2NormSquareMaskVectorArrayKernel(int nv, T** xd, T** wd, T* id, T* out, I n)
   { // each thread computes n/blockDim.x elements
     if (id[i] > 0.0) sum += xd[k][i] * wd[k][i] * xd[k][i] * wd[k][i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0);
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(&out[k], sum);
+  GridReducer<T, op>{}(sum, Id, &out[k], nullptr);
 }
 
 
@@ -233,7 +221,8 @@ linearCombinationVectorArrayKernel(int nv, int ns, T* c, T** xd, T** zd, I n)
   }
 }
 
-} // namespace nvector_cuda
+} // namespace impl
+} // namespace cuda
 } // namespace sundials
 
 #endif // _NVECTOR_CUDA_ARRAY_KERNELS_CUH_

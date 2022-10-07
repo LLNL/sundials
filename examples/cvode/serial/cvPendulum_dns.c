@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -108,16 +108,20 @@ static int proj(realtype t, N_Vector yy, N_Vector corr,
                 realtype epsProj, N_Vector err, void *pdata);
 
 /* Functions to integrate the Cartesian and reference solutions */
-int GetSol(void *cvode_mem, N_Vector yy0, realtype tol, realtype tf,
-           int nout, booleantype proj, booleantype projerr, N_Vector yref);
+int GetSol(void *cvode_mem, N_Vector yy0, realtype rtol, realtype atol,
+           realtype tf, int nout, booleantype proj, booleantype projerr,
+           N_Vector yref);
 
 int RefSol(realtype tf, N_Vector yref, int nout);
 
 /* Utility functions */
-static int ReadInputs(int *argc, char ***argv, realtype *tol, realtype *tf,
-                      int *nout, booleantype *projerr);
+static int ReadInputs(int *argc, char ***argv, realtype *rtol, realtype *atol,
+                      realtype *tf, int *nout, booleantype *projerr);
 static void InputHelp();
 static int check_retval(void *returnvalue, const char *funcname, int opt);
+
+/* SUNDIALS context */
+static SUNContext sunctx = NULL;
 
 /* -----------------------------------------------------------------------------
  * Main Program
@@ -128,7 +132,8 @@ int main(int argc, char* argv[])
   int         i;
   int         retval;                   /* reusable return flag    */
   int         nout    = 1;              /* number of outputs       */
-  realtype    tol     = RCONST(1.0e-5); /* integration tolerance   */
+  realtype    rtol    = RCONST(1.0e-5); /* base relative tolerance */
+  realtype    atol    = RCONST(1.0e-5); /* base absolute tolerance */
   realtype    tf      = RCONST(30.0);   /* final integration time  */
   booleantype projerr = SUNTRUE;        /* enable error projection */
 
@@ -139,18 +144,22 @@ int main(int argc, char* argv[])
   SUNMatrix        A         = NULL; /* Jacobian matrix           */
   SUNLinearSolver  LS        = NULL; /* linear solver             */
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Read command line inputs */
-  retval = ReadInputs(&argc, &argv, &tol, &tf, &nout, &projerr);
+  retval = ReadInputs(&argc, &argv, &rtol, &atol, &tf, &nout, &projerr);
   if (check_retval(&retval, "ReadInputs", 1)) return(1);
 
   /* Compute reference solution */
-  yref = N_VNew_Serial(4);
+  yref = N_VNew_Serial(4, sunctx);
 
   retval = RefSol(tf, yref, nout);
   if (check_retval(&retval, "RefSol", 1)) return(1);
 
   /* Create serial vector to store the initial condition */
-  yy0 = N_VNew_Serial(4);
+  yy0 = N_VNew_Serial(4, sunctx);
   if (check_retval((void *)yy0, "N_VNew_Serial", 0)) return(1);
 
   /* Set the initial condition values */
@@ -162,23 +171,19 @@ int main(int argc, char* argv[])
   yy0data[3] = ZERO; /* yd */
 
   /* Create CVODE memory */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Initialize CVODE */
   retval = CVodeInit(cvode_mem, f, ZERO, yy0);
   if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
-  /* Set integration tolerances */
-  retval = CVodeSStolerances(cvode_mem, tol, tol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
-
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(4, 4);
+  A = SUNDenseMatrix(4, 4, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy0, A);
+  LS = SUNLinSol_Dense(yy0, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver to CVODE */
@@ -197,21 +202,22 @@ int main(int argc, char* argv[])
   for (i = 0; i < 5; i++) {
 
     /* Output tolerance and output header for this run */
-    printf("\n\nTol = %8.2" ESYM"\n", tol);
+    printf("\n\nrtol = %8.2" ESYM", atol = %8.2" ESYM"\n", rtol, atol);
     printf("Project    x         y");
     printf("         x'        y'     |     g      |    ");
     printf("nst     rhs eval    setups (J eval)  |   cf   ef\n");
 
     /* Compute solution with projection */
-    retval = GetSol(cvode_mem, yy0, tol, tf, nout, SUNTRUE, projerr, yref);
+    retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNTRUE, projerr, yref);
     if (check_retval(&retval, "GetSol", 1)) return(1);
 
     /* Compute solution without projection */
-    retval = GetSol(cvode_mem, yy0, tol, tf, nout, SUNFALSE, SUNFALSE, yref);
+    retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNFALSE, SUNFALSE, yref);
     if (check_retval(&retval, "GetSol", 1)) return(1);
 
     /* Reduce tolerance for next run */
-    tol /= RCONST(10.0);
+    rtol /= RCONST(10.0);
+    atol /= RCONST(10.0);
   }
 
   /* Free memory */
@@ -220,6 +226,7 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -231,8 +238,9 @@ int main(int argc, char* argv[])
 
 
 /* Compute the Cartesian system solution */
-int GetSol(void *cvode_mem, N_Vector yy0, realtype tol, realtype tf, int nout,
-           booleantype proj, booleantype projerr, N_Vector yref)
+int GetSol(void *cvode_mem, N_Vector yy0, realtype rtol, realtype atol,
+           realtype tf, int nout, booleantype proj, booleantype projerr,
+           N_Vector yref)
 {
   char      outname[100];  /* output file name */
   FILE     *FID    = NULL; /* output file      */
@@ -270,7 +278,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype tol, realtype tf, int nout,
   }
 
   /* Create vector to store the solution */
-  yy = N_VNew_Serial(4);
+  yy = N_VNew_Serial(4, sunctx);
 
   /* Copy initial condition into solution vector */
   N_VScale(ONE, yy0, yy);
@@ -287,7 +295,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype tol, realtype tf, int nout,
   }
 
   /* Set integration tolerances for this run */
-  retval = CVodeSStolerances(cvode_mem, tol, tol);
+  retval = CVodeSStolerances(cvode_mem, rtol, atol);
   if (check_retval(&retval, "CVodeSStolerances", 1))
   {
     N_VDestroy_Serial(yy);
@@ -297,17 +305,21 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype tol, realtype tf, int nout,
   /* Open output file */
   if (proj)
   {
-    sprintf(outname, "cvPendulum_dns_tol_%03.2" ESYM"_proj.txt", tol);
+    sprintf(outname,
+            "cvPendulum_dns_rtol_%03.2" ESYM"_atol_%03.2" ESYM"_proj.txt",
+            rtol, atol);
   }
   else
   {
-    sprintf(outname, "cvPendulum_dns_tol_%03.2" ESYM".txt", tol);
+    sprintf(outname,
+            "cvPendulum_dns_rtol_%03.2" ESYM"_atol_%03.2" ESYM".txt",
+            rtol, atol);
   }
   FID = fopen(outname, "w");
 
   /* Output initial condition */
   fprintf(FID,
-          "%0.4" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM"\n",
+          "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
           ZERO, yydata[0], yydata[1], yydata[2], yydata[3]);
 
   /* Integrate to tf and peridoically output the solution */
@@ -336,7 +348,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype tol, realtype tf, int nout,
 
     /* Write output */
     fprintf(FID,
-            "%0.4" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM"\n",
+            "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
             t, yydata[0], yydata[1], yydata[2], yydata[3]);
 
     /* Update output time */
@@ -423,7 +435,7 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   realtype tol = RCONST(1.0e-14); /* integration tolerance */
 
   /* Create the solution vector */
-  yy = N_VNew_Serial(2);
+  yy = N_VNew_Serial(2, sunctx);
   if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(-1);
 
   /* Set the initial condition */
@@ -433,7 +445,7 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   yydata[1] = ZERO; /* theta' */
 
   /* Create CVODE memory */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Initialize CVODE */
@@ -445,11 +457,11 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(2, 2);
+  A = SUNDenseMatrix(2, 2, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver to CVODE */
@@ -470,7 +482,7 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   th  = yydata[0];
   thd = yydata[1];
   fprintf(FID,
-          "%0.4" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM"\n",
+          "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
           ZERO, COS(th), SIN(th), -thd * SIN(th), thd * COS(th));
 
   /* Integrate to tf and periodically output the solution */
@@ -507,7 +519,7 @@ int RefSol(realtype tf, N_Vector yref, int nout)
     th  = yydata[0];
     thd = yydata[1];
     fprintf(FID,
-            "%0.4" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM"\n",
+            "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
             t, COS(th), SIN(th), -thd * SIN(th), thd * COS(th));
 
     /* Update output time */
@@ -685,8 +697,8 @@ static int proj(realtype t, N_Vector yy, N_Vector corr,
 
 
 /* Read command line unputs */
-static int ReadInputs(int *argc, char ***argv, realtype *tol, realtype *tf,
-                      int *nout, booleantype *projerr)
+static int ReadInputs(int *argc, char ***argv, realtype *rtol, realtype *atol,
+                      realtype *tf, int *nout, booleantype *projerr)
 {
   int arg_idx = 1;
 
@@ -696,7 +708,8 @@ static int ReadInputs(int *argc, char ***argv, realtype *tol, realtype *tf,
     if (strcmp((*argv)[arg_idx],"--tol") == 0)
     {
       arg_idx++;
-      *tol = atof((*argv)[arg_idx++]);
+      *rtol = atof((*argv)[arg_idx++]);
+      *atol = atof((*argv)[arg_idx++]);
     }
     else if (strcmp((*argv)[arg_idx],"--tf") == 0)
     {
@@ -734,10 +747,10 @@ static int ReadInputs(int *argc, char ***argv, realtype *tol, realtype *tf,
 static void InputHelp()
 {
   printf("\nCommand line options:\n");
-  printf("  --tol <tol>      : relative and absolute tolerance\n");
-  printf("  --tf <time>      : final simulation time\n");
-  printf("  --nout <outputs> : number of outputs\n");
-  printf("  --noerrproj      : disable error projection\n");
+  printf("  --tol <rtol> <atol> : relative and absolute tolerance\n");
+  printf("  --tf <time>         : final simulation time\n");
+  printf("  --nout <outputs>    : number of outputs\n");
+  printf("  --noerrproj         : disable error projection\n");
 
   return;
 }

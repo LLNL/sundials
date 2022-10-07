@@ -6,7 +6,7 @@
  * Slaven Peles @ LLNL and Daniel Reynolds @ SMU.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
   sunindextype Neq;
   PetscBool pre, jac;
   /* declare SUNDIALS data structures */
+  SUNContext ctx;
   void *ida_mem;
   SUNNonlinearSolver NLS;
   N_Vector uu, up, constraints, id, res;
@@ -161,17 +162,29 @@ int main(int argc, char *argv[])
 
   /* Initialize PETSc */
   ierr = PetscInitialize(&argc, &argv, (char*)0, NULL);
+  if(check_retval(&ierr, "PetscInitialize", 1, thispe)) MPI_Abort(comm, 1);
+
+  /* Create SUNDIALS context */
+  ierr = SUNContext_Create(&comm, &ctx);
+  if(check_retval(&ierr, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Initialize user application context */
-  ierr = PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");
+#else
+  ierr = PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");CHKERRQ(ierr);
+#endif
   {
     jac = PETSC_FALSE;
     pre = PETSC_FALSE;
     ierr = PetscOptionsBool("-jac", "Utilize user-supplied Jacobian", "", jac, &jac, NULL); CHKERRQ(ierr);
     ierr = PetscOptionsBool("-pre", "Utilize user-supplied preconditioner", "", pre, &pre, NULL); CHKERRQ(ierr);
   }
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsEnd();
+#else
   ierr = PetscOptionsEnd(); CHKERRQ(ierr);
-
+#endif
   /* Allocate and initialize the data structure and N-vectors. */
   data = (UserData) malloc(sizeof *data);
   if(check_retval((void *)data, "malloc", 2, thispe))
@@ -202,7 +215,7 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Make N_Vector wrapper for uvec */
-  uu = N_VMake_Petsc(uvec);
+  uu = N_VMake_Petsc(uvec, ctx);
   if(check_retval((void *)uu, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
@@ -242,7 +255,7 @@ int main(int argc, char *argv[])
    * Call IDACreate and IDAInit, set integration tolerances, then set optional inputs
    */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
   data->ida_mem = ida_mem;
 
@@ -273,7 +286,7 @@ int main(int argc, char *argv[])
   ierr = SNESCreate(comm, &snes); CHKERRQ(ierr);
 
   /* Wrap the SNES context in a SUNNonlinsol_PetscSNES object */
-  NLS = SUNNonlinSol_PetscSNES(uu, snes);  /* This will call SNESSetFunction appropriately */
+  NLS = SUNNonlinSol_PetscSNES(uu, snes, ctx);  /* This will call SNESSetFunction appropriately */
   if(check_retval((void*)NLS, "SUNNonlinsol_PetscSNES", 0, thispe)) MPI_Abort(comm, 1);
 
   ierr = SNESSetDM(snes, data->da); CHKERRQ(ierr);
@@ -347,6 +360,7 @@ int main(int argc, char *argv[])
    * Finalize and exit
    */
 
+  ierr = SUNContext_Free(&ctx);
   ierr = PetscFinalize();
   MPI_Finalize();
 

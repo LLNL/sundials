@@ -4,7 +4,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -49,6 +49,12 @@ int main(int argc, char *argv[])
   int          print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
   realtype     *colj, *xdata, *ydata;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set vector length */
   if (argc < 5){
@@ -87,10 +93,10 @@ int main(int argc, char *argv[])
   I = NULL;
 
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband);
-  I = SUNBandMatrix(cols, 0, 0);
-  x = N_VNew_Serial(cols);
-  y = N_VNew_Serial(cols);
+  A = SUNBandMatrix(cols, uband, lband, sunctx);
+  I = SUNBandMatrix(cols, 0, 0, sunctx);
+  x = N_VNew_Serial(cols, sunctx);
+  y = N_VNew_Serial(cols, sunctx);
 
   /* Fill matrices */
   xdata = N_VGetArrayPointer(x);
@@ -153,6 +159,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(I);
   N_VDestroy(x);
   N_VDestroy(y);
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }
@@ -190,7 +197,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     iend = (j>SUNBandMatrix_Columns(A)-1-SUNBandMatrix_LowerBandwidth(A)) ?
       SUNBandMatrix_Columns(A)-1-j : SUNBandMatrix_LowerBandwidth(A);
     for (i=istart; i<=iend; i++)
-      failure += FNEQ(Acolj[i], Bcolj[i], tol);
+      failure += SUNRCompareTol(Acolj[i], Bcolj[i], tol);
   }
 
   if (failure > ZERO) {
@@ -224,7 +231,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     iend = (j>SUNBandMatrix_Columns(A)-1-SUNBandMatrix_LowerBandwidth(A)) ?
       SUNBandMatrix_Columns(A)-1-j : SUNBandMatrix_LowerBandwidth(A);
     for (i=istart; i<=iend; i++) {
-      if (FNEQ(Acolj[i], val, tol)) {
+      if (SUNRCompareTol(Acolj[i], val, tol)) {
         failure++;
         printf("j = %li, Acolj[%li] = %"GSYM", val = %"GSYM"\n",
                (long int) j, (long int) i, Acolj[i], val);
@@ -247,10 +254,10 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
   local_length = N_VGetLength_Serial(X);
-  
+
   /* check vector data */
   for(i=0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
   }
 
   if (failure > ZERO)
@@ -271,4 +278,10 @@ booleantype has_data(SUNMatrix A)
 booleantype is_square(SUNMatrix A)
 {
   return SUNTRUE;
+}
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
 }

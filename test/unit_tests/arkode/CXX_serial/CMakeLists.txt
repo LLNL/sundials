@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -19,21 +19,16 @@ if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
   set(ARKODE_unit_tests
     "ark_analytic_sys_mri\;0"
     "ark_analytic_sys_mri\;1"
+    "ark_dahlquist_mri\;"
+    "ark_butcher_tests\;"
     )
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-endif()
+set(ARKODE_LIB sundials_arkode)
+set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
@@ -52,8 +47,10 @@ foreach(test_tuple ${ARKODE_unit_tests})
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_include_directories(${test} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(${test} PRIVATE
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      ${CMAKE_SOURCE_DIR}/include
+      ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
     target_link_libraries(${test} ${SUNDIALS_LIBS})
@@ -72,3 +69,5 @@ foreach(test_tuple ${ARKODE_unit_tests})
   add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 
 endforeach()
+
+message(STATUS "Added ARKODE CXX serial units tests")

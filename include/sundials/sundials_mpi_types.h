@@ -3,7 +3,7 @@
  *                Aaron Collier, and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -33,7 +33,3 @@
 #elif defined(SUNDIALS_INT32_T)
   #define MPI_SUNINDEXTYPE MPI_INT32_T
 #endif
-
-/* define legacy SUNDIALS MPI data types */
-#define PVEC_REAL_MPI_TYPE    MPI_SUNREALTYPE
-#define PVEC_INTEGER_MPI_TYPE MPI_SUNINDEXTYPE

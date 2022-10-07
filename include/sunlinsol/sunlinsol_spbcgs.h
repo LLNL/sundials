@@ -5,7 +5,7 @@
  *     Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -47,14 +47,15 @@ extern "C" {
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
+  booleantype zeroguess;
   int numiters;
   realtype resnorm;
   int last_flag;
 
-  ATimesFn ATimes;
+  SUNATimesFn ATimes;
   void* ATData;
-  PSetupFn Psetup;
-  PSolveFn Psolve;
+  SUNPSetupFn Psetup;
+  SUNPSolveFn Psolve;
   void* PData;
 
   N_Vector s1;
@@ -80,28 +81,26 @@ typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y,
                                                  int pretype,
-                                                 int maxl);
+                                                 int maxl,
+                                                 SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S,
                                                 int pretype);
 SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S,
                                             int maxl);
-
-SUNDIALS_DEPRECATED SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_SPBCGS(SUNLinearSolver S, void* A_data,
-                                              ATimesFn ATimes);
+                                              SUNATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPBCGS(SUNLinearSolver S,
                                                       void* P_data,
-                                                      PSetupFn Pset,
-                                                      PSolveFn Psol);
+                                                      SUNPSetupFn Pset,
+                                                      SUNPSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S,
                                                       N_Vector s1,
                                                       N_Vector s2);
+SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S,
+                                                 booleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A,
                                           N_Vector x, N_Vector b, realtype tol);
@@ -113,10 +112,12 @@ SUNDIALS_EXPORT int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
                                           long int *lenrwLS,
                                           long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPBCGS(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
-                                                FILE* info_file);
-SUNDIALS_EXPORT int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
-                                                  int print_level);
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
+int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver LS,
+                                FILE* info_file);
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
+int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver LS, int print_level);
+
 
 
 

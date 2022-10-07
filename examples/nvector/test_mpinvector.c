@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL, Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -22,6 +22,12 @@
 #include <sundials/sundials_nvector.h>
 
 #include "test_nvector.h"
+
+void Test_AbortMPI(void* comm, int code)
+{
+  Test_Finalize();
+  MPI_Abort(*((MPI_Comm*)comm), code);
+}
 
 /* ----------------------------------------------------------------------
  * Test_N_VGetCommunicator Test (with MPI dependency).

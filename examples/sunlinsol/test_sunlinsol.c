@@ -4,7 +4,7 @@
  *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -231,7 +231,7 @@ int Test_SUNLinSolResid(SUNLinearSolver S, int myid)
  * SUNLinSolSetATimes Test
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
-                            ATimesFn ATimes, int myid)
+                            SUNATimesFn ATimes, int myid)
 {
   int     failure;
   double  start_time, stop_time;
@@ -260,7 +260,7 @@ int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
  * SUNLinSolSetPreconditioner
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
-                                    PSetupFn PSetup, PSolveFn PSolve, int myid)
+                                    SUNPSetupFn PSetup, SUNPSolveFn PSolve, int myid)
 {
   int       failure;
   double    start_time, stop_time;
@@ -308,6 +308,48 @@ int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
   else if (myid == 0) {
     printf("    PASSED test -- SUNLinSolSetScalingVectors \n");
     PRINT_TIME("    SUNLinSolSetScalingVectors Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * SUNLinSolSetZeroGuess
+ * --------------------------------------------------------------------*/
+int Test_SUNLinSolSetZeroGuess(SUNLinearSolver S, int myid)
+{
+  int       failure;
+  double    start_time, stop_time;
+
+  /* try calling SetZeroGuess routine: should pass/fail based on expected input */
+  start_time = get_time();
+  failure = SUNLinSolSetZeroGuess(S, SUNTRUE);
+  stop_time = get_time();
+
+  if (failure) {
+    printf(">>> FAILED test -- SUNLinSolSetZeroGuess returned %d on Proc %d \n",
+           failure, myid);
+    return(1);
+  }
+  else if (myid == 0) {
+    printf("    PASSED test -- SUNLinSolSetZeroGuess \n");
+    PRINT_TIME("    SUNLinSolSetZeroGuess Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* try calling SetZeroGuess routine: should pass/fail based on expected input */
+  start_time = get_time();
+  failure = SUNLinSolSetZeroGuess(S, SUNFALSE);
+  stop_time = get_time();
+
+  if (failure) {
+    printf(">>> FAILED test -- SUNLinSolSetZeroGuess returned %d on Proc %d \n",
+           failure, myid);
+    return(1);
+  }
+  else if (myid == 0) {
+    printf("    PASSED test -- SUNLinSolSetZeroGuess \n");
+    PRINT_TIME("    SUNLinSolSetZeroGuess Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return(0);
@@ -379,7 +421,8 @@ int Test_SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, int myid)
  * 'setup' by the Test_SUNLinSolSetup() function prior to this call.
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                        N_Vector b, realtype tol, int myid)
+                        N_Vector b, realtype tol, booleantype zeroguess,
+                        int myid)
 {
   int       failure;
   double    start_time, stop_time;
@@ -387,9 +430,23 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* clone to create solution vector */
   y = N_VClone(x);
-  N_VConst(ZERO, y);
+
+  /* set initial guess for the linear system */
+  if (zeroguess)
+    N_VConst(ZERO, y);
+  else
+    N_VAddConst(x, SUNRsqrt(UNIT_ROUNDOFF), y);
 
   sync_device();
+
+  /* signal if the initial guess is zero or non-zero */
+  failure = SUNLinSolSetZeroGuess(S, zeroguess);
+  if (failure) {
+    printf(">>> FAILED test -- SUNLinSolSetZeroGuess returned %d on Proc %d \n",
+           failure, myid);
+    N_VDestroy(y);
+    return(1);
+  }
 
   /* perform solve */
   start_time = get_time();
@@ -399,15 +456,12 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSolve returned %d on Proc %d \n",
            failure, myid);
-  }
-  if (failure < 0) {
     N_VDestroy(y);
     return(1);
   }
 
-  /* Check solution, and copy y into x for return */
+  /* Check solution */
   failure = check_vector(x, y, 10.0*tol);
-  N_VScale(ONE, y, x);
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSolve check, Proc %d \n", myid);
     PRINT_TIME("    SUNLinSolSolve Time: %22.15e \n \n", stop_time - start_time);
@@ -442,7 +496,7 @@ void SetTiming(int onoff)
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  clock_gettime( CLOCK_MONOTONIC, &spec );
   base_time_tv_sec = spec.tv_sec;
 #endif
 }
@@ -454,7 +508,7 @@ static double get_time()
 {
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
+  clock_gettime( CLOCK_MONOTONIC, &spec );
   double time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else
   double time = 0;

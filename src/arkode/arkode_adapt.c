@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKode's time step
+ * This is the implementation file for ARKODE's time step
  * adaptivity utilities.
  *--------------------------------------------------------------*/
 
@@ -23,13 +23,6 @@
 #include "arkode_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 
 
 /*---------------------------------------------------------------
@@ -115,42 +108,45 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             realtype ecur, long int nst)
+             realtype dsm, long int nst)
 {
   int ier, k;
-  realtype h_acc, h_cfl, int_dir;
+  realtype ecur, h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkAdapt", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Current error with bias factor */
+  ecur = hadapt_mem->bias * dsm;
 
   /* Set k as either p or q, based on pq flag */
   k = (hadapt_mem->pq) ? hadapt_mem->q : hadapt_mem->p;
 
   /* Call algorithm-specific error adaptivity method */
   switch (hadapt_mem->imethod) {
-  case(0):    /* PID controller */
+  case(ARK_ADAPT_PID):         /* PID controller */
     ier = arkAdaptPID(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
-  case(1):    /* PI controller */
+  case(ARK_ADAPT_PI):          /* PI controller */
     ier = arkAdaptPI(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
-  case(2):    /* I controller */
+  case(ARK_ADAPT_I):           /* I controller */
     ier = arkAdaptI(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
-  case(3):    /* explicit Gustafsson controller */
+  case(ARK_ADAPT_EXP_GUS):     /* explicit Gustafsson controller */
     ier = arkAdaptExpGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
-  case(4):    /* implicit Gustafsson controller */
+  case(ARK_ADAPT_IMP_GUS):     /* implicit Gustafsson controller */
     ier = arkAdaptImpGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
-  case(5):    /* imex Gustafsson controller */
+  case(ARK_ADAPT_IMEX_GUS):    /* imex Gustafsson controller */
     ier = arkAdaptImExGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
-  case(-1):   /* user-supplied controller */
+  case(ARK_ADAPT_CUSTOM):      /* user-supplied controller */
     ier = hadapt_mem->HAdapt(ycur, tcur, hcur, hadapt_mem->hhist[0],
                              hadapt_mem->hhist[1], ecur,
                              hadapt_mem->ehist[0],
@@ -159,12 +155,12 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                              &h_acc, hadapt_mem->HAdapt_data);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Illegal imethod.");
     return (ARK_ILL_INPUT);
   }
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Error in accuracy-based adaptivity function.");
     return (ARK_ILL_INPUT);
   }
@@ -175,7 +171,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   /* Call explicit stability function */
   ier = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
@@ -186,6 +182,22 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
     fprintf(ark_mem->diagfp, "ARKadapt  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
             ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1],
             hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1], h_acc, h_cfl);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkAdapt", "error-history",
+                     "ecur = %"RSYM", ehist[0] = %"RSYM", ehist[0] = %"RSYM,
+                     ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1]);
+
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkAdapt", "step-history",
+                     "hcur = %"RSYM", hhist[0] = %"RSYM", hhist[0] = %"RSYM,
+                     hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1]);
+
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkAdapt", "new-step-before-bounds",
+                     "h_acc = %"RSYM", h_cfl = %"RSYM, h_acc, h_cfl);
+#endif
 
   /* enforce safety factors */
   h_acc *= hadapt_mem->safety;
@@ -201,6 +213,12 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkAdapt", "new-step-after-max-min-bounds",
+                     "h_acc = %"RSYM", h_cfl = %"RSYM, h_acc, h_cfl);
+#endif
+
   /* increment the relevant step counter, set desired step */
   if (SUNRabs(h_acc) < SUNRabs(h_cfl))
     hadapt_mem->nst_acc++;
@@ -209,9 +227,11 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(h_cfl));
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
-  if ( (SUNRabs(h_acc) > SUNRabs(hcur*hadapt_mem->lbound*ONEMSM)) &&
-       (SUNRabs(h_acc) < SUNRabs(hcur*hadapt_mem->ubound*ONEPSM)) )
-    h_acc = hcur;
+  if (dsm <= ONE) {
+    if ( (SUNRabs(h_acc) > SUNRabs(hcur*hadapt_mem->lbound*ONEMSM)) &&
+         (SUNRabs(h_acc) < SUNRabs(hcur*hadapt_mem->ubound*ONEPSM)) )
+      h_acc = hcur;
+  }
 
   /* set basic value of ark_eta */
   ark_mem->eta = h_acc / hcur;
@@ -227,6 +247,11 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   /* Solver diagnostics reporting */
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "%"RSYM"\n", ark_mem->eta);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
+                     "new-step-eta", "eta = %"RSYM, ark_mem->eta);
+#endif
 
   return(ier);
 }

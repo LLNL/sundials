@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2020, Lawrence Livermore National Security
+// Copyright (c) 2002-2022, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -17,11 +17,12 @@
 %module fsundials_nvector_mod
 
 // Load the typedefs and generate a "use fsundials_types_mod" statement in the module
+%import "../sundials/fsundials_context_mod.i"
 %import "../sundials/fsundials_types_mod.i"
 
 // insert the include into the swig wrapper
 %{
-#include "sundials/sundials_nvector.h"  
+#include "sundials/sundials_nvector.h"
 %}
 
 // Ignore functions with arrays of vector arrays since they are not supported

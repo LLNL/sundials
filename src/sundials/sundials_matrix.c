@@ -4,7 +4,7 @@
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,15 +21,26 @@
 #include <stdlib.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
+#include "sundials_context_impl.h"
+
+#if defined(SUNDIALS_BUILD_WITH_PROFILING)
+static SUNProfiler getSUNProfiler(SUNMatrix A)
+{
+  return(A->sunctx->profiler);
+}
+#endif
 
 /* -----------------------------------------------------------------
  * Create a new empty SUNMatrix object
  * ----------------------------------------------------------------- */
 
-SUNMatrix SUNMatNewEmpty()
+SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
   SUNMatrix     A;
   SUNMatrix_Ops ops;
+
+  /* a context is required */
+  if (sunctx == NULL) return(NULL);
 
   /* create matrix object */
   A = NULL;
@@ -56,6 +67,7 @@ SUNMatrix SUNMatNewEmpty()
   /* attach ops and initialize content to NULL */
   A->ops     = ops;
   A->content = NULL;
+  A->sunctx  = sunctx;
 
   return(A);
 }
@@ -68,7 +80,7 @@ SUNMatrix SUNMatNewEmpty()
 void SUNMatFreeEmpty(SUNMatrix A)
 {
   if (A == NULL)  return;
-  
+
   /* free non-NULL ops structure */
   if (A->ops)  free(A->ops);
   A->ops = NULL;
@@ -90,15 +102,16 @@ int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
   if (A->ops == NULL || B->ops == NULL) return(-1);
 
   /* Copy ops from A to B */
-  B->ops->getid     = A->ops->getid;
-  B->ops->clone     = A->ops->clone;
-  B->ops->destroy   = A->ops->destroy;
-  B->ops->zero      = A->ops->zero;
-  B->ops->copy      = A->ops->copy;
-  B->ops->scaleadd  = A->ops->scaleadd;
-  B->ops->scaleaddi = A->ops->scaleaddi;
-  B->ops->matvec    = A->ops->matvec;
-  B->ops->space     = A->ops->space;
+  B->ops->getid       = A->ops->getid;
+  B->ops->clone       = A->ops->clone;
+  B->ops->destroy     = A->ops->destroy;
+  B->ops->zero        = A->ops->zero;
+  B->ops->copy        = A->ops->copy;
+  B->ops->scaleadd    = A->ops->scaleadd;
+  B->ops->scaleaddi   = A->ops->scaleaddi;
+  B->ops->matvecsetup = A->ops->matvecsetup;
+  B->ops->matvec      = A->ops->matvec;
+  B->ops->space       = A->ops->space;
 
   return(0);
 }
@@ -118,7 +131,10 @@ SUNMatrix_ID SUNMatGetID(SUNMatrix A)
 SUNMatrix SUNMatClone(SUNMatrix A)
 {
   SUNMatrix B = NULL;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   B = A->ops->clone(A);
+  B->sunctx = A->sunctx;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(B);
 }
 
@@ -141,35 +157,64 @@ void SUNMatDestroy(SUNMatrix A)
 
 int SUNMatZero(SUNMatrix A)
 {
-  return((int) A->ops->zero(A));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  ier = A->ops->zero(A);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }
 
 int SUNMatCopy(SUNMatrix A, SUNMatrix B)
 {
-  return((int) A->ops->copy(A, B));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  ier = A->ops->copy(A, B);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }
 
 int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
 {
-  return((int) A->ops->scaleadd(c, A, B));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  ier = A->ops->scaleadd(c, A, B);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }
 
 int SUNMatScaleAddI(realtype c, SUNMatrix A)
 {
-  return((int) A->ops->scaleaddi(c, A));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  ier = A->ops->scaleaddi(c, A);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }
 
 int SUNMatMatvecSetup(SUNMatrix A)
 {
-  return((int) A->ops->matvecsetup(A));
+  int ier = 0;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  if (A->ops->matvecsetup)
+    ier = A->ops->matvecsetup(A);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }
 
 int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  return((int) A->ops->matvec(A, x, y));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  ier = A->ops->matvec(A, x, y);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }
 
 int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
 {
-  return((int) A->ops->space(A, lenrw, leniw));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  ier = A->ops->space(A, lenrw, leniw);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return(ier);
 }

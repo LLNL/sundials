@@ -1,6 +1,9 @@
 # /
+/.cache
 /.project
 /build*
+/instdir
+/TPLs
 /autom4te.cache
 /.settings
 /.cproject
@@ -8,11 +11,14 @@
 *.kdev4
 *.directory
 /.pydevproject
+/tarballs
 
 # custom test environment setup script
-/test/env.sh
+/test/env/env.sh
 
 # directories and files created by testing scripts
+/test/answers*
+!/test/answers
 /test/build_*
 /test/install_*
 /test/tarballs
@@ -45,40 +51,12 @@
 /doc/*/*.out
 /doc/*/*.log
 
-# directories created by ARKode's Sphinx documentation system
-/doc/arkode/extra_packages/sphinx-bootstrap-theme
-/doc/arkode/extra_packages/sphinx-fortran
-
-/doc/arkode/guide/build/*
-!/doc/arkode/guide/build/latex
-/doc/arkode/guide/build/latex/*
-!/doc/arkode/guide/build/latex/ark_guide.tex
-!/doc/arkode/guide/build/latex/fncychap.sty
-!/doc/arkode/guide/build/latex/footnotehyper-sphinx.sty
-!/doc/arkode/guide/build/latex/python.ist
-!/doc/arkode/guide/build/latex/sphinx.sty
-!/doc/arkode/guide/build/latex/sphinxhighlight.sty
-!/doc/arkode/guide/build/latex/sphinxhowto.cls
-!/doc/arkode/guide/build/latex/sphinxmanual.cls
-!/doc/arkode/guide/build/latex/sphinxmulticell.sty
-!/doc/arkode/guide/build/latex/tabulary.sty
-
-/doc/arkode/examples/build/*
-!/doc/arkode/examples/build/latex
-/doc/arkode/examples/build/latex/*
-!/doc/arkode/examples/build/latex/ark_examples.tex
-!/doc/arkode/examples/build/latex/fncychap.sty
-!/doc/arkode/examples/build/latex/footnotehyper-sphinx.sty
-!/doc/arkode/examples/build/latex/python.ist
-!/doc/arkode/examples/build/latex/sphinx.sty
-!/doc/arkode/examples/build/latex/sphinxhighlight.sty
-!/doc/arkode/examples/build/latex/sphinxhowto.cls
-!/doc/arkode/examples/build/latex/sphinxmanual.cls
-!/doc/arkode/examples/build/latex/sphinxmulticell.sty
-!/doc/arkode/examples/build/latex/tabulary.sty
-
-# developer guide build directory
-/doc/sundials_developers/build
+# directories created by Sphinx documentation
+/doc/*/guide/build/
+/doc/*/examples/build/
+/doc/build/
+/doc/*/build/
+/doc/shared/__pycache__
 
 # PDFs of user guides and example docs
 /doc/*/*_guide.pdf
@@ -93,8 +71,12 @@
 /test/spack/.spack-env/view/.spack/*
 !/test/spack/.spack-env/view/.spack/projections.yaml
 
+# uberenv
+uberenv_libs
+
 # swig
 /swig/swig
 
 # editor files
 .vscode
+

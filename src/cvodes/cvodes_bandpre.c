@@ -4,7 +4,7 @@
  *                Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -112,7 +112,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup);
+  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, cv_mem->cv_sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBANDPRE",
@@ -123,7 +123,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu);
+  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, cv_mem->cv_sunctx);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -134,7 +134,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP);
+  pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP, cv_mem->cv_sunctx);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);

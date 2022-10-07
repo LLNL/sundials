@@ -4,7 +4,7 @@
  *                Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -44,6 +44,7 @@
 #ifndef _SUNMATRIX_H
 #define _SUNMATRIX_H
 
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
 
@@ -57,8 +58,10 @@ extern "C" {
  * ----------------------------------------------------------------- */
 
 typedef enum {
-  SUNMATRIX_DENSE, 
-  SUNMATRIX_BAND, 
+  SUNMATRIX_DENSE,
+  SUNMATRIX_MAGMADENSE,
+  SUNMATRIX_ONEMKLDENSE,
+  SUNMATRIX_BAND,
   SUNMATRIX_SPARSE,
   SUNMATRIX_SLUNRLOC,
   SUNMATRIX_CUSPARSE,
@@ -96,6 +99,7 @@ struct _generic_SUNMatrix_Ops {
 struct _generic_SUNMatrix {
   void *content;
   SUNMatrix_Ops ops;
+  SUNContext sunctx;
 };
 
 
@@ -103,7 +107,7 @@ struct _generic_SUNMatrix {
  * Functions exported by SUNMatrix module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty();
+SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
@@ -113,7 +117,7 @@ SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A); 
+SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
 

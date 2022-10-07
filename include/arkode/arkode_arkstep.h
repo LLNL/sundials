@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -36,28 +36,72 @@ extern "C" {
 /* Default Butcher tables for each method/order */
 
 /*    explicit */
-#define DEFAULT_ERK_2           HEUN_EULER_2_1_2
-#define DEFAULT_ERK_3           BOGACKI_SHAMPINE_4_2_3
-#define DEFAULT_ERK_4           ZONNEVELD_5_3_4
-#define DEFAULT_ERK_5           CASH_KARP_6_4_5
-#define DEFAULT_ERK_6           VERNER_8_5_6
-#define DEFAULT_ERK_8           FEHLBERG_13_7_8
+static const int ARKSTEP_DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2;
+static const int ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
+static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4;
+static const int ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5;
+static const int ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6;
+static const int ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8;
 
 /*    implicit */
-#define DEFAULT_DIRK_2          SDIRK_2_1_2
-#define DEFAULT_DIRK_3          ARK324L2SA_DIRK_4_2_3
-#define DEFAULT_DIRK_4          SDIRK_5_3_4
-#define DEFAULT_DIRK_5          ARK548L2SA_DIRK_8_4_5
+static const int ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2;
+static const int ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
+static const int ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4;
+static const int ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
 
 /*    ImEx */
-#define DEFAULT_ARK_ETABLE_3    ARK324L2SA_ERK_4_2_3
-#define DEFAULT_ARK_ETABLE_4    ARK436L2SA_ERK_6_3_4
-#define DEFAULT_ARK_ETABLE_5    ARK548L2SA_ERK_8_4_5
-#define DEFAULT_ARK_ITABLE_3    ARK324L2SA_DIRK_4_2_3
-#define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
-#define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3;
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4;
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
 
-/* backwards-compatibility */  
+#ifndef DEFAULT_ERK_2
+/* DEPRECATED DEFAULT_ERK_2: use ARKSTEP_ERK_DEFAULT_2 */
+#define DEFAULT_ERK_2           ARKSTEP_ERK_DEFAULT_2
+#endif
+
+#ifndef DEFAULT_ERK_3
+/* DEPRECATED DEFAULT_ERK_3: use ARKSTEP_ERK_DEFAULT_3 */
+#define DEFAULT_ERK_3           ARKSTEP_ERK_DEFAULT_3
+#endif
+
+#ifndef DEFAULT_ERK_4
+/* DEPRECATED DEFAULT_ERK_4: use ARKSTEP_ERK_DEFAULT_4 */
+#define DEFAULT_ERK_4           ARKSTEP_ERK_DEFAULT_4
+#endif
+
+#ifndef DEFAULT_ERK_5
+/* DEPRECATED DEFAULT_ERK_5: use ARKSTEP_ERK_DEFAULT_5 */
+#define DEFAULT_ERK_5           ARKSTEP_ERK_DEFAULT_5
+#endif
+
+#ifndef DEFAULT_ERK_6
+/* DEPRECATED DEFAULT_ERK_6: use ARKSTEP_ERK_DEFAULT_6 */
+#define DEFAULT_ERK_6           ARKSTEP_ERK_DEFAULT_6
+#endif
+
+#ifndef DEFAULT_ERK_8
+/* DEPRECATED DEFAULT_ERK_8: use ARKSTEP_ERK_DEFAULT_8 */
+#define DEFAULT_ERK_8           ARKSTEP_ERK_DEFAULT_8
+#endif
+
+/*    ImEx */
+/* DEPRECATED DEFAULT_ARK_ETABLE_3: use ARKSTEP_DEFAULT_ARK_ETABLE_3 */
+#define DEFAULT_ARK_ETABLE_3    ARKSTEP_DEFAULT_ARK_ETABLE_3
+/* DEPRECATED DEFAULT_ARK_ETABLE_4: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
+#define DEFAULT_ARK_ETABLE_4    ARKSTEP_DEFAULT_ARK_ETABLE_4
+/* DEPRECATED DEFAULT_ARK_ETABLE_5: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
+#define DEFAULT_ARK_ETABLE_5    ARKSTEP_DEFAULT_ARK_ETABLE_5
+/* DEPRECATED DEFAULT_ARK_ITABLE_3: use ARKSTEP_DEFAULT_ARK_ITABLE_3 */
+#define DEFAULT_ARK_ITABLE_3    ARKSTEP_DEFAULT_ARK_ITABLE_3
+/* DEPRECATED DEFAULT_ARK_ITABLE_4: use ARKSTEP_DEFAULT_ARK_ITABLE_4 */
+#define DEFAULT_ARK_ITABLE_4    ARKSTEP_DEFAULT_ARK_ITABLE_4
+/* DEPRECATED DEFAULT_ARK_ITABLE_5: use ARKSTEP_DEFAULT_ARK_ITABLE_5 */
+#define DEFAULT_ARK_ITABLE_5    ARKSTEP_DEFAULT_ARK_ITABLE_5
+
+/* backwards-compatibility */
 typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* -------------------
@@ -66,7 +110,8 @@ typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* Create, Resize, and Reinitialization functions */
 SUNDIALS_EXPORT void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi,
-                                    realtype t0, N_Vector y0);
+                                    realtype t0, N_Vector y0,
+                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype hscale, realtype t0,
@@ -119,16 +164,18 @@ SUNDIALS_EXPORT int ARKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int ARKStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int ARKStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fi);
 SUNDIALS_EXPORT int ARKStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
+SUNDIALS_EXPORT int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce);
 SUNDIALS_EXPORT int ARKStepSetTables(void *arkode_mem, int q, int p,
                                      ARKodeButcherTable Bi,
                                      ARKodeButcherTable Be);
 SUNDIALS_EXPORT int ARKStepSetTableNum(void *arkode_mem,
-                                       int itable, int etable);
+                                       ARKODE_DIRKTableID itable, ARKODE_ERKTableID etable);
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,
@@ -162,8 +209,8 @@ SUNDIALS_EXPORT int ARKStepSetNonlinRDiv(void *arkode_mem,
                                          realtype rdiv);
 SUNDIALS_EXPORT int ARKStepSetDeltaGammaMax(void *arkode_mem,
                                             realtype dgmax);
-SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem,
-                                                  int msbp);
+SUNDIALS_EXPORT int ARKStepSetLSetupFrequency(void *arkode_mem,
+                                              int msbp);
 SUNDIALS_EXPORT int ARKStepSetPredictorMethod(void *arkode_mem,
                                               int method);
 SUNDIALS_EXPORT int ARKStepSetStabilityFn(void *arkode_mem,
@@ -207,8 +254,8 @@ SUNDIALS_EXPORT int ARKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ARKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
-                                          FILE *diagfp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
+int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
@@ -221,12 +268,16 @@ SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
    AFTER ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver */
 SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
-SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
-                                                 long int msbj);
+SUNDIALS_EXPORT int ARKStepSetJacEvalFrequency(void *arkode_mem,
+                                               long int msbj);
 SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
                                                     booleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
+SUNDIALS_EXPORT int ARKStepSetLSNormFactor(void *arkode_mem,
+                                           realtype nrmfac);
+SUNDIALS_EXPORT int ARKStepSetMassLSNormFactor(void *arkode_mem,
+                                               realtype nrmfac);
 SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem,
                                              ARKLsPrecSetupFn psetup,
                                              ARKLsPrecSolveFn psolve);
@@ -252,6 +303,10 @@ SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,
 /* Computes the kth derivative of the y function at time t */
 SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
+
+/* Utility function to update/compute y based on zcor */
+SUNDIALS_EXPORT int ARKStepComputeState(void *arkode_mem, N_Vector zcor,
+                                        N_Vector z);
 
 /* Optional output functions */
 SUNDIALS_EXPORT int ARKStepGetNumExpSteps(void *arkode_mem,
@@ -286,9 +341,11 @@ SUNDIALS_EXPORT int ARKStepGetCurrentStep(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentState(void *arkode_mem,
-                                           N_Vector *ycur);
+                                           N_Vector *state);
 SUNDIALS_EXPORT int ARKStepGetCurrentGamma(void *arkode_mem,
                                            realtype *gamma);
+SUNDIALS_EXPORT int ARKStepGetCurrentMassMatrix(void *arkode_mem,
+                                                SUNMatrix *M);
 SUNDIALS_EXPORT int ARKStepGetTolScaleFactor(void *arkode_mem,
                                              realtype *tolsfac);
 SUNDIALS_EXPORT int ARKStepGetErrWeights(void *arkode_mem,
@@ -301,6 +358,10 @@ SUNDIALS_EXPORT int ARKStepGetRootInfo(void *arkode_mem,
                                        int *rootsfound);
 SUNDIALS_EXPORT int ARKStepGetNumConstrFails(void *arkode_mem,
                                              long int *nconstrfails);
+SUNDIALS_EXPORT int ARKStepGetUserData(void *arkode_mem,
+                                       void **user_data);
+SUNDIALS_EXPORT int ARKStepPrintAllStats(void *arkode_mem, FILE *outfile,
+                                         SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *ARKStepGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT int ARKStepWriteParameters(void *arkode_mem, FILE *fp);
@@ -325,13 +386,24 @@ SUNDIALS_EXPORT int ARKStepGetStepStats(void *arkode_mem,
                                         realtype *tcur);
 
 /* Nonlinear solver optional output functions */
+SUNDIALS_EXPORT int ARKStepGetNonlinearSystemData(void *arkode_mem,
+                                                  realtype *tcur,
+                                                  N_Vector *zpred,
+                                                  N_Vector *z,
+                                                  N_Vector *Fi,
+                                                  realtype *gamma,
+                                                  N_Vector *sdata,
+                                                  void     **user_data);
+
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
-                                                long int *nniters);
+                                                 long int *nniters);
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem,
-                                                    long int *nncfails);
+                                                     long int *nnfails);
 SUNDIALS_EXPORT int ARKStepGetNonlinSolvStats(void *arkode_mem,
-                                             long int *nniters,
-                                             long int *nncfails);
+                                              long int *nniters,
+                                              long int *nnfails);
+SUNDIALS_EXPORT int ARKStepGetNumStepSolveFails(void *arkode_mem,
+                                                long int *nncfails);
 
 /* Linear solver optional output functions */
 SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem,
@@ -389,6 +461,9 @@ SUNDIALS_EXPORT void ARKStepFree(void **arkode_mem);
 /* Output the ARKStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 
+/* MRIStep interface functions */
+SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
+                                                     MRIStepInnerStepper *stepper);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,87 +32,64 @@
 /*------------------------------------------------------------------------------
   create a new empty vector wrapper with space for <nvecs> vectors
   ----------------------------------------------------------------------------*/
-N_Vector N_VNewEmpty_SensWrapper(int nvecs)
+N_Vector N_VNewEmpty_SensWrapper(int nvecs, SUNContext sunctx)
 {
   int i;
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_SensWrapper content;
 
   /* return if wrapper is empty */
   if (nvecs < 1) return(NULL);
 
-  /* create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
-  /* create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof *ops);
-  if (ops == NULL) {free(v); return(NULL);}
+  /* Attach operations */
 
-  ops->nvgetvectorid     = NULL;
-  ops->nvclone           = N_VClone_SensWrapper;
-  ops->nvcloneempty      = N_VCloneEmpty_SensWrapper;
-  ops->nvdestroy         = N_VDestroy_SensWrapper;
-  ops->nvspace           = NULL;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
+  v->ops->nvclone      = N_VClone_SensWrapper;
+  v->ops->nvcloneempty = N_VCloneEmpty_SensWrapper;
+  v->ops->nvdestroy    = N_VDestroy_SensWrapper;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_SensWrapper;
-  ops->nvconst        = N_VConst_SensWrapper;
-  ops->nvprod         = N_VProd_SensWrapper;
-  ops->nvdiv          = N_VDiv_SensWrapper;
-  ops->nvscale        = N_VScale_SensWrapper;
-  ops->nvabs          = N_VAbs_SensWrapper;
-  ops->nvinv          = N_VInv_SensWrapper;
-  ops->nvaddconst     = N_VAddConst_SensWrapper;
-  ops->nvdotprod      = N_VDotProd_SensWrapper;
-  ops->nvmaxnorm      = N_VMaxNorm_SensWrapper;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_SensWrapper;
-  ops->nvwrmsnorm     = N_VWrmsNorm_SensWrapper;
-  ops->nvmin          = N_VMin_SensWrapper;
-  ops->nvwl2norm      = N_VWL2Norm_SensWrapper;
-  ops->nvl1norm       = N_VL1Norm_SensWrapper;
-  ops->nvcompare      = N_VCompare_SensWrapper;
-  ops->nvinvtest      = N_VInvTest_SensWrapper;
-  ops->nvconstrmask   = N_VConstrMask_SensWrapper;
-  ops->nvminquotient  = N_VMinQuotient_SensWrapper;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  v->ops->nvlinearsum    = N_VLinearSum_SensWrapper;
+  v->ops->nvconst        = N_VConst_SensWrapper;
+  v->ops->nvprod         = N_VProd_SensWrapper;
+  v->ops->nvdiv          = N_VDiv_SensWrapper;
+  v->ops->nvscale        = N_VScale_SensWrapper;
+  v->ops->nvabs          = N_VAbs_SensWrapper;
+  v->ops->nvinv          = N_VInv_SensWrapper;
+  v->ops->nvaddconst     = N_VAddConst_SensWrapper;
+  v->ops->nvdotprod      = N_VDotProd_SensWrapper;
+  v->ops->nvmaxnorm      = N_VMaxNorm_SensWrapper;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_SensWrapper;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_SensWrapper;
+  v->ops->nvmin          = N_VMin_SensWrapper;
+  v->ops->nvwl2norm      = N_VWL2Norm_SensWrapper;
+  v->ops->nvl1norm       = N_VL1Norm_SensWrapper;
+  v->ops->nvcompare      = N_VCompare_SensWrapper;
+  v->ops->nvinvtest      = N_VInvTest_SensWrapper;
+  v->ops->nvconstrmask   = N_VConstrMask_SensWrapper;
+  v->ops->nvminquotient  = N_VMinQuotient_SensWrapper;
 
   /* create content */
   content = NULL;
   content = (N_VectorContent_SensWrapper) malloc(sizeof *content);
-  if (content == NULL) {free(ops); free(v); return(NULL);}
+  if (content == NULL) { N_VFreeEmpty(v); return(NULL); }
 
   content->nvecs    = nvecs;
   content->own_vecs = SUNFALSE;
   content->vecs     = NULL;
   content->vecs     = (N_Vector*) malloc(nvecs * sizeof(N_Vector));
-  if (content->vecs == NULL) {free(ops); free(v); free(content); return(NULL);}
+  if (content->vecs == NULL) { free(content); N_VFreeEmpty(v); return(NULL); }
 
   /* initialize vector array to null */
   for (i=0; i < nvecs; i++)
     content->vecs[i] = NULL;
 
-  /* attach content and ops */
+  /* attach content */
   v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -124,7 +101,7 @@ N_Vector N_VNew_SensWrapper(int count, N_Vector w)
   int i;
 
   v = NULL;
-  v = N_VNewEmpty_SensWrapper(count);
+  v = N_VNewEmpty_SensWrapper(count, w->sunctx);
   if (v == NULL) return(NULL);
 
   for (i=0; i < NV_NVECS_SW(v); i++) {
@@ -134,6 +111,9 @@ N_Vector N_VNew_SensWrapper(int count, N_Vector w)
 
   /* update own vectors status */
   NV_OWN_VECS_SW(v) = SUNTRUE;
+
+  /* set context */
+  v->sunctx = w->sunctx;
 
   return(v);
 }

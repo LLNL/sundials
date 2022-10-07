@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -57,9 +57,9 @@ int main(int argc, char *argv[])
   realtype        *xdata, *ydata, *bdata;
   sunindextype    *rowptrs, *colind;
   gridinfo_t      grid;                 /* SuperLU-DIST process grid  */
-  LUstruct_t      lu;
-  ScalePermstruct_t scaleperm;
-  SOLVEstruct_t   solve;                /* SuperLU-DIST solve struct  */
+  xLUstruct_t     lu;
+  xScalePermstruct_t scaleperm;
+  xSOLVEstruct_t  solve;                /* SuperLU-DIST solve struct  */
   SuperLUStat_t   stat;
   superlu_dist_options_t options;       /* SuperLU-DIST options struct*/
   sunindextype    i, j, k;
@@ -68,16 +68,24 @@ int main(int argc, char *argv[])
   int             nprow, npcol;         /* process grid rows & cols   */
   int             print_timing;
   MPI_Status      mpistatus;
+  MPI_Comm        comm;
   int             rank;
   FILE            *fp;
 #if LOG_PROCESS_TO_FILE
   char            filename[64];
 #endif
+  SUNContext      sunctx;
 
   MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
 
-  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (SUNContext_Create(&comm, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
+
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &rank);
 
 #if LOG_PROCESS_TO_FILE
   /* create log files */
@@ -123,7 +131,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   /* intiailize SuperLU-DIST process grid */
-  superlu_gridinit(MPI_COMM_WORLD, nprow, npcol, &grid);
+  superlu_gridinit(comm, nprow, npcol, &grid);
   /* excess processes just exit */
   if (grid.iam >= nprow*npcol) {
     superlu_gridexit(&grid);
@@ -157,7 +165,7 @@ int main(int argc, char *argv[])
   if (grid.iam == 0) {
 
     /* Create matrices and vectors */
-    D = SUNDenseMatrix(N, N);
+    D = SUNDenseMatrix(N, N, sunctx);
 
     /* Fill matrix with uniform random data in [0,1/N] */
     for (k=0; k<N; k++) {
@@ -175,9 +183,9 @@ int main(int argc, char *argv[])
     }
 
     /* create the global vectors */
-    gx = N_VNew_Serial(N);
-    gy = N_VNew_Serial(N);
-    gb = N_VNew_Serial(N);
+    gx = N_VNew_Serial(N, sunctx);
+    gy = N_VNew_Serial(N, sunctx);
+    gb = N_VNew_Serial(N, sunctx);
     xdata = N_VGetArrayPointer(gx);
     ydata = N_VGetArrayPointer(gy);
     bdata = N_VGetArrayPointer(gb);
@@ -242,7 +250,7 @@ int main(int argc, char *argv[])
     dCreate_CompRowLoc_Matrix_dist(Asuper, N, N, NNZ_local, M_loc, fst_row,
                                    matdata, colind, rowptrs, SLU_NR_loc, SLU_D, SLU_GE);
 
-    A = SUNMatrix_SLUNRloc(Asuper, &grid);
+    A = SUNMatrix_SLUNRloc(Asuper, &grid, sunctx);
     if (A == NULL) {
       fails++;
       printf("process %6d: FAIL: SUNMatrix_SLUNRloc returned NULL\n", grid.iam);
@@ -256,9 +264,9 @@ int main(int argc, char *argv[])
     rowptrs[M_loc] = NNZ_local;
 
     /* make the local NVectors */
-    x = N_VMake_Parallel(grid.comm, M_loc, N, xdata);
-    y = N_VMake_Parallel(grid.comm, M_loc, N, ydata);
-    b = N_VMake_Parallel(grid.comm, M_loc, N, bdata);
+    x = N_VMake_Parallel(grid.comm, M_loc, N, xdata, sunctx);
+    y = N_VMake_Parallel(grid.comm, M_loc, N, ydata, sunctx);
+    b = N_VMake_Parallel(grid.comm, M_loc, N, bdata, sunctx);
 
   } else {
 
@@ -290,7 +298,7 @@ int main(int argc, char *argv[])
                                    matdata, colind, rowptrs, SLU_NR_loc, SLU_D, SLU_GE);
 
     /* Create local SuperLU-DIST SUNMatrix */
-    A = SUNMatrix_SLUNRloc(Asuper, &grid);
+    A = SUNMatrix_SLUNRloc(Asuper, &grid, sunctx);
     if (A == NULL) {
       fails++;
       printf("process %6d: FAIL: SUNMatrix_SLUNRloc returned NULL\n", grid.iam);
@@ -299,9 +307,9 @@ int main(int argc, char *argv[])
     }
 
     /* make the local NVectors */
-    x = N_VNew_Parallel(grid.comm, M_loc, N);
-    y = N_VNew_Parallel(grid.comm, M_loc, N);
-    b = N_VNew_Parallel(grid.comm, M_loc, N);
+    x = N_VNew_Parallel(grid.comm, M_loc, N, sunctx);
+    y = N_VNew_Parallel(grid.comm, M_loc, N, sunctx);
+    b = N_VNew_Parallel(grid.comm, M_loc, N, sunctx);
     xdata = N_VGetArrayPointer(x);
     ydata = N_VGetArrayPointer(y);
     bdata = N_VGetArrayPointer(b);
@@ -314,15 +322,15 @@ int main(int argc, char *argv[])
 
   /* Initialize all of the SuperLU-DIST structures */
   set_default_options_dist(&options);
-  ScalePermstructInit(N, N, &scaleperm);
-  LUstructInit(N, &lu);
+  xScalePermstructInit(N, N, &scaleperm);
+  xLUstructInit(N, &lu);
   PStatInit(&stat);
 
   /* Dont print out stats in this test */
   options.PrintStat = NO;
 
   /* Create SuperLUDIST linear solver */
-  LS = SUNLinSol_SuperLUDIST(y, A, &grid, &lu, &scaleperm, &solve, &stat, &options);
+  LS = SUNLinSol_SuperLUDIST(y, A, &grid, &lu, &scaleperm, &solve, &stat, &options, sunctx);
   if (LS == NULL) {
     fails++;
     printf("process %6d: FAIL: SUNLinSol_SuperLUDIST returned NULL\n", grid.iam);
@@ -366,7 +374,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, grid.iam);
   fails += Test_SUNLinSolSetup(LS, A, grid.iam);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, grid.iam);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, SUNTRUE, grid.iam);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, grid.iam);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUDIST, grid.iam);
@@ -399,8 +407,8 @@ int main(int argc, char *argv[])
   Destroy_CompRowLoc_Matrix_dist(Asuper);
   free(Asuper); Asuper = NULL;
   PStatFree(&stat);
-  ScalePermstructFree(&scaleperm);
-  LUstructFree(&lu);
+  xScalePermstructFree(&scaleperm);
+  xLUstructFree(&lu);
 
 #if LOG_PROCESS_TO_FILE
   /* Close file pointer */
@@ -416,8 +424,8 @@ int main(int argc, char *argv[])
   }
 
   superlu_gridexit(&grid);
+  SUNContext_Free(&sunctx);
   MPI_Finalize();
-
   return(globfails);
 }
 
@@ -436,7 +444,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i < local_length; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;

@@ -1,8 +1,9 @@
 # ---------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU,
+#                Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,152 +15,255 @@
 # CMakeLists.txt file for ARKODE C++ parallel examples
 # -----------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# macro to loop through a set of examples and build/install them
+macro(build_examples examples_to_build lang)
 
-# Examples using SUNDIALS linear solvers
-set(ARKODE_examples
-  "ark_heat2D_p\;--np 2 2\;1\;4\;develop"
-  )
+  # Add the build and install targets for each example
+  foreach(example_tuple ${${examples_to_build}})
+
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_defines)
+    list(GET example_tuple 2 example_args)
+    list(GET example_tuple 3 number_of_nodes)
+    list(GET example_tuple 4 number_of_tasks)
+    list(GET example_tuple 5 example_type)
+    list(GET example_tuple 6 example_precision)
+
+    # extract the file name without extension
+    get_filename_component(example_target ${example} NAME_WE)
+
+    if(example_defines)
+      set(example_target "${example_target}.${example_defines}")
+    endif()
+
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    if(NOT TARGET ${example_target})
+
+      set_source_files_properties(${example} PROPERTIES LANGUAGE ${lang})
+
+      # example source files
+      add_executable(${example_target} ${example})
+
+      # folder to organize targets in an IDE
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+
+      # ensure the linker language is reset to CXX
+      set_target_properties(${example_target} PROPERTIES LINKER_LANGUAGE CXX)
+
+      # libraries to link against
+      target_include_directories(${example_target}
+        PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+
+      target_link_libraries(${example_target}
+        PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+
+      # compile definitions
+      if(example_defines)
+        target_compile_definitions(${example_target} PUBLIC ${example_defines})
+      endif()
+
+    endif()
+
+    # check if example args are provided and set the test name
+    if(example_args)
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+    else()
+      set(test_name ${example_target})
+    endif()
+
+    # add example to regression tests
+    sundials_add_test(${test_name} ${example_target}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type}
+      FLOAT_PRECISION ${example_precision})
+
+    # Not all examples are added to the generated CMake file installed the
+    # output and source files here
+    if(EXAMPLES_INSTALL)
+
+      # Find all .out files for this example
+      file(GLOB example_out ${example_target}*.out)
+
+      # Install example source and out files
+      install(FILES ${example} ${example_out}
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
+
+    endif()
+
+  endforeach()
+endmacro()
+
+# -----------------------------
+# Examples to build and install
+# -----------------------------
+
+# Example lists are tuples "name\;compile defs\;args\;nodes\;tasks\;type\;float precision"
+# where the type develop is for examples excluded from 'make test' in releases.
+
+# List of headers to install (appended to below)
+set(ARKODE_headers )
+
+# List of additional files to install (appended to below)
+set(ARKODE_extras)
+
+# Additional libraries to link against (appended to below)
+set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
+
+# ------------
+# MPI examples
+# ------------
+
+set(serial_examples
+  "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default")
+set(SUNDIALS_LIBS sundials_arkode sundials_nvecparallel)
+build_examples(serial_examples CXX)
 
 # Auxiliary files to install
-set(ARKODE_extras
-  plot_heat2D_p.py
-  )
+list(APPEND ARKODE_extras plot_heat2D_p.py)
 
-if(MPI_CXX_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+# ---------------------------
+# ARKODE + CVODE MPI Examples
+# ---------------------------
 
-  # disable C++ extensions (for known wrappers)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
+if(BUILD_CVODE)
+  set(examples_cvode
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default")
+  set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel sundials_nvecmpiplusx)
+  build_examples(examples_cvode CXX)
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# -------------
+# RAJA Examples
+# -------------
 
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
+    (SUNDIALS_INDEX_SIZE MATCHES "32"))
 
+  # Header files to install
+  list(APPEND ARKODE_headers ark_brusselator1D.h)
+  list(APPEND ARKODE_extras plot_brusselator1D.py)
 
-# Add the build and install targets for each example
-foreach(example_tuple ${ARKODE_examples})
+  # All examples below link to RAJA
+  set(OTHER_LIBS RAJA ${OTHER_LIBS})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # If RAJA has HIP enabled, we have to link to HIP even if we dont use it
+  if(RAJA_BACKENDS MATCHES "HIP")
+    set(OTHER_LIBS hip::device ${OTHER_LIBS})
+  endif()
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
-  if(NOT TARGET ${example})
-    # example source files
-    add_executable(${example} ${example}.cpp)
+  # If RAJA has OpenMP enabled, we have to link to OpenMP even if we dont use it
+  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+    set(OTHER_LIBS OpenMP::OpenMP_CXX ${OTHER_LIBS})
+  endif()
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  # -------------
+  # RAJA + Serial
+  # -------------
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+  set(serial_raja_examples
+    "ark_brusselator1D_task_local_nls.cpp\;\;--monitor\;1\;4\;develop\;2"
+    "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --global-nls\;1\;4\;develop\;2"
+    "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --explicit --tf 1\;1\;4\;develop\;2")
+  set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx)
+  build_examples(serial_raja_examples CXX)
 
-    if(NOT MPI_CXX_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+  # -----------
+  # RAJA + CUDA
+  # -----------
+
+  if(RAJA_BACKENDS MATCHES "CUDA")
+
+    if(BUILD_NVECTOR_CUDA)
+      set(cuda_raja_examples
+        "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor\;1\;4\;develop\;2"
+        "ark_brusselator1D_task_local_nls.cpp\;USE_CUDAUVM_NVEC\;--monitor\;1\;4\;exclude\;2"
+        "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor --global-nls\;1\;4\;develop\;2")
+      set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nveccuda)
+      build_examples(cuda_raja_examples CUDA)
     endif()
+
+    if(BUILD_NVECTOR_RAJA AND (SUNDIALS_RAJA_BACKENDS MATCHES "CUDA"))
+      set(raja_raja_examples
+        "ark_brusselator1D_task_local_nls.cpp\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2")
+      set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecraja)
+      build_examples(raja_raja_examples CUDA)
+    endif()
+
+    # ----------
+    # RAJA + HIP
+    # ----------
+
+    if(BUILD_NVECTOR_HIP AND (RAJA_BACKENDS MATCHES "HIP"))
+      set(hip_raja_examples
+        "ark_brusselator1D_task_local_nls.cpp\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2")
+      set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvechip)
+      build_examples(hip_raja_examples CXX)
+    endif()
+
+    # ---------------------
+    # RAJA + OpenMP Offload
+    # ---------------------
+
+    if(BUILD_NVECTOR_OPENMPDEV AND (RAJA_BACKENDS MATCHES "TARGET_OPENMP"))
+      set(openmpdev_raja_examples
+        "ark_brusselator1D_task_local_nls.cpp\;USE_OMPDEV_NVEC\;--monitor\;1\;4\;exclude\;2")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+      set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecopenmpdev)
+      build_examples(openmpdev_raja_examples CXX)
+    endif()
+
   endif()
-
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
-
-  # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
-  endif()
-
-endforeach(example_tuple ${ARKODE_examples})
+endif()
 
 
-# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
+  set(examples_to_install "${serial_examples}")
+  set(_sundials_targets arkode nvecparallel)
 
-  # Install the extra files
-  foreach(extrafile ${ARKODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
-  endforeach()
+  if(examples_cvode)
+    list(APPEND examples_to_install "${examples_cvode}")
+    list(APPEND _sundials_targets cvode nvecmpiplusx)
+  endif()
 
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "ARKODE")
-  set(SOLVER_LIB "sundials_arkode")
+  # For now do not install the RAJA examples because they need to built as CUDA
+  # code when RAJA is built with CUDA
+  # if(serial_raja_examples)
+  #   list(APPEND examples_to_install "${serial_raja_examples}")
+  #   list(APPEND _sundials_targets nvecmpiplusx)
 
-  examples2string(ARKODE_examples EXAMPLES)
+  #   if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  #     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
+  #   endif()
 
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  #   if(RAJA_NEEDS_THREADS)
+  #     set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+  #   endif()
+  # endif()
 
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parallel/CMakeLists.txt
-    @ONLY
-    )
+  sundials_install_examples(arkode examples_to_install
+    CMAKE_TEMPLATE
+      cmakelists_CXX_MPI_ex.in
+    SUNDIALS_TARGETS
+      ${_sundials_targets}
+    OTHER_TARGETS
+      ${EXE_EXTRA_LINK_LIBS}
+    DESTINATION
+      arkode/CXX_parallel
+    EXTRA_FILES
+      ${ARKODE_headers}
+      ${ARKODE_extras}
+      README
+    TEST_INSTALL
+      CXX_parallel
+  )
 
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parallel/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel
-      RENAME Makefile
-      )
-  endif(UNIX)
-
-  # add test_install target
-  sundials_add_test_install(arkode CXX_parallel)
-
-endif(EXAMPLES_INSTALL)
+endif()

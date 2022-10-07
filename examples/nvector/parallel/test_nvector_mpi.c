@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,7 +41,10 @@ int main(int argc, char *argv[])
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
+
   comm = MPI_COMM_WORLD;
+  Test_Init(&comm);
+
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
 
@@ -49,14 +52,14 @@ int main(int argc, char *argv[])
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    MPI_Abort(comm, -1);
+    Test_AbortMPI(&comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    MPI_Abort(comm, -1);
+    Test_AbortMPI(&comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -72,17 +75,17 @@ int main(int argc, char *argv[])
   }
 
   /* Create new vectors */
-  W = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  W = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
   if (W == NULL) {
     if (myid == 0) printf("FAIL: Unable to create a new empty vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
-  X = N_VNew_Parallel(comm, local_length, global_length);
+  X = N_VNew_Parallel(comm, local_length, global_length, sunctx);
   if (X == NULL) {
     N_VDestroy(W);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* Check vector ID */
@@ -110,7 +113,7 @@ int main(int argc, char *argv[])
     N_VDestroy(W);
     N_VDestroy(X);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   Z = N_VClone(X);
@@ -119,7 +122,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Y);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -149,7 +152,7 @@ int main(int argc, char *argv[])
   if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VNew_Parallel(comm, local_length, global_length);
+  U = N_VNew_Parallel(comm, local_length, global_length, sunctx);
   retval = N_VEnableFusedOps_Parallel(U, SUNFALSE);
   if (U == NULL || retval != 0) {
     N_VDestroy(W);
@@ -157,7 +160,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     N_VDestroy(Z);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* fused operations */
@@ -178,7 +181,7 @@ int main(int argc, char *argv[])
   if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VNew_Parallel(comm, local_length, global_length);
+  V = N_VNew_Parallel(comm, local_length, global_length, sunctx);
   retval = N_VEnableFusedOps_Parallel(V, SUNTRUE);
   if (V == NULL || retval != 0) {
     N_VDestroy(W);
@@ -187,7 +190,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(U);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    MPI_Abort(comm, 1);
+    Test_AbortMPI(&comm, 1);
   }
 
   /* fused operations */
@@ -205,7 +208,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
   /* local reduction operations */
-  printf("\nTesting local reduction operations:\n\n");
+  if (myid == 0) printf("\nTesting local reduction operations:\n\n");
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
   fails += Test_N_VMaxNormLocal(X, local_length, myid);
@@ -216,6 +219,18 @@ int main(int argc, char *argv[])
   fails += Test_N_VInvTestLocal(X, Z, local_length, myid);
   fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
+
+  /* local fused reduction operations */
+  if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+  fails += Test_N_VDotProdMultiLocal(V, local_length, myid);
+  fails += Test_N_VDotProdMultiAllReduce(V, local_length, myid);
+
+  /* XBraid interface operations */
+  if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
+
+  fails += Test_N_VBufSize(X, local_length, myid);
+  fails += Test_N_VBufPack(X, local_length, myid);
+  fails += Test_N_VBufUnpack(X, local_length, myid);
 
   /* Free vectors */
   N_VDestroy(W);
@@ -254,7 +269,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    failure += SUNRCompare(Xdata[i], ans);
   }
 
   return (failure > ZERO) ? (1) : (0);
@@ -297,7 +312,7 @@ double max_time(N_Vector X, double time)
   return(maxt);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* not running on GPU, just return */
   return;

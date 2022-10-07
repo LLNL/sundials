@@ -3,7 +3,7 @@
  * Programmer(s): Slaven Peles, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -19,24 +19,14 @@
 
 #include <limits>
 #include <cuda_runtime.h>
-
 #include "sundials_cuda_kernels.cuh"
-
-using namespace sundials::cuda;
 
 namespace sundials
 {
-namespace nvector_cuda
+namespace cuda
 {
-
-/* -----------------------------------------------------------------
- * The namespace for CUDA kernels
- *
- * Reduction CUDA kernels in nvector are based in part on "reduction"
- * example in NVIDIA Corporation CUDA Samples, and parallel reduction
- * examples in textbook by J. Cheng at al. "CUDA C Programming".
- * -----------------------------------------------------------------
- */
+namespace impl
+{
 
 /*
  * Sets all elements of the vector X to constant value a.
@@ -186,19 +176,19 @@ compareKernel(T c, const T *X, T *Z, I n)
  * Dot product of two vectors.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-dotProdKernel(const T *x, const T *y, T *out, I n)
+dotProdKernel(const T *x, const T *y, T *out, I n, unsigned int *device_count)
 {
-  T sum = 0.0;
+  using op = sundials::reductions::impl::plus<T>;
+  const T Id = op::identity();
+
+  T sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     sum += x[i] * y[i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0);
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(out, sum);
+  GridReducer<T, op>{}(sum, Id, out, device_count);
 }
 
 
@@ -206,19 +196,19 @@ dotProdKernel(const T *x, const T *y, T *out, I n)
  * Finds max norm the vector.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-maxNormKernel(const T *x, T *out, I n)
+maxNormKernel(const T *x, T *out, I n, unsigned int* device_count)
 {
-  T maximum = 0.0;
+  using op = sundials::reductions::impl::maximum<T>;
+  const T Id = op::identity();
+
+  T maximum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     maximum = max(abs(x[i]), maximum);
   }
-  maximum = blockReduce<T, RMAX>(maximum, 0.0); 
-
-  // Maximum of reduction result for each block
-  if (threadIdx.x == 0) AtomicMax(out, maximum);
+  GridReducer<T, op>{}(maximum, Id, out, device_count);
 }
 
 
@@ -226,38 +216,38 @@ maxNormKernel(const T *x, T *out, I n)
  * Weighted L2 norm squared.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-wL2NormSquareKernel(const T *x, const T *w, T *out, I n)
+wL2NormSquareKernel(const T *x, const T *w, T *out, I n, unsigned int* device_count)
 {
-  T sum = 0.0;
+  using op = sundials::reductions::impl::plus<T>;
+  const T Id = op::identity();
+
+  T sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     sum += x[i] * w[i] * x[i] * w[i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(out, sum);
+  GridReducer<T, op>{}(sum, Id, out, device_count);
 }
 
 /*
  * Weighted L2 norm squared with mask. Vector id specifies the mask.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-wL2NormSquareMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
+wL2NormSquareMaskKernel(const T *x, const T *w, const T *id, T *out, I n, unsigned int* device_count)
 {
-  T sum = 0.0;
+  using op = sundials::reductions::impl::plus<T>;
+  const T Id = op::identity();
+
+  T sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     if(id[i] > 0.0) sum += x[i] * w[i] * x[i] * w[i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(out, sum);
+  GridReducer<T, op>{}(sum, Id, out, device_count);
 }
 
 
@@ -265,19 +255,19 @@ wL2NormSquareMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
  * Finds min value in the vector.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-findMinKernel(T MAX_VAL, const T *x, T *out, I n)
+findMinKernel(T MAX_VAL, const T *x, T *out, I n, unsigned int* device_count)
 {
-  T minimum = MAX_VAL;
+  using op = sundials::reductions::impl::minimum<T>;
+  const T Id = op::identity();
+
+  T minimum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     minimum = min(x[i], minimum);
   }
-  minimum = blockReduce<T, RMIN>(minimum, MAX_VAL); 
-
-  // minimum of reduction result for each block
-  if (threadIdx.x == 0) AtomicMin(out, minimum);
+  GridReducer<T, op>{}(minimum, Id, out, device_count);
 }
 
 
@@ -285,19 +275,19 @@ findMinKernel(T MAX_VAL, const T *x, T *out, I n)
  * Computes L1 norm of vector
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-L1NormKernel(const T *x, T *out, I n)
+L1NormKernel(const T *x, T *out, I n, unsigned int* device_count)
 {
-  T sum = 0.0;
+  using op = sundials::reductions::impl::plus<T>;
+  const T Id = op::identity();
+
+  T sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     sum += abs(x[i]);
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(out, sum);
+  GridReducer<T, op>{}(sum, Id, out, device_count);
 }
 
 /*
@@ -305,11 +295,14 @@ L1NormKernel(const T *x, T *out, I n)
  * to flag the result if any x[i] = 0.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-invTestKernel(const T *x, T *z, T *out, I n)
+invTestKernel(const T *x, T *z, T *out, I n, unsigned int* device_count)
 {
-  T flag = 0.0;
+  using op = sundials::reductions::impl::plus<T>;
+  const T Id = op::identity();
+
+  T flag = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     if (x[i] == static_cast<T>(0.0))
@@ -317,10 +310,7 @@ invTestKernel(const T *x, T *z, T *out, I n)
     else
       z[i] = 1.0/x[i];
   }
-  flag = blockReduce<T, RSUM>(flag, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(out, flag);
+  GridReducer<T, op>{}(flag, Id, out, device_count);
 }
 
 
@@ -331,11 +321,14 @@ invTestKernel(const T *x, T *z, T *out, I n)
  * If all constraints are satisfied sum == 0.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
+constrMaskKernel(const T *c, const T *x, T *m, T *out, I n, unsigned int* device_count)
 {
-  T sum = 0.0;
+  using op = sundials::reductions::impl::plus<T>;
+  const T Id = op::identity();
+
+  T sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     // test = true if constraints violated
@@ -344,10 +337,7 @@ constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
     m[i] = test ? 1.0 : 0.0;
     sum = m[i];
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(out, sum);
+  GridReducer<T, op>{}(sum, Id, out, device_count);
 }
 
 
@@ -355,24 +345,25 @@ constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
  * Finds minimum component-wise quotient.
  *
  */
-template <typename T, typename I>
+template <typename T, typename I, template<typename, typename> class GridReducer>
 __global__ void
-minQuotientKernel(const T MAX_VAL, const T *num, const T *den, T *min_quotient, I n)
+minQuotientKernel(const T MAX_VAL, const T *num, const T *den, T *min_quotient, I n, unsigned int* device_count)
 {
-  T minimum = MAX_VAL;
+  using op = sundials::reductions::impl::minimum<T>;
+  const T Id = op::identity();
+
+  T minimum = Id;
   T quotient = 0.0;
   GRID_STRIDE_XLOOP(I, i, n)
   {
-    quotient = (den[i] == static_cast<T>(0.0)) ? MAX_VAL : num[i]/den[i];
+    quotient = (den[i] == static_cast<T>(0.0)) ? Id : num[i]/den[i];
     minimum = min(quotient, minimum);
   }
-  minimum = blockReduce<T, RMIN>(minimum, MAX_VAL); 
-
-  // minimum of reduction result for each block
-  if (threadIdx.x == 0) AtomicMin(min_quotient, minimum);
+  GridReducer<T, op>{}(minimum, Id, min_quotient, device_count);
 }
 
-} // namespace nvector_cuda
+} // namespace impl
+} // namespace cuda
 } // namespace sundials
 
 #endif // _NVECTOR_CUDA_KERNELS_CUH_

@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -19,15 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAp_non_p\;\;2\;2\;develop"
-  "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;develop"
-  "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;develop"
-  "cvsAdvDiff_non_p\;\;2\;2\;develop"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;develop"
-  "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;develop"
-  "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;develop"
-  "cvsDiurnal_kry_bbd_p\;\;2\;4\;develop"
-  "cvsDiurnal_kry_p\;\;2\;4\;develop"
+  "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single"
+  "cvsAdvDiff_non_p\;\;2\;2\;exclude-single"
+  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_p\;\;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -38,18 +38,12 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODES_LIB sundials_cvodes_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(CVODES_LIB sundials_cvodes_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(CVODES_LIB sundials_cvodes)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
@@ -152,9 +146,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvodes parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

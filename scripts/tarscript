@@ -1,9 +1,22 @@
 #!/bin/bash
+# ------------------------------------------------------------------------------
+# Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
 #
-# File tarscript: Script to build SUNDIALS tar-files.
-# Author: Radu Serban @ LLNL
-# Version of 08 August 2003
+# See the top-level LICENSE and NOTICE files for details.
 #
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+# Script to build SUNDIALS tar-files.
+# ------------------------------------------------------------------------------
+
+# Exit immediately if a command fails
+set -e
 
 #==============================================================================
 #
@@ -14,7 +27,7 @@
 function print_usage
 {
     # Location of tarballs
-    cd ../..
+    cd ..
     location=`pwd`
     cd -
 
@@ -28,7 +41,7 @@ function print_usage
     echo ""
     echo "Notes: If the module is not specified, all tarballs are created."
     echo "       This script must be executed from within its directory."
-    echo "       Tarballs will be created in $location"
+    echo "       Tarballs will be created in $location/tarballs"
     echo ""
     exit 1
 }
@@ -43,13 +56,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="5.3.0"
-CV_VER="5.3.0"
-CVS_VER="5.3.0"
-IDA_VER="5.3.0"
-IDAS_VER="4.3.0"
-KIN_VER="5.3.0"
-ARK_VER="4.3.0"
+SUN_VER="6.3.0"
+CV_VER="6.3.0"
+CVS_VER="6.3.0"
+IDA_VER="6.3.0"
+IDAS_VER="5.3.0"
+KIN_VER="6.3.0"
+ARK_VER="5.3.0"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -165,82 +178,92 @@ fi
 
 # Location of the scripts
 scriptdir=`pwd`
-cd ..
+
 # Sundials directory
-sundialsdir=`pwd`
-# Location of tarballs
 cd ..
+sundialsdir=`pwd`
+
+# Location of tarballs
+\rm -rf tarballs
+mkdir tarballs
+cd tarballs
 rootdir=`pwd`
 
-tmpdir=$rootdir/tmp_dir.$$
+# Location of source for tarballs
+tmpdir=$rootdir/tmp_dir
 
 #---------------------------
 # Create temporary directory
 #---------------------------
 echo -e "\n--- Create temporary directory ---"
 echo "copy $sundialsdir to $rootdir/$tmpdir"
-rm -rf $tmpdir         || exit 1
-mkdir $tmpdir          || exit 1
-mkdir $tmpdir/include  || exit 1
-mkdir $tmpdir/src      || exit 1
-mkdir $tmpdir/doc      || exit 1
-mkdir $tmpdir/examples || exit 1
+rm -rf $tmpdir
+mkdir $tmpdir
+mkdir $tmpdir/doc
+mkdir $tmpdir/examples
+mkdir $tmpdir/include
+mkdir $tmpdir/scripts
+mkdir $tmpdir/src
+mkdir $tmpdir/test
 
 #----------------------------------
 # Copy appropriate files in $tmpdir
 # and create additional files as needed
 #----------------------------------
 
-cp $sundialsdir/LICENSE $tmpdir/             || exit 1
-cp $sundialsdir/NOTICE $tmpdir/              || exit 1
-cp $sundialsdir/README.md $tmpdir/           || exit 1
-cp $sundialsdir/CONTRIBUTING.md $tmpdir/     || exit 1
-cp $sundialsdir/doc/Makefile.in $tmpdir/doc/ || exit 1
-cp $sundialsdir/CMakeLists.txt $tmpdir/      || exit 1
+cp $sundialsdir/CHANGELOG.md $tmpdir/
+cp $sundialsdir/CITATIONS.md $tmpdir/
+cp $sundialsdir/CMakeLists.txt $tmpdir/
+cp $sundialsdir/CONTRIBUTING.md $tmpdir/
+cp $sundialsdir/LICENSE $tmpdir/
+cp $sundialsdir/NOTICE $tmpdir/
+cp $sundialsdir/README.md $tmpdir/
+cp $sundialsdir/.readthedocs.yaml $tmpdir/
 
 # Make install guide and copy to $tmpdir
-echo -e "--- SUNDIALS Common Installation documentation"
-cd $sundialsdir/doc/sundials || exit 1
+if [ $doc = "T" ]; then
+    echo -e "--- SUNDIALS Common Installation documentation"
+    cd $sundialsdir/doc/install_guide
+    make clean
+    make latexpdf
+    cp build/latex/INSTALL_GUIDE.pdf $tmpdir/INSTALL_GUIDE.pdf
+    cd -
+fi
 
-# cleanup, make install guide, copy, and cleanup
-make QUIET= purge    || exit 1
-make QUIET= in_g_pdf || exit 1
-cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf || exit 1
-make QUIET= purge    || exit 1
+cp -r $sundialsdir/benchmarks $tmpdir/
+cp -r $sundialsdir/cmake $tmpdir/
 
-cd -
-cp -r $sundialsdir/config $tmpdir/ || exit 1
-cp -r $sundialsdir/test $tmpdir/   || exit 1
+cp -r $sundialsdir/doc/shared $tmpdir/doc
+cp -r $sundialsdir/doc/superbuild $tmpdir/doc
+cp -r $sundialsdir/doc/requirements.txt $tmpdir/doc
 
-cp -r $sundialsdir/include/sundials $tmpdir/include/     || exit 1
-cp -r $sundialsdir/include/nvector $tmpdir/include/      || exit 1
-cp -r $sundialsdir/include/sunmatrix $tmpdir/include/    || exit 1
-cp -r $sundialsdir/include/sunlinsol $tmpdir/include/    || exit 1
-cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/ || exit 1
+cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/
+cp -r $sundialsdir/examples/utilities $tmpdir/examples/
+cp -r $sundialsdir/examples/nvector $tmpdir/examples/
+cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/
+cp -r $sundialsdir/examples/sunlinsol $tmpdir/examples/
+cp -r $sundialsdir/examples/sunnonlinsol $tmpdir/examples/
+cp -r $sundialsdir/examples/templates $tmpdir/examples/
 
-cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/ || exit 1
-cp -r $sundialsdir/src/sundials $tmpdir/src/       || exit 1
-cp -r $sundialsdir/src/nvector $tmpdir/src/        || exit 1
-cp -r $sundialsdir/src/sunmatrix $tmpdir/src/      || exit 1
-cp -r $sundialsdir/src/sunlinsol $tmpdir/src/      || exit 1
-cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/   || exit 1
+cp -r $sundialsdir/include/sundials $tmpdir/include/
+cp -r $sundialsdir/include/nvector $tmpdir/include/
+cp -r $sundialsdir/include/sunmatrix $tmpdir/include/
+cp -r $sundialsdir/include/sunmemory $tmpdir/include/
+cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
+cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
 
-cp -r $sundialsdir/doc/sundials $tmpdir/doc/ || exit 1
+cp -r $sundialsdir/scripts $tmpdir/
 
-cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/     || exit 1
-cp    $sundialsdir/examples/test_utilities.f90 $tmpdir/examples/ || exit 1
-cp -r $sundialsdir/examples/nvector $tmpdir/examples/            || exit 1
-cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/          || exit 1
-cp -r $sundialsdir/examples/sunlinsol $tmpdir/examples/          || exit 1
-cp -r $sundialsdir/examples/sunnonlinsol $tmpdir/examples/       || exit 1
-cp -r $sundialsdir/examples/templates $tmpdir/examples/          || exit 1
+cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/
+cp -r $sundialsdir/src/sundials $tmpdir/src/
+cp -r $sundialsdir/src/nvector $tmpdir/src/
+cp -r $sundialsdir/src/sunmatrix $tmpdir/src/
+cp -r $sundialsdir/src/sunmemory $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol $tmpdir/src/
+cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/
 
-#cd $tmpdir
-#echo -e "\n--- Generate configure script ---"
-#aclocal --force
-#autoconf --force -o configure configure.ac
-#autoheader --force
-#cd -
+cp    $sundialsdir/test/testRunner $tmpdir/test/
+cp -r $sundialsdir/test/unit_tests $tmpdir/test/
 
 # Don't release MATLAB until brought current with new version(s)
 #if [ $do_sundials = "T" ]; then
@@ -249,212 +272,171 @@ cp -r $sundialsdir/examples/templates $tmpdir/examples/          || exit 1
 #fi
 
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
-    cp -r $sundialsdir/include/arkode $tmpdir/include/   || exit 1
-    cp -r $sundialsdir/src/arkode $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/arkode $tmpdir/doc/           || exit 1
-    cp -r $sundialsdir/examples/arkode $tmpdir/examples/ || exit 1
+    cp -r $sundialsdir/include/arkode $tmpdir/include/
+    cp -r $sundialsdir/src/arkode $tmpdir/src/
+    cp -r $sundialsdir/examples/arkode $tmpdir/examples/
+    mkdir -p $tmpdir/doc/arkode
+    cp -r $sundialsdir/doc/arkode/guide $tmpdir/doc/arkode
     if [ $doc = "T" ]; then
         echo -e "--- ARKODE documentation"
-        cd $tmpdir/doc/arkode || exit 1
-        make QUIET= purge     || exit 1
-        make QUIET= ug_pdf    || exit 1
-        make QUIET= ex_pdf    || exit 1
+        cd $sundialsdir/doc/arkode/guide
+        make clean
+        make latexpdf
+        cp build/latex/ark_guide.pdf $tmpdir/doc/arkode/
         cd -
-    fi
-    #doc="F"
-fi
-
-if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
-    cp -r $sundialsdir/include/cvode $tmpdir/include/   || exit 1
-    cp -r $sundialsdir/src/cvode $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/cvode $tmpdir/doc/           || exit 1
-    cp -r $sundialsdir/examples/cvode $tmpdir/examples/ || exit 1
-    if [ $doc = "T" ]; then
-        echo -e "--- CVODE documentation"
-        cd $tmpdir/doc/cvode || exit 1
-        make QUIET= purge    || exit 1
-        make QUIET= ug_pdf   || exit 1
-        make QUIET= ex_pdf   || exit 1
+        cd $sundialsdir/doc/arkode/examples
+        make clean
+        make latexpdf
+        cp build/latex/ark_examples.pdf $tmpdir/doc/arkode/
         cd -
     fi
 fi
 
-if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
-    cp -r $sundialsdir/include/cvodes $tmpdir/include/   || exit 1
-    cp -r $sundialsdir/src/cvodes $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/cvodes $tmpdir/doc/           || exit 1
-    cp -r $sundialsdir/examples/cvodes $tmpdir/examples/ || exit 1
-    if [ $doc = "T" ]; then
-        echo -e "--- CVODES documentation"
-        cd $tmpdir/doc/cvodes || exit 1
-        make QUIET= purge     || exit 1
-        make QUIET= ug_pdf    || exit 1
-        make QUIET= ex_pdf    || exit 1
-        cd -
+declare -a packages=('cvode' 'cvodes' 'ida' 'idas' 'kinsol')
+for pkg in "${packages[@]}";
+do
+    do_package=do_${pkg}
+    if [ $do_sundials = "T" -o ${!do_package} = "T" ]; then
+        cp -r $sundialsdir/include/$pkg $tmpdir/include/
+        cp -r $sundialsdir/src/$pkg $tmpdir/src/
+        cp -r $sundialsdir/examples/$pkg $tmpdir/examples/
+        mkdir -p $tmpdir/doc/$pkg
+        cp -r $sundialsdir/doc/$pkg/guide $tmpdir/doc/$pkg
+        if [ $doc = "T" ]; then
+            echo -e "--- ${pkg} documentation"
+            cd $sundialsdir/doc/$pkg/guide
+            make clean
+            make latexpdf
+            cp build/latex/*_guide.pdf $tmpdir/doc/$pkg/
+            cd -
+            cd $sundialsdir/doc/$pkg
+            make QUIET= ex_pdf
+            cp *_examples.pdf $tmpdir/doc/$pkg/
+            cd -
+        fi
     fi
-fi
+done
 
-if [ $do_sundials = "T" -o $do_ida = "T" ]; then
-    cp -r $sundialsdir/include/ida $tmpdir/include/   || exit 1
-    cp -r $sundialsdir/src/ida $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/ida $tmpdir/doc/           || exit 1
-    cp -r $sundialsdir/examples/ida $tmpdir/examples/ || exit 1
-    if [ $doc = "T" ]; then
-        echo -e "--- IDA documentation"
-        cd $tmpdir/doc/ida || exit 1
-        make QUIET= purge  || exit 1
-        make QUIET= ug_pdf || exit 1
-        make QUIET= ex_pdf || exit 1
-        cd -
-    fi
-fi
-
-if [ $do_sundials = "T" -o $do_idas = "T" ]; then
-    cp -r $sundialsdir/include/idas $tmpdir/include/   || exit 1
-    cp -r $sundialsdir/src/idas $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/idas $tmpdir/doc/           || exit 1
-    cp -r $sundialsdir/examples/idas $tmpdir/examples/ || exit 1
-    if [ $doc = "T" ]; then
-        echo -e "--- IDAS documentation"
-        cd $tmpdir/doc/idas || exit 1
-        make QUIET= purge   || exit 1
-        make QUIET= ug_pdf  || exit 1
-        make QUIET= ex_pdf  || exit 1
-        cd -
-    fi
-fi
-
-if [ $do_sundials = "T" -o $do_kinsol = "T" ]; then
-    cp -r $sundialsdir/include/kinsol $tmpdir/include/   || exit 1
-    cp -r $sundialsdir/src/kinsol $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/kinsol $tmpdir/doc/           || exit 1
-    cp -r $sundialsdir/examples/kinsol $tmpdir/examples/ || exit 1
-    if [ $doc = "T" ]; then
-        echo -e "--- KINSOL documentation"
-        cd $tmpdir/doc/kinsol || exit 1
-        make QUIET= purge     || exit 1
-        make QUIET= ug_pdf    || exit 1
-        make QUIET= ex_pdf    || exit 1
-        cd -
-    fi
-fi
-
-
+# Clean up tmpdir
+rm -r $tmpdir/doc/shared/__pycache__
+find $tmpdir -name "*~" -delete
+find $tmpdir -name "*.orig" -delete
 
 #---------------------------
 # Create tar files
 #---------------------------
 
+# NOTE: The "shared" script must be called first for each case below as it
+# creates the initial archive appended to by the package scripts
+
 # Initial name of the directory to be archived
 distrobase="$tmpdir"
-
 
 # SUNDIALS
 if [ $do_sundials = "T" ]; then
     echo -e "\n--- Generate SUNDIALS tarball ---"
 
-    mv $distrobase sundials-$SUN_VER || exit 1
+    mv $distrobase sundials-$SUN_VER
     distrobase="sundials-"$SUN_VER
     filename="sundials-"$SUN_VER
 
     tarfile=$filename".tar"
-    echo "$scriptdir/shared $tarfile $distrobase $tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/arkode $tarfile $distrobase $doc $tar || exit 1
-    $scriptdir/cvode  $tarfile $distrobase $doc $tar || exit 1
-    $scriptdir/cvodes $tarfile $distrobase $doc $tar || exit 1
-    $scriptdir/ida    $tarfile $distrobase $doc $tar || exit 1
-    $scriptdir/idas   $tarfile $distrobase $doc $tar || exit 1
-    $scriptdir/kinsol $tarfile $distrobase $doc $tar || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "T" $tar
+    $scriptdir/arkode $tarfile $distrobase $doc $tar
+    $scriptdir/cvode  $tarfile $distrobase $doc $tar
+    $scriptdir/cvodes $tarfile $distrobase $doc $tar
+    $scriptdir/ida    $tarfile $distrobase $doc $tar
+    $scriptdir/idas   $tarfile $distrobase $doc $tar
+    $scriptdir/kinsol $tarfile $distrobase $doc $tar
 
     ### Don't release MATLAB until brought current with new version(s)
     # $scriptdir/stb $tarfile $distrobase $doc $tar
 
-    gzip $tarfile || exit 1
+    gzip $tarfile
 fi
 
 # ARKODE
 if [ $do_arkode = "T" ]; then
     echo -e "\n--- Generate ARKODE tarball ---"
 
-    mv $distrobase arkode-$ARK_VER || exit 1
+    mv $distrobase arkode-$ARK_VER
     distrobase="arkode-"$ARK_VER
     filename="arkode-"$ARK_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/arkode $tarfile $distrobase $doc $tar || exit 1
-    gzip $tarfile || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
+    $scriptdir/arkode $tarfile $distrobase $doc $tar
+    gzip $tarfile
 fi
 
 # CVODE
 if [ $do_cvode = "T" ]; then
     echo -e "\n--- Generate CVODE tarball ---"
 
-    mv $distrobase cvode-$CV_VER || exit 1
+    mv $distrobase cvode-$CV_VER
     distrobase="cvode-"$CV_VER
     filename="cvode-"$CV_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/cvode  $tarfile $distrobase $doc $tar || exit 1
-    gzip $tarfile || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
+    $scriptdir/cvode  $tarfile $distrobase $doc $tar
+    gzip $tarfile
 fi
 
 # CVODES
 if [ $do_cvodes = "T" ]; then
     echo -e "\n--- Generate CVODES tarball ---"
 
-    mv $distrobase cvodes-$CVS_VER || exit 1
+    mv $distrobase cvodes-$CVS_VER
     distrobase="cvodes-"$CVS_VER
     filename="cvodes-"$CVS_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/cvodes $tarfile $distrobase $doc $tar || exit 1
-    gzip $tarfile || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
+    $scriptdir/cvodes $tarfile $distrobase $doc $tar
+    gzip $tarfile
 fi
 
 # IDA
 if [ $do_ida = "T" ]; then
     echo -e "\n--- Generate IDA tarball ---"
 
-    mv $distrobase ida-$IDA_VER || exit 1
+    mv $distrobase ida-$IDA_VER
     distrobase="ida-"$IDA_VER
     filename="ida-"$IDA_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/ida    $tarfile $distrobase $doc $tar || exit 1
-    gzip $tarfile || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
+    $scriptdir/ida    $tarfile $distrobase $doc $tar
+    gzip $tarfile
 fi
 
 # IDAS
 if [ $do_idas = "T" ]; then
     echo -e "\n--- Generate IDAS tarball ---"
 
-    mv $distrobase idas-$IDAS_VER || exit 1
+    mv $distrobase idas-$IDAS_VER
     distrobase="idas-"$IDAS_VER
     filename="idas-"$IDAS_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/idas   $tarfile $distrobase $doc $tar || exit 1
-    gzip $tarfile || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
+    $scriptdir/idas   $tarfile $distrobase $doc $tar
+    gzip $tarfile
 fi
 
 # KINSOL
 if [ $do_kinsol = "T" ]; then
     echo -e "\n--- Generate KINSOL tarball ---"
 
-    mv $distrobase kinsol-$KIN_VER || exit 1
+    mv $distrobase kinsol-$KIN_VER
     distrobase="kinsol-"$KIN_VER
     filename="kinsol-"$KIN_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $tar      || exit 1
-    $scriptdir/kinsol $tarfile $distrobase $doc $tar || exit 1
-    gzip $tarfile || exit 1
+    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
+    $scriptdir/kinsol $tarfile $distrobase $doc $tar
+    gzip $tarfile
 fi
 
 #---------------------------

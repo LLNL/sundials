@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -47,6 +47,7 @@ contains
 
   integer(C_INT) function unit_tests() result(retval)
     use, intrinsic :: iso_c_binding
+    use fsundials_context_mod
     use fsundials_nvector_mod
     use fsundials_matrix_mod
     use fsundials_linearsolver_mod
@@ -70,7 +71,7 @@ contains
     allocate(Imem)
 
     ! create vectors
-    Imem%y0   => FN_VNew_Serial(NEQ)
+    Imem%y0   => FN_VNew_Serial(NEQ, sunctx)
     Imem%ycur => FN_VClone(Imem%y0)
     Imem%ycor => FN_VClone(Imem%y0)
     Imem%w    => FN_VClone(Imem%y0)
@@ -86,8 +87,8 @@ contains
     call FN_VConst(ONE, Imem%w)
 
     ! create matrix and linear solver
-    Imem%A  => FSUNDenseMatrix(NEQ, NEQ)
-    Imem%LS => FSUNLinSol_Dense(Imem%y0, Imem%A)
+    Imem%A  => FSUNDenseMatrix(NEQ, NEQ, sunctx)
+    Imem%LS => FSUNLinSol_Dense(Imem%y0, Imem%A, sunctx)
 
     retval = FSUNLinSolInitialize(Imem%LS)
     if (retval /= 0) then
@@ -96,7 +97,7 @@ contains
     end if
 
     ! create and test NLS
-    NLS => FSUNNonlinsol_Newton(Imem%y0)
+    NLS => FSUNNonlinsol_Newton(Imem%y0, sunctx)
 
     retval = FSUNNonlinSolSetSysFn(NLS, c_funloc(Res))
     if (retval /= 0) then
@@ -333,6 +334,8 @@ program main
   !============== Introduction =============
   print *, 'Newton SUNNonlinearSolver Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   retval = unit_tests()
   if (retval /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -340,5 +343,7 @@ program main
   else
     print *,'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
 
 end program main

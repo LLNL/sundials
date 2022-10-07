@@ -5,7 +5,7 @@
  * ark_analytic_nonlin.c developed by Daniel R. Reynolds
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -76,18 +76,23 @@ int main()
   long int nst, nst_a, nfe, netf;
   realtype *y_data = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* Initial problem output */
   printf("\nAnalytical ODE test problem:\n");
   printf("   reltol = %.1"ESYM"\n",  reltol);
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Initialize data structures */
-  y = N_VNew_OpenMPDEV(NEQ);          /* Create OpenMPDEV vector for solution */
+  y = N_VNew_OpenMPDEV(NEQ, ctx);          /* Create OpenMPDEV vector for solution */
   if (check_flag((void *)y, "N_VNew_OpenMPDEV", 0)) return 1;
   y_data = N_VGetHostArrayPointer_OpenMPDEV(y);
   y_data[0] = 0.0;                                /* Specify initial condition */
   N_VCopyToDevice_OpenMPDEV(y);                   /* Copy to device */
-  arkode_mem = ERKStepCreate(f, T0, y);     /* Create the solver memory */
+  arkode_mem = ERKStepCreate(f, T0, y, ctx);      /* Create the solver memory */
   if (check_flag((void *)arkode_mem, "ERKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
@@ -143,7 +148,9 @@ int main()
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
-  ERKStepFree(&arkode_mem);     /* Free integrator memory */
+  ERKStepFree(&arkode_mem);    /* Free integrator memory */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 

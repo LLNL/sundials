@@ -2,7 +2,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -37,15 +37,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_Band(y, A)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +45,7 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
  * Function to create a new band linear solver
  */
 
-SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_Band content;
@@ -82,7 +73,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */
@@ -170,8 +161,8 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   }
 
   /* perform LU factorization of input matrix */
-  LASTFLAG(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
-                          SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
+  LASTFLAG(S) = SUNDlsMat_bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
+                                    SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
 
   /* store error flag (if nonzero, that row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0)
@@ -205,8 +196,8 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   }
 
   /* solve using LU factors */
-  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A),
-            SM_LBAND_B(A), pivots, xdata);
+  SUNDlsMat_bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A),
+                      SM_LBAND_B(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
 }

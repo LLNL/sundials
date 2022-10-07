@@ -3,7 +3,7 @@
  *                Aaron Collier and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -88,7 +88,7 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   FIDANullNonlinSol();
 
   /* Create IDA object */
-  IDA_idamem = IDACreate();
+  IDA_idamem = IDACreate(NULL);
   if (IDA_idamem == NULL) {
     *ier = -1;
     return;

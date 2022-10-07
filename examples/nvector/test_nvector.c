@@ -6,7 +6,7 @@
  *                   @ SMU.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -17,12 +17,21 @@
  * -----------------------------------------------------------------
  * These test functions are designed to check an NVECTOR module
  * implementation.
- *
- * NOTE: Many of these tests rely on the N_VGetArrayPointer routine
- *       to get a pointer to the data component of an N_Vector. This
- *       assumes the internal data is stored in a contiguous
- *       realtype array.
  * -----------------------------------------------------------------*/
+
+/* Minimum POSIX version needed for struct timespec and clock_monotonic */
+#if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 199309L)
+#define _POSIX_C_SOURCE 199309L
+#endif
+
+#include <sundials/sundials_config.h>
+
+/* POSIX timers */
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#include <time.h>
+#include <stddef.h>
+#include <unistd.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,11 +40,18 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
-/* POSIX timers */
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-#include <time.h>
-#include <unistd.h>
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM ".17f"
 #endif
+
+/* all tests need a SUNContext */
+SUNContext sunctx = NULL;
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -54,6 +70,34 @@ static int print_time = 0;
 /* macro for printing timings */
 #define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(test, time) if (print_time) printf(FMT, test, time)
+
+int Test_Init(void* comm)
+{
+  if (sunctx == NULL) {
+    if (SUNContext_Create(comm, &sunctx)) {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+int Test_Finalize()
+{
+  if (sunctx != NULL) {
+    if (SUNContext_Free(&sunctx)) {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+void Test_Abort(int code)
+{
+  Test_Finalize();
+  abort();
+}
 
 /* ----------------------------------------------------------------------
  * N_VMake Test
@@ -106,6 +150,13 @@ int Test_N_VCloneVectorArray(int count, N_Vector W,
   int      i, failure;
   double   start_time, stop_time, maxt;
   N_Vector *vs;
+
+  /* check if the required operations are implemented */
+  if (W->ops->nvconst == NULL) {
+    printf(">>> FAILED test -- N_VCloneVectorArray, Proc %d missing required operations\n",
+           myid);
+    return(1);
+  }
 
   /* clone array of vectors */
   start_time = get_time();
@@ -253,6 +304,13 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
   double   start_time, stop_time, maxt;
   N_Vector X;
 
+  /* check if the required operations are implemented */
+  if (W->ops->nvconst == NULL) {
+    printf(">>> FAILED test -- N_VClone, Proc %d missing required operations\n",
+           myid);
+    return(1);
+  }
+
   /* clone vector */
   start_time = get_time();
   X = N_VClone(W);
@@ -281,7 +339,6 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
     N_VDestroy(X);
     return(1);
   }
-
   N_VDestroy(X);
 
   if (myid == 0)
@@ -309,6 +366,13 @@ int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   int      failure = 0;
   double   start_time, stop_time, maxt;
   realtype *Wdata;
+
+  /* check if the required operations are implemented */
+  if (W->ops->nvconst == NULL) {
+    printf(">>> FAILED test -- N_VGetArrayPointer, Proc %d missing required operations\n",
+           myid);
+    return(1);
+  }
 
   /* get vector data, time it and set it to NULL */
   start_time = get_time();
@@ -355,6 +419,13 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   double       start_time, stop_time, maxt;
   realtype     *Wdata;
 
+  /* check if the required operations are implemented */
+  if (W->ops->nvconst == NULL) {
+    printf(">>> FAILED test -- N_VSetArrayPointer, Proc %d missing required operations\n",
+           myid);
+    return(1);
+  }
+
   /* create vector data */
   Wdata = (realtype*) malloc(local_length * sizeof(realtype));
   for(i=0; i < local_length; i++){
@@ -369,7 +440,7 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   /* check vector data */
   N_VConst(NEG_HALF,W);
   for(i=0; i < local_length; i++){
-    failure += FNEQ(Wdata[i], NEG_HALF);
+    failure += SUNRCompare(Wdata[i], NEG_HALF);
   }
 
   if (failure) {
@@ -402,13 +473,20 @@ int Test_N_VGetLength(N_Vector W, int myid)
 {
   sunindextype Wlength, Wlength2;
 
+  /* check if the required operations are implemented */
+  if (W->ops->nvconst == NULL || W->ops->nvdotprod == NULL) {
+    printf(">>> FAILED test -- N_VGetLength, Proc %d missing required operations\n",
+           myid);
+    return(1);
+  }
+
   /* ask W for it's overall length */
   Wlength = N_VGetLength(W);
 
   /* use N_VConst and N_VDotProd to compute length */
   N_VConst(RCONST(1.0), W);
   Wlength2 = (sunindextype) N_VDotProd(W, W);
-  sync_device();
+  sync_device(W);
 
   /* return error if lengths disagree */
   if (Wlength != Wlength2) {
@@ -474,7 +552,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, ONE, Y, Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y should be vector of -1 */
@@ -504,7 +582,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(NEG_ONE, X, ONE, Y, Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y should be vector of +1 */
@@ -534,7 +612,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(HALF, X, ONE, Y, Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y should be vector of -1 */
@@ -564,7 +642,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, ONE, Y, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
@@ -594,7 +672,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, NEG_ONE, Y, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of -1 */
@@ -624,7 +702,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, TWO, Y, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
@@ -655,7 +733,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, ONE, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -686,7 +764,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, NEG_ONE, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -717,7 +795,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(NEG_ONE, X, ONE, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -748,7 +826,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, TWO, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -779,7 +857,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, ONE, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -810,7 +888,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(NEG_ONE, X, TWO, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -841,7 +919,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, NEG_ONE, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -872,7 +950,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, TWO, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -903,7 +981,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, NEG_TWO, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -934,7 +1012,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, HALF, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -960,18 +1038,16 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
  * --------------------------------------------------------------------*/
 int Test_N_VConst(N_Vector X, sunindextype local_length, int myid)
 {
-  int      i, fails = 0, failure = 0;
+  int      fails = 0, failure = 0;
   double   start_time, stop_time, maxt;
 
   /* fill vector data with zeros to prevent passing in the case where
      the input vector is a vector of ones */
-  for(i=0; i < local_length; i++){
-    set_element(X, i, ZERO);
-  }
+  set_element_range(X, 0, local_length-1, ZERO);
 
   start_time = get_time();
   N_VConst(ONE,X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
@@ -1007,7 +1083,7 @@ int Test_N_VProd(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length, 
 
   start_time = get_time();
   N_VProd(X, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -1043,7 +1119,7 @@ int Test_N_VDiv(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length, i
 
   start_time = get_time();
   N_VDiv(X, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1/2 */
@@ -1081,7 +1157,7 @@ int Test_N_VScale(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(TWO, X, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
@@ -1111,7 +1187,7 @@ int Test_N_VScale(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(ONE, X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -1141,7 +1217,7 @@ int Test_N_VScale(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(NEG_ONE, X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -1171,7 +1247,7 @@ int Test_N_VScale(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(TWO, X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -1206,7 +1282,7 @@ int Test_N_VAbs(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VAbs(X,Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
@@ -1241,7 +1317,7 @@ int Test_N_VInv(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VInv(X,Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of +1/2 */
@@ -1276,7 +1352,7 @@ int Test_N_VAddConst(N_Vector X, N_Vector Z, sunindextype local_length, int myid
 
   start_time = get_time();
   N_VAddConst(X,NEG_TWO,Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
@@ -1316,11 +1392,11 @@ int Test_N_VDotProd(N_Vector X, N_Vector Y, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VDotProd(X,Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal global vector length */
-  failure = FNEQ(ans, (realtype) global_length);
+  failure = SUNRCompare(ans, (realtype) global_length);
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProd, Proc %d \n", myid);
@@ -1346,6 +1422,40 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
   double   start_time, stop_time, maxt;
   realtype ans;
 
+  /*
+   * Case 1: zero vector
+   */
+
+  /* fill vector data */
+  N_VConst(ZERO, X);
+
+  start_time = get_time();
+  ans = N_VMaxNorm(X);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* ans should equal 0 */
+  if (ans < ZERO || ans >= SUN_SMALL_REAL)
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMaxNorm Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMaxNorm Case 1\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VMaxNorm", maxt);
+
+  /*
+   * Case 2: general vector
+   */
+
+  /* reset failure */
+  failure = 0;
+
   /* fill vector data */
   N_VConst(NEG_HALF, X);
   if (myid == 0)
@@ -1355,17 +1465,17 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VMaxNorm(X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal 2 */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, TWO);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, TWO);
 
   if (failure) {
-    printf(">>> FAILED test -- N_VMaxNorm, Proc %d \n", myid);
+    printf(">>> FAILED test -- N_VMaxNorm Case 2, Proc %d \n", myid);
     fails++;
   } else if (myid == 0) {
-    printf("PASSED test -- N_VMaxNorm \n");
+    printf("PASSED test -- N_VMaxNorm Case 2\n");
   }
 
   /* find max time across all processes */
@@ -1391,11 +1501,11 @@ int Test_N_VWrmsNorm(N_Vector X, N_Vector W, sunindextype local_length, int myid
 
   start_time = get_time();
   ans = N_VWrmsNorm(X, W);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal 1/4 */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, HALF*HALF);
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNorm, Proc %d \n", myid);
@@ -1441,11 +1551,11 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
 
   start_time = get_time();
   ans = N_VWrmsNormMask(X, W, ID);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* check ans */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, fac);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, fac);
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormMask, Proc %d \n", myid);
@@ -1474,20 +1584,48 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
   /* fill vector data */
   N_VConst(TWO, X);
   if (myid == 0)
+    set_element(X, local_length-1, HALF);
+  else
+    set_element(X, local_length-1, ONE);
+
+  start_time = get_time();
+  ans = N_VMin(X);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* ans should equal 0.5 */
+  failure = SUNRCompare(ans, HALF);
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMin Case 1, Proc %d \n", myid);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, HALF);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMin \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VMin", maxt);
+
+  /* fill vector data */
+  N_VConst(TWO, X);
+  if (myid == 0)
     set_element(X, local_length-1, NEG_TWO);
   else
     set_element(X, local_length-1, NEG_ONE);
 
   start_time = get_time();
   ans = N_VMin(X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal -2 */
-  failure = FNEQ(ans, NEG_TWO);
+  failure = SUNRCompare(ans, NEG_TWO);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin, Proc %d \n", myid);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, NEG_TWO);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMin \n");
@@ -1520,11 +1658,11 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VWL2Norm(X, W);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal 1/4 * sqrt(global_length) */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF*SUNRsqrt((realtype) global_length));
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, HALF*HALF*SUNRsqrt((realtype) global_length));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWL2Norm, Proc %d \n", myid);
@@ -1559,11 +1697,11 @@ int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VL1Norm(X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal global_length */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, (realtype) global_length);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, (realtype) global_length);
 
   if (failure) {
     printf(">>> FAILED test -- N_VL1Norm, Proc %d \n", myid);
@@ -1620,7 +1758,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VCompare(ONE, X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* check return vector */
@@ -1689,7 +1827,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VInvTest(X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* we expect no zeros */
@@ -1729,7 +1867,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VInvTest(X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* check return vector */
@@ -1830,7 +1968,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test = N_VConstrMask(C, X, M);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* M should be vector of 0 */
@@ -1893,7 +2031,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test = N_VConstrMask(C, X, M);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* check mask vector */
@@ -1946,14 +2084,15 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans = N_VMinQuotient(NUM, DENOM);
-  sync_device();
+  sync_device(NUM);
   stop_time = get_time();
 
   /* ans should equal 1/4 */
-  failure = FNEQ(ans, HALF*HALF);
+  failure = SUNRCompare(ans, HALF*HALF);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, HALF*HALF);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMinQuotient Case 1 \n");
@@ -1976,14 +2115,15 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans = N_VMinQuotient(NUM, DENOM);
-  sync_device();
+  sync_device(NUM);
   stop_time = get_time();
 
   /* ans should equal BIG_REAL */
-  failure = FNEQ(ans, BIG_REAL);
+  failure = SUNRCompare(ans, BIG_REAL);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, BIG_REAL);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMinQuotient Case 2 \n");
@@ -2036,7 +2176,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(1, c, V, Y1);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +1 */
@@ -2069,7 +2209,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(1, c, V, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
@@ -2103,7 +2243,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(2, c, V, Y1);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +1 */
@@ -2138,7 +2278,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(2, c, V, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
@@ -2175,7 +2315,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(3, c, V, Y1);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +3 */
@@ -2211,7 +2351,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(3, c, V, Y1);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +2 */
@@ -2248,7 +2388,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VLinearCombination(3, c, V, X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* X should be vector of +2 */
@@ -2310,7 +2450,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleAddMulti(1, avals, X, V, V);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* V[0] should be vector of +1 */
@@ -2344,7 +2484,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleAddMulti(1, avals, X, V, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z[0] should be vector of +1 */
@@ -2381,7 +2521,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleAddMulti(3, avals, X, V, V);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* V[i] should be a vector of -1, 0, +1 */
@@ -2424,7 +2564,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleAddMulti(3, avals, X, V, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -2484,12 +2624,12 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VDotProdMulti(1, X, V, dotprods);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* dotprod[0] should equal the global vector length */
   if (ierr == 0)
-    failure = FNEQ(dotprods[0], (realtype) global_length);
+    failure = SUNRCompare(dotprods[0], (realtype) global_length);
   else
     failure = 1;
 
@@ -2516,14 +2656,14 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VDotProdMulti(3, X, V, dotprods);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
   if (ierr == 0) {
-    failure  = FNEQ(dotprods[0], (realtype) -1*global_length);
-    failure += FNEQ(dotprods[1], (realtype)    global_length);
-    failure += FNEQ(dotprods[2], (realtype)  2*global_length);
+    failure  = SUNRCompare(dotprods[0], (realtype) -1*global_length);
+    failure += SUNRCompare(dotprods[1], (realtype)    global_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2*global_length);
   } else {
     failure = 1;
   }
@@ -2572,7 +2712,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(1, TWO, X, HALF, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[0] should be a vector of 0 */
@@ -2608,7 +2748,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Y[i] should be a vector of -1, 0, +1 */
@@ -2647,7 +2787,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, NEG_ONE, X, ONE, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Y[i] should be a vector of -1, 0, +1 */
@@ -2686,7 +2826,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, HALF, X, ONE, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Y[i] should be a vector of -1, 0, +1 */
@@ -2725,7 +2865,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, X);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[i] should be a vector of -1, 0, +1 */
@@ -2764,7 +2904,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, NEG_ONE, Y, X);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[i] should be a vector of -1, 0, +1 */
@@ -2803,7 +2943,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, HALF, Y, X);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[i] should be a vector of -1, 0, +1 */
@@ -2845,7 +2985,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -2887,7 +3027,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, NEG_ONE, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -2929,7 +3069,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, NEG_ONE, X, ONE, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -2971,7 +3111,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, ONE, X, HALF, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -3013,7 +3153,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, NEG_HALF, X, ONE, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -3055,7 +3195,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, NEG_ONE, X, HALF, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -3097,7 +3237,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, TWO, X, NEG_ONE, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
@@ -3139,7 +3279,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, TWO, X, TWO, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 3, +1 */
@@ -3181,7 +3321,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, TWO, X, NEG_TWO, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 3, +1 */
@@ -3220,7 +3360,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
 
   start_time = get_time();
   ierr = N_VLinearSumVectorArray(3, TWO, X, HALF, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of 0, +1, +2 */
@@ -3278,7 +3418,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleVectorArray(1, c, Y, Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y[0] should be a vector of +1 */
@@ -3309,7 +3449,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleVectorArray(1, c, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z[0] should be a vector of +1 */
@@ -3344,7 +3484,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleVectorArray(3, c, Y, Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y[i] should be a vector of +1, -1, 2 */
@@ -3382,7 +3522,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VScaleVectorArray(3, c, Y, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z[i] should be a vector of +1, -1, 2 */
@@ -3435,7 +3575,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VConstVectorArray(1, ONE, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y[0] should be a vector of 1 */
@@ -3466,7 +3606,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VConstVectorArray(3, ONE, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Y[i] should be a vector of 1 */
@@ -3526,12 +3666,12 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VWrmsNormVectorArray(1, Z, W, nrm);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* nrm should equal 1/4 */
   if (ierr == 0)
-    failure = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], HALF*HALF);
+    failure = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], HALF*HALF);
   else
     failure = 1;
 
@@ -3565,14 +3705,14 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr = N_VWrmsNormVectorArray(3, Z, W, nrm);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal 1/4, 1, 1/2 */
   if (ierr == 0) {
-    failure  = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], HALF*HALF);
-    failure += (nrm[1] < ZERO) ? 1 : FNEQ(nrm[1], ONE);
-    failure += (nrm[2] < ZERO) ? 1 : FNEQ(nrm[2], HALF);
+    failure  = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], HALF*HALF);
+    failure += (nrm[1] < ZERO) ? 1 : SUNRCompare(nrm[1], ONE);
+    failure += (nrm[2] < ZERO) ? 1 : SUNRCompare(nrm[2], HALF);
   } else {
     failure = 1;
   }
@@ -3640,12 +3780,12 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
 
   start_time = get_time();
   ierr = N_VWrmsNormMaskVectorArray(1, Z, W, X, nrm);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* nrm should equal fac/4 */
   if (ierr == 0)
-    failure = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], fac*HALF*HALF);
+    failure = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], fac*HALF*HALF);
   else
     failure = 1;
 
@@ -3684,14 +3824,14 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
 
   start_time = get_time();
   ierr = N_VWrmsNormMaskVectorArray(3, Z, W, X, nrm);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal fac/4, fac, fac/2] */
   if (ierr == 0) {
-    failure  = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], fac*HALF*HALF);
-    failure += (nrm[1] < ZERO) ? 1 : FNEQ(nrm[1], fac);
-    failure += (nrm[2] < ZERO) ? 1 : FNEQ(nrm[2], fac*HALF);
+    failure  = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], fac*HALF*HALF);
+    failure += (nrm[1] < ZERO) ? 1 : SUNRCompare(nrm[1], fac);
+    failure += (nrm[2] < ZERO) ? 1 : SUNRCompare(nrm[2], fac*HALF);
   } else {
     failure = 1;
   }
@@ -3753,7 +3893,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(1, 1, a, X, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Y[0][0] should be vector of +1 */
@@ -3787,7 +3927,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(1, 1, a, X, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[0][0] should be vector of +1 */
@@ -3825,7 +3965,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(1, 3, a, X, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Y[i][0] should be a vector of -1, 0, +1 */
@@ -3870,7 +4010,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(1, 3, a, X, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i][0] should be a vector of -1, 0, +1 */
@@ -3911,7 +4051,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(3, 1, a, X, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Y[0][i] should be vector of -1, 0, +1 */
@@ -3956,7 +4096,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(3, 1, a, X, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[0][i] should be vector of -1, 0, +1 */
@@ -4006,7 +4146,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(3, 3, a, X, Y, Y);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   if (ierr == 0) {
@@ -4081,7 +4221,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
 
   start_time = get_time();
   ierr = N_VScaleAddMultiVectorArray(3, 3, a, X, Y, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   if (ierr == 0) {
@@ -4157,7 +4297,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(1, 1, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +1 */
@@ -4189,7 +4329,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(1, 1, c, X, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +1 */
@@ -4223,7 +4363,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(1, 2, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
@@ -4259,7 +4399,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(1, 2, c, X, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
@@ -4296,7 +4436,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(1, 3, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
@@ -4333,7 +4473,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(1, 3, c, X, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[0] should equal +2 */
@@ -4367,7 +4507,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 1, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to -1, -1/2, +1 */
@@ -4408,7 +4548,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 1, c, X, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to -1, -1/2, +1 */
@@ -4451,7 +4591,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 2, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +3, +2, +1 */
@@ -4498,7 +4638,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 2, c, X, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +3, +2, +1 */
@@ -4545,7 +4685,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 3, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +4, -1, -4 */
@@ -4592,7 +4732,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 3, c, X, X[0]);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +2, -2, +1 */
@@ -4643,7 +4783,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
 
   start_time = get_time();
   ierr = N_VLinearCombinationVectorArray(3, 3, c, X, Z);
-  sync_device();
+  sync_device(V);
   stop_time = get_time();
 
   /* Z[i] should equal to +2, -2, +1 */
@@ -4693,14 +4833,15 @@ int Test_N_VDotProdLocal(N_Vector X, N_Vector Y, sunindextype local_length, int 
 
   start_time = get_time();
   ans = N_VDotProdLocal(X,Y);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal rmyid */
-  failure = FNEQTOL(ans, rmyid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, rmyid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdLocal, Proc %d\n", myid);
+    printf("ans = %" FSYM " expected = %" FSYM "\n", ans, rmyid);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VDotProdLocal\n");
@@ -4730,11 +4871,11 @@ int Test_N_VMaxNormLocal(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VMaxNormLocal(X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal myidp1 */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myidp1, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, myidp1, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMaxNormLocal, Proc %d\n", myid);
@@ -4767,11 +4908,11 @@ int Test_N_VMinLocal(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VMinLocal(X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal negmyid */
-  failure = FNEQTOL(ans, negmyid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, negmyid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinLocal, Proc %d\n", myid);
@@ -4803,11 +4944,11 @@ int Test_N_VL1NormLocal(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans = N_VL1NormLocal(X);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (realtype) myid,
                                        SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
@@ -4842,11 +4983,11 @@ int Test_N_VWSqrSumLocal(N_Vector X, N_Vector W, sunindextype local_length, int 
 
   start_time = get_time();
   ans = N_VWSqrSumLocal(X, W);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (realtype) myid,
                                        SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
@@ -4886,11 +5027,11 @@ int Test_N_VWSqrSumMaskLocal(N_Vector X, N_Vector W, N_Vector ID,
 
   start_time = get_time();
   ans = N_VWSqrSumMaskLocal(X, W, ID);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (realtype) myid,
                                        SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
@@ -4936,7 +5077,7 @@ int Test_N_VInvTestLocal(N_Vector X, N_Vector Z, sunindextype local_length, int 
 
   start_time = get_time();
   test = N_VInvTestLocal(X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* Z should be vector of myid+2 */
@@ -4971,7 +5112,7 @@ int Test_N_VInvTestLocal(N_Vector X, N_Vector Z, sunindextype local_length, int 
 
   start_time = get_time();
   test = N_VInvTestLocal(X, Z);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* check return vector */
@@ -5072,7 +5213,7 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test = N_VConstrMaskLocal(C, X, M);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* M should be vector of 0 */
@@ -5135,7 +5276,7 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test = N_VConstrMaskLocal(C, X, M);
-  sync_device();
+  sync_device(X);
   stop_time = get_time();
 
   /* check mask vector */
@@ -5186,11 +5327,11 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans = N_VMinQuotientLocal(NUM, DENOM);
-  sync_device();
+  sync_device(NUM);
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = FNEQTOL(ans, (realtype) myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, (realtype) myid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 1, Proc %d \n", myid);
@@ -5216,11 +5357,11 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans = N_VMinQuotientLocal(NUM, DENOM);
-  sync_device();
+  sync_device(NUM);
   stop_time = get_time();
 
   /* ans should equal BIG_REAL */
-  failure = FNEQTOL(ans, BIG_REAL, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, BIG_REAL, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 2, Proc %d \n", myid);
@@ -5237,6 +5378,410 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
 }
 
 
+
+/* ----------------------------------------------------------------------
+ * N_VDotProdMultiLocal Test
+ * --------------------------------------------------------------------*/
+int Test_N_VDotProdMultiLocal(N_Vector X, sunindextype local_length, int myid)
+{
+  int    fails = 0, failure = 0, ierr = 0;
+  double start_time, stop_time, maxt;
+
+  N_Vector *V;
+  realtype dotprods[3];
+
+  /* create vectors for testing */
+  V = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1: d[0] = z . V[0], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,  X);
+  N_VConst(HALF, V[0]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(1, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[0] should equal the local vector length */
+  if (ierr == 0)
+    failure = SUNRCompare(dotprods[0], (realtype) local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiLocal Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiLocal Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /*
+   * Case 2: d[i] = z . V[i], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,      X);
+  N_VConst(NEG_HALF, V[0]);
+  N_VConst(HALF,     V[1]);
+  N_VConst(ONE,      V[2]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(3, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the local vector length */
+  if (ierr == 0) {
+    failure  = SUNRCompare(dotprods[0], (realtype) -1 * local_length);
+    failure += SUNRCompare(dotprods[1], (realtype)      local_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2 * local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiLocal Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiLocal Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /* Free vectors */
+  N_VDestroyVectorArray(V, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VDotProdMultiAllReduce Test
+ * --------------------------------------------------------------------*/
+int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
+                                  int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time, maxt;
+
+  sunindextype  global_length;
+  N_Vector     *V;
+  realtype      dotprods[3];
+
+  /* only test if the operation is implemented, local vectors (non-MPI) do not
+     provide this function */
+  if (!(X->ops->nvdotprodmultiallreduce)) return 0;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
+
+  /* create vectors for testing */
+  V = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1: d[0] = z . V[0], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,  X);
+  N_VConst(HALF, V[0]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(1, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[0] should equal the local vector length */
+  if (ierr == 0)
+    failure = SUNRCompare(dotprods[0], (realtype) local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiAllReduce Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /* perform the global reduction */
+  start_time = get_time();
+  ierr = N_VDotProdMultiAllReduce(1, X, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[0] should equal the global vector length */
+  if (ierr == 0)
+    failure = SUNRCompare(dotprods[0], (realtype) global_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiAllReduce Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiAllReduce", maxt);
+
+  /*
+   * Case 2: d[i] = z . V[i], N_VDotProd
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,      X);
+  N_VConst(NEG_HALF, V[0]);
+  N_VConst(HALF,     V[1]);
+  N_VConst(ONE,      V[2]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMultiLocal(3, X, V, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the local vector length */
+  if (ierr == 0) {
+    failure  = SUNRCompare(dotprods[0], (realtype) -1 * local_length);
+    failure += SUNRCompare(dotprods[1], (realtype)      local_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2 * local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiLocal Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiLocal Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiLocal", maxt);
+
+  /* perform the global reduction */
+  start_time = get_time();
+  ierr = N_VDotProdMultiAllReduce(3, X, dotprods);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
+  if (ierr == 0) {
+    failure  = SUNRCompare(dotprods[0], (realtype) -1 * global_length);
+    failure += SUNRCompare(dotprods[1], (realtype)      global_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2 * global_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdMultiAllReduce Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdMultiAllReduce", maxt);
+
+  /* Free vectors */
+  N_VDestroyVectorArray(V, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VBufSize test
+ * --------------------------------------------------------------------*/
+int Test_N_VBufSize(N_Vector x, sunindextype local_length, int myid)
+{
+  int          flag = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype size;
+
+  /* get buffer size */
+  start_time = get_time();
+  flag = N_VBufSize(x, &size);
+  sync_device(x);
+  stop_time = get_time();
+
+  /* check return value */
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufSize returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* check buffer size */
+  if (size != local_length * ((sunindextype)sizeof(realtype))) {
+    printf(">>> FAILED test -- N_VBufSize, Proc %d \n", myid);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VBufSize\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(x, stop_time - start_time);
+  PRINT_TIME("N_VBufSize", maxt);
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VBufPack test
+ * --------------------------------------------------------------------*/
+int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
+{
+  int          flag = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype i, size;
+  realtype     *buf;
+
+  /* get buffer size */
+  flag = N_VBufSize(x, &size);
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufSize returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* create and initialize buffer */
+  buf = NULL;
+  buf = (realtype*) malloc((size_t)size);
+  if (buf == NULL) {
+    printf(">>> FAILED test -- malloc failed, Proc %d \n", myid);
+    return(1);
+  }
+
+  for (i = 0; i < local_length; i++) {
+    buf[i] = ZERO;
+  }
+
+  /* set vector data */
+  N_VConst(ONE, x);
+
+  /* fill buffer */
+  start_time = get_time();
+  flag = N_VBufPack(x, (void*)buf);
+  sync_device(x);
+  stop_time = get_time();
+
+  if (flag != 0) {
+    free(buf);
+    printf(">>> FAILED test -- N_VBufPack returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* check buffer values */
+  for(i = 0; i < local_length; i++) {
+    failure += SUNRCompare(buf[i], ONE);
+  }
+
+  if (failure) {
+    free(buf);
+    printf(">>> FAILED test -- N_VBufPack failed, Proc %d \n", myid);
+    return(1);
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VBufPack\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(x, stop_time - start_time);
+  PRINT_TIME("N_VBufPack", maxt);
+
+  /* free buffer */
+  free(buf);
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VBufUnpack test
+ * --------------------------------------------------------------------*/
+int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
+{
+  int          flag = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype i, size;
+  realtype     *buf;
+
+  /* get buffer size */
+  flag = N_VBufSize(x, &size);
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufSize returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* create and initialize buffer */
+  buf = NULL;
+  buf = (realtype*) malloc((size_t)size);
+  if (buf == NULL) {
+    printf(">>> FAILED test -- malloc failed, Proc %d \n", myid);
+    return(1);
+  }
+
+  for(i = 0; i < local_length; i++) {
+    buf[i] = ONE;
+  }
+
+  /* clear the input vector values */
+  N_VConst(ZERO, x);
+
+  /* fill vector data */
+  start_time = get_time();
+  flag = N_VBufUnpack(x, (void*)buf);
+  sync_device(x);
+  stop_time = get_time();
+
+  if (flag != 0) {
+    free(buf);
+    printf(">>> FAILED test -- N_VBufUnPack returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* x should be vector of ones */
+  failure = check_ans(ONE, x, local_length);
+
+  if (failure) {
+    free(buf);
+    printf(">>> FAILED test -- N_VBufUnpack failed, Proc %d \n", myid);
+    return(1);
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VBufUnpack\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(x, stop_time - start_time);
+  PRINT_TIME("N_VBufUnpack", maxt);
+
+  /* free buffer */
+  free(buf);
+
+  return(0);
+}
+
+
 /* ======================================================================
  * Private functions
  * ====================================================================*/
@@ -5246,10 +5791,10 @@ void SetTiming(int onoff, int myid)
 {
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime(CLOCK_MONOTONIC_RAW, &spec);
+  clock_gettime(CLOCK_MONOTONIC, &spec);
   base_time_tv_sec = spec.tv_sec;
 
-  clock_getres(CLOCK_MONOTONIC_RAW, &spec);
+  clock_getres(CLOCK_MONOTONIC, &spec);
   if (myid == 0)
     printf("Timer resolution: %ld ns = %g s\n",
            spec.tv_nsec, ((double)(spec.tv_nsec) / 1E9));
@@ -5267,7 +5812,7 @@ static double get_time()
   double time;
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
   struct timespec spec;
-  clock_gettime(CLOCK_MONOTONIC_RAW, &spec);
+  clock_gettime(CLOCK_MONOTONIC, &spec);
   time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else
   time = 0;

@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -33,7 +33,7 @@ module test_arkode_butcher_table
 
     !===== Setup ====
 
-    ! HEUN_EULER_2_1_2
+    ! ARKODE_HEUN_EULER_2_1_2
     A = 0.d0
     b = 0.d0
     c = 0.d0
@@ -46,8 +46,8 @@ module test_arkode_butcher_table
     d(1) = 1.0d0
 
     !===== Test =====
-    ERK  = FARkodeButcherTable_LoadERK(HEUN_EULER_2_1_2)
-    DIRK = FARkodeButcherTable_LoadDIRK(SDIRK_2_1_2)
+    ERK  = FARkodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2)
+    DIRK = FARkodeButcherTable_LoadDIRK(ARKODE_SDIRK_2_1_2)
     ierr = FARkodeButcherTable_CheckOrder(ERK, q, p, C_NULL_PTR)
     ierr = FARkodeButcherTable_CheckARKOrder(ERK, DIRK, q, p, C_NULL_PTR)
     call FARKodeButcherTable_Space(ERK, liw, lrw)

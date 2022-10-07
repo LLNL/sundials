@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -29,6 +29,7 @@
 #define _ARKODE_H
 
 #include <stdio.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_nvector.h>
 #include <arkode/arkode_butcher.h>
 
@@ -44,17 +45,30 @@ extern "C" {
 #define ARK_NORMAL         1
 #define ARK_ONE_STEP       2
 
-  
+/* adaptivity module flags */
+#define ARK_ADAPT_CUSTOM   -1
+#define ARK_ADAPT_PID       0
+#define ARK_ADAPT_PI        1
+#define ARK_ADAPT_I         2
+#define ARK_ADAPT_EXP_GUS   3
+#define ARK_ADAPT_IMP_GUS   4
+#define ARK_ADAPT_IMEX_GUS  5
+
+/* Constants for evaluating the full RHS */
+#define ARK_FULLRHS_START 0
+#define ARK_FULLRHS_END   1
+#define ARK_FULLRHS_OTHER 2
+
 /* interpolation module flags */
 
-/*    max allowed degree */  
+/*    max allowed degree */
 #define ARK_INTERP_MAX_DEGREE 5
 
-/*    interpolation module types */  
+/*    interpolation module types */
 #define ARK_INTERP_HERMITE  0
 #define ARK_INTERP_LAGRANGE 1
-  
-  
+
+
 /* return values */
 
 #define ARK_SUCCESS                 0
@@ -115,7 +129,9 @@ extern "C" {
 #define ARK_INTERP_FAIL            -40
 
 #define ARK_INVALID_TABLE          -41
-  
+
+#define ARK_CONTEXT_ERR            -42
+
 #define ARK_UNRECOGNIZED_ERROR     -99
 
 /* ------------------------------
@@ -153,11 +169,12 @@ typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
 
 typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
                                  void *user_data);
-  
-/* ARKPostProcessStepFn is now deprecated and will be removed in future
-   releases. It has be replaced with ARKPostProcessFn. */
-typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
-                                    void *user_data);
+
+/* --------------------------
+ * MRIStep Inner Stepper Type
+ * -------------------------- */
+
+typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper *MRIStepInnerStepper;
 
 #ifdef __cplusplus
 }

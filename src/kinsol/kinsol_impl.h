@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,9 +23,20 @@
 #include <stdarg.h>
 
 #include <kinsol/kinsol.h>
+#include "sundials_logger_impl.h"
+#include "sundials_context_impl.h"
+#include "sundials_iterative_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
+#endif
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "19.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
 #endif
 
 /*
@@ -45,6 +56,13 @@ extern "C" {
 #define OMEGA_MIN RCONST(0.00001)
 #define OMEGA_MAX RCONST(0.9)
 
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define KIN_PROFILER kin_mem->kin_sunctx->profiler
+#define KIN_LOGGER kin_mem->kin_sunctx->logger
+
 /*
  * -----------------------------------------------------------------
  * Types : struct KINMemRec and struct *KINMem
@@ -57,6 +75,8 @@ extern "C" {
  */
 
 typedef struct KINMemRec {
+
+  SUNContext kin_sunctx;
 
   realtype kin_uround;        /* machine epsilon (or unit roundoff error)
                                  (defined in sundials_types.h)                */
@@ -149,23 +169,38 @@ typedef struct KINMemRec {
   N_Vector kin_constraints; /* constraints vector                              */
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
+  N_Vector kin_vtemp3;      /* scratch vector #3                               */
+
+  /* fixed point and Picard options */
+  booleantype kin_ret_newest; /* return the newest FP iteration     */
+  booleantype kin_damping;    /* flag to apply damping in FP/Picard */
+  realtype    kin_beta;       /* damping parameter for FP/Picard    */
 
   /* space requirements for AA, Broyden and NLEN */
-  N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector kin_gold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
-  N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
-  N_Vector *kin_q_aa;       /* vector array needed for AA */
-  realtype kin_beta_aa;     /* beta damping parameter for AA */
-  realtype *kin_gamma_aa;   /* array of size maa used in AA */
-  realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  long int *kin_ipt_map;    /* array of size maa used in AA */
-  long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
-  booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
-  booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
-  booleantype kin_damping_aa; /* flag to apply damping in AA */
-  realtype *kin_cv;         /* scalar array for fused vector operations */
-  N_Vector *kin_Xv;         /* vector array for fused vector operations */
+  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN   */
+  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN    */
+  N_Vector *kin_q_aa;         /* vector array needed for AA                      */
+  realtype kin_beta_aa;       /* beta damping parameter for AA                   */
+  realtype *kin_gamma_aa;     /* array of size maa used in AA                    */
+  realtype *kin_R_aa;         /* array of size maa*maa used in AA                */
+  realtype *kin_T_aa;         /* array of size maa*maa used in AA with ICWY MGS  */
+  long int *kin_ipt_map;      /* array of size maa*maa/2 used in AA              */
+  long int kin_m_aa;          /* parameter for AA, Broyden or NLEN               */
+  long int kin_delay_aa;      /* number of iterations to delay AA */
+  int kin_orth_aa;            /* parameter for AA determining orthogonalization
+                                 routine
+                                 0 - Modified Gram Schmidt (standard)
+                                 1 - ICWY Modified Gram Schmidt (Bjorck)
+                                 2 - CGS2 (Hernandez)
+                                 3 - Delayed CGS2 (Hernandez)                    */
+  SUNQRAddFn kin_qr_func;     /* QRAdd function for AA orthogonalization         */
+  SUNQRData  kin_qr_data;     /* Additional parameters required for QRAdd routine
+                                 set for AA                                      */
+  booleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  realtype *kin_cv;           /* scalar array for fused vector operations        */
+  N_Vector *kin_Xv;           /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 
@@ -247,6 +282,12 @@ typedef struct KINMemRec {
   KINInfoHandlerFn kin_ihfun;  /* Info messages are handled by ihfun           */
   void *kin_ih_data;           /* dats pointer passed to ihfun                 */
   FILE *kin_infofp;            /* where KINSol info messages are sent          */
+
+  /*---------
+    Debugging
+    ---------*/
+
+  FILE *kin_debugfp; /* debugging output file */
 
 } *KINMem;
 
@@ -386,6 +427,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #define MSG_MEM_FAIL           "A memory request failed."
 #define MSG_NO_MEM             "kinsol_mem = NULL illegal."
+#define MSG_NULL_SUNCTX        "sunctx = NULL illegal."
 #define MSG_BAD_NVECTOR        "A required vector operation is not implemented."
 #define MSG_FUNC_NULL          "func = NULL illegal."
 #define MSG_NO_MALLOC          "Attempt to call before KINMalloc illegal."
@@ -406,6 +448,7 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
 #define MSG_BAD_OMEGA          "scalars < 0 illegal."
 #define MSG_BAD_MAA            "maa < 0 illegal."
+#define MSG_BAD_ORTHAA         "Illegal value for orthaa."
 #define MSG_ZERO_MAA           "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."
@@ -437,11 +480,14 @@ void KINInfoHandler(const char *module, const char *function,
  * =================================================================
  */
 
+#define INFO_IVAR      "%s = %d"
+#define INFO_LIVAR     "%s = %ld"
 #define INFO_RETVAL    "Return value: %d"
 #define INFO_ADJ       "no. of lambda adjustments = %ld"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
+#define INFO_RVAR      "%s = %26.16Lg"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
 #define INFO_TOL       "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3Lg"
@@ -455,6 +501,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
+#define INFO_RVAR      "%s = %26.16lg"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
 #define INFO_TOL       "scsteptol = %12.3lg  fnormtol = %12.3lg"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3lg"
@@ -468,6 +515,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #else
 
+#define INFO_RVAR      "%s = %26.16g"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
 #define INFO_TOL       "scsteptol = %12.3g  fnormtol = %12.3g"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3g"

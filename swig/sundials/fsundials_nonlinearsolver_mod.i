@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2020, Lawrence Livermore National Security
+// Copyright (c) 2002-2022, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -18,6 +18,7 @@
 
 // Load the typedefs and generate a "use" statement in the module
 %import "../sundials/fsundials_types_mod.i"
+%import "../sundials/fsundials_context_mod.i"
 %import "../sundials/fsundials_nvector_mod.i"
 
 %{

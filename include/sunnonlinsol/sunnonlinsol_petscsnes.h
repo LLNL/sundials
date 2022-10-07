@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -56,7 +56,9 @@ typedef struct _SUNNonlinearSolverContent_PetscSNES *SUNNonlinearSolverContent_P
 
 /* Constructor to create solver and allocates memory */
 
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes);
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes,
+                                          SUNContext sunctx);
 
 /* SUNNonlinearSolver API functions */
 

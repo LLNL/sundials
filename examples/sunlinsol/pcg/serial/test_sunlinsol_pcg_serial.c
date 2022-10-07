@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -106,6 +106,12 @@ int main(int argc, char *argv[])
   sunindextype    i;
   realtype        *vecdata;
   double          tol;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check inputs: local problem size, timing flag */
   if (argc < 5) {
@@ -142,15 +148,15 @@ int main(int argc, char *argv[])
   printf("  timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
-  x = N_VNew_Serial(ProbData.N);
+  x = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(x, "N_VNew_Serial", 0)) return 1;
-  xhat = N_VNew_Serial(ProbData.N);
+  xhat = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(xhat, "N_VNew_Serial", 0)) return 1;
-  b = N_VNew_Serial(ProbData.N);
+  b = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(b, "N_VNew_Serial", 0)) return 1;
-  ProbData.d = N_VNew_Serial(ProbData.N);
+  ProbData.d = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.d, "N_VNew_Serial", 0)) return 1;
-  ProbData.s = N_VNew_Serial(ProbData.N);
+  ProbData.s = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.s, "N_VNew_Serial", 0)) return 1;
 
   /* Fill xhat vector with uniform random data in [1,2] */
@@ -162,12 +168,13 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
 
   /* Create PCG linear solver */
-  LS = SUNLinSol_PCG(x, PREC_RIGHT, maxl);
+  LS = SUNLinSol_PCG(x, SUN_PREC_RIGHT, maxl, sunctx);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_PCG, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s, NULL, 0);
+  fails += Test_SUNLinSolSetZeroGuess(LS, 0);
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
   if (fails) {
@@ -192,9 +199,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run test with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -222,9 +230,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_RIGHT);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -254,9 +263,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -286,9 +296,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_RIGHT);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -310,6 +321,7 @@ int main(int argc, char *argv[])
   N_VDestroy(b);
   N_VDestroy(ProbData.d);
   N_VDestroy(ProbData.s);
+  SUNContext_Free(&sunctx);
 
   return(passfail);
 }
@@ -426,14 +438,14 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i<problem_size; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], FIVE*tol*SUNRabs(Xdata[i]));
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;
     for(i=0; i < problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
-	   maxerr, FIVE*tol);
+	   maxerr, tol);
     return(1);
   }
   else

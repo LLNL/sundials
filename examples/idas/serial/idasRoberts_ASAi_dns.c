@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -139,6 +139,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext ctx;
+
   UserData data;
 
   void *ida_mem;
@@ -161,7 +163,7 @@ int main(int argc, char *argv[])
 
   IDAadjCheckPointRec *ckpnt;
 
-  long int nst, nstB;
+  FILE* FID;
 
   data = NULL;
   ckpnt = NULL;
@@ -180,6 +182,10 @@ int main(int argc, char *argv[])
   printf("     G = int_t0^tB0 g(t,p,y) dt\n");
   printf("     g(t,p,y) = y3\n\n\n");
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
@@ -188,21 +194,21 @@ int main(int argc, char *argv[])
   data->p[2] = RCONST(3.0e7);
 
   /* Initialize y */
-  yy = N_VNew_Serial(NEQ);
+  yy = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
   Ith(yy,1) = ONE;
   Ith(yy,2) = ZERO;
   Ith(yy,3) = ZERO;
 
   /* Initialize yprime */
-  yp = N_VNew_Serial(NEQ);
+  yp = N_VClone(yy);
   if (check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
   Ith(yp,1) = RCONST(-0.04);
   Ith(yp,2) = RCONST( 0.04);
   Ith(yp,3) = ZERO;
 
   /* Initialize q */
-  q = N_VNew_Serial(1);
+  q = N_VNew_Serial(1, ctx);
   if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
@@ -213,7 +219,7 @@ int main(int argc, char *argv[])
   /* Create and allocate IDAS memory for forward run */
   printf("Create and allocate IDAS memory for forward runs\n");
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if (check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
 
   retval = IDAInit(ida_mem, res, T0, yy, yp);
@@ -226,11 +232,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDASetUserData", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -265,7 +271,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDAAdjInit", 1)) return(1);
 
   /* Perform forward run */
-  printf("Forward integration ... ");
+  printf("Forward integration ...\n");
 
   /* Integrate till TB1 and get the solution (y, y') at that time. */
   retval = IDASolveF(ida_mem, TB1, &time, yy, yp, IDA_NORMAL, &ncheck);
@@ -281,11 +287,6 @@ int main(int argc, char *argv[])
   retval = IDASolveF(ida_mem, TOUT, &time, yy, yp, IDA_NORMAL, &ncheck);
   if (check_retval(&retval, "IDASolveF", 1)) return(1);
 
-  retval = IDAGetNumSteps(ida_mem, &nst);
-  if (check_retval(&retval, "IDAGetNumSteps", 1)) return(1);
-
-  printf("done ( nst = %ld )\n",nst);
-
   retval = IDAGetQuad(ida_mem, &time, q);
   if (check_retval(&retval, "IDAGetQuad", 1)) return(1);
 
@@ -297,7 +298,16 @@ int main(int argc, char *argv[])
 #else
   printf("G:          %12.4e \n",Ith(q,1));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
+
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(ida_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_ASAi_dns_fwd_stats.csv", "w");
+  retval = IDAPrintAllStats(ida_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Test check point linked list
      (uncomment next block to print check point information) */
@@ -326,7 +336,7 @@ int main(int argc, char *argv[])
   /* Create BACKWARD problem. */
 
   /* Allocate yB (i.e. lambda_0). */
-  yB = N_VNew_Serial(NEQ);
+  yB = N_VClone(yy);
   if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
 
   /* Consistently initialize yB. */
@@ -336,7 +346,7 @@ int main(int argc, char *argv[])
 
 
   /* Allocate ypB (i.e. lambda'_0). */
-  ypB = N_VNew_Serial(NEQ);
+  ypB = N_VClone(yy);
   if (check_retval((void *)ypB, "N_VNew_Serial", 0)) return(1);
 
   /* Consistently initialize ypB. */
@@ -355,7 +365,7 @@ int main(int argc, char *argv[])
   abstolQB = ATOLQ;
 
   /* Create and allocate IDAS memory for backward run */
-  printf("Create and allocate IDAS memory for backward run\n");
+  printf("\nCreate and allocate IDAS memory for backward run\n");
 
   retval = IDACreateB(ida_mem, &indexB);
   if (check_retval(&retval, "IDACreateB", 1)) return(1);
@@ -373,11 +383,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDASetMaxNumStepsB", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  AB = SUNDenseMatrix(NEQ, NEQ);
+  AB = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB = SUNLinSol_Dense(yB, AB);
+  LSB = SUNLinSol_Dense(yB, AB, ctx);
   if(check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -391,7 +401,7 @@ int main(int argc, char *argv[])
   /* Quadrature for backward problem. */
 
   /* Initialize qB */
-  qB = N_VNew_Serial(NP);
+  qB = N_VNew_Serial(NP, ctx);
   if (check_retval((void *)qB, "N_VNew", 0)) return(1);
   Ith(qB,1) = ZERO;
   Ith(qB,2) = ZERO;
@@ -409,13 +419,10 @@ int main(int argc, char *argv[])
 
 
   /* Backward Integration */
-  printf("Backward integration ... ");
+  printf("Backward integration ...\n");
 
   retval = IDASolveB(ida_mem, T0, IDA_NORMAL);
   if (check_retval(&retval, "IDASolveB", 1)) return(1);
-
-  IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB), &nstB);
-  printf("done ( nst = %ld )\n", nstB);
 
   retval = IDAGetB(ida_mem, indexB, &time, yB, ypB);
   if (check_retval(&retval, "IDAGetB", 1)) return(1);
@@ -425,9 +432,19 @@ int main(int argc, char *argv[])
 
   PrintOutput(TB2, yB, ypB, qB);
 
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_ASAi_dns_bkw1_stats.csv", "w");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Reinitialize backward phase and start from a different time (TB1). */
-  printf("Re-initialize IDAS memory for backward run\n");
+  printf("\nRe-initialize IDAS memory for backward run\n");
 
   /* Both algebraic part from y and the entire y' are computed by IDACalcIC. */
   Ith(yB,1) = ZERO;
@@ -454,7 +471,7 @@ int main(int argc, char *argv[])
   /* Use IDACalcICB to compute consistent initial conditions
      for this backward problem. */
 
-  id = N_VNew_Serial(NEQ);
+  id = N_VClone(yy);
   Ith(id,1) = 1.0;
   Ith(id,2) = 1.0;
   Ith(id,3) = 0.0;
@@ -470,13 +487,8 @@ int main(int argc, char *argv[])
   retval = IDAGetConsistentICB(ida_mem, indexB, yB, ypB);
   if (check_retval(&retval, "IDAGetConsistentICB", 1)) return(1);
 
-  printf("Backward integration ... ");
-
   retval = IDASolveB(ida_mem, T0, IDA_NORMAL);
   if (check_retval(&retval, "IDASolveB", 1)) return(1);
-
-  IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB), &nstB);
-  printf("done ( nst = %ld )\n", nstB);
 
   retval = IDAGetB(ida_mem, indexB, &time, yB, ypB);
   if (check_retval(&retval, "IDAGetB", 1)) return(1);
@@ -486,9 +498,18 @@ int main(int argc, char *argv[])
 
   PrintOutput(TB1, yB, ypB, qB);
 
-  /* Free any memory used.*/
+  /* Print final statistics to the screen */
+  printf("\nFinal Statistics:\n");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("Free memory\n\n");
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("idasRoberts_ASAi_dns_bkw1_stats.csv", "w");
+  retval = IDAPrintAllStats(IDAGetAdjIDABmem(ida_mem, indexB),
+                            FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
+
+  /* Free any memory used.*/
 
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
@@ -507,6 +528,8 @@ int main(int argc, char *argv[])
 
   if (ckpnt != NULL) free(ckpnt);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 
@@ -742,7 +765,7 @@ static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB)
   printf("lambda(t0): %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #endif
-  printf("--------------------------------------------------------\n\n");
+  printf("--------------------------------------------------------\n");
 }
 
 /*

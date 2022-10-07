@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -51,12 +51,7 @@ typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
  * Exported Functions for SUNLINSOL_BAND
  * -------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNBandLinearSolver(N_Vector y,
-                                                    SUNMatrix A);
-
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Band(SUNLinearSolver S);

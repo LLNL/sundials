@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -136,14 +136,14 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->simMallocDone == SUNFALSE) {
 
-    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ypredictSim == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ycorSim == NULL) {
       N_VDestroy(IDA_mem->ypredictSim);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
@@ -151,7 +151,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ewtSim == NULL) {
       N_VDestroy(IDA_mem->ypredictSim);
       N_VDestroy(IDA_mem->ycorSim);
@@ -173,6 +173,48 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
     NV_VEC_SW(IDA_mem->ycorSim,     is+1) = IDA_mem->ida_eeS[is];
     NV_VEC_SW(IDA_mem->ewtSim,      is+1) = IDA_mem->ida_ewtS[is];
   }
+
+  /* Set the nonlinear system RES function */
+  if (!(IDA_mem->ida_res)) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
+                    "IDASetNonlinearSolverSensSim",
+                    "The DAE residual function is NULL");
+    return(IDA_ILL_INPUT);
+  }
+  IDA_mem->nls_res = IDA_mem->ida_res;
+
+  return(IDA_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  IDAGetNonlinearSystemDataSens:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int IDAGetNonlinearSystemDataSens(void *ida_mem, realtype *tcur,
+                                  N_Vector **yySpred, N_Vector **ypSpred,
+                                  N_Vector **yySn, N_Vector **ypSn,
+                                  realtype *cj, void **user_data)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNonlinearSystemData",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *tcur      = IDA_mem->ida_tn;
+  *yySpred   = IDA_mem->ida_yySpredict;
+  *ypSpred   = IDA_mem->ida_ypSpredict;
+  *yySn      = IDA_mem->ida_yyS;
+  *ypSn      = IDA_mem->ida_ypS;
+  *cj        = IDA_mem->ida_cj;
+  *user_data = IDA_mem->ida_user_data;
 
   return(IDA_SUCCESS);
 }
@@ -324,7 +366,7 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp);
 
   /* evaluate residual */
-  retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
+  retval = IDA_mem->nls_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
                             res, IDA_mem->ida_user_data);
 
   /* increment the number of residual evaluations */

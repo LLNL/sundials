@@ -5,7 +5,7 @@
  * Based on code sundials_direct.h by: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -14,15 +14,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the band implementation of the 
+ * This is the header file for the band implementation of the
  * SUNMATRIX module, SUNMATRIX_BAND.
  *
  * Notes:
  *   - The definition of the generic SUNMatrix structure can be found
  *     in the header file sundials_matrix.h.
  *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type 'booleantype' and 'indextype'.
  * -----------------------------------------------------------------
@@ -41,7 +41,7 @@ extern "C" {
 /* ---------------------------------
  * Band implementation of SUNMatrix
  * --------------------------------- */
-  
+
 struct _SUNMatrixContent_Band {
   sunindextype M;
   sunindextype N;
@@ -56,7 +56,7 @@ struct _SUNMatrixContent_Band {
 
 typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 
-  
+
 /* ------------------------------------
  * Macros for access to SUNMATRIX_BAND
  * ------------------------------------ */
@@ -89,16 +89,17 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 
 
 /* ----------------------------------------
- * Exported  Functions for  SUNMATRIX_BAND
+ * Exported  Functions for SUNMATRIX_BAND
  * ---------------------------------------- */
 
 SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
-                                        sunindextype ml);
+                                        sunindextype ml, SUNContext sunctx);
 
 SUNDIALS_EXPORT SUNMatrix SUNBandMatrixStorage(sunindextype N,
                                                sunindextype mu,
                                                sunindextype ml,
-                                               sunindextype smu);
+                                               sunindextype smu,
+                                               SUNContext sunctx);
 
 SUNDIALS_EXPORT void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);
 
@@ -121,7 +122,7 @@ SUNDIALS_EXPORT int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Band(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw);
-  
+
 #ifdef __cplusplus
 }
 #endif

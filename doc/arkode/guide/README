@@ -1,7 +1,7 @@
-ARKode User Guide
+ARKODE User Guide
 =================
 
-In this directory and below is the ARKode User Guide. The files are written
+In this directory and below is the ARKODE User Guide. The files are written
 using the ReST [1] formatting, which is parsed into final formats using the
 Sphinx formatting engine [2].
 
@@ -9,7 +9,7 @@ Here are some benefits of using ReST + Sphinx:
 
 - ReST is very readable in its raw form. It has minimal mark-up
   and is in plain text.
-- Since the document sources are included in the ARKode source code,
+- Since the document sources are included in the ARKODE source code,
   all the documents may therefore be rebuilt and accessed even without
   the internet.
 - Sphinx can parse the documents into many convenient formats, most

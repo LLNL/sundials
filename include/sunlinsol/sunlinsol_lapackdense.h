@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -25,24 +25,12 @@
 #define _SUNLINSOL_LAPDENSE_H
 
 #include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_lapack.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-/* Interfaces to match 'realtype' with the correct LAPACK functions */
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define xgetrf_f77    dgetrf_f77
-#define xgetrs_f77    dgetrs_f77
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define xgetrf_f77    sgetrf_f77
-#define xgetrs_f77    sgetrs_f77
-#else
-#error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
 #endif
 
 /* -----------------------------------------------
@@ -63,11 +51,8 @@ typedef struct _SUNLinearSolverContent_LapackDense *SUNLinearSolverContent_Lapac
  * --------------------------------------------- */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackDense(N_Vector y,
-                                                      SUNMatrix A);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A);
-
+                                                      SUNMatrix A,
+                                                      SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackDense(SUNLinearSolver S);

@@ -190,11 +190,13 @@
 
 #include "sundials/sundials_matrix.h"
 
-SWIGEXPORT SUNMatrix _wrap_FSUNMatNewEmpty() {
+SWIGEXPORT SUNMatrix _wrap_FSUNMatNewEmpty(void *farg1) {
   SUNMatrix fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   SUNMatrix result;
   
-  result = (SUNMatrix)SUNMatNewEmpty();
+  arg1 = (SUNContext)(farg1);
+  result = (SUNMatrix)SUNMatNewEmpty(arg1);
   fresult = result;
   return fresult;
 }

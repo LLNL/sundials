@@ -7,7 +7,7 @@
  *                   @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -89,18 +89,12 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads);
+SUNDIALS_EXPORT N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads, SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads, SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data,
-                                        int num_threads);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count);
+                                        int num_threads, SUNContext sunctx);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
 
@@ -175,6 +169,10 @@ SUNDIALS_EXPORT realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w,
                                                     N_Vector id);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_OpenMP(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_OpenMP(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_OpenMP(N_Vector x, void *buf);
 
 /*
  * -----------------------------------------------------------------
@@ -195,6 +193,22 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype 
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf);
+
+/*
+ * -----------------------------------------------------------------
+ * Deprecated functions
+ * -----------------------------------------------------------------
+ */
+
+/* use N_VCloneVectorArray */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w);
+
+/* use N_VCloneVectorArrayEmpty */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
+
+/* use N_VDestroyVectorArray */
+SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count);
+
 
 #ifdef __cplusplus
 }

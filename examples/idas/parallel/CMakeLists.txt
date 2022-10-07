@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasBruss_ASAp_kry_bbd_p\;\;1\;4\;develop"
-  "idasBruss_FSA_kry_bbd_p\;\;1\;4\;develop"
-  "idasBruss_kry_bbd_p\;\;1\;4\;develop"
-  "idasFoodWeb_kry_bbd_p\;\;1\;4\;develop"
-  "idasFoodWeb_kry_p\;\;1\;4\;develop"
-  "idasHeat2D_FSA_kry_bbd_p\;-sensi stg t\;1\;4\;develop"
-  "idasHeat2D_kry_bbd_p\;\;1\;4\;develop"
-  "idasHeat2D_kry_p\;\;1\;4\;develop"
+  "idasBruss_ASAp_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasBruss_FSA_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasBruss_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_p\;\;1\;4\;exclude-single"
+  "idasHeat2D_FSA_kry_bbd_p\;-sensi stg t\;1\;4\;exclude-single"
+  "idasHeat2D_kry_bbd_p\;\;1\;4\;exclude-single"
+  "idasHeat2D_kry_p\;\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -37,18 +37,12 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDAS_LIB sundials_idas_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(IDAS_LIB sundials_idas_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(IDAS_LIB sundials_idas)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
@@ -151,9 +145,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(idas parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

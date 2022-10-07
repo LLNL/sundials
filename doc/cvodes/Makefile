@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -11,33 +11,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Makefile for CVODES documentation
+# Makefile for CVODES examples documentation
 # -----------------------------------------------------------------
 
-USER_GUIDE = cvs_guide
 EXAMPLES   = cvs_examples
-
-# names of guide files
-UG_FILES = \
-${USER_GUIDE}.tex \
-cvs_intro.tex \
-cvs_math.tex \
-cvs_org.tex \
-cvs_sim.tex \
-cvs_fwd.tex \
-cvs_adj.tex \
-cvs_fcmix.tex \
-cvs_nvec.tex \
-cvs_newlinsolv.tex \
-cvs_sunlinsol.tex \
-cvs_sunnonlinsol.tex \
-cvs_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \
 cvs_ex_intro.tex \
 cvs_ex_fwd.tex \
 cvs_ex_adj.tex \
-cvs_ex_tests.tex   
+cvs_ex_tests.tex
 
 include ../Makefile.in

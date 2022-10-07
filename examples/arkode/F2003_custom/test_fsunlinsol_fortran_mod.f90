@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -72,13 +72,15 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fsunlinsol_test_mod
 
   !======= Declarations =========
   implicit none
 
   ! local variables
-  integer(c_int)                   :: fails, retval, i, j, k
+  type(c_ptr)                      :: sunctx
+  integer(c_int)                   :: fails, retval, j, k
   integer(c_long),       parameter :: N = 1000
   integer(c_long),       parameter :: Nvar = 50
   type(SUNMatrix),       pointer   :: sA
@@ -94,28 +96,31 @@ program main
   ! initialize failure total
   fails = 0
 
+   ! create SUNDIALS context
+  fails = FSUNContext_Create(c_null_ptr, sunctx)
+
   ! create new matrices and vectors
-  sX => FN_VNew_Fortran(Nvar, N)
+  sX => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sX)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   X => FN_VGetFVec(sX)
 
-  sY => FN_VNew_Fortran(Nvar, N)
+  sY => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sY)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sB => FN_VNew_Fortran(Nvar, N)
+  sB => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sB)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   B => FN_VGetFVec(sB)
 
-  sA => FSUNMatNew_Fortran(Nvar, N)
+  sA => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sA)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
@@ -128,11 +133,10 @@ program main
   call random_number(A%data)
 
   ! update A to scale by 1/Nvar, and 1 to anti-diagonal of each diagonal block
-  i = 0
   do k = 1,N
      A%data(:,:,k) = A%data(:,:,k)/Nvar
      do j = 1,Nvar
-        A%data(Nvar-j+1,j,k) = A%data(Nvar-i+1,j,k) + 1.d0
+        A%data(Nvar-j+1,j,k) = A%data(Nvar-j+1,j,k) + 1.d0
      end do
   end do
 
@@ -144,7 +148,7 @@ program main
   end if
 
   ! create custom linear solver
-  LS => FSUNLinSolNew_Fortran(Nvar, N)
+  LS => FSUNLinSolNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
@@ -192,6 +196,9 @@ program main
   else
      print *, 'PASSED test -- FSUNLinSolFree'
   end if
+
+  ! free SUNDIALS context
+  retval = FSUNContext_Free(sunctx)
 
   ! print results
   if (fails > 0) then

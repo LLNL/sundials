@@ -2,7 +2,7 @@
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -81,9 +81,14 @@ int main(void)
   int retval, iout;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   A = NULL;
   LS = NULL;
+
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* User data */
 
@@ -99,9 +104,9 @@ int main(void)
   data->F = 1.0;   /* external constant force */
 
   /* Create N_Vectors */
-  yy = N_VNew_Serial(NEQ);
-  yp = N_VNew_Serial(NEQ);
-  id = N_VNew_Serial(NEQ);
+  yy = N_VNew_Serial(NEQ, ctx);
+  yp = N_VClone(yy);
+  id = N_VClone(yy);
 
   /* Consistent IC */
   setIC(yy, yp, data);
@@ -123,7 +128,7 @@ int main(void)
   dt = (tf-t0)/(NOUT-1);
 
   /* IDA initialization */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   retval = IDAInit(mem, ressc, t0, yy, yp);
   retval = IDASStolerances(mem, rtol, atol);
   retval = IDASetUserData(mem, data);
@@ -131,11 +136,11 @@ int main(void)
   retval = IDASetSuppressAlg(mem, SUNTRUE);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -169,6 +174,7 @@ int main(void)
   N_VDestroy(yy);
   N_VDestroy(yp);
   N_VDestroy(id);
+  SUNContext_Free(&ctx);
 
   return(0);
 
@@ -359,14 +365,15 @@ static int PrintOutput(void *mem, realtype t, N_Vector y)
 static int PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn;
+  long int nst, nni, nnf, nje, nre, nreLS, netf, ncfn;
 
   retval = IDAGetNumSteps(mem, &nst);
   retval = IDAGetNumResEvals(mem, &nre);
   retval = IDAGetNumJacEvals(mem, &nje);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   retval = IDAGetNumErrTestFails(mem, &netf);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
   retval = IDAGetNumLinResEvals(mem, &nreLS);
 
   printf("\nFinal Run Statistics: \n\n");
@@ -375,7 +382,8 @@ static int PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
 
   return(retval);
 }

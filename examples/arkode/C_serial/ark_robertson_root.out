@@ -28,5 +28,6 @@ Final Solver Statistics:
    Total number of Jacobian evaluations = 66
    Total number of Newton iterations = 29962
    Total root-function g evals = 1104
-   Total number of nonlinear solver convergence failures = 15
+   Total number of nonlinear solver convergence failures = 55
    Total number of error test failures = 213
+   Total number of failed steps from solver failure = 15

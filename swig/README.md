@@ -4,7 +4,7 @@ SUNDIALS SWIG-Fortran
 The SUNDIALS SWIG-Fortran code is used to generate Fortran 2003 bindings
 to the SUNDIALS C API in order to provide a scalable and sustainable
 Fortran 2003 interface to SUNDIALS. The intent is to closely mimic the
-C API while providing an idiomatic Fortran interface. 
+C API while providing an idiomatic Fortran interface.
 
 ## Getting SWIG-Fortran
 
@@ -12,10 +12,10 @@ We use the SWIG-Fortran fork of SWIG created by Seth R. Johnson @ ORNL.
 The repository is maintained on [GitHub](https://github.com/swig-fortran/swig).
 The last known working commit SHA is 539be6884f327c9fd72052771f074d6cfa4e65b5.
 We maintain [a fork of SWIG-Fortran](https://github.com/sundials-codes/swig)
-that is held at the last working commit. So if the the latest swig obtained
-from the actual SWIG-Fortran repository doesn't work and the fixes required
-to make it work are non-trivial, you can clone our fork or checkout the last
-known working commit.
+that is held at the last working commit and includes any of our own bug fixes.
+So if the the latest swig obtained from the actual SWIG-Fortran repository
+doesn't work and the fixes required to make it work are non-trivial, you can
+clone our fork.
 
 To build SWIG-Fortran (and optionally install it on your system), first complete
 the following commands:
@@ -29,11 +29,11 @@ $ ./configure --prefix=/my/install/location
 
 At this point you should check and make sure that autoconf will in fact build
 the Fortran generator. The final line of the configure output should say
-something like: 
+something like:
 
 ```bash
 The SWIG test-suite and examples are configured for the following languages:
-fortran 
+fortran
 ```
 
 If it does not report back fortran. Try rerunning configure like so:
@@ -51,7 +51,7 @@ $ make install # optional
 
 ## How to regenerate the interfaces
 
-To regenerate the interfaces that have already been created. Simply run 
+To regenerate the interfaces that have already been created. Simply run
 `make` from the `sunrepo/swig` directory. **This will replace all the
 generated files in `sunrepo/src`.**
 
@@ -60,7 +60,7 @@ generated files in `sunrepo/src`.**
 
 To create an interface to a new SUNDIALS module or package, the easiest thing
 to do is copy one of the existing `.i` files for a module that is similar.
-Then add the file to the appropriate section of the Makefile. 
+Then add the file to the appropriate section of the Makefile.
 
 It may be useful to first read the "SUNDIALS Fortran 2003 interface" section
 of the  user guide before trying to develop new interfaces.

@@ -6,7 +6,7 @@
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -33,33 +33,58 @@
 
 /*
  * -----------------------------------------------------
- * Functions working on DlsMat
+ * Functions working on SUNDlsMat
  * -----------------------------------------------------
  */
 
-sunindextype BandGBTRF(DlsMat A, sunindextype *p)
+sunindextype SUNDlsMat_BandGBTRF(SUNDlsMat A, sunindextype* p)
 {
-  return(bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
+  return(SUNDlsMat_bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-void BandGBTRS(DlsMat A, sunindextype *p, realtype *b)
+sunindextype BandGBTRF(SUNDlsMat A, sunindextype *p)
 {
-  bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
+  return(SUNDlsMat_bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-void BandCopy(DlsMat A, DlsMat B, sunindextype copymu, sunindextype copyml)
+void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype *p, realtype *b)
 {
-  bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
+  SUNDlsMat_bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandScale(realtype c, DlsMat A)
+void BandGBTRS(SUNDlsMat A, sunindextype *p, realtype *b)
 {
-  bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
+  SUNDlsMat_bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandMatvec(DlsMat A, realtype *x, realtype *y)
+void SUNDlsMat_BandCopy(SUNDlsMat A, SUNDlsMat B, sunindextype copymu, sunindextype copyml)
 {
-  bandMatvec(A->cols, x, y, A->M, A->mu, A->ml, A->s_mu);
+  SUNDlsMat_bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
+}
+
+void BandCopy(SUNDlsMat A, SUNDlsMat B, sunindextype copymu, sunindextype copyml)
+{
+  SUNDlsMat_bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
+}
+
+void SUNDlsMat_BandScale(realtype c, SUNDlsMat A)
+{
+  SUNDlsMat_bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
+}
+
+void BandScale(realtype c, SUNDlsMat A)
+{
+  SUNDlsMat_bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
+}
+
+void SUNDlsMat_BandMatvec(SUNDlsMat A, realtype *x, realtype *y)
+{
+  SUNDlsMat_bandMatvec(A->cols, x, y, A->M, A->mu, A->ml, A->s_mu);
+}
+
+void BandMatvec(SUNDlsMat A, realtype *x, realtype *y)
+{
+  SUNDlsMat_bandMatvec(A->cols, x, y, A->M, A->mu, A->ml, A->s_mu);
 }
 
 /*
@@ -69,6 +94,11 @@ void BandMatvec(DlsMat A, realtype *x, realtype *y)
  */
 
 sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
+{
+  return(SUNDlsMat_bandGBTRF(a, n, mu, ml, smu, p));
+}
+
+sunindextype SUNDlsMat_bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
 {
   sunindextype c, r, num_rows;
   sunindextype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
@@ -83,7 +113,7 @@ sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindexty
     for (c=0; c < n; c++) {
       a_c = a[c];
       for (r=0; r < num_rows; r++) {
-	a_c[r] = ZERO;
+        a_c[r] = ZERO;
       }
     }
   }
@@ -91,7 +121,7 @@ sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindexty
   /* k = elimination step number */
 
   for (k=0; k < n-1; k++, p++) {
-    
+
     col_k     = a[k];
     diag_k    = col_k + smu;
     sub_diag_k = diag_k + 1;
@@ -101,21 +131,21 @@ sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindexty
 
     l=k;
     max = SUNRabs(*diag_k);
-    for (i=k+1, kptr=sub_diag_k; i <= last_row_k; i++, kptr++) { 
+    for (i=k+1, kptr=sub_diag_k; i <= last_row_k; i++, kptr++) {
       if (SUNRabs(*kptr) > max) {
-	l=i;
-	max = SUNRabs(*kptr);
+        l=i;
+        max = SUNRabs(*kptr);
       }
     }
     storage_l = ROW(l, k, smu);
     *p = l;
-    
+
     /* check for zero pivot element */
 
     if (col_k[storage_l] == ZERO) return(k+1);
-    
+
     /* swap a(l,k) and a(k,k) if necessary */
-    
+
     if ( (swap = (l != k) )) {
       temp = col_k[storage_l];
       col_k[storage_l] = *diag_k;
@@ -127,7 +157,7 @@ sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindexty
     /* a(k,k) holds the pivot element. This scaling     */
     /* stores the pivot row multipliers -a(i,k)/a(k,k)  */
     /* in a(i,k), i=k+1, ..., SUNMIN(n-1,k+ml).            */
-    
+
     mult = -ONE / (*diag_k);
     for (i=k+1, kptr = sub_diag_k; i <= last_row_k; i++, kptr++)
       (*kptr) *= mult;
@@ -136,37 +166,37 @@ sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindexty
     /* row k is the pivot row after swapping with row l.                */
     /* The computation is done one column at a time,                    */
     /* column j=k+1, ..., SUNMIN(k+smu,n-1).                               */
-    
+
     last_col_k = SUNMIN(k+smu,n-1);
     for (j=k+1; j <= last_col_k; j++) {
-      
+
       col_j = a[j];
-      storage_l = ROW(l,j,smu); 
-      storage_k = ROW(k,j,smu); 
+      storage_l = ROW(l,j,smu);
+      storage_k = ROW(k,j,smu);
       a_kj = col_j[storage_l];
 
       /* Swap the elements a(k,j) and a(k,l) if l!=k. */
-      
+
       if (swap) {
-	col_j[storage_l] = col_j[storage_k];
-	col_j[storage_k] = a_kj;
+        col_j[storage_l] = col_j[storage_k];
+        col_j[storage_k] = a_kj;
       }
 
       /* a(i,j) = a(i,j) - [a(i,k)/a(k,k)]*a(k,j) */
       /* a_kj = a(k,j), *kptr = - a(i,k)/a(k,k), *jptr = a(i,j) */
 
       if (a_kj != ZERO) {
-	for (i=k+1, kptr=sub_diag_k, jptr=col_j+ROW(k+1,j,smu);
-	     i <= last_row_k;
-	     i++, kptr++, jptr++)
-	  (*jptr) += a_kj * (*kptr);
+        for (i=k+1, kptr=sub_diag_k, jptr=col_j+ROW(k+1,j,smu);
+             i <= last_row_k;
+             i++, kptr++, jptr++)
+          (*jptr) += a_kj * (*kptr);
       }
-    }    
+    }
   }
-  
+
   /* set the last pivot row to be n-1 and check for a zero pivot */
 
-  *p = n-1; 
+  *p = n-1;
   if (a[n-1][smu] == ZERO) return(n);
 
   /* return 0 to indicate success */
@@ -174,13 +204,19 @@ sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindexty
   return(0);
 }
 
-void bandGBTRS(realtype **a, sunindextype n, sunindextype smu, sunindextype ml, sunindextype *p, realtype *b)
+void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
+               sunindextype ml, sunindextype *p, realtype *b)
+{
+  SUNDlsMat_bandGBTRS(a, n, smu, ml, p, b);
+}
+
+void SUNDlsMat_bandGBTRS(realtype **a, sunindextype n, sunindextype smu, sunindextype ml, sunindextype *p, realtype *b)
 {
   sunindextype k, l, i, first_row_k, last_row_k;
   realtype mult, *diag_k;
-  
+
   /* Solve Ly = Pb, store solution y in b */
-  
+
   for (k=0; k < n-1; k++) {
     l = p[k];
     mult = b[l];
@@ -193,9 +229,9 @@ void bandGBTRS(realtype **a, sunindextype n, sunindextype smu, sunindextype ml, 
     for (i=k+1; i <= last_row_k; i++)
       b[i] += mult * diag_k[i-k];
   }
-  
+
   /* Solve Ux = y, store solution x in b */
-  
+
   for (k=n-1; k >= 0; k--) {
     diag_k = a[k]+smu;
     first_row_k = SUNMAX(0,k-smu);
@@ -206,14 +242,20 @@ void bandGBTRS(realtype **a, sunindextype n, sunindextype smu, sunindextype ml, 
   }
 }
 
-void bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu, 
+void bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu,
               sunindextype copymu, sunindextype copyml)
+{
+  SUNDlsMat_bandCopy(a, b, n, a_smu, b_smu, copymu, copyml);
+}
+
+void SUNDlsMat_bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu,
+                        sunindextype copymu, sunindextype copyml)
 {
   sunindextype i, j, copySize;
   realtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
- 
+
   for (j=0; j < n; j++) {
     a_col_j = a[j]+a_smu-copymu;
     b_col_j = b[j]+b_smu-copymu;
@@ -223,6 +265,11 @@ void bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, su
 }
 
 void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
+{
+  SUNDlsMat_bandScale(c, a, n, mu, ml, smu);
+}
+
+void SUNDlsMat_bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
 {
   sunindextype i, j, colSize;
   realtype *col_j;
@@ -238,14 +285,25 @@ void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunind
 
 void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu)
 {
+  SUNDlsMat_bandAddIdentity(a, n, smu);
+}
+
+void SUNDlsMat_bandAddIdentity(realtype **a, sunindextype n, sunindextype smu)
+{
   sunindextype j;
- 
+
   for(j=0; j < n; j++)
     a[j][smu] += ONE;
 }
 
-void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n, 
-		sunindextype mu, sunindextype ml, sunindextype smu)
+void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n,
+                sunindextype mu, sunindextype ml, sunindextype smu)
+{
+  SUNDlsMat_bandMatvec(a, x, y, n, mu, ml,  smu);
+}
+
+void SUNDlsMat_bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n,
+                          sunindextype mu, sunindextype ml, sunindextype smu)
 {
   sunindextype i, j, is, ie;
   realtype *col_j;

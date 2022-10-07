@@ -6,7 +6,7 @@
  *                   Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -30,7 +30,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX*MY.
  * This program solves the problem with the BDF method, Newton
- * iteration with the CVBAND band linear solver, and a user-supplied
+ * iteration with the GMRES linear solver, and a user-supplied
  * Jacobian routine.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
@@ -194,12 +194,19 @@ int main(int argc, char** argv)
   cvode_mem = NULL;
 
   /* optional: create a cudaStream to use with the CUDA NVector
-     (otherwise the default stream is used) */
+     (otherwise the default stream is used) and creating kernel
+     execution policies */
   cuerr = cudaStreamCreate(&stream);
   if (cuerr != cudaSuccess) {
     printf("Error in cudaStreamCreate(): %s\n", cudaGetErrorString(cuerr));
-    return(1); 
+    return(1);
   }
+
+  /* Create the SUNDIALS context */
+  sundials::Context sunctx;
+
+  SUNCudaThreadDirectExecPolicy stream_exec_policy(256, stream);
+  SUNCudaBlockReduceExecPolicy reduce_exec_policy(256, 0, stream);
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
@@ -209,17 +216,18 @@ int main(int argc, char** argv)
   abstol = ATOL;
 
   /* Create a CUDA vector with initial values */
-  u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
+  u = N_VNew_Cuda(data->NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
 
   /* Use a non-default cuda stream for kernel execution */
-  N_VSetCudaStream_Cuda(u, &stream);
+  retval = N_VSetKernelExecPolicy_Cuda(u, &stream_exec_policy, &reduce_exec_policy);
+  if(check_retval(&retval, "N_VSetKernelExecPolicy_Cuda", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -239,7 +247,7 @@ int main(int argc, char** argv)
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
   /* Set CVode linear solver to LS */
@@ -269,7 +277,7 @@ int main(int argc, char** argv)
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
-  
+
   cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */
   if(cuerr != cudaSuccess) { printf("Error: cudaStreamDestroy() failed\n"); return(1); }
 

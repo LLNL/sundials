@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -37,23 +37,24 @@ int main(int argc, char *argv[])
   N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
   int          print_timing;      /* turn timing on/off        */
 
+  Test_Init(NULL);
 
   /* check input and set vector length */
   if (argc < 4){
     printf("ERROR: THREE (3) Inputs required: subvector 1 length, subvector 2 length, print timing \n");
-    return(-1);
+    Test_Abort(1);
   }
 
   len1 = (sunindextype) atol(argv[1]);
   if (len1 <= 0) {
     printf("ERROR: length of subvector 1 must be a positive integer \n");
-    return(-1);
+    Test_Abort(1);
   }
 
   len2 = (sunindextype) atol(argv[2]);
   if (len2 <= 0) {
     printf("ERROR: length of subvector 2 must be a positive integer \n");
-    return(-1);
+    Test_Abort(1);
   }
 
   print_timing = atoi(argv[3]);
@@ -66,20 +67,20 @@ int main(int argc, char *argv[])
   printf("Vector lengths: %ld %ld \n", (long int) len1, (long int) len2);
 
   /* Create subvectors */
-  Xsub[0] = N_VNew_Serial(len1);
+  Xsub[0] = N_VNew_Serial(len1, sunctx);
   if (Xsub[0] == NULL) {
     printf("FAIL: Unable to create a new serial subvector \n\n");
-    return(1);
+    Test_Abort(1);
   }
-  Xsub[1] = N_VNew_Serial(len2);
+  Xsub[1] = N_VNew_Serial(len2, sunctx);
   if (Xsub[1] == NULL) {
     N_VDestroy(Xsub[0]);
     printf("FAIL: Unable to create a new serial subvector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* Create a new ManyVector */
-  X = N_VNew_ManyVector(2, Xsub);
+  X = N_VNew_ManyVector(2, Xsub, sunctx);
 
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_MANYVECTOR, 0);
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
   if (W == NULL) {
     N_VDestroy(X);
     printf("FAIL: Unable to create a new vector\n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   Y = N_VClone(X);
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
     N_VDestroy(W);
     N_VDestroy(X);
     printf("FAIL: Unable to create a new vector\n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   Z = N_VClone(X);
@@ -128,7 +129,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Y);
     printf("FAIL: Unable to create a new vector\n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* Standard vector operation tests */
@@ -166,7 +167,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     N_VDestroy(Z);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* fused operations */
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(U);
     printf("FAIL: Unable to create a new vector \n\n");
-    return(1);
+    Test_Abort(1);
   }
 
   /* fused operations */
@@ -226,6 +227,17 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
   fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
+  /* local fused reduction operations */
+  printf("\nTesting local fused reduction operations:\n\n");
+  fails += Test_N_VDotProdMultiLocal(V, length, 0);
+
+  /* XBraid interface operations */
+  printf("\nTesting XBraid interface operations:\n\n");
+
+  fails += Test_N_VBufSize(X, length, 0);
+  fails += Test_N_VBufPack(X, length, 0);
+  fails += Test_N_VBufUnpack(X, length, 0);
+
   /* Free vectors */
   N_VDestroy(W);
   N_VDestroy(X);
@@ -243,6 +255,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
+  Test_Finalize();
   return(fails);
 }
 
@@ -269,8 +282,8 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
     return(1);
 
   /* check vector data */
-  for (i=0; i<x0len; i++)  failure += FNEQ(x0[i], ans);
-  for (i=0; i<x1len; i++)  failure += FNEQ(x1[i], ans);
+  for (i=0; i<x0len; i++)  failure += SUNRCompare(x0[i], ans);
+  for (i=0; i<x1len; i++)  failure += SUNRCompare(x1[i], ans);
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -335,7 +348,7 @@ double max_time(N_Vector X, double time)
   return(time);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* not running on GPU, just return */
   return;

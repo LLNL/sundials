@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -146,14 +146,14 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->simMallocDone == SUNFALSE) {
 
-    cv_mem->zn0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    cv_mem->zn0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx);
     if (cv_mem->zn0Sim == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensSim", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx);
     if (cv_mem->ycorSim == NULL) {
       N_VDestroy(cv_mem->zn0Sim);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
@@ -161,7 +161,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx);
     if (cv_mem->ewtSim == NULL) {
       N_VDestroy(cv_mem->zn0Sim);
       N_VDestroy(cv_mem->ycorSim);
@@ -186,6 +186,48 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* Reset the acnrmcur flag to SUNFALSE */
   cv_mem->cv_acnrmcur = SUNFALSE;
+
+  /* Set the nonlinear system RHS function */
+  if (!(cv_mem->cv_f)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
+                   "CVodeSetNonlinearSolverSensSim",
+                   "The ODE RHS function is NULL");
+    return(CV_ILL_INPUT);
+  }
+  cv_mem->nls_f = cv_mem->cv_f;
+
+  return(CV_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  CVodeGetNonlinearSystemDataSens:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int CVodeGetNonlinearSystemDataSens(void *cvode_mem, realtype *tcur,
+                                    N_Vector **ySpred, N_Vector **ySn,
+                                    realtype *gamma, realtype *rl1,
+                                    N_Vector **znS1, void **user_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetNonlinearSystemDataSens", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *tcur      = cv_mem->cv_tn;
+  *ySpred    = cv_mem->cv_znS[0];
+  *ySn       = cv_mem->cv_yS;
+  *gamma     = cv_mem->cv_gamma;
+  *rl1       = cv_mem->cv_rl1;
+  *znS1      = cv_mem->cv_znS[1];
+  *user_data = cv_mem->cv_user_data;
 
   return(CV_SUCCESS);
 }
@@ -418,8 +460,8 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -482,8 +524,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, res,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);

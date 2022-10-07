@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -12,21 +12,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Implementation header file for ARKode's MRI time stepper module.
+ * Implementation header file for ARKODE's MRI time stepper module.
  * ---------------------------------------------------------------------------*/
 
 #ifndef _ARKODE_MRISTEP_IMPL_H
 #define _ARKODE_MRISTEP_IMPL_H
 
+/* Public header file */
 #include "arkode/arkode_mristep.h"
-#include "arkode/arkode_arkstep.h"
 
+/* Private header files */
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
-#include "arkode_arkstep_impl.h"   /* need to improve API for user-supplied
-                                      inner stepper, so that direct access to
-                                      arkStep_SetInnerForcing and arkStep_FullRHS
-                                      are no longer needed, then remove this line */
+#include "arkode_mri_tables_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -48,21 +46,6 @@ extern "C" {
 #define MSBP      20             /* max no. of steps between lsetup calls */
 #define NLSCOEF   RCONST(0.1)
 
-
-/*===============================================================
-  MRI function types
-  ===============================================================*/
-
-typedef int (*MRIStepSetInnerForcingFn)(void* inner_arkode_mem, realtype tshift,
-                                        realtype tscale, N_Vector *f,
-                                        int nvecs);
-
-typedef int (*MRIStepInnerEvolveFn)(void* inner_arkode_mem, realtype t0,
-                                    N_Vector y0, realtype tout);
-
-typedef int (*MRIStepInnerResetFn)(void* inner_arkode_mem, realtype tR,
-                                   N_Vector yR);
-
 /*===============================================================
   MRI time step module data structure
   ===============================================================*/
@@ -75,19 +58,28 @@ typedef int (*MRIStepInnerResetFn)(void* inner_arkode_mem, realtype tR,
 typedef struct ARKodeMRIStepMemRec {
 
   /* MRI problem specification */
-  ARKRhsFn     fs;               /* y' = fs(t,y) + ff(t,y)         */
-  booleantype  linear;           /* SUNTRUE if fs is linear        */
-  booleantype  linear_timedep;   /* SUNTRUE if dfs/dy depends on t */
-  booleantype  implicit;         /* SUNTRUE if fs is implicit      */
+  ARKRhsFn     fse;              /* y' = fse(t,y) + fsi(t,y) + ff(t,y) */
+  ARKRhsFn     fsi;
+  booleantype  linear;           /* SUNTRUE if fi is linear        */
+  booleantype  linear_timedep;   /* SUNTRUE if dfi/dy depends on t */
+  booleantype  explicit_rhs;     /* SUNTRUE if fse is provided     */
+  booleantype  implicit_rhs;     /* SUNTRUE if fsi is provided     */
+  booleantype  deduce_rhs;       /* SUNTRUE if fi is deduced after
+                                    a nonlinear solve              */
 
   /* Outer RK method storage and parameters */
-  N_Vector *F;                   /* slow RHS at each stage */
-  int q;                         /* method order           */
-  int p;                         /* embedding order        */
-  int stages;                    /* number of stages       */
-  MRIStepCoupling MRIC;          /* slow->fast coupling    */
-  int *stagetypes;               /* type flags for stages  */
-  realtype *rkcoeffs;            /* equivalent RK coeffs   */
+  N_Vector *Fse;                 /* explicit RHS at each stage               */
+  N_Vector *Fsi;                 /* implicit RHS at each stage               */
+  MRIStepCoupling MRIC;          /* slow->fast coupling table                */
+  int q;                         /* method order                             */
+  int p;                         /* embedding order                          */
+  int stages;                    /* total number of stages                   */
+  int nstages_active;            /* number of active stage RHS vectors       */
+  int nstages_allocated;         /* number of stage RHS vectors allocated    */
+  int *stage_map;                /* index map for storing stage RHS vectors  */
+  int *stagetypes;               /* type flags for stages                    */
+  realtype *Ae_row;              /* equivalent explicit RK coeffs            */
+  realtype *Ai_row;              /* equivalent implicit RK coeffs            */
 
   /* Algebraic solver data and parameters */
   N_Vector           sdata;      /* old stage data in residual               */
@@ -96,6 +88,7 @@ typedef struct ARKodeMRIStepMemRec {
   int                istage;     /* current stage index                      */
   SUNNonlinearSolver NLS;        /* generic SUNNonlinearSolver object        */
   booleantype        ownNLS;     /* flag indicating ownership of NLS         */
+  ARKRhsFn           nls_fsi;    /* fsi(t,y) used in the nonlinear solver    */
   realtype           gamma;      /* gamma = h * A(i,i)                       */
   realtype           gammap;     /* gamma at the last setup call             */
   realtype           gamrat;     /* gamma / gammap                           */
@@ -126,27 +119,20 @@ typedef struct ARKodeMRIStepMemRec {
   ARKLinsolFreeFn    lfree;
   void              *lmem;
 
-  /* Inner stepper data */
-  void              *inner_mem;         /* inner stepper memory            */
-  N_Vector          *inner_forcing;     /* RHS forcing vectors             */
-  int                inner_num_forcing; /* number of RHS forcing vectors   */
-  int                inner_retval;      /* last inner stepper return value */
-  MRISTEP_ID         inner_stepper_id;  /* inner stepper identifier        */
-
-  /* Inner-stepper-supplied functions */
-  MRIStepSetInnerForcingFn inner_setforcing; /* set inner forcing data  */
-  MRIStepInnerEvolveFn     inner_evolve;     /* inner evolve function   */
-  ARKTimestepFullRHSFn     inner_fullrhs;    /* inner full RHS function */
-  MRIStepInnerResetFn      inner_reset;      /* inner reset function    */
+  /* Inner stepper */
+  MRIStepInnerStepper stepper;
 
   /* User-supplied pre and post inner evolve functions */
   MRIStepPreInnerFn  pre_inner_evolve;
   MRIStepPostInnerFn post_inner_evolve;
 
   /* Counters */
-  long int nfs;       /* num fs calls                  */
-  long int nsetups;   /* num linear solver setup calls */
-  long int nls_iters; /* num nonlinear solver iters    */
+  long int nfse;          /* num fse calls                    */
+  long int nfsi;          /* num fsi calls                    */
+  long int nsetups;       /* num linear solver setup calls    */
+  long int nls_iters;     /* num nonlinear solver iters       */
+  long int nls_fails;     /* num nonlinear solver fails       */
+  int      nfusedopvecs;  /* length of cvals and Xvecs arrays */
 
   /* Reusable arrays for fused vector operations */
   realtype* cvals;
@@ -156,15 +142,58 @@ typedef struct ARKodeMRIStepMemRec {
 
 
 /*===============================================================
+  MRI innter time stepper data structure
+  ===============================================================*/
+
+typedef struct _MRIStepInnerStepper_Ops *MRIStepInnerStepper_Ops;
+
+struct _MRIStepInnerStepper_Ops
+{
+  MRIStepInnerEvolveFn  evolve;
+  MRIStepInnerFullRhsFn fullrhs;
+  MRIStepInnerResetFn   reset;
+};
+
+struct _MRIStepInnerStepper
+{
+  /* stepper specific content and operations */
+  void*                   content;
+  MRIStepInnerStepper_Ops ops;
+
+  /* stepper context */
+  SUNContext  sunctx;
+
+  /* base class data */
+  N_Vector*  forcing;             /* array of forcing vectors            */
+  int        nforcing;            /* number of forcing vectors active    */
+  int        nforcing_allocated;  /* number of forcing vectors allocated */
+  int        last_flag;           /* last stepper return flag            */
+  realtype   tshift;              /* time normalization shift            */
+  realtype   tscale;              /* time normalization scaling          */
+
+  /* fused op workspace */
+  realtype* vals;
+  N_Vector* vecs;
+
+  /* Space requirements */
+  sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */
+  sunindextype liw1;        /* no. of integer words in 1 N_Vector           */
+  long int lrw;             /* no. of realtype words in ARKODE work vectors */
+  long int liw;             /* no. of integer words in ARKODE work vectors  */
+};
+
+
+/*===============================================================
   MRI time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
-                         int lsolve_type, void *lmem);
+                         SUNLinearSolver_Type lsolve_type,
+                         void *lmem);
 void mriStep_DisableLSetup(void* arkode_mem);
 int mriStep_Init(void* arkode_mem, int init_type);
 void* mriStep_GetLmem(void* arkode_mem);
@@ -204,30 +233,41 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
 
 
-/* Attach ARKStep inner stepper */
-int mriStep_AttachARK(void* arkode_mem, void* inner_arkode_mem);
+/* Inner stepper functions */
+int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
+int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper,
+                               realtype t0, realtype tout, N_Vector y);
+int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper,
+                                realtype t, N_Vector y, N_Vector f,
+                                int mode);
+int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper,
+                              realtype tR, N_Vector yR);
+int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
+                                  N_Vector tmpl);
+int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper,
+                               ARKVecResizeFn resize, void* resize_data,
+                               sunindextype lrw_diff, sunindextype liw_diff,
+                               N_Vector tmpl);
+int mriStepInnerStepper_FreeVecs(MRIStepInnerStepper stepper);
+void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper,
+                                  FILE* outfile);
 
 /* Compute forcing for inner stepper */
-int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem, int stage,
-                                realtype cdiff);
-
-/* Evolve ARKStep inner stepper */
-int mriStep_EvolveInnerARK(void* inner_arkode_mem, realtype t0,
-                           N_Vector y0, realtype tout);
-
-/* Return stage type (implicit/explicit + fast/nofast) */
-int mriStep_StageType(MRIStepCoupling MRIC, int is);
+int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
+                                int stage, realtype cdiff);
 
 /* Return effective RK coefficients (nofast stage) */
-int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, realtype *Arow);
+int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int *stage_map,
+                     realtype *Ae_row, realtype *Ai_row);
 
 /*===============================================================
   Reusable MRIStep Error Messages
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSG_MRISTEP_NO_MEM    "Time step module memory is NULL."
-#define MSG_NLS_INIT_FAIL     "The nonlinear solver's init routine failed."
+#define MSG_MRISTEP_NO_MEM "Time step module memory is NULL."
+#define MSG_NLS_INIT_FAIL "The nonlinear solver's init routine failed."
+#define MSG_MRISTEP_NO_COUPLING "The MRIStepCoupling is NULL."
 
 #ifdef __cplusplus
 }

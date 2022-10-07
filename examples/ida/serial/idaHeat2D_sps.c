@@ -4,7 +4,7 @@
  *                based on idaHeat2D_bnd.c and idaRoberts_sps.c
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -72,9 +72,9 @@ typedef struct {
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
 int jacHeat(realtype tt,  realtype cj,
-	    N_Vector yy, N_Vector yp, N_Vector resvec,
-	    SUNMatrix JJ, void *user_data,
-	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+            N_Vector yy, N_Vector yp, N_Vector resvec,
+            SUNMatrix JJ, void *user_data,
+            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
 int jacHeat3(realtype tt,  realtype cj,
@@ -108,6 +108,7 @@ int main(void)
   SUNMatrix A;
   SUNLinearSolver LS;
   sunindextype nnz;
+  SUNContext ctx;
 
   mem = NULL;
   data = NULL;
@@ -115,16 +116,20 @@ int main(void)
   A = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew_Serial(NEQ);
+  uu = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
-  up = N_VNew_Serial(NEQ);
+  up = N_VClone(uu);
   if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
-  res = N_VNew_Serial(NEQ);
+  res = N_VClone(uu);
   if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
-  constraints = N_VNew_Serial(NEQ);
+  constraints = N_VClone(uu);
   if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
-  id = N_VNew_Serial(NEQ);
+  id = N_VClone(uu);
   if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
 
   /* Create and load problem data block. */
@@ -147,7 +152,7 @@ int main(void)
   atol = RCONST(1.0e-8);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, data);
@@ -169,11 +174,11 @@ int main(void)
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ*NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, ctx);
   if(check_retval((void*)A, "SUNSparseMtarix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
-  LS = SUNLinSol_SuperLUMT(uu, A, 1);
+  LS = SUNLinSol_SuperLUMT(uu, A, 1, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -229,6 +234,7 @@ int main(void)
   N_VDestroy(id);
   N_VDestroy(res);
   free(data);
+  SUNContext_Free(&ctx);
 
   return(0);
 }
@@ -270,7 +276,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
       resv[loc] = upv[loc] - coeff *
-	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
+          (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
     }
   }
 
@@ -385,7 +391,7 @@ int jacHeat(realtype tt,  realtype cj,
 
     /* count by fives in the middle */
     for(j=0;j<MGRID-4;j++) colptrs[2*MGRID+1+repeat+2+j] =
-			  (colptrs[2*MGRID+1+repeat+1+j])+5;
+                          (colptrs[2*MGRID+1+repeat+1+j])+5;
 
     colptrs[2*MGRID+1+repeat+(MGRID-4)+2] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+1])+4;
     colptrs[2*MGRID+1+repeat+(MGRID-4)+3] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+2])+2;
@@ -398,7 +404,7 @@ int jacHeat(realtype tt,  realtype cj,
   colptrs[MGRID*MGRID-2*MGRID+2] = TOTAL-2*MGRID-4*(MGRID-2)+5;
   /* count by fours in the middle */
   for(i=0;i<MGRID-4;i++) colptrs[MGRID*MGRID-2*MGRID+3+i] =
-			(colptrs[MGRID*MGRID-2*MGRID+3+i-1])+4;
+                        (colptrs[MGRID*MGRID-2*MGRID+3+i-1])+4;
   colptrs[MGRID*MGRID-MGRID-1] = TOTAL-2*MGRID;
   colptrs[MGRID*MGRID-MGRID]   = TOTAL-2*MGRID+2;
 
@@ -406,7 +412,7 @@ int jacHeat(realtype tt,  realtype cj,
   colptrs[MGRID*MGRID-MGRID+1] = TOTAL-MGRID-(MGRID-2)+1;
   /* count by twos in the middle */
   for(i=0;i<MGRID-2;i++) colptrs[MGRID*MGRID-MGRID+2+i] =
-			(colptrs[MGRID*MGRID-MGRID+2+i-1])+2;
+                        (colptrs[MGRID*MGRID-MGRID+2+i-1])+2;
   colptrs[MGRID*MGRID-1] = TOTAL-1;
   colptrs[MGRID*MGRID]   = TOTAL;
 

@@ -5,7 +5,7 @@
 ! and Cosmin Petra @ LLNL.
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -213,7 +213,7 @@ contains
 
     ! function arguments
     type(N_Vector) :: nv_yB, nv_ypB
-    real(c_double), pointer :: yB(:), ypB(:)
+    real(c_double), pointer :: yB(:)
 
     yB => FN_VGetArrayPointer(nv_yB)
 
@@ -234,6 +234,7 @@ end module dae_mod
 ! Main program
 program main
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fidas_mod                  ! Fortran interface to IDA
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
@@ -245,14 +246,15 @@ program main
   implicit none
 
   ! Local variables
+  type(c_ptr)                    :: sunctx
   type(c_ptr)                    :: mem, memB
   integer(c_int)                 :: ncheck(1), retval
   real(c_double)                 :: time(1)
   integer(c_long)                :: nst(1), nstB(1)
   integer(c_int)                 :: indexB(1)
-  real(c_double),        pointer :: yy(:), yp(:), rr(:), q(:)
+  real(c_double),        pointer :: yy(:), q(:)
   type(N_Vector),        pointer :: nv_yy, nv_yp, nv_rr, nv_q
-  real(c_double),        pointer :: yB(:), ypB(:)
+  real(c_double),        pointer :: ypB(:)
   type(N_Vector),        pointer :: nv_yB, nv_ypB
   type(SUNMatrix),       pointer :: A, AB
   type(SUNLinearSolver), pointer :: LS, LSB
@@ -282,9 +284,13 @@ program main
   pCO2 = 0.9d0
   H    = 737.0d0
 
+  ! Create the SUNDIALS simulation context
+  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  call check_retval(retval, "FSUNContext_Create")
+
   ! Allocate N-vectors.
-  nv_yy => FN_VNew_Serial(NEQ)
-  nv_yp => FN_VNew_Serial(NEQ)
+  nv_yy => FN_VNew_Serial(NEQ, sunctx)
+  nv_yp => FN_VNew_Serial(NEQ, sunctx)
 
   ! Set IC
   yy    => FN_VGetArrayPointer(nv_yy)
@@ -298,13 +304,13 @@ program main
   ! Get y' = - res(t0, y, 0)
   call FN_VConst(ZERO, nv_yp)
 
-  nv_rr  => FN_VNew_Serial(NEQ)
+  nv_rr  => FN_VNew_Serial(NEQ, sunctx)
   retval = res(T0, nv_yy, nv_yp, nv_rr, c_null_ptr)
   call FN_VScale(-ONE, nv_rr, nv_yp)
   call FN_VDestroy(nv_rr)
 
   ! Create and initialize q0 for quadratures.
-  nv_q => FN_VNew_Serial(1_8)
+  nv_q => FN_VNew_Serial(1_8, sunctx)
   if (.not. associated(nv_q)) then
     write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1
@@ -318,7 +324,7 @@ program main
   q(1) = ZERO
 
   ! Call FIDACreate and FIDAInit to initialize FIDA memory
-  mem    = FIDACreate()
+  mem    = FIDACreate(sunctx)
   if (.not. c_associated(mem)) then
     write(*,*) 'ERROR: FIDACreate returned NULL'
     stop 1
@@ -332,14 +338,14 @@ program main
   call check_retval(retval, "FIDASStolerances")
 
   ! Create dense SUNMatrix for use in linear solves
-  A => FSUNDenseMatrix(NEQ, NEQ)
+  A => FSUNDenseMatrix(NEQ, NEQ, sunctx)
   if (.not. associated(A)) then
     write(*,*) 'ERROR: FSUNDenseMatrix returned NULL'
     stop 1
   end if
 
   ! Create dense SUNLinearSolver object
-  LS => FSUNLinSol_Dense(nv_yy, A)
+  LS => FSUNLinSol_Dense(nv_yy, A, sunctx)
   if (.not. associated(LS)) then
     write(*,*) 'ERROR: FSUNLinSol_Dense returned NULL'
     stop 1
@@ -379,14 +385,14 @@ program main
   ! BACKWARD run
 
   ! Initialize yB
-  nv_yB => FN_VNew_Serial(NEQ)
+  nv_yB => FN_VNew_Serial(NEQ, sunctx)
   if (.not. associated(nv_yB)) then
     write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1
   end if
   call FN_VConst(ZERO, nv_yB)
 
-  nv_ypB => FN_VNew_Serial(NEQ)
+  nv_ypB => FN_VNew_Serial(NEQ, sunctx)
   if (.not. associated(nv_ypB)) then
     write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1
@@ -408,14 +414,14 @@ program main
   call check_retval(retval, "FIDASetMaxNumStepsB")
 
   ! Create dense SUNMatrix for use in linear solves
-  AB => FSUNDenseMatrix(NEQ, NEQ)
+  AB => FSUNDenseMatrix(NEQ, NEQ, sunctx)
   if (.not. associated(AB)) then
     write(*,*) 'ERROR: FSUNDenseMatrix returned NULL'
     stop 1
   end if
 
   ! Create dense SUNLinearSolver object
-  LSB => FSUNLinSol_Dense(nv_yB, AB)
+  LSB => FSUNLinSol_Dense(nv_yB, AB, sunctx)
   if (.not. associated(LSB)) then
     write(*,*) 'ERROR: FSUNLinSol_Dense returned NULL'
     stop 1
@@ -448,6 +454,7 @@ program main
   call FN_VDestroy(nv_yB)
   call FN_VDestroy(nv_ypB)
   call FN_VDestroy(nv_q)
+  retval = FSUNContext_Free(sunctx)
 
 end program
 

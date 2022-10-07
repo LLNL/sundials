@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * This is the implementation file for Butcher table structure
- * for the ARKode infrastructure.
+ * for the ARKODE infrastructure.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -21,11 +21,6 @@
 #include "arkode_impl.h"
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
 
 /* tolerance for checking order conditions */
 #define TOL  (SUNRsqrt(UNIT_ROUNDOFF))

@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -36,7 +36,7 @@ static PetscErrorCode PetscSysFn(SNES snes, Vec x, Vec f, void *ctx);
   ============================================================================*/
 
 /* create a SUNNonlinearSolver wrapper for the PETSc SNES context */
-SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes)
+SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes, SUNContext sunctx)
 {
   int ierr;
   SUNNonlinearSolver NLS;
@@ -52,7 +52,7 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes)
    * Create an empty nonlinear linear solver object
    */
 
-  NLS = SUNNonlinSolNewEmpty();
+  NLS = SUNNonlinSolNewEmpty(sunctx);
   if (NLS == NULL) return NULL;
 
   /* Attach operations */
@@ -179,6 +179,9 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
   /* store a pointer to the integrator memory so it can be
    * accessed in the system function */
   SUNNLS_SNES_CONTENT(NLS)->imem = mem;
+
+  /* reset convergence failure count */
+  SUNNLS_SNES_CONTENT(NLS)->nconvfails = 0;
 
   /* call petsc SNES solve */
   ierr = SNESSolve(SUNNLS_SNESOBJ(NLS), NULL, N_VGetVector_Petsc(y));

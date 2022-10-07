@@ -4,7 +4,7 @@
  *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -64,7 +64,7 @@ extern void FK_FUN(realtype*, realtype*, int*);
 
 void FKIN_CREATE(int *ier)
 {
-  
+
   *ier = 0;
   /* check for required vector operations */
   if ((F2C_KINSOL_vec->ops->nvgetarraypointer == NULL) ||
@@ -78,7 +78,7 @@ void FKIN_CREATE(int *ier)
   KIN_kinmem = NULL;
 
   /* Create KINSOL object */
-  KIN_kinmem = KINCreate();
+  KIN_kinmem = KINCreate(NULL);
   if (KIN_kinmem == NULL) {
     *ier = -1;
     return;
@@ -91,7 +91,7 @@ void FKIN_CREATE(int *ier)
 
 void FKIN_INIT(long int *iout, realtype *rout, int *ier)
 {
-  
+
   /* Call KINInit */
   *ier = 0;
   *ier = KINInit(KIN_kinmem, FKINfunc, F2C_KINSOL_vec);
@@ -115,7 +115,7 @@ void FKIN_INIT(long int *iout, realtype *rout, int *ier)
 
 void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
 {
-  
+
   /* check for required vector operations */
   if ((F2C_KINSOL_vec->ops->nvgetarraypointer == NULL) ||
       (F2C_KINSOL_vec->ops->nvsetarraypointer == NULL)) {
@@ -128,7 +128,7 @@ void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
   KIN_kinmem = NULL;
 
   /* Create KINSOL object */
-  KIN_kinmem = KINCreate();
+  KIN_kinmem = KINCreate(NULL);
   if (KIN_kinmem == NULL) {
     *ier = -1;
     return;
@@ -271,7 +271,7 @@ void FKIN_SPILSINIT(int *ier)
   Function : FKIN_SOL
   ------------------------------------------------------------------*/
 
-void FKIN_SOL(realtype *uu, int *globalstrategy, 
+void FKIN_SOL(realtype *uu, int *globalstrategy,
               realtype *uscale , realtype *fscale, int *ier)
 
 {
@@ -300,13 +300,13 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   }
   N_VSetArrayPointer(fscale, fscalevec);
 
-  /* If using the fixed-point solver, initialize F2C_KINSOL_linsol 
+  /* If using the fixed-point solver, initialize F2C_KINSOL_linsol
      and F2C_KINSOL_matrix to NULL */
   if (*globalstrategy == KIN_FP) {
     FKINNullMatrix();
     FKINNullLinsol();
   }
-  
+
   /* Call main solver function */
   *ier = KINSol(KIN_kinmem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
@@ -331,7 +331,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   KINGetLinWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
   KINGetLastLinFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
   KINGetNumLinFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
-  KINGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);               /* NJE */    
+  KINGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);               /* NJE */
   KINGetNumJtimesEvals(KIN_kinmem, &KIN_iout[11]);            /* NJT */
   KINGetNumPrecEvals(KIN_kinmem, &KIN_iout[12]);              /* NPE */
   KINGetNumPrecSolves(KIN_kinmem, &KIN_iout[13]);             /* NPS */

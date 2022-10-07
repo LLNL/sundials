@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -19,31 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_brusselator1D_omp\;4\;develop"
-  "ark_heat1D_omp\;4\;develop"
+  "ark_brusselator1D_omp\;4\;exclude-single\;default\;default"
+  "ark_heat1D_omp\;4\;develop\;default\;10"
   )
 
 # Auxiliary files to install
 set(ARKODE_extras_OMP
   plot_brusselator1D.py
   )
-
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECOMP_LIB sundials_nvecopenmp_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECOMP_LIB sundials_nvecopenmp_shared)
-endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
-
-# update the compilation flags to include OpenMP support
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -52,6 +35,8 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_float_precision)
+  list(GET example_tuple 4 example_int_precision)
 
   # example source files
   add_executable(${example} ${example}.c)
@@ -63,10 +48,15 @@ foreach(example_tuple ${ARKODE_examples})
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    FLOAT_PRECISION ${example_float_precision}
+    INTEGER_PRECISION ${example_int_precision})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example}
+    sundials_arkode
+    sundials_nvecopenmp
+    ${EXE_EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -128,9 +118,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmp
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode C_openmp)
 
-endif(EXAMPLES_INSTALL)
+endif()

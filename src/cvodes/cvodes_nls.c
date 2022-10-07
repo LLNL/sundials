@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -108,6 +108,77 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* Reset the acnrmcur flag to SUNFALSE */
   cv_mem->cv_acnrmcur = SUNFALSE;
+
+  /* Set the nonlinear system RHS function */
+  if (!(cv_mem->cv_f)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetNonlinearSolver",
+                   "The ODE RHS function is NULL");
+    return(CV_ILL_INPUT);
+  }
+  cv_mem->nls_f = cv_mem->cv_f;
+
+  return(CV_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  CVodeSetNlsRhsFn:
+
+  This routine sets an alternative user-supplied ODE right-hand
+  side function to use in the evaluation of nonlinear system
+  functions.
+  ---------------------------------------------------------------*/
+int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetNlsRhsFn",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (f)
+    cv_mem->nls_f = f;
+  else
+    cv_mem->nls_f = cv_mem->cv_f;
+
+  return(CV_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  CVodeGetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+                                N_Vector *ypred, N_Vector *yn,
+                                N_Vector *fn, realtype *gamma,
+                                realtype *rl1, N_Vector *zn1,
+                                void **user_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNonlinearSystemData",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *tcur      = cv_mem->cv_tn;
+  *ypred     = cv_mem->cv_zn[0];
+  *yn        = cv_mem->cv_y;
+  *fn        = cv_mem->cv_ftemp;
+  *gamma     = cv_mem->cv_gamma;
+  *rl1       = cv_mem->cv_rl1;
+  *zn1       = cv_mem->cv_zn[1];
+  *user_data = cv_mem->cv_user_data;
 
   return(CV_SUCCESS);
 }
@@ -246,7 +317,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
   if (dcon <= ONE) {
-    cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, cv_mem->cv_ewt);
+    cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, ewt);
     cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
@@ -268,8 +339,7 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   int retval;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE",
-                   "cvNlsResidual", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsResidual", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -278,8 +348,8 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -307,8 +377,8 @@ static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem)
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, res,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);

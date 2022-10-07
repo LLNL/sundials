@@ -2,7 +2,7 @@
  * Programmer(s): Carol Woodward @ LLNL  (based on idaRoberts_dns.c)
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This simple example problem for IDA, due to Robertson, 
- * is from chemical kinetics, and consists of the following three 
+ * This simple example problem for IDA, due to Robertson,
+ * is from chemical kinetics, and consists of the following three
  * equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -86,6 +86,7 @@ int main(void)
   SUNMatrix A;
   SUNLinearSolver LS;
   sunindextype nnz;
+  SUNContext ctx;
 
   mem = NULL;
   yy = yp = avtol = NULL;
@@ -93,12 +94,16 @@ int main(void)
   A = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate N-vectors. */
-  yy = N_VNew_Serial(NEQ);
+  yy = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
-  yp = N_VNew_Serial(NEQ);
+  yp = N_VClone(yy);
   if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
-  avtol = N_VNew_Serial(NEQ);
+  avtol = N_VClone(yy);
   if(check_retval((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
@@ -126,7 +131,7 @@ int main(void)
   PrintHeader(rtol, avtol, yy);
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAInit(mem, resrob, t0, yy, yp);
   if(check_retval(&retval, "IDAInit", 1)) return(1);
@@ -143,11 +148,11 @@ int main(void)
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, ctx);
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
-  LS = SUNLinSol_SuperLUMT(yy, A, 1);
+  LS = SUNLinSol_SuperLUMT(yy, A, 1, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -193,6 +198,7 @@ int main(void)
   SUNMatDestroy(A);
   N_VDestroy(yy);
   N_VDestroy(yp);
+  SUNContext_Free(&ctx);
 
   return(0);
 
@@ -378,7 +384,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, netf, ncfn, nge;
+  long int nst, nni, nnf, nje, nre, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_retval(&retval, "IDAGetNumSteps", 1);
@@ -390,8 +396,10 @@ static void PrintFinalStats(void *mem)
   check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
+  check_retval(&retval, "IDAGetNumStepSolveFails", 1);
   retval = IDAGetNumGEvals(mem, &nge);
   check_retval(&retval, "IDAGetNumGEvals", 1);
 
@@ -401,7 +409,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
   printf("Number of root fn. evaluations     = %ld\n", nge);
 }
 

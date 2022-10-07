@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -11,28 +11,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Makefile for IDAS developer documentation
+# Makefile for IDAS examples documentation
 # -----------------------------------------------------------------
 
-USER_GUIDE = idas_guide
 EXAMPLES   = idas_examples
-
-# names of guide files
-UG_FILES = \
-${USER_GUIDE}.tex \
-idas_intro.tex \
-idas_math.tex \
-idas_org.tex \
-idas_sim.tex \
-idas_fwd.tex \
-idas_adj.tex \
-idas_fcmix.tex \
-idas_nvec.tex \
-idas_newlinsolv.tex \
-idas_sunlinsol.tex \
-idas_sunmat.tex \
-idas_sunnonlinsol.tex \
-idas_constants.tex
 
 EX_FILES = \
 ${EXAMPLES}.tex \

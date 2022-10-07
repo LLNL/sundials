@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,11 +32,22 @@
 #define _SUNLINSOL_SLUDIST_H
 
 #include <mpi.h>
+
 #include <superlu_ddefs.h>
+
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
+
+#define xLUstructInit dLUstructInit
+#define xScalePermstructInit dScalePermstructInit
+#define xScalePermstructFree dScalePermstructFree
+#define xLUstructFree dLUstructFree
+#define xDestroy_LU dDestroy_LU
+#define xScalePermstruct_t dScalePermstruct_t
+#define xLUstruct_t dLUstruct_t
+#define xSOLVEstruct_t dSOLVEstruct_t
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,10 +65,10 @@ struct _SUNLinearSolverContent_SuperLUDIST {
   int                     last_flag;
   realtype                berr;
   gridinfo_t              *grid;
-  LUstruct_t              *lu;
+  xLUstruct_t             *lu;
   superlu_dist_options_t  *options;
-  ScalePermstruct_t       *scaleperm;
-  SOLVEstruct_t           *solve;
+  xScalePermstruct_t      *scaleperm;
+  xSOLVEstruct_t          *solve;
   SuperLUStat_t           *stat;
   sunindextype            N;
 };
@@ -73,11 +84,12 @@ typedef struct _SUNLinearSolverContent_SuperLUDIST *SUNLinearSolverContent_Super
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A,
                                                       gridinfo_t *grid,
-                                                      LUstruct_t *lu,
-                                                      ScalePermstruct_t *scaleperm,
-                                                      SOLVEstruct_t *solve,
+                                                      xLUstruct_t *lu,
+                                                      xScalePermstruct_t *scaleperm,
+                                                      xSOLVEstruct_t *solve,
                                                       SuperLUStat_t *stat,
-                                                      superlu_dist_options_t *options);
+                                                      superlu_dist_options_t *options,
+                                                      SUNContext sunctx);
 
 /*
  * ----------------------------------------------------------------------------
@@ -87,10 +99,10 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A,
 
 SUNDIALS_EXPORT realtype SUNLinSol_SuperLUDIST_GetBerr(SUNLinearSolver LS);
 SUNDIALS_EXPORT gridinfo_t* SUNLinSol_SuperLUDIST_GetGridinfo(SUNLinearSolver LS);
-SUNDIALS_EXPORT LUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS);
+SUNDIALS_EXPORT xLUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS);
 SUNDIALS_EXPORT superlu_dist_options_t* SUNLinSol_SuperLUDIST_GetSuperLUOptions(SUNLinearSolver LS);
-SUNDIALS_EXPORT ScalePermstruct_t* SUNLinSol_SuperLUDIST_GetScalePermstruct(SUNLinearSolver LS);
-SUNDIALS_EXPORT SOLVEstruct_t* SUNLinSol_SuperLUDIST_GetSOLVEstruct(SUNLinearSolver LS);
+SUNDIALS_EXPORT xScalePermstruct_t* SUNLinSol_SuperLUDIST_GetScalePermstruct(SUNLinearSolver LS);
+SUNDIALS_EXPORT xSOLVEstruct_t* SUNLinSol_SuperLUDIST_GetSOLVEstruct(SUNLinearSolver LS);
 SUNDIALS_EXPORT SuperLUStat_t* SUNLinSol_SuperLUDIST_GetSuperLUStat(SUNLinearSolver LS);
 
 /*

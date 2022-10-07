@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -103,9 +103,10 @@ int main(int argc, char *argv[])
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
   int             pretype, maxl, print_timing;
-  sunindextype        i;
+  sunindextype    i;
   realtype        *vecdata;
   double          tol;
+  SUNContext      sunctx;
 
   /* Set up MPI environment */
   fails = MPI_Init(&argc, &argv);
@@ -116,11 +117,16 @@ int main(int argc, char *argv[])
   fails = MPI_Comm_rank(ProbData.comm, &(ProbData.myid));
   if (check_flag(&fails, "MPI_Comm_rank", 1)) return 1;
 
+  if (SUNContext_Create(&ProbData.comm, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
+
   /* check inputs: local problem size, timing flag */
   if (argc < 6) {
     printf("ERROR: FIVE (5) Inputs required:\n");
     printf("  Local problem size should be >0\n");
-    printf("  Preconditioning type should be 1 or 2\n");
+    printf("  Preconditioning type should be 1 (LEFT) or 2 (RIGHT)\n");
     printf("  Maximum Krylov subspace dimension should be >0\n");
     printf("  Solver tolerance should be >0\n");
     printf("  timing output flag should be 0 or 1 \n");
@@ -133,7 +139,11 @@ int main(int argc, char *argv[])
     return 1;
   }
   pretype = atoi(argv[2]);
-  if ((pretype < 1) || (pretype > 2)) {
+  if (pretype == 1) {
+    pretype = SUN_PREC_LEFT;
+  } else if (pretype == 2) {
+    pretype = SUN_PREC_RIGHT;
+  } else {
     printf("ERROR: Preconditioning type must be either 1 or 2\n");
     return 1;
   }
@@ -163,22 +173,22 @@ int main(int argc, char *argv[])
 
   /* Create vectors */
   x = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                      ProbData.nprocs * ProbData.Nloc);
+                      ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(x, "N_VNew_Parallel", 0)) return 1;
   xhat = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                         ProbData.nprocs * ProbData.Nloc);
+                         ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(xhat, "N_VNew_Parallel", 0)) return 1;
   b = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                        ProbData.nprocs * ProbData.Nloc);
+                      ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(b, "N_VNew_Parallel", 0)) return 1;
   ProbData.d = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                               ProbData.nprocs * ProbData.Nloc);
+                               ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(ProbData.d, "N_VNew_Parallel", 0)) return 1;
   ProbData.s1 = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                                ProbData.nprocs * ProbData.Nloc);
+                                ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(ProbData.s1, "N_VNew_Parallel", 0)) return 1;
   ProbData.s2 = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                                ProbData.nprocs * ProbData.Nloc);
+                                ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(ProbData.s2, "N_VNew_Parallel", 0)) return 1;
 
   /* Fill xhat vector with uniform random data in [1,2] */
@@ -190,7 +200,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
 
   /* Create SPTFQMR linear solver */
-  LS = SUNLinSol_SPTFQMR(x, pretype, maxl);
+  LS = SUNLinSol_SPTFQMR(x, pretype, maxl, sunctx);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE,
                                  ProbData.myid);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SPTFQMR, ProbData.myid);
@@ -199,13 +209,15 @@ int main(int argc, char *argv[])
                                            PSolve, ProbData.myid);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2,
                                            ProbData.myid);
+  fails += Test_SUNLinSolSetZeroGuess(LS, ProbData.myid);
   fails += Test_SUNLinSolInitialize(LS, ProbData.myid);
   fails += Test_SUNLinSolSpace(LS, ProbData.myid);
   if (fails) {
     printf("FAIL: SUNLinSol_SPTFQMR module failed %i initialization tests\n\n", fails);
     return 1;
-  } else if (ProbData.myid == 0)
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNLinSol_SPTFQMR module passed all initialization tests\n\n");
+  }
 
 
   /*** Test 1: simple Poisson-like solve (no preconditioning) ***/
@@ -222,9 +234,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
@@ -255,7 +268,11 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
+  if (pretype == SUN_PREC_LEFT) {
+    /* note a non-zero guess with right preconditioning is not supported */
+    fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
+  }
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
@@ -286,9 +303,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
@@ -321,7 +339,11 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
+  if (pretype == SUN_PREC_LEFT) {
+    /* note a non-zero guess with right preconditioning is not supported */
+    fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
+  }
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
@@ -352,9 +374,10 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
@@ -387,7 +410,11 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
+  if (pretype == SUN_PREC_LEFT) {
+    /* note a non-zero guess with right preconditioning is not supported */
+    fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
+  }
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
@@ -412,6 +439,8 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.d);
   N_VDestroy(ProbData.s1);
   N_VDestroy(ProbData.s2);
+
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
   return(fails);
@@ -562,14 +591,14 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i<local_problem_size; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], FIVE*tol*SUNRabs(Xdata[i]));
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;
     for(i=0; i < local_problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
-	   maxerr, FIVE*tol);
+	   maxerr, tol);
     return(1);
   }
   else

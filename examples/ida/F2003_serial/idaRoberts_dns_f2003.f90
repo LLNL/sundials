@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -250,6 +250,7 @@ program main
   use, intrinsic :: iso_c_binding
 
   use fida_mod                      ! Fortran interface to IDA
+  use fsundials_context_mod         ! Fortran interface to SUNContext
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod          ! Fortran interface to dense SUNLinearSolver
@@ -274,11 +275,14 @@ program main
   type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
   type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
   type(c_ptr)                       :: ida_mem       ! IDA memory
+  type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
   ! solution and tolerance vectors, neq is set in the dae_mod module
   real(c_double) :: yval(neq), ypval(neq), avtol(neq)
 
   !======= Internals ============
+
+  retval = FSUNContext_Create(c_null_ptr, sunctx)
 
   ! initialize solution vectors and tolerances
   yval(1) = 1.d0
@@ -296,19 +300,19 @@ program main
   avtol(3) = 1.d-6
 
   ! create serial vectors
-  sunvec_y => FN_VMake_Serial(neq, yval)
+  sunvec_y => FN_VMake_Serial(neq, yval, sunctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_yp => FN_VMake_Serial(neq, ypval)
+  sunvec_yp => FN_VMake_Serial(neq, ypval, sunctx)
   if (.not. associated(sunvec_yp)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_av => FN_VMake_Serial(neq, avtol)
+  sunvec_av => FN_VMake_Serial(neq, avtol, sunctx)
   if (.not. associated(sunvec_av)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -321,7 +325,7 @@ program main
   call PrintHeader(rtol, avtol, yval)
 
   ! Call FIDACreate and FIDAInit to initialize IDA memory
-  ida_mem = FIDACreate()
+  ida_mem = FIDACreate(sunctx)
   if (.not. c_associated(ida_mem)) then
      print *, 'ERROR: ida_mem = NULL'
      stop 1
@@ -349,14 +353,14 @@ program main
   end if
 
   ! Create dense SUNMatrix for use in linear solves
-  sunmat_A => FSUNDenseMatrix(neq, neq)
+  sunmat_A => FSUNDenseMatrix(neq, neq, sunctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
   ! Create dense SUNLinearSolver object
-  sunlinsol_LS => FSUNDenseLinearSolver(sunvec_y, sunmat_A)
+  sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_A, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
@@ -380,7 +384,7 @@ program main
   ! Newton SUNNonlinearSolver by default, so it is not necessary
   ! to create it and attach it. It is done in this example code
   ! solely for demonstration purposes.
-  sunnonlin_NLS => FSUNNonlinSol_Newton(sunvec_y)
+  sunnonlin_NLS => FSUNNonlinSol_Newton(sunvec_y, sunctx)
   if (.not. associated(sunnonlin_NLS)) then
      print *, 'ERROR: sunnonlinsol = NULL'
      stop 1
@@ -438,6 +442,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FN_VDestroy(sunvec_av)
   call FN_VDestroy(sunvec_yp)
+  retval = FSUNContext_Free(sunctx)
 
 end program main
 
@@ -466,7 +471,7 @@ subroutine PrintHeader(rtol, avtol, y)
   print *, "         Three equation chemical kinetics problem."
   print *, " "
   print *, "Linear solver: DENSE, with user-supplied Jacobian."
-  print '(a,f6.4,a,3(es6.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
+  print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
   print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
   print *, "Constraints and id not used."
   print *, " "
@@ -520,7 +525,7 @@ subroutine PrintOutput(ida_mem, t, y)
      stop 1
   end if
 
-  print '(es10.4,1x,3(es12.4,1x),a,i3,2x,i1,1x,es12.4)', &
+  print '(es12.4,1x,3(es12.4,1x),a,i3,2x,i1,1x,es12.4)', &
        t, y(1), y(2), y(3), "| ", nst, kused(1), hused(1)
 
 end subroutine PrintOutput

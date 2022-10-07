@@ -116,33 +116,29 @@ def main():
         # NOTE: PETSC requires -std=c99 or newer
         cmd = cmd + "-DCMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \ \n"
         # enable mpi
-        cmd = cmd + "-DMPI_ENABLE=ON \ \n"
-        # enable FCMIX
-        cmd = cmd + "-DFCMIX_ENABLE=TRUE \ \n"
-        # enable F90
-        cmd = cmd + "-DF90_ENABLE=TRUE \ \n"
+        cmd = cmd + "-DENABLE_MPI=ON \ \n"
         # enable C++
         cmd = cmd + "-DCXX_ENABLE=TRUE \ \n"
         # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)
-        cmd = cmd + "-DLAPACK_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_LAPACK=ON \ \n"
         # enable klu
-        cmd = cmd + "-DKLU_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_KLU=ON \ \n"
         cmd = cmd + "-DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \ \n"
         cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/lib \ \n"
         # enable hypre
-        cmd = cmd + "-DHYPRE_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_HYPRE=ON \ \n"
         cmd = cmd + "-DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1_long_int_fpic/include \ \n"
         cmd = cmd + "-DHYPRE_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1_long_int_fpic/lib \ \n"
         # enable PETSc
-        cmd = cmd + "-DPETSC_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_PETSC=ON \ \n"
         cmd = cmd + "-DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2_long_int/include \ \n"
         cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2_long_int/lib \ \n"
         # enable openmp
-        cmd = cmd + "-DOPENMP_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_OPENMP=ON \ \n"
         # enable pthreads
-        cmd = cmd + "-DPTHREAD_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_PTHREAD=ON \ \n"
         # enable SUPERLU_MT
-        cmd = cmd + "-DSUPERLUMT_ENABLE=ON \ \n"
+        cmd = cmd + "-DENABLE_SUPERLUMT=ON \ \n"
         cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1_long_int_fpic/SRC \ \n"
         cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1_long_int_fpic/lib \ \n"
         cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"

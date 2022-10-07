@@ -7,7 +7,7 @@
  *                   @ LLNL
  * -------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -87,19 +87,14 @@ typedef struct _N_VectorContent_OpenMPDEV *N_VectorContent_OpenMPDEV;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_OpenMPDEV(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_OpenMPDEV(sunindextype vec_length, SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length, SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VMake_OpenMPDEV(sunindextype vec_length,
                                            realtype *h_data,
-                                           realtype *v_data);
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w);
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w);
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count);
+                                           realtype *v_data,
+                                           SUNContext sunctx);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMPDEV(N_Vector v);
 
@@ -179,7 +174,7 @@ SUNDIALS_EXPORT realtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w,
                                                        N_Vector id);
 
-  
+
 /*
  * -----------------------------------------------------------------
  * Enable / disable fused vector operations
@@ -199,6 +194,22 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, booleanty
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, booleantype tf);
+
+/*
+ * -----------------------------------------------------------------
+ * Deprecated functions
+ * -----------------------------------------------------------------
+ */
+
+/* use N_VCloneVectorArray */
+SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w);
+
+/* use N_VCloneVectorArrayEmpty */
+SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w);
+
+/* use N_VDestroyVectorArray */
+SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count);
+
 
 #ifdef __cplusplus
 }

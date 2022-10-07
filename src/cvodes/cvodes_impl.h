@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -19,38 +19,176 @@
 
 #include <stdarg.h>
 
-#include <cvodes/cvodes.h>
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
+#include "cvodes/cvodes.h"
+#include "cvodes_proj_impl.h"
+#include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials/sundials_math.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "19.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
+#endif
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define CV_PROFILER cv_mem->cv_sunctx->profiler
+#define CV_LOGGER cv_mem->cv_sunctx->logger
+
 /*
  * =================================================================
- *   I N T E R N A L   C V O D E S   C O N S T A N T S
+ *   I N T E R N A L   C O N S T A N T S
  * =================================================================
  */
 
-/* Basic CVODES constants */
+/* Basic constants */
 
-#define ADAMS_Q_MAX 12      /* max value of q for lmm == ADAMS    */
-#define BDF_Q_MAX    5      /* max value of q for lmm == BDF      */
-#define Q_MAX  ADAMS_Q_MAX  /* max value of q for either lmm      */
-#define L_MAX  (Q_MAX+1)    /* max value of L for either lmm      */
-#define NUM_TESTS    5      /* number of error test quantities    */
+#define ADAMS_Q_MAX 12     /* max value of q for lmm == ADAMS     */
+#define BDF_Q_MAX    5     /* max value of q for lmm == BDF       */
+#define Q_MAX  ADAMS_Q_MAX /* max value of q for either lmm       */
+#define L_MAX  (Q_MAX+1)   /* max value of L for either lmm       */
+#define NUM_TESTS    5     /* number of error test quantities     */
 
 #define HMIN_DEFAULT     RCONST(0.0)    /* hmin default value     */
 #define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
-/* Return values for lower level routines used by CVode and functions
-   provided to the nonlinear solver */
+#define MSBP_DEFAULT         20          /* max steps between lsetup calls */
+#define DGMAX_LSETUP_DEFAULT RCONST(0.3) /* gamma threshold to call lsetup */
 
-#define RHSFUNC_RECVR    +9
-#define SRHSFUNC_RECVR   +12
+/* Step size change constants
+ * --------------------------
+ * ETA_MIN_FX_DEFAULT  if eta_min_fx < eta < eta_max_fx reject a change in step size or order
+ * ETA_MAX_FX_DEFAULT
+ * ETA_MAX_FS_DEFAULT  -+
+ * ETA_MAX_ES_DEFAULT   |
+ * ETA_MAX_GS_DEFAULT   |
+ * ETA_MIN_DEFAULT      |-> bounds for eta (step size change)
+ * ETA_MAX_EF_DEFAULT   |
+ * ETA_MIN_EF_DEFAULT   |
+ * ETA_CF_DEFAULT      -+
+ * SMALL_NST_DEFAULT   nst <= SMALL_NST => use eta_max_es
+ * SMALL_NEF_DEFAULT   if small_nef <= nef <= MXNEF1, then eta =  SUNMIN(eta, eta_max_ef)
+ * ONEPSM (1+epsilon)  used in testing if the step size is below its bound
+ */
+
+#define ETA_MIN_FX_DEFAULT RCONST(0.0)
+#define ETA_MAX_FX_DEFAULT RCONST(1.5)
+#define ETA_MAX_FS_DEFAULT RCONST(10000.0)
+#define ETA_MAX_ES_DEFAULT RCONST(10.0)
+#define ETA_MAX_GS_DEFAULT RCONST(10.0)
+#define ETA_MIN_DEFAULT    RCONST(0.1)
+#define ETA_MAX_EF_DEFAULT RCONST(0.2)
+#define ETA_MIN_EF_DEFAULT RCONST(0.1)
+#define ETA_CF_DEFAULT     RCONST(0.25)
+#define SMALL_NST_DEFAULT  10
+#define SMALL_NEF_DEFAULT  2
+#define ONEPSM             RCONST(1.000001)
+
+/* Step size controller constants
+ * ------------------------------
+ * ADDON  safety factor in computing eta
+ * BIAS1  -+
+ * BIAS2   |-> bias factors in eta selection
+ * BIAS3  -+
+ */
+
+#define ADDON     RCONST(0.000001)
+#define BIAS1     RCONST(6.0)
+#define BIAS2     RCONST(6.0)
+#define BIAS3     RCONST(10.0)
+
+/* Order selection constants
+ * -------------------------
+ * LONG_WAIT   number of steps to wait before considering an order change when
+ *             q==1 and MXNEF1 error test failures have occurred
+ */
+
+#define LONG_WAIT    10
+
+/* Failure limits
+ * --------------
+ * MXNCF   max no. of convergence failures during one step try
+ * MXNEF   max no. of error test failures during one step try
+ * MXNEF1  max no. of error test failures before forcing a reduction of order
+ */
+
+#define MXNCF        10
+#define MXNEF         7
+#define MXNEF1        3
+
+/* Control constants for lower-level functions used by cvStep
+ * ----------------------------------------------------------
+ *
+ * cvHin return values:
+ *    CV_SUCCESS,
+ *    CV_RHSFUNC_FAIL,  CV_RPTD_RHSFUNC_ERR,
+ *    CV_QRHSFUNC_FAIL, CV_RPTD_QRHSFUNC_ERR,
+ *    CV_SRHSFUNC_FAIL, CV_RPTD_SRHSFUNC_ERR,
+ *    CV_TOO_CLOSE
+ *
+ * cvStep control constants:
+ *    DO_ERROR_TEST
+ *    PREDICT_AGAIN
+ *
+ * cvStep return values:
+ *    CV_SUCCESS,
+ *    CV_CONV_FAILURE,      CV_ERR_FAILURE,
+ *    CV_LSETUP_FAIL,       CV_LSOLVE_FAIL,
+ *    CV_RTFUNC_FAIL,
+ *    CV_RHSFUNC_FAIL,      CV_QRHSFUNC_FAIL,      CV_SRHSFUNC_FAIL,      CV_QSRHSFUNC_FAIL,
+ *    CV_FIRST_RHSFUNC_ERR, CV_FIRST_QRHSFUNC_ERR, CV_FIRST_SRHSFUNC_ERR, CV_FIRST_QSRHSFUNC_ERR,
+ *    CV_UNREC_RHSFUNC_ERR, CV_UNREC_QRHSFUNC_ERR, CV_UNREC_SRHSFUNC_ERR, CV_UNREC_QSRHSFUNC_ERR,
+ *    CV_REPTD_RHSFUNC_ERR, CV_REPTD_QRHSFUNC_ERR, CV_REPTD_SRHSFUNC_ERR, CV_REPTD_QSRHSFUNC_ERR,
+ *
+ * cvNls input nflag values:
+ *    FIRST_CALL
+ *    PREV_CONV_FAIL
+ *    PREV_PROJ_FAIL
+ *    PREV_ERR_FAIL
+ *
+ * cvNls return values:
+ *    CV_SUCCESS,
+ *    CV_LSETUP_FAIL,     CV_LSOLVE_FAIL,
+ *    CV_RHSFUNC_FAIL,    CV_SRHSFUNC_FAIL,
+ *    SUN_NLS_CONV_RECVR,
+ *    RHSFUNC_RECVR,      SRHSFUNC_RECVR
+ *
+ * cvNewtonIteration return values:
+ *    CV_SUCCESS,
+ *    CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL
+ *    RHSFUNC_RECVR,
+ *    TRY_AGAIN
+ *
+ */
+
+#define DO_ERROR_TEST    +2
+#define PREDICT_AGAIN    +3
+
+#define TRY_AGAIN        +5
+#define FIRST_CALL       +6
+#define PREV_CONV_FAIL   +7
+#define PREV_PROJ_FAIL   +8
+#define PREV_ERR_FAIL    +9
+
+#define RHSFUNC_RECVR    +10
+#define CONSTR_RECVR     +11
+#define CONSTRFUNC_RECVR +12
+#define PROJFUNC_RECVR   +13
+
+#define QRHSFUNC_RECVR   +14
+#define SRHSFUNC_RECVR   +15
+#define QSRHSFUNC_RECVR  +16
 
 /* nonlinear solver constants
    NLS_MAXCOR  maximum no. of corrector iterations for the nonlinear solver
@@ -91,28 +229,29 @@ typedef struct CVodeBMemRec *CVodeBMem;
 
 typedef struct CVodeMemRec {
 
-  realtype cv_uround;         /* machine unit roundoff                         */
+  SUNContext cv_sunctx;
+
+  realtype cv_uround;    /* machine unit roundoff */
 
   /*--------------------------
     Problem Specification Data
     --------------------------*/
 
-  CVRhsFn cv_f;               /* y' = f(t,y(t))                                */
-  void *cv_user_data;         /* user pointer passed to f                      */
+  CVRhsFn cv_f;              /* y' = f(t,y(t))                                */
+  void *cv_user_data;        /* user pointer passed to f                      */
+  int cv_lmm;                /* lmm = CV_ADAMS or CV_BDF                      */
+  int cv_itol;               /* itol = CV_SS, CV_SV, CV_WF, CV_NN             */
 
-  int cv_lmm;                 /* lmm = ADAMS or BDF                            */
-
-  int cv_itol;                /* itol = CV_SS, CV_SV, or CV_WF, or CV_NN       */
-  realtype cv_reltol;         /* relative tolerance                            */
-  realtype cv_Sabstol;        /* scalar absolute tolerance                     */
-  N_Vector cv_Vabstol;        /* vector absolute tolerance                     */
-  booleantype cv_atolmin0;    /* flag indicating that min(abstol) = 0          */
-  booleantype cv_user_efun;   /* SUNTRUE if user sets efun                     */
-  CVEwtFn cv_efun;            /* function to set ewt                           */
-  void *cv_e_data;            /* user pointer passed to efun                   */
+  realtype cv_reltol;        /* relative tolerance                            */
+  realtype cv_Sabstol;       /* scalar absolute tolerance                     */
+  N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
+  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
+  booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
+  CVEwtFn cv_efun;           /* function to set ewt                           */
+  void *cv_e_data;           /* user pointer passed to efun                   */
 
   booleantype cv_constraintsSet; /* constraints vector present:
-                                    do constraints calc                        */
+                                    do constraints calc                       */
 
   /*-----------------------
     Quadrature Related Data
@@ -182,30 +321,29 @@ typedef struct CVodeMemRec {
     Nordsieck History Array
     -----------------------*/
 
-  N_Vector cv_zn[L_MAX];      /* Nordsieck array, of size N x (q+1).
-                                 zn[j] is a vector of length N (j=0,...,q)
-                                 zn[j] = [1/factorial(j)] * h^j *
-                                 (jth derivative of the interpolating poly.)  */
+  N_Vector cv_zn[L_MAX];  /* Nordsieck array, of size N x (q+1).
+                             zn[j] is a vector of length N (j=0,...,q)
+                             zn[j] = [1/factorial(j)] * h^j *
+                             (jth derivative of the interpolating polynomial) */
 
   /*-------------------
     Vectors of length N
     -------------------*/
 
-  N_Vector cv_ewt;            /* error weight vector                          */
-  N_Vector cv_y;              /* y is used as temporary storage by the solver.
-                                 The memory is provided by the user to CVode
-                                 where the vector is named yout.              */
-  N_Vector cv_acor;           /* In the context of the solution of the
-                                 nonlinear equation, acor = y_n(m) - y_n(0).
-                                 On return, this vector is scaled to give
-                                 the estimated local error in y.              */
-  N_Vector cv_tempv;          /* temporary storage vector                     */
-  N_Vector cv_ftemp;          /* temporary storage vector                     */
-  N_Vector cv_vtemp1;         /* temporary storage vector                     */
-  N_Vector cv_vtemp2;         /* temporary storage vector                     */
-  N_Vector cv_vtemp3;         /* temporary storage vector                     */
+  N_Vector cv_ewt;     /* error weight vector                                 */
+  N_Vector cv_y;       /* y is used as temporary storage by the solver
+                          The memory is provided by the user to CVode
+                          where the vector is named yout.                     */
+  N_Vector cv_acor;    /* In the context of the solution of the nonlinear
+                          equation, acor = y_n(m) - y_n(0). On return, this
+                          vector is scaled to give the estimated local error  */
+  N_Vector cv_tempv;   /* temporary storage vector                            */
+  N_Vector cv_ftemp;   /* temporary storage vector                            */
+  N_Vector cv_vtemp1;  /* temporary storage vector                            */
+  N_Vector cv_vtemp2;  /* temporary storage vector                            */
+  N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
-  N_Vector cv_constraints;    /* vector of inequality constraint options      */
+  N_Vector cv_constraints; /* vector of inequality constraint options         */
 
   /*--------------------------
     Quadrature Related Vectors
@@ -254,25 +392,25 @@ typedef struct CVodeMemRec {
 
   int cv_q;                    /* current order                               */
   int cv_qprime;               /* order to be used on the next step
-                                * qprime = q-1, q, or q+1                     */
+                                  qprime = q-1, q, or q+1                     */
   int cv_next_q;               /* order to be used on the next step           */
   int cv_qwait;                /* number of internal steps to wait before
-                                * considering a change in q                   */
+                                  considering a change in q                   */
   int cv_L;                    /* L = q + 1                                   */
 
-  realtype cv_hin;
+  realtype cv_hin;             /* initial step size                           */
   realtype cv_h;               /* current step size                           */
   realtype cv_hprime;          /* step size to be used on the next step       */
   realtype cv_next_h;          /* step size to be used on the next step       */
   realtype cv_eta;             /* eta = hprime / h                            */
   realtype cv_hscale;          /* value of h used in zn                       */
   realtype cv_tn;              /* current internal value of t                 */
-  realtype cv_tretlast;        /* last value of t returned                    */
+  realtype cv_tretlast;        /* last value of t returned by CVode           */
 
   realtype cv_tau[L_MAX+1];    /* array of previous q+1 successful step
-                                * sizes indexed from 1 to q+1                 */
+                                  sizes indexed from 1 to q+1                 */
   realtype cv_tq[NUM_TESTS+1]; /* array of test quantities indexed from
-                                * 1 to NUM_TESTS(=5)                          */
+                                  1 to NUM_TESTS(=5)                          */
   realtype cv_l[L_MAX];        /* coefficients of l(x) (degree q poly)        */
 
   realtype cv_rl1;             /* the scalar 1/l[1]                           */
@@ -280,8 +418,8 @@ typedef struct CVodeMemRec {
   realtype cv_gammap;          /* gamma at the last setup call                */
   realtype cv_gamrat;          /* gamma / gammap                              */
 
-  realtype cv_crate;           /* est. corrector conv. rate in Nls            */
-  realtype cv_crateS;          /* est. corrector conv. rate in NlsStgr        */
+  realtype cv_crate;           /* estimated corrector convergence rate        */
+  realtype cv_crateS;          /* estimated corrector convergence rate (Stgr) */
   realtype cv_delp;            /* norm of previous nonlinear solver update    */
   realtype cv_acnrm;           /* | acor |                                    */
   booleantype cv_acnrmcur;     /* is | acor | current?                        */
@@ -297,21 +435,32 @@ typedef struct CVodeMemRec {
     Limits
     ------*/
 
-  int cv_qmax;             /* q <= qmax                                       */
-  long int cv_mxstep;      /* maximum number of internal steps for one
-			      user call                                       */
-  int cv_mxhnil;           /* max. number of warning messages issued to the
-			      user that t + h == t for the next internal step */
-  int cv_maxnef;           /* maximum number of error test failures           */
-  int cv_maxncf;           /* maximum number of nonlinear conv. failures      */
+  int cv_qmax;            /* q <= qmax                                          */
+  long int cv_mxstep;     /* maximum number of internal steps for one user call */
+  int cv_mxhnil;          /* maximum number of warning messages issued to the
+                             user that t + h == t for the next internal step    */
+  int cv_maxnef;          /* maximum number of error test failures              */
+  int cv_maxncf;          /* maximum number of nonlinear convergence failures   */
 
-  realtype cv_hmin;        /* |h| >= hmin                                     */
-  realtype cv_hmax_inv;    /* |h| <= 1/hmax_inv                               */
-  realtype cv_etamax;      /* eta <= etamax                                   */
+  realtype cv_hmin;       /* |h| >= hmin                                        */
+  realtype cv_hmax_inv;   /* |h| <= 1/hmax_inv                                  */
+  realtype cv_etamax;     /* eta <= etamax                                      */
+  realtype cv_eta_min_fx; /* eta_min_fx < eta < eta_max_fx keep the current h   */
+  realtype cv_eta_max_fx;
+  realtype cv_eta_max_fs; /* eta <= eta_max_fs on the first step                */
+  realtype cv_eta_max_es; /* eta <= eta_max_es on early steps                   */
+  realtype cv_eta_max_gs; /* eta <= eta_max_gs on a general step                */
+  realtype cv_eta_min;    /* eta >= eta_min on a general step                   */
+  realtype cv_eta_min_ef; /* eta >= eta_min_ef after an error test failure      */
+  realtype cv_eta_max_ef; /* eta on multiple (>= small_nef) error test failures */
+  realtype cv_eta_cf;     /* eta on a nonlinear solver convergence failure      */
 
-  /*----------
+  long int cv_small_nst; /* nst <= small_nst use eta_max_es */
+  int cv_small_nef;      /* nef >= small_nef use eta_max_ef */
+
+  /*--------
     Counters
-    ----------*/
+    --------*/
 
   long int cv_nst;         /* number of internal steps taken                  */
 
@@ -322,7 +471,6 @@ typedef struct CVodeMemRec {
   long int cv_nfQSe;       /* number of fQS calls                             */
   long int cv_nfQeS;       /* number of fQ calls from sensi DQ                */
 
-
   long int cv_ncfn;        /* number of corrector convergence failures        */
   long int cv_ncfnS;       /* number of total sensi. corr. conv. failures     */
   long int *cv_ncfnS1;     /* number of sensi. corrector conv. failures       */
@@ -330,6 +478,10 @@ typedef struct CVodeMemRec {
   long int cv_nni;         /* number of nonlinear iterations performed        */
   long int cv_nniS;        /* number of total sensi. nonlinear iterations     */
   long int *cv_nniS1;      /* number of sensi. nonlinear iterations           */
+
+  long int cv_nnf;         /* number of nonlinear convergence fails           */
+  long int cv_nnfS;        /* number of total sensi. nonlinear conv. fails    */
+  long int *cv_nnfS1;      /* number of sensi. nonlinear conv. fails          */
 
   long int cv_netf;        /* number of error test failures                   */
   long int cv_netfQ;       /* number of quadr. error test failures            */
@@ -340,18 +492,7 @@ typedef struct CVodeMemRec {
   long int cv_nsetupsS;    /* number of setup calls due to sensitivities      */
 
   int cv_nhnil;            /* number of messages issued to the user that
-			      t + h == t for the next iternal step            */
-
-  /*-----------------------------
-    Space requirements for CVODES
-    -----------------------------*/
-
-  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */
-  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */
-  sunindextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */
-  sunindextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */
-  long int cv_lrw;             /* no. of realtype words in CVODES work vectors    */
-  long int cv_liw;             /* no. of integer words in CVODES work vectors     */
+                              t + h == t for the next iternal step            */
 
   /*----------------
     Step size ratios
@@ -361,12 +502,23 @@ typedef struct CVodeMemRec {
   realtype cv_etaq;        /* ratio of new to old h for order q               */
   realtype cv_etaqp1;      /* ratio of new to old h for order q+1             */
 
+  /*------------------
+    Space requirements
+    ------------------*/
+
+  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */
+  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */
+  sunindextype cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */
+  sunindextype cv_liw1Q;       /* no. of integer words in 1 N_Vector yQ           */
+  long int cv_lrw;             /* no. of realtype words in CVODE work vectors     */
+  long int cv_liw;             /* no. of integer words in CVODE work vectors      */
+
   /*---------------------
     Nonlinear Solver Data
     ---------------------*/
 
-  SUNNonlinearSolver NLS;      /* nonlinear solver object for ODE solves */
-  booleantype ownNLS;          /* flag indicating NLS ownership          */
+  SUNNonlinearSolver NLS;      /* nonlinear solver object                   */
+  booleantype ownNLS;          /* flag indicating NLS ownership             */
 
   SUNNonlinearSolver NLSsim;   /* NLS object for the simultaneous corrector */
   booleantype ownNLSsim;       /* flag indicating NLS ownership             */
@@ -381,6 +533,7 @@ typedef struct CVodeMemRec {
 
   booleantype sens_solve;      /* flag indicating if the current solve is a
                                   staggered or staggered1 sensitivity solve */
+  CVRhsFn nls_f;               /* f(t,y(t)) used in the nonlinear solver    */
   int convfail;                /* flag to indicate when a Jacobian update may
                                   be needed */
 
@@ -413,21 +566,21 @@ typedef struct CVodeMemRec {
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
   int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail,
-		   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
-		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
-		   N_Vector ycur, N_Vector fcur);
+                   N_Vector ycur, N_Vector fcur);
 
   int (*cv_lfree)(struct CVodeMemRec *cv_mem);
 
   /* Linear Solver specific memory */
 
-  void *cv_lmem;
-
-  /* Flag to request a call to the setup routine */
-
-  booleantype cv_forceSetup;
+  void     *cv_lmem;         /* linear solver interface memory structure */
+  long int  cv_msbp;         /* max number of steps between lsetip calls */
+  realtype  cv_dgmax_lsetup; /* gamma ratio threshold to signal for a linear
+                              * solver setup */
+  booleantype cv_forceSetup; /* flag to request a call to the setup routine */
 
   /*------------
     Saved Values
@@ -441,11 +594,11 @@ typedef struct CVodeMemRec {
   booleantype cv_jcur;         /* is Jacobian info for linear solver current? */
   int cv_convfail;             /* flag storing previous solver failure mode   */
   realtype cv_tolsf;           /* tolerance scale factor                      */
-  int cv_qmax_alloc;           /* qmax used when allocating mem               */
+  int cv_qmax_alloc;           /* value of qmax used when allocating mem      */
   int cv_qmax_allocQ;          /* qmax used when allocating quad. mem         */
   int cv_qmax_allocS;          /* qmax used when allocating sensi. mem        */
   int cv_qmax_allocQS;         /* qmax used when allocating quad. sensi. mem  */
-  int cv_indx_acor;            /* index of zn vector in which acor is saved   */
+  int cv_indx_acor;            /* index of the zn vector with saved acor      */
 
   /*--------------------------------------------------------------------
     Flags turned ON by CVodeInit, CVodeSensMalloc, and CVodeQuadMalloc
@@ -471,15 +624,21 @@ typedef struct CVodeMemRec {
     Error handler function and error ouput file
     -------------------------------------------*/
 
-  CVErrHandlerFn cv_ehfun;    /* Error messages are handled by ehfun          */
-  void *cv_eh_data;           /* dats pointer passed to ehfun                 */
-  FILE *cv_errfp;             /* CVODES error messages are sent to errfp      */
+  CVErrHandlerFn cv_ehfun;    /* error messages are handled by ehfun          */
+  void *cv_eh_data;           /* data pointer passed to ehfun                 */
+  FILE *cv_errfp;             /* CVODE error messages are sent to errfp       */
+
+  /*-------------------------------------------
+    User access function
+    -------------------------------------------*/
+  CVMonitorFn cv_monitorfun;     /* func called with CVODE mem and user data  */
+  long int cv_monitor_interval;  /* step interval to call cv_monitorfun       */
 
   /*-------------------------
     Stability Limit Detection
     -------------------------*/
 
-  booleantype cv_sldeton;     /* Is Stability Limit Detection on?             */
+  booleantype cv_sldeton;     /* is Stability Limit Detection on?             */
   realtype cv_ssdat[6][4];    /* scaled data array for STALD                  */
   int cv_nscon;               /* counter for STALD method                     */
   long int cv_nor;            /* counter for number of order reductions       */
@@ -488,7 +647,7 @@ typedef struct CVodeMemRec {
     Rootfinding Data
     ----------------*/
 
-  CVRootFn cv_gfun;        /* Function g for roots sought                     */
+  CVRootFn cv_gfun;        /* function g for roots sought                     */
   int cv_nrtfn;            /* number of components of g                       */
   int *cv_iroots;          /* array for root information                      */
   int *cv_rootdir;         /* array specifying direction of zero-crossing     */
@@ -505,6 +664,15 @@ typedef struct CVodeMemRec {
   long int cv_nge;         /* counter for g evaluations                       */
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
+
+  /*---------------
+    Projection Data
+    ---------------*/
+
+  CVodeProjMem proj_mem;      /* projection memory structure               */
+  booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
+  booleantype  proj_applied;  /* flag indicating if projection was applied */
+  realtype     proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
     Fused Vector Operations
@@ -955,7 +1123,7 @@ struct CVadjMemRec {
 
 /*
  * =================================================================
- *   C V O D E S    I N T E R N A L   F U N C T I O N S
+ *    I N T E R N A L   F U N C T I O N S
  * =================================================================
  */
 
@@ -966,21 +1134,41 @@ realtype cvSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS);
 realtype cvSensUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
                           N_Vector *xS, N_Vector *wS);
 
-
 /* Prototype of internal ewtSet function */
 
 int cvEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void cvProcessError(CVodeMem cv_mem,
-		    int error_code, const char *module, const char *fname,
-		    const char *msgfmt, ...);
+void cvProcessError(CVodeMem cv_mem, int error_code, const char *module,
+                    const char *fname, const char *msgfmt, ...);
 
-/* Prototype of internal errHandler function */
+/* Prototype of internal ErrHandler function */
 
 void cvErrHandler(int error_code, const char *module, const char *function,
-		  char *msg, void *data);
+                  char *msg, void *data);
+
+/* Nonlinear solver initialization */
+
+int cvNlsInit(CVodeMem cv_mem);
+int cvNlsInitSensSim(CVodeMem cv_mem);
+int cvNlsInitSensStg(CVodeMem cv_mem);
+int cvNlsInitSensStg1(CVodeMem cv_mem);
+
+/* Projection functions */
+
+int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
+                   int *npfPtr);
+int cvProjInit(CVodeProjMem proj_mem);
+int cvProjFree(CVodeProjMem *proj_mem);
+
+/* Restore tn and undo prediction to reattempt a step */
+
+void cvRestore(CVodeMem cv_mem, realtype saved_t);
+
+/* Reset h and rescale history array to prepare for a step */
+
+void cvRescale(CVodeMem cv_mem);
 
 /* Prototypes for internal sensitivity rhs wrappers */
 
@@ -1008,15 +1196,9 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
                          void *fS_data,
                          N_Vector tempv, N_Vector ftemp);
 
-/* Nonlinear solver functions */
-int cvNlsInit(CVodeMem cv_mem);
-int cvNlsInitSensSim(CVodeMem cv_mem);
-int cvNlsInitSensStg(CVodeMem cv_mem);
-int cvNlsInitSensStg1(CVodeMem cv_mem);
-
 /*
  * =================================================================
- *   C V O D E S    E R R O R    M E S S A G E S
+ *    E R R O R    M E S S A G E S
  * =================================================================
  */
 
@@ -1046,13 +1228,13 @@ int cvNlsInitSensStg1(CVodeMem cv_mem);
 
 #endif
 
-
 /* Initialization and I/O error messages */
 
 #define MSGCV_NO_MEM "cvode_mem = NULL illegal."
 #define MSGCV_CVMEM_FAIL "Allocation of cvode_mem failed."
 #define MSGCV_MEM_FAIL "A memory request failed."
 #define MSGCV_BAD_LMM  "Illegal value for lmm. The legal values are CV_ADAMS and CV_BDF."
+#define MSGCV_NULL_SUNCTX  "sunctx = NULL illegal."
 #define MSGCV_NO_MALLOC "Attempt to call before CVodeInit."
 #define MSGCV_NEG_MAXORD "maxord <= 0 illegal."
 #define MSGCV_BAD_MAXORD  "Illegal attempt to increase maximum method order."
@@ -1143,6 +1325,15 @@ int cvNlsInitSensStg1(CVodeMem cv_mem);
 #define MSGCV_NLS_INPUT_NULL "At " MSG_TIME ", the nonlinear solver was passed a NULL input."
 #define MSGCV_NLS_FAIL "At " MSG_TIME ", the nonlinear solver failed in an unrecoverable manner."
 
+/* CVode Projection Error Messages */
+
+#define MSG_CV_MEM_NULL  "cvode_mem = NULL illegal."
+#define MSG_CV_MEM_FAIL  "A memory request failed."
+
+#define MSG_CV_PROJ_MEM_NULL       "proj_mem = NULL illegal."
+#define MSG_CV_PROJFUNC_FAIL       "At " MSG_TIME " the projection function failed with an unrecoverable error."
+#define MSG_CV_REPTD_PROJFUNC_ERR  "At " MSG_TIME " the projection function had repeated recoverable errors."
+
 #define MSGCV_NO_TOLQ "No integration tolerances for quadrature variables have been specified."
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."
 #define MSGCV_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
@@ -1171,7 +1362,7 @@ int cvNlsInitSensStg1(CVodeMem cv_mem);
 
 /*
  * =================================================================
- *   C V O D E A    E R R O R    M E S S A G E S
+ *   A D J O I N T    E R R O R    M E S S A G E S
  * =================================================================
  */
 

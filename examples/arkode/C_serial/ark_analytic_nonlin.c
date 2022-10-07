@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -64,9 +64,13 @@ int main()
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  FILE *UFID;
+  FILE *UFID, *FID;
   realtype t, tout;
-  long int nst, nst_a, nfe, netf;
+
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* Initial problem output */
   printf("\nAnalytical ODE test problem:\n");
@@ -74,14 +78,14 @@ int main()
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = 0.0;             /* Specify initial condition */
 
   /* Call ERKStepCreate to initialize the ERK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y. */
-  arkode_mem = ERKStepCreate(f, T0, y);
+  arkode_mem = ERKStepCreate(f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ERKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
@@ -118,24 +122,20 @@ int main()
   printf("   ---------------------\n");
   fclose(UFID);
 
-  /* Print some final statistics */
-  flag = ERKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ERKStepGetNumSteps", 1);
-  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ERKStepGetNumStepAttempts", 1);
-  flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_flag(&flag, "ERKStepGetNumRhsEvals", 1);
-  flag = ERKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ERKStepGetNumErrTestFails", 1);
+  /* Print final statistics */
+  printf("\nFinal Statistics:\n");
+  flag = ERKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals = %li\n", nfe);
-  printf("   Total number of error test failures = %li\n\n", netf);
+  /* Print final statistics to a file in CSV format */
+  FID = fopen("ark_analytic_nonlin_stats.csv", "w");
+  flag = ERKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
   ERKStepFree(&arkode_mem);    /* Free integrator memory */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 

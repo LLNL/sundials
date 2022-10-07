@@ -2,11 +2,11 @@
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
- * Based on code sundials_sparse.h by: Carol Woodward and 
+ * Based on code sundials_sparse.h by: Carol Woodward and
  *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -15,15 +15,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the sparse implementation of the 
+ * This is the header file for the sparse implementation of the
  * SUNMATRIX module, SUNMATRIX_SPARSE.
  *
  * Notes:
  *   - The definition of the generic SUNMatrix structure can be found
  *     in the header file sundials_matrix.h.
  *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type 'booleantype' and 'indextype'.
  * -----------------------------------------------------------------
@@ -48,11 +48,11 @@ extern "C" {
 #define CSC_MAT 0
 #define CSR_MAT 1
 
-  
+
 /* ------------------------------------------
  * Sparse Implementation of SUNMATRIX_SPARSE
  * ------------------------------------------ */
-  
+
 struct _SUNMatrixContent_Sparse {
   sunindextype M;
   sunindextype N;
@@ -100,7 +100,8 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * ---------------------------------------- */
 
 SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
-                                          sunindextype NNZ, int sparsetype);
+                                          sunindextype NNZ, int sparsetype,
+                                          SUNContext sunctx);
 
 SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A,
                                                    realtype droptol,

@@ -5,7 +5,7 @@
  *     Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -43,7 +43,7 @@ static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y);
  * Function to create a new dense matrix
  */
 
-SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
+SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
 {
   SUNMatrix A;
   SUNMatrixContent_Dense content;
@@ -54,7 +54,7 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
 
   /* Create an empty matrix object */
   A = NULL;
-  A = SUNMatNewEmpty();
+  A = SUNMatNewEmpty(sunctx);
   if (A == NULL) return(NULL);
 
   /* Attach operations */
@@ -96,14 +96,14 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
 
 
 /* ----------------------------------------------------------------------------
- * Function to print the dense matrix 
+ * Function to print the dense matrix
  */
- 
+
 void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
 {
   sunindextype i, j;
-  
-  /* should not be called unless A is a dense matrix; 
+
+  /* should not be called unless A is a dense matrix;
      otherwise return immediately */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
     return;
@@ -193,7 +193,7 @@ SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A)
 
 SUNMatrix SUNMatClone_Dense(SUNMatrix A)
 {
-  SUNMatrix B = SUNDenseMatrix(SM_ROWS_D(A), SM_COLUMNS_D(A));
+  SUNMatrix B = SUNDenseMatrix(SM_ROWS_D(A), SM_COLUMNS_D(A), A->sunctx);
   return(B);
 }
 
@@ -260,7 +260,7 @@ int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++) {
       SM_ELEMENT_D(A,i,j) *= c;
-      if (i == j) 
+      if (i == j)
         SM_ELEMENT_D(A,i,j) += ONE;
     }
   return SUNMAT_SUCCESS;
@@ -285,7 +285,7 @@ int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   sunindextype i, j;
   realtype *col_j, *xd, *yd;
-  
+
   /* Verify that A, x and y are compatible */
   if (!SMCompatible2_Dense(A, x, y))
     return SUNMAT_ILL_INPUT;
@@ -341,13 +341,13 @@ static booleantype SMCompatible_Dense(SUNMatrix A, SUNMatrix B)
 
 static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */ 
+  /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */
   if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_PTHREADS) )
     return SUNFALSE;
 
-  /* Optimally we would verify that the dimensions of A, x and y agree, 
+  /* Optimally we would verify that the dimensions of A, x and y agree,
    but since there is no generic 'length' routine for N_Vectors we cannot */
 
   return SUNTRUE;

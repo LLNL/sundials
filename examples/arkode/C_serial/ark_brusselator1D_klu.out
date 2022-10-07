@@ -25,5 +25,5 @@ Final Solver Statistics:
    Total linear solver setups = 35
    Total number of Jacobian evaluations = 14
    Total number of nonlinear iterations = 1196
-   Total number of nonlinear solver convergence failures = 0
+   Total number of nonlinear solver convergence failures = 13
    Total number of error test failures = 0

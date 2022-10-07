@@ -70,7 +70,7 @@
 /* Global spatial mesh is MX x MY = (NPEX x MXSUB) x (NPEY x MYSUB) */
 
 /* type definitions */
-typedef Sundials::TpetraVectorInterface::vector_type vector_type;
+typedef sundials::trilinos::nvector_tpetra::TpetraVectorInterface::vector_type vector_type;
 typedef vector_type::scalar_type scalar_type;
 typedef vector_type::mag_type mag_type;
 typedef vector_type::global_ordinal_type global_ordinal_type;
@@ -167,178 +167,181 @@ static int check_retval(void *flagvalue, const char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  void *ida_mem = NULL;
-  SUNLinearSolver LS = NULL;
-  int iout, retval;
-  realtype rtol, atol, t0, t1, tout, tret;
-  N_Vector uu = NULL;
-  N_Vector up = NULL;
-  N_Vector constraints = NULL;
-  N_Vector id = NULL;
-  N_Vector res = NULL;
-
   /* Start an MPI session */
   Tpetra::ScopeGuard tpetraScope(&argc, &argv);
+  {
+    int retval;
 
-  /* Create Tpetra communicator */
-  auto comm = Tpetra::getDefaultComm();
-  const int thispe = comm->getRank();
-  const int npes   = comm->getSize();
+    /* Create Tpetra communicator */
+    auto comm = Tpetra::getDefaultComm();
+    const int thispe = comm->getRank();
+    const int npes   = comm->getSize();
 
-  /* Allocate and initialize the data structure */
-  UserData *data = new UserData();
-  if(check_retval((void *)data, "malloc", 2, thispe))
-    return -1;
+    /* Create the SUNDIALS context object for this simulation. */
+    auto mpiComm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm);
+    MPI_Comm rawComm = *(mpiComm->getRawMpiComm());
 
-  /* Initialize user data */
-  InitUserData(thispe, comm, data);
+    SUNContext ctx;
+    retval = SUNContext_Create((void*) &rawComm, &ctx);
+    if (check_retval(&retval, "SUNContext_Create", 1, thispe)) return -1;
 
-  /* Set global solution vector lengths. */
-  const sunindextype global_length = data->mx * data->my;
-
-  /* Choose zero-based (C-style) indexing. */
-  const sunindextype index_base = 0;
-
-  /* Construct am MPI Map */
-  Teuchos::RCP<const map_type> testMap =
-    Teuchos::rcp(new map_type (global_length, index_base, comm,
-                               Tpetra::GloballyDistributed));
-
-  /* Check if the number of MPI processes matches the number of subgrids */
-  if (npes != (data->npex * data->npey)) {
-    if (thispe == 0)
-      fprintf(stderr,
-              "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
-              npes, data->npex * data->npey);
-    delete data;
-    return 1;
-  }
-
-  /* Construct a Tpetra vector and return refernce counting pointer to it. */
-  Teuchos::RCP<vector_type> rcpuu =
-    Teuchos::rcp(new vector_type(testMap));
-
-
-
-  /* Allocate and initialize N-vectors. */
-
-  uu = N_VMake_Trilinos(rcpuu);
-  if(check_retval((void *)uu, "N_VMake_Trilinos", 0, thispe))
-    return -1;
-
-  up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VClone", 0, thispe))
-    return -1;
-
-  res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VClone", 0, thispe))
-    return -1;
-
-  constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VClone", 0, thispe))
-    return -1;
-
-  id = N_VClone(uu);
-  if(check_retval((void *)id, "N_VClone", 0, thispe))
-    return -1;
-
-  /* Allocate user data extended vector and MPI buffers */
-  retval = AllocUserData(thispe, uu, data);
-  if(check_retval(&retval, "AllocUserData", 1, thispe)) return -1;
-
-
-  /* Initialize the uu, up, id, and res profiles. */
-  SetInitialProfile(uu, up, id, res, data);
-
-  /* Set constraints to all 1's for nonnegative solution values. */
-  N_VConst(ONE, constraints);
-
-  t0 = ZERO; t1 = RCONST(0.01);
-
-  /* Scalar relative and absolute tolerance. */
-  rtol = ZERO;
-  atol = RCONST(1.0e-3);
-
-  /* Call IDACreate and IDAMalloc to initialize solution. */
-
-  ida_mem = IDACreate();
-  if(check_retval((void *)ida_mem, "IDACreate", 0, thispe))
-    return -1;
-
-  retval = IDASetUserData(ida_mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1, thispe))
-    return -1;
-
-  retval = IDASetSuppressAlg(ida_mem, SUNTRUE);
-  if(check_retval(&retval, "IDASetSuppressAlg", 1, thispe))
-    return -1;
-
-  retval = IDASetId(ida_mem, id);
-  if(check_retval(&retval, "IDASetId", 1, thispe))
-    return -1;
-
-  retval = IDASetConstraints(ida_mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1, thispe))
-    return -1;
-  N_VDestroy(constraints);
-
-  retval = IDAInit(ida_mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1, thispe))
-    return -1;
-
-  retval = IDASStolerances(ida_mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1, thispe))
-    return -1;
-
-  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
-
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe))
-    return -1;
-
-  retval = IDASetLinearSolver(ida_mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe))
-    return -1;
-
-  retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASetPreconditioner", 1, thispe))
-    return -1;
-
-  /* Print output heading (on processor 0 only) and intial solution  */
-
-  if (thispe == 0) PrintHeader(rtol, atol, data);
-  PrintOutput(thispe, ida_mem, t0, uu);
-
-  /* Loop over tout, call IDASolve, print output. */
-
-  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-
-    retval = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1, thispe))
+    /* Allocate and initialize the data structure */
+    UserData *data = new UserData();
+    if(check_retval((void *)data, "malloc", 2, thispe))
       return -1;
 
-    PrintOutput(thispe, ida_mem, tret, uu);
+    /* Initialize user data */
+    InitUserData(thispe, comm, data);
 
+    /* Set global solution vector lengths. */
+    const sunindextype global_length = data->mx * data->my;
+
+    /* Choose zero-based (C-style) indexing. */
+    const sunindextype index_base = 0;
+
+    /* Construct am MPI Map */
+    Teuchos::RCP<const map_type> testMap =
+      Teuchos::rcp(new map_type (global_length, index_base, comm,
+                                 Tpetra::GloballyDistributed));
+
+    /* Check if the number of MPI processes matches the number of subgrids */
+    if (npes != (data->npex * data->npey)) {
+      if (thispe == 0)
+        fprintf(stderr,
+                "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
+                npes, data->npex * data->npey);
+      delete data;
+      return 1;
+    }
+
+    /* Construct a Tpetra vector and return refernce counting pointer to it. */
+    Teuchos::RCP<vector_type> rcpuu =
+      Teuchos::rcp(new vector_type(testMap));
+
+    /* Allocate and initialize N-vectors. */
+
+    N_Vector uu = N_VMake_Trilinos(rcpuu, ctx);
+    if(check_retval((void *)uu, "N_VMake_Trilinos", 0, thispe))
+      return -1;
+
+    N_Vector up = N_VClone(uu);
+    if(check_retval((void *)up, "N_VClone", 0, thispe))
+      return -1;
+
+    N_Vector res = N_VClone(uu);
+    if(check_retval((void *)res, "N_VClone", 0, thispe))
+      return -1;
+
+    N_Vector constraints = N_VClone(uu);
+    if(check_retval((void *)constraints, "N_VClone", 0, thispe))
+      return -1;
+
+    N_Vector id = N_VClone(uu);
+    if(check_retval((void *)id, "N_VClone", 0, thispe))
+      return -1;
+
+    /* Allocate user data extended vector and MPI buffers */
+    retval = AllocUserData(thispe, uu, data);
+    if(check_retval(&retval, "AllocUserData", 1, thispe)) return -1;
+
+    /* Initialize the uu, up, id, and res profiles. */
+    SetInitialProfile(uu, up, id, res, data);
+
+    /* Set constraints to all 1's for nonnegative solution values. */
+    N_VConst(ONE, constraints);
+
+    realtype t0 = ZERO;
+    realtype t1 = RCONST(0.01);
+
+    /* Scalar relative and absolute tolerance. */
+    realtype rtol = ZERO;
+    realtype atol = RCONST(1.0e-3);
+
+    /* Call IDACreate and IDAMalloc to initialize solution. */
+
+    void *ida_mem = IDACreate(ctx);
+    if(check_retval((void *)ida_mem, "IDACreate", 0, thispe))
+      return -1;
+
+    retval = IDASetUserData(ida_mem, data);
+    if(check_retval(&retval, "IDASetUserData", 1, thispe))
+      return -1;
+
+    retval = IDASetSuppressAlg(ida_mem, SUNTRUE);
+    if(check_retval(&retval, "IDASetSuppressAlg", 1, thispe))
+      return -1;
+
+    retval = IDASetId(ida_mem, id);
+    if(check_retval(&retval, "IDASetId", 1, thispe))
+      return -1;
+
+    retval = IDASetConstraints(ida_mem, constraints);
+    if(check_retval(&retval, "IDASetConstraints", 1, thispe))
+      return -1;
+    N_VDestroy(constraints);
+
+    retval = IDAInit(ida_mem, resHeat, t0, uu, up);
+    if(check_retval(&retval, "IDAInit", 1, thispe))
+      return -1;
+
+    retval = IDASStolerances(ida_mem, rtol, atol);
+    if(check_retval(&retval, "IDASStolerances", 1, thispe))
+      return -1;
+
+    /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
+
+    SUNLinearSolver LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
+    if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe))
+      return -1;
+
+    retval = IDASetLinearSolver(ida_mem, LS, NULL);
+    if(check_retval(&retval, "IDASetLinearSolver", 1, thispe))
+      return -1;
+
+    retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
+    if(check_retval(&retval, "IDASetPreconditioner", 1, thispe))
+      return -1;
+
+    /* Print output heading (on processor 0 only) and intial solution  */
+
+    if (thispe == 0) PrintHeader(rtol, atol, data);
+    PrintOutput(thispe, ida_mem, t0, uu);
+
+    /* Loop over tout, call IDASolve, print output. */
+    int iout;
+    realtype tret, tout;
+
+    for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
+
+      retval = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
+      if(check_retval(&retval, "IDASolve", 1, thispe))
+        return -1;
+
+      PrintOutput(thispe, ida_mem, tret, uu);
+
+    }
+
+    /* Print remaining counters. */
+
+    if (thispe == 0) PrintFinalStats(ida_mem);
+
+    /* Free memory */
+
+    IDAFree(&ida_mem);
+    SUNLinSolFree(LS);
+
+    N_VDestroy(id);
+    N_VDestroy(res);
+    N_VDestroy(up);
+    N_VDestroy(uu);
+
+    /* Delete template Tpetra vector */
+    rcpuu = Teuchos::null;
+
+    delete data;
+
+    SUNContext_Free(&ctx);
   }
-
-  /* Print remaining counters. */
-
-  if (thispe == 0) PrintFinalStats(ida_mem);
-
-  /* Free memory */
-
-  IDAFree(&ida_mem);
-  SUNLinSolFree(LS);
-
-  N_VDestroy(id);
-  N_VDestroy(res);
-  N_VDestroy(up);
-  N_VDestroy(uu);
-
-  /* Delete template Tpetra vector */
-  rcpuu = Teuchos::null;
-
-  delete data;
 
   return(0);
 }

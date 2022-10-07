@@ -3,7 +3,7 @@
 #                Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,56 +15,83 @@
 # examples/nvector level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
+if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
+  include_directories(${caliper_INCLUDE_DIR})
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
+endif()
+
 # Always add the nvector serial examples
 add_subdirectory(serial)
 
-if(MPI_ENABLE AND MPI_C_FOUND)
+# Build the nvector test utilities
+add_library(test_nvector_obj OBJECT test_nvector.c)
+if(BUILD_SHARED_LIBS)
+  # need PIC when shared libs are used since the example executables will link to the shared lib
+  set_property(TARGET test_nvector_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+endif()
+target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)
+
+
+if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(parallel)
   add_subdirectory(mpimanyvector)
   add_subdirectory(mpiplusx)
+  # Build the mpi nvector test utilities
+  add_library(test_nvectormpi_obj OBJECT test_mpinvector.c)
+  if(BUILD_SHARED_LIBS)
+    set_property(TARGET test_nvectormpi_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  endif()
+  target_link_libraries(test_nvectormpi_obj PRIVATE MPI::MPI_C sundials_nvecparallel)
 endif()
 add_subdirectory(manyvector)
 
-if(HYPRE_ENABLE AND HYPRE_FOUND)
+if(BUILD_NVECTOR_PARHYP)
   add_subdirectory(parhyp)
 endif()
 
-if(PTHREAD_ENABLE AND PTHREADS_FOUND)
+if(BUILD_NVECTOR_PTHREADS)
   add_subdirectory(pthreads)
 endif()
 
-if(OPENMP_ENABLE AND OPENMP_FOUND)
+if(BUILD_NVECTOR_OPENMP)
   add_subdirectory(C_openmp)
 endif()
 
-if(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+if(BUILD_NVECTOR_OPENMPDEV)
   add_subdirectory(openmpdev)
 endif()
 
-if(PETSC_ENABLE AND PETSC_FOUND)
+if(BUILD_NVECTOR_PETSC)
   add_subdirectory(petsc)
 endif()
 
-if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+if(BUILD_NVECTOR_CUDA)
   add_subdirectory(cuda)
-  if(MPI_ENABLE AND MPI_C_FOUND)
+  if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(mpicuda)
   endif()
 endif()
 
-if(RAJA_ENABLE AND RAJA_FOUND)
+if(BUILD_NVECTOR_HIP)
+  add_subdirectory(hip)
+endif()
+
+if(BUILD_NVECTOR_SYCL)
+  add_subdirectory(sycl)
+endif()
+
+if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
-  if(MPI_ENABLE AND MPI_C_FOUND)
+  if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(mpiraja)
   endif()
 endif()
 
-if(KOKKOS_ENABLE)
-  add_subdirectory(kokkos)
+if(BUILD_NVECTOR_TRILINOS)
+  add_subdirectory(trilinos)
 endif()
 
 
-
-if(Trilinos_ENABLE AND Trilinos_FOUND)
-  add_subdirectory(trilinos)
+if(BUILD_NVECTOR_KOKKOS)
+  add_subdirectory(kokkos)
 endif()

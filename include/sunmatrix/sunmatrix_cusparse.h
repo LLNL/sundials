@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -27,6 +27,7 @@
 
 #include <sundials/sundials_cuda_policies.hpp>
 #include <sundials/sundials_matrix.h>
+#include <sundials/sundials_memory.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -49,13 +50,20 @@ struct _SUNMatrix_Content_cuSparse {
   int blockcols;
   int blocknnz;
   int sparse_type;
-  booleantype own_data;
-  booleantype own_exec;
+  booleantype own_matd;
   booleantype fixed_pattern;
-  int* colind;
-  int* rowptrs;
-  realtype* data;
+  booleantype matvec_issetup;
+  SUNMemory colind;
+  SUNMemory rowptrs;
+  SUNMemory data;
+  SUNMemoryHelper mem_helper;
   cusparseMatDescr_t mat_descr;
+#if CUDART_VERSION >= 11000
+  SUNMemory dBufferMem;
+  size_t bufferSize;
+  cusparseDnVecDescr_t vecX, vecY;
+  cusparseSpMatDescr_t spmat_descr;
+#endif
   cusparseHandle_t cusp_handle;
   SUNCudaExecPolicy* exec_policy;
 };
@@ -66,15 +74,17 @@ typedef struct _SUNMatrix_Content_cuSparse *SUNMatrix_Content_cuSparse;
  * Constructors.
  * ------------------------------------------------------------------ */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp,
+                                                    SUNContext sunctx);
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ,
                                                      int *rowptrs , int *colind , realtype *data,
-                                                     cusparseHandle_t cusp);
+                                                     cusparseHandle_t cusp, SUNContext sunctx);
 
 /* Creates a CSR block-diagonal matrix where each block shares the same sparsity structure.
    Reduces memory usage by only storing the row pointers and column indices for one block. */
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols,
-                                                         int blocknnz, cusparseHandle_t cusp);
+                                                         int blocknnz, cusparseHandle_t cusp,
+                                                         SUNContext sunctx);
 
 
 /* ------------------------------------------------------------------
@@ -114,6 +124,7 @@ SUNDIALS_EXPORT int SUNMatZero_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_cuSparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_cuSparse(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatMatvecSetup_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y);
 
 

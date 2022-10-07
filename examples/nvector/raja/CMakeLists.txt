@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -25,23 +25,27 @@ set(nvector_raja_examples
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
   test_nvector
-  sundials_nvector
   sundials_math
 )
 
 # Add source directory to include directories
-include_directories(. ..)
+include_directories(. .. ${SUNDIALS_SOURCE_DIR}/examples/utilities)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nveccudaraja_static)
+if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+  set(_lang CUDA)
 else()
-  set(NVECS_LIB sundials_nveccudaraja_shared)
+  set(_lang CXX)
 endif()
 
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+if(SUNDIALS_RAJA_BACKENDS MATCHES "SYCL")
+  set(_custom_memhelper custom_memory_helper_sycl.h)
+else()
+  set(_custom_memhelper custom_memory_helper_gpu.h)
+endif()
+
+if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  set(OTHER_LIBS OpenMP::OpenMP_CXX)
+endif()
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_raja_examples})
@@ -53,28 +57,27 @@ foreach(example_tuple ${nvector_raja_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
-    # example source files
-    add_executable(${example} ${example}.cu
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c)
+
+    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
+
+    add_executable(${example} ${example}.cpp)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      PRIVATE
+      sundials_nvecraja
+      ${EXE_EXTRA_LINK_LIBS}
+      ${OTHER_LIBS})
+
   endif()
 
-  # check if example args are provided and set the test name
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
     if("${number_of_tasks}" STREQUAL "")
@@ -99,11 +102,11 @@ foreach(example_tuple ${nvector_raja_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
+    install(FILES ${example}.cpp
       ../test_nvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
+      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_math.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
   endif()
 
@@ -116,7 +119,13 @@ if(EXAMPLES_INSTALL)
   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(NVECTOR_LIB "sundials_nveccudaraja")
+  if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+    set(NVECTOR_LIB "sundials_nveccudaraja")
+  elseif(SUNDIALS_RAJA_BACKENDS MATCHES "HIP")
+    set(NVECTOR_LIB "sundials_nvechipraja")
+  else()
+    set(NVECTOR_LIB "sundials_nvecsyclraja")
+  endif()
 
   examples2string(nvector_raja_examples EXAMPLES)
   examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
@@ -155,6 +164,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

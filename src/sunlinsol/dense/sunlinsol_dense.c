@@ -2,7 +2,7 @@
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -33,16 +33,6 @@
 #define PIVOTS(S)         ( DENSE_CONTENT(S)->pivots )
 #define LASTFLAG(S)       ( DENSE_CONTENT(S)->last_flag )
 
-
-/*
- * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_Dense(y, A)); }
-
 /*
  * -----------------------------------------------------------------
  * exported functions
@@ -53,7 +43,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
  * Function to create a new dense linear solver
  */
 
-SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_Dense content;
@@ -74,7 +64,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */
@@ -156,8 +146,8 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
   }
 
   /* perform LU factorization of input matrix */
-  LASTFLAG(S) = denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
-                           SUNDenseMatrix_Columns(A), pivots);
+  LASTFLAG(S) = SUNDlsMat_denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
+                                     SUNDenseMatrix_Columns(A), pivots);
 
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0)
@@ -190,7 +180,7 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   }
 
   /* solve using LU factors */
-  denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
+  SUNDlsMat_denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
 }

@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -105,6 +105,7 @@ typedef struct {
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype reltol, t, tout;
   realtype *ydata, *abstol_data;
   N_Vector y, abstol;
@@ -137,10 +138,14 @@ int main(int argc, char *argv[])
   cusparseCreate(&cusp_handle);
   cusolverSpCreate(&cusol_handle);
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Create CUDA vector of length neq for I.C. and abstol */
-  y = N_VNew_Cuda(neq);
+  y = N_VNew_Cuda(neq, sunctx);
   if (check_retval((void *)y, "N_VNew_Cuda", 0)) return(1);
-  abstol = N_VNew_Cuda(neq);
+  abstol = N_VNew_Cuda(neq, sunctx);
   if (check_retval((void *)abstol, "N_VNew_Cuda", 0)) return(1);
 
   ydata = N_VGetHostArrayPointer_Cuda(y);
@@ -167,7 +172,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -186,7 +191,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
-  A = SUNMatrix_cuSparse_NewBlockCSR(ngroups, GROUPSIZE, GROUPSIZE, GROUPSIZE*GROUPSIZE, cusp_handle);
+  A = SUNMatrix_cuSparse_NewBlockCSR(ngroups, GROUPSIZE, GROUPSIZE, GROUPSIZE*GROUPSIZE, cusp_handle, sunctx);
   if(check_retval((void *)A, "SUNMatrix_cuSparse_NewBlockCSR", 0)) return(1);
 
   /* Set the sparsity pattern to be fixed so that the row pointers
@@ -197,7 +202,7 @@ int main(int argc, char *argv[])
   JacInit(A);
 
   /* Create the SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_cuSolverSp_batchQR(y, A, cusol_handle);
+  LS = SUNLinSol_cuSolverSp_batchQR(y, A, cusol_handle, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_cuSolverSp_batchQR", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
@@ -221,8 +226,8 @@ int main(int argc, char *argv[])
     for (groupj = 0; groupj < ngroups; groupj += 10) {
       printf("group %d: ", groupj);
       PrintOutput(t, ydata[GROUPSIZE*groupj],
-                     ydata[1+GROUPSIZE*groupj],
-                     ydata[2+GROUPSIZE*groupj]);
+                  ydata[1+GROUPSIZE*groupj],
+                  ydata[2+GROUPSIZE*groupj]);
     }
 
     if (check_retval(&retval, "CVode", 1)) break;
@@ -249,6 +254,8 @@ int main(int argc, char *argv[])
 
   /* Free the matrix memory */
   SUNMatDestroy(A);
+
+  SUNContext_Free(&sunctx);
 
   /* Destroy the cuSOLVER and cuSPARSE handles */
   cusparseDestroy(cusp_handle);
@@ -307,7 +314,7 @@ static void f_kernel(realtype t, realtype* ydata, realtype* ydotdata,
 
     yd1 = ydotdata[groupj]   = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
     yd3 = ydotdata[groupj+2] = RCONST(3.0e7)*y2*y2;
-          ydotdata[groupj+1] = -yd1 - yd3;
+    ydotdata[groupj+1] = -yd1 - yd3;
   }
 }
 
@@ -323,7 +330,7 @@ static int JacInit(SUNMatrix J)
   int rowptrs[4], colvals[9];
 
   /* Zero out the Jacobian */
-  SUNMatZero(J); 
+  SUNMatZero(J);
 
   /* there are 3 entries per row */
   rowptrs[0] = 0;
@@ -395,7 +402,7 @@ static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata)
 
   for (groupj = blockIdx.x*blockDim.x + threadIdx.x;
        groupj < ngroups;
-       groupj += blockDim.x * gridDim.x) 
+       groupj += blockDim.x * gridDim.x)
   {
     /* get y values */
     y2 = ydata[GROUPSIZE*groupj + 1];
@@ -444,7 +451,6 @@ static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
 static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
 {
   long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
-  size_t cuSpInternalSize, cuSpWorkSize;
   int retval;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
@@ -466,15 +472,11 @@ static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
   retval = CVodeGetNumGEvals(cvode_mem, &nge);
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
-  SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace(LS, &cuSpInternalSize, &cuSpWorkSize);
-
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-	 nst, nfe, nsetups, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n \n",
-   nni, ncfn, netf, nge);
-  printf("cuSolverSp numerical factorization workspace size (in bytes) = %ld\n", cuSpWorkSize);
-  printf("cuSolverSp internal Q, R buffer size (in bytes) = %ld\n", cuSpInternalSize);
+         nst, nfe, nsetups, nje);
+  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n",
+         nni, ncfn, netf, nge);
 }
 
 /*
@@ -494,7 +496,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -502,13 +504,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

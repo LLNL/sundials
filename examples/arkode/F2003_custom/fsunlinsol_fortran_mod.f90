@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -39,17 +39,18 @@ module fsunlinsol_fortran_mod
 contains
 
   ! ----------------------------------------------------------------
-  function FSUNLinSolNew_Fortran(Nvar, N) result(sunls_S)
+  function FSUNLinSolNew_Fortran(Nvar, N, sunctx) result(sunls_S)
 
     implicit none
     integer(c_long),           value   :: Nvar
     integer(c_long),           value   :: N
+    type(c_ptr),               value   :: sunctx
     type(SUNLinearSolver),     pointer :: sunls_S
     type(SUNLinearSolver_Ops), pointer :: ops
     type(FLinSol),             pointer :: content
 
     ! allocate output SUNLinearSolver structure
-    sunls_S => FSUNLinSolNewEmpty()
+    sunls_S => FSUNLinSolNewEmpty(sunctx)
 
     ! allocate and fill content structure
     allocate(content)

@@ -5,22 +5,18 @@
 # ---------------------------------------------------------------
 # Acknowledgement: Based on code from Chris White @ LLNL
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2002-2018, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # Sundials test runner for CTest. Note examples must be enabled
-# to use the test runner (e.g. EXAMPLES_ENABLE_C=ON). 
+# to use the test runner (e.g. EXAMPLES_ENABLE_C=ON).
 #
 # All output from the test runner output will be collected in
 # <build directory>/Testing/Temporary/LastTest.log
@@ -56,9 +52,9 @@ def main():
     parser.add_argument('--runargs', dest='runArgs', type=str,
                         help='command line arguments passed to test executable')
 
-    parser.add_argument('--floatprecision', dest='floatPrecision', type=int,
+    parser.add_argument('--floatprecision', dest='floatPrecision', type=int, default=4,
                         help='precision for floating point failure comparison (number of digits')
-    parser.add_argument('--integerpercentage', dest='integerPercentage', type=int,
+    parser.add_argument('--integerpercentage', dest='integerPercentage', type=int, default=10,
                         help='integer percentage difference for failure comparison')
 
     parser.add_argument('--nodiff', dest='CheckDiff', action='store_false',
@@ -85,7 +81,7 @@ def main():
         print("buildDir=%s"%(args.buildDir))
         print("buildCmd=%s"%(args.buildCmd))
 
-    # regression test name and output directory 
+    # regression test name and output directory
     testName  = args.testName
     outDir    = args.outputDir
 
@@ -97,7 +93,7 @@ def main():
         answerDir = args.answerDir
     else:
         answerDir = os.path.join(testDir, "answers")
-    
+
     if(args.verbose):
         print("testName %s"%testDir)
         print("outDir %s"%outDir)
@@ -136,7 +132,7 @@ def main():
                 error("cmake exited with error code " + str(process.returncode)
                       + "for ", args.buildDir)
                 success = False
-                
+
             # build the example
             process = subprocess.Popen(makeCommand, stdout=outFile, stderr=outFile)
             process.wait()
@@ -192,12 +188,12 @@ def main():
         answerPath = os.path.join(answerDir, answerFileName)
 
         # if user supplies precision info overide the default choices
-        if(args.floatPrecision):
+        if(args.floatPrecision >= 0):
             testInfo.floatPrecision=args.floatPrecision
 
-        if(args.integerPercentage):
+        if(args.integerPercentage >= 0):
             testInfo.integerPercentage=args.integerPercentage
-        
+
         if(args.verbose):
             print("Starting test...")
             print("  Floating Point Precision = " + str(testInfo.floatPrecision))
@@ -210,11 +206,11 @@ def main():
         try:
             if(args.verbose):
                 print("Running command : " + ' '.join(testCommand))
-                        
+
             # run the test
             process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
             process.wait()
-            
+
             # check test return value
             if process.returncode != 0:
                 error("Exited with error code " + str(process.returncode) + ".", testName)
@@ -391,7 +387,7 @@ def getInfo(testName, testDir):
                                           lineInfo[3].strip()))
 
     if len(testInfos) == 0:
-        # Note: If no info is found in the testInfo file then run the test 
+        # Note: If no info is found in the testInfo file then run the test
         # without arguments and use the default comparisions values
         testInfos.append(TestInfo(4,10,""))
     return testInfos

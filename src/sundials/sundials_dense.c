@@ -7,7 +7,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -19,7 +19,7 @@
  * This is the implementation file for a generic package of dense
  * matrix operations.
  * -----------------------------------------------------------------
- */ 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,56 +33,106 @@
 
 /*
  * -----------------------------------------------------
- * Functions working on DlsMat
+ * Functions working on SUNDlsMat
  * -----------------------------------------------------
  */
 
-sunindextype DenseGETRF(DlsMat A, sunindextype *p)
+sunindextype SUNDlsMat_DenseGETRF(SUNDlsMat A, sunindextype *p)
 {
-  return(denseGETRF(A->cols, A->M, A->N, p));
+  return(SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
 }
 
-void DenseGETRS(DlsMat A, sunindextype *p, realtype *b)
+sunindextype DenseGETRF(SUNDlsMat A, sunindextype *p)
 {
-  denseGETRS(A->cols, A->N, p, b);
+  return(SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
 }
 
-sunindextype DensePOTRF(DlsMat A)
+void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype *p, realtype *b)
 {
-  return(densePOTRF(A->cols, A->M));
+  SUNDlsMat_denseGETRS(A->cols, A->N, p, b);
 }
 
-void DensePOTRS(DlsMat A, realtype *b)
+void DenseGETRS(SUNDlsMat A, sunindextype *p, realtype *b)
 {
-  densePOTRS(A->cols, A->M, b);
+  SUNDlsMat_denseGETRS(A->cols, A->N, p, b);
 }
 
-int DenseGEQRF(DlsMat A, realtype *beta, realtype *wrk)
+sunindextype SUNDlsMat_DensePOTRF(SUNDlsMat A)
 {
-  return(denseGEQRF(A->cols, A->M, A->N, beta, wrk));
+  return(SUNDlsMat_densePOTRF(A->cols, A->M));
 }
 
-int DenseORMQR(DlsMat A, realtype *beta, realtype *vn, realtype *vm, realtype *wrk)
+sunindextype DensePOTRF(SUNDlsMat A)
 {
-  return(denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
+  return(SUNDlsMat_densePOTRF(A->cols, A->M));
 }
 
-void DenseCopy(DlsMat A, DlsMat B)
+void SUNDlsMat_DensePOTRS(SUNDlsMat A, realtype *b)
 {
-  denseCopy(A->cols, B->cols, A->M, A->N);
+  SUNDlsMat_densePOTRS(A->cols, A->M, b);
 }
 
-void DenseScale(realtype c, DlsMat A)
+void DensePOTRS(SUNDlsMat A, realtype *b)
 {
-  denseScale(c, A->cols, A->M, A->N);
+  SUNDlsMat_densePOTRS(A->cols, A->M, b);
 }
 
-void DenseMatvec(DlsMat A, realtype *x, realtype *y)
+int SUNDlsMat_DenseGEQRF(SUNDlsMat A, realtype *beta, realtype *wrk)
 {
-  denseMatvec(A->cols, x, y, A->M, A->N);
+  return(SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
+}
+
+int DenseGEQRF(SUNDlsMat A, realtype *beta, realtype *wrk)
+{
+  return(SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
+}
+
+int SUNDlsMat_DenseORMQR(SUNDlsMat A, realtype *beta, realtype *vn, realtype *vm, realtype *wrk)
+{
+  return(SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
+}
+
+int DenseORMQR(SUNDlsMat A, realtype *beta, realtype *vn, realtype *vm, realtype *wrk)
+{
+  return(SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
+}
+
+void SUNDlsMat_DenseCopy(SUNDlsMat A, SUNDlsMat B)
+{
+  SUNDlsMat_denseCopy(A->cols, B->cols, A->M, A->N);
+}
+
+void DenseCopy(SUNDlsMat A, SUNDlsMat B)
+{
+  SUNDlsMat_denseCopy(A->cols, B->cols, A->M, A->N);
+}
+
+void SUNDlsMat_DenseScale(realtype c, SUNDlsMat A)
+{
+  SUNDlsMat_denseScale(c, A->cols, A->M, A->N);
+}
+
+void DenseScale(realtype c, SUNDlsMat A)
+{
+  SUNDlsMat_denseScale(c, A->cols, A->M, A->N);
+}
+
+void SUNDlsMat_DenseMatvec(SUNDlsMat A, realtype *x, realtype *y)
+{
+  SUNDlsMat_denseMatvec(A->cols, x, y, A->M, A->N);
+}
+
+void DenseMatvec(SUNDlsMat A, realtype *x, realtype *y)
+{
+  SUNDlsMat_denseMatvec(A->cols, x, y, A->M, A->N);
 }
 
 sunindextype denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindextype *p)
+{
+  return(SUNDlsMat_denseGETRF(a, m, n, p));
+}
+
+sunindextype SUNDlsMat_denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindextype *p)
 {
   sunindextype i, j, k, l;
   realtype *col_j, *col_k;
@@ -101,8 +151,8 @@ sunindextype denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindexty
 
     /* check for zero pivot element */
     if (col_k[l] == ZERO) return(k+1);
-    
-    /* swap a(k,1:n) and a(l,1:n) if necessary */    
+
+    /* swap a(k,1:n) and a(l,1:n) if necessary */
     if ( l!= k ) {
       for (i=0; i<n; i++) {
         temp = a[i][l];
@@ -115,7 +165,7 @@ sunindextype denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindexty
      * column k by 1.0/a(k,k). After the above swap
      * a(k,k) holds the pivot element. This scaling
      * stores the pivot row multipliers a(i,k)/a(k,k)
-     * in a(i,k), i=k+1, ..., m-1.                      
+     * in a(i,k), i=k+1, ..., m-1.
      */
     mult = ONE/col_k[k];
     for(i=k+1; i < m; i++) col_k[i] *= mult;
@@ -134,8 +184,8 @@ sunindextype denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindexty
       /* a_kj = a(k,j), col_k[i] = - a(i,k)/a(k,k) */
 
       if (a_kj != ZERO) {
-	for (i=k+1; i < m; i++)
-	  col_j[i] -= a_kj * col_k[i];
+        for (i=k+1; i < m; i++)
+          col_j[i] -= a_kj * col_k[i];
       }
     }
   }
@@ -146,6 +196,11 @@ sunindextype denseGETRF(realtype **a, sunindextype m, sunindextype n, sunindexty
 }
 
 void denseGETRS(realtype **a, sunindextype n, sunindextype *p, realtype *b)
+{
+  SUNDlsMat_denseGETRS(a, n, p, b);
+}
+
+void SUNDlsMat_denseGETRS(realtype **a, sunindextype n, sunindextype *p, realtype *b)
 {
   sunindextype i, k, pk;
   realtype *col_k, tmp;
@@ -182,7 +237,13 @@ void denseGETRS(realtype **a, sunindextype n, sunindextype *p, realtype *b)
  * Only the lower triangle of A is accessed and it is overwritten with
  * the lower triangle of C.
  */
+
 sunindextype densePOTRF(realtype **a, sunindextype m)
+{
+  return(SUNDlsMat_densePOTRF(a, m));
+}
+
+sunindextype SUNDlsMat_densePOTRF(realtype **a, sunindextype m)
 {
   realtype *a_col_j, *a_col_k;
   realtype a_diag;
@@ -191,7 +252,7 @@ sunindextype densePOTRF(realtype **a, sunindextype m)
   for (j=0; j<m; j++) {
 
     a_col_j = a[j];
-   
+
     if (j>0) {
       for(i=j; i<m; i++) {
         for(k=0;k<j;k++) {
@@ -206,7 +267,7 @@ sunindextype densePOTRF(realtype **a, sunindextype m)
     a_diag = SUNRsqrt(a_diag);
 
     for(i=j; i<m; i++) a_col_j[i] /= a_diag;
-    
+
   }
 
   return(0);
@@ -217,7 +278,13 @@ sunindextype densePOTRF(realtype **a, sunindextype m)
  * obtained with denPOTRF.; A = C*C^T, C lower triangular
  *
  */
+
 void densePOTRS(realtype **a, sunindextype m, realtype *b)
+{
+  SUNDlsMat_densePOTRS(a, m, b);
+}
+
+void SUNDlsMat_densePOTRS(realtype **a, sunindextype m, realtype *b)
 {
   realtype *col_j, *col_i;
   sunindextype i, j;
@@ -239,7 +306,7 @@ void densePOTRS(realtype **a, sunindextype m, realtype *b)
   b[m-1] /= col_j[m-1];
   for (i=m-2; i>=0; i--) {
     col_i = a[i];
-    for (j=i+1; j<m; j++) 
+    for (j=i+1; j<m; j++)
       b[i] -= col_i[j]*b[j];
     b[i] /= col_i[i];
   }
@@ -250,8 +317,8 @@ void densePOTRS(realtype **a, sunindextype m, realtype *b)
  * QR factorization of a rectangular matrix A of size m by n (m >= n)
  * using Householder reflections.
  *
- * On exit, the elements on and above the diagonal of A contain the n by n 
- * upper triangular matrix R; the elements below the diagonal, with the array beta, 
+ * On exit, the elements on and above the diagonal of A contain the n by n
+ * upper triangular matrix R; the elements below the diagonal, with the array beta,
  * represent the orthogonal matrix Q as a product of elementary reflectors .
  *
  * v (of length m) must be provided as workspace.
@@ -259,6 +326,11 @@ void densePOTRS(realtype **a, sunindextype m, realtype *b)
  */
 
 int denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype *beta, realtype *v)
+{
+  return(SUNDlsMat_denseGEQRF(a, m, n, beta, v));
+}
+
+int SUNDlsMat_denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype *beta, realtype *v)
 {
   realtype ajj, s, mu, v1, v1_2;
   realtype *col_j, *col_k;
@@ -270,7 +342,7 @@ int denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype *beta, rea
     col_j = a[j];
 
     ajj = col_j[j];
-    
+
     /* Compute the j-th Householder vector (of length m-j) */
     v[0] = ONE;
     s = ZERO;
@@ -286,7 +358,7 @@ int denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype *beta, rea
       beta[j] = TWO * v1_2 / (s + v1_2);
       for(i=1; i<m-j; i++) v[i] /= v1;
     } else {
-      beta[j] = ZERO;      
+      beta[j] = ZERO;
     }
 
     /* Update upper triangle of A (load R) */
@@ -312,15 +384,22 @@ int denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype *beta, rea
 /*
  * Computes vm = Q * vn, where the orthogonal matrix Q is stored as
  * elementary reflectors in the m by n matrix A and in the vector beta.
- * (NOTE: It is assumed that an QR factorization has been previously 
+ * (NOTE: It is assumed that an QR factorization has been previously
  * computed with denGEQRF).
  *
  * vn (IN) has length n, vm (OUT) has length m, and it's assumed that m >= n.
  *
  * v (of length m) must be provided as workspace.
  */
+
 int denseORMQR(realtype **a, sunindextype m, sunindextype n, realtype *beta,
                realtype *vn, realtype *vm, realtype *v)
+{
+  return(SUNDlsMat_denseORMQR(a, m, n, beta, vn, vm, v));
+}
+
+int SUNDlsMat_denseORMQR(realtype **a, sunindextype m, sunindextype n, realtype *beta,
+                         realtype *vn, realtype *vm, realtype *v)
 {
   realtype *col_j, s;
   sunindextype i, j;
@@ -351,6 +430,11 @@ int denseORMQR(realtype **a, sunindextype m, sunindextype n, realtype *beta,
 
 void denseCopy(realtype **a, realtype **b, sunindextype m, sunindextype n)
 {
+  SUNDlsMat_denseCopy(a, b, m, n);
+}
+
+void SUNDlsMat_denseCopy(realtype **a, realtype **b, sunindextype m, sunindextype n)
+{
   sunindextype i, j;
   realtype *a_col_j, *b_col_j;
 
@@ -365,6 +449,11 @@ void denseCopy(realtype **a, realtype **b, sunindextype m, sunindextype n)
 
 void denseScale(realtype c, realtype **a, sunindextype m, sunindextype n)
 {
+  SUNDlsMat_denseScale(c, a, m, n);
+}
+
+void SUNDlsMat_denseScale(realtype c, realtype **a, sunindextype m, sunindextype n)
+{
   sunindextype i, j;
   realtype *col_j;
 
@@ -377,12 +466,22 @@ void denseScale(realtype c, realtype **a, sunindextype m, sunindextype n)
 
 void denseAddIdentity(realtype **a, sunindextype n)
 {
+  SUNDlsMat_denseAddIdentity(a, n);
+}
+
+void SUNDlsMat_denseAddIdentity(realtype **a, sunindextype n)
+{
   sunindextype i;
-  
+
   for (i=0; i < n; i++) a[i][i] += ONE;
 }
 
 void denseMatvec(realtype **a, realtype *x, realtype *y, sunindextype m, sunindextype n)
+{
+  SUNDlsMat_denseMatvec(a, x, y, m, n);
+}
+
+void SUNDlsMat_denseMatvec(realtype **a, realtype *x, realtype *y, sunindextype m, sunindextype n)
 {
   sunindextype i, j;
   realtype *col_j;

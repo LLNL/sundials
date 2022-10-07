@@ -1,9 +1,9 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "kinsol_impl.h"
+#include "kinsol_ls_impl.h"
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -84,8 +85,6 @@ int KINSetErrFile(void *kinmem, FILE *errfp)
   return(KIN_SUCCESS);
 }
 
-#define errfp (kin_mem->kin_errfp)
-
 /*
  * -----------------------------------------------------------------
  * Function : KINSetPrintLevel
@@ -140,6 +139,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
 /*
  * -----------------------------------------------------------------
  * Function : KINSetInfoFile
+ * DEPRECATED: use SUNLogger_SetInfoFilename instead
  * -----------------------------------------------------------------
  */
 
@@ -157,6 +157,31 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
 
   return(KIN_SUCCESS);
 }
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDebugFile
+ * DEPRECATED: use SUNLogger_SetDebugFilename instead
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDebugFile(void *kinmem, FILE *debugfp)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDebugFile",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+  kin_mem->kin_debugfp = debugfp;
+
+  return(KIN_SUCCESS);
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -178,6 +203,44 @@ int KINSetUserData(void *kinmem, void *user_data)
 
   return(KIN_SUCCESS);
 }
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDamping
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDamping(void *kinmem, realtype beta)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDamping", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check for illegal input value */
+  if (beta <= ZERO) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDamping",
+                    "beta <= 0 illegal");
+    return(KIN_ILL_INPUT);
+  }
+
+  if (beta < ONE) {
+    /* enable damping */
+    kin_mem->kin_beta    = beta;
+    kin_mem->kin_damping = SUNTRUE;
+  } else {
+    /* disable damping */
+    kin_mem->kin_beta    = ONE;
+    kin_mem->kin_damping = SUNFALSE;
+  }
+
+  return(KIN_SUCCESS);
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -204,7 +267,64 @@ int KINSetMAA(void *kinmem, long int maa)
   if (maa > kin_mem->kin_mxiter) maa = kin_mem->kin_mxiter;
 
   kin_mem->kin_m_aa = maa;
-  kin_mem->kin_aamem_aa = (maa == 0) ? SUNFALSE : SUNTRUE;
+
+  return(KIN_SUCCESS);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDelayAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDelayAA(void *kinmem, long int delay)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDelayAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check for illegal input value */
+  if (delay < 0) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDelayAA",
+                    "delay < 0 illegal");
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem->kin_delay_aa = delay;
+
+  return(KIN_SUCCESS);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetOrthAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetOrthAA(void *kinmem, int orthaa)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetOrthAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  if ((orthaa < KIN_ORTH_MGS) || (orthaa > KIN_ORTH_DCGS2)) {
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_BAD_ORTHAA);
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem->kin_orth_aa = orthaa;
 
   return(KIN_SUCCESS);
 }
@@ -220,7 +340,7 @@ int KINSetDampingAA(void *kinmem, realtype beta)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMAA", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDampingAA", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -248,27 +368,25 @@ int KINSetDampingAA(void *kinmem, realtype beta)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetAAStopCrit
+ * Function : KINSetReturnNewest
  * -----------------------------------------------------------------
  */
 
-/*  CSW: This function is currently not supported.
-
-int KINSetAAStopCrit(void *kinmem, booleantype setstop)
+int KINSetReturnNewest(void *kinmem, booleantype ret_newest)
 {
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetAAStopCrit", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetReturnNewest", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
-  kin_mem->kin_setstop_aa = setstop;
+
+  kin_mem->kin_ret_newest = ret_newest;
 
   return(KIN_SUCCESS);
 }
-*/
 
 /*
  * -----------------------------------------------------------------
@@ -1000,6 +1118,128 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
 
   kin_mem = (KINMem) kinmem;
   *steplength = kin_mem->kin_stepl;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINGetUserData
+ * -----------------------------------------------------------------
+ */
+
+int KINGetUserData(void *kinmem, void** user_data)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetUserData", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  *user_data = kin_mem->kin_user_data;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINPrintAllStats
+ * -----------------------------------------------------------------
+ */
+
+int KINPrintAllStats(void *kinmem, FILE* outfile, SUNOutputFormat fmt)
+{
+  KINMem kin_mem;
+  KINLsMem kinls_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINPrintAllStats",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* main solver stats */
+    fprintf(outfile, "Nonlinear iters         = %li\n", kin_mem->kin_nni);
+    fprintf(outfile, "Nonlinear fn evals      = %li\n", kin_mem->kin_nfe);
+    fprintf(outfile, "Beta condition fails    = %li\n", kin_mem->kin_nbcf);
+    fprintf(outfile, "Backtrack operations    = %li\n", kin_mem->kin_nbktrk);
+    fprintf(outfile, "Nonlinear fn norm       = %"RSYM"\n", kin_mem->kin_fnorm);
+    fprintf(outfile, "Step length             = %"RSYM"\n", kin_mem->kin_stepl);
+
+    /* linear solver stats */
+    if (kin_mem->kin_lmem)
+    {
+      kinls_mem = (KINLsMem) (kin_mem->kin_lmem);
+      fprintf(outfile, "Jac fn evals            = %ld\n", kinls_mem->nje);
+      fprintf(outfile, "LS Nonlinear fn evals   = %ld\n", kinls_mem->nfeDQ);
+      fprintf(outfile, "Prec setup evals        = %ld\n", kinls_mem->npe);
+      fprintf(outfile, "Prec solves             = %ld\n", kinls_mem->nps);
+      fprintf(outfile, "LS iters                = %ld\n", kinls_mem->nli);
+      fprintf(outfile, "LS fails                = %ld\n", kinls_mem->ncfl);
+      fprintf(outfile, "Jac-times evals         = %ld\n", kinls_mem->njtimes);
+      if (kin_mem->kin_nni > 0)
+      {
+        fprintf(outfile, "LS iters per NLS iter   = %"RSYM"\n",
+                (realtype) kinls_mem->nli / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, "Jac evals per NLS iter  = %"RSYM"\n",
+                (realtype) kinls_mem->nje / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, "Prec evals per NLS iter = %"RSYM"\n",
+                (realtype) kinls_mem->npe / (realtype) kin_mem->kin_nni);
+      }
+    }
+
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    /* main solver stats */
+    fprintf(outfile, "Nonlinear iters,%li", kin_mem->kin_nni);
+    fprintf(outfile, ",Nonlinear fn evals,%li", kin_mem->kin_nfe);
+    fprintf(outfile, ",Beta condition fails,%li", kin_mem->kin_nbcf);
+    fprintf(outfile, ",Backtrack operations,%li", kin_mem->kin_nbktrk);
+    fprintf(outfile, ",Nonlinear fn norm,%"RSYM, kin_mem->kin_fnorm);
+    fprintf(outfile, ",Step length,%"RSYM, kin_mem->kin_stepl);
+
+    /* linear solver stats */
+    if (kin_mem->kin_lmem)
+    {
+      kinls_mem = (KINLsMem) (kin_mem->kin_lmem);
+      fprintf(outfile, ",Jac fn evals,%ld", kinls_mem->nje);
+      fprintf(outfile, ",LS Nonlinear fn evals,%ld", kinls_mem->nfeDQ);
+      fprintf(outfile, ",Prec setup evals,%ld", kinls_mem->npe);
+      fprintf(outfile, ",Prec solves,%ld", kinls_mem->nps);
+      fprintf(outfile, ",LS iters,%ld", kinls_mem->nli);
+      fprintf(outfile, ",LS fails,%ld", kinls_mem->ncfl);
+      fprintf(outfile, ",Jac-times evals,%ld", kinls_mem->njtimes);
+      if (kin_mem->kin_nni > 0)
+      {
+        fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
+                (realtype) kinls_mem->nli / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
+                (realtype) kinls_mem->nje / (realtype) kin_mem->kin_nni);
+        fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
+                (realtype) kinls_mem->npe / (realtype) kin_mem->kin_nni);
+      }
+      else
+      {
+        fprintf(outfile, ",LS iters per NLS iter,0");
+        fprintf(outfile, ",Jac evals per NLS iter,0");
+        fprintf(outfile, ",Prec evals per NLS iter,0");
+      }
+    }
+    fprintf(outfile, "\n");
+    break;
+  default:
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINPrintAllStats",
+                    "Invalid formatting option.");
+    return(KIN_ILL_INPUT);
+  }
 
   return(KIN_SUCCESS);
 }

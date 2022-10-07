@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2020, Lawrence Livermore National Security
+! Copyright (c) 2002-2022, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -39,17 +39,18 @@ module fsunmatrix_fortran_mod
 contains
 
   ! ----------------------------------------------------------------
-  function FSUNMatNew_Fortran(Nvar, N) result(sunmat_A)
+  function FSUNMatNew_Fortran(Nvar, N, sunctx) result(sunmat_A)
 
     implicit none
     integer(c_long),     value   :: Nvar
     integer(c_long),     value   :: N
+    type(c_ptr),         value   :: sunctx
     type(SUNMatrix),     pointer :: sunmat_A
     type(SUNMatrix_Ops), pointer :: ops
     type(FMat),          pointer :: content
 
     ! allocate output SUNMatrix structure
-    sunmat_A => FSUNMatNewEmpty()
+    sunmat_A => FSUNMatNewEmpty(sunctx)
 
     ! allocate and fill content structure
     allocate(content)
@@ -115,7 +116,7 @@ contains
     A => FSUNMatGetFMat(sunmat_A)
 
     ! allocate output N_Vector structure
-    sunmat_B => FSUNMatNewEmpty()
+    sunmat_B => FSUNMatNewEmpty(sunmat_A%sunctx)
 
     ! copy operations from x into y
     retval = FSUNMatCopyOps(sunmat_A, sunmat_B)

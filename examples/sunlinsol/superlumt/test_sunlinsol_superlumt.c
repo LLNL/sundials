@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,10 +41,16 @@ int main(int argc, char *argv[])
   realtype        *matdata, *xdata;
   int             mattype, num_threads, print_timing;
   sunindextype    i, j, k;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set matrix dimensions */
   if (argc < 5){
-    printf("ERROR: FOUR (4) Inputs required: matrix size, matrix type (0/1), num_threads, print timing \n");
+    printf("ERROR: FOUR (4) Inputs required: matrix size, matrix type (0 = CSC / 1 = CSR), num_threads, print timing \n");
     return(-1);
   }
 
@@ -74,10 +80,10 @@ int main(int argc, char *argv[])
          (long int) N, mattype, num_threads);
 
   /* Create matrices and vectors */
-  B = SUNDenseMatrix(N, N);
-  x = N_VNew_Serial(N);
-  y = N_VNew_Serial(N);
-  b = N_VNew_Serial(N);
+  B = SUNDenseMatrix(N, N, sunctx);
+  x = N_VNew_Serial(N, sunctx);
+  y = N_VNew_Serial(N, sunctx);
+  b = N_VNew_Serial(N, sunctx);
 
   /* Fill matrix with uniform random data in [0,1/N] */
   for (k=0; k<5*N; k++) {
@@ -114,12 +120,12 @@ int main(int argc, char *argv[])
   }
 
   /* Create SuperLUMT linear solver */
-  LS = SUNLinSol_SuperLUMT(x, A, num_threads);
+  LS = SUNLinSol_SuperLUMT(x, A, num_threads, sunctx);
 
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, SUNTRUE, 0);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUMT, 0);
@@ -147,6 +153,7 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }
@@ -166,7 +173,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i < local_length; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;

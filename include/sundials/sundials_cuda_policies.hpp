@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header files defines the CudaExecPolicy classes which
- * are utilized to determine CUDA kernel launch paramaters.
+ * This header files defines the ExecPolicy classes which
+ * are utilized to determine CUDA kernel launch parameters.
  * -----------------------------------------------------------------
  */
 
@@ -22,135 +22,139 @@
 
 #include <cstdio>
 #include <stdexcept>
-#include <cuda_runtime.h>
+
+#include <sundials/sundials_types.h>
 
 namespace sundials
 {
+namespace cuda
+{
 
-class CudaExecPolicy
+constexpr const sunindextype WARP_SIZE = 32;
+constexpr const sunindextype MAX_BLOCK_SIZE = 1024;
+constexpr const sunindextype MAX_WARPS = MAX_BLOCK_SIZE / WARP_SIZE;
+
+class ExecPolicy
 {
 public:
+  ExecPolicy(cudaStream_t stream = 0) : stream_(stream) { }
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0; 
-  virtual cudaStream_t stream() const = 0;
-  virtual CudaExecPolicy* clone() const = 0;
-  virtual ~CudaExecPolicy() {}
+  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
+  virtual const cudaStream_t* stream() const { return (&stream_); }
+  virtual ExecPolicy* clone() const = 0;
+  ExecPolicy* clone_new_stream(cudaStream_t stream) const {
+    ExecPolicy* ex = clone();
+    ex->stream_ = stream;
+    return ex;
+  }
+  virtual bool atomic() const { return false; }
+  virtual ~ExecPolicy() {}
+protected:
+  cudaStream_t stream_;
 };
 
 
-/* 
+/*
  * A kernel execution policy that maps each thread to a work unit.
  * The number of threads per block (blockSize) can be set to anything.
- * The grid size will be chosen so that there is enough threads for one
+ * The grid size will be chosen so that there are enough threads for one
  * thread per element. If a stream is provided, it will be used to
  * execute the kernel.
  */
-class CudaThreadDirectExecPolicy : public CudaExecPolicy
+class ThreadDirectExecPolicy : public ExecPolicy
 {
 public:
-  CudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
-    : blockDim_(blockDim), stream_(stream)
+  ThreadDirectExecPolicy(const size_t blockDim, cudaStream_t stream = 0)
+    : blockDim_(blockDim), ExecPolicy(stream)
   {}
 
-  CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
-    : blockDim_(ex.blockDim_), stream_(ex.stream_)
-  {} 
+  ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
+    : blockDim_(ex.blockDim_), ExecPolicy(ex.stream_)
+  {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
   {
     /* ceil(n/m) = floor((n + m - 1) / m) */
     return (numWorkUnits + blockSize() - 1) / blockSize();
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
   {
     return blockDim_;
   }
 
-  virtual cudaStream_t stream() const
+  virtual ExecPolicy* clone() const
   {
-    return stream_;
-  }
-
-  virtual CudaExecPolicy* clone() const
-  {
-    return static_cast<CudaExecPolicy*>(new CudaThreadDirectExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new ThreadDirectExecPolicy(*this));
   }
 
 private:
-  const cudaStream_t stream_;
   const size_t blockDim_;
 };
 
-/* 
+/*
  * A kernel execution policy for kernels that use grid stride loops.
  * The number of threads per block (blockSize) can be set to anything.
  * The number of blocks (gridSize) can be set to anything. If a stream
  * is provided, it will be used to execute the kernel.
  */
-class CudaGridStrideExecPolicy : public CudaExecPolicy
+class GridStrideExecPolicy : public ExecPolicy
 {
 public:
-  CudaGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)
-    : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
+  GridStrideExecPolicy(const size_t blockDim, const size_t gridDim, cudaStream_t stream = 0)
+    : blockDim_(blockDim), gridDim_(gridDim), ExecPolicy(stream)
   {}
 
-  CudaGridStrideExecPolicy(const CudaGridStrideExecPolicy& ex)
-    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
-  {} 
+  GridStrideExecPolicy(const GridStrideExecPolicy& ex)
+    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), ExecPolicy(ex.stream_)
+  {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t /*numWorkUnits*/ = 0, size_t /*blockDim*/ = 0) const
   {
     return gridDim_;
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
   {
     return blockDim_;
   }
 
-  virtual cudaStream_t stream() const
+  virtual ExecPolicy* clone() const
   {
-    return stream_;
-  }
-
-  virtual CudaExecPolicy* clone() const
-  {
-    return static_cast<CudaExecPolicy*>(new CudaGridStrideExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new GridStrideExecPolicy(*this));
   }
 
 private:
-  const cudaStream_t stream_;
   const size_t blockDim_;
   const size_t gridDim_;
 };
 
-
-/* 
- * A kernel execution policy for performing a reduction across indvidual thread blocks.
- * The number of threads per block (blockSize) can be set to any valid multiple of
- * the CUDA warp size. The grid size (gridSize) can be set to any value greater than 0.
- * If it is set to 0, then the grid size will be chosen so that there is enough threads
- * for one thread per work unit. If a stream is provided, it will be used to execute
- * the kernel.
+/*
+ * A kernel execution policy for performing a reduction across indvidual thread
+ * blocks. The number of threads per block (blockSize) can be set to any valid
+ * multiple of the CUDA warp size. The number of blocks (gridSize) can be set to
+ * any value greater or equal to 0. If it is set to 0, then the grid size will
+ * be chosen so that there are at most two work units per thread. If a stream is
+ * provided, it will be used to execute the kernel.
  */
-class CudaBlockReduceExecPolicy : public CudaExecPolicy
+
+class BlockReduceAtomicExecPolicy : public ExecPolicy
 {
 public:
-  CudaBlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, const cudaStream_t stream = 0)
-    : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
+  BlockReduceAtomicExecPolicy(const size_t blockDim, const size_t gridDim = 0, cudaStream_t stream = 0)
+    : blockDim_(blockDim), gridDim_(gridDim), ExecPolicy(stream)
   {
-    if (blockDim < 1 || blockDim % 32)
+    if (blockDim < 1 || blockDim % WARP_SIZE)
     {
       throw std::invalid_argument("the block size must be a multiple of the CUDA warp size");
     }
   }
 
-  CudaBlockReduceExecPolicy(const CudaBlockReduceExecPolicy& ex)
-    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
+  BlockReduceAtomicExecPolicy(const BlockReduceAtomicExecPolicy& ex)
+    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), ExecPolicy(ex.stream_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
   {
     if (gridDim_ == 0)
     {
@@ -159,32 +163,72 @@ public:
     return gridDim_;
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
   {
     return blockDim_;
   }
-  
-  virtual cudaStream_t stream() const
+
+  virtual ExecPolicy* clone() const
   {
-    return stream_;
+    return static_cast<ExecPolicy*>(new BlockReduceAtomicExecPolicy(*this));
   }
 
-  virtual CudaExecPolicy* clone() const
-  {
-    return static_cast<CudaExecPolicy*>(new CudaBlockReduceExecPolicy(*this));
-  }
+  virtual bool atomic() const { return true; }
 
 private:
-  const cudaStream_t stream_;
   const size_t blockDim_;
   const size_t gridDim_;
 };
 
+class BlockReduceExecPolicy : public ExecPolicy
+{
+public:
+  BlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, cudaStream_t stream = 0)
+    : blockDim_(blockDim), gridDim_(gridDim), ExecPolicy(stream)
+  {
+    if (blockDim < 1 || blockDim % WARP_SIZE)
+    {
+      throw std::invalid_argument("the block size must be a multiple of the CUDA warp size");
+    }
+  }
+
+  BlockReduceExecPolicy(const BlockReduceExecPolicy& ex)
+    : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), ExecPolicy(ex.stream_)
+  {}
+
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /*blockDim*/ = 0) const
+  {
+    if (gridDim_ == 0)
+    {
+      return (numWorkUnits + (blockSize() * 2 - 1)) / (blockSize() * 2);
+    }
+    return gridDim_;
+  }
+
+  virtual size_t blockSize(size_t /*numWorkUnits*/ = 0, size_t /*gridDim*/ = 0) const
+  {
+    return blockDim_;
+  }
+
+  virtual ExecPolicy* clone() const
+  {
+    return static_cast<ExecPolicy*>(new BlockReduceExecPolicy(*this));
+  }
+
+  bool atomic() const { return false; }
+
+private:
+  const size_t blockDim_;
+  const size_t gridDim_;
+};
+
+} // namespace cuda
 } // namespace sundials
 
-typedef sundials::CudaExecPolicy SUNCudaExecPolicy;
-typedef sundials::CudaThreadDirectExecPolicy SUNCudaThreadDirectExecPolicy;
-typedef sundials::CudaGridStrideExecPolicy SUNCudaGridStrideExecPolicy;
-typedef sundials::CudaBlockReduceExecPolicy SUNCudaBlockReduceExecPolicy;
+typedef sundials::cuda::ExecPolicy SUNCudaExecPolicy;
+typedef sundials::cuda::ThreadDirectExecPolicy SUNCudaThreadDirectExecPolicy;
+typedef sundials::cuda::GridStrideExecPolicy SUNCudaGridStrideExecPolicy;
+typedef sundials::cuda::BlockReduceExecPolicy SUNCudaBlockReduceExecPolicy;
+typedef sundials::cuda::BlockReduceAtomicExecPolicy SUNCudaBlockReduceAtomicExecPolicy;
 
 #endif

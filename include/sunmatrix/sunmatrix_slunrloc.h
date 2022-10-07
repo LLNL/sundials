@@ -3,7 +3,7 @@
  * Programmer(s): Cody Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -53,7 +53,7 @@ typedef struct _SUNMatrixContent_SLUNRloc *SUNMatrixContent_SLUNRloc;
  * --------------------------------------------------------------------------*/
 
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *A_super, gridinfo_t *grid, SUNContext sunctx);
 SUNDIALS_EXPORT void SUNMatrix_SLUNRloc_Print(SUNMatrix A, FILE *fp);
 
 /* ----------------------------------------------------------------------------

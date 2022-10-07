@@ -1,12 +1,8 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -24,13 +20,28 @@
 
 #include <stdarg.h>
 
-#include <idas/idas.h>
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
+#include "idas/idas.h"
+#include "sundials_context_impl.h"
+#include "sundials_logger_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM  ".32Lg"
+#define RSYMW "41.32Lg"
+#else
+#define RSYM  ".16g"
+#define RSYMW "23.16g"
+#endif
+
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
+#define IDA_LOGGER IDA_mem->ida_sunctx->logger
 
 /*
  * =================================================================
@@ -42,9 +53,20 @@ extern "C" {
 /* Basic IDA constants */
 
 #define HMAX_INV_DEFAULT RCONST(0.0) /* hmax_inv default value          */
+#define HMIN_DEFAULT     RCONST(0.0) /* hmin default value              */
 #define MAXORD_DEFAULT   5           /* maxord default value            */
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
+
+#define ETA_MAX_FX_DEFAULT RCONST(2.0)  /* threshold to increase step size   */
+#define ETA_MIN_FX_DEFAULT RCONST(1.0)  /* threshold to decrease step size   */
+#define ETA_MAX_DEFAULT    RCONST(2.0)  /* max step size increase factor     */
+#define ETA_MIN_DEFAULT    RCONST(0.5)  /* min step size decrease factor     */
+#define ETA_LOW_DEFAULT    RCONST(0.9)  /* upper bound on decrease factor    */
+#define ETA_MIN_EF_DEFAULT RCONST(0.25) /* err test fail min decrease factor */
+#define ETA_CF_DEFAULT     RCONST(0.25) /* NLS failure decrease factor       */
+
+#define DCJ_DEFAULT RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
 
 /* Return values for lower level routines used by IDASolve and functions
    provided to the nonlinear solver */
@@ -67,15 +89,17 @@ extern "C" {
 #define IDA_EE               4
 
 /*
- * -----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * Types: struct IDAMemRec, IDAMem
- * -----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * The type IDAMem is type pointer to struct IDAMemRec.
  * This structure contains fields to keep track of problem state.
- * -----------------------------------------------------------------
+ * ----------------------------------------------------------------
  */
 
 typedef struct IDAMemRec {
+
+  SUNContext ida_sunctx;
 
   realtype ida_uround;    /* machine unit roundoff */
 
@@ -83,17 +107,22 @@ typedef struct IDAMemRec {
     Problem Specification Data
     --------------------------*/
 
-  IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F     */
-  void          *ida_user_data;      /* user pointer passed to res            */
+  IDAResFn    ida_res;        /* F(t,y(t),y'(t))=0; the function F     */
+  void        *ida_user_data; /* user pointer passed to res            */
 
-  int            ida_itol;           /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
-  realtype       ida_rtol;           /* relative tolerance                    */
-  realtype       ida_Satol;          /* scalar absolute tolerance             */
-  N_Vector       ida_Vatol;          /* vector absolute tolerance             */
-  booleantype    ida_atolmin0;       /* flag indicating that min(atol) = 0    */
-  booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
-  IDAEwtFn       ida_efun;           /* function to set ewt                   */
-  void          *ida_edata;          /* user pointer passed to efun           */
+  int         ida_itol;       /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
+  realtype    ida_rtol;       /* relative tolerance                    */
+  realtype    ida_Satol;      /* scalar absolute tolerance             */
+  N_Vector    ida_Vatol;      /* vector absolute tolerance             */
+  booleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
+  booleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
+  IDAEwtFn    ida_efun;       /* function to set ewt                   */
+  void        *ida_edata;     /* user pointer passed to efun           */
+
+  booleantype    ida_constraintsSet; /* constraints vector present:
+                                        do constraints calc                   */
+  booleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
+                                        in local error tests                  */
 
   /*-----------------------
     Quadrature Related Data
@@ -102,7 +131,7 @@ typedef struct IDAMemRec {
   booleantype    ida_quadr;
 
   IDAQuadRhsFn   ida_rhsQ;
-  void          *ida_user_dataQ;
+  void           *ida_user_dataQ;
 
   booleantype    ida_errconQ;
 
@@ -121,12 +150,12 @@ typedef struct IDAMemRec {
   int            ida_ism;
 
   IDASensResFn   ida_resS;
-  void          *ida_user_dataS;
+  void           *ida_user_dataS;
   booleantype    ida_resSDQ;
 
-  realtype      *ida_p;
-  realtype      *ida_pbar;
-  int           *ida_plist;
+  realtype       *ida_p;
+  realtype       *ida_pbar;
+  int            *ida_plist;
   int            ida_DQtype;
   realtype       ida_DQrhomax;
 
@@ -172,25 +201,25 @@ typedef struct IDAMemRec {
     N_Vectors for integration
     -------------------------*/
 
-  N_Vector ida_ewt;          /* error weight vector                           */
-  N_Vector ida_yy;           /* work space for y vector (= user's yret)       */
-  N_Vector ida_yp;           /* work space for y' vector (= user's ypret)     */
-  N_Vector ida_yypredict;    /* predicted y vector                            */
-  N_Vector ida_yppredict;    /* predicted y' vector                           */
-  N_Vector ida_delta;        /* residual vector                               */
-  N_Vector ida_id;           /* bit vector for diff./algebraic components     */
-  N_Vector ida_constraints;  /* vector of inequality constraint options       */
-  N_Vector ida_savres;       /* saved residual vector                         */
-  N_Vector ida_ee;           /* accumulated corrections to y vector, but
-                                set equal to estimated local errors upon
-                                successful return                             */
-  N_Vector ida_tempv1;       /* work space vector                             */
-  N_Vector ida_tempv2;       /* work space vector                             */
-  N_Vector ida_tempv3;       /* work space vector                             */
-  N_Vector ida_ynew;         /* work vector for y in IDACalcIC (= tempv2)     */
-  N_Vector ida_ypnew;        /* work vector for yp in IDACalcIC (= ee)        */
-  N_Vector ida_delnew;       /* work vector for delta in IDACalcIC (= phi[2]) */
-  N_Vector ida_dtemp;        /* work vector in IDACalcIC (= phi[3])           */
+  N_Vector ida_ewt;         /* error weight vector                            */
+  N_Vector ida_yy;          /* work space for y vector (= user's yret)        */
+  N_Vector ida_yp;          /* work space for y' vector (= user's ypret)      */
+  N_Vector ida_yypredict;   /* predicted y vector                             */
+  N_Vector ida_yppredict;   /* predicted y' vector                            */
+  N_Vector ida_delta;       /* residual vector                                */
+  N_Vector ida_id;          /* bit vector for diff./algebraic components      */
+  N_Vector ida_constraints; /* vector of inequality constraint options        */
+  N_Vector ida_savres;      /* saved residual vector                          */
+  N_Vector ida_ee;          /* accumulated corrections to y vector, but
+                               set equal to estimated local errors upon
+                               successful return                              */
+  N_Vector ida_tempv1;      /* work space vector                              */
+  N_Vector ida_tempv2;      /* work space vector                              */
+  N_Vector ida_tempv3;      /* work space vector                              */
+  N_Vector ida_ynew;        /* work vector for y in IDACalcIC (= tempv2)      */
+  N_Vector ida_ypnew;       /* work vector for yp in IDACalcIC (= ee)         */
+  N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2])  */
+  N_Vector ida_dtemp;       /* work vector in IDACalcIC (= phi[3])            */
 
 
   /*----------------------------
@@ -272,13 +301,16 @@ typedef struct IDAMemRec {
   /* Step Data */
 
   int ida_kk;        /* current BDF method order                              */
+  int ida_kused;     /* method order used on last successful step             */
   int ida_knew;      /* order for next step from order decrease decision      */
   int ida_phase;     /* flag to trigger step doubling in first few steps      */
   int ida_ns;        /* counts steps at fixed stepsize and order              */
 
   realtype ida_hin;      /* initial step                                      */
+  realtype ida_h0u;      /* actual initial stepsize                           */
   realtype ida_hh;       /* current step size h                               */
-  realtype ida_rr;       /* rr = hnext / hused                                */
+  realtype ida_hused;    /* step size used on last successful step            */
+  realtype ida_eta;      /* eta = hnext / hused                               */
   realtype ida_tn;       /* current internal value of t                       */
   realtype ida_tretlast; /* value of tret previously returned by IDASolve     */
   realtype ida_cj;       /* current value of scalar (-alphas/hh) in Jacobian  */
@@ -304,6 +336,15 @@ typedef struct IDAMemRec {
   int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
   long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
+  realtype ida_hmin;     /* min step size hmin (default = 0.0)                */
+
+  realtype ida_eta_max_fx; /* threshold to increase step size */
+  realtype ida_eta_min_fx; /* threshold to decrease step size */
+  realtype ida_eta_max;    /* max step size increase factor   */
+  realtype ida_eta_min;    /* min step size decrease factor   */
+  realtype ida_eta_low;    /* upper bound on decrease factor  */
+  realtype ida_eta_min_ef; /* eta >= eta_min_ef after an error test failure */
+  realtype ida_eta_cf;     /* eta on a nonlinear solver convergence failure */
 
   /*--------
     Counters
@@ -331,12 +372,15 @@ typedef struct IDAMemRec {
   long int ida_nni;      /* number of Newton iterations performed             */
   long int ida_nniS;
 
+  long int ida_nnf;      /* number of Newton convergence failures             */
+  long int ida_nnfS;
+
   long int ida_nsetups;  /* number of lsetup calls                            */
   long int ida_nsetupsS;
 
-  /*---------------------------
-    Space requirements for IDAS
-    ---------------------------*/
+  /*------------------
+    Space requirements
+    ------------------*/
 
   sunindextype ida_lrw1; /* no. of realtype words in 1 N_Vector               */
   sunindextype ida_liw1; /* no. of integer words in 1 N_Vector                */
@@ -345,27 +389,28 @@ typedef struct IDAMemRec {
   long int     ida_lrw;  /* number of realtype words in IDA work vectors      */
   long int     ida_liw;  /* no. of integer words in IDA work vectors          */
 
+  realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
   /*-------------------------------------------
     Error handler function and error ouput file
     -------------------------------------------*/
 
-  IDAErrHandlerFn ida_ehfun;  /* Error messages are handled by ehfun           */
-  void *ida_eh_data;          /* dats pointer passed to ehfun                  */
-  FILE *ida_errfp;            /* IDA error messages are sent to errfp          */
+  IDAErrHandlerFn ida_ehfun;  /* Error messages are handled by ehfun          */
+  void *ida_eh_data;          /* dats pointer passed to ehfun                 */
+  FILE *ida_errfp;            /* IDA error messages are sent to errfp         */
 
   /* Flags to verify correct calling sequence */
 
-  booleantype ida_SetupDone;     /* set to SUNFALSE by IDAInit and IDAReInit
-                                    set to SUNTRUE by IDACalcIC or IDASolve    */
+  booleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit
+                                 set to SUNTRUE by IDACalcIC or IDASolve      */
 
   booleantype ida_VatolMallocDone;
   booleantype ida_constraintsMallocDone;
   booleantype ida_idMallocDone;
 
-  booleantype ida_MallocDone;    /* set to SUNFALSE by IDACreate
-                                    set to SUNTRUE by IDAInit
-                                    tested by IDAReInit and IDASolve           */
+  booleantype ida_MallocDone; /* set to SUNFALSE by IDACreate
+                                 set to SUNTRUE by IDAMAlloc
+                                 tested by IDAReInit and IDASolve             */
 
   booleantype ida_VatolQMallocDone;
   booleantype ida_quadMallocDone;
@@ -382,7 +427,7 @@ typedef struct IDAMemRec {
     Nonlinear Solver Data
     ---------------------*/
 
-  SUNNonlinearSolver NLS;    /* nonlinear solver object for DAE solves */
+  SUNNonlinearSolver NLS;    /* nonlinear solver object */
   booleantype ownNLS;        /* flag indicating NLS ownership */
 
   SUNNonlinearSolver NLSsim; /* nonlinear solver object for DAE+Sens solves
@@ -412,6 +457,9 @@ typedef struct IDAMemRec {
   booleantype simMallocDone;
   booleantype stgMallocDone;
 
+  IDAResFn nls_res;          /* F(t,y(t),y'(t))=0; used in the nonlinear
+                                solver */
+
   /*------------------
     Linear Solver Data
     ------------------*/
@@ -433,7 +481,9 @@ typedef struct IDAMemRec {
 
   /* Linear Solver specific memory */
 
-  void *ida_lmem;
+  void *ida_lmem;   /* linear solver interface structure */
+  realtype ida_dcj; /* parameter that determines cj ratio thresholds for calling
+                     * the linear solver setup function */
 
   /* Flag to request a call to the setup routine */
 
@@ -443,39 +493,27 @@ typedef struct IDAMemRec {
 
   booleantype ida_linitOK;
 
-  /*------------
-    Saved Values
-    ------------*/
-
-  booleantype    ida_constraintsSet; /* constraints vector present             */
-  booleantype    ida_suppressalg;    /* SUNTRUE if suppressing algebraic vars.
-                                        in local error tests                   */
-  int ida_kused;         /* method order used on last successful step          */
-  realtype ida_h0u;      /* actual initial stepsize                            */
-  realtype ida_hused;    /* step size used on last successful step             */
-  realtype ida_tolsf;    /* tolerance scale factor (saved value)               */
-
   /*----------------
     Rootfinding Data
     ----------------*/
 
-  IDARootFn ida_gfun;    /* Function g for roots sought                       */
-  int ida_nrtfn;         /* number of components of g                         */
-  int *ida_iroots;       /* array for root information                        */
-  int *ida_rootdir;      /* array specifying direction of zero-crossing       */
-  realtype ida_tlo;      /* nearest endpoint of interval in root search       */
-  realtype ida_thi;      /* farthest endpoint of interval in root search      */
-  realtype ida_trout;    /* t return value from rootfinder routine            */
-  realtype *ida_glo;     /* saved array of g values at t = tlo                */
-  realtype *ida_ghi;     /* saved array of g values at t = thi                */
-  realtype *ida_grout;   /* array of g values at t = trout                    */
-  realtype ida_toutc;    /* copy of tout (if NORMAL mode)                     */
-  realtype ida_ttol;     /* tolerance on root location                        */
-  int ida_taskc;         /* copy of parameter itask                           */
-  int ida_irfnd;         /* flag showing whether last step had a root         */
-  long int ida_nge;      /* counter for g evaluations                         */
-  booleantype *ida_gactive; /* array with active/inactive event functions     */
-  int ida_mxgnull;       /* number of warning messages about possible g==0    */
+  IDARootFn ida_gfun;       /* Function g for roots sought                     */
+  int ida_nrtfn;            /* number of components of g                       */
+  int *ida_iroots;          /* array for root information                      */
+  int *ida_rootdir;         /* array specifying direction of zero-crossing     */
+  realtype ida_tlo;         /* nearest endpoint of interval in root search     */
+  realtype ida_thi;         /* farthest endpoint of interval in root search    */
+  realtype ida_trout;       /* t return value from rootfinder routine          */
+  realtype *ida_glo;        /* saved array of g values at t = tlo              */
+  realtype *ida_ghi;        /* saved array of g values at t = thi              */
+  realtype *ida_grout;      /* array of g values at t = trout                  */
+  realtype ida_toutc;       /* copy of tout (if NORMAL mode)                   */
+  realtype ida_ttol;        /* tolerance on root location                      */
+  int ida_taskc;            /* copy of parameter itask                         */
+  int ida_irfnd;            /* flag showing whether last step had a root       */
+  long int ida_nge;         /* counter for g evaluations                       */
+  booleantype *ida_gactive; /* array with active/inactive event functions      */
+  int ida_mxgnull;          /* number of warning messages about possible g==0  */
 
   /* Arrays for Fused Vector Operations */
 
@@ -590,7 +628,7 @@ struct CkpntMemRec {
 
   realtype     ck_hh;
   realtype     ck_hused;
-  realtype     ck_rr;
+  realtype     ck_eta;
   realtype     ck_cj;
   realtype     ck_cjlast;
   realtype     ck_cjold;
@@ -832,15 +870,15 @@ struct IDAadjMemRec {
  * such as counters/statistics. An (*ida_linit) should return
  * 0 if it has successfully initialized the IDA linear solver and
  * a non-zero value otherwise. If an error does occur, an
- * appropriate message should be issued.
+ * appropriate message should be sent to the error handler function.
  * ----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
- *                  N_Vector resp, N_Vector tempv1,
- *                  N_Vector tempv2, N_Vector tempv3);
+ *                   N_Vector resp, N_Vector tempv1,
+ *                   N_Vector tempv2, N_Vector tempv3);
  * -----------------------------------------------------------------
  * The job of ida_lsetup is to prepare the linear solver for
  * subsequent calls to ida_lsolve. Its parameters are as follows:
@@ -868,7 +906,7 @@ struct IDAadjMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,
- *               N_Vector ycur, N_Vector ypcur, N_Vector rescur);
+ *                   N_Vector ycur, N_Vector ypcur, N_Vector rescur);
  * -----------------------------------------------------------------
  * ida_lsolve must solve the linear equation P x = b, where
  * P is some approximation to the system Jacobian
@@ -909,7 +947,7 @@ struct IDAadjMemRec {
 
 /*
  * =================================================================
- *   I D A S    I N T E R N A L   F U N C T I O N S
+ *    I N T E R N A L   F U N C T I O N S
  * =================================================================
  */
 
@@ -940,7 +978,8 @@ realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
                                       booleantype mask);
 
-/* Nonlinear solver functions */
+/* Nonlinear solver initialization */
+
 int idaNlsInit(IDAMem IDA_mem);
 int idaNlsInitSensSim(IDAMem IDA_mem);
 int idaNlsInitSensStg(IDAMem IDA_mem);
@@ -955,7 +994,7 @@ int IDASensResDQ(int Ns, realtype t,
 
 /*
  * =================================================================
- *    I D A S    E R R O R    M E S S A G E S
+ *    E R R O R    M E S S A G E S
  * =================================================================
  */
 
@@ -988,6 +1027,7 @@ int IDASensResDQ(int Ns, realtype t,
 /* General errors */
 
 #define MSG_MEM_FAIL       "A memory request failed."
+#define MSG_NULL_SUNCTX    "sunctx = NULL illegal."
 #define MSG_NO_MEM         "ida_mem = NULL illegal."
 #define MSG_NO_MALLOC      "Attempt to call before IDAMalloc."
 #define MSG_BAD_NVECTOR    "A required vector operation is not implemented."
@@ -1077,12 +1117,11 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_EWT_NOW_BAD    "At " MSG_TIME "some ewt component has become <= 0.0."
 #define MSG_TOO_MUCH_ACC   "At " MSG_TIME "too much accuracy requested."
 
-#define MSG_BAD_T          "Illegal value for t. " MSG_TIME_INT
+#define MSG_BAD_K          "Illegal value for k."
+#define MSG_NULL_DKY       "dky = NULL illegal."
+#define MSG_NULL_DKYP      "dkyp = NULL illegal."
+#define MSG_BAD_T          "Illegal value for t." MSG_TIME_INT
 #define MSG_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration."
-
-#define MSG_BAD_K        "Illegal value for k."
-#define MSG_NULL_DKY     "dky = NULL illegal."
-#define MSG_NULL_DKYP    "dkyp = NULL illegal."
 
 #define MSG_ERR_FAILS        "At " MSG_TIME_H "the error test failed repeatedly or with |h| = hmin."
 #define MSG_CONV_FAILS       "At " MSG_TIME_H "the corrector convergence failed repeatedly or with |h| = hmin."
@@ -1120,9 +1159,11 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_QSRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
 /* IDASet* / IDAGet* error messages */
-#define MSG_NEG_MAXORD     "maxord<=0 illegal."
+
+#define MSG_NEG_MAXORD     "maxord <= 0 illegal."
 #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
 #define MSG_NEG_HMAX       "hmax < 0 illegal."
+#define MSG_NEG_HMIN       "hmin < 0 illegal."
 #define MSG_NEG_EPCON      "epcon <= 0.0 illegal."
 #define MSG_BAD_CONSTR     "Illegal values in constraints vector."
 #define MSG_BAD_EPICCON    "epiccon <= 0.0 illegal."

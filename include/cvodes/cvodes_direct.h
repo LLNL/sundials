@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,28 +38,38 @@ typedef CVLsJacFnBS CVDlsJacFnBS;
   Exported Functions (wrappers for equivalent routines in cvodes_ls.h)
   ====================================================================*/
 
-SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
-                                         SUNMatrix A);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolver instead")
+int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
+                         SUNMatrix A);
 
-SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFn instead")
+int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
 
-SUNDIALS_EXPORT int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
-                                      long int *leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinWorkSpace instead")
+int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+                      long int *leniwLS);
 
-SUNDIALS_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJacEvals instead")
+int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
 
-SUNDIALS_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinRhsEvals instead")
+int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 
-SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLastLinFlag instead")
+int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
 
-SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinReturnFlagName instead")
+char *CVDlsGetReturnFlagName(long int flag);
 
-SUNDIALS_EXPORT int CVDlsSetLinearSolverB(void *cvode_mem, int which,
-                                          SUNLinearSolver LS, SUNMatrix A);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolverB instead")
+int CVDlsSetLinearSolverB(void *cvode_mem, int which,
+                          SUNLinearSolver LS, SUNMatrix A);
 
-SUNDIALS_EXPORT int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFnB instead")
+int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB);
 
-SUNDIALS_EXPORT int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFnBS instead")
+int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS);
 
 
 #ifdef __cplusplus

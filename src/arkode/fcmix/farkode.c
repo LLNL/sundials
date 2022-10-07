@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -114,16 +114,16 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   /* Call ARKStepCreate based on imex argument */
   switch (*imex) {
   case 0:  /* purely implicit */
-    ARK_arkodemem = ARKStepCreate(NULL, FARKfi, *t0, F2C_ARKODE_vec);
+    ARK_arkodemem = ARKStepCreate(NULL, FARKfi, *t0, F2C_ARKODE_vec, NULL);
     break;
   case 1:  /* purely explicit */
-    ARK_arkodemem = ARKStepCreate(FARKfe, NULL, *t0, F2C_ARKODE_vec);
+    ARK_arkodemem = ARKStepCreate(FARKfe, NULL, *t0, F2C_ARKODE_vec, NULL);
     FARKNullMatrix();
     FARKNullLinsol();
     FARKNullNonlinsol();
     break;
   case 2:  /* imex */
-    ARK_arkodemem = ARKStepCreate(FARKfe, FARKfi, *t0, F2C_ARKODE_vec);
+    ARK_arkodemem = ARKStepCreate(FARKfe, FARKfi, *t0, F2C_ARKODE_vec, NULL);
     break;
   }
   if (ARK_arkodemem == NULL) {

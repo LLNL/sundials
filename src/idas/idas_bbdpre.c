@@ -4,7 +4,7 @@
  *        Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -131,7 +131,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* Allocate memory for preconditioner matrix. */
   pdata->PP = NULL;
-  pdata->PP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, IDA_mem->ida_sunctx);
   if (pdata->PP == NULL) {
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
@@ -141,7 +141,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* Allocate memory for temporary N_Vectors */
   pdata->zlocal = NULL;
-  pdata->zlocal = N_VNewEmpty_Serial(Nlocal);
+  pdata->zlocal = N_VNewEmpty_Serial(Nlocal, IDA_mem->ida_sunctx);
   if (pdata->zlocal == NULL) {
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
@@ -150,7 +150,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     return(IDALS_MEM_FAIL);
   }
   pdata->rlocal = NULL;
-  pdata->rlocal = N_VNewEmpty_Serial(Nlocal);
+  pdata->rlocal = N_VNewEmpty_Serial(Nlocal, IDA_mem->ida_sunctx);
   if (pdata->rlocal == NULL) {
     N_VDestroy(pdata->zlocal);
     SUNMatDestroy(pdata->PP);
@@ -212,7 +212,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->PP);
+  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->PP, IDA_mem->ida_sunctx);
   if (pdata->LS == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);

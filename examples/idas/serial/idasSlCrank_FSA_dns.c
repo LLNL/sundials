@@ -2,7 +2,7 @@
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -107,14 +107,19 @@ int main(void)
   realtype atolS[NP];
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   A  = NULL;
   LS = NULL;
 
-  id = N_VNew_Serial(NEQ);
-  yy = N_VNew_Serial(NEQ);
-  yp = N_VNew_Serial(NEQ);
-  q = N_VNew_Serial(1);
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
+  id = N_VNew_Serial(NEQ, ctx);
+  yy = N_VClone(id);
+  yp = N_VClone(id);
+  q = N_VNew_Serial(1, ctx);
 
   yyS= N_VCloneVectorArray(NP,yy);
   ypS= N_VCloneVectorArray(NP,yp);
@@ -149,7 +154,7 @@ int main(void)
   }
 
   /* IDA initialization */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   retval = IDAInit(mem, ressc, TBEGIN, yy, yp);
   retval = IDASStolerances(mem, RTOLF, ATOLF);
   retval = IDASetUserData(mem, data);
@@ -158,11 +163,11 @@ int main(void)
   retval = IDASetMaxNumSteps(mem, 20000);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -226,7 +231,7 @@ int main(void)
   data->params[0] = ONE;
   data->params[1] = ONE;
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
 
   setIC(yy, yp, data);
   retval = IDAInit(mem, ressc, TBEGIN, yy, yp);
@@ -236,11 +241,11 @@ int main(void)
   retval = IDASetSuppressAlg(mem, SUNTRUE);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -357,8 +362,10 @@ int main(void)
   N_VDestroyVectorArray(yyS, NP);
   N_VDestroyVectorArray(ypS, NP);
   N_VDestroyVectorArray(qS,  NP);
-  return(0);
 
+  SUNContext_Free(&ctx);
+
+  return(0);
 }
 
 static void setIC(N_Vector yy, N_Vector yp, UserData data)
@@ -556,14 +563,15 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
 static int PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, nje, nre, nreLS, netf, ncfn;
+  long int nst, nni, nnf, nje, nre, nreLS, netf, ncfn;
 
   retval = IDAGetNumSteps(mem, &nst);
   retval = IDAGetNumResEvals(mem, &nre);
   retval = IDAGetNumJacEvals(mem, &nje);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   retval = IDAGetNumErrTestFails(mem, &netf);
-  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &nnf);
+  retval = IDAGetNumStepSolveFails(mem, &ncfn);
   retval = IDAGetNumLinResEvals(mem, &nreLS);
 
   printf("\nFinal Run Statistics: \n\n");
@@ -572,7 +580,8 @@ static int PrintFinalStats(void *mem)
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
-  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+  printf("Number of nonlinear conv. failures = %ld\n", nnf);
+  printf("Number of step solver failures     = %ld\n", ncfn);
 
   return(retval);
 }
@@ -585,7 +594,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -593,13 +602,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

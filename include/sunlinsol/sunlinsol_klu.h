@@ -5,7 +5,7 @@
  *     code, written by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -104,20 +104,11 @@ typedef struct _SUNLinearSolverContent_KLU *SUNLinearSolverContent_KLU;
  * Exported Functions for SUNLINSOL_KLU
  * ------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A);
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A,
                                         sunindextype nnz, int reinit_type);
 SUNDIALS_EXPORT int SUNLinSol_KLUSetOrdering(SUNLinearSolver S,
                                              int ordering_choice);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A);
-/* deprecated */
-SUNDIALS_EXPORT int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
-                                 sunindextype nnz, int reinit_type);
-/* deprecated */
-SUNDIALS_EXPORT int SUNKLUSetOrdering(SUNLinearSolver S,
-                                      int ordering_choice);
 
 /* --------------------
  *  Accessor functions

@@ -3,7 +3,7 @@
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,8 +21,8 @@
  *     in the header file sundials_nvector.h.
  *
  *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type 'booleantype'.
  *
@@ -82,17 +82,11 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Serial(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Serial(sunindextype vec_length, SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Serial(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Serial(sunindextype vec_length, SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VMake_Serial(sunindextype vec_length, realtype *v_data);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Serial(N_Vector* vs, int count);
+SUNDIALS_EXPORT N_Vector N_VMake_Serial(sunindextype vec_length, realtype *v_data, SUNContext sunctx);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Serial(N_Vector v);
 
@@ -138,7 +132,7 @@ SUNDIALS_EXPORT int N_VDotProdMulti_Serial(int nvec, N_Vector x,
                                            N_Vector* Y, realtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_Serial(int nvec, 
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Serial(int nvec,
                                                    realtype a, N_Vector* X,
                                                    realtype b, N_Vector* Y,
                                                    N_Vector* Z);
@@ -164,7 +158,12 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id);
-  
+
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_Serial(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_Serial(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_Serial(N_Vector x, void *buf);
+
 /*
  * -----------------------------------------------------------------
  * Enable / disable fused vector operations
@@ -184,6 +183,22 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype 
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf);
+
+/*
+ * -----------------------------------------------------------------
+ * Deprecated functions
+ * -----------------------------------------------------------------
+ */
+
+/* use N_VCloneVectorArray */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w);
+
+/* use N_VCloneVectorArrayEmpty */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
+
+/* use N_VDestroyVectorArray */
+SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_Serial(N_Vector* vs, int count);
+
 
 #ifdef __cplusplus
 }

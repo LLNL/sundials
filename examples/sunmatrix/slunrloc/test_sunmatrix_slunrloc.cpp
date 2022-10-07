@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   int globfails = 0;                        /* counter for test failures        */
   int nprocs, nprow, npcol, rank;           /* process grid size and rank       */
   MPI_Status mpistatus;                     /* MPI status                       */
+  MPI_Comm comm;                            /* MPI communicator                 */
   gridinfo_t grid;                          /* SuperLU-DIST process grid        */
 
   sunindextype M, N;                        /* matrix size                      */
@@ -66,10 +67,18 @@ int main(int argc, char *argv[])
   sunindextype fst_row;                     /* global. index of 1st local row   */
   int square;                               /* is A a square matrix             */
   sunindextype i, j, k;                     /* just some iteration variables    */
+  SUNContext   sunctx;
 
   MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &rank);
+
+  if (SUNContext_Create(&comm, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   if (argc < 5) {
     if (rank == 0)
@@ -137,7 +146,7 @@ int main(int argc, char *argv[])
   if (grid.iam == 0) {
 
     /* Create the matrix as dense first */
-    D = SUNDenseMatrix(M, N);
+    D = SUNDenseMatrix(M, N, sunctx);
 
     /* Fill matrix with uniform random data in [0,1/N] */
     for (k=0; k<N; k++) {
@@ -155,8 +164,8 @@ int main(int argc, char *argv[])
     }
 
     /* create the global vectors */
-    gx = N_VNew_Serial(N);
-    gy = N_VNew_Serial(N);
+    gx = N_VNew_Serial(N, sunctx);
+    gy = N_VNew_Serial(N, sunctx);
     xdata = N_VGetArrayPointer(gx);
     ydata = N_VGetArrayPointer(gy);
 
@@ -218,7 +227,7 @@ int main(int argc, char *argv[])
     dCreate_CompRowLoc_Matrix_dist(Asuper, M, N, NNZ_local, M_local, fst_row,
                                    matdata, colind, rowptrs, SLU_NR_loc, SLU_D, SLU_GE);
 
-    A = SUNMatrix_SLUNRloc(Asuper, &grid);
+    A = SUNMatrix_SLUNRloc(Asuper, &grid, sunctx);
     if (A == NULL) {
       fails++;
       TEST_STATUS(">>> FAIL: Failed to create SUNMatrix_SLUNRloc\n", grid.iam);
@@ -230,8 +239,8 @@ int main(int argc, char *argv[])
     rowptrs[M_local] = NNZ_local;
 
     /* make the local NVectors */
-    x = N_VMake_Parallel(grid.comm, M_local, N, xdata);
-    y = N_VMake_Parallel(grid.comm, M_local, N, ydata);
+    x = N_VMake_Parallel(grid.comm, M_local, N, xdata, sunctx);
+    y = N_VMake_Parallel(grid.comm, M_local, N, ydata, sunctx);
 
   } else {
 
@@ -263,7 +272,7 @@ int main(int argc, char *argv[])
                                    matdata, colind, rowptrs, SLU_NR_loc, SLU_D, SLU_GE);
 
     /* Create local SuperLU-DIST SUNMatrix */
-    A = SUNMatrix_SLUNRloc(Asuper, &grid);
+    A = SUNMatrix_SLUNRloc(Asuper, &grid, sunctx);
     if (A == NULL) {
       fails++;
       TEST_STATUS(">>> FAIL: Failed to create SUNMatrix_SLUNRloc\n", grid.iam);
@@ -272,8 +281,8 @@ int main(int argc, char *argv[])
     }
 
     /* make the local NVectors */
-    x = N_VNew_Parallel(grid.comm, M_local, N);
-    y = N_VNew_Parallel(grid.comm, M_local, N);
+    x = N_VNew_Parallel(grid.comm, M_local, N, sunctx);
+    y = N_VNew_Parallel(grid.comm, M_local, N, sunctx);
     xdata = N_VGetArrayPointer(x);
     ydata = N_VGetArrayPointer(y);
 
@@ -346,8 +355,8 @@ int main(int argc, char *argv[])
   MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, grid.comm);
 
   superlu_gridexit(&grid);
+  SUNContext_Free(&sunctx);
   MPI_Finalize();
-
   return(globfails);
 }
 
@@ -434,8 +443,8 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
   /* compare matrix values */
   for(i=0; i<Annz; i++) {
-    failure += FNEQ(Adata[i], Bdata[i], tol);
-    if (FNEQ(Adata[i], Bdata[i], tol)) {
+    failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
+    if (SUNRCompareTol(Adata[i], Bdata[i], tol)) {
       TEST_STATUS3("Adata[%ld] != Bdata[%ld] \n", (long int) i, (long int) i,
                    grid->iam);
     }
@@ -464,7 +473,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   /* compare data */
   nnz_loc = Astore->nnz_loc;
   for(i=0; i < nnz_loc; i++) {
-    if (FNEQ(Adata[i],val,tol) != 0) {
+    if (SUNRCompareTol(Adata[i],val,tol) != 0) {
       printf("rhs=%g\n", std::abs(val)*tol);
       printf("  Adata[%ld] = %g != %g (err = %g)\n", (long int) i, Adata[i],
              val, std::abs(Adata[i]-val));
@@ -500,7 +509,7 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 
   /* check vector data */
   for(i=0; i < xldata; i++)
-    failure += FNEQ(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
   if (failure > ZERO)
     return(1);
@@ -574,4 +583,10 @@ int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
   (*rowptrs)[M] = nnz;
 
   return 0;
+}
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
 }

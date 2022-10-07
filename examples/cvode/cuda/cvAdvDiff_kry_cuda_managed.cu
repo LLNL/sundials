@@ -6,7 +6,7 @@
  *                   Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -178,6 +178,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char** argv)
 {
+  SUNContext sunctx;
   realtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -194,12 +195,20 @@ int main(int argc, char** argv)
   cvode_mem = NULL;
 
   /* optional: create a cudaStream to use with the CUDA NVector
-     (otherwise the default stream is used) */
+     (otherwise the default stream is used) and creating kernel
+     execution policies */
   cuerr = cudaStreamCreate(&stream);
   if (cuerr != cudaSuccess) {
     printf("Error in cudaStreamCreate(): %s\n", cudaGetErrorString(cuerr));
-    return(1); 
+    return(1);
   }
+
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
+  SUNCudaThreadDirectExecPolicy stream_exec_policy(256, stream);
+  SUNCudaBlockReduceExecPolicy reduce_exec_policy(256, 0, stream);
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
@@ -210,17 +219,18 @@ int main(int argc, char** argv)
 
   /* Create a CUDA nvector with initial values using managed
      memory for the vector data */
-  u = N_VNewManaged_Cuda(data->NEQ);
+  u = N_VNewManaged_Cuda(data->NEQ, sunctx);
   if(check_retval((void*)u, "N_VNewManaged_Cuda", 0)) return(1);
 
   /* Use a non-default cuda stream for kernel execution */
-  N_VSetCudaStream_Cuda(u, &stream);
+  retval = N_VSetKernelExecPolicy_Cuda(u, &stream_exec_policy, &reduce_exec_policy);
+  if(check_retval(&retval, "N_VSetKernelExecPolicy_Cuda", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -240,7 +250,7 @@ int main(int argc, char** argv)
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
   /* Set CVode linear solver to LS */
@@ -270,7 +280,8 @@ int main(int argc, char** argv)
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
-  
+  SUNContext_Free(&sunctx);
+
   cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */
   if(cuerr != cudaSuccess) { printf("Error: cudaStreamDestroy() failed\n"); return(1); }
 

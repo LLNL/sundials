@@ -2,7 +2,7 @@
    Author(s): David J. Gardner @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2022, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -18,8 +18,9 @@ Introduction
 ============
 
 The SUite of Nonlinear and DIfferential/ALgebraic equation Solvers (SUNDIALS)
-consists of the CVODE, ARKODE, KINSOL, and IDA as well as the CVODES and IDAS
-variants with sensitivity analysis capabilities.
+consists of the time integration packages CVODE, IDA, and ARKODE, the
+sensitivity analysis enabled variants CVODES and IDAS, and the nonlinear solver
+package KINSOL.
 
 .. toctree::
    :maxdepth: 2

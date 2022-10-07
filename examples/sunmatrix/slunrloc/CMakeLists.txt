@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -20,10 +20,10 @@
 # Examples using SUNDIALS SUNMatrix wrapper of the SuperLU SLU_NR_loc
 # SuperMatrix.
 set(sunmatrix_slunrloc_examples
-  "test_sunmatrix_slunrloc\;100 1 1 0 0\;1\;\;"
-  "test_sunmatrix_slunrloc\;400 2 1 0 0\;2\;\;"
-  "test_sunmatrix_slunrloc\;600 3 1 0 0\;3\;\;"
-  "test_sunmatrix_slunrloc\;1000 1 4 0 0\;4\;\;"
+  "test_sunmatrix_slunrloc.cpp\;100 1 1 0 0\;1\;\;"
+  "test_sunmatrix_slunrloc.cpp\;400 2 1 0 0\;2\;\;"
+  "test_sunmatrix_slunrloc.cpp\;600 3 1 0 0\;3\;\;"
+  "test_sunmatrix_slunrloc.cpp\;1000 1 4 0 0\;4\;\;"
 )
 
 # Dependencies for sunmatrix examples
@@ -38,11 +38,6 @@ if(MPI_C_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 endif()
 
-if(OPENMP_FOUND AND SUPERLUDIST_OpenMP)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_slunrloc_examples})
   # parse the example tuple
@@ -51,129 +46,79 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  if(NOT TARGET ${example})
+  if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example} ${example}.cpp
-      ../test_sunmatrix.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example_target} ${example}
+      ../test_sunmatrix.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    target_include_directories(${example} PRIVATE . ..)
+    target_include_directories(${example_target} PRIVATE . ..)
 
     # libraries to link against
-    if (LINK_LIBRARY_TYPE MATCHES "static")
-      target_link_libraries(${example}
-        PRIVATE
-          sundials_sunmatrixslunrloc_static
-          sundials_sunmatrixdense_static
-          sundials_nvecparallel_static
-          sundials_nvecserial_static)
-    else()
-      target_link_libraries(${example}
-        PRIVATE
-          sundials_sunmatrixslunrloc_shared
-          sundials_sunmatrixdense_shared
-          sundials_nvecparallel_shared
-          sundials_nvecserial_shared)
-    endif()
+    target_link_libraries(${example_target}
+      PRIVATE
+        sundials_sunmatrixslunrloc
+        sundials_sunmatrixdense
+        sundials_nvecparallel
+        sundials_nvecserial)
   endif()
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
     if("${number_of_nodes}" STREQUAL "")
-      set(test_name ${example})
+      set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_nodes})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_nodes})
     endif()
   else()
     if("${number_of_nodes}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_nodes}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_nodes}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(${test_name} ${example_target}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_nodes}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp
-      ${PROJECT_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-      ${PROJECT_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-      ${PROJECT_SOURCE_DIR}/src/sundials/sundials_matrix.c
-      ${PROJECT_SOURCE_DIR}/src/sundials/sundials_nvector.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/slunrloc)
-  endif()
-
 endforeach(example_tuple ${sunmatrix_slunrloc_examples})
+
+if(SUPERLUDIST_CUDA)
+  set(_ex_lang CUDA)
+elseif(SUPERLUDIST_ROCM)
+  set(_ex_lang HIP)
+else()
+  set(_ex_lang CXX)
+endif()
 
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/slunrloc)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "SUNMatrix_SLUNRloc")
-  string(CONCAT SUNDIALS_LIBS "-lsundials_cvode "
-    "-lsundials_nvecparallel "
-    "-lsundials_sunmatrixslunrloc")
-
-  examples2string(sunmatrix_slunrloc_examples EXAMPLES)
-  examples2string(sunmatrix_slunrloc_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_superludist_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunmatrix/slunrloc/CMakeLists.txt
-    @ONLY
-  )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/slunrloc/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/slunrloc/
-  )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_superludist_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunmatrix/slunrloc/Makefile_ex
-      @ONLY
+  sundials_install_examples(sunmatrix_slunrloc sunmatrix_slunrloc_examples
+    EXAMPLES_DEPENDENCIES
+      test_sunmatrix.c
+    EXTRA_FILES
+      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
+      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    CMAKE_TEMPLATE
+      cmakelists_${_ex_lang}_MPI_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      nvecparallel
+      sunmatrixdense
+      sunmatrixslunrloc
+    DESTINATION
+      sunmatrix/slunrloc
     )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/slunrloc/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/slunrloc/
-      RENAME Makefile
-    )
-  endif(UNIX)
 
-endif(EXAMPLES_INSTALL)
+endif()

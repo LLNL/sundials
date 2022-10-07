@@ -1,8 +1,9 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner and Slaven Peles @ LLNL
+#                Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -17,23 +18,33 @@
 # C examples
 if(EXAMPLES_ENABLE_C)
   add_subdirectory(serial)
-  if(OPENMP_ENABLE AND OPENMP_FOUND)
+  if(ENABLE_OPENMP AND OPENMP_FOUND)
     # the only example here need special handling from testrunner (not yet implemented)
     add_subdirectory(C_openmp)
   endif()
-  if(MPI_ENABLE AND MPI_C_FOUND)
+  if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(parallel)
   endif()
 endif()
 
-# Fortran examples
-if(F77_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F77 AND F77_FOUND)
-  add_subdirectory(fcmix_serial)
-  if(MPI_ENABLE AND MPI_Fortran_FOUND)
-    add_subdirectory(fcmix_parallel)
+# C++ examples
+if(EXAMPLES_ENABLE_CXX)
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
+    add_subdirectory(CXX_parallel)
+  endif()
+  if(ENABLE_MPI AND MPI_CXX_FOUND AND ENABLE_HYPRE AND HYPRE_FOUND)
+    add_subdirectory(CXX_parhyp)
   endif()
 endif()
 
-if(F2003_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F2003 AND F2003_FOUND)
+# CUDA examples
+if(EXAMPLES_ENABLE_CUDA)
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
+    add_subdirectory(CUDA_mpi)
+  endif()
+endif()
+
+# Fortran examples
+if(BUILD_FORTRAN_MODULE_INTERFACE AND EXAMPLES_ENABLE_F2003)
   add_subdirectory(F2003_serial)
 endif()

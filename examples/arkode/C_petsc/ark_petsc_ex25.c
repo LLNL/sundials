@@ -4,7 +4,7 @@
  * Acknowledgement: This example is based on the PETSc TS ex25.c.
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,6 +28,8 @@
  -----------------------------------------------------------------*/
 
 static const char help[] = "ARKode example based on PETSc TS ex25.c.\nTime-dependent Brusselator reaction-diffusion PDE in 1d. Demonstrates IMEX methods.\n";
+
+#include <mpi.h>
 
 #include <petscdm.h>
 #include <petscdmda.h>
@@ -65,11 +67,13 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt);
 int main(int argc, char **argv)
 {
   long int           steps=0;
+  MPI_Comm           comm=PETSC_COMM_WORLD;
 
   /* SUNDIALS data structures */
   void              *arkode_mem; /* integrator memory */
   N_Vector           nvecx;      /* SUNDIALS N_Vector wrapper of X */
   SUNNonlinearSolver NLS;        /* SUNDIALS nonlinear solver */
+  SUNContext         ctx;        /* SUNDIALS context */
 
   /* PETSc data structures */
   SNES              snes;       /* nonlinear solver */
@@ -82,14 +86,19 @@ int main(int argc, char **argv)
   PetscReal         rtol,atol;
   struct _User      user;       /* user-defined work context */
 
-
+  /* Initialize PETSc */
   ierr = PetscInitialize(&argc,&argv,(char*)0,help);if (ierr) return ierr;
+
+  /* Create SUNDIALS context */
+  ierr = SUNContext_Create(&comm, &ctx);
+  if (ierr) return ierr;
 
   /* Solution start and end time */
   T0    = 0.0;
   ftime = 10.0;
   tstop = T0;
-  dtout = 1.;
+  t     = T0;
+  dtout = 1.0;
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Create distributed array (DMDA) to manage parallel grid and vectors
@@ -104,11 +113,15 @@ int main(int argc, char **argv)
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   ierr = DMCreateGlobalVector(user.da,&X);CHKERRQ(ierr);
-  nvecx = N_VMake_Petsc(X);
+  nvecx = N_VMake_Petsc(X, ctx);
   if (check_retval((void *)nvecx,"N_VMake_Petsc",0)) return 1;
 
   /* Initialize user application context */
-  ierr = PetscOptionsBegin(PETSC_COMM_WORLD,NULL,"Advection-reaction options","");
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsBegin(PETSC_COMM_WORLD,NULL,"Advection-reaction options","");
+#else
+  ierr = PetscOptionsBegin(PETSC_COMM_WORLD,NULL,"Advection-reaction options","");CHKERRQ(ierr);
+#endif
   {
     rtol        = 1e-4;
     atol        = 1e-4;
@@ -129,7 +142,11 @@ int main(int argc, char **argv)
     ierr        = PetscOptionsReal("-vleft","Dirichlet boundary condition","",user.vleft,&user.vleft,NULL);CHKERRQ(ierr);
     ierr        = PetscOptionsReal("-vright","Dirichlet boundary condition","",user.vright,&user.vright,NULL);CHKERRQ(ierr);
   }
+#if PETSC_VERSION_GE(3,17,99)
+  PetscOptionsEnd();
+#else
   ierr = PetscOptionsEnd();CHKERRQ(ierr);
+#endif
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Set initial conditions
@@ -148,7 +165,7 @@ int main(int argc, char **argv)
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y),the inital time
      T0,and the initial dependent variable vector y. */
-  arkode_mem = ARKStepCreate(f_E,f_I,T0,nvecx);
+  arkode_mem = ARKStepCreate(f_E,f_I,T0,nvecx,ctx);
   if (check_retval((void *)arkode_mem,"ARKStepCreate",0)) return 1;
 
   /* Store the arkode mem in the user data so we can access it in the Jacobian routine */
@@ -161,7 +178,7 @@ int main(int argc, char **argv)
   ierr = SNESCreate(PETSC_COMM_WORLD,&snes);CHKERRQ(ierr);
 
   /* Create SUNNonlinearSolver object which interfaces to SNES */
-  NLS = SUNNonlinSol_PetscSNES(nvecx,snes); /* this will call SNESSetFunction appropriately */
+  NLS = SUNNonlinSol_PetscSNES(nvecx,snes,ctx); /* this will call SNESSetFunction appropriately */
   if (check_retval((void *)NLS,"SUNNonlinSol_PetscSNES",0)) return 1;
 
   /* Set the Jacobian routine */
@@ -240,6 +257,7 @@ int main(int argc, char **argv)
   ierr = VecDestroy(&X);CHKERRQ(ierr);
   ierr = DMDestroy(&user.da);CHKERRQ(ierr);
 
+  ierr = SUNContext_Free(&ctx);
   ierr = PetscFinalize();
   return ierr;
 }

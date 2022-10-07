@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's linear solver interface.
+ * Implementation header file for ARKODE's linear solver interface.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKLS_IMPL_H
@@ -34,7 +34,7 @@ extern "C" {
                on the nonlinear iteration is multiplied to get
                a tolerance on the linear iteration
   ---------------------------------------------------------------*/
-#define ARKLS_MSBJ   50
+#define ARKLS_MSBJ   51
 #define ARKLS_EPLIN  RCONST(0.05)
 
 
@@ -59,8 +59,8 @@ typedef struct ARKLsMemRec {
   booleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                       */
   realtype eplifac;   /* nonlinear -> linear tol scaling factor        */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor       */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                  */
@@ -145,25 +145,26 @@ typedef struct ARKLsMassMemRec {
   void* M_data;       /* user data pointer */
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                     */
   realtype eplifac;   /* nonlinear -> linear tol scaling factor      */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor     */
 
   /* Statistics and associated parameters */
   booleantype time_dependent;  /* flag whether M depends on t        */
-  long int nmsetups;  /* total number of mass matrix-solver setups   */
-  long int nmsolves;  /* total number of mass matrix-solver solves   */
-  long int nmtsetup;  /* total number of calls to mtsetup            */
-  long int nmtimes;   /* total number of calls to mtimes             */
-  long int nmvsetup;  /* total number of calls to SUNMatMatvec setup */
-  long int npe;       /* total number of pset calls                  */
-  long int nli;       /* total number of linear iterations           */
-  long int nps;       /* total number of psolve calls                */
-  long int ncfl;      /* total number of convergence failures        */
+  realtype    msetuptime;      /* "t" value at last msetup call      */
+  long int    nmsetups;        /* total # mass matrix-solver setups  */
+  long int    nmsolves;        /* total # mass matrix-solver solves  */
+  long int    nmtsetup;        /* total # calls to mtsetup           */
+  long int    nmtimes;         /* total # calls to mtimes            */
+  long int    nmvsetup;        /* total # calls to matvec setup      */
+  long int    npe;             /* total # pset calls                 */
+  long int    nli;             /* total # linear iterations          */
+  long int    nps;             /* total # psolve calls               */
+  long int    ncfl;            /* total # convergence failures       */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                */
   N_Vector x;         /* solution vector used by SUNLinearSolver     */
-  N_Vector ycur;      /* ptr to ARKode current y vector              */
+  N_Vector ycur;      /* ptr to ARKODE current y vector              */
 
   /* Preconditioner computation
     (a) user-provided:
@@ -220,7 +221,7 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                    ARKLsMem arkls_mem, ARKRhsFn fi,
                    N_Vector tmp1, N_Vector tmp2);
 
-/* Generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
+/* Generic linit/lsetup/lsolve/lfree interface routines for ARKODE to call */
 int arkLsInitialize(void* arkode_mem);
 
 int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
@@ -232,10 +233,10 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tcur,
 
 int arkLsFree(void* arkode_mem);
 
-/* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */
+/* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
 int arkLsMassInitialize(void* arkode_mem);
 
-int arkLsMassSetup(void* arkode_mem, N_Vector vtemp1,
+int arkLsMassSetup(void* arkode_mem, realtype t, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3);
 
 int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
@@ -265,7 +266,9 @@ int arkLSSetJacFn(void* arkode_mem, ARKLsJacFn jac);
 int arkLSSetMassFn(void* arkode_mem, ARKLsMassFn mass);
 int arkLSSetEpsLin(void* arkode_mem, realtype eplifac);
 int arkLSSetMassEpsLin(void* arkode_mem, realtype eplifac);
-int arkLSSetMaxStepsBetweenJac(void* arkode_mem, long int msbj);
+int arkLSSetNormFactor(void* arkode_mem, realtype nrmfac);
+int arkLSSetMassNormFactor(void* arkode_mem, realtype nrmfac);
+int arkLSSetJacEvalFrequency(void* arkode_mem, long int msbj);
 int arkLSSetLinearSolutionScaling(void* arkode_mem, booleantype onoff);
 int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
                            ARKLsPrecSolveFn psolve);
@@ -303,6 +306,7 @@ int arkLSGetNumMassPrecSolves(void* arkode_mem, long int* nmpsolves);
 int arkLSGetNumMassIters(void* arkode_mem, long int* nmiters);
 int arkLSGetNumMassConvFails(void* arkode_mem, long int* nmcfails);
 int arkLSGetNumMTSetups(void* arkode_mem, long int* nmtsetups);
+int arkLSGetCurrentMassMatrix(void* arkode_mem, SUNMatrix *M);
 int arkLSGetLastMassFlag(void* arkode_mem, long int* flag);
 
 char* arkLSGetReturnFlagName(long int flag);

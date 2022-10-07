@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Slaven Peles, Cody J. Balos @ LLNL 
+ * Programmer(s): Slaven Peles, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * Based on work by Daniel R. Reynolds @ SMU
  *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
@@ -39,7 +39,6 @@
 #include <string.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spils.h>
 #include <nvector/nvector_cuda.h>
 #include <nvector/nvector_mpiplusx.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
@@ -335,6 +334,7 @@ int main(int argc, char *argv[])
   sunindextype local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uulocal, uu, up, constraints, id, res;
+  SUNContext ctx;
 
   ida_mem = NULL;
   LS = NULL;
@@ -347,6 +347,11 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &thispe);
+
+  /* Create the SUNDIALS context object for this simulation */
+  ier = SUNContext_Create((void*) &comm, &ctx);
+  if (check_flag(&ier, "SUNContext_Create", 1, thispe))
+    MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure */
   data = (UserData) malloc(sizeof *data);
@@ -371,11 +376,11 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize N-vectors. */
 
-  uulocal = N_VNew_Cuda(local_N);
+  uulocal = N_VNew_Cuda(local_N, ctx);
   if(check_flag((void *)uulocal, "N_VNew_Cuda", 0, thispe))
     MPI_Abort(comm, 1);
 
-  uu = N_VMake_MPIPlusX(comm, uulocal);
+  uu = N_VMake_MPIPlusX(comm, uulocal, ctx);
   if(check_flag((void *)uu, "N_VMake_MPIPlusX", 0, thispe))
     MPI_Abort(comm, 1);
 
@@ -414,7 +419,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetUserData(ida_mem, data);
@@ -438,14 +443,14 @@ int main(int argc, char *argv[])
 
   /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
+  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_flag(&ier, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
+  if(check_flag(&ier, "IDASetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
 
@@ -479,6 +484,8 @@ int main(int argc, char *argv[])
 
   DeleteUserData(data);
   free(data);
+
+  SUNContext_Free(&ctx);
 
   MPI_Finalize();
 
@@ -1201,16 +1208,16 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
     ier = IDAGetLastStep(ida_mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumJtimesEvals(ida_mem, &nje);
-    check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1, id);
-    ier = IDASpilsGetNumLinIters(ida_mem, &nli);
-    check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-    check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-    check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-    check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
+    ier = IDAGetNumJtimesEvals(ida_mem, &nje);
+    check_flag(&ier, "IDAGetNumJtimesEvals", 1, id);
+    ier = IDAGetNumLinIters(ida_mem, &nli);
+    check_flag(&ier, "IDAGetNumLinIters", 1, id);
+    ier = IDAGetNumLinResEvals(ida_mem, &nreLS);
+    check_flag(&ier, "IDAGetNumLinResEvals", 1, id);
+    ier = IDAGetNumPrecEvals(ida_mem, &npe);
+    check_flag(&ier, "IDAGetPrecEvals", 1, id);
+    ier = IDAGetNumPrecSolves(ida_mem, &nps);
+    check_flag(&ier, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
@@ -1236,7 +1243,7 @@ static void PrintFinalStats(void *ida_mem)
 
   IDAGetNumErrTestFails(ida_mem, &netf);
   IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  IDASpilsGetNumConvFails(ida_mem, &ncfl);
+  IDAGetNumLinConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

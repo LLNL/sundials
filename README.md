@@ -1,52 +1,49 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
-### Version 5.3.0 (May 2020) ###
+### Version 6.3.0 (Aug 2022) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 
-SUNDIALS is a family of software packages implemented with the goal of
-providing robust time integrators and nonlinear solvers that can easily be
-incorporated into existing simulation codes. The primary design goals are to
-require minimal information from the user, allow users to easily supply their
-own data structures underneath the packages, and allow for easy incorporation
-of user-supplied linear solvers and preconditioners. The various packages share
-many subordinate modules and are organized as a family with a directory
-structure that exploits sharing common functionality.
+SUNDIALS is a family of software packages providing robust and efficient time
+integrators and nonlinear solvers that can easily be incorporated into existing
+simulation codes. The packages are designed to require minimal information from
+the user, allow users to supply their own data structures underneath the
+packages, and enable interfacing with user-supplied or third-party algebraic
+solvers and preconditioners.
 
-The SUNDIALS suite consists of the following packages:
+The SUNDIALS suite consists of the following packages for ordinary differential
+equation (ODE) systems, differential-algebraic equation (DAE) systems, and
+nonlinear algebraic systems:
 
-* ARKODE - for integration of stiff, nonstiff, and multirate ordinary
-differential equation systems (ODEs) of the form
+* ARKODE - for integrating stiff, nonstiff, and multirate ODEs of the form
 
-  ``` M y' = f1(t,y) + f2(t,y), y(t0) = y0 ```
+  $$ M(t) \\, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0 $$
 
-* CVODE - for integration of stiff and nonstiff ordinary differential equation
-systems (ODEs) of the form
+* CVODE - for integrating stiff and nonstiff ODEs of the form
 
-  ``` y' = f(t,y), y(t0) = y0 ```
+  $$ y' = f(t,y), \quad y(t_0) = y_0 $$
 
-* CVODES - for integration and sensitivity analysis (forward and adjoint) of
-ordinary differential equation systems (ODEs) of the form
+* CVODES - for integrating and sensitivity analysis (forward and adjoint) of
+  ODEs of the form
 
-  ``` y' = f(t,y,p), y(t0) = y0(p) ```
+  $$ y' = f(t,y,p), \quad y(t_0) = y_0(p) $$
 
-* IDA - for integration of differential-algebraic equation systems (DAEs) of
-the form
+* IDA - for integrating DAEs of the form
 
-  ``` F(t,y,y') = 0, y(t0) = y0, y'(t0) = y0' ```
+  $$ F(t,y,y') = 0, \quad y(t_0) = y_0, \quad y'(t_0) = y_0' $$
 
-* IDAS - for integration and sensitivity analysis (forward and adjoint) of
-differential-algebraic equation systems (DAEs) of the form
+* IDAS - for integrating and sensitivity analysis (forward and adjoint) of DAEs
+  of the form
 
-  ``` F(t,y,y',p) = 0, y(t0) = y0(p), y'(t0) = y0'(p) ```
+  $$ F(t,y,y',p) = 0, \quad y(t_0) = y_0(p), \quad y'(t_0) = y_0'(p) $$
 
-* KINSOL - for solution of nonlinear algebraic systems of the form
+* KINSOL - for solving nonlinear algebraic systems of the form
 
-  ``` F(u) = 0 ```
+  $$ F(u) = 0 \quad \text{or} \quad G(u) = u $$
 
 ## Installation ##
 
-For installation directions see the [INSTALL_GUIDE](./INSTALL_GUIDE.pdf) or
-the installation chapter in any of the package user guides.
+For installation directions see the [online install guide](https://sundials.readthedocs.io/en/latest/Install_link.html),
+the installation chapter in any of the package user guides, or INSTALL_GUIDE.pdf.
 
 Warning to users who receive more than one of the individual packages at
 different times: Mixing old and new versions of SUNDIALS may fail. To avoid
@@ -54,8 +51,12 @@ such failures, obtain all desired package at the same time.
 
 ## Support ##
 
-Full user guides for SUNDIALS packages are provided in the [doc](./doc)
-directory along with documentation for example programs.
+Full user guides for all of the SUNDIALS packages are available [online](https://sundials.readthedocs.io)
+and in the [doc](./doc) directory. Additionally, the [doc](./doc) directory
+contains documentation for the package example programs.
+
+For information on recent changes to SUNDIALS see the [CHANGELOG](./CHANGELOG.md)
+or the introduction chapter of any package user guide.
 
 A list of Frequently Asked Questions on build and installation procedures as
 well as common usage issues is available on the SUNDIALS [FAQ](https://computing.llnl.gov/projects/sundials/faq).
@@ -71,33 +72,25 @@ Bug fixes or minor changes are preferred via a pull request to the
 [SUNDIALS GitHub repository](https://github.com/LLNL/sundials). For more
 information on contributing see the [CONTRIBUTING](./CONTRIBUTING.md) file.
 
-## Release History ##
+## Citing ##
 
-Information on recent changes to SUNDIALS can be found in the "Introduction"
-chapter of each package's user guide and a complete release history is available
-in the "SUNDIALS Release History" appendix of each user guide.
+See the [online documentation](https://sundials.readthedocs.io/en/latest/index.html#citing)
+or [CITATIONS](./CITATIONS.md) file for information on how to cite SUNDIALS in
+any publications reporting work done using SUNDIALS packages.
 
 ## Authors ##
 
-The SUNDIALS Team: Carol S. Woodward, Daniel R. Reynolds, Alan C. Hindmarsh,
-David J. Gardner, and Cody J. Balos. We thank Radu Serban for significant
-and critical past contributions.
+The SUNDIALS library has been developed over many years by a number of
+contributors. The current SUNDIALS team consists of Cody J. Balos,
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S. Woodward.
+We thank Radu Serban for significant and critical past contributions.
 
-We also acknowledge past contributions of Scott D. Cohen, Peter N. Brown,
-George Byrne, Allan G. Taylor, Steven L. Lee, Keith E. Grant, Aaron Collier,
-Lawrence E. Banks, Steve Smith, Cosmin Petra, Slaven Peles, John Loffeld, Dan Shumaker,
-Ulrike Yang, James Almgren-Bell, Shelby L. Lockhart, Hilari C. Tiedeman, Ting Yan,
-Jean M. Sexton, and Chris White.
-
-### Citing SUNDIALS ###
-
-We ask users of SUNDIALS to cite the following paper in any publications
-reporting work done with SUNDIALS:
-
-* Alan C. Hindmarsh, Peter N. Brown, Keith E. Grant, Steven L. Lee, Radu
-Serban, Dan E. Shumaker, and Carol S. Woodward. 2005. SUNDIALS: Suite of
-nonlinear and differential/algebraic equation solvers. ACM Trans. Math. Softw.
-31, 3 (September 2005), 363-396. DOI=http://dx.doi.org/10.1145/1089014.1089020
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
+Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
+Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
+Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
+Ting Yan, and Ulrike M. Yang.
 
 ## License ##
 

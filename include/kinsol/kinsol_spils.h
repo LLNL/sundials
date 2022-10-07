@@ -4,7 +4,7 @@
  *                  and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -40,30 +40,42 @@ typedef KINLsJacTimesVecFn KINSpilsJacTimesVecFn;
   Exported Functions (wrappers for equivalent routines in kinsol_ls.h)
   ====================================================================*/
 
-SUNDIALS_EXPORT int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetLinearSolver instead")
+int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS);
 
-SUNDIALS_EXPORT int KINSpilsSetPreconditioner(void *kinmem, KINSpilsPrecSetupFn psetup,
-                                              KINSpilsPrecSolveFn psolve);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetPreconditioner instead")
+int KINSpilsSetPreconditioner(void *kinmem, KINSpilsPrecSetupFn psetup,
+                              KINSpilsPrecSolveFn psolve);
 
-SUNDIALS_EXPORT int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetJacTimesVecFn instead")
+int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv);
 
-SUNDIALS_EXPORT int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinWorkSpace instead")
+int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS);
 
-SUNDIALS_EXPORT int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumPrecEvals instead")
+int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
 
-SUNDIALS_EXPORT int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumPrecSolves instead")
+int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
 
-SUNDIALS_EXPORT int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinIters instead")
+int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
 
-SUNDIALS_EXPORT int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinConvFails instead")
+int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
 
-SUNDIALS_EXPORT int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumJtimesEvals instead")
+int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
 
-SUNDIALS_EXPORT int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevals);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinFuncEvals instead")
+int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevals);
 
-SUNDIALS_EXPORT int KINSpilsGetLastFlag(void *kinmem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLastLinFlag instead")
+int KINSpilsGetLastFlag(void *kinmem, long int *flag);
 
-SUNDIALS_EXPORT char *KINSpilsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinReturnFlagName instead")
+char *KINSpilsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

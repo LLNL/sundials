@@ -4,7 +4,7 @@
  * Acknowledgement: This example is based on the PETSc TS ex7.c
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -15,6 +15,8 @@
  *---------------------------------------------------------------*/
 
 static char help[] = "CVODE example based on PETSc TS ex7.c: Nonlinear, time-dependent PDE in 2d.\n";
+
+#include <mpi.h>
 
 /*
    Include "petscdmda.h" so that we can use distributed arrays (DMDAs).
@@ -51,7 +53,10 @@ static int check_retval(void *value, const char *funcname, int opt);
 
 int main(int argc,char **argv)
 {
+  MPI_Comm           comm = PETSC_COMM_WORLD;
+
   /* SUNDIALS data structures */
+  SUNContext         sunctx;
   void*              cvode_mem;        /* integrator memory */
   N_Vector           nvecx;
   SUNNonlinearSolver NLS;
@@ -77,6 +82,8 @@ int main(int argc,char **argv)
      Initialize program
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
   ierr = PetscInitialize(&argc,&argv,(char*)0,help);if (ierr) return ierr;
+  ierr = SUNContext_Create(&comm, &sunctx);if (ierr) return ierr;
+
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Create distributed array (DMDA) to manage parallel grid and vectors
   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -94,13 +101,13 @@ int main(int argc,char **argv)
   /*  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Create N_Vector wrapper of petsc vector
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-  nvecx = N_VMake_Petsc(x);
+  nvecx = N_VMake_Petsc(x, sunctx);
   if (check_retval((void *)nvecx, "N_VMake_Petsc", 0)) return 1;
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Create CVODE integrator
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,7 +125,7 @@ int main(int argc,char **argv)
   ierr = SNESCreate(PETSC_COMM_WORLD,&snes);CHKERRQ(ierr);
 
   /* create SUNNonlinearSolver object which interfaces to SNES */
-  NLS = SUNNonlinSol_PetscSNES(nvecx,snes); /* This will call SNESSetFunction appropriately */
+  NLS = SUNNonlinSol_PetscSNES(nvecx,snes,sunctx); /* This will call SNESSetFunction appropriately */
   if (check_retval((void *)NLS,"SUNNonlinSol_PetscSNES",0)) return 1;
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -189,6 +196,7 @@ int main(int argc,char **argv)
   ierr = MatDestroy(&Jmf);CHKERRQ(ierr);
   ierr = DMDestroy(&da);CHKERRQ(ierr);
 
+  ierr = SUNContext_Free(&sunctx);
   ierr = PetscFinalize();
   return ierr;
 }

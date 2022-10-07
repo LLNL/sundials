@@ -3,7 +3,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -25,7 +25,7 @@ prefix     = @CMAKE_INSTALL_PREFIX@
 includedir = ${prefix}/@Fortran_INSTALL_MODDIR@
 libdir     = ${prefix}/@CMAKE_INSTALL_LIBDIR@
 
-F90      = @CMAKE_Fortran_COMPILER@
+F90      = @_EXAMPLES_Fortran_COMPILER@
 F90FLAGS = @CMAKE_Fortran_FLAGS_RELEASE@
 F90LIBS  = @LIBS@
 

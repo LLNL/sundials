@@ -4,7 +4,7 @@
  *     Alan C. Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -98,7 +98,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   /* Create CVODE object */
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
-  CV_cvodemem = CVodeCreate(lmm);
+  CV_cvodemem = CVodeCreate(lmm, NULL);
   if (CV_cvodemem == NULL) {
     *ier = -1;
     return;

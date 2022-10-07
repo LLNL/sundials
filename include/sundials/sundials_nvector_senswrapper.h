@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -60,7 +60,7 @@ typedef struct _N_VectorContent_SensWrapper *N_VectorContent_SensWrapper;
   ============================================================================*/
 
 /* constructor creates an empty vector wrapper */
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_SensWrapper(int nvecs);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_SensWrapper(int nvecs, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNew_SensWrapper(int count, N_Vector w);
 
 /* clone operations */

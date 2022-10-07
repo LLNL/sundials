@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -47,6 +47,7 @@
 #ifndef _SUNNONLINEARSOLVER_H
 #define _SUNNONLINEARSOLVER_H
 
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
 
@@ -120,6 +121,7 @@ struct _generic_SUNNonlinearSolver_Ops {
 struct _generic_SUNNonlinearSolver {
   void *content;
   SUNNonlinearSolver_Ops ops;
+  SUNContext sunctx;
 };
 
 
@@ -128,7 +130,7 @@ struct _generic_SUNNonlinearSolver {
  * ---------------------------------------------------------------------------*/
 
 /* empty constructor/destructor */
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty();
+SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS);
 
 /* core functions */
@@ -162,6 +164,7 @@ SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS,
                                             int maxiters);
+
 /* get functions */
 SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS,
                                             long int *niters);
@@ -180,8 +183,8 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
 #define SUN_NLS_SUCCESS          0    /* successful / converged */
 
 /* Recoverable */
-#define SUN_NLS_CONTINUE      +901    /* not converged, keep iterating      */
-#define SUN_NLS_CONV_RECVR    +902    /* convergece failure, try to recover */
+#define SUN_NLS_CONTINUE            +901 /* not converged, keep iterating      */
+#define SUN_NLS_CONV_RECVR          +902 /* convergece failure, try to recover */
 
 /* Unrecoverable */
 #define SUN_NLS_MEM_NULL      -901    /* memory argument is NULL            */

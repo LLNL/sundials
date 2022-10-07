@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -48,8 +48,8 @@
  * The boundary conditions are: normal derivative = 0.
  * A polynomial in x and y is used to set the initial conditions.
  *
- * The PDEs are discretized by central differencing on an MX by
- * MY mesh. The resulting ODE system is stiff.
+ * The PDEs are discretized by central differencing on an MX by MY
+ * mesh. The resulting ODE system is stiff.
  *
  * The ODE system is solved by CVODES using Newton iteration and
  * the SUNLinSol_SPGMR linear solver (scaled preconditioned GMRES).
@@ -57,11 +57,11 @@
  * The preconditioner matrix used is the product of two matrices:
  * (1) A matrix, only defined implicitly, based on a fixed number
  * of Gauss-Seidel iterations using the diffusion terms only.
- * (2) A block-diagonal matrix based on the partial derivatives
- * of the interaction terms f only, using block-grouping (computing
+ * (2) A block-diagonal matrix based on the partial derivatives of
+ * the interaction terms f only, using block-grouping (computing
  * only a subset of the ns by ns blocks).
  *
- * Additionally, CVODES can integrate backwards in time the
+ * Additionally, CVODES integrates backwards in time the
  * the semi-discrete form of the adjoint PDE:
  *   d(lambda)/dt = - D^T ( lambda_xx + lambda_yy )
  *                  - F_c^T lambda
@@ -78,8 +78,7 @@
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,9 +102,9 @@
 
 /* Constants */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 /* Problem Specification Constants */
 
@@ -171,6 +170,7 @@ typedef struct {
 
 /* Adjoint calculation constants */
 /* g = int_x int_y c(ISPEC) dy dx at t = Tfinal */
+
 #define NSTEPS 80  /* check points every NSTEPS steps */
 #define ISPEC  6   /* species # in objective */
 
@@ -228,6 +228,9 @@ static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[],
 static void v_prod(realtype u[], realtype v[], realtype w[], int n);
 static void v_zero(realtype u[], int n);
 
+/* SUNDIALS context */
+static SUNContext sunctx;
+
 /*
  *--------------------------------------------------------------------
  * MAIN PROGRAM
@@ -249,10 +252,15 @@ int main(int argc, char *argv[])
   realtype reltolB=RTOL, abstolB=ATOL;
   N_Vector cB;
 
-  c = cB = NULL;
+  c = NULL;
+  cB = NULL;
   wdata = NULL;
   cvode_mem = NULL;
   LS = LSB = NULL;
+
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Allocate and initialize user data */
 
@@ -263,13 +271,13 @@ int main(int argc, char *argv[])
   /* Set-up forward problem */
 
   /* Initializations */
-  c = N_VNew_Serial(NEQ);
+  c = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
   CInit(c, wdata);
 
   /* Call CVodeCreate/CVodeInit for forward run */
   printf("\nCreate and allocate CVODES memory for forward run\n");
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
   retval = CVodeSetUserData(cvode_mem, wdata);
@@ -280,7 +288,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create SUNLinSol_SPGMR linear solver for forward run */
-  LS = SUNLinSol_SPGMR(c, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(c, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
@@ -323,7 +331,7 @@ int main(int argc, char *argv[])
   /* Set-up backward problem */
 
   /* Allocate cB */
-  cB = N_VNew_Serial(NEQ);
+  cB = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)cB, "N_VNew_Serial", 0)) return(1);
   /* Initialize cB = 0 */
   CbInit(cB, ISPEC, wdata);
@@ -342,7 +350,7 @@ int main(int argc, char *argv[])
   wdata->indexB = indexB;
 
   /* Create SUNLinSol_SPGMR linear solver for backward run */
-  LSB = SUNLinSol_SPGMR(cB, PREC_LEFT, 0);
+  LSB = SUNLinSol_SPGMR(cB, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LSB, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
@@ -371,7 +379,7 @@ int main(int argc, char *argv[])
   N_VDestroy(cB);
   SUNLinSolFree(LS);
   SUNLinSolFree(LSB);
-
+  SUNContext_Free(&sunctx);
   FreeUserData(wdata);
 
   return(0);
@@ -442,16 +450,18 @@ static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
 
 /*
  * This routine generates the block-diagonal part of the Jacobian
- * corresponding to the interaction rates, multiplies by -gamma, adds
- * the identity matrix, and calls denseGETRF to do the LU decomposition of
- * each diagonal block. The computation of the diagonal blocks uses
- * the preset block and grouping information. One block per group is
- * computed. The Jacobian elements are generated by difference
- * quotients using calls to the routine fblock.
+ * corresponding to the interaction rates, multiplies by -gamma,
+ * adds the identity matrix, and calls SUNDlsMat_denseGETRF to do
+ * the LU decomposition of each diagonal block. The computation of
+ * the diagonal blocks uses the preset block and grouping
+ * information. One block per group is computed. The Jacobian
+ * elements are generated by difference quotients using calls to the
+ * routine fblock.
  *
  * This routine can be regarded as a prototype for the general case
- * of a block-diagonal preconditioner. The blocks are of size mp, and
- * there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
+ * of a block-diagonal preconditioner. The blocks are of size mp,
+ * and there are ngrp=ngx*ngy blocks computed in the block-grouping
+ * scheme.
  */
 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
@@ -527,8 +537,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   /* Add identity matrix and do LU decompositions on blocks. */
 
    for (ig = 0; ig < ngrp; ig++) {
-     denseAddIdentity(P[ig], mp);
-     denseretval = denseGETRF(P[ig], mp, mp, pivot[ig]);
+     SUNDlsMat_denseAddIdentity(P[ig], mp);
+     denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
      if (denseretval != 0) return(1);
    }
 
@@ -552,7 +562,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   realtype gamma, realtype delta,
                   int lr, void *user_data)
 {
-  realtype   ***P;
+  realtype ***P;
   sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
@@ -582,7 +592,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
+      SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
@@ -643,7 +653,7 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
         /* Collect terms and load cdot elements. */
         cBdotdata[ici] = - coy[i-1]*(dcyui - dcyli)
                          - cox[i-1]*(dcxui - dcxli)
-	                 - fBsave[ici];
+                         - fBsave[ici];
       }
     }
   }
@@ -664,7 +674,7 @@ static int PrecondB(realtype t, N_Vector c,
   sunindextype **pivot;
   sunindextype denseretval;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, mp, ngrp, ngx, ngy, mxmp, retval;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   void *cvode_mem;
@@ -700,7 +710,6 @@ static int PrecondB(realtype t, N_Vector c,
      r0 is a minimum increment factor for the difference quotient. */
 
   f1 = N_VGetArrayPointer(wdata->vtemp);
-
   fac = N_VWrmsNorm (fcB, rewt);
   r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
   if (r0 == ZERO) r0 = ONE;
@@ -732,8 +741,8 @@ static int PrecondB(realtype t, N_Vector c,
   /* Add identity matrix and do LU decompositions on blocks. */
 
    for (ig = 0; ig < ngrp; ig++) {
-     denseAddIdentity(P[ig], mp);
-     denseretval = denseGETRF(P[ig], mp, mp, pivot[ig]);
+     SUNDlsMat_denseAddIdentity(P[ig], mp);
+     denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
      if (denseretval != 0) return(1);
    }
 
@@ -781,7 +790,7 @@ static int PSolveB(realtype t, N_Vector c,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
+      SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
@@ -807,11 +816,11 @@ static WebData AllocUserData(void)
 
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newIndexArray(ns);
+    (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
+    (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
-  wdata->rewt  = N_VNew_Serial(NEQ);
-  wdata->vtemp = N_VNew_Serial(NEQ);
+  wdata->rewt  = N_VNew_Serial(NEQ, sunctx);
+  wdata->vtemp = N_VNew_Serial(NEQ, sunctx);
 
   return(wdata);
 }
@@ -1025,7 +1034,6 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
   for (j = 0; j < ns; j++)
     for (i = 0; i < ns; i++)
       rateB[i] += acoef[j][i]*c[j]*cB[j];
-
 }
 
 /*
@@ -1352,8 +1360,8 @@ static void FreeUserData(WebData wdata)
 
   ngrp = wdata->ngrp;
   for(i=0; i < ngrp; i++) {
-    destroyMat((wdata->P)[i]);
-    destroyArray((wdata->pivot)[i]);
+    SUNDlsMat_destroyMat((wdata->P)[i]);
+    SUNDlsMat_destroyArray((wdata->pivot)[i]);
   }
   N_VDestroy(wdata->rewt);
   N_VDestroy(wdata->vtemp);
@@ -1377,7 +1385,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -1385,13 +1393,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

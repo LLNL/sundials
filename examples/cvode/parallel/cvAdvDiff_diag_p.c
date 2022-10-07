@@ -4,7 +4,7 @@
  *                and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -45,6 +45,7 @@
 #include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_parallel.h>     /* access to MPI-parallel N_Vector     */
 #include <sundials/sundials_types.h>      /* definition of type realtype         */
+#include <sundials/sundials_logger.h>
 
 #include <mpi.h> /* MPI constants and types */
 
@@ -94,6 +95,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
+  SUNLogger logger;
   realtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -104,6 +107,8 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;
 
+  sunctx = NULL;
+  logger = NULL;
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
@@ -113,6 +118,53 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
+
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create((void*) &comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* This requires that SUNDIALS was configured with the CMake options
+       SUNDIALS_LOGGING_LEVEL=n
+    where n is one of:
+       1 --> log only errors,
+       2 --> log errors + warnings,
+       3 --> log errors + warnings + info output
+       4 --> all of the above plus debugging output like internal integrator values
+       5 --> all of the above and even more
+    SUNDIALS will only log up to the max level n, but a lesser level can
+    be configured at runtime by only providing output files for the
+    desired levels. We will enable all logging here on the condition
+    that SUNDIALS was built with the correct logging level enabled. */
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_ERROR) {
+    retval = SUNLogger_Create(
+      (void*) &comm, // MPI communicator
+      0, // output on process 0
+      &logger
+    );
+    if (check_retval(&retval, "SUNLogger_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
+    retval = SUNContext_SetLogger(sunctx, logger);
+    if (check_retval(&retval, "SUNContext_SetLogger", 1, my_pe)) MPI_Abort(comm, 1);
+
+    retval = SUNLogger_SetErrorFilename(logger, "stderr");
+    if (check_retval(&retval, "SUNLogger_SetErrorFilename", 1, my_pe)) MPI_Abort(comm, 1);
+  }
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_WARNING) {
+    retval = SUNLogger_SetWarningFilename(logger, "stderr");
+    if (check_retval(&retval, "SUNLogger_SetWarningFilename", 1, my_pe)) MPI_Abort(comm, 1);
+  }
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_INFO) {
+    retval = SUNLogger_SetInfoFilename(logger, "cvAdvDiff_diag_p.info.log");
+    if (check_retval(&retval, "SUNLogger_SetInfoFilename", 1, my_pe)) MPI_Abort(comm, 1);
+  }
+
+  if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_DEBUG) {
+    retval = SUNLogger_SetDebugFilename(logger, "stderr");
+    if (check_retval(&retval, "SUNLogger_SetDebugFilename", 1, my_pe)) MPI_Abort(comm, 1);
+  }
 
   /* Set local vector length. */
   nperpe = NEQ/npes;
@@ -127,7 +179,7 @@ int main(int argc, char *argv[])
   data->npes = npes;
   data->my_pe = my_pe;
 
-  u = N_VNew_Parallel(comm, local_N, NEQ);  /* Allocate u vector */
+  u = N_VNew_Parallel(comm, local_N, NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -141,7 +193,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -188,9 +240,10 @@ int main(int argc, char *argv[])
   N_VDestroy(u);                 /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
+  if (logger) SUNLogger_Destroy(&logger);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
-
   return(0);
 }
 

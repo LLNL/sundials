@@ -4,7 +4,7 @@
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -20,15 +20,26 @@
 
 #include <stdlib.h>
 #include <sundials/sundials_linearsolver.h>
+#include "sundials_context_impl.h"
+
+#if defined(SUNDIALS_BUILD_WITH_PROFILING)
+static SUNProfiler getSUNProfiler(SUNLinearSolver S)
+{
+  return(S->sunctx->profiler);
+}
+#endif
 
 /* -----------------------------------------------------------------
  * Create a new empty SUNLinearSolver object
  * ----------------------------------------------------------------- */
 
-SUNLinearSolver SUNLinSolNewEmpty()
+SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
 {
   SUNLinearSolver     LS;
   SUNLinearSolver_Ops ops;
+
+  /* a context is required */
+  if (sunctx == NULL) return(NULL);
 
   /* create linear solver object */
   LS = NULL;
@@ -46,6 +57,7 @@ SUNLinearSolver SUNLinSolNewEmpty()
   ops->setatimes         = NULL;
   ops->setpreconditioner = NULL;
   ops->setscalingvectors = NULL;
+  ops->setzeroguess      = NULL;
   ops->initialize        = NULL;
   ops->setup             = NULL;
   ops->solve             = NULL;
@@ -56,9 +68,10 @@ SUNLinearSolver SUNLinSolNewEmpty()
   ops->space             = NULL;
   ops->free              = NULL;
 
-  /* attach ops and initialize content to NULL */
+  /* attach ops and initialize content and context to NULL */
   LS->ops     = ops;
   LS->content = NULL;
+  LS->sunctx  = sunctx;
 
   return(LS);
 }
@@ -98,77 +111,119 @@ SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S)
 }
 
 int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
-                       ATimesFn ATimes)
+                       SUNATimesFn ATimes)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->setatimes)
-    return ((int) S->ops->setatimes(S, A_data, ATimes));
+    ier = S->ops->setatimes(S, A_data, ATimes);
   else
-    return SUNLS_SUCCESS;
+    ier = SUNLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(ier);
 }
 
 
 int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
-                               PSetupFn Pset, PSolveFn Psol)
+                               SUNPSetupFn Pset, SUNPSolveFn Psol)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->setpreconditioner)
-    return ((int) S->ops->setpreconditioner(S, P_data, Pset, Psol));
+    ier = S->ops->setpreconditioner(S, P_data, Pset, Psol);
   else
-    return SUNLS_SUCCESS;
+    ier = SUNLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(ier);
 }
 
 int SUNLinSolSetScalingVectors(SUNLinearSolver S,
                                N_Vector s1, N_Vector s2)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->setscalingvectors)
-    return ((int) S->ops->setscalingvectors(S, s1, s2));
+    ier = S->ops->setscalingvectors(S, s1, s2);
+  else
+    ier = SUNLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(ier);
+}
+
+int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff)
+{
+  if (S->ops->setzeroguess)
+    return ((int) S->ops->setzeroguess(S, onoff));
   else
     return SUNLS_SUCCESS;
 }
 
 int SUNLinSolInitialize(SUNLinearSolver S)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->initialize)
-    return ((int) S->ops->initialize(S));
+    ier = S->ops->initialize(S);
   else
-    return SUNLS_SUCCESS;
+    ier = SUNLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(ier);
 }
 
 int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->setup)
-    return ((int) S->ops->setup(S, A));
+    ier = S->ops->setup(S, A);
   else
-    return SUNLS_SUCCESS;
+    ier = SUNLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(ier);
 }
 
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                    N_Vector b, realtype tol)
 {
-  return ((int) S->ops->solve(S, A, x, b, tol));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
+  ier = S->ops->solve(S, A, x, b, tol);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(ier);
 }
 
 int SUNLinSolNumIters(SUNLinearSolver S)
 {
+  int ier;
   if (S->ops->numiters)
-    return ((int) S->ops->numiters(S));
+    ier = S->ops->numiters(S);
   else
-    return 0;
+    ier = 0;
+  return(ier);
 }
 
 realtype SUNLinSolResNorm(SUNLinearSolver S)
 {
+  double result;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->resnorm)
-    return ((realtype) S->ops->resnorm(S));
+    result = S->ops->resnorm(S);
   else
-    return RCONST(0.0);
+    result = RCONST(0.0);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(result);
 }
 
 N_Vector SUNLinSolResid(SUNLinearSolver S)
 {
+  N_Vector resid;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->resid)
-    return ((N_Vector) S->ops->resid(S));
+    resid = S->ops->resid(S);
   else
-    return NULL;
+    resid = NULL;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return(resid);
 }
 
 sunindextype SUNLinSolLastFlag(SUNLinearSolver S)

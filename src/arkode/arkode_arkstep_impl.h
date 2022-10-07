@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ARK time stepper
+ * Implementation header file for ARKODE's ARK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -21,6 +21,9 @@
 #include <arkode/arkode_arkstep.h>
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
+
+/* access to MRIStepInnerStepper_Create */
+#include "arkode/arkode_mristep.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -42,6 +45,10 @@ extern "C" {
 /* #define NLSCOEF   RCONST(0.2)   */  /* CVODE constant */
 #define NLSCOEF   RCONST(0.1)
 
+/* Mass matrix types */
+#define MASS_IDENTITY 0
+#define MASS_FIXED    1
+#define MASS_TIMEDEP  2
 
 
 /*===============================================================
@@ -64,6 +71,8 @@ typedef struct ARKodeARKStepMemRec {
   booleantype  linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
   booleantype  explicit;        /* SUNTRUE if fe is enabled       */
   booleantype  implicit;        /* SUNTRUE if fi is enabled       */
+  booleantype  deduce_rhs;      /* SUNTRUE if fi is deduced after
+                                   a nonlinear solve              */
 
   /* ARK method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */
@@ -84,6 +93,7 @@ typedef struct ARKodeARKStepMemRec {
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
   booleantype     ownNLS;   /* flag indicating ownership of NLS      */
+  ARKRhsFn nls_fi;          /* fi(t,y) used in the nonlinear solver  */
   realtype gamma;        /* gamma = h * A(i,i)                       */
   realtype gammap;       /* gamma at the last setup call             */
   realtype gamrat;       /* gamma / gammap                           */
@@ -109,28 +119,29 @@ typedef struct ARKodeARKStepMemRec {
   booleantype jcur;      /* is Jacobian info for lin solver current? */
 
   /* Linear Solver Data */
-  ARKLinsolInitFn  linit;
-  ARKLinsolSetupFn lsetup;
-  ARKLinsolSolveFn lsolve;
-  ARKLinsolFreeFn  lfree;
-  void            *lmem;
-  int lsolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
+  ARKLinsolInitFn      linit;
+  ARKLinsolSetupFn     lsetup;
+  ARKLinsolSolveFn     lsolve;
+  ARKLinsolFreeFn      lfree;
+  void                *lmem;
+  SUNLinearSolver_Type lsolve_type;
 
   /* Mass matrix solver data */
-  ARKMassInitFn   minit;
-  ARKMassSetupFn  msetup;
-  ARKMassMultFn   mmult;
-  ARKMassSolveFn  msolve;
-  ARKMassFreeFn   mfree;
-  void*           mass_mem;
-  realtype        msetuptime;   /* "t" value at last msetup call */
-  int msolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
+  ARKMassInitFn        minit;
+  ARKMassSetupFn       msetup;
+  ARKMassMultFn        mmult;
+  ARKMassSolveFn       msolve;
+  ARKMassFreeFn        mfree;
+  void*                mass_mem;
+  int                  mass_type;  /* 0=identity, 1=fixed, 2=time-dep */
+  SUNLinearSolver_Type msolve_type;
 
   /* Counters */
   long int nfe;       /* num fe calls               */
   long int nfi;       /* num fi calls               */
   long int nsetups;   /* num setup calls            */
   long int nls_iters; /* num nonlinear solver iters */
+  long int nls_fails; /* num nonlinear solver fails */
 
   /* Reusable arrays for fused vector operations */
   realtype *cvals;         /* scalar array for fused ops       */
@@ -152,18 +163,22 @@ typedef struct ARKodeARKStepMemRec {
   ARK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */
+/* Interface routines supplied to ARKODE */
 int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
-                         int lsolve_type, void *lmem);
-int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
+                         SUNLinearSolver_Type lsolve_type,
+                         void *lmem);
+int arkStep_AttachMasssol(void* arkode_mem,
+                          ARKMassInitFn minit,
                           ARKMassSetupFn msetup,
                           ARKMassMultFn mmult,
                           ARKMassSolveFn msolve,
                           ARKMassFreeFn lfree,
-                          int msolve_type, void *mass_mem);
+                          booleantype time_dep,
+                          SUNLinearSolver_Type msolve_type,
+                          void *mass_mem);
 void arkStep_DisableLSetup(void* arkode_mem);
 void arkStep_DisableMSetup(void* arkode_mem);
 int arkStep_Init(void* arkode_mem, int init_type);
@@ -175,7 +190,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                       booleantype *dgamma_fail);
 int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
-int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
@@ -184,24 +199,36 @@ booleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
-int arkStep_StageSetup(ARKodeMem ark_mem);
+int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
+int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsm);
 void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
                           realtype s, int *nvec);
 
 /* private functions passed to nonlinear solver */
-int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
-int arkStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
+int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
 int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
 
-/* private functions used by MRIStep */
+/* private functions for interfacing with MRIStep */
 int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
                             N_Vector *f, int nvecs);
+int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                               realtype t0, realtype tout, N_Vector y);
+int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, realtype t,
+                                N_Vector y, N_Vector f, int mode);
+int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
+                              N_Vector yR);
+
 
 /*===============================================================
   Reusable ARKStep Error Messages

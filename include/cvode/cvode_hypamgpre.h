@@ -7,7 +7,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -121,7 +121,7 @@ extern "C" {
  *
  * N   is the problem size.
  *
- * Jac is the dense matrix (of type DlsMat) that will be loaded
+ * Jac is the dense matrix (of type SUNDlsMat) that will be loaded
  *     by a CVDlsDenseJacFn with an approximation to the Jacobian 
  *     matrix J = (df_i/dy_j) at the point (t,y). 
  *
