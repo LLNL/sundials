@@ -27,17 +27,6 @@ set(CVODE_extras
   plot_heat2D.py
   )
 
-# Specify libraries to link against
-set(CVODE_LIB sundials_cvode)
-set(NVECS_LIB sundials_nvecserial)
-
-if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
-endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
-
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
 
@@ -61,7 +50,15 @@ foreach(example_tuple ${CVODE_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target} ${SUNDIALS_LIBS})
+    target_link_libraries(${example_target}
+      sundials_cvode
+      sundials_nvecserial
+      ${EXE_EXTRA_LINK_LIBS})
+
+    if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+      target_link_libraries(${example_target}
+        sundials_cvode_fused_stubs)
+    endif()
   endif()
 
   # check if example args are provided and set the test name
@@ -85,7 +82,7 @@ endforeach(example_tuple ${CVODE_examples})
 if(EXAMPLES_INSTALL)
 
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    set(_include_cvode cvode_fused_stubs)
+    set(_fused_stubs cvode_fused_stubs)
   endif()
 
   sundials_install_examples(cvode CVODE_examples
@@ -94,8 +91,8 @@ if(EXAMPLES_INSTALL)
     MAKE_TEMPLATE
       makefile_serial_CXX_ex.in
     SUNDIALS_TARGETS
-      nvecserial
       cvode
+      nvecserial
       ${_fused_stubs}
     DESTINATION
       cvode/CXX_serial
