@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -----------------------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ def main():
     # output list of makefiles
     if args.debug:
         for bf in buildfiles:
-            print bf
+            print(bf)
 
     # run make for each makefile
     buildfail = False
@@ -94,12 +94,12 @@ def main():
 
     # print list of failed builds
     if buildfail:
-        print "The following builds failed:"
+        print("The following builds failed:")
         for err in errors:
-            print err
+            print(err)
         sys.exit(1)
     else:
-        print "All builds successful."
+        print("All builds successful.")
 
 # -----------------------------------------------------------------------------
 # run the main routine
