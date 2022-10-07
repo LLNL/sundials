@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Slaven Peles, Cody Balos, and Daniel McGreer @ LLNL
+# Programmer(s):  Cody Balos, and Daniel McGreer @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -29,17 +29,6 @@ set(nvector_examples_dependencies
   sundials_math
 )
 
-# Add source directory to include directories
-include_directories(. ..)
-
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nveckokkos_static)
-else()
-  set(NVECS_LIB sundials_nveckokkos_shared)
-endif()
-
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
@@ -53,25 +42,17 @@ foreach(example_tuple ${nvector_kokkos_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cpp
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c)
+    add_executable(${example} ${example}.cpp)
+
+    # link vector test utilties
+    target_link_libraries(${example} PRIVATE test_nvector_obj)
+    target_link_libraries(${example} PRIVATE sundials_nveckokkos)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -99,7 +80,7 @@ foreach(example_tuple ${nvector_kokkos_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
+    install(FILES ${example}.cpp
       ../test_nvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
@@ -108,54 +89,3 @@ foreach(example_tuple ${nvector_kokkos_examples})
   endif()
 
 endforeach(example_tuple ${nvector_kokkos_examples})
-
-#[[
-if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/kokkos)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(NVECTOR_LIB "sundials_nveckokkos")
-
-  examples2string(nvector_kokkos_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_KOKKOS_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/kokkos/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/kokkos/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/kokkos
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_KOKKOS_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/kokkos/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/kokkos/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/kokkos
-      RENAME Makefile
-      )
-  endif(UNIX)
-
-endif(EXAMPLES_INSTALL)
-]]

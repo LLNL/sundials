@@ -69,6 +69,18 @@ if(ENABLE_HYPRE)
 endif()
 
 # ---------------------------------------------------------------
+# Find (and test) the Kokkos
+# ---------------------------------------------------------------
+
+if(ENABLE_KOKKOS)
+  # include(SundialsKLU)
+  list(APPEND SUNDIALS_TPL_LIST "KOKKOS")
+  find_package(Kokkos REQUIRED 
+               PATHS ${Kokkos_DIR})
+  set(KOKKOS_WORKS TRUE)
+endif()
+
+# ---------------------------------------------------------------
 # Find (and test) the KLU libraries
 # ---------------------------------------------------------------
 

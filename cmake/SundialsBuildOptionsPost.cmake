@@ -107,6 +107,11 @@ sundials_option(BUILD_NVECTOR_TRILINOS BOOL "Build the NVECTOR_TRILINOS module (
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_TRILINOS")
 
+sundials_option(BUILD_NVECTOR_KOKKOS BOOL "Build the NVECTOR_KOKKOS module (requires Kokkos)" ON
+                DEPENDS_ON ENABLE_KOKKOS KOKKOS_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_KOKKOS")
+
 
 # ---------------------------------------------------------------
 # Options to enable/disable build for SUNMATRIX modules.
