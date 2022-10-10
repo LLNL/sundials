@@ -1422,6 +1422,40 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
   double   start_time, stop_time, maxt;
   realtype ans;
 
+  /*
+   * Case 1: zero vector
+   */
+
+  /* fill vector data */
+  N_VConst(ZERO, X);
+
+  start_time = get_time();
+  ans = N_VMaxNorm(X);
+  sync_device(X);
+  stop_time = get_time();
+
+  /* ans should equal 0 */
+  if (ans < ZERO || ans >= SUN_SMALL_REAL)
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMaxNorm Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMaxNorm Case 1\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VMaxNorm", maxt);
+
+  /*
+   * Case 2: general vector
+   */
+
+  /* reset failure */
+  failure = 0;
+
   /* fill vector data */
   N_VConst(NEG_HALF, X);
   if (myid == 0)
@@ -1438,10 +1472,10 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
   failure = (ans < ZERO) ? 1 : SUNRCompare(ans, TWO);
 
   if (failure) {
-    printf(">>> FAILED test -- N_VMaxNorm, Proc %d \n", myid);
+    printf(">>> FAILED test -- N_VMaxNorm Case 2, Proc %d \n", myid);
     fails++;
   } else if (myid == 0) {
-    printf("PASSED test -- N_VMaxNorm \n");
+    printf("PASSED test -- N_VMaxNorm Case 2\n");
   }
 
   /* find max time across all processes */

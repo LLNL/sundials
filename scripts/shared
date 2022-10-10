@@ -742,7 +742,6 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_openmp_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_openmpdev_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_pthreads_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_trilinos_CXX_ex.in
-$tar $tarfile $distrobase/examples/templates/cmakelists_superludist_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_xbraid_CXX_ex.in
 
 $tar $tarfile $distrobase/examples/templates/makefile_CXX_ex.in
@@ -763,7 +762,6 @@ $tar $tarfile $distrobase/examples/templates/makefile_openmp_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_openmpdev_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_pthreads_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_trilinos_CXX_ex.in
-$tar $tarfile $distrobase/examples/templates/makefile_superludist_CXX_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_xbraid_CXX_ex.in
 
 

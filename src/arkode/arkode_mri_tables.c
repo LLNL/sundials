@@ -576,13 +576,13 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 /* ---------------------------------------------------------------------------
  * Computes the stage RHS vector storage maps. With repeated abscissae the
  * first stage of the pair generally corresponds to a column of zeros and so
- * does not need to be computed and stored. The stage_map indicate if the RHS
+ * does not need to be computed and stored. The stage_map indicates if the RHS
  * needs to be computed and where to store it i.e., stage_map[i] > -1.
  * ---------------------------------------------------------------------------*/
 
 int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC,
                                 int* stage_map,
-                                int* nstages_stored)
+                                int* nstages_active)
 {
   int i, j, k, idx;
   realtype Wsum, Gsum;
@@ -594,14 +594,14 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC,
 
   if (!MRIC) return(ARK_ILL_INPUT);
   if (!(MRIC->W) && !(MRIC->G)) return(ARK_ILL_INPUT);
-  if (!stage_map || !nstages_stored) return(ARK_ILL_INPUT);
+  if (!stage_map || !nstages_active) return(ARK_ILL_INPUT);
 
   /* -------------------
    * Compute storage map
    * ------------------- */
 
-  /* Number of stage RHS vectors stored */
-  *nstages_stored = 0;
+  /* Number of stage RHS vectors active */
+  *nstages_active = 0;
 
   /* Initial storage index */
   idx = 0;
@@ -631,10 +631,10 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC,
     }
   }
 
-  /* Check and set number of stage RHS vectors stored */
+  /* Check and set number of stage RHS vectors active */
   if (idx < 1) return(ARK_ILL_INPUT);
 
-  *nstages_stored = idx;
+  *nstages_active = idx;
 
   return(ARK_SUCCESS);
 }
