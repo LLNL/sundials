@@ -30,10 +30,8 @@ extern "C" {
 typedef struct _SUNContext* SUNContext;
 
 SUNDIALS_EXPORT int SUNContext_Create(void* comm, SUNContext* ctx);
-SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx,
-                                           SUNProfiler* profiler);
-SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx,
-                                           SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
+SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
 SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
 SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
@@ -41,38 +39,9 @@ SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
 #ifdef __cplusplus
 }
 
-#include <memory>
-
-namespace sundials {
-
-class Context {
-public:
-  explicit Context(void* comm = NULL)
-  {
-    sunctx_ = std::unique_ptr<SUNContext>(new SUNContext());
-    SUNContext_Create(comm, sunctx_.get());
-  }
-
-  /* disallow copy, but allow move construction */
-  Context(const Context&) = delete;
-  Context(Context&&)      = default;
-
-  /* disallow copy, but allow move operators */
-  Context& operator=(const Context&) = delete;
-  Context& operator=(Context&&) = default;
-
-  operator SUNContext() { return *sunctx_.get(); }
-
-  ~Context()
-  {
-    if (sunctx_) SUNContext_Free(sunctx_.get());
-  }
-
-private:
-  std::unique_ptr<SUNContext> sunctx_;
-};
-
-} /* namespace sundials */
+/* We include this here for backwards compatibility
+   (the contents used to be defined here directly) */
+#include <sundials/sundials_context.hpp>
 
 #endif
 #endif

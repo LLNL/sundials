@@ -73,6 +73,11 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)
 endforeach()
 
+# prepare substitution variable(s) SUNDIALS_GINKGO_BACKENDS_*
+foreach(backend ${SUNDIALS_GINKGO_BACKENDS})
+  set(SUNDIALS_GINKGO_BACKENDS_${backend} TRUE)
+endforeach()
+
 # prepare substitution variable(s) SUNDIALS_MAGMA_BACKENDS_*
 foreach(backend ${SUNDIALS_MAGMA_BACKENDS})
   set(SUNDIALS_MAGMA_BACKENDS_${backend} TRUE)

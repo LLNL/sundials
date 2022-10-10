@@ -130,9 +130,11 @@ function(sundials_git_version)
 endfunction()
 
 # Macros from other files
+include(SundialsAddExamplesGinkgo)
 include(SundialsAddExecutable)
 include(SundialsAddLibrary)
 include(SundialsAddTest)
 include(SundialsAddTestInstall)
 include(SundialsInstallExamples)
+include(SundialsInstallExamplesGinkgo)
 include(SundialsOption)
