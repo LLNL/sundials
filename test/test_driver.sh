@@ -670,6 +670,10 @@ for ((j=0;j<ntestdirs;j++)); do
             --readenv \
             --install-prefix "${installdir}" | tee -a configure.log
 
+        rc=${PIPESTATUS[0]}
+        echo -e "\nconfig_cmake.py returned $rc\n" | tee -a configure.log
+        if [ "$rc" -ne 0 ]; then passfail=1; break; fi
+
         # ---------
         # Configure
         # ---------

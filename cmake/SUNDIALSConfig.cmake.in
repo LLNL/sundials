@@ -55,6 +55,10 @@ endforeach()
 
 ### ------- Create TPL imported targets
 
+if("@ENABLE_OPENMP@" AND NOT TARGET OpenMP::OpenMP_C)
+  find_package(OpenMP)
+endif()
+
 if("@ENABLE_CALIPER@" AND NOT TARGET caliper)
   find_package(CALIPER PATHS "@CALIPER_DIR@")
 endif()

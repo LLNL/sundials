@@ -70,7 +70,7 @@ def main():
             'STRING', 'C++ compiler flags')
 
     add_arg(group, '--cxx-std', 'CMAKE_CXX_STANDARD', 'CMAKE_CXX_STANDARD',
-            '11', 'STRING', 'C++ standard')
+            '14', 'STRING', 'C++ standard')
 
     add_arg(group, '--cxx-ext', 'CMAKE_CXX_EXTENSIONS', 'CMAKE_CXX_EXTENSIONS',
             'OFF', 'STRING', 'C++ compiler extensions')
@@ -88,6 +88,9 @@ def main():
 
     add_arg(group, '--cuda-flags', 'CUDAFLAGS', 'CMAKE_CUDA_FLAGS', None,
             'STRING', 'CUDA compiler flags')
+
+    add_arg(group, '--cuda-std', 'CMAKE_CUDA_STANDARD', 'CMAKE_CUDA_STANDARD',
+            '14', 'STRING', 'CUDA standard')
 
     add_arg(group, '--cuda-arch', 'CUDAARCHS', 'CMAKE_CUDA_ARCHITECTURES',
             None, 'STRING', 'CUDA architecture')
@@ -376,6 +379,19 @@ def main():
     # Linear solver libraries
     # ------------------------
 
+    # Ginkgo
+    group = parser.add_argument_group('Ginkgo Options')
+
+    add_arg(group, '--ginkgo', 'SUNDIALS_GINKGO', 'ENABLE_GINKGO', 'OFF',
+            'BOOL', 'SUNDIALS Ginkgo support')
+
+    add_arg(group, '--ginkgo-dir', 'GINKGO_ROOT', 'Ginkgo_DIR', None, 'PATH',
+            'Ginkgo install directory', dependson='--ginkgo')
+
+    add_arg(group, '--ginkgo-backends', 'GINKGO_BACKENDS',
+            'SUNDIALS_GINKGO_BACKENDS', 'REF;OMP', 'STRING', 'Ginkgo backends',
+            choices=['REF', 'OMP', 'CUDA', 'HIP', 'DPCPP'], dependson='--ginkgo')
+
     # LAPACK
     group = parser.add_argument_group('LAPACK Options')
 
@@ -656,9 +672,17 @@ def cmake_arg(env_var, cmake_var, cmake_default, cmake_type, msg,
             err_msg += 'Input value must be ON or OFF.'
             raise argparse.ArgumentTypeError("Invaid Value for BOOL")
 
-        if choices is not None:
-            choices.append(None)
-            if str_var not in choices:
+        if choices is not None and str_var is not None:
+            raise_error = False
+            if ";" in str_var:
+                for s in str_var.split(';'):
+                    if s not in choices:
+                        raise_error = True
+            else:
+                if str_var not in choices:
+                    raise_error = True
+
+            if raise_error:
                 err_msg = 'Invalid option value ' + str_var + '. '
                 err_msg += 'Input value must be '
                 if len(choices) < 3:

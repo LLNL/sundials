@@ -69,6 +69,7 @@ SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_Rows(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_Columns(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_BlockRows(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_BlockColumns(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_BlockLData(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT realtype** SUNMatrix_MagmaDense_BlockData(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A, realtype* h_data);
