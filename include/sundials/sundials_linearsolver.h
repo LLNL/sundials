@@ -59,130 +59,129 @@
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
-extern "C"
+extern "C" {
+#endif
+
+/* -----------------------------------------------------------------
+ * Implemented SUNLinearSolver types and IDs:
+ * ----------------------------------------------------------------- */
+
+typedef enum
 {
-#endif
+  SUNLINEARSOLVER_DIRECT,
+  SUNLINEARSOLVER_ITERATIVE,
+  SUNLINEARSOLVER_MATRIX_ITERATIVE,
+  SUNLINEARSOLVER_MATRIX_EMBEDDED
+} SUNLinearSolver_Type;
 
-  /* -----------------------------------------------------------------
-   * Implemented SUNLinearSolver types and IDs:
-   * ----------------------------------------------------------------- */
+typedef enum
+{
+  SUNLINEARSOLVER_BAND,
+  SUNLINEARSOLVER_DENSE,
+  SUNLINEARSOLVER_KLU,
+  SUNLINEARSOLVER_LAPACKBAND,
+  SUNLINEARSOLVER_LAPACKDENSE,
+  SUNLINEARSOLVER_PCG,
+  SUNLINEARSOLVER_SPBCGS,
+  SUNLINEARSOLVER_SPFGMR,
+  SUNLINEARSOLVER_SPGMR,
+  SUNLINEARSOLVER_SPTFQMR,
+  SUNLINEARSOLVER_SUPERLUDIST,
+  SUNLINEARSOLVER_SUPERLUMT,
+  SUNLINEARSOLVER_CUSOLVERSP_BATCHQR,
+  SUNLINEARSOLVER_MAGMADENSE,
+  SUNLINEARSOLVER_ONEMKLDENSE,
+  SUNLINEARSOLVER_GINKGO,
+  SUNLINEARSOLVER_CUSTOM
+} SUNLinearSolver_ID;
 
-  typedef enum
-  {
-    SUNLINEARSOLVER_DIRECT,
-    SUNLINEARSOLVER_ITERATIVE,
-    SUNLINEARSOLVER_MATRIX_ITERATIVE,
-    SUNLINEARSOLVER_MATRIX_EMBEDDED
-  } SUNLinearSolver_Type;
+/* -----------------------------------------------------------------
+ * Generic definition of SUNLinearSolver
+ * ----------------------------------------------------------------- */
 
-  typedef enum
-  {
-    SUNLINEARSOLVER_BAND,
-    SUNLINEARSOLVER_DENSE,
-    SUNLINEARSOLVER_KLU,
-    SUNLINEARSOLVER_LAPACKBAND,
-    SUNLINEARSOLVER_LAPACKDENSE,
-    SUNLINEARSOLVER_PCG,
-    SUNLINEARSOLVER_SPBCGS,
-    SUNLINEARSOLVER_SPFGMR,
-    SUNLINEARSOLVER_SPGMR,
-    SUNLINEARSOLVER_SPTFQMR,
-    SUNLINEARSOLVER_SUPERLUDIST,
-    SUNLINEARSOLVER_SUPERLUMT,
-    SUNLINEARSOLVER_CUSOLVERSP_BATCHQR,
-    SUNLINEARSOLVER_MAGMADENSE,
-    SUNLINEARSOLVER_ONEMKLDENSE,
-    SUNLINEARSOLVER_GINKGO,
-    SUNLINEARSOLVER_CUSTOM
-  } SUNLinearSolver_ID;
+/* Forward reference for pointer to SUNLinearSolver_Ops object */
+typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver_Ops* SUNLinearSolver_Ops;
 
-  /* -----------------------------------------------------------------
-   * Generic definition of SUNLinearSolver
-   * ----------------------------------------------------------------- */
+/* Forward reference for pointer to SUNLinearSolver object */
+typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver* SUNLinearSolver;
 
-  /* Forward reference for pointer to SUNLinearSolver_Ops object */
-  typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver_Ops* SUNLinearSolver_Ops;
-
-  /* Forward reference for pointer to SUNLinearSolver object */
-  typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver* SUNLinearSolver;
-
-  /* Structure containing function pointers to linear solver operations */
-  struct _generic_SUNLinearSolver_Ops
-  {
-    SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
-    SUNLinearSolver_ID (*getid)(SUNLinearSolver);
-    int (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
-    int (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn);
-    int (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector);
-    int (*setzeroguess)(SUNLinearSolver, booleantype);
-    int (*initialize)(SUNLinearSolver);
-    int (*setup)(SUNLinearSolver, SUNMatrix);
-    int (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype);
-    int (*numiters)(SUNLinearSolver);
-    realtype (*resnorm)(SUNLinearSolver);
-    sunindextype (*lastflag)(SUNLinearSolver);
-    int (*space)(SUNLinearSolver, long int*, long int*);
-    N_Vector (*resid)(SUNLinearSolver);
-    int (*free)(SUNLinearSolver);
+/* Structure containing function pointers to linear solver operations */
+struct _generic_SUNLinearSolver_Ops
+{
+  SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
+  SUNLinearSolver_ID (*getid)(SUNLinearSolver);
+  int (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
+  int (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn);
+  int (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector);
+  int (*setzeroguess)(SUNLinearSolver, booleantype);
+  int (*initialize)(SUNLinearSolver);
+  int (*setup)(SUNLinearSolver, SUNMatrix);
+  int (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype);
+  int (*numiters)(SUNLinearSolver);
+  realtype (*resnorm)(SUNLinearSolver);
+  sunindextype (*lastflag)(SUNLinearSolver);
+  int (*space)(SUNLinearSolver, long int*, long int*);
+  N_Vector (*resid)(SUNLinearSolver);
+  int (*free)(SUNLinearSolver);
 #ifdef __cplusplus
-    _generic_SUNLinearSolver_Ops() = default;
+  _generic_SUNLinearSolver_Ops() = default;
 #endif
-  };
+};
 
-  /* A linear solver is a structure with an implementation-dependent
-     'content' field, and a pointer to a structure of linear solver
-     operations corresponding to that implementation. */
-  struct _generic_SUNLinearSolver
-  {
-    void* content;
-    SUNLinearSolver_Ops ops;
-    SUNContext sunctx;
+/* A linear solver is a structure with an implementation-dependent
+   'content' field, and a pointer to a structure of linear solver
+   operations corresponding to that implementation. */
+struct _generic_SUNLinearSolver
+{
+  void* content;
+  SUNLinearSolver_Ops ops;
+  SUNContext sunctx;
 #ifdef __cplusplus
-    _generic_SUNLinearSolver() = default;
+  _generic_SUNLinearSolver() = default;
 #endif
-  };
+};
 
-  /* -----------------------------------------------------------------
-   * Functions exported by SUNLinearSolver module
-   * ----------------------------------------------------------------- */
+/* -----------------------------------------------------------------
+ * Functions exported by SUNLinearSolver module
+ * ----------------------------------------------------------------- */
 
-  SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 
-  SUNDIALS_EXPORT void SUNLinSolFreeEmpty(SUNLinearSolver S);
+SUNDIALS_EXPORT void SUNLinSolFreeEmpty(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data, SUNATimesFn ATimes);
+SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data, SUNATimesFn ATimes);
 
-  SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data, SUNPSetupFn Pset, SUNPSolveFn Psol);
+SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data, SUNPSetupFn Pset, SUNPSolveFn Psol);
 
-  SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2);
+SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2);
 
-  SUNDIALS_EXPORT int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff);
+SUNDIALS_EXPORT int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff);
 
-  SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
 
-  SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, realtype tol);
 
-  SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
+SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT N_Vector SUNLinSolResid(SUNLinearSolver S);
+SUNDIALS_EXPORT N_Vector SUNLinSolResid(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 
-  SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS);
+SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS);
 
-  SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 
-  /* -----------------------------------------------------------------
-   * SUNLinearSolver return values
-   * ----------------------------------------------------------------- */
+/* -----------------------------------------------------------------
+ * SUNLinearSolver return values
+ * ----------------------------------------------------------------- */
 
 #define SUNLS_SUCCESS 0 /* successful/converged          */
 
@@ -208,9 +207,9 @@ extern "C"
 #define SUNLS_QRFACT_FAIL      807 /* QRfact found singular matrix  */
 #define SUNLS_LUFACT_FAIL      808 /* LUfact found singular matrix  */
 
-  /* -----------------------------------------------------------------------------
-   * SUNLinearSolver messages
-   * ---------------------------------------------------------------------------*/
+/* -----------------------------------------------------------------------------
+ * SUNLinearSolver messages
+ * ---------------------------------------------------------------------------*/
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %Lg\n"
