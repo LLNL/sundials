@@ -122,6 +122,9 @@ extern "C"
     void* content;
     SUNNonlinearSolver_Ops ops;
     SUNContext sunctx;
+#ifdef __cplusplus
+    _generic_SUNNonlinearSolver() = default;
+#endif
   };
 
   /* -----------------------------------------------------------------------------

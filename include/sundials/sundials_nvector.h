@@ -195,6 +195,9 @@ extern "C"
     void* content;
     N_Vector_Ops ops;
     SUNContext sunctx;
+#ifdef __cplusplus
+    _generic_N_Vector() = default;
+#endif
   };
 
   /* -----------------------------------------------------------------

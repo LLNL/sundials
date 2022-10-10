@@ -137,6 +137,9 @@ extern "C"
     void* content;
     SUNLinearSolver_Ops ops;
     SUNContext sunctx;
+#ifdef __cplusplus
+    _generic_SUNLinearSolver() = default;
+#endif
   };
 
   /* -----------------------------------------------------------------
