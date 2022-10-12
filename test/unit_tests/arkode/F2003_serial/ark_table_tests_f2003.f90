@@ -44,10 +44,6 @@ program main
     stop 1
   end if
 
-  if (q(1) /= 5) then
-    write(error_unit, *) 'Expected ARKODE_DORMAND_PRINCE_7_4_5 to have order 5 but is ', q(1)
-    stop 1
-  end if
   call FARKodeButcherTable_Free(table)
 
   print *, 'Loading ARKODE_TRBDF2_3_3_2'
@@ -65,10 +61,6 @@ program main
     stop 1
   end if
 
-  if (q(1) /= 2) then
-    write(error_unit, *) 'Expected ARKODE_TRBDF2_3_3_2 to have order 2 but is ', q(1)
-    stop 1
-  end if
   call FARKodeButcherTable_Free(table)
 
   print *, 'Loading ARKODE_DIRK_NONE'
