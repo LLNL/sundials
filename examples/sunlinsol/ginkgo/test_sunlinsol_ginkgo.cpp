@@ -289,7 +289,8 @@ int main(int argc, char* argv[])
 
   const auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
   if (matcond < 0) {
-    std::cerr << "ERROR: matrix condition number must be positive or 0 (poisson test)\n";
+    std::cerr << "ERROR: matrix condition number must be positive or 0 "
+                 "(poisson test)\n";
     return 1;
   }
 
@@ -520,8 +521,9 @@ int main(int argc, char* argv[])
   fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
-  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1000 * std::numeric_limits<sunrealtype>::epsilon(),
-                               SUNTRUE, 0);
+(??)  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1000 * std::numeric_limits<sunrealtype>::epsilon(),
+(??)                               SUNTRUE, 0);
+(??)  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1e4 * SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
 
   /* Print result */
   if (fails) {
@@ -547,7 +549,8 @@ int main(int argc, char* argv[])
  * Implementation-specific 'check' routines                                   *
  * -------------------------------------------------------------------------- */
 
-int check_vector(N_Vector expected, N_Vector actual, realtype tol)
+(??)int check_vector(N_Vector expected, N_Vector actual, realtype tol)
+(??)int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
 {
   int failure{0};
 
@@ -570,13 +573,20 @@ int check_vector(N_Vector expected, N_Vector actual, realtype tol)
 
   /* check vector data */
   for (sunindextype i = 0; i < xldata; i++) {
-    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
-  }
-
-  if (failure > ZERO) {
-    std::cerr << "Check_vector failures:\n";
-    for (sunindextype i = 0; i < xldata; i++) {
-      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0) {
+(??)    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+(??)  }
+(??)
+(??)  if (failure > ZERO) {
+(??)    std::cerr << "Check_vector failures:\n";
+(??)    for (sunindextype i = 0; i < xldata; i++) {
+(??)      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0) {
+(??)    failure += SUNRCompareTol(xdata[i], ydata[i], check_tol);
+(??)  }
+(??)
+(??)  if (failure > ZERO) {
+(??)    std::cerr << "check_vector failures:\n";
+(??)    for (sunindextype i = 0; i < xldata; i++) {
+(??)      if (SUNRCompareTol(xdata[i], ydata[i], check_tol) != 0) {
         std::cerr << "  x[" << i << "] = " << xdata[i] << " != " << ydata[i] << " (err = " << abs(xdata[i] - ydata[i])
                   << ")\n";
       }

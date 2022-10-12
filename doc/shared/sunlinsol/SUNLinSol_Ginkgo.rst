@@ -40,7 +40,7 @@ building and using Ginkgo itself, refer to the
 Using SUNLINEARSOLVER_GINKGO
 ----------------------------
 
-After choosing a compatible ``N_Vector`` and creating a Ginkgo-enabled ``SUNMatrix`` (see
+After choosing a compatible ``N_Vector`` (see :numref:`SUNMatrix.Ginkgo.CompatibleNVectors`) and creating a Ginkgo-enabled ``SUNMatrix`` (see
 :numref:`SUNMatrix.Ginkgo`) to use the SUNLINEARSOLVER_GINKGO module, we first create a Ginkgo
 stopping criteria object. Importantly, the :cpp:type:`sundials::ginkgo::DefaultStop` class provided
 by SUNDIALS implements a stopping critierion that matches the default SUNDIALS stopping critierion.
@@ -163,7 +163,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
 
    .. cpp:function:: int NumIters() const
 
-      Get the number of linear solver iterations since the object was created.
+      Get the number of linear solver iterations in the most recent solve.
 
    .. cpp:function:: sunrealtype ResNorm() const
 

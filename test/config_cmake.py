@@ -70,7 +70,7 @@ def main():
             'STRING', 'C++ compiler flags')
 
     add_arg(group, '--cxx-std', 'CMAKE_CXX_STANDARD', 'CMAKE_CXX_STANDARD',
-            '11', 'STRING', 'C++ standard')
+            '14', 'STRING', 'C++ standard')
 
     add_arg(group, '--cxx-ext', 'CMAKE_CXX_EXTENSIONS', 'CMAKE_CXX_EXTENSIONS',
             'OFF', 'STRING', 'C++ compiler extensions')
@@ -390,7 +390,8 @@ def main():
 
     add_arg(group, '--ginkgo-backends', 'GINKGO_BACKENDS',
             'SUNDIALS_GINKGO_BACKENDS', 'REF;OMP', 'STRING', 'Ginkgo backends',
-            choices=['REF', 'OMP', 'CUDA', 'HIP'], dependson='--ginkgo')
+(??)            choices=['REF', 'OMP', 'CUDA', 'HIP'], dependson='--ginkgo')
+(??)            choices=['REF', 'OMP', 'CUDA', 'HIP', 'DPCPP'], dependson='--ginkgo')
 
     # LAPACK
     group = parser.add_argument_group('LAPACK Options')

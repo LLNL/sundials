@@ -46,7 +46,7 @@ Compatible ``N_Vectors``
 ------------------------
 
 The  ``N_Vector`` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor``
-utilized. I.e., when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
+utilized. That is, when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
 (e.g., :numref:`NVectors.CUDA`), ``gko::HipExecutor`` goes with a HIP capable ``N_Vector`` (e.g.,
 :numref:`NVectors.HIP`), ``gko::DpcppExecutor`` goes with a DPC++/SYCL capable ``N_Vector`` (e.g.,
 :numref:`NVectors.SYCL`),  and ``gko::OmpExecutor`` goes with a CPU based N_Vector (e.g.,
@@ -63,7 +63,7 @@ Using SUNMATRIX_GINKGO
 ----------------------
 
 To use the SUNMATRIX_GINKGO module, we begin by creating an instance of a Ginkgo matrix using
-Ginkgo's API. E.g., below we create a Ginkgo sparse matrix that uses the CSR storage format
+Ginkgo's API. For example, below we create a Ginkgo sparse matrix that uses the CSR storage format
 and then fill the diagonal of the matrix with ones to make an identity matrix:
 
 .. code-block:: cpp
@@ -85,11 +85,6 @@ No further interaction with ``matrix`` is required from this point, and it is po
 to use the ``SUNMatrix`` API operating on ``I1`` or ``I2`` (or if needed, via Ginkgo operations
 on ``gko_matrix``).
 
-.. note::
-
-  The ``N_Vector`` to use with the SUNMATRIX_GINKGO module depends on the ``gko::Executor`` utilized.
-  I.e., when using the ``gko::CudaExecutor`` you should use a CUDA capable N_Vector  (e.g., :numref:`NVectors.CUDA`),
-  when using  ``gko::OmpExecutor`` you should use a CPU based N_Vector, etc.
 
 .. warning::
 
@@ -124,7 +119,7 @@ In this section we list the public API of the ``sundials::ginkgo::Matrix`` class
 
   .. cpp:function:: Matrix(const Matrix& that_matrix)
 
-      Copy constructor (performs a deep copy)
+      Copy constructor (performs a deep copy).
 
   .. cpp:function:: Matrix& operator=(Matrix&& rhs) noexcept
 
