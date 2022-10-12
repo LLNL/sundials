@@ -88,11 +88,13 @@ int main(int argc, char *argv[])
 
   Kokkos::initialize( argc, argv );
   {
+    auto exec_instance = ExecSpace();
+
     // Create vectors and matrices
     // N_Vector x = N_VNew_Kokkos(matcols * nblocks, sunctx);
     // N_Vector y = N_VNew_Kokkos(matrows * nblocks, sunctx);
-    sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, matrows, matcols, sunctx};
-    sundials::kokkos::DenseMatrix<ExecSpace> I{nblocks, matrows, matcols, sunctx};
+    sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, matrows, matcols, exec_instance, sunctx};
+    sundials::kokkos::DenseMatrix<ExecSpace> I{nblocks, matrows, matcols, exec_instance, sunctx};
 
     // Fill matrices and vectors
     auto A_data = A.view();

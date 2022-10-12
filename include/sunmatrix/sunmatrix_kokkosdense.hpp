@@ -46,11 +46,13 @@ void Zero(DenseMatrix<ExecSpace, MemSpace>& A)
   const auto rows   = A.block_rows();
   const auto cols   = A.block_cols();
 
+  auto A_exec = A.exec_space();
   auto A_data = A.view();
 
   // Zero out matrix
   Kokkos::parallel_for("sunmat_zero",
-                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {blocks, rows, cols}),
+                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                       (A_exec, {0, 0, 0}, {blocks, rows, cols}),
                        KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
                        {
                          A_data(i, j, k) = 0.0;
@@ -64,12 +66,14 @@ void Copy(DenseMatrix<ExecSpace, MemSpace>& A, DenseMatrix<ExecSpace, MemSpace>&
   const auto rows   = A.block_rows();
   const auto cols   = A.block_cols();
 
+  auto A_exec = A.exec_space();
   auto A_data = A.view();
   auto B_data = B.view();
 
   // Copy A into B
   Kokkos::parallel_for("sunmat_copy",
-                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {blocks, rows, cols}),
+                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                       (A_exec, {0, 0, 0}, {blocks, rows, cols}),
                        KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
                        {
                          B_data(i, j, k) = A_data(i, j, k);
@@ -84,12 +88,14 @@ void ScaleAdd(const sunrealtype c, DenseMatrix<ExecSpace, MemSpace>& A,
   const auto rows   = A.block_rows();
   const auto cols   = A.block_cols();
 
+  auto A_exec = A.exec_space();
   auto A_data = A.view();
   auto B_data = B.view();
 
   // Scale A by c and add B
   Kokkos::parallel_for("sunmat_scale_add",
-                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {blocks, rows, cols}),
+                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                       (A_exec, {0, 0, 0}, {blocks, rows, cols}),
                        KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
                        {
                          A_data(i, j, k) = c * A_data(i, j, k) + B_data(i, j, k);
@@ -103,11 +109,13 @@ void ScaleAddI(const sunrealtype c, DenseMatrix<ExecSpace, MemSpace>& A)
   const auto rows   = A.block_rows();
   const auto cols   = A.block_cols();
 
+  auto A_exec = A.exec_space();
   auto A_data = A.view();
 
   // Scale A by c and add I
   Kokkos::parallel_for("sunmat_scale_add_i",
-                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {blocks, rows, cols}),
+                       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                       (A_exec, {0, 0, 0}, {blocks, rows, cols}),
                        KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
                        {
                          if (j == k) A_data(i, j, k) = c * A_data(i, j, k) + 1.0;
@@ -122,6 +130,7 @@ void Matvec(DenseMatrix<ExecSpace, MemSpace>& A, N_Vector x, N_Vector y)
   // const auto rows   = A.block_rows();
   // const auto cols   = A.block_cols();
 
+  // auto A_exec = A.exec_space();
   // auto A_data = A.view();
   // // auto x_data = x.view();
   // // auto y_data = y.view();
@@ -134,7 +143,8 @@ void Matvec(DenseMatrix<ExecSpace, MemSpace>& A, N_Vector x, N_Vector y)
   //   using team_policy = Kokkos::TeamPolicy<ExecSpace>;
   //   using member_type = Kokkos::TeamPolicy<ExecSpace>::member_type;
 
-  //   Kokkos::parallel_for("sunmatvec_batch", team_policy(blocks, Kokkos::AUTO, Kokkos::AUTO),
+  //   Kokkos::parallel_for("sunmatvec_batch",
+  //                        team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
   //                        KOKKOS_LAMBDA(const member_type &team_member)
   //                        {
   //                          const int idx = team_member.league_rank();
@@ -243,9 +253,9 @@ public:
     : DenseMatrix(1, rows, cols, ExecSpace(), sunctx)
   { }
 
-  DenseMatrix(sunindextype rows, sunindextype cols, ExecSpace ex,
+  DenseMatrix(sunindextype rows, sunindextype cols, ExecSpace exec_space,
               SUNContext sunctx)
-    : DenseMatrix(1, rows, cols, ex, sunctx)
+    : DenseMatrix(1, rows, cols, exec_space, sunctx)
   { }
 
   // Block-diagonal matrix constructors
@@ -256,8 +266,8 @@ public:
 
   // Block-diagonal matrix with user-supplied execution space instance
   DenseMatrix(sunindextype blocks, sunindextype rows, sunindextype cols,
-              ExecSpace ex, SUNContext sunctx)
-    : sundials::impl::BaseMatrix(sunctx), ex_(ex)
+              ExecSpace exec_space, SUNContext sunctx)
+    : sundials::impl::BaseMatrix(sunctx), exec_space_(exec_space)
   {
     initSUNMatrix();
     view_ = Kokkos::View<sunrealtype***, MemSpace>("sunmat_view", blocks, rows,
@@ -267,13 +277,13 @@ public:
   // Move constructor
   DenseMatrix(DenseMatrix&& that_matrix) noexcept
     : sundials::impl::BaseMatrix(std::forward<DenseMatrix>(that_matrix)),
-      ex_(std::move(that_matrix.ex_)), view_(std::move(that_matrix.ex_))
+      exec_space_(std::move(that_matrix.exec_space_)), view_(std::move(that_matrix.exec_space_))
   { }
 
   // Copy constructor (does not copy view data)
   DenseMatrix(const DenseMatrix& that_matrix)
     : sundials::impl::BaseMatrix(that_matrix),
-      ex_(that_matrix.ex_)
+      exec_space_(that_matrix.exec_space_)
   {
     view_ = Kokkos::View<sunrealtype***, MemSpace>("sunmat_view",
                                                    that_matrix.blocks(),
@@ -284,8 +294,8 @@ public:
   // Move assignment
   DenseMatrix& operator=(DenseMatrix&& rhs) noexcept
   {
-    ex_   = std::move(rhs.ex_);
-    view_ = std::move(rhs.view_);
+    exec_space_ = std::move(rhs.exec_space_);
+    view_       = std::move(rhs.view_);
 
     sundials::impl::BaseMatrix::operator=(std::forward<DenseMatrix>(rhs));
 
@@ -295,8 +305,8 @@ public:
   // Copy assignment
   DenseMatrix& operator=(const DenseMatrix& rhs)
   {
-    ex_   = rhs.ex_;
-    view_ = rhs.view_;
+    exec_space_ = rhs.exec_space_;
+    view_       = rhs.view_;
 
     sundials::impl::BaseMatrix::operator=(rhs);
 
@@ -305,6 +315,12 @@ public:
 
   // Default destructor since all members are RAII
   virtual ~DenseMatrix() = default;
+
+  // Get the Kokkos execution space
+  ExecSpace exec_space()
+  {
+    return exec_space_;
+  }
 
   // Get the Kokkos view
   Kokkos::View<sunrealtype***, MemSpace> view()
@@ -372,7 +388,7 @@ public:
 
 private:
   // matrix data view [blocks, rows, cols]
-  ExecSpace ex_;
+  ExecSpace exec_space_;
   Kokkos::View<sunrealtype***, MemSpace> view_;
 
   void initSUNMatrix()
