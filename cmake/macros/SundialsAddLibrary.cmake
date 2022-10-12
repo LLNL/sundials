@@ -302,6 +302,9 @@ macro(sundials_add_library target)
         target_compile_features(${_actual_target_name} ${sundials_add_library_COMPILE_FEATURES})
       endif()
 
+      # add debug postfix
+      set_target_properties(${_actual_target_name} PROPERTIES DEBUG_POSTFIX "d")
+
       # exported targets are in the SUNDIALS:: namespace, so we remove the sundials_ prefix from the exported name
       string(REPLACE "sundials_" "" _export_name "${_actual_target_name}")
       set_target_properties(${_actual_target_name} PROPERTIES EXPORT_NAME ${_export_name})
