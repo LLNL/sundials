@@ -22,9 +22,6 @@
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_matrix.hpp>
 
-// #define VEC_CONTENT(x) ( static_cast<N_VectorContent_Kokkos>(x->content) )
-// #define VEC_VIEW(x)    ( *VEC_CONTENT(x)->device_data )
-
 namespace sundials {
 namespace kokkos {
 
@@ -33,26 +30,53 @@ template<class ExecSpace = Kokkos::DefaultExecutionSpace,
          class MemSpace = class ExecSpace::memory_space>
 class DenseMatrix;
 
+// Get the Kokkos dense matrix wrapped by a SUNMatrix
+template<class ExecSpace = Kokkos::DefaultExecutionSpace,
+         class MemSpace = class ExecSpace::memory_space>
+inline DenseMatrix<ExecSpace, MemSpace>* GetDenseMat(SUNMatrix A)
+{
+  return static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content);
+}
+
 // =============================================================================
 // Everything in the implementation (impl) namespace is private and should not
 // be referred to directly in user code.
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Functions that operate on a DenseMatrix
-// -----------------------------------------------------------------------------
-
 namespace impl {
 
-template<class ExecSpace, class MemSpace>
-void Zero(DenseMatrix<ExecSpace, MemSpace>& A)
+SUNMatrix_ID SUNMatGetID_KokkosDense(SUNMatrix A)
 {
-  const auto blocks = A.blocks();
-  const auto rows   = A.block_rows();
-  const auto cols   = A.block_cols();
+  return SUNMATRIX_KOKKOSDENSE;
+}
 
-  auto A_exec = A.exec_space();
-  auto A_data = A.view();
+template<class ExecSpace, class MemSpace>
+SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
+{
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+  auto new_mat{new DenseMatrix<ExecSpace, MemSpace>(*A_mat)}; // NOLINT
+  return new_mat->Convert();
+}
+
+template<class ExecSpace, class MemSpace>
+void SUNMatDestroy_KokkosDense(SUNMatrix A)
+{
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+  delete A_mat; // NOLINT
+  return;
+}
+
+template<class ExecSpace, class MemSpace>
+int SUNMatZero_KokkosDense(SUNMatrix A)
+{
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+
+  const auto blocks = A_mat->blocks();
+  const auto rows   = A_mat->block_rows();
+  const auto cols   = A_mat->block_cols();
+
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
 
   // Zero out matrix
   Kokkos::parallel_for("sunmat_zero",
@@ -62,18 +86,23 @@ void Zero(DenseMatrix<ExecSpace, MemSpace>& A)
                        {
                          A_data(i, j, k) = 0.0;
                        });
+
+  return SUNMAT_SUCCESS;
 }
 
 template<class ExecSpace, class MemSpace>
-void Copy(DenseMatrix<ExecSpace, MemSpace>& A, DenseMatrix<ExecSpace, MemSpace>& B)
+int SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
 {
-  const auto blocks = A.blocks();
-  const auto rows   = A.block_rows();
-  const auto cols   = A.block_cols();
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+  auto B_mat{GetDenseMat<ExecSpace, MemSpace>(B)};
 
-  auto A_exec = A.exec_space();
-  auto A_data = A.view();
-  auto B_data = B.view();
+  const auto blocks = A_mat->blocks();
+  const auto rows   = A_mat->block_rows();
+  const auto cols   = A_mat->block_cols();
+
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
+  auto B_data = B_mat->view();
 
   // Copy A into B
   Kokkos::parallel_for("sunmat_copy",
@@ -83,19 +112,23 @@ void Copy(DenseMatrix<ExecSpace, MemSpace>& A, DenseMatrix<ExecSpace, MemSpace>&
                        {
                          B_data(i, j, k) = A_data(i, j, k);
                        });
+
+  return SUNMAT_SUCCESS;
 }
 
 template<class ExecSpace, class MemSpace>
-void ScaleAdd(const sunrealtype c, DenseMatrix<ExecSpace, MemSpace>& A,
-              DenseMatrix<ExecSpace, MemSpace>& B)
+int SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
-  const auto blocks = A.blocks();
-  const auto rows   = A.block_rows();
-  const auto cols   = A.block_cols();
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+  auto B_mat{GetDenseMat<ExecSpace, MemSpace>(B)};
 
-  auto A_exec = A.exec_space();
-  auto A_data = A.view();
-  auto B_data = B.view();
+  const auto blocks = A_mat->blocks();
+  const auto rows   = A_mat->block_rows();
+  const auto cols   = A_mat->block_cols();
+
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
+  auto B_data = B_mat->view();
 
   // Scale A by c and add B
   Kokkos::parallel_for("sunmat_scale_add",
@@ -105,17 +138,21 @@ void ScaleAdd(const sunrealtype c, DenseMatrix<ExecSpace, MemSpace>& A,
                        {
                          A_data(i, j, k) = c * A_data(i, j, k) + B_data(i, j, k);
                        });
+
+  return SUNMAT_SUCCESS;
 }
 
 template<class ExecSpace, class MemSpace>
-void ScaleAddI(const sunrealtype c, DenseMatrix<ExecSpace, MemSpace>& A)
+int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
 {
-  const auto blocks = A.blocks();
-  const auto rows   = A.block_rows();
-  const auto cols   = A.block_cols();
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
 
-  auto A_exec = A.exec_space();
-  auto A_data = A.view();
+  const auto blocks = A_mat->blocks();
+  const auto rows   = A_mat->block_rows();
+  const auto cols   = A_mat->block_cols();
+
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
 
   // Scale A by c and add I
   Kokkos::parallel_for("sunmat_scale_add_i",
@@ -126,21 +163,25 @@ void ScaleAddI(const sunrealtype c, DenseMatrix<ExecSpace, MemSpace>& A)
                          if (j == k) A_data(i, j, k) = c * A_data(i, j, k) + 1.0;
                          else A_data(i, j, k) = c * A_data(i, j, k);
                        });
+
+  return SUNMAT_SUCCESS;
 }
 
 template<class ExecSpace, class MemSpace>
-void Matvec(DenseMatrix<ExecSpace, MemSpace>& A, N_Vector x, N_Vector y)
+int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  // const auto blocks = A.blocks();
-  // const auto rows   = A.block_rows();
-  // const auto cols   = A.block_cols();
+  // auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+  // auto x_vec{GetVec<ExecSpace, MemSpace>(x)};
+  // auto y_vec{GetVec<ExecSpace, MemSpace>(y)};
 
-  // auto A_exec = A.exec_space();
-  // auto A_data = A.view();
-  // // auto x_data = x.view();
-  // // auto y_data = y.view();
-  // auto x_data = VEC_VIEW(x);
-  // auto y_data = VEC_VIEW(y);
+  // const auto blocks = A_mat->blocks();
+  // const auto rows   = A_mat->block_rows();
+  // const auto cols   = A_mat->block_cols();
+
+  // auto A_exec = A_mat->exec_space();
+  // auto A_data = A_mat->view();
+  // auto x_data = x_vec->view();
+  // auto y_data = y_vec->view();
 
   // // Use batched or single gemv to do y = alpha * A * x + beta * y
   // if (blocks > 1)
@@ -165,73 +206,7 @@ void Matvec(DenseMatrix<ExecSpace, MemSpace>& A, N_Vector x, N_Vector y)
   //   auto A_subdata = Kokkos::subview(A_data, 0, Kokkos::ALL(), Kokkos::ALL());
   //   KokkosBlas::gemv("N", 1.0, A_subdata, x_data, 0.0, y_data);
   // }
-}
 
-// -----------------------------------------------------------------------------
-// Methods that operate on a SUNMatrix
-// -----------------------------------------------------------------------------
-
-template<class ExecSpace, class MemSpace>
-SUNMatrix_ID SUNMatGetID_KokkosDense(SUNMatrix A)
-{
-  return SUNMATRIX_KOKKOSDENSE;
-}
-
-template<class ExecSpace, class MemSpace>
-SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  auto new_mat{new DenseMatrix<ExecSpace, MemSpace>(*A_mat)}; // NOLINT
-  return new_mat->Convert();
-}
-
-template<class ExecSpace, class MemSpace>
-void SUNMatDestroy_KokkosDense(SUNMatrix A)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  delete A_mat; // NOLINT
-  return;
-}
-
-template<class ExecSpace, class MemSpace>
-int SUNMatZero_KokkosDense(SUNMatrix A)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  impl::Zero(*A_mat);
-  return SUNMAT_SUCCESS;
-}
-
-template<class ExecSpace, class MemSpace>
-int SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  auto B_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(B->content)};
-  impl::Copy(*A_mat, *B_mat);
-  return SUNMAT_SUCCESS;
-}
-
-template<class ExecSpace, class MemSpace>
-int SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  auto B_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(B->content)};
-  impl::ScaleAdd(c, *A_mat, *B_mat);
-  return SUNMAT_SUCCESS;
-}
-
-template<class ExecSpace, class MemSpace>
-int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  impl::ScaleAddI(c, *A_mat);
-  return SUNMAT_SUCCESS;
-}
-
-template<class ExecSpace, class MemSpace>
-int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
-{
-  auto A_mat{static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content)};
-  impl::Matvec(*A_mat, x, y);
   return SUNMAT_SUCCESS;
 }
 
@@ -242,18 +217,6 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Methods that operate on a SUNMatrix
-// -----------------------------------------------------------------------------
-
-// Get the Kokkos dense matrix wrapped by a SUNMatrix
-template<class ExecSpace = Kokkos::DefaultExecutionSpace,
-         class MemSpace = class ExecSpace::memory_space>
-DenseMatrix<ExecSpace, MemSpace>* GetDenseMat(SUNMatrix A)
-{
-  return static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content);
-}
-
-// -----------------------------------------------------------------------------
 // Kokkos dense matrix class, convertible to a SUNMatrix
 // -----------------------------------------------------------------------------
 
@@ -262,6 +225,9 @@ class DenseMatrix : public sundials::impl::BaseMatrix,
                     public sundials::ConvertibleTo<SUNMatrix>
 {
 public:
+  // Default constructor - means the matrix must be copied or moved to
+  DenseMatrix() = default;
+
   // Single matrix constructors
   DenseMatrix(sunindextype rows, sunindextype cols, SUNContext sunctx)
     : DenseMatrix(1, rows, cols, ExecSpace(), sunctx)
@@ -411,7 +377,7 @@ private:
   {
     this->object_->content = this;
 
-    this->object_->ops->getid     = impl::SUNMatGetID_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->getid     = impl::SUNMatGetID_KokkosDense;
     this->object_->ops->clone     = impl::SUNMatClone_KokkosDense<ExecSpace, MemSpace>;
     this->object_->ops->destroy   = impl::SUNMatDestroy_KokkosDense<ExecSpace, MemSpace>;
     this->object_->ops->zero      = impl::SUNMatZero_KokkosDense<ExecSpace, MemSpace>;
