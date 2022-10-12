@@ -37,6 +37,10 @@ if(BUILD_SUNMATRIX_GINKGO)
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
 endif()
 
+if(BUILD_SUNMATRIX_KOKKOSDENSE)
+  add_subdirectory(kokkos)
+endif()
+
 if(BUILD_SUNMATRIX_MAGMADENSE)
   add_subdirectory(magmadense)
 endif()

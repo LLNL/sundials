@@ -16,11 +16,6 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_KOKKOS\n\")")
 
-# Add variable nveckokkos_SOURCES with the sources for the NVECKOKKOS lib
-set(nveckokkos_SOURCES
-  nvector_kokkos.cpp
-)
-
 # Create the library
 sundials_add_library(sundials_nveckokkos
   SOURCES

@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /* Forward declarations for implementation specific utility functions */
-int check_vector(N_Vector X, N_Vector Y, realtype tol);
+int check_vector(N_Vector expected, N_Vector computed, realtype tol);
 void sync_device();
 
 /* Test function declarations */

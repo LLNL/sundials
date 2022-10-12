@@ -79,15 +79,27 @@ if(ENABLE_HYPRE)
 endif()
 
 # ---------------------------------------------------------------
-# Find (and test) the Kokkos
+# Find (and test) Kokkos
 # ---------------------------------------------------------------
 
 if(ENABLE_KOKKOS)
-  # include(SundialsKLU)
   list(APPEND SUNDIALS_TPL_LIST "KOKKOS")
-  find_package(Kokkos REQUIRED 
+  find_package(Kokkos REQUIRED
                PATHS ${Kokkos_DIR})
   set(KOKKOS_WORKS TRUE)
+  message(STATUS "Kokkos VERSION: ${Kokkos_VERSION}")
+endif()
+
+# ---------------------------------------------------------------
+# Find (and test) Kokkos Kernels
+# ---------------------------------------------------------------
+
+if(ENABLE_KOKKOS_KERNELS)
+  list(APPEND SUNDIALS_TPL_LIST "KOKKOS_KERNELS")
+  find_package(KokkosKernels REQUIRED
+               PATHS ${KokkosKernels_DIR})
+  set(KOKKOS_KERNELS_WORKS TRUE)
+  message(STATUS "Kokkos Kernels VERSION: ${KokkosKernels_VERSION}")
 endif()
 
 # ---------------------------------------------------------------

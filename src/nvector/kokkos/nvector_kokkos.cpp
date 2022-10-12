@@ -31,7 +31,7 @@ static constexpr sunindextype zeroIdx = 0;
 
 // Helpful macros
 #define NVEC_KOKKOS_CONTENT(x) ((N_VectorContent_Kokkos)(x->content))
-#define NVEC_KOKKOS_MEMSIZE(x) (NVEC_KOKKOS_CONTENT(x)->length * sizeof(sunrealtype))
+#define NVEC_KOKKOS_LENGTH(x)  (NVEC_KOKKOS_CONTENT(x)->length)
 
 static void AllocateData(N_Vector v);
 
@@ -62,6 +62,9 @@ N_Vector N_VNewEmpty_Kokkos(SUNContext sunctx)
   v->ops->nvdestroy     = N_VDestroy_Kokkos;
   v->ops->nvspace       = N_VSpace_Kokkos;
   v->ops->nvgetlength   = N_VGetLength_Kokkos;
+
+  v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Kokkos;
+  v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Kokkos;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Kokkos;
@@ -988,6 +991,6 @@ void AllocateData(N_Vector v)
 {
   N_VectorContent_Kokkos vc = NVEC_KOKKOS_CONTENT(v);
 
-  vc->host_data   = new HostArrayView("host_data", NVEC_KOKKOS_MEMSIZE(v));
-  vc->device_data = new DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
+  vc->host_data   = new HostArrayView("host_data", NVEC_KOKKOS_LENGTH(v));
+  vc->device_data = new DeviceArrayView("device_data", NVEC_KOKKOS_LENGTH(v));
 }

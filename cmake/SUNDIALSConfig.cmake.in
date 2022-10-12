@@ -71,6 +71,14 @@ if("@ENABLE_KLU@" AND NOT TARGET SUNDIALS::KLU)
   set_target_properties(SUNDIALS::KLU PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@KLU_INCLUDE_DIR@")
 endif()
 
+if("@ENABLE_KOKKOS@" AND NOT TARGET Kokkos::kokkos)
+  find_dependency(Kokkos PATHS "@Kokkos_DIR@")
+endif()
+
+if("@ENABLE_KOKKOS_KERNELS@" AND NOT TARGET Kokkos::kokkoskernels)
+  find_dependency(KokkosKernels PATHS "@KokkosKernels_DIR@")
+endif()
+
 if("@ENABLE_PETSC@")
   set(_petsc_library_single "@PETSC_LIBRARY_SINGLE@")
   if("@PETSC_VERSION@" VERSION_LESS 3.1)

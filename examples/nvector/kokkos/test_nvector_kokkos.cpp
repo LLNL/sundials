@@ -36,7 +36,6 @@ int main(int argc, char* argv[])
   sunindextype length;    /* vector length             */
   N_Vector U, V, X, Y, Z; /* test vectors              */
   int print_timing;       /* turn timing on/off        */
-  int memtype;
 
   Test_Init(NULL);
 

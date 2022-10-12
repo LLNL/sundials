@@ -45,6 +45,10 @@ if(BUILD_SUNLINSOL_KLU)
   add_subdirectory(klu)
 endif()
 
+if(BUILD_SUNLINSOL_KOKKOSDENSE)
+  add_subdirectory(kokkos)
+endif()
+
 if(BUILD_SUNLINSOL_LAPACKBAND)
   add_subdirectory(lapackband)
 endif()
