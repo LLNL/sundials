@@ -85,4 +85,4 @@ foreach(test_tuple ${ARKODE_unit_tests})
     NODIFF)
 endforeach()
 
-message(STATUS "Added ARKODE CXX parallel units tests")
+message(STATUS "Added ARKODE CXX parallel unit tests")
