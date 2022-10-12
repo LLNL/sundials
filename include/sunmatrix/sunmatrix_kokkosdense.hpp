@@ -33,6 +33,11 @@ template<class ExecSpace = Kokkos::DefaultExecutionSpace,
          class MemSpace = class ExecSpace::memory_space>
 class DenseMatrix;
 
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
 // -----------------------------------------------------------------------------
 // Functions that operate on a DenseMatrix
 // -----------------------------------------------------------------------------
@@ -162,18 +167,9 @@ void Matvec(DenseMatrix<ExecSpace, MemSpace>& A, N_Vector x, N_Vector y)
   // }
 }
 
-} // namespace impl
-
 // -----------------------------------------------------------------------------
 // Methods that operate on a SUNMatrix
 // -----------------------------------------------------------------------------
-
-template<class ExecSpace = Kokkos::DefaultExecutionSpace,
-         class MemSpace = class ExecSpace::memory_space>
-DenseMatrix<ExecSpace, MemSpace>* GetDenseMat(SUNMatrix A)
-{
-  return static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content);
-}
 
 template<class ExecSpace, class MemSpace>
 SUNMatrix_ID SUNMatGetID_KokkosDense(SUNMatrix A)
@@ -239,8 +235,26 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
   return SUNMAT_SUCCESS;
 }
 
+} // namespace impl
+
+// =============================================================================
+// Public namespace
+// =============================================================================
+
 // -----------------------------------------------------------------------------
-// Class that wraps a matrix and allows it to convert to a SUNMatrix
+// Methods that operate on a SUNMatrix
+// -----------------------------------------------------------------------------
+
+// Get the Kokkos dense matrix wrapped by a SUNMatrix
+template<class ExecSpace = Kokkos::DefaultExecutionSpace,
+         class MemSpace = class ExecSpace::memory_space>
+DenseMatrix<ExecSpace, MemSpace>* GetDenseMat(SUNMatrix A)
+{
+  return static_cast<DenseMatrix<ExecSpace, MemSpace>*>(A->content);
+}
+
+// -----------------------------------------------------------------------------
+// Kokkos dense matrix class, convertible to a SUNMatrix
 // -----------------------------------------------------------------------------
 
 template<class ExecSpace, class MemSpace>
@@ -387,22 +401,24 @@ public:
   }
 
 private:
-  // matrix data view [blocks, rows, cols]
+  // Kokkos execution space
   ExecSpace exec_space_;
+
+  // Matrix data view [blocks, rows, cols]
   Kokkos::View<sunrealtype***, MemSpace> view_;
 
   void initSUNMatrix()
   {
     this->object_->content = this;
 
-    this->object_->ops->getid     = SUNMatGetID_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->clone     = SUNMatClone_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->destroy   = SUNMatDestroy_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->zero      = SUNMatZero_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->copy      = SUNMatCopy_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->scaleadd  = SUNMatScaleAdd_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->scaleaddi = SUNMatScaleAddI_KokkosDense<ExecSpace, MemSpace>;
-    this->object_->ops->matvec    = SUNMatMatvec_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->getid     = impl::SUNMatGetID_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->clone     = impl::SUNMatClone_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->destroy   = impl::SUNMatDestroy_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->zero      = impl::SUNMatZero_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->copy      = impl::SUNMatCopy_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->scaleadd  = impl::SUNMatScaleAdd_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->scaleaddi = impl::SUNMatScaleAddI_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->matvec    = impl::SUNMatMatvec_KokkosDense<ExecSpace, MemSpace>;
   }
 };
 
