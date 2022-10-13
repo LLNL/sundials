@@ -163,14 +163,16 @@ identifier.
 .. table:: Identifiers associated with matrix kernels supplied with SUNDIALS
    :align: center
 
-   ======================  =================================================  ========
-   Matrix ID               Matrix type                                        ID Value
-   ======================  =================================================  ========
-   SUNMATRIX_DENSE         Dense :math:`M \times N` matrix                    0
-   SUNMATRIX_MAGMADENSE    Magma dense :math:`M \times N` matrix              1
-   SUNMATRIX_BAND          Band :math:`M \times M` matrix                     2
-   SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix       3
-   SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix     4
-   SUNMATRIX_CUSPARSE      CUDA sparse CSR matrix                             5
-   SUNMATRIX_CUSTOM        User-provided custom matrix                        6
-   ======================  =================================================  ========
+   ======================  =================================================
+   Matrix ID               Matrix type                                      
+   ======================  =================================================
+   SUNMATRIX_BAND          Band :math:`M \times M` matrix                     
+   SUNMATRIX_CUSPARSE      CUDA sparse CSR matrix                             
+   SUNMATRIX_CUSTOM        User-provided custom matrix                      
+   SUNMATRIX_DENSE         Dense :math:`M \times N` matrix      
+   SUNMATRIX_GINKGO        SUNMatrix wraper for Ginkgo matrices
+   SUNMATRIX_MAGMADENSE    Dense :math:`M \times N` matrix        
+   SUNMATRIX_ONEMKLDENSE   oneMKL dense :math:`M \times N` matrix             
+   SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix     
+   SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix       
+   ======================  =================================================

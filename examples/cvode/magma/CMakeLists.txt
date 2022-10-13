@@ -16,7 +16,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 set(CVODE_examples
-  "cvRoberts_blockdiag_magma.cpp\;\;develop"
+  "cv_bruss_batched_magma.cpp\;\;develop"
 )
 
 if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")

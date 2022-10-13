@@ -33,6 +33,11 @@ endif()
 # Configure the CUDA flags
 # ===============================================================
 
+set(DOCSTR "The CUDA standard to use if CUDA is enabled (14, 17, 20)")
+sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "${CMAKE_CXX_STANDARD}"
+                OPTIONS "14;17;20")
+message(STATUS "CUDA standard set to ${CMAKE_CUDA_STANDARD}")
+
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr")
 
 if(${CMAKE_VERSION} VERSION_LESS "3.18.0")
@@ -57,9 +62,6 @@ if( (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   endif()
 endif()
 
-# Need c++14 for the CUDA compiler check.
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -std=c++14")
-
 # ===============================================================
 # Enable CUDA lang and find the CUDA libraries.
 # ===============================================================
@@ -71,14 +73,6 @@ find_package(CUDAToolkit REQUIRED)
 
 # Show CUDA flags
 mark_as_advanced(CLEAR CMAKE_CUDA_FLAGS)
-
-# We need c++14 for the CUDA compiler check, but if we don't remove it,
-# then we will get a redefinition error. CMAKE_CUDA_STANDARD ends up
-# setting the proper version.
-if(CMAKE_CUDA_FLAGS)
-  STRING(REPLACE "-std=c++14" " " CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS})
-endif()
-set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
 
 # ===============================================================
 # Print out information about CUDA.

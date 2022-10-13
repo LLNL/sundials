@@ -18,7 +18,7 @@ Using sundials-ci Docker Containers
 -----------------------------------
 
 It is possible to use the sundials-ci Docker containers available at
-`https://github.com/orgs/LLNL/packages?ecosystem=container <https://github.com/orgs/LLNL/packages?ecosystem=container>_`
+`https://github.com/orgs/LLNL/packages?ecosystem=container <https://github.com/orgs/LLNL/packages?ecosystem=container>`_
 for testing locally. This will allow you to get as close as possible to running tests
 in the CI environment on your own machine.
 

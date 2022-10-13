@@ -1,9 +1,15 @@
 # /
 /.cache
 /.project
+/builddir
 /build*
 /instdir
+/install*
 /TPLs
+/tarballs
+/thirdparty
+
+# IDE/tool created
 /autom4te.cache
 /.settings
 /.cproject
@@ -11,7 +17,8 @@
 *.kdev4
 *.directory
 /.pydevproject
-/tarballs
+.vscode
+compile_commands.json
 
 # custom test environment setup script
 /test/env/env.sh
@@ -51,7 +58,8 @@
 /doc/*/*.out
 /doc/*/*.log
 
-# directories created by Sphinx documentation
+# directories created by/for Sphinx documentation
+/doc/.pyvenv
 /doc/*/guide/build/
 /doc/*/examples/build/
 /doc/build/
@@ -62,21 +70,8 @@
 /doc/*/*_guide.pdf
 /doc/*/*_examples.pdf
 
-# spack environment
-/test/spack/spack.lock
-/test/spack/.spack-env/*
-!/test/spack/.spack-env/view
-/test/spack/.spack-env/view/*
-!/test/spack/.spack-env/view/.spack
-/test/spack/.spack-env/view/.spack/*
-!/test/spack/.spack-env/view/.spack/projections.yaml
-
 # uberenv
 uberenv_libs
 
 # swig
 /swig/swig
-
-# editor files
-.vscode
-

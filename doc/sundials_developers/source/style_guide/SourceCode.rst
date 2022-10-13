@@ -68,25 +68,40 @@ names.
 Formatting
 ----------
 
+All new code added to SUNDIALS should be linted with  `clang-tidy
+<https://clang.llvm.org/extra/clang-tidy/>`_ and formatted with `clang-format
+<https://clang.llvm.org/docs/ClangFormat.html>`_. The ``.clang-tidy`` and
+``.clang-format`` files in the root of the project define our configurations
+for the tools respectively.
+
+It may be necessary to override clang-tidy at times. This can be done with the
+``NOLINT`` magic comments e.g.,
+
+.. code-block:: cpp
+
+  template<class GkoSolverType, class GkoMatrixType>
+  int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
+  {
+    auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
+    delete solver; // NOLINT
+    return SUNLS_SUCCESS;
+  }
+
+  class BaseObject {
+  protected:
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
+    SUNContext sunctx_{};
+  };
+
+See the clang-tidy documentation for more details.
+
 Indentation
 ^^^^^^^^^^^
 
 Spaces not tabs
 
-Line Length
-^^^^^^^^^^^
-
-Loops
-^^^^^
-
 Comments
 --------
-
-Function Comments
-^^^^^^^^^^^^^^^^^
-
-Implementation Comments
-^^^^^^^^^^^^^^^^^^^^^^^
 
 TODO Comments
 ^^^^^^^^^^^^^
