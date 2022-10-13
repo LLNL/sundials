@@ -42,6 +42,8 @@ if(BUILD_SUNMATRIX_KOKKOSDENSE)
   install(CODE "MESSAGE(\"\nInstall SUNMATRIX_KOKKOSDENSE\n\")")
   message(STATUS "Added BUILD_SUNMATRIX_KOKKOSDENSE module")
   add_library(sundials_sunmatrixkokkosdense INTERFACE)
+  target_link_libraries(sundials_sunmatrixkokkosdense INTERFACE
+    Kokkos::kokkos Kokkos::kokkoskernels)
   target_include_directories(sundials_sunmatrixkokkosdense INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>

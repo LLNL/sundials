@@ -41,11 +41,15 @@ using ExecSpace = Kokkos::Serial;
 
 int main(int argc, char *argv[])
 {
+  // Create SUNDIALS context
+  sundials::Context sunctx;
+
   // counter for test failures
   int fails = 0;
 
   // check input and set vector length
-  if (argc < 5) {
+  if (argc < 5)
+  {
     std::cerr << "ERROR: FOUR (4) Input required:\n"
               << " (1) matrix rows\n"
               << " (2) matrix cols\n"
@@ -55,19 +59,22 @@ int main(int argc, char *argv[])
   }
 
   sunindextype matrows = (sunindextype) atol(argv[1]);
-  if (matrows <= 0) {
+  if (matrows <= 0)
+  {
     std::cerr << "ERROR: number of rows must be a positive integer\n";
     return -1;
   }
 
   sunindextype matcols = (sunindextype) atol(argv[2]);
-  if (matcols <= 0) {
+  if (matcols <= 0)
+  {
     std::cerr << "ERROR: number of cols must be a positive integer\n";
     return -1;
   }
 
   sunindextype nblocks = (sunindextype) atol(argv[3]);
-  if (nblocks <= 0) {
+  if (nblocks <= 0)
+  {
     std::cerr << "ERROR: number of blocks must be a positive integer\n";
     return -1;
   }
@@ -75,16 +82,10 @@ int main(int argc, char *argv[])
   int print_timing = atoi(argv[4]);
   SetTiming(print_timing);
 
-  SUNContext sunctx = nullptr;
-  if (SUNContext_Create(nullptr, &sunctx))
-  {
-    std::cerr << "ERROR: SUNContext_Create failed\n";
-    return -1;
-  }
-
   bool square = (matrows == matcols);
-  std::cerr << "\nKokkos dense matrix test:\n"
-            << "  Size:      " << matrows << " by " << matcols << "\n";
+  std::cout << "\nKokkos dense matrix test:\n"
+            << "  Size:   " << matrows << " by " << matcols << "\n"
+            << "  Blocks: " << nblocks << "\n";
 
   Kokkos::initialize( argc, argv );
   {
@@ -93,14 +94,17 @@ int main(int argc, char *argv[])
     // Create vectors and matrices
     // N_Vector x = N_VNew_Kokkos(matcols * nblocks, sunctx);
     // N_Vector y = N_VNew_Kokkos(matrows * nblocks, sunctx);
-    sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, matrows, matcols, exec_instance, sunctx};
-    sundials::kokkos::DenseMatrix<ExecSpace> I{nblocks, matrows, matcols, exec_instance, sunctx};
+    sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, matrows, matcols,
+                                               exec_instance, sunctx};
+    sundials::kokkos::DenseMatrix<ExecSpace> I{nblocks, matrows, matcols,
+                                               exec_instance, sunctx};
 
     // Fill matrices and vectors
     auto A_data = A.view();
 
     Kokkos::parallel_for("fill_A",
-                         Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {nblocks, matrows, matcols}),
+                         Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                         ({0, 0, 0}, {nblocks, matrows, matcols}),
                          KOKKOS_LAMBDA(const sunindextype i,
                                        const sunindextype j,
                                        const sunindextype k)
@@ -112,7 +116,8 @@ int main(int argc, char *argv[])
     {
       auto I_data = I.view();
       Kokkos::parallel_for("fill_I",
-                           Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {nblocks, matrows, matcols}),
+                           Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                           ({0, 0, 0}, {nblocks, matrows, matcols}),
                            KOKKOS_LAMBDA(const sunindextype i,
                                          const sunindextype j,
                                          const sunindextype k)
@@ -124,7 +129,8 @@ int main(int argc, char *argv[])
     // auto x_data = VEC_VIEW(x);
 
     // Kokkos::parallel_for("fill_x",
-    //                      Kokkos::RangePolicy<ExecSpace>(0, matcols * nblocks),
+    //                      Kokkos::RangePolicy<ExecSpace>
+    //                      (0, matcols * nblocks),
     //                      KOKKOS_LAMBDA(const sunindextype j)
     //                      {
     //                        x_data(j) = ONE / ((j % matcols) + 1);
@@ -133,7 +139,8 @@ int main(int argc, char *argv[])
     // auto y_data = VEC_VIEW(y);
 
     // Kokkos::parallel_for("fill_y",
-    //                      Kokkos::RangePolicy<ExecSpace>(0, matrows * nblocks),
+    //                      Kokkos::RangePolicy<ExecSpace>
+    //                      (0, matrows * nblocks),
     //                      KOKKOS_LAMBDA(const sunindextype j)
     //                      {
     //                        auto m = j % matrows;
@@ -160,8 +167,6 @@ int main(int argc, char *argv[])
       std::cout << "SUCCESS: SUNMatrix module passed all tests\n\n";
   }
   Kokkos::finalize();
-
-  SUNContext_Free(&sunctx);
 
   return fails;
 }
@@ -199,8 +204,11 @@ extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 
   // compare data
   Kokkos::parallel_reduce("check_matrix",
-                          Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {nblocks, matrows, matcols}),
-                          KOKKOS_LAMBDA(const sunindextype i, const sunindextype j, const sunindextype k, int &l_fail)
+                          Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                          ({0, 0, 0}, {nblocks, matrows, matcols}),
+                          KOKKOS_LAMBDA(const sunindextype i,
+                                        const sunindextype j,
+                                        const sunindextype k, int &l_fail)
                           {
                             l_fail += CompareTol(A_data(i, j, k), B_data(i , j, k), tol);
                           }, failure);
@@ -225,8 +233,11 @@ extern "C" int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 
   // compare data
   Kokkos::parallel_reduce("check_matrix_entry",
-                          Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0}, {nblocks, matrows, matcols}),
-                          KOKKOS_LAMBDA(const sunindextype i, const sunindextype j, const sunindextype k, int &l_fail)
+                          Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
+                          ({0, 0, 0}, {nblocks, matrows, matcols}),
+                          KOKKOS_LAMBDA(const sunindextype i,
+                                        const sunindextype j,
+                                        const sunindextype k, int &l_fail)
                           {
                             l_fail += CompareTol(A_data(i, j, k), val, tol);
                           }, failure);
