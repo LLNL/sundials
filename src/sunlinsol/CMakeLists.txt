@@ -47,7 +47,19 @@ if(BUILD_SUNLINSOL_KLU)
 endif()
 
 if(BUILD_SUNLINSOL_KOKKOSDENSE)
-  add_subdirectory(kokkos)
+  install(CODE "MESSAGE(\"\nInstall SUNLINSOL_KOKKOSDENSE\n\")")
+  message(STATUS "Added BUILD_SUNLINSOL_KOKKOSDENSE module")
+  add_library(sundials_sunlinsolkokkosdense INTERFACE)
+  target_link_libraries(sundials_sunlinsolkokkosdense INTERFACE
+    Kokkos::kokkos Kokkos::kokkoskernels)
+  target_include_directories(sundials_sunlinsolkokkosdense INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  install(FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_kokkosdense.hpp
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol")
+  set(_SUNDIALS_INSTALLED_COMPONENTS "sunlinsolkokkosdense;${_SUNDIALS_INSTALLED_COMPONENTS}" CACHE INTERNAL "" FORCE)
 endif()
 
 if(BUILD_SUNLINSOL_LAPACKBAND)

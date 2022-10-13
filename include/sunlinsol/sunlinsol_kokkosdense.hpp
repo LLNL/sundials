@@ -14,39 +14,219 @@
  * This is the header file for a SUNLinearSolver using Kokkoks Kernels
  * ---------------------------------------------------------------------------*/
 
-#ifndef _SUNLINSOL_KOKKOSDENSE_H
-#define _SUNLINSOL_KOKKOSDENSE_H
+#ifndef _SUNLINSOL_KOKKOSDENSE_HPP
+#define _SUNLINSOL_KOKKOSDENSE_HPP
 
-#include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_matrix.h>
-#include <sundials/sundials_nvector.h>
+#include <Kokkos_Core.hpp>
+#include <KokkosBatched_LU_Decl.hpp>
+#include <KokkosBatched_Trsv_Decl.hpp>
 
-struct _SUNLinearSolverContent_KokkosDense
+//#include <nvector/nvector_kokkos.h>
+#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_linearsolver.hpp>
+#include <sunmatrix/sunmatrix_kokkosdense.hpp>
+
+namespace sundials {
+namespace kokkos {
+
+// Forward decalaration of dense linear solver class
+template<class ExecSpace = Kokkos::DefaultExecutionSpace,
+         class MemSpace = class ExecSpace::memory_space>
+class DenseLinearSolver;
+
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
+namespace impl {
+
+SUNLinearSolver_Type SUNLinSolGetType_KokkosDense(SUNLinearSolver S)
 {
-  int last_flag; /* last return flag */
+  return SUNLINEARSOLVER_DIRECT;
+}
+
+SUNLinearSolver_ID SUNLinSolGetID_KokkosDense(SUNLinearSolver S)
+{
+  return SUNLINEARSOLVER_KOKKOSDENSE;
+}
+
+template<class ExecSpace, class MemSpace>
+int SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A)
+{
+  // Access matrix data
+  auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace, MemSpace>(A)};
+
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
+
+  const auto blocks = A_mat->blocks();
+
+  // Compute LU factorization of A (no pivoting)
+  using team_policy = typename Kokkos::TeamPolicy<ExecSpace>;
+  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+
+  Kokkos::parallel_for("sunlinsol_lu",
+                       team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
+                       KOKKOS_LAMBDA(const member_type &team_member)
+                       {
+                         const int idx = team_member.league_rank();
+                         auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
+                         KokkosBatched::TeamLU<member_type, KokkosBatched::Algo::LU::Unblocked>
+                           ::invoke(team_member, A_subdata);
+                       });
+
+  return SUNLS_SUCCESS;
+}
+
+template<class ExecSpace, class MemSpace>
+int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                               N_Vector b, sunrealtype tol)
+{
+  // // Copy b into x
+  // N_VScale(ONE, b, x);
+
+  // // Access matrix and vector data
+  // auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace, MemSpace>(A)};
+  // auto x_vec{sundials::kokkos::GetVec<ExecSpace, MemSpace>(x)};
+
+  // // Access matrix and vector data
+  // auto A_exec = A_mat->exec_space();
+  // auto A_data = A_mat->view();
+  // auto x_data = x_vec->view();
+
+  // const auto blocks = A_mat->blocks();
+  // const auto rows   = A_mat->rows();
+
+  // // Solve the linear system
+  // using team_policy = Kokkos::TeamPolicy<ExecSpace>;
+  // using member_type = Kokkos::TeamPolicy<ExecSpace>::member_type;
+
+  // Kokkos::parallel_for("sunlinsol_trsv",
+  //                      team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
+  //                      KOKKOS_LAMBDA(const member_type &team_member)
+  //                      {
+  //                        const int idx = team_member.league_rank();
+  //                        auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
+  //                        auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<int, int>(idx * rows, (idx+1) * rows));
+  //                        // Lower triangular solve
+  //                        KokkosBatched::TeamVectorTrsv<member_type,
+  //                                                      KokkosBatched::Uplo::Lower,
+  //                                                      KokkosBatched::Trans::NoTranspose,
+  //                                                      KokkosBatched::Diag::Unit,
+  //                                                      KokkosBatched::Algo::Trsv::Unblocked>
+  //                          ::invoke(team_member, ONE, A_subdata, x_subdata);
+  //                        // Upper triangular solve
+  //                        KokkosBatched::TeamVectorTrsv<member_type,
+  //                                                      KokkosBatched::Uplo::Upper,
+  //                                                      KokkosBatched::Trans::NoTranspose,
+  //                                                      KokkosBatched::Diag::NonUnit,
+  //                                                      KokkosBatched::Algo::Trsv::Unblocked>
+  //                          ::invoke(team_member, ONE, A_subdata, x_subdata);
+  //                      });
+
+  return SUNLS_SUCCESS;
+}
+
+template<class ExecSpace, class MemSpace>
+int SUNLinSolFree_KokkosDense(SUNLinearSolver S)
+{
+  auto S_ls{static_cast<DenseLinearSolver<ExecSpace, MemSpace>*>(S->content)};
+  delete S_ls; // NOLINT
+  return SUNLS_SUCCESS;
+}
+
+} // namespace impl
+
+// =============================================================================
+// Public namespace
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Kokkos dense linear solver class, convertible to a SUNLinearSolver
+// -----------------------------------------------------------------------------
+
+template<class ExecSpace, class MemSpace>
+class DenseLinearSolver : public sundials::impl::BaseLinearSolver,
+                          public sundials::ConvertibleTo<SUNLinearSolver>
+{
+public:
+  // Default constructor - means the linear solver must be copied or moved to
+  DenseLinearSolver() = default;
+
+  DenseLinearSolver(SUNContext sunctx)
+    : sundials::impl::BaseLinearSolver(sunctx)
+  {
+    initSUNLinearSolver();
+  }
+
+  // Move constructor
+  DenseLinearSolver(DenseLinearSolver&& that_solver) noexcept
+    : sundials::impl::BaseLinearSolver(std::forward<DenseLinearSolver>(that_solver))
+  { }
+
+  // Copy constructor
+  DenseLinearSolver(const DenseLinearSolver& that_solver)
+    : sundials::impl::BaseLinearSolver(that_solver)
+  { }
+
+  // Move assignment
+  DenseLinearSolver& operator=(DenseLinearSolver&& rhs) noexcept
+  {
+    sundials::impl::BaseLinearSolver::operator=(std::forward<DenseLinearSolver>(rhs));
+    return *this;
+  }
+
+  // Copy assignment
+  DenseLinearSolver& operator=(const DenseLinearSolver& rhs)
+  {
+    sundials::impl::BaseLinearSolver::operator=(rhs);
+    return *this;
+  }
+
+  // Default destructor since all members are RAII
+  virtual ~DenseLinearSolver() = default;
+
+  // Override the ConvertibleTo methods
+
+  // Implicit conversion to a SUNLinearSolver
+  operator SUNLinearSolver() override
+  {
+    return object_.get();
+  }
+
+  // Implicit conversion to SUNLinearSolver
+  operator SUNLinearSolver() const override
+  {
+    return object_.get();
+  }
+
+  // Explicit conversion to a SUNLinearSolver
+  SUNLinearSolver Convert() override
+  {
+    return object_.get();
+  }
+
+  // Explicit conversion to a SUNLinearSolver
+  SUNLinearSolver Convert() const override
+  {
+    return object_.get();
+  }
+
+private:
+  void initSUNLinearSolver()
+  {
+    this->object_->content = this;
+
+    this->object_->ops->gettype = impl::SUNLinSolGetType_KokkosDense;
+    this->object_->ops->getid   = impl::SUNLinSolGetID_KokkosDense;
+    this->object_->ops->setup   = impl::SUNLinSolSetup_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->solve   = impl::SUNLinSolSolve_KokkosDense<ExecSpace, MemSpace>;
+    this->object_->ops->free    = impl::SUNLinSolFree_KokkosDense<ExecSpace, MemSpace>;
+  }
 };
 
-typedef struct _SUNLinearSolverContent_KokkosDense *SUNLinearSolverContent_KokkosDense;
-
-/* ----------------------------------
- * Implementation specific functions
- * ----------------------------------*/
-
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_KokkosDense(N_Vector y, SUNMatrix A,
-                                                      SUNContext sunctx);
-
-/* ---------------------------------------
- * Implementation of SUNMatrix operations
- * ---------------------------------------*/
-
-SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_KokkosDense(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_KokkosDense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolInitialize_KokkosDense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A,
-                                               N_Vector x, N_Vector b,
-                                               sunrealtype tol);
-SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_KokkosDense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolFree_KokkosDense(SUNLinearSolver S);
+} // namespace kokkos
+} // namespace sundials
 
 #endif
