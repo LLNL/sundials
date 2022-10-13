@@ -14,78 +14,76 @@
 # CMakeLists.txt file for Kokkos nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
+# Example lists are tuples "name\;args\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS kokkos nvector
-set(nvector_kokkos_examples
-  "test_nvector_kokkos\;1000 0\;\;\;"
-  )
-
-# Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  sundials_nvector
-  sundials_math
+set(examples_list
+  "test_nvector_kokkos.cpp\;1000 0\;"
 )
 
 include_directories(..)
 
 # Add the build and install targets for each example
-foreach(example_tuple ${nvector_kokkos_examples})
+foreach(example_tuple ${examples_list})
+  foreach(backend ${Kokkos_DEVICES})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_args)
+    list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
-  if(NOT TARGET ${example})
-    # example source files
-    add_executable(${example} ${example}.cpp)
+    # extract the file name without extension
+    get_filename_component(example_target ${example} NAME_WE)
+    set(example_target "${example_target}.${backend}")
 
-    # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj)
-    target_link_libraries(${example} PRIVATE sundials_nveckokkos)
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    if(NOT TARGET ${example_target})
+      # example source files
+      add_executable(${example_target} ${example})
 
-    # Organize examples for IDEs
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-  endif()
+      # Organize examples for IDEs
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-  # check if example args are provided and set the test name
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+      # which backend to use
+      target_compile_definitions(${example_target} PRIVATE USE_${backend})
+
+      # link vector test utilties
+      target_link_libraries(${example_target} PRIVATE
+        test_nvector_obj
+        sundials_nveckokkos
+      )
     endif()
-  else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     endif()
-  endif()
 
-  # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    EXAMPLE_TYPE ${example_type}
-    NODIFF)
+    # add example to regression tests
+    sundials_add_test(${test_name} ${example_target}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type}
+      NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp
-      ../test_nvector.c
-      ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/kokkos)
-  endif()
+  endforeach()
+endforeach()
 
-endforeach(example_tuple ${nvector_kokkos_examples})
+if(EXAMPLES_INSTALL)
+
+  sundials_install_examples(nvec_kokkos examples_list
+    EXAMPLES_DEPENDENCIES
+      test_nvector.c
+    EXTRA_FILES
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+    CMAKE_TEMPLATE
+      cmakelists_CXX_ex.in
+    SUNDIALS_TARGETS
+      nveckokkos
+    DESTINATION
+      nvector/kokkos
+    )
+
+endif()

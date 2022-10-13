@@ -22,7 +22,17 @@
 
 #include "test_nvector.h"
 
-using vector_type = sundials::kokkos::Vector<Kokkos::HostSpace>;
+#if defined(USE_CUDA)
+using ExecSpace = Kokkos::Cuda;
+#elif defined(USE_HIP)
+using ExecSpace = Kokkos::HIP;
+#elif defined(USE_OPENMP)
+using ExecSpace = Kokkos::OpenMP;
+#else
+using ExecSpace = Kokkos::Serial;
+#endif
+
+using vector_type = sundials::kokkos::Vector<ExecSpace>;
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
