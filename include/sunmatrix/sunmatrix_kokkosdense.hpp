@@ -260,7 +260,7 @@ public:
       exec_space_(std::move(that_matrix.exec_space_)), view_(std::move(that_matrix.exec_space_))
   { }
 
-  // Copy constructor (does not copy view data)
+  // Copy constructor
   DenseMatrix(const DenseMatrix& that_matrix)
     : sundials::impl::BaseMatrix(that_matrix),
       exec_space_(that_matrix.exec_space_)
@@ -269,6 +269,7 @@ public:
                                                    that_matrix.blocks(),
                                                    that_matrix.block_rows(),
                                                    that_matrix.block_cols());
+    deep_copy(view_, that_matrix.view_);
   }
 
   // Move assignment
