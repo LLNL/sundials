@@ -521,9 +521,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
-(??)  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1000 * std::numeric_limits<sunrealtype>::epsilon(),
-(??)                               SUNTRUE, 0);
-(??)  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1e4 * SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1e4 * SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
 
   /* Print result */
   if (fails) {
