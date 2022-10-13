@@ -547,8 +547,7 @@ int main(int argc, char* argv[])
  * Implementation-specific 'check' routines                                   *
  * -------------------------------------------------------------------------- */
 
-(??)int check_vector(N_Vector expected, N_Vector actual, realtype tol)
-(??)int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
+int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
 {
   int failure{0};
 
@@ -571,20 +570,13 @@ int main(int argc, char* argv[])
 
   /* check vector data */
   for (sunindextype i = 0; i < xldata; i++) {
-(??)    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
-(??)  }
-(??)
-(??)  if (failure > ZERO) {
-(??)    std::cerr << "Check_vector failures:\n";
-(??)    for (sunindextype i = 0; i < xldata; i++) {
-(??)      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0) {
-(??)    failure += SUNRCompareTol(xdata[i], ydata[i], check_tol);
-(??)  }
-(??)
-(??)  if (failure > ZERO) {
-(??)    std::cerr << "check_vector failures:\n";
-(??)    for (sunindextype i = 0; i < xldata; i++) {
-(??)      if (SUNRCompareTol(xdata[i], ydata[i], check_tol) != 0) {
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+  }
+
+  if (failure > ZERO) {
+    std::cerr << "check_vector failures:\n";
+    for (sunindextype i = 0; i < xldata; i++) {
+      if (SUNRCompareTol(xdata[i], ydata[i], check_tol) != 0) {
         std::cerr << "  x[" << i << "] = " << xdata[i] << " != " << ydata[i] << " (err = " << abs(xdata[i] - ydata[i])
                   << ")\n";
       }
