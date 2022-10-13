@@ -327,6 +327,31 @@ else
     unset GINKGO_BACKENDS
 fi
 
+
+# ------
+# Kokkos
+# ------
+
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_KOKKOS=ON
+    export KOKKOS_ROOT="$(spack location -i kokkos@3.6.00 %"$compiler")"
+else
+    export SUNDIALS_KOKKOS=OFF
+    unset KOKKOS_ROOT
+fi
+
+# --------------
+# Kokkos-Kernels
+# --------------
+
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_KOKKOS_KERNELS=ON
+    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@3.6.00 %"$compiler")"
+else
+    export SUNDIALS_KOKKOS_KERNELS=OFF
+    unset KOKKOS_KERNELS_ROOT
+fi
+
 # -----
 # MAGMA
 # -----
