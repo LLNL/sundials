@@ -28,6 +28,19 @@ namespace kokkos {
 template<class ExecutionSpace, class MemorySpace>
 class Vector;
 
+// Get the Kokkos vector wrapped by an N_Vector
+template<class ExecutionSpace,
+         class MemorySpace = typename ExecutionSpace::memory_space>
+inline Vector<ExecutionSpace, MemorySpace>* GetVec(N_Vector v)
+{
+  return static_cast<Vector<ExecutionSpace, MemorySpace>*>(v->content);
+}
+
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
 namespace impl {
 
 /* N_Vector API ops to implement.override */
