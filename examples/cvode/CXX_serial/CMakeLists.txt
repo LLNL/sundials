@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cv_heat2D\;\;\;\;exclude-single"
-  "cv_kpr\;\;\;\;develop"
+  "cv_heat2D.cpp\;\;\;\;exclude-single"
+  "cv_kpr.cpp\;\;\;\;develop"
   )
 
 # Auxiliary files to install
@@ -54,7 +54,7 @@ foreach(example_tuple ${CVODE_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # directories to include
-    target_include_directories(${example}
+    target_include_directories(${example_target}
       PRIVATE
       ${PROJECT_SOURCE_DIR}/examples/utilities
     )
