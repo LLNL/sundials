@@ -239,19 +239,19 @@ public:
   { }
 
   // Block-diagonal matrix constructors
-  DenseMatrix(sunindextype blocks, sunindextype rows, sunindextype cols,
+  DenseMatrix(sunindextype blocks, sunindextype block_rows, sunindextype block_cols,
               SUNContext sunctx)
-    : DenseMatrix(blocks, rows, cols, ExecSpace(), sunctx)
+    : DenseMatrix(blocks, block_rows, block_cols, ExecSpace(), sunctx)
   { }
 
   // Block-diagonal matrix with user-supplied execution space instance
-  DenseMatrix(sunindextype blocks, sunindextype rows, sunindextype cols,
-              ExecSpace exec_space, SUNContext sunctx)
+  DenseMatrix(sunindextype blocks, sunindextype block_rows,
+              sunindextype block_cols, ExecSpace exec_space, SUNContext sunctx)
     : sundials::impl::BaseMatrix(sunctx), exec_space_(exec_space)
   {
     initSUNMatrix();
-    view_ = Kokkos::View<sunrealtype***, MemSpace>("sunmat_view", blocks, rows,
-                                                   cols);
+    view_ = Kokkos::View<sunrealtype***, MemSpace>("sunmat_view", blocks,
+                                                   block_rows, block_cols);
   }
 
   // Move constructor
