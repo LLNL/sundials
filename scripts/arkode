@@ -356,3 +356,5 @@ $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_dahlquist_mri.cp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_butcher_tests.cpp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/ark_heat2D_mri.cpp
+$tar $tarfile $distrobase/test/unit_tests/arkode/F2003_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/arkode/F2003_serial/ark_table_tests_f2003.f90
