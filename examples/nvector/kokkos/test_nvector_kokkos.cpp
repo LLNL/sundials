@@ -15,7 +15,8 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_kokkos.h>
+// #include <nvector/nvector_kokkos.h>
+#include <nvector/nvector_kokkos.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
@@ -23,18 +24,17 @@
 
 #include "test_nvector.h"
 
-/* KOKKOS vector specific tests */
-static int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid);
+using view_type   = Kokkos::View<sunrealtype*, Kokkos::HostSpace>;
+using vector_type = sundials::kokkos::Vector<Kokkos::HostSpace>;
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails = 0;          /* counter for test failures */
-  int retval;             /* function return value     */
+  int fails{0};           /* counter for test failures */
+  int retval{0};          /* function return value     */
   sunindextype length;    /* vector length             */
-  N_Vector U, V, X, Y, Z; /* test vectors              */
   int print_timing;       /* turn timing on/off        */
 
   Test_Init(NULL);
@@ -60,16 +60,14 @@ int main(int argc, char* argv[])
 
   Kokkos::initialize(argc, argv);
   {
-    /* Create new vectors */
-    X = N_VNew_Kokkos(length, sunctx);
-
-    if (X == NULL) {
-      printf("FAIL: Unable to create a new vector \n\n");
-      return (1);
-    }
+    vector_type X{length, sunctx};
 
     /* Check vector ID */
     fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_KOKKOS, 0);
+
+    /* Test clone functions */
+    fails += Test_N_VClone(X, length, 0);
+    fails += Test_N_VCloneVectorArray(5, X, length, 0);
 
     /* Check vector length */
     fails += Test_N_VGetLength(X, 0);
@@ -77,65 +75,39 @@ int main(int argc, char* argv[])
     /* Check vector communicator */
     fails += Test_N_VGetCommunicator(X, NULL, 0);
 
-    /* Test clone functions */
-    fails += Test_N_VCloneEmpty(X, 0);
-    fails += Test_N_VClone(X, length, 0);
-    fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-    fails += Test_N_VCloneVectorArray(5, X, length, 0);
-
     /* Clone additional vectors for testing */
-    Y = N_VClone(X);
-    if (Y == NULL) {
-      N_VDestroy(X);
-      printf("FAIL: Unable to create a new vector \n\n");
-      return (1);
-    }
-
-    Z = N_VClone(X);
-    if (Z == NULL) {
-      N_VDestroy(X);
-      N_VDestroy(Y);
-      printf("FAIL: Unable to create a new vector \n\n");
-      return (1);
-    }
+    vector_type Y{X};
+    vector_type Z{X};
 
     /* Standard vector operation tests */
     printf("\nTesting standard vector operations:\n\n");
 
-    fails += Test_N_VConst(X, length, 0);
-    fails += Test_N_VLinearSum(X, Y, Z, length, 0);
-    fails += Test_N_VProd(X, Y, Z, length, 0);
-    fails += Test_N_VDiv(X, Y, Z, length, 0);
-    fails += Test_N_VScale(X, Z, length, 0);
     fails += Test_N_VAbs(X, Z, length, 0);
-    fails += Test_N_VInv(X, Z, length, 0);
     fails += Test_N_VAddConst(X, Z, length, 0);
+    fails += Test_N_VCompare(X, Z, length, 0);
+    fails += Test_N_VConst(X, length, 0);
+    fails += Test_N_VConstrMask(X, Y, Z, length, 0);
+    fails += Test_N_VDiv(X, Y, Z, length, 0);
     fails += Test_N_VDotProd(X, Y, length, 0);
+    fails += Test_N_VInv(X, Z, length, 0);
+    fails += Test_N_VInvTest(X, Z, length, 0);
+    fails += Test_N_VL1Norm(X, length, 0);
+    fails += Test_N_VLinearSum(X, Y, Z, length, 0);
     fails += Test_N_VMaxNorm(X, length, 0);
+    fails += Test_N_VMin(X, length, 0);
+    fails += Test_N_VMinQuotient(X, Y, length, 0);
+    fails += Test_N_VProd(X, Y, Z, length, 0);
+    fails += Test_N_VScale(X, Z, length, 0);
+    fails += Test_N_VWL2Norm(X, Y, length, 0);
     fails += Test_N_VWrmsNorm(X, Y, length, 0);
     fails += Test_N_VWrmsNormMask(X, Y, Z, length, 0);
-    fails += Test_N_VMin(X, length, 0);
-    fails += Test_N_VWL2Norm(X, Y, length, 0);
-    fails += Test_N_VL1Norm(X, length, 0);
-    fails += Test_N_VCompare(X, Z, length, 0);
-    fails += Test_N_VInvTest(X, Z, length, 0);
-    fails += Test_N_VConstrMask(X, Y, Z, length, 0);
-    fails += Test_N_VMinQuotient(X, Y, length, 0);
 
     /* Fused and vector array operations tests (disabled) */
     printf("\nTesting fused and vector array operations (disabled):\n\n");
 
     /* create vector and disable all fused and vector array operations */
-    U = N_VNew_Kokkos(length, sunctx);
-
-    retval = N_VEnableFusedOps_Kokkos(U, SUNFALSE);
-    if (U == NULL || retval != 0) {
-      N_VDestroy(X);
-      N_VDestroy(Y);
-      N_VDestroy(Z);
-      printf("FAIL: Unable to create a new vector \n\n");
-      return (1);
-    }
+    vector_type U{X};
+    U.EnableAllFusedOps(false);
 
     /* fused operations */
     fails += Test_N_VLinearCombination(U, length, 0);
@@ -155,17 +127,8 @@ int main(int argc, char* argv[])
     printf("\nTesting fused and vector array operations (enabled):\n\n");
 
     /* create vector and enable all fused and vector array operations */
-    V = N_VNew_Kokkos(length, sunctx);
-
-    retval = N_VEnableFusedOps_Kokkos(V, SUNTRUE);
-    if (V == NULL || retval != 0) {
-      N_VDestroy(X);
-      N_VDestroy(Y);
-      N_VDestroy(Z);
-      N_VDestroy(U);
-      printf("FAIL: Unable to create a new vector \n\n");
-      return (1);
-    }
+    vector_type V{X};
+    V.EnableAllFusedOps(true);
 
     /* fused operations */
     fails += Test_N_VLinearCombination(V, length, 0);
@@ -194,16 +157,6 @@ int main(int argc, char* argv[])
     fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
     fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
-    /* KOKKOS specific tests */
-    printf("\nTesting kokkos vector specific operations:\n\n");
-    fails += Test_N_VMake_Kokkos(X, length, 0);
-
-    /* Free vectors */
-    N_VDestroy(X);
-    N_VDestroy(Y);
-    N_VDestroy(Z);
-    N_VDestroy(U);
-    N_VDestroy(V);
   }
   Kokkos::finalize();
 
@@ -221,94 +174,17 @@ int main(int argc, char* argv[])
 }
 
 /* ----------------------------------------------------------------------
- * KOKKOS specific tests
- * --------------------------------------------------------------------*/
-
-/* --------------------------------------------------------------------
- * Test for the KOKKOS N_Vector N_VMake_Kokkos function. Requires N_VConst
- * to check data.
- */
-
-int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid)
-{
-  int failure = 0;
-  realtype *h_data, *d_data;
-  N_Vector Y;
-
-  N_VConst(NEG_HALF, X);
-  N_VCopyFromDevice_Kokkos(X);
-
-  h_data = N_VGetHostArrayPointer_Kokkos(X);
-  d_data = N_VGetDeviceArrayPointer_Kokkos(X);
-
-  /* Case 1: h_data and d_data are not null */
-  Y = N_VMake_Kokkos(length, h_data, d_data, sunctx);
-  if (Y == NULL) {
-    printf(">>> FAILED test -- N_VMake_Kokkos, Proc %d \n", myid);
-    printf("    Vector is NULL \n \n");
-    return (1);
-  }
-
-  if (N_VGetHostArrayPointer_Kokkos(Y) == NULL) {
-    printf(">>> FAILED test -- N_VMake_Kokkos, Proc %d \n", myid);
-    printf("    Vector host data == NULL \n \n");
-    N_VDestroy(Y);
-    return (1);
-  }
-
-  if (N_VGetDeviceArrayPointer_Kokkos(Y) == NULL) {
-    printf(">>> FAILED test -- N_VMake_Kokkos, Proc %d \n", myid);
-    printf("    Vector device data -= NULL \n \n");
-    N_VDestroy(Y);
-    return (1);
-  }
-
-  failure += check_ans(NEG_HALF, Y, length);
-
-  if (failure) {
-    printf(">>> FAILED test -- N_VMake_Kokkos Case 1, Proc %d \n", myid);
-    printf("    Failed N_VConst check \n \n");
-    N_VDestroy(Y);
-    return (1);
-  }
-
-  if (myid == 0) {
-    printf("PASSED test -- N_VMake_Kokkos Case 1 \n");
-  }
-
-  N_VDestroy(Y);
-
-  /* Case 2: data is null */
-  Y = N_VMake_Kokkos(length, NULL, NULL, sunctx);
-  if (Y != NULL) {
-    printf(">>> FAILED test -- N_VMake_Kokkos Case 2, Proc %d \n", myid);
-    printf("    Vector is not NULL \n \n");
-    return (1);
-  }
-
-  if (myid == 0) {
-    printf("PASSED test -- N_VMake_Kokkos Case 2 \n");
-  }
-
-  N_VDestroy(Y);
-
-  return (failure);
-}
-
-/* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
+
 int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
-  int failure = 0;
-  sunindextype i;
-  realtype* Xdata;
+  int failure{0};
+  auto Xvec{static_cast<vector_type*>(X->content)};
+  auto Xdata{Xvec->View()};
 
-  N_VCopyFromDevice_Kokkos(X);
-  Xdata = N_VGetHostArrayPointer_Kokkos(X);
-
-  /* check vector data */
-  for (i = 0; i < local_length; i++) {
+  sundials::kokkos::CopyFromDevice<vector_type>(*Xvec);
+  for (sunindextype i = 0; i < local_length; i++) {
     failure += SUNRCompare(Xdata[i], ans);
   }
 
@@ -318,7 +194,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 booleantype has_data(N_Vector X)
 {
   /* check if vector data is non-null */
-  if ((N_VGetHostArrayPointer_Kokkos(X) == NULL) && (N_VGetDeviceArrayPointer_Kokkos(X) == NULL)) return SUNFALSE;
+  if ((N_VGetArrayPointer(X) == NULL) && (N_VGetDeviceArrayPointer(X) == NULL)) return SUNFALSE;
   return SUNTRUE;
 }
 
@@ -330,21 +206,24 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
 {
-  sunindextype i;
-  realtype* xd;
+  auto Xvec{static_cast<vector_type*>(X->content)};
+  auto Xdata{Xvec->View()};
 
   /* set elements [is,ie] of the data array */
-  N_VCopyFromDevice_Kokkos(X);
-  xd = N_VGetHostArrayPointer_Kokkos(X);
-  for (i = is; i <= ie; i++) xd[i] = val;
-  N_VCopyToDevice_Kokkos(X);
+  sundials::kokkos::CopyFromDevice<vector_type>(X);
+  for (sunindextype i = is; i <= ie; i++) {
+    Xdata[i] = val;
+  }
+  sundials::kokkos::CopyToDevice<vector_type>(X);
 }
 
 realtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
-  N_VCopyFromDevice_Kokkos(X);
-  return (N_VGetHostArrayPointer_Kokkos(X))[i];
+  auto Xvec{static_cast<vector_type*>(X->content)};
+  auto Xdata{Xvec->View()};
+  sundials::kokkos::CopyFromDevice<vector_type>(X);
+  return Xdata[i];
 }
 
 double max_time(N_Vector X, double time)
