@@ -24,7 +24,7 @@
 namespace sundials {
 namespace impl {
 
-struct NvectorDeleter
+struct NVectorDeleter
 {
   void operator()(N_Vector v)
   {
@@ -33,7 +33,7 @@ struct NvectorDeleter
 };
 
 using BaseNvector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
-using NvectorView = ClassView<N_Vector, NvectorDeleter>;
+using NVectorView = ClassView<N_Vector, NVectorDeleter>;
 
 } // namespace impl
 } // namespace sundials
