@@ -51,6 +51,7 @@ foreach(example_tuple ${examples_list})
       # libraries to link against
       target_link_libraries(${example_target}
         PRIVATE
+        sundials_generic
         sundials_nveckokkos
         sundials_sunmatrixkokkosdense
         sundials_sunlinsolkokkosdense
