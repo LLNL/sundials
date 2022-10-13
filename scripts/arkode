@@ -64,7 +64,9 @@ $tar $tarfile $distrobase/src/arkode/arkode_bbdpre.c
 $tar $tarfile $distrobase/src/arkode/arkode_bbdpre_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_butcher.c
 $tar $tarfile $distrobase/src/arkode/arkode_butcher_dirk.c
+$tar $tarfile $distrobase/src/arkode/arkode_butcher_dirk.def
 $tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.c
+$tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.def
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep.c
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep_io.c
