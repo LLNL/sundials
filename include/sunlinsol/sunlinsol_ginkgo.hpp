@@ -30,7 +30,13 @@ namespace ginkgo {
 template<class GkoSolverType, class GkoMatrixType>
 class LinearSolver;
 
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
 namespace impl {
+
 inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_MATRIX_ITERATIVE;

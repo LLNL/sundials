@@ -30,7 +30,11 @@ namespace ginkgo {
 template<typename GkoMatType>
 class Matrix;
 
-// Forward decalaration of function that operate on Matrix
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
 namespace impl {
 
 using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
