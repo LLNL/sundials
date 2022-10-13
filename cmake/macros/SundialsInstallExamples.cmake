@@ -68,9 +68,10 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   foreach(example_tuple ${${EXAMPLES_VAR}})
     list(GET example_tuple 0 example) # filename always has to be the first item in the example tuple
     get_filename_component(example_noext ${example} NAME_WE)
+    file(GLOB example_header ${example_noext}.h*)
     file(GLOB example_out ${example_noext}*.out)
-    install(FILES ${example} ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
+    install(FILES ${example} ${example_header} ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates

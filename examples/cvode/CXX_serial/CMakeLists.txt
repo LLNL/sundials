@@ -23,14 +23,6 @@ set(CVODE_examples
   "cv_kpr.cpp\;\;\;\;develop"
   )
 
-# Auxiliary files to install
-set(CVODE_extras
-  cv_heat2D.hpp
-  cv_kpr.hpp
-  "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-  plot_heat2D.py
-  )
-
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
 
@@ -108,8 +100,8 @@ if(EXAMPLES_INSTALL)
       cvode/CXX_serial
     EXTRA_FILES
       README
-      ${CVODE_extras}
-      ${CVODE_headers}
+      plot_heat2D.py
+      "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
     TEST_INSTALL
       CXX_serial
   )
