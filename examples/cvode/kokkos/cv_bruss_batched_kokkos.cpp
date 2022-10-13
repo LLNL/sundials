@@ -84,13 +84,6 @@
 #define ONE  SUN_RCONST(1.0)
 #define TWO  SUN_RCONST(2.0)
 
-// Accessor macros
-#define VEC_CONTENT(x) ( static_cast<N_VectorContent_Kokkos>(x->content) )
-#define VEC_VIEW(x)    ( *VEC_CONTENT(x)->device_data )
-
-#define MAT_CONTENT(A) ( static_cast<SUNMatrixContent_KokkosDense>(A->content) )
-#define MAT_VIEW(A)    ( MAT_CONTENT(A)->data_view )
-
 // User-supplied functions called by CVODE
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
@@ -215,18 +208,20 @@ int main(int argc, char *argv[])
     if (check_flag(retval, "CVodeSVtolerances")) { return 1; }
 
     // Create the matrix and linear solver objects
-    SUNMatrix A = nullptr;
-    SUNLinearSolver LS = nullptr;
+    std::unique_ptr<sundials::ConvertibleTo<SUNMatrix>> A;
+    std::unique_ptr<sundials::ConvertibleTo<SUNLinearSolver>> LS;
 
     if (solver_type == 0)
     {
       // Create Kokkos dense block diagonal matrix
-      A = SUNMatrix_KokkosDenseBlock(nbatches, batchSize,
-                                     batchSize, sunctx);
+      A = std::make_unique<sundials::kokkos::DenseMatrix<>>(nbatches,
+                                                            batchSize,
+                                                            batchSize,
+                                                            sunctx);
       if (check_ptr(A, "SUNMatrix_KokkosDenseBlock")) return 1;
 
       // Create Kokkos batched dense linear solver
-      LS = SUNLinSol_KokkosDense(y, A, sunctx);
+      LS = std::make_unique<sundials::kokkos::DenseLinearSolver<>>(sunctx);
       if (check_ptr(LS, "SUNLinSol_KokkosDense")) return 1;
 
       // Attach the matrix and linear solver to CVODE
@@ -321,8 +316,6 @@ int main(int argc, char *argv[])
     // Free objects
     N_VDestroy(y);
     N_VDestroy(abstol);
-    if (A) { SUNMatDestroy(A); }
-    SUNLinSolFree(LS);
     CVodeFree(&cvode_mem);
   }
   Kokkos::finalize();
@@ -371,7 +364,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 {
   auto udata  = static_cast<UserData*>(user_data);
   auto y_data = VEC_VIEW(y);
-  auto J_data = MAT_VIEW(J);
+  auto J_data = sundials::kokkos::GetDenseMat<>(J);
 
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
