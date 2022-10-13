@@ -27,8 +27,8 @@ endif()
 if(BUILD_SUNMATRIX_GINKGO)
   install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO\n\")")
   message(STATUS "Added BUILD_SUNMATRIX_GINKGO module")
-  add_library(sundials_sunmatrixginko INTERFACE)
-  target_include_directories(sundials_sunmatrixginko INTERFACE
+  add_library(sundials_sunmatrixginkgo INTERFACE)
+  target_include_directories(sundials_sunmatrixginkgo INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>

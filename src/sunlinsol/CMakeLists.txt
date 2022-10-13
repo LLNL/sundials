@@ -31,8 +31,8 @@ endif()
 if(BUILD_SUNLINSOL_GINKGO)
   install(CODE "MESSAGE(\"\nInstall SUNLINSOL_GINKGO\n\")")
   message(STATUS "Added BUILD_SUNLINSOL_GINKGO module")
-  add_library(sundials_sunlinsolginko INTERFACE)
-  target_include_directories(sundials_sunlinsolginko INTERFACE
+  add_library(sundials_sunlinsolginkgo INTERFACE)
+  target_include_directories(sundials_sunlinsolginkgo INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
