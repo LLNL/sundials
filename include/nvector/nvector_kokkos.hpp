@@ -1,6 +1,6 @@
-/* -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Programmer(s): Daniel McGreer, Cody Balos @ LLNL
- * -----------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,29 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------
- * This is the header file for the Kokkos implementation of the
- * NVECTOR module.
- *
- * Notes:
- *
- *   - The definition of the generic N_Vector structure can be found
- *     in the header file sundials_nvector.h.
- *
- *   - The definition of the type 'sunrealtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the
- *     configuration stage) according to the user's needs.
- *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
- *
- *   - N_Vector arguments to arithmetic vector operations need not
- *     be distinct. For example, the following call:
- *
- *       N_VLinearSum_Kokkos(a,x,b,y,y);
- *
- *     (which stores the result of the operation a*x+b*y in y)
- *     is legal.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ * This is the header file an NVector implementation using Kokkos.
+ * ---------------------------------------------------------------------------*/
 
 #ifndef _NVECTOR_KOKKOS_HPP
 #define _NVECTOR_KOKKOS_HPP
@@ -536,7 +516,7 @@ int N_VLinearSumVectorArray_Kokkos(int nvec, sunrealtype a, N_Vector* X, sunreal
       "N_VLinearSumVectorArray", typename VectorType::range_policy(0, zvec->Length()), KOKKOS_LAMBDA(sunindextype i) {
         for (int j = 0; j < nvec; j++) d_Z[j][i] = a * d_X[j][i] + b * d_Y[j][i];
       });
-      
+
   Kokkos::kokkos_free(d_X);
   Kokkos::kokkos_free(d_Y);
   Kokkos::kokkos_free(d_Z);
@@ -620,6 +600,10 @@ SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Kokkos(N_Vector v, boolean
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Kokkos(N_Vector v, booleantype tf);
 
 } // namespace impl
+
+// =============================================================================
+// Public namespace
+// =============================================================================
 
 template<class ExecutionSpace, class MemorySpace = typename ExecutionSpace::memory_space>
 class Vector : public sundials::impl::BaseNvector, public sundials::ConvertibleTo<N_Vector>
@@ -733,7 +717,7 @@ public:
       this->object_->ops->nvwrmsnormvectorarray          = nullptr;
       this->object_->ops->nvwrmsnormmaskvectorarray      = nullptr;
       this->object_->ops->nvscaleaddmultivectorarray     = nullptr;
-      this->object_->ops->nvlinearcombinationvectorarray = nullptr;   
+      this->object_->ops->nvlinearcombinationvectorarray = nullptr;
     }
   }
 

@@ -1,6 +1,6 @@
-/* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles, Daniel McGreer @ LLNL
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Daniel McGreer and Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,12 +10,10 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------
- * This is the testing routine to check the NVECTOR Kokkos module
- * implementation.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ * This is the testing routine for the NVector implemenation using Kokkos.
+ * ---------------------------------------------------------------------------*/
 
-// #include <nvector/nvector_kokkos.h>
 #include <nvector/nvector_kokkos.hpp>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +22,6 @@
 
 #include "test_nvector.h"
 
-using view_type   = Kokkos::View<sunrealtype*, Kokkos::HostSpace>;
 using vector_type = sundials::kokkos::Vector<Kokkos::HostSpace>;
 
 /* ----------------------------------------------------------------------
@@ -33,7 +30,6 @@ using vector_type = sundials::kokkos::Vector<Kokkos::HostSpace>;
 int main(int argc, char* argv[])
 {
   int fails{0};           /* counter for test failures */
-  int retval{0};          /* function return value     */
   sunindextype length;    /* vector length             */
   int print_timing;       /* turn timing on/off        */
 
