@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include <iomanip>
 
-//#include <nvector/nvector_kokkos.h>
+#include <nvector/nvector_kokkos.hpp>
 #include <sunmatrix/sunmatrix_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_kokkosdense.hpp>
 
@@ -88,8 +88,8 @@ int main(int argc, char *argv[])
     // Create matrices and vectors
     sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, rows, cols,
                                                exec_instance, sunctx};
-    // N_Vector x = N_VNew_Kokkos(cols * nblocks, sunctx);
-    // N_Vector b = N_VClone(x);
+    sundials::kokkos::Vector<ExecSpace> x{cols * nblocks, sunctx};
+    sundials::kokkos::Vector<ExecSpace> b{cols * nblocks, sunctx};
 
     using RandPoolType = Kokkos::Random_XorShift64_Pool<ExecSpace>;
     using GenType = RandPoolType::generator_type;
@@ -113,21 +113,21 @@ int main(int argc, char *argv[])
                          });
 
     // Fill x vector with uniform random data in 1 + rand[0,1]
-    // auto x_data = VEC_VIEW(x);
+    auto x_data = x.View();
 
-    // Kokkos::parallel_for("fill_x",
-    //                      Kokkos::RangePolicy<ExecSpace>(0, cols * nblocks),
-    //                      KOKKOS_LAMBDA(const sunindextype j)
-    //                      {
-    //                        auto rgen = rand_pool.get_state();
-    //                        auto rval = Kokkos::rand<GenType, sunrealtype>::draw(rgen, ONE);
-    //                        x_data(j) = ONE + rval;
-    //                        rand_pool.free_state(rgen);
-    //                      });
+    Kokkos::parallel_for("fill_x",
+                         Kokkos::RangePolicy<ExecSpace>(0, cols * nblocks),
+                         KOKKOS_LAMBDA(const sunindextype j)
+                         {
+                           auto rgen = rand_pool.get_state();
+                           auto rval = Kokkos::rand<GenType, sunrealtype>::draw(rgen, ONE);
+                           x_data(j) = ONE + rval;
+                           rand_pool.free_state(rgen);
+                         });
 
     // Create right-hand side vector for linear solve
     fails += SUNMatMatvecSetup(A);
-    // fails += SUNMatMatvec(A, x, b);
+    fails += SUNMatMatvec(A, x, b);
     if (fails)
     {
       std::cerr << "FAIL: SUNLinSol SUNMatMatvec failure\n";
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     // Run Tests
     fails += Test_SUNLinSolInitialize(LS, 0);
     fails += Test_SUNLinSolSetup(LS, A, 0);
-    // fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1.0e-10), SUNTRUE, 0);
+    fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1.0e-10), SUNTRUE, 0);
     fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
     fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_KOKKOSDENSE, 0);
 
@@ -176,17 +176,20 @@ int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 {
   int failure = 0;
 
-  // auto e_data = VEC_VIEW(expected);
-  // auto c_data = VEC_VIEW(computed);
-  // auto length = VEC_CONTENT(expected)->length;
+  auto e_vec = sundials::kokkos::GetVec<ExecSpace>(expected);
+  auto c_vec = sundials::kokkos::GetVec<ExecSpace>(computed);
 
-  // // check vector data
-  // Kokkos::parallel_reduce("check_vector",
-  //                         Kokkos::RangePolicy<ExecSpace>(0, length),
-  //                         KOKKOS_LAMBDA(const sunindextype i, int &l_fail)
-  //                         {
-  //                           l_fail += CompareTol(c_data(i), e_data(i), tol);
-  //                         }, failure);
+  auto e_data = e_vec->View();
+  auto c_data = c_vec->View();
+  auto length = e_vec->Length();
+
+  // check vector data
+  Kokkos::parallel_reduce("check_vector",
+                          Kokkos::RangePolicy<ExecSpace>(0, length),
+                          KOKKOS_LAMBDA(const sunindextype i, int &l_fail)
+                          {
+                            l_fail += CompareTol(c_data(i), e_data(i), tol);
+                          }, failure);
 
   if (failure > ZERO)
     return 1;

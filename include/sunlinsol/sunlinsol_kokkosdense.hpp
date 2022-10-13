@@ -83,47 +83,46 @@ template<class ExecSpace, class MemSpace>
 int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
-  // // Copy b into x
-  // N_VScale(ONE, b, x);
+  // Copy b into x
+  N_VScale(1.0, b, x);
 
-  // // Access matrix and vector data
-  // auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace, MemSpace>(A)};
-  // auto x_vec{sundials::kokkos::GetVec<ExecSpace, MemSpace>(x)};
+  // Access matrix and vector data
+  auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace, MemSpace>(A)};
+  auto x_vec{sundials::kokkos::GetVec<ExecSpace, MemSpace>(x)};
 
-  // // Access matrix and vector data
-  // auto A_exec = A_mat->exec_space();
-  // auto A_data = A_mat->view();
-  // auto x_data = x_vec->view();
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
+  auto x_data = x_vec->View();
 
-  // const auto blocks = A_mat->blocks();
-  // const auto rows   = A_mat->rows();
+  const auto blocks = A_mat->blocks();
+  const auto rows   = A_mat->block_rows();
 
-  // // Solve the linear system
-  // using team_policy = Kokkos::TeamPolicy<ExecSpace>;
-  // using member_type = Kokkos::TeamPolicy<ExecSpace>::member_type;
+  // Solve the linear system
+  using team_policy = typename Kokkos::TeamPolicy<ExecSpace>;
+  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
 
-  // Kokkos::parallel_for("sunlinsol_trsv",
-  //                      team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
-  //                      KOKKOS_LAMBDA(const member_type &team_member)
-  //                      {
-  //                        const int idx = team_member.league_rank();
-  //                        auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
-  //                        auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<int, int>(idx * rows, (idx+1) * rows));
-  //                        // Lower triangular solve
-  //                        KokkosBatched::TeamVectorTrsv<member_type,
-  //                                                      KokkosBatched::Uplo::Lower,
-  //                                                      KokkosBatched::Trans::NoTranspose,
-  //                                                      KokkosBatched::Diag::Unit,
-  //                                                      KokkosBatched::Algo::Trsv::Unblocked>
-  //                          ::invoke(team_member, ONE, A_subdata, x_subdata);
-  //                        // Upper triangular solve
-  //                        KokkosBatched::TeamVectorTrsv<member_type,
-  //                                                      KokkosBatched::Uplo::Upper,
-  //                                                      KokkosBatched::Trans::NoTranspose,
-  //                                                      KokkosBatched::Diag::NonUnit,
-  //                                                      KokkosBatched::Algo::Trsv::Unblocked>
-  //                          ::invoke(team_member, ONE, A_subdata, x_subdata);
-  //                      });
+  Kokkos::parallel_for("sunlinsol_trsv",
+                       team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
+                       KOKKOS_LAMBDA(const member_type &team_member)
+                       {
+                         const int idx = team_member.league_rank();
+                         auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
+                         auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<int, int>(idx * rows, (idx+1) * rows));
+                         // Lower triangular solve
+                         KokkosBatched::TeamVectorTrsv<member_type,
+                                                       KokkosBatched::Uplo::Lower,
+                                                       KokkosBatched::Trans::NoTranspose,
+                                                       KokkosBatched::Diag::Unit,
+                                                       KokkosBatched::Algo::Trsv::Unblocked>
+                           ::invoke(team_member, 1.0, A_subdata, x_subdata);
+                         // Upper triangular solve
+                         KokkosBatched::TeamVectorTrsv<member_type,
+                                                       KokkosBatched::Uplo::Upper,
+                                                       KokkosBatched::Trans::NoTranspose,
+                                                       KokkosBatched::Diag::NonUnit,
+                                                       KokkosBatched::Algo::Trsv::Unblocked>
+                           ::invoke(team_member, 1.0, A_subdata, x_subdata);
+                       });
 
   return SUNLS_SUCCESS;
 }
