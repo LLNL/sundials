@@ -605,8 +605,10 @@ SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Kokkos(N_Vector v, boo
 // Public namespace
 // =============================================================================
 
-template<class ExecutionSpace, class MemorySpace = typename ExecutionSpace::memory_space>
-class Vector : public sundials::impl::BaseNvector, public sundials::ConvertibleTo<N_Vector>
+template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
+         class MemorySpace = class ExecutionSpace::memory_space>
+class Vector : public sundials::impl::BaseNvector,
+               public sundials::ConvertibleTo<N_Vector>
 {
 public:
   using view_type      = Kokkos::View<sunrealtype*, MemorySpace>;
