@@ -570,7 +570,7 @@ int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
 
   /* check vector data */
   for (sunindextype i = 0; i < xldata; i++) {
-    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], check_tol);
   }
 
   if (failure > ZERO) {
