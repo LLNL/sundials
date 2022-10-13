@@ -17,7 +17,7 @@ The SUNMATRIX_KOKKOSDENSE Module
 ================================
 
 The SUNMATRIX_KOKKOSDENSE :c:type:`SUNMatrix` implementation provides a data
-structure for dense and dense block-diagonal (batched) matrices using Kokkos
+structure for dense and dense batched (block-diagonal) matrices using Kokkos
 :cite:p:`edwards2014kokkos,trott2022kokkos` and KokkosKernels
 :cite:p:`trott2021kokkos` to support variety backends including serial, OpenMP,
 CUDA, HIP, and SYCL. Since Kokkos is a modern C++ library, the module is also
@@ -36,8 +36,8 @@ documentation.
 Using SUNMATRIX_KOKKOSDENSE
 ----------------------------
 
-The SUNMATRIX_KOKKOSDENSE module is defined by the ``sundials::ginkgo::DenseMatrix``
-templated class in the ``sundials::kokkos`` namespace:
+The SUNMATRIX_KOKKOSDENSE module is defined by the ``DenseMatrix`` templated
+class in the ``sundials::kokkos`` namespace:
 
 .. code-block:: cpp
 
@@ -54,20 +54,21 @@ the Kokkos dense matrix e.g.,
    // Single matrix using the default execution space
    sundials::kokkos::DenseMatrix<> A{rows, cols, sunctx};
 
-   // Block diagonal (batch) matrix using the default execution space
+   // Batched (block-diagonal) matrix using the default execution space
    sundials::kokkos::DenseMatrix<> Abatch{blocks, rows, cols, sunctx};
 
-   // Block diagonal (batch) matrix using the user-selected execution space
+   // Batched (block-diagonal) matrix using the user-selected execution space
    sundials::kokkos::DenseMatrix<my_exec_space> Abatch{blocks, rows, cols, sunctx};
 
-   // Block diagonal (batch) matrix using the user-selected execution space and
+   // Batched (block-diagonal) matrix using the user-selected execution space and
    // execution space instance
    sundials::kokkos::DenseMatrix<my_exec_space> Abatch{blocks, rows, cols,
                                                        my_exec_space_instance,
                                                        sunctx};
 
 Instances of the ``DenseMatrix`` class are implicitly or explicitly (using the
-:cpp:func:`Convert` method) convertible to a ``SUNMatrix`` object e.g.,
+:cpp:func:`~DenseMatrix::Convert` method) convertible to a :c:type:`SUNMatrix`
+e.g.,
 
 .. code-block:: cpp
 
@@ -92,7 +93,8 @@ The underlying ``DenseMatrix`` can be extracted from a ``SUNMatrix`` using
    auto A_dense_mat = GetDenseMat<>(A_sunmat);
 
 The SUNMATRIX_KOKKOSDENSE module is compatible with the NVECTOR_KOKKOS vector
-module and SUNLINEARSOLVER_KOKKOSDENSE linear solver module.
+module (see :numref:`NVectors.Kokkos`) and SUNLINEARSOLVER_KOKKOSDENSE linear
+solver module (see :numref:`SUNLinSol.Kokkos`).
 
 
 .. _SUNMatrix.Kokkos.API:
@@ -136,7 +138,7 @@ class.
    .. cpp:function:: DenseMatrix(sunindextype blocks, sunindextype block_rows, \
                                  sunindextype block_cols, SUNContext sunctx)
 
-      Constructs a block diagonal (batch) DenseMatrix using the default
+      Constructs a batched (block-diagonal) DenseMatrix using the default
       `ExecSpace` space instance.
 
       :param blocks: number of matrix blocks
@@ -148,7 +150,7 @@ class.
                                  sunindextype block_cols, ExecSpace exec_space, \
                                  SUNContext sunctx)
 
-      Constructs a block diagonal (batch) DenseMatrix using the provided
+      Constructs a batched (block-diagonal) DenseMatrix using the provided
       `ExecSpace` space instance.
 
       :param blocks: number of matrix blocks
@@ -200,12 +202,12 @@ class.
 
    .. cpp:function:: sunindextype rows()
 
-      Get the number of rows in the block diagonal matrix i.e.,
+      Get the number of rows in the block-diagonal matrix i.e.,
       ``extent(0) * extent(1)``.
 
    .. cpp:function:: sunindextype cols()
 
-      Get the number of columns in the block diagonal matrix i.e.,
+      Get the number of columns in the block-diagonal matrix i.e.,
       ``extent(0) * extent(2)``.
 
    .. cpp:function:: operator SUNMatrix() override
