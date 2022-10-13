@@ -54,7 +54,11 @@ template<class ExecSpace, class MemSpace>
 SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
 {
   auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
-  auto new_mat{new DenseMatrix<ExecSpace, MemSpace>(*A_mat)}; // NOLINT
+  auto new_mat{new DenseMatrix<ExecSpace, MemSpace>(A_mat->blocks(),
+                                                    A_mat->block_rows(),
+                                                    A_mat->block_cols(),
+                                                    A_mat->exec_space(),
+                                                    A_mat->sunctx())};
   return new_mat->Convert();
 }
 
