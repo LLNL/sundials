@@ -18,9 +18,12 @@
 #define _SUNMATRIX_KOKKOSDENSE_HPP
 
 #include <Kokkos_Core.hpp>
-//#include <nvector/nvector_kokkos.h>
+#include <nvector/nvector_kokkos.hpp>
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_matrix.hpp>
+
+#include <KokkosBlas2_gemv.hpp>
+#include <KokkosBatched_Gemv_Decl.hpp>
 
 namespace sundials {
 namespace kokkos {
@@ -174,42 +177,42 @@ int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
 template<class ExecSpace, class MemSpace>
 int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  // auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
-  // auto x_vec{GetVec<ExecSpace, MemSpace>(x)};
-  // auto y_vec{GetVec<ExecSpace, MemSpace>(y)};
+  auto A_mat{GetDenseMat<ExecSpace, MemSpace>(A)};
+  auto x_vec{GetVec<ExecSpace, MemSpace>(x)};
+  auto y_vec{GetVec<ExecSpace, MemSpace>(y)};
 
-  // const auto blocks = A_mat->blocks();
-  // const auto rows   = A_mat->block_rows();
-  // const auto cols   = A_mat->block_cols();
+  const auto blocks = A_mat->blocks();
+  const auto rows   = A_mat->block_rows();
+  const auto cols   = A_mat->block_cols();
 
-  // auto A_exec = A_mat->exec_space();
-  // auto A_data = A_mat->view();
-  // auto x_data = x_vec->view();
-  // auto y_data = y_vec->view();
+  auto A_exec = A_mat->exec_space();
+  auto A_data = A_mat->view();
+  auto x_data = x_vec->View();
+  auto y_data = y_vec->View();
 
-  // // Use batched or single gemv to do y = alpha * A * x + beta * y
-  // if (blocks > 1)
-  // {
-  //   using team_policy = Kokkos::TeamPolicy<ExecSpace>;
-  //   using member_type = Kokkos::TeamPolicy<ExecSpace>::member_type;
+  // Use batched or single gemv to do y = alpha * A * x + beta * y
+  if (blocks > 1)
+  {
+    using team_policy = typename Kokkos::TeamPolicy<ExecSpace>;
+    using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
 
-  //   Kokkos::parallel_for("sunmatvec_batch",
-  //                        team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
-  //                        KOKKOS_LAMBDA(const member_type &team_member)
-  //                        {
-  //                          const int idx = team_member.league_rank();
-  //                          auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
-  //                          auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<int, int>(idx * cols, (idx+1) * cols));
-  //                          auto y_subdata = Kokkos::subview(y_data, Kokkos::pair<int, int>(idx * rows, (idx+1) * rows));
-  //                          KokkosBatched::TeamVectorGemv<member_type, KokkosBatched::Trans::NoTranspose, KokkosBatched::Algo::Gemv::Unblocked>
-  //                            ::invoke(team_member, 1.0, A_subdata, x_subdata, 0.0, y_subdata);
-  //                        });
-  // }
-  // else
-  // {
-  //   auto A_subdata = Kokkos::subview(A_data, 0, Kokkos::ALL(), Kokkos::ALL());
-  //   KokkosBlas::gemv("N", 1.0, A_subdata, x_data, 0.0, y_data);
-  // }
+    Kokkos::parallel_for("sunmatvec_batch",
+                         team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
+                         KOKKOS_LAMBDA(const member_type &team_member)
+                         {
+                           const int idx = team_member.league_rank();
+                           auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
+                           auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<int, int>(idx * cols, (idx+1) * cols));
+                           auto y_subdata = Kokkos::subview(y_data, Kokkos::pair<int, int>(idx * rows, (idx+1) * rows));
+                           KokkosBatched::TeamVectorGemv<member_type, KokkosBatched::Trans::NoTranspose, KokkosBatched::Algo::Gemv::Unblocked>
+                             ::invoke(team_member, 1.0, A_subdata, x_subdata, 0.0, y_subdata);
+                         });
+  }
+  else
+  {
+    auto A_subdata = Kokkos::subview(A_data, 0, Kokkos::ALL(), Kokkos::ALL());
+    KokkosBlas::gemv("N", 1.0, A_subdata, x_data, 0.0, y_data);
+  }
 
   return SUNMAT_SUCCESS;
 }

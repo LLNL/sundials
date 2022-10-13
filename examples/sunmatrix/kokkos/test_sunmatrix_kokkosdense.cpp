@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include <cmath>
 
-//#include <nvector/nvector_kokkos.h>
+#include <nvector/nvector_kokkos.hpp>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_kokkosdense.hpp>
@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
     auto exec_instance = ExecSpace();
 
     // Create vectors and matrices
-    // N_Vector x = N_VNew_Kokkos(matcols * nblocks, sunctx);
-    // N_Vector y = N_VNew_Kokkos(matrows * nblocks, sunctx);
+    sundials::kokkos::Vector<ExecSpace> x{matcols * nblocks, sunctx};
+    sundials::kokkos::Vector<ExecSpace> y{matrows * nblocks, sunctx};
     sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, matrows, matcols,
                                                exec_instance, sunctx};
     sundials::kokkos::DenseMatrix<ExecSpace> I{nblocks, matrows, matcols,
@@ -126,27 +126,27 @@ int main(int argc, char *argv[])
                            });
     }
 
-    // auto x_data = VEC_VIEW(x);
+    auto x_data = x.View();
 
-    // Kokkos::parallel_for("fill_x",
-    //                      Kokkos::RangePolicy<ExecSpace>
-    //                      (0, matcols * nblocks),
-    //                      KOKKOS_LAMBDA(const sunindextype j)
-    //                      {
-    //                        x_data(j) = ONE / ((j % matcols) + 1);
-    //                      });
+    Kokkos::parallel_for("fill_x",
+                         Kokkos::RangePolicy<ExecSpace>
+                         (0, matcols * nblocks),
+                         KOKKOS_LAMBDA(const sunindextype j)
+                         {
+                           x_data(j) = ONE / ((j % matcols) + 1);
+                         });
 
-    // auto y_data = VEC_VIEW(y);
+    auto y_data = y.View();
 
-    // Kokkos::parallel_for("fill_y",
-    //                      Kokkos::RangePolicy<ExecSpace>
-    //                      (0, matrows * nblocks),
-    //                      KOKKOS_LAMBDA(const sunindextype j)
-    //                      {
-    //                        auto m = j % matrows;
-    //                        auto n = m + matcols - 1;
-    //                        y_data(j) = HALF * (n + 1 - m) * (n + m);
-    //                      });
+    Kokkos::parallel_for("fill_y",
+                         Kokkos::RangePolicy<ExecSpace>
+                         (0, matrows * nblocks),
+                         KOKKOS_LAMBDA(const sunindextype j)
+                         {
+                           auto m = j % matrows;
+                           auto n = m + matcols - 1;
+                           y_data(j) = HALF * (n + 1 - m) * (n + m);
+                         });
 
     // SUNMatrix Tests
     fails += Test_SUNMatGetID(A, SUNMATRIX_KOKKOSDENSE, 0);
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
       fails += Test_SUNMatScaleAdd(A, I, 0);
       fails += Test_SUNMatScaleAddI(A, I, 0);
     }
-    // fails += Test_SUNMatMatvec(A, x, y, 0);
+    fails += Test_SUNMatMatvec(A, x, y, 0);
 
     // Print result
     if (fails)
@@ -252,17 +252,20 @@ extern "C" int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   int failure = 0;
 
-  // auto a_data = VEC_VIEW(actual);
-  // auto e_data = VEC_VIEW(expected);
-  // auto length = VEC_CONTENT(actual)->length;
+  auto a_vec{sundials::kokkos::GetVec<ExecSpace>(actual)};
+  auto e_vec{sundials::kokkos::GetVec<ExecSpace>(expected)};
+  auto length = a_vec->Length();
 
-  // // check vector data
-  // Kokkos::parallel_reduce("check_vector",
-  //                         Kokkos::RangePolicy<ExecSpace>(0, length),
-  //                         KOKKOS_LAMBDA(const sunindextype i, int &l_fail)
-  //                         {
-  //                           l_fail += CompareTol(a_data(i), e_data(i), tol);
-  //                         }, failure);
+  auto a_data = a_vec->View();
+  auto e_data = e_vec->View();
+
+  // check vector data
+  Kokkos::parallel_reduce("check_vector",
+                          Kokkos::RangePolicy<ExecSpace>(0, length),
+                          KOKKOS_LAMBDA(const sunindextype i, int &l_fail)
+                          {
+                            l_fail += CompareTol(a_data(i), e_data(i), tol);
+                          }, failure);
 
   if (failure > ZERO)
     return 1;
