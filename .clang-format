@@ -12,6 +12,8 @@
 # clang-format style configuration file based on Google style
 # clang-format -style=.clang-format -i src/cvode/cvode.c
 # This should be applied to all new code. See the developer documentation.
+#
+# Requires clang-format >= 14.0.0
 # ------------------------------------------------------------------------------
 ---
 Language                                      : Cpp

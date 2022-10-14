@@ -16,19 +16,21 @@
 The SUNLINEARSOLVER_GINKGO Module
 =================================
 
+.. versionadded:: 6.4.0
+
 The SUNLINEARSOLVER_GINKGO implementation of the ``SUNLinearSolver`` API provides an
-interface to the linear solvers from the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`. 
+interface to the linear solvers from the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`.
 Since Ginkgo is a modern C++ library, SUNLINEARSOLVER_GINKGO is also written in
 modern C++ (specifically, C++14). Unlike most other SUNDIALS modules, it is
 a header only library. To use the SUNLINEARSOLVER_GINKGO ``SUNLinearSolver``, users will
 need to include ``sunlinsol/sunlinsol_ginkgo.hpp``. The module is meant to be used with
 the SUNMATRIX_GINKGO module described in :numref:`SUNMatrix.Ginkgo`.
-Instructions on building SUNDIALS  with Ginkgo enabled are given 
-in :numref:`Installation.CMake.ExternalLibraries`.  For instructions on 
-building and using Ginkgo itself, refer to the 
-`Ginkgo website and documentation <https://ginkgo-project.github.io/>`_. 
+Instructions on building SUNDIALS  with Ginkgo enabled are given
+in :numref:`Installation.CMake.ExternalLibraries`.  For instructions on
+building and using Ginkgo itself, refer to the
+`Ginkgo website and documentation <https://ginkgo-project.github.io/>`_.
 
-.. note:: 
+.. note::
 
   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
   try to encapsulate Ginkgo linear solvers, rather it provides a lightweight iteroperability layer
@@ -49,13 +51,13 @@ norm was below a speicified tolerance. The critierion can be created just like a
 Ginkgo stopping criteria:
 
 .. code-block:: cpp
-   
+
    auto crit{sundials::ginkgo::DefaultStop::build().with_max_iters(max_iters).on(gko_exec)};
 
-.. warning:: 
+.. warning::
    It is *highly* recommended to employ this criterion when using Ginkgo solvers with SUNDIALS,
    but it is optional. However, to use the Ginkgo multigrid or cbgmres linear solvers, different
-   Ginkgo criterion must be used. 
+   Ginkgo criterion must be used.
 
 Once we have created our stopping critierion, we create a Ginkgo solver factory object and
 wrap it in a :cpp:type:`sundials::ginkgo::LinearSolver` object. In this example, we create
@@ -82,7 +84,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
    // Implicit conversion from sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>
    // to a SUNLinearSolver object is done.
    //
-   // For details about creating A see the SUNMATRIX_GINKGO module. 
+   // For details about creating A see the SUNMATRIX_GINKGO module.
    CVodeSetLinearSolver(cvode_mem, LS, A);
 
    // Alternatively with explicit conversion of LS to a SUNLinearSolver
@@ -93,7 +95,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
 .. warning::
 
   :c:func:`SUNLinSolFree` should never be called on a ``SUNLinearSolver`` that was created via conversion
-  from a ``sundials::ginkgo::LinearSolver``. Doing so may result in a double free. 
+  from a ``sundials::ginkgo::LinearSolver``. Doing so may result in a double free.
 
 
 .. _SUNLinSol.Ginkgo.API:
@@ -101,7 +103,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
 SUNLINEARSOLVER_GINKGO API
 --------------------------
 
-In this section we list the public API of the :cpp:type:`sundials::ginkgo::LinearSolver` class. 
+In this section we list the public API of the :cpp:type:`sundials::ginkgo::LinearSolver` class.
 
 .. cpp:class:: template<class GkoSolverType, class GkoMatrixType> \
                LinearSolver : public ConvertibleTo<SUNLinearSolver>
@@ -132,7 +134,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
    .. cpp:function:: operator SUNLinearSolver() override
 
       Implicit conversion to a :c:type:`SUNLinearSolver`.
-   
+
    .. cpp:function:: operator SUNLinearSolver() const override
 
       Implicit conversion to a :c:type:`SUNLinearSolver`.
@@ -157,7 +159,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
 
       Get the underlying Ginkgo solver.
 
-      .. note:: 
+      .. note::
 
          This will be `nullptr` until the linear solver setup phase.
 
@@ -170,7 +172,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
       Get the residual norm of the solution at the end of the last solve.
 
       The type of residual norm depends on the Ginkgo stopping criteria
-      used with the solver. With the ``DefaultStop`` criteria this would 
+      used with the solver. With the ``DefaultStop`` criteria this would
       be the absolute residual 2-norm.
 
    .. cpp:function:: GkoSolverType* Setup(Matrix<GkoMatrixType>* A)
@@ -187,6 +189,6 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
 
       :param b: the right-hand side vector
       :param x: the solution vector
-      :param tol: the tolerance to solve the system to      
+      :param tol: the tolerance to solve the system to
 
-      :returns: ``gko::LinOp*`` the solution 
+      :returns: ``gko::LinOp*`` the solution

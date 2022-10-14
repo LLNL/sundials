@@ -16,6 +16,8 @@
 The SUNLINEARSOLVER_KOKKOSDENSE Module
 ======================================
 
+.. versionadded:: 6.4.0
+
 The SUNLINEARSOLVER_KOKKOSDENSE :c:type:`SUNLinearSolver` implementation
 provides an interface to KokkosKernels :cite:p:`trott2021kokkos` linear solvers
 for dense and batched dense (block-diagonal) systems. Since Kokkos is a modern

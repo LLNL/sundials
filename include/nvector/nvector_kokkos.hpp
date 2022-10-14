@@ -44,11 +44,7 @@ namespace impl {
 
 /* N_Vector API ops to implement.override */
 
-SUNDIALS_INLINE
-N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v)
-{
-  return SUNDIALS_NVEC_KOKKOS;
-}
+inline N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v) { return SUNDIALS_NVEC_KOKKOS; }
 
 template<class VectorType>
 sunindextype N_VGetLength_Kokkos(N_Vector v)
@@ -75,7 +71,7 @@ template<class VectorType>
 N_Vector N_VClone_Kokkos(N_Vector w)
 {
   auto vec{static_cast<VectorType*>(w->content)};
-  auto new_vec{new VectorType(*vec)}; // NOLINT
+  auto new_vec{new VectorType(*vec)};
   return new_vec->Convert();
 }
 
@@ -416,10 +412,8 @@ sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 // Public namespace
 // =============================================================================
 
-template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-         class MemorySpace = class ExecutionSpace::memory_space>
-class Vector : public sundials::impl::BaseNVector,
-               public sundials::ConvertibleTo<N_Vector>
+template<class ExecutionSpace = Kokkos::DefaultExecutionSpace, class MemorySpace = class ExecutionSpace::memory_space>
+class Vector : public sundials::impl::BaseNVector, public sundials::ConvertibleTo<N_Vector>
 {
 public:
   using view_type      = Kokkos::View<sunrealtype*, MemorySpace>;
@@ -428,28 +422,31 @@ public:
   using exec_space     = typename MemorySpace::execution_space;
   using range_policy   = Kokkos::RangePolicy<exec_space>;
 
+  // Default constructor
+  Vector() = default;
+
   Vector(sunindextype length, SUNContext sunctx)
-      : length_(length), view_("device data", length),
+      : view_("Vector device view", length),
         host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
-  Vector(sunindextype length, view_type view, SUNContext sunctx)
-      : length_(length), view_(view), host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
+  Vector(view_type view, SUNContext sunctx)
+      : view_(view), host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
-  Vector(sunindextype length, view_type view, host_view_type host_view, SUNContext sunctx)
-      : length_(length), view_(view), host_view_(host_view), sundials::impl::BaseNVector(sunctx)
+  Vector(view_type view, host_view_type host_view, SUNContext sunctx)
+      : view_(view), host_view_(host_view), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
   // Move constructor
   Vector(Vector&& that_vector) noexcept
-      : length_(that_vector.length_), view_(std::move(that_vector.view_)),
+      : view_(std::move(that_vector.view_)),
         host_view_(std::move(that_vector.host_view_)), sundials::impl::BaseNVector(std::move(that_vector))
   {
     initNvector();
@@ -457,18 +454,15 @@ public:
 
   // Copy constructor
   Vector(const Vector& that_vector)
-      : length_(that_vector.length_), view_("device data", length_),
-        host_view_(), sundials::impl::BaseNVector(that_vector)
+      : view_("Vector device view", that_vector.Length()),
+        host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(that_vector)
   {
-    Kokkos::deep_copy(view_, that_vector.view_);
-    host_view_ = Kokkos::create_mirror_view(view_);
     initNvector();
   }
 
   // Move assignment
   Vector& operator=(Vector&& rhs) noexcept
   {
-    length_    = rhs.length_;
     view_      = std::move(rhs.view_);
     host_view_ = std::move(rhs.host_view_);
 
@@ -480,8 +474,7 @@ public:
   // Copy assignment
   Vector& operator=(const Vector& rhs)
   {
-    length_ = rhs.length_;
-    Kokkos::deep_copy(view_, rhs.view_);
+    view_      = Kokkos::View<view_type>("Vector device view", rhs.Length());
     host_view_ = Kokkos::create_mirror_view(view_);
 
     sundials::impl::BaseNVector::operator=(rhs);
@@ -489,44 +482,26 @@ public:
     return *this;
   }
 
+  // Default destructor
+  virtual ~Vector() = default;
+
   // Accessors
 
-  sunindextype Length() const
-  {
-    return length_;
-  }
+  sunindextype Length() const { return view_.extent(0); }
 
-  view_type View()
-  {
-    return view_;
-  }
+  view_type View() { return view_; }
 
-  host_view_type HostView()
-  {
-    return host_view_;
-  }
+  host_view_type HostView() { return host_view_; }
 
   // Override ConvertibleTo operations
 
-  operator N_Vector() override
-  {
-    return object_.get();
-  }
+  operator N_Vector() override { return object_.get(); }
 
-  operator N_Vector() const override
-  {
-    return object_.get();
-  }
+  operator N_Vector() const override { return object_.get(); }
 
-  N_Vector Convert() override
-  {
-    return object_.get();
-  }
+  N_Vector Convert() override { return object_.get(); }
 
-  N_Vector Convert() const override
-  {
-    return object_.get();
-  }
+  N_Vector Convert() const override { return object_.get(); }
 
 private:
   sunindextype length_;
@@ -581,7 +556,6 @@ private:
   }
 };
 
-/* Implementation specific */
 template<class VectorType>
 void CopyToDevice(N_Vector v)
 {
@@ -596,7 +570,6 @@ void CopyFromDevice(N_Vector v)
   CopyFromDevice(*vec);
 }
 
-/* Implementation specific */
 template<class VectorType>
 void CopyToDevice(VectorType& v)
 {

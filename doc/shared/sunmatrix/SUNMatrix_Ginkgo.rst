@@ -16,18 +16,20 @@
 The SUNMATRIX_GINKGO Module
 ===========================
 
+.. versionadded:: 6.4.0
+
 The SUNMATRIX_GINKGO implementation of the ``SUNMatrix`` API provides an
-interface to the matrix data structure for the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`. 
+interface to the matrix data structure for the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`.
 Ginkgo provides several different matrix formats and linear solvers which can run on a variety
-of hardware, such as NVIDIA, AMD, and Intel GPUs as well as multicore CPUs. 
+of hardware, such as NVIDIA, AMD, and Intel GPUs as well as multicore CPUs.
 Since Ginkgo is a modern C++ library, SUNMATRIX_GINKGO is also written in
 modern C++ (it requires C++14). Unlike most other SUNDIALS modules, it is a header only library.
 To use the SUNMATRIX_GINKGO ``SUNMatrix``, users will need to include ``sunmatrix/sunmatrix_ginkgo.hpp``.
 More instructions on building SUNDIALS with Ginkgo enabled are given in
 :numref:`Installation.CMake.ExternalLibraries`. For instructions on building and using
-Ginkgo itself, refer to the `Ginkgo website and documentation <https://ginkgo-project.github.io/>`_. 
+Ginkgo itself, refer to the `Ginkgo website and documentation <https://ginkgo-project.github.io/>`_.
 
-.. note:: 
+.. note::
 
   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
   try to encapsulate Ginkgo matrices, rather it provides a lightweight iteroperability layer
@@ -72,7 +74,7 @@ and then fill the diagonal of the matrix with ones to make an identity matrix:
    gko_matrix->read(gko::matrix_data<sunrealtype, sunindextype>::diag(matrix_dim, 1.0));
 
 After we have a Ginkgo matrix object, we wrap it in an instance of the ``sundials::ginkgo::Matrix``
-class. This object can be provided to other SUNDIALS functions that expect a ``SUNMatrix`` object 
+class. This object can be provided to other SUNDIALS functions that expect a ``SUNMatrix`` object
 via implicit conversion, or the ``Convert()`` method:
 
 .. code-block:: cpp
@@ -89,7 +91,7 @@ on ``gko_matrix``).
 .. warning::
 
   :c:func:`SUNMatDestroy` should never be called on a ``SUNMatrix`` that was created via conversion
-  from a ``sundials::ginkgo::Matrix``. Doing so may result in a double free. 
+  from a ``sundials::ginkgo::Matrix``. Doing so may result in a double free.
 
 
 .. _SUNMatrix.Ginkgo.API:
@@ -97,14 +99,14 @@ on ``gko_matrix``).
 SUNMATRIX_GINKGO API
 --------------------
 
-In this section we list the public API of the ``sundials::ginkgo::Matrix`` class. 
+In this section we list the public API of the ``sundials::ginkgo::Matrix`` class.
 
 .. cpp:class:: template<typename GkoMatType> \
                Matrix : public sundials::impl::BaseMatrix, public sundials::ConvertibleTo<SUNMatrix>
 
   .. cpp:function:: Matrix() = default
 
-      Default constructor - means the matrix must be copied or moved to. 
+      Default constructor - means the matrix must be copied or moved to.
 
   .. cpp:function:: Matrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx)
 

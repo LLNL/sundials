@@ -16,6 +16,8 @@
 The SUNMATRIX_KOKKOSDENSE Module
 ================================
 
+.. versionadded:: 6.4.0
+
 The SUNMATRIX_KOKKOSDENSE :c:type:`SUNMatrix` implementation provides a data
 structure for dense and dense batched (block-diagonal) matrices using Kokkos
 :cite:p:`edwards2014kokkos,trott2022kokkos` and KokkosKernels
