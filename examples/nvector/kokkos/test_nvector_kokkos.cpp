@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
     /* Fused and vector array operations tests (disabled) */
     printf("\nTesting fused and vector array operations (disabled):\n\n");
 
-    /* create vector and disable all fused and vector array operations */
+    /* create vector and test vector array operations */
     vector_type U{X};
 
     /* fused operations */
@@ -127,26 +127,6 @@ int main(int argc, char* argv[])
     fails += Test_N_VWrmsNormMaskVectorArray(U, length, 0);
     fails += Test_N_VScaleAddMultiVectorArray(U, length, 0);
     fails += Test_N_VLinearCombinationVectorArray(U, length, 0);
-
-    /* Fused and vector array operations tests (enabled) */
-    printf("\nTesting fused and vector array operations (enabled):\n\n");
-
-    /* create vector and enable all fused and vector array operations */
-    vector_type V{X};
-
-    /* fused operations */
-    fails += Test_N_VLinearCombination(V, length, 0);
-    fails += Test_N_VScaleAddMulti(V, length, 0);
-    fails += Test_N_VDotProdMulti(V, length, 0);
-
-    /* vector array operations */
-    fails += Test_N_VLinearSumVectorArray(V, length, 0);
-    fails += Test_N_VScaleVectorArray(V, length, 0);
-    fails += Test_N_VConstVectorArray(V, length, 0);
-    fails += Test_N_VWrmsNormVectorArray(V, length, 0);
-    fails += Test_N_VWrmsNormMaskVectorArray(V, length, 0);
-    fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
-    fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
 
     /* local reduction operations */
     printf("\nTesting local reduction operations:\n\n");
