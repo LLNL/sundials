@@ -487,7 +487,7 @@ public:
 
   // Accessors
 
-  sunindextype Length() const { return view_.extent(0); }
+  sunindextype Length() const { return static_cast<sunindextype>(view_.extent(0)); }
 
   view_type View() { return view_; }
 
