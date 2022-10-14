@@ -198,18 +198,20 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
   {
     using team_policy = typename MatrixType::team_policy;
     using member_type = typename MatrixType::member_type;
+    using size_type   = typename MatrixType::size_type;
 
-    Kokkos::parallel_for("sunmatvec_batch",
-                         team_policy(A_exec, blocks, Kokkos::AUTO, Kokkos::AUTO),
-                         KOKKOS_LAMBDA(const member_type &team_member)
-                         {
-                           const int idx = team_member.league_rank();
-                           auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
-                           auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<int, int>(idx * cols, (idx+1) * cols));
-                           auto y_subdata = Kokkos::subview(y_data, Kokkos::pair<int, int>(idx * rows, (idx+1) * rows));
-                           KokkosBatched::TeamVectorGemv<member_type, KokkosBatched::Trans::NoTranspose, KokkosBatched::Algo::Gemv::Unblocked>
-                             ::invoke(team_member, 1.0, A_subdata, x_subdata, 0.0, y_subdata);
-                         });
+    Kokkos::parallel_for
+      ("sunmatvec_batch",
+       team_policy(A_exec, static_cast<int>(blocks), Kokkos::AUTO, Kokkos::AUTO),
+       KOKKOS_LAMBDA(const member_type &team_member)
+       {
+         const int idx = team_member.league_rank();
+         auto A_subdata = Kokkos::subview(A_data, idx, Kokkos::ALL(), Kokkos::ALL());
+         auto x_subdata = Kokkos::subview(x_data, Kokkos::pair<size_type, size_type>(idx * cols, (idx+1) * cols));
+         auto y_subdata = Kokkos::subview(y_data, Kokkos::pair<size_type, size_type>(idx * rows, (idx+1) * rows));
+         KokkosBatched::TeamVectorGemv<member_type, KokkosBatched::Trans::NoTranspose, KokkosBatched::Algo::Gemv::Unblocked>
+           ::invoke(team_member, 1.0, A_subdata, x_subdata, 0.0, y_subdata);
+       });
   }
   else
   {
@@ -235,6 +237,8 @@ class DenseMatrix : public sundials::impl::BaseMatrix,
                     public sundials::ConvertibleTo<SUNMatrix>
 {
 public:
+  using view_type    = Kokkos::View<sunrealtype***, MemSpace>;
+  using size_type    = typename view_type::size_type;
   using range_policy = Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>;
   using team_policy  = typename Kokkos::TeamPolicy<ExecSpace>;
   using member_type  = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
@@ -243,29 +247,28 @@ public:
   DenseMatrix() = default;
 
   // Single matrix constructors
-  DenseMatrix(sunindextype rows, sunindextype cols, SUNContext sunctx)
+  DenseMatrix(size_type rows, size_type cols, SUNContext sunctx)
     : DenseMatrix(1, rows, cols, ExecSpace(), sunctx)
   { }
 
-  DenseMatrix(sunindextype rows, sunindextype cols, ExecSpace exec_space,
+  DenseMatrix(size_type rows, size_type cols, ExecSpace exec_space,
               SUNContext sunctx)
     : DenseMatrix(1, rows, cols, exec_space, sunctx)
   { }
 
   // Block-diagonal matrix constructors
-  DenseMatrix(sunindextype blocks, sunindextype block_rows, sunindextype block_cols,
+  DenseMatrix(size_type blocks, size_type block_rows, size_type block_cols,
               SUNContext sunctx)
     : DenseMatrix(blocks, block_rows, block_cols, ExecSpace(), sunctx)
   { }
 
   // Block-diagonal matrix with user-supplied execution space instance
-  DenseMatrix(sunindextype blocks, sunindextype block_rows,
-              sunindextype block_cols, ExecSpace exec_space, SUNContext sunctx)
+  DenseMatrix(size_type blocks, size_type block_rows,
+              size_type block_cols, ExecSpace exec_space, SUNContext sunctx)
     : sundials::impl::BaseMatrix(sunctx), exec_space_(exec_space)
   {
     initSUNMatrix();
-    view_ = Kokkos::View<sunrealtype***, MemSpace>("sunmat_view", blocks,
-                                                   block_rows, block_cols);
+    view_ = view_type("sunmat_view", blocks, block_rows, block_cols);
   }
 
   // Move constructor
@@ -279,10 +282,9 @@ public:
     : sundials::impl::BaseMatrix(that_matrix),
       exec_space_(that_matrix.exec_space_)
   {
-    view_ = Kokkos::View<sunrealtype***, MemSpace>("sunmat_view",
-                                                   that_matrix.blocks(),
-                                                   that_matrix.block_rows(),
-                                                   that_matrix.block_cols());
+    view_ = view_type("sunmat_view", that_matrix.blocks(),
+                      that_matrix.block_rows(),
+                      that_matrix.block_cols());
     deep_copy(view_, that_matrix.view_);
   }
 
@@ -318,39 +320,39 @@ public:
   }
 
   // Get the Kokkos view
-  Kokkos::View<sunrealtype***, MemSpace> view()
+  view_type view()
   {
     return view_;
   }
 
   // Get the number of blocks
-  sunindextype blocks() const
+  size_type blocks() const
   {
-    return static_cast<sunindextype>(view_.extent(0));
+    return static_cast<size_type>(view_.extent(0));
   }
 
   // Get the number of rows in a block
-  sunindextype block_rows() const
+  size_type block_rows() const
   {
-    return static_cast<sunindextype>(view_.extent(1));
+    return static_cast<size_type>(view_.extent(1));
   }
 
   // Get the number of columns in a block
-  sunindextype block_cols() const
+  size_type block_cols() const
   {
-    return static_cast<sunindextype>(view_.extent(2));
+    return static_cast<size_type>(view_.extent(2));
   }
 
   // Get the number of rows
-  sunindextype rows() const
+  size_type rows() const
   {
-    return static_cast<sunindextype>(view_.extent(0) * view_.extent(1));
+    return static_cast<size_type>(view_.extent(0) * view_.extent(1));
   }
 
   // Get the number of columns
-  sunindextype cols() const
+  size_type cols() const
   {
-    return static_cast<sunindextype>(view_.extent(0) * view_.extent(2));
+    return static_cast<size_type>(view_.extent(0) * view_.extent(2));
   }
 
   using sundials::impl::BaseMatrix::sunctx;
@@ -386,7 +388,7 @@ private:
   ExecSpace exec_space_;
 
   // Matrix data view [blocks, rows, cols]
-  Kokkos::View<sunrealtype***, MemSpace> view_;
+  view_type view_;
 
   void initSUNMatrix()
   {

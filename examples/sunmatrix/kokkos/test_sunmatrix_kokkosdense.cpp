@@ -35,8 +35,9 @@ using ExecSpace = Kokkos::OpenMP;
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType = sundials::kokkos::Vector<ExecSpace>;
-using MatType = sundials::kokkos::DenseMatrix<ExecSpace>;
+using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using MatType  = sundials::kokkos::DenseMatrix<ExecSpace>;
+using SizeType = VecType::size_type;
 
 /* -----------------------------------------------------------------------------
  * SUNMatrix Testing
@@ -61,21 +62,21 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  sunindextype matrows = (sunindextype) atol(argv[1]);
+  SizeType matrows{static_cast<SizeType>(atol(argv[1]))};
   if (matrows <= 0)
   {
     std::cerr << "ERROR: number of rows must be a positive integer\n";
     return -1;
   }
 
-  sunindextype matcols = (sunindextype) atol(argv[2]);
+  SizeType matcols{static_cast<SizeType>(atol(argv[2]))};
   if (matcols <= 0)
   {
     std::cerr << "ERROR: number of cols must be a positive integer\n";
     return -1;
   }
 
-  sunindextype nblocks = (sunindextype) atol(argv[3]);
+  SizeType nblocks{static_cast<SizeType>(atol(argv[3]))};
   if (nblocks <= 0)
   {
     std::cerr << "ERROR: number of blocks must be a positive integer\n";
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
                          (0, matcols * nblocks),
                          KOKKOS_LAMBDA(const sunindextype j)
                          {
-                           x_data(j) = ONE / ((j % matcols) + 1);
+                           x_data(j) = ONE / static_cast<sunrealtype>((j % matcols) + 1);
                          });
 
     auto y_data = y.View();
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
                          {
                            auto m = j % matrows;
                            auto n = m + matcols - 1;
-                           y_data(j) = HALF * (n + 1 - m) * (n + m);
+                           y_data(j) = HALF * static_cast<sunrealtype>((n + 1 - m) * (n + m));
                          });
 
     // SUNMatrix Tests

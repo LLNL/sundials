@@ -90,9 +90,10 @@ using ExecSpace = Kokkos::OpenMP;
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType = sundials::kokkos::Vector<ExecSpace>;
-using MatType = sundials::kokkos::DenseMatrix<ExecSpace>;
-using LSType  = sundials::kokkos::DenseLinearSolver<ExecSpace>;
+using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using MatType  = sundials::kokkos::DenseMatrix<ExecSpace>;
+using LSType   = sundials::kokkos::DenseLinearSolver<ExecSpace>;
+using SizeType = VecType::size_type;
 
 // Constants
 #define ZERO SUN_RCONST(0.0)
@@ -190,12 +191,13 @@ int main(int argc, char *argv[])
     // Create vector with the initial condition
     const sunrealtype T0 = SUN_RCONST(0.0);
 
-    VecType y{batchSize * nbatches, sunctx};
+    SizeType length{static_cast<SizeType>(batchSize * nbatches)};
+    VecType y{length, sunctx};
 
     auto y_data_d = y.View();
     Kokkos::parallel_for("fill_y",
                          Kokkos::RangePolicy<ExecSpace>(0, nbatches),
-                         KOKKOS_LAMBDA(const int64_t i)
+                         KOKKOS_LAMBDA(const SizeType i)
                          {
                            auto idx = batchSize * i;
                            y_data_d(idx)     = u0;
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
                          });
 
     // Create vector of absolute tolerances
-    VecType abstol{batchSize * nbatches, sunctx};
+    VecType abstol{length, sunctx};
     N_VConst(SUN_RCONST(1.0e-10), abstol);
 
     // Create CVODE using Backward Differentiation Formula methods
@@ -355,7 +357,7 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   Kokkos::parallel_for("RHS",
                        Kokkos::RangePolicy<ExecSpace>(0, nbatches),
-                       KOKKOS_LAMBDA(const int64_t i)
+                       KOKKOS_LAMBDA(const SizeType i)
                        {
                          auto idx = batchSize * i;
                          auto u = y_data(idx);
@@ -385,7 +387,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
   Kokkos::parallel_for("Jac",
                        Kokkos::RangePolicy<ExecSpace>(0, nbatches),
-                       KOKKOS_LAMBDA(const int64_t i)
+                       KOKKOS_LAMBDA(const SizeType i)
                        {
                          // get y values
                          auto idx = batchSize * i;

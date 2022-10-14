@@ -32,7 +32,8 @@ using ExecSpace = Kokkos::OpenMP;
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using vector_type = sundials::kokkos::Vector<ExecSpace>;
+using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using SizeType = VecType::size_type;
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
 
   Kokkos::initialize(argc, argv);
   {
-    vector_type X{length, sunctx};
+    VecType X{static_cast<SizeType>(length), sunctx};
 
     /* Check vector ID */
     fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_KOKKOS, 0);
@@ -82,8 +83,8 @@ int main(int argc, char* argv[])
     fails += Test_N_VGetCommunicator(X, NULL, 0);
 
     /* Clone additional vectors for testing */
-    vector_type Y{X};
-    vector_type Z{X};
+    VecType Y{X};
+    VecType Z{X};
 
     /* Standard vector operation tests */
     printf("\nTesting standard vector operations:\n\n");
@@ -112,7 +113,7 @@ int main(int argc, char* argv[])
     printf("\nTesting fused and vector array operations (disabled):\n\n");
 
     /* create vector and test vector array operations */
-    vector_type U{X};
+    VecType U{X};
 
     /* fused operations */
     fails += Test_N_VLinearCombination(U, length, 0);
@@ -164,10 +165,10 @@ int main(int argc, char* argv[])
 int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int failure{0};
-  auto Xvec{static_cast<vector_type*>(X->content)};
+  auto Xvec{static_cast<VecType*>(X->content)};
   auto Xdata{Xvec->HostView()};
 
-  sundials::kokkos::CopyFromDevice<vector_type>(*Xvec);
+  sundials::kokkos::CopyFromDevice<VecType>(*Xvec);
   for (sunindextype i = 0; i < local_length; i++) {
     failure += SUNRCompare(Xdata[i], ans);
   }
@@ -189,23 +190,23 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
 {
-  auto Xvec{static_cast<vector_type*>(X->content)};
+  auto Xvec{static_cast<VecType*>(X->content)};
   auto Xdata{Xvec->HostView()};
 
   /* set elements [is,ie] of the data array */
-  sundials::kokkos::CopyFromDevice<vector_type>(X);
+  sundials::kokkos::CopyFromDevice<VecType>(X);
   for (sunindextype i = is; i <= ie; i++) {
     Xdata[i] = val;
   }
-  sundials::kokkos::CopyToDevice<vector_type>(X);
+  sundials::kokkos::CopyToDevice<VecType>(X);
 }
 
 realtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
-  auto Xvec{static_cast<vector_type*>(X->content)};
+  auto Xvec{static_cast<VecType*>(X->content)};
   auto Xdata{Xvec->HostView()};
-  sundials::kokkos::CopyFromDevice<vector_type>(X);
+  sundials::kokkos::CopyFromDevice<VecType>(X);
   return Xdata[i];
 }
 

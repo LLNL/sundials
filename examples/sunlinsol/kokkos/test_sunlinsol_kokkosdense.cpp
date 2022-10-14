@@ -37,9 +37,10 @@ using ExecSpace = Kokkos::OpenMP;
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType = sundials::kokkos::Vector<ExecSpace>;
-using MatType = sundials::kokkos::DenseMatrix<ExecSpace>;
-using LSType  = sundials::kokkos::DenseLinearSolver<ExecSpace>;
+using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using MatType  = sundials::kokkos::DenseMatrix<ExecSpace>;
+using LSType   = sundials::kokkos::DenseLinearSolver<ExecSpace>;
+using SizeType = VecType::size_type;
 
 /* -----------------------------------------------------------------------------
  * SUNLinearSolver Testing
@@ -63,15 +64,15 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  sunindextype cols = (sunindextype) atol(argv[1]);
+  SizeType cols{static_cast<SizeType>(atol(argv[1]))};
   if (cols <= 0)
   {
     std::cerr << "ERROR: number of matrix columns must be a positive integer\n";
     return -1;
   }
-  sunindextype rows = cols;
+  SizeType rows{cols};
 
-  sunindextype nblocks = (sunindextype) atol(argv[2]);
+  SizeType nblocks{static_cast<SizeType>(atol(argv[2]))};
   if (nblocks <= 0)
   {
     std::cerr << "ERROR: number of blocks must be a positive integer\n";

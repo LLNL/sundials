@@ -50,7 +50,7 @@ template<class VectorType>
 sunindextype N_VGetLength_Kokkos(N_Vector v)
 {
   auto vec{static_cast<VectorType*>(v->content)};
-  return vec->Length();
+  return static_cast<sunindextype>(vec->Length());
 }
 
 template<class VectorType>
@@ -396,14 +396,16 @@ template<class VectorType>
 sunrealtype N_VWrmsNorm_Kokkos(N_Vector x, N_Vector w)
 {
   auto xvec{static_cast<VectorType*>(x->content)};
-  return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w) / xvec->Length());
+  return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w) /
+                   static_cast<sunrealtype>(xvec->Length()));
 }
 
 template<class VectorType>
 sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 {
   auto xvec{static_cast<VectorType*>(x->content)};
-  return std::sqrt(impl::N_VWSqrSumMaskLocal_Kokkos<VectorType>(x, w, id) / xvec->Length());
+  return std::sqrt(impl::N_VWSqrSumMaskLocal_Kokkos<VectorType>(x, w, id) /
+                   static_cast<sunrealtype>(xvec->Length()));
 }
 
 } // namespace impl
@@ -417,6 +419,7 @@ class Vector : public sundials::impl::BaseNVector, public sundials::ConvertibleT
 {
 public:
   using view_type      = Kokkos::View<sunrealtype*, MemorySpace>;
+  using size_type      = typename view_type::size_type;
   using host_view_type = typename view_type::HostMirror;
   using memory_space   = MemorySpace;
   using exec_space     = typename MemorySpace::execution_space;
@@ -425,7 +428,7 @@ public:
   // Default constructor
   Vector() = default;
 
-  Vector(sunindextype length, SUNContext sunctx)
+  Vector(size_type length, SUNContext sunctx)
       : view_("Vector device view", length),
         host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
   {
@@ -487,7 +490,7 @@ public:
 
   // Accessors
 
-  sunindextype Length() const { return static_cast<sunindextype>(view_.extent(0)); }
+  size_type Length() const { return static_cast<size_type>(view_.extent(0)); }
 
   view_type View() { return view_; }
 
@@ -504,7 +507,6 @@ public:
   N_Vector Convert() const override { return object_.get(); }
 
 private:
-  sunindextype length_;
   view_type view_;
   host_view_type host_view_;
 
