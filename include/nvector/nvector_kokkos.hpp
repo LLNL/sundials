@@ -49,28 +49,28 @@ inline N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v) { return SUNDIALS_NVEC_KOKK
 template<class VectorType>
 sunindextype N_VGetLength_Kokkos(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
   return static_cast<sunindextype>(vec->Length());
 }
 
 template<class VectorType>
 sunrealtype* N_VGetArrayPointer_Kokkos(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
   return vec->HostView().data();
 }
 
 template<class VectorType>
 sunrealtype* N_VGetDeviceArrayPointer_Kokkos(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
   return vec->View().data();
 }
 
 template<class VectorType>
 N_Vector N_VClone_Kokkos(N_Vector w)
 {
-  auto vec{static_cast<VectorType*>(w->content)};
+  auto vec{GetVec<VectorType>(w)};
   auto new_vec{new VectorType(*vec)};
   return new_vec->Convert();
 }
@@ -78,7 +78,7 @@ N_Vector N_VClone_Kokkos(N_Vector w)
 template<class VectorType>
 void N_VDestroy_Kokkos(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
   delete vec;
   return;
 }
@@ -86,13 +86,13 @@ void N_VDestroy_Kokkos(N_Vector v)
 template<class VectorType>
 void N_VPrint_Kokkos(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
 }
 
 template<class VectorType>
 void N_VPrintFile_Kokkos(N_Vector v, FILE* outfile)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
 }
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
@@ -100,9 +100,9 @@ void N_VPrintFile_Kokkos(N_Vector v, FILE* outfile)
 template<class VectorType>
 sunrealtype N_VWSqrSumLocal_Kokkos(N_Vector x, N_Vector w)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto wvec{static_cast<VectorType*>(w->content)};
+  auto wvec{GetVec<VectorType>(w)};
   auto wdata{wvec->View()};
 
   sunrealtype gpu_result{0.0};
@@ -117,11 +117,11 @@ sunrealtype N_VWSqrSumLocal_Kokkos(N_Vector x, N_Vector w)
 template<class VectorType>
 sunrealtype N_VWSqrSumMaskLocal_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto wvec{static_cast<VectorType*>(w->content)};
+  auto wvec{GetVec<VectorType>(w)};
   auto wdata{wvec->View()};
-  auto idvec{static_cast<VectorType*>(id->content)};
+  auto idvec{GetVec<VectorType>(id)};
   auto iddata{idvec->View()};
 
   sunrealtype gpu_result{0.0};
@@ -140,9 +140,9 @@ sunrealtype N_VWSqrSumMaskLocal_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 template<class VectorType>
 void N_VAbs_Kokkos(N_Vector x, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
   Kokkos::parallel_for(
       "N_VAbs", typename VectorType::range_policy(0, xvec->Length()),
@@ -152,9 +152,9 @@ void N_VAbs_Kokkos(N_Vector x, N_Vector z)
 template<class VectorType>
 void N_VAddConst_Kokkos(N_Vector x, sunrealtype b, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
   Kokkos::parallel_for(
       "N_VAddConst", typename VectorType::range_policy(0, xvec->Length()),
@@ -164,9 +164,9 @@ void N_VAddConst_Kokkos(N_Vector x, sunrealtype b, N_Vector z)
 template<class VectorType>
 void N_VCompare_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
   Kokkos::parallel_for(
       "N_VCompare", typename VectorType::range_policy(0, xvec->Length()),
@@ -176,7 +176,7 @@ void N_VCompare_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
 template<class VectorType>
 void N_VConst_Kokkos(sunrealtype c, N_Vector z)
 {
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
   Kokkos::parallel_for(
       "N_VConst", typename VectorType::range_policy(0, zvec->Length()), KOKKOS_LAMBDA(sunindextype i) { zdata(i) = c; });
@@ -185,11 +185,11 @@ void N_VConst_Kokkos(sunrealtype c, N_Vector z)
 template<class VectorType>
 booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 {
-  auto cvec{static_cast<VectorType*>(c->content)};
+  auto cvec{GetVec<VectorType>(c)};
   auto cdata{cvec->View()};
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto mvec{static_cast<VectorType*>(m->content)};
+  auto mvec{GetVec<VectorType>(m)};
   auto mdata{mvec->View()};
 
   sunrealtype sum{0.0};
@@ -209,9 +209,9 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 template<class VectorType>
 void N_VDiv_Kokkos(N_Vector x, N_Vector y, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
-  auto yvec{static_cast<VectorType*>(y->content)};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto xvec{GetVec<VectorType>(x)};
+  auto yvec{GetVec<VectorType>(y)};
+  auto zvec{GetVec<VectorType>(z)};
   auto xdata{xvec->View()};
   auto ydata{yvec->View()};
   auto zdata{zvec->View()};
@@ -223,8 +223,8 @@ void N_VDiv_Kokkos(N_Vector x, N_Vector y, N_Vector z)
 template<class VectorType>
 sunrealtype N_VDotProd_Kokkos(N_Vector x, N_Vector y)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
-  auto yvec{static_cast<VectorType*>(y->content)};
+  auto xvec{GetVec<VectorType>(x)};
+  auto yvec{GetVec<VectorType>(y)};
   auto xdata{xvec->View()};
   auto ydata{yvec->View()};
 
@@ -239,9 +239,9 @@ sunrealtype N_VDotProd_Kokkos(N_Vector x, N_Vector y)
 template<class VectorType>
 void N_VInv_Kokkos(N_Vector x, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
 
   Kokkos::parallel_for(
@@ -252,9 +252,9 @@ void N_VInv_Kokkos(N_Vector x, N_Vector z)
 template<class VectorType>
 booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
 
   sunrealtype minimum{0.0};
@@ -276,7 +276,7 @@ booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 template<class VectorType>
 sunrealtype N_VL1Norm_Kokkos(N_Vector x)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
 
   sunrealtype gpu_result{0.0};
@@ -290,9 +290,9 @@ sunrealtype N_VL1Norm_Kokkos(N_Vector x)
 template<class VectorType>
 void N_VLinearSum_Kokkos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
-  auto yvec{static_cast<VectorType*>(y->content)};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto xvec{GetVec<VectorType>(x)};
+  auto yvec{GetVec<VectorType>(y)};
+  auto zvec{GetVec<VectorType>(z)};
   auto xdata{xvec->View()};
   auto ydata{yvec->View()};
   auto zdata{zvec->View()};
@@ -305,7 +305,7 @@ void N_VLinearSum_Kokkos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N
 template<class VectorType>
 sunrealtype N_VMaxNorm_Kokkos(N_Vector x)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
 
   sunrealtype gpu_result{0.0};
@@ -322,7 +322,7 @@ sunrealtype N_VMaxNorm_Kokkos(N_Vector x)
 template<class VectorType>
 sunrealtype N_VMin_Kokkos(N_Vector x)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
 
   sunrealtype gpu_result{std::numeric_limits<sunrealtype>::max()};
@@ -339,9 +339,9 @@ sunrealtype N_VMin_Kokkos(N_Vector x)
 template<class VectorType>
 sunrealtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
 {
-  auto nvec{static_cast<VectorType*>(num->content)};
+  auto nvec{GetVec<VectorType>(num)};
   auto ndata{nvec->View()};
-  auto dvec{static_cast<VectorType*>(denom->content)};
+  auto dvec{GetVec<VectorType>(denom)};
   auto ddata{dvec->View()};
 
   sunrealtype gpu_result{std::numeric_limits<sunrealtype>::max()};
@@ -361,9 +361,9 @@ sunrealtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
 template<class VectorType>
 void N_VProd_Kokkos(N_Vector x, N_Vector y, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
-  auto yvec{static_cast<VectorType*>(y->content)};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto xvec{GetVec<VectorType>(x)};
+  auto yvec{GetVec<VectorType>(y)};
+  auto zvec{GetVec<VectorType>(z)};
   auto xdata{xvec->View()};
   auto ydata{yvec->View()};
   auto zdata{zvec->View()};
@@ -376,9 +376,9 @@ void N_VProd_Kokkos(N_Vector x, N_Vector y, N_Vector z)
 template<class VectorType>
 void N_VScale_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  auto zvec{static_cast<VectorType*>(z->content)};
+  auto zvec{GetVec<VectorType>(z)};
   auto zdata{zvec->View()};
 
   Kokkos::parallel_for(
@@ -395,7 +395,7 @@ sunrealtype N_VWL2Norm_Kokkos(N_Vector x, N_Vector w)
 template<class VectorType>
 sunrealtype N_VWrmsNorm_Kokkos(N_Vector x, N_Vector w)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w) /
                    static_cast<sunrealtype>(xvec->Length()));
 }
@@ -403,7 +403,7 @@ sunrealtype N_VWrmsNorm_Kokkos(N_Vector x, N_Vector w)
 template<class VectorType>
 sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 {
-  auto xvec{static_cast<VectorType*>(x->content)};
+  auto xvec{GetVec<VectorType>(x)};
   return std::sqrt(impl::N_VWSqrSumMaskLocal_Kokkos<VectorType>(x, w, id) /
                    static_cast<sunrealtype>(xvec->Length()));
 }
@@ -561,14 +561,14 @@ private:
 template<class VectorType>
 void CopyToDevice(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
   CopyToDevice(*vec);
 }
 
 template<class VectorType>
 void CopyFromDevice(N_Vector v)
 {
-  auto vec{static_cast<VectorType*>(v->content)};
+  auto vec{GetVec<VectorType>(v)};
   CopyFromDevice(*vec);
 }
 
