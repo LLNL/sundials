@@ -43,8 +43,8 @@ class in the ``sundials::kokkos`` namespace:
 
 .. code-block:: cpp
 
-   template<class ExecSpace = Kokkos::DefaultExecutionSpace,
-            class MemSpace = class ExecSpace::memory_space>
+   template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
+            class MemorySpace = class ExecSpace::memory_space>
    class DenseMatrix : public sundials::impl::BaseMatrix,
                        public sundials::ConvertibleTo<SUNMatrix>
 
@@ -59,14 +59,14 @@ the Kokkos dense matrix e.g.,
    // Batched (block-diagonal) matrix using the default execution space
    sundials::kokkos::DenseMatrix<> Abatch{blocks, rows, cols, sunctx};
 
-   // Batched (block-diagonal) matrix using the user-selected execution space
-   sundials::kokkos::DenseMatrix<my_exec_space> Abatch{blocks, rows, cols, sunctx};
+   // Batched (block-diagonal) matrix using the Cuda execution space
+   sundials::kokkos::DenseMatrix<Kokkos::Cuda> Abatch{blocks, rows, cols, sunctx};
 
-   // Batched (block-diagonal) matrix using the user-selected execution space and
-   // execution space instance
-   sundials::kokkos::DenseMatrix<my_exec_space> Abatch{blocks, rows, cols,
-                                                       my_exec_space_instance,
-                                                       sunctx};
+   // Batched (block-diagonal) matrix using the Cuda execution space and
+   // a non-default execution space instance
+   sundials::kokkos::DenseMatrix<Kokkos::Cuda> Abatch{blocks, rows, cols,
+                                                      exec_space_instance,
+                                                      sunctx};
 
 Instances of the ``DenseMatrix`` class are implicitly or explicitly (using the
 :cpp:func:`~DenseMatrix::Convert` method) convertible to a :c:type:`SUNMatrix`
@@ -107,8 +107,8 @@ SUNMATRIX_KOKKOSDENSE API
 In this section we list the public API of the ``sundials::kokkos::DenseMatrix``
 class.
 
-.. cpp:class:: template<class ExecSpace = Kokkos::DefaultExecutionSpace, \
-                        class MemSpace = class ExecSpace::memory_space> \
+.. cpp:class:: template<class ExeccutionSpace = Kokkos::DefaultExecutionSpace, \
+                        class MemorySpace = class ExecSpace::memory_space> \
                DenseMatrix : public sundials::impl::BaseMatrix, \
                              public sundials::ConvertibleTo<SUNMatrix>
 
@@ -116,20 +116,20 @@ class.
 
       Default constructor -- the matrix must be copied or moved to.
 
-   .. cpp:function:: DenseMatrix(sunindextype rows, sunindextype cols, \
+   .. cpp:function:: DenseMatrix(size_type rows, size_type cols, \
                                  SUNContext sunctx)
 
-      Constructs a single DenseMatrix using the default `ExecSpace` space
+      Constructs a single DenseMatrix using the default execution space
       instance.
 
       :param rows: number of matrix rows
       :param cols: number of matrix columns
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
-   .. cpp:function:: DenseMatrix(sunindextype rows, sunindextype cols, \
-                                 ExecSpace exec_space, SUNContext sunctx)
+   .. cpp:function:: DenseMatrix(size_type rows, size_type cols, \
+                                 exec_space ex, SUNContext sunctx)
 
-      Constructs a single DenseMatrix using the provided `ExecSpace` space
+      Constructs a single DenseMatrix using the provided execution space
       instance.
 
       :param rows: number of matrix rows
@@ -137,23 +137,23 @@ class.
       :param exec_space: a `ExecSpace` instance
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
-   .. cpp:function:: DenseMatrix(sunindextype blocks, sunindextype block_rows, \
-                                 sunindextype block_cols, SUNContext sunctx)
+   .. cpp:function:: DenseMatrix(size_type blocks, size_type block_rows, \
+                                 size_type block_cols, SUNContext sunctx)
 
       Constructs a batched (block-diagonal) DenseMatrix using the default
-      `ExecSpace` space instance.
+      execution space instance.
 
       :param blocks: number of matrix blocks
       :param block_rows: number of rows in a block
       :param block_cols: number of columns in a block
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
-   .. cpp:function:: DenseMatrix(sunindextype blocks, sunindextype block_rows, \
-                                 sunindextype block_cols, ExecSpace exec_space, \
+   .. cpp:function:: DenseMatrix(size_type blocks, size_type block_rows, \
+                                 size_type block_cols, exec_space ex, \
                                  SUNContext sunctx)
 
       Constructs a batched (block-diagonal) DenseMatrix using the provided
-      `ExecSpace` space instance.
+      execution space instance.
 
       :param blocks: number of matrix blocks
       :param block_rows: number of rows in a block
@@ -167,7 +167,9 @@ class.
 
    .. cpp:function:: DenseMatrix(const DenseMatrix& that_matrix)
 
-      Copy constructor (performs a deep copy).
+      Copy constructor. This creates a shallow clone of the Matrix, i.e., it
+      creates a new Matrix with the same properties, such as size, but it does
+      not copy the data.
 
    .. cpp:function:: DenseMatrix& operator=(DenseMatrix&& rhs) noexcept
 
@@ -175,39 +177,41 @@ class.
 
    .. cpp:function:: DenseMatrix& operator=(const DenseMatrix& rhs)
 
-      Copy assignment. This is a shallow copy i.e., a new view is not created.
+      Copy assignment. This creates a shallow clone of the Matrix, i.e., it
+      creates a new Matrix with the same properties, such as size, but it does
+      not copy the data.
 
    .. cpp:function:: virtual ~DenseMatrix() = default;
 
       Default destructor.
 
-   .. cpp:function:: ExecSpace exec_space()
+   .. cpp:function:: exec_space ExecSpace()
 
       Get the execution space instance used by the matrix.
 
-   .. cpp:function:: Kokkos::View<sunrealtype***, MemSpace> view()
+   .. cpp:function:: view_type View()
 
       Get the underlying Kokkos view with extents
       ``{blocks, block_rows, block_cols}``.
 
-   .. cpp:function:: sunindextype blocks()
+   .. cpp:function:: size_type Blocks()
 
       Get the number of blocks i.e., ``extent(0)``.
 
-   .. cpp:function:: sunindextype block_rows()
+   .. cpp:function:: size_type BlockRows()
 
       Get the number of rows in a block i.e., ``extent(1)``.
 
-   .. cpp:function:: sunindextype block_cols()
+   .. cpp:function:: size_type BlockCols()
 
       Get the number of columns in a block i.e., ``extent(2)``.
 
-   .. cpp:function:: sunindextype rows()
+   .. cpp:function:: size_type Rows()
 
       Get the number of rows in the block-diagonal matrix i.e.,
       ``extent(0) * extent(1)``.
 
-   .. cpp:function:: sunindextype cols()
+   .. cpp:function:: size_type Cols()
 
       Get the number of columns in the block-diagonal matrix i.e.,
       ``extent(0) * extent(2)``.
@@ -228,8 +232,8 @@ class.
 
       Explicit conversion to a :c:type:`SUNMatrix`.
 
-.. cpp:function:: template<class ExecSpace = Kokkos::DefaultExecutionSpace, \
-                           class MemSpace = class ExecSpace::memory_space> \
-                  inline DenseMatrix<ExecSpace, MemSpace>* GetDenseMat(SUNMatrix A)
+.. cpp:function:: template<class ExecutionSpace = Kokkos::DefaultExecutionSpace, \
+                           class MemorySpace = class ExecSpace::memory_space> \
+                  inline DenseMatrix<MatrixType>* GetDenseMat(SUNMatrix A)
 
    Get the dense matrix wrapped by a SUNMatrix

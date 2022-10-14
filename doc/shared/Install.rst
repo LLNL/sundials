@@ -610,6 +610,30 @@ illustration only.
 
    Default: "REF;OMP"
 
+.. cmakeoption:: ENABLE_KOKKOS
+
+   Enable the Kokkos based vector.
+
+   Default: ``OFF``
+
+.. cmakeoption:: Kokkos_DIR
+
+   Path to the Kokkos installation.
+
+   Default: None
+
+.. cmakeoption:: ENABLE_KOKKOS_KERNELS
+
+   Enable the Kokkos based matrix and linear solver.
+
+   Default: ``OFF``
+
+.. cmakeoption:: KokkosKernels_DIR
+
+   Path to the Kokkos-Kernels installation.
+
+   Default: None
+
 .. cmakeoption:: ENABLE_HYPRE
 
    Flag to enable *hypre* support
@@ -1184,7 +1208,33 @@ architecutres/executors. E.g.,
    > /home/myname/sundials/srcdir
 
 The SUNDIALS interfaces to Ginkgo are not compatible with :cmakeop:`SUNDIALS_PRECISION` set
-to ``extended``. 
+to ``extended``.
+
+.. _Installation.CMake.ExternalLibraries.Ginkgo:
+
+Building with Kokkos
+^^^^^^^^^^^^^^^^^^^^
+
+`Kokkos <https://kokkos.github.io/kokkos-core-wiki/>`_ is a modern C++ (requires
+at least C++14) programming model for witting performance portable code for
+multicore CPU and GPU-based systems including NVIDIA, AMD, and Intel
+accelerators. To enable Kokkos in SUNDIALS, set the :cmakeop:`ENABLE_KOKKOS` to
+``ON`` and provide the path to the root of the Kokkos installation in
+:cmakeop:`Kokkos_DIR`. Additionally, the
+`Kokkos-Kernels <https://github.com/kokkos/kokkos-kernels>`_ library provides
+common computational kernels for linear algebra. To enable Kokkos-Kernels in
+SUNDIALS, set the :cmakeop:`ENABLE_KOKKOS_KERNELS` to ``ON`` and provide the
+path to the root of the Kokkos-Kernels installation in
+:cmakeop:`KokkosKernels_DIR`e.g.,
+
+.. code-block:: bash
+
+   % cmake \
+   > -DENABLE_KOKKOS=ON \
+   > -DKokkos_DIR=/path/to/kokkos/installation
+   > -DENABLE_KOKKOS_KERNELS=ON \
+   > -DKokkosKernels_DIR=/path/to/kokkoskernels/installation
+   > /home/myname/sundials/srcdir
 
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 

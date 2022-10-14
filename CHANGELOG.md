@@ -4,11 +4,23 @@
 
 CMake 3.18.0 or newer is now required for CUDA support.
 
-A C++14 compliant compiler is now required for C++ based features and examples e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, and GINKGO.
+A C++14 compliant compiler is now required for C++ based features and examples
+e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, GINKGO, and KOKKOS.
 
 Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x. Removed
 support for SuperLU_DIST v6.x.x or older. Fix mismatched definition and
 declaration bug in SuperLU_DIST matrix constructor.
+
+Added support for the [Ginkgo](https://ginkgo-project.github.io/) linear algebra
+library. This support includes new `SUNMatrix` and `SUNLinearSolver`
+implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
+sections in the documentation for more information.
+
+Added new `NVector`, `SUNMatrix`, and `SUNLinearSolver` implementations for
+interfacing with the [Kokkos Ecosystem](https://kokkos.org/) for performance
+portability, see the `NVECTOR_KOKKOS`, `SUNMATRIX_KOKKOSDENSE` and
+`SUNLINEARSOLVER_KOKKOSDENSE` sections in the documentation for more
+information.
 
 Fixed a bug in the CUDA and HIP vectors where `N_VMaxNorm` would return the
 minimum positive floating-point value for the zero vector.
@@ -19,11 +31,6 @@ different number of stages than originally selected.
 
 Fixed a memory leak in CVODE and CVODES where the projection memory would not be
 deallocated when calling `CVodeFree`.
-
-Added support for the [Ginkgo](https://ginkgo-project.github.io/)  linear
-algebra library. This support includes new `SUNMatrix` and `SUNLinearSolver`
-implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
-sections in the documentation for more info.
 
 ## Changes to SUNDIALS in release 6.3.0
 

@@ -98,15 +98,15 @@ In this section we list the public API of the ``sundials::kokkos::Vector``
 class.
 
 .. cpp:class:: template<class ExecutionSpace = Kokkos::DefaultExecutionSpace, \
-         class MemorySpace = class ExecutionSpace::memory_space> \
-      Vector : public sundials::impl::BaseNVector, \
-                  public sundials::ConvertibleTo<N_Vector>
+                        class MemorySpace = class ExecutionSpace::memory_space> \
+               Vector : public sundials::impl::BaseNVector, \
+                        public sundials::ConvertibleTo<N_Vector>
 
    .. cpp:function:: Vector() = default
 
       Default constructor -- the vector must be copied or moved to.
 
-   .. cpp:function:: Vector(sunindextype length, SUNContext sunctx)
+   .. cpp:function:: Vector(size_type length, SUNContext sunctx)
 
       Constructs a single ``Vector`` which is based on a 1D ``Kokkos::View``
       with the ExecutionSpace and MemorySpace provided as template arguments.
@@ -157,11 +157,15 @@ class.
 
       Default destructor.
 
-   .. cpp:function:: Kokkos::View<sunrealtype*, MemorySpace> View()
+   .. cpp:function:: size_type Length()
+
+      Get the vector length i.e., ``extent(0)``.
+
+   .. cpp:function:: view_type View()
 
       Get the underlying ``Kokkos:View`` for the device.
 
-   .. cpp:function:: Kokkos::View<sunrealtype*, MemorySpace> HostView()
+   .. cpp:function:: host_view_type HostView()
 
       Get the underlying ``Kokkos:View`` for the host.
 
