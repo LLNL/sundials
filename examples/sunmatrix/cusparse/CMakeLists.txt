@@ -28,17 +28,8 @@ set(sunmatrix_cusparse_examples
 # Dependencies for matrix examples
 set(sunmatrix_examples_dependencies
   test_sunmatrix
-  sundials_matrix
   dreadrb
   )
-
-# Specify libraries to link against
-set(SUNDIALS_LIBS sundials_nvecserial
-                  sundials_nveccuda
-                  sundials_sunmatrixdense
-                  sundials_sunmatrixsparse
-                  sundials_sunmatrixcusparse
-                  ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_cusparse_examples})
@@ -62,7 +53,13 @@ foreach(example_tuple ${sunmatrix_cusparse_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE
+      sundials_nvecserial
+      sundials_nveccuda
+      sundials_sunmatrixdense
+      sundials_sunmatrixsparse
+      sundials_sunmatrixcusparse
+      ${EXE_EXTRA_LINK_LIBS})
 
     # additional includes
     target_include_directories(${example} PRIVATE . .. ${SUNDIALS_SOURCE_DIR}/src/sunmatrix/cusparse)
@@ -96,7 +93,6 @@ foreach(example_tuple ${sunmatrix_cusparse_examples})
       ../test_sunmatrix.h
       ../dreadrb.c
       ../dreadrb.h
-      ../../../src/sundials/sundials_matrix.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/cusparse)
   endif()
 

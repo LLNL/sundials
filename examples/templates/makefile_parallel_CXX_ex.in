@@ -46,7 +46,7 @@ INCLUDES = $(addprefix -I, ${TMP_INCS})
 LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel -lsundials_nvecserial \
 						-lsundials_nvecmpimanyvector -lsundials_nvecmpiplusx ${LIBS}
 
-EXAMPLES = @EXAMPLES@
+EXAMPLES = $(basename @EXAMPLES@)
 OBJECTS  = ${EXAMPLES:=.o}
 
 # -----------------------------------------------------------------------------------------

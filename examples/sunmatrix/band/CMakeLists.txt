@@ -29,9 +29,7 @@ set(sunmatrix_band_examples
 # Dependencies for sunmatrix examples
 set(sunmatrix_band_dependencies
   test_sunmatrix
-  sundials_nvector
-  sundials_matrix
-)
+  )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
@@ -41,17 +39,6 @@ endif()
 
 # Add source directory to include directories
 include_directories(. ..)
-
-# Specify libraries to link against
-set(NVECS_LIB sundials_nvecserial)
-set(SUNMATS_LIB sundials_sunmatrixband)
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  list(APPEND NVECS_LIB sundials_fnvecserial_mod)
-  list(APPEND SUNMATS_LIB sundials_fsunmatrixband_mod)
-endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_band_examples})
@@ -71,7 +58,10 @@ foreach(example_tuple ${sunmatrix_band_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecserial
+      sundials_sunmatrixband
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -92,8 +82,6 @@ foreach(example_tuple ${sunmatrix_band_examples})
     install(FILES ${example}.c
       ../test_sunmatrix.c
       ../test_sunmatrix.h
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_matrix.c
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band)
   endif()
 
@@ -122,7 +110,12 @@ foreach(example_tuple ${sunmatrix_band_fortran_examples})
     set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecserial
+      sundials_fnvecserial_mod
+      sundials_sunmatrixband
+      sundials_fsunmatrixband_mod
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name

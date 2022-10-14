@@ -68,9 +68,10 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   foreach(example_tuple ${${EXAMPLES_VAR}})
     list(GET example_tuple 0 example) # filename always has to be the first item in the example tuple
     get_filename_component(example_noext ${example} NAME_WE)
+    file(GLOB example_header ${example_noext}.h*)
     file(GLOB example_out ${example_noext}*.out)
-    install(FILES ${example} ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
+    install(FILES ${example} ${example_header} ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -85,13 +86,16 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
     EXAMPLES_CMAKE_COMPONENTS)
 
   set(target_list "")
+  set(libs_list "")
   foreach(target ${sundials_install_examples_SUNDIALS_TARGETS})
     list(APPEND target_list SUNDIALS::${target})
+    list(APPEND libs_list -lsundials_${target})
   endforeach()
   foreach(target ${sundials_install_examples_OTHER_TARGETS})
     list(APPEND target_list ${target})
   endforeach()
   list2string(target_list EXAMPLES_CMAKE_TARGETS)
+  list2string(libs_list EXAMPLES_MAKEFILE_LIBS)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then

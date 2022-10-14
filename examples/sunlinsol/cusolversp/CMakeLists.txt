@@ -26,19 +26,10 @@ set(sunlinsol_cusolversp_examples
 # Dependencies for nvector examples
 set(sunlinsol_examples_dependencies
   test_sunlinsol
-  sundials_nvector
   )
 
 # Add source directory to include directories
 include_directories(. ..)
-
-# Specify libraries to link against
-set(SUNDIALS_LIBS sundials_nveccuda
-                  sundials_nvecserial
-                  sundials_sunmatrixdense
-                  sundials_sunmatrixsparse
-                  sundials_sunlinsolcusolversp
-                  ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_cusolversp_examples})
@@ -55,14 +46,19 @@ foreach(example_tuple ${sunlinsol_cusolversp_examples})
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cu
-                  ../test_sunlinsol.c
-                  ../../../src/sundials/sundials_linearsolver.c)
+                  ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE
+      sundials_nveccuda
+      sundials_nvecserial
+      sundials_sunmatrixdense
+      sundials_sunmatrixsparse
+      sundials_sunlinsolcusolversp
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -91,8 +87,6 @@ foreach(example_tuple ${sunlinsol_cusolversp_examples})
     install(FILES ${example}.cu
       ../test_sunlinsol.c
       ../test_sunlinsol.h
-      ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_linearsolver.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp)
   endif()
 
