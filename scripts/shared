@@ -157,6 +157,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_xbraid.h
 
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h
 $tar $tarfile $distrobase/include/nvector/nvector_hip.h
+$tar $tarfile $distrobase/include/nvector/nvector_kokkos.hpp
 $tar $tarfile $distrobase/include/nvector/nvector_manyvector.h
 $tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h
 $tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h
@@ -177,6 +178,7 @@ $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_ginkgo.hpp
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_kokkosdense.hpp
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_magmadense.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_onemkldense.h
 #$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h
@@ -194,6 +196,7 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h
 #$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_diagonal.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_ginkgo.hpp
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_kokkosdense.hpp
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_magmadense.h
@@ -593,6 +596,8 @@ $tar $tarfile $distrobase/examples/nvector/cuda/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu
 $tar $tarfile $distrobase/examples/nvector/hip/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/hip/test_nvector_hip.cpp
+$tar $tarfile $distrobase/examples/nvector/kokkos/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/kokkos/test_nvector_kokkos.cpp
 $tar $tarfile $distrobase/examples/nvector/manyvector/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_fnvector_manyvector_mod.f90
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c
@@ -650,6 +655,9 @@ $tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunmatrix/ginkgo/test_sunmatrix_ginkgo.cpp
 $tar $tarfile $distrobase/examples/sunmatrix/ginkgo/CMakeLists.txt
 
+$tar $tarfile $distrobase/examples/sunmatrix/kokkos/test_sunmatrix_kokkosdense.cpp
+$tar $tarfile $distrobase/examples/sunmatrix/kokkos/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/sunmatrix/magmadense/test_sunmatrix_magmadense.cpp
 $tar $tarfile $distrobase/examples/sunmatrix/magmadense/CMakeLists.txt
 
@@ -694,6 +702,9 @@ $tar $tarfile $distrobase/examples/sunlinsol/ginkgo/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/klu/test_sunlinsol_klu.c
 $tar $tarfile $distrobase/examples/sunlinsol/klu/test_fsunlinsol_klu_mod.f90
 $tar $tarfile $distrobase/examples/sunlinsol/klu/CMakeLists.txt
+
+$tar $tarfile $distrobase/examples/sunlinsol/kokkos/test_sunlinsol_kokkosdense.cpp
+$tar $tarfile $distrobase/examples/sunlinsol/kokkos/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/test_sunlinsol_lapackband.c
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/CMakeLists.txt

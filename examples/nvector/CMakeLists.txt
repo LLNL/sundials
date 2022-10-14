@@ -91,7 +91,6 @@ if(BUILD_NVECTOR_TRILINOS)
   add_subdirectory(trilinos)
 endif()
 
-
 if(BUILD_NVECTOR_KOKKOS)
   add_subdirectory(kokkos)
 endif()
