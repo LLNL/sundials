@@ -185,7 +185,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int failure{0};
   auto Xvec{static_cast<vector_type*>(X->content)};
-  auto Xdata{Xvec->View()};
+  auto Xdata{Xvec->HostView()};
 
   sundials::kokkos::CopyFromDevice<vector_type>(*Xvec);
   for (sunindextype i = 0; i < local_length; i++) {
@@ -198,7 +198,6 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 booleantype has_data(N_Vector X)
 {
   /* check if vector data is non-null */
-  if ((N_VGetArrayPointer(X) == NULL) && (N_VGetDeviceArrayPointer(X) == NULL)) return SUNFALSE;
   return SUNTRUE;
 }
 
@@ -211,7 +210,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
 {
   auto Xvec{static_cast<vector_type*>(X->content)};
-  auto Xdata{Xvec->View()};
+  auto Xdata{Xvec->HostView()};
 
   /* set elements [is,ie] of the data array */
   sundials::kokkos::CopyFromDevice<vector_type>(X);
@@ -225,7 +224,7 @@ realtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
   auto Xvec{static_cast<vector_type*>(X->content)};
-  auto Xdata{Xvec->View()};
+  auto Xdata{Xvec->HostView()};
   sundials::kokkos::CopyFromDevice<vector_type>(X);
   return Xdata[i];
 }
@@ -233,7 +232,7 @@ realtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
-  return (time);
+  return time;
 }
 
 void sync_device(N_Vector x)
