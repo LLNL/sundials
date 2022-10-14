@@ -619,7 +619,7 @@ SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Kokkos(N_Vector v, boo
 
 template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
          class MemorySpace = class ExecutionSpace::memory_space>
-class Vector : public sundials::impl::BaseNvector,
+class Vector : public sundials::impl::BaseNVector,
                public sundials::ConvertibleTo<N_Vector>
 {
 public:
@@ -631,19 +631,19 @@ public:
 
   Vector(sunindextype length, SUNContext sunctx)
       : length_(length), view_("device data", length),
-        host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNvector(sunctx)
+        host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
   Vector(sunindextype length, view_type view, SUNContext sunctx)
-      : length_(length), view_(view), host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNvector(sunctx)
+      : length_(length), view_(view), host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
   Vector(sunindextype length, view_type view, host_view_type host_view, SUNContext sunctx)
-      : length_(length), view_(view), host_view_(host_view), sundials::impl::BaseNvector(sunctx)
+      : length_(length), view_(view), host_view_(host_view), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
@@ -651,7 +651,7 @@ public:
   // Move constructor
   Vector(Vector&& that_vector) noexcept
       : length_(that_vector.length_), view_(std::move(that_vector.view_)),
-        host_view_(std::move(that_vector.host_view_)), sundials::impl::BaseNvector(std::move(that_vector))
+        host_view_(std::move(that_vector.host_view_)), sundials::impl::BaseNVector(std::move(that_vector))
   {
     initNvector();
   }
@@ -659,7 +659,7 @@ public:
   // Copy constructor
   Vector(const Vector& that_vector)
       : length_(that_vector.length_), view_("device data", length_),
-        host_view_(), sundials::impl::BaseNvector(that_vector)
+        host_view_(), sundials::impl::BaseNVector(that_vector)
   {
     Kokkos::deep_copy(view_, that_vector.view_);
     host_view_ = Kokkos::create_mirror_view(view_);
@@ -673,7 +673,7 @@ public:
     view_      = std::move(rhs.view_);
     host_view_ = std::move(rhs.host_view_);
 
-    sundials::impl::BaseNvector::operator=(std::move(rhs));
+    sundials::impl::BaseNVector::operator=(std::move(rhs));
 
     return *this;
   }
@@ -685,7 +685,7 @@ public:
     Kokkos::deep_copy(view_, rhs.view_);
     host_view_ = Kokkos::create_mirror_view(view_);
 
-    sundials::impl::BaseNvector::operator=(rhs);
+    sundials::impl::BaseNVector::operator=(rhs);
 
     return *this;
   }

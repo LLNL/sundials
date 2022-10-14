@@ -243,12 +243,12 @@ int main(int argc, char *argv[])
     }
     else
     {
-      // // Create matrix-free GMRES linear solver
-      // LS = std::make_unique<sundials::impl::SUNLinearSolverView>(SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
+      // Create matrix-free GMRES linear solver
+      LS = std::make_unique<sundials::experimental::SUNLinearSolverView>(SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
 
-      // // Attach the linear solver to CVODE
-      // retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), nullptr);
-      // if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
+      // Attach the linear solver to CVODE
+      retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), nullptr);
+      if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
     }
 
     // Final time and time between outputs
