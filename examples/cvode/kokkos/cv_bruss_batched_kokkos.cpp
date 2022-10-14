@@ -71,13 +71,28 @@
 #include <cstdio>
 
 #include <cvode/cvode.h>
-#include <nvector/nvector_kokkos.h>
+#include <nvector/nvector_kokkos.hpp>
 #include <sunmatrix/sunmatrix_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_spgmr.h>
 
 // Common utility functions
 #include <example_utilities.hpp>
+
+// Execution space
+#if defined(USE_CUDA)
+using ExecSpace = Kokkos::Cuda;
+#elif defined(USE_HIP)
+using ExecSpace = Kokkos::HIP;
+#elif defined(USE_OPENMP)
+using ExecSpace = Kokkos::OpenMP;
+#else
+using ExecSpace = Kokkos::Serial;
+#endif
+
+using VecType = sundials::kokkos::Vector<ExecSpace>;
+using MatType = sundials::kokkos::DenseMatrix<ExecSpace>;
+using LSType  = sundials::kokkos::DenseLinearSolver<ExecSpace>;
 
 // Constants
 #define ZERO SUN_RCONST(0.0)
@@ -135,7 +150,8 @@ int main(int argc, char *argv[])
     int batchSize = udata.batchSize;
 
     std::cout << "\nBatch of independent 3-species kinetics problems\n"
-              << "number of batches = " << nbatches << "\n\n";
+              << "  number of batches = " << nbatches << "\n"
+              << "  execution space   = " << ExecSpace().name() << "\n\n";
 
     sunrealtype u0, v0, w0;
     if (test_type == 1)
@@ -172,23 +188,21 @@ int main(int argc, char *argv[])
     // Create vector with the initial condition
     const sunrealtype T0 = SUN_RCONST(0.0);
 
-    N_Vector y = N_VNew_Kokkos(batchSize * nbatches, sunctx);
-    if (check_ptr(y, "N_VNew_Kokkos")) { return 1; }
+    VecType y{batchSize * nbatches, sunctx};
 
-    auto y_data = VEC_VIEW(y);
+    auto y_data_d = y.View();
     Kokkos::parallel_for("fill_y",
-                         Kokkos::RangePolicy<>(0, nbatches),
+                         Kokkos::RangePolicy<ExecSpace>(0, nbatches),
                          KOKKOS_LAMBDA(const int64_t i)
                          {
                            auto idx = batchSize * i;
-                           y_data(idx)     = u0;
-                           y_data(idx + 1) = v0;
-                           y_data(idx + 2) = w0;
+                           y_data_d(idx)     = u0;
+                           y_data_d(idx + 1) = v0;
+                           y_data_d(idx + 2) = w0;
                          });
 
     // Create vector of absolute tolerances
-    N_Vector abstol = N_VClone(y);
-    if (check_ptr(abstol, "N_VClone")) { return 1; }
+    VecType abstol{batchSize * nbatches, sunctx};
     N_VConst(SUN_RCONST(1.0e-10), abstol);
 
     // Create CVODE using Backward Differentiation Formula methods
@@ -214,18 +228,13 @@ int main(int argc, char *argv[])
     if (solver_type == 0)
     {
       // Create Kokkos dense block diagonal matrix
-      A = std::make_unique<sundials::kokkos::DenseMatrix<>>(nbatches,
-                                                            batchSize,
-                                                            batchSize,
-                                                            sunctx);
-      if (check_ptr(A, "SUNMatrix_KokkosDenseBlock")) return 1;
+      A = std::make_unique<MatType>(nbatches, batchSize, batchSize, sunctx);
 
       // Create Kokkos batched dense linear solver
-      LS = std::make_unique<sundials::kokkos::DenseLinearSolver<>>(sunctx);
-      if (check_ptr(LS, "SUNLinSol_KokkosDense")) return 1;
+      LS = std::make_unique<LSType>(sunctx);
 
       // Attach the matrix and linear solver to CVODE
-      retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+      retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), A->Convert());
       if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
 
       // Set the user-supplied Jacobian function
@@ -234,13 +243,12 @@ int main(int argc, char *argv[])
     }
     else
     {
-      // Create matrix-free GMRES linear solver
-      LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
-      if (check_ptr(LS, "SUNLinSol_KokkosDense")) return 1;
+      // // Create matrix-free GMRES linear solver
+      // LS = std::make_unique<sundials::impl::SUNLinearSolverView>(SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
 
-      // Attach the linear solver to CVODE
-      retval = CVodeSetLinearSolver(cvode_mem, LS, nullptr);
-      if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
+      // // Attach the linear solver to CVODE
+      // retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), nullptr);
+      // if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
     }
 
     // Final time and time between outputs
@@ -255,13 +263,16 @@ int main(int argc, char *argv[])
     sunrealtype tout = T0 + dTout;
 
     // Initial output
+    auto y_data_h = y.HostView();
+    sundials::kokkos::CopyFromDevice(y);
+    Kokkos::fence();
     std::cout << "At t = " << t << std::endl;
     for (int batchj = 0; batchj < nbatches; batchj += 10)
     {
       auto idx = batchj * batchSize;
       std::cout << "  batch " << batchj << ": y = "
-                << y_data(idx) << " " << y_data(idx + 1) << " "
-                << y_data(idx + 2) << std::endl;
+                << y_data_h(idx) << " " << y_data_h(idx + 1) << " "
+                << y_data_h(idx + 2) << std::endl;
     }
 
     // Loop over output times
@@ -272,14 +283,15 @@ int main(int argc, char *argv[])
       if (check_flag(retval, "CVode")) break;
 
       // Output solution from some batches
-      N_VCopyFromDevice_Kokkos(y);
+      sundials::kokkos::CopyFromDevice(y);
+      Kokkos::fence();
       std::cout << "At t = " << t << std::endl;
       for (int batchj = 0; batchj < nbatches; batchj += 10)
       {
         auto idx = batchj * batchSize;
         std::cout << "  batch " << batchj << ": y = "
-                  << y_data(idx) << " " << y_data(idx + 1) << " "
-                  << y_data(idx + 2) << std::endl;
+                  << y_data_h(idx) << " " << y_data_h(idx + 1) << " "
+                  << y_data_h(idx + 2) << std::endl;
       }
 
       tout += dTout;
@@ -314,8 +326,6 @@ int main(int argc, char *argv[])
               << "  Error test fails = " << netf << "\n";
 
     // Free objects
-    N_VDestroy(y);
-    N_VDestroy(abstol);
     CVodeFree(&cvode_mem);
   }
   Kokkos::finalize();
@@ -331,8 +341,8 @@ int main(int argc, char *argv[])
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   auto udata     = static_cast<UserData*>(user_data);
-  auto y_data    = VEC_VIEW(y);
-  auto ydot_data = VEC_VIEW(ydot);
+  auto y_data    = sundials::kokkos::GetVec<VecType>(y)->View();;
+  auto ydot_data = sundials::kokkos::GetVec<VecType>(ydot)->View();
 
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
@@ -342,7 +352,7 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
   const auto ep = udata->ep;
 
   Kokkos::parallel_for("RHS",
-                       Kokkos::RangePolicy<>(0, nbatches),
+                       Kokkos::RangePolicy<ExecSpace>(0, nbatches),
                        KOKKOS_LAMBDA(const int64_t i)
                        {
                          auto idx = batchSize * i;
@@ -363,8 +373,8 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
         void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   auto udata  = static_cast<UserData*>(user_data);
-  auto y_data = VEC_VIEW(y);
-  auto J_data = sundials::kokkos::GetDenseMat<>(J);
+  auto y_data = sundials::kokkos::GetVec<VecType>(y)->View();
+  auto J_data = (sundials::kokkos::GetDenseMat<ExecSpace>(J))->view();
 
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
@@ -372,7 +382,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   const auto ep = udata->ep;
 
   Kokkos::parallel_for("Jac",
-                       Kokkos::RangePolicy<>(0, nbatches),
+                       Kokkos::RangePolicy<ExecSpace>(0, nbatches),
                        KOKKOS_LAMBDA(const int64_t i)
                        {
                          // get y values
