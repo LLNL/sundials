@@ -85,11 +85,12 @@ int SUNMatZero_KokkosDense(SUNMatrix A)
   auto A_data = A_mat->view();
 
   using range_policy = typename MatrixType::range_policy;
+  using size_type    = typename MatrixType::size_type;
 
   // Zero out matrix
   Kokkos::parallel_for("sunmat_zero",
                        range_policy(A_exec, {0, 0, 0}, {blocks, rows, cols}),
-                       KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
+                       KOKKOS_LAMBDA(const size_type i, const size_type j, const size_type k)
                        {
                          A_data(i, j, k) = 0.0;
                        });
@@ -112,11 +113,12 @@ int SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
   auto B_data = B_mat->view();
 
   using range_policy = typename MatrixType::range_policy;
+  using size_type    = typename MatrixType::size_type;
 
   // Copy A into B
   Kokkos::parallel_for("sunmat_copy",
                        range_policy(A_exec, {0, 0, 0}, {blocks, rows, cols}),
-                       KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
+                       KOKKOS_LAMBDA(const size_type i, const size_type j, const size_type k)
                        {
                          B_data(i, j, k) = A_data(i, j, k);
                        });
@@ -139,11 +141,12 @@ int SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
   auto B_data = B_mat->view();
 
   using range_policy = typename MatrixType::range_policy;
+  using size_type    = typename MatrixType::size_type;
 
   // Scale A by c and add B
   Kokkos::parallel_for("sunmat_scale_add",
                        range_policy(A_exec, {0, 0, 0}, {blocks, rows, cols}),
-                       KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
+                       KOKKOS_LAMBDA(const size_type i, const size_type j, const size_type k)
                        {
                          A_data(i, j, k) = c * A_data(i, j, k) + B_data(i, j, k);
                        });
@@ -164,11 +167,12 @@ int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
   auto A_data = A_mat->view();
 
   using range_policy = typename MatrixType::range_policy;
+  using size_type    = typename MatrixType::size_type;
 
   // Scale A by c and add I
   Kokkos::parallel_for("sunmat_scale_add_i",
                        range_policy(A_exec, {0, 0, 0}, {blocks, rows, cols}),
-                       KOKKOS_LAMBDA(const int64_t i, const int64_t j, const int64_t k)
+                       KOKKOS_LAMBDA(const size_type i, const size_type j, const size_type k)
                        {
                          if (j == k) A_data(i, j, k) = c * A_data(i, j, k) + 1.0;
                          else A_data(i, j, k) = c * A_data(i, j, k);
