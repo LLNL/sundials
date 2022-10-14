@@ -29,8 +29,8 @@ namespace sundials {
 namespace kokkos {
 
 // Forward decalaration of Matrix class
-template<class ExecSpace = Kokkos::DefaultExecutionSpace,
-         class MemSpace = class ExecSpace::memory_space>
+template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
+         class MemorySpace = class ExecutionSpace::memory_space>
 class DenseMatrix;
 
 // Get the Kokkos dense matrix wrapped by a SUNMatrix
@@ -56,10 +56,10 @@ template<class MatrixType>
 SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
-  auto new_mat{new MatrixType(A_mat->blocks(),
-                              A_mat->block_rows(),
-                              A_mat->block_cols(),
-                              A_mat->exec_space(),
+  auto new_mat{new MatrixType(A_mat->Blocks(),
+                              A_mat->BlockRows(),
+                              A_mat->BlockCols(),
+                              A_mat->ExecSpace(),
                               A_mat->sunctx())};
   return new_mat->Convert();
 }
@@ -77,12 +77,12 @@ int SUNMatZero_KokkosDense(SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
 
-  const auto blocks = A_mat->blocks();
-  const auto rows   = A_mat->block_rows();
-  const auto cols   = A_mat->block_cols();
+  const auto blocks = A_mat->Blocks();
+  const auto rows   = A_mat->BlockRows();
+  const auto cols   = A_mat->BlockCols();
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
 
   using range_policy = typename MatrixType::range_policy;
   using size_type    = typename MatrixType::size_type;
@@ -104,13 +104,13 @@ int SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
   auto A_mat{GetDenseMat<MatrixType>(A)};
   auto B_mat{GetDenseMat<MatrixType>(B)};
 
-  const auto blocks = A_mat->blocks();
-  const auto rows   = A_mat->block_rows();
-  const auto cols   = A_mat->block_cols();
+  const auto blocks = A_mat->Blocks();
+  const auto rows   = A_mat->BlockRows();
+  const auto cols   = A_mat->BlockCols();
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
-  auto B_data = B_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
+  auto B_data = B_mat->View();
 
   using range_policy = typename MatrixType::range_policy;
   using size_type    = typename MatrixType::size_type;
@@ -132,13 +132,13 @@ int SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
   auto A_mat{GetDenseMat<MatrixType>(A)};
   auto B_mat{GetDenseMat<MatrixType>(B)};
 
-  const auto blocks = A_mat->blocks();
-  const auto rows   = A_mat->block_rows();
-  const auto cols   = A_mat->block_cols();
+  const auto blocks = A_mat->Blocks();
+  const auto rows   = A_mat->BlockRows();
+  const auto cols   = A_mat->BlockCols();
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
-  auto B_data = B_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
+  auto B_data = B_mat->View();
 
   using range_policy = typename MatrixType::range_policy;
   using size_type    = typename MatrixType::size_type;
@@ -159,12 +159,12 @@ int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
 
-  const auto blocks = A_mat->blocks();
-  const auto rows   = A_mat->block_rows();
-  const auto cols   = A_mat->block_cols();
+  const auto blocks = A_mat->Blocks();
+  const auto rows   = A_mat->BlockRows();
+  const auto cols   = A_mat->BlockCols();
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
 
   using range_policy = typename MatrixType::range_policy;
   using size_type    = typename MatrixType::size_type;
@@ -188,12 +188,12 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
   auto x_vec{GetVec<VectorType>(x)};
   auto y_vec{GetVec<VectorType>(y)};
 
-  const auto blocks = A_mat->blocks();
-  const auto rows   = A_mat->block_rows();
-  const auto cols   = A_mat->block_cols();
+  const auto blocks = A_mat->Blocks();
+  const auto rows   = A_mat->BlockRows();
+  const auto cols   = A_mat->BlockCols();
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
   auto x_data = x_vec->View();
   auto y_data = y_vec->View();
 
@@ -236,40 +236,42 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
 // Kokkos dense matrix class, convertible to a SUNMatrix
 // -----------------------------------------------------------------------------
 
-template<class ExecSpace, class MemSpace>
+template<class ExecutionSpace, class MemorySpace>
 class DenseMatrix : public sundials::impl::BaseMatrix,
                     public sundials::ConvertibleTo<SUNMatrix>
 {
 public:
-  using view_type    = Kokkos::View<sunrealtype***, MemSpace>;
+  using exec_space   = ExecutionSpace;
+  using memory_space = MemorySpace;
+  using view_type    = Kokkos::View<sunrealtype***, memory_space>;
   using size_type    = typename view_type::size_type;
-  using range_policy = Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>;
-  using team_policy  = typename Kokkos::TeamPolicy<ExecSpace>;
-  using member_type  = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+  using range_policy = Kokkos::MDRangePolicy<exec_space, Kokkos::Rank<3>>;
+  using team_policy  = typename Kokkos::TeamPolicy<exec_space>;
+  using member_type  = typename Kokkos::TeamPolicy<exec_space>::member_type;
 
   // Default constructor - means the matrix must be copied or moved to
   DenseMatrix() = default;
 
   // Single matrix constructors
   DenseMatrix(size_type rows, size_type cols, SUNContext sunctx)
-    : DenseMatrix(1, rows, cols, ExecSpace(), sunctx)
+    : DenseMatrix(1, rows, cols, exec_space(), sunctx)
   { }
 
-  DenseMatrix(size_type rows, size_type cols, ExecSpace exec_space,
+  DenseMatrix(size_type rows, size_type cols, exec_space ex,
               SUNContext sunctx)
-    : DenseMatrix(1, rows, cols, exec_space, sunctx)
+    : DenseMatrix(1, rows, cols, ex, sunctx)
   { }
 
   // Block-diagonal matrix constructors
   DenseMatrix(size_type blocks, size_type block_rows, size_type block_cols,
               SUNContext sunctx)
-    : DenseMatrix(blocks, block_rows, block_cols, ExecSpace(), sunctx)
+    : DenseMatrix(blocks, block_rows, block_cols, exec_space(), sunctx)
   { }
 
   // Block-diagonal matrix with user-supplied execution space instance
   DenseMatrix(size_type blocks, size_type block_rows,
-              size_type block_cols, ExecSpace exec_space, SUNContext sunctx)
-    : sundials::impl::BaseMatrix(sunctx), exec_space_(exec_space)
+              size_type block_cols, exec_space ex, SUNContext sunctx)
+    : sundials::impl::BaseMatrix(sunctx), exec_space_(ex)
   {
     initSUNMatrix();
     view_ = view_type("sunmat_view", blocks, block_rows, block_cols);
@@ -286,9 +288,9 @@ public:
     : sundials::impl::BaseMatrix(that_matrix),
       exec_space_(that_matrix.exec_space_)
   {
-    view_ = view_type("sunmat_view", that_matrix.blocks(),
-                      that_matrix.block_rows(),
-                      that_matrix.block_cols());
+    view_ = view_type("sunmat_view", that_matrix.Blocks(),
+                      that_matrix.BlockRows(),
+                      that_matrix.BlockCols());
     deep_copy(view_, that_matrix.view_);
   }
 
@@ -318,43 +320,43 @@ public:
   virtual ~DenseMatrix() = default;
 
   // Get the Kokkos execution space
-  ExecSpace exec_space()
+  exec_space ExecSpace()
   {
     return exec_space_;
   }
 
   // Get the Kokkos view
-  view_type view()
+  view_type View()
   {
     return view_;
   }
 
   // Get the number of blocks
-  size_type blocks() const
+  size_type Blocks() const
   {
     return static_cast<size_type>(view_.extent(0));
   }
 
   // Get the number of rows in a block
-  size_type block_rows() const
+  size_type BlockRows() const
   {
     return static_cast<size_type>(view_.extent(1));
   }
 
   // Get the number of columns in a block
-  size_type block_cols() const
+  size_type BlockCols() const
   {
     return static_cast<size_type>(view_.extent(2));
   }
 
   // Get the number of rows
-  size_type rows() const
+  size_type Rows() const
   {
     return static_cast<size_type>(view_.extent(0) * view_.extent(1));
   }
 
   // Get the number of columns
-  size_type cols() const
+  size_type Cols() const
   {
     return static_cast<size_type>(view_.extent(0) * view_.extent(2));
   }
@@ -388,16 +390,13 @@ public:
   }
 
 private:
-  // Kokkos execution space
-  ExecSpace exec_space_;
-
-  // Matrix data view [blocks, rows, cols]
-  view_type view_;
+  exec_space exec_space_; // Kokkos execution space
+  view_type view_;        // Matrix data view [blocks, rows, cols]
 
   void initSUNMatrix()
   {
-    using vec_type = Vector<ExecSpace, MemSpace>;
-    using mat_type = DenseMatrix<ExecSpace, MemSpace>;
+    using vec_type = Vector<exec_space, memory_space>;
+    using mat_type = DenseMatrix<exec_space, memory_space>;
 
     this->object_->content = this;
 

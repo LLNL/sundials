@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     RandPoolType rand_pool(5374857);
 
     // Fill A matrix with uniform random data 1 + rand[0,1]
-    auto A_data = A.view();
+    auto A_data = A.View();
 
     Kokkos::parallel_for("fill_A",
                          Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>

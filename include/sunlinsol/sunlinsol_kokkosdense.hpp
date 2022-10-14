@@ -30,8 +30,8 @@ namespace sundials {
 namespace kokkos {
 
 // Forward decalaration of DenseLinearSolver class
-template<class ExecSpace = Kokkos::DefaultExecutionSpace,
-         class MemSpace = class ExecSpace::memory_space>
+template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
+         class MemorySpace = class ExecutionSpace::memory_space>
 class DenseLinearSolver;
 
 // =============================================================================
@@ -57,10 +57,10 @@ int SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A)
   // Access matrix data
   auto A_mat{sundials::kokkos::GetDenseMat<MatrixType>(A)};
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
 
-  const auto blocks = A_mat->blocks();
+  const auto blocks = A_mat->Blocks();
 
   // Compute LU factorization of A (no pivoting)
   using team_policy = typename LinearSolverType::team_policy;
@@ -91,12 +91,12 @@ int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   auto A_mat{sundials::kokkos::GetDenseMat<MatrixType>(A)};
   auto x_vec{sundials::kokkos::GetVec<VectorType>(x)};
 
-  auto A_exec = A_mat->exec_space();
-  auto A_data = A_mat->view();
+  auto A_exec = A_mat->ExecSpace();
+  auto A_data = A_mat->View();
   auto x_data = x_vec->View();
 
-  const auto blocks = A_mat->blocks();
-  const auto rows   = A_mat->block_rows();
+  const auto blocks = A_mat->Blocks();
+  const auto rows   = A_mat->BlockRows();
 
   // Solve the linear system
   using team_policy = typename LinearSolverType::team_policy;
@@ -148,13 +148,15 @@ int SUNLinSolFree_KokkosDense(SUNLinearSolver S)
 // Kokkos dense linear solver class, convertible to a SUNLinearSolver
 // -----------------------------------------------------------------------------
 
-template<class ExecSpace, class MemSpace>
+template<class ExecutionSpace, class MemorySpace>
 class DenseLinearSolver : public sundials::impl::BaseLinearSolver,
                           public sundials::ConvertibleTo<SUNLinearSolver>
 {
 public:
-  using team_policy = typename Kokkos::TeamPolicy<ExecSpace>;
-  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+  using exec_space   = ExecutionSpace;
+  using memory_space = MemorySpace;
+  using team_policy  = typename Kokkos::TeamPolicy<exec_space>;
+  using member_type  = typename Kokkos::TeamPolicy<exec_space>::member_type;
 
   // Default constructor - means the linear solver must be copied or moved to
   DenseLinearSolver() = default;
@@ -221,9 +223,9 @@ public:
 private:
   void initSUNLinearSolver()
   {
-    using vec_type = Vector<ExecSpace, MemSpace>;
-    using mat_type = DenseMatrix<ExecSpace, MemSpace>;
-    using ls_type  = DenseLinearSolver<ExecSpace, MemSpace>;
+    using vec_type = Vector<exec_space, memory_space>;
+    using mat_type = DenseMatrix<exec_space, memory_space>;
+    using ls_type  = DenseLinearSolver<exec_space, memory_space>;
 
     this->object_->content = this;
 
