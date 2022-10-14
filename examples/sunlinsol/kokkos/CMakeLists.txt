@@ -18,7 +18,7 @@ set(examples_list
   "test_sunlinsol_kokkosdense.cpp\;10 1 0\;"
   "test_sunlinsol_kokkosdense.cpp\;100 1 0\;"
   "test_sunlinsol_kokkosdense.cpp\;10 1000 0\;"
-  "test_sunlinsol_kokkosdense.cpp\;100 100 0\;"
+  "test_sunlinsol_kokkosdense.cpp\;100 50 0\;"
   )
 
 # Add source directory to include directories
