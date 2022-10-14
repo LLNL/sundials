@@ -271,27 +271,29 @@ public:
   // Block-diagonal matrix with user-supplied execution space instance
   DenseMatrix(size_type blocks, size_type block_rows,
               size_type block_cols, exec_space ex, SUNContext sunctx)
-    : sundials::impl::BaseMatrix(sunctx), exec_space_(ex)
+    : sundials::impl::BaseMatrix(sunctx), exec_space_(ex),
+      view_("sunmat_view", blocks, block_rows, block_cols)
   {
     initSUNMatrix();
-    view_ = view_type("sunmat_view", blocks, block_rows, block_cols);
   }
 
   // Move constructor
   DenseMatrix(DenseMatrix&& that_matrix) noexcept
     : sundials::impl::BaseMatrix(std::forward<DenseMatrix>(that_matrix)),
-      exec_space_(std::move(that_matrix.exec_space_)), view_(std::move(that_matrix.exec_space_))
-  { }
+      exec_space_(std::move(that_matrix.exec_space_)),
+      view_(std::move(that_matrix.exec_space_))
+  {
+    initSUNMatrix();
+  }
 
   // Copy constructor
   DenseMatrix(const DenseMatrix& that_matrix)
     : sundials::impl::BaseMatrix(that_matrix),
-      exec_space_(that_matrix.exec_space_)
+      exec_space_(that_matrix.exec_space_),
+      view_("sunmat_view", that_matrix.Blocks(),
+            that_matrix.BlockRows(), that_matrix.BlockCols())
   {
-    view_ = view_type("sunmat_view", that_matrix.Blocks(),
-                      that_matrix.BlockRows(),
-                      that_matrix.BlockCols());
-    deep_copy(view_, that_matrix.view_);
+    initSUNMatrix();
   }
 
   // Move assignment
@@ -309,7 +311,8 @@ public:
   DenseMatrix& operator=(const DenseMatrix& rhs)
   {
     exec_space_ = rhs.exec_space_;
-    view_       = rhs.view_;
+    view_       = view_type("sunmat_view", rhs.Blocks(), rhs.BlockRows(),
+                            rhs.BlockCols());
 
     sundials::impl::BaseMatrix::operator=(rhs);
 
