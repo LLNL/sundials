@@ -24,7 +24,7 @@ include_directories(..)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${examples_list})
-  foreach(backend ${Kokkos_DEVICES})
+  foreach(backend ${KOKKOS_EXAMPLES_BACKENDS})
 
     # parse the example tuple
     list(GET example_tuple 0 example)

@@ -88,7 +88,6 @@ sundials_option(GINKGO_WORKS BOOL "Set to ON to force CMake to accept a given Gi
                 DEPENDS_ON ENABLE_GINKGO
                 ADVANCED)
 
-
 # ---------------------------------------------------------------
 # Enable MAGMA support?
 # ---------------------------------------------------------------

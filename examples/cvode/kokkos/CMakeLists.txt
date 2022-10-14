@@ -20,7 +20,7 @@ set(examples_list
 
 # Add the build targets for each example
 foreach(example_tuple ${examples_list})
-  foreach(backend ${Kokkos_DEVICES})
+  foreach(backend ${KOKKOS_EXAMPLES_BACKENDS})
 
     # parse the example tuple
     list(GET example_tuple 0 example)
@@ -68,6 +68,7 @@ foreach(example_tuple ${examples_list})
     # add example to regression tests
     sundials_add_test(${test_name} ${example_target}
       TEST_ARGS ${example_args}
+      EXTRA_ARGS --kokkos-disable-warnings
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})

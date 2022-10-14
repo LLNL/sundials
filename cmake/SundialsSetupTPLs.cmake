@@ -87,6 +87,11 @@ if(ENABLE_KOKKOS)
   find_package(Kokkos REQUIRED
                PATHS ${Kokkos_DIR})
   set(KOKKOS_WORKS TRUE)
+  # We should be able to use Kokkos_DEVICES directly but it seems to get
+  # removed or unset in some CMake versions
+  set(KOKKOS_EXAMPLES_BACKENDS "${Kokkos_DEVICES}" CACHE STRING
+      "Kokkos backends to build examples with")
+  mark_as_advanced(FORCE KOKKOS_EXAMPLES_BACKENDS)
   message(STATUS "Kokkos VERSION: ${Kokkos_VERSION}")
 endif()
 

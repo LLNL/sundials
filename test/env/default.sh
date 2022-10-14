@@ -233,6 +233,7 @@ export SUNDIALS_PTHREAD=ON
 
 export SUNDIALS_OPENMP=ON
 export OMP_NUM_THREADS=4
+export OMP_PROC_BIND=false
 
 # ---------------------
 # OpenMP Device Offload
@@ -332,9 +333,10 @@ fi
 # Kokkos
 # ------
 
+# @master install is 3.7.00 = 61d7db55fceac3318c987a291f77b844fd94c165
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS=ON
-    export KOKKOS_ROOT="$(spack location -i kokkos@3.6.00 %"$compiler")"
+    export KOKKOS_ROOT="$(spack location -i kokkos@master %"$compiler")"
 else
     export SUNDIALS_KOKKOS=OFF
     unset KOKKOS_ROOT
@@ -344,9 +346,10 @@ fi
 # Kokkos-Kernels
 # --------------
 
+# @master install is 3.7.00 = 04821ac3bb916b19fad6b3dabc1f4b9e1049aa0e
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS_KERNELS=ON
-    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@3.6.00 %"$compiler")"
+    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@master %"$compiler")"
 else
     export SUNDIALS_KOKKOS_KERNELS=OFF
     unset KOKKOS_KERNELS_ROOT

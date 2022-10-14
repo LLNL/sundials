@@ -64,7 +64,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
-  set(multiValueArgs "TEST_ARGS")
+  set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
   cmake_parse_arguments(SUNDIALS_ADD_TEST
@@ -141,8 +141,14 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # set the test input args
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
-        string(REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-        list(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
+        string(REPLACE ";" " " _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+      endif()
+      if(SUNDIALS_ADD_TEST_EXTRA_ARGS)
+        string(REPLACE ";" " " _extra_args "${SUNDIALS_ADD_TEST_EXTRA_ARGS}")
+      endif()
+      if (_user_args OR _extra_args)
+        string(STRIP "${_user_args} ${_extra_args}" _run_args)
+        list(APPEND TEST_ARGS "--runargs=\"${_run_args}\"")
       endif()
 
       # create test case with the corresponding test runner command and arguments
