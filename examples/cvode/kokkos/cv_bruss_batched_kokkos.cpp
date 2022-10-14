@@ -151,6 +151,8 @@ int main(int argc, char *argv[])
 
     std::cout << "\nBatch of independent 3-species kinetics problems\n"
               << "  number of batches = " << nbatches << "\n"
+              << "  linear solver     = " << (solver_type ? "GMRES" : "KokkosKernels") << "\n"
+              << "  test type         = " << test_type << "\n"
               << "  execution space   = " << ExecSpace().name() << "\n\n";
 
     sunrealtype u0, v0, w0;
