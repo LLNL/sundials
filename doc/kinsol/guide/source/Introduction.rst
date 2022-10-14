@@ -107,7 +107,7 @@ This support includes new ``SUNMatrix`` and ``SUNLinearSolver`` implementations,
 see the sections :numref:`SUNMatrix.Ginkgo` and :numref:`SUNLinSol.Ginkgo`.
 
 Debug builds will now produce libraries with 'd' as the postfix, e.g., 
-`libsundials_cvoded.so`.
+`libsundials_kinsold.so`.
 
 Changes in v6.3.0
 -----------------
