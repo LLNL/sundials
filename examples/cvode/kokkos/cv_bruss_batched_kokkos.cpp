@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   auto udata     = static_cast<UserData*>(user_data);
-  auto y_data    = sundials::kokkos::GetVec<VecType>(y)->View();;
+  auto y_data    = sundials::kokkos::GetVec<VecType>(y)->View();
   auto ydot_data = sundials::kokkos::GetVec<VecType>(ydot)->View();
 
   const auto nbatches  = udata->nbatches;
