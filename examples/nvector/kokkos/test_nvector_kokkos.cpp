@@ -113,7 +113,6 @@ int main(int argc, char* argv[])
 
     /* create vector and disable all fused and vector array operations */
     vector_type U{X};
-    U.EnableAllFusedOps(false);
 
     /* fused operations */
     fails += Test_N_VLinearCombination(U, length, 0);
@@ -134,7 +133,6 @@ int main(int argc, char* argv[])
 
     /* create vector and enable all fused and vector array operations */
     vector_type V{X};
-    V.EnableAllFusedOps(true);
 
     /* fused operations */
     fails += Test_N_VLinearCombination(V, length, 0);
