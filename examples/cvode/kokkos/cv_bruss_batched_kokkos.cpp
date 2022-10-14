@@ -374,7 +374,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 {
   auto udata  = static_cast<UserData*>(user_data);
   auto y_data = sundials::kokkos::GetVec<VecType>(y)->View();
-  auto J_data = (sundials::kokkos::GetDenseMat<ExecSpace>(J))->view();
+  auto J_data = sundials::kokkos::GetDenseMat<MatType>(J)->view();
 
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;

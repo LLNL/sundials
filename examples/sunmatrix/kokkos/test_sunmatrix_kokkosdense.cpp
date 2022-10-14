@@ -35,6 +35,9 @@ using ExecSpace = Kokkos::OpenMP;
 using ExecSpace = Kokkos::Serial;
 #endif
 
+using VecType = sundials::kokkos::Vector<ExecSpace>;
+using MatType = sundials::kokkos::DenseMatrix<ExecSpace>;
+
 /* -----------------------------------------------------------------------------
  * SUNMatrix Testing
  * ---------------------------------------------------------------------------*/
@@ -92,12 +95,10 @@ int main(int argc, char *argv[])
     auto exec_instance = ExecSpace();
 
     // Create vectors and matrices
-    sundials::kokkos::Vector<ExecSpace> x{matcols * nblocks, sunctx};
-    sundials::kokkos::Vector<ExecSpace> y{matrows * nblocks, sunctx};
-    sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, matrows, matcols,
-                                               exec_instance, sunctx};
-    sundials::kokkos::DenseMatrix<ExecSpace> I{nblocks, matrows, matcols,
-                                               exec_instance, sunctx};
+    VecType x{matcols * nblocks, sunctx};
+    VecType y{matrows * nblocks, sunctx};
+    MatType A{nblocks, matrows, matcols, exec_instance, sunctx};
+    MatType I{nblocks, matrows, matcols, exec_instance, sunctx};
 
     // Fill matrices and vectors
     auto A_data = A.view();
@@ -192,8 +193,8 @@ extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
 
-  auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace>(A)};
-  auto B_mat{sundials::kokkos::GetDenseMat<ExecSpace>(B)};
+  auto A_mat{sundials::kokkos::GetDenseMat<MatType>(A)};
+  auto B_mat{sundials::kokkos::GetDenseMat<MatType>(B)};
 
   const auto nblocks = A_mat->blocks();
   const auto matrows = A_mat->block_rows();
@@ -223,7 +224,7 @@ extern "C" int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
 
-  auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace>(A)};
+  auto A_mat{sundials::kokkos::GetDenseMat<MatType>(A)};
 
   const auto nblocks = A_mat->blocks();
   const auto matrows = A_mat->block_rows();
@@ -252,8 +253,8 @@ extern "C" int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   int failure = 0;
 
-  auto a_vec{sundials::kokkos::GetVec<ExecSpace>(actual)};
-  auto e_vec{sundials::kokkos::GetVec<ExecSpace>(expected)};
+  auto a_vec{sundials::kokkos::GetVec<VecType>(actual)};
+  auto e_vec{sundials::kokkos::GetVec<VecType>(expected)};
   auto length = a_vec->Length();
 
   auto a_data = a_vec->View();
@@ -280,7 +281,7 @@ extern "C" booleantype has_data(SUNMatrix A)
 
 extern "C" booleantype is_square(SUNMatrix A)
 {
-  auto A_mat{sundials::kokkos::GetDenseMat<ExecSpace>(A)};
+  auto A_mat{sundials::kokkos::GetDenseMat<MatType>(A)};
 
   const auto matrows = A_mat->rows();
   const auto matcols = A_mat->cols();

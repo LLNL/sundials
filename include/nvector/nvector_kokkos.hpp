@@ -29,11 +29,10 @@ template<class ExecutionSpace, class MemorySpace>
 class Vector;
 
 // Get the Kokkos vector wrapped by an N_Vector
-template<class ExecutionSpace,
-         class MemorySpace = typename ExecutionSpace::memory_space>
-inline Vector<ExecutionSpace, MemorySpace>* GetVec(N_Vector v)
+template<class VectorType>
+inline VectorType* GetVec(N_Vector v)
 {
-  return static_cast<Vector<ExecutionSpace, MemorySpace>*>(v->content);
+  return static_cast<VectorType*>(v->content);
 }
 
 // =============================================================================

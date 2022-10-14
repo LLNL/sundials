@@ -37,6 +37,10 @@ using ExecSpace = Kokkos::OpenMP;
 using ExecSpace = Kokkos::Serial;
 #endif
 
+using VecType = sundials::kokkos::Vector<ExecSpace>;
+using MatType = sundials::kokkos::DenseMatrix<ExecSpace>;
+using LSType  = sundials::kokkos::DenseLinearSolver<ExecSpace>;
+
 /* -----------------------------------------------------------------------------
  * SUNLinearSolver Testing
  * ---------------------------------------------------------------------------*/
@@ -86,10 +90,9 @@ int main(int argc, char *argv[])
     auto exec_instance = ExecSpace();
 
     // Create matrices and vectors
-    sundials::kokkos::DenseMatrix<ExecSpace> A{nblocks, rows, cols,
-                                               exec_instance, sunctx};
-    sundials::kokkos::Vector<ExecSpace> x{cols * nblocks, sunctx};
-    sundials::kokkos::Vector<ExecSpace> b{cols * nblocks, sunctx};
+    MatType A{nblocks, rows, cols, exec_instance, sunctx};
+    VecType x{cols * nblocks, sunctx};
+    VecType b{cols * nblocks, sunctx};
 
     using RandPoolType = Kokkos::Random_XorShift64_Pool<ExecSpace>;
     using GenType = RandPoolType::generator_type;
@@ -135,7 +138,7 @@ int main(int argc, char *argv[])
     }
 
     // Create dense linear solver
-    sundials::kokkos::DenseLinearSolver<ExecSpace> LS{sunctx};
+    LSType LS{sunctx};
 
     // Run Tests
     fails += Test_SUNLinSolInitialize(LS, 0);
@@ -176,8 +179,8 @@ int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 {
   int failure = 0;
 
-  auto e_vec = sundials::kokkos::GetVec<ExecSpace>(expected);
-  auto c_vec = sundials::kokkos::GetVec<ExecSpace>(computed);
+  auto e_vec = sundials::kokkos::GetVec<VecType>(expected);
+  auto c_vec = sundials::kokkos::GetVec<VecType>(computed);
 
   auto e_data = e_vec->View();
   auto c_data = c_vec->View();
