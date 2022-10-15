@@ -1,6 +1,22 @@
-/*
-  This file defines diagonally implicit Butcher tables using X-macros
+/*---------------------------------------------------------------
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *---------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ *---------------------------------------------------------------
+ * This file defines diagonally implicit Butcher tables using
+ * X-macros
+ *--------------------------------------------------------------*/
 
+
+/*
   When adding a new method, enter the coefficients below and add
   a new enum entry to include/arkode/arkode_butcher_dirk.h
 
