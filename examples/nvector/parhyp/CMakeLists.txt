@@ -107,6 +107,7 @@ foreach(example_tuple ${nvector_parhyp_examples})
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c
       ../test_nvector.c
+      ../test_nvector.h
       ../test_mpinvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
   endif()
