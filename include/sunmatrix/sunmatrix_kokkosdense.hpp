@@ -50,7 +50,6 @@ SUNMatrix_ID SUNMatGetID_KokkosDense(SUNMatrix A)
 {
   return SUNMATRIX_KOKKOSDENSE;
 }
-}
 
 template<class MatrixType>
 SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
