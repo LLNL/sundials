@@ -40,20 +40,22 @@ using SizeType = VecType::size_type;
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails{0};           /* counter for test failures */
-  sunindextype length;    /* vector length             */
-  int print_timing;       /* turn timing on/off        */
+  int fails{0};        /* counter for test failures */
+  sunindextype length; /* vector length             */
+  int print_timing;    /* turn timing on/off        */
 
   Test_Init(NULL);
 
   /* check input and set vector length */
-  if (argc < 3) {
+  if (argc < 3)
+  {
     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     return (-1);
   }
 
   length = (sunindextype)atol(argv[1]);
-  if (length <= 0) {
+  if (length <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer \n");
     return (-1);
   }
@@ -141,17 +143,12 @@ int main(int argc, char* argv[])
     fails += Test_N_VInvTestLocal(X, Z, length, 0);
     fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
     fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
-
   }
   Kokkos::finalize();
 
   /* Print result */
-  if (fails) {
-    printf("FAIL: NVector module failed %i tests \n\n", fails);
-  }
-  else {
-    printf("SUCCESS: NVector module passed all tests \n\n");
-  }
+  if (fails) { printf("FAIL: NVector module failed %i tests \n\n", fails); }
+  else { printf("SUCCESS: NVector module passed all tests \n\n"); }
 
   Test_Finalize();
 
@@ -169,7 +166,8 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   auto Xdata{Xvec->HostView()};
 
   sundials::kokkos::CopyFromDevice<VecType>(*Xvec);
-  for (sunindextype i = 0; i < local_length; i++) {
+  for (sunindextype i = 0; i < local_length; i++)
+  {
     failure += SUNRCompare(Xdata[i], ans);
   }
 
@@ -195,9 +193,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
 
   /* set elements [is,ie] of the data array */
   sundials::kokkos::CopyFromDevice<VecType>(X);
-  for (sunindextype i = is; i <= ie; i++) {
-    Xdata[i] = val;
-  }
+  for (sunindextype i = is; i <= ie; i++) { Xdata[i] = val; }
   sundials::kokkos::CopyToDevice<VecType>(X);
 }
 

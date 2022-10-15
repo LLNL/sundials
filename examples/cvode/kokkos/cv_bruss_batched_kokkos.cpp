@@ -66,15 +66,14 @@
  *       2 - all batches are the same reactor type 2
  * ---------------------------------------------------------------------------*/
 
-#include <memory>
-#include <vector>
 #include <cstdio>
-
 #include <cvode/cvode.h>
+#include <memory>
 #include <nvector/nvector_kokkos.hpp>
-#include <sunmatrix/sunmatrix_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_spgmr.h>
+#include <sunmatrix/sunmatrix_kokkosdense.hpp>
+#include <vector>
 
 // Common utility functions
 #include <example_utilities.hpp>
@@ -101,10 +100,10 @@ using SizeType = VecType::size_type;
 #define TWO  SUN_RCONST(2.0)
 
 // User-supplied functions called by CVODE
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // User data structure available in user-supplied callback functions
 struct UserData
@@ -119,12 +118,12 @@ struct UserData
  * Main Program
  * ---------------------------------------------------------------------------*/
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   // Create the SUNDIALS context
   sundials::Context sunctx;
 
-  Kokkos::initialize( argc, argv );
+  Kokkos::initialize(argc, argv);
   {
     // Create UserData
     UserData udata;
@@ -133,18 +132,15 @@ int main(int argc, char *argv[])
     int argi = 0;
 
     // Total number of batch systems
-    if (argc > 1)
-      udata.nbatches = atoi(argv[++argi]);
+    if (argc > 1) udata.nbatches = atoi(argv[++argi]);
 
     // Linear solver type
     int solver_type = 0;
-    if (argc > 2)
-      solver_type = atoi(argv[++argi]);
+    if (argc > 2) solver_type = atoi(argv[++argi]);
 
     // Problem setup
     int test_type = 3;
-    if (argc > 3)
-      test_type = atoi(argv[++argi]);
+    if (argc > 3) test_type = atoi(argv[++argi]);
 
     // Shortcuts
     int nbatches  = udata.nbatches;
@@ -152,7 +148,8 @@ int main(int argc, char *argv[])
 
     std::cout << "\nBatch of independent 3-species kinetics problems\n"
               << "  number of batches = " << nbatches << "\n"
-              << "  linear solver     = " << (solver_type ? "GMRES" : "KokkosKernels") << "\n"
+              << "  linear solver     = "
+              << (solver_type ? "GMRES" : "KokkosKernels") << "\n"
               << "  test type         = " << test_type << "\n"
               << "  execution space   = " << ExecSpace().name() << "\n\n";
 
@@ -195,15 +192,14 @@ int main(int argc, char *argv[])
     VecType y{length, sunctx};
 
     auto y_data_d = y.View();
-    Kokkos::parallel_for("fill_y",
-                         Kokkos::RangePolicy<ExecSpace>(0, nbatches),
-                         KOKKOS_LAMBDA(const SizeType i)
-                         {
-                           auto idx = batchSize * i;
-                           y_data_d(idx)     = u0;
-                           y_data_d(idx + 1) = v0;
-                           y_data_d(idx + 2) = w0;
-                         });
+    Kokkos::parallel_for(
+      "fill_y", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
+      KOKKOS_LAMBDA(const SizeType i) {
+        auto idx          = batchSize * i;
+        y_data_d(idx)     = u0;
+        y_data_d(idx + 1) = v0;
+        y_data_d(idx + 2) = w0;
+      });
 
     // Create vector of absolute tolerances
     VecType abstol{length, sunctx};
@@ -248,7 +244,8 @@ int main(int argc, char *argv[])
     else
     {
       // Create matrix-free GMRES linear solver
-      LS = std::make_unique<sundials::experimental::SUNLinearSolverView>(SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
+      LS = std::make_unique<sundials::experimental::SUNLinearSolverView>(
+        SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
 
       // Attach the linear solver to CVODE
       retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), nullptr);
@@ -260,10 +257,10 @@ int main(int argc, char *argv[])
     const sunrealtype dTout = SUN_RCONST(1.0);
 
     // Number of output times
-    const int Nt = (int) ceil(Tf / dTout);
+    const int Nt = static_cast<int>(ceil(Tf / dTout));
 
     // Current time and first output time
-    sunrealtype t = T0;
+    sunrealtype t    = T0;
     sunrealtype tout = T0 + dTout;
 
     // Initial output
@@ -274,9 +271,8 @@ int main(int argc, char *argv[])
     for (int batchj = 0; batchj < nbatches; batchj += 10)
     {
       auto idx = batchj * batchSize;
-      std::cout << "  batch " << batchj << ": y = "
-                << y_data_h(idx) << " " << y_data_h(idx + 1) << " "
-                << y_data_h(idx + 2) << std::endl;
+      std::cout << "  batch " << batchj << ": y = " << y_data_h(idx) << " "
+                << y_data_h(idx + 1) << " " << y_data_h(idx + 2) << std::endl;
     }
 
     // Loop over output times
@@ -293,9 +289,8 @@ int main(int argc, char *argv[])
       for (int batchj = 0; batchj < nbatches; batchj += 10)
       {
         auto idx = batchj * batchSize;
-        std::cout << "  batch " << batchj << ": y = "
-                  << y_data_h(idx) << " " << y_data_h(idx + 1) << " "
-                  << y_data_h(idx + 2) << std::endl;
+        std::cout << "  batch " << batchj << ": y = " << y_data_h(idx) << " "
+                  << y_data_h(idx + 1) << " " << y_data_h(idx + 2) << std::endl;
       }
 
       tout += dTout;
@@ -342,7 +337,7 @@ int main(int argc, char *argv[])
  * ---------------------------------------------------------------------------*/
 
 // Right hand side function dy/dt = f(t,y)
-int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   auto udata     = static_cast<UserData*>(user_data);
   auto y_data    = sundials::kokkos::GetVec<VecType>(y)->View();
@@ -355,26 +350,25 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
   const auto b  = udata->b;
   const auto ep = udata->ep;
 
-  Kokkos::parallel_for("RHS",
-                       Kokkos::RangePolicy<ExecSpace>(0, nbatches),
-                       KOKKOS_LAMBDA(const SizeType i)
-                       {
-                         auto idx = batchSize * i;
-                         auto u = y_data(idx);
-                         auto v = y_data(idx + 1);
-                         auto w = y_data(idx + 2);
+  Kokkos::parallel_for(
+    "RHS", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
+    KOKKOS_LAMBDA(const SizeType i) {
+      auto idx = batchSize * i;
+      auto u   = y_data(idx);
+      auto v   = y_data(idx + 1);
+      auto w   = y_data(idx + 2);
 
-                         ydot_data(idx) = a - (w + ONE) * u + v * u * u;
-                         ydot_data(idx + 1) = w * u - v * u * u;
-                         ydot_data(idx + 2) = (b - w) / ep - w * u;
-                       });
+      ydot_data(idx)     = a - (w + ONE) * u + v * u * u;
+      ydot_data(idx + 1) = w * u - v * u * u;
+      ydot_data(idx + 2) = (b - w) / ep - w * u;
+    });
 
   return 0;
 }
 
 // Jacobian of f(t,y)
-int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-        void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
+        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   auto udata  = static_cast<UserData*>(user_data);
   auto y_data = sundials::kokkos::GetVec<VecType>(y)->View();
@@ -385,31 +379,30 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
   const auto ep = udata->ep;
 
-  Kokkos::parallel_for("Jac",
-                       Kokkos::RangePolicy<ExecSpace>(0, nbatches),
-                       KOKKOS_LAMBDA(const SizeType i)
-                       {
-                         // get y values
-                         auto idx = batchSize * i;
-                         auto u = y_data(idx);
-                         auto v = y_data(idx + 1);
-                         auto w = y_data(idx + 2);
+  Kokkos::parallel_for(
+    "Jac", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
+    KOKKOS_LAMBDA(const SizeType i) {
+      // get y values
+      auto idx = batchSize * i;
+      auto u   = y_data(idx);
+      auto v   = y_data(idx + 1);
+      auto w   = y_data(idx + 2);
 
-                         // first col of block
-                         J_data(i, 0, 0) = -(w + ONE) + TWO * u * v;
-                         J_data(i, 1, 0) = u * u;
-                         J_data(i, 2, 0) = -u;
+      // first col of block
+      J_data(i, 0, 0) = -(w + ONE) + TWO * u * v;
+      J_data(i, 1, 0) = u * u;
+      J_data(i, 2, 0) = -u;
 
-                         // second col of block
-                         J_data(i, 0, 1) = u * u;
-                         J_data(i, 1, 1) = -u * u;
-                         J_data(i, 2, 1) = u;
+      // second col of block
+      J_data(i, 0, 1) = u * u;
+      J_data(i, 1, 1) = -u * u;
+      J_data(i, 2, 1) = u;
 
-                         // third col of block
-                         J_data(i, 0, 2) = -w;
-                         J_data(i, 1, 2) = ZERO;
-                         J_data(i, 2, 2) = -ONE / ep - u;
-                       });
+      // third col of block
+      J_data(i, 0, 2) = -w;
+      J_data(i, 1, 2) = ZERO;
+      J_data(i, 2, 2) = -ONE / ep - u;
+    });
 
   return 0;
 }

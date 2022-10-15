@@ -44,7 +44,10 @@ namespace impl {
 
 /* N_Vector API ops to implement.override */
 
-inline N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v) { return SUNDIALS_NVEC_KOKKOS; }
+inline N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v)
+{
+  return SUNDIALS_NVEC_KOKKOS;
+}
 
 template<class VectorType>
 sunindextype N_VGetLength_Kokkos(N_Vector v)
@@ -109,9 +112,11 @@ sunrealtype N_VWSqrSumLocal_Kokkos(N_Vector x, N_Vector w)
 
   sunrealtype gpu_result{0.0};
   Kokkos::parallel_reduce(
-      "N_VWSqrSumLocal", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) { update += (xdata(i) * wdata(i) * xdata(i) * wdata(i)); },
-      gpu_result);
+    "N_VWSqrSumLocal", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
+    },
+    gpu_result);
 
   return gpu_result;
 }
@@ -130,11 +135,12 @@ sunrealtype N_VWSqrSumMaskLocal_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 
   sunrealtype gpu_result{0.0};
   Kokkos::parallel_reduce(
-      "N_VWSqrSumMaskLocal", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) {
-        if (iddata(i) > sunrealtype{0.0}) update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
-      },
-      gpu_result);
+    "N_VWSqrSumMaskLocal", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      if (iddata(i) > sunrealtype{0.0})
+        update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
+    },
+    gpu_result);
 
   return gpu_result;
 }
@@ -152,8 +158,8 @@ void N_VAbs_Kokkos(N_Vector x, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VAbs", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = abs(xdata(i)); });
+    "N_VAbs", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = abs(xdata(i)); });
 }
 
 template<class VectorType>
@@ -167,8 +173,8 @@ void N_VAddConst_Kokkos(N_Vector x, sunrealtype b, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VAddConst", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) + b; });
+    "N_VAddConst", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) + b; });
 }
 
 template<class VectorType>
@@ -182,8 +188,10 @@ void N_VCompare_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VCompare", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = abs(xdata(i)) >= c ? sunrealtype{1.0} : sunrealtype{0.0}; });
+    "N_VCompare", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) {
+      zdata(i) = abs(xdata(i)) >= c ? sunrealtype{1.0} : sunrealtype{0.0};
+    });
 }
 
 template<class VectorType>
@@ -195,7 +203,8 @@ void N_VConst_Kokkos(sunrealtype c, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VConst", typename VectorType::range_policy(0, zvec->Length()), KOKKOS_LAMBDA(const size_type i) { zdata(i) = c; });
+    "N_VConst", typename VectorType::range_policy(0, zvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = c; });
 }
 
 template<class VectorType>
@@ -212,14 +221,16 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 
   sunrealtype sum{0.0};
   Kokkos::parallel_reduce(
-      "N_VConstrMask", typename VectorType::range_policy(0, mvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) {
-        bool test = (abs(cdata(i)) > sunrealtype{1.5} && cdata(i) * xdata(i) <= sunrealtype{0.0}) ||
-                    (abs(cdata(i)) > sunrealtype{0.5} && cdata(i) * xdata(i) < sunrealtype{0.0});
-        mdata(i) = test ? sunrealtype{1.0} : sunrealtype{0.0};
-        update += mdata(i);
-      },
-      sum);
+    "N_VConstrMask", typename VectorType::range_policy(0, mvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      bool test = (abs(cdata(i)) > sunrealtype{1.5} &&
+                   cdata(i) * xdata(i) <= sunrealtype{0.0}) ||
+                  (abs(cdata(i)) > sunrealtype{0.5} &&
+                   cdata(i) * xdata(i) < sunrealtype{0.0});
+      mdata(i) = test ? sunrealtype{1.0} : sunrealtype{0.0};
+      update += mdata(i);
+    },
+    sum);
 
   return (sum < sunrealtype{0.5});
 }
@@ -237,8 +248,8 @@ void N_VDiv_Kokkos(N_Vector x, N_Vector y, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VDiv", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) / ydata(i); });
+    "N_VDiv", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) / ydata(i); });
 }
 
 template<class VectorType>
@@ -253,8 +264,11 @@ sunrealtype N_VDotProd_Kokkos(N_Vector x, N_Vector y)
 
   sunrealtype gpu_result{0.0};
   Kokkos::parallel_reduce(
-      "N_VDotProd", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) { update += xdata(i) * ydata(i); }, gpu_result);
+    "N_VDotProd", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      update += xdata(i) * ydata(i);
+    },
+    gpu_result);
 
   return gpu_result;
 }
@@ -270,8 +284,8 @@ void N_VInv_Kokkos(N_Vector x, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VInv", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = sunrealtype{1.0} / xdata(i); });
+    "N_VInv", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = sunrealtype{1.0} / xdata(i); });
 }
 
 template<class VectorType>
@@ -286,16 +300,12 @@ booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 
   sunrealtype minimum{0.0};
   Kokkos::parallel_reduce(
-      "N_VInvTest", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) {
-        if (xdata(i) == sunrealtype{0.0}) {
-          update += sunrealtype{1.0};
-        }
-        else {
-          zdata(i) = sunrealtype{1.0} / xdata(i);
-        }
-      },
-      minimum);
+    "N_VInvTest", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      if (xdata(i) == sunrealtype{0.0}) { update += sunrealtype{1.0}; }
+      else { zdata(i) = sunrealtype{1.0} / xdata(i); }
+    },
+    minimum);
 
   return (minimum < sunrealtype{0.5});
 }
@@ -310,14 +320,18 @@ sunrealtype N_VL1Norm_Kokkos(N_Vector x)
 
   sunrealtype gpu_result{0.0};
   Kokkos::parallel_reduce(
-      "N_VL1Norm", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) { update += (abs(xdata(i))); }, gpu_result);
+    "N_VL1Norm", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      update += (abs(xdata(i)));
+    },
+    gpu_result);
 
   return gpu_result;
 }
 
 template<class VectorType>
-void N_VLinearSum_Kokkos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_Kokkos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
+                         N_Vector z)
 {
   auto xvec{GetVec<VectorType>(x)};
   auto yvec{GetVec<VectorType>(y)};
@@ -329,8 +343,8 @@ void N_VLinearSum_Kokkos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VLinearSum", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = a * xdata(i) + b * ydata(i); });
+    "N_VLinearSum", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = a * xdata(i) + b * ydata(i); });
 }
 
 template<class VectorType>
@@ -343,11 +357,11 @@ sunrealtype N_VMaxNorm_Kokkos(N_Vector x)
 
   sunrealtype gpu_result{0.0};
   Kokkos::parallel_reduce(
-      "N_VMaxNorm", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) {
-        if (abs(xdata(i)) > update) update = abs(xdata(i));
-      },
-      Kokkos::Max<sunrealtype>(gpu_result));
+    "N_VMaxNorm", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      if (abs(xdata(i)) > update) update = abs(xdata(i));
+    },
+    Kokkos::Max<sunrealtype>(gpu_result));
 
   return gpu_result;
 }
@@ -362,11 +376,11 @@ sunrealtype N_VMin_Kokkos(N_Vector x)
 
   sunrealtype gpu_result{std::numeric_limits<sunrealtype>::max()};
   Kokkos::parallel_reduce(
-      "N_VMin", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) {
-        if (xdata(i) < update) update = xdata(i);
-      },
-      Kokkos::Min<sunrealtype>(gpu_result));
+    "N_VMin", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      if (xdata(i) < update) update = xdata(i);
+    },
+    Kokkos::Min<sunrealtype>(gpu_result));
 
   return gpu_result;
 }
@@ -383,13 +397,14 @@ sunrealtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
 
   sunrealtype gpu_result{std::numeric_limits<sunrealtype>::max()};
   Kokkos::parallel_reduce(
-      "N_VMinQuotient", typename VectorType::range_policy(0, nvec->Length()),
-      KOKKOS_LAMBDA(const size_type i, sunrealtype & update) {
-        if (ddata(i) != sunrealtype{0.0}) {
-          if ((ndata(i) / ddata(i)) < update) update = ndata(i) / ddata(i);
-        }
-      },
-      Kokkos::Min<sunrealtype>(gpu_result));
+    "N_VMinQuotient", typename VectorType::range_policy(0, nvec->Length()),
+    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
+      if (ddata(i) != sunrealtype{0.0})
+      {
+        if ((ndata(i) / ddata(i)) < update) update = ndata(i) / ddata(i);
+      }
+    },
+    Kokkos::Min<sunrealtype>(gpu_result));
 
   return gpu_result;
 }
@@ -407,8 +422,8 @@ void N_VProd_Kokkos(N_Vector x, N_Vector y, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VProd", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) * ydata(i); });
+    "N_VProd", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) * ydata(i); });
 }
 
 template<class VectorType>
@@ -422,8 +437,8 @@ void N_VScale_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
   using size_type = typename VectorType::size_type;
 
   Kokkos::parallel_for(
-      "N_VScale", typename VectorType::range_policy(0, xvec->Length()),
-      KOKKOS_LAMBDA(const size_type i) { zdata(i) = c * xdata(i); });
+    "N_VScale", typename VectorType::range_policy(0, xvec->Length()),
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = c * xdata(i); });
 }
 
 template<class VectorType>
@@ -454,8 +469,10 @@ sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 // Public namespace
 // =============================================================================
 
-template<class ExecutionSpace = Kokkos::DefaultExecutionSpace, class MemorySpace = class ExecutionSpace::memory_space>
-class Vector : public sundials::impl::BaseNVector, public sundials::ConvertibleTo<N_Vector>
+template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
+         class MemorySpace    = class ExecutionSpace::memory_space>
+class Vector : public sundials::impl::BaseNVector,
+               public sundials::ConvertibleTo<N_Vector>
 {
 public:
   using view_type      = Kokkos::View<sunrealtype*, MemorySpace>;
@@ -469,36 +486,41 @@ public:
   Vector() = default;
 
   Vector(size_type length, SUNContext sunctx)
-      : view_("Vector device view", length),
-        host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
+    : view_("Vector device view", length),
+      host_view_(Kokkos::create_mirror_view(view_)),
+      sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
   Vector(view_type view, SUNContext sunctx)
-      : view_(view), host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(sunctx)
+    : view_(view),
+      host_view_(Kokkos::create_mirror_view(view_)),
+      sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
   Vector(view_type view, host_view_type host_view, SUNContext sunctx)
-      : view_(view), host_view_(host_view), sundials::impl::BaseNVector(sunctx)
+    : view_(view), host_view_(host_view), sundials::impl::BaseNVector(sunctx)
   {
     initNvector();
   }
 
   // Move constructor
   Vector(Vector&& that_vector) noexcept
-      : view_(std::move(that_vector.view_)),
-        host_view_(std::move(that_vector.host_view_)), sundials::impl::BaseNVector(std::move(that_vector))
+    : view_(std::move(that_vector.view_)),
+      host_view_(std::move(that_vector.host_view_)),
+      sundials::impl::BaseNVector(std::move(that_vector))
   {
     initNvector();
   }
 
   // Copy constructor
   Vector(const Vector& that_vector)
-      : view_("Vector device view", that_vector.Length()),
-        host_view_(Kokkos::create_mirror_view(view_)), sundials::impl::BaseNVector(that_vector)
+    : view_("Vector device view", that_vector.Length()),
+      host_view_(Kokkos::create_mirror_view(view_)),
+      sundials::impl::BaseNVector(that_vector)
   {
     initNvector();
   }
@@ -557,12 +579,14 @@ private:
     this->object_->content = this;
 
     /* constructors, destructors, and utility operations */
-    this->object_->ops->nvclone                 = impl::N_VClone_Kokkos<this_type>;
-    this->object_->ops->nvdestroy               = impl::N_VDestroy_Kokkos<this_type>;
-    this->object_->ops->nvgetarraypointer       = impl::N_VGetArrayPointer_Kokkos<this_type>;
-    this->object_->ops->nvgetdevicearraypointer = impl::N_VGetDeviceArrayPointer_Kokkos<this_type>;
-    this->object_->ops->nvgetlength             = impl::N_VGetLength_Kokkos<this_type>;
-    this->object_->ops->nvgetvectorid           = impl::N_VGetVectorID_Kokkos;
+    this->object_->ops->nvclone   = impl::N_VClone_Kokkos<this_type>;
+    this->object_->ops->nvdestroy = impl::N_VDestroy_Kokkos<this_type>;
+    this->object_->ops->nvgetarraypointer =
+      impl::N_VGetArrayPointer_Kokkos<this_type>;
+    this->object_->ops->nvgetdevicearraypointer =
+      impl::N_VGetDeviceArrayPointer_Kokkos<this_type>;
+    this->object_->ops->nvgetlength   = impl::N_VGetLength_Kokkos<this_type>;
+    this->object_->ops->nvgetvectorid = impl::N_VGetVectorID_Kokkos;
 
     /* standard vector operations */
     this->object_->ops->nvabs          = impl::N_VAbs_Kokkos<this_type>;
@@ -586,15 +610,17 @@ private:
     this->object_->ops->nvwrmsnormmask = impl::N_VWrmsNormMask_Kokkos<this_type>;
 
     /* local reduction operations */
-    this->object_->ops->nvconstrmasklocal  = impl::N_VConstrMask_Kokkos<this_type>;
-    this->object_->ops->nvdotprodlocal     = impl::N_VDotProd_Kokkos<this_type>;
-    this->object_->ops->nvinvtestlocal     = impl::N_VInvTest_Kokkos<this_type>;
-    this->object_->ops->nvl1normlocal      = impl::N_VL1Norm_Kokkos<this_type>;
-    this->object_->ops->nvmaxnormlocal     = impl::N_VMaxNorm_Kokkos<this_type>;
-    this->object_->ops->nvminlocal         = impl::N_VMin_Kokkos<this_type>;
-    this->object_->ops->nvminquotientlocal = impl::N_VMinQuotient_Kokkos<this_type>;
-    this->object_->ops->nvwsqrsumlocal     = impl::N_VWSqrSumLocal_Kokkos<this_type>;
-    this->object_->ops->nvwsqrsummasklocal = impl::N_VWSqrSumMaskLocal_Kokkos<this_type>;
+    this->object_->ops->nvconstrmasklocal = impl::N_VConstrMask_Kokkos<this_type>;
+    this->object_->ops->nvdotprodlocal    = impl::N_VDotProd_Kokkos<this_type>;
+    this->object_->ops->nvinvtestlocal    = impl::N_VInvTest_Kokkos<this_type>;
+    this->object_->ops->nvl1normlocal     = impl::N_VL1Norm_Kokkos<this_type>;
+    this->object_->ops->nvmaxnormlocal    = impl::N_VMaxNorm_Kokkos<this_type>;
+    this->object_->ops->nvminlocal        = impl::N_VMin_Kokkos<this_type>;
+    this->object_->ops->nvminquotientlocal =
+      impl::N_VMinQuotient_Kokkos<this_type>;
+    this->object_->ops->nvwsqrsumlocal = impl::N_VWSqrSumLocal_Kokkos<this_type>;
+    this->object_->ops->nvwsqrsummasklocal =
+      impl::N_VWSqrSumMaskLocal_Kokkos<this_type>;
   }
 };
 

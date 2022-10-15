@@ -14,16 +14,14 @@
  * This is the testing routine for the dense SUNLinearSolver using Kokkos.
  * ---------------------------------------------------------------------------*/
 
+#include <Kokkos_Core.hpp>
+#include <Kokkos_Random.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <iomanip>
-
 #include <nvector/nvector_kokkos.hpp>
-#include <sunmatrix/sunmatrix_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_kokkosdense.hpp>
-
-#include <Kokkos_Core.hpp>
-#include <Kokkos_Random.hpp>
+#include <sunmatrix/sunmatrix_kokkosdense.hpp>
 
 #include "test_sunlinsol.h"
 
@@ -46,7 +44,7 @@ using SizeType = VecType::size_type;
  * SUNLinearSolver Testing
  * ---------------------------------------------------------------------------*/
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   // Create SUNDIALS context
   sundials::Context sunctx;
@@ -86,7 +84,7 @@ int main(int argc, char *argv[])
             << "  Size:   " << rows << " by " << cols << "\n"
             << "  Blocks: " << nblocks << "\n";
 
-  Kokkos::initialize( argc, argv );
+  Kokkos::initialize(argc, argv);
   {
     auto exec_instance = ExecSpace();
 
@@ -96,38 +94,36 @@ int main(int argc, char *argv[])
     VecType b{cols * nblocks, sunctx};
 
     using RandPoolType = Kokkos::Random_XorShift64_Pool<ExecSpace>;
-    using GenType = RandPoolType::generator_type;
+    using GenType      = RandPoolType::generator_type;
 
     RandPoolType rand_pool(5374857);
 
     // Fill A matrix with uniform random data 1 + rand[0,1]
     auto A_data = A.View();
 
-    Kokkos::parallel_for("fill_A",
-                         Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>
-                         ({0, 0, 0}, {nblocks, rows, cols}),
-                         KOKKOS_LAMBDA(const sunindextype i,
-                                       const sunindextype j,
-                                       const sunindextype k)
-                         {
-                           auto rgen = rand_pool.get_state();
-                           auto rval = Kokkos::rand<GenType, sunrealtype>::draw(rgen, ONE);
-                           A_data(i, j, k) = ONE + rval;
-                           rand_pool.free_state(rgen);
-                         });
+    Kokkos::parallel_for(
+      "fill_A",
+      Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>({0, 0, 0},
+                                                        {nblocks, rows, cols}),
+      KOKKOS_LAMBDA(const sunindextype i, const sunindextype j,
+                    const sunindextype k) {
+        auto rgen       = rand_pool.get_state();
+        auto rval       = Kokkos::rand<GenType, sunrealtype>::draw(rgen, ONE);
+        A_data(i, j, k) = ONE + rval;
+        rand_pool.free_state(rgen);
+      });
 
     // Fill x vector with uniform random data in 1 + rand[0,1]
     auto x_data = x.View();
 
-    Kokkos::parallel_for("fill_x",
-                         Kokkos::RangePolicy<ExecSpace>(0, cols * nblocks),
-                         KOKKOS_LAMBDA(const sunindextype j)
-                         {
-                           auto rgen = rand_pool.get_state();
-                           auto rval = Kokkos::rand<GenType, sunrealtype>::draw(rgen, ONE);
-                           x_data(j) = ONE + rval;
-                           rand_pool.free_state(rgen);
-                         });
+    Kokkos::parallel_for(
+      "fill_x", Kokkos::RangePolicy<ExecSpace>(0, cols * nblocks),
+      KOKKOS_LAMBDA(const sunindextype j) {
+        auto rgen = rand_pool.get_state();
+        auto rval = Kokkos::rand<GenType, sunrealtype>::draw(rgen, ONE);
+        x_data(j) = ONE + rval;
+        rand_pool.free_state(rgen);
+      });
 
     // Create right-hand side vector for linear solve
     fails += SUNMatMatvecSetup(A);
@@ -151,8 +147,7 @@ int main(int argc, char *argv[])
     // Print result
     if (fails)
       std::cout << "FAIL: SUNLinSol module failed " << fails << " tests\n\n";
-    else
-      std::cout << "SUCCESS: SUNLinSol module passed all tests\n\n";
+    else std::cout << "SUCCESS: SUNLinSol module passed all tests\n\n";
   }
   Kokkos::finalize();
 
@@ -172,8 +167,8 @@ int CompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   sunrealtype diff = std::abs(a - b);
   sunrealtype norm = std::min(std::abs(a + b),
                               std::numeric_limits<sunrealtype>::max());
-  return diff >= std::max(10 * std::numeric_limits<sunrealtype>::epsilon(),
-                          tol * norm);
+  return diff >=
+         std::max(10 * std::numeric_limits<sunrealtype>::epsilon(), tol * norm);
 }
 
 int check_vector(N_Vector expected, N_Vector computed, realtype tol)
@@ -188,20 +183,15 @@ int check_vector(N_Vector expected, N_Vector computed, realtype tol)
   auto length = e_vec->Length();
 
   // check vector data
-  Kokkos::parallel_reduce("check_vector",
-                          Kokkos::RangePolicy<ExecSpace>(0, length),
-                          KOKKOS_LAMBDA(const sunindextype i, int &l_fail)
-                          {
-                            l_fail += CompareTol(c_data(i), e_data(i), tol);
-                          }, failure);
+  Kokkos::parallel_reduce(
+    "check_vector", Kokkos::RangePolicy<ExecSpace>(0, length),
+    KOKKOS_LAMBDA(const sunindextype i, int& l_fail) {
+      l_fail += CompareTol(c_data(i), e_data(i), tol);
+    },
+    failure);
 
-  if (failure > ZERO)
-    return 1;
-  else
-    return 0;
+  if (failure > ZERO) return 1;
+  else return 0;
 }
 
-void sync_device()
-{
-  Kokkos::fence();
-}
+void sync_device() { Kokkos::fence(); }
