@@ -1390,17 +1390,17 @@ Optional inputs for IVP method selection
 
 .. cssclass:: table-bordered
 
-=================================  =================================  ==============
-Optional input                     Function name                      Default
-=================================  =================================  ==============
-Set integrator method order        :c:func:`ARKStepSetOrder()`        4
-Specify implicit/explicit problem  :c:func:`ARKStepSetImEx()`         ``SUNTRUE``
-Specify explicit problem           :c:func:`ARKStepSetExplicit()`     ``SUNFALSE``
-Specify implicit problem           :c:func:`ARKStepSetImplicit()`     ``SUNFALSE``
-Set additive RK tables             :c:func:`ARKStepSetTables()`       internal
-Specify additive RK table numbers  :c:func:`ARKStepSetTableNum()`     internal
-Specify additive RK table names    :c:func:`ARKStepSetTableName()`    internal
-=================================  =================================  ==============
+========================================  =================================  ==============
+Optional input                            Function name                      Default
+========================================  =================================  ==============
+Set integrator method order               :c:func:`ARKStepSetOrder()`        4
+Specify implicit/explicit problem         :c:func:`ARKStepSetImEx()`         ``SUNTRUE``
+Specify explicit problem                  :c:func:`ARKStepSetExplicit()`     ``SUNFALSE``
+Specify implicit problem                  :c:func:`ARKStepSetImplicit()`     ``SUNFALSE``
+Set additive RK tables                    :c:func:`ARKStepSetTables()`       internal
+Set additive RK tables via their numbers  :c:func:`ARKStepSetTableNum()`     internal
+Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    internal
+========================================  =================================  ==============
 
 
 

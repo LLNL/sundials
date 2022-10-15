@@ -983,17 +983,17 @@ Optional inputs for IVP method selection
 .. _ARKODE.Usage.ERKStep.ERKStepMethodInputTable:
 .. table:: Optional inputs for IVP method selection
 
-   +----------------------------------+---------------------------------+------------------+
-   | Optional input                   | Function name                   | Default          |
-   +----------------------------------+---------------------------------+------------------+
-   | Set integrator method order      | :c:func:`ERKStepSetOrder()`     | 4                |
-   +----------------------------------+---------------------------------+------------------+
-   | Set explicit RK table            | :c:func:`ERKStepSetTable()`     | internal         |
-   +----------------------------------+---------------------------------+------------------+
-   | Specify explicit RK table number | :c:func:`ERKStepSetTableNum()`  | internal         |
-   +----------------------------------+---------------------------------+------------------+
-   | Specify explicit RK table name   | :c:func:`ERKStepSetTableName()` | internal         |
-   +----------------------------------+---------------------------------+------------------+
+   +--------------------------------------+---------------------------------+------------------+
+   | Optional input                       | Function name                   | Default          |
+   +--------------------------------------+---------------------------------+------------------+
+   | Set integrator method order          | :c:func:`ERKStepSetOrder()`     | 4                |
+   +--------------------------------------+---------------------------------+------------------+
+   | Set explicit RK table                | :c:func:`ERKStepSetTable()`     | internal         |
+   +--------------------------------------+---------------------------------+------------------+
+   | Set explicit RK table via its number | :c:func:`ERKStepSetTableNum()`  | internal         |
+   +--------------------------------------+---------------------------------+------------------+
+   | Set explicit RK table via its name   | :c:func:`ERKStepSetTableName()` | internal         |
+   +--------------------------------------+---------------------------------+------------------+
 
 
 
