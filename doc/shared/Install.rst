@@ -1203,14 +1203,14 @@ architecutres/executors. E.g.,
 
    % cmake \
    > -DENABLE_GINKGO=ON \
-   > -DGinkgo_DIR=/path/to/ginkgo/installation
-   > -DSUNDIALS_GINKGO_BACKENDS="REF;OMP;CUDA"
+   > -DGinkgo_DIR=/path/to/ginkgo/installation \
+   > -DSUNDIALS_GINKGO_BACKENDS="REF;OMP;CUDA" \
    > /home/myname/sundials/srcdir
 
 The SUNDIALS interfaces to Ginkgo are not compatible with :cmakeop:`SUNDIALS_PRECISION` set
 to ``extended``.
 
-.. _Installation.CMake.ExternalLibraries.Ginkgo:
+.. _Installation.CMake.ExternalLibraries.Kokkos:
 
 Building with Kokkos
 ^^^^^^^^^^^^^^^^^^^^
@@ -1225,16 +1225,20 @@ accelerators. To enable Kokkos in SUNDIALS, set the :cmakeop:`ENABLE_KOKKOS` to
 common computational kernels for linear algebra. To enable Kokkos-Kernels in
 SUNDIALS, set the :cmakeop:`ENABLE_KOKKOS_KERNELS` to ``ON`` and provide the
 path to the root of the Kokkos-Kernels installation in
-:cmakeop:`KokkosKernels_DIR`e.g.,
+:cmakeop:`KokkosKernels_DIR` e.g.,
 
 .. code-block:: bash
 
    % cmake \
    > -DENABLE_KOKKOS=ON \
-   > -DKokkos_DIR=/path/to/kokkos/installation
+   > -DKokkos_DIR=/path/to/kokkos/installation \
    > -DENABLE_KOKKOS_KERNELS=ON \
-   > -DKokkosKernels_DIR=/path/to/kokkoskernels/installation
+   > -DKokkosKernels_DIR=/path/to/kokkoskernels/installation \
    > /home/myname/sundials/srcdir
+
+.. note::
+
+   The minimum supported version of Kokkos-Kernels 3.7.00.
 
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 
