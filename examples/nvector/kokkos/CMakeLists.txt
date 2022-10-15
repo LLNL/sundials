@@ -80,8 +80,12 @@ if(EXAMPLES_INSTALL)
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
     CMAKE_TEMPLATE
       cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
+    SUNDIALS_COMPONENTS
       nveckokkos
+    SUNDIALS_TARGETS
+      generic
+    OTHER_TARGETS
+      Kokkos::kokkos
     DESTINATION
       nvector/kokkos
     )

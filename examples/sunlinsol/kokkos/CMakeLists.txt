@@ -85,10 +85,15 @@ if(EXAMPLES_INSTALL)
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE
       cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
+    SUNDIALS_COMPONENTS
       nveckokkos
       sunmatrixkokkosdense
       sunlinsolkokkosdense
+    SUNDIALS_TARGETS
+      generic
+    OTHER_TARGETS
+      Kokkos::kokkos
+      Kokkos::kokkoskernels
     DESTINATION
       sunlinsol/kokkos
     )

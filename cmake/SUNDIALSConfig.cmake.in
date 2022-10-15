@@ -63,6 +63,11 @@ if("@ENABLE_CALIPER@" AND NOT TARGET caliper)
   find_package(CALIPER PATHS "@CALIPER_DIR@")
 endif()
 
+if("@ENABLE_CUDA@" AND NOT (TARGET CUDA::cudart AND TARGET CUDA::cublas
+   AND TARGET CUDA::cusparse AND TARGET CUDA::cusolver))
+  find_dependency(CUDAToolkit)
+endif()
+
 if("@ENABLE_HYPRE@" AND NOT TARGET SUNDIALS::HYPRE)
   add_library(SUNDIALS::HYPRE INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::HYPRE INTERFACE "@HYPRE_LIBRARIES@")

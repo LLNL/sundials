@@ -86,9 +86,14 @@ if(EXAMPLES_INSTALL)
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
     CMAKE_TEMPLATE
       cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
+    SUNDIALS_COMPONENTS
       nveckokkos
       sunmatrixkokkosdense
+    SUNDIALS_TARGETS
+      generic
+    OTHER_TARGETS
+      Kokkos::kokkos
+      Kokkos::kokkoskernels
     DESTINATION
       sunmatrix/kokkos
     )

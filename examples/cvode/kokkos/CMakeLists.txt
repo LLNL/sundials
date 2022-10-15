@@ -56,6 +56,11 @@ foreach(example_tuple ${examples_list})
         sundials_sunlinsolkokkosdense
         ${EXE_EXTRA_LINK_LIBS}
       )
+
+      if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+        target_link_libraries(${example_target} PRIVATE
+          sundials_cvode_fused_stubs)
+      endif()
     endif()
 
     # check if example args are provided and set the test name
@@ -79,14 +84,25 @@ endforeach()
 # Install the targets
 if(EXAMPLES_INSTALL)
 
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(_fused_stubs cvode_fused_stubs)
+  endif()
+
   sundials_install_examples(cvode examples_list
     CMAKE_TEMPLATE
       cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
-      cvode
+    SUNDIALS_COMPONENTS
       nveckokkos
       sunmatrixkokkosdense
       sunlinsolkokkosdense
+    SUNDIALS_TARGETS
+      cvode
+      ${_fused_stubs}
+    OTHER_TARGETS
+      Kokkos::kokkos
+      Kokkos::kokkoskernels
+    EXTRA_FILES
+      "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
     DESTINATION
       cvode/kokkos
     )
