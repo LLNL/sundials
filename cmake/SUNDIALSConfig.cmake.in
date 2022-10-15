@@ -68,6 +68,13 @@ if("@ENABLE_CUDA@" AND NOT (TARGET CUDA::cudart AND TARGET CUDA::cublas
   find_dependency(CUDAToolkit)
 endif()
 
+if("@ENABLE_GINKGO@" AND NOT TARGET Ginkgo::ginkgo)
+  if(NOT TARGET hwloc AND NOT HWLOC_DIR)
+    set(HWLOC_DIR "@HWLOC_DIR@")
+  endif()
+  find_dependency(Ginkgo PATHS "@Ginkgo_DIR@")
+endif()
+
 if("@ENABLE_HYPRE@" AND NOT TARGET SUNDIALS::HYPRE)
   add_library(SUNDIALS::HYPRE INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::HYPRE INTERFACE "@HYPRE_LIBRARIES@")
