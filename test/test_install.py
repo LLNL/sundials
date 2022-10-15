@@ -28,14 +28,20 @@ def main():
     import subprocess
 
     parser = argparse.ArgumentParser(
-        description='Find and test installed build files in a given directory',
+        description='Find and build installed examples',
         formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('directory', type=str,
                         help='Directory to search for build files')
 
     parser.add_argument('--cmake', action='store_true',
-                        help='Test CMake build')
+                        help='CMake build')
+
+    parser.add_argument('--test', action='store_true',
+                        help='Test builds')
+
+    parser.add_argument('--clean', action='store_true',
+                        help='Clean builds')
 
     parser.add_argument('--regex', type=str,
                         help='Regular expression for filtering example directories')
@@ -56,6 +62,9 @@ def main():
     if args.cmake:
         filename = "CMakeLists.txt"
     else:
+        filename = "Makefile"
+
+    if args.clean:
         filename = "Makefile"
 
     # get list of build files
@@ -85,7 +94,7 @@ def main():
     total = len(buildfiles)
 
     # build examples
-    buildfail = False
+    fail = False
     errors = []
     for i, bf in enumerate(buildfiles):
 
@@ -94,8 +103,17 @@ def main():
         # move to example directory
         os.chdir(os.path.dirname(bf))
 
+        # clean and move on
+        if args.clean:
+            ret = subprocess.call('make clean', shell=True,
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL)
+            # return to original directory
+            os.chdir(cwd)
+            continue
+
         # confgure cmake if necessary
-        configfail=False
+        configfail = False
         if args.cmake:
             ret = subprocess.call('cmake -DCMAKE_VERBOSE_MAKEFILE=ON .',
                                   shell=True, stdout=subprocess.DEVNULL,
@@ -103,26 +121,41 @@ def main():
             if ret != 0:
                 errors.append(os.path.dirname(bf))
                 configfail = True
-                buildfail = True
 
         # make examples
+        buildfail = False
         if not configfail:
-            ret = subprocess.call('make', shell=True, stdout=subprocess.DEVNULL,
+            ret = subprocess.call('make', shell=True,
+                                  stdout=subprocess.DEVNULL,
                                   stderr=subprocess.DEVNULL)
             if ret != 0:
                 errors.append(os.path.dirname(bf))
                 buildfail = True
 
+        # test examples
+        testfail = False
+        if not configfail and not buildfail and args.test:
+            ret = subprocess.call('make test', shell=True,
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL)
+            if ret != 0:
+                errors.append(os.path.dirname(bf))
+                testfail = True
+
         # return to original directory
         os.chdir(cwd)
 
+        # set test status
+        if configfail or buildfail or testfail:
+            fail = True
+
         # stop on first error
-        if args.failfast and buildfail:
+        if args.failfast and fail:
             break
 
     # print list of failed builds
-    if buildfail:
-        print("The following builds failed:")
+    if fail:
+        print("The following examples failed:")
         for err in errors:
             print(err)
         sys.exit(1)
