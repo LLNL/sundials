@@ -29,9 +29,7 @@ set(sunmatrix_slunrloc_examples
 # Dependencies for sunmatrix examples
 set(sunmatrix_slunrloc_dependencies
   test_sunmatrix
-  sundials_matrix
-  sundials_nvector
-)
+  )
 
 if(MPI_C_COMPILER)
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})

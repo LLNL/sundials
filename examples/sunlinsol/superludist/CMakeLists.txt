@@ -28,10 +28,7 @@ set(sunlinsol_superludist_examples
 # Dependencies for nvector examples
 set(sunlinsol_superludist_dependencies
   test_sunlinsol
-  sundials_nvector
-  sundials_matrix
-  sundials_linearsolver
-)
+  )
 
 if(MPI_C_COMPILER AND MPI_CXX_COMPILER)
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
