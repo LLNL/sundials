@@ -64,9 +64,6 @@ def main():
     else:
         filename = "Makefile"
 
-    if args.clean:
-        filename = "Makefile"
-
     # get list of build files
     buildfiles = []
     for root, dirs, files in os.walk(args.directory):
@@ -76,7 +73,7 @@ def main():
     # output list of build files
     if args.verbose > 0:
         print(f"Total files: {len(buildfiles)}")
-    if args.verbose > 1:
+    if args.verbose > 2:
         for bf in buildfiles:
             print(bf)
 
@@ -86,7 +83,7 @@ def main():
         buildfiles = [ bf for bf in buildfiles if re.search(regex, bf) ]
         if args.verbose > 0:
             print(f"Total files (filtered): {len(buildfiles)}")
-        if args.verbose > 1:
+        if args.verbose > 2:
             for bf in buildfiles:
                 print(bf)
 
@@ -115,9 +112,13 @@ def main():
         # confgure cmake if necessary
         configfail = False
         if args.cmake:
+            if os.path.isfile('Makefile'):
+                os.remove('Makefile')
             ret = subprocess.call('cmake -DCMAKE_VERBOSE_MAKEFILE=ON .',
                                   shell=True, stdout=subprocess.DEVNULL,
                                   stderr=subprocess.DEVNULL)
+            if args.verbose > 0:
+                print(f"  Config return: {ret}")
             if ret != 0:
                 errors.append(os.path.dirname(bf))
                 configfail = True
@@ -128,6 +129,8 @@ def main():
             ret = subprocess.call('make', shell=True,
                                   stdout=subprocess.DEVNULL,
                                   stderr=subprocess.DEVNULL)
+            if args.verbose > 0:
+                print(f"  Build return: {ret}")
             if ret != 0:
                 errors.append(os.path.dirname(bf))
                 buildfail = True
@@ -138,6 +141,8 @@ def main():
             ret = subprocess.call('make test', shell=True,
                                   stdout=subprocess.DEVNULL,
                                   stderr=subprocess.DEVNULL)
+            if args.verbose > 0:
+                print(f"  Test return: {ret}")
             if ret != 0:
                 errors.append(os.path.dirname(bf))
                 testfail = True
