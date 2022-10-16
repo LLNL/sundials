@@ -135,8 +135,8 @@ algebra library. This support includes new ``SUNMatrix`` and ``SUNLinearSolver``
 implementations, see the sections :numref:`SUNMatrix.Ginkgo` and
 :numref:`SUNLinSol.Ginkgo`.
 
-Added new ``NVector``, ``SUNMatrix``, and ``SUNLinearSolver`` implementations
-for interfacing with the `Kokkos Ecosystem <https://kokkos.org/>`_ for
+Added new ``NVector``, dense ``SUNMatrix``, and dense ``SUNLinearSolver``
+implementations utilizing the `Kokkos Ecosystem <https://kokkos.org/>`_ for
 performance portability, see sections :numref:`NVectors.Kokkos`,
 :numref:`SUNMatrix.Kokkos`, and :numref:`SUNLinSol.Kokkos` for more information.
 

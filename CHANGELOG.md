@@ -16,9 +16,9 @@ library. This support includes new `SUNMatrix` and `SUNLinearSolver`
 implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
 sections in the documentation for more information.
 
-Added new `NVector`, `SUNMatrix`, and `SUNLinearSolver` implementations for
-interfacing with the [Kokkos Ecosystem](https://kokkos.org/) for performance
-portability, see the `NVECTOR_KOKKOS`, `SUNMATRIX_KOKKOSDENSE` and
+Added new `NVector`, dense `SUNMatrix`, and dense `SUNLinearSolver`
+implementations utilizing [Kokkos Ecosystem](https://kokkos.org/) for
+performance portability, see the `NVECTOR_KOKKOS`, `SUNMATRIX_KOKKOSDENSE` and
 `SUNLINEARSOLVER_KOKKOSDENSE` sections in the documentation for more
 information.
 
