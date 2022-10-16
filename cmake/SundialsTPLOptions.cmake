@@ -317,7 +317,7 @@ sundials_option(KOKKOS_WORKS BOOL "Set to ON to force CMake to accept a given Ko
                 ADVANCED)
 
 # ---------------------------------------------------------------
-# Enable Kokkos support?
+# Enable Kokkos Kernels support?
 # ---------------------------------------------------------------
 
 sundials_option(ENABLE_KOKKOS_KERNELS BOOL "Enable Kokkos Kernels support" OFF)
