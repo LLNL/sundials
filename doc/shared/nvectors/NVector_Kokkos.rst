@@ -60,11 +60,11 @@ To use the NVECTOR_KOKKOS module, we construct an instance of the ``Vector`` cla
    // Vector based on an existing Kokkos::View for device and host
    Kokkos::View<Kokkos::Cuda> device_view{"a view", length};
    Kokkos::View<Kokkos::HostMirror> host_view{Kokkos::create_mirror_view(device_view)};
-   sundials::kokkos::Vector<> x{device_views, host_view, sunctx};
+   sundials::kokkos::Vector<> x{device_view, host_view, sunctx};
 
 
 Instances of the ``Vector`` class are implicitly or explicitly (using the
-:cpp:func:`Vector::Convert` method) are convertible to a :c:type:`N_Vector`
+:cpp:func:`Vector::Convert` method) convertible to a :c:type:`N_Vector`
 e.g.,
 
 .. code-block:: cpp
@@ -87,7 +87,7 @@ The underlying ``Vector`` can be extracted from a ``N_Vector`` using
 
 .. code-block:: cpp
 
-   auto x_vec = GetVec<>(x_nvector);
+   auto x_vec = GetVec<>(x3);
 
 .. _NVectors.Kokkos.API:
 

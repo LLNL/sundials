@@ -624,7 +624,7 @@ illustration only.
 
 .. cmakeoption:: ENABLE_KOKKOS_KERNELS
 
-   Enable the Kokkos based matrix and linear solver.
+   Enable the Kokkos based dense matrix and linear solver.
 
    Default: ``OFF``
 
