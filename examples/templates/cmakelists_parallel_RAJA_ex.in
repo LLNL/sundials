@@ -104,15 +104,6 @@ set(SUNDIALS_LIBRARIES
 
 # ------------------------------------------------------------------------------
 
-# Find raja includes and libraries
-set(RAJA_DIR
-  @RAJA_DIR@
-  CACHE PATH "Location of RAJA install")
-
-find_package(RAJA CONFIG
-  PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake
-  REQUIRED)
-
 # Set the names of the examples to be built and their dependencies
 set(examples @EXAMPLES@)
 set(examples_dependencies @EXAMPLES_DEPENDENCIES@)

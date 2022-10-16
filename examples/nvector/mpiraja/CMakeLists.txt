@@ -16,18 +16,9 @@
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS MPI+raja nvector
-set(nvector_raja_examples
-  "test_nvector_mpiraja\;1000 0\;\;\;"    # run sequentially
-  "test_nvector_mpiraja\;1000 0\;1\;4\;"  # run parallel on 4 procs
-  )
-
-# Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
-  sundials_math
+set(examples_list
+  "test_nvector_mpiraja.cpp\;1000 0\;\;\;"    # run sequentially
+  "test_nvector_mpiraja.cpp\;1000 0\;1\;4\;"  # run parallel on 4 procs
   )
 
 # Add source directory to include directories
@@ -53,24 +44,26 @@ foreach(example_tuple ${nvector_raja_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
 
-    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
-
     # example source files
-    add_executable(${example} ${example}.cpp)
+    add_executable(${example_target} ${example})
 
-    # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
+    set_source_files_properties(${example_target} PROPERTIES LANGUAGE ${_lang})
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    target_include_directories(${example} PUBLIC ${MPI_CXX_INCLUDE_DIRS})
+    target_include_directories(${example_target} PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
-    target_link_libraries(${example}
+    target_link_libraries(${example_target}
       PRIVATE
+      test_nvector_obj
+      test_nvectormpi_obj
       sundials_nvecmpiplusx
       sundials_nvecraja
       ${MPI_CXX_LIBRARIES}
@@ -79,7 +72,6 @@ foreach(example_tuple ${nvector_raja_examples})
 
   endif()
 
-  # check if example args are provided and set the test name
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
     if("${number_of_tasks}" STREQUAL "")
@@ -96,66 +88,45 @@ foreach(example_tuple ${nvector_raja_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(${test_name} ${example_target}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      ../../../src/sundials/sundials_math.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja)
-  endif()
-
-endforeach(example_tuple ${nvector_raja_examples})
+endforeach()
 
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja)
-
-  examples2string(nvector_raja_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_RAJA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_RAJA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja
-      RENAME Makefile
-      )
+  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+    set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
+    set(_openmp_target OpenMP::OpenMP_CXX)
   endif()
+
+  if(RAJA_NEEDS_THREADS)
+    set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+  endif()
+
+  sundials_install_examples(nvec_mpiraja examples_list
+    EXAMPLES_DEPENDENCIES
+      test_nvector.c
+      test_mpinvector.c
+    EXTRA_FILES
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
+    CMAKE_TEMPLATE
+      cmakelists_${_lang}_MPI_ex.in
+    SOLVER_LIBRARY
+      sundials_ida
+    SUNDIALS_TARGETS
+      generic
+      nvecmpiplusx
+      nvecraja
+    OTHER_TARGETS
+      ${_openmp_target}
+    DESTINATION
+      nvector/mpiraja
+  )
 
 endif()
