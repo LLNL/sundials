@@ -41,6 +41,10 @@ using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
 using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
 using GkoVecType  = GkoDenseMat;
 
+//
+// Prototypes for non-class methods that operate on Matrix
+//
+
 inline std::unique_ptr<GkoVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x);
 
 inline std::unique_ptr<const GkoVecType> WrapConstVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x);
@@ -69,11 +73,10 @@ inline void Zero(Matrix<GkoDenseMat>& A);
 template<typename GkoMatType>
 void Copy(Matrix<GkoMatType>& A, Matrix<GkoMatType>& B);
 
-} // namespace impl
-
 //
 // Methods that operate on SUNMatrix
 //
+
 template<typename GkoMatType>
 SUNMatrix_ID SUNMatGetID_Ginkgo(SUNMatrix A)
 {
@@ -137,6 +140,12 @@ int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
   impl::Matvec(*A_mat, x, y);
   return SUNMAT_SUCCESS;
 }
+
+} // namespace impl
+
+// =============================================================================
+// Public namespace
+// =============================================================================
 
 /// Class that wraps a Ginkgo matrix and allows it to convert to a fully functioning `SUNMatrix`.
 template<typename GkoMatType>
@@ -240,22 +249,27 @@ private:
   {
     this->object_->content = this;
 
-    this->object_->ops->getid     = SUNMatGetID_Ginkgo<GkoMatType>;
-    this->object_->ops->clone     = SUNMatClone_Ginkgo<GkoMatType>;
-    this->object_->ops->zero      = SUNMatZero_Ginkgo<GkoMatType>;
-    this->object_->ops->copy      = SUNMatCopy_Ginkgo<GkoMatType>;
-    this->object_->ops->scaleadd  = SUNMatScaleAdd_Ginkgo<GkoMatType>;
-    this->object_->ops->scaleaddi = SUNMatScaleAddI_Ginkgo<GkoMatType>;
-    this->object_->ops->matvec    = SUNMatMatvec_Ginkgo<GkoMatType>;
-    this->object_->ops->destroy   = SUNMatDestroy_Ginkgo<GkoMatType>;
+    this->object_->ops->getid     = impl::SUNMatGetID_Ginkgo<GkoMatType>;
+    this->object_->ops->clone     = impl::SUNMatClone_Ginkgo<GkoMatType>;
+    this->object_->ops->zero      = impl::SUNMatZero_Ginkgo<GkoMatType>;
+    this->object_->ops->copy      = impl::SUNMatCopy_Ginkgo<GkoMatType>;
+    this->object_->ops->scaleadd  = impl::SUNMatScaleAdd_Ginkgo<GkoMatType>;
+    this->object_->ops->scaleaddi = impl::SUNMatScaleAddI_Ginkgo<GkoMatType>;
+    this->object_->ops->matvec    = impl::SUNMatMatvec_Ginkgo<GkoMatType>;
+    this->object_->ops->destroy   = impl::SUNMatDestroy_Ginkgo<GkoMatType>;
   }
 };
+
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
+namespace impl {
 
 //
 // Non-class methods that operate on Matrix
 //
-
-namespace impl {
 
 inline std::unique_ptr<GkoVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
 {
