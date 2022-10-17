@@ -15,55 +15,54 @@
  *
  * We simulate a scenario where a set of independent ODEs are batched together
  * to form a larger system. Each independent ODE system has 3 components,
- * Y = [u,v,w], satisfying the equations,
- *    du/dt = a - (w+1)*u + v*u^2
- *    dv/dt = w*u - v*u^2
- *    dw/dt = (b-w)/ep - w*u
- * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].
- * The problem is stiff. We have 3 different testing scenarios:
+ * Y = [u, v, w], satisfying the equations,
  *
- * Reactor 0:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
- *    Here, all three components exhibit a rapid transient change
- *    during the first 0.2 time units, followed by a slow and
- *    smooth evolution.
+ *   du/dt = a - (w + 1) * u + v * u^2
+ *   dv/dt = w * u - v * u^2
+ *   dw/dt = (b - w) / ep - w * u
  *
- * Reactor 1:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
- *    Here, all components undergo very rapid initial transients
- *    during the first 0.3 time units, and all then proceed very
- *    smoothly for the remainder of the simulation.
+ * for t in the interval [0, 10], with initial conditions Y0 = [u0, v0, w0].
+ * The problem is stiff and there are 3 testing scenarios:
  *
- * Reactor 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
- *    Here, w experiences a fast initial transient, jumping 0.5
- *    within a few steps.  All values proceed smoothly until
- *    around t=6.5, when both u and v undergo a sharp transition,
- *    with u increaseing from around 0.5 to 5 and v decreasing
- *    from around 6 to 1 in less than 0.5 time units.  After this
- *    transition, both u and v continue to evolve somewhat
- *    rapidly for another 1.4 time units, and finish off smoothly.
+ * Reactor 0: u0 = 3.9, v0 = 1.1, w0 = 2.8, a = 1.2, b = 2.5, ep = 1.0e-5
+ *   Here, all three components exhibit a rapid transient change during the
+ *   first 0.2 time units, followed by a slow and smooth evolution.
+ *
+ * Reactor 1: u0 = 3, v0 = 3, w0 = 3.5, a = 0.5, b = 3, ep = 5.0e-4
+ *   Here, all components undergo very rapid initial transients during the first
+ *   0.3 time units, and all then proceed very smoothly for the remainder of the
+ *   simulation.
+ *
+ * Reactor 2: u0 = 1.2, v0 = 3.1, w0 = 3, a = 1, b = 3.5, ep = 5.0e-6
+ *   Here, w experiences a fast initial transient, jumping 0.5 within a few
+ *   steps. All values proceed smoothly until around t=6.5, when both u and v
+ *   undergo a sharp transition, with u increasing from around 0.5 to 5 and v
+ *   decreasing from around 6 to 1 in less than 0.5 time units. After this
+ *   transition, both u and v continue to evolve somewhat rapidly for another
+ *   1.4 time units, and finish off smoothly.
  *
  * This program solves the problem with the BDF method, Newton iteration, a
- * user-supplied Jacobian routine, and since the grouping of the independent
- * systems results in a block diagonal linear system, with the KOKKOS
- * SUNLinearSolver which supports batched iterative methods. 100 outputs are
- * printed at equal intervals, and run statistics are printed at the end.
+ * user-supplied Jacobian routine, and, since the grouping of the independent
+ * systems results in a block diagonal linear system, the dense KOKKOS
+ * SUNLinearSolver which supports batched systems. 100 outputs are printed at
+ * equal intervals, and run statistics are printed at the end.
  *
  * The program takes three optional arguments, the number of independent ODE
- * systems (i.e. number of batches), the linear solver type
- * (KOKKOS batched LU, non-batched GMRES with the Jacobian computed by
- * difference quotients, or non-batched GMRES with analytical Jacobian), and
- * the test type (uniform_1, uniform_2, uniform_3, or random).
+ * systems (i.e., number of batches), the linear solver type (KOKKOS batched LU
+ * or non-batched GMRES with the Jacobian computed by difference quotients)
+ * the test type (uniform_0, uniform_1, or  uniform_2).
  *
- *    ./cv_bruss_batched_kokkos [num_batches] [solver_type] [test_type]
+ *   ./cv_bruss_batched_kokkos [num_batches] [solver_type] [test_type]
  *
  * Options:
- *    num_batches <int>
- *    solver_type:
- *       0 - KOKKOS batched LU
- *       1 - SUNDIALS non-batched GMRES with difference quotients Jacobian
- *    test_type:
- *       0 - all batches are the same reactor type 0
- *       1 - all batches are the same reactor type 1
- *       2 - all batches are the same reactor type 2
+ *   num_batches <int>
+ *   solver_type:
+ *     0 - KOKKOS batched LU (default)
+ *     1 - SUNDIALS non-batched GMRES with difference quotients Jacobian
+ *   test_type:
+ *     0 - uniform_0, all batches are Reactor 0
+ *     1 - uniform 1, all batches are Reactor 1
+ *     2 - uniform 2, all batches are Reactor 2 (default)
  * ---------------------------------------------------------------------------*/
 
 #include <cstdio>
@@ -139,7 +138,7 @@ int main(int argc, char* argv[])
     if (argc > 2) solver_type = atoi(argv[++argi]);
 
     // Problem setup
-    int test_type = 3;
+    int test_type = 2;
     if (argc > 3) test_type = atoi(argv[++argi]);
 
     // Shortcuts
@@ -154,7 +153,7 @@ int main(int argc, char* argv[])
               << "  execution space   = " << ExecSpace().name() << "\n\n";
 
     sunrealtype u0, v0, w0;
-    if (test_type == 1)
+    if (test_type == 0)
     {
       u0 = SUN_RCONST(3.9);
       v0 = SUN_RCONST(1.1);
@@ -164,7 +163,7 @@ int main(int argc, char* argv[])
       udata.b  = SUN_RCONST(2.5);
       udata.ep = SUN_RCONST(1.0e-5);
     }
-    else if (test_type == 2)
+    else if (test_type == 1)
     {
       u0 = SUN_RCONST(3.0);
       v0 = SUN_RCONST(3.0);
@@ -174,7 +173,7 @@ int main(int argc, char* argv[])
       udata.b  = SUN_RCONST(3.0);
       udata.ep = SUN_RCONST(5.0e-4);
     }
-    else if (test_type == 3)
+    else if (test_type == 2)
     {
       u0 = SUN_RCONST(1.2);
       v0 = SUN_RCONST(3.1);
@@ -183,6 +182,11 @@ int main(int argc, char* argv[])
       udata.a  = SUN_RCONST(1.0);
       udata.b  = SUN_RCONST(3.5);
       udata.ep = SUN_RCONST(5.0e-6);
+    }
+    else
+    {
+      std::cerr << "ERROR: Invalid test type option\n";
+      return -1;
     }
 
     // Create vector with the initial condition

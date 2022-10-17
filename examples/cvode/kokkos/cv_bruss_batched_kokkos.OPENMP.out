@@ -2,7 +2,7 @@
 Batch of independent 3-species kinetics problems
   number of batches = 100
   linear solver     = KokkosKernels
-  test type         = 3
+  test type         = 2
   execution space   = OpenMP
 
 At t = 0
