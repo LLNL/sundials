@@ -88,7 +88,7 @@ int SUNMatZero_KokkosDense(SUNMatrix A)
   Kokkos::parallel_for(
     "sunmat_zero", range_policy(A_exec, {0, 0, 0}, {blocks, rows, cols}),
     KOKKOS_LAMBDA(const size_type i, const size_type j, const size_type k) {
-      A_data(i, j, k) = 0.0;
+      A_data(i, j, k) = SUN_RCONST(0.0);
     });
 
   return SUNMAT_SUCCESS;
@@ -167,7 +167,7 @@ int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
   Kokkos::parallel_for(
     "sunmat_scale_add_i", range_policy(A_exec, {0, 0, 0}, {blocks, rows, cols}),
     KOKKOS_LAMBDA(const size_type i, const size_type j, const size_type k) {
-      if (j == k) A_data(i, j, k) = c * A_data(i, j, k) + 1.0;
+      if (j == k) A_data(i, j, k) = c * A_data(i, j, k) + SUN_RCONST(1.0);
       else A_data(i, j, k) = c * A_data(i, j, k);
     });
 
@@ -214,15 +214,18 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
                                                              (idx + 1) * rows));
         KokkosBatched::TeamVectorGemv<
           member_type, KokkosBatched::Trans::NoTranspose,
-          KokkosBatched::Algo::Gemv::Unblocked>::invoke(team_member, 1.0,
+          KokkosBatched::Algo::Gemv::Unblocked>::invoke(team_member,
+                                                        SUN_RCONST(1.0),
                                                         A_subdata, x_subdata,
-                                                        0.0, y_subdata);
+                                                        SUN_RCONST(0.0),
+                                                        y_subdata);
       });
   }
   else
   {
     auto A_subdata = Kokkos::subview(A_data, 0, Kokkos::ALL(), Kokkos::ALL());
-    KokkosBlas::gemv("N", 1.0, A_subdata, x_data, 0.0, y_data);
+    KokkosBlas::gemv("N", SUN_RCONST(1.0), A_subdata, x_data, SUN_RCONST(0.0),
+                     y_data);
   }
 
   return SUNMAT_SUCCESS;

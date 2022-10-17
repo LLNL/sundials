@@ -84,7 +84,7 @@ int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
   // Copy b into x
-  N_VScale(1.0, b, x);
+  N_VScale(SUN_RCONST(1.0), b, x);
 
   // Access matrix and vector data
   auto A_mat{sundials::kokkos::GetDenseMat<MatrixType>(A)};
@@ -116,13 +116,15 @@ int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       KokkosBatched::TeamVectorTrsv<
         member_type, KokkosBatched::Uplo::Lower,
         KokkosBatched::Trans::NoTranspose, KokkosBatched::Diag::Unit,
-        KokkosBatched::Algo::Trsv::Unblocked>::invoke(team_member, 1.0,
+        KokkosBatched::Algo::Trsv::Unblocked>::invoke(team_member,
+                                                      SUN_RCONST(1.0),
                                                       A_subdata, x_subdata);
       // Upper triangular solve
       KokkosBatched::TeamVectorTrsv<
         member_type, KokkosBatched::Uplo::Upper,
         KokkosBatched::Trans::NoTranspose, KokkosBatched::Diag::NonUnit,
-        KokkosBatched::Algo::Trsv::Unblocked>::invoke(team_member, 1.0,
+        KokkosBatched::Algo::Trsv::Unblocked>::invoke(team_member,
+                                                      SUN_RCONST(1.0),
                                                       A_subdata, x_subdata);
     });
 
