@@ -55,9 +55,7 @@ template<class MatrixType>
 SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
-  auto new_mat{new MatrixType(A_mat->Blocks(), A_mat->BlockRows(),
-                              A_mat->BlockCols(), A_mat->ExecSpace(),
-                              A_mat->sunctx())};
+  auto new_mat{new MatrixType(*A_mat)};
   return new_mat->Convert();
 }
 
