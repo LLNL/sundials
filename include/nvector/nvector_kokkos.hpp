@@ -159,7 +159,7 @@ void N_VAbs_Kokkos(N_Vector x, N_Vector z)
 
   Kokkos::parallel_for(
     "N_VAbs", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = abs(xdata(i)); });
+    KOKKOS_LAMBDA(const size_type i) { zdata(i) = std::abs(xdata(i)); });
 }
 
 template<class VectorType>
@@ -190,7 +190,7 @@ void N_VCompare_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
   Kokkos::parallel_for(
     "N_VCompare", typename VectorType::range_policy(0, xvec->Length()),
     KOKKOS_LAMBDA(const size_type i) {
-      zdata(i) = abs(xdata(i)) >= c ? sunrealtype{1.0} : sunrealtype{0.0};
+      zdata(i) = std::abs(xdata(i)) >= c ? sunrealtype{1.0} : sunrealtype{0.0};
     });
 }
 
@@ -223,9 +223,9 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
   Kokkos::parallel_reduce(
     "N_VConstrMask", typename VectorType::range_policy(0, mvec->Length()),
     KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      bool test = (abs(cdata(i)) > sunrealtype{1.5} &&
+      bool test = (std::abs(cdata(i)) > sunrealtype{1.5} &&
                    cdata(i) * xdata(i) <= sunrealtype{0.0}) ||
-                  (abs(cdata(i)) > sunrealtype{0.5} &&
+                  (std::abs(cdata(i)) > sunrealtype{0.5} &&
                    cdata(i) * xdata(i) < sunrealtype{0.0});
       mdata(i) = test ? sunrealtype{1.0} : sunrealtype{0.0};
       update += mdata(i);
@@ -322,7 +322,7 @@ sunrealtype N_VL1Norm_Kokkos(N_Vector x)
   Kokkos::parallel_reduce(
     "N_VL1Norm", typename VectorType::range_policy(0, xvec->Length()),
     KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      update += (abs(xdata(i)));
+      update += (std::abs(xdata(i)));
     },
     gpu_result);
 
@@ -359,7 +359,7 @@ sunrealtype N_VMaxNorm_Kokkos(N_Vector x)
   Kokkos::parallel_reduce(
     "N_VMaxNorm", typename VectorType::range_policy(0, xvec->Length()),
     KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (abs(xdata(i)) > update) update = abs(xdata(i));
+      if (std::abs(xdata(i)) > update) update = std::abs(xdata(i));
     },
     Kokkos::Max<sunrealtype>(gpu_result));
 
