@@ -101,6 +101,8 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsCaliper.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsGinkgo.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsHypre.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsKLU.cmake
+$tar $tarfile $distrobase/cmake/tpl/SundialsKokkos.cmake
+$tar $tarfile $distrobase/cmake/tpl/SundialsKokkosKernels.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsLapack.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsMAGMA.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsMPI.cmake
