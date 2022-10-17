@@ -21,7 +21,7 @@ The SUNMATRIX_KOKKOSDENSE Module
 The SUNMATRIX_KOKKOSDENSE :c:type:`SUNMatrix` implementation provides a data
 structure for dense and dense batched (block-diagonal) matrices using Kokkos
 :cite:p:`edwards2014kokkos,trott2022kokkos` and KokkosKernels
-:cite:p:`trott2021kokkos` to support variety backends including serial, OpenMP,
+:cite:p:`trott2021kokkos` to support a variety of backends including serial, OpenMP,
 CUDA, HIP, and SYCL. Since Kokkos is a modern C++ library, the module is also
 written in modern C++ (it requires C++14) as a header only library. To utilize
 this ``SUNMatrix`` users will need to include
@@ -69,7 +69,7 @@ the Kokkos dense matrix e.g.,
                                                       sunctx};
 
 Instances of the ``DenseMatrix`` class are implicitly or explicitly (using the
-:cpp:func:`~DenseMatrix::Convert` method) convertible to a :c:type:`SUNMatrix`
+:cpp:func:`DenseMatrix::Convert` method) convertible to a :c:type:`SUNMatrix`
 e.g.,
 
 .. code-block:: cpp

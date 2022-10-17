@@ -36,7 +36,7 @@ documentation.
 Using SUNLINEARSOLVER_KOKKOSDENSE
 ---------------------------------
 
-The SUNLINEARSOLVER_KOKKOSDENSE module is defined by the ``:DenseLinearSolver``
+The SUNLINEARSOLVER_KOKKOSDENSE module is defined by the ``DenseLinearSolver``
 templated class in the ``sundials::kokkos`` namespace:
 
 .. code-block:: cpp
@@ -47,7 +47,7 @@ templated class in the ``sundials::kokkos`` namespace:
                              public sundials::ConvertibleTo<SUNLinearSolver>
 
 To use the SUNLINEARSOLVER_KOKKOSDENSE module, we begin by constructing an
-instance of dense linear solver e.g.,
+instance of a dense linear solver e.g.,
 
 .. code-block:: cpp
 
@@ -55,7 +55,7 @@ instance of dense linear solver e.g.,
     sundials::kokkos::DenseLinearSolver<> LS{sunctx};
 
 Instances of the ``DenseLinearSolver`` class are implicitly or explicitly (using
-the :cpp:func:`~DenseLinearSolver::Convert` method) convertible to a
+the :cpp:func:`DenseLinearSolver::Convert` method) convertible to a
 :c:type:`SUNLinearSolver` e.g.,
 
 .. code-block:: cpp
