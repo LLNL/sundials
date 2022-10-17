@@ -27,7 +27,7 @@
 namespace sundials {
 namespace kokkos {
 
-// Forward decalaration of Matrix class
+// Forward declaration of Matrix class
 template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
          class MemorySpace    = class ExecutionSpace::memory_space>
 class DenseMatrix;

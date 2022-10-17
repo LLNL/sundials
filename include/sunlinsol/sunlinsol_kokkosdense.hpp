@@ -28,7 +28,7 @@
 namespace sundials {
 namespace kokkos {
 
-// Forward decalaration of DenseLinearSolver class
+// Forward declaration of DenseLinearSolver class
 template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
          class MemorySpace    = class ExecutionSpace::memory_space>
 class DenseLinearSolver;
