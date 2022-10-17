@@ -42,7 +42,7 @@ inline VectorType* GetVec(N_Vector v)
 
 namespace impl {
 
-/* N_Vector API ops to implement.override */
+/* N_Vector API ops */
 
 inline N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v)
 {
