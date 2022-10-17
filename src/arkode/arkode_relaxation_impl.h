@@ -18,40 +18,116 @@
 #define _ARKODE_RELAX_IMPL_H
 
 #include <stdarg.h>
+
 #include <arkode/arkode.h>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
-/* ==================== *
- * Relaxation Constants *
- * ==================== */
+#include "arkode_types_impl.h"
 
-#define ARK_RELAX_LRW   5
-#define ARK_RELAX_LIW  12   /* int, ptr, etc */
+/* -----------------------------------------------------------------------------
+ * Relaxation Constants
+ * ---------------------------------------------------------------------------*/
 
-/* ========================= *
- * Relaxation Data Structure *
- * ========================= */
+#define ARK_RELAX_DEFAULT_TOL         SUN_RCONST(1.0e-14)
+#define ARK_RELAX_DEFAULT_MAX_ITERS   100
+#define ARK_RELAX_DEFAULT_LOWER_BOUND SUN_RCONST(0.5)
+#define ARK_RELAX_DEFAULT_UPPER_BOUND SUN_RCONST(1.5)
+#define ARK_RELAX_DEFAULT_ETA_FAIL    SUN_RCONST(0.25)
 
-typedef struct ARKodeRelaxMemRec* ARKodeRelaxMem;
+/* -----------------------------------------------------------------------------
+ * Relaxation Private Return Values (see arkode/arkode.h for public values)
+ * ---------------------------------------------------------------------------*/
+
+#define ARK_RELAX_FUNC_RECV  1;
+#define ARK_RELAX_JAC_RECV   2;
+#define ARK_RELAX_SOLVE_RECV -1; /* <<< should be recoverable */
+
+/* -----------------------------------------------------------------------------
+ * Stepper Supplied Relaxation Functions
+ * ---------------------------------------------------------------------------*/
+
+/* Compute the change in state for the current step y_new = y_old + delta_y */
+typedef int (*ARKRelaxDeltaYFn)(ARKodeMem ark_mem, N_Vector* delta_y);
+
+/* Compute the estimated change in entropy for this step delta_e */
+typedef int (*ARKRelaxDeltaEFn)(ARKodeMem ark_mem, int num_relax_fn,
+                                ARKRelaxJacFn relax_jac_fn,
+                                N_Vector* work_space_1, N_Vector* work_space_2,
+                                long int* evals_out, sunrealtype* delta_e_out);
+
+/* Get the method order */
+typedef int (*ARKRelaxGetOrderFn)(ARKodeMem ark_mem);
+
+/* -----------------------------------------------------------------------------
+ * Relaxation Data Structure
+ * ---------------------------------------------------------------------------*/
 
 struct ARKodeRelaxMemRec
 {
-  ARKRelaxFn    rfn;        /* relaxation function               */
-  ARKRelaxJacFn rjac;       /* relaxation Jacobian               */
-  realtype      est;
-  realtype      rcur;       /* current relaxation function value */
-  realtype      tol;        /* nonlinear solve tolerance         */
-  int           max_iters;  /* nonlinear solve max iterations    */
+  /* user-supplied and stepper supplied functions */
+  ARKRelaxFn relax_fn;             /* user relaxation function ("entropy") */
+  ARKRelaxJacFn relax_jac_fn;      /* user relaxation Jacobian             */
+  ARKRelaxDeltaYFn delta_y_fn;     /* get delta y from stepper             */
+  ARKRelaxDeltaEFn delta_e_fn;     /* get delta entropy from stepper       */
+  ARKRelaxGetOrderFn get_order_fn; /* get the method order                 */
+
+  /* stepper computed quantities used in the residual and Jacobian */
+  N_Vector delta_y;     /* change in solution */
+  sunrealtype* delta_e; /* change in entropy  */
+
+  /* relaxation variables */
+  int num_relax_fn;             /* number of entropy functions         */
+  int num_relax_fn_alloc;       /* allocated workspce size             */
+  long int num_relax_fn_evals;  /* counter for function evals          */
+  long int num_relax_jac_evals; /* counter for jacobian evals          */
+  N_Vector* y_relax;            /* relaxed state y_n + relax * delta_y */
+  N_Vector* J_vecs;             /* relaxation Jacobian vectors         */
+  sunrealtype* e_old;           /* entropy at start of step y(t_{n-1}) */
+  sunrealtype* res_vals;        /* relaxation residual values          */
+  sunrealtype* jac_vals;        /* relaxation Jacobian values          */
+  sunrealtype* relax_vals;      /* relaxation parameter values         */
+  sunrealtype lower_bound;      /* smallest allowed relaxation value   */
+  sunrealtype upper_bound;      /* largest allowed relaxation value    */
+  sunrealtype eta_fail;         /* failed relaxation step size factor  */
+
+  /* nonlinear solver settings */
+  ARKRelaxationSolver solver; /* choice of relaxation solver      */
+  sunrealtype tol;            /* nonlinear solve tolerance        */
+  int max_iters;              /* nonlinear solve max iterations   */
+  long int total_iters;       /* total nonlinear iterations       */
+  long int total_fails;       /* number of nonlinear solver fails */
 };
 
-/* ==================== *
- * Relaxation Functions *
- * ==================== */
+/* -----------------------------------------------------------------------------
+ * Relaxation Functions
+ * ---------------------------------------------------------------------------*/
 
-int arkSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+/* Driver and Stepper Functions */
+int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
+                   ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaYFn delta_y_fn,
+                   ARKRelaxDeltaEFn delta_e_fn,
+                   ARKRelaxGetOrderFn get_order_fn);
+int arkRelaxDestroy(ARKodeRelaxMem relax_mem);
+int arkRelax(ARKodeMem ark_mem, sunrealtype* dsm_inout, int* nflag_out);
 
-int arkRelax(void* arkode_mem, realtype* gam);
+/* User Functions */
+int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail);
+int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower);
+int arkRelaxSetMaxIters(void* arkode_mem, int max_iters);
+int arkRelaxSetSolver(void* arkode_mem, ARKRelaxationSolver solver);
+int arkRelaxSetTol(void* arkode_mem, sunrealtype tol);
+int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper);
 
-/* int arkRelaxFree(ARKodeRelaxMem* relax_mem); */
-/* int arkRelaxPrint(ARKodeRelaMem relax_mem, FILE* outfile); */
+int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
+int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* j_evals);
+int arkRelaxGetNumSolveFails(void* arkode_mem, long int* fails);
+int arkRelaxGetNumSolveIters(void* arkode_mem, long int* iters);
+
+/* -----------------------------------------------------------------------------
+ * Error Messages
+ * ---------------------------------------------------------------------------*/
+
+#define MSG_RELAX_MEM_NULL "Relaxation memory is NULL."
 
 #endif

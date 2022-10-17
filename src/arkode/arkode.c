@@ -95,7 +95,8 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->constraints    = NULL;
 
   /* Initialize relaxation variables */
-  ark_mem->relax_mem = NULL;
+  ark_mem->relax_enabled = SUNFALSE;
+  ark_mem->relax_mem     = NULL;
 
   /* Initialize diagnostics reporting variables */
   ark_mem->report  = SUNFALSE;
@@ -853,6 +854,13 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
       if (kflag < 0)  break;
 
+      /* Perform relaxation */
+      if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
+      {
+        kflag = arkRelax(ark_mem, &dsm, &nflag);
+        if (kflag < 0) break;
+      }
+
       /* perform constraint-handling (if selected, and if solver check passed) */
       if (ark_mem->constraintsSet && (kflag == ARK_SUCCESS)) {
         kflag = arkCheckConstraints(ark_mem, &constrfails, &nflag);
@@ -1095,6 +1103,13 @@ void arkFree(void **arkode_mem)
   if (ark_mem->root_mem != NULL) {
     (void) arkRootFree(*arkode_mem);
     ark_mem->root_mem = NULL;
+  }
+
+  /* free the relaxation module */
+  if (ark_mem->relax_mem)
+  {
+    (void) arkRelaxDestroy(ark_mem->relax_mem);
+    ark_mem->relax_mem = NULL;
   }
 
   free(*arkode_mem);

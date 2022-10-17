@@ -2498,9 +2498,8 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 {
   /* local data */
-  int retval, i, j, nvec;
+  int retval, j, nvec;
   N_Vector y, yerr;
-  realtype gam;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
@@ -2570,107 +2569,6 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
     /* fill error norm */
     *dsmPtr = N_VWrmsNorm(yerr, ark_mem->ewt);
-  }
-
-  /* TODO(DJG):
-     1. Update for implicit and IMEX stages
-     2. Should this happen before or after the error estimate?
-        a. If before, this should happen in <stepper>_ComputeSolutions.
-        b. If after, should happen in arkCompleteStep?
-        c. The relaxation parameter should be small, so applying relaxation
-           would only cause the error test to pass if it barely failed. This is
-           possible but seems unlikely. So relax after the error is computed.
-        d. Since this relaxation is just a factor on h we could try to update
-           the error estimate afterwards.
-        e. Could also have a threshold to attempt relaxation and see if the
-           relaxed error passes.
-     3. Computing the change estimate requires s dot products. It could be
-        helpful to compute these in a single reduction but would require
-        saving s Jacobian vectors.
-     4. Could relaxation cause issues with tstop?
-     5. Update to sum loop to use linear combination.
-     6. Add failure flags for conservation function on Jacobian.
-     7. Add options to set tolerance and max iterations.
-     8. How exactly does the relaxation equation need to be solved?
-     9. Add other nonlinear solver options, for scalar problems Anderson become
-        a particular implementation of a secant method (does not require
-        rjac evaluation which requires communication).
-    10. User supplied nonlinear solver?
-    11. Make sure the FullRHS is computed at the right solution value and the
-        stored RHS evaluation is correct.
-    12. Better separate ark_mem and relax_mem
-    13. Don't use gamma for relaxation value (avoid confusion with I - gamma J)
-    14. Option to reuse last relaxation value as initial guess or 1
-    15. With low-storage methods some of these values could be computed along
-        the way since not all RHS values will be saved. This could add extra
-        communication costs i.e., can't be combined or are thrown away on a step
-        failure.
-
-    This feature could almost be implemented as a user supplied post processing
-    function if the user had access to the stage solutions and derivatives.
-
-    Does the residual and Jacobian formulation using the "direction" and
-    "estimate" hold across methods? Looks like yes for ERK, DIRK, and IMEX-ARK.
-    What about MRI?
-  */
-  if (ark_mem->relax_mem)
-  {
-    /* Compute change estimate = h * sum_i b_i * rjac(z_i) . f_i */
-    ark_mem->relax_mem->est = ZERO;
-
-    for (i = 0; i < step_mem->stages; i++)
-    {
-      /* z_i = y_n + h * sum_j a_i,j f_j */
-      N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
-      for (j = 0; j < i; j++)
-      {
-        N_VLinearSum(ONE, ark_mem->tempv1,
-                     ark_mem->h * step_mem->Be->A[i][j], step_mem->Fe[j],
-                     ark_mem->tempv1);
-      }
-
-      /* rjac(z_i) */
-      retval = ark_mem->relax_mem->rjac(ark_mem->tempv1, ark_mem->tempv2,
-                                        ark_mem->user_data);
-      if (retval) return retval;
-
-      /* Update estimate */
-      ark_mem->relax_mem->est += step_mem->Be->b[i] *
-        N_VDotProd(ark_mem->tempv2, step_mem->Fe[i]);
-    }
-
-    ark_mem->relax_mem->est *= ark_mem->h;
-
-    /* Compute direction = sum_i b_i * f_i */
-    N_VConst(ZERO, ark_mem->tempv1);
-    for (i = 0; i < step_mem->stages; i++)
-    {
-      N_VLinearSum(ONE, ark_mem->tempv1,
-                   step_mem->Be->b[i], step_mem->Fe[i],
-                   ark_mem->tempv1);
-    }
-    N_VScale(ark_mem->h, ark_mem->tempv1, ark_mem->tempv1);
-
-    /* rfun(y_n) */
-    retval = ark_mem->relax_mem->rfn(ark_mem->yn, &(ark_mem->relax_mem->rcur),
-                                     ark_mem->user_data);
-    if (retval) return retval;
-
-    /* Set solver tolerance and max iterations */
-    ark_mem->relax_mem->tol = RCONST(1.0e-14);
-    ark_mem->relax_mem->max_iters = 2;
-
-    /* Compute relaxation parameter */
-    retval = arkRelax(ark_mem, &gam);
-    if (retval) return retval;
-
-    printf("relax = %23.16e\n", gam);
-
-    /* Relax step size and solution */
-    ark_mem->h *= gam;
-
-    N_VLinearSum(gam, ark_mem->ycur, (ONE - gam), ark_mem->yn,
-                 ark_mem->ycur);
   }
 
   return(ARK_SUCCESS);
@@ -3053,6 +2951,187 @@ int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
   }
 
   return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_RelaxDeltaY
+ *
+ * Computes the RK update to yn for use in relaxation methods
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y)
+{
+  int i, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeARKStepMem step_mem;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ARKStep",
+                    "arkStep_RelaxDeltaY", MSG_ARKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  nvec = 0;
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    /* Explicit pieces */
+    if (step_mem->explicit)
+    {
+      cvals[nvec] = ark_mem->h * step_mem->Be->b[i];
+      Xvecs[nvec] = step_mem->Fe[i];
+      nvec++;
+    }
+    /* Implicit pieces */
+    if (step_mem->implicit)
+    {
+      cvals[nvec] = ark_mem->h * step_mem->Bi->b[i];
+      Xvecs[nvec] = step_mem->Fi[i];
+      nvec++;
+    }
+  }
+
+  /* Compute time step update (delta_y) */
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv1);
+  if (retval) return ARK_VECTOROP_ERR;
+
+  *delta_y = ark_mem->tempv1;
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_RelaxDeltaE
+ *
+ * Computes the change in the relaxation functions for use in relaxation methods
+ * delta_e = h * sum_i b_i * <rjac(z_i), f_i>
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
+                        ARKRelaxJacFn relax_jac_fn, N_Vector* work_space_1,
+                        N_Vector* work_space_2, long int* num_relax_jac_evals,
+                        sunrealtype* delta_e_out)
+{
+  int i, j, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeARKStepMem step_mem;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ARKStep",
+                    "arkStep_RelaxDeltaE", MSG_ARKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
+
+  /* Initialize output */
+  for (j = 0; j < num_relax_fn; j++)
+    delta_e_out[j] = ZERO;
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    nvec = 0;
+
+    /* Start with y_n */
+    cvals[nvec] = ONE;
+    Xvecs[nvec] = ark_mem->yn;
+    nvec++;
+
+    /* Explicit pieces */
+    if (step_mem->explicit)
+    {
+      for (j = 0; j < i; j++)
+      {
+        cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
+        Xvecs[nvec] = step_mem->Fe[j];
+        nvec++;
+      }
+    }
+
+    /* Implicit pieces */
+    if (step_mem->implicit)
+    {
+      for (j = 0; j <= i; j++)
+      {
+        cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][j];
+        Xvecs[nvec] = step_mem->Fi[j];
+        nvec++;
+      }
+    }
+
+    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] + Ae[i,j] Fi[j] */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
+    if (retval) return ARK_VECTOROP_ERR;
+
+    /* Duplicate stage to compute entropy Jacobians at z_i */
+    for (j = 0; j < num_relax_fn; j++)
+      N_VScale(ONE, ark_mem->tempv2, work_space_1[j]);
+
+    /* Evaluate the Jacobians at z_i */
+    retval = relax_jac_fn(work_space_1, work_space_2, ark_mem->user_data);
+    (*num_relax_jac_evals)++;
+    if (retval < 0) return ARK_RELAX_JAC_FAIL;
+    if (retval > 0) return ARK_RELAX_JAC_RECV;
+
+    /* Update estimates */
+    if (step_mem->explicit && step_mem->implicit)
+    {
+      N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
+                   step_mem->Bi->b[i], step_mem->Fi[i],
+                   ark_mem->tempv1);
+      for (j = 0; j < num_relax_fn; j++)
+      {
+        delta_e_out[j] += N_VDotProdLocal(work_space_2[j], ark_mem->tempv1);
+      }
+    }
+    else if (step_mem->explicit)
+    {
+      for (j = 0; j < num_relax_fn; j++)
+        delta_e_out[j] += step_mem->Be->b[i] * N_VDotProdLocal(work_space_2[j],
+                                                               step_mem->Fe[i]);
+    }
+    else if (step_mem->implicit)
+    {
+      for (j = 0; j < num_relax_fn; j++)
+        delta_e_out[j] += step_mem->Bi->b[i] * N_VDotProdLocal(work_space_2[j],
+                                                               step_mem->Fi[i]);
+    }
+  }
+
+  /* Ignore negative return for node-local vectors where this is a non-op */
+  N_VDotProdMultiAllReduce(num_relax_fn, ark_mem->tempv1, delta_e_out);
+
+  for (j = 0; j < num_relax_fn; j++)
+    delta_e_out[j] *= ark_mem->h;
+
+  /* printf("de = %23.16e\n", delta_e_out[0]); */
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_GetOrder
+ *
+ * Returns the method order
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_GetOrder(ARKodeMem ark_mem)
+{
+  ARKodeARKStepMem step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
+  return step_mem->q;
 }
 
 /*===============================================================

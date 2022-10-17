@@ -132,6 +132,10 @@ extern "C" {
 
 #define ARK_CONTEXT_ERR            -42
 
+#define ARK_RELAX_MEM_NULL         -43
+#define ARK_RELAX_FUNC_FAIL        -44
+#define ARK_RELAX_JAC_FAIL         -45
+
 #define ARK_UNRECOGNIZED_ERROR     -99
 
 /* ------------------------------
@@ -170,15 +174,24 @@ typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
 typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
                                  void *user_data);
 
-typedef int (*ARKRelaxFn)(N_Vector y, realtype* r, void* user_data);
+typedef int (*ARKRelaxFn)(N_Vector* y, realtype* r, void* user_data);
 
-typedef int (*ARKRelaxJacFn)(N_Vector y, N_Vector J, void* user_data);
+typedef int (*ARKRelaxJacFn)(N_Vector* y, N_Vector* J, void* user_data);
 
 /* --------------------------
  * MRIStep Inner Stepper Type
  * -------------------------- */
 
 typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper *MRIStepInnerStepper;
+
+/* --------------------------
+ * Relaxation Solver Options
+ * -------------------------- */
+
+typedef enum {
+  ARK_RELAX_NEWTON,
+  ARK_RELAX_FIXEDPOINT,
+} ARKRelaxationSolver;
 
 #ifdef __cplusplus
 }

@@ -18,13 +18,16 @@
 #define _ARKODE_IMPL_H
 
 #include <stdarg.h>
+
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
-#include "arkode_adapt_impl.h"
-#include "arkode_root_impl.h"
-#include "arkode_relaxation_impl.h"
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+
+#include "arkode_types_impl.h"
+#include "arkode_adapt_impl.h"
+#include "arkode_relaxation_impl.h"
+#include "arkode_root_impl.h"
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
@@ -271,8 +274,8 @@ typedef struct ARKodeMassMemRec {
   The type ARKodeMem is type pointer to struct ARKodeMemRec.
   This structure contains fields to keep track of problem state.
   ---------------------------------------------------------------*/
-typedef struct ARKodeMemRec {
-
+struct ARKodeMemRec
+{
   SUNContext sunctx;
 
   realtype uround;             /* machine unit roundoff */
@@ -404,7 +407,8 @@ typedef struct ARKodeMemRec {
   ARKodeRootMem root_mem;          /* root-finding structure */
 
   /* Relaxation Data */
-  ARKodeRelaxMem relax_mem;        /* relaxation structure */
+  sunbooleantype relax_enabled;    /* is relaxation enabled?    */
+  ARKodeRelaxMem relax_mem;        /* relaxation data structure */
 
   /* User-supplied step solution post-processing function */
   ARKPostProcessFn ProcessStep;
@@ -424,7 +428,7 @@ typedef struct ARKodeMemRec {
                               force_pass is true and is used by the XBraid
                               interface to determine if a time step passed or
                               failed the time step error test.  */
-} *ARKodeMem;
+};
 
 
 

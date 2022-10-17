@@ -229,6 +229,13 @@ int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, realtype t,
 int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
                               N_Vector yR);
 
+/* private functions for relaxation */
+int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y);
+int arkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
+                        ARKRelaxJacFn relax_jac_fn, N_Vector* work_space_1,
+                        N_Vector* work_space_2, long int* relax_jac_fn_evals,
+                        sunrealtype* delta_e_out);
+int arkStep_GetOrder(ARKodeMem ark_mem);
 
 /*===============================================================
   Reusable ARKStep Error Messages
