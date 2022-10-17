@@ -67,8 +67,8 @@ the :cpp:func:`~DenseLinearSolver::Convert` method) convertible to a
 .. warning::
 
   :c:func:`SUNLinSolFree` should never be called on a ``SUNLinearSolver`` that
-     was created via conversion from a ``sundials::kokkos::DenseLinearSolver``.
-     Doing so may result in a double free.
+  was created via conversion from a ``sundials::kokkos::DenseLinearSolver``.
+  Doing so may result in a double free.
 
 The SUNLINEARSOLVER_KOKKOSDENSE module is compatible with the NVECTOR_KOKKOS
 vector module (see :numref:`NVectors.Kokkos`) and SUNMATRIX_KOKKOSDENSE matrix
