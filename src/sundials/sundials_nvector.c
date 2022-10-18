@@ -352,6 +352,11 @@ sunindextype N_VGetLength(N_Vector v)
   return((sunindextype) v->ops->nvgetlength(v));
 }
 
+sunindextype N_VGetLocalLength(N_Vector v)
+{
+  return((sunindextype) v->ops->nvgetlocallength(v));
+}
+
 /* -----------------------------------------------------------------
  * standard vector operations
  * -----------------------------------------------------------------*/
@@ -801,11 +806,6 @@ int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c,
 /* -----------------------------------------------------------------
  * OPTIONAL local reduction kernels (no parallel communication)
  * -----------------------------------------------------------------*/
-
-sunindextype N_VGetLocalLength(N_Vector v)
-{
-  return((sunindextype) v->ops->nvgetlocallength(v));
-}
 
 realtype N_VDotProdLocal(N_Vector x, N_Vector y)
 {
