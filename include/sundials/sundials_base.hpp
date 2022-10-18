@@ -107,6 +107,10 @@ protected:
 template<class ObjectStruct, class ObjectOps>
 BaseObject<ObjectStruct, ObjectOps>::~BaseObject() = default;
 
+} // namespace impl
+
+namespace experimental {
+
 template<class T, class Deleter>
 class ClassView : public sundials::ConvertibleTo<T>
 {
@@ -123,7 +127,7 @@ public:
   ~ClassView()
   {
     if (object_) {
-      Deleter{}(this->get());
+      Deleter{}(this->Convert());
     }
   };
 
@@ -149,7 +153,7 @@ private:
   std::unique_ptr<T> object_;
 };
 
-} // namespace impl
+} // namespace experimental
 } // namespace sundials
 
 #endif

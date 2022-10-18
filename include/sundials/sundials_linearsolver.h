@@ -92,6 +92,7 @@ typedef enum
   SUNLINEARSOLVER_MAGMADENSE,
   SUNLINEARSOLVER_ONEMKLDENSE,
   SUNLINEARSOLVER_GINKGO,
+  SUNLINEARSOLVER_KOKKOSDENSE,
   SUNLINEARSOLVER_CUSTOM
 } SUNLinearSolver_ID;
 
@@ -103,7 +104,7 @@ typedef enum
 typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver_Ops* SUNLinearSolver_Ops;
 
 /* Forward reference for pointer to SUNLinearSolver object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver* SUNLinearSolver;
+typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver *SUNLinearSolver;
 
 /* Structure containing function pointers to linear solver operations */
 struct _generic_SUNLinearSolver_Ops

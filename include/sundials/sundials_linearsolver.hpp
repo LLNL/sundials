@@ -23,7 +23,10 @@
 
 namespace sundials {
 namespace impl {
+using BaseLinearSolver = BaseObject<_generic_SUNLinearSolver, _generic_SUNLinearSolver_Ops>;
+} // namespace impl
 
+namespace experimental {
 struct SUNLinearSolverDeleter
 {
   void operator()(SUNLinearSolver LS)
@@ -31,11 +34,8 @@ struct SUNLinearSolverDeleter
     if (LS) SUNLinSolFree(LS);
   }
 };
-
-using BaseLinearSolver    = BaseObject<_generic_SUNLinearSolver, _generic_SUNLinearSolver_Ops>;
 using SUNLinearSolverView = ClassView<SUNLinearSolver, SUNLinearSolverDeleter>;
-
-} // namespace impl
+} // namespace experimental
 } // namespace sundials
 
 #endif

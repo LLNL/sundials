@@ -60,6 +60,10 @@ if("@SUNDIALS_GINKGO_BACKENDS@" MATCHES "CUDA")
     "@CMAKE_CUDA_STANDARD@"
     CACHE STRING "CUDA standard")
 
+  set(CMAKE_CUDA_ARCHITECTURES
+    "@CMAKE_CUDA_ARCHITECTURES@"
+    CACHE STRING "CUDA target architectures")
+
   set(_cuda CUDA)
 
 endif()
@@ -71,20 +75,6 @@ project(examples C CXX ${_cuda})
 include(CTest)
 
 # ------------------------------------------------------------------------------
-
-# Specify HWLOC install location (possibly needed by Ginkgo install)
-set(HWLOC_DIR
-  "@HWLOC_DIR@"
-  CACHE PATH "Location of HWLOC install")
-
-# Specify the path to GinkgoConfig.cmake
-set(Ginkgo_DIR
-  "@Ginkgo_DIR@"
-  CACHE PATH "Location of GinkgoConfig.cmake")
-
-find_package(Ginkgo REQUIRED
-  HINTS "${Ginkgo_DIR}"
-  NO_DEFAULT_PATH)
 
 # Specify the path to SUNDIALSConfig.cmake
 set(SUNDIALS_DIR

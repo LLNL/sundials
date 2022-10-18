@@ -129,8 +129,8 @@ int main(int argc, char* argv[])
     using_dense_matrix_type = true;
   }
 
-  int num_threads{1};
 #if defined(USE_OMP)
+  int num_threads{1};
   auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
   if (omp_num_threads_var) {
     num_threads = std::atoi(omp_num_threads_var);

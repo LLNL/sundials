@@ -17,20 +17,32 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for C compilers and flags
 set(CMAKE_C_COMPILER
-  @CMAKE_C_COMPILER@
+  "@CMAKE_C_COMPILER@"
   CACHE FILEPATH "C compiler")
 
 set(CMAKE_C_FLAGS
   "@CMAKE_C_FLAGS@"
   CACHE STRING "C compiler flags")
 
-if("@CMAKE_C_STANDARD@")
-  set(CMAKE_C_STANDARD "@CMAKE_C_STANDARD@"
-    CACHE STRING "C standard")
-endif()
+set(CMAKE_C_STANDARD
+  "@CMAKE_C_STANDARD@"
+  CACHE STRING "C standard")
+
+# Set cache variables for C++ compilers and flags
+set(CMAKE_CXX_COMPILER
+  "@CMAKE_CXX_COMPILER@"
+  CACHE FILEPATH "C++ compiler")
+
+set(CMAKE_CXX_FLAGS
+  "@CMAKE_CXX_FLAGS@"
+  CACHE STRING "C++ compiler flags")
+
+set(CMAKE_CXX_STANDARD
+  "@CMAKE_CXX_STANDARD@"
+  CACHE STRING "C++ standard")
 
 # Specify project name and languages
-project(@SOLVER@_examples C)
+project(examples C)
 
 # Enable testing
 include(CTest)

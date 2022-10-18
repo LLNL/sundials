@@ -20,4 +20,5 @@
 .. include:: ../../../../shared/sunmatrix/SUNMatrix_Sparse.rst
 .. include:: ../../../../shared/sunmatrix/SUNMatrix_SLUNRloc.rst
 .. include:: ../../../../shared/sunlinsol/SUNMatrix_Ginkgo.rst
+.. include:: ../../../../shared/sunmatrix/SUNMatrix_KokkosDense.rst
 .. include:: ../../../../shared/sunmatrix/SUNMatrix_Examples.rst

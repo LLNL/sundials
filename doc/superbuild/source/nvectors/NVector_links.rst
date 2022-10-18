@@ -18,8 +18,9 @@
 .. include:: ../../../shared/nvectors/NVector_PETSc.rst
 .. include:: ../../../shared/nvectors/NVector_CUDA.rst
 .. include:: ../../../shared/nvectors/NVector_HIP.rst
-.. include:: ../../../shared/nvectors/NVector_RAJA.rst
 .. include:: ../../../shared/nvectors/NVector_SYCL.rst
+.. include:: ../../../shared/nvectors/NVector_RAJA.rst
+.. include:: ../../../shared/nvectors/NVector_Kokkos.rst
 .. include:: ../../../shared/nvectors/NVector_OpenMPDEV.rst
 .. include:: ../../../shared/nvectors/NVector_Trilinos.rst
 .. include:: ../../../shared/nvectors/NVector_ManyVector.rst
