@@ -23,6 +23,7 @@ module fsundials_nvector_mod
   enumerator :: SUNDIALS_NVEC_HIP
   enumerator :: SUNDIALS_NVEC_SYCL
   enumerator :: SUNDIALS_NVEC_RAJA
+  enumerator :: SUNDIALS_NVEC_KOKKOS
   enumerator :: SUNDIALS_NVEC_OPENMPDEV
   enumerator :: SUNDIALS_NVEC_TRILINOS
   enumerator :: SUNDIALS_NVEC_MANYVECTOR
@@ -32,8 +33,9 @@ module fsundials_nvector_mod
  end enum
  integer, parameter, public :: N_Vector_ID = kind(SUNDIALS_NVEC_SERIAL)
  public :: SUNDIALS_NVEC_SERIAL, SUNDIALS_NVEC_PARALLEL, SUNDIALS_NVEC_OPENMP, SUNDIALS_NVEC_PTHREADS, SUNDIALS_NVEC_PARHYP, &
-    SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_HIP, SUNDIALS_NVEC_SYCL, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_OPENMPDEV, &
-    SUNDIALS_NVEC_TRILINOS, SUNDIALS_NVEC_MANYVECTOR, SUNDIALS_NVEC_MPIMANYVECTOR, SUNDIALS_NVEC_MPIPLUSX, SUNDIALS_NVEC_CUSTOM
+    SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_HIP, SUNDIALS_NVEC_SYCL, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_KOKKOS, &
+    SUNDIALS_NVEC_OPENMPDEV, SUNDIALS_NVEC_TRILINOS, SUNDIALS_NVEC_MANYVECTOR, SUNDIALS_NVEC_MPIMANYVECTOR, &
+    SUNDIALS_NVEC_MPIPLUSX, SUNDIALS_NVEC_CUSTOM
  ! struct struct _generic_N_Vector_Ops
  type, bind(C), public :: N_Vector_Ops
   type(C_FUNPTR), public :: nvgetvectorid
@@ -75,7 +77,6 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvwrmsnormmaskvectorarray
   type(C_FUNPTR), public :: nvscaleaddmultivectorarray
   type(C_FUNPTR), public :: nvlinearcombinationvectorarray
-  type(C_FUNPTR), public :: nvgetlocallength
   type(C_FUNPTR), public :: nvdotprodlocal
   type(C_FUNPTR), public :: nvmaxnormlocal
   type(C_FUNPTR), public :: nvminlocal
@@ -92,6 +93,7 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvbufunpack
   type(C_FUNPTR), public :: nvprint
   type(C_FUNPTR), public :: nvprintfile
+  type(C_FUNPTR), public :: nvgetlocallength
  end type N_Vector_Ops
  ! struct struct _generic_N_Vector
  type, bind(C), public :: N_Vector
@@ -139,7 +141,6 @@ module fsundials_nvector_mod
  public :: FN_VConstVectorArray
  public :: FN_VWrmsNormVectorArray
  public :: FN_VWrmsNormMaskVectorArray
- public :: FN_VGetLocalLength
  public :: FN_VDotProdLocal
  public :: FN_VMaxNormLocal
  public :: FN_VMinLocal
@@ -162,6 +163,7 @@ module fsundials_nvector_mod
  public :: FN_VSetVecAtIndexVectorArray
  public :: FN_VPrint
  public :: FN_VPrintFile
+ public :: FN_VGetLocalLength
 
 ! WRAPPER DECLARATIONS
 interface
@@ -516,14 +518,6 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FN_VGetLocalLength(farg1) &
-bind(C, name="_wrap_FN_VGetLocalLength") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT64_T) :: fresult
-end function
-
 function swigc_FN_VDotProdLocal(farg1, farg2) &
 bind(C, name="_wrap_FN_VDotProdLocal") &
 result(fresult)
@@ -714,6 +708,14 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FN_VGetLocalLength(farg1) &
+bind(C, name="_wrap_FN_VGetLocalLength") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT64_T) :: fresult
+end function
 
 end interface
 
@@ -1359,19 +1361,6 @@ fresult = swigc_FN_VWrmsNormMaskVectorArray(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FN_VGetLocalLength(v) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT64_T) :: swig_result
-type(N_Vector), target, intent(inout) :: v
-integer(C_INT64_T) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = c_loc(v)
-fresult = swigc_FN_VGetLocalLength(farg1)
-swig_result = fresult
-end function
-
 function FN_VDotProdLocal(x, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1710,6 +1699,19 @@ farg1 = c_loc(v)
 farg2 = outfile
 call swigc_FN_VPrintFile(farg1, farg2)
 end subroutine
+
+function FN_VGetLocalLength(v) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+fresult = swigc_FN_VGetLocalLength(farg1)
+swig_result = fresult
+end function
 
 
 end module
