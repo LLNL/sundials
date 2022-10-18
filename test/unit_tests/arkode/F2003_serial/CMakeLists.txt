@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds @ SMU
+# Programmer(s): Steven Roberts @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2022, Lawrence Livermore National Security
@@ -11,27 +11,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# ARKode C++ serial unit_tests
+# ARKODE F2003 serial unit tests
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
-  set(ARKODE_unit_tests
-    "ark_analytic_sys_mri\;0"
-    "ark_analytic_sys_mri\;1"
-    "ark_dahlquist_mri\;"
-    "ark_butcher_tests\;"
-    )
-endif()
+set(ARKODE_unit_tests
+  "ark_table_tests_f2003\;"
+  )
 
-set(ARKODE_LIB sundials_arkode)
-set(NVECS_LIB sundials_nvecserial)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
-
-# Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
+
 
   # parse the test tuple
   list(GET test_tuple 0 test)
@@ -42,18 +31,14 @@ foreach(test_tuple ${ARKODE_unit_tests})
   if(NOT TARGET ${test})
 
     # test source files
-    add_executable(${test} ${test}.cpp)
+    add_executable(${test} ${test}.f90)
 
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
-    # include location of public and private header files
-    target_include_directories(${test} PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/src)
-
     # libraries to link against
-    target_link_libraries(${test} ${SUNDIALS_LIBS})
+    target_link_libraries(${test}
+      sundials_farkode_mod
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -70,4 +55,5 @@ foreach(test_tuple ${ARKODE_unit_tests})
 
 endforeach()
 
-message(STATUS "Added ARKODE CXX serial unit tests")
+message(STATUS "Added ARKODE F2003 serial unit tests")
+

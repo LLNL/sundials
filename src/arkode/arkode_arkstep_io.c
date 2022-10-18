@@ -1079,6 +1079,27 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
 
 
 /*---------------------------------------------------------------
+  ARKStepSetTableName:
+
+  Specifies to use pre-existing Butcher tables for the system,
+  based on the string passed to
+  ARKodeButcherTable_LoadERKByName() and
+  ARKodeButcherTable_LoadDIRKByName() within the files
+  arkode_butcher_erk.c and arkode_butcher_dirk.c (automatically
+  calls ARKStepSetImEx).
+
+  If itable is "ARKODE_DIRK_NONE" or etable is "ARKODE_ERK_NONE",
+  then this disables the corresponding table.
+  ---------------------------------------------------------------*/
+int ARKStepSetTableName(void *arkode_mem, const char *itable, const char *etable)
+{
+  return ARKStepSetTableNum(arkode_mem,
+                            arkButcherTableDIRKNameToID(itable),
+                            arkButcherTableERKNameToID(etable));
+}
+
+
+/*---------------------------------------------------------------
   ARKStepSetNonlinCRDown:
 
   Specifies the user-provided nonlinear convergence constant

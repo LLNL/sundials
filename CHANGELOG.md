@@ -22,6 +22,10 @@ performance portability, see the `NVECTOR_KOKKOS`, `SUNMATRIX_KOKKOSDENSE` and
 `SUNLINEARSOLVER_KOKKOSDENSE` sections in the documentation for more
 information.
 
+Added the functions `ARKStepSetTableName`, `ERKStepSetTableName`,
+`MRIStepCoupling_LoadTableByName`, `ARKodeButcherTable_LoadDIRKByName`, and
+`ARKodeButcherTable_LoadERKByName` to load a table from a string.
+
 Fixed a bug in the CUDA and HIP vectors where `N_VMaxNorm` would return the
 minimum positive floating-point value for the zero vector.
 

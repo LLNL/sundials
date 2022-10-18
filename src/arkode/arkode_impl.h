@@ -20,6 +20,8 @@
 #include <stdarg.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
+#include <arkode/arkode_butcher_dirk.h>
+#include <arkode/arkode_butcher_erk.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"
 #include <sundials/sundials_context.h>
@@ -1024,6 +1026,8 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile,
                      SUNOutputFormat fmt);
 char *arkGetReturnFlagName(long int flag);
 
+ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *imethod);
+ARKODE_ERKTableID arkButcherTableERKNameToID(const char *emethod);
 
 /* XBraid interface functions */
 int arkSetForcePass(void *arkode_mem, booleantype force_pass);

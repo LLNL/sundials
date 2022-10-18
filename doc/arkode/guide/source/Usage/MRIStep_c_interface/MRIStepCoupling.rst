@@ -85,28 +85,30 @@ are defined ``arkode/arkode_mristep.h``.
 .. _ARKODE.Usage.MRIStep.MRIStepCoupling.Functions.Table:
 .. table:: MRIStepCoupling functions
 
-   +---------------------------------------+--------------------------------------------------------------------+
-   | Function name                         | Description                                                        |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_LoadTable()` | Loads a pre-defined MRIStepCoupling table                          |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Alloc()`     | Allocate an empty MRIStepCoupling table                            |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Create()`    | Create a new MRIStepCoupling table from coefficients               |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_MIStoMRI()`  | Create a new MRIStepCoupling table from a slow Butcher table       |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Copy()`      | Create a copy of a MRIStepCoupling table                           |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Space()`     | Get the MRIStepCoupling table real and integer workspace sizes     |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Free()`      | Deallocate a MRIStepCoupling table                                 |
-   +---------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Write()`     | Write the MRIStepCoupling table to an output file                  |
-   +---------------------------------------+--------------------------------------------------------------------+
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | Function name                               | Description                                                        |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_LoadTable()`       | Loads a pre-defined MRIStepCoupling table by ID                    |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_LoadTableByName()` | Loads a pre-defined MRIStepCoupling table by name                  |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Alloc()`           | Allocate an empty MRIStepCoupling table                            |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Create()`          | Create a new MRIStepCoupling table from coefficients               |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_MIStoMRI()`        | Create a new MRIStepCoupling table from a slow Butcher table       |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Copy()`            | Create a copy of a MRIStepCoupling table                           |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Space()`           | Get the MRIStepCoupling table real and integer workspace sizes     |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Free()`            | Deallocate a MRIStepCoupling table                                 |
+   +---------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Write()`           | Write the MRIStepCoupling table to an output file                  |
+   +---------------------------------------------+--------------------------------------------------------------------+
 
 
-.. c:function:: MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID imethod)
+.. c:function:: MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
 
    Retrieves a specified coupling table. For further information on the current
    set of coupling tables and their corresponding identifiers, see
@@ -114,11 +116,31 @@ are defined ``arkode/arkode_mristep.h``.
 
 
    **Arguments:**
-      * ``itable`` -- the coupling table identifier.
+      * ``method`` -- the coupling table identifier.
 
    **Return value:**
       * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if *itable* was invalid or an allocation error occurred.
+      * A ``NULL`` pointer if *method* was invalid or an allocation error occurred.
+
+
+.. c:function:: MRIStepCoupling MRIStepCoupling_LoadTableByName(const char *method)
+
+   Retrieves a specified coupling table. For further information on the current
+   set of coupling tables and their corresponding name, see
+   :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`.
+
+
+   **Arguments:**
+      * ``method`` -- the coupling table name.
+
+   **Return value:**
+      * An :c:type:`MRIStepCoupling` structure if successful.
+      * A ``NULL`` pointer if *method* was invalid, *method* was
+        ``"ARKODE_MRI_NONE"``, or an allocation error occurred.
+
+   .. note::
+
+      This function is case sensitive.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, int type)

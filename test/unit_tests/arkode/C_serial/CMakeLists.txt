@@ -75,4 +75,4 @@ foreach(test_tuple ${ARKODE_unit_tests})
 
 endforeach()
 
-message(STATUS "Added ARKODE C serial units tests")
+message(STATUS "Added ARKODE C serial unit tests")

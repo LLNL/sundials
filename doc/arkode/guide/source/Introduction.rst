@@ -140,6 +140,11 @@ implementations utilizing the `Kokkos Ecosystem <https://kokkos.org/>`_ for
 performance portability, see sections :numref:`NVectors.Kokkos`,
 :numref:`SUNMatrix.Kokkos`, and :numref:`SUNLinSol.Kokkos` for more information.
 
+Added the functions :c:func:`ARKStepSetTableName`,
+:c:func:`ERKStepSetTableName`, :c:func:`MRIStepCoupling_LoadTableByName`,
+:c:func:`ARKodeButcherTable_LoadDIRKByName`, and
+:c:func:`ARKodeButcherTable_LoadERKByName` to load a table from a string.
+
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
 
