@@ -122,10 +122,10 @@ type(N_Vector), pointer :: swig_result
 integer :: comm
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+type(C_PTR) :: fresult
+integer(C_INT) :: farg1
+type(C_PTR) :: farg2
+type(C_PTR) :: farg3
 
 farg1 = int(comm, C_INT)
 farg2 = c_loc(x)
@@ -139,8 +139,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(N_Vector_ID) :: swig_result
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetVectorID_MPIPlusX(farg1)
@@ -152,20 +152,20 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer_MPIPlusX(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength_MPIPlusX(v)])
 end function
 
 subroutine FN_VSetArrayPointer_MPIPlusX(vdata, v)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(*), target, intent(inout) :: vdata
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
 
 farg1 = c_loc(vdata(1))
 farg2 = c_loc(v)
@@ -175,7 +175,7 @@ end subroutine
 subroutine FN_VPrint_MPIPlusX(x)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
-type(C_PTR) :: farg1 
+type(C_PTR) :: farg1
 
 farg1 = c_loc(x)
 call swigc_FN_VPrint_MPIPlusX(farg1)
@@ -185,8 +185,8 @@ subroutine FN_VPrintFile_MPIPlusX(x, outfile)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: outfile
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
 
 farg1 = c_loc(x)
 farg2 = outfile
@@ -198,8 +198,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLocalVector_MPIPlusX(farg1)
@@ -211,8 +211,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT64_T) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT64_T) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLocalLength_MPIPlusX(farg1)
@@ -225,9 +225,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: v
 integer(C_INT), intent(in) :: tf
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
+integer(C_INT) :: farg2
 
 farg1 = c_loc(v)
 farg2 = tf
