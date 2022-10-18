@@ -28,9 +28,9 @@ SUNNONLINSOL=newton fixedpoint
 
 INCLUDES=-I../include
 
-.PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol
+.PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol patch
 
-all: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol
+all: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol patch
 
 arkode: $(ARKODE:%:arkode/%.i)
 	@for i in ${ARKODE} ; do \
@@ -102,5 +102,10 @@ sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 		swig -fortran -outdir ../src/sunnonlinsol/$${i}/fmod -o ../src/sunnonlinsol/$${i}/fmod/fsunnonlinsol_$${i}_mod.c ${INCLUDES} sunnonlinsol/fsunnonlinsol_$${i}_mod.i ; \
 	done
 
+patch: .FORCE
+	cd ..; git apply swig/fnvector-getarraypointer.patch
+
 clean:
 	rm ../src/**/fmod/*.c; rm ../src/**/fmod/*.f90
+
+.FORCE: ;

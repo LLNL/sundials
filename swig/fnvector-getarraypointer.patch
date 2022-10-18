@@ -1,0 +1,74 @@
+diff --git a/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.f90 b/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.f90
+index 6017afe8a..388de003d 100644
+--- a/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.f90
++++ b/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.f90
+@@ -157,7 +157,7 @@ type(C_PTR) :: farg1
+ 
+ farg1 = c_loc(v)
+ fresult = swigc_FN_VGetArrayPointer_MPIPlusX(farg1)
+-call c_f_pointer(fresult, swig_result, [1])
++call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength_MPIPlusX(v)])
+ end function
+ 
+ subroutine FN_VSetArrayPointer_MPIPlusX(vdata, v)
+diff --git a/src/nvector/openmp/fmod/fnvector_openmp_mod.f90 b/src/nvector/openmp/fmod/fnvector_openmp_mod.f90
+index 03ea9427d..7cfd40033 100644
+--- a/src/nvector/openmp/fmod/fnvector_openmp_mod.f90
++++ b/src/nvector/openmp/fmod/fnvector_openmp_mod.f90
+@@ -767,7 +767,7 @@ type(C_PTR) :: farg1
+ 
+ farg1 = c_loc(v)
+ fresult = swigc_FN_VGetArrayPointer_OpenMP(farg1)
+-call c_f_pointer(fresult, swig_result, [1])
++call c_f_pointer(fresult, swig_result, [FN_VGetLength_OpenMP(v)])
+ end function
+ 
+ subroutine FN_VSetArrayPointer_OpenMP(v_data, v)
+diff --git a/src/nvector/pthreads/fmod/fnvector_pthreads_mod.f90 b/src/nvector/pthreads/fmod/fnvector_pthreads_mod.f90
+index 668cd3758..69186fe30 100644
+--- a/src/nvector/pthreads/fmod/fnvector_pthreads_mod.f90
++++ b/src/nvector/pthreads/fmod/fnvector_pthreads_mod.f90
+@@ -767,7 +767,7 @@ type(C_PTR) :: farg1
+ 
+ farg1 = c_loc(v)
+ fresult = swigc_FN_VGetArrayPointer_Pthreads(farg1)
+-call c_f_pointer(fresult, swig_result, [1])
++call c_f_pointer(fresult, swig_result, [FN_VGetLength_Pthreads(v)])
+ end function
+ 
+ subroutine FN_VSetArrayPointer_Pthreads(v_data, v)
+diff --git a/src/nvector/serial/fmod/fnvector_serial_mod.f90 b/src/nvector/serial/fmod/fnvector_serial_mod.f90
+index 26d50b4dc..d0d18663e 100644
+--- a/src/nvector/serial/fmod/fnvector_serial_mod.f90
++++ b/src/nvector/serial/fmod/fnvector_serial_mod.f90
+@@ -755,7 +755,7 @@ type(C_PTR) :: farg1
+ 
+ farg1 = c_loc(v)
+ fresult = swigc_FN_VGetArrayPointer_Serial(farg1)
+-call c_f_pointer(fresult, swig_result, [1])
++call c_f_pointer(fresult, swig_result, [FN_VGetLength_Serial(v)])
+ end function
+ 
+ subroutine FN_VSetArrayPointer_Serial(v_data, v)
+diff --git a/src/sundials/fmod/fsundials_nvector_mod.f90 b/src/sundials/fmod/fsundials_nvector_mod.f90
+index 81e72d67c..7ebddbf8a 100644
+--- a/src/sundials/fmod/fsundials_nvector_mod.f90
++++ b/src/sundials/fmod/fsundials_nvector_mod.f90
+@@ -831,7 +831,7 @@ type(C_PTR) :: farg1
+ 
+ farg1 = c_loc(v)
+ fresult = swigc_FN_VGetArrayPointer(farg1)
+-call c_f_pointer(fresult, swig_result, [1])
++call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
+ end function
+ 
+ function FN_VGetDeviceArrayPointer(v) &
+@@ -844,7 +844,7 @@ type(C_PTR) :: farg1
+ 
+ farg1 = c_loc(v)
+ fresult = swigc_FN_VGetDeviceArrayPointer(farg1)
+-call c_f_pointer(fresult, swig_result, [1])
++call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
+ end function
+ 
+ subroutine FN_VSetArrayPointer(v_data, v)

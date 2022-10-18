@@ -755,7 +755,7 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer_Serial(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLength_Serial(v)])
 end function
 
 subroutine FN_VSetArrayPointer_Serial(v_data, v)
