@@ -42,6 +42,7 @@ module fnvector_mpimanyvector_mod
  public :: FN_VSpace_MPIManyVector
  public :: FN_VGetCommunicator_MPIManyVector
  public :: FN_VGetLength_MPIManyVector
+ public :: FN_VGetLocalLength_MPIManyVector
  public :: FN_VLinearSum_MPIManyVector
  public :: FN_VConst_MPIManyVector
  public :: FN_VProd_MPIManyVector
@@ -214,6 +215,14 @@ end function
 
 function swigc_FN_VGetLength_MPIManyVector(farg1) &
 bind(C, name="_wrap_FN_VGetLength_MPIManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+function swigc_FN_VGetLocalLength_MPIManyVector(farg1) &
+bind(C, name="_wrap_FN_VGetLocalLength_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -906,6 +915,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLength_MPIManyVector(farg1)
+swig_result = fresult
+end function
+
+function FN_VGetLocalLength_MPIManyVector(v) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+fresult = swigc_FN_VGetLocalLength_MPIManyVector(farg1)
 swig_result = fresult
 end function
 

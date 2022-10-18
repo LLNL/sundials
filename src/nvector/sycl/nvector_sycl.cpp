@@ -138,6 +138,7 @@ N_Vector N_VNewEmpty_Sycl(SUNContext sunctx)
   v->ops->nvdestroy               = N_VDestroy_Sycl;
   v->ops->nvspace                 = N_VSpace_Sycl;
   v->ops->nvgetlength             = N_VGetLength_Sycl;
+  v->ops->nvgetlocallength        = N_VGetLength_Sycl;
   v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Sycl;
   v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Sycl;
   v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Sycl;

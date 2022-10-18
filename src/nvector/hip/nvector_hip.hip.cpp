@@ -113,6 +113,7 @@ N_Vector N_VNewEmpty_Hip(SUNContext sunctx)
   v->ops->nvdestroy               = N_VDestroy_Hip;
   v->ops->nvspace                 = N_VSpace_Hip;
   v->ops->nvgetlength             = N_VGetLength_Hip;
+  v->ops->nvgetlocallength        = N_VGetLength_Hip;
   v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Hip;
   v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Hip;
   v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Hip;

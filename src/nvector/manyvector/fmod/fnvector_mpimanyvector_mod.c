@@ -400,6 +400,18 @@ SWIGEXPORT int64_t _wrap_FN_VGetLength_MPIManyVector(N_Vector farg1) {
 }
 
 
+SWIGEXPORT int64_t _wrap_FN_VGetLocalLength_MPIManyVector(N_Vector farg1) {
+  int64_t fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype result;
+  
+  arg1 = (N_Vector)(farg1);
+  result = N_VGetLocalLength_MPIManyVector(arg1);
+  fresult = (sunindextype)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FN_VLinearSum_MPIManyVector(double const *farg1, N_Vector farg2, double const *farg3, N_Vector farg4, N_Vector farg5) {
   realtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;

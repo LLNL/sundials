@@ -100,6 +100,7 @@ SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLocalLength_ParHyp(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b,

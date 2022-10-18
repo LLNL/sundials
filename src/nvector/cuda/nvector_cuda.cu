@@ -132,6 +132,7 @@ N_Vector N_VNewEmpty_Cuda(SUNContext sunctx)
   v->ops->nvdestroy               = N_VDestroy_Cuda;
   v->ops->nvspace                 = N_VSpace_Cuda;
   v->ops->nvgetlength             = N_VGetLength_Cuda;
+  v->ops->nvgetlocallength        = N_VGetLength_Cuda;
   v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Cuda;
   v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Cuda;
   v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Cuda;

@@ -158,6 +158,8 @@ extern "C"
      * OPTIONAL operations with no default implementation.
      */
 
+    sunindextype (*nvgetlocallength)(N_Vector);
+
     /* Local reduction kernels (no parallel communication) */
     realtype (*nvdotprodlocal)(N_Vector, N_Vector);
     realtype (*nvmaxnormlocal)(N_Vector);
@@ -274,6 +276,8 @@ extern "C"
   /*
    * OPTIONAL operations with no default implementation.
    */
+
+  SUNDIALS_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
   /* local reduction kernels (no parallel communication) */
   SUNDIALS_EXPORT realtype N_VDotProdLocal(N_Vector x, N_Vector y);

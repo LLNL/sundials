@@ -732,6 +732,18 @@ SWIGEXPORT int _wrap_FN_VWrmsNormMaskVectorArray(int const *farg1, void *farg2, 
 }
 
 
+SWIGEXPORT int64_t _wrap_FN_VGetLocalLength(N_Vector farg1) {
+  int64_t fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype result;
+  
+  arg1 = (N_Vector)(farg1);
+  result = N_VGetLocalLength(arg1);
+  fresult = (sunindextype)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT double _wrap_FN_VDotProdLocal(N_Vector farg1, N_Vector farg2) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;

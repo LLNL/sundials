@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_nvector.h"
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 #include <nvector/nvector_mpimanyvector.h>
 #else
@@ -45,6 +46,7 @@
 #endif
 #define MANYVECTOR_NUM_SUBVECS(v) ( MANYVECTOR_CONTENT(v)->num_subvectors )
 #define MANYVECTOR_GLOBLENGTH(v)  ( MANYVECTOR_CONTENT(v)->global_length )
+#define MANYVECTOR_LOCALLENGTH(v) ( MANYVECTOR_CONTENT(v)->local_length )
 #define MANYVECTOR_SUBVECS(v)     ( MANYVECTOR_CONTENT(v)->subvec_array )
 #define MANYVECTOR_SUBVEC(v,i)    ( MANYVECTOR_SUBVECS(v)[i] )
 #define MANYVECTOR_OWN_DATA(v)    ( MANYVECTOR_CONTENT(v)->own_data )
@@ -94,6 +96,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvspace           = N_VSpace_MPIManyVector;
   v->ops->nvgetcommunicator = N_VGetCommunicator_MPIManyVector;
   v->ops->nvgetlength       = N_VGetLength_MPIManyVector;
+  v->ops->nvgetlocallength  = N_VGetLocalLength_MPIManyVector;
 
   /* standard vector operations */
   v->ops->nvlinearsum       = N_VLinearSum_MPIManyVector;
@@ -193,6 +196,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
       return(NULL);
     }
   }
+  content->local_length = local_length;
   if (content->comm != MPI_COMM_NULL) {
     retval = MPI_Allreduce(&local_length, &(content->global_length), 1,
                            MPI_SUNINDEXTYPE, MPI_SUM, content->comm);
@@ -292,6 +296,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvdestroy         = N_VDestroy_ManyVector;
   v->ops->nvspace           = N_VSpace_ManyVector;
   v->ops->nvgetlength       = N_VGetLength_ManyVector;
+  v->ops->nvgetlocallength  = N_VGetLength_ManyVector;
 
   /* standard vector operations */
   v->ops->nvlinearsum       = N_VLinearSum_ManyVector;
@@ -368,15 +373,16 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
     content->subvec_array[i] = vec_array[i];
 
   /* Determine overall ManyVector length: sum contributions from all subvectors */
-  content->global_length = 0;
+  content->local_length = 0;
   for (i=0; i<num_subvectors; i++) {
     if (vec_array[i]->ops->nvgetlength) {
-      content->global_length += N_VGetLength(vec_array[i]);
+      content->local_length += N_VGetLength(vec_array[i]);
     } else {
       N_VDestroy(v);
       return(NULL);
     }
   }
+  content->global_length = content->local_length;
 
   return(v);
 }
@@ -560,6 +566,12 @@ sunindextype MVAPPEND(N_VGetLength)(N_Vector v)
   return(MANYVECTOR_GLOBLENGTH(v));
 }
 
+#ifdef MANYVECTOR_BUILD_WITH_MPI
+sunindextype N_VGetLocalLength_MPIManyVector(N_Vector v)
+{
+  return(MANYVECTOR_LOCALLENGTH(v));
+}
+#endif
 
 /* Performs the linear sum z = a*x + b*y by calling N_VLinearSum on all subvectors;
    this routine does not check that x, y and z are ManyVectors, if they have the
@@ -2006,6 +2018,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
 #endif
   content->num_subvectors = MANYVECTOR_NUM_SUBVECS(w);
   content->global_length  = MANYVECTOR_GLOBLENGTH(w);
+  content->local_length   = MANYVECTOR_LOCALLENGTH(w);
   content->own_data       = SUNTRUE;
 
   /* Allocate the subvector array */

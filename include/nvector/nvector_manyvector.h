@@ -49,10 +49,11 @@ extern "C" {
    ----------------------------------------------------------------- */
 
 struct _N_VectorContent_ManyVector {
-  sunindextype  num_subvectors;  /* number of vectors attached      */
-  sunindextype  global_length;   /* overall manyvector length       */
-  N_Vector*     subvec_array;    /* pointer to N_Vector array       */
-  booleantype   own_data;        /* flag indicating data ownership  */
+  sunindextype  num_subvectors;  /* number of vectors attached       */
+  sunindextype  global_length;   /* overall global manyvector length */
+  sunindextype  local_length;    /* overall local manyvector length  */
+  N_Vector*     subvec_array;    /* pointer to N_Vector array        */
+  booleantype   own_data;        /* flag indicating data ownership   */
 };
 
 typedef struct _N_VectorContent_ManyVector *N_VectorContent_ManyVector;

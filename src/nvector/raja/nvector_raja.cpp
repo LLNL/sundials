@@ -129,6 +129,7 @@ N_Vector N_VNewEmpty_Raja(SUNContext sunctx)
   v->ops->nvdestroy               = N_VDestroy_Raja;
   v->ops->nvspace                 = N_VSpace_Raja;
   v->ops->nvgetlength             = N_VGetLength_Raja;
+  v->ops->nvgetlocallength        = N_VGetLength_Raja;
   v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Raja;
   v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Raja;
   v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Raja;
