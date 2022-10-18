@@ -86,6 +86,7 @@ SUNDIALS_EXPORT void N_VDestroy_ManyVector(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_ManyVector(N_Vector v, sunindextype *lrw,
                                          sunindextype *liw);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ManyVector(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetSubvectorLocalLength_ManyVector(N_Vector v, sunindextype vec_num);
 SUNDIALS_EXPORT void N_VLinearSum_ManyVector(realtype a, N_Vector x,
                                              realtype b, N_Vector y,
                                              N_Vector z);

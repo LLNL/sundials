@@ -562,12 +562,10 @@ sunindextype MVAPPEND(N_VGetLength)(N_Vector v)
   return(MANYVECTOR_GLOBLENGTH(v));
 }
 
-#ifdef MANYVECTOR_BUILD_WITH_MPI
-sunindextype N_VGetSubvectorLocalLength_MPIManyVector(N_Vector v, sunindextype vec_num)
+sunindextype MVAPPEND(N_VGetSubvectorLocalLength)(N_Vector v, sunindextype vec_num)
 {
-  return(N_VGetLocalLength(N_VGetSubvector_MPIManyVector(v, vec_num)));
+  return(N_VGetLocalLength(MVAPPEND(N_VGetSubvector)(v, vec_num)));
 }
-#endif
 
 /* Performs the linear sum z = a*x + b*y by calling N_VLinearSum on all subvectors;
    this routine does not check that x, y and z are ManyVectors, if they have the
