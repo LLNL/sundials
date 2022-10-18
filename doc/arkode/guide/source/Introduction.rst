@@ -123,11 +123,27 @@ Changes in v5.4.0
 
 CMake 3.18.0 or newer is now required for CUDA support.
 
-A C++14 compliant compiler is now required for C++ based features and examples e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, and GINKGO.
+A C++14 compliant compiler is now required for C++ based features and examples
+e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, GINKGO, and KOKKOS.
 
 Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x. Removed
 support for SuperLU_DIST v6.x.x or older. Fix mismatched definition and
 declaration bug in SuperLU_DIST matrix constructor.
+
+Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_  linear
+algebra library. This support includes new ``SUNMatrix`` and ``SUNLinearSolver``
+implementations, see the sections :numref:`SUNMatrix.Ginkgo` and
+:numref:`SUNLinSol.Ginkgo`.
+
+Added new ``NVector``, dense ``SUNMatrix``, and dense ``SUNLinearSolver``
+implementations utilizing the `Kokkos Ecosystem <https://kokkos.org/>`_ for
+performance portability, see sections :numref:`NVectors.Kokkos`,
+:numref:`SUNMatrix.Kokkos`, and :numref:`SUNLinSol.Kokkos` for more information.
+
+Added the functions :c:func:`ARKStepSetTableName`,
+:c:func:`ERKStepSetTableName`, :c:func:`MRIStepCoupling_LoadTableByName`,
+:c:func:`ARKodeButcherTable_LoadDIRKByName`, and
+:c:func:`ARKodeButcherTable_LoadERKByName` to load a table from a string.
 
 Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
 the minimum positive floating-point value for the zero vector.
@@ -135,15 +151,6 @@ the minimum positive floating-point value for the zero vector.
 Fixed memory leaks/out of bounds memory accesses in the ARKODE MRIStep module
 that could occur when attaching a coupling table after reinitialization with a
 different number of stages than originally selected.
-
-Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_  linear algebra library. 
-This support includes new ``SUNMatrix`` and ``SUNLinearSolver`` implementations,
-see the sections :numref:`SUNMatrix.Ginkgo` and :numref:`SUNLinSol.Ginkgo`.
-
-Added the functions :c:func:`ARKStepSetTableName`,
-:c:func:`ERKStepSetTableName`, :c:func:`MRIStepCoupling_LoadTableByName`,
-:c:func:`ARKodeButcherTable_LoadDIRKByName`, and
-:c:func:`ARKodeButcherTable_LoadERKByName` to load a table from a string.
 
 Changes in v5.3.0
 -----------------

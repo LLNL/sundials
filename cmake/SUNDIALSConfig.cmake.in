@@ -63,6 +63,18 @@ if("@ENABLE_CALIPER@" AND NOT TARGET caliper)
   find_package(CALIPER PATHS "@CALIPER_DIR@")
 endif()
 
+if("@ENABLE_CUDA@" AND NOT (TARGET CUDA::cudart AND TARGET CUDA::cublas
+   AND TARGET CUDA::cusparse AND TARGET CUDA::cusolver))
+  find_dependency(CUDAToolkit)
+endif()
+
+if("@ENABLE_GINKGO@" AND NOT TARGET Ginkgo::ginkgo)
+  if(NOT TARGET hwloc AND NOT HWLOC_DIR)
+    set(HWLOC_DIR "@HWLOC_DIR@")
+  endif()
+  find_dependency(Ginkgo PATHS "@Ginkgo_DIR@")
+endif()
+
 if("@ENABLE_HYPRE@" AND NOT TARGET SUNDIALS::HYPRE)
   add_library(SUNDIALS::HYPRE INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::HYPRE INTERFACE "@HYPRE_LIBRARIES@")
@@ -73,6 +85,14 @@ if("@ENABLE_KLU@" AND NOT TARGET SUNDIALS::KLU)
   add_library(SUNDIALS::KLU INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::KLU INTERFACE "@KLU_LIBRARIES@")
   set_target_properties(SUNDIALS::KLU PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@KLU_INCLUDE_DIR@")
+endif()
+
+if("@ENABLE_KOKKOS@" AND NOT TARGET Kokkos::kokkos)
+  find_dependency(Kokkos PATHS "@Kokkos_DIR@")
+endif()
+
+if("@ENABLE_KOKKOS_KERNELS@" AND NOT TARGET Kokkos::kokkoskernels)
+  find_dependency(KokkosKernels PATHS "@KokkosKernels_DIR@")
 endif()
 
 if("@ENABLE_PETSC@")

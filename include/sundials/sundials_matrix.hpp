@@ -23,7 +23,10 @@
 
 namespace sundials {
 namespace impl {
+using BaseMatrix = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
+} // namespace impl
 
+namespace experimental {
 struct SUNMatrixDeleter
 {
   void operator()(SUNMatrix A)
@@ -31,11 +34,8 @@ struct SUNMatrixDeleter
     if (A) SUNMatDestroy(A);
   }
 };
-
-using BaseMatrix    = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
 using SUNMatrixView = ClassView<SUNMatrix, SUNMatrixDeleter>;
-
-} // namespace impl
+} // namespace experimental
 } // namespace sundials
 
 #endif

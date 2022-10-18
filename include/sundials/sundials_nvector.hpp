@@ -23,19 +23,19 @@
 
 namespace sundials {
 namespace impl {
+using BaseNVector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
+} // namespace impl
 
-struct NvectorDeleter
+namespace experimental {
+struct NVectorDeleter
 {
   void operator()(N_Vector v)
   {
     if (v) N_VDestroy(v);
   }
 };
-
-using BaseNvector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
-using NvectorView = ClassView<N_Vector, NvectorDeleter>;
-
-} // namespace impl
+using NVectorView = ClassView<N_Vector, NVectorDeleter>;
+} // namespace experimental
 } // namespace sundials
 
 #endif

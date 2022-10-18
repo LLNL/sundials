@@ -356,6 +356,15 @@ def main():
     # Performance portability
     # ------------------------
 
+    # Kokkos
+    group = parser.add_argument_group('Kokkos Options')
+
+    add_arg(group, '--kokkos', 'SUNDIALS_KOKKOS', 'ENABLE_KOKKOS', 'OFF',
+            'BOOL', 'SUNDIALS Kokkos support')
+
+    add_arg(group, '--kokkos-dir', 'KOKKOS_ROOT', 'Kokkos_DIR', None, 'PATH',
+            'Kokkos install directory', dependson='--kokkos')
+
     # RAJA
     group = parser.add_argument_group('RAJA Options')
 
@@ -414,6 +423,17 @@ def main():
     add_arg(group, '--klu-libdir', 'SUITE_SPARSE_LIBRARY_DIR',
             'KLU_LIBRARY_DIR', None, 'PATH', 'KLU library directory',
             dependson='--klu')
+
+    # KokkosKernels
+    group = parser.add_argument_group('KokkosKernels Options')
+
+    add_arg(group, '--kokkos-kernels', 'SUNDIALS_KOKKOS_KERNELS',
+            'ENABLE_KOKKOS_KERNELS', 'OFF', 'BOOL',
+            'SUNDIALS Kokkos-Kernels support')
+
+    add_arg(group, '--kokkos-kernels-dir', 'KOKKOS_KERNELS_ROOT',
+            'KokkosKernels_DIR', None, 'PATH',
+            'Kokkos-Kernels install directory', dependson='--kokkos-kernels')
 
     # SuperLU MT
     group = parser.add_argument_group('SuperLU_MT Options')

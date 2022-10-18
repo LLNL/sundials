@@ -212,6 +212,7 @@ if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
     export SUNDIALS_OPENMP_OFFLOAD=OFF
 
     # portability
+    export SUNDIALS_KOKKOS=OFF
     export SUNDIALS_RAJA=OFF
     export SUNDIALS_SYCL=OFF
 
@@ -219,6 +220,7 @@ if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
     export SUNDIALS_GINKGO=OFF
     export SUNDIALS_LAPACK=OFF
     export SUNDIALS_KLU=OFF
+    export SUNDIALS_KOKKOS_KERNELS=OFF
     export SUNDIALS_SUPERLU_MT=OFF
     export SUNDIALS_SUPERLU_DIST=OFF
     export SUNDIALS_MAGMA=OFF

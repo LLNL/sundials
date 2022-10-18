@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# clang-tidy configuration file 
+# clang-tidy configuration file
 # This should be applied to all new code. See the developer documentation.
 # ------------------------------------------------------------------------------
 ---

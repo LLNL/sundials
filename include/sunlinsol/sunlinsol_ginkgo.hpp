@@ -30,7 +30,13 @@ namespace ginkgo {
 template<class GkoSolverType, class GkoMatrixType>
 class LinearSolver;
 
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
 namespace impl {
+
 inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_MATRIX_ITERATIVE;
@@ -39,11 +45,6 @@ inline SUNLinearSolver_Type SUNLinSolGetType_Ginkgo(SUNLinearSolver S)
 inline SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_GINKGO;
-}
-
-inline int SUNLinSolInitialize_Ginkgo(SUNLinearSolver S)
-{
-  return SUNLS_SUCCESS;
 }
 
 template<class GkoSolverType, class GkoMatrixType>
@@ -180,14 +181,13 @@ public:
     sunlinsol_->ops     = sunlinsol_ops_.get();
     sunlinsol_->sunctx  = sunctx;
 
-    sunlinsol_->ops->gettype    = impl::SUNLinSolGetType_Ginkgo;
-    sunlinsol_->ops->getid      = impl::SUNLinSolGetID_Ginkgo;
-    sunlinsol_->ops->initialize = impl::SUNLinSolInitialize_Ginkgo;
-    sunlinsol_->ops->setup      = impl::SUNLinSolSetup_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->solve      = impl::SUNLinSolSolve_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->numiters   = impl::SUNLinSolNumIters_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->resnorm    = impl::SUNLinSolResNorm_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->free       = impl::SUNLinSolFree_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->gettype  = impl::SUNLinSolGetType_Ginkgo;
+    sunlinsol_->ops->getid    = impl::SUNLinSolGetID_Ginkgo;
+    sunlinsol_->ops->setup    = impl::SUNLinSolSetup_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->solve    = impl::SUNLinSolSolve_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->numiters = impl::SUNLinSolNumIters_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->resnorm  = impl::SUNLinSolResNorm_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->free     = impl::SUNLinSolFree_Ginkgo<GkoSolverType, GkoMatrixType>;
   }
 
   // Copy constructor is deleted
