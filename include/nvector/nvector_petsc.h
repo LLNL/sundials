@@ -94,7 +94,6 @@ SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype 
 SUNDIALS_EXPORT void N_VSetArrayPointer_Petsc(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator_Petsc(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_Petsc(N_Vector v);
-SUNDIALS_EXPORT sunindextype N_VGetLocalLength_Petsc(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

@@ -168,7 +168,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   v->ops->nvsetarraypointer = N_VSetArrayPointer_ParHyp;
   v->ops->nvgetcommunicator = N_VGetCommunicator_ParHyp;
   v->ops->nvgetlength       = N_VGetLength_ParHyp;
-  v->ops->nvgetlocallength  = N_VGetLocalLength_ParHyp;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_ParHyp;
@@ -472,11 +471,6 @@ void *N_VGetCommunicator_ParHyp(N_Vector v)
 sunindextype N_VGetLength_ParHyp(N_Vector v)
 {
   return(NV_GLOBLENGTH_PH(v));
-}
-
-sunindextype N_VGetLocalLength_ParHyp(N_Vector v)
-{
-  return(NV_LOCLENGTH_PH(v));
 }
 
 /*

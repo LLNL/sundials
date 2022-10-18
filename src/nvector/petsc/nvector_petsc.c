@@ -149,7 +149,6 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   v->ops->nvsetarraypointer = N_VSetArrayPointer_Petsc;
   v->ops->nvgetcommunicator = N_VGetCommunicator_Petsc;
   v->ops->nvgetlength       = N_VGetLength_Petsc;
-  v->ops->nvgetlength       = N_VGetLocalLength_Petsc;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Petsc;
@@ -444,11 +443,6 @@ void *N_VGetCommunicator_Petsc(N_Vector v)
 sunindextype N_VGetLength_Petsc(N_Vector v)
 {
   return(NV_GLOBLENGTH_PTC(v));
-}
-
-sunindextype N_VGetLocalLength_Petsc(N_Vector v)
-{
-  return(NV_LOCLENGTH_PTC(v));
 }
 
 void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)

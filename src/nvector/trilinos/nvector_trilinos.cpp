@@ -87,7 +87,6 @@ N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx)
   v->ops->nvspace           = N_VSpace_Trilinos;
   v->ops->nvgetcommunicator = N_VGetCommunicator_Trilinos;
   v->ops->nvgetlength       = N_VGetLength_Trilinos;
-  v->ops->nvgetlocallengt   = N_VGetLocalLength_Trilinos;
 
   /* standard vector operations */
   v->ops->nvlinearsum       = N_VLinearSum_Trilinos;
@@ -246,16 +245,6 @@ sunindextype N_VGetLength_Trilinos(N_Vector x)
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
   return ((sunindextype) xv->getGlobalLength());
-}
-
-/*
- * Local vector length accessor
- */
-sunindextype N_VGetLength_Trilinos(N_Vector x)
-{
-  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
-
-  return ((sunindextype) xv->getLocalLength());
 }
 
 /*

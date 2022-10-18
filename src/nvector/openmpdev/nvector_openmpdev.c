@@ -92,7 +92,6 @@ N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length, SUNContext sunctx)
   v->ops->nvdestroy               = N_VDestroy_OpenMPDEV;
   v->ops->nvspace                 = N_VSpace_OpenMPDEV;
   v->ops->nvgetlength             = N_VGetLength_OpenMPDEV;
-  v->ops->nvgetlocallength        = N_VGetLength_OpenMPDEV;
   v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_OpenMPDEV;
   v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_OpenMPDEV;
   v->ops->nvprint                 = N_VPrint_OpenMPDEV;
