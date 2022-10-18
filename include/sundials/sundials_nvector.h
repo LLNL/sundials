@@ -153,12 +153,10 @@ extern "C"
     int (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector, realtype*);
     int (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*, N_Vector**, N_Vector**);
     int (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**, N_Vector*);
-
+   
     /*
      * OPTIONAL operations with no default implementation.
      */
-
-    sunindextype (*nvgetlocallength)(N_Vector);
 
     /* Local reduction kernels (no parallel communication) */
     realtype (*nvdotprodlocal)(N_Vector, N_Vector);
@@ -183,6 +181,10 @@ extern "C"
     /* Debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined). */
     void (*nvprint)(N_Vector);
     void (*nvprintfile)(N_Vector, FILE*);
+
+    /* WARNING: this function should not be used, it is here as a temporary
+       fix for https://github.com/LLNL/sundials/issues/160 (fortran getarraypointer bug). */
+    sunindextype (*nvgetlocallength)(N_Vector);
 
 #ifdef __cplusplus
     _generic_N_Vector_Ops() = default;
@@ -277,8 +279,6 @@ extern "C"
    * OPTIONAL operations with no default implementation.
    */
 
-  SUNDIALS_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
-
   /* local reduction kernels (no parallel communication) */
   SUNDIALS_EXPORT realtype N_VDotProdLocal(N_Vector x, N_Vector y);
   SUNDIALS_EXPORT realtype N_VMaxNormLocal(N_Vector x);
@@ -318,6 +318,11 @@ extern "C"
 
   SUNDIALS_EXPORT void N_VPrint(N_Vector v);
   SUNDIALS_EXPORT void N_VPrintFile(N_Vector v, FILE* outfile);
+
+
+  /* WARNING: this function should not be used, it is here as a temporary
+      fix for https://github.com/LLNL/sundials/issues/160 (fortran getarraypointer bug). */
+  SUNDIALS_DEPRECATED_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
 #ifdef __cplusplus
 }
