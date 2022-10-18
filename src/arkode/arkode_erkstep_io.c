@@ -305,7 +305,7 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
   based on the integer flag passed to ARKodeButcherTable_LoadERK()
   within the file arkode_butcher_erk.c.
   ---------------------------------------------------------------*/
-int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
+int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID etable)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -318,7 +318,7 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
   if (retval != ARK_SUCCESS) return(retval);
 
   /* check that argument specifies an explicit table */
-  if (itable<ARKODE_MIN_ERK_NUM || itable>ARKODE_MAX_ERK_NUM) {
+  if (etable<ARKODE_MIN_ERK_NUM || etable>ARKODE_MAX_ERK_NUM) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetTableNum",
                     "Illegal ERK table number");
@@ -337,7 +337,7 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
   ark_mem->lrw -= Blrw;
 
   /* fill in table based on argument */
-  step_mem->B = ARKodeButcherTable_LoadERK(itable);
+  step_mem->B = ARKodeButcherTable_LoadERK(etable);
   if (step_mem->B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
                     "ERKStepSetTableNum",
@@ -355,6 +355,18 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable)
   return(ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  ERKStepSetTableName:
+
+  Specifies to use a pre-existing Butcher table for the problem,
+  based on the string passed to ARKodeButcherTable_LoadERKByNmae()
+  within the file arkode_butcher_erk.c.
+  ---------------------------------------------------------------*/
+int ERKStepSetTableName(void *arkode_mem, const char *etable)
+{
+  return ERKStepSetTableNum(arkode_mem,
+                            arkButcherTableERKNameToID(etable));
+}
 
 /*===============================================================
   ERKStep optional output functions -- stepper-specific

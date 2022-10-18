@@ -140,6 +140,11 @@ Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_  linear alge
 This support includes new ``SUNMatrix`` and ``SUNLinearSolver`` implementations,
 see the sections :numref:`SUNMatrix.Ginkgo` and :numref:`SUNLinSol.Ginkgo`.
 
+Added the functions :c:func:`ARKStepSetTableName`,
+:c:func:`ERKStepSetTableName`, :c:func:`MRIStepCoupling_LoadTableByName`,
+:c:func:`ARKodeButcherTable_LoadDIRKByName`, and
+:c:func:`ARKodeButcherTable_LoadERKByName` to load a table from a string.
+
 Changes in v5.3.0
 -----------------
 

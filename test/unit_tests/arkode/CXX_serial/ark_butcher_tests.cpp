@@ -29,49 +29,39 @@
 int main() {
 
   // set vectors of individual tables to test
-  std::vector<ARKODE_ERKTableID> Tables_ERK = {ARKODE_HEUN_EULER_2_1_2,
-    ARKODE_BOGACKI_SHAMPINE_4_2_3, ARKODE_ARK324L2SA_ERK_4_2_3, ARKODE_ZONNEVELD_5_3_4,
-    ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_SAYFY_ABURUB_6_3_4, ARKODE_CASH_KARP_6_4_5,
-    ARKODE_FEHLBERG_6_4_5, ARKODE_DORMAND_PRINCE_7_4_5, ARKODE_ARK548L2SA_ERK_8_4_5,
-    ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_ARK437L2SA_ERK_7_3_4,
-    ARKODE_ARK548L2SAb_ERK_8_4_5};
-  std::vector<std::string> STables_ERK = {"HEUN_EULER_2_1_2", "BOGACKI_SHAMPINE_4_2_3",
-    "ARK324L2SA_ERK_4_2_3", "ZONNEVELD_5_3_4", "ARK436L2SA_ERK_6_3_4", "SAYFY_ABURUB_6_3_4",
-    "CASH_KARP_6_4_5", "FEHLBERG_6_4_5", "DORMAND_PRINCE_7_4_5", "ARK548L2SA_ERK_8_4_5",
-    "VERNER_8_5_6", "FEHLBERG_13_7_8", "ARK437L2SA_ERK_7_3_4", "ARK548L2SAb_ERK_8_4_5"};
-  std::vector<ARKODE_DIRKTableID> Tables_DIRK = {ARKODE_SDIRK_2_1_2,
-    ARKODE_BILLINGTON_3_3_2, ARKODE_TRBDF2_3_3_2, ARKODE_KVAERNO_4_2_3,
-    ARKODE_ARK324L2SA_DIRK_4_2_3, ARKODE_CASH_5_2_4, ARKODE_CASH_5_3_4,
-    ARKODE_SDIRK_5_3_4, ARKODE_KVAERNO_5_3_4, ARKODE_ARK436L2SA_DIRK_6_3_4,
-    ARKODE_KVAERNO_7_4_5, ARKODE_ARK548L2SA_DIRK_8_4_5,
-    ARKODE_ARK437L2SA_DIRK_7_3_4, ARKODE_ARK548L2SAb_DIRK_8_4_5,
-    ARKODE_ESDIRK324L2SA_4_2_3, ARKODE_ESDIRK325L2SA_5_2_3, ARKODE_ESDIRK32I5L2SA_5_2_3,
-    ARKODE_ESDIRK436L2SA_6_3_4, ARKODE_ESDIRK43I6L2SA_6_3_4, ARKODE_QESDIRK436L2SA_6_3_4,
-    ARKODE_ESDIRK437L2SA_7_3_4, ARKODE_ESDIRK547L2SA_7_4_5, ARKODE_ESDIRK547L2SA2_7_4_5};
-  std::vector<std::string> STables_DIRK = {"SDIRK_2_1_2", "BILLINGTON_3_3_2", "TRBDF2_3_3_2",
-    "KVAERNO_4_2_3", "ARK324L2SA_DIRK_4_2_3", "CASH_5_2_4", "CASH_5_3_4", "SDIRK_5_3_4",
-    "KVAERNO_5_3_4", "ARK436L2SA_DIRK_6_3_4", "KVAERNO_7_4_5", "ARK548L2SA_DIRK_8_4_5",
-    "ARK437L2SA_DIRK_7_3_4", "ARK548L2SAb_DIRK_8_4_5", "ESDIRK324L2SA_4_2_3",
-    "ESDIRK325L2SA_5_2_3", "ESDIRK32I5L2SA_5_2_3", "ESDIRK436L2SA_6_3_4", "ESDIRK43I6L2SA_6_3_4",
-    "QESDIRK436L2SA_6_3_4", "ESDIRK437L2SA_7_3_4", "ESDIRK547L2SA_7_4_5", "ESDIRK547L2SA2_7_4_5"};
+  std::vector<std::string> Tables_ERK = {"ARKODE_HEUN_EULER_2_1_2",
+    "ARKODE_BOGACKI_SHAMPINE_4_2_3", "ARKODE_ARK324L2SA_ERK_4_2_3", "ARKODE_ZONNEVELD_5_3_4",
+    "ARKODE_ARK436L2SA_ERK_6_3_4", "ARKODE_SAYFY_ABURUB_6_3_4", "ARKODE_CASH_KARP_6_4_5",
+    "ARKODE_FEHLBERG_6_4_5", "ARKODE_DORMAND_PRINCE_7_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
+    "ARKODE_VERNER_8_5_6", "ARKODE_FEHLBERG_13_7_8", "ARKODE_ARK437L2SA_ERK_7_3_4",
+    "ARKODE_ARK548L2SAb_ERK_8_4_5"};
+  std::vector<std::string> Tables_DIRK = {"ARKODE_SDIRK_2_1_2",
+    "ARKODE_BILLINGTON_3_3_2", "ARKODE_TRBDF2_3_3_2", "ARKODE_KVAERNO_4_2_3",
+    "ARKODE_ARK324L2SA_DIRK_4_2_3", "ARKODE_CASH_5_2_4", "ARKODE_CASH_5_3_4",
+    "ARKODE_SDIRK_5_3_4", "ARKODE_KVAERNO_5_3_4", "ARKODE_ARK436L2SA_DIRK_6_3_4",
+    "ARKODE_KVAERNO_7_4_5", "ARKODE_ARK548L2SA_DIRK_8_4_5",
+    "ARKODE_ARK437L2SA_DIRK_7_3_4", "ARKODE_ARK548L2SAb_DIRK_8_4_5",
+    "ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ESDIRK325L2SA_5_2_3", "ARKODE_ESDIRK32I5L2SA_5_2_3",
+    "ARKODE_ESDIRK436L2SA_6_3_4", "ARKODE_ESDIRK43I6L2SA_6_3_4", "ARKODE_QESDIRK436L2SA_6_3_4",
+    "ARKODE_ESDIRK437L2SA_7_3_4", "ARKODE_ESDIRK547L2SA_7_4_5", "ARKODE_ESDIRK547L2SA2_7_4_5"};
   std::vector<ARKODE_ERKTableID> Tables_ARK_ERK = {ARKODE_ARK324L2SA_ERK_4_2_3,
     ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_ARK437L2SA_ERK_7_3_4, ARKODE_ARK548L2SA_ERK_8_4_5,
     ARKODE_ARK548L2SAb_ERK_8_4_5};
   std::vector<ARKODE_DIRKTableID> Tables_ARK_DIRK = {ARKODE_ARK324L2SA_DIRK_4_2_3,
     ARKODE_ARK436L2SA_DIRK_6_3_4, ARKODE_ARK437L2SA_DIRK_7_3_4, ARKODE_ARK548L2SA_DIRK_8_4_5,
     ARKODE_ARK548L2SAb_DIRK_8_4_5};
-  std::vector<std::string> STables_ARK = {"ARK324L2SA_4_2_3", "ARK436L2SA_6_3_4",
-                                          "ARK437L2SA_7_3_4", "ARK548L2SA_8_4_5",
-                                          "ARK548L2SAb_8_4_5"};
+  std::vector<std::string> STables_ARK = {"ARKODE_ARK324L2SA_4_2_3", "ARKODE_ARK436L2SA_6_3_4",
+                                          "ARKODE_ARK437L2SA_7_3_4", "ARKODE_ARK548L2SA_8_4_5",
+                                          "ARKODE_ARK548L2SAb_8_4_5"};
   int numfails = 0;
 
   // loop over individual ERK tables
   std::cout << "\nTesting individual ERK methods:\n\n";
-  for (size_t i=0; i<Tables_ERK.size(); i++) {
-    std::cout << "Testing method " << STables_ERK[i] << ":";
+  for (std::string table : Tables_ERK) {
+    std::cout << "Testing method " << table << ":";
 
     // load Butcher table
-    ARKodeButcherTable B = ARKodeButcherTable_LoadERK(Tables_ERK[i]);
+    ARKodeButcherTable B = ARKodeButcherTable_LoadERKByName(table.c_str());
     if (B == NULL) {
       std::cout << "  error retrieving table, aborting\n";
       return 1;
@@ -98,11 +88,11 @@ int main() {
 
   // loop over individual DIRK tables
   std::cout << "\nTesting individual DIRK methods:\n\n";
-  for (size_t i=0; i<Tables_DIRK.size(); i++) {
-    std::cout << "Testing method " << STables_DIRK[i] << ":";
+  for (std::string table : Tables_DIRK) {
+    std::cout << "Testing method " << table << ":";
 
     // load Butcher table
-    ARKodeButcherTable B = ARKodeButcherTable_LoadDIRK(Tables_DIRK[i]);
+    ARKodeButcherTable B = ARKodeButcherTable_LoadDIRKByName(table.c_str());
     if (B == NULL) {
       std::cout << "  error retrieving table, aborting\n";
       return 1;

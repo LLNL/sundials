@@ -25,6 +25,10 @@ algebra library. This support includes new `SUNMatrix` and `SUNLinearSolver`
 implementations, see the `SUNMATRIX_GINKGO` and `SUNLINEARSOLVER_GINKGO`
 sections in the documentation for more info.
 
+Added the functions `ARKStepSetTableName`, `ERKStepSetTableName`,
+`MRIStepCoupling_LoadTableByName`, `ARKodeButcherTable_LoadDIRKByName`, and
+`ARKodeButcherTable_LoadERKByName` to load a table from a string.
+
 ## Changes to SUNDIALS in release 6.3.0
 
 Added `GetUserData` functions in each package to retrieve the user data pointer

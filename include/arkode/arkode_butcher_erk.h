@@ -88,7 +88,10 @@ typedef enum {
 } ARKODE_ERKTableID;
 
 /* Accessor routine to load built-in ERK table */
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID imethod);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod);
+
+
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char *emethod);
 
 
 #ifdef __cplusplus
