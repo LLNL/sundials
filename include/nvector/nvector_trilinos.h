@@ -100,7 +100,6 @@ SUNDIALS_EXPORT void N_VDestroy_Trilinos(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Trilinos(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT void *N_VGetCommunicator_Trilinos(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_Trilinos(N_Vector v);
-SUNDIALS_EXPORT sunindextype N_VGetLocalLength_Trilinos(N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Trilinos(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Trilinos(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Trilinos(N_Vector x, N_Vector y, N_Vector z);
