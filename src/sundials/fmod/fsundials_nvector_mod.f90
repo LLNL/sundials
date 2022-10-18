@@ -833,7 +833,7 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
 end function
 
 function FN_VGetDeviceArrayPointer(v) &
@@ -846,7 +846,7 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetDeviceArrayPointer(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
 end function
 
 subroutine FN_VSetArrayPointer(v_data, v)

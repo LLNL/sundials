@@ -652,7 +652,7 @@ integer(C_INT64_T) :: farg2
 farg1 = c_loc(v)
 farg2 = vec_num
 fresult = swigc_FN_VGetSubvectorArrayPointer_ManyVector(farg1, farg2)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetSubvectorLocalLength_ManyVector(v, vec_num)])
 end function
 
 function FN_VSetSubvectorArrayPointer_ManyVector(v_data, v, vec_num) &
