@@ -118,6 +118,8 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
    * OPTIONAL operations with no default implementation.
    */
 
+  ops->nvgetlocallength    = NULL;
+
   /* local reduction operations (optional) */
   ops->nvdotprodlocal      = NULL;
   ops->nvmaxnormlocal      = NULL;
@@ -192,6 +194,7 @@ int N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvsetarraypointer       = w->ops->nvsetarraypointer;
   v->ops->nvgetcommunicator       = w->ops->nvgetcommunicator;
   v->ops->nvgetlength             = w->ops->nvgetlength;
+  v->ops->nvgetlocallength        = w->ops->nvgetlocallength;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = w->ops->nvlinearsum;
