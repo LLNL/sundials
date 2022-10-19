@@ -182,6 +182,10 @@ struct _generic_N_Vector_Ops
   void (*nvprint)(N_Vector);
   void (*nvprintfile)(N_Vector, FILE*);
 
+  /* WARNING: this function should not be used, it is here as a temporary
+      fix for https://github.com/LLNL/sundials/issues/160 (fortran getarraypointer bug). */
+  sunindextype (*nvgetlocallength)(N_Vector);
+
 #ifdef __cplusplus
   _generic_N_Vector_Ops() = default;
 #endif
@@ -314,6 +318,11 @@ SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vect
 
 SUNDIALS_EXPORT void N_VPrint(N_Vector v);
 SUNDIALS_EXPORT void N_VPrintFile(N_Vector v, FILE* outfile);
+
+
+  /* WARNING: this function should not be used, it is here as a temporary
+      fix for https://github.com/LLNL/sundials/issues/160 (fortran getarraypointer bug). */
+  SUNDIALS_DEPRECATED_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
 #ifdef __cplusplus
 }

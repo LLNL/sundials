@@ -1097,18 +1097,18 @@ fresult = swigc_FERKStepSetTable(farg1, farg2)
 swig_result = fresult
 end function
 
-function FERKStepSetTableNum(arkode_mem, itable) &
+function FERKStepSetTableNum(arkode_mem, etable) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKODE_ERKTableID), intent(in) :: itable
+integer(ARKODE_ERKTableID), intent(in) :: etable
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = arkode_mem
-farg2 = itable
+farg2 = etable
 fresult = swigc_FERKStepSetTableNum(farg1, farg2)
 swig_result = fresult
 end function
@@ -1131,19 +1131,19 @@ subroutine SWIG_string_to_chararray(string, chars, wrap)
   wrap%size = len(string)
 end subroutine
 
-function FERKStepSetTableName(arkode_mem, table) &
+function FERKStepSetTableName(arkode_mem, etable) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-character(kind=C_CHAR, len=*), target :: table
+character(kind=C_CHAR, len=*), target :: etable
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 
 farg1 = arkode_mem
-call SWIG_string_to_chararray(table, farg2_chars, farg2)
+call SWIG_string_to_chararray(etable, farg2_chars, farg2)
 fresult = swigc_FERKStepSetTableName(farg1, farg2)
 swig_result = fresult
 end function
