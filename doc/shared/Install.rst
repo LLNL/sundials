@@ -1195,7 +1195,7 @@ manycore systems, with a focus on solving sparse linear systems. It is implement
 C++ (you will need at least a C++14 compliant compiler to build it), with GPU kernels implemented in
 CUDA (for NVIDIA devices), HIP (for AMD devices) and SYCL/DPC++ (for Intel devices and other
 supported hardware). To enable Ginkgo in SUNDIALS, set the :cmakeop:`ENABLE_GINKGO` to ``ON``
-and provide the path to the root of the Ginkgo installation in :cmakeop:`Ginkgo_DIR`. 
+and provide the path to the root of the Ginkgo installation in :cmakeop:`Ginkgo_DIR`.
 Additionally, :cmakeop:`SUNDIALS_GINKGO_BACKENDS` must be set to a list of Ginkgo target
 architecutres/executors. E.g.,
 
@@ -1313,7 +1313,7 @@ To enable SuperLU_DIST, set :cmakeop:`ENABLE_SUPERLUDIST` to ``ON``, set
 If SuperLU_DIST was built with OpenMP then the option :cmakeop:`SUPERLUDIST_OpenMP`
 and :cmakeop:`ENABLE_OPENMP` should be set to ``ON``.
 
-SUNDIALS supports SuperLU_DIST v7.0.0 -- v8.x.x and has been tested with 
+SUNDIALS supports SuperLU_DIST v7.0.0 -- v8.x.x and has been tested with
 v7.2.0 and v8.1.0.
 
 
@@ -1363,7 +1363,9 @@ path of the PETSc installation. Alternatively, a user can provide a list of
 include paths in ``PETSC_INCLUDES`` and a list of complete paths to the PETSc
 libraries in ``PETSC_LIBRARIES``.
 
-SUNDIALS has been tested with PETSc version 3.16.1.
+SUNDIALS is regularly tested with the latest PETSc versions, specifically
+up to version 3.18.1 as of SUNDIALS version |version|. SUNDIALS
+requires PETSc 3.5.0 or newer.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:
@@ -1386,7 +1388,8 @@ to the ``include`` path of the *hypre* installation, and set the variable
    SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` is compatible
    with ``HYPRE_BigInt`` in the *hypre* installation.
 
-SUNDIALS has been tested with *hypre* version 2.23.0
+SUNDIALS is regularly tested with the latest versions of *hypre*, specifically
+up to version 2.26.0 as of SUNDIALS version |version|.
 
 
 .. _Installation.CMake.ExternalLibraries.Magma:
