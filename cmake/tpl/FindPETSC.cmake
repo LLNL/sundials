@@ -34,7 +34,8 @@ if(DEFINED PETSC_FIND_VERSION)
     set(_pkg_version_spec ">=${PETSC_FIND_VERSION}")
   endif()
 endif()
-pkg_search_module(PKG_PETSC "PETSc${_pkg_version_spec}")
+list(APPEND PKG_CONFIG_EXECUTABLE "--static")
+pkg_check_modules(PKG_PETSC "PETSc${_pkg_version_spec}")
 unset(_pkg_version_spec)
 
 # Find the PETSC libraries
@@ -50,7 +51,7 @@ endforeach()
 list(APPEND _petsc_libs  "m")
 
 # Substitute MPI target if PETSC is built with MPI
-foreach(_next_lib IN LISTS PKG_PETSC_STATIC_LIBRARIES)
+foreach(_next_lib IN LISTS PKG_PETSC_LINK_LIBRARIES)
   if(_next_lib MATCHES "mpi")
     if(DEFINED CMAKE_CXX_COMPILER)
       list(APPEND _petsc_libs "MPI::MPI_CXX")
