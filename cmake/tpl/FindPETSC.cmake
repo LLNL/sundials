@@ -34,12 +34,12 @@ if(DEFINED PETSC_FIND_VERSION)
     set(_pkg_version_spec ">=${PETSC_FIND_VERSION}")
   endif()
 endif()
-list(APPEND PKG_CONFIG_EXECUTABLE "--static")
 pkg_check_modules(PKG_PETSC "PETSc${_pkg_version_spec}")
 unset(_pkg_version_spec)
 
 # Find the PETSC libraries
 set(_petsc_libs )
+message(">>>> PKG_PETSC_LIBRARIES: ${PKG_PETSC_LIBRARIES}")
 foreach(_next_lib IN LISTS PKG_PETSC_LIBRARIES)
   find_library(_petsc_lib_${_next_lib} NAMES ${_next_lib} HINTS ${PKG_PETSC_LIBRARY_DIRS})
   if(_petsc_lib_${_next_lib})
@@ -48,10 +48,10 @@ foreach(_next_lib IN LISTS PKG_PETSC_LIBRARIES)
 endforeach()
 
 # libm is always required
-list(APPEND _petsc_libs  "m")
+list(APPEND _petsc_libs "${SUNDIALS_MATH_LIBRARY}")
 
 # Substitute MPI target if PETSC is built with MPI
-foreach(_next_lib IN LISTS PKG_PETSC_LINK_LIBRARIES)
+foreach(_next_lib IN LISTS PKG_PETSC_STATIC_LIBRARIES)
   if(_next_lib MATCHES "mpi")
     if(DEFINED CMAKE_CXX_COMPILER)
       list(APPEND _petsc_libs "MPI::MPI_CXX")
