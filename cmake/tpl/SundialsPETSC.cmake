@@ -49,13 +49,14 @@ endif()
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
 
-find_package(PETSC REQUIRED)
+find_package(PETSC 3.5.0 REQUIRED)
 
-message(STATUS "PETSC_DIR:         ${PETSC_DIR}")
-message(STATUS "PETSC_LIBRARIES:   ${PETSC_LIBRARIES_}")
-message(STATUS "PETSC_INCLUDES:    ${PETSC_INCLUDES_}")
-message(STATUS "PETSC_INDEX_SIZE:  ${PETSC_INDEX_SIZE}")
-message(STATUS "PETSC_PRECISION:   ${PETSC_PRECISION}\n")
+message(STATUS "PETSC_DIR:          ${PETSC_DIR}")
+message(STATUS "PETSC_ARCH:         ${PETSC_ARCH}")
+message(STATUS "PETSC_LIBRARIES:    ${PETSC_LIBRARIES}")
+message(STATUS "PETSC_INCLUDE_DIRS: ${PETSC_INCLUDE_DIRS}")
+message(STATUS "PETSC_INDEX_SIZE:   ${PETSC_INDEX_SIZE}")
+message(STATUS "PETSC_PRECISION:    ${PETSC_PRECISION}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL

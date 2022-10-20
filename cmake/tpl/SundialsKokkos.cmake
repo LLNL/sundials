@@ -42,7 +42,7 @@ endif()
 # -----------------------------------------------------------------------------
 find_package(Kokkos REQUIRED
   HINTS "${Kokkos_DIR}"
-  NO_DEFALT_PATH)
+  NO_DEFAULT_PATH)
 
 # We should be able to use Kokkos_DEVICES directly but it seems to get
 # removed or unset in some CMake versions
