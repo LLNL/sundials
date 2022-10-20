@@ -309,8 +309,7 @@ sundials_option(CALIPER_WORKS BOOL "Set to ON to force CMake to accept a given C
 
 sundials_option(ENABLE_KOKKOS BOOL "Enable Kokkos support" OFF)
 
-sundials_option(Kokkos_DIR PATH "Path to the root of a Kokkos installation" "${Kokkos_DIR}"
-                DEPENDS_ON ENABLE_KOKKOS)
+sundials_option(Kokkos_DIR PATH "Path to the root of a Kokkos installation" "${Kokkos_DIR}")
 
 sundials_option(KOKKOS_WORKS BOOL "Set to ON to force CMake to accept a given Kokkos configuration" OFF
                 DEPENDS_ON ENABLE_KOKKOS
@@ -322,8 +321,7 @@ sundials_option(KOKKOS_WORKS BOOL "Set to ON to force CMake to accept a given Ko
 
 sundials_option(ENABLE_KOKKOS_KERNELS BOOL "Enable Kokkos Kernels support" OFF)
 
-sundials_option(KokkosKernels_DIR PATH "Path to the root of a Kokkos Kernels installation" "${KokkosKernels_DIR}"
-                DEPENDS_ON ENABLE_KOKKOS ENABLE_KOKKOS_KERNELS)
+sundials_option(KokkosKernels_DIR PATH "Path to the root of a Kokkos Kernels installation" "${KokkosKernels_DIR}")
 
 sundials_option(KOKKOS_KERNELS_WORKS BOOL "Set to ON to force CMake to accept a given Kokkos configuration" OFF
                 DEPENDS_ON ENABLE_KOKKOS ENABLE_KOKKOS_KERNELS

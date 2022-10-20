@@ -58,6 +58,22 @@ foreach(_next_lib IN LISTS PKG_PETSC_STATIC_LIBRARIES)
       list(APPEND _petsc_libs "MPI::MPI_C")
     endif()
   endif()
+  if(_next_lib MATCHES "kokkoskernels")
+    if(NOT TARGET Kokkos::kokkoskernels)
+      find_package(KokkosKernels REQUIRED
+        HINTS "${KokkosKernels_DIR}" "${PKG_PETSC_LIBRARY_DIRS}"
+        NO_DEFALT_PATH)
+    endif()
+    list(APPEND _petsc_libs "Kokkos::kokkoskernels")
+  endif()
+  if(_next_lib MATCHES "kokkos")
+    if(NOT TARGET Kokkos::kokkos)
+      find_package(Kokkos REQUIRED
+        HINTS "${Kokkos_DIR}" "${PKG_PETSC_LIBRARY_DIRS}"
+        NO_DEFALT_PATH)
+    endif()
+    list(APPEND _petsc_libs "Kokkos::kokkos")
+  endif()
 endforeach()
 list(REMOVE_DUPLICATES _petsc_libs)
 
