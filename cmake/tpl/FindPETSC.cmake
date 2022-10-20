@@ -39,7 +39,6 @@ unset(_pkg_version_spec)
 
 # Find the PETSC libraries
 set(_petsc_libs )
-message(">>>> PKG_PETSC_LIBRARIES: ${PKG_PETSC_LIBRARIES}")
 foreach(_next_lib IN LISTS PKG_PETSC_LIBRARIES)
   find_library(_petsc_lib_${_next_lib} NAMES ${_next_lib} HINTS ${PKG_PETSC_LIBRARY_DIRS})
   if(_petsc_lib_${_next_lib})
