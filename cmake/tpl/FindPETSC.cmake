@@ -62,7 +62,7 @@ foreach(_next_lib IN LISTS PKG_PETSC_STATIC_LIBRARIES)
     if(NOT TARGET Kokkos::kokkoskernels)
       find_package(KokkosKernels REQUIRED
         HINTS "${KokkosKernels_DIR}" "${PKG_PETSC_LIBRARY_DIRS}"
-        NO_DEFALT_PATH)
+        NO_DEFAULT_PATH)
     endif()
     if(NOT TARGET Kokkos::kokkoskernels)
       message(">>>> No Kokkos::kokkoskernels target")
@@ -73,7 +73,7 @@ foreach(_next_lib IN LISTS PKG_PETSC_STATIC_LIBRARIES)
     if(NOT TARGET Kokkos::kokkos)
       find_package(Kokkos REQUIRED
         HINTS "${Kokkos_DIR}" "${PKG_PETSC_LIBRARY_DIRS}"
-        NO_DEFALT_PATH)
+        NO_DEFAULT_PATH)
     endif()
     if(NOT TARGET Kokkos::kokkos)
       message(">>>> No Kokkos::kokkos target")
