@@ -41,14 +41,14 @@ else()
     )
 endif()
 
-# # Set Trilinos compilers/flags
-# set(CMAKE_CXX_COMPILER ${Trilinos_INTERFACE_CXX_COMPILER})
-# set(CMAKE_C_COMPILER   ${Trilinos_INTERFACE_C_COMPILER})
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
+# Set Trilinos compilers/flags
+set(CMAKE_CXX_COMPILER ${Trilinos_INTERFACE_CXX_COMPILER})
+set(CMAKE_C_COMPILER   ${Trilinos_INTERFACE_C_COMPILER})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
 
-# # Set Trilinos MPI executable for trilinos tests
-# set(MPIEXEC_EXECUTABLE ${Trilinos_INTERFACE_MPIEXEC})
+# Set Trilinos MPI executable for trilinos tests
+set(MPIEXEC_EXECUTABLE ${Trilinos_INTERFACE_MPIEXEC})
 
 # Add source directory to include directories
 include_directories(. ..)
