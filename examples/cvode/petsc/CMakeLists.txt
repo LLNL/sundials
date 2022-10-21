@@ -91,6 +91,10 @@ if(EXAMPLES_INSTALL)
     set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
   endif()
 
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(SUNDIALS_EXTRA_LIBS SUNDIALS::cvode_fused_stubs)
+  endif()
+
   examples2string(CVODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
