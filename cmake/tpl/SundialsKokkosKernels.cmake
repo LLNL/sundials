@@ -42,7 +42,7 @@ endif()
 # -----------------------------------------------------------------------------
 find_package(KokkosKernels REQUIRED
   HINTS "${KokkosKernels_DIR}"
-  NO_DEFALT_PATH)
+  NO_DEFAULT_PATH)
 
 message(STATUS "Kokkos Kernels VERSION: ${KokkosKernels_VERSION}")
 

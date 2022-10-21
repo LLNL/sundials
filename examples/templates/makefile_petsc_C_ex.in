@@ -44,8 +44,8 @@ MPI_FLAGS   = @MPI_FLAGS@
 
 # -----------------------------------------------------------------------------------------
 
-PETSC_LIBRARIES = @PETSC_LIBRARIES_@
-INCLUDES_PETSC  = @PETSC_INCLUDES_@
+PETSC_LIBRARIES = @PKG_PETSC_LDFLAGS@
+INCLUDES_PETSC  = @PKG_PETSC_INCLUDE_DIRS@
 LIBRARIES_PETSC = $(subst ;, , ${PETSC_LIBRARIES})
 LINKFLAGS_PETSC = ${LINKFLAGS}
 
