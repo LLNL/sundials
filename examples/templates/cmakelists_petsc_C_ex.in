@@ -85,6 +85,7 @@ endif()
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
+  ${SUNDIALS_EXTRA_LIBS}
   SUNDIALS::nvecpetsc
   SUNDIALS::sunnonlinsolpetscsnes
   SUNDIALS::PETSC)
