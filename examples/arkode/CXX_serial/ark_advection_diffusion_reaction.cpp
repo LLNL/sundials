@@ -72,8 +72,8 @@
  *      | IDX | D | R | Description                           |
  *      +-----+---+---+---------------------------------------+
  *      |  0  | E | E | fully explicit                        |
- *      |  1  | E | I | implicit reaction, explicit diffusion |
- *      |  2  | I | E | implicit diffusion, explicit reaction |
+ *      |  1  | E | I | implicit diffusion, explicit reaction |
+ *      |  2  | I | E | implicit reaction, explicit diffusion |
  *      |  3  | I | I | fully implicit                        |
  *      +-----+---+---+---------------------------------------+
  *
@@ -508,16 +508,16 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
       Ji_RHS = nullptr;
       break;
     case(1):
-      // IMEX -- explicit advection, implicit diffusion
-      fe_RHS = f_advection;
+      // IMEX -- explicit reaction, implicit diffusion
+      fe_RHS = f_reaction;
       fi_RHS = f_diffusion;
       Ji_RHS = J_diffusion;
       break;
     case(2):
-      // IMEX -- explicit diffusion, implicit advection
-      fe_RHS = f_reaction;
-      fi_RHS = f_diffusion;
-      Ji_RHS = J_diffusion;
+      // IMEX -- explicit diffusion, implicit reaction
+      fe_RHS = f_diffusion;
+      fi_RHS = f_reaction;
+      Ji_RHS = J_reaction;
       break;
     case(4):
       // DIRK -- fully implicit

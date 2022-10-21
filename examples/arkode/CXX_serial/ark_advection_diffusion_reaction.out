@@ -1,10 +1,6 @@
 
 Problem parameters and options:
  --------------------------------- 
-  advection        = ON
-  diffusion        = ON
-  splitting        = 3
- --------------------------------- 
   c                = 0.001
   d                = 0.01
   A                = 0.6
@@ -17,12 +13,15 @@ Problem parameters and options:
   dx               = 0.00195695
  --------------------------------- 
   integrator       = ARK
+  advection        = Explicit
+  diffusion        = Implicit
+  reaction         = Implicit
   order            = 3
   rtol             = 0.0001
   atol             = 1e-09
   fixed h          = 0
-  controller       = -1
-  predictor        = 0
+  controller       = PID
+  predictor        = trivial
   ls setup freq    = 0
   linear           = 0
  --------------------------------- 
