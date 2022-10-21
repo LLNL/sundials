@@ -83,6 +83,9 @@ extern "C" {
   /* Turn timing on/off */
   void SetTiming(int onoff, int myid);
 
+  /* Set the number of warmup runs (1 by default) */
+  void SetNumWarmups(int num_warmups);
+
   /* Print output table header */
   void PrintTableHeader(int type);
 

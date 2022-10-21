@@ -56,5 +56,9 @@ if(BUILD_NVECTOR_SYCL)
   add_subdirectory(sycl)
 endif()
 
+if(BUILD_NVECTOR_KOKKOS)
+  add_subdirectory(kokkos)
+endif()
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/plot_nvector_performance_results.py
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
