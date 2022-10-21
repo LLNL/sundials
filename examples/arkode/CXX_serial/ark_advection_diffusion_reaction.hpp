@@ -943,16 +943,16 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
         cout << "  reaction         = Explicit" << endl;
         break;
       case(1):
-        // IMEX -- explicit reaction, implicit diffusion
-        cout << "  advection        = OFF" << endl;
-        cout << "  diffusion        = Implicit" << endl;
-        cout << "  reaction         = Explicit" << endl;
-      break;
-      case(2):
         // IMEX -- explicit diffusion, implicit reaction
         cout << "  advection        = OFF" << endl;
         cout << "  diffusion        = Explicit" << endl;
         cout << "  reaction         = Implicit" << endl;
+        break;
+      case(2):
+        // IMEX -- explicit reaction, implicit diffusion
+        cout << "  advection        = OFF" << endl;
+        cout << "  diffusion        = Implicit" << endl;
+        cout << "  reaction         = Explicit" << endl;
         break;
       case(4):
         // DIRK -- fully implicit
