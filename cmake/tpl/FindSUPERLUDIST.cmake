@@ -14,81 +14,86 @@
 # SuperLUDIST find module that creates an imported target for
 # SuperLU_DIST. The target is SUNDIALS::SUPERLUDIST.
 #
-# The variable SUPERLUDIST_LIBRARY_DIR can be used to control
-# where the module looks for the library.
+# The module has two modes: one 'automatic' mode that uses
+# pkg-conf to locate and determine the SuperLU DIST
+# libraries and includes, and one 'manual' mode which
+# requires the libraries and includes to be specified.
 #
-# The variable SUPERLUDIST_INCLUDE_DIR can be used to set the
-# include path for the library.
+# If SUPERLUDIST_LIBRARIES is set, then the 'manual' mode is
+# chosen and the SUPERLUDIST_INCLUDE_DIRS variable must also
+# be set.
 #
-# Additional libraries can be passed in SUPERLUDIST_LIBRARIES.
+# The variable SUPERLUDIST_DIR can be used to control where
+# the module looks for the library in 'automatic' mode.
 #
-# This module also defines variables, but it is best to use
-# the defined target to ensure includes and compile/link
-# options are correctly passed to consumers.
+# This module also defines additional variables:
 #
-#   SUPERLUDIST_FOUND      - system has SuperLU_DIST library
-#   SUPERLUDIST_LIBRARY    - the SuperLU_DIST library
+#   SUPERLUDIST_FOUND      - the SuperLU_DIST libraries were found
 #   SUPERLUDIST_INDEX_SIZE - the bit width of indices in SUPERLUDIST
+#   SUPERLUDIST_CUDA       - SuperLU_DIST has CUDA support
+#   SUPERLUDIST_ROCM       - SuperLU_DIST has ROCm support
 # ---------------------------------------------------------------
 
-# Check if SUPERLUDIST_LIBRARIES contains the superlu_dist
-# library as well as TPLs. If so, extract it into the
-# SUPERLUDIST_LIBRARY variable.
-if(SUPERLUDIST_LIBRARIES MATCHES "superlu_dist")
-  foreach(lib ${SUPERLUDIST_LIBRARIES})
-    if(lib MATCHES "superlu_dist")
-      set(SUPERLUDIST_LIBRARY ${lib})
+if(NOT SUPERLUDIST_LINK_LIBRARIES AND SUPERLUDIST_LIBRARIES)
+  set(SUPERLUDIST_LINK_LIBRARIES "${SUPERLUDIST_LIBRARIES}" CACHE INTERNAL "")
+elseif(NOT SUPERLUDIST_LINK_LIBRARIES)
+  find_package(PkgConfig REQUIRED)
+  list(APPEND CMAKE_PREFIX_PATH "${SUPERLUDIST_DIR}")
+  if(DEFINED SUPERLUDIST_FIND_VERSION)
+    if(SUPERLUDIST_FIND_VERSION_EXACT)
+      set(_pkg_version_spec "=${SUPERLUDIST_FIND_VERSION}")
+    else()
+      set(_pkg_version_spec ">=${SUPERLUDIST_FIND_VERSION}")
     endif()
-  endforeach()
-endif()
-
-# find library
-if(NOT SUPERLUDIST_LIBRARY)
-  # search user provided directory path
-  find_library(SUPERLUDIST_LIBRARY superlu_dist
-    PATHS ${SUPERLUDIST_LIBRARY_DIR} NO_DEFAULT_PATH)
-  # if user didn't provide a path, search anywhere
-  if(NOT (SUPERLUDIST_LIBRARY_DIR OR SUPERLUDIST_LIBRARY))
-    find_library(SUPERLUDIST_LIBRARY superlu_dist)
   endif()
-  mark_as_advanced(SUPERLUDIST_LIBRARY)
-  set(SUPERLUDIST_LIBRARIES "${SUPERLUDIST_LIBRARY};${SUPERLUDIST_LIBRARIES}" CACHE STRING "" FORCE)
-endif()
-
-# set the library dir option if it wasn't preset
-if(SUPERLUDIST_LIBRARY AND (NOT SUPERLUDIST_LIBRARY_DIR))
-  get_filename_component(SUPERLUDIST_LIBRARY_DIR ${SUPERLUDIST_LIBRARY} DIRECTORY)
-  set(SUPERLUDIST_LIBRARY_DIR ${SUPERLUDIST_LIBRARY_DIR} CACHE PATH "" FORCE)
-endif()
-
-# set the include dir option if it wasn't preset
-if(SUPERLUDIST_LIBRARY AND (NOT SUPERLUDIST_INCLUDE_DIR))
-  get_filename_component(SUPERLUDIST_INCLUDE_DIR ${SUPERLUDIST_LIBRARY_DIR} DIRECTORY)
-  set(SUPERLUDIST_INCLUDE_DIR "${SUPERLUDIST_INCLUDE_DIR}/include" CACHE PATH "" FORCE)
+  pkg_search_module(SUPERLUDIST REQUIRED "superlu_dist${_pkg_version_spec}")
+  set(SUPERLUDIST_LINK_LIBRARIES "${SUPERLUDIST_LINK_LIBRARIES}" CACHE INTERNAL "")
+  set(SUPERLUDIST_INCLUDE_DIRS "${SUPERLUDIST_INCLUDE_DIRS}" CACHE INTERNAL "")
 endif()
 
 # find the library configuration file
-if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
-  find_file(SUPERLUDIST_CONFIG_PATH superlu_dist_config.h PATHS ${SUPERLUDIST_INCLUDE_DIR})
-  file(STRINGS ${SUPERLUDIST_CONFIG_PATH} _strings_with_index_size REGEX "XSDK_INDEX_SIZE")
-  list(GET _strings_with_index_size 0 _index_size_string)
-  string(REGEX MATCHALL "[0-9][0-9]" SUPERLUDIST_INDEX_SIZE "${_index_size_string}")
+set(SUPERLUDIST_CUDA FALSE CACHE INTERNAL "SuperLU DIST was built with CUDA support")
+set(SUPERLUDIST_ROCM FALSE CACHE INTERNAL "SuperLU DIST was built with ROCm support")
+if(SUPERLUDIST_INCLUDE_DIRS)
+  find_file(SUPERLUDIST_CONFIG_PATH superlu_dist_config.h PATHS "${SUPERLUDIST_INCLUDE_DIRS}")
   mark_as_advanced(FORCE SUPERLUDIST_CONFIG_PATH)
+  if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "8.0.0")
+      file(STRINGS "${SUPERLUDIST_CONFIG_PATH}" _index_size_64 REGEX "#define XSDK_INDEX_SIZE 64")
+      file(STRINGS "${SUPERLUDIST_CONFIG_PATH}" _index_size_32 REGEX "#undef XSDK_INDEX_SIZE")
+      if(_index_size_64)
+        set(SUPERLUDIST_INDEX_SIZE 64 CACHE STRING "SuperLU DIST index size (bit width)" FORCE)
+      else()
+        set(SUPERLUDIST_INDEX_SIZE 32 CACHE STRING "SuperLU DIST index size (bit width)" FORCE)
+      endif()
+      mark_as_advanced(FORCE SUPERLUDIST_INDEX_SIZE)
+  else()
+    file(STRINGS "${SUPERLUDIST_CONFIG_PATH}" _strings_with_index_size REGEX "XSDK_INDEX_SIZE")
+    list(GET _strings_with_index_size 0 _index_size_string)
+    string(REGEX MATCHALL "[0-9][0-9]" SUPERLUDIST_INDEX_SIZE "${_index_size_string}")
+  endif()
+  file(STRINGS "${SUPERLUDIST_CONFIG_PATH}" _strings_have_cuda REGEX "HAVE_CUDA")
+  string(REGEX MATCH "TRUE|FALSE" _has_cuda "${_strings_have_cuda}")
+  file(STRINGS "${SUPERLUDIST_CONFIG_PATH}" _strings_have_rocm REGEX "HAVE_ROCM")
+  string(REGEX MATCH "TRUE|FALSE" _has_rocm "${_strings_have_rocm}")
+  set(SUPERLUDIST_CUDA ${_has_cuda} CACHE INTERNAL "SuperLU DIST was built with CUDA support" FORCE)
+  set(SUPERLUDIST_ROCM ${_has_rocm} CACHE INTERNAL "SuperLU DIST was built with ROCm support" FORCE)
+  unset(_has_cuda)
+  unset(_has_rocm)
 endif()
 
 # find the library version file
-if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
-  find_file(SUPERLUDIST_VERSION_PATH superlu_defs.h PATHS ${SUPERLUDIST_INCLUDE_DIR})
+if(NOT SUPERLUDIST_VERSION AND SUPERLUDIST_INCLUDE_DIRS)
+  find_file(SUPERLUDIST_VERSION_PATH superlu_defs.h PATHS "${SUPERLUDIST_INCLUDE_DIRS}")
 
-  file(STRINGS ${SUPERLUDIST_VERSION_PATH} _version_major REGEX "SUPERLU_DIST_MAJOR_VERSION")
+  file(STRINGS "${SUPERLUDIST_VERSION_PATH}" _version_major REGEX "SUPERLU_DIST_MAJOR_VERSION")
   list(GET _version_major 0 _version_string)
   string(REGEX MATCHALL "[0-9]" _version_major "${_version_string}")
 
-  file(STRINGS ${SUPERLUDIST_VERSION_PATH} _version_minor REGEX "SUPERLU_DIST_MINOR_VERSION")
+  file(STRINGS "${SUPERLUDIST_VERSION_PATH}" _version_minor REGEX "SUPERLU_DIST_MINOR_VERSION")
   list(GET _version_minor 0 _version_string)
   string(REGEX MATCHALL "[0-9]" _version_minor "${_version_string}")
 
-  file(STRINGS ${SUPERLUDIST_VERSION_PATH} _version_patch REGEX "SUPERLU_DIST_PATCH_VERSION")
+  file(STRINGS "${SUPERLUDIST_VERSION_PATH}" _version_patch REGEX "SUPERLU_DIST_PATCH_VERSION")
   list(GET _version_patch 0 _version_string)
   string(REGEX MATCHALL "[0-9]" _version_patch "${_version_string}")
 
@@ -96,12 +101,23 @@ if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
   mark_as_advanced(FORCE SUPERLUDIST_VERSION_PATH)
 endif()
 
+# add libraries for OpenMP support
+if(SUPERLUDIST_OpenMP)
+  list(APPEND SUPERLUDIST_LINK_LIBRARIES OpenMP::OpenMP_CXX)
+endif()
+# add libraries for GPU support
+if(SUPERLUDIST_CUDA)
+  list(APPEND SUPERLUDIST_LINK_LIBRARIES CUDA::cudart CUDA::cublas)
+endif()
+if(SUPERLUDIST_HIP)
+  list(APPEND SUPERLUDIST_LINK_LIBRARIES roc::hipblas)
+endif()
+
 # set package variables including SUPERLUDIST_FOUND
 find_package_handle_standard_args(SUPERLUDIST
   REQUIRED_VARS
-    SUPERLUDIST_LIBRARY
-    SUPERLUDIST_LIBRARIES
-    SUPERLUDIST_INCLUDE_DIR
+    SUPERLUDIST_LINK_LIBRARIES
+    SUPERLUDIST_INCLUDE_DIRS
     SUPERLUDIST_INDEX_SIZE
   VERSION_VAR
     SUPERLUDIST_VERSION
@@ -111,12 +127,11 @@ find_package_handle_standard_args(SUPERLUDIST
 if(SUPERLUDIST_FOUND)
 
   if(NOT TARGET SUNDIALS::SUPERLUDIST)
-    add_library(SUNDIALS::SUPERLUDIST UNKNOWN IMPORTED)
+    add_library(SUNDIALS::SUPERLUDIST INTERFACE IMPORTED)
   endif()
 
   set_target_properties(SUNDIALS::SUPERLUDIST PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${SUPERLUDIST_INCLUDE_DIR}"
-    INTERFACE_LINK_LIBRARIES "${SUPERLUDIST_LIBRARIES}"
-    IMPORTED_LOCATION "${SUPERLUDIST_LIBRARY}")
+    INTERFACE_INCLUDE_DIRECTORIES "${SUPERLUDIST_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "${SUPERLUDIST_LINK_LIBRARIES}")
 
 endif()

@@ -162,6 +162,7 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads,
   v->ops->nvgetarraypointer = N_VGetArrayPointer_Pthreads;
   v->ops->nvsetarraypointer = N_VSetArrayPointer_Pthreads;
   v->ops->nvgetlength       = N_VGetLength_Pthreads;
+  v->ops->nvgetlocallength  = N_VGetLength_Pthreads;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Pthreads;

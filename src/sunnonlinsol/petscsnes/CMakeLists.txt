@@ -34,7 +34,7 @@ sundials_add_library(sundials_sunnonlinsolpetscsnes
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
-    PUBLIC sundials_nvecpetsc SUNDIALS::PETSC_SNES
+    PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
   OUTPUT_NAME
     sundials_sunnonlinsolpetscsnes
   VERSION

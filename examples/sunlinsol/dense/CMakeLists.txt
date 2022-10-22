@@ -29,10 +29,7 @@ set(sunlinsol_dense_examples
 # Dependencies for nvector examples
 set(sunlinsol_dense_dependencies
   test_sunlinsol
-  sundials_nvector
-  sundials_matrix
-  sundials_linearsolver
-)
+  )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
@@ -42,18 +39,6 @@ endif()
 
 # Add source directory to include directories
 include_directories(. ..)
-
-# Specify libraries to link against
-set(NVECS_LIB sundials_nvecserial)
-set(SUNLINSOL_LIB sundials_sunlinsoldense)
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  list(APPEND NVECS_LIB sundials_fnvecserial_mod)
-  list(APPEND SUNLINSOL_LIB sundials_fsunlinsoldense_mod)
-endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNLINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_dense_examples})
@@ -73,7 +58,10 @@ foreach(example_tuple ${sunlinsol_dense_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecserial
+      sundials_sunlinsoldense
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -93,9 +81,6 @@ foreach(example_tuple ${sunlinsol_dense_examples})
     install(FILES ${example}.c
       ../test_sunlinsol.h
       ../test_sunlinsol.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
   endif()
 
@@ -124,7 +109,12 @@ foreach(example_tuple ${sunlinsol_dense_fortran_examples})
     set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecserial
+      sundials_fnvecserial_mod
+      sundials_sunlinsoldense
+      sundials_fsunlinsoldense_mod
+      ${EXE_EXTRA_LINK_LIBS})
 
     # check if example args are provided and set the test name
     if("${example_args}" STREQUAL "")

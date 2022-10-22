@@ -24,3 +24,9 @@ if(CXX_FOUND)
     add_subdirectory(CXX_parallel)
   endif()
 endif()
+
+# F2003 unit tests
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory(F2003_serial)
+endif()
+

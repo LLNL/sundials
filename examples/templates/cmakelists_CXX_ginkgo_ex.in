@@ -1,0 +1,176 @@
+# -----------------------------------------------------------------
+# Programmer(s): Cody J. Balos and David J. Gardner @ LLNL
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
+
+# Set the minimum required cmake version
+cmake_minimum_required(VERSION @CMAKE_VERSION@)
+
+# Set cache variables for C compilers and flags
+set(CMAKE_C_COMPILER
+  "@CMAKE_C_COMPILER@"
+  CACHE FILEPATH "C compiler")
+
+set(CMAKE_C_FLAGS
+  "@CMAKE_C_FLAGS@"
+  CACHE STRING "C compiler flags")
+
+set(CMAKE_C_STANDARD
+  "@CMAKE_C_STANDARD@"
+  CACHE STRING "C standard")
+
+# Set cache variables for C++ compilers and flags
+set(CMAKE_CXX_COMPILER
+  "@CMAKE_CXX_COMPILER@"
+  CACHE FILEPATH "CXX compiler")
+
+set(CMAKE_CXX_FLAGS
+  "@CMAKE_CXX_FLAGS@"
+  CACHE STRING "CXX compiler flags")
+
+set(CMAKE_CXX_STANDARD
+  "@CMAKE_CXX_STANDARD@"
+  CACHE STRING "C++ standard")
+
+# Set cache variables for CUDA compilers and flags
+if("@SUNDIALS_GINKGO_BACKENDS@" MATCHES "CUDA")
+
+  set(CMAKE_CUDA_COMPILER
+    "@CMAKE_CUDA_COMPILER@"
+    CACHE FILEPATH "CUDA compiler")
+
+  set(CMAKE_CUDA_HOST_COMPILER
+    "@CMAKE_CUDA_HOST_COMPILER@"
+    CACHE FILEPATH "CUDA host compiler")
+
+  set(CMAKE_CUDA_FLAGS
+    "@CMAKE_CUDA_FLAGS@"
+    CACHE STRING "CUDA compiler flags")
+
+  set(CMAKE_CUDA_STANDARD
+    "@CMAKE_CUDA_STANDARD@"
+    CACHE STRING "CUDA standard")
+
+  set(CMAKE_CUDA_ARCHITECTURES
+    "@CMAKE_CUDA_ARCHITECTURES@"
+    CACHE STRING "CUDA target architectures")
+
+  set(_cuda CUDA)
+
+endif()
+
+# Specify project name and languages
+project(examples C CXX ${_cuda})
+
+# Enable testing
+include(CTest)
+
+# ------------------------------------------------------------------------------
+
+# Specify the path to SUNDIALSConfig.cmake
+set(SUNDIALS_DIR
+  "@CMAKE_INSTALL_PREFIX@/@SUNDIALS_INSTALL_CMAKEDIR@"
+  CACHE PATH "Location of SUNDIALSConfig.cmake")
+
+# Find SUNDIALS
+find_package(SUNDIALS REQUIRED
+  COMPONENTS @EXAMPLES_CMAKE_COMPONENTS@
+  HINTS "${SUNDIALS_DIR}"
+  NO_DEFAULT_PATH)
+
+# Additional libraries
+set(EXTRA_LIBS
+  @EXAMPLES_EXTRA_LIBS@
+  CACHE STRING "Additional libraries")
+
+# Additional includes
+include_directories(. @EXTRA_INCLUDES@)
+
+# ------------------------------------------------------------------------------
+
+# Macro to create build targets
+macro(add_examples EXAMPLES_VAR)
+
+  set(options )
+  set(oneValueArgs )
+  set(multiValueArgs BACKENDS)
+
+  # Parse keyword arguments and options
+  cmake_parse_arguments(arg
+    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  foreach(example ${${EXAMPLES_VAR}})
+    foreach(backend ${arg_BACKENDS})
+
+      if(NOT ("@SUNDIALS_GINKGO_BACKENDS@" MATCHES "${backend}"))
+        continue()
+      endif()
+
+      if(backend MATCHES "CUDA")
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+        set(vector nveccuda)
+      elseif(backend MATCHES "HIP")
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
+        set(vector nvechip)
+      elseif(backend MATCHES "OMP")
+        set(vector nvecopenmp)
+      elseif(backend MATCHES "REF")
+        set(vector nvecserial)
+      endif()
+
+      # extract the file name without extension
+      get_filename_component(example_target ${example} NAME_WE)
+      set(example_target "${example_target}.${backend}")
+
+      # create target
+      add_executable(${example_target}
+        ${example} @EXAMPLES_DEPENDENCIES@)
+
+      # which backend to use
+      target_compile_definitions(${example_target}
+        PRIVATE USE_${backend})
+
+      # libraries to link against
+      target_link_libraries(${example_target}
+        PRIVATE
+        @EXAMPLES_CMAKE_TARGETS@
+        SUNDIALS::${vector}
+        Ginkgo::ginkgo
+        ${EXTRA_LIBS})
+
+      # add the example to ctest
+      add_test(NAME ${example_target} COMMAND ${example_target})
+
+    endforeach()
+  endforeach()
+
+endmacro()
+
+# ------------------------------------------------------------------------------
+
+# Set the names of the examples to be built and their dependencies
+set(cpu_examples @CPU_EXAMPLES@)
+set(gpu_examples @GPU_EXAMPLES@)
+set(cpu_gpu_examples @CPU_GPU_EXAMPLES@)
+
+if(cpu_examples)
+  add_examples(cpu_examples
+    BACKENDS REF OMP)
+endif()
+if(gpu_examples)
+  add_examples(gpu_examples
+    BACKENDS CUDA HIP)
+endif()
+if(cpu_gpu_examples)
+  add_examples(cpu_gpu_examples
+    BACKENDS REF OMP CUDA HIP)
+endif()

@@ -52,10 +52,10 @@ extern "C" {
 
 struct _N_VectorContent_MPIManyVector {
   MPI_Comm      comm;            /* overall MPI communicator        */
-  sunindextype  num_subvectors;  /* number of vectors attached      */
-  sunindextype  global_length;   /* overall manyvector length       */
-  N_Vector*     subvec_array;    /* pointer to N_Vector array       */
-  booleantype   own_data;        /* flag indicating data ownership  */
+  sunindextype  num_subvectors;  /* number of vectors attached       */
+  sunindextype  global_length;   /* overall global manyvector length */
+  N_Vector*     subvec_array;    /* pointer to N_Vector array        */
+  booleantype   own_data;        /* flag indicating data ownership   */
 };
 
 typedef struct _N_VectorContent_MPIManyVector *N_VectorContent_MPIManyVector;
@@ -95,6 +95,7 @@ SUNDIALS_EXPORT void N_VSpace_MPIManyVector(N_Vector v, sunindextype *lrw,
                                             sunindextype *liw);
 SUNDIALS_EXPORT void *N_VGetCommunicator_MPIManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_MPIManyVector(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetSubvectorLocalLength_MPIManyVector(N_Vector v, sunindextype vec_num);
 SUNDIALS_EXPORT void N_VLinearSum_MPIManyVector(realtype a, N_Vector x,
                                                 realtype b, N_Vector y,
                                                 N_Vector z);

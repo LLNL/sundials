@@ -160,6 +160,7 @@ int main(int argc, char* argv[])
 
   // Clean up and return with successful completion
   N_VDestroy(y);
+  N_VDestroy(yp);
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   IDAFree(&ida_mem);

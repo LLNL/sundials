@@ -389,9 +389,9 @@ int main()
 
   /* Free MRIStep and ARKStep memory structures */
   MRIStepFree(&mristep_mem);
+  MRIStepInnerStepper_Free(&inner_stepper);
   ARKStepFree(&arkode_mem);
   arkode_mem = NULL;
-
 
   /* Clean up and return with success */
   N_VDestroy(y);

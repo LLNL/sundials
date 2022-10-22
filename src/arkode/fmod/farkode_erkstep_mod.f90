@@ -60,6 +60,11 @@ module farkode_erkstep_mod
  public :: FERKStepSetDenseOrder
  public :: FERKStepSetTable
  public :: FERKStepSetTableNum
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
+ public :: FERKStepSetTableName
  public :: FERKStepSetCFLFraction
  public :: FERKStepSetSafetyFactor
  public :: FERKStepSetErrorBias
@@ -112,10 +117,6 @@ module farkode_erkstep_mod
  public :: FERKStepGetNumConstrFails
  public :: FERKStepGetUserData
  public :: FERKStepPrintAllStats
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
  public :: FERKStepGetReturnFlagName
  public :: FERKStepWriteParameters
  public :: FERKStepWriteButcher
@@ -269,6 +270,16 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetTableName(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetTableName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1086,19 +1097,54 @@ fresult = swigc_FERKStepSetTable(farg1, farg2)
 swig_result = fresult
 end function
 
-function FERKStepSetTableNum(arkode_mem, itable) &
+function FERKStepSetTableNum(arkode_mem, etable) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKODE_ERKTableID), intent(in) :: itable
+integer(ARKODE_ERKTableID), intent(in) :: etable
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = arkode_mem
-farg2 = itable
+farg2 = etable
 fresult = swigc_FERKStepSetTableNum(farg1, farg2)
+swig_result = fresult
+end function
+
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FERKStepSetTableName(arkode_mem, etable) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+character(kind=C_CHAR, len=*), target :: etable
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+
+farg1 = arkode_mem
+call SWIG_string_to_chararray(etable, farg2_chars, farg2)
+fresult = swigc_FERKStepSetTableName(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -9,7 +9,7 @@ permissions:
   packages: write
 
 jobs:
-  build_int32_double:
+  build_ci_containers:
     runs-on: ubuntu-latest
     strategy:
       matrix:

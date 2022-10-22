@@ -98,6 +98,8 @@ typedef enum {
 /* Accessor routine to load built-in DIRK table */
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod);
 
+/* Accessor routine to load built-in DIRK table */
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *imethod);
 
 #ifdef __cplusplus
 }

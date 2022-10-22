@@ -670,6 +670,10 @@ for ((j=0;j<ntestdirs;j++)); do
             --readenv \
             --install-prefix "${installdir}" | tee -a configure.log
 
+        rc=${PIPESTATUS[0]}
+        echo -e "\nconfig_cmake.py returned $rc\n" | tee -a configure.log
+        if [ "$rc" -ne 0 ]; then passfail=1; break; fi
+
         # ---------
         # Configure
         # ---------
@@ -718,7 +722,15 @@ for ((j=0;j<ntestdirs;j++)); do
 
         rc=${PIPESTATUS[0]}
         echo -e "\nmake test returned $rc\n" | tee -a test.log
-        if [ "$rc" -ne 0 ]; then passfail=1; break; fi
+
+        # Re-attempt failed tests in case they are unstable
+        if [ "$rc" -ne 0 ]; then
+            echo "START TEST"
+            time ctest --rerun-failed --output-on-failure -j "$testjobs" test 2>&1 | tee -a test.log
+            rc=${PIPESTATUS[0]}
+            echo -e "\nmake test returned $rc\n" | tee -a test.log
+            if [ "$rc" -ne 0 ]; then passfail=1; break; fi
+        fi
 
         # Check if this is the last phase
         if [ "${args_phase[i]}" == "TEST" ]; then

@@ -74,6 +74,21 @@ sundials_option(LAPACK_WORKS BOOL "Set to ON to force CMake to accept a given LA
                 ADVANCED)
 
 # ---------------------------------------------------------------
+# Enable Ginkgo support?
+# ---------------------------------------------------------------
+sundials_option(ENABLE_GINKGO BOOL "Enable Ginkgo support" OFF)
+
+sundials_option(Ginkgo_DIR PATH "Path to the root of a Ginkgo installation" "${Ginkgo_DIR}"
+                DEPENDS_ON ENABLE_GINKGO)
+
+sundials_option(SUNDIALS_GINKGO_BACKENDS STRING "Which Ginkgo backend(s) to build the SUNDIALS Ginkgo interfaces for (REF, OMP, CUDA, HIP, DPCPP)" "REF;OMP"
+                DEPENDS_ON ENABLE_GINKGO)
+
+sundials_option(GINKGO_WORKS BOOL "Set to ON to force CMake to accept a given Ginkgo configuration" OFF
+                DEPENDS_ON ENABLE_GINKGO
+                ADVANCED)
+
+# ---------------------------------------------------------------
 # Enable MAGMA support?
 # ---------------------------------------------------------------
 sundials_option(ENABLE_MAGMA BOOL "Enable MAGMA support" OFF)
@@ -94,19 +109,21 @@ sundials_option(MAGMA_WORKS BOOL "Set to ON to force CMake to accept a given MAG
 # ---------------------------------------------------------------
 sundials_option(ENABLE_SUPERLUDIST BOOL "Enable SuperLU_DIST support" OFF)
 
-sundials_option(SUPERLUDIST_INCLUDE_DIR PATH "SuperLU_DIST include directory" "${SUPERLUDIST_INCLUDE_DIR}"
+sundials_option(SUPERLUDIST_DIR PATH "Path to the root of the SuperLU_DIST installation" "${SUPERLUDIST_DIR}"
                 DEPENDS_ON ENABLE_SUPERLUDIST)
 
-sundials_option(SUPERLUDIST_LIBRARY_DIR PATH "SuperLU_DIST library directory" "${SUPERLUDIST_LIBRARY_DIR}"
-                DEPENDS_ON ENABLE_SUPERLUDIST)
+sundials_option(SUPERLUDIST_INCLUDE_DIRS PATH "SuperLU_DIST include directories" "${SUPERLUDIST_INCLUDE_DIRS}"
+                DEPENDS_ON ENABLE_SUPERLUDIST
+                ADVANCED)
 
-sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of additional libraries needed for SuperLU_DIST." "${SUPERLUDIST_LIBRARIES}"
-                DEPENDS_ON ENABLE_SUPERLUDIST)
+sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of libraries needed for SuperLU_DIST." "${SUPERLUDIST_LIBRARIES}"
+                DEPENDS_ON ENABLE_SUPERLUDIST
+                ADVANCED)
 
 sundials_option(SUPERLUDIST_OpenMP BOOL "Enable SUNDIALS support for SuperLU_DIST OpenMP on-node parallelism" OFF
                 DEPENDS_ON ENABLE_SUPERLUDIST)
 
-sundials_option(SUPERLUDIST_WORKS BOOL "Set to ON to force CMake to accept a given SUPERLUDIST configuration" OFF
+sundials_option(SUPERLUDIST_WORKS BOOL "Set to ON to force CMake to accept a given SuperLU_DIST configuration" OFF
                 DEPENDS_ON ENABLE_SUPERLUDIST
                 ADVANCED)
 
@@ -283,4 +300,29 @@ sundials_option(CALIPER_DIR PATH "Path to the root of an CALIPER installation" "
 
 sundials_option(CALIPER_WORKS BOOL "Set to ON to force CMake to accept a given CALIPER configuration" OFF
                 DEPENDS_ON ENABLE_CALIPER
+                ADVANCED)
+
+
+# ---------------------------------------------------------------
+# Enable Kokkos support?
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_KOKKOS BOOL "Enable Kokkos support" OFF)
+
+sundials_option(Kokkos_DIR PATH "Path to the root of a Kokkos installation" "${Kokkos_DIR}")
+
+sundials_option(KOKKOS_WORKS BOOL "Set to ON to force CMake to accept a given Kokkos configuration" OFF
+                DEPENDS_ON ENABLE_KOKKOS
+                ADVANCED)
+
+# ---------------------------------------------------------------
+# Enable Kokkos Kernels support?
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_KOKKOS_KERNELS BOOL "Enable Kokkos Kernels support" OFF)
+
+sundials_option(KokkosKernels_DIR PATH "Path to the root of a Kokkos Kernels installation" "${KokkosKernels_DIR}")
+
+sundials_option(KOKKOS_KERNELS_WORKS BOOL "Set to ON to force CMake to accept a given Kokkos configuration" OFF
+                DEPENDS_ON ENABLE_KOKKOS ENABLE_KOKKOS_KERNELS
                 ADVANCED)

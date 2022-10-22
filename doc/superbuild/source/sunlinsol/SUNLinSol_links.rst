@@ -25,4 +25,6 @@
 .. include:: ../../../shared/sunlinsol/SUNLinSol_SuperLUDIST.rst
 .. include:: ../../../shared/sunlinsol/SUNLinSol_SuperLUMT.rst
 .. include:: ../../../shared/sunlinsol/SUNLinSol_cuSolverSp.rst
+.. include:: ../../../shared/sunlinsol/SUNLinSol_Ginkgo.rst
+.. include:: ../../../shared/sunlinsol/SUNLinSol_KokkosDense.rst
 .. include:: ../../../shared/sunlinsol/SUNLinSol_Examples.rst

@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
   sunindextype    cols, rows;         /* matrix columns, rows       */
   sunindextype    nblocks;            /* number of matrix blocks    */
   SUNLinearSolver LS;                 /* solver object              */
-  SUNMatrix       A, B, I;            /* test matrices              */
-  N_Vector        x, y, b;            /* test vectors               */
+  SUNMatrix       A, I;               /* test matrices              */
+  N_Vector        x, b;               /* test vectors               */
   int             print_timing;
   sunindextype    i, j, k;
   realtype        *Adata, *Idata, *xdata;
@@ -93,11 +93,9 @@ int main(int argc, char *argv[])
     A = SUNMatrix_MagmaDenseBlock(nblocks, rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL, sunctx);
   else
     A = SUNMatrix_MagmaDense(rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL, sunctx);
-  B = SUNMatClone(A);
   I = SUNMatClone(A);
   x = HIP_OR_CUDA( N_VNew_Hip(cols*nblocks, sunctx);,
                    N_VNew_Cuda(cols*nblocks, sunctx); )
-  y = N_VClone(x);
   b = N_VClone(x);
 
   /* Allocate host data */
@@ -135,10 +133,6 @@ int main(int argc, char *argv[])
   HIP_OR_CUDA( N_VCopyToDevice_Hip(x);,
                N_VCopyToDevice_Cuda(x); )
 
-  /* copy A and x into B and y to print in case of solver failure */
-  SUNMatCopy(A, B);
-  N_VScale(ONE, x, y);
-
   /* create right-hand side vector for linear solve */
   fails += SUNMatMatvecSetup(A);
   fails += SUNMatMatvec(A, x, b);
@@ -147,10 +141,8 @@ int main(int argc, char *argv[])
 
     /* Free matrices and vectors */
     SUNMatDestroy(A);
-    SUNMatDestroy(B);
     SUNMatDestroy(I);
     N_VDestroy(x);
-    N_VDestroy(y);
     N_VDestroy(b);
 
     free(Adata);
@@ -166,10 +158,8 @@ int main(int argc, char *argv[])
 
     /* Free matrices and vectors */
     SUNMatDestroy(A);
-    SUNMatDestroy(B);
     SUNMatDestroy(I);
     N_VDestroy(x);
-    N_VDestroy(y);
     N_VDestroy(b);
 
     free(Adata);
@@ -190,12 +180,6 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
-    printf("\nx (original) =\n");
-    N_VPrint(y);
-    printf("\nx (computed) =\n");
-    N_VPrint(x);
-    printf("\nb =\n");
-    N_VPrint(b);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }
@@ -203,10 +187,8 @@ int main(int argc, char *argv[])
   /* Free solver, matrix and vectors */
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
-  SUNMatDestroy(B);
   SUNMatDestroy(I);
   N_VDestroy(x);
-  N_VDestroy(y);
   N_VDestroy(b);
 
   free(Adata);
@@ -220,32 +202,47 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector actual, N_Vector expected, realtype tol)
 {
   int failure = 0;
-  sunindextype i, local_length;
-  realtype *Xdata, *Ydata, maxerr;
+  realtype *xdata, *ydata;
+  sunindextype xldata, yldata;
+  sunindextype i;
 
-  HIP_OR_CUDA( N_VCopyFromDevice_Hip(X);,
-               N_VCopyFromDevice_Cuda(X); )
-  HIP_OR_CUDA( N_VCopyFromDevice_Hip(Y);,
-               N_VCopyFromDevice_Cuda(Y); )
+  /* copy vectors to host */
+  HIP_OR_CUDA( N_VCopyFromDevice_Hip(actual);,
+               N_VCopyFromDevice_Cuda(actual); )
+  HIP_OR_CUDA( N_VCopyFromDevice_Hip(expected);,
+               N_VCopyFromDevice_Cuda(expected); )
 
-  Xdata = N_VGetArrayPointer(X);
-  Ydata = N_VGetArrayPointer(Y);
-  local_length = N_VGetLength(X);
+  /* get vector data */
+  xdata = N_VGetArrayPointer(actual);
+  ydata = N_VGetArrayPointer(expected);
 
-  /* check vector data */
-  for(i=0; i < local_length; i++)
-    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+  /* check data lengths */
+  xldata = N_VGetLength(actual);
+  yldata = N_VGetLength(expected);
 
-  if (failure > ZERO) {
-    maxerr = ZERO;
-    for(i=0; i < local_length; i++)
-      maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n", maxerr, tol);
+
+  if (xldata != yldata) {
+    printf(">>> ERROR: check_vector: Different data array lengths \n");
     return(1);
   }
+
+  /* check vector data */
+  for(i=0; i < xldata; i++)
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+
+  if (failure > ZERO) {
+    printf("Check_vector failures:\n");
+    for(i=0; i < xldata; i++)
+      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
+        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int) i,
+               xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
+  }
+
+  if (failure > ZERO)
+    return(1);
   else
     return(0);
 }

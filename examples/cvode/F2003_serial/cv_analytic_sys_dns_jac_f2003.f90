@@ -208,7 +208,6 @@ program main
   real(c_double) :: yvec(neq)
 
   !======= Internals ============
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
 
   ! initialize ODE
   tstart = 0.0d0

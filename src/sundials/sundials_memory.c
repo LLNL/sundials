@@ -203,23 +203,27 @@ int SUNMemoryHelper_CopyAsync(SUNMemoryHelper helper, SUNMemory dst,
 
 int SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 {
-  if (helper->ops->destroy == NULL)
+  if (!helper) return 0;
+
+  if (helper->ops->destroy)
   {
-    if (helper->content != NULL)
-    {
-      return(-1);
-    }
-    else
-    {
-      free(helper->ops);
-      free(helper);
-    }
+    /* user helper defined destroy */
+    return helper->ops->destroy(helper);
+  }
+  else if (helper->content)
+  {
+    /* helper should have defined destroy */
+    return -1;
   }
   else
   {
-    return(helper->ops->destroy(helper));
+    /* default destroy */
+    free(helper->ops);
+    free(helper);
+    return 0;
   }
-  return(0);
+
+  return 0;
 }
 
 

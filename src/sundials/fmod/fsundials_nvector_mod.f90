@@ -23,6 +23,7 @@ module fsundials_nvector_mod
   enumerator :: SUNDIALS_NVEC_HIP
   enumerator :: SUNDIALS_NVEC_SYCL
   enumerator :: SUNDIALS_NVEC_RAJA
+  enumerator :: SUNDIALS_NVEC_KOKKOS
   enumerator :: SUNDIALS_NVEC_OPENMPDEV
   enumerator :: SUNDIALS_NVEC_TRILINOS
   enumerator :: SUNDIALS_NVEC_MANYVECTOR
@@ -32,8 +33,9 @@ module fsundials_nvector_mod
  end enum
  integer, parameter, public :: N_Vector_ID = kind(SUNDIALS_NVEC_SERIAL)
  public :: SUNDIALS_NVEC_SERIAL, SUNDIALS_NVEC_PARALLEL, SUNDIALS_NVEC_OPENMP, SUNDIALS_NVEC_PTHREADS, SUNDIALS_NVEC_PARHYP, &
-    SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_HIP, SUNDIALS_NVEC_SYCL, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_OPENMPDEV, &
-    SUNDIALS_NVEC_TRILINOS, SUNDIALS_NVEC_MANYVECTOR, SUNDIALS_NVEC_MPIMANYVECTOR, SUNDIALS_NVEC_MPIPLUSX, SUNDIALS_NVEC_CUSTOM
+    SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_HIP, SUNDIALS_NVEC_SYCL, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_KOKKOS, &
+    SUNDIALS_NVEC_OPENMPDEV, SUNDIALS_NVEC_TRILINOS, SUNDIALS_NVEC_MANYVECTOR, SUNDIALS_NVEC_MPIMANYVECTOR, &
+    SUNDIALS_NVEC_MPIPLUSX, SUNDIALS_NVEC_CUSTOM
  ! struct struct _generic_N_Vector_Ops
  type, bind(C), public :: N_Vector_Ops
   type(C_FUNPTR), public :: nvgetvectorid
@@ -91,6 +93,7 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvbufunpack
   type(C_FUNPTR), public :: nvprint
   type(C_FUNPTR), public :: nvprintfile
+  type(C_FUNPTR), public :: nvgetlocallength
  end type N_Vector_Ops
  ! struct struct _generic_N_Vector
  type, bind(C), public :: N_Vector
@@ -160,6 +163,7 @@ module fsundials_nvector_mod
  public :: FN_VSetVecAtIndexVectorArray
  public :: FN_VPrint
  public :: FN_VPrintFile
+ public :: FN_VGetLocalLength
 
 ! WRAPPER DECLARATIONS
 interface
@@ -705,6 +709,14 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
+function swigc_FN_VGetLocalLength(farg1) &
+bind(C, name="_wrap_FN_VGetLocalLength") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
 end interface
 
 
@@ -821,7 +833,7 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
 end function
 
 function FN_VGetDeviceArrayPointer(v) &
@@ -834,7 +846,7 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetDeviceArrayPointer(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
 end function
 
 subroutine FN_VSetArrayPointer(v_data, v)
@@ -1687,6 +1699,19 @@ farg1 = c_loc(v)
 farg2 = outfile
 call swigc_FN_VPrintFile(farg1, farg2)
 end subroutine
+
+function FN_VGetLocalLength(v) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+fresult = swigc_FN_VGetLocalLength(farg1)
+swig_result = fresult
+end function
 
 
 end module

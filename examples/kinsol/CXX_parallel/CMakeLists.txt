@@ -22,11 +22,6 @@ set(KINSOL_examples
   "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single"
   "kin_em_p.cpp\;\;1\;2\;exclude-single")
 
-# Header files to install
-set(KINSOL_headers
-  "kin_heat2D_nonlin_p.hpp"
-  "kin_em_p.hpp")
-
 # Add the build target for each example
 foreach(example_tuple ${KINSOL_examples})
 
@@ -94,7 +89,6 @@ if(EXAMPLES_INSTALL)
     DESTINATION
       kinsol/CXX_parallel
     EXTRA_FILES
-      ${KINSOL_headers}
       README
     TEST_INSTALL
       CXX_parallel
