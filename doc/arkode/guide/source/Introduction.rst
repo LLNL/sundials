@@ -118,6 +118,11 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.4.1
+-----------------
+
+Fixed a bug with the Kokkos interfaces that would arise when using clang.
+
 Changes in v5.4.0
 -----------------
 

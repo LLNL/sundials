@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.4.1
+
+Fixed a bug with the Kokkos interfaces that would arise when using clang.
+
 ## Changes to SUNDIALS in release 6.4.0
 
 CMake 3.18.0 or newer is now required for CUDA support.
