@@ -86,11 +86,11 @@ endif()
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
   -L${SUNDIALS_LIB_DIR}
-  ${SUNDIALS_EXTRA_LIBS}
   ${SUNDIALS_SOLVER_LIB}
   SUNDIALS::nvecpetsc
   SUNDIALS::sunnonlinsolpetscsnes
-  SUNDIALS::PETSC)
+  SUNDIALS::PETSC
+  ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
 
