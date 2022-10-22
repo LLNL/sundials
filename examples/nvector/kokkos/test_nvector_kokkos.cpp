@@ -25,7 +25,7 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-using ExecSpace = Kokkos::HIP;
+using ExecSpace = Kokkos::Experimental::HIP;
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else

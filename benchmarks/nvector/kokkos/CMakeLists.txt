@@ -20,7 +20,7 @@ foreach(backend ${KOKKOS_EXAMPLES_BACKENDS})
 
   sundials_add_nvector_benchmark(test_nvector_performance_kokkos.${backend}
     SOURCES test_nvector_performance_kokkos.cpp
-    SUNDIALS_TARGETS sundials_generic Kokkos::kokkos
+    SUNDIALS_TARGETS sundials_generic sundials_nveckokkos
     )
 
   target_compile_definitions(test_nvector_performance_kokkos.${backend} PRIVATE USE_${backend})

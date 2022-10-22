@@ -48,6 +48,10 @@ if(BUILD_NVECTOR_CUDA)
   add_subdirectory(cuda)
 endif()
 
+if(BUILD_NVECTOR_HIP)
+  add_subdirectory(hip)
+endif()
+
 if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
 endif()

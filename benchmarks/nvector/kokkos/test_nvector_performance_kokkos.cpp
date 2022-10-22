@@ -23,7 +23,7 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-using ExecSpace = Kokkos::HIP;
+using ExecSpace = Kokkos::Experimental::HIP;
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
@@ -44,7 +44,7 @@ struct Cache
   Kokkos::View<sunrealtype*, ExecSpace::memory_space>::HostMirror host;
 };
 
-static Cache cache;
+static Cache* cache;
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
   }
   Kokkos::finalize();
 
-  return (flag);
+  return flag;
 }
 
 /* ----------------------------------------------------------------------
@@ -229,29 +229,31 @@ static int InitializeClearCache(int cachesize)
 
   if (!cachesize) { return 0; }
 
+  cache = new Cache();
+
   // determine size of vector to clear cache, N = ceil(2 * nbytes/sunrealtype)
   nbytes = (size_t)(2 * cachesize * 1024 * 1024);
   sunindextype N =
     (sunindextype)((nbytes + sizeof(sunrealtype) - 1) / sizeof(sunrealtype));
 
-  cache.device =
+  cache->device =
     Kokkos::View<sunrealtype*, ExecSpace::memory_space>("device cache", N);
-  cache.host = Kokkos::create_mirror_view(cache.device);
+  cache->host = Kokkos::create_mirror_view(cache->device);
 
-  rand_realtype(cache.host.data(), N, sunrealtype{-1.0}, sunrealtype{1.0});
-  Kokkos::deep_copy(cache.device, cache.host);
+  rand_realtype(cache->host.data(), N, sunrealtype{-1.0}, sunrealtype{1.0});
+  Kokkos::deep_copy(cache->device, cache->host);
 
   return 0;
 }
 
-static int FinalizeClearCache() { return (0); }
+static int FinalizeClearCache() { delete cache; return (0); }
 
 void ClearCache()
 {
   using size_type = typename VecType::size_type;
-  if (cache.device.data())
+  if (cache->device.data())
   {
-    auto device_cache{cache.device};
+    auto device_cache{cache->device};
     sunrealtype sum{0.0};
     Kokkos::parallel_reduce(
       "ClearCache", Kokkos::RangePolicy<ExecSpace>(0, device_cache.extent(0)),
