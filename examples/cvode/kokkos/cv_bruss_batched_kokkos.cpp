@@ -86,6 +86,7 @@ using ExecSpace = Kokkos::HIP;
 #else
 using ExecSpace = Kokkos::Experimental::HIP;
 #endif
+#elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
