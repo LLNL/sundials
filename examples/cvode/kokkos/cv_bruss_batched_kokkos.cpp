@@ -81,8 +81,11 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
+#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
-#elif defined(USE_OPENMP)
+#else
+using ExecSpace = Kokkos::Experimental::HIP;
+#endif
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
