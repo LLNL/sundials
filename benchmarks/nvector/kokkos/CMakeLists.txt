@@ -12,7 +12,6 @@
 
 message(STATUS "Added Kokkos NVECTOR benchmark")
 
-set(example test_nvector_performance_kokkos)
 
 set(BENCHMARKS_DIR ${PROJECT_SOURCE_DIR}/benchmarks)
 
