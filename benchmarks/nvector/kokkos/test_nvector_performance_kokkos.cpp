@@ -56,14 +56,15 @@ static Cache* cache;
 int main(int argc, char* argv[])
 {
   sundials::Context sunctx;
+  int flag;            /* return flag     */
 
+  /* CLI args */
   sunindextype veclen; /* vector length   */
   int print_timing;    /* output timings  */
   int ntests;          /* number of tests */
   int nvecs;           /* number of tests */
   int nsums;           /* number of sums  */
-  int cachesize;       /* cache size      */
-  int flag;            /* return flag     */
+  long int cachesize;  /* cache size      */
 
   Kokkos::initialize(argc, argv);
   {
@@ -80,20 +81,24 @@ int main(int argc, char* argv[])
       return (-1);
     }
 
+#ifdef SUNDIALS_INT64_T
     veclen = atol(argv[1]);
+#else
+    veclen = atoi(argv[1]);
+#endif
     if (veclen <= 0)
     {
       printf("ERROR: length of vector must be a positive integer \n");
       return (-1);
     }
 
-    nvecs = atol(argv[2]);
+    nvecs = atoi(argv[2]);
     if (nvecs < 1) { printf("WARNING: Fused operation tests disabled\n"); }
 
-    nsums = atol(argv[3]);
+    nsums = atoi(argv[3]);
     if (nsums < 1) { printf("WARNING: Some fused operation tests disabled\n"); }
 
-    ntests = atol(argv[4]);
+    ntests = atoi(argv[4]);
     if (ntests <= 0)
     {
       printf("ERROR: number of tests must be a positive integer \n");
