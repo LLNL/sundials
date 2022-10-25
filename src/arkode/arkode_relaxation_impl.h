@@ -30,9 +30,9 @@
  * ---------------------------------------------------------------------------*/
 
 #define ARK_RELAX_DEFAULT_TOL         SUN_RCONST(1.0e-14)
-#define ARK_RELAX_DEFAULT_MAX_ITERS   100
-#define ARK_RELAX_DEFAULT_LOWER_BOUND SUN_RCONST(0.5)
-#define ARK_RELAX_DEFAULT_UPPER_BOUND SUN_RCONST(1.5)
+#define ARK_RELAX_DEFAULT_MAX_ITERS   5
+#define ARK_RELAX_DEFAULT_LOWER_BOUND SUN_RCONST(0.8)
+#define ARK_RELAX_DEFAULT_UPPER_BOUND SUN_RCONST(1.2)
 #define ARK_RELAX_DEFAULT_ETA_FAIL    SUN_RCONST(0.25)
 
 /* -----------------------------------------------------------------------------
