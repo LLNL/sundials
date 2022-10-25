@@ -27,6 +27,7 @@ set(ARKODE_examples
   "ark_brusselator_fp\;\;exclude-single"
   "ark_brusselator1D\;\;exclude-single"
   "ark_conserved_exp_entropy\;0 1 0.1\;develop"
+  "ark_dissipated_exp_entropy\;0 1 0.1\;develop"
   "ark_heat1D\;\;develop"
   "ark_heat1D_adapt\;\;develop"
   "ark_KrylovDemo_prec\;\;exclude-single"
