@@ -39,7 +39,7 @@ using VecType  = sundials::kokkos::Vector<ExecSpace>;
 using SizeType = VecType::size_type;
 
 /* private functions */
-static int InitializeClearCache(sunindextype cachesize);
+static int InitializeClearCache(size_t cachesize);
 static int FinalizeClearCache();
 
 /* private data for clearing cache */
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   int ntests;              /* number of tests */
   int nvecs;               /* number of tests */
   int nsums;               /* number of sums  */
-  sunindextype cachesize;  /* cache size      */
+  size_t cachesize;        /* cache size      */
 
   Kokkos::initialize(argc, argv);
   {
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
       return (-1);
     }
 
-    cachesize = static_cast<sunindextype>(atol(argv[5]));
+    cachesize = static_cast<size_t>(atol(argv[5]));
     InitializeClearCache(cachesize);
 
     print_timing = atoi(argv[6]);
@@ -228,7 +228,7 @@ void sync_device(N_Vector x)
  * Functions required for clearing cache
  * --------------------------------------------------------------------*/
 
-int InitializeClearCache(sunindextype cachesize)
+int InitializeClearCache(size_t cachesize)
 {
   if (!cachesize) { return 0; }
 
