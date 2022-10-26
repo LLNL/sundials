@@ -39,7 +39,7 @@ using VecType  = sundials::kokkos::Vector<ExecSpace>;
 using SizeType = VecType::size_type;
 
 /* private functions */
-static int InitializeClearCache(SizeType cachesize);
+static int InitializeClearCache(sunindextype cachesize);
 static int FinalizeClearCache();
 
 /* private data for clearing cache */
@@ -60,12 +60,12 @@ int main(int argc, char* argv[])
   int flag;            /* return flag     */
 
   /* CLI args */
-  SizeType veclen; /* vector length   */
-  int print_timing;    /* output timings  */
-  int ntests;          /* number of tests */
-  int nvecs;           /* number of tests */
-  int nsums;           /* number of sums  */
-  SizeType cachesize;  /* cache size      */
+  sunindextype veclen;     /* vector length   */
+  int print_timing;        /* output timings  */
+  int ntests;              /* number of tests */
+  int nvecs;               /* number of tests */
+  int nsums;               /* number of sums  */
+  sunindextype cachesize;  /* cache size      */
 
   Kokkos::initialize(argc, argv);
   {
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
       return (-1);
     }
 
-    cachesize = static_cast<SizeType>(atol(argv[5]));
+    cachesize = static_cast<sunindextype>(atol(argv[5]));
     InitializeClearCache(cachesize);
 
     print_timing = atoi(argv[6]);
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
     printf("  timing on/off         %d  \n", print_timing);
 
     /* Create vectors */
-    VecType X{veclen, sunctx};
+    VecType X{static_cast<SizeType>(veclen), sunctx};
 
     /* run tests */
     if (print_timing) printf("\n\n standard operations:\n");
@@ -228,15 +228,15 @@ void sync_device(N_Vector x)
  * Functions required for clearing cache
  * --------------------------------------------------------------------*/
 
-int InitializeClearCache(SizeType cachesize)
+int InitializeClearCache(sunindextype cachesize)
 {
   if (!cachesize) { return 0; }
 
   cache = new Cache();
 
   // determine size of vector to clear cache, N = ceil(2 * nbytes/sunrealtype)
-  SizeType nbytes = 2 * cachesize * 1024 * 1024;
-  SizeType N = static_cast<SizeType>((nbytes + sizeof(sunrealtype) - 1) / sizeof(sunrealtype));
+  size_t nbytes = static_cast<size_t>(2 * cachesize * 1024 * 1024);
+  sunindextype N = static_cast<sunindextype>((nbytes + sizeof(sunrealtype) - 1) / sizeof(sunrealtype));
 
   cache->device =
     Kokkos::View<sunrealtype*, ExecSpace::memory_space>("device cache", N);
@@ -257,7 +257,7 @@ void ClearCache()
     auto device_cache{cache->device};
     sunrealtype sum{0.0};
     Kokkos::parallel_reduce(
-      "ClearCache", Kokkos::RangePolicy<ExecSpace>(0, device_cache.extent(0)),
+      "ClearCache", Kokkos::RangePolicy<ExecSpace>(0, static_cast<SizeType>(device_cache.extent(0))),
       KOKKOS_LAMBDA(const SizeType i, sunrealtype& accum) {
         accum += device_cache(i);
       },
