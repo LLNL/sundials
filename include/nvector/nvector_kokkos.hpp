@@ -470,7 +470,7 @@ sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 // =============================================================================
 
 template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-         class MemorySpace    = class ExecutionSpace::memory_space>
+         class MemorySpace    = typename ExecutionSpace::memory_space>
 class Vector : public sundials::impl::BaseNVector,
                public sundials::ConvertibleTo<N_Vector>
 {

@@ -30,7 +30,7 @@ namespace kokkos {
 
 // Forward declaration of DenseLinearSolver class
 template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-         class MemorySpace    = class ExecutionSpace::memory_space>
+         class MemorySpace    = typename ExecutionSpace::memory_space>
 class DenseLinearSolver;
 
 // =============================================================================

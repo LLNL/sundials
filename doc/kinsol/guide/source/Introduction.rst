@@ -88,6 +88,11 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in v6.4.1
+----------------
+
+Fixed a bug with the Kokkos interfaces that would arise when using clang.
+
 Changes in v6.4.0
 -----------------
 
