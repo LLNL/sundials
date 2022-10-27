@@ -29,7 +29,7 @@ namespace kokkos {
 
 // Forward declaration of Matrix class
 template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-         class MemorySpace    = class ExecutionSpace::memory_space>
+         class MemorySpace    = typename ExecutionSpace::memory_space>
 class DenseMatrix;
 
 // Get the Kokkos dense matrix wrapped by a SUNMatrix

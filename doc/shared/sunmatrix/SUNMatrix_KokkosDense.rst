@@ -44,7 +44,7 @@ class in the ``sundials::kokkos`` namespace:
 .. code-block:: cpp
 
    template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-            class MemorySpace = class ExecSpace::memory_space>
+            class MemorySpace = typename ExecSpace::memory_space>
    class DenseMatrix : public sundials::impl::BaseMatrix,
                        public sundials::ConvertibleTo<SUNMatrix>
 
@@ -108,7 +108,7 @@ In this section we list the public API of the ``sundials::kokkos::DenseMatrix``
 class.
 
 .. cpp:class:: template<class ExeccutionSpace = Kokkos::DefaultExecutionSpace, \
-                        class MemorySpace = class ExecSpace::memory_space> \
+                        class MemorySpace = typename ExecSpace::memory_space> \
                DenseMatrix : public sundials::impl::BaseMatrix, \
                              public sundials::ConvertibleTo<SUNMatrix>
 
@@ -233,7 +233,7 @@ class.
       Explicit conversion to a :c:type:`SUNMatrix`.
 
 .. cpp:function:: template<class ExecutionSpace = Kokkos::DefaultExecutionSpace, \
-                           class MemorySpace = class ExecSpace::memory_space> \
+                           class MemorySpace = typename ExecSpace::memory_space> \
                   inline DenseMatrix<MatrixType>* GetDenseMat(SUNMatrix A)
 
    Get the dense matrix wrapped by a SUNMatrix

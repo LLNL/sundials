@@ -39,7 +39,7 @@ class in the ``sundials::kokkos`` namespace:
 .. code-block:: cpp
 
    template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-            class MemorySpace = class ExecutionSpace::memory_space>
+            class MemorySpace = typename ExecutionSpace::memory_space>
       class Vector : public sundials::impl::BaseNVector,
                      public sundials::ConvertibleTo<N_Vector>
 

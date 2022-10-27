@@ -86,6 +86,11 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in v5.4.1
+-----------------
+
+Fixed a bug with the Kokkos interfaces that would arise when using clang.
+
 Changes in v5.4.0
 -----------------
 
