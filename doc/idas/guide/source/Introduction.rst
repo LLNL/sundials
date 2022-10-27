@@ -91,6 +91,9 @@ Changes in v5.4.1
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.
 
+Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
+Fortran 2003 interface test for the serial NVector.
+
 Changes in v5.4.0
 -----------------
 
