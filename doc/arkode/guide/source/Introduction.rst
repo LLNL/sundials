@@ -129,9 +129,6 @@ Fortran 2003 interface test for the serial ``N_Vector``.
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
 which would cause the tests to fail on some platforms. 
 
-Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
-
 Changes in v5.4.0
 -----------------
 
