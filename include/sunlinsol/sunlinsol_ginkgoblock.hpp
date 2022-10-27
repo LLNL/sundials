@@ -78,7 +78,7 @@ inline std::unique_ptr<gko::matrix::BatchDiagonal<sunrealtype>> WrapBatchDiagMat
 }
 
 template<class GkoBatchSolverType, class GkoBatchMatType>
-class BlockLinearSolver : public impl::BaseLinearSolver, public ConvertibleTo<SUNLinearSolver>
+class BlockLinearSolver : public sundials::impl::BaseLinearSolver, public ConvertibleTo<SUNLinearSolver>
 {
 public:
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, gko::stop::batch::ToleranceType tolerance_type,
@@ -88,7 +88,7 @@ public:
         solver_factory_(nullptr), solver_(nullptr), left_scale_vec_(nullptr), right_scale_vec_(nullptr),
         matrix_(nullptr), logger_(nullptr), num_blocks_(num_blocks), max_iters_(max_iters),
         avg_iter_count_(sunrealtype{0.0}), sum_of_avg_iters_(sunrealtype{0.0}), stddev_iter_count_(sunrealtype{0.0}),
-        previous_max_res_norm_(sunrealtype{0.0}), ones_(nullptr), s2inv_(nullptr), impl::BaseLinearSolver(sunctx)
+        previous_max_res_norm_(sunrealtype{0.0}), ones_(nullptr), s2inv_(nullptr), sundials::impl::BaseLinearSolver(sunctx)
   {
     initSUNLinSol(sunctx);
   }
@@ -152,8 +152,8 @@ public:
     }
   }
 
-  SUNLinearSolver get() override { return object_.get(); }
-  SUNLinearSolver get() const override { return object_.get(); }
+  SUNLinearSolver Convert() override { return object_.get(); }
+  SUNLinearSolver Convert() const override { return object_.get(); }
   operator SUNLinearSolver() override { return object_.get(); }
   operator SUNLinearSolver() const override { return object_.get(); }
 
@@ -165,12 +165,12 @@ public:
 
   void setScalingVectors(N_Vector s1, N_Vector s2)
   {
-    if (!ones_.get()) {
-      ones_ = impl::NvectorView(N_VClone(s2));
+    if (!ones_.Convert()) {
+      ones_ = sundials::experimental::NVectorView(N_VClone(s2));
       N_VConst(sunrealtype{1.0}, ones_);
     }
-    if (!s2inv_.get()) {
-      s2inv_ = impl::NvectorView(N_VClone(s2));
+    if (!s2inv_.Convert()) {
+      s2inv_ = sundials::experimental::NVectorView(N_VClone(s2));
     }
     N_VDiv(ones_, s2, s2inv_); // Need to provide s2inv to match the SUNLinearSolver API
     left_scale_vec_  = std::move(WrapBatchDiagMatrix(gkoExec(), num_blocks_, s1));
@@ -333,7 +333,7 @@ private:
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
   sunrealtype previous_max_res_norm_;
-  impl::NvectorView ones_, s2inv_;
+  sundials::experimental::NVectorView ones_, s2inv_;
 
   void initSUNLinSol(SUNContext sunctx)
   {

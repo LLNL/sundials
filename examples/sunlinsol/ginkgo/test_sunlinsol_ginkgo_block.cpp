@@ -229,12 +229,12 @@ int main(int argc, char* argv[])
   }
 
   /* Run Tests */
-  fails += Test_SUNLinSolGetID(LS->get(), SUNLINEARSOLVER_GINKGOBLOCK, 0);
-  fails += Test_SUNLinSolGetType(LS->get(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
-  fails += Test_SUNLinSolInitialize(LS->get(), 0);
-  fails += Test_SUNLinSolSetScalingVectors(LS->get(), s1, s2, 0);
-  fails += Test_SUNLinSolSetup(LS->get(), A, 0);
-  fails += Test_SUNLinSolSolve(LS->get(), A, x, b, solve_tolerance, SUNTRUE, 0);
+  fails += Test_SUNLinSolGetID(LS->Convert(), SUNLINEARSOLVER_GINKGOBLOCK, 0);
+  fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
+  fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
+  fails += Test_SUNLinSolSetScalingVectors(LS->Convert(), s1, s2, 0);
+  fails += Test_SUNLinSolSetup(LS->Convert(), A, 0);
+  fails += Test_SUNLinSolSolve(LS->Convert(), A, x, b, solve_tolerance, SUNTRUE, 0);
 
   /* Print result */
   if (fails) {

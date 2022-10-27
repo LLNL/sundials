@@ -1,5 +1,6 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -9,8 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------------------
+ * Test the Ginkgo SUNMatrix batch implementation
+ * ---------------------------------------------------------------------------*/
 
 #include <iostream>
 #include <memory>
@@ -49,27 +51,35 @@ using GkoVecType  = GkoDenseMat;
 bool using_csr_matrix_type   = false;
 bool using_dense_matrix_type = false;
 
-template<class GkoBatchMat>
-int Test_CopyAndMove(std::unique_ptr<GkoBatchMat>&& gko_mat, Context& sunctx)
+template<class GkoMatType>
+int Test_CopyAndMove(std::unique_ptr<GkoMatType>&& gko_mat, SUNContext sunctx)
 {
   // Copy constructor
-  BlockMatrix<GkoBatchMat> mat{std::move(gko_mat), sunctx};
-  BlockMatrix<GkoBatchMat> mat2{mat};
-  ScaleAddI(sunrealtype{1.0}, mat2);
+  sundials::ginkgo::BlockMatrix<GkoMatType> mat{std::move(gko_mat), sunctx};
+  sundials::ginkgo::BlockMatrix<GkoMatType> mat2{mat};
+  SUNMatScaleAddI(sunrealtype{1.0}, mat2);
+  SUNMatScaleAddI(sunrealtype{-1.0}, mat2);
+  check_matrix_entry(mat2, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   // Move constructor
-  BlockMatrix<GkoBatchMat> mat3{std::move(mat2)};
-  ScaleAddI(sunrealtype{1.0}, mat3);
+  sundials::ginkgo::BlockMatrix<GkoMatType> mat3{std::move(mat2)};
+  SUNMatScaleAddI(sunrealtype{1.0}, mat3);
+  SUNMatScaleAddI(sunrealtype{-1.0}, mat3);
+  check_matrix_entry(mat3, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   // Copy assignment
-  BlockMatrix<GkoBatchMat> mat4;
+  sundials::ginkgo::BlockMatrix<GkoMatType> mat4;
   mat4 = mat3;
-  ScaleAddI(sunrealtype{1.0}, mat4);
+  SUNMatScaleAddI(sunrealtype{1.0}, mat4);
+  SUNMatScaleAddI(sunrealtype{-1.0}, mat4);
+  check_matrix_entry(mat4, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   // Move assignment
-  BlockMatrix<GkoBatchMat> mat5;
+  sundials::ginkgo::BlockMatrix<GkoMatType> mat5;
   mat5 = std::move(mat4);
-  ScaleAddI(sunrealtype{1.0}, mat5);
+  SUNMatScaleAddI(sunrealtype{1.0}, mat5);
+  SUNMatScaleAddI(sunrealtype{-1.0}, mat5);
+  check_matrix_entry(mat5, sunrealtype{0.0}, SUN_UNIT_ROUNDOFF);
 
   std::cout << "    PASSED test -- Test_CopyAndMove\n";
 
@@ -86,13 +96,21 @@ int main(int argc, char* argv[])
   /* Create SUNDIALS context before calling any other SUNDIALS function*/
   Context sunctx;
 
-  auto gko_exec{REF_OR_OMP_OR_HIP_OR_CUDA(gko::ReferenceExecutor::create(), gko::OmpExecutor::create(),
-                                          gko::HipExecutor::create(0, gko::OmpExecutor::create(), true),
-                                          gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true))};
+  auto gko_exec{
+    REF_OR_OMP_OR_HIP_OR_CUDA(gko::ReferenceExecutor::create(),
+                              gko::OmpExecutor::create(),
+                              gko::HipExecutor::create(0,
+                                                       gko::OmpExecutor::create(),
+                                                       true),
+                              gko::CudaExecutor::create(0,
+                                                        gko::OmpExecutor::create(),
+                                                        true))};
 
   /* check input and set vector length */
-  if (argc < 5) {
-    std::cerr << "ERROR: FOUR (4) Input required: matrix rows, matrix cols, number of blocks (batch entries), format "
+  if (argc < 5)
+  {
+    std::cerr << "ERROR: FOUR (4) Input required: matrix rows, matrix cols, "
+                 "number of blocks (batch entries), format "
                  "(0 = csr, 1 = dense)\n";
     return 1;
   }
@@ -100,13 +118,15 @@ int main(int argc, char* argv[])
   int argi{0};
 
   auto matrows{static_cast<sunindextype>(atol(argv[++argi]))};
-  if (matrows <= 0) {
+  if (matrows <= 0)
+  {
     std::cerr << "ERROR: number of rows must be a positive integer \n";
     return 1;
   }
 
   auto matcols{static_cast<sunindextype>(atol(argv[++argi]))};
-  if (matcols <= 0) {
+  if (matcols <= 0)
+  {
     std::cerr << "ERROR: number of cols must be a positive integer \n";
     return 1;
   }
@@ -114,44 +134,58 @@ int main(int argc, char* argv[])
   auto num_blocks{static_cast<gko::size_type>(atol(argv[++argi]))};
 
   auto format{static_cast<int>(atoi(argv[++argi]))};
-  if (format != 0 && format != 1) {
+  if (format != 0 && format != 1)
+  {
     std::cerr << "ERROR: format must be 0 (csr) or 1 (dense) \n";
     return 1;
   }
 
-  if (format == 0) {
-    using_csr_matrix_type = true;
-  } else if (format == 1) {
-    using_dense_matrix_type = true;
-  }
+  if (format == 0) { using_csr_matrix_type = true; }
+  else if (format == 1) { using_dense_matrix_type = true; }
+
+#if defined(USE_OMP)
+  int num_threads{1};
+  auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
+  if (omp_num_threads_var) { num_threads = std::atoi(omp_num_threads_var); }
+#endif
 
   SetTiming(0);
 
   int square{matrows == matcols ? 1 : 0};
-  std::cout << "\n SUNMATRIX_GINKGOBLOCK test: " << num_blocks << " blocks of size " << matrows << " x " << matcols
-            << ", format " << format << "\n";
+  std::cout << "\n SUNMATRIX_GINKGOBLOCK test: " << num_blocks
+            << " blocks of size " << matrows << " x " << matcols << ", format ";
+  if (using_csr_matrix_type) { std::cout << "csr\n"; }
+  else if (using_dense_matrix_type) { std::cout << "dense\n"; }
 
   /* Create vectors and matrices */
   std::default_random_engine generator;
   std::uniform_real_distribution<sunrealtype> distribution{0.0, sunrealtype{1.0}};
 
   N_Vector x{
-      REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx), N_VNew_Serial(num_blocks * matcols, sunctx),
-                                N_VNew_Hip(num_blocks * matcols, sunctx), N_VNew_Cuda(num_blocks * matcols, sunctx))};
+    REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx),
+                              N_VNew_Serial(num_blocks * matcols, sunctx),
+                              N_VNew_Hip(num_blocks * matcols, sunctx),
+                              N_VNew_Cuda(num_blocks * matcols, sunctx))};
   N_Vector y{
-      REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx), N_VNew_Serial(num_blocks * matcols, sunctx),
-                                N_VNew_Hip(num_blocks * matcols, sunctx), N_VNew_Cuda(num_blocks * matcols, sunctx))};
+    REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx),
+                              N_VNew_Serial(num_blocks * matcols, sunctx),
+                              N_VNew_Hip(num_blocks * matcols, sunctx),
+                              N_VNew_Cuda(num_blocks * matcols, sunctx))};
 
   auto xdata{N_VGetArrayPointer(x)};
-  for (sunindextype i = 0; i < num_blocks * matcols; i++) {
+  for (sunindextype i = 0; i < num_blocks * matcols; i++)
+  {
     xdata[i] = distribution(generator);
   }
   REF_OR_OMP_OR_HIP_OR_CUDA(, , N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x));
 
-  auto batch_mat_size{gko::batch_dim<2>(num_blocks, gko::dim<2>(matrows, matcols))};
+  auto batch_mat_size{
+    gko::batch_dim<2>(num_blocks, gko::dim<2>(matrows, matcols))};
   auto batch_vec_size{gko::batch_dim<2>(num_blocks, gko::dim<2>(matrows, 1))};
   auto matrix_dim{gko::dim<2>(matrows, matcols)};
-  auto gko_matdata{gko::matrix_data<sunrealtype, sunindextype>(matrix_dim, distribution, generator)};
+  auto gko_matdata{gko::matrix_data<sunrealtype, sunindextype>(matrix_dim,
+                                                               distribution,
+                                                               generator)};
 
   /* Wrap ginkgo matrices for SUNDIALS.
      sundials::ginkgo::Matrix is overloaded to a SUNMatrix. */
@@ -159,50 +193,74 @@ int main(int argc, char* argv[])
   std::unique_ptr<ConvertibleTo<SUNMatrix>> I;
 
   /* Compute true solution */
-  SUNMatrix Aref{SUNDenseMatrix(num_blocks * matrows, num_blocks * matcols, sunctx)};
-  if (using_csr_matrix_type) {
+  SUNMatrix Aref{
+    SUNDenseMatrix(num_blocks * matrows, num_blocks * matcols, sunctx)};
+  if (using_csr_matrix_type)
+  {
     auto gko_matrix{GkoCsrMat::create(gko_exec, matrix_dim)};
     gko_matrix->read(gko_matdata);
-    auto gko_batch_matrix{GkoBatchCsrMat::create(gko_exec, num_blocks, gko_matrix.get())};
+    auto gko_batch_matrix{
+      GkoBatchCsrMat::create(gko_exec, num_blocks, gko_matrix.get())};
     auto gko_ident{GkoCsrMat::create(gko_exec, matrix_dim)};
-    gko_ident->read(gko::matrix_data<sunrealtype, sunindextype>::diag(batch_mat_size.at(0), sunrealtype{1.0}));
-    auto gko_batch_ident{GkoBatchCsrMat::create(gko_exec, num_blocks, gko_ident.get())};
+    gko_ident->read(
+      gko::matrix_data<sunrealtype, sunindextype>::diag(batch_mat_size.at(0),
+                                                        sunrealtype{1.0}));
+    auto gko_batch_ident{
+      GkoBatchCsrMat::create(gko_exec, num_blocks, gko_ident.get())};
 
     auto Arowptrs{gko_batch_matrix->get_const_row_ptrs()};
     auto Acolidxs{gko_batch_matrix->get_const_col_idxs()};
     auto Avalues{gko_batch_matrix->get_const_values()};
-    for (gko::size_type blocki = 0; blocki < num_blocks; blocki++) {
-      for (auto irow = 0; irow < gko_matrix->get_size()[0]; irow++) {
-        for (auto inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++) {
-          SM_ELEMENT_D(Aref, blocki * matrows + irow, blocki * matcols + Acolidxs[inz]) = Avalues[inz];
+    for (gko::size_type blocki = 0; blocki < num_blocks; blocki++)
+    {
+      for (auto irow = 0; irow < gko_matrix->get_size()[0]; irow++)
+      {
+        for (auto inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
+        {
+          SM_ELEMENT_D(Aref, blocki * matrows + irow,
+                       blocki * matcols + Acolidxs[inz]) = Avalues[inz];
         }
       }
     }
 
     fails += Test_CopyAndMove(gko_batch_matrix->clone(), sunctx);
 
-    A = std::make_unique<BlockMatrix<GkoBatchCsrMat>>(std::move(gko_batch_matrix), sunctx);
-    I = std::make_unique<BlockMatrix<GkoBatchCsrMat>>(std::move(gko_batch_ident), sunctx);
-  } else if (using_dense_matrix_type) {
+    A = std::make_unique<BlockMatrix<GkoBatchCsrMat>>(std::move(gko_batch_matrix),
+                                                      sunctx);
+    I = std::make_unique<BlockMatrix<GkoBatchCsrMat>>(std::move(gko_batch_ident),
+                                                      sunctx);
+  }
+  else if (using_dense_matrix_type)
+  {
     auto gko_matrix{GkoDenseMat::create(gko_exec, matrix_dim)};
     gko_matrix->read(gko_matdata);
-    auto gko_batch_matrix{GkoBatchDenseMat::create(gko_exec, num_blocks, gko_matrix.get())};
+    auto gko_batch_matrix{
+      GkoBatchDenseMat::create(gko_exec, num_blocks, gko_matrix.get())};
     auto gko_ident{GkoDenseMat::create(gko_exec, matrix_dim)};
-    gko_ident->read(gko::matrix_data<sunrealtype, sunindextype>::diag(batch_mat_size.at(0), sunrealtype{1.0}));
-    auto gko_batch_ident{GkoBatchDenseMat::create(gko_exec, num_blocks, gko_ident.get())};
+    gko_ident->read(
+      gko::matrix_data<sunrealtype, sunindextype>::diag(batch_mat_size.at(0),
+                                                        sunrealtype{1.0}));
+    auto gko_batch_ident{
+      GkoBatchDenseMat::create(gko_exec, num_blocks, gko_ident.get())};
 
-    for (gko::size_type blocki = 0; blocki < num_blocks; blocki++) {
-      for (sunindextype i = 0; i < matrows; i++) {
-        for (sunindextype j = 0; j < matcols; j++) {
-          SM_ELEMENT_D(Aref, blocki * matrows + i, blocki * matcols + j) = gko_batch_matrix->at(blocki, i, j);
+    for (gko::size_type blocki = 0; blocki < num_blocks; blocki++)
+    {
+      for (sunindextype i = 0; i < matrows; i++)
+      {
+        for (sunindextype j = 0; j < matcols; j++)
+        {
+          SM_ELEMENT_D(Aref, blocki * matrows + i, blocki * matcols + j) =
+            gko_batch_matrix->at(blocki, i, j);
         }
       }
     }
 
     fails += Test_CopyAndMove(gko_batch_matrix->clone(), sunctx);
 
-    A = std::make_unique<BlockMatrix<GkoBatchDenseMat>>(std::move(gko_batch_matrix), sunctx);
-    I = std::make_unique<BlockMatrix<GkoBatchDenseMat>>(std::move(gko_batch_ident), sunctx);
+    A = std::make_unique<BlockMatrix<GkoBatchDenseMat>>(std::move(gko_batch_matrix),
+                                                        sunctx);
+    I = std::make_unique<BlockMatrix<GkoBatchDenseMat>>(std::move(gko_batch_ident),
+                                                        sunctx);
   }
   SUNMatMatvec_Dense(Aref, x, y);
   SUNMatDestroy(Aref);
@@ -213,20 +271,19 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatGetID(*A, SUNMATRIX_GINKGOBLOCK, 0);
   fails += Test_SUNMatClone(*A, 0);
   fails += Test_SUNMatCopy(*A, 0);
-  if (square) {
-    if (A->get()->ops->scaleadd) {
-      fails += Test_SUNMatScaleAdd(*A, *I, 0);
-    }
+  if (square)
+  {
+    if (using_dense_matrix_type) { fails += Test_SUNMatScaleAdd(*A, *I, 0); }
     fails += Test_SUNMatScaleAddI(*A, *I, 0);
   }
   fails += Test_SUNMatMatvec(*A, x, y, 0);
 
   /* Print result */
-  if (fails) {
+  if (fails)
+  {
     std::cerr << " FAIL: SUNMatrix module failed " << fails << " tests \n\n";
-  } else {
-    std::cout << " SUCCESS: SUNMatrix module passed all tests \n\n";
   }
+  else { std::cout << " SUCCESS: SUNMatrix module passed all tests \n\n"; }
 
   /* Free vectors */
   N_VDestroy(x);
@@ -247,13 +304,15 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
   const auto Bvalues{Bmat->get_const_values()};
 
   /* check lengths */
-  if (Amat->get_size() != Bmat->get_size()) {
+  if (Amat->get_size() != Bmat->get_size())
+  {
     std::cerr << ">>> ERROR: check_matrix: Different data array lengths \n";
     return 1;
   }
 
   /* compare data */
-  for (sunindextype ivalue = 0; ivalue < Amat->get_num_stored_elements(); ivalue++) {
+  for (sunindextype ivalue = 0; ivalue < Amat->get_num_stored_elements(); ivalue++)
+  {
     failure += SUNRCompareTol(Avalues[ivalue], Bvalues[ivalue], tol);
   }
 
@@ -270,16 +329,21 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
   auto cols{Amat->get_size().at(0)[1]};
 
   /* check lengths */
-  if (Amat->get_size() != Bmat->get_size()) {
+  if (Amat->get_size() != Bmat->get_size())
+  {
     std::cerr << ">>> ERROR: check_matrix: Different data array lengths \n";
     return 1;
   }
 
   /* compare data */
-  for (sunindextype blocki = 0; blocki < blocks; blocki++) {
-    for (sunindextype i = 0; i < rows; i++) {
-      for (sunindextype j = 0; j < cols; j++) {
-        failure += SUNRCompareTol(Amat->at(blocki, i, j), Bmat->at(blocki, i, j), tol);
+  for (sunindextype blocki = 0; blocki < blocks; blocki++)
+  {
+    for (sunindextype i = 0; i < rows; i++)
+    {
+      for (sunindextype j = 0; j < cols; j++)
+      {
+        failure += SUNRCompareTol(Amat->at(blocki, i, j),
+                                  Bmat->at(blocki, i, j), tol);
       }
     }
   }
@@ -289,13 +353,9 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
 
 extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 {
-  if (using_csr_matrix_type) {
-    return check_matrix_csr(A, B, tol);
-  } else if (using_dense_matrix_type) {
-    return check_matrix_dense(A, B, tol);
-  } else {
-    return 1;
-  }
+  if (using_csr_matrix_type) { return check_matrix_csr(A, B, tol); }
+  else if (using_dense_matrix_type) { return check_matrix_dense(A, B, tol); }
+  else { return 1; }
 }
 
 int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
@@ -307,7 +367,8 @@ int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
   auto Avalues{Amat->get_const_values()};
 
   /* compare data */
-  for (sunindextype ivalue = 0; ivalue < Amat->get_num_stored_elements(); ivalue++) {
+  for (sunindextype ivalue = 0; ivalue < Amat->get_num_stored_elements(); ivalue++)
+  {
     failure += SUNRCompareTol(Avalues[ivalue], val, tol);
   }
 
@@ -323,9 +384,12 @@ int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
   auto cols{Amat->get_size().at(0)[1]};
 
   /* compare data */
-  for (sunindextype blocki = 0; blocki < blocks; blocki++) {
-    for (sunindextype i = 0; i < rows; i++) {
-      for (sunindextype j = 0; j < cols; j++) {
+  for (sunindextype blocki = 0; blocki < blocks; blocki++)
+  {
+    for (sunindextype i = 0; i < rows; i++)
+    {
+      for (sunindextype j = 0; j < cols; j++)
+      {
         failure += SUNRCompareTol(Amat->at(blocki, i, j), val, tol);
       }
     }
@@ -336,13 +400,12 @@ int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
 
 extern "C" int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 {
-  if (using_csr_matrix_type) {
-    return check_matrix_entry_csr(A, val, tol);
-  } else if (using_dense_matrix_type) {
+  if (using_csr_matrix_type) { return check_matrix_entry_csr(A, val, tol); }
+  else if (using_dense_matrix_type)
+  {
     return check_matrix_entry_dense(A, val, tol);
-  } else {
-    return 1;
   }
+  else { return 1; }
 }
 
 extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
@@ -350,8 +413,10 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
   int failure{0};
 
   /* copy vectors to host */
-  REF_OR_OMP_OR_HIP_OR_CUDA(, , N_VCopyFromDevice_Hip(computed), N_VCopyFromDevice_Cuda(computed));
-  REF_OR_OMP_OR_HIP_OR_CUDA(, , N_VCopyFromDevice_Hip(expected), N_VCopyFromDevice_Cuda(expected));
+  REF_OR_OMP_OR_HIP_OR_CUDA(, , N_VCopyFromDevice_Hip(computed),
+                            N_VCopyFromDevice_Cuda(computed));
+  REF_OR_OMP_OR_HIP_OR_CUDA(, , N_VCopyFromDevice_Hip(expected),
+                            N_VCopyFromDevice_Cuda(expected));
 
   /* get vector data */
   auto xdata{N_VGetArrayPointer(computed)};
@@ -361,7 +426,8 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
   auto xldata{N_VGetLength(computed)};
   auto yldata{N_VGetLength(expected)};
 
-  if (xldata != yldata) {
+  if (xldata != yldata)
+  {
     std::cerr << "ERROR check_vector: different vector lengths\n";
     return 1;
   }
@@ -370,11 +436,13 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
   for (sunindextype i = 0; i < xldata; i++)
     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
-  if (failure > ZERO) {
+  if (failure > ZERO)
+  {
     std::cerr << "Check_vector failures:\n";
     for (sunindextype i = 0; i < xldata; i++)
       if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
-        std::cerr << "  computed[" << i << "] = " << xdata[i] << " != " << ydata[i]
+        std::cerr << "  computed[" << i << "] = " << xdata[i]
+                  << " != " << ydata[i]
                   << " (err = " << SUNRabs(xdata[i] - ydata[i]) << ")\n";
   }
 
@@ -383,36 +451,44 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
 
 extern "C" booleantype has_data(SUNMatrix A)
 {
-  if (using_csr_matrix_type) {
+  if (using_csr_matrix_type)
+  {
     auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->gkomtx()};
     return !(Amat->get_values() == NULL || Amat->get_num_batch_entries() == 0);
-  } else if (using_dense_matrix_type) {
+  }
+  else if (using_dense_matrix_type)
+  {
     auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
     return !(Amat->get_values() == NULL || Amat->get_num_batch_entries() == 0);
-  } else {
-    return SUNFALSE;
   }
+  else { return SUNFALSE; }
 }
 
 extern "C" booleantype is_square(SUNMatrix A)
 {
-  if (using_csr_matrix_type) {
+  if (using_csr_matrix_type)
+  {
     auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->gkomtx()};
-    for (sunindextype iblk = 0; iblk < Amat->get_size().get_num_batch_entries(); iblk++) {
+    for (sunindextype iblk = 0; iblk < Amat->get_size().get_num_batch_entries();
+         iblk++)
+    {
       if (Amat->get_size().at(iblk)[0] != Amat->get_size().at(iblk)[1])
         return SUNFALSE;
     }
-    return SUNTRUE;
-  } else if (using_dense_matrix_type) {
-    auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
-    for (sunindextype iblk = 0; iblk < Amat->get_size().get_num_batch_entries(); iblk++) {
-      if (Amat->get_size().at(iblk)[0] != Amat->get_size().at(iblk)[1])
-        return SUNFALSE;
-    }
-    return SUNTRUE;
-  } else {
     return SUNTRUE;
   }
+  else if (using_dense_matrix_type)
+  {
+    auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
+    for (sunindextype iblk = 0; iblk < Amat->get_size().get_num_batch_entries();
+         iblk++)
+    {
+      if (Amat->get_size().at(iblk)[0] != Amat->get_size().at(iblk)[1])
+        return SUNFALSE;
+    }
+    return SUNTRUE;
+  }
+  else { return SUNTRUE; }
 }
 
 extern "C" void sync_device(SUNMatrix A)

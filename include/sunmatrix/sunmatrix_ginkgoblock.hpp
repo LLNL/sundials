@@ -44,7 +44,7 @@ SUNMatrix SUNMatClone_GinkgoBlock(SUNMatrix A)
 {
   auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
   auto new_mat{new BlockMatrix<GkoBatchMatType>(*Amat)};
-  return new_mat->get();
+  return new_mat->Convert();
 }
 
 template<class GkoBatchMatType>
@@ -54,14 +54,6 @@ void SUNMatDestroy_GinkgoBlock(SUNMatrix A)
   delete Amat; // NOLINT
   return;
 }
-
-// template<class GkoBatchMatType>
-// int SUNMatZero_GinkgoBlock(SUNMatrix A)
-// {
-//   auto Amat{static_cast<BlockMatrix<GkoBatchMatType>*>(A->content)};
-//   Zero(*Amat);
-//   return SUNMAT_SUCCESS;
-// }
 
 template<class GkoBatchMatType>
 int SUNMatCopy_GinkgoBlock(SUNMatrix A, SUNMatrix B)
@@ -159,8 +151,8 @@ public:
   // Override the ConvertibleTo methods
   operator SUNMatrix() override { return object_.get(); }
   operator SUNMatrix() const override { return object_.get(); }
-  SUNMatrix get() override { return object_.get(); }
-  SUNMatrix get() const override { return object_.get(); }
+  SUNMatrix Convert() override { return object_.get(); }
+  SUNMatrix Convert() const override { return object_.get(); }
 
 private:
   std::shared_ptr<GkoBatchMatType> gkomtx_;
@@ -173,8 +165,7 @@ private:
     this->object_->ops->clone = SUNMatClone_GinkgoBlock<GkoBatchMatType>;
     this->object_->ops->copy  = SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
     // Ginkgo does not provide what we need for ScaleAdd except with BatchDense
-    this->object_->ops->scaleadd =
-        std::is_same<GkoBatchDenseMat, GkoBatchMatType>::value ? SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType> : nullptr;
+    this->object_->ops->scaleadd = SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType>;
     this->object_->ops->scaleaddi = SUNMatScaleAddI_GinkgoBlock<GkoBatchMatType>;
     this->object_->ops->matvec    = SUNMatMatvec_GinkgoBlock<GkoBatchMatType>;
     this->object_->ops->destroy   = SUNMatDestroy_GinkgoBlock<GkoBatchMatType>;
