@@ -132,13 +132,12 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
-    printf("\nA (original) =\n");
-    SUNDenseMatrix_Print(B,stdout);
-    printf("\nA (factored) =\n");
-    SUNDenseMatrix_Print(A,stdout);
-    printf("\nx (original) =\n");
+    printf("\nanswer =\n");
     N_VPrint_Serial(y);
-    printf("\nx (computed) =\n");
+    printf("\ncomputed =\n");
+    N_VPrint_Serial(x);
+    printf("\ndiff (answer-computed) =\n");
+    N_VLinearSum_Serial(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), x, x);
     N_VPrint_Serial(x);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
@@ -175,16 +174,16 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   for(i=0; i < local_length; i++)
     failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
-  if (failure > ZERO) {
+  if (failure) {
     maxerr = ZERO;
-    for(i=0; i < local_length; i++)
+    for(i=0; i < local_length; i++) {
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
-	   maxerr, tol);
-    return(1);
+    }
+    printf("check err failure: maxerr = %g (tol = %g)\n", maxerr, tol);
+    return failure;
   }
-  else
-    return(0);
+
+  return 0;
 }
 
 void sync_device()

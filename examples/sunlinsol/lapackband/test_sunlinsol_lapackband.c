@@ -135,13 +135,12 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
-    printf("\nA (original) =\n");
-    SUNBandMatrix_Print(B,stdout);
-    printf("\nA (factored) =\n");
-    SUNBandMatrix_Print(A,stdout);
-    printf("\nx (original) =\n");
+    printf("\nanswer =\n");
     N_VPrint_Serial(y);
-    printf("\nx (computed) =\n");
+    printf("\ncomputed =\n");
+    N_VPrint_Serial(x);
+    printf("\ndiff (answer-computed) =\n");
+    N_VLinearSum_Serial(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), x, x);
     N_VPrint_Serial(x);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");

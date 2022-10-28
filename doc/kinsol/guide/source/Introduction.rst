@@ -96,6 +96,9 @@ Fixed a bug with the Kokkos interfaces that would arise when using clang.
 Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial ``N_Vector``.
 
+Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
+which would cause the tests to fail on some platforms. 
+
 Changes in v6.4.0
 -----------------
 
