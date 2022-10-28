@@ -1,5 +1,5 @@
 # IDA
-### Version 6.4.0 (Oct 2022)
+### Version 6.4.1 (Oct 2022)
 
 **Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -48,10 +48,10 @@ the "SUNDIALS Release History" appendix of the IDA User Guide.
 ## References
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
-  and C. S. Woodward, "User Documentation for IDA v6.4.0,"
+  and C. S. Woodward, "User Documentation for IDA v6.4.1,"
   LLNL technical report UCRL-SM-208112, Oct 2022.
 
-* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v6.4.0,"
+* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v6.4.1,"
   LLNL technical report UCRL-SM-208113, Oct 2022.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,
