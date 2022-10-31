@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;                 /* solver object              */
   SUNMatrix       A, B, I;            /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
-  int             print_timing;
+  int             print_timing, print_matrix_on_fail;
   sunindextype    j, k;
   realtype        *colj, *xdata, *colIj;
   SUNContext      sunctx;
@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
   }
 
   /* check input and set matrix dimensions */
-  if (argc < 3){
-    printf("ERROR: TWO (2) Inputs required: matrix cols, print timing \n");
+  if (argc < 4){
+    printf("ERROR: THREE (3) Inputs required: matrix cols, print matrix on fail, print timing \n");
     return(-1);
   }
 
@@ -61,7 +61,9 @@ int main(int argc, char *argv[])
 
   rows = cols;
 
-  print_timing = atoi(argv[2]);
+  print_matrix_on_fail = atoi(argv[2]);
+
+  print_timing = atoi(argv[3]);
   SetTiming(print_timing);
 
   printf("\nLapackDense linear solver test: size %ld\n\n",
@@ -139,6 +141,12 @@ int main(int argc, char *argv[])
     printf("\ndiff (answer-computed) =\n");
     N_VLinearSum_Serial(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), x, x);
     N_VPrint_Serial(x);
+    if (print_matrix_on_fail) {
+      printf("\nA (original) =\n");
+      SUNDenseMatrix_Print(B,stdout);
+      printf("\nA (factored) =\n");
+      SUNDenseMatrix_Print(A,stdout);
+    }
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }

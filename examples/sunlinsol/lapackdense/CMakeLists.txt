@@ -19,10 +19,10 @@
 
 # Examples using the LAPACK dense linear solver
 set(sunlinsol_lapackdense_examples
-  "test_sunlinsol_lapackdense\;10 0\;"
-  "test_sunlinsol_lapackdense\;100 0\;"
-  "test_sunlinsol_lapackdense\;500 0\;"
-  "test_sunlinsol_lapackdense\;1000 0\;"
+  "test_sunlinsol_lapackdense\;10 0 0\;"
+  "test_sunlinsol_lapackdense\;100 0 0\;"
+  "test_sunlinsol_lapackdense\;500 0 0\;"
+  "test_sunlinsol_lapackdense\;1000 0 0\;"
 )
 
 # Dependencies for nvector examples
