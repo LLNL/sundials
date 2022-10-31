@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;                 /* solver object              */
   SUNMatrix       A, B;               /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
-  int             print_timing;
+  int             print_timing, print_matrix_on_fail;
   sunindextype    j, k, kstart, kend;
   realtype        *colj, *xdata;
   SUNContext      sunctx;
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
   }
 
   /* check input and set matrix dimensions */
-  if (argc < 5){
-    printf("ERROR: FOUR (4) Inputs required: matrix cols, matrix uband, matrix lband, print timing \n");
+  if (argc < 6){
+    printf("ERROR: FIVE (5) Inputs required: matrix cols, matrix uband, matrix lband, print matrix on fail, print timing \n");
     return(-1);
   }
 
@@ -72,7 +72,9 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  print_timing = atoi(argv[4]);
+  print_matrix_on_fail = atoi(argv[4]);
+
+  print_timing = atoi(argv[5]);
   SetTiming(print_timing);
 
   printf("\nLapackBand linear solver test: size %ld, bandwidths %ld %ld\n\n",
@@ -135,14 +137,19 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
-    printf("\nA (original) =\n");
-    SUNBandMatrix_Print(B,stdout);
-    printf("\nA (factored) =\n");
-    SUNBandMatrix_Print(A,stdout);
-    printf("\nx (original) =\n");
+    printf("\nanswer =\n");
     N_VPrint_Serial(y);
-    printf("\nx (computed) =\n");
+    printf("\ncomputed =\n");
     N_VPrint_Serial(x);
+    printf("\ndiff (answer-computed) =\n");
+    N_VLinearSum_Serial(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), x, x);
+    N_VPrint_Serial(x);
+    if (print_matrix_on_fail) {
+      printf("\nA (original) =\n");
+      SUNBandMatrix_Print(B,stdout);
+      printf("\nA (factored) =\n");
+      SUNBandMatrix_Print(A,stdout);
+    }
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }

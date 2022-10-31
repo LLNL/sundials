@@ -1,5 +1,5 @@
 # CVODES
-### Version 6.4.0 (Oct 2022)
+### Version 6.4.1 (Oct 2022)
 
 **Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -45,10 +45,10 @@ the "SUNDIALS Release History" appendix of the CVODES User Guide.
 ## References
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
-  and C. S. Woodward, "User Documentation for CVODES v6.4.0,"
+  and C. S. Woodward, "User Documentation for CVODES v6.4.1,"
   LLNL technical report UCRL-SM-208111, Oct 2022.
 
-* A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v6.4.0,"
+* A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v6.4.1,"
   LLNL technical report UCRL-SM-208115, Oct 2022.
 
 * R. Serban and A. C. Hindmarsh, "CVODES: the Sensitivity-Enabled ODE

@@ -154,6 +154,7 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
   }
 
   /* Call LAPACK to do LU factorization of A */
+  ier = 0;
   n = SUNBandMatrix_Rows(A);
   ml = SUNBandMatrix_LowerBandwidth(A);
   mu = SUNBandMatrix_UpperBandwidth(A);
@@ -191,6 +192,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   }
 
   /* Call LAPACK to solve the linear system */
+  ier = 0;
   n = SUNBandMatrix_Rows(A);
   ml = SUNBandMatrix_LowerBandwidth(A);
   mu = SUNBandMatrix_UpperBandwidth(A);

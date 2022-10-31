@@ -42,7 +42,7 @@ templated class in the ``sundials::kokkos`` namespace:
 .. code-block:: cpp
 
    template<class ExecSpace = Kokkos::DefaultExecutionSpace,
-            class MemSpace = class ExecSpace::memory_space>
+            class MemSpace = typename ExecSpace::memory_space>
    class DenseLinearSolver : public sundials::impl::BaseLinearSolver,
                              public sundials::ConvertibleTo<SUNLinearSolver>
 
@@ -84,7 +84,7 @@ In this section we list the public API of the
 ``sundials::kokkos::DenseLinearSolver`` class.
 
 .. cpp:class:: template<class ExecSpace = Kokkos::DefaultExecutionSpace, \
-                        class MemSpace = class ExecSpace::memory_space> \
+                        class MemSpace = typename ExecSpace::memory_space> \
                DenseLinearSolver : public sundials::impl::BaseLinearSolver, \
                                    public sundials::ConvertibleTo<SUNLinearSolver>
 
