@@ -3030,6 +3030,46 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
    **Notes:**
       The previous routines ``CVDlsGetReturnFlagName`` and  ``CVSpilsGetReturnFlagName`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
 
+.. c:function:: int CVodeGetSavedJac(void* cvode_mem, SUNMatrix* savedJ)
+
+   Returns the internally stored copy of the Jacobian matrix of the ODE
+   right-hand side function.
+
+   :param cvode_mem: the CVODE memory structure
+   :param savedJ: the saved Jacobian matrix
+
+   :retval CVLS_SUCCESS: the output value has been successfully set
+   :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``
+   :retval CVLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int CVodeGetSavedJacTime(void* cvode_mem, sunrealtype* t_savedJ)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the ODE right-hand side function was evaluated.
+
+   :param cvode_mem: the CVODE memory structure
+   :param t_savedJ: the time at which the Jacobian was evaluated
+
+   :retval CVLS_SUCCESS: the output value has been successfully set
+   :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``
+   :retval CVLS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int CVodeGetSavedJacNumSteps(void* cvode_mem, long int* nst_savedJ)
+
+   Returns the number of steps at which the internally stored copy of the
+   Jacobian matrix of the ODE right-hand side function was evaluated.
+
+   :param cvode_mem: the CVODE memory structure
+   :param nst_savedJ: the number of steps at which the Jacobian was evaluated
+
+   :retval CVLS_SUCCESS: the output value has been successfully set
+   :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``
+   :retval CVLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. _CVODE.Usage.CC.optional_output.optout_diag:
 

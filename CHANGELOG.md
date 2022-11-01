@@ -1,5 +1,11 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.5.0
+
+Added the functions ``CVodeGetSavedJac``, ``CVodeGetSavedJacTime``,
+``CVodeGetSavedJacNumSteps`` to assist in debugging simulations utilizing a
+matrix-based linear solver.
+
 ## Changes to SUNDIALS in release 6.4.1
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.
