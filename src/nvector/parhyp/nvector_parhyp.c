@@ -23,6 +23,7 @@
 
 #include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_nvector.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)

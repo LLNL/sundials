@@ -504,6 +504,12 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   q = SUNMAX(order, 0);                 /* respect lower bound  */
   q = SUNMIN(q, HINT_DEGREE(interp));   /* respect max possible */
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkInterpEvaluate_Hermite", "interp-eval",
+                     "tau = %"RSYM", d = %i, q = %i", tau, d, q);
+#endif
+
   /* error on illegal d */
   if (d < 0) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
@@ -1175,6 +1181,12 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
   /* determine polynomial degree q */
   q = SUNMAX(degree, 0);    /* respect lower bound */
   q = SUNMIN(q, nhist-1);   /* respect max possible */
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkInterpEvaluate_Lagrange", "interp-eval",
+                     "tau = %"RSYM", d = %i, q = %i", tau, deriv, q);
+#endif
 
   /* error on illegal deriv */
   if ((deriv < 0) || (deriv > 3)) {

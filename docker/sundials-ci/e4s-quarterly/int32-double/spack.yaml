@@ -17,7 +17,7 @@ spack:
   - openblas~ilp64 %gcc@9.4.0 arch=x86_64
   - suite-sparse %gcc@9.4.0 arch=x86_64
   - superlu-mt~int64~blas %gcc@9.4.0 arch=x86_64
-  - superlu-dist~int64 ^metis~int64 %gcc@9.4.0 arch=x86_64
+  - superlu-dist~int64 ^parmetis~int64 %gcc@9.4.0 arch=x86_64
   - trilinos+tpetra gotype=int %gcc@9.4.0 arch=x86_64
   - xbraid %gcc@9.4.0 arch=x86_64
   config:
@@ -28,4 +28,9 @@ spack:
   repos: []
   upstreams: {}
   concretization: together
-  view: /opt/view
+  view:
+    default:
+      root: /opt/view
+      projections:
+        superlu-mt: '{name}'
+        superlu-dist: '{name}'

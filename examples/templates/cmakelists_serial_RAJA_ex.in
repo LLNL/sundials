@@ -99,15 +99,6 @@ set(SUNDIALS_LIBRARIES
 
 # ------------------------------------------------------------------------------
 
-# Find raja includes and libraries
-set(RAJA_DIR
-  @RAJA_DIR@
-  CACHE PATH "Location of RAJA install")
-
-find_package(RAJA CONFIG
-  PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake
-  REQUIRED)
-
 # Set the names of the examples to be built and their dependencies
 set(examples @EXAMPLES@)
 set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
@@ -124,7 +115,7 @@ foreach(example ${examples})
   add_executable(${example} ${example}.cpp ${examples_dependencies})
 
   # set c++11
-  target_compile_features(${example} PUBLIC cxx_std_11)
+  target_compile_features(${example} PUBLIC cxx_std_14)
   target_compile_options(${example} PUBLIC
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
 

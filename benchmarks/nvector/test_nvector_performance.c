@@ -22,6 +22,8 @@
 #define _POSIX_C_SOURCE 199309L
 #endif
 
+#include <sundials/sundials_config.h>
+
 /* POSIX timers */
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
@@ -29,7 +31,6 @@
 #include <unistd.h>
 #endif
 
-#include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -46,7 +47,7 @@ static void time_stats(N_Vector X, double *times, int start, int ntimes,
                        double *avg, double *sdev, double *min, double *max);
 
 int print_time = 0; /* flag for printing timing data */
-int nextra = 1;     /* number of extra tests to perform and ignore in average */
+int nwarmups = 1;     /* number of extra tests to perform and ignore in average */
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -77,7 +78,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Y, Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Y = N_VClone(X);
@@ -87,7 +88,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
    * Case 1a: y = x + y, (Vaxpy Case 1)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector with random data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -101,8 +102,8 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-1a", avgtime, sdevtime, mintime, maxtime);
 
 
@@ -110,7 +111,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
    * Case 1b: y = -x + y, (Vaxpy Case 2)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -124,15 +125,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-1b", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 1c: y = ax + y, (Vaxpy Case 3)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -147,15 +148,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-1c", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 2a: x = x + y, (Vaxpy Case 1)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
@@ -170,15 +171,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-2a", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 2b: x = x - y, (Vaxpy Case 2)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -192,15 +193,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-2b", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 2c: x = x + by, (Vaxpy Case 3)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -215,15 +216,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-2c", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 3: z = x + y, (VSum)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -238,15 +239,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-3", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 4a: z = x - y, (VDiff)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -261,15 +262,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-4a", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 4b: z = -x + y, (VDiff)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -284,15 +285,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-4b", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 5a: z = x + by, (VLin1)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -308,15 +309,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-5a", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 5b: z = ax + y, (VLin1)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -332,15 +333,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-5b", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 6a: z = -x + by, (VLin2)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -356,15 +357,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-6a", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 6b: z = ax - y, (VLin2)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -380,15 +381,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-6b", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 7: z = a(x + y), (VScaleSum)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -404,15 +405,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-7", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 8: z = a(x - y), (VScaleDiff)
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -429,15 +430,15 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-8", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 9: z = ax + by, All Other Cases
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -454,8 +455,8 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VLinearSum-9", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -478,9 +479,9 @@ int Test_N_VConst(N_Vector X, sunindextype local_length, int ntests)
   realtype c;
   int      i;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     c = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
 
     ClearCache();
@@ -492,8 +493,8 @@ int Test_N_VConst(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VConst", avgtime, sdevtime, mintime, maxtime);
 
   free(times);
@@ -513,13 +514,13 @@ int Test_N_VProd(N_Vector X, sunindextype local_length, int ntests)
   int    i;
   N_Vector Y, Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Y = N_VClone(X);
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -534,8 +535,8 @@ int Test_N_VProd(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VProd", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -558,13 +559,13 @@ int Test_N_VDiv(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Y, Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Y = N_VClone(X);
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, ONE, TEN);
@@ -579,8 +580,8 @@ int Test_N_VDiv(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VDiv", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -604,7 +605,7 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Z = N_VClone(X);
@@ -613,7 +614,7 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
    * Case 1: x = cx, VScaleBy
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     c = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
@@ -627,15 +628,15 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VScale-1", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 2: z = x, VCopy
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -649,15 +650,15 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VScale-2", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 3: z = -x, VNeg
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -671,15 +672,15 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VScale-3", avgtime, sdevtime, mintime, maxtime);
 
   /*
    * Case 4: z = cx, All other cases
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -694,8 +695,8 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VScale-4", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -717,12 +718,12 @@ int Test_N_VAbs(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -736,8 +737,8 @@ int Test_N_VAbs(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VAbs", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -759,12 +760,12 @@ int Test_N_VInv(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, ONE, TEN);
     N_VConst(ZERO, Z);
@@ -778,8 +779,8 @@ int Test_N_VInv(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VInv", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -802,12 +803,12 @@ int Test_N_VAddConst(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -822,8 +823,8 @@ int Test_N_VAddConst(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VAddConst", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -845,12 +846,12 @@ int Test_N_VDotProd(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Y;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Y = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -864,8 +865,8 @@ int Test_N_VDotProd(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VDotProd", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -886,9 +887,9 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int ntests)
   double   avgtime, sdevtime, mintime, maxtime;
   int      i;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
 
@@ -901,8 +902,8 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VMaxNorm", avgtime, sdevtime, mintime, maxtime);
 
   free(times);
@@ -922,12 +923,12 @@ int Test_N_VWrmsNorm(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector W;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   W = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(W, local_length, ONE, TWO);
@@ -941,8 +942,8 @@ int Test_N_VWrmsNorm(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VWrmsNorm", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -964,7 +965,7 @@ int Test_N_VWrmsNormMask(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector W, ID;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   W  = N_VClone(X);
@@ -974,7 +975,7 @@ int Test_N_VWrmsNormMask(N_Vector X, sunindextype local_length, int ntests)
    * Case 2: use no elements, ID = 0
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(W, local_length, ONE, TWO);
@@ -989,8 +990,8 @@ int Test_N_VWrmsNormMask(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VWrmsNormMask", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -1012,9 +1013,9 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int ntests)
   double   avgtime, sdevtime, mintime, maxtime;
   int      i;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
 
@@ -1027,8 +1028,8 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VMin", avgtime, sdevtime, mintime, maxtime);
 
   free(times);
@@ -1048,12 +1049,12 @@ int Test_N_VWL2Norm(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector W;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   W = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(W, local_length, ONE, TWO);
@@ -1067,8 +1068,8 @@ int Test_N_VWL2Norm(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VWL2Norm", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -1089,9 +1090,9 @@ int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int ntests)
   double   avgtime, sdevtime, mintime, maxtime;
   int      i;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
 
@@ -1104,8 +1105,8 @@ int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VL1Norm", avgtime, sdevtime, mintime, maxtime);
 
   free(times);
@@ -1126,12 +1127,12 @@ int Test_N_VCompare(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -1146,8 +1147,8 @@ int Test_N_VCompare(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VCompare", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -1169,12 +1170,12 @@ int Test_N_VInvTest(N_Vector X, sunindextype local_length, int ntests)
   int         i;
   N_Vector    Z;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Z = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
@@ -1188,8 +1189,8 @@ int Test_N_VInvTest(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VInvTest", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -1211,13 +1212,13 @@ int Test_N_VConstrMask(N_Vector X, sunindextype local_length, int ntests)
   int         i;
   N_Vector    C, M;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   C = N_VClone(X);
   M = N_VClone(X);
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRandConstraints(C, local_length);
@@ -1232,8 +1233,8 @@ int Test_N_VConstrMask(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VConstrMask", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -1256,7 +1257,7 @@ int Test_N_VMinQuotient(N_Vector X, sunindextype local_length, int ntests)
   int      i;
   N_Vector Y;
 
-  times = (double*) malloc((ntests+nextra)*sizeof(double));
+  times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors */
   Y = N_VClone(X);
@@ -1265,7 +1266,7 @@ int Test_N_VMinQuotient(N_Vector X, sunindextype local_length, int ntests)
    * Case 1: Pass
    */
 
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
@@ -1279,8 +1280,8 @@ int Test_N_VMinQuotient(N_Vector X, sunindextype local_length, int ntests)
     times[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, times, nextra, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, times, nwarmups, ntests, &avgtime, &sdevtime, &mintime, &maxtime);
   PRINT_TIME1("N_VMinQuotient", avgtime, sdevtime, mintime, maxtime);
 
   /* Free vectors */
@@ -1305,8 +1306,8 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   N_Vector *Y;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors and array of scaling factors */
   c = (realtype*) malloc(nvecs*sizeof(realtype));
@@ -1326,7 +1327,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     if (nvecs == 1) {
       ClearCache();
@@ -1356,7 +1357,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1367,9 +1368,9 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearCombination-1", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1388,7 +1389,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     if (nvecs == 1) {
       ClearCache();
@@ -1419,7 +1420,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1430,9 +1431,9 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearCombination-2", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1448,7 +1449,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     if (nvecs == 1) {
       ClearCache();
@@ -1476,7 +1477,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1487,9 +1488,9 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearCombination-3", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1517,8 +1518,8 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   N_Vector *Y, *Z;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors and array of scaling factors */
   c = (realtype*) malloc(nvecs*sizeof(realtype));
@@ -1537,7 +1538,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1557,7 +1558,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1568,9 +1569,9 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VScaleAddMulti-1", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1587,7 +1588,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1607,7 +1608,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1618,9 +1619,9 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VScaleAddMulti-2", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1649,8 +1650,8 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
   N_Vector *Y;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors and array of dot products */
   c = (realtype*) malloc(nvecs*sizeof(realtype));
@@ -1662,7 +1663,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1680,7 +1681,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1691,9 +1692,9 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VDotProdMulti", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1722,8 +1723,8 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
   N_Vector *X, *Y, *Z;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays */
   X = N_VCloneVectorArray(nvecs, V);
@@ -1743,7 +1744,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1764,7 +1765,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1775,9 +1776,9 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(V, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(V, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(V, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(V, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearSumVectorArray", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1807,8 +1808,8 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   N_Vector *Y, *Z;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and scaling factor array */
   c = (realtype*) malloc(nvecs*sizeof(realtype));
@@ -1826,7 +1827,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1845,7 +1846,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1856,9 +1857,9 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VScaleVectorArray-1", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1874,7 +1875,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1893,7 +1894,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1904,9 +1905,9 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VScaleVectorArray-2", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -1936,8 +1937,8 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
   N_Vector *Y;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors array */
   Y = N_VCloneVectorArray(nvecs, X);
@@ -1952,7 +1953,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1970,7 +1971,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -1981,9 +1982,9 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VConstVectorArray", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -2011,8 +2012,8 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
   N_Vector *Z, *W;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
   c = (realtype*) malloc(nvecs*sizeof(realtype));
@@ -2030,7 +2031,7 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2049,7 +2050,7 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2060,9 +2061,9 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VWrmsNormVectorArray", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -2092,8 +2093,8 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   N_Vector *Z, *W, ID;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
   c  = (realtype*) malloc(nvecs*sizeof(realtype));
@@ -2113,7 +2114,7 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2133,7 +2134,7 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2144,9 +2145,9 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(X, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(X, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(X, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(X, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VWrmsNormMaskVectorArray", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -2177,8 +2178,8 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
   N_Vector *X, **Y, **Z;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
   c = (realtype*) malloc(nsums*sizeof(realtype));
@@ -2207,7 +2208,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(Y[j][k], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2232,7 +2233,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(Y[j][k], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2243,9 +2244,9 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(V, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(V, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(V, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(V, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VScaleAddMultiVectorArray-1", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -2266,7 +2267,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(Y[j][k], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2291,7 +2292,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(Y[j][k], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2302,9 +2303,9 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(V, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(V, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(V, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(V, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VScaleAddMultiVectorArray-2", favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
 
@@ -2340,8 +2341,8 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   N_Vector **X, *Z;
 
   /* allocate timing arrays */
-  ftimes = (double*) malloc((ntests+nextra)*sizeof(double));
-  utimes = (double*) malloc((ntests+nextra)*sizeof(double));
+  ftimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
+  utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
   c = (realtype*) malloc(nsums*sizeof(realtype));
@@ -2365,7 +2366,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(X[j][k], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     if (nsums == 1) {
       ClearCache();
@@ -2397,7 +2398,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(X[j][k], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2408,9 +2409,9 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(V, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(V, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(V, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(V, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearCombinationVectorArray-1",
               favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
@@ -2429,7 +2430,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(X[j][k], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     if (nsums == 1) {
       ClearCache();
@@ -2463,7 +2464,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(X[j][k], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2474,9 +2475,9 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(V, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(V, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(V, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(V, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearCombinationVectorArray-2",
               favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
@@ -2495,7 +2496,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(X[j][k], local_length, NEG_ONE, ONE);
 
   /* unfused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     if (nsums == 1) {
       ClearCache();
@@ -2529,7 +2530,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
       N_VRand(X[j][k], local_length, NEG_ONE, ONE);
 
   /* fused operation */
-  for (i=0; i < ntests+nextra; i++) {
+  for (i=0; i < ntests+nwarmups; i++) {
 
     ClearCache();
     start_time = get_time();
@@ -2540,9 +2541,9 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
     ftimes[i] = stop_time - start_time;
   }
 
-  /* get average time ignoring the first nextra tests */
-  time_stats(V, ftimes, nextra, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
-  time_stats(V, utimes, nextra, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
+  /* get average time ignoring the first nwarmups tests */
+  time_stats(V, ftimes, nwarmups, ntests, &favgtime, &fsdevtime, &fmintime, &fmaxtime);
+  time_stats(V, utimes, nwarmups, ntests, &uavgtime, &usdevtime, &umintime, &umaxtime);
   PRINT_TIME2("N_VLinearCombinationVectorArray-3",
               favgtime, fsdevtime, fmintime, fmaxtime,
               uavgtime, usdevtime, umintime, umaxtime);
@@ -2583,6 +2584,12 @@ void PrintTableHeader(int type)
            "Avg Unfused","Std Dev Unfused","Min Unfused","Max Unfused");
     break;
   }
+}
+
+void SetNumWarmups(int num_warmups)
+{
+  nwarmups = num_warmups;
+  return;
 }
 
 void SetTiming(int onoff, int myid)
@@ -2689,23 +2696,23 @@ static double get_time()
 /* ----------------------------------------------------------------------
  * compute average, standard deviation, max, and min
  * --------------------------------------------------------------------*/
-static void time_stats(N_Vector X, double *times, int nextra, int ntests,
+static void time_stats(N_Vector X, double *times, int nwarmups, int ntests,
                        double *avg, double *sdev, double *min, double *max)
 {
   int i, ntotal;
 
   /* total number of times collected */
-  ntotal = nextra+ntests;
+  ntotal = nwarmups+ntests;
 
   /* if running in parallel collect data from all processes */
   collect_times(X, times, ntotal);
 
   /* compute timing stats */
   *avg = 0.0;
-  *min = times[nextra];
-  *max = times[nextra];
+  *min = times[nwarmups];
+  *max = times[nwarmups];
 
-  for (i=nextra; i<ntotal; i++) {
+  for (i=nwarmups; i<ntotal; i++) {
     *avg += times[i];
     if (times[i] < *min) *min = times[i];
     if (times[i] > *max) *max = times[i];
@@ -2714,7 +2721,7 @@ static void time_stats(N_Vector X, double *times, int nextra, int ntests,
 
   *sdev = 0.0;
   if (ntests > 1) {
-    for (i=nextra; i<ntotal; i++)
+    for (i=nwarmups; i<ntotal; i++)
       *sdev += (times[i] - *avg) * (times[i] - *avg);
     *sdev = sqrt(*sdev/(ntests-1));
   }

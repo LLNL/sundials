@@ -26,19 +26,10 @@ set(sunlinsol_spfgmr_examples
 # Dependencies for nvector examples
 set(sunlinsol_spfgmr_dependencies
   test_sunlinsol
-  sundials_nvector
-  sundials_linearsolver
   )
 
 # Add source directory to include directories
 include_directories(. ../..)
-
-# Specify libraries to link against
-set(NVEC_LIB sundials_nvecparallel)
-set(SUNLINSOL_LIB sundials_sunlinsolspfgmr)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNLINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -47,7 +38,6 @@ else()
   # add MPI_INCLUDE_PATH to include directories
   include_directories(${MPI_INCLUDE_PATH})
 endif()
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_spfgmr_examples})
@@ -69,7 +59,10 @@ foreach(example_tuple ${sunlinsol_spfgmr_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecparallel
+      sundials_sunlinsolspfgmr
+      ${EXE_EXTRA_LINK_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARIES})
@@ -95,8 +88,6 @@ foreach(example_tuple ${sunlinsol_spfgmr_examples})
     install(FILES ${example}.c
       ../../test_sunlinsol.h
       ../../test_sunlinsol.c
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spfgmr/parallel)
   endif()
 

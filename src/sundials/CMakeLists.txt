@@ -21,18 +21,25 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
+  sundials_base.hpp
   sundials_band.h
   sundials_context.h
+  sundials_context.hpp
+  sundials_convertibleto.hpp
   sundials_dense.h
   sundials_direct.h
   sundials_iterative.h
   sundials_linearsolver.h
+  sundials_linearsolver.hpp
   sundials_math.h
   sundials_matrix.h
+  sundials_matrix.hpp
   sundials_memory.h
   sundials_mpi_types.h
   sundials_nonlinearsolver.h
+  sundials_nonlinearsolver.hpp
   sundials_nvector.h
+  sundials_nvector.hpp
   sundials_profiler.h
   sundials_logger.h
   sundials_types.h

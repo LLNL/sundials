@@ -911,7 +911,7 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer_Parallel(farg1)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength_Parallel(v)])
 end function
 
 subroutine FN_VSetArrayPointer_Parallel(v_data, v)

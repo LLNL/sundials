@@ -27,7 +27,6 @@ set(nvector_parallel_examples
 set(nvector_examples_dependencies
   test_nvector
   test_mpinvector
-  sundials_nvector
   )
 
 # If building F2003 tests
@@ -38,15 +37,6 @@ endif()
 
 # Add source directory to include directories
 include_directories(. ..)
-
-# Specify libraries to link against
-set(NVECS_LIB sundials_nvecparallel)
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  list(APPEND NVECS_LIB sundials_fnvecparallel_mod)
-endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -82,14 +72,15 @@ foreach(example_tuple ${nvector_parallel_examples})
     # example source files
     add_executable(${example} ${example}.c)
 
-    # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
-
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE
+      test_nvector_obj
+      test_nvectormpi_obj
+      sundials_nvecparallel
+      ${EXE_EXTRA_LINK_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} PRIVATE ${MPI_LIBRARIES})
@@ -124,7 +115,6 @@ foreach(example_tuple ${nvector_parallel_examples})
       ../test_nvector.c
       ../test_mpinvector.c
       ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)
   endif()
 
@@ -153,7 +143,10 @@ foreach(example_tuple ${nvector_parallel_fortran_examples})
     set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecparallel
+      sundials_fnvecparallel_mod
+      ${EXE_EXTRA_LINK_LIBS})
 
     if(NOT MPI_Fortran_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARIES})

@@ -19,32 +19,19 @@
 
 # Examples using the LAPACK band linear solver
 set(sunlinsol_lapackband_examples
-  "test_sunlinsol_lapackband\;10 2 3 0\;"
-  "test_sunlinsol_lapackband\;300 7 4 0\;"
-  "test_sunlinsol_lapackband\;1000 8 8 0\;"
-  "test_sunlinsol_lapackband\;5000 3 100 0\;"
+  "test_sunlinsol_lapackband\;10 2 3 0 0\;"
+  "test_sunlinsol_lapackband\;300 7 4 0 0\;"
+  "test_sunlinsol_lapackband\;1000 8 8 0 0\;"
+  "test_sunlinsol_lapackband\;5000 3 100 0 0\;"
   )
 
 # Dependencies for nvector examples
 set(sunlinsol_lapackband_dependencies
   test_sunlinsol
-  sundials_nvector
-  sundials_matrix
-  sundials_linearsolver
   )
 
 # Add source directory to include directories
 include_directories(. ..)
-
-# Specify libraries to link against
-set(NVEC_LIB sundials_nvecserial)
-set(SUNMAT_LIB sundials_sunmatrixband)
-set(SUNLINSOL_LIB sundials_sunlinsollapackband)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
-
-list(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
 
 # Add the build and install targets for each sunlinsol example
 foreach(example_tuple ${sunlinsol_lapackband_examples})
@@ -64,7 +51,12 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_nvecserial
+      sundials_sunmatrixband
+      sundials_sunlinsollapackband
+      ${LAPACK_LIBRARIES}
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -85,9 +77,6 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
     install(FILES ${example}.c
       ../test_sunlinsol.h
       ../test_sunlinsol.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband)
   endif()
 

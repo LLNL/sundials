@@ -36,6 +36,7 @@ N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X, SUNContext sunctx)
   v->ops->nvgetvectorid = N_VGetVectorID_MPIPlusX;
   v->ops->nvgetarraypointer = N_VGetArrayPointer_MPIPlusX;
   v->ops->nvsetarraypointer = N_VSetArrayPointer_MPIPlusX;
+  v->ops->nvgetlocallength = N_VGetLocalLength_MPIPlusX;
 
   /* debugging functions */
   if (X->ops->nvprint)

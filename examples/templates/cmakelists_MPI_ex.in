@@ -44,18 +44,6 @@ set(CMAKE_CXX_STANDARD
   @CMAKE_CXX_STANDARD@
   CACHE STRING "CXX standard")
 
-set(CMAKE_CUDA_COMPILER
-  @CMAKE_CUDA_COMPILER@
-  CACHE FILEPATH "CUDA compiler")
-set(CMAKE_CUDA_FLAGS
-  "@CMAKE_CUDA_FLAGS@"
-  CACHE STRING "CUDA compiler flags")
-set(CMAKE_CUDA_STANDARD 11)
-
-set(CMAKE_CUDA_HOST_COMPILER
-  ${MPI_CXX_COMPILER}
-  CACHE FILEPATH "CUDA host compiler")
-
 # Specify project name and languages
 project(@SOLVER@_examples @_SUNDIALS_ENABLED_LANGS@)
 

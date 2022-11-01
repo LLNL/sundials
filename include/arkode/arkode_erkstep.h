@@ -109,7 +109,8 @@ SUNDIALS_EXPORT int ERKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int ERKStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ERKStepSetTable(void *arkode_mem,
                                     ARKodeButcherTable B);
-SUNDIALS_EXPORT int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID itable);
+SUNDIALS_EXPORT int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID etable);
+SUNDIALS_EXPORT int ERKStepSetTableName(void *arkode_mem, const char *etable);
 SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ERKStepSetSafetyFactor(void *arkode_mem,

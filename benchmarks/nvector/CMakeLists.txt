@@ -24,7 +24,7 @@ if(BUILD_NVECTOR_MPIPLUSX)
   add_subdirectory(mpiplusx)
 endif()
 
-if(BUILD_NVECTOR_HYPRE)
+if(BUILD_NVECTOR_PARHYP)
   add_subdirectory(parhyp)
 endif()
 
@@ -48,12 +48,20 @@ if(BUILD_NVECTOR_CUDA)
   add_subdirectory(cuda)
 endif()
 
+if(BUILD_NVECTOR_HIP)
+  add_subdirectory(hip)
+endif()
+
 if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
 endif()
 
 if(BUILD_NVECTOR_SYCL)
   add_subdirectory(sycl)
+endif()
+
+if(BUILD_NVECTOR_KOKKOS)
+  add_subdirectory(kokkos)
 endif()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/plot_nvector_performance_results.py

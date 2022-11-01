@@ -177,11 +177,11 @@ int main(int argc, char *argv[]) {
   SuperMatrix Msuper;         /* empty SuperLU-DIST mass matrix object */
   SuperMatrix Rsuper;         /* empty SuperLU-DIST reaction matrix object */
   gridinfo_t grid;            /* SuperLU-DIST process grid */
-  dLUstruct_t Alu, Mlu;        /* SuperLU-DIST dLUstruct_t */
+  dLUstruct_t Alu, Mlu;       /* SuperLU-DIST dLUstruct_t */
   dScalePermstruct_t Ascaleperm, Mscaleperm; /* SuperLU-DIST dScalePermstruct_t */
   dSOLVEstruct_t Asolve, Msolve;             /* SuperLU-DIST dSOLVEstruct_t */
-  SuperLUStat_t Astat, Mstat;               /* SuperLU-DIST SuperLUState_t */
-  superlu_dist_options_t Aopts, Mopts;      /* SuperLU-DIST options struct */
+  SuperLUStat_t Astat, Mstat;                /* SuperLU-DIST SuperLUState_t */
+  superlu_dist_options_t Aopts, Mopts;       /* SuperLU-DIST options struct */
 
   void *arkode_mem = NULL;
   FILE *FID, *UFID, *VFID, *WFID;
@@ -196,8 +196,8 @@ int main(int argc, char *argv[]) {
 
   // Create the SUNDIALS context object for this simulation
   SUNContext ctx;
-  flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* This example only allows 1 MPI rank because we are demonstrating
    * SuperLU_DIST on one node. */
@@ -299,7 +299,7 @@ int main(int argc, char *argv[]) {
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y, NULL, ctx);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) MPI_Abort(grid.comm, 1);
 
   /* Set routines */
