@@ -89,6 +89,7 @@ typedef struct CVLsMemRec {
   long int ncfl;      /* ncfl = total number of convergence failures  */
   long int njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int njtimes;   /* njtimes = total number of calls to jtimes    */
+  sunrealtype tnlj;   /* tnlj = t_n at last jac/pset call             */
 
   /* Preconditioner computation
    * (a) user-provided:

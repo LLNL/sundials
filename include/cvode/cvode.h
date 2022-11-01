@@ -215,7 +215,6 @@ SUNDIALS_EXPORT int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
 SUNDIALS_EXPORT int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 SUNDIALS_EXPORT int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
 SUNDIALS_EXPORT int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);
-SUNDIALS_EXPORT int CVodeGetSavedJac(void *cvode_mem, SUNMatrix *savedJ);
 SUNDIALS_EXPORT int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps,
                                             long int *nfevals,
                                             long int *nlinsetups,

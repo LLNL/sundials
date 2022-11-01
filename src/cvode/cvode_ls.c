@@ -872,6 +872,33 @@ int CVodeGetSavedJac(void *cvode_mem, SUNMatrix *savedJ)
   return(CVLS_SUCCESS);
 }
 
+int CVodeGetSavedJacTime(void *cvode_mem, sunrealtype *t_savedJ)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetSavedJacTime",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+  *t_savedJ = cvls_mem->tnlj;
+  return(CVLS_SUCCESS);
+}
+
+int CVodeGetSavedNumSteps(void *cvode_mem, long int *nst_savedJ)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetSavedJacNumSteps",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+  *nst_savedJ = cvls_mem->nstlj;
+  return(CVLS_SUCCESS);
+}
 
 /*=================================================================
   CVLS private functions
@@ -1547,6 +1574,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     if (*jcurPtr) {
       cvls_mem->nje++;
       cvls_mem->nstlj = cv_mem->cv_nst;
+      cvls_mem->tnlj = cv_mem->cv_tn;
     }
 
     /* Check linsys() return value and return if necessary */
@@ -1584,6 +1612,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     if (*jcurPtr) {
       cvls_mem->npe++;
       cvls_mem->nstlj = cv_mem->cv_nst;
+      cvls_mem->tnlj = cv_mem->cv_tn;
     }
 
     /* Update jcur flag if we suggested an update */
