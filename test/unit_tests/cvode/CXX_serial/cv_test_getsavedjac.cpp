@@ -27,61 +27,49 @@
  *   s(t) = cos(2t)
  * ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <limits>
-#include <cmath>
-#include <vector>
 #include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <vector>
 
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
 #include "cvode/cvode.h"
 #include "nvector/nvector_serial.h"
-#include "sunmatrix/sunmatrix_dense.h"
 #include "sunlinsol/sunlinsol_dense.h"
+#include "sunmatrix/sunmatrix_dense.h"
 
 // Macros for problem constants
-#define ZERO    SUN_RCONST(0.0)
-#define HALF    SUN_RCONST(0.5)
-#define ONE     SUN_RCONST(1.0)
-#define TWO     SUN_RCONST(2.0)
-#define TWENTY  SUN_RCONST(20.0)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define TWO    SUN_RCONST(2.0)
+#define TWENTY SUN_RCONST(20.0)
 
 // -----------------------------------------------------------------------------
 // Helper functions
 // -----------------------------------------------------------------------------
 
 // Compute r(t)
-static sunrealtype r(sunrealtype t)
-{
-  return HALF * cos(t);
-}
+static sunrealtype r(sunrealtype t) { return HALF * cos(t); }
 
 // Compute the derivative of r(t)
-static sunrealtype rdot(sunrealtype t)
-{
-  return -HALF * sin(t);
-}
+static sunrealtype rdot(sunrealtype t) { return -HALF * sin(t); }
 
 // Compute s(t)
-static sunrealtype s(sunrealtype t)
-{
-  return cos(TWENTY * t);
-}
+static sunrealtype s(sunrealtype t) { return cos(TWENTY * t); }
 
 // Compute the derivative of s(t)
-static sunrealtype sdot(sunrealtype t)
-{
-  return -TWENTY * sin(TWENTY * t);
-}
+static sunrealtype sdot(sunrealtype t) { return -TWENTY * sin(TWENTY * t); }
 
 // Compute the true solution
 static int ytrue(sunrealtype t, N_Vector y)
 {
-  sunrealtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
 
   ydata[0] = sqrt(ONE + r(t));
   ydata[1] = sqrt(TWO + s(t));
@@ -98,15 +86,15 @@ static int ytrue(sunrealtype t, N_Vector y)
  *   [a  b] * [ (-1 + u^2 - r(t)) / (2*u) ] + [ r'(t) / (2u) ]
  *   [c  d]   [ (-2 + v^2 - s(t)) / (2*v) ]   [ s'(t) / (2v) ]
  * ---------------------------------------------------------------------------*/
-int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* udata = (sunrealtype *) user_data;
+  sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
   const sunrealtype b = udata[1];
   const sunrealtype c = udata[2];
   const sunrealtype d = udata[3];
 
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
   const sunrealtype u = ydata[0];
   const sunrealtype v = ydata[1];
 
@@ -114,6 +102,7 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
   const sunrealtype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
   sunrealtype* fdata = N_VGetArrayPointer(ydot);
+
   fdata[0] = a * tmp1 + b * tmp2 + rdot(t) / (TWO * u);
   fdata[1] = c * tmp1 + d * tmp2 + sdot(t) / (TWO * v);
 
@@ -125,10 +114,10 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
  *   [a/2 + (a(1+r(t))-rdot(t))/(2u^2)     b/2 + b*(2+s(t))/(2*v^2)         ]
  *   [c/2 + c(1+r(t))/(2u^2)               d/2 + (d(2+s(t))-sdot(t))/(2u^2) ]
  * ---------------------------------------------------------------------------*/
-int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* udata = (sunrealtype *) user_data;
+  sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
   const sunrealtype b = udata[1];
   const sunrealtype c = udata[2];
@@ -141,8 +130,8 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   const sunrealtype v = ydata[1];
 
   Jdata[0] = a / TWO + (a * (ONE + r(t)) - rdot(t)) / (TWO * u * u);
-  Jdata[1] = c / TWO +  c * (ONE + r(t)) / (TWO * u * u);
-  Jdata[2] = b / TWO +  b * (TWO + s(t)) / (TWO * v * v);
+  Jdata[1] = c / TWO + c * (ONE + r(t)) / (TWO * u * u);
+  Jdata[2] = b / TWO + b * (TWO + s(t)) / (TWO * v * v);
   Jdata[3] = d / TWO + (d * (TWO + s(t)) - sdot(t)) / (TWO * v * v);
 
   return 0;
@@ -163,7 +152,7 @@ int check_flag(int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void *ptr, const std::string funcname)
+int check_ptr(void* ptr, const std::string funcname)
 {
   if (ptr) return 0;
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
@@ -206,12 +195,12 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetLinearSolver")) return 1;
 
   sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
-  flag = CVodeSetUserData(cvode_mem, udata);
+  flag                 = CVodeSetUserData(cvode_mem, udata);
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Initial time and fist output time
-  sunrealtype tret  = ZERO;
-  sunrealtype tout  = tret + SUN_RCONST(0.1);
+  sunrealtype tret = ZERO;
+  sunrealtype tout = tret + SUN_RCONST(0.1);
 
   // Advance one step in time
   flag = CVode(cvode_mem, tout, y, &tret, CV_ONE_STEP);
@@ -247,23 +236,19 @@ int main(int argc, char* argv[])
   // Output Jacobian data
   std::cout << std::scientific;
   std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
-  std::cout << std::setw(8)  << std::right << "Index"
-            << std::setw(25) << std::right << "J saved"
-            << std::setw(25) << std::right << "J true"
-            << std::setw(25) << std::right << "absolute difference"
-            << std::endl;
-  for (int i = 0; i < 3 * 25 + 8; i++)
-    std::cout << "-";
+  std::cout << std::setw(8) << std::right << "Index" << std::setw(25)
+            << std::right << "J saved" << std::setw(25) << std::right << "J true"
+            << std::setw(25) << std::right << "absolute difference" << std::endl;
+  for (int i = 0; i < 3 * 25 + 8; i++) std::cout << "-";
   std::cout << std::endl;
 
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
   for (sunindextype i = 0; i < ldata; i++)
   {
-    std::cout << std::setw(8)  << std::right << i
-              << std::setw(25) << std::right << Jsaved_data[i]
-              << std::setw(25) << std::right << Jtrue_data[i]
-              << std::setw(25) << std::right << abs(Jsaved_data[i] - Jtrue_data[i])
-              << std::endl;
+    std::cout << std::setw(8) << std::right << i << std::setw(25) << std::right
+              << Jsaved_data[i] << std::setw(25) << std::right << Jtrue_data[i]
+              << std::setw(25) << std::right
+              << std::abs(Jsaved_data[i] - Jtrue_data[i]) << std::endl;
   }
 
   // Clean up and return with successful completion
