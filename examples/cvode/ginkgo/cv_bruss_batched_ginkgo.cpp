@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
 
 int JacInit(SUNMatrix J)
 {
-  auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
+  auto Jgko = static_cast<SUNMatrixView*>(J->content)->GkoMtx();
   auto gko_exec = Jgko->get_executor();
 
   sunindextype* rowptrs = Jgko->get_row_ptrs();
@@ -518,7 +518,7 @@ int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
-  auto Jgko = static_cast<SUNMatrixView*>(J->content)->gkomtx();
+  auto Jgko = static_cast<SUNMatrixView*>(J->content)->GkoMtx();
 
   sunrealtype* Jdata = Jgko->get_values();
   int* rowptrs = Jgko->get_row_ptrs();

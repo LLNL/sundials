@@ -298,8 +298,8 @@ int main(int argc, char* argv[])
 int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->gkomtx()};
-  auto Bmat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(B->content)->gkomtx()};
+  auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->GkoMtx()};
+  auto Bmat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(B->content)->GkoMtx()};
   const auto Avalues{Amat->get_const_values()};
   const auto Bvalues{Bmat->get_const_values()};
 
@@ -322,8 +322,8 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
 int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
-  auto Bmat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(B->content)->gkomtx()};
+  auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->GkoMtx()};
+  auto Bmat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(B->content)->GkoMtx()};
   auto blocks{Amat->get_num_batch_entries()};
   auto rows{Amat->get_size().at(0)[0]};
   auto cols{Amat->get_size().at(0)[1]};
@@ -361,7 +361,7 @@ extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->gkomtx()};
+  auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->GkoMtx()};
   auto Arowptrs{Amat->get_const_row_ptrs()};
   auto Acolidxs{Amat->get_const_col_idxs()};
   auto Avalues{Amat->get_const_values()};
@@ -378,7 +378,7 @@ int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
 int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
 {
   int failure{0};
-  auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
+  auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->GkoMtx()};
   auto blocks{Amat->get_num_batch_entries()};
   auto rows{Amat->get_size().at(0)[0]};
   auto cols{Amat->get_size().at(0)[1]};
@@ -453,12 +453,12 @@ extern "C" booleantype has_data(SUNMatrix A)
 {
   if (using_csr_matrix_type)
   {
-    auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->gkomtx()};
+    auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->GkoMtx()};
     return !(Amat->get_values() == NULL || Amat->get_num_batch_entries() == 0);
   }
   else if (using_dense_matrix_type)
   {
-    auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
+    auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->GkoMtx()};
     return !(Amat->get_values() == NULL || Amat->get_num_batch_entries() == 0);
   }
   else { return SUNFALSE; }
@@ -468,7 +468,7 @@ extern "C" booleantype is_square(SUNMatrix A)
 {
   if (using_csr_matrix_type)
   {
-    auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->gkomtx()};
+    auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->GkoMtx()};
     for (sunindextype iblk = 0; iblk < Amat->get_size().get_num_batch_entries();
          iblk++)
     {
@@ -479,7 +479,7 @@ extern "C" booleantype is_square(SUNMatrix A)
   }
   else if (using_dense_matrix_type)
   {
-    auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->gkomtx()};
+    auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->GkoMtx()};
     for (sunindextype iblk = 0; iblk < Amat->get_size().get_num_batch_entries();
          iblk++)
     {

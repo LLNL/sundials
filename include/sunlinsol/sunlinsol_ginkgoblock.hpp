@@ -179,7 +179,7 @@ public:
 
   int setup(BlockMatrix<GkoBatchMatType>* A)
   {
-    if (num_blocks_ != A->numBlocks()) {
+    if (num_blocks_ != A->NumBlocks()) {
       return SUNLS_ILL_INPUT;
     }
 
@@ -198,7 +198,7 @@ public:
     SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
     SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
-    solver_ = solver_factory_->generate(matrix_->gkomtx());
+    solver_ = solver_factory_->generate(matrix_->GkoMtx());
     SUNDIALS_MARK_END(sunProfiler(), "generate solver");
 
     return SUNLS_SUCCESS;
