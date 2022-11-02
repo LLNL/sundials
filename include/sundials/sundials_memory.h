@@ -48,6 +48,7 @@ struct _SUNMemory
   void*         ptr;
   SUNMemoryType type;
   booleantype   own;
+  size_t        bytes;
 };
 
 /* Creates a new SUNMemory object with a NULL ptr */
@@ -65,6 +66,10 @@ struct _SUNMemoryHelper
 {
   void*               content;
   SUNMemoryHelper_Ops ops;
+  unsigned long long  num_allocations;
+  unsigned long long  num_deallocations;
+  size_t              bytes_allocated;
+  size_t              bytes_high_watermark;
   SUNContext          sunctx;
 };
 
@@ -100,6 +105,10 @@ SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Alias(SUNMemory mem);
  * the ptr in Dealloc. */
 SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type);
 
+SUNDIALS_EXPORT 
+void SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, unsigned long long* num_allocations,
+                                   unsigned long long* num_deallocations, size_t* bytes_allocated,
+                                   size_t* bytes_high_watermark);
 
 /*
  * Required SUNMemoryHelper operations.
