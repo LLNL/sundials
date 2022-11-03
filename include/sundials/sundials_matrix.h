@@ -44,9 +44,11 @@
 #ifndef _SUNMATRIX_H
 #define _SUNMATRIX_H
 
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
+#include <sundials/sundials_matrix.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -115,19 +117,44 @@ struct _generic_SUNMatrix
  * Functions exported by SUNMatrix module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
+SUNDIALS_EXPORT
+SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
+
+SUNDIALS_EXPORT
+void SUNMatFreeEmpty(SUNMatrix A) SUNDIALS_NOEXCEPT;
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNMatrix_ID SUNMatGetID(SUNMatrix A) ;
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNMatrix SUNMatClone(SUNMatrix A);
+
+SUNDIALS_EXPORT 
+void SUNMatDestroy(SUNMatrix A);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNMatZero(SUNMatrix A);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNMatScaleAddI(realtype c, SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatMatvecSetup(SUNMatrix A);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
+
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
 
 /*
  * -----------------------------------------------------------------

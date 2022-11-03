@@ -114,8 +114,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   realtype ecur, h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkAdapt", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -155,12 +154,12 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                              &h_acc, hadapt_mem->HAdapt_data);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Illegal imethod.");
     return (ARK_ILL_INPUT);
   }
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Error in accuracy-based adaptivity function.");
     return (ARK_ILL_INPUT);
   }
@@ -171,7 +170,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   /* Call explicit stability function */
   ier = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }

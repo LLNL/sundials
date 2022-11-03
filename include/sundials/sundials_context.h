@@ -23,18 +23,47 @@
 #include "sundials/sundials_profiler.h"
 #include "sundials/sundials_types.h"
 
+struct SUNErrHandler_;
+
+struct SUNContext_ {
+  SUNProfiler profiler;
+  sunbooleantype own_profiler;
+  SUNLogger logger;
+  sunbooleantype own_logger;
+  SUNErrCode last_err;
+  struct SUNErrHandler_ *err_handler;
+  void *comm;
+};
+
+typedef struct SUNContext_ *SUNContext;
+
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-typedef struct _SUNContext* SUNContext;
-
-SUNDIALS_EXPORT int SUNContext_Create(void* comm, SUNContext* ctx);
-SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
-SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
-SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
-SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
-SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_Create(void *comm, SUNContext *ctx);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode *last_err);
+SUNDIALS_EXPORT
+struct SUNErrHandler_ *SUNContext_PushErrHandler(
+    SUNContext sunctx,
+    int (*err_fn)(int line, const char *func, const char *file, const char *msg,
+                  SUNErrCode err_code, void *err_user_data,
+                  struct SUNContext_ *sunctx),
+    void *err_user_data);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler *profiler);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger *logger);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_Free(SUNContext *ctx);
 
 #ifdef __cplusplus
 }

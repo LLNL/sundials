@@ -957,9 +957,8 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void IDAProcessError(IDAMem IDA_mem,
-                     int error_code, const char *module, const char *fname,
-                     const char *msgfmt, ...);
+void IDAProcessError(IDAMem ida_mem, int error_code, int line, const char *func,
+                     const char* file, const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 

@@ -36,8 +36,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod) {
 #undef ARK_BUTCHER_TABLE
 
     default:
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
-                      "ARKodeButcherTable_LoadDIRK",
+      arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Unknown Butcher table");
       return NULL;
   }
@@ -65,8 +64,7 @@ ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *imethod) {
 #include "arkode_butcher_dirk.def"
 #undef ARK_BUTCHER_TABLE
 
-  arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
-	   "arkButcherTableDIRKNameToID",
+  arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
 	   "Unknown Butcher table");
 
   return ARKODE_DIRK_NONE;

@@ -619,13 +619,16 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void cvProcessError(CVodeMem cv_mem, int error_code, const char *module,
-                    const char *fname, const char *msgfmt, ...);
+void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func, 
+                    const char *file, const char *msgfmt, ...);
 
 /* Prototype of internal ErrHandler function */
 
 void cvErrHandler(int error_code, const char *module, const char *function,
                   char *msg, void *data);
+
+int cvSunErrHandlerFn(int line, const char* func, const char* file, SUNErrCode err_code, void* err_user_data,
+                      SUNContext sunctx);
 
 /* Nonlinear solver initialization */
 

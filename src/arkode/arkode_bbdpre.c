@@ -74,8 +74,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_BAD_NVECTOR);
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BBD_BAD_NVECTOR);
     return(ARKLS_ILL_INPUT);
   }
 
@@ -83,8 +82,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata = NULL;
   pdata = (ARKBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -103,8 +101,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ark_mem->sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -115,8 +112,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -128,8 +124,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -140,8 +135,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -152,8 +146,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -165,8 +158,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -179,8 +171,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -196,8 +187,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
 
@@ -213,8 +203,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     SUNLinSolFree(pdata->LS);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBBDPRE",
-                    "ARKBBDPrecInit", MSG_BBD_SUNLS_FAIL);
+    arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_SUNLS_FAIL);
     return(ARKLS_SUNLS_FAIL);
   }
 
@@ -291,8 +280,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE",
-                    "ARKBBDPrecReInit", MSG_BBD_PMEM_NULL);
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
   }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
@@ -330,8 +318,7 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
 
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE",
-                    "ARKBBDPrecGetWorkSpace", MSG_BBD_PMEM_NULL);
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
   }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
@@ -360,8 +347,7 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
 
   /* Return immediately if ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE",
-                    "ARKBBDPrecGetNumGfnEvals", MSG_BBD_PMEM_NULL);
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
   }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
@@ -436,8 +422,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE",
-                      "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
+      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
       return(-1);
     }
     if (retval > 0) {
@@ -450,8 +435,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE",
-                      "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
+      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
       return(-1);
     }
     if (retval > 0) {
@@ -461,7 +445,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     retval = ARKBBDDQJac(pdata, t, y, pdata->tmp1,
                          pdata->tmp2, pdata->tmp3);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE", "ARKBBDPrecSetup",
+      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_BBD_FUNC_FAILED);
       return(-1);
     }
@@ -471,8 +455,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE",
-                      "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
+      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
       return(-1);
     }
     if (retval > 0) {
@@ -484,8 +467,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
   if (retval) {
-    arkProcessError(ark_mem, -1, "ARKBBDPRE",
-                    "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
+    arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
     return(-1);
   }
 

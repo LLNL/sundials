@@ -16,10 +16,8 @@
 
 #include <string.h>
 
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_memory.h>
 #include "sundials_debug.h"
-#include "sundials_context_impl.h"
+#include <sundials/sundials.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNMemoryHelper H)
@@ -49,7 +47,7 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
   SUNMemoryHelper helper = NULL;
 
-  if (sunctx == NULL) return(NULL);
+  SUNAssertContext(sunctx);
 
   helper = (SUNMemoryHelper) malloc(sizeof(struct _SUNMemoryHelper));
   if (helper == NULL)

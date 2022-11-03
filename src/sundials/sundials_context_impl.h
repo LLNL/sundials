@@ -26,12 +26,13 @@
 extern "C" {
 #endif
 
-struct _SUNContext {
-  SUNProfiler profiler;
-  booleantype own_profiler;
-  SUNLogger logger;
-  booleantype own_logger;
-};
+// struct _SUNContext {
+//   SUNProfiler profiler;
+//   sunbooleantype own_profiler;
+//   SUNLogger logger;
+//   sunbooleantype own_logger;
+//   SUNErrCode last_err;
+// };
 
 #ifdef __cplusplus
 }

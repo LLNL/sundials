@@ -47,9 +47,12 @@
 #ifndef _SUNNONLINEARSOLVER_H
 #define _SUNNONLINEARSOLVER_H
 
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
+#include "sundials_linearsolver.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -131,38 +134,54 @@ struct _generic_SUNNonlinearSolver
  * ---------------------------------------------------------------------------*/
 
 /* empty constructor/destructor */
-SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx);
+
+SUNDIALS_EXPORT
+void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS) SUNDIALS_NOEXCEPT;
 
 /* core functions */
-SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, realtype tol,
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, realtype tol,
                                       booleantype callLSetup, void* mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS);
 
 /* set functions */
-SUNDIALS_EXPORT int SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
+SUNErrCode SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters);
 
 /* get functions */
-SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int* niters);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int* niters);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int* iter);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int* iter);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails);
 
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver return values

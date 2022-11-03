@@ -16,6 +16,8 @@
 
 message("Adding units tests")
 
+add_subdirectory(core)
+
 if(BUILD_ARKODE)
   add_subdirectory(arkode)
 endif()

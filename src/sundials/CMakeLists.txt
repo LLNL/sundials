@@ -21,16 +21,18 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
-  sundials_base.hpp
   sundials_band.h
+  sundials_base.hpp
   sundials_context.h
   sundials_context.hpp
   sundials_convertibleto.hpp
   sundials_dense.h
   sundials_direct.h
+  sundials_errors.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_linearsolver.hpp
+  sundials_logger.h
   sundials_math.h
   sundials_matrix.h
   sundials_matrix.hpp
@@ -41,9 +43,10 @@ set(sundials_HEADERS
   sundials_nvector.h
   sundials_nvector.hpp
   sundials_profiler.h
-  sundials_logger.h
   sundials_types.h
   sundials_version.h
+  sundials.h
+  sundials.hpp
   )
 
 if(BUILD_FORTRAN_MODULE_INTERFACE)
@@ -80,6 +83,7 @@ set(sundials_SOURCES
   sundials_context.c
   sundials_dense.c
   sundials_direct.c
+  sundials_errors.c
   sundials_iterative.c
   sundials_linearsolver.c
   sundials_logger.c
@@ -87,8 +91,8 @@ set(sundials_SOURCES
   sundials_matrix.c
   sundials_memory.c
   sundials_nonlinearsolver.c
-  sundials_nvector.c
   sundials_nvector_senswrapper.c
+  sundials_nvector.c
   sundials_version.c
   )
 

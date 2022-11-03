@@ -166,7 +166,7 @@ int cvLsFree(CVodeMem cv_mem);
 
 /* Auxilliary functions */
 int cvLsInitializeCounters(CVLsMem cvls_mem);
-int cvLs_AccessLMem(void* cvode_mem, const char* fname,
+int cvLs_AccessLMem(void* cvode_mem, int line, const char* fname,
                     CVodeMem* cv_mem, CVLsMem* cvls_mem);
 
 

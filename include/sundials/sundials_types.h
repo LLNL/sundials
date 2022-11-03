@@ -73,6 +73,8 @@ extern "C" {
 #define _SUNDIALS_STRUCT_ struct
 #endif
 
+typedef void* SUNMPIComm;
+
 /*
  *------------------------------------------------------------------
  * Type sunrealtype
@@ -178,7 +180,7 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
 
 /*
  *------------------------------------------------------------------
- * Type : sunoutputformat
+ * Type : SUNOutputFormat
  *------------------------------------------------------------------
  * Constants for different output formats
  *------------------------------------------------------------------
@@ -188,6 +190,17 @@ typedef enum {
   SUN_OUTPUTFORMAT_TABLE,
   SUN_OUTPUTFORMAT_CSV
 } SUNOutputFormat;
+
+
+/*
+ *------------------------------------------------------------------
+ * Type : SUNErrCode
+ *------------------------------------------------------------------
+ * Error code type
+ *------------------------------------------------------------------
+ */
+
+typedef int SUNErrCode;
 
 #ifdef __cplusplus
 }

@@ -861,9 +861,8 @@ int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
   HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKODE
   ===============================================================*/
 
-void arkProcessError(ARKodeMem ark_mem, int error_code,
-                     const char *module, const char *fname,
-                     const char *msgfmt, ...);
+void arkProcessError(ARKodeMem ark_mem, int error_code, int line, const char *func,
+                     const char* file, const char *msgfmt, ...);
 
 /*===============================================================
   ARKODE PRIVATE FUNCTION PROTOTYPES

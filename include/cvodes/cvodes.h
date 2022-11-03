@@ -18,9 +18,7 @@
 #define _CVODES_H
 
 #include <stdio.h>
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_nonlinearsolver.h>
+#include <sundials/sundials.h>
 #include <cvodes/cvodes_ls.h>
 #include <cvodes/cvodes_proj.h>
 
@@ -115,6 +113,11 @@ extern "C" {
 #define CV_PROJFUNC_FAIL        -57
 #define CV_REPTD_PROJFUNC_ERR   -58
 
+#define CV_BAD_TINTERP          -59
+#define CV_SUNMAT_FAIL          -60
+#define CV_BBD_JAC_FAIL         -61
+
+#define CV_GENERIC_ERR          -98
 #define CV_UNRECOGNIZED_ERR     -99
 
 /* adjoint return values */

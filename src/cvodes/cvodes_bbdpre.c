@@ -82,24 +82,21 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   int flag;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVLS_MEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_NULL);
+    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the CVSLS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_LMEM_NULL);
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_LMEM_NULL);
     return(CVLS_LMEM_NULL);
   }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
-    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_BAD_NVECTOR);
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__, MSGBBD_BAD_NVECTOR);
     return(CVLS_ILL_INPUT);
   }
 
@@ -107,8 +104,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata = NULL;
   pdata = (CVBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
 
@@ -127,8 +123,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, cv_mem->cv_sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
 
@@ -139,8 +134,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
 
@@ -151,8 +145,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
   pdata->rlocal = NULL;
@@ -162,8 +155,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp1 = NULL;
@@ -174,8 +166,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
@@ -187,8 +178,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp3 = NULL;
@@ -201,8 +191,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
 
@@ -218,8 +207,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
 
@@ -235,8 +223,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     SUNLinSolFree(pdata->LS);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInit", MSGBBD_SUNLS_FAIL);
+    cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNLS_FAIL);
     return(CVLS_SUNLS_FAIL);
   }
 
@@ -303,24 +290,21 @@ int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq,
   sunindextype Nlocal;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVLS_MEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecReInit", MSGBBD_MEM_NULL);
+    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the LS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecReInit", MSGBBD_LMEM_NULL);
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_LMEM_NULL);
     return(CVLS_LMEM_NULL);
   }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* Test if the preconditioner data is non-NULL */
   if (cvls_mem->P_data == NULL) {
-    cvProcessError(cv_mem, CVLS_PMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecReInit", MSGBBD_PMEM_NULL);
+    cvProcessError(cv_mem, CVLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_PMEM_NULL);
     return(CVLS_PMEM_NULL);
   }
   pdata = (CVBBDPrecData) cvls_mem->P_data;
@@ -350,22 +334,19 @@ int CVBBDPrecGetWorkSpace(void *cvode_mem,
   CVBBDPrecData pdata;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVLS_MEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
+    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_LMEM_NULL);
     return(CVLS_LMEM_NULL);
   }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   if (cvls_mem->P_data == NULL) {
-    cvProcessError(cv_mem, CVLS_PMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
+    cvProcessError(cv_mem, CVLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_PMEM_NULL);
     return(CVLS_PMEM_NULL);
   }
   pdata = (CVBBDPrecData) cvls_mem->P_data;
@@ -385,22 +366,19 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
   CVBBDPrecData pdata;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVLS_MEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
+    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_LMEM_NULL);
     return(CVLS_LMEM_NULL);
   }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   if (cvls_mem->P_data == NULL) {
-    cvProcessError(cv_mem, CVLS_PMEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
+    cvProcessError(cv_mem, CVLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_PMEM_NULL);
     return(CVLS_PMEM_NULL);
   }
   pdata = (CVBBDPrecData) cvls_mem->P_data;
@@ -473,8 +451,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      cvProcessError(cv_mem, -1, "CVBBDPRE",
-                     "CVBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
       return(-1);
     }
     if (retval > 0) {
@@ -487,8 +464,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
-      cvProcessError(cv_mem, -1, "CVBBDPRE",
-                     "CVBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
       return(-1);
     }
     if (retval > 0) {
@@ -498,7 +474,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     retval = cvBBDDQJac(pdata, t, y, pdata->tmp1,
                         pdata->tmp2, pdata->tmp3);
     if (retval < 0) {
-      cvProcessError(cv_mem, -1, "CVBBDPRE", "CVBBDPrecSetup",
+      cvProcessError(cv_mem, CV_BBD_JAC_FAIL, __LINE__, __func__, __FILE__,
                      MSGBBD_FUNC_FAILED);
       return(-1);
     }
@@ -508,8 +484,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      cvProcessError(cv_mem, -1, "CVBBDPRE",
-                     "CVBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
       return(-1);
     }
     if (retval > 0) {
@@ -521,8 +496,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
   if (retval) {
-    cvProcessError(cv_mem, -1, "CVBBDPRE",
-                   "CVBBDPrecSetup", MSGBBD_SUNMAT_FAIL);
+    cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
     return(-1);
   }
 
@@ -737,24 +711,21 @@ int CVBBDPrecInitB(void *cvode_mem, int which, sunindextype NlocalB,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVLS_MEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecInitB", MSGBBD_MEM_NULL);
+    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
-    cvProcessError(cv_mem, CVLS_NO_ADJ, "CVSBBDPRE",
-                   "CVBBDPrecInitB", MSGBBD_NO_ADJ);
+    cvProcessError(cv_mem, CVLS_NO_ADJ, __LINE__, __func__, __FILE__, MSGBBD_NO_ADJ);
     return(CVLS_NO_ADJ);
   }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSBBDPRE",
-                   "CVBBDPrecInitB", MSGBBD_BAD_WHICH);
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__, MSGBBD_BAD_WHICH);
     return(CVLS_ILL_INPUT);
   }
 
@@ -778,8 +749,7 @@ int CVBBDPrecInitB(void *cvode_mem, int which, sunindextype NlocalB,
   cvbbdB_mem = NULL;
   cvbbdB_mem = (CVBBDPrecDataB) malloc(sizeof(* cvbbdB_mem));
   if (cvbbdB_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSBBDPRE",
-                   "CVBBDPrecInitB", MSGBBD_MEM_FAIL);
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
 
@@ -806,24 +776,21 @@ int CVBBDPrecReInitB(void *cvode_mem, int which, sunindextype mudqB,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVLS_MEM_NULL, "CVSBBDPRE",
-                   "CVBBDPrecReInitB", MSGBBD_MEM_NULL);
+    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
-    cvProcessError(cv_mem, CVLS_NO_ADJ, "CVSBBDPRE",
-                   "CVBBDPrecReInitB", MSGBBD_NO_ADJ);
+    cvProcessError(cv_mem, CVLS_NO_ADJ, __LINE__, __func__, __FILE__, MSGBBD_NO_ADJ);
     return(CVLS_NO_ADJ);
   }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSBBDPRE",
-                   "CVBBDPrecReInitB", MSGBBD_BAD_WHICH);
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__, MSGBBD_BAD_WHICH);
     return(CVLS_ILL_INPUT);
   }
 
@@ -873,7 +840,7 @@ static int cvGlocWrapper(sunindextype NlocalB, realtype t, N_Vector yB,
   /* Get forward solution from interpolation */
   flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (flag != CV_SUCCESS) {
-    cvProcessError(cv_mem, -1, "CVSBBDPRE", "cvGlocWrapper",
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSGBBD_BAD_TINTERP);
     return(-1);
   }
@@ -903,7 +870,7 @@ static int cvCfnWrapper(sunindextype NlocalB, realtype t,
   /* Get forward solution from interpolation */
   flag = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (flag != CV_SUCCESS) {
-    cvProcessError(cv_mem, -1, "CVSBBDPRE", "cvCfnWrapper",
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSGBBD_BAD_TINTERP);
     return(-1);
   }

@@ -123,6 +123,11 @@ int main(int argc, char *argv[])
   retval = SUNContext_Create((void*) &comm, &sunctx);
   if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
+  /* Setup different error handler stack so that we abort after logging */
+  SUNContext_PopErrHandler(sunctx);
+  SUNContext_PushErrHandler(sunctx, SUNMPIAbortErrHandlerFn, NULL);
+  SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
+
   /* This requires that SUNDIALS was configured with the CMake options
        SUNDIALS_LOGGING_LEVEL=n
     where n is one of:

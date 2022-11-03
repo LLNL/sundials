@@ -44,8 +44,7 @@ int arkSetDefaults(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetDefaults", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -65,7 +64,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->user_rfun               = SUNFALSE;       /* no user-supplied rwt function */
   ark_mem->rfun                    = arkRwtSet;      /* built-in rwt function */
   ark_mem->r_data                  = ark_mem;        /* rwt function data */
-  ark_mem->ehfun                   = arkErrHandler;  /* default error handler fn */
+  ark_mem->ehfun                   = NULL; 
   ark_mem->eh_data                 = ark_mem;        /* error handler data */
   ark_mem->errfp                   = stderr;         /* output stream for errors */
 #if SUNDIALS_LOGGING_LEVEL > 0
@@ -126,24 +125,21 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetInterpolantType", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* check for legal itype input */
   if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetInterpolantType",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Illegal interpolation type input.");
     return(ARK_ILL_INPUT);
   }
 
   /* do not change type once the module has been initialized */
   if (ark_mem->initialized) {
-    arkProcessError(ark_mem, ARK_INTERP_FAIL, "ARKODE",
-                    "arkSetInterpolantType",
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
                     "Type cannot be specified after module initialization.");
     return(ARK_ILL_INPUT);
   }
@@ -162,7 +158,7 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
     ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
   }
   if (ark_mem->interp == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetInterpolantType",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to allocate interpolation structure");
     return(ARK_MEM_FAIL);
   }
@@ -189,23 +185,20 @@ int arkSetInterpolantDegree(void *arkode_mem, int degree)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetInterpolantDegree", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   if (ark_mem->interp == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE",
-                    "arkSetInterpolantDegree",
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     "Interpolation module is not yet allocated");
     return(ARK_MEM_NULL);
   }
 
   /* do not change degree once the module has been initialized */
   if (ark_mem->initialized) {
-    arkProcessError(ark_mem, ARK_INTERP_FAIL, "ARKODE",
-                    "arkSetInterpolantType",
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
                     "Degree cannot be specified after module initialization.");
     return(ARK_ILL_INPUT);
   }
@@ -225,15 +218,14 @@ int arkSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetErrHandlerFn", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* set user-provided values, or defaults, depending on argument */
   if (ehfun == NULL) {
-    ark_mem->ehfun   = arkErrHandler;
+    ark_mem->ehfun   = NULL;
     ark_mem->eh_data = ark_mem;
   } else {
     ark_mem->ehfun   = ehfun;
@@ -253,8 +245,7 @@ int arkSetErrFile(void *arkode_mem, FILE *errfp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetErrFile", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -272,8 +263,7 @@ int arkSetUserData(void *arkode_mem, void *user_data)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetUserData", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -309,8 +299,7 @@ int arkSetDiagnostics(void *arkode_mem, FILE *diagfp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetDiagnostics", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -334,8 +323,7 @@ int arkSetMaxNumSteps(void *arkode_mem, long int mxsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxNumSteps", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -359,8 +347,7 @@ int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxHnilWarns", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -385,8 +372,7 @@ int arkSetInitStep(void *arkode_mem, realtype hin)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetInitStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -420,8 +406,7 @@ int arkSetMinStep(void *arkode_mem, realtype hmin)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMinStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -434,8 +419,7 @@ int arkSetMinStep(void *arkode_mem, realtype hmin)
 
   /* check that hmin and hmax are agreeable */
   if (hmin * ark_mem->hmax_inv > ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetMinStep", MSG_ARK_BAD_HMIN_HMAX);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_HMIN_HMAX);
     return(ARK_ILL_INPUT);
   }
 
@@ -456,8 +440,7 @@ int arkSetMaxStep(void *arkode_mem, realtype hmax)
   realtype hmax_inv;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -471,8 +454,7 @@ int arkSetMaxStep(void *arkode_mem, realtype hmax)
   /* check that hmax and hmin are agreeable */
   hmax_inv = ONE/hmax;
   if (hmax_inv * ark_mem->hmin > ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetMaxStep", MSG_ARK_BAD_HMIN_HMAX);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_HMIN_HMAX);
     return(ARK_ILL_INPUT);
   }
 
@@ -492,8 +474,7 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetStopTime", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -504,8 +485,7 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
      tstop will be checked in ARKODE. */
   if (ark_mem->nst > 0) {
     if ( (tstop - ark_mem->tcur) * ark_mem->h < ZERO ) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                      "arkSetStopTime", MSG_ARK_BAD_TSTOP,
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_TSTOP,
                       tstop, ark_mem->tcur);
       return(ARK_ILL_INPUT);
     }
@@ -558,8 +538,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetFixedStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -598,21 +577,18 @@ int arkSetRootDirection(void *arkode_mem, int *rootdir)
   int i;
 
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetRootDirection", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE",
-                    "arkSetRootDirection", MSG_ARK_NO_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
 
   if (ark_root_mem->nrtfn == 0) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetRootDirection", MSG_ARK_NO_ROOT);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_NO_ROOT);
     return(ARK_ILL_INPUT);
   }
   for(i=0; i<ark_root_mem->nrtfn; i++)
@@ -632,14 +608,12 @@ int arkSetNoInactiveRootWarn(void *arkode_mem)
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetNoInactiveRootWarn", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE",
-                    "arkSetNoInactiveRootWarn", MSG_ARK_NO_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
@@ -664,8 +638,7 @@ int arkSetPostprocessStepFn(void *arkode_mem,
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetPostprocessStepFn", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -701,8 +674,7 @@ int arkSetPostprocessStageFn(void *arkode_mem,
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetPostprocessStageFn", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -724,8 +696,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
   realtype temptest;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetConstraints", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -743,16 +714,14 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
       constraints->ops->nvcompare     == NULL ||
       constraints->ops->nvconstrmask  == NULL ||
       constraints->ops->nvminquotient == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
-                    "ARKStepSetConstraints", MSG_ARK_BAD_NVECTOR);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_NVECTOR);
     return(ARK_ILL_INPUT);
   }
 
   /* Check the constraints vector */
   temptest = N_VMaxNorm(constraints);
   if ((temptest > RCONST(2.5)) || (temptest < HALF)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
-                    "ARKStepSetConstraints", MSG_ARK_BAD_CONSTR);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_CONSTR);
     return(ARK_ILL_INPUT);
   }
 
@@ -778,8 +747,7 @@ int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxNumConstrFails", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -813,8 +781,7 @@ int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 
   /* check for allowable parameters */
   if (cfl_frac >= ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetCFLFraction", "Illegal CFL fraction");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, "Illegal CFL fraction");
     return(ARK_ILL_INPUT);
   }
 
@@ -848,8 +815,7 @@ int arkSetSafetyFactor(void *arkode_mem, realtype safety)
 
   /* check for allowable parameters */
   if (safety >= ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetSafetyFactor", "Illegal safety factor");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, "Illegal safety factor");
     return(ARK_ILL_INPUT);
   }
 
@@ -995,8 +961,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
 
   /* check for allowable parameters */
   if ((imethod > ARK_ADAPT_IMEX_GUS) || (imethod < ARK_ADAPT_PID)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetAdaptivityMethod", "Illegal imethod");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, "Illegal imethod");
     return(ARK_ILL_INPUT);
   }
 
@@ -1216,8 +1181,7 @@ int arkSetMaxErrTestFails(void *arkode_mem, int maxnef)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxErrTestFails", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1243,8 +1207,7 @@ int arkSetMaxConvFails(void *arkode_mem, int maxncf)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxConvFails", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1273,8 +1236,7 @@ int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumStepAttempts", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1293,8 +1255,7 @@ int arkGetNumSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumSteps", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1313,8 +1274,7 @@ int arkGetActualInitStep(void *arkode_mem, realtype *hinused)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetActualInitStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1333,8 +1293,7 @@ int arkGetLastStep(void *arkode_mem, realtype *hlast)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetLastStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1353,8 +1312,7 @@ int arkGetCurrentStep(void *arkode_mem, realtype *hcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetCurrentStep", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1374,8 +1332,7 @@ int arkGetCurrentState(void *arkode_mem, N_Vector *state)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetCurrentState", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1394,8 +1351,7 @@ int arkGetCurrentTime(void *arkode_mem, realtype *tcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetCurrentTime", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1414,8 +1370,7 @@ int arkGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetTolScaleFactor", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1434,8 +1389,7 @@ int arkGetErrWeights(void *arkode_mem, N_Vector eweight)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetErrWeights", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1454,8 +1408,7 @@ int arkGetResWeights(void *arkode_mem, N_Vector rweight)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetResWeights", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1474,8 +1427,7 @@ int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetWorkSpace", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1496,14 +1448,12 @@ int arkGetNumGEvals(void *arkode_mem, long int *ngevals)
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumGEvals", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumGEvals", MSG_ARK_NO_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
@@ -1523,14 +1473,12 @@ int arkGetRootInfo(void *arkode_mem, int *rootsfound)
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetRootInfo", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE",
-                    "arkGetRootInfo", MSG_ARK_NO_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
@@ -1551,8 +1499,7 @@ int arkGetStepStats(void *arkode_mem, long int *nsteps,
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetStepStats", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1575,8 +1522,7 @@ int arkGetNumConstrFails(void *arkode_mem, long int *nconstrfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumConstrFails", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1595,8 +1541,7 @@ int arkGetNumExpSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumExpSteps", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1615,8 +1560,7 @@ int arkGetNumAccSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumAccSteps", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1635,8 +1579,7 @@ int arkGetNumErrTestFails(void *arkode_mem, long int *netfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumErrTestFails", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1656,8 +1599,7 @@ int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumStepSolveFails", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1676,8 +1618,7 @@ int arkGetUserData(void *arkode_mem, void** user_data)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetUserData", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1700,8 +1641,7 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
   ARKodeRootMem ark_root_mem;
 
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkPrintAllStats", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -1745,7 +1685,7 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     }
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkPrintAllStats",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
     return(ARK_ILL_INPUT);
   }
@@ -1894,8 +1834,7 @@ char *arkGetReturnFlagName(long int flag)
 int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 {
   if (ark_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkWriteParameters", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
 
@@ -1982,8 +1921,7 @@ int arkSetForcePass(void *arkode_mem, booleantype force_pass)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetForcePass", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -2003,8 +1941,7 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetLastKFlag", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;

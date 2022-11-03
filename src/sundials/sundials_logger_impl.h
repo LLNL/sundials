@@ -52,10 +52,10 @@ struct SUNLogger_ {
   void* content;
 
   /* Overridable operations */
-  int (*queuemsg)(SUNLogger logger, SUNLogLevel lvl, const char* scope,
+  SUNErrCode (*queuemsg)(SUNLogger logger, SUNLogLevel lvl, const char* scope,
                   const char* label, const char* msg_txt, va_list args);
-  int (*flush)(SUNLogger logger, SUNLogLevel lvl);
-  int (*destroy)(SUNLogger* logger);
+  SUNErrCode (*flush)(SUNLogger logger, SUNLogLevel lvl);
+  SUNErrCode (*destroy)(SUNLogger* logger);
 };
 
 #endif /* _SUNDIALS_LOGGER_IMPL_H */

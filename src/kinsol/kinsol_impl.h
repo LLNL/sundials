@@ -398,9 +398,8 @@ typedef struct KINMemRec {
 
 /* High level error handler */
 
-void KINProcessError(KINMem kin_mem,
-                     int error_code, const char *module, const char *fname,
-                     const char *msgfmt, ...);
+void KINProcessError(KINMem kin_mem, int error_code, int line, const char *func,
+                     const char* file, const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
