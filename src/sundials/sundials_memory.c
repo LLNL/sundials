@@ -208,7 +208,11 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
 {
   if (!helper->ops->clone)
   {
-    if (helper->content) { /*TODO(CJB): should we set last error here? */ return (NULL); }
+    if (helper->content)
+    { 
+      SUNError(SUN_ERR_NOT_IMPLEMENTED, helper->sunctx);
+      return (NULL); 
+    }
     else
     {
       SUNMemoryHelper hclone = SUNMemoryHelper_NewEmpty(helper->sunctx);

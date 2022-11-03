@@ -43,8 +43,10 @@ extern "C" {
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_Create(void *comm, SUNContext *ctx);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode *last_err);
+
 SUNDIALS_EXPORT
 struct SUNErrHandler_ *SUNContext_PushErrHandler(
     SUNContext sunctx,
@@ -52,16 +54,22 @@ struct SUNErrHandler_ *SUNContext_PushErrHandler(
                   SUNErrCode err_code, void *err_user_data,
                   struct SUNContext_ *sunctx),
     void *err_user_data);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler *profiler);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger *logger);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_Free(SUNContext *ctx);
 
