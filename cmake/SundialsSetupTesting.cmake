@@ -71,6 +71,58 @@ if(SUNDIALS_TEST_DEVTESTS)
     message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
   endif()
 
+  #
+  # Target to run tests in CI containers
+  #
+  sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH "Path to docker or podman" "")
+  sundials_option(SUNDIALS_TEST_CONTAINER_MNT STRING "Path to project root inside the container" "/sundials")
+
+  if(NOT SUNDIALS_TEST_CONTAINER_EXE)
+    find_program(container_exe docker)
+    if(NOT container_exe)
+      find_program(container_exe podman)
+    endif()
+    set(SUNDIALS_TEST_CONTAINER_EXE ${container_exe} CACHE PATH "Path to docker or podman" FORCE)
+  endif()
+
+  if(SUNDIALS_TEST_CONTAINER_EXE)
+    add_custom_target(setup_local_ci 
+      ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+      "Pulled SUNDIALS CI containers.")
+
+    add_custom_target(test_local_ci
+      ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+      "All testing with SUNDIALS CI containers complete.")
+
+    macro(add_local_ci_target index_size precision tag)
+      string(TOLOWER "${precision}" precision_)
+      set(container sundials-ci-int${index_size}-${precision_})
+      set(container_exe_args run --tls-verify=false -t -d --name ${container} --cap-add SYS_PTRACE 
+          -v ${CMAKE_SOURCE_DIR}:${SUNDIALS_TEST_CONTAINER_MNT} ghcr.io/llnl/${container}:${tag})
+      add_custom_target(setup_local_ci_${index_size}_${precision_}
+        COMMENT "Pulling SUNDIALS CI container ghcr.io/llnl/${container}:${tag}"
+        COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args})
+      add_dependencies(setup_local_ci setup_local_ci_${index_size}_${precision_})
+
+      set(container_test_exe ./test_driver.sh)
+      set(container_test_exe_args --testtype CUSTOM --env env/docker.sh --tpls --realtype ${precision_} --indexsize ${index_size})
+      set(container_exe_args exec -w ${SUNDIALS_TEST_CONTAINER_MNT}/test ${container} ${container_test_exe} ${container_test_exe_args})
+      add_custom_target(test_local_ci_${index_size}_${precision_}
+        COMMENT "Running tests in CI container ${container}:${tag}"
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
+        VERBATIM)
+      add_dependencies(test_local_ci test_local_ci_${index_size}_${precision_})
+
+      unset(container)
+      unset(container_exe_args)
+      unset(container_test_exe)
+      unset(container_test_exe_args)
+    endmacro()
+
+    add_local_ci_target(${SUNDIALS_INDEX_SIZE} ${SUNDIALS_PRECISION} latest)
+  endif()
+
 endif()
 
 # Check if unit tests are enabled
