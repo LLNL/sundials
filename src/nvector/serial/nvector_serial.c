@@ -40,13 +40,13 @@ static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y);                  /
 static void VScaleBy_Serial(realtype a, N_Vector x);                           /* x <- ax   */
 
 /* Private functions for special cases of vector array operations */
-static int VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
-static int VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
-static int VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
-static int VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
-static int VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
-static int VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
-static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                    /* Y <- aX+Y */
+static SUNErrCode VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
+static SUNErrCode VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
+static SUNErrCode VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
+static SUNErrCode VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
+static SUNErrCode VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
+static SUNErrCode VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
+static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                    /* Y <- aX+Y */
 
 /*
  * -----------------------------------------------------------------

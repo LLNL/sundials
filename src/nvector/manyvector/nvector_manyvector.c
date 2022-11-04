@@ -181,7 +181,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 
   /* duplicate input communicator (if non-NULL) */
   if (comm != MPI_COMM_NULL) {
-    SUNMPIAssert(MPI_Comm_dup(comm, &(content->comm)) == MPI_SUCCESS, SUN_ERR_MPI_FAIL, sunctx);
+    SUNCheckMPICall(MPI_Comm_dup(comm, &(content->comm)), sunctx);
   }
 
   /* Determine overall MPIManyVector length: sum contributions from all
@@ -198,9 +198,9 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
     if (rank == 0) local_length += N_VGetLength(vec_array[i]);
   }
   if (content->comm != MPI_COMM_NULL) {
-    SUNMPIAssert(MPI_Allreduce(&local_length, &(content->global_length), 1,
-                               MPI_SUNINDEXTYPE, MPI_SUM, content->comm) == MPI_SUCCESS, 
-                 SUN_ERR_MPI_FAIL, sunctx);
+    SUNCheckMPICall(MPI_Allreduce(&local_length, &(content->global_length), 1,
+                                  MPI_SUNINDEXTYPE, MPI_SUM, content->comm), 
+                    sunctx);
   } else {
     content->global_length = local_length;
   }
@@ -243,7 +243,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
     if (nocommfound) {
 
       /* set comm to duplicate this first subvector communicator */
-      SUNMPIAssert(MPI_Comm_dup(*vcomm, &comm) == MPI_SUCCESS, SUN_ERR_MPI_FAIL, sunctx);
+      SUNCheckMPICall(MPI_Comm_dup(*vcomm, &comm), sunctx);
       nocommfound = SUNFALSE;
 
     /* otherwise, verify that vcomm matches stored comm */
@@ -450,7 +450,6 @@ void MVAPPEND(N_VPrint)(N_Vector x)
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
     N_VPrint(MANYVECTOR_SUBVEC(x,i));
-    SUNCheckLastErr(x->sunctx);
   }
   
   return;
@@ -462,7 +461,6 @@ void MVAPPEND(N_VPrintFile)(N_Vector x, FILE* outfile)
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
     N_VPrintFile(MANYVECTOR_SUBVEC(x,i), outfile);
-    SUNCheckLastErr(x->sunctx);
   }
   return;
 }

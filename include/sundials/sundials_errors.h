@@ -319,6 +319,19 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNMPIAssert(expr, code, sunctx)
 #endif
 
+/* TODO(CJB): the error code scheme used isnt yet properly handled by
+  SUNHandleErr Also, should these be asserts? */
+#define SUNCheckMPICall(call, sunctx)                                      \
+  do {                                                                     \
+    int sun_chk_mpi_call_err_code_ = call;                                 \
+    if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                         \
+    {                                                                      \
+      SUNHandleErr(__LINE__, __func__, __FILE__,                           \
+                   SUN_ERR_MPI_FAIL + sun_chk_mpi_call_err_code_, sunctx); \
+    }                                                                      \
+  }                                                                        \
+  while (0);
+
 /* Ensure SUNContext is not NULL by trying to access the last_err member.
    This purposely causes a segmentation fault if the context is NULL so
    that the error occurs on the correct line in the correct file.  */

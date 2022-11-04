@@ -37,5 +37,5 @@ TEST_F(SUNErrHandlerTest, SUNAssertErrHandlerFnAbortsWhenCalled) {
         SUNAssertErrHandlerFn(__LINE__, __func__, __FILE__,
                               "Test assert handler", -1, nullptr, sunctx);
       },
-      "SUNAssertErrHandler: assertion failed... terminating\n");
+      "SUNAssertErrHandler: assert(.*) failed... terminating\n");
 }

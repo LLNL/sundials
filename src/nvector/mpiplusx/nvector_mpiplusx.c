@@ -16,9 +16,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/sundials.h>
 #include <nvector/nvector_mpimanyvector.h>
 #include <nvector/nvector_mpiplusx.h>
-#include <sundials/sundials_math.h>
 
 #define MPIPLUSX_LOCAL_VECTOR(v) ( N_VGetSubvector_MPIManyVector(v, 0) )
 
@@ -48,25 +48,10 @@ N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X, SUNContext sunctx)
   return v;
 }
 
-N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v)
-{
-  return SUNDIALS_NVEC_MPIPLUSX;
-}
-
-realtype* N_VGetArrayPointer_MPIPlusX(N_Vector v)
-{
-  return N_VGetSubvectorArrayPointer_MPIManyVector(v, 0);
-}
-
-void N_VSetArrayPointer_MPIPlusX(realtype *vdata, N_Vector v)
-{
-  N_VSetSubvectorArrayPointer_MPIManyVector(vdata, v, 0);
-}
-
 void N_VPrint_MPIPlusX(N_Vector v)
 {
   N_Vector x = MPIPLUSX_LOCAL_VECTOR(v);
-  if (x->ops->nvprint)
+  if (x->ops->nvprint) 
     x->ops->nvprint(x);
 }
 
@@ -75,14 +60,4 @@ void N_VPrintFile_MPIPlusX(N_Vector v, FILE *outfile)
   N_Vector x = MPIPLUSX_LOCAL_VECTOR(v);
   if (x->ops->nvprintfile)
     x->ops->nvprintfile(x, outfile);
-}
-
-N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
-{
-  return MPIPLUSX_LOCAL_VECTOR(v);
-}
-
-sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
-{
-  return N_VGetLength(MPIPLUSX_LOCAL_VECTOR(v));
 }
