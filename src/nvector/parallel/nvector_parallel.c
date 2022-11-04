@@ -1363,7 +1363,7 @@ SUNErrCode N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, r
 SUNErrCode N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, realtype* nrm)
 {
-  int          i, retval;
+  int          i;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
   realtype*    xd=NULL;

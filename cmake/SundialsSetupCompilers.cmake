@@ -210,15 +210,12 @@ check_c_source_compiles("
 
 # ---------------------------------------------------------------
 # Check for POSIX timers
-#
-# 199309L is the minimum POSIX version needed for struct timespec
-# and clock_monotonic()
 # ---------------------------------------------------------------
 include(SundialsPOSIXTimers)
 
 if(SUNDIALS_POSIX_TIMERS AND POSIX_TIMERS_NEED_POSIX_C_SOURCE)
   set(DOCSTR "Value of _POSIX_C_SOURCE")
-  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "199309L"
+  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "200112L"
                   ADVANCED)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_POSIX_C_SOURCE=${SUNDIALS_POSIX_C_SOURCE}")
 endif()

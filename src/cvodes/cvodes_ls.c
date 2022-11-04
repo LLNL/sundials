@@ -142,15 +142,17 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
   /* Return immediately if either cvode_mem or LS inputs are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSG_LS_CVMEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSG_LS_CVMEM_NULL);
     return(CVLS_MEM_NULL);
   }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
   if (LS == NULL) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "LS must be non-NULL");
     return(CVLS_ILL_INPUT);
   }
-  cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if solver is compatible with LS interface */
   if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
@@ -1095,7 +1097,7 @@ int cvLsDQJac(realtype t, N_Vector y, N_Vector fy,
 
   /* access CVodeMem structure */
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSG_LS_CVMEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSG_LS_CVMEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -2004,7 +2006,7 @@ int CVodeSetLinearSolverB(void *cvode_mem, int which,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSG_LS_CVMEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSG_LS_CVMEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;

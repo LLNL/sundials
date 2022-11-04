@@ -79,7 +79,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   N_Vector v;
   N_VectorContent_MPIManyVector content;
   sunindextype i, local_length;
-  int rank, retval;
+  int rank;
 
   SUNAssertContext(sunctx);
 
@@ -225,7 +225,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
   booleantype nocommfound;
   void* tmpcomm;
   MPI_Comm comm, *vcomm;
-  int retval, comparison;
+  int comparison;
   N_Vector v = NULL;
 
   /* Check that all subvectors have identical MPI communicators (if present) */
@@ -249,7 +249,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
     /* otherwise, verify that vcomm matches stored comm */
     } else {
 
-      retval = MPI_Comm_compare(*vcomm, comm, &comparison);
+      SUNCheckMPICall(MPI_Comm_compare(*vcomm, comm, &comparison), sunctx);
       SUNMPIAssert((comparison != MPI_IDENT) && (comparison != MPI_CONGRUENT),
                     SUN_ERR_MANYVECTOR_COMMNOTSAME, sunctx);
 
@@ -1316,7 +1316,6 @@ realtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
 SUNErrCode MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
                                           realtype* dotprods)
 {
-  SUNErrCode err;
   int          j;
   sunindextype i;
   N_Vector*    Ysub;
@@ -1389,7 +1388,6 @@ SUNErrCode N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x, re
 SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
   sunindextype i, j;
-  int retval;
   N_Vector *Xsub;
 
   /* create array of nvec N_Vector pointers for reuse within loop */
@@ -1428,7 +1426,6 @@ SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, realtype* c, N_Vector* X, N_
 SUNErrCode MVAPPEND(N_VScaleAddMulti)(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
   sunindextype i, j;
-  int retval;
   N_Vector *Ysub, *Zsub;
 
   /* create arrays of nvec N_Vector pointers for reuse within loop */
@@ -1508,7 +1505,6 @@ SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, realtype a,
                                       N_Vector *Y, N_Vector *Z)
 {
   sunindextype i, j;
-  int retval;
   N_Vector *Xsub, *Ysub, *Zsub;
 
   MVASSERT(nvec > 0, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
@@ -1559,7 +1555,6 @@ SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, realtype a,
 SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
   sunindextype i, j;
-  int retval;
   N_Vector *Xsub, *Zsub;
 
   MVASSERT(nvec > 0, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
@@ -1604,7 +1599,6 @@ SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, realtype* c, N_Vector* X, N_V
 SUNErrCode MVAPPEND(N_VConstVectorArray)(int nvec, realtype c, N_Vector* Z)
 {
   sunindextype i, j;
-  int retval;
   N_Vector *Zsub;
 
   MVASSERT(nvec > 0, SUN_ERR_ARG_OUTOFRANGE, Z[0]->sunctx);

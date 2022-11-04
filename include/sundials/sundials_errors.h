@@ -17,8 +17,8 @@
 #define _SUNDIALS_ERRORS_H
 
 #include <assert.h>
-#include <stdarg.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_logger.h>
@@ -160,12 +160,13 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                                          const char* file, const char* msgfmt,
                                          SUNErrCode code, SUNContext sunctx, ...)
 {
-  int msglen;
+  size_t msglen;
   char* msg;
   va_list values;
   va_start(values, sunctx);
-  msglen = vsnprintf(NULL, 0, msgfmt, values); /* determine size of buffer needed */
-  msg    = (char*)malloc(msglen);
+  msglen = vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size of
+                                                          buffer needed */
+  msg = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, values);
   SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
   va_end(values);

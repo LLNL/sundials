@@ -19,9 +19,9 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
-/* Minimum POSIX version needed for struct timespec and clock_monotonic */
-#if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 199309L)
-#define _POSIX_C_SOURCE 199309L
+/* TODO(CJB): we wont need to do any _POSIX_C_SOURCE stuff if we use C99 */
+#if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 200112L)
+#define _POSIX_C_SOURCE 200112L
 #endif
 
 #include <sundials/sundials_config.h>

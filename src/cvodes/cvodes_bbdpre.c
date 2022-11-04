@@ -82,7 +82,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   int flag;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -290,7 +290,7 @@ int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq,
   sunindextype Nlocal;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -334,7 +334,7 @@ int CVBBDPrecGetWorkSpace(void *cvode_mem,
   CVBBDPrecData pdata;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -366,7 +366,7 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
   CVBBDPrecData pdata;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -711,7 +711,7 @@ int CVBBDPrecInitB(void *cvode_mem, int which, sunindextype NlocalB,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -776,7 +776,7 @@ int CVBBDPrecReInitB(void *cvode_mem, int which, sunindextype mudqB,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;

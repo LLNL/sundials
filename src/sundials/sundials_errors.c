@@ -32,7 +32,7 @@ SUNErrHandler SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data)
   eh->call         = eh_fn;
   eh->data         = eh_data;
   return eh;
-};
+}
 
 void SUNErrHandler_Destroy(SUNErrHandler eh)
 {

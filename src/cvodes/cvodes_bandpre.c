@@ -71,7 +71,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   int flag;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -201,7 +201,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   int flag;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -256,7 +256,7 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
   CVBandPrecData pdata;
 
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -564,7 +564,7 @@ int CVBandPrecInitB(void *cvode_mem, int which, sunindextype nB,
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(cv_mem, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__, MSGBP_MEM_NULL);
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;

@@ -134,7 +134,6 @@ SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
 SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger)
 {
   /* get logger */
-  fprintf(stderr, "%p", sunctx->logger);
   *logger = sunctx->logger;
   return SUN_SUCCESS;
 }
