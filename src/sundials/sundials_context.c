@@ -56,14 +56,14 @@ SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
   if (SUNLogger_Create(NULL, 0, &logger)) {
     return SUN_ERR_LOGGER_CORRUPT;
   }
-  SUNCheckCallReturn(SUNLogger_SetErrorFilename(logger, ""), *sunctx);
-  SUNCheckCallReturn(SUNLogger_SetWarningFilename(logger, ""), *sunctx);
-  SUNCheckCallReturn(SUNLogger_SetInfoFilename(logger, ""), *sunctx);
-  SUNCheckCallReturn(SUNLogger_SetDebugFilename(logger, ""), *sunctx);
+  SUNCheckCallReturn(SUNLogger_SetErrorFilename(logger, ""), sunctx);
+  SUNCheckCallReturn(SUNLogger_SetWarningFilename(logger, ""), sunctx);
+  SUNCheckCallReturn(SUNLogger_SetInfoFilename(logger, ""), sunctx);
+  SUNCheckCallReturn(SUNLogger_SetDebugFilename(logger, ""), sunctx);
 #endif
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
-  SUNCheckCallReturn(SUNProfiler_Create(comm, "SUNContext Default", &profiler), *sunctx);
+  SUNCheckCallReturn(SUNProfiler_Create(comm, "SUNContext Default", &profiler), sunctx);
 #endif
 
   sunctx->logger        = logger;
