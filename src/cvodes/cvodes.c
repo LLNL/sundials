@@ -9175,17 +9175,15 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
                     const char* file, const char *msgfmt, ...)
 {
-  va_list ap;
-  char msg[256];
-
   /* Initialize the argument pointer variable
-     (msgfmt is the last required argument to cvProcessError) */
-
+     (msgfmt is the last required argument to arkProcessError) */
+  va_list ap;
   va_start(ap, msgfmt);
 
   /* Compose the message */
-
-  vsprintf(msg, msgfmt, ap);
+  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap);
+  char* msg = (char*) malloc(msglen);
+  vsnprintf(msg, msglen, msgfmt, ap);
 
   if (cv_mem == NULL) {
     /* We write to stderr */
@@ -9210,6 +9208,7 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
 
   /* Finalize argument processing */
   va_end(ap);
+  free(msg);
 
   return;
 }
