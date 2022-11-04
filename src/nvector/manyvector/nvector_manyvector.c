@@ -250,7 +250,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
     } else {
 
       SUNCheckMPICall(MPI_Comm_compare(*vcomm, comm, &comparison), sunctx);
-      SUNMPIAssert((comparison != MPI_IDENT) && (comparison != MPI_CONGRUENT),
+      SUNMPIAssert((comparison == MPI_IDENT) || (comparison == MPI_CONGRUENT),
                     SUN_ERR_MANYVECTOR_COMMNOTSAME, sunctx);
 
     }
