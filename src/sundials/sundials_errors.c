@@ -72,7 +72,7 @@ int SUNAbortErrHandlerFn(int line, const char* func, const char* file, const cha
                          void* err_ctx, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, __func__,
+  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      "SUNAbortErrHandler: Calling abort now, use a different "
                      "error handler to avoid program termination.\n");
   free(file_and_line);
@@ -80,12 +80,12 @@ int SUNAbortErrHandlerFn(int line, const char* func, const char* file, const cha
   return 0;
 }
 
-int SUNAssertErrHandlerFn(int line, const char* func, const char* file, const char* msg, SUNErrCode err_code,
+int SUNAssertErrHandlerFn(int line, const char* func, const char* file, const char* stmt, SUNErrCode err_code,
                           void* err_ctx, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, __func__,
-                     "SUNAssertErrHandler: assertion failed... terminating\n");
+  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
+                     "SUNAssertErrHandler: assert(%s) failed... terminating\n", stmt);
   free(file_and_line);
   abort();
   return 0;

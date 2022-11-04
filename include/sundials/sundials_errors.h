@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_logger.h>
@@ -43,9 +44,15 @@
   ENTRY(SUN_ERR_LOGGER_CANNOTOPENFILE,                                         \
         "File provided to SUNLogger could not be opened")                      \
   ENTRY(SUN_ERR_MALLOC_FAIL, "malloc returned NULL")                           \
+  ENTRY(SUN_ERR_MANYVECTOR_COMMNOTSAME,                                        \
+        "not all subvectors have the same MPI_Comm")                           \
+  ENTRY(SUN_ERR_MANYVECTOR_COMMNULL, "MPI_Comm is NULL")                       \
+  ENTRY(SUN_ERR_MPI_FAIL,                                                      \
+        "the MPI call returned something other than MPI_SUCCESS")              \
   ENTRY(SUN_ERR_NOT_IMPLEMENTED,                                               \
         "operation is not implemented: function pointer is NULL")              \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
+  ENTRY(SUN_ERR_GENERIC, "")                                                   \
   ENTRY(SUN_ERR_UNKNOWN, "Unknown error occured: open an issue at "            \
                          "https://github.com/LLNL/sundials")
 
@@ -158,9 +165,10 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
   va_list values;
   va_start(values, sunctx);
   msglen = vsprintf(NULL, msgfmt, values); /* determine size of buffer needed */
-  msg = (char*) malloc(msglen);
+  msg    = (char*)malloc(msglen);
   vsprintf(msg, msgfmt, values);
   SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
+  va_end(values);
   free(msg);
   return 0;
 }
@@ -171,8 +179,9 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNErrorWithMsg(code, msg, sunctx) \
   SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, code, sunctx)
 
-#define SUNErrorWithFmtMsg(code, msg, sunctx, ...) \
-  SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, msg, code, sunctx, __VA_ARGS__)
+#define SUNErrorWithFmtMsg(code, msg, sunctx, ...)                        \
+  SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, msg, code, sunctx, \
+                         __VA_ARGS__)
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 } /* extern "C" */
@@ -278,31 +287,33 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0);
 
+/* TODO(CJB): should asserts really need a code even though expr is printed? */
 /* SUNAssert checks if an expression is true.
    If the expression is false, it calls the SUNAssertErrHandler. */
 #if !defined(NDEBUG)
-#define SUNAssert(expr, code, sunctx)                               \
-  do {                                                              \
-    if (!(expr))                                                    \
-    {                                                               \
-      SUNAssertErrHandlerFn(__LINE__, __func__, __FILE__, "", code, \
-                            sunctx->err_handler->data, sunctx);     \
-    }                                                               \
-  }                                                                 \
-  while (0);
-#endif
-
-/* SUNAssert checks if an expression is true.
-   If the expression is false, it calls the SUNMPIAbortErrHandler. */
-#if !defined(NDEBUG)
-#define SUNMPIAssert(expr, code, sunctx)                               \
+#define SUNAssert(expr, code, sunctx)                                  \
   do {                                                                 \
     if (!(expr))                                                       \
     {                                                                  \
-      SUNMPIAssertErrHandlerFn(__LINE__, __func__, __FILE__, "", code, \
-                               sunctx->err_handler->data, sunctx);     \
+      SUNAssertErrHandlerFn(__LINE__, __func__, __FILE__, #expr, code, \
+                            sunctx->err_handler->data, sunctx);        \
     }                                                                  \
   }                                                                    \
+  while (0);
+#endif
+
+/* TODO(CJB): should asserts really need a code even though expr is printed? */
+/* SUNMPIAssert checks if an expression is true.
+   If the expression is false, it calls the SUNMPIAbortErrHandler. */
+#if !defined(NDEBUG)
+#define SUNMPIAssert(expr, code, sunctx)                                  \
+  do {                                                                    \
+    if (!(expr))                                                          \
+    {                                                                     \
+      SUNMPIAssertErrHandlerFn(__LINE__, __func__, __FILE__, #expr, code, \
+                               sunctx->err_handler->data, sunctx);        \
+    }                                                                     \
+  }                                                                       \
   while (0);
 #else
 #define SUNMPIAssert(expr, code, sunctx)

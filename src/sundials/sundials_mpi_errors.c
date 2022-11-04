@@ -29,7 +29,7 @@ int SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const 
                             SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, __func__,
+  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      "SUNMPIAbortErrHandler: Calling MPI_Abort now, use a different "
                      "error handler to avoid program termination.\n");
   free(file_and_line);
@@ -38,12 +38,12 @@ int SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const 
   return 0;
 }
 
-int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, const char* msg,
+int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, const char* stmt,
                             SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, __func__,
-                     "SUNMPIAssertErrHandler: assertion failed... terminating.\n");
+  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
+                     "SUNMPIAssertErrHandler: assert(%s) failed... terminating.\n", stmt);
   free(file_and_line);
   sleep(1);
   MPI_Abort(SUN_AsMPIComm(sunctx->comm), err_code);
