@@ -872,6 +872,7 @@ int CVodeGetSavedJac(void *cvode_mem, SUNMatrix *savedJ)
   return(CVLS_SUCCESS);
 }
 
+
 int CVodeGetSavedJacTime(void *cvode_mem, sunrealtype *t_savedJ)
 {
   CVodeMem cv_mem;
@@ -886,6 +887,7 @@ int CVodeGetSavedJacTime(void *cvode_mem, sunrealtype *t_savedJ)
   return(CVLS_SUCCESS);
 }
 
+
 int CVodeGetSavedNumSteps(void *cvode_mem, long int *nst_savedJ)
 {
   CVodeMem cv_mem;
@@ -899,6 +901,7 @@ int CVodeGetSavedNumSteps(void *cvode_mem, long int *nst_savedJ)
   *nst_savedJ = cvls_mem->nstlj;
   return(CVLS_SUCCESS);
 }
+
 
 /*=================================================================
   CVLS private functions
@@ -1333,7 +1336,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     retval = SUNMatCopy(cvls_mem->savedJ, A);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                     "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
       return(cvls_mem->last_flag);
     }
@@ -1348,7 +1351,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
       retval = SUNMatZero(A);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                       "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
         cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
         return(cvls_mem->last_flag);
       }
@@ -1359,7 +1362,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
                            vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVLS_JACFUNC_UNRECVR, "CVLS",
-                     "cvLsSetup",  MSG_LS_JACFUNC_FAILED);
+                     "cvLsLinSys",  MSG_LS_JACFUNC_FAILED);
       cvls_mem->last_flag = CVLS_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -1372,7 +1375,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     retval = SUNMatCopy(A, cvls_mem->savedJ);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                     "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
       return(cvls_mem->last_flag);
     }
@@ -1383,7 +1386,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   retval = SUNMatScaleAddI(-gamma, A);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                   "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                   "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
     cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
     return(cvls_mem->last_flag);
   }
@@ -1720,6 +1723,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Store previous nps value in nps_inc */
   nps_inc = cvls_mem->nps;
 #endif
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup) {
     cvls_mem->last_flag = cvls_mem->jtsetup(cv_mem->cv_tn, ynow, fnow,

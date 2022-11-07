@@ -27,6 +27,7 @@ set(unit_tests
   "cvs_test_kpr.cpp\;--eta_cf 0.5"
   "cvs_test_kpr.cpp\;--dgmax_lsetup 0.0"
   "cvs_test_kpr.cpp\;--dgmax_jbad 1.0"
+  "cvs_test_getsavedjac.cpp\;"
   )
 
 # Add the build and install targets for each test

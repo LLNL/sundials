@@ -111,6 +111,13 @@ Fortran.
 Changes from previous versions
 ==============================
 
+Changes in v6.5.0
+-----------------
+
+Added the functions :c:func:`CVodeGetSavedJac`, :c:func:`CVodeGetSavedJacTime`,
+:c:func:`CVodeGetSavedJacNumSteps` to assist in debugging simulations utilizing
+a matrix-based linear solver.
+
 Changes in v6.4.1
 -----------------
 
