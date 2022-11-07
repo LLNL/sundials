@@ -410,6 +410,8 @@ int SUNLinSolFree_MagmaDense(SUNLinearSolver S)
     if (MAGMADENSE_CONTENT(S)->rhsarr)
       SUNMemoryHelper_Dealloc(MHELP(S), MAGMADENSE_CONTENT(S)->rhsarr,
                               nullptr);
+    free(S->content);
+    S->content = NULL;
   }
   if (S->ops)
   {

@@ -37,9 +37,9 @@ sundials_add_library(sundials_sunlinsolmagmadense
   OUTPUT_NAME
     sundials_sunlinsolmagmadense
   VERSION
-    ${sunmatrixlib_VERSION}
+    ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunmatrixlib_SOVERSION}
+    ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_MAGMADENSE module")

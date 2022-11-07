@@ -14,139 +14,82 @@
 # CMakeLists.txt file for cuSolverSp examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
+# Example lists are tuples "name\;args\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS cuda nvector
-set(sunlinsol_cusolversp_examples
-  "test_sunlinsol_cusolversp_batchqr\;100 1 0\;\;\;"
-  "test_sunlinsol_cusolversp_batchqr\;10 10 0\;\;\;"
-  )
-
-# Dependencies for nvector examples
-set(sunlinsol_examples_dependencies
-  test_sunlinsol
-  sundials_nvector
+set(examples_list
+  "test_sunlinsol_cusolversp_batchqr.cu\;100 1 0\;"
+  "test_sunlinsol_cusolversp_batchqr.cu\;10 10 0\;"
   )
 
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against
-set(SUNDIALS_LIBS sundials_nveccuda
-                  sundials_nvecserial
-                  sundials_sunmatrixdense
-                  sundials_sunmatrixsparse
-                  sundials_sunlinsolcusolversp
-                  ${EXE_EXTRA_LINK_LIBS})
-
 # Add the build and install targets for each example
-foreach(example_tuple ${sunlinsol_cusolversp_examples})
+foreach(example_tuple ${examples_list})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  list(GET example_tuple 2 example_type)
+
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  if(NOT TARGET ${example})
+  if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example} ${example}.cu
-                  ../test_sunlinsol.c
-                  ../../../src/sundials/sundials_linearsolver.c)
+    add_executable(${example_target} ${example}
+                   ../test_sunlinsol.c ../test_sunlinsol.h)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example_target} PRIVATE
+      sundials_nveccuda
+      sundials_nvecserial
+      sundials_sunmatrixdense
+      sundials_sunmatrixsparse
+      sundials_sunmatrixcusparse
+      sundials_sunlinsolcusolversp
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
-    endif()
+    set(test_name ${example_target})
   else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
-    endif()
+    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(${test_name} ${example_target}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
-      ../test_sunlinsol.c
-      ../test_sunlinsol.h
-      ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_linearsolver.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp)
-  endif()
-
-endforeach(example_tuple ${sunlinsol_cusolversp_examples})
-
+endforeach()
 
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "")
-  set(NVECTOR_LIB "sundials_nvecserial sundials_nveccuda")
-  set(SUNMAT_LIB "sundials_sunmatrixdense sundials_sunmatrixsparse sundials_sunmatrixcusparse")
-  set(SUNLS_LIB "sundials_sunlinsolcusolversp")
-
-  examples2string(sunlinsol_cusolversp_examples EXAMPLES_CUSOLVER)
-  examples2string(sunlinsol_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/cusolversp/CMakeLists.txt
-    @ONLY
+  sundials_install_examples(sunlinsol_cusolversp examples_list
+    EXAMPLES_DEPENDENCIES
+      test_sunlinsol.c
+    EXTRA_FILES
+      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
+      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    CMAKE_TEMPLATE
+      cmakelists_CUDA_ex.in
+    SUNDIALS_TARGETS
+      nveccuda
+      nvecserial
+      sunmatrixdense
+      sunmatrixsparse
+      sunmatrixcusparse
+      sunlinsolcusolversp
+    DESTINATION
+      sunlinsol/cusolversp
     )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/cusolversp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/cusolversp/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/cusolversp/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp
-      RENAME Makefile
-      )
-  endif()
 
 endif()

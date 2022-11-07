@@ -465,6 +465,20 @@ SWIGEXPORT int _wrap_FERKStepSetTableNum(void *farg1, int const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FERKStepSetTableName(void *farg1, SwigArrayWrapper *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  result = (int)ERKStepSetTableName(arg1,(char const *)arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepSetCFLFraction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

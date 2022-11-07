@@ -23,11 +23,13 @@ module fsundials_matrix_mod
   enumerator :: SUNMATRIX_SPARSE
   enumerator :: SUNMATRIX_SLUNRLOC
   enumerator :: SUNMATRIX_CUSPARSE
+  enumerator :: SUNMATRIX_GINKGO
+  enumerator :: SUNMATRIX_KOKKOSDENSE
   enumerator :: SUNMATRIX_CUSTOM
  end enum
  integer, parameter, public :: SUNMatrix_ID = kind(SUNMATRIX_DENSE)
  public :: SUNMATRIX_DENSE, SUNMATRIX_MAGMADENSE, SUNMATRIX_ONEMKLDENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_SLUNRLOC, &
-    SUNMATRIX_CUSPARSE, SUNMATRIX_CUSTOM
+    SUNMATRIX_CUSPARSE, SUNMATRIX_GINKGO, SUNMATRIX_KOKKOSDENSE, SUNMATRIX_CUSTOM
  ! struct struct _generic_SUNMatrix_Ops
  type, bind(C), public :: SUNMatrix_Ops
   type(C_FUNPTR), public :: getid

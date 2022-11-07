@@ -23,9 +23,9 @@
     Last method order          =        5
     Next method order          =        5
     First internal step size   = 6.86623E-06
-    Last internal step size    = 1.52517E-03
-    Next internal step size    = 1.52517E-03
-    Current internal time      = 5.10351E-02
+    Last internal step size    = 1.52515E-03
+    Next internal step size    = 1.52515E-03
+    Current internal time      = 5.10347E-02
     Num nonlinear solver iters =      102
     Num nonlinear solver fails =        0
     Num Jacobian evaluations   =        2

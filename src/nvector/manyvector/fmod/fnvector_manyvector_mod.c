@@ -366,6 +366,20 @@ SWIGEXPORT int64_t _wrap_FN_VGetLength_ManyVector(N_Vector farg1) {
 }
 
 
+SWIGEXPORT int64_t _wrap_FN_VGetSubvectorLocalLength_ManyVector(N_Vector farg1, int64_t const *farg2) {
+  int64_t fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype arg2 ;
+  sunindextype result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (sunindextype)(*farg2);
+  result = N_VGetSubvectorLocalLength_ManyVector(arg1,arg2);
+  fresult = (sunindextype)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FN_VLinearSum_ManyVector(double const *farg1, N_Vector farg2, double const *farg3, N_Vector farg4, N_Vector farg5) {
   realtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;

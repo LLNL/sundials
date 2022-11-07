@@ -64,7 +64,9 @@ $tar $tarfile $distrobase/src/arkode/arkode_bbdpre.c
 $tar $tarfile $distrobase/src/arkode/arkode_bbdpre_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_butcher.c
 $tar $tarfile $distrobase/src/arkode/arkode_butcher_dirk.c
+$tar $tarfile $distrobase/src/arkode/arkode_butcher_dirk.def
 $tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.c
+$tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.def
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep.c
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep_io.c
@@ -75,6 +77,7 @@ $tar $tarfile $distrobase/src/arkode/arkode_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_ls.c
 $tar $tarfile $distrobase/src/arkode/arkode_ls_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_mri_tables.c
+$tar $tarfile $distrobase/src/arkode/arkode_mri_tables.def
 $tar $tarfile $distrobase/src/arkode/arkode_mri_tables_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_mristep.c
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h
@@ -353,3 +356,5 @@ $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_dahlquist_mri.cp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_butcher_tests.cpp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/ark_heat2D_mri.cpp
+$tar $tarfile $distrobase/test/unit_tests/arkode/F2003_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/arkode/F2003_serial/ark_table_tests_f2003.f90

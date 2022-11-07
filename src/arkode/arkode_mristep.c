@@ -245,7 +245,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   /* Resize Fse */
   if (step_mem->Fse) {
     if (!arkResizeVecArray(resize, resize_data,
-                           step_mem->nstages_stored, y0, &(step_mem->Fse),
+                           step_mem->nstages_allocated, y0, &(step_mem->Fse),
                            lrw_diff, &(ark_mem->lrw),
                            liw_diff, &(ark_mem->liw))) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
@@ -257,7 +257,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   /* Resize Fsi */
   if (step_mem->Fsi) {
     if (!arkResizeVecArray(resize, resize_data,
-                           step_mem->nstages_stored, y0, &(step_mem->Fsi),
+                           step_mem->nstages_allocated, y0, &(step_mem->Fsi),
                            lrw_diff, &(ark_mem->lrw),
                            liw_diff, &(ark_mem->liw))) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
@@ -672,13 +672,13 @@ void MRIStepFree(void **arkode_mem)
 
     /* free the RHS vectors */
     if (step_mem->Fse) {
-      arkFreeVecArray(step_mem->nstages_stored, &(step_mem->Fse),
+      arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fse),
                       ark_mem->lrw1, &(ark_mem->lrw),
                       ark_mem->liw1, &(ark_mem->liw));
     }
 
     if (step_mem->Fsi) {
-      arkFreeVecArray(step_mem->nstages_stored, &(step_mem->Fsi),
+      arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fsi),
                       ark_mem->lrw1, &(ark_mem->lrw),
                       ark_mem->liw1, &(ark_mem->liw));
     }
@@ -775,11 +775,11 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"MRIStep: rdiv = %"RSYM"\n", step_mem->rdiv);
   fprintf(outfile,"MRIStep: dgmax = %"RSYM"\n", step_mem->dgmax);
   fprintf(outfile,"MRIStep: Ae_row =");
-  for (i=0; i<step_mem->nstages_stored; i++)
+  for (i=0; i<step_mem->nstages_active; i++)
     fprintf(outfile," %"RSYM,step_mem->Ae_row[i]);
   fprintf(outfile,"\n");
   fprintf(outfile,"MRIStep: Ai_row =");
-  for (i=0; i<step_mem->nstages_stored; i++)
+  for (i=0; i<step_mem->nstages_active; i++)
     fprintf(outfile," %"RSYM,step_mem->Ai_row[i]);
   fprintf(outfile,"\n");
 
@@ -792,12 +792,12 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "MRIStep: zcor:\n");
   N_VPrintFile(step_mem->zcor, outfile);
   if (step_mem->Fse)
-    for (i=0; i<step_mem->nstages_stored; i++) {
+    for (i=0; i<step_mem->nstages_active; i++) {
       fprintf(outfile,"MRIStep: Fse[%i]:\n", i);
       N_VPrintFile(step_mem->Fse[i], outfile);
     }
   if (step_mem->Fsi)
-    for (i=0; i<step_mem->nstages_stored; i++) {
+    for (i=0; i<step_mem->nstages_active; i++) {
       fprintf(outfile,"MRIStep: Fsi[%i]:\n", i);
       N_VPrintFile(step_mem->Fsi[i], outfile);
     }
@@ -1039,7 +1039,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
 
     retval = mriStepCoupling_GetStageMap(step_mem->MRIC,
                                          step_mem->stage_map,
-                                         &(step_mem->nstages_stored));
+                                         &(step_mem->nstages_active));
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
                       "mriStep_Init", "Error in coupling table");
@@ -1078,22 +1078,42 @@ int mriStep_Init(void* arkode_mem, int init_type)
     ark_mem->lrw += step_mem->stages;
 
     /* Allocate MRI RHS vector memory, update storage requirements */
-    /*   Allocate Fse[0] ... Fse[nstages_stored - 1] if needed */
-    if (step_mem->explicit_rhs) {
-      if (!arkAllocVecArray(step_mem->nstages_stored,
-                            ark_mem->ewt, &(step_mem->Fse),
-                            ark_mem->lrw1, &(ark_mem->lrw),
-                            ark_mem->liw1, &(ark_mem->liw)))
-        return(ARK_MEM_FAIL);
-    }
-
-    /*   Allocate Fsi[0] ... Fsi[nstages_stored - 1] if needed */
-    if (step_mem->implicit_rhs) {
-      if (!arkAllocVecArray(step_mem->nstages_stored,
-                            ark_mem->ewt, &(step_mem->Fsi),
-                            ark_mem->lrw1, &(ark_mem->lrw),
-                            ark_mem->liw1, &(ark_mem->liw)))
-        return(ARK_MEM_FAIL);
+    /*   Allocate Fse[0] ... Fse[nstages_active - 1] and           */
+    /*   Fsi[0] ... Fsi[nstages_active - 1] if needed              */
+    if (step_mem->nstages_allocated < step_mem->nstages_active)
+    {
+      if (step_mem->nstages_allocated)
+      {
+        if (step_mem->explicit_rhs)
+        {
+          arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fse),
+                          ark_mem->lrw1, &(ark_mem->lrw),
+                          ark_mem->liw1, &(ark_mem->liw));
+        }
+        if (step_mem->implicit_rhs)
+        {
+          arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fsi),
+                          ark_mem->lrw1, &(ark_mem->lrw),
+                          ark_mem->liw1, &(ark_mem->liw));
+        }
+      }
+      if (step_mem->explicit_rhs)
+      {
+        if (!arkAllocVecArray(step_mem->nstages_active,
+                              ark_mem->ewt, &(step_mem->Fse),
+                              ark_mem->lrw1, &(ark_mem->lrw),
+                              ark_mem->liw1, &(ark_mem->liw)))
+          return(ARK_MEM_FAIL);
+      }
+      if (step_mem->implicit_rhs)
+      {
+        if (!arkAllocVecArray(step_mem->nstages_active,
+                              ark_mem->ewt, &(step_mem->Fsi),
+                              ark_mem->lrw1, &(ark_mem->lrw),
+                              ark_mem->liw1, &(ark_mem->liw)))
+          return(ARK_MEM_FAIL);
+      }
+      step_mem->nstages_allocated = step_mem->nstages_active;
     }
 
     /* if any slow stage is implicit, allocate sdata, zpred, zcor vectors;
@@ -1430,19 +1450,26 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
          ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    MRIStep slow stage 0 solution:\n");
-    N_VPrint(ark_mem->ycur);
-    if (step_mem->explicit_rhs)
-    {
-      printf("    MRIStep slow stage RHS Fe[0]:\n");
-      N_VPrint(step_mem->Fse[0]);
-    }
-    if (step_mem->implicit_rhs)
-    {
-      printf("    MRIStep slow stage RHS Fi[0]:\n");
-      N_VPrint(step_mem->Fsi[0]);
-    }
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_TakeStep", "slow stage",
+                     "z[0] =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+
+  if (step_mem->explicit_rhs)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStep", "slow explicit RHS",
+                       "Fse[0] =", "");
+    N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
+  }
+  if (step_mem->implicit_rhs)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStep", "slow implicit RHS",
+                       "Fsi[0] =", "");
+    N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp);
+  }
 #endif
 
   /* call nonlinear solver setup if it exists */
@@ -1494,9 +1521,11 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
     if (retval != ARK_SUCCESS)  return(retval);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    MRIStep slow stage %i solution:\n",is);
-    N_VPrint(ark_mem->ycur);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStep", "slow stage",
+                       "z[%i] =", is);
+    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1527,9 +1556,12 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
         if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-        printf("    MRIStep slow stage RHS Fe[%i]:\n",is);
-        N_VPrint(step_mem->Fse[step_mem->stage_map[is]]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::mriStep_TakeStep", "slow explicit RHS",
+                           "Fse[%i] =", is);
+        N_VPrintFile(step_mem->Fse[step_mem->stage_map[is]],
+                     ARK_LOGGER->debug_fp);
 #endif
       }
 
@@ -1550,17 +1582,22 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
         if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-        printf("    MRIStep slow stage RHS Fi[%i]:\n",is);
-        N_VPrint(step_mem->Fsi[step_mem->stage_map[is]]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::mriStep_TakeStep", "slow implicit RHS",
+                           "Fsi[%i] =", is);
+        N_VPrintFile(step_mem->Fsi[step_mem->stage_map[is]],
+                     ARK_LOGGER->debug_fp);
 #endif
       }
     } /* compute slow RHS */
   } /* loop over stages */
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("    MRIStep updated solution:\n");
-    N_VPrint(ark_mem->ycur);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_TakeStep", "updated solution",
+                     "ycur =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
   /* Solver diagnostics reporting */
@@ -1917,7 +1954,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem,
 
   /* compute the inner forcing */
   cdiff = step_mem->MRIC->c[is] - step_mem->MRIC->c[is-1];
-  retval = mriStep_ComputeInnerForcing(step_mem, is, cdiff);
+  retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, is, cdiff);
   if (retval != ARK_SUCCESS) return(retval);
 
   /* Set inner forcing time normalization constants */
@@ -2051,9 +2088,11 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     if (retval > 0)  return(TRY_AGAIN);
   }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("    MRIStep predictor:\n");
-  N_VPrint(step_mem->zpred);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_StageDIRKNoFast", "predictor",
+                     "zpred =", "");
+  N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
   /* determine effective DIRK coefficients (store in cvals) */
@@ -2065,9 +2104,11 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   retval = mriStep_StageSetup(ark_mem);
   if (retval != ARK_SUCCESS)  return (retval);
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("    MRIStep rhs data:\n");
-  N_VPrint(step_mem->sdata);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_StageDIRKNoFast", "rhs data",
+                     "sdata =", "");
+  N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
   /* perform implicit solve (result is stored in ark_mem->ycur); return
@@ -2134,7 +2175,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
      ARK_SUCCESS -- successful evaluation
   ---------------------------------------------------------------*/
 
-int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem,
+int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                                 int stage, realtype cdiff)
 {
   realtype  rcdiff;
@@ -2189,10 +2230,13 @@ int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem,
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  for (k = 0; k < nmat; k++) {
-    printf("    MRIStep forcing[%i]:\n", k);
-    N_VPrint(step_mem->stepper->forcing[k]);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  for (k = 0; k < nmat; k++)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_ComputeInnerForcing", "forcing",
+                       "forcing[%i] =", k);
+    N_VPrintFile(step_mem->stepper->forcing[k], ARK_LOGGER->debug_fp);
   }
 #endif
 
@@ -2486,6 +2530,9 @@ int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper)
   /* free the inner forcing and fused op workspace vector */
   mriStepInnerStepper_FreeVecs(*stepper);
 
+  /* free operations structure */
+  free((*stepper)->ops);
+
   /* free inner stepper mem */
   free(*stepper);
   *stepper = NULL;
@@ -2763,12 +2810,23 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
   /* Set the number of forcing vectors and allocate vectors */
   stepper->nforcing = count;
 
-  if (!arkAllocVecArray(count,
-                        tmpl, &(stepper->forcing),
-                        stepper->lrw1, &(stepper->lrw),
-                        stepper->liw1, &(stepper->liw))) {
-    mriStepInnerStepper_FreeVecs(stepper);
-    return(ARK_MEM_FAIL);
+  if (stepper->nforcing_allocated < stepper->nforcing)
+  {
+    if (stepper->nforcing_allocated)
+    {
+      arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
+                      stepper->lrw1, &(stepper->lrw),
+                      stepper->liw1, &(stepper->liw));
+    }
+    if (!arkAllocVecArray(stepper->nforcing,
+                          tmpl, &(stepper->forcing),
+                          stepper->lrw1, &(stepper->lrw),
+                          stepper->liw1, &(stepper->liw)))
+    {
+      mriStepInnerStepper_FreeVecs(stepper);
+      return(ARK_MEM_FAIL);
+    }
+    stepper->nforcing_allocated = stepper->nforcing;
   }
 
   /* Allocate fused operation workspace arrays */
@@ -2802,8 +2860,8 @@ int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper,
 
   if (stepper == NULL) return ARK_ILL_INPUT;
 
-  retval = arkResizeVecArray(resize, resize_data,
-                             stepper->nforcing, tmpl, &(stepper->forcing),
+  retval = arkResizeVecArray(resize, resize_data, stepper->nforcing_allocated,
+                             tmpl, &(stepper->forcing),
                              lrw_diff, &(stepper->lrw),
                              liw_diff, &(stepper->liw));
   if (retval != ARK_SUCCESS) return(ARK_MEM_FAIL);
@@ -2817,7 +2875,7 @@ int mriStepInnerStepper_FreeVecs(MRIStepInnerStepper stepper)
 {
   if (stepper == NULL) return ARK_ILL_INPUT;
 
-  arkFreeVecArray(stepper->nforcing, &(stepper->forcing),
+  arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
                   stepper->lrw1, &(stepper->lrw),
                   stepper->liw1, &(stepper->liw));
 

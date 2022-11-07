@@ -119,6 +119,11 @@ module farkode_mristep_mod
   module procedure swigf_create_MRIStepCouplingMem
  end interface
  public :: FMRIStepCoupling_LoadTable
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
+ public :: FMRIStepCoupling_LoadTableByName
  public :: FMRIStepCoupling_Alloc
  public :: FMRIStepCoupling_Create
  public :: FMRIStepCoupling_MIStoMRI
@@ -196,10 +201,6 @@ module farkode_mristep_mod
  public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepGetUserData
  public :: FMRIStepPrintAllStats
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
  public :: FMRIStepGetReturnFlagName
  public :: FMRIStepWriteParameters
  public :: FMRIStepWriteCoupling
@@ -380,6 +381,15 @@ bind(C, name="_wrap_FMRIStepCoupling_LoadTable") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FMRIStepCoupling_LoadTableByName(farg1) &
+bind(C, name="_wrap_FMRIStepCoupling_LoadTableByName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -1598,16 +1608,48 @@ call swigc_MRIStepCouplingMem_op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
-function FMRIStepCoupling_LoadTable(imethod) &
+function FMRIStepCoupling_LoadTable(method) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(ARKODE_MRITableID), intent(in) :: imethod
+integer(ARKODE_MRITableID), intent(in) :: method
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 
-farg1 = imethod
+farg1 = method
 fresult = swigc_FMRIStepCoupling_LoadTable(farg1)
+swig_result = fresult
+end function
+
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FMRIStepCoupling_LoadTableByName(method) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+character(kind=C_CHAR, len=*), target :: method
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
+
+call SWIG_string_to_chararray(method, farg1_chars, farg1)
+fresult = swigc_FMRIStepCoupling_LoadTableByName(farg1)
 swig_result = fresult
 end function
 

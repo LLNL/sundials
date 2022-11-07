@@ -79,9 +79,13 @@ ARKodeButcherTable functions
    +----------------------------------------------+------------------------------------------------------------+
    | **Function name**                            | **Description**                                            |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadERK()`       | Retrieve a given explicit Butcher table by its unique name |
+   | :c:func:`ARKodeButcherTable_LoadERK()`       | Retrieve a given explicit Butcher table by its unique ID   |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadDIRK()`      | Retrieve a given implicit Butcher table by its unique name |
+   | :c:func:`ARKodeButcherTable_LoadERKByName()` | Retrieve a given explicit Butcher table by its unique name |
+   +----------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_LoadDIRK()`      | Retrieve a given implicit Butcher table by its unique ID   |
+   +----------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_LoadDIRKByName()`| Retrieve a given implicit Butcher table by its unique name |
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeButcherTable_Alloc()`         | Allocate an empty Butcher table                            |
    +----------------------------------------------+------------------------------------------------------------+
@@ -115,6 +119,23 @@ ARKodeButcherTable functions
       * ``NULL`` pointer if *emethod* was invalid.
 
 
+.. c:function:: ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char *emethod)
+
+   Retrieves a specified explicit Butcher table. The prototype for this
+   function, as well as the names for each provided method, are defined in the
+   header file ``arkode/arkode_butcher_erk.h``.  For further information on
+   these tables and their corresponding names, see :numref:`Butcher`.
+
+   **Arguments:**
+      * *emethod* -- name of the Butcher table.
+
+   **Return value:**
+      * :c:type:`ARKodeButcherTable` structure if successful.
+      * ``NULL`` pointer if *emethod* was invalid or ``"ARKODE_ERK_NONE"``.
+
+   **Notes:**
+      This function is case sensitive.
+
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
 
    Retrieves a specified diagonally-implicit Butcher table. The prototype for
@@ -129,6 +150,25 @@ ARKodeButcherTable functions
    **Return value:**
       * :c:type:`ARKodeButcherTable` structure if successful.
       * ``NULL`` pointer if *imethod* was invalid.
+
+
+.. c:function:: ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *imethod)
+
+   Retrieves a specified diagonally-implicit Butcher table. The prototype for
+   this function, as well as the names for each provided method, are defined in
+   the header file ``arkode/arkode_butcher_dirk.h``.  For further information
+   on these tables and their corresponding names, see :numref:`Butcher`.
+
+   **Arguments:**
+      * *imethod* -- name of the Butcher table.
+
+   **Return value:**
+      * :c:type:`ARKodeButcherTable` structure if successful.
+      * ``NULL`` pointer if *imethod* was invalid or ``"ARKODE_DIRK_NONE"``.
+
+   **Notes:**
+      This function is case sensitive.
+
 
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
 

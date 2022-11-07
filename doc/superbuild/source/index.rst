@@ -16,8 +16,8 @@
 SUNDIALS Documentation
 ######################
 
-This is the documentation for `SUNDIALS
-<https://computing.llnl.gov/casc/sundials/main.html>`_ suite of
+This is the documentation for the `SUNDIALS
+<https://computing.llnl.gov/projects/sundials>`_ suite of
 nonlinear and differential/algebraic equation solvers.
 
 SUNDIALS is developed on `GitHub <https://github.com/LLNL/sundials>`_.

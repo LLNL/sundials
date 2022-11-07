@@ -1026,4 +1026,16 @@ SWIGEXPORT void _wrap_FN_VPrintFile(N_Vector farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int64_t _wrap_FN_VGetLocalLength(N_Vector farg1) {
+  int64_t fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype result;
+  
+  arg1 = (N_Vector)(farg1);
+  result = N_VGetLocalLength(arg1);
+  fresult = (sunindextype)(result);
+  return fresult;
+}
+
+
 

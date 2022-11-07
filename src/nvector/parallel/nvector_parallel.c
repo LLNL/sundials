@@ -107,6 +107,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   v->ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
   v->ops->nvgetcommunicator = N_VGetCommunicator_Parallel;
   v->ops->nvgetlength       = N_VGetLength_Parallel;
+  v->ops->nvgetlocallength  = N_VGetLocalLength_Parallel;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Parallel;

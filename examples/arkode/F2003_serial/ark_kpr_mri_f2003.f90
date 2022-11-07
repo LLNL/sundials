@@ -571,7 +571,7 @@ program main
   type(c_ptr) :: arkode_mem                ! ARKODE memory structure
   type(c_ptr) :: inner_arkode_mem          ! ARKODE memory structure
   type(c_ptr) :: inner_stepper             ! inner stepper
-  type(c_ptr) :: BTF, BTs                  ! fast/slow method Butcher table
+  type(c_ptr) :: BTf, BTs                  ! fast/slow method Butcher table
   type(c_ptr) :: SC                        ! slow coupling coefficients
   type(SUNMatrix), pointer :: MATf         ! matrix for fast solver
   type(SUNLinearSolver), pointer :: LSf    ! fast linear solver object
@@ -746,6 +746,7 @@ program main
     BTf = FARKodeButcherTable_Create(3, 3, 2, cf, Af, bf, df)
     retval = FARKStepSetTables(inner_arkode_mem, 3, 2, c_null_ptr, BTf)
     call check_retval(retval, "FARKStepSetTables")
+    call FARKodeButcherTable_Free(BTf)
   else if (solve_type == 1) then
     ! erk-3-3 fast solver (full problem)
     inner_arkode_mem = FARKStepCreate(c_funloc(fn), c_null_funptr, T0, y, sunctx)
@@ -769,6 +770,7 @@ program main
     BTf = FARKodeButcherTable_Create(3, 3, 2, cf, Af, bf, df)
     retval = FARKStepSetTables(inner_arkode_mem, 3, 2, c_null_ptr, BTf)
     call check_retval(retval, "FARKStepSetTables")
+    call FARKodeButcherTable_Free(BTf)
   else if (solve_type == 5 .or. solve_type == 9) then
     ! erk-4-4 fast solver
     inner_arkode_mem = FARKStepCreate(c_funloc(ff), c_null_funptr, T0, y, sunctx)
@@ -793,6 +795,7 @@ program main
     BTf = FARKodeButcherTable_Create(4, 4, 0, cf, Af, bf, df)
     retval = FARKStepSetTables(inner_arkode_mem, 4, 0, c_null_ptr, BTf)
     call check_retval(retval, "FARKStepSetTables")
+    call FARKodeButcherTable_Free(BTf)
   else if (solve_type == 2) then
     ! esdirk-3-3 fast solver (full problem)
     inner_arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(fn), T0, y, sunctx)
@@ -827,6 +830,7 @@ program main
     call check_retval(retval, "FARKStepSetJacFn")
     retval = FARKStepSStolerances(inner_arkode_mem, reltol, abstol)
     call check_retval(retval, "FARKStepSStolerances")
+    call FARKodeButcherTable_Free(BTf)
   else if (solve_type == 3 .or. solve_type == 4) then
     ! no fast dynamics ('evolve' explicitly w/ erk-3-3)
     inner_arkode_mem = FARKStepCreate(c_funloc(f0), c_null_funptr, T0, y, sunctx)
@@ -850,6 +854,7 @@ program main
     BTf = FARKodeButcherTable_Create(3, 3, 2, cf, Af, bf, df)
     retval = FARKStepSetTables(inner_arkode_mem, 3, 2, c_null_ptr, BTf)
     call check_retval(retval, "FARKStepSetTables")
+    call FARKodeButcherTable_Free(BTf)
   end if
 
   if (.not. c_associated(inner_arkode_mem)) then
@@ -919,6 +924,7 @@ program main
     SC = FMRIStepCoupling_MIStoMRI(BTs, 2, 0)
     retval = FMRIStepSetCoupling(arkode_mem, SC)
     call check_retval(retval, "FMRIStepSetCoupling")
+    call FARKodeButcherTable_Free(BTs)
   else if (solve_type == 4) then
     ! dirk-2 (trapezoidal), solve-decoupled slow solver
     arkode_mem = FMRIStepCreate(c_null_funptr, c_funloc(fn), T0, y, inner_stepper, sunctx)
@@ -1077,6 +1083,7 @@ program main
   end if
 
   ! Clean up and return
+  if (allocated(argv)) deallocate(argv)
   if (allocated(Af)) deallocate(Af)
   if (allocated(bf)) deallocate(bf)
   if (allocated(cf)) deallocate(cf)
@@ -1086,7 +1093,6 @@ program main
   if (allocated(cs)) deallocate(cs)
   if (allocated(ds)) deallocate(ds)
   call FN_VDestroy(y)                                ! Free y vector
-  call FARKodeButcherTable_Free(BTs)                 ! Butcher table
   call FMRIStepCoupling_Free(SC)                     ! Free coupling coefficients
   if (associated(MATf)) call FSUNMatDestroy(MATf)    ! Free fast matrix
   if (associated(LSf)) retval = FSUNLinSolFree(LSf)  ! Free fast linear solver

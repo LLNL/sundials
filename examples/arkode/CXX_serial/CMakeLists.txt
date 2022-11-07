@@ -68,7 +68,7 @@ foreach(example_tuple ${ARKODE_examples})
 
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    target_compile_features(${example_target} PRIVATE cxx_std_11)
+    target_compile_features(${example_target} PRIVATE cxx_std_14)
 
     # libraries to link against
     target_link_libraries(${example_target}
@@ -101,6 +101,9 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_CVODE)
     set(_include_cvode cvode)
+    if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+      set(_include_cvode_stubs cvode_fused_stubs)
+    endif()
   endif()
 
   sundials_install_examples(arkode ARKODE_examples
@@ -108,11 +111,11 @@ if(EXAMPLES_INSTALL)
       cmakelists_CXX_ex.in
     MAKE_TEMPLATE
       makefile_serial_CXX_ex.in
-    SOLVER_LIBRARY
-      sundials_arkode
     SUNDIALS_TARGETS
+      nvecserial
       arkode
       ${_include_cvode}
+      ${_include_cvode_stubs}
     DESTINATION
       arkode/CXX_serial
     EXTRA_FILES
