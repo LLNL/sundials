@@ -212,7 +212,11 @@ int main(int argc, char* argv[])
   flag = CVodeGetJac(cvode_mem, &Jdq);
   if (check_flag(flag, "CVodeGetJac")) return 1;
 
-  // Get the time at which the approximation was computed
+  // Get the step and time at which the approximation was computed
+  long int nst_Jdq;
+  flag = CVodeGetJacNumSteps(cvode_mem, &nst_Jdq);
+  if (check_flag(flag, "CVodeGetJacNumSteps")) return 1;
+
   sunrealtype t_Jdq;
   flag = CVodeGetJacTime(cvode_mem, &t_Jdq);
   if (check_flag(flag, "CVodeGetJacTime")) return 1;
@@ -237,6 +241,9 @@ int main(int argc, char* argv[])
   // Output Jacobian data
   std::cout << std::scientific;
   std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+  std::cout << "Jac nst = " << nst_Jdq << std::endl;
+  std::cout << "Jac t   = " << t_Jdq << std::endl;
+  std::cout << std::endl;
   std::cout << std::setw(8) << std::right << "Index" << std::setw(25)
             << std::right << "J DQ" << std::setw(25) << std::right << "J true"
             << std::setw(25) << std::right << "absolute difference" << std::endl;
