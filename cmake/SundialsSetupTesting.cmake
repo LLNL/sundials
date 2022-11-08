@@ -19,7 +19,6 @@ include(CTest)
 
 # Check if development tests are enabled
 if(SUNDIALS_TEST_DEVTESTS)
-
   message("SUNDIALS Development testing")
 
   # Python is needed to use the test runner
@@ -70,13 +69,10 @@ if(SUNDIALS_TEST_DEVTESTS)
   if(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
   endif()
-
+  
   #
   # Target to run tests in CI containers
-  #
-  sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH "Path to docker or podman" "")
-  sundials_option(SUNDIALS_TEST_CONTAINER_MNT STRING "Path to project root inside the container" "/sundials")
-
+  # 
   if(NOT SUNDIALS_TEST_CONTAINER_EXE)
     find_program(container_exe docker)
     if(NOT container_exe)
