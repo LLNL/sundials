@@ -130,7 +130,11 @@ SUNDIALS_EXPORT int IDAGetNumLinResEvals(void *ida_mem,
 SUNDIALS_EXPORT int IDAGetLastLinFlag(void *ida_mem,
                                       long int *flag);
 SUNDIALS_EXPORT char *IDAGetLinReturnFlagName(long int flag);
-
+SUNDIALS_EXPORT int IDAGetSavedJac(void *ida_mem, SUNMatrix *savedJ);
+SUNDIALS_EXPORT int IDAGetSavedJacTime(void *ida_mem,
+                                       sunrealtype *t_savedJ);
+SUNDIALS_EXPORT int IDAGetSavedJacNumSteps(void *ida_mem,
+                                           long int *nst_savedJ);
 
 #ifdef __cplusplus
 }
