@@ -90,6 +90,10 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
         )
 
+      if(SUNDIALS_TEST_PROFILE)
+        list(APPEND TEST_ARGS "--profile")
+      endif()
+
       # check for a non-default output directory
       if(SUNDIALS_TEST_OUTPUT_DIR)
         list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}")
@@ -110,7 +114,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       # check if a diff is needed and if non-default precisions were provided
-      if(SUNDIALS_ADD_TEST_NODIFF)
+      if(SUNDIALS_ADD_TEST_NODIFF OR SUNDIALS_TEST_NODIFF)
         # do not diff the output and answer files
         list(APPEND TEST_ARGS "--nodiff")
       else()

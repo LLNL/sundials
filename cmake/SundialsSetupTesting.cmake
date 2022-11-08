@@ -14,11 +14,17 @@
 # Enable SUNDIALS Testing
 # ---------------------------------------------------------------
 
+# Profile regression tests with Caliper
+sundials_option(SUNDIALS_TEST_PROFILE BOOL "Use Caliper to profile SUNDIALS tests" OFF
+                DEPENDS_ON ENABLE_CALIPER ADVANCED)
+
+sundials_option(SUNDIALS_TEST_NODIFF BOOL "Disable output comparison in the regression test suite" OFF ADVANCED)
+
 # Include development examples in regression tests
-sundials_option(SUNDIALS_TEST_DEVTESTS BOOL "Include development tests in make test" OFF ADVANCED)
+sundials_option(SUNDIALS_TEST_DEVTESTS BOOL "Include development tests in make test" OFF)
 
 # Include unit tests in regression tests
-sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test" OFF ADVANCED)
+sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test" OFF)
 
 # Enable testing with 'make test'
 include(CTest)
