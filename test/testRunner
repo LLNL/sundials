@@ -194,9 +194,13 @@ def main():
 
         # If profiling set the CALI_CONFIG environment variable
         if(args.profile):
-            # CALI_SERVICES_ENABLE=env CALI_ENV_EXTRA="MY_GIT_REVISION,MY_VERSION"
             dateTime = datetime.datetime.now().strftime("%m%d%Y_%H%M%S")
             profilePath = os.path.join(outDir, args.testName+".%s.caliper" % dateTime)
+            os.environ['SUNDIALS_VERSION'] = subprocess.check_output(
+                    ['git', 'describe', '--abbrev=12', '--dirty', '--always', '--tags']
+                ).decode('UTF-8')
+            os.environ['CALI_SERVICES_ENABLE'] = 'env'
+            os.environ['CALI_ENV_EXTRA'] = 'SUNDIALS_VERSION'
             os.environ['CALI_CONFIG'] = 'runtime-report,hatchet-region-profile,output=%s' % profilePath
 
         # if user supplies precision info overide the default choices
