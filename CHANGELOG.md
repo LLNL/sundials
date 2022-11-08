@@ -2,8 +2,8 @@
 
 ## Changes to SUNDIALS in release 6.5.0
 
-Added the functions ``CVodeGetSavedJac``, ``CVodeGetSavedJacTime``,
-``CVodeGetSavedJacNumSteps`` to assist in debugging simulations utilizing a
+Added the functions ``CVodeGetJac``, ``CVodeGetJacTime``,
+``CVodeGetJacNumSteps`` to assist in debugging simulations utilizing a
 matrix-based linear solver.
 
 ## Changes to SUNDIALS in release 6.4.1

@@ -207,29 +207,29 @@ int main(int argc, char* argv[])
   flag = CVode(cvode_mem, tout, y, &tret, CV_ONE_STEP);
   if (check_flag(flag, "CVode")) return 1;
 
-  // Get the saved internal finite difference approximation to J
-  SUNMatrix Jsaved;
-  flag = CVodeGetSavedJac(cvode_mem, &Jsaved);
-  if (check_flag(flag, "CVodeGetSavedJac")) return 1;
+  // Get the internal finite difference approximation to J
+  SUNMatrix Jdq;
+  flag = CVodeGetJac(cvode_mem, &Jdq);
+  if (check_flag(flag, "CVodeGetJac")) return 1;
 
   // Get the time at which the approximation was computed
-  sunrealtype t_Jsaved;
-  flag = CVodeGetSavedJacTime(cvode_mem, &t_Jsaved);
-  if (check_flag(flag, "CVodeGetSavedJacTime")) return 1;
+  sunrealtype t_Jdq;
+  flag = CVodeGetJacTime(cvode_mem, &t_Jdq);
+  if (check_flag(flag, "CVodeGetJacTime")) return 1;
 
   // Compute the true Jacobian
   SUNMatrix Jtrue = SUNDenseMatrix(2, 2, sunctx);
   if (check_ptr(Jtrue, "SUNDenseMatrix")) return 1;
 
-  flag = ytrue(t_Jsaved, y);
+  flag = ytrue(t_Jdq, y);
   if (check_flag(flag, "ytue")) return 1;
 
-  flag = J(t_Jsaved, y, nullptr, Jtrue, &udata, nullptr, nullptr, nullptr);
+  flag = J(t_Jdq, y, nullptr, Jtrue, &udata, nullptr, nullptr, nullptr);
   if (check_flag(flag, "J")) return 1;
 
   // Compare finite difference and true Jacobian
-  sunrealtype* Jsaved_data = SUNDenseMatrix_Data(Jsaved);
-  if (check_ptr(Jsaved_data, "SUNDenseMatrix_Data")) return 1;
+  sunrealtype* Jdq_data = SUNDenseMatrix_Data(Jdq);
+  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) return 1;
 
   sunrealtype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
   if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) return 1;
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
   std::cout << std::scientific;
   std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
   std::cout << std::setw(8) << std::right << "Index" << std::setw(25)
-            << std::right << "J saved" << std::setw(25) << std::right << "J true"
+            << std::right << "J DQ" << std::setw(25) << std::right << "J true"
             << std::setw(25) << std::right << "absolute difference" << std::endl;
   for (int i = 0; i < 3 * 25 + 8; i++) std::cout << "-";
   std::cout << std::endl;
@@ -247,9 +247,9 @@ int main(int argc, char* argv[])
   for (sunindextype i = 0; i < ldata; i++)
   {
     std::cout << std::setw(8) << std::right << i << std::setw(25) << std::right
-              << Jsaved_data[i] << std::setw(25) << std::right << Jtrue_data[i]
+              << Jdq_data[i] << std::setw(25) << std::right << Jtrue_data[i]
               << std::setw(25) << std::right
-              << std::abs(Jsaved_data[i] - Jtrue_data[i]) << std::endl;
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) << std::endl;
   }
 
   // Clean up and return with successful completion
