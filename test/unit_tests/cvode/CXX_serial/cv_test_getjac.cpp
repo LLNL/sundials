@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) return 1;
 
   int flag = ytrue(ZERO, y);
-  if (check_flag(flag, "ytue")) return 1;
+  if (check_flag(flag, "ytrue")) return 1;
 
   // Create CVODE memory structure
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
   if (check_ptr(Jtrue, "SUNDenseMatrix")) return 1;
 
   flag = ytrue(t_Jdq, y);
-  if (check_flag(flag, "ytue")) return 1;
+  if (check_flag(flag, "ytrue")) return 1;
 
   flag = J(t_Jdq, y, nullptr, Jtrue, &udata, nullptr, nullptr, nullptr);
   if (check_flag(flag, "J")) return 1;
