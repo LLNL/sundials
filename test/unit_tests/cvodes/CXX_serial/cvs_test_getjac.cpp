@@ -246,8 +246,9 @@ int main(int argc, char* argv[])
   std::cout << std::endl;
   std::cout << std::setw(8) << std::right << "Index" << std::setw(25)
             << std::right << "J DQ" << std::setw(25) << std::right << "J true"
-            << std::setw(25) << std::right << "absolute difference" << std::endl;
-  for (int i = 0; i < 3 * 25 + 8; i++) std::cout << "-";
+            << std::setw(25) << std::right << "absolute difference"
+            << std::setw(25) << std::right << "relative difference" << std::endl;
+  for (int i = 0; i < 4 * 25 + 8; i++) std::cout << "-";
   std::cout << std::endl;
 
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
@@ -256,7 +257,10 @@ int main(int argc, char* argv[])
     std::cout << std::setw(8) << std::right << i << std::setw(25) << std::right
               << Jdq_data[i] << std::setw(25) << std::right << Jtrue_data[i]
               << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i]) << std::endl;
+              << std::abs(Jdq_data[i] - Jtrue_data[i])
+              << std::setw(25) << std::right
+              << std::abs(Jdq_data[i] - Jtrue_data[i])/Jtrue_data[i]
+              << std::endl;
   }
 
   // Clean up and return with successful completion
