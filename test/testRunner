@@ -198,7 +198,7 @@ def main():
             profilePath = os.path.join(outDir, args.testName+".%s.caliper" % dateTime)
             os.environ['SUNDIALS_VERSION'] = subprocess.check_output(
                     ['git', 'describe', '--abbrev=12', '--dirty', '--always', '--tags']
-                ).decode('UTF-8')
+                ).decode('UTF-8').strip()
             os.environ['CALI_SERVICES_ENABLE'] = 'env'
             os.environ['CALI_ENV_EXTRA'] = 'SUNDIALS_VERSION'
             os.environ['CALI_CONFIG'] = 'runtime-report,hatchet-region-profile,output=%s' % profilePath
