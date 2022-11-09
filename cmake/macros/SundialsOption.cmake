@@ -60,7 +60,7 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     if(NOT DEFINED ${NAME})
       set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
     else()
-      set(${NAME} "${NAME}" CACHE ${TYPE} ${DOCSTR})
+      set(${NAME} "${${NAME}}" CACHE ${TYPE} ${DOCSTR})
     endif()
 
     # make the option advanced if necessary
