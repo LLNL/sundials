@@ -23,6 +23,7 @@ set(unit_tests
   "idas_test_kpr.cpp\;--eta_min_ef 0.5"
   "idas_test_kpr.cpp\;--eta_cf 0.5"
   "idas_test_kpr.cpp\;--dcj 0.9"
+  "idas_test_getjac.cpp\;"
   )
 
 # Add the build and install targets for each test

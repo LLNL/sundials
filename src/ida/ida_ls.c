@@ -265,7 +265,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
 
 /*===============================================================
-  Optional input/output routines
+  Optional Set routines
   ===============================================================*/
 
 
@@ -520,6 +520,62 @@ int IDASetJacTimesResFn(void *ida_mem, IDAResFn jtimesResFn)
   return(IDALS_SUCCESS);
 }
 
+/*===============================================================
+  Optional Get routines
+  ===============================================================*/
+
+int IDAGetJac(void* ida_mem, SUNMatrix* J)
+{
+  IDAMem IDA_mem;
+  IDALsMem idals_mem;
+  int retval;
+
+  /* access IDALsMem structure; set output and return */
+  retval = idaLs_AccessLMem(ida_mem, "IDAGetJac", &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return retval;
+  *J = idals_mem->J;
+  return IDALS_SUCCESS;
+}
+
+int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J)
+{
+  IDAMem IDA_mem;
+  IDALsMem idals_mem;
+  int retval;
+
+  /* access IDALsMem structure; set output and return */
+  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacCj", &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return retval;
+  *cj_J = IDA_mem->ida_cjold;
+  return IDALS_SUCCESS;
+}
+
+int IDAGetJacTime(void* ida_mem, sunrealtype* t_J)
+{
+  IDAMem IDA_mem;
+  IDALsMem idals_mem;
+  int retval;
+
+  /* access IDALsMem structure; set output and return */
+  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacTime", &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return retval;
+  *t_J = idals_mem->tnlj;
+  return IDALS_SUCCESS;
+}
+
+int IDAGetJacNumSteps(void* ida_mem, long int* nst_J)
+{
+  IDAMem IDA_mem;
+  IDALsMem idals_mem;
+  int retval;
+
+  /* access IDALsMem structure; set output and return */
+  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacNumSteps", &IDA_mem,
+                            &idals_mem);
+  if (retval != IDALS_SUCCESS) return retval;
+  *nst_J = idals_mem->nstlj;
+  return IDALS_SUCCESS;
+}
 
 /* IDAGetLinWorkSpace returns the length of workspace allocated
    for the IDALS linear solver interface */
@@ -754,45 +810,6 @@ char *IDAGetLinReturnFlagName(long int flag)
   return(name);
 }
 
-int IDAGetJac(void* ida_mem, SUNMatrix* J)
-{
-  IDAMem IDA_mem;
-  IDALsMem idals_mem;
-  int retval;
-
-  /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJac", &IDA_mem, &idals_mem);
-  if (retval != IDALS_SUCCESS) return retval;
-  *J = idals_mem->J;
-  return IDALS_SUCCESS;
-}
-
-int IDAGetJacTime(void* ida_mem, sunrealtype* t_J)
-{
-  IDAMem IDA_mem;
-  IDALsMem idals_mem;
-  int retval;
-
-  /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacTime", &IDA_mem, &idals_mem);
-  if (retval != IDALS_SUCCESS) return retval;
-  *t_J = idals_mem->tnlj;
-  return IDALS_SUCCESS;
-}
-
-int IDAGetJacNumSteps(void* ida_mem, long int* nst_J)
-{
-  IDAMem IDA_mem;
-  IDALsMem idals_mem;
-  int retval;
-
-  /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacNumSteps", &IDA_mem,
-                            &idals_mem);
-  if (retval != IDALS_SUCCESS) return retval;
-  *nst_J = idals_mem->nstlj;
-  return IDALS_SUCCESS;
-}
 
 /*===============================================================
   IDALS Private functions
@@ -1359,7 +1376,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
   idals_mem->ypcur = yp;
   idals_mem->rcur  = r;
 
-  /* Update stats for last jac/pset call */
+  /* Update values for last jac/pset call */
   idals_mem->nstlj = IDA_mem->ida_nst;
   idals_mem->tnlj  = IDA_mem->ida_tn;
 

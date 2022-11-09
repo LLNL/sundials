@@ -108,6 +108,10 @@ SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,
   Optional outputs from the IDALS linear solver interface
   -----------------------------------------------------------------*/
 
+SUNDIALS_EXPORT int IDAGetJac(void* ida_mem, SUNMatrix* J);
+SUNDIALS_EXPORT int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J);
+SUNDIALS_EXPORT int IDAGetJacTime(void* ida_mem, sunrealtype* t_J);
+SUNDIALS_EXPORT int IDAGetJacNumSteps(void* ida_mem, long int* nst_J);
 SUNDIALS_EXPORT int IDAGetLinWorkSpace(void *ida_mem,
                                        long int *lenrwLS,
                                        long int *leniwLS);
@@ -130,11 +134,6 @@ SUNDIALS_EXPORT int IDAGetNumLinResEvals(void *ida_mem,
 SUNDIALS_EXPORT int IDAGetLastLinFlag(void *ida_mem,
                                       long int *flag);
 SUNDIALS_EXPORT char *IDAGetLinReturnFlagName(long int flag);
-SUNDIALS_EXPORT int IDAGetSavedJac(void *ida_mem, SUNMatrix *savedJ);
-SUNDIALS_EXPORT int IDAGetSavedJacTime(void *ida_mem,
-                                       sunrealtype *t_savedJ);
-SUNDIALS_EXPORT int IDAGetSavedJacNumSteps(void *ida_mem,
-                                           long int *nst_savedJ);
 
 #ifdef __cplusplus
 }
