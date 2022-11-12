@@ -1,11 +1,11 @@
 {
-"package_name" : "sundials",
-"package_version" : "develop",
-"package_final_phase" : "hostconfig",
-"package_source_dir" : "../..",
-"spack_url": "https://github.com/spack/spack",
-"spack_commit": "f1fe03cd5988acdf48dafd23f2cb1431a51e7b96",
-"spack_activate" : {},
-"spack_configs_path": "scripts/radiuss-spack-configs",
-"spack_packages_path": "scripts/spack_packages"
+  "package_name": "sundials",
+  "package_version": "develop",
+  "package_final_phase": "initconfig",
+  "package_source_dir": "../..",
+  "spack_url": "https://github.com/spack/spack",
+  "spack_commit": "13e6f87ef6527954b152eaea303841978e83b992",
+  "spack_activate": {},
+  "spack_configs_path": ".gitlab/radiuss-spack-configs",
+  "spack_packages_path": ".gitlab/spack_packages"
 }

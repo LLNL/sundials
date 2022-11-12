@@ -23,6 +23,7 @@
 
 #include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_nvector.h"
 
 // HYPRE defines
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)

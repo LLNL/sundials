@@ -70,7 +70,7 @@ def main():
             'STRING', 'C++ compiler flags')
 
     add_arg(group, '--cxx-std', 'CMAKE_CXX_STANDARD', 'CMAKE_CXX_STANDARD',
-            '11', 'STRING', 'C++ standard')
+            '14', 'STRING', 'C++ standard')
 
     add_arg(group, '--cxx-ext', 'CMAKE_CXX_EXTENSIONS', 'CMAKE_CXX_EXTENSIONS',
             'OFF', 'STRING', 'C++ compiler extensions')
@@ -88,6 +88,9 @@ def main():
 
     add_arg(group, '--cuda-flags', 'CUDAFLAGS', 'CMAKE_CUDA_FLAGS', None,
             'STRING', 'CUDA compiler flags')
+
+    add_arg(group, '--cuda-std', 'CMAKE_CUDA_STANDARD', 'CMAKE_CUDA_STANDARD',
+            '14', 'STRING', 'CUDA standard')
 
     add_arg(group, '--cuda-arch', 'CUDAARCHS', 'CMAKE_CUDA_ARCHITECTURES',
             None, 'STRING', 'CUDA architecture')
@@ -226,8 +229,6 @@ def main():
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
 
-    # -D USE_GENERIC_MATH="${C90MATH}"
-
     # -----------
     # Interfaces
     # -----------
@@ -294,6 +295,9 @@ def main():
     add_arg(group, '--mpiexec', 'MPIEXEC', 'MPIEXEC_EXECUTABLE', None,
             'FILEPATH', 'MPI executable', dependson='--mpi')
 
+    add_arg(group, '--mpiexec-pre-flags', 'MPIEXEC_PREFLAGS', 'MPIEXEC_PREFLAGS', None,
+            'STRING', 'MPI executable extra flags', dependson='--mpi')
+
     # ----------
     # Threading
     # ----------
@@ -305,6 +309,11 @@ def main():
 
     add_arg(group, '--openmp', 'SUNDIALS_OPENMP', 'ENABLE_OPENMP', 'OFF',
             'BOOL', 'SUNDIALS OpenMP support')
+
+    add_arg(group, '--openmp-device-works', 'SUNDIALS_OPENMP_DEVICE_WORKS',
+            'OPENMP_DEVICE_WORKS', 'OFF', 'BOOL',
+            'Disable OpenMP Device Support Checks (assume OpenMP 4.5+)')
+
 
     # Pthread
     group = parser.add_argument_group('Pthread Options',
@@ -347,6 +356,15 @@ def main():
     # Performance portability
     # ------------------------
 
+    # Kokkos
+    group = parser.add_argument_group('Kokkos Options')
+
+    add_arg(group, '--kokkos', 'SUNDIALS_KOKKOS', 'ENABLE_KOKKOS', 'OFF',
+            'BOOL', 'SUNDIALS Kokkos support')
+
+    add_arg(group, '--kokkos-dir', 'KOKKOS_ROOT', 'Kokkos_DIR', None, 'PATH',
+            'Kokkos install directory', dependson='--kokkos')
+
     # RAJA
     group = parser.add_argument_group('RAJA Options')
 
@@ -370,6 +388,19 @@ def main():
     # Linear solver libraries
     # ------------------------
 
+    # Ginkgo
+    group = parser.add_argument_group('Ginkgo Options')
+
+    add_arg(group, '--ginkgo', 'SUNDIALS_GINKGO', 'ENABLE_GINKGO', 'OFF',
+            'BOOL', 'SUNDIALS Ginkgo support')
+
+    add_arg(group, '--ginkgo-dir', 'GINKGO_ROOT', 'Ginkgo_DIR', None, 'PATH',
+            'Ginkgo install directory', dependson='--ginkgo')
+
+    add_arg(group, '--ginkgo-backends', 'GINKGO_BACKENDS',
+            'SUNDIALS_GINKGO_BACKENDS', 'REF;OMP', 'STRING', 'Ginkgo backends',
+            choices=['REF', 'OMP', 'CUDA', 'HIP', 'DPCPP'], dependson='--ginkgo')
+
     # LAPACK
     group = parser.add_argument_group('LAPACK Options')
 
@@ -392,6 +423,17 @@ def main():
     add_arg(group, '--klu-libdir', 'SUITE_SPARSE_LIBRARY_DIR',
             'KLU_LIBRARY_DIR', None, 'PATH', 'KLU library directory',
             dependson='--klu')
+
+    # KokkosKernels
+    group = parser.add_argument_group('KokkosKernels Options')
+
+    add_arg(group, '--kokkos-kernels', 'SUNDIALS_KOKKOS_KERNELS',
+            'ENABLE_KOKKOS_KERNELS', 'OFF', 'BOOL',
+            'SUNDIALS Kokkos-Kernels support')
+
+    add_arg(group, '--kokkos-kernels-dir', 'KOKKOS_KERNELS_ROOT',
+            'KokkosKernels_DIR', None, 'PATH',
+            'Kokkos-Kernels install directory', dependson='--kokkos-kernels')
 
     # SuperLU MT
     group = parser.add_argument_group('SuperLU_MT Options')
@@ -420,8 +462,12 @@ def main():
     group = parser.add_argument_group('SuperLU_DIST Options')
 
     add_arg(group, '--superlu-dist', 'SUNDIALS_SUPERLU_DIST',
-            'ENABLE_SUPERLU_DIST', 'OFF', 'BOOL',
+            'ENABLE_SUPERLUDIST', 'OFF', 'BOOL',
             'SUNDIALS SuperLU DIST support')
+
+    add_arg(group, '--superlu-dist-dir', 'SUPERLU_DIST_ROOT',
+            'SUPERLUDIST_DIR', None, 'PATH',
+            'SuperLU_DIST installation directory', dependson='--superlu-dist')
 
     add_arg(group, '--superlu-dist-incdir', 'SUPERLU_DIST_INCLUDE_DIR',
             'SUPERLUDIST_INCLUDE_DIR', None, 'PATH',
@@ -646,9 +692,17 @@ def cmake_arg(env_var, cmake_var, cmake_default, cmake_type, msg,
             err_msg += 'Input value must be ON or OFF.'
             raise argparse.ArgumentTypeError("Invaid Value for BOOL")
 
-        if choices is not None:
-            choices.append(None)
-            if str_var not in choices:
+        if choices is not None and str_var is not None:
+            raise_error = False
+            if ";" in str_var:
+                for s in str_var.split(';'):
+                    if s not in choices:
+                        raise_error = True
+            else:
+                if str_var not in choices:
+                    raise_error = True
+
+            if raise_error:
                 err_msg = 'Invalid option value ' + str_var + '. '
                 err_msg += 'Input value must be '
                 if len(choices) < 3:

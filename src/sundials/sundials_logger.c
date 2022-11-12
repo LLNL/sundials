@@ -417,57 +417,59 @@ int SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl, const char* scope,
   }
 
 #if SUNDIALS_LOGGING_LEVEL > 0
-  va_list args;
-  va_start(args, msg_txt);
+  {
+    va_list args;
+    va_start(args, msg_txt);
 
-  if (logger->queuemsg)
-  {
-    retval = logger->queuemsg(logger, lvl, scope, label, msg_txt, args);
-  }
-  else
-  {
-    /* Default implementation */
-    int rank = 0;
-    if (sunLoggerIsOutputRank(logger, &rank))
+    if (logger->queuemsg)
     {
-      char* log_msg = NULL;
-      sunCreateLogMessage(lvl, rank, scope, label, msg_txt, args, &log_msg);
-
-      switch (lvl)
-      {
-      case (SUN_LOGLEVEL_DEBUG):
-        if (logger->debug_fp)
-        {
-          fprintf(logger->debug_fp, "%s", log_msg);
-        }
-        break;
-      case (SUN_LOGLEVEL_WARNING):
-        if (logger->warning_fp)
-        {
-          fprintf(logger->warning_fp, "%s", log_msg);
-        }
-        break;
-      case (SUN_LOGLEVEL_INFO):
-        if (logger->info_fp)
-        {
-          fprintf(logger->info_fp, "%s", log_msg);
-        }
-        break;
-      case (SUN_LOGLEVEL_ERROR):
-        if (logger->error_fp)
-        {
-          fprintf(logger->error_fp, "%s", log_msg);
-        }
-        break;
-      default:
-        retval = -1;
-      }
-
-      free(log_msg);
+      retval = logger->queuemsg(logger, lvl, scope, label, msg_txt, args);
     }
-  }
+    else
+    {
+      /* Default implementation */
+      int rank = 0;
+      if (sunLoggerIsOutputRank(logger, &rank))
+      {
+        char* log_msg = NULL;
+        sunCreateLogMessage(lvl, rank, scope, label, msg_txt, args, &log_msg);
 
-  va_end(args);
+        switch (lvl)
+        {
+          case (SUN_LOGLEVEL_DEBUG):
+            if (logger->debug_fp)
+            {
+              fprintf(logger->debug_fp, "%s", log_msg);
+            }
+            break;
+          case (SUN_LOGLEVEL_WARNING):
+            if (logger->warning_fp)
+            {
+              fprintf(logger->warning_fp, "%s", log_msg);
+            }
+            break;
+          case (SUN_LOGLEVEL_INFO):
+            if (logger->info_fp)
+            {
+              fprintf(logger->info_fp, "%s", log_msg);
+            }
+            break;
+          case (SUN_LOGLEVEL_ERROR):
+            if (logger->error_fp)
+            {
+              fprintf(logger->error_fp, "%s", log_msg);
+            }
+            break;
+          default:
+            retval = -1;
+        }
+
+        free(log_msg);
+      }
+    }
+
+    va_end(args);
+  }
 #endif
 
   return retval;

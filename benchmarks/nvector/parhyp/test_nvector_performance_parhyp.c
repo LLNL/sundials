@@ -78,9 +78,9 @@ void ClearCacheKernel(sunindextype N, realtype* data, realtype* out)
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  N_Vector     X   = NULL; /* test vector      */
-  SUNContext   ctx = NULL; /* SUNDIALS context */
-  sunindextype veclen;     /* vector length    */
+  SUNContext   ctx = NULL;  /* SUNDIALS context */
+  N_Vector     X   = NULL;  /* test vector      */
+  sunindextype veclen;      /* vector length    */
 
   HYPRE_ParVector Xhyp;    /* hypre parallel vector */
   HYPRE_Int *partitioning; /* vector partitioning   */
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
   nvecs = (int) atol(argv[2]);
   if (nvecs < 1) {
-    printf("WARNING: Fused operation test disabled\n");
+    printf("WARNING: Fused operation tests disabled\n");
   }
 
   nsums = (int) atol(argv[3]);

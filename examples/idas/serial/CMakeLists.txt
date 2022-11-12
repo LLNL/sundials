@@ -20,21 +20,21 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasAkzoNob_ASAi_dns\;\;develop"
-  "idasAkzoNob_dns\;\;develop"
-  "idasAnalytic_mels\;\;develop"
+  "idasAkzoNob_ASAi_dns\;\;exclude-single"
+  "idasAkzoNob_dns\;\;exclude-single"
+  "idasAnalytic_mels\;\;exclude-single"
   "idasFoodWeb_bnd\;\;develop"
-  "idasHeat2D_bnd\;\;develop"
-  "idasHeat2D_kry\;\;develop"
-  "idasHessian_ASA_FSA\;\;develop"
+  "idasHeat2D_bnd\;\;exclude-single"
+  "idasHeat2D_kry\;\;exclude-single"
+  "idasHessian_ASA_FSA\;\;exclude-single"
   "idasKrylovDemo_ls\;\;develop"
   "idasKrylovDemo_ls\;1\;develop"
   "idasKrylovDemo_ls\;2\;develop"
-  "idasRoberts_ASAi_dns\;\;develop"
-  "idasRoberts_FSA_dns\;-sensi stg t\;develop"
+  "idasRoberts_ASAi_dns\;\;exclude-single"
+  "idasRoberts_FSA_dns\;-sensi stg t\;exclude-single"
   "idasRoberts_dns\;\;"
-  "idasSlCrank_dns\;\;develop"
-  "idasSlCrank_FSA_dns\;\;develop"
+  "idasSlCrank_dns\;\;exclude-single"
+  "idasSlCrank_FSA_dns\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -50,9 +50,9 @@ set(IDAS_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(IDAS_examples_SUPERLUMT
-  "idasRoberts_ASAi_sps\;\;develop"
-  "idasRoberts_FSA_sps\;-sensi stg t\;develop"
-  "idasRoberts_sps\;\;develop"
+  "idasRoberts_ASAi_sps\;\;exclude-single"
+  "idasRoberts_FSA_sps\;-sensi stg t\;exclude-single"
+  "idasRoberts_sps\;\;exclude-single"
   )
 
 # Auxiliary files to install
@@ -68,7 +68,7 @@ set(IDAS_LIB sundials_idas)
 set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDAS_examples})

@@ -155,6 +155,7 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 
   /* Call LAPACK to do LU factorization of A */
   n = SUNDenseMatrix_Rows(A);
+  ier = 0;
   xgetrf_f77(&n, &n, SUNDenseMatrix_Data(A), &n, PIVOTS(S), &ier);
   LASTFLAG(S) = ier;
   if (ier > 0)
@@ -187,6 +188,7 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Call LAPACK to solve the linear system */
   n = SUNDenseMatrix_Rows(A);
   one = 1;
+  ier = 0;
   xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A),
              &n, PIVOTS(S), xdata, &n, &ier);
   LASTFLAG(S) = ier;

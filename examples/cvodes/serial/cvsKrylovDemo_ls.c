@@ -444,6 +444,7 @@ int main(int argc, char* argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNNonlinSolFree(NLS);
   SUNContext_Free(&sunctx);
 
   return(0);

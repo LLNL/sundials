@@ -26,10 +26,10 @@ set(ARKODE_examples
   "ark_kpr_Mt.cpp\;1 4\;develop"
   "ark_kpr_Mt.cpp\;2 8 0 -10\;develop"
   "ark_kpr_Mt.cpp\;0 4 1\;develop"
-  "ark_kpr_Mt.cpp\;0 -4\;develop"
-  "ark_kpr_Mt.cpp\;1 -5\;develop"
+  "ark_kpr_Mt.cpp\;0 -4\;exclude-single"
+  "ark_kpr_Mt.cpp\;1 -5\;exclude-single"
   "ark_kpr_Mt.cpp\;2 -5 0 -10\;develop"
-  "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;develop"
+  "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;exclude-single"
   "ark_kpr_Mt.cpp\;0 3 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;develop"
@@ -68,13 +68,13 @@ foreach(example_tuple ${ARKODE_examples})
 
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    target_compile_features(${example_target} PRIVATE cxx_std_11)
+    target_compile_features(${example_target} PRIVATE cxx_std_14)
 
     # libraries to link against
     target_link_libraries(${example_target}
       sundials_arkode
       sundials_nvecserial
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
     if(BUILD_CVODE)
       target_link_libraries(${example_target} sundials_cvode)
@@ -101,6 +101,9 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_CVODE)
     set(_include_cvode cvode)
+    if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+      set(_include_cvode_stubs cvode_fused_stubs)
+    endif()
   endif()
 
   sundials_install_examples(arkode ARKODE_examples
@@ -108,11 +111,11 @@ if(EXAMPLES_INSTALL)
       cmakelists_CXX_ex.in
     MAKE_TEMPLATE
       makefile_serial_CXX_ex.in
-    SOLVER_LIBRARY
-      sundials_arkode
     SUNDIALS_TARGETS
+      nvecserial
       arkode
       ${_include_cvode}
+      ${_include_cvode_stubs}
     DESTINATION
       arkode/CXX_serial
     EXTRA_FILES

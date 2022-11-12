@@ -94,6 +94,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sun
   v->ops->nvgetarraypointer = N_VGetArrayPointer_OpenMP;
   v->ops->nvsetarraypointer = N_VSetArrayPointer_OpenMP;
   v->ops->nvgetlength       = N_VGetLength_OpenMP;
+  v->ops->nvgetlocallength  = N_VGetLength_OpenMP;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_OpenMP;

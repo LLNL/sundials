@@ -42,6 +42,7 @@ module fnvector_mpimanyvector_mod
  public :: FN_VSpace_MPIManyVector
  public :: FN_VGetCommunicator_MPIManyVector
  public :: FN_VGetLength_MPIManyVector
+ public :: FN_VGetSubvectorLocalLength_MPIManyVector
  public :: FN_VLinearSum_MPIManyVector
  public :: FN_VConst_MPIManyVector
  public :: FN_VProd_MPIManyVector
@@ -217,6 +218,15 @@ bind(C, name="_wrap_FN_VGetLength_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+function swigc_FN_VGetSubvectorLocalLength_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VGetSubvectorLocalLength_MPIManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT64_T) :: fresult
 end function
 
@@ -764,7 +774,7 @@ integer(C_INT64_T) :: farg2
 farg1 = c_loc(v)
 farg2 = vec_num
 fresult = swigc_FN_VGetSubvectorArrayPointer_MPIManyVector(farg1, farg2)
-call c_f_pointer(fresult, swig_result, [1])
+call c_f_pointer(fresult, swig_result, [FN_VGetSubvectorLocalLength_MPIManyVector(v, vec_num)])
 end function
 
 function FN_VSetSubvectorArrayPointer_MPIManyVector(v_data, v, vec_num) &
@@ -906,6 +916,22 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLength_MPIManyVector(farg1)
+swig_result = fresult
+end function
+
+function FN_VGetSubvectorLocalLength_MPIManyVector(v, vec_num) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT64_T), intent(in) :: vec_num
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = vec_num
+fresult = swigc_FN_VGetSubvectorLocalLength_MPIManyVector(farg1, farg2)
 swig_result = fresult
 end function
 

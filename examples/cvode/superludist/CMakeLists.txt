@@ -17,12 +17,7 @@
 # Example lists are tuples "name\;args\;nodes\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
-if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "6.3.0")
-  list(APPEND CVODE_examples "cvAdvDiff_sludist\;2 1\;2\;develop")
-else()
-  print_warning("The cvAdvDiff_sludist example requires SuperLU_DIST >= 6.3.0, but the version found is less."
-                "SUPERLUDIST_VERSION: ${SUPERLUDIST_VERSION}")
-endif()
+list(APPEND CVODE_examples "cvAdvDiff_sludist.cpp\;2 1\;2\;develop")
 
 if(MPI_CXX_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
@@ -32,22 +27,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-if(SUPERLUDIST_OpenMP)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
-# Specify libraries to link against
-set(CVODE_LIB sundials_cvode)
-set(NVECP_LIB sundials_nvecparallel)
-set(SUNMAT_LIB sundials_sunmatrixslunrloc)
-set(SUNLS_LIB sundials_sunlinsolsuperludist)
-
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
+  set(_fused_lib sundials_cvode_fused_stubs)
 endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${SUNMAT_LIB} ${SUNLS_LIB})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
@@ -58,88 +40,70 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.cpp)
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  # example source files
+  add_executable(${example_target} ${example})
+
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+
+  if(SUNDIALS_INDEX_SIZE STREQUAL "32")
+    set(integer_precision "15") # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
+    set(float_precision "3")
+  else()
+    set(integer_precision "default")
+    set(float_precision "default")
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${example_target} ${example_target}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_nodes}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}_${SUNDIALS_INDEX_SIZE}.out
-    EXAMPLE_TYPE ${example_type})
+    ANSWER_FILE ${example_target}_${SUNDIALS_INDEX_SIZE}.out
+    EXAMPLE_TYPE ${example_type}
+    INTEGER_PRECISION ${integer_precision}
+    FLOAT_PRECISION ${float_precision}
+  )
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
+  target_link_libraries(${example_target} PRIVATE
+    sundials_cvode
+    sundials_nvecparallel
+    sundials_sunlinsolsuperludist
+    ${_fused_lib}
+    ${EXE_EXTRA_LINK_LIBS})
 
   if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  endif()
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example}_${SUNDIALS_INDEX_SIZE}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/superludist)
+    target_link_libraries(${example_target} PRIVATE ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   endif()
 
 endforeach(example_tuple ${CVODE_examples})
 
+if(SUPERLUDIST_CUDA)
+  set(_ex_lang CUDA)
+elseif(SUPERLUDIST_ROCM)
+  set(_ex_lang HIP)
+else()
+  set(_ex_lang CXX)
+endif()
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/superludist)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "CVODE")
-  string(CONCAT SUNDIALS_LIBS "-lsundials_cvode "
-    "-lsundials_nvecparallel "
-    "-lsundials_sunmatrixslunrloc "
-    "-lsundials_sunlinsolsuperludist")
-  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
-  endif()
-
-  examples2string(CVODE_examples EXAMPLES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_superludist_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/superludist/CMakeLists.txt
-    @ONLY
+  sundials_install_examples(cvode_superludist CVODE_examples
+    EXTRA_FILES
+      README
+    CMAKE_TEMPLATE
+      cmakelists_${_ex_lang}_MPI_ex.in
+    SUNDIALS_TARGETS
+      cvode
+      nvecparallel
+      sunlinsolsuperludist
+    DESTINATION
+      cvode/superludist
     )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/superludist/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/superludist
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_superludist_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/superludist/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/superludist/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/superludist
-      RENAME Makefile
-      )
-  endif()
 
   # add test_install target
   sundials_add_test_install(cvode superludist)

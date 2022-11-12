@@ -85,18 +85,23 @@ if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 1)
 endif()
 
 set(DOCSTR "Build SUNDIALS logging with MPI support")
-sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "${ENABLE_MPI}"
+sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "OFF"
                 DEPENDS_ON ENABLE_MPI)
 
 # ---------------------------------------------------------------
-# Option to use the generic math libraries (UNIX only)
+# Option to use the generic math libraries
 # ---------------------------------------------------------------
 
+# We still provide USE_GENERIC_MATH for backwards compatibility
+# We also provide it for non-unix systems, but with different defaults,
+# in order to present a uniform CMake interface.
 if(UNIX)
-  sundials_option(USE_GENERIC_MATH BOOL "Use generic (std-c) math libraries" ON)
-  # all executables will be linked against -lm
-  set(EXTRA_LINK_LIBS -lm)
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "-lm" ADVANCED)
+else()
+  sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "" ADVANCED)
 endif()
+# all executables will be linked against the math library
+set(EXE_EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
 
 # ---------------------------------------------------------------
 # Options to enable static and/or shared libraries
@@ -273,3 +278,17 @@ sundials_option(SUNDIALS_TEST_OUTPUT_DIR PATH
 
 sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
   "Location of testing answer files" "" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_PROFILE BOOL 
+  "Use Caliper to profile SUNDIALS tests" OFF ADVANCED)
+
+sundials_option(SUNDIALS_TEST_NODIFF BOOL
+  "Disable output comparison in the regression test suite" OFF ADVANCED)
+  
+# Include development examples in regression tests
+sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
+  "Include development tests in make test" OFF ADVANCED)
+
+# Include unit tests in regression tests
+sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
+  "Include unit tests in make test" OFF ADVANCED)

@@ -64,16 +64,20 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
-  set(multiValueArgs "TEST_ARGS")
+  set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
   cmake_parse_arguments(SUNDIALS_ADD_TEST
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  # SGS add check to make sure parallel is integer
-
   # check that the test is not excluded
-  if(NOT ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude"))
+  string(TOLOWER "exclude-${SUNDIALS_PRECISION}" _exclude_precision)
+  if( ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude") OR
+      ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL _exclude_precision) )
+
+    message(STATUS "Skipped test ${NAME} because it had type ${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}")
+
+  else()
 
     if(SUNDIALS_TEST_DEVTESTS)
 
@@ -85,6 +89,10 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         "--testname=${NAME}"
         "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
         )
+
+      if(SUNDIALS_TEST_PROFILE)
+        list(APPEND TEST_ARGS "--profile")
+      endif()
 
       # check for a non-default output directory
       if(SUNDIALS_TEST_OUTPUT_DIR)
@@ -106,7 +114,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       # check if a diff is needed and if non-default precisions were provided
-      if(SUNDIALS_ADD_TEST_NODIFF)
+      if(SUNDIALS_ADD_TEST_NODIFF OR SUNDIALS_TEST_NODIFF)
         # do not diff the output and answer files
         list(APPEND TEST_ARGS "--nodiff")
       else()
@@ -137,8 +145,19 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # set the test input args
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
-        string(REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-        list(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
+        string(REPLACE ";" " " _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        set(_run_args "${_user_args}")
+        unset(_user_args)
+      endif()
+      if(SUNDIALS_ADD_TEST_EXTRA_ARGS)
+        string(REPLACE ";" " " _extra_args "${SUNDIALS_ADD_TEST_EXTRA_ARGS}")
+        set(_run_args "${_run_args} ${_extra_args}")
+        unset(_extra_args)
+      endif()
+      if (_run_args)
+        string(STRIP "${_run_args}" _run_args)
+        list(APPEND TEST_ARGS "--runargs=\"${_run_args}\"")
+        unset(_run_args)
       endif()
 
       # create test case with the corresponding test runner command and arguments

@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
   sunindextype fst_row;                     /* global. index of 1st local row   */
   int square;                               /* is A a square matrix             */
   sunindextype i, j, k;                     /* just some iteration variables    */
+  SUNContext   sunctx;
 
   MPI_Init(&argc, &argv);
 

@@ -37,7 +37,7 @@ set(ARKODE_LIB sundials_arkode)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
@@ -79,8 +79,10 @@ foreach(test_tuple ${ARKODE_unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(NAME ${test_name} COMMAND ${MPIEXEC_EXECUTABLE} -n ${number_of_tasks} ${test} ${test_args})
-
+  sundials_add_test(${test_name} ${test}
+    TEST_ARGS ${test_args}
+    MPI_NPROCS ${number_of_tasks}
+    NODIFF)
 endforeach()
 
-message(STATUS "Added ARKODE CXX parallel units tests")
+message(STATUS "Added ARKODE CXX parallel unit tests")

@@ -29,7 +29,7 @@ set(ARKODE_unit_tests
   "ark_interp_check\;-100"
   "ark_interp_check\;-10000"
   "ark_interp_check\;-1000000"
-  "ark_reset_check\;1"
+  "ark_reset_check\;"
   )
 
 # Add the build and install targets for each test
@@ -58,7 +58,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
     target_link_libraries(${test}
       sundials_arkode
       sundials_nvecserial
-      ${EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -75,4 +75,4 @@ foreach(test_tuple ${ARKODE_unit_tests})
 
 endforeach()
 
-message(STATUS "Added ARKODE C serial units tests")
+message(STATUS "Added ARKODE C serial unit tests")

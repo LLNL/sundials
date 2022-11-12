@@ -83,7 +83,7 @@
 #include <sundials/sundials_math.h>     /* def. math fcns, 'realtype'           */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
+#define GSYM ".20Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
@@ -167,10 +167,10 @@ int main(int argc, char *argv[])
 
   /* Retrieve the command-line options: solve_type h G w e */
   if (argc > 1)  solve_type = (sunindextype) atol(argv[1]);
-  if (argc > 2)  hs = (realtype) atof(argv[2]);
-  if (argc > 3)  G = (realtype) atof(argv[3]);
-  if (argc > 4)  w = (realtype) atof(argv[4]);
-  if (argc > 5)  e = (realtype) atof(argv[5]);
+  if (argc > 2)  hs = SUNStrToReal(argv[2]);
+  if (argc > 3)  G = SUNStrToReal(argv[3]);
+  if (argc > 4)  w = SUNStrToReal(argv[4]);
+  if (argc > 5)  e = SUNStrToReal(argv[5]);
   if (argc > 6)  deduce = (booleantype) atoi(argv[6]);
 
   /* Check arguments for validity */
@@ -306,6 +306,7 @@ int main(int argc, char *argv[])
     B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    ARKodeButcherTable_Free(B);
     break;
   case(1):  /* erk-3-3 fast solver (full problem) */
     inner_arkode_mem = ARKStepCreate(fn, NULL, T0, y, ctx);
@@ -325,6 +326,7 @@ int main(int argc, char *argv[])
     B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    ARKodeButcherTable_Free(B);
     break;
   case(9):
   case(5):  /* erk-4-4 fast solver */
@@ -345,6 +347,7 @@ int main(int argc, char *argv[])
     B->q=4;
     retval = ARKStepSetTables(inner_arkode_mem, 4, 0, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    ARKodeButcherTable_Free(B);
     break;
   case(2):  /* esdirk-3-3 fast solver (full problem) */
     inner_arkode_mem = ARKStepCreate(NULL, fn, T0, y, ctx);
@@ -376,6 +379,7 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
     retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
     if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+    ARKodeButcherTable_Free(B);
     break;
   case(3):  /* no fast dynamics ('evolve' explicitly w/ erk-3-3) */
   case(4):
@@ -396,6 +400,7 @@ int main(int argc, char *argv[])
     B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    ARKodeButcherTable_Free(B);
   }
 
   /* Set the user data pointer */
@@ -459,6 +464,7 @@ int main(int argc, char *argv[])
     if (check_retval((void *)C, "MRIStepCoupling_MIStoMRI", 0)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    ARKodeButcherTable_Free(B);
     break;
   case(4):  /* dirk-2 (trapezoidal), solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
@@ -656,7 +662,6 @@ int main(int argc, char *argv[])
 
   /* Clean up and return */
   N_VDestroy(y);                             /* Free y vector */
-  ARKodeButcherTable_Free(B);                /* Butcher table */
   MRIStepCoupling_Free(C);                   /* free coupling coefficients */
   SUNMatDestroy(Af);                         /* free fast matrix */
   SUNLinSolFree(LSf);                        /* free fast linear solver */

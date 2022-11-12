@@ -14,7 +14,8 @@ pipeline {
             steps {
                 dir('test') {
                     script {
-                        if (env.BRANCH_NAME =~ '^(release(/|-).*)$') {
+                        if (env.CHANGE_BRANCH =~ '^(release(/|-).*)$' ||
+                            env.BRANCH_NAME =~ '^(release(/|-).*)$') {
                             sh "./test_driver.sh --testtype Release"
                         } else if (env.BRANCH_NAME =~ '^(main|develop)$' ||
                                    env.CHANGE_TARGET =~ '^(main|develop)$') {

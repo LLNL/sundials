@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
   nvecs = atol(argv[2]);
   if (nvecs < 1) {
-    printf("WARNING: Some fused operation tests disabled\n");
+    printf("WARNING: Fused operation tests disabled\n");
   }
 
   nsums = atol(argv[3]);

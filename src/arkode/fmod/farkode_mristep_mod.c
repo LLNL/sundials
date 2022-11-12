@@ -519,6 +519,18 @@ SWIGEXPORT void * _wrap_FMRIStepCoupling_LoadTable(int const *farg1) {
 }
 
 
+SWIGEXPORT void * _wrap_FMRIStepCoupling_LoadTableByName(SwigArrayWrapper *farg1) {
+  void * fresult ;
+  char *arg1 = (char *) 0 ;
+  MRIStepCoupling result;
+  
+  arg1 = (char *)(farg1->data);
+  result = (MRIStepCoupling)MRIStepCoupling_LoadTableByName((char const *)arg1);
+  fresult = result;
+  return fresult;
+}
+
+
 SWIGEXPORT void * _wrap_FMRIStepCoupling_Alloc(int const *farg1, int const *farg2, int const *farg3) {
   void * fresult ;
   int arg1 ;
@@ -1610,6 +1622,20 @@ SWIGEXPORT int _wrap_FMRIStepGetLastInnerStepFlag(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)MRIStepGetLastInnerStepFlag(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepGetUserData(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  void **arg2 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (void **)(farg2);
+  result = (int)MRIStepGetUserData(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -112,7 +112,7 @@ set(ARKODE_headers )
 set(ARKODE_extras)
 
 # Additional libraries to link against (appended to below)
-set(OTHER_LIBS ${EXTRA_LINK_LIBS})
+set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # ------------
 # MPI examples
@@ -132,10 +132,10 @@ list(APPEND ARKODE_extras plot_heat2D_p.py)
 
 if(BUILD_CVODE)
   set(examples_cvode
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;develop\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;develop\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;develop\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;develop\;default")
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default"
+    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default")
   set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel sundials_nvecmpiplusx)
   build_examples(examples_cvode CXX)
 endif()
@@ -234,18 +234,20 @@ if(EXAMPLES_INSTALL)
     list(APPEND _sundials_targets cvode nvecmpiplusx)
   endif()
 
-  if(serial_raja_examples)
-    list(APPEND examples_to_install "${serial_raja_examples}")
-    list(APPEND _sundials_targets nvecmpiplusx)
+  # For now do not install the RAJA examples because they need to built as CUDA
+  # code when RAJA is built with CUDA
+  # if(serial_raja_examples)
+  #   list(APPEND examples_to_install "${serial_raja_examples}")
+  #   list(APPEND _sundials_targets nvecmpiplusx)
 
-    if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
-      set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
-    endif()
+  #   if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  #     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
+  #   endif()
 
-    if(RAJA_NEEDS_THREADS)
-      set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
-    endif()
-  endif()
+  #   if(RAJA_NEEDS_THREADS)
+  #     set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+  #   endif()
+  # endif()
 
   sundials_install_examples(arkode examples_to_install
     CMAKE_TEMPLATE
@@ -253,7 +255,7 @@ if(EXAMPLES_INSTALL)
     SUNDIALS_TARGETS
       ${_sundials_targets}
     OTHER_TARGETS
-      ${OTHER_LIBS}
+      ${EXE_EXTRA_LINK_LIBS}
     DESTINATION
       arkode/CXX_parallel
     EXTRA_FILES

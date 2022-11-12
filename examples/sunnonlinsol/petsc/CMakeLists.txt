@@ -22,21 +22,6 @@ set(examples
   "test_sunnonlinsol_petscsnes\;\;"
 )
 
-# Dependencies
-set(dependencies
-  sundials_nvector
-  sundials_matrix
-  sundials_linearsolver
-  sundials_nonlinearsolver
-)
-
-set(shared_SOURCES
-  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_matrix.c
-  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
-)
-
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
@@ -50,7 +35,7 @@ set(SUNDIALS_LIBS sundials_nvecpetsc)
 list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
-list(APPEND SUNDIALS_LIBS ${EXTRA_LINK_LIBS})
+list(APPEND SUNDIALS_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${examples})
@@ -64,8 +49,7 @@ foreach(example_tuple ${examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example}
-      ${shared_SOURCES} ${example}.c)
+    add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -88,7 +72,7 @@ foreach(example_tuple ${examples})
     NODIFF)
 
   if(EXAMPLES_INSTALL)
-    install(FILES ${shared_SOURCES} ${example}.c
+    install(FILES ${example}.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
   endif()
 

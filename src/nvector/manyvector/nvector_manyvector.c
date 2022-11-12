@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_nvector.h"
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 #include <nvector/nvector_mpimanyvector.h>
 #else
@@ -271,7 +272,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
 {
   N_Vector v;
   N_VectorContent_ManyVector content;
-  sunindextype i;
+  sunindextype i, local_length;
 
   /* Check that input N_Vectors are non-NULL */
   if (vec_array == NULL)  return(NULL);
@@ -368,15 +369,16 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
     content->subvec_array[i] = vec_array[i];
 
   /* Determine overall ManyVector length: sum contributions from all subvectors */
-  content->global_length = 0;
+  local_length = 0;
   for (i=0; i<num_subvectors; i++) {
     if (vec_array[i]->ops->nvgetlength) {
-      content->global_length += N_VGetLength(vec_array[i]);
+      local_length += N_VGetLength(vec_array[i]);
     } else {
       N_VDestroy(v);
       return(NULL);
     }
   }
+  content->global_length = local_length;
 
   return(v);
 }
@@ -560,6 +562,10 @@ sunindextype MVAPPEND(N_VGetLength)(N_Vector v)
   return(MANYVECTOR_GLOBLENGTH(v));
 }
 
+sunindextype MVAPPEND(N_VGetSubvectorLocalLength)(N_Vector v, sunindextype vec_num)
+{
+  return(N_VGetLocalLength(MVAPPEND(N_VGetSubvector)(v, vec_num)));
+}
 
 /* Performs the linear sum z = a*x + b*y by calling N_VLinearSum on all subvectors;
    this routine does not check that x, y and z are ManyVectors, if they have the

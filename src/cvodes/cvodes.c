@@ -4078,6 +4078,10 @@ void CVodeFree(void **cvode_mem)
   free(cv_mem->cv_Xvecs); cv_mem->cv_Xvecs = NULL;
   free(cv_mem->cv_Zvecs); cv_mem->cv_Zvecs = NULL;
 
+  if (cv_mem->proj_mem) {
+    cvProjFree(&(cv_mem->proj_mem));
+  }
+
   free(*cvode_mem);
   *cvode_mem = NULL;
 }

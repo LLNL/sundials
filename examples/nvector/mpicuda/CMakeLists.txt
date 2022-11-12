@@ -36,7 +36,7 @@ include_directories(. ..)
 set(NVECS_LIB sundials_nvecmpiplusx sundials_nveccuda)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_cuda_examples})

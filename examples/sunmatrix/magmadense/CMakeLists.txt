@@ -62,7 +62,7 @@ foreach(example_tuple ${sunmatrix_magmadense_examples})
         sundials_${vector}
         sundials_sunmatrixmagmadense
         SUNDIALS::MAGMA
-        ${EXTRA_LINK_LIBS}
+        ${EXE_EXTRA_LINK_LIBS}
     )
   endif()
 

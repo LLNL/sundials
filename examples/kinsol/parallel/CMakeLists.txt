@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kinFoodWeb_kry_bbd_p\;1\;4\;develop"
-  "kinFoodWeb_kry_p\;1\;4\;develop"
+  "kinFoodWeb_kry_bbd_p\;1\;4\;exclude-single"
+  "kinFoodWeb_kry_p\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -36,7 +36,7 @@ set(KINSOL_LIB sundials_kinsol)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})

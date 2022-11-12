@@ -60,12 +60,40 @@ if(ENABLE_CALIPER)
 endif()
 
 # ---------------------------------------------------------------
+# Find (and test) the Ginkgo libraries
+# ---------------------------------------------------------------
+
+if(ENABLE_GINKGO)
+  include(SundialsGinkgo)
+  list(APPEND SUNDIALS_TPL_LIST "GINKGO")
+endif()
+
+
+# ---------------------------------------------------------------
 # Find (and test) the hypre libraries
 # ---------------------------------------------------------------
 
 if(ENABLE_HYPRE)
   include(SundialsHypre)
   list(APPEND SUNDIALS_TPL_LIST "HYPRE")
+endif()
+
+# ---------------------------------------------------------------
+# Find (and test) Kokkos
+# ---------------------------------------------------------------
+
+if(ENABLE_KOKKOS)
+  include(SundialsKokkos)
+  list(APPEND SUNDIALS_TPL_LIST "KOKKOS")
+endif()
+
+# ---------------------------------------------------------------
+# Find (and test) Kokkos Kernels
+# ---------------------------------------------------------------
+
+if(ENABLE_KOKKOS_KERNELS)
+  include(SundialsKokkosKernels)
+  list(APPEND SUNDIALS_TPL_LIST "KOKKOS_KERNELS")
 endif()
 
 # ---------------------------------------------------------------

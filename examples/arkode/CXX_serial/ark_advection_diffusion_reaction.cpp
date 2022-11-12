@@ -39,7 +39,7 @@
  *
  *   0. An explicit Runge-Kutta method with ERKStep.
  *
- *   1. An explicit, diagonally-implicit, or IMEX Runge-Kutta method with
+ *   1. An explicit, diagonally implicit, or IMEX Runge-Kutta method with
  *      ARKStep. The method used depends on the value of the --splitting <int>
  *      flag (denoted by IDX in the tables below).
  *
@@ -72,25 +72,74 @@
  *      | IDX | D | R | Description                           |
  *      +-----+---+---+---------------------------------------+
  *      |  0  | E | E | fully explicit                        |
- *      |  1  | E | I | implicit reaction, explicit diffusion |
- *      |  2  | I | E | implicit diffusion, explicit reaction |
+ *      |  1  | E | I | explicit diffusion, implicit reaction |
+ *      |  2  | I | E | explicit reaction, implicit diffusion |
  *      |  3  | I | I | fully implicit                        |
  *      +-----+---+---+---------------------------------------+
  *
  *   2. An explicit, implicit-solve-decoupled, or IMEX-solve-decoupled MRI-GARK
- *      with explicit slow advection, implicit slow diffusion, and fast reaction
- *      integrated using an explicit or implicit method from ARKStep depending
- *      on the value of the --splitting <int> flag.
+ *      method with MRIStep. Advection is treated explicitly at the slow time
+ *      scale, diffusion implicitly at the slow time scale, and the reaction
+ *      terms are integrated using an explicit or implicit method from ARKStep
+ *      at the fast time scale depending on the value of the --splitting <int>
+ *      flag (denoted by IDX in the tables below).
  *
- *      | IDX | R | Description       |
- *      +-----+---+-------------------+
- *      |  0  | E | explicit reaction |
- *      |  1  | I | implicit reaction |
- *      +-----+---+-------------------+
+ *      Advection-Diffusion-Reaction splittings
+ *
+ *      | IDX |  A  |  D  |  R  | Description                                  |
+ *      +-----+-----+-----+-----+----------------------------------------------+
+ *      |  0  | S-E | S-I | F-E | Slow-explicit advection,                     |
+ *      |     |     |     |     | Slow-Implicit diffusion,                     |
+ *      |     |     |     |     | Fast-explicit reaction                       |
+ *      |  1  | S-E | S-I | F-I | Slow-explicit advection,                     |
+ *      |     |     |     |     | Slow-Implicit diffusion,                     |
+ *      |     |     |     |     | Fast-Implicit reaction                       |
+ *      +-----+-----+-----+-----+----------------------------------------------+
+ *
+ *      Advection-Reaction splittings (use the --no-diffusion flag)
+ *
+ *      | IDX |  A  |  R  | Description                                     |
+ *      +-----+-----+-----+-------------------------------------------------+
+ *      |  0  | S-E | F-E | Slow-explicit advection, Fast-explicit reaction |
+ *      |  1  | S-E | F-I | Slow-explicit advection, Fast-Implicit reaction |
+ *      +-----+-----+-----+-------------------------------------------------+
+ *
+ *      Diffusion-Reaction splittings (use the --no-advection flag)
+ *
+ *      | IDX |  D  |  R  | Description                                     |
+ *      +-----+-----+-----+-------------------------------------------------+
+ *      |  0  | S-I | F-E | Slow-implicit diffusion, Fast-explicit reaction |
+ *      |  1  | S-I | F-I | Slow-implicit diffusion, Fast-Implicit reaction |
+ *      +-----+-----+-----+-------------------------------------------------+
  *
  *   3. An explicit, implicit-solve-decoupled, or IMEX-solve-decoupled MRI-GARK
- *      with explicit slow advection, implicit slow diffusion, and fast reaction
- *      integrated using a custom inner stepper wrapping CVODE.
+ *      method with MRIStep. Advection is treated explicitly at the slow time
+ *      scale, diffusion implicitly at the slow time scale, and the reaction
+ *      terms are integrated implicitly using a custom inner stepper wrapping
+ *      CVODE,
+ *
+ *      Advection-Diffusion-Reaction splitting
+ *
+ *      |  A  |  D  |  R  | Description                                  |
+ *      +-----+-----+-----+----------------------------------------------+
+ *      | S-E | S-I | F-I | Slow-explicit advection,                     |
+ *      |     |     |     | Slow-Implicit diffusion,                     |
+ *      |     |     |     | Fast-Implicit reaction                       |
+ *      +-----+-----+-----+----------------------------------------------+
+ *
+ *      Advection-Reaction splitting (use the --no-diffusion flag)
+ *
+ *      |  A  |  R  | Description                                     |
+ *      +-----+-----+-------------------------------------------------+
+ *      | S-E | F-I | Slow-explicit advection, Fast-Implicit reaction |
+ *      +-----+-----+-------------------------------------------------+
+ *
+ *      Diffusion-Reaction splitting (use the --no-advection flag)
+ *
+ *      |  D  |  R  | Description                                     |
+ *      +-----+-----+-------------------------------------------------+
+ *      | S-I | F-I | Slow-implicit diffusion, Fast-Implicit reaction |
+ *      +-----+-----+-------------------------------------------------+
  *
  * Several command line options are available to change the problem parameters
  * and integrator settings. Use the flag --help for more information.
@@ -508,13 +557,13 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
       Ji_RHS = nullptr;
       break;
     case(1):
-      // IMEX -- explicit advection, implicit diffusion
-      fe_RHS = f_advection;
-      fi_RHS = f_diffusion;
-      Ji_RHS = J_diffusion;
+      // IMEX -- explicit diffusion, implicit reaction
+      fe_RHS = f_diffusion;
+      fi_RHS = f_reaction;
+      Ji_RHS = J_reaction;
       break;
     case(2):
-      // IMEX -- explicit diffusion, implicit advection
+      // IMEX -- explicit reaction, implicit diffusion
       fe_RHS = f_reaction;
       fi_RHS = f_diffusion;
       Ji_RHS = J_diffusion;
@@ -591,16 +640,16 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
     switch(uopts.order)
     {
     case(3):
-      flag = ARKStepSetTableNum(*arkode_mem, ARKODE_ARK324L2SA_DIRK_4_2_3,
-                                ARKODE_ERK_NONE);
+      flag = ARKStepSetTableName(*arkode_mem, "ARKODE_ARK324L2SA_DIRK_4_2_3",
+                                 "ARKODE_ERK_NONE");
       break;
     case(4):
-      flag = ARKStepSetTableNum(*arkode_mem, ARKODE_ARK436L2SA_DIRK_6_3_4,
-                                ARKODE_ERK_NONE);
+      flag = ARKStepSetTableName(*arkode_mem, "ARKODE_ARK436L2SA_DIRK_6_3_4",
+                                 "ARKODE_ERK_NONE");
       break;
     case(5):
-      flag = ARKStepSetTableNum(*arkode_mem, ARKODE_ARK548L2SA_DIRK_8_4_5,
-                                ARKODE_ERK_NONE);
+      flag = ARKStepSetTableName(*arkode_mem, "ARKODE_ARK548L2SA_DIRK_8_4_5",
+                                 "ARKODE_ERK_NONE");
       break;
     default:
       cerr << "ERROR: Invalid order to use ARK DIRK method" << endl;

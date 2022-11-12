@@ -162,6 +162,7 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads,
   v->ops->nvgetarraypointer = N_VGetArrayPointer_Pthreads;
   v->ops->nvsetarraypointer = N_VSetArrayPointer_Pthreads;
   v->ops->nvgetlength       = N_VGetLength_Pthreads;
+  v->ops->nvgetlocallength  = N_VGetLength_Pthreads;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Pthreads;
@@ -5275,7 +5276,7 @@ static void N_VInitThreadData(Pthreads_Data *thread_data)
   thread_data->start = -1;
   thread_data->end   = -1;
 
-#if __STDC_VERSION__ >= 199901L
+#ifdef NAN
   thread_data->c1 = NAN;
   thread_data->c2 = NAN;
 #else

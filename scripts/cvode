@@ -196,6 +196,17 @@ $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.cu
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.out
 
+$tar $tarfile $distrobase/examples/cvode/ginkgo/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.cpp
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.hpp
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.CUDA.out
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.OMP.out
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_heat2D_ginkgo.REF.out
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_kpr_ginkgo.cpp
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_kpr_ginkgo.hpp
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_kpr_ginkgo.OMP.out
+$tar $tarfile $distrobase/examples/cvode/ginkgo/cv_kpr_ginkgo.REF.out
+
 $tar $tarfile $distrobase/examples/cvode/hip/README
 $tar $tarfile $distrobase/examples/cvode/hip/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_diag_hip.cpp
@@ -205,10 +216,16 @@ $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_diag_hip_1_1.out
 $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.cpp
 $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.out
 
+$tar $tarfile $distrobase/examples/cvode/kokkos/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.cpp
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.CUDA.out
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.OPENMP.out
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.SERIAL.out
+
 $tar $tarfile $distrobase/examples/cvode/magma/README
 $tar $tarfile $distrobase/examples/cvode/magma/CMakeLists.txt
-$tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.cpp
-$tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.out
+$tar $tarfile $distrobase/examples/cvode/magma/cv_bruss_batched_magma.cpp
+$tar $tarfile $distrobase/examples/cvode/magma/cv_bruss_batched_magma.out
 
 $tar $tarfile $distrobase/examples/cvode/raja/README
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt
@@ -223,7 +240,11 @@ $tar $tarfile $distrobase/examples/cvode/CXX_onemkl/cvRoberts_blockdiag_onemkl.o
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/README
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/cv_heat2D.cpp
+$tar $tarfile $distrobase/examples/cvode/CXX_serial/cv_heat2D.hpp
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/cv_heat2D.out
+$tar $tarfile $distrobase/examples/cvode/CXX_serial/cv_kpr.cpp
+$tar $tarfile $distrobase/examples/cvode/CXX_serial/cv_kpr.hpp
+$tar $tarfile $distrobase/examples/cvode/CXX_serial/cv_kpr.out
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/plot_heat2D.py
 
 $tar $tarfile $distrobase/examples/cvode/CXX_parallel/CMakeLists.txt

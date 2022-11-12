@@ -28,6 +28,12 @@ if(WIN32)
   # Under Windows, add compiler directive to inhibit warnings
   # about use of unsecure functions.
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+
+  # Under Windows, we need to have dll and exe files in the
+  # same directory to run the test suite properly.
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 endif()
 
 if(APPLE)
@@ -121,7 +127,7 @@ if(SUNDIALS_BUILD_WITH_PROFILING AND (CMAKE_C_STANDARD STREQUAL "90"))
 endif()
 
 # ---------------------------------------------------------------
-# Check for snprintf
+# Check for snprintf and va_copy
 #
 # 199901L is the minimum ISO C standard for snprintf but some
 # C89 compilers provide extensions that define it.
@@ -138,11 +144,69 @@ check_c_source_compiles("
     printf(\"%d\", size);
     return 0;
   }
-" COMPILER_HAS_SNPRINTF_AND_VA_COPY)
-if(NOT COMPILER_HAS_SNPRINTF_AND_VA_COPY)
+" SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY)
+if(NOT SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY)
   sundials_option(SUNDIALS_MAX_SPRINTF_SIZE STRING
     "Max size of buffer for sprintf" "5120" ADVANCED)
 endif()
+
+# ---------------------------------------------------------------
+# Check for float and long double math functions
+# ---------------------------------------------------------------
+
+set(CMAKE_REQUIRED_LIBRARIES ${SUNDIALS_MATH_LIBRARY})
+check_c_source_compiles("
+  #include <math.h>
+  int main() {
+    float a, a_result;
+    long double b, b_result;
+
+    a = 1.0F;
+    b = 1.0L;
+
+    a_result = sqrtf(a);
+    a_result = fabsf(a);
+    a_result = expf(a);
+    a_result = ceilf(a);
+    a_result = powf(a, 1.0F);
+
+    b_result = sqrtl(b);
+    b_result = fabsl(b);
+    b_result = expl(b);
+    b_result = ceill(b);
+    b_result = powl(b, 1.0L);
+
+    return 0;
+  }
+" SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
+
+# ---------------------------------------------------------------
+# Check for isinf and isnan
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  #include <math.h>
+  int main() {
+    double a = 0.0;
+    int result = isinf(a);
+    result = isnan(a);
+    return result;
+  }
+" SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
+
+# ---------------------------------------------------------------
+# Check for inline
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  static inline double add1(double a) {
+    return a + 1.0;
+  }
+  int main() {
+    double a = 0.0;
+    return add1(a) < a;
+  }
+" SUNDIALS_C_COMPILER_HAS_INLINE)
 
 # ---------------------------------------------------------------
 # Check for POSIX timers
@@ -290,7 +354,9 @@ if(BUILD_BENCHMARKS OR EXAMPLES_ENABLE_CXX OR
     ENABLE_RAJA OR
     ENABLE_TRILINOS OR
     ENABLE_SUPERLUDIST OR
-    ENABLE_MAGMA)
+    ENABLE_MAGMA OR
+    ENABLE_GINKGO OR
+    ENABLE_KOKKOS)
   include(SundialsSetupCXX)
 endif()
 

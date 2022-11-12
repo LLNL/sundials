@@ -90,6 +90,22 @@ if(DEFINED SUPERLUDIST_ENABLE)
   unset(SUPERLUDIST_ENABLE CACHE)
 endif()
 
+# Deprecated with SUNDIALS 6.4.0
+if(DEFINED SUPERLUDIST_LIBRARY_DIR)
+  print_warning("The CMake option SUPERLUDIST_LIBRARY_DIR is deprecated"
+                "Use SUPERLUDIST_DIR instead"
+                MODE DEPRECATION)
+  set(SUPERLUDIST_DIR "${SUPERLUDIST_LIBRARY_DIR}/../" CACHE BOOL "SuperLU_DIST root directory" FORCE)
+  unset(SUPERLUDIST_LIBRARY_DIR CACHE)
+endif()
+if(DEFINED SUPERLUDIST_INCLUDE_DIR)
+  print_warning("The CMake option SUPERLUDIST_INCLUDE_DIR is deprecated"
+                "Use SUPERLUDIST_INCLUDE_DIRS instead"
+                MODE DEPRECATION)
+  set(SUPERLUDIST_INCLUDE_DIRS "${SUPERLUDIST_INCLUDE_DIR}" CACHE BOOL "SuperLU_DIST include directoroes" FORCE)
+  unset(SUPERLUDIST_INCLUDE_DIR CACHE)
+endif()
+
 if(DEFINED SUPERLUMT_ENABLE)
   print_warning("The CMake option SUPERLUMT_ENABLE is deprecated" "Use ENABLE_SUPERLUMT instead"
                 MODE DEPRECATION)
@@ -143,4 +159,23 @@ if(DEFINED CUDA_ARCH)
   string(REGEX MATCH "[0-9]+" arch_name "${CUDA_ARCH}")
   set(CMAKE_CUDA_ARCHITECTURES ${arch_name} CACHE STRING "CUDA Architectures" FORCE)
   unset(CUDA_ARCH)
+endif()
+
+#
+# Deprecated USE_GENERIC_MATH option
+#
+
+if(DEFINED USE_GENERIC_MATH)
+  print_warning("The CMake option USE_GENERIC_MATH is deprecated" "Use SUNDIALS_MATH_LIBRARY instead"
+                MODE DEPRECATION)
+  if(USE_GENERIC_MATH)
+    if(UNIX)
+      set(SUNDIALS_MATH_LIBRARY "-lm" CACHE PATH "Which math library (e.g., libm) to link to" FORCE)
+    else()
+      set(SUNDIALS_MATH_LIBRARY "" CACHE PATH "Which math library (e.g., libm) to link to" FORCE)
+    endif()
+  else()
+    set(SUNDIALS_MATH_LIBRARY "" CACHE PATH "Which math library (e.g., libm) to link to" FORCE)
+  endif()
+  unset(USE_GENERIC_MATH CACHE)
 endif()

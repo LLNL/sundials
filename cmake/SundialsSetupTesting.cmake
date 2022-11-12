@@ -14,12 +14,6 @@
 # Enable SUNDIALS Testing
 # ---------------------------------------------------------------
 
-# Include development examples in regression tests
-sundials_option(SUNDIALS_TEST_DEVTESTS BOOL "Include development tests in make test" OFF ADVANCED)
-
-# Include unit tests in regression tests
-sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test" OFF ADVANCED)
-
 # Enable testing with 'make test'
 include(CTest)
 

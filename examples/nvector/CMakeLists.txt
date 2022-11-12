@@ -17,7 +17,7 @@
 
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   include_directories(${caliper_INCLUDE_DIR})
-  set(EXTRA_LINK_LIBS ${EXTRA_LINK_LIBS} caliper)
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
 # Always add the nvector serial examples
@@ -25,7 +25,12 @@ add_subdirectory(serial)
 
 # Build the nvector test utilities
 add_library(test_nvector_obj OBJECT test_nvector.c)
+if(BUILD_SHARED_LIBS)
+  # need PIC when shared libs are used since the example executables will link to the shared lib
+  set_property(TARGET test_nvector_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+endif()
 target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)
+
 
 if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(parallel)
@@ -33,6 +38,9 @@ if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(mpiplusx)
   # Build the mpi nvector test utilities
   add_library(test_nvectormpi_obj OBJECT test_mpinvector.c)
+  if(BUILD_SHARED_LIBS)
+    set_property(TARGET test_nvectormpi_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  endif()
   target_link_libraries(test_nvectormpi_obj PRIVATE MPI::MPI_C sundials_nvecparallel)
 endif()
 add_subdirectory(manyvector)
@@ -81,4 +89,8 @@ endif()
 
 if(BUILD_NVECTOR_TRILINOS)
   add_subdirectory(trilinos)
+endif()
+
+if(BUILD_NVECTOR_KOKKOS)
+  add_subdirectory(kokkos)
 endif()

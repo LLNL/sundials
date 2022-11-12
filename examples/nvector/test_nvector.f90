@@ -113,7 +113,9 @@ integer(C_INT) function Test_FN_VLinearCombination(X, local_length, myid) &
   Y3 => FN_VClone(X)
 
   ! set vectors in vector array
-  V = (/c_loc(Y1), c_loc(Y2), c_loc(Y3)/)
+  V(1) = c_loc(Y1)
+  V(2) = c_loc(Y2)
+  V(3) = c_loc(Y3)
   Vptr = c_loc(V)
 
   ! initialize c values

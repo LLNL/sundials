@@ -183,14 +183,30 @@ module farkode_mod
   enumerator :: ARKODE_ARK548L2SA_DIRK_8_4_5
   enumerator :: ARKODE_ARK437L2SA_DIRK_7_3_4
   enumerator :: ARKODE_ARK548L2SAb_DIRK_8_4_5
-  enumerator :: ARKODE_MAX_DIRK_NUM = ARKODE_ARK548L2SAb_DIRK_8_4_5
+  enumerator :: ARKODE_ESDIRK324L2SA_4_2_3
+  enumerator :: ARKODE_ESDIRK325L2SA_5_2_3
+  enumerator :: ARKODE_ESDIRK32I5L2SA_5_2_3
+  enumerator :: ARKODE_ESDIRK436L2SA_6_3_4
+  enumerator :: ARKODE_ESDIRK43I6L2SA_6_3_4
+  enumerator :: ARKODE_QESDIRK436L2SA_6_3_4
+  enumerator :: ARKODE_ESDIRK437L2SA_7_3_4
+  enumerator :: ARKODE_ESDIRK547L2SA_7_4_5
+  enumerator :: ARKODE_ESDIRK547L2SA2_7_4_5
+  enumerator :: ARKODE_MAX_DIRK_NUM = ARKODE_ESDIRK547L2SA2_7_4_5
  end enum
  integer, parameter, public :: ARKODE_DIRKTableID = kind(ARKODE_DIRK_NONE)
  public :: ARKODE_DIRK_NONE, ARKODE_MIN_DIRK_NUM, ARKODE_SDIRK_2_1_2, ARKODE_BILLINGTON_3_3_2, ARKODE_TRBDF2_3_3_2, &
     ARKODE_KVAERNO_4_2_3, ARKODE_ARK324L2SA_DIRK_4_2_3, ARKODE_CASH_5_2_4, ARKODE_CASH_5_3_4, ARKODE_SDIRK_5_3_4, &
     ARKODE_KVAERNO_5_3_4, ARKODE_ARK436L2SA_DIRK_6_3_4, ARKODE_KVAERNO_7_4_5, ARKODE_ARK548L2SA_DIRK_8_4_5, &
-    ARKODE_ARK437L2SA_DIRK_7_3_4, ARKODE_ARK548L2SAb_DIRK_8_4_5, ARKODE_MAX_DIRK_NUM
+    ARKODE_ARK437L2SA_DIRK_7_3_4, ARKODE_ARK548L2SAb_DIRK_8_4_5, ARKODE_ESDIRK324L2SA_4_2_3, ARKODE_ESDIRK325L2SA_5_2_3, &
+    ARKODE_ESDIRK32I5L2SA_5_2_3, ARKODE_ESDIRK436L2SA_6_3_4, ARKODE_ESDIRK43I6L2SA_6_3_4, ARKODE_QESDIRK436L2SA_6_3_4, &
+    ARKODE_ESDIRK437L2SA_7_3_4, ARKODE_ESDIRK547L2SA_7_4_5, ARKODE_ESDIRK547L2SA2_7_4_5, ARKODE_MAX_DIRK_NUM
  public :: FARKodeButcherTable_LoadDIRK
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
+ public :: FARKodeButcherTable_LoadDIRKByName
  integer(C_INT), parameter, public :: HEUN_EULER_2_1_2 = 0_C_INT
  integer(C_INT), parameter, public :: BOGACKI_SHAMPINE_4_2_3 = 1_C_INT
  integer(C_INT), parameter, public :: ARK324L2SA_ERK_4_2_3 = 2_C_INT
@@ -236,6 +252,7 @@ module farkode_mod
     ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
     ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
+ public :: FARKodeButcherTable_LoadERKByName
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARKLS_MEM_NULL = -1_C_INT
  integer(C_INT), parameter, public :: ARKLS_LMEM_NULL = -2_C_INT
@@ -553,11 +570,29 @@ integer(C_INT), intent(in) :: farg1
 type(C_PTR) :: fresult
 end function
 
+function swigc_FARKodeButcherTable_LoadDIRKByName(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_LoadDIRKByName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(SwigArrayWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
 function swigc_FARKodeButcherTable_LoadERK(farg1) &
 bind(C, name="_wrap_FARKodeButcherTable_LoadERK") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FARKodeButcherTable_LoadERKByName(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_LoadERKByName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -1085,16 +1120,62 @@ fresult = swigc_FARKodeButcherTable_LoadDIRK(farg1)
 swig_result = fresult
 end function
 
-function FARKodeButcherTable_LoadERK(imethod) &
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FARKodeButcherTable_LoadDIRKByName(imethod) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(ARKODE_ERKTableID), intent(in) :: imethod
+character(kind=C_CHAR, len=*), target :: imethod
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
+
+call SWIG_string_to_chararray(imethod, farg1_chars, farg1)
+fresult = swigc_FARKodeButcherTable_LoadDIRKByName(farg1)
+swig_result = fresult
+end function
+
+function FARKodeButcherTable_LoadERK(emethod) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(ARKODE_ERKTableID), intent(in) :: emethod
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 
-farg1 = imethod
+farg1 = emethod
 fresult = swigc_FARKodeButcherTable_LoadERK(farg1)
+swig_result = fresult
+end function
+
+function FARKodeButcherTable_LoadERKByName(emethod) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+character(kind=C_CHAR, len=*), target :: emethod
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
+
+call SWIG_string_to_chararray(emethod, farg1_chars, farg1)
+fresult = swigc_FARKodeButcherTable_LoadERKByName(farg1)
 swig_result = fresult
 end function
 

@@ -587,9 +587,52 @@ illustration only.
 
 .. cmakeoption:: BUILD_FORTRAN_MODULE_INTERFACE
 
-   Enable Fortran2003 interface
+   Enable Fortran 2003 interface
 
    Default: ``OFF``
+
+.. cmakeoption:: ENABLE_GINKGO
+
+   Enable interfaces to the Ginkgo linear algebra library.
+
+   Default: ``OFF``
+
+.. cmakeoption:: Ginkgo_DIR
+
+   Path to the Ginkgo installation.
+
+   Default: None
+
+.. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
+
+   Semi-colon separated list of Ginkgo target architecutres/executors to build for.
+   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and DPC++.
+
+   Default: "REF;OMP"
+
+.. cmakeoption:: ENABLE_KOKKOS
+
+   Enable the Kokkos based vector.
+
+   Default: ``OFF``
+
+.. cmakeoption:: Kokkos_DIR
+
+   Path to the Kokkos installation.
+
+   Default: None
+
+.. cmakeoption:: ENABLE_KOKKOS_KERNELS
+
+   Enable the Kokkos based dense matrix and linear solver.
+
+   Default: ``OFF``
+
+.. cmakeoption:: KokkosKernels_DIR
+
+   Path to the Kokkos-Kernels installation.
+
+   Default: None
 
 .. cmakeoption:: ENABLE_HYPRE
 
@@ -801,22 +844,9 @@ illustration only.
    .. note:: See additional information on building wtih
              SuperLU_DIST enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
-.. cmakeoption:: SUPERLUDIST_INCLUDE_DIR
+.. cmakeoption:: SUPERLUDIST_DIR
 
-   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
-   install, this is typically the SuperLU_DIST ``SRC`` directory)
-
-   Default: none
-
-.. cmakeoption:: SUPERLUDIST_LIBRARY_DIR
-
-   Path to SuperLU_DIST installed library files
-
-   Default: none
-
-.. cmakeoption:: SUPERLUDIST_LIBRARIES
-
-   Semi-colon separated list of libraries needed for SuperLU_DIST
+   Path to SuperLU_DIST installation.
 
    Default: none
 
@@ -829,6 +859,48 @@ illustration only.
    Note: SuperLU_DIST must be built with OpenMP support for this option to function.
    Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
    number of threads.
+
+.. cmakeoption:: SUPERLUDIST_INCLUDE_DIRS
+
+   List of include paths for SuperLU_DIST (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. Prefer to use :cmakeop:`SUPERLUDIST_DIR`.
+
+.. cmakeoption:: SUPERLUDIST_LIBRARIES
+
+   Semi-colon separated list of libraries needed for SuperLU_DIST
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. Prefer to use :cmakeop:`SUPERLUDIST_DIR`.
+
+.. cmakeoption:: SUPERLUDIST_INCLUDE_DIR
+
+   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+   .. note::
+
+      This is an advanced option. This option is deprecated. Use :cmakeop:`SUPERLUDIST_INCLUDE_DIRS`.
+
+.. cmakeoption:: SUPERLUDIST_LIBRARY_DIR
+
+   Path to SuperLU_DIST installed library files
+
+   Default: none
+
+   .. note::
+
+      This option is deprecated. Use :cmakeop:`SUPERLUDIST_DIR`.
 
 .. cmakeoption:: ENABLE_SUPERLUMT
 
@@ -892,7 +964,7 @@ illustration only.
    Enables MPI support in the SUNLogger runtime API. I.e., makes the logger MPI
    aware and capable of outputting only on specific ranks.
 
-   Default: :cmakeop:`ENABLE_MPI`
+   Default: ``OFF``
 
    .. note::
 
@@ -1000,6 +1072,12 @@ illustration only.
       The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
       a type not listed here.
 
+.. cmakeoption:: SUNDIALS_MATH_LIBRARY
+
+   The standard C math library (e.g., ``libm``) to link with.
+
+   Default: ``-lm`` on Unix systems, none otherwise
+
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
@@ -1016,9 +1094,13 @@ illustration only.
 
 .. cmakeoption:: USE_GENERIC_MATH
 
-   Use generic (``stdc``) math libraries
+   Link to :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
 
    Default: ``ON``
+
+   .. note::
+
+      This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 .. cmakeoption:: XBRAID_DIR
 
@@ -1103,6 +1185,60 @@ addressing specific configurations when using the supported third
 party libraries.
 
 
+.. _Installation.CMake.ExternalLibraries.Ginkgo:
+
+Building with Ginkgo
+^^^^^^^^^^^^^^^^^^^^
+
+`Ginkgo <https://ginkgo-project.github.io/>`_ is a high-performance linear algebra library for
+manycore systems, with a focus on solving sparse linear systems. It is implemented using modern
+C++ (you will need at least a C++14 compliant compiler to build it), with GPU kernels implemented in
+CUDA (for NVIDIA devices), HIP (for AMD devices) and SYCL/DPC++ (for Intel devices and other
+supported hardware). To enable Ginkgo in SUNDIALS, set the :cmakeop:`ENABLE_GINKGO` to ``ON``
+and provide the path to the root of the Ginkgo installation in :cmakeop:`Ginkgo_DIR`.
+Additionally, :cmakeop:`SUNDIALS_GINKGO_BACKENDS` must be set to a list of Ginkgo target
+architecutres/executors. E.g.,
+
+.. code-block:: bash
+
+   % cmake \
+   > -DENABLE_GINKGO=ON \
+   > -DGinkgo_DIR=/path/to/ginkgo/installation \
+   > -DSUNDIALS_GINKGO_BACKENDS="REF;OMP;CUDA" \
+   > /home/myname/sundials/srcdir
+
+The SUNDIALS interfaces to Ginkgo are not compatible with :cmakeop:`SUNDIALS_PRECISION` set
+to ``extended``.
+
+.. _Installation.CMake.ExternalLibraries.Kokkos:
+
+Building with Kokkos
+^^^^^^^^^^^^^^^^^^^^
+
+`Kokkos <https://kokkos.github.io/kokkos-core-wiki/>`_ is a modern C++ (requires
+at least C++14) programming model for witting performance portable code for
+multicore CPU and GPU-based systems including NVIDIA, AMD, and Intel
+accelerators. To enable Kokkos in SUNDIALS, set the :cmakeop:`ENABLE_KOKKOS` to
+``ON`` and provide the path to the root of the Kokkos installation in
+:cmakeop:`Kokkos_DIR`. Additionally, the
+`Kokkos-Kernels <https://github.com/kokkos/kokkos-kernels>`_ library provides
+common computational kernels for linear algebra. To enable Kokkos-Kernels in
+SUNDIALS, set the :cmakeop:`ENABLE_KOKKOS_KERNELS` to ``ON`` and provide the
+path to the root of the Kokkos-Kernels installation in
+:cmakeop:`KokkosKernels_DIR` e.g.,
+
+.. code-block:: bash
+
+   % cmake \
+   > -DENABLE_KOKKOS=ON \
+   > -DKokkos_DIR=/path/to/kokkos/installation \
+   > -DENABLE_KOKKOS_KERNELS=ON \
+   > -DKokkosKernels_DIR=/path/to/kokkoskernels/installation \
+   > /home/myname/sundials/srcdir
+
+.. note::
+
+   The minimum supported version of Kokkos-Kernels 3.7.00.
 
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 
@@ -1172,17 +1308,13 @@ setting. The library is developed by Lawrence Berkeley National Laboratory and
 is available from the `SuperLU_DIST GitHub repository
 <https://github.com/xiaoyeli/superlu_dist>`_.
 
-To enable SuperLU_DIST, set ``ENABLE_SUPERLUDIST`` to ``ON``, set
-``SUPERLUDIST_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_DIST
-installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the ``lib`` path
-of the SuperLU_DIST installation.  At the same time, the variable
-``SUPERLUDIST_LIBRARIES`` must be set to a semi-colon separated list of other
-libraries SuperLU_DIST depends on. For example, if SuperLU_DIST was built with
-LAPACK, then include the LAPACK library in this list.  If SuperLU_DIST was built
-with OpenMP support, then you may set ``SUPERLUDIST_OpenMP`` to ``ON`` utilize
-the OpenMP functionality of SuperLU_DIST.
+To enable SuperLU_DIST, set :cmakeop:`ENABLE_SUPERLUDIST` to ``ON``, set
+:cmakeop:`SUPERLUDIST_DIR` to the path where SuperLU_DIST is installed.
+If SuperLU_DIST was built with OpenMP then the option :cmakeop:`SUPERLUDIST_OpenMP`
+and :cmakeop:`ENABLE_OPENMP` should be set to ``ON``.
 
-SUNDIALS has been tested with SuperLU_DIST 7.1.1.
+SUNDIALS supports SuperLU_DIST v7.0.0 -- v8.x.x and has been tested with
+v7.2.0 and v8.1.0.
 
 
 .. _Installation.CMake.ExternalLibraries.SuperLU_MT:
@@ -1231,7 +1363,9 @@ path of the PETSc installation. Alternatively, a user can provide a list of
 include paths in ``PETSC_INCLUDES`` and a list of complete paths to the PETSc
 libraries in ``PETSC_LIBRARIES``.
 
-SUNDIALS has been tested with PETSc version 3.16.1.
+SUNDIALS is regularly tested with the latest PETSc versions, specifically
+up to version 3.18.1 as of SUNDIALS version |version|. SUNDIALS
+requires PETSc 3.5.0 or newer.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:
@@ -1254,7 +1388,8 @@ to the ``include`` path of the *hypre* installation, and set the variable
    SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` is compatible
    with ``HYPRE_BigInt`` in the *hypre* installation.
 
-SUNDIALS has been tested with *hypre* version 2.23.0
+SUNDIALS is regularly tested with the latest versions of *hypre*, specifically
+up to version 2.26.0 as of SUNDIALS version |version|.
 
 
 .. _Installation.CMake.ExternalLibraries.Magma:
@@ -1271,7 +1406,7 @@ To enable the SUNDIALS MAGMA interface set ``ENABLE_MAGMA`` to ``ON``,
 ``MAGMA_DIR`` to the MAGMA installation path, and ``SUNDIALS_MAGMA_BACKENDS`` to
 the desired MAGMA backend to use with SUNDIALS e.g., ``CUDA`` or ``HIP``.
 
-SUNDIALS has been tested with MAGMA version 2.6.1.
+SUNDIALS has been tested with MAGMA version v2.6.1 and v2.6.2.
 
 
 .. _Installation.CMake.ExternalLibraries.OneMKL:
@@ -1638,6 +1773,8 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_dense.h``              |
    +------------------------------+--------------+----------------------------------------------+
+   | Ginkgo                       | Headers      | ``sunmatrix/sunmatrix_ginkgo.hpp``           |
+   +------------------------------+--------------+----------------------------------------------+
    | MAGMADENSE                   | Libraries    | ``libsundials_sunmatrixmagmadense.LIB``      |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_magmadense.h``         |
@@ -1669,6 +1806,8 @@ configuration file to build against SUNDIALS in their own CMake project.
    | DENSE                        | Libraries    | ``libsundials_sunlinsoldense.LIB``           |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunlinsol/sunlinsol_dense.h``              |
+   +------------------------------+--------------+----------------------------------------------+
+   | Ginkgo                       | Headers      | ``sunlinsol/sunlinsol_ginkgo.hpp``           |
    +------------------------------+--------------+----------------------------------------------+
    | KLU                          | Libraries    | ``libsundials_sunlinsolklu.LIB``             |
    |                              +--------------+----------------------------------------------+

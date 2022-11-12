@@ -57,9 +57,10 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   if(all_depends_on_dependencies_met)
 
-    # if necessary, create the CACHE variable with its default value
     if(NOT DEFINED ${NAME})
       set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
+    else()
+      set(${NAME} "${${NAME}}" CACHE ${TYPE} ${DOCSTR})
     endif()
 
     # make the option advanced if necessary
@@ -89,10 +90,12 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   # check for valid option choices
   if((DEFINED ${NAME}) AND sundials_option_OPTIONS)
-    if(NOT (${NAME} IN_LIST sundials_option_OPTIONS))
-      list(JOIN sundials_option_OPTIONS ", " _options_msg)
-      print_error("Value of ${NAME} must be one of ${_options_msg}")
-    endif()
+    foreach(_option ${${NAME}})
+      if(NOT (${_option} IN_LIST sundials_option_OPTIONS))
+        list(JOIN sundials_option_OPTIONS ", " _options_msg)
+        print_error("Value of ${NAME} must be one of ${_options_msg}")
+      endif()
+    endforeach()
     get_property(is_in_cache CACHE ${NAME} PROPERTY TYPE)
     if(is_in_cache)
       set_property(CACHE ${NAME} PROPERTY STRINGS ${sundials_option_OPTIONS})

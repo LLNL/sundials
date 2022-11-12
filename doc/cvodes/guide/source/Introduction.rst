@@ -111,11 +111,58 @@ Fortran.
 Changes from previous versions
 ==============================
 
-Changes in vx.x.x
+Changes in v6.4.1
+-----------------
+
+Fixed a bug with the Kokkos interfaces that would arise when using clang.
+
+Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
+Fortran 2003 interface test for the serial ``N_Vector``.
+
+Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
+which would cause the tests to fail on some platforms. 
+
+Changes in v6.4.0
+-----------------
+
+CMake 3.18.0 or newer is now required for CUDA support.
+
+A C++14 compliant compiler is now required for C++ based features and examples
+e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, GINKGO, and KOKKOS.
+
+Added support for GPU enabled SuperLU_DIST and SuperLU_DIST v8.x.x. Removed
+support for SuperLU_DIST v6.x.x or older. Fix mismatched definition and
+declaration bug in SuperLU_DIST matrix constructor.
+
+Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_  linear
+algebra library. This support includes new ``SUNMatrix`` and ``SUNLinearSolver``
+implementations, see the sections :numref:`SUNMatrix.Ginkgo` and
+:numref:`SUNLinSol.Ginkgo`.
+
+Added new ``NVector``, dense ``SUNMatrix``, and dense ``SUNLinearSolver``
+implementations utilizing the `Kokkos Ecosystem <https://kokkos.org/>`_ for
+performance portability, see sections :numref:`NVectors.Kokkos`,
+:numref:`SUNMatrix.Kokkos`, and :numref:`SUNLinSol.Kokkos` for more information.
+
+Fixed a bug in the CUDA and HIP vectors where :c:func:`N_VMaxNorm` would return
+the minimum positive floating-point value for the zero vector.
+
+Fixed a memory leak where the projection memory would not be deallocated when
+calling :c:func:`CVodeFree`.
+
+Changes in v6.3.0
 -----------------
 
 Added the function :c:func:`CVodeGetUserData` to retrieve the user data pointer
 provided to :c:func:`CVodeSetUserData`.
+
+Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option which
+caused the double precision math functions to be used regardless of the value of
+:cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
+functions when they are available and the user may provide the math library to
+link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
+Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be 'OFF'.
 
 Changes in v6.2.0
 -----------------
@@ -158,8 +205,8 @@ Added the functions
 :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`,
 :c:func:`CVodeSetEtaMax`,
 :c:func:`CVodeSetEtaMin`,
-:c:func:`CVodeSetEtaMinErrFailEta`,
-:c:func:`CVodeSetEtaMaxErrFailEta`,
+:c:func:`CVodeSetEtaMinErrFail`,
+:c:func:`CVodeSetEtaMaxErrFail`,
 :c:func:`CVodeSetNumFailsEtaMaxErrFail`, and
 :c:func:`CVodeSetEtaConvFail` to adjust various parameters controlling changes
 in step size.

@@ -106,8 +106,9 @@ memory management or memory pooling.
    ==========================================================  ===========  ===========  ===========  ================  ===========
    :ref:`NVECTOR_CUDA <NVectors.CUDA>`                         X                                      X                 X
    :ref:`NVECTOR_HIP  <NVectors.HIP>`                          X            X                         X                 X
-   :ref:`NVECTOR_RAJA <NVectors.RAJA>`                         X            X            X            X                 X
    :ref:`NVECTOR_SYCL <NVectors.SYCL>`                         X\ :sup:`3`  X\ :sup:`3`  X            X                 X
+   :ref:`NVECTOR_RAJA <NVectors.RAJA>`                         X            X            X            X                 X
+   :ref:`NVECTOR_KOKKOS <NVectors.Kokkos>`                     X            X            X            X                 X
    :ref:`NVECTOR_OPENMPDEV <NVectors.OPENMPDEV>`               X            X\ :sup:`2`  X\ :sup:`2`  X
    ==========================================================  ===========  ===========  ===========  ================  ===========
 
@@ -118,8 +119,10 @@ memory management or memory pooling.
    Module                                                      CUDA         ROCm/HIP     oneAPI       Unmanaged Memory  UVM
    ==========================================================  ===========  ===========  ===========  ================  ===========
    :ref:`SUNMATRIX_CUSPARSE <SUNMatrix.cuSparse>`              X                                      X                 X
-   :ref:`SUNMATRIX_MAGMADENSE <SUNMatrix.MagmaDense>`          X            X                         X                 X
    :ref:`SUNMATRIX_ONEMKLDENSE <SUNMatrix.OneMklDense>`        X\ :sup:`3`  X\ :sup:`3`  X            X                 X
+   :ref:`SUNMATRIX_MAGMADENSE <SUNMatrix.MagmaDense>`          X            X                         X                 X
+   :ref:`SUNMATRIX_GINKGO <SUNMatrix.Ginkgo>`                  X            X                         X                 X
+   :ref:`SUNMATRIX_KOKKOSDENSE <SUNMatrix.Kokkos>`             X            X                         X                 X
    ==========================================================  ===========  ===========  ===========  ================  ===========
 
 .. _Usage.GPU.SUNLinSolTable:
@@ -129,8 +132,10 @@ memory management or memory pooling.
    Module                                                      CUDA         ROCm/HIP     oneAPI       Unmanaged Memory  UVM
    ==========================================================  ===========  ===========  ===========  ================  ===========
    :ref:`SUNLINSOL_CUSOLVERSP <SUNLinSol.cuSolverSp>`          X                                      X                 X
-   :ref:`SUNLINSOL_MAGMADENSE <SUNLinSol.MagmaDense>`          X                                      X                 X
    :ref:`SUNLINSOL_ONEMKLDENSE <SUNLinSol.OneMklDense>`        X\ :sup:`3`  X\ :sup:`3`  X            X                 X
+   :ref:`SUNLINSOL_MAGMADENSE <SUNLinSol.MagmaDense>`          X                                      X                 X
+   :ref:`SUNLINSOL_GINKGO <SUNLinSol.Ginkgo>`                  X            X                         X                 X
+   :ref:`SUNLINSOL_KOKKOSDENSE <SUNLinSol.Kokkos>`             X            X                         X                 X
    :ref:`SUNLINSOL_SPGMR <SUNLinSol.SPGMR>`                    X\ :sup:`1`  X\ :sup:`1`  X\ :sup:`1`  X\ :sup:`1`       X\ :sup:`1`
    :ref:`SUNLINSOL_SPFGMR <SUNLinSol.SPFGMR>`                  X\ :sup:`1`  X\ :sup:`1`  X\ :sup:`1`  X\ :sup:`1`       X\ :sup:`1`
    :ref:`SUNLINSOL_SPTFQMR <SUNLinSol.SPTFQMR>`                X\ :sup:`1`  X\ :sup:`1`  X\ :sup:`1`  X\ :sup:`1`       X\ :sup:`1`

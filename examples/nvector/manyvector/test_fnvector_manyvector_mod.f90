@@ -111,10 +111,7 @@ contains
     tmp  => FN_VGetSubvector_ManyVector(x, ival-1)
 
     !==== Cleanup =====
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
-    call FN_VDestroy(tmp)
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1)
-    call FN_VDestroy(tmp)
+    call FN_VDestroyVectorArray(subvecs, nsubvecs)
     call FN_VDestroy_ManyVector(x)
     call FN_VDestroy_ManyVector(y)
     call FN_VDestroy_ManyVector(z)
@@ -152,10 +149,7 @@ contains
     fails = Test_FN_VLinearCombination(x, N, 0)
 
     !=== cleanup ====
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
-    call FN_VDestroy(tmp)
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1)
-    call FN_VDestroy(tmp)
+    call FN_VDestroyVectorArray(subvecs, nsubvecs)
     call FN_VDestroy_ManyVector(x)
 
   end function unit_tests
