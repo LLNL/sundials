@@ -2845,6 +2845,13 @@ The following optional outputs are available from the IDALS modules:
 
    .. warning::
 
+      With linear solvers that overwrite the input Jacobian matrix as part of
+      the linear solver setup (e.g., performing an in-place LU factorization)
+      the matrix returned by :c:func:`IDAGetJac` may differ from the matrix
+      returned by the last Jacobian evaluation.
+
+   .. warning::
+
       This function is provided for debugging purposes and the values in the
       returned matrix should not be altered.
 
