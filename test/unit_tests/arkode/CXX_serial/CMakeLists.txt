@@ -21,6 +21,8 @@ if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
     "ark_analytic_sys_mri\;1"
     "ark_dahlquist_mri\;"
     "ark_butcher_tests\;"
+    "ark_test_getjac\;"
+    "ark_test_getjac_mri\;"
     )
 endif()
 

@@ -2,7 +2,8 @@
 
 ## Changes to SUNDIALS in release 6.5.0
 
-Added the functions ``CVodeGetJac``, ``CVodeGetJacTime``,
+Added the functions ``ARKStepGetJac``, ``ARKStepGetJacTime``,
+``ARKStepGetJacNumSteps``, ``CVodeGetJac``, ``CVodeGetJacTime``,
 ``CVodeGetJacNumSteps``, ``IDAGetJac``, ``IDAGetJacCj``, ``IDAGetJacTime``,
 ``IDAGetJacNumSteps``, ``KINGetJac``, ``KINGetJacNumIters`` to assist in
 debugging simulations utilizing a matrix-based linear solver.

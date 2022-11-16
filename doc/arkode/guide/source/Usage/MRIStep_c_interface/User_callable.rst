@@ -2945,6 +2945,12 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
    +--------------------------------------------------------------------+------------------------------------------+
    | Optional output                                                    | Function name                            |
    +--------------------------------------------------------------------+------------------------------------------+
+   | Stored Jacobian of the ODE RHS function                            | :c:func:`MRIStepGetJac`                  |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Time at which the Jacobian was evaluated                           | :c:func:`MRIStepGetJacTime`              |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Step number at which the Jacobian was evaluated                    | :c:func:`MRIStepGetJacNumSteps`          |
+   +--------------------------------------------------------------------+------------------------------------------+
    | Size of real and integer workspaces                                | :c:func:`MRIStepGetLinWorkSpace()`       |
    +--------------------------------------------------------------------+------------------------------------------+
    | No. of Jacobian evaluations                                        | :c:func:`MRIStepGetNumJacEvals()`        |
@@ -2968,7 +2974,47 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
    | Name of constant associated with a return flag                     | :c:func:`MRIStepGetLinReturnFlagName()`  |
    +--------------------------------------------------------------------+------------------------------------------+
 
+.. c:function:: int MRIStepGetJac(void* arkode_mem, SUNMatrix* J)
 
+   Returns the internally stored copy of the Jacobian matrix of the ODE
+   implicit slow right-hand side function.
+
+   :param arkode_mem: the MRIStep memory structure
+   :param J: the Jacobian matrix
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the ODE implicit slow right-hand side function was evaluated.
+
+   :param arkode_mem: the MRIStep memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int MRIStepGetJacNumSteps(void* arkode_mem, long int* nst_J)
+
+   Returns the number of steps at which the internally stored copy of the
+   Jacobian matrix of the ODE implicit slow right-hand side function was
+   evaluated.
+
+   :param arkode_mem: the MRIStep memory structure
+   :param nst_J: the number of steps at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int MRIStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS)
 
