@@ -147,11 +147,6 @@ SUNDIALS_EXPORT int CVodeGetLinSolveStats(void* cvode_mem,
 SUNDIALS_EXPORT int CVodeGetLastLinFlag(void *cvode_mem,
                                         long int *flag);
 SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);
-SUNDIALS_EXPORT int CVodeGetSavedJac(void *cvode_mem, SUNMatrix *savedJ);
-SUNDIALS_EXPORT int CVodeGetSavedJacTime(void *cvode_mem,
-                                         sunrealtype *t_savedJ);
-SUNDIALS_EXPORT int CVodeGetSavedJacNumSteps(void *cvode_mem,
-                                             long int *nst_savedJ);
 
 /*=================================================================
   Backward problems
