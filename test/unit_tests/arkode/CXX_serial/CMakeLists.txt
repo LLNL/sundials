@@ -16,59 +16,63 @@
 
 # List of test tuples of the form "name\;args"
 if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
-  set(ARKODE_unit_tests
-    "ark_analytic_sys_mri\;0"
-    "ark_analytic_sys_mri\;1"
-    "ark_dahlquist_mri\;"
-    "ark_butcher_tests\;"
-    "ark_test_getjac\;"
-    "ark_test_getjac_mri\;"
+  set(unit_tests
+    "ark_test_analytic_sys_mri.cpp\;0"
+    "ark_test_analytic_sys_mri.cpp\;1"
+    "ark_test_dahlquist_mri.cpp\;"
+    "ark_test_butcher.cpp\;"
+    "ark_test_getjac.cpp\;"
+    "ark_test_getjac_mri.cpp\;"
     )
 endif()
 
-set(ARKODE_LIB sundials_arkode)
-set(NVECS_LIB sundials_nvecserial)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
-
 # Add the build and install targets for each test
-foreach(test_tuple ${ARKODE_unit_tests})
+foreach(test_tuple ${unit_tests})
 
   # parse the test tuple
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
 
-  # check if this test has already been added, only need to add
+  # Extract the file name without extension
+  get_filename_component(test_target ${test} NAME_WE)
+
+  # Check if this test has already been added, only need to add
   # test source files once for testing with different inputs
-  if(NOT TARGET ${test})
+  if(NOT TARGET ${test_target})
 
-    # test source files
-    add_executable(${test} ${test}.cpp)
+    # Test source files
+    add_executable(${test_target} ${test})
 
-    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
+    # Folder to organize targets in an IDE
+    set_target_properties(${test_target} PROPERTIES FOLDER "unit_tests")
 
-    # include location of public and private header files
-    target_include_directories(${test} PRIVATE
+    # Include location of public and private header files
+    target_include_directories(${test_target} PRIVATE
       $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
       ${CMAKE_SOURCE_DIR}/include
       ${CMAKE_SOURCE_DIR}/src)
 
-    # libraries to link against
-    target_link_libraries(${test} ${SUNDIALS_LIBS})
+    # Libraries to link against
+    target_link_libraries(${test_target}
+      sundials_arkode
+      sundials_nvecserial
+      ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
-  # check if test args are provided and set the test name
+  # Check if test args are provided and set the test name
   if("${test_args}" STREQUAL "")
-    set(test_name ${test})
+    set(test_name ${test_target})
   else()
-    string(REPLACE " " "_" test_name "${test}_${test_args}")
-    string(REPLACE " " ";" test_args "${test_args}")
+    string(REPLACE " " "_" test_name "${test_target}_${test_args}")
   endif()
 
   # add test to regression tests
-  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
+  sundials_add_test(${test_name} ${test_target}
+    TEST_ARGS ${test_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE "develop")
 
 endforeach()
 
