@@ -2860,11 +2860,11 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
 .. c:function:: int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J)
 
-   Returns the number of steps at which the internally stored copy of the
+   Returns the value of the internal step counter at which the internally stored copy of the
    Jacobian matrix of the ODE right-hand side function was evaluated.
 
    :param cvode_mem: the CVODE memory structure
-   :param nst_J: the number of steps at which the Jacobian was evaluated
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
 
    :retval CVLS_SUCCESS: the output value has been successfully set
    :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``

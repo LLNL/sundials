@@ -876,7 +876,7 @@ int arkLSGetJac(void* arkode_mem, SUNMatrix* J)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ArklsMem structure; set output and return */
+  /* access ARKLsMem structure; set output and return */
   retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJac", &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) return retval;
   *J = arkls_mem->savedJ;
@@ -889,7 +889,7 @@ int arkLSGetJacTime(void* arkode_mem, sunrealtype* t_J)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ArklsMem structure; set output and return */
+  /* access ARKLsMem structure; set output and return */
   retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJacTime", &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) return retval;
   *t_J = arkls_mem->tnlj;
@@ -902,7 +902,7 @@ int arkLSGetJacNumSteps(void* arkode_mem, long int* nst_J)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ArklsMem structure; set output and return */
+  /* access ARKLsMem structure; set output and return */
   retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJacNumSteps", &ark_mem,
                             &arkls_mem);
   if (retval != ARKLS_SUCCESS) return retval;

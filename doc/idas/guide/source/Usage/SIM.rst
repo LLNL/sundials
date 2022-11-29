@@ -2881,11 +2881,11 @@ The following optional outputs are available from the IDALS modules:
 
 .. c:function:: int IDAGetJacNumSteps(void* ida_mem, long int* nst_J)
 
-   Returns the number of steps at which the internally stored copy of the
+   Returns the value of the internal step counter at which the internally stored copy of the
    Jacobian matrix of the DAE residual function was evaluated.
 
    :param ida_mem: the IDAS memory structure
-   :param nst_J: the number of steps at which the Jacobian was evaluated
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
 
    :retval IDALS_SUCCESS: the output value has been successfully set
    :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``

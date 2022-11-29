@@ -3892,11 +3892,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
 
 .. c:function:: int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J)
 
-   Returns the number of steps at which the internally stored copy of the
+   Returns the value of the internal step counter at which the internally stored copy of the
    Jacobian matrix of the ODE implicit right-hand side function was evaluated.
 
    :param arkode_mem: the ARKStep memory structure
-   :param nst_J: the number of steps at which the Jacobian was evaluated
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
 
    :retval ARKLS_SUCCESS: the output value has been successfully set
    :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
