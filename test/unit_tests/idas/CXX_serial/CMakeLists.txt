@@ -15,16 +15,18 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests
-  "idas_test_kpr.cpp\;"
-  "idas_test_kpr.cpp\;--eta_min_fx 1.0 --eta_max_fx 2.0"
-  "idas_test_kpr.cpp\;--eta_min 2"
-  "idas_test_kpr.cpp\;--eta_min_fx 1.0 --eta_min 0.5"
-  "idas_test_kpr.cpp\;--eta_min_ef 0.5"
-  "idas_test_kpr.cpp\;--eta_cf 0.5"
-  "idas_test_kpr.cpp\;--dcj 0.9"
-  "idas_test_getjac.cpp\;"
+if (SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(unit_tests
+    "idas_test_kpr.cpp\;"
+    "idas_test_kpr.cpp\;--eta_min_fx 1.0 --eta_max_fx 2.0"
+    "idas_test_kpr.cpp\;--eta_min 2"
+    "idas_test_kpr.cpp\;--eta_min_fx 1.0 --eta_min 0.5"
+    "idas_test_kpr.cpp\;--eta_min_ef 0.5"
+    "idas_test_kpr.cpp\;--eta_cf 0.5"
+    "idas_test_kpr.cpp\;--dcj 0.9"
+    "idas_test_getjac.cpp\;"
   )
+endif()
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})

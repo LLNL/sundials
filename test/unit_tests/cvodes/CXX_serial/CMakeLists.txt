@@ -15,20 +15,22 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests
-  "cvs_test_kpr.cpp\;"
-  "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_max_fx 2.0"
-  "cvs_test_kpr.cpp\;--eta_max_fs 2"
-  "cvs_test_kpr.cpp\;--eta_min_es 2 --small_nst 5"
-  "cvs_test_kpr.cpp\;--eta_min_gs 2"
-  "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_min 0.5"
-  "cvs_test_kpr.cpp\;--eta_min_ef 0.5"
-  "cvs_test_kpr.cpp\;--eta_max_ef 0.1 --small_nef 1"
-  "cvs_test_kpr.cpp\;--eta_cf 0.5"
-  "cvs_test_kpr.cpp\;--dgmax_lsetup 0.0"
-  "cvs_test_kpr.cpp\;--dgmax_jbad 1.0"
-  "cvs_test_getjac.cpp\;"
+if (SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(unit_tests
+    "cvs_test_kpr.cpp\;"
+    "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_max_fx 2.0"
+    "cvs_test_kpr.cpp\;--eta_max_fs 2"
+    "cvs_test_kpr.cpp\;--eta_min_es 2 --small_nst 5"
+    "cvs_test_kpr.cpp\;--eta_min_gs 2"
+    "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_min 0.5"
+    "cvs_test_kpr.cpp\;--eta_min_ef 0.5"
+    "cvs_test_kpr.cpp\;--eta_max_ef 0.1 --small_nef 1"
+    "cvs_test_kpr.cpp\;--eta_cf 0.5"
+    "cvs_test_kpr.cpp\;--dgmax_lsetup 0.0"
+    "cvs_test_kpr.cpp\;--dgmax_jbad 1.0"
+    "cvs_test_getjac.cpp\;"
   )
+endif()
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})

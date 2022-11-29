@@ -15,9 +15,11 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests
-  "kin_test_getjac.cpp\;"
+if (SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(unit_tests
+    "kin_test_getjac.cpp\;"
   )
+endif()
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})

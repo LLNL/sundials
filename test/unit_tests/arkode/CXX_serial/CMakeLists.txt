@@ -15,7 +15,7 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
+if (SUNDIALS_PRECISION MATCHES "DOUBLE")
   set(unit_tests
     "ark_test_analytic_sys_mri.cpp\;0"
     "ark_test_analytic_sys_mri.cpp\;1"
