@@ -357,7 +357,7 @@ $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_analytic_sy
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_butcher.cpp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_butcher.out
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_dahlquist_mri.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_dahlquist_mri.cpp
+$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_dahlquist_mri.out
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac.cpp
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac.out
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac_mri.cpp
