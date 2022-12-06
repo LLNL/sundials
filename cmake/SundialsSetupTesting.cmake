@@ -93,7 +93,7 @@ if(SUNDIALS_TEST_DEVTESTS)
     macro(add_local_ci_target index_size precision tag)
       string(TOLOWER "${precision}" precision_)
       set(container sundials-ci-int${index_size}-${precision_})
-      set(container_exe_args run --tls-verify=false -t -d --name ${container} --cap-add SYS_PTRACE 
+      set(container_exe_args run ${SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS} -t -d --name ${container} --cap-add SYS_PTRACE 
           -v ${CMAKE_SOURCE_DIR}:${SUNDIALS_TEST_CONTAINER_MNT} ghcr.io/llnl/${container}:${tag})
       add_custom_target(setup_local_ci_${index_size}_${precision_}
         COMMENT "Pulling SUNDIALS CI container ghcr.io/llnl/${container}:${tag}"

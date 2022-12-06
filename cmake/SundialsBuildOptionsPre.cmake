@@ -288,10 +288,13 @@ sundials_option(SUNDIALS_TEST_NODIFF BOOL
   "Disable output comparison in the regression test suite" OFF ADVANCED)
 
 sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH
-  "Path to docker or podman" "")
-  
+  "Path to docker or podman" "" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS STRING
+  "Extra arguments to pass to docker/podman run command" "--tls-verify=false" ADVANCED)
+
 sundials_option(SUNDIALS_TEST_CONTAINER_MNT STRING
-  "Path to project root inside the container" "/sundials")
+  "Path to project root inside the container" "/sundials" ADVANCED)
   
 # Include development examples in regression tests
 sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
