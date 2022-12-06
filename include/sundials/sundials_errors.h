@@ -17,8 +17,8 @@
 #define _SUNDIALS_ERRORS_H
 
 #include <assert.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_logger.h>
@@ -204,9 +204,9 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                    sunctx);                                              \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
 
-/* Same as SUNCheckCall, but returns with the error code. */
+/* Same as SUNCheckCall, but returns with the error code if an error occured. */
 #define SUNCheckCallReturn(call, sunctx)                                 \
   do {                                                                   \
     SUNErrCode sun_chk_call_err_code_ = call;                            \
@@ -217,7 +217,20 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
       return sun_chk_call_err_code_;                                     \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
+
+/* Same as SUNCheckCall, but returns with the code no matter what. */
+#define SUNCheckCallReturnAlways(call, sunctx)                           \
+  do {                                                                   \
+    SUNErrCode sun_chk_call_err_code_ = call;                            \
+    if (sun_chk_call_err_code_ < 0)                                      \
+    {                                                                    \
+      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
+                   sunctx);                                              \
+    }                                                                    \
+    return sun_chk_call_err_code_;                                       \
+  }                                                                      \
+  while (0)
 
 /* Same as SUNCheckCall, but returns with NULL. */
 #define SUNCheckCallReturnNull(call, sunctx)                             \
@@ -230,7 +243,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
       return NULL;                                                       \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
 
 /* SUNCheckLastErr checks the last_err value in the SUNContext.
    If an error occured, then it will log the error, set the last_err
@@ -245,7 +258,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                    sunctx);                                              \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
 
 /* Same as SUNCheckLastErr, but returns with the error code. */
 #define SUNCheckLastErrReturn(sunctx)                                    \
@@ -258,7 +271,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                    sunctx);                                              \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
 
 /* Same as SUNCheckLastErr, but returns void. */
 #define SUNCheckLastErrReturnVoid(sunctx)                                \
@@ -272,7 +285,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
       return;                                                            \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
 
 /* Same as SUNCheckLastErr, but returns with the error code. */
 #define SUNCheckLastErrReturnNull(sunctx)                                \
@@ -286,7 +299,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
       return NULL;                                                       \
     }                                                                    \
   }                                                                      \
-  while (0);
+  while (0)
 
 /* TODO(CJB): should asserts really need a code even though expr is printed? */
 /* SUNAssert checks if an expression is true.
@@ -300,7 +313,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                             sunctx->err_handler->data, sunctx);        \
     }                                                                  \
   }                                                                    \
-  while (0);
+  while (0)
 #endif
 
 /* TODO(CJB): should asserts really need a code even though expr is printed? */
@@ -315,7 +328,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                                sunctx->err_handler->data, sunctx);        \
     }                                                                     \
   }                                                                       \
-  while (0);
+  while (0)
 #else
 #define SUNMPIAssert(expr, code, sunctx)
 #endif
@@ -331,7 +344,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
                    SUN_ERR_MPI_FAIL + sun_chk_mpi_call_err_code_, sunctx); \
     }                                                                      \
   }                                                                        \
-  while (0);
+  while (0)
 
 /* Ensure SUNContext is not NULL by trying to access the last_err member.
    This purposely causes a segmentation fault if the context is NULL so
@@ -342,7 +355,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
     sunctx->last_err = sunctx->last_err; /* trigger segfault if sunctx is NULL \
                                           */                                   \
   }                                                                            \
-  while (0);
+  while (0)
 #else
 #define SUNAssertContext(sunctx)
 #endif

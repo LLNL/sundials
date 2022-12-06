@@ -21,6 +21,7 @@
 
 #include <sundials/sundials.h>
 #include <nvector/nvector_serial.h>
+#include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -1955,125 +1956,14 @@ SUNErrCode N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
   return SUN_SUCCESS;
 }
 
-SUNErrCode N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvlinearcombination = N_VLinearCombination_Serial;
-  else
-    v->ops->nvlinearcombination = NULL;
+NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombination, linearcombination, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMulti, scaleaddmulti, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(DotProdMulti, dotprodmulti, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearSumVectorArray, linearsumvectorarray, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleVectorArray, scalevectorarray, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(ConstVectorArray, constvectorarray, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormVectorArray, wrmsnormvectorarray, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormMaskVectorArray, wrmsnormmaskvectorarray, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMultiVectorArray, scaleaddmultivectorarray, Serial)
+NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombinationVectorArray, linearcombinationvectorarray, Serial)
 
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Serial;
-  else
-    v->ops->nvscaleaddmulti = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf) {
-    v->ops->nvdotprodmulti      = N_VDotProdMulti_Serial;
-    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
-  } else {
-    v->ops->nvdotprodmulti      = NULL;
-    v->ops->nvdotprodmultilocal = NULL;
-  }
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Serial;
-  else
-    v->ops->nvlinearsumvectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvscalevectorarray = N_VScaleVectorArray_Serial;
-  else
-    v->ops->nvscalevectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvconstvectorarray = N_VConstVectorArray_Serial;
-  else
-    v->ops->nvconstvectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Serial;
-  else
-    v->ops->nvwrmsnormvectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_Serial;
-  else
-    v->ops->nvwrmsnormmaskvectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Serial;
-  else
-    v->ops->nvscaleaddmultivectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
-SUNErrCode N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf)
-{
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Serial;
-  else
-    v->ops->nvlinearcombinationvectorarray = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
