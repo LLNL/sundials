@@ -960,15 +960,15 @@ int SetupMRICVODE(SUNContext ctx, UserData &udata, UserOptions &uopts,
 
   // Create the solver memory and specify the Adams methods
   void* cvode_mem = CVodeCreate(CV_BDF, ctx);
-  if (check_ptr(cvode_mem, "CVodeCreate")) return(1);
+  if (check_ptr(cvode_mem, "CVodeCreate")) return 1;
 
   // Initialize the integrator memory
   int flag = CVodeInit(cvode_mem, ff_RHS, ZERO, y);
-  if (check_flag(flag, "CVodeInit")) return(1);
+  if (check_flag(flag, "CVodeInit")) return 1;
 
   // Specify tolerances
   flag = CVodeSStolerances(cvode_mem, uopts.rtol_fast, uopts.atol_fast);
-  if (check_flag(flag, "CVodeSVtolerances")) return(1);
+  if (check_flag(flag, "CVodeSVtolerances")) return 1;
 
   // Attach user data
   flag = CVodeSetUserData(cvode_mem, &udata);
