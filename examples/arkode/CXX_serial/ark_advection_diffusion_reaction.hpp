@@ -1092,31 +1092,31 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
     cout << "  atol             = " << uopts.atol_fast << endl;
     cout << "  order            = " << uopts.order_fast << endl;
     cout << "  fixed h          = " << uopts.fixed_h_fast << endl;
-    if (uopts.controller <= 0)
+    if (uopts.controller_fast <= 0)
       cout << "  controller       = PID" << endl;
-    else if (uopts.controller == 1)
+    else if (uopts.controller_fast == 1)
       cout << "  controller       = PI" << endl;
-    else if (uopts.controller == 2)
+    else if (uopts.controller_fast == 2)
       cout << "  controller       = I" << endl;
-    else if (uopts.controller == 3)
+    else if (uopts.controller_fast == 3)
       cout << "  controller       = explicit Gustafsson" << endl;
-    else if (uopts.controller == 4)
+    else if (uopts.controller_fast == 4)
       cout << "  controller       = implicit Gustafsson" << endl;
-    else if (uopts.controller == 5)
+    else if (uopts.controller_fast == 5)
       cout << "  controller       = IMEX Gustafsson" << endl;
     else
-      cout << "  controller       = " << uopts.controller << endl;
-    if (uopts.predictor == 0)
+      cout << "  controller       = " << uopts.controller_fast << endl;
+    if (uopts.predictor_fast == 0)
       cout << "  predictor        = trivial" << endl;
-    else if (uopts.predictor == 1)
+    else if (uopts.predictor_fast == 1)
       cout << "  predictor        = max order" << endl;
-    else if (uopts.predictor == 2)
+    else if (uopts.predictor_fast == 2)
       cout << "  predictor        = variable order" << endl;
-    else if (uopts.predictor == 3)
+    else if (uopts.predictor_fast == 3)
       cout << "  predictor        = cutoff order" << endl;
     else
-      cout << "  predictor        = " << uopts.predictor << endl;
-    cout << "  ls setup freq    = " << uopts.ls_setup_freq << endl;
+      cout << "  predictor        = " << uopts.predictor_fast << endl;
+    cout << "  ls setup freq    = " << uopts.ls_setup_freq_fast << endl;
   }
   else if (uopts.integrator == 3)
   {
