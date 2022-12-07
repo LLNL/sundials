@@ -794,8 +794,28 @@ int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
   }
 
   // Select method order
-  flag = ARKStepSetOrder(fast_arkode_mem, uopts.order_fast);
-  if (check_flag(flag, "ARKStepSetOrder")) return 1;
+  if (uopts.order_fast == 1 && ffi_RHS)
+  {
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
+    if (check_ptr(B, "ARKodeButcherTable_Alloc")) return 1;
+
+    B->A[1][1] = ONE;
+    B->b[1]    = ONE;
+    B->c[1]    = ONE;
+    B->d[0]    = ONE;
+    B->q       = 1;
+    B->p       = 1;
+
+    flag = ARKStepSetTables(fast_arkode_mem, 1, 1, B, nullptr);
+    if (check_flag(flag, "ARKStepSetTables")) return 1;
+
+    ARKodeButcherTable_Free(B);
+  }
+  else
+  {
+    flag = ARKStepSetOrder(fast_arkode_mem, uopts.order_fast);
+    if (check_flag(flag, "ARKStepSetOrder")) return 1;
+  }
 
   // Set fixed step size or adaptivity method
   if (uopts.fixed_h_fast > ZERO)
