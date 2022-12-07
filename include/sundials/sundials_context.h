@@ -48,6 +48,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode *last_err);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNContext_ClearLastError(SUNContext sunctx);
+
+SUNDIALS_EXPORT
 struct SUNErrHandler_ *SUNContext_PushErrHandler(
     SUNContext sunctx,
     int (*err_fn)(int line, const char *func, const char *file, const char *msg,

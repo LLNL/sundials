@@ -19,6 +19,7 @@
 #include <sundials/sundials.h>
 #include <nvector/nvector_mpimanyvector.h>
 #include <nvector/nvector_mpiplusx.h>
+#include "sundials_nvector_impl.h"
 
 #define MPIPLUSX_LOCAL_VECTOR(v) ( N_VGetSubvector_MPIManyVector(v, 0) )
 

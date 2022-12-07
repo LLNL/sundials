@@ -23,6 +23,7 @@
 #else
 #include <nvector/nvector_manyvector.h>
 #endif
+#include "sundials_nvector_impl.h"
 
 /* Macro to handle separate MPI-aware/unaware installations */
 #ifdef MANYVECTOR_BUILD_WITH_MPI

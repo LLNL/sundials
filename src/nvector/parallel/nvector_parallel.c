@@ -21,6 +21,7 @@
 
 #include <sundials/sundials.h>
 #include <nvector/nvector_parallel.h>
+#include "sundials_nvector_impl.h"
 
 
 #define ZERO   RCONST(0.0)

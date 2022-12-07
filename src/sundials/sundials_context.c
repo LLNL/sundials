@@ -85,6 +85,12 @@ SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode* last_err)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNContext_ClearLastError(SUNContext sunctx)
+{
+  sunctx->last_err = SUN_SUCCESS;
+  return SUN_SUCCESS;
+}
+
 SUNErrHandler SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
 {
   SUNErrHandler new_err_handler = SUNErrHandler_Create(err_fn, err_user_data);

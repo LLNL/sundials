@@ -64,6 +64,7 @@ int SUNLogErrHandlerFn(int line, const char* func, const char* file, const char*
     msg = SUNGetErrMsg(err_code, sunctx);
   }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func, msg);
+  SUNClearLastErr(sunctx);
   free(file_and_line);
   return 0;
 }

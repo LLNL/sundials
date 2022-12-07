@@ -29,16 +29,16 @@
 #define ONEPT5 RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
-static void VCopy_Serial(N_Vector x, N_Vector z);                              /* z=x       */
-static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z);                   /* z=x+y     */
-static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z);                  /* z=x-y     */
-static void VNeg_Serial(N_Vector x, N_Vector z);                               /* z=-x      */
-static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z);  /* z=c(x+y)  */
-static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z); /* z=c(x-y)  */
-static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax+y    */
-static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax-y    */
-static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y);                  /* y <- ax+y */
-static void VScaleBy_Serial(realtype a, N_Vector x);                           /* x <- ax   */
+static void VCopy_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;                              /* z=x       */
+static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;                   /* z=x+y     */
+static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;                  /* z=x-y     */
+static void VNeg_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;                               /* z=-x      */
+static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;  /* z=c(x+y)  */
+static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT; /* z=c(x-y)  */
+static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;      /* z=ax+y    */
+static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;      /* z=ax-y    */
+static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT;                  /* y <- ax+y */
+static void VScaleBy_Serial(realtype a, N_Vector x) SUNDIALS_NOEXCEPT;                           /* x <- ax   */
 
 /* Private functions for special cases of vector array operations */
 static SUNErrCode VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
@@ -47,7 +47,7 @@ static SUNErrCode VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X,
 static SUNErrCode VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
 static SUNErrCode VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
 static SUNErrCode VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
-static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                    /* Y <- aX+Y */
+static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
 
 /*
  * -----------------------------------------------------------------
@@ -1550,7 +1550,7 @@ SUNErrCode N_VBufUnpack_Serial(N_Vector x, void *buf)
  * -----------------------------------------------------------------
  */
 
-static void VCopy_Serial(N_Vector x, N_Vector z)
+static void VCopy_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -1567,7 +1567,7 @@ static void VCopy_Serial(N_Vector x, N_Vector z)
   return;
 }
 
-static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z)
+static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1585,7 +1585,7 @@ static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z)
+static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1603,7 +1603,7 @@ static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void VNeg_Serial(N_Vector x, N_Vector z)
+static void VNeg_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -1620,7 +1620,7 @@ static void VNeg_Serial(N_Vector x, N_Vector z)
   return;
 }
 
-static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1638,7 +1638,7 @@ static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1656,7 +1656,7 @@ static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1674,7 +1674,7 @@ static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1692,7 +1692,7 @@ static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y)
+static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd, *yd;
@@ -1721,7 +1721,7 @@ static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y)
   return;
 }
 
-static void VScaleBy_Serial(realtype a, N_Vector x)
+static void VScaleBy_Serial(realtype a, N_Vector x) SUNDIALS_NOEXCEPT
 {
   sunindextype i, N;
   realtype *xd;

@@ -32,14 +32,10 @@
 #define SUN_ERR_CODE_LIST(ENTRY)                                               \
   ENTRY(SUN_ERR_ARG_CORRUPT, "argument provided is NULL or corrupted")         \
   ENTRY(SUN_ERR_ARG_OUTOFRANGE, "argument is out of the valid range")          \
-  ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
-        "too many SUNProfiler entries, try setting SUNPROFILER_MAX_ENTRIES "   \
-        "in environment to a bigger number")                                   \
-  ENTRY(SUN_ERR_PROFILER_MAPGET, "unknown error getting SUNProfiler timer")    \
-  ENTRY(SUN_ERR_PROFILER_MAPINSERT,                                            \
-        "unknown error inserting SUNProfiler timer")                           \
-  ENTRY(SUN_ERR_PROFILER_MAPKEYNOTFOUND, "timer was not found in SUNProfiler") \
-  ENTRY(SUN_ERR_PROFILER_MAPSORT, "error sorting SUNProfiler map")             \
+  ENTRY(SUN_ERR_HYPRE_GENERIC, "a generic error ocurred in hypre")             \
+  ENTRY(SUN_ERR_HYPRE_MEMORY, "a memory error ocurred in hypre")               \
+  ENTRY(SUN_ERR_HYPRE_ARG, "an argument error ocurred in hypre")               \
+  ENTRY(SUN_ERR_HYPRE_CONV, "a convergence error ocurred in hypre")            \
   ENTRY(SUN_ERR_LOGGER_CORRUPT, "SUNLogger is NULL or corrupt")                \
   ENTRY(SUN_ERR_LOGGER_CANNOTOPENFILE,                                         \
         "File provided to SUNLogger could not be opened")                      \
@@ -51,6 +47,14 @@
         "the MPI call returned something other than MPI_SUCCESS")              \
   ENTRY(SUN_ERR_NOT_IMPLEMENTED,                                               \
         "operation is not implemented: function pointer is NULL")              \
+  ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
+        "too many SUNProfiler entries, try setting SUNPROFILER_MAX_ENTRIES "   \
+        "in environment to a bigger number")                                   \
+  ENTRY(SUN_ERR_PROFILER_MAPGET, "unknown error getting SUNProfiler timer")    \
+  ENTRY(SUN_ERR_PROFILER_MAPINSERT,                                            \
+        "unknown error inserting SUNProfiler timer")                           \
+  ENTRY(SUN_ERR_PROFILER_MAPKEYNOTFOUND, "timer was not found in SUNProfiler") \
+  ENTRY(SUN_ERR_PROFILER_MAPSORT, "error sorting SUNProfiler map")             \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
   ENTRY(SUN_ERR_GENERIC, "")                                                   \
   ENTRY(SUN_ERR_UNKNOWN, "Unknown error occured: open an issue at "            \
@@ -128,6 +132,13 @@ static inline SUNErrCode SUNLastErr(SUNContext sunctx)
   SUNContext_GetLastError(sunctx, &code);
   return code;
 }
+
+/* Alternative function to SUNContext_ClearLastError that is more concise. */
+static inline void SUNClearLastErr(SUNContext sunctx)
+{
+  SUNContext_ClearLastError(sunctx);
+}
+
 
 static inline int SUNHandleErr(int line, const char* func, const char* file,
                                SUNErrCode code, SUNContext sunctx)
@@ -269,7 +280,22 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
+      return sun_chk_call_err_code_;                                     \
     }                                                                    \
+  }                                                                      \
+  while (0)
+
+/* Same as SUNCheckLastErr, but returns with the error code always. */
+#define SUNCheckLastErrReturnAlways(sunctx)                              \
+  do {                                                                   \
+    SUNErrCode sun_chk_call_err_code_;                                   \
+    SUNContext_GetLastError(sunctx, &sun_chk_call_err_code_);            \
+    if (sun_chk_call_err_code_ < 0)                                      \
+    {                                                                    \
+      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
+                   sunctx);                                              \
+    }                                                                    \
+    return sun_chk_call_err_code_;                                       \
   }                                                                      \
   while (0)
 
