@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------*/
 
 #define NVECTOR_DEFINE_ENABLE_FUSEDOP(fname, opname, suffix) \
-  SUNErrCode N_VEnable ## fname ## suffix(N_Vector v, booleantype tf) \
+  SUNErrCode N_VEnable ## fname ## _ ## suffix(N_Vector v, booleantype tf) \
   { \
     if (tf) \
       v->ops->nv ## opname = N_V ## fname ## _ ## suffix; \
