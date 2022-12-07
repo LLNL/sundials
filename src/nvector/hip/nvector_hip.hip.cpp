@@ -25,6 +25,7 @@
 #include "VectorArrayKernels.hip.hpp"
 #include "VectorKernels.hip.hpp"
 
+#include "sundials_nvector_impl.h"
 #include "sundials_hip.h"
 #include "sundials_debug.h"
 

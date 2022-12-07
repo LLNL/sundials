@@ -25,6 +25,8 @@
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
 #include <nvector/trilinos/SundialsTpetraVectorKernels.hpp>
 
+#include "sundials_nvector_impl.h"
+
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)

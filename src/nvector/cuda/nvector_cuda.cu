@@ -25,6 +25,7 @@
 #include "VectorArrayKernels.cuh"
 #include "VectorKernels.cuh"
 
+#include "sundials_nvector_impl.h"
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
 

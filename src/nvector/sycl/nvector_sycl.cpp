@@ -25,6 +25,7 @@
 #include <sunmemory/sunmemory_sycl.h>
 
 /* SUNDIALS private headers */
+#include "sundials_nvector_impl.h"
 #include "sundials_debug.h"
 #include "sundials_sycl.h"
 

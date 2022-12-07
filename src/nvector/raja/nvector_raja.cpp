@@ -22,6 +22,7 @@
 #include <RAJA/RAJA.hpp>
 #include <nvector/nvector_raja.h>
 
+#include "sundials_nvector_impl.h"
 #include "sundials_debug.h"
 
 // RAJA defines
@@ -44,6 +45,7 @@
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
 #include <sunmemory/sunmemory_sycl.h>
 #include <CL/sycl.hpp>
+#include "sundials_nvector_impl.h"
 #define SUNDIALS_RAJA_EXEC_STREAM RAJA::sycl_exec< 256 >
 #if RAJA_VERSION_MAJOR >= 2022
 #define SUNDIALS_RAJA_EXEC_REDUCE RAJA::sycl_exec< 256 >

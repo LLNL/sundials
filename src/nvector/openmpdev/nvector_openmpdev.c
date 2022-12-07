@@ -27,6 +27,7 @@
 
 #include <nvector/nvector_openmpdev.h>
 #include <sundials/sundials_math.h>
+#include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
