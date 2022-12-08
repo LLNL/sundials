@@ -420,8 +420,8 @@ int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
   }
   else
   {
-    cerr << "ERROR: Invalid problem configuration" << endl;
-    return -1;
+    // Explicit -- reaction
+    f_RHS = f_reaction;
   }
 
   // Create ERKStep memory
@@ -602,10 +602,28 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
       break;
     }
   }
+  // reaction
   else
   {
-    cerr << "ERROR: Invalid problem configuration" << endl;
-    return -1;
+    switch(udata.splitting)
+    {
+    case(0):
+      // ERK -- fully explicit
+      fe_RHS = f_reaction;
+      fi_RHS = nullptr;
+      Ji_RHS = nullptr;
+      break;
+    case(1):
+      // DIRK -- fully implicit
+      fe_RHS = nullptr;
+      fi_RHS = f_reaction;
+      Ji_RHS = J_reaction;
+      break;
+    default:
+      cerr << "ERROR: Invalid splitting option" << endl;
+      return -1;
+      break;
+    }
   }
 
   // Create ARKStep memory

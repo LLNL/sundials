@@ -812,12 +812,6 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   }
 
   // Input checks
-  if (!udata.diffusion && !udata.advection)
-  {
-    cerr << "ERROR: Invalid problem configuration" << endl;
-    return -1;
-  }
-
   if (udata.diffusion && udata.advection)
   {
     if (udata.splitting < 0 || udata.splitting > 7)
@@ -1026,8 +1020,25 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
     }
     else
     {
-      cerr << "ERROR: Invalid problem configuration" << endl;
-      return -1;
+      switch(udata.splitting)
+      {
+      case(0):
+        // ERK -- fully explicit
+        cout << "  advection        = OFF" << endl;
+        cout << "  diffusion        = OFF" << endl;
+        cout << "  reaction         = Explicit" << endl;
+        break;
+      case(1):
+        // DIRK -- fully implicit
+        cout << "  advection        = OFF" << endl;
+        cout << "  diffusion        = OFF" << endl;
+        cout << "  reaction         = Implicit" << endl;
+        break;
+      default:
+        cerr << "ERROR: Invalid splitting option" << endl;
+        return -1;
+        break;
+      }
     }
   }
   else if (uopts.integrator == 2)
