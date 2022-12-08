@@ -260,6 +260,9 @@ int SetupMRICVODE(SUNContext ctx, UserData &udata, UserOptions &uopts,
                   SUNMatrix* A_fast, SUNLinearSolver* LS_fast,
                   MRIStepInnerStepper* fast_mem, void** arkode_mem);
 
+int SetupCVODE(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
+               SUNMatrix* A, SUNLinearSolver* LS, void** cvode_mem);
+
 // Compute the initial condition
 int SetIC(N_Vector y, UserData &udata);
 
@@ -576,6 +579,51 @@ int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper fast_mem,
 }
 
 
+// Print ARK integrator statistics
+int OutputStatsCVODE(void* cvode_mem, UserData &udata)
+{
+  int flag;
+
+  // Get integrator and solver stats
+  long int nst, netf, nf;
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  if (check_flag(flag, "CVodeGetNumSteps")) return -1;
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  if (check_flag(flag, "CVodeGetNumErrTestFails")) return -1;
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nf);
+  if (check_flag(flag, "CVodeGetNumRhsEvals")) return -1;
+
+  long int nni, ncfn;
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  if (check_flag(flag, "CVodeGetNumNonlinSolvIters")) return -1;
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  if (check_flag(flag, "CVodeGetNumNonlinSolvConvFails")) return -1;
+
+  long int nsetups, nje;
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  if (check_flag(flag, "CVodeGetNumLinSolvSetups")) return -1;
+  flag = CVodeGetNumJacEvals(cvode_mem, &nje);
+  if (check_flag(flag, "CVodeGetNumJacEvals")) return -1;
+
+  cout << fixed << setprecision(6);
+  cout << "  Steps              = " << nst     << endl;
+  cout << "  Error test fails   = " << netf    << endl;
+  cout << "  RHS evals          = " << nf      << endl;
+  cout << "  NLS iters          = " << nni     << endl;
+  cout << "  NLS fails          = " << ncfn    << endl;
+  cout << "  LS setups          = " << nsetups << endl;
+  cout << "  J evals            = " << nje     << endl;
+  cout << endl;
+
+  realtype avgnli = (realtype) nni / (realtype) nst;
+  realtype avgls  = (realtype) nsetups / (realtype) nni;
+  cout << "  Avg NLS iters per step         = " << avgnli << endl;
+  cout << "  Avg LS setups per NLS iter     = " << avgls  << endl;
+  cout << endl;
+
+  return 0;
+}
+
 // Print command line options
 void InputHelp()
 {
@@ -748,6 +796,16 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
     break;
   case(3):
     break;
+  case(4):
+    // Create workspace vector
+    udata.temp_v = N_VNew_Serial(udata.neq, ctx);
+    if (check_ptr(udata.temp_v, "N_VNew_Serial")) return 1;
+    N_VConst(ZERO, udata.temp_v);
+    // Create workspace matrix
+    udata.temp_J = SUNBandMatrix(udata.neq, 3, 3, ctx);
+    if (check_ptr(udata.temp_J, "SUNBandMatrix")) return 1;
+    SUNMatZero(udata.temp_J);
+    break;
   default:
     cerr << "Invalid integrator option" << endl;
     return 1;
@@ -777,7 +835,7 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
     }
   }
 
-  if (uopts.integrator < 0 || uopts.integrator > 3)
+  if (uopts.integrator < 0 || uopts.integrator > 4)
   {
     cerr << "ERROR: Invalid integrator option" << endl;
     return -1;
@@ -1042,6 +1100,19 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
       cerr << "ERROR: Invalid problem configuration" << endl;
       return -1;
     }
+  }
+  else if (uopts.integrator == 4)
+  {
+    cout << "  integrator       = BDF" << endl;
+    if (udata.advection)
+      cout << "  advection        = Implicit" << endl;
+    else
+      cout << "  advection        = OFF" << endl;
+    if (udata.diffusion)
+      cout << "  diffusion        = Implicit" << endl;
+    else
+      cout << "  diffusion        = OFF" << endl;
+    cout << "  reaction         = Implicit" << endl;
   }
   else
   {

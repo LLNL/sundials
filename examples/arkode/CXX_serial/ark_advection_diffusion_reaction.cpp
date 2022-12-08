@@ -141,6 +141,8 @@
  *      | S-I | F-I | Slow-implicit diffusion, Fast-Implicit reaction |
  *      +-----+-----+-------------------------------------------------+
  *
+ *   4. A BDF method with CVODE
+ *
  * Several command line options are available to change the problem parameters
  * and integrator settings. Use the flag --help for more information.
  * ---------------------------------------------------------------------------*/
@@ -208,6 +210,9 @@ int main(int argc, char* argv[])
   case(3):
     flag = SetupMRICVODE(ctx, udata, uopts, y, &A, &LS, &A_fast, &LS_fast,
                          &fast_mem, &arkode_mem);
+    break;
+  case(4):
+    flag = SetupCVODE(ctx, udata, uopts, y, &A, &LS, &arkode_mem);
     break;
   default:
     flag = -1;
@@ -280,6 +285,17 @@ int main(int argc, char* argv[])
       // Advance in time
       flag = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
       break;
+    case(4):
+      if (uopts.output == 3)
+      {
+        // Stop at output time (do not interpolate output)
+        flag = CVodeSetStopTime(arkode_mem, tout);
+        if (check_flag(flag, "CVodeSetStopTime")) return 1;
+      }
+
+      // Advance in time
+      flag = CVode(arkode_mem, tout, y, &t, CV_NORMAL);
+      break;
     default:
       flag = -1;
     }
@@ -318,6 +334,9 @@ int main(int argc, char* argv[])
       break;
     case(3):
       flag = OutputStatsMRICVODE(arkode_mem, fast_mem, udata);
+      break;
+    case(4):
+      flag = OutputStatsCVODE(arkode_mem, udata);
       break;
     default:
       flag = -1;
@@ -358,6 +377,9 @@ int main(int argc, char* argv[])
       MRIStepFree(&arkode_mem);
       break;
     }
+  case(4):
+    CVodeFree(&arkode_mem);
+    break;
   }
 
   N_VDestroy(y);
@@ -1095,6 +1117,86 @@ int SetupMRICVODE(SUNContext ctx, UserData &udata, UserOptions &uopts,
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata.tf);
   if (check_flag(flag, "MRIStepSetStopTime")) return 1;
+
+  return 0;
+}
+
+
+int SetupCVODE(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
+               SUNMatrix* A, SUNLinearSolver* LS, void** cvode_mem)
+{
+  // Problem configuration
+  ARKRhsFn   f_RHS;  // RHS function
+  ARKLsJacFn J_RHS;  // Jacobian of the RHS function
+
+  // advection-diffusion-reaction
+  if (udata.diffusion && udata.advection)
+  {
+    f_RHS = f_adv_diff_react;
+    J_RHS = J_adv_diff_react;
+  }
+  // advection-reaction
+  else if (!udata.diffusion && udata.advection)
+  {
+    f_RHS = f_adv_react;
+    J_RHS = J_adv_react;
+  }
+  // diffusion-reaction
+  else if (udata.diffusion && !udata.advection)
+  {
+    f_RHS = f_diff_react;
+    J_RHS = J_diff_react;
+  }
+  // reaction
+  else
+  {
+    f_RHS = f_reaction;
+    J_RHS = J_reaction;
+  }
+
+  // Create ARKStep memory
+  *cvode_mem = CVodeCreate(CV_BDF, ctx);
+  if (check_ptr(cvode_mem, "CVodeCreate")) return 1;
+
+  // Initialize the integrator memory
+  int flag = CVodeInit(*cvode_mem, f_RHS, ZERO, y);
+  if (check_flag(flag, "CVodeInit")) return 1;
+
+  // Specify tolerances
+  flag = CVodeSStolerances(*cvode_mem, uopts.rtol, uopts.atol);
+  if (check_flag(flag, "CVodeSStolerances")) return 1;
+
+  // Attach user data
+  flag = CVodeSetUserData(*cvode_mem, &udata);
+  if (check_flag(flag, "CVodeSetUserData")) return 1;
+
+  // Create banded matrix
+  *A = SUNBandMatrix(udata.neq, 3, 3, ctx);
+  if (check_ptr(*A, "SUNBandMatrix")) return 1;
+
+  // Create linear solver
+  *LS = SUNLinSol_Band(y, *A, ctx);
+  if (check_ptr(*LS, "SUNLinSol_Band")) return 1;
+
+  // Attach linear solver
+  flag = CVodeSetLinearSolver(*cvode_mem, *LS, *A);
+  if (check_flag(flag, "CVodeSetLinearSolver")) return 1;
+
+  // Attach Jacobian function
+  flag = CVodeSetJacFn(*cvode_mem, J_RHS);
+  if (check_flag(flag, "CVodeSetJacFn")) return 1;
+
+  // Set linear solver setup frequency
+  flag = CVodeSetLSetupFrequency(*cvode_mem, uopts.ls_setup_freq);
+  if (check_flag(flag, "CVodeSetLSetupFrequency")) return 1;
+
+  // Set max steps between outputs
+  flag = CVodeSetMaxNumSteps(*cvode_mem, uopts.maxsteps);
+  if (check_flag(flag, "CVodeSetMaxNumSteps")) return 1;
+
+  // Set stopping time
+  flag = CVodeSetStopTime(*cvode_mem, udata.tf);
+  if (check_flag(flag, "CVodeSetStopTime")) return 1;
 
   return 0;
 }
