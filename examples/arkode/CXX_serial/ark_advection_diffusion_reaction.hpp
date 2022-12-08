@@ -141,6 +141,9 @@ struct UserOptions
   realtype fixed_h      = ZERO;
   realtype fixed_h_fast = ZERO;
 
+  // First step growth factor
+  realtype etamx1_fast = ZERO;
+
   int maxsteps      = 10000;  // max steps between outputs
   int controller    = -1;     // step size adaptivity method
   int predictor     = 0;      // predictor for nonlinear systems
@@ -658,6 +661,7 @@ void InputHelp()
   cout << "  --predictor_fast <int>   : MRI fast nonlinear solver predictor\n";
   cout << "  --lssetupfreq_fast <int> : MRI fast LS setup frequency\n";
   cout << "  --maxsteps <int>         : max steps between outputs\n";
+  cout << "  --etamx1_fast <real>     : max step size growth in first step\n";
   cout << "  --linear                 : linearly implicit\n";
   cout << "  --save_hinit             : reuse initial fast step\n";
   cout << "  --save_hcur              : reuse current fast step\n";
@@ -762,6 +766,7 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   find_arg(args, "--controller_fast", uopts.controller_fast);
   find_arg(args, "--lssetupfreq_fast", uopts.ls_setup_freq_fast);
   find_arg(args, "--maxsteps", uopts.maxsteps);
+  find_arg(args, "--etamx1_fast", uopts.etamx1_fast);
   find_arg(args, "--linear", uopts.linear);
   find_arg(args, "--save_hinit", uopts.save_hinit);
   find_arg(args, "--save_hcur", uopts.save_hcur);

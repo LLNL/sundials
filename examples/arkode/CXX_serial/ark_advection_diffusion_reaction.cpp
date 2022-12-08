@@ -1034,6 +1034,10 @@ int SetupMRICVODE(SUNContext ctx, UserData &udata, UserOptions &uopts,
   flag = CVodeSetLSetupFrequency(cvode_mem, uopts.ls_setup_freq_fast);
   if (check_flag(flag, "CVodeSetLSetupFrequency")) return 1;
 
+  // Set max step size change in first step
+  flag = CVodeSetEtaMaxFirstStep(cvode_mem, uopts.etamx1_fast);
+  if (check_flag(flag, "CVodeSetEtaMaxFirstStep")) return 1;
+
   // Set max steps between outputs
   flag = CVodeSetMaxNumSteps(cvode_mem, uopts.maxsteps);
   if (check_flag(flag, "CVodeSetMaxNumSteps")) return 1;
