@@ -50,9 +50,9 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_errors.h>
+#include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-#include "sundials_linearsolver.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -72,13 +72,15 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver* SUNNonlinearSolver;
  * Integrator supplied function types
  * ---------------------------------------------------------------------------*/
 
-typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
+typedef SUNNlsStatus (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
 
-typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur, void* mem);
+typedef SUNNlsStatus (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur,
+                                    void* mem);
 
-typedef int (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
+typedef SUNNlsStatus (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
 
-typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol, N_Vector ewt,
+typedef SUNNlsStatus (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
+                                      N_Vector del, realtype tol, N_Vector ewt,
                                       void* mem);
 
 /* -----------------------------------------------------------------------------
@@ -99,18 +101,19 @@ typedef enum
 struct _generic_SUNNonlinearSolver_Ops
 {
   SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
-  int (*initialize)(SUNNonlinearSolver);
-  int (*setup)(SUNNonlinearSolver, N_Vector, void*);
-  int (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, booleantype, void*);
-  int (*free)(SUNNonlinearSolver);
-  int (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
-  int (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
-  int (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
-  int (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn, void*);
-  int (*setmaxiters)(SUNNonlinearSolver, int);
-  int (*getnumiters)(SUNNonlinearSolver, long int*);
-  int (*getcuriter)(SUNNonlinearSolver, int*);
-  int (*getnumconvfails)(SUNNonlinearSolver, long int*);
+  SUNErrCode (*initialize)(SUNNonlinearSolver);
+  SUNErrCode (*setup)(SUNNonlinearSolver, N_Vector, void*);
+  SUNErrCode (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector,
+                      realtype, booleantype, void*);
+  SUNErrCode (*free)(SUNNonlinearSolver);
+  SUNErrCode (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
+  SUNErrCode (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
+  SUNErrCode (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
+  SUNErrCode (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn, void*);
+  SUNErrCode (*setmaxiters)(SUNNonlinearSolver, int);
+  SUNErrCode (*getnumiters)(SUNNonlinearSolver, long int*);
+  SUNErrCode (*getcuriter)(SUNNonlinearSolver, int*);
+  SUNErrCode (*getnumconvfails)(SUNNonlinearSolver, long int*);
 #ifdef __cplusplus
   _generic_SUNNonlinearSolver_Ops() = default;
 #endif
@@ -141,8 +144,8 @@ SUNDIALS_EXPORT
 void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS) SUNDIALS_NOEXCEPT;
 
 /* core functions */
-SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
-SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL SUNNonlinearSolver_Type
+SUNNonlinSolGetType(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
@@ -151,24 +154,28 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
 
 SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
-SUNErrCode SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, realtype tol,
-                                      booleantype callLSetup, void* mem);
+SUNNlsStatus SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w,
+                  realtype tol, booleantype callLSetup, void* mem);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS);
 
 /* set functions */
-SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL
-SUNErrCode SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
+SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL SUNErrCode
+SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn);
+SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS,
+                                   SUNNonlinSolLSetupFn SetupFn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn);
+SUNErrCode SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS,
+                                   SUNNonlinSolLSolveFn SolveFn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data);
+SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
+                                     SUNNonlinSolConvTestFn CTestFn,
+                                     void* ctest_data);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters);
@@ -181,7 +188,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int* iter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails);
+SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
+                                       long int* nconvfails);
 
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver return values
@@ -194,11 +202,17 @@ SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfa
 #define SUN_NLS_CONV_RECVR +902 /* convergece failure, try to recover */
 
 /* Unrecoverable */
-#define SUN_NLS_MEM_NULL     -901 /* memory argument is NULL            */
-#define SUN_NLS_MEM_FAIL     -902 /* failed memory access / allocation  */
-#define SUN_NLS_ILL_INPUT    -903 /* illegal function input             */
+
+/* DEPRECATED: use SUNErrCode instead */
+#define SUN_NLS_MEM_NULL -901 /* memory argument is NULL            */
+/* DEPRECATED: use SUNErrCode instead */
+#define SUN_NLS_MEM_FAIL -902 /* failed memory access / allocation  */
+/* DEPRECATED: use SUNErrCode instead */
+#define SUN_NLS_ILL_INPUT -903 /* illegal function input             */
+/* DEPRECATED: use SUNErrCode instead */
 #define SUN_NLS_VECTOROP_ERR -904 /* failed NVector operation           */
-#define SUN_NLS_EXT_FAIL     -905 /* failed in external library call    */
+/* DEPRECATED: use SUNErrCode instead */
+#define SUN_NLS_EXT_FAIL -905 /* failed in external library call    */
 
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver messages

@@ -101,8 +101,8 @@ SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
                                                        N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S,
                                                   booleantype onoff);
-SUNDIALS_EXPORT int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A,
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A,
                                            N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S);

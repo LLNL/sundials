@@ -94,8 +94,8 @@ SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S,
                                                    N_Vector nul);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S,
                                               booleantype onoff);
-SUNDIALS_EXPORT int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul);
-SUNDIALS_EXPORT int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul,
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul);
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul,
                                        N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_PCG(SUNLinearSolver S);

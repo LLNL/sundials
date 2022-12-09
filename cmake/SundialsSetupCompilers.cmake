@@ -209,6 +209,21 @@ check_c_source_compiles("
 " SUNDIALS_C_COMPILER_HAS_INLINE)
 
 # ---------------------------------------------------------------
+# Check for __builtin_expect
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  int main() {
+    double a = 0.0;
+    if (__builtin_expect(a < 0, 0)) {
+      a = 0.0;
+    }
+    a = a + 1.0;
+  }
+" SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
+
+
+# ---------------------------------------------------------------
 # Check for POSIX timers
 # ---------------------------------------------------------------
 include(SundialsPOSIXTimers)

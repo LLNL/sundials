@@ -268,7 +268,7 @@ int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff)
 }
 
 
-int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
+SUNLsStatus SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 {
   int ier;
   SUNPSetupFn Psetup;
@@ -296,8 +296,8 @@ int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 }
 
 
-int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
-                       N_Vector b, realtype delta)
+SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
+                               N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
   realtype alpha, beta, r0_norm, rho, rz, rz_old;

@@ -5476,25 +5476,6 @@ SUNErrCode N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf)
   return SUN_SUCCESS;
 }
 
-
-SUNErrCode N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf)
-{
-  /* check that vector is non-NULL */
-  if (v == NULL) return(-1);
-
-  /* check that ops structure is non-NULL */
-  if (v->ops == NULL) return(-1);
-
-  /* enable/disable operation */
-  if (tf)
-    v->ops->nvlinearcombination = N_VLinearCombination_Pthreads;
-  else
-    v->ops->nvlinearcombination = NULL;
-
-  /* return success */
-  return SUN_SUCCESS;
-}
-
 NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombination, linearcombination, Pthreads)
 NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMulti, scaleaddmulti, Pthreads)
 NVECTOR_DEFINE_ENABLE_FUSEDOP(DotProdMulti, dotprodmulti, Pthreads)

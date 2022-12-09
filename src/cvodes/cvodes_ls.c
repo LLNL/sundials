@@ -1027,7 +1027,7 @@ int cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
   iterative linear solvers guarantee that cvLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-int cvLsPSetup(void *cvode_mem)
+SUNLsStatus cvLsPSetup(void *cvode_mem)
 {
   int      retval;
   CVodeMem cv_mem;
@@ -1060,7 +1060,7 @@ int cvLsPSetup(void *cvode_mem)
   only case in which the user's psolve routine is allowed to be
   NULL.
   -----------------------------------------------------------------*/
-int cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, int lr)
+SUNLsStatus cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, int lr)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;

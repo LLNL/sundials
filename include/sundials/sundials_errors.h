@@ -128,20 +128,24 @@ const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx);
 /* Alternative function to SUNContext_GetLastError that is more concise. */
 static inline SUNErrCode SUNLastErr(SUNContext sunctx)
 {
-  SUNErrCode code;
-  SUNContext_GetLastError(sunctx, &code);
-  return code;
+  return sunctx->last_err;
+}
+
+/* Alternative function to SUNContext_SetLastError that is more concise. */
+static inline void SUNSetLastErr(SUNErrCode code, SUNContext sunctx)
+{
+  sunctx->last_err = code;
 }
 
 /* Alternative function to SUNContext_ClearLastError that is more concise. */
-static inline void SUNClearLastErr(SUNContext sunctx)
+static inline void SUNClearLastErr(SUNContext sunctx) SUNDIALS_NOEXCEPT
 {
-  SUNContext_ClearLastError(sunctx);
+  sunctx->last_err = SUN_SUCCESS;
 }
 
-
-static inline int SUNHandleErr(int line, const char* func, const char* file,
-                               SUNErrCode code, SUNContext sunctx)
+static inline void SUNHandleErr(int line, const char* func, const char* file,
+                                SUNErrCode code,
+                                SUNContext sunctx) SUNDIALS_NOEXCEPT
 {
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
@@ -150,12 +154,12 @@ static inline int SUNHandleErr(int line, const char* func, const char* file,
     eh->call(line, func, file, NULL, code, eh->data, sunctx);
     eh = eh->previous;
   }
-  return 0;
 }
 
-static inline int SUNHandleErrWithMsg(int line, const char* func,
-                                      const char* file, const char* msg,
-                                      SUNErrCode code, SUNContext sunctx)
+static inline void SUNHandleErrWithMsg(int line, const char* func,
+                                       const char* file, const char* msg,
+                                       SUNErrCode code,
+                                       SUNContext sunctx) SUNDIALS_NOEXCEPT
 {
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
@@ -164,12 +168,12 @@ static inline int SUNHandleErrWithMsg(int line, const char* func,
     eh->call(line, func, file, msg, code, eh->data, sunctx);
     eh = eh->previous;
   }
-  return 0;
 }
 
-static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
-                                         const char* file, const char* msgfmt,
-                                         SUNErrCode code, SUNContext sunctx, ...)
+static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
+                                          const char* file, const char* msgfmt,
+                                          SUNErrCode code, SUNContext sunctx,
+                                          ...) SUNDIALS_NOEXCEPT
 {
   size_t msglen;
   char* msg;
@@ -182,7 +186,6 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
   SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
   va_end(values);
   free(msg);
-  return 0;
 }
 
 #define SUNError(code, sunctx) \
@@ -203,13 +206,20 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
  * Error checking macros
  * ---------------------------------------------------------------------------*/
 
+/* SUNReturnCode sets the last error to code and then returns code. 
+   This is used in all functions returning a SUNErrCode to ensure
+   consistency between the SUNErrCode that is returned and the last error value. */
+#define SUNReturnCode(code, sunctx) SUNSetLastErr(code, sunctx); return code
+
+#define SUNReturnCodeNoContext(code, sunctx) return code
+
 /* SUNCheckCall performs the SUNDIALS function call, and checks the returned
    error code. If an error occured, then it will log the error, set the last_err
    value, and call the error handler. */
 #define SUNCheckCall(call, sunctx)                                       \
   do {                                                                   \
     SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (sun_chk_call_err_code_ < 0)                                      \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
@@ -221,7 +231,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckCallReturn(call, sunctx)                                 \
   do {                                                                   \
     SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (sun_chk_call_err_code_ < 0)                                      \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
@@ -234,7 +244,7 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckCallReturnAlways(call, sunctx)                           \
   do {                                                                   \
     SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (sun_chk_call_err_code_ < 0)                                      \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
@@ -243,68 +253,11 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 
-/* Same as SUNCheckCall, but returns with NULL. */
-#define SUNCheckCallReturnNull(call, sunctx)                             \
+/* Same as SUNCheckCall, but returns void. */
+#define SUNCheckCallReturnVoid(call, sunctx)                             \
   do {                                                                   \
     SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (sun_chk_call_err_code_ < 0)                                      \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   sunctx);                                              \
-      return NULL;                                                       \
-    }                                                                    \
-  }                                                                      \
-  while (0)
-
-/* SUNCheckLastErr checks the last_err value in the SUNContext.
-   If an error occured, then it will log the error, set the last_err
-   value, and calls the error handler. */
-#define SUNCheckLastErr(sunctx)                                          \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_;                                   \
-    SUNContext_GetLastError(sunctx, &sun_chk_call_err_code_);            \
-    if (sun_chk_call_err_code_ < 0)                                      \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   sunctx);                                              \
-    }                                                                    \
-  }                                                                      \
-  while (0)
-
-/* Same as SUNCheckLastErr, but returns with the error code. */
-#define SUNCheckLastErrReturn(sunctx)                                    \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_;                                   \
-    SUNContext_GetLastError(sunctx, &sun_chk_call_err_code_);            \
-    if (sun_chk_call_err_code_ < 0)                                      \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   sunctx);                                              \
-      return sun_chk_call_err_code_;                                     \
-    }                                                                    \
-  }                                                                      \
-  while (0)
-
-/* Same as SUNCheckLastErr, but returns with the error code always. */
-#define SUNCheckLastErrReturnAlways(sunctx)                              \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_;                                   \
-    SUNContext_GetLastError(sunctx, &sun_chk_call_err_code_);            \
-    if (sun_chk_call_err_code_ < 0)                                      \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   sunctx);                                              \
-    }                                                                    \
-    return sun_chk_call_err_code_;                                       \
-  }                                                                      \
-  while (0)
-
-/* Same as SUNCheckLastErr, but returns void. */
-#define SUNCheckLastErrReturnVoid(sunctx)                                \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_;                                   \
-    SUNContext_GetLastError(sunctx, &sun_chk_call_err_code_);            \
-    if (sun_chk_call_err_code_ < 0)                                      \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
@@ -313,12 +266,11 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 
-/* Same as SUNCheckLastErr, but returns with the error code. */
-#define SUNCheckLastErrReturnNull(sunctx)                                \
+/* Same as SUNCheckCall, but returns with NULL. */
+#define SUNCheckCallReturnNull(call, sunctx)                             \
   do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_;                                   \
-    SUNContext_GetLastError(sunctx, &sun_chk_call_err_code_);            \
-    if (sun_chk_call_err_code_ < 0)                                      \
+    SUNErrCode sun_chk_call_err_code_ = call;                            \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
@@ -327,7 +279,41 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 
-/* TODO(CJB): should asserts really need a code even though expr is printed? */
+/* TODO(CJB): the error code scheme used isnt yet properly handled by
+    SUNHandleErr Also, should these be asserts? */
+#define SUNCheckMPICall(call, sunctx)                                      \
+  do {                                                                     \
+    int sun_chk_mpi_call_err_code_ = call;                                 \
+    if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                         \
+    {                                                                      \
+      SUNHandleErr(__LINE__, __func__, __FILE__,                           \
+                   SUN_ERR_MPI_FAIL + sun_chk_mpi_call_err_code_, sunctx); \
+    }                                                                      \
+  }                                                                        \
+  while (0)
+
+/* SUNCheckLastErr checks the last_err value in the SUNContext.
+   If an error occured, then it will log the error, set the last_err
+   value, and calls the error handler. */
+
+#define SUNCheckLastErr(sunctx) SUNCheckCall(SUNLastErr(sunctx), sunctx)
+
+/* Same as SUNCheckLastErr, but returns with the error code. */
+#define SUNCheckLastErrReturn(sunctx) \
+  SUNCheckCallReturn(SUNLastErr(sunctx), sunctx)
+
+/* Same as SUNCheckLastErr, but returns with the error code always. */
+#define SUNCheckLastErrReturnAlways(sunctx) \
+  SUNCheckCallReturnAlways(SUNLastErr(sunctx), sunctx)
+
+/* Same as SUNCheckLastErr, but returns void. */
+#define SUNCheckLastErrReturnVoid(sunctx) \
+  SUNCheckCallReturnVoid(SUNLastErr(sunctx), sunctx)
+
+/* Same as SUNCheckLastErr, but returns with the error code. */
+#define SUNCheckLastErrReturnNull(sunctx) \
+  SUNCheckCallReturnNull(SUNLastErr(sunctx), sunctx)
+
 /* SUNAssert checks if an expression is true.
    If the expression is false, it calls the SUNAssertErrHandler. */
 #if !defined(NDEBUG)
@@ -340,9 +326,10 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
     }                                                                  \
   }                                                                    \
   while (0)
+#else
+#define SUNAssert(expr, code, sunctx)
 #endif
 
-/* TODO(CJB): should asserts really need a code even though expr is printed? */
 /* SUNMPIAssert checks if an expression is true.
    If the expression is false, it calls the SUNMPIAbortErrHandler. */
 #if !defined(NDEBUG)
@@ -359,19 +346,10 @@ static inline int SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNMPIAssert(expr, code, sunctx)
 #endif
 
-/* TODO(CJB): the error code scheme used isnt yet properly handled by
-  SUNHandleErr Also, should these be asserts? */
-#define SUNCheckMPICall(call, sunctx)                                      \
-  do {                                                                     \
-    int sun_chk_mpi_call_err_code_ = call;                                 \
-    if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                         \
-    {                                                                      \
-      SUNHandleErr(__LINE__, __func__, __FILE__,                           \
-                   SUN_ERR_MPI_FAIL + sun_chk_mpi_call_err_code_, sunctx); \
-    }                                                                      \
-  }                                                                        \
-  while (0)
-
+/* TODO(CJB): probably should create a global handler that does not need
+   a SUNContext for this case among others where SUNContext is not available.
+   It won't be thread safe, but that should be OK since this is a catastropic
+   error. */
 /* Ensure SUNContext is not NULL by trying to access the last_err member.
    This purposely causes a segmentation fault if the context is NULL so
    that the error occurs on the correct line in the correct file.  */

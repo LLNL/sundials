@@ -48,7 +48,7 @@ inline SUNLinearSolver_ID SUNLinSolGetID_Ginkgo(SUNLinearSolver S)
 }
 
 template<class GkoSolverType, class GkoMatrixType>
-int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
+SUNLsStatus SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
   solver->Setup(static_cast<Matrix<GkoMatrixType>*>(A->content));
@@ -56,7 +56,7 @@ int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
 }
 
 template<class GkoSolverType, class GkoMatrixType>
-int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
+SUNLsStatus SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 {
   auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
   solver->Solve(b, x, tol);

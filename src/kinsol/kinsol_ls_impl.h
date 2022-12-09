@@ -108,8 +108,8 @@ typedef struct KINLsMemRec {
 
 /* Interface routines called by system SUNLinearSolvers */
 int kinLsATimes(void *kinmem, N_Vector v, N_Vector z);
-int kinLsPSetup(void *kinmem);
-int kinLsPSolve(void *kinmem, N_Vector r, N_Vector z,
+SUNLsStatus kinLsPSetup(void *kinmem);
+SUNLsStatus kinLsPSolve(void *kinmem, N_Vector r, N_Vector z,
                 realtype tol, int lr);
 
 /* Difference quotient approximation for Jacobian times vector */

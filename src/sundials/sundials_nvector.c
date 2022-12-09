@@ -1075,7 +1075,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   return(vs);
 }
 
-void N_VDestroyVectorArray(N_Vector* vs, int count)
+void N_VDestroyVectorArray(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
 {
   int j;
 

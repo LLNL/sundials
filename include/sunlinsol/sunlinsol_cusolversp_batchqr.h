@@ -74,10 +74,10 @@ SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_cuSolverSp_batchQR(SUNLinearSo
 
 SUNDIALS_EXPORT int SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S,
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       SUNMatrix A);
 
-SUNDIALS_EXPORT int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       SUNMatrix A,
                                                       N_Vector x,
                                                       N_Vector b,

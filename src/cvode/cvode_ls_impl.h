@@ -136,9 +136,9 @@ typedef struct CVLsMemRec {
   -----------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-int cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z);
-int cvLsPSetup(void* cvode_mem);
-int cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z,
+SUNErrCode cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z);
+SUNLsStatus cvLsPSetup(void* cvode_mem);
+SUNLsStatus cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z,
                realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */

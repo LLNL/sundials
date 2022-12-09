@@ -50,7 +50,7 @@ int fres(realtype tres, N_Vector yy, N_Vector yp, N_Vector resval, void *user_da
 /* Custom linear solver data structure, accessor macros, and routines */
 static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
-static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+static SUNLsStatus MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype tol);
 static int MatrixEmbeddedLSFree(SUNLinearSolver S);
 
@@ -232,7 +232,7 @@ static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S)
 }
 
 /* linear solve routine */
-static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
+static SUNLsStatus MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype tol)
 {
   /* temporary variables */

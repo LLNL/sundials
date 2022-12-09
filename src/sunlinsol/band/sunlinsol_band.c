@@ -129,7 +129,7 @@ int SUNLinSolInitialize_Band(SUNLinearSolver S)
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
+SUNLsStatus SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
   sunindextype *pivots;
@@ -170,8 +170,8 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                        N_Vector b, realtype tol)
+SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                                N_Vector b, realtype tol)
 {
   realtype **A_cols, *xdata;
   sunindextype *pivots;

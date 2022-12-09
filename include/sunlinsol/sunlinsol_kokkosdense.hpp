@@ -51,7 +51,7 @@ SUNLinearSolver_ID SUNLinSolGetID_KokkosDense(SUNLinearSolver S)
 }
 
 template<class MatrixType, class LinearSolverType>
-int SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A)
+SUNLsStatus SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A)
 {
   // Access matrix data
   auto A_mat{sundials::kokkos::GetDenseMat<MatrixType>(A)};
@@ -80,7 +80,7 @@ int SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A)
 }
 
 template<class VectorType, class MatrixType, class LinearSolverType>
-int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+SUNLsStatus SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
   // Copy b into x

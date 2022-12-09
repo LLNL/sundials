@@ -88,13 +88,13 @@ struct _generic_SUNMatrix_Ops
   SUNMatrix_ID (*getid)(SUNMatrix);
   SUNMatrix (*clone)(SUNMatrix);
   void (*destroy)(SUNMatrix);
-  int (*zero)(SUNMatrix);
-  int (*copy)(SUNMatrix, SUNMatrix);
-  int (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
-  int (*scaleaddi)(realtype, SUNMatrix);
-  int (*matvecsetup)(SUNMatrix);
-  int (*matvec)(SUNMatrix, N_Vector, N_Vector);
-  int (*space)(SUNMatrix, long int*, long int*);
+  SUNErrCode (*zero)(SUNMatrix);
+  SUNErrCode (*copy)(SUNMatrix, SUNMatrix);
+  SUNErrCode (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
+  SUNErrCode (*scaleaddi)(realtype, SUNMatrix);
+  SUNErrCode (*matvecsetup)(SUNMatrix);
+  SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
+  SUNErrCode (*space)(SUNMatrix, long int*, long int*);
 #ifdef __cplusplus
   _generic_SUNMatrix_Ops() = default;
 #endif

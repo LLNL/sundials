@@ -654,7 +654,7 @@ int kinLsATimes(void *kinmem, N_Vector v, N_Vector z)
   iterative linear solvers guarantee that kinLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-int kinLsPSetup(void *kinmem)
+SUNLsStatus kinLsPSetup(void *kinmem)
 {
   KINMem   kin_mem;
   KINLsMem kinls_mem;
@@ -685,7 +685,7 @@ int kinLsPSetup(void *kinmem)
   in the case in which preconditioning is not done. This is the only
   case in which the user's psolve routine is allowed to be NULL.
   ------------------------------------------------------------------*/
-int kinLsPSolve(void *kinmem, N_Vector r, N_Vector z, realtype tol, int lr)
+SUNLsStatus kinLsPSolve(void *kinmem, N_Vector r, N_Vector z, realtype tol, int lr)
 {
   KINMem   kin_mem;
   KINLsMem kinls_mem;

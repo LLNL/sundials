@@ -223,7 +223,7 @@ SUNDIALS_EXPORT SUNErrCode N_VCopyOps(N_Vector w, N_Vector v);
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
-SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
+SUNDIALS_EXPORT void N_VDestroy(N_Vector v) SUNDIALS_NOEXCEPT;
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
 SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer(N_Vector v);
 SUNDIALS_EXPORT sunrealtype* N_VGetDeviceArrayPointer(N_Vector v);

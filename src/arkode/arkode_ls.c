@@ -1665,7 +1665,7 @@ int arkLsATimes(void *arkode_mem, N_Vector v, N_Vector z)
   iterative linear solvers guarantee that arkLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-int arkLsPSetup(void *arkode_mem)
+SUNLsStatus arkLsPSetup(void *arkode_mem)
 {
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
@@ -1710,8 +1710,8 @@ int arkLsPSetup(void *arkode_mem)
   is the only case in which the user's psolve routine is allowed
   to be NULL.
   ---------------------------------------------------------------*/
-int arkLsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
-                realtype tol, int lr)
+SUNLsStatus arkLsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
+                        realtype tol, int lr)
 {
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
@@ -1810,7 +1810,7 @@ int arkLsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
   linear solvers guarantee that arkLsMPSetup will only be
   called if the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-int arkLsMPSetup(void *arkode_mem)
+SUNLsStatus arkLsMPSetup(void *arkode_mem)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -1844,8 +1844,8 @@ int arkLsMPSetup(void *arkode_mem)
   case in which preconditioning is not done. This is the only case
   in which the user's psolve routine is allowed to be NULL.
   ---------------------------------------------------------------*/
-int arkLsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
-                 realtype tol, int lr)
+SUNLsStatus arkLsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
+                         realtype tol, int lr)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;

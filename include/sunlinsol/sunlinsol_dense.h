@@ -59,8 +59,8 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNCont
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Dense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A,
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A,
                                          N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_Dense(SUNLinearSolver S,

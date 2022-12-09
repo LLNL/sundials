@@ -8,7 +8,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ * Header file that includes the SUNDIALS core.
+ * ----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_H
 

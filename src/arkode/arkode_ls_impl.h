@@ -195,14 +195,14 @@ typedef struct ARKLsMassMemRec {
 
 /* Interface routines called by system SUNLinearSolver */
 int arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z);
-int arkLsPSetup(void* arkode_mem);
-int arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z,
+SUNLsStatus arkLsPSetup(void* arkode_mem);
+SUNLsStatus arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z,
                 realtype tol, int lr);
 
 /* Interface routines called by mass SUNLinearSolver */
 int arkLsMTimes(void* arkode_mem, N_Vector v, N_Vector z);
-int arkLsMPSetup(void* arkode_mem);
-int arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z,
+SUNLsStatus arkLsMPSetup(void* arkode_mem);
+SUNLsStatus arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z,
                  realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */

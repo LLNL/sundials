@@ -155,7 +155,7 @@ SUNErrCode SUNLinSolInitialize(SUNLinearSolver S)
   return (ier);
 }
 
-SUNErrCode SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
+SUNLsStatus SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
@@ -165,8 +165,8 @@ SUNErrCode SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
   return (ier);
 }
 
-SUNErrCode SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                          N_Vector b, realtype tol)
+SUNLsStatus SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                           N_Vector b, realtype tol)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));

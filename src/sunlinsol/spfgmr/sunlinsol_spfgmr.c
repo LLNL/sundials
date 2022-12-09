@@ -378,7 +378,7 @@ int SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff)
 }
 
 
-int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
+SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
   SUNPSetupFn Psetup;
@@ -405,7 +405,7 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 }
 
 
-int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                           N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
