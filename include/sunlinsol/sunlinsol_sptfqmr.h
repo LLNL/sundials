@@ -90,16 +90,16 @@ SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S,
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* A_data,
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* A_data,
                                                SUNATimesFn ATimes);
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S,
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S,
                                                        void* P_data,
                                                        SUNPSetupFn Pset,
                                                        SUNPSolveFn Psol);
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
                                                        N_Vector s1,
                                                        N_Vector s2);
-SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S,
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S,
                                                   booleantype onoff);
 SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A,
@@ -113,10 +113,10 @@ SUNDIALS_EXPORT int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
                                            long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver LS,
+SUNErrCode SUNLinSolSeInfoFile_SPTFQMR(SUNLinearSolver LS,
                                  FILE* info_file);
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
-int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver LS, int print_level);
+SUNErrCode SUNLinSolSePrintLevel_SPTFQMR(SUNLinearSolver LS, int print_level);
 
 
 #ifdef __cplusplus

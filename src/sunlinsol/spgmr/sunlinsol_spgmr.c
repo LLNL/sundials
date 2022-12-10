@@ -616,7 +616,8 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       cv[k+1] = yg[k];
       Xv[k+1] = V[k];
     }
-    SUNCheckCall(N_VLinearCombination(krydim+1, cv, Xv, xcor), S->sunctx);
+    ier = N_VLinearCombination(krydim+1, cv, Xv, xcor);
+    SUNCheckCall(ier, S->sunctx);
 
     /* If converged, construct the final solution vector x and return */
     if (converged) {
@@ -670,7 +671,8 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       cv[k] = yg[k];
       Xv[k] = V[k];
     }
-    SUNCheckCall(N_VLinearCombination(krydim+1, cv, Xv, V[0]), S->sunctx);
+    ier = N_VLinearCombination(krydim+1, cv, Xv, V[0]);
+    SUNCheckCall(ier, S->sunctx);
 
   }
 

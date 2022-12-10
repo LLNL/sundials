@@ -234,7 +234,6 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_PACKAGE_FAIL_UNREC -809 /* external package unrec. fail  */
 #define SUNLS_GS_FAIL            -810 /* Gram-Schmidt failure          */
 #define SUNLS_QRSOL_FAIL         -811 /* QRsol found singular R        */
-/* DEPRECATED: use SUNErrCode instead */
 #define SUNLS_VECTOROP_ERR     -812 /* vector operation error        */
 #define SUNLS_RES_REDUCED      801  /* nonconv. solve, resid reduced */
 #define SUNLS_CONV_FAIL        802  /* nonconvergent solve           */

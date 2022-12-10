@@ -328,7 +328,7 @@ int SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
 }
 
 
-int SUNLinSolSetATimes_SPFGMR(SUNLinearSolver S, void* ATData,
+SUNErrCode SUNLinSolSetATimes_SPFGMR(SUNLinearSolver S, void* ATData,
                               SUNATimesFn ATimes)
 {
   /* set function pointers to integrator-supplied ATimes routine
@@ -336,12 +336,11 @@ int SUNLinSolSetATimes_SPFGMR(SUNLinearSolver S, void* ATData,
   if (S == NULL) return(SUNLS_MEM_NULL);
   SPFGMR_CONTENT(S)->ATimes = ATimes;
   SPFGMR_CONTENT(S)->ATData = ATData;
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return SUN_SUCCESS;
 }
 
 
-int SUNLinSolSetPreconditioner_SPFGMR(SUNLinearSolver S, void* PData,
+SUNErrCode SUNLinSolSetPreconditioner_SPFGMR(SUNLinearSolver S, void* PData,
                                       SUNPSetupFn Psetup, SUNPSolveFn Psolve)
 {
   /* set function pointers to integrator-supplied Psetup and PSolve
@@ -355,7 +354,7 @@ int SUNLinSolSetPreconditioner_SPFGMR(SUNLinearSolver S, void* PData,
 }
 
 
-int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
+SUNErrCode SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
                                       N_Vector s2)
 {
   /* set N_Vector pointers to integrator-supplied scaling vectors,
@@ -368,7 +367,7 @@ int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
 }
 
 
-int SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff)
+SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -820,7 +819,7 @@ int SUNLinSolFree_SPFGMR(SUNLinearSolver S)
 }
 
 
-int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSeInfoFile_SPFGMR(SUNLinearSolver S,
                                 FILE* info_file)
 {
   /* check that the linear solver is non-null */
@@ -833,7 +832,7 @@ int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver S,
 }
 
 
-int SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSePrintLevel_SPFGMR(SUNLinearSolver S,
                                   int print_level)
 {
   /* check that the linear solver is non-null */

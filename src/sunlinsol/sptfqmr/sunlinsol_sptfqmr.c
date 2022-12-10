@@ -254,7 +254,7 @@ int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
 }
 
 
-int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData,
+SUNErrCode SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData,
                                SUNATimesFn ATimes)
 {
   /* set function pointers to integrator-supplied ATimes routine
@@ -262,12 +262,11 @@ int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData,
   if (S == NULL) return(SUNLS_MEM_NULL);
   SPTFQMR_CONTENT(S)->ATimes = ATimes;
   SPTFQMR_CONTENT(S)->ATData = ATData;
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return SUN_SUCCESS;
 }
 
 
-int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S, void* PData,
+SUNErrCode SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S, void* PData,
                                        SUNPSetupFn Psetup, SUNPSolveFn Psolve)
 {
   /* set function pointers to integrator-supplied Psetup and PSolve
@@ -281,7 +280,7 @@ int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S, void* PData,
 }
 
 
-int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
                                        N_Vector s1,
                                        N_Vector s2)
 {
@@ -295,7 +294,7 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
 }
 
 
-int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, booleantype onoff)
+SUNErrCode SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, booleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -908,7 +907,7 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
 }
 
 
-int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSeInfoFile_SPTFQMR(SUNLinearSolver S,
                                  FILE* info_file)
 {
   /* check that the linear solver is non-null */
@@ -921,7 +920,7 @@ int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
 }
 
 
-int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSePrintLevel_SPTFQMR(SUNLinearSolver S,
                                    int print_level)
 {
   /* check that the linear solver is non-null */
