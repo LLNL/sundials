@@ -126,7 +126,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
 const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx);
 
 /* Alternative function to SUNContext_GetLastError that is more concise. */
-static inline SUNErrCode SUNLastErr(SUNContext sunctx)
+static inline SUNErrCode SUNGetLastErr(SUNContext sunctx)
 {
   return sunctx->last_err;
 }
@@ -296,23 +296,23 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
    If an error occured, then it will log the error, set the last_err
    value, and calls the error handler. */
 
-#define SUNCheckLastErr(sunctx) SUNCheckCall(SUNLastErr(sunctx), sunctx)
+#define SUNCheckLastErr(sunctx) SUNCheckCall(SUNGetLastErr(sunctx), sunctx)
 
 /* Same as SUNCheckLastErr, but returns with the error code. */
 #define SUNCheckLastErrReturn(sunctx) \
-  SUNCheckCallReturn(SUNLastErr(sunctx), sunctx)
+  SUNCheckCallReturn(SUNGetLastErr(sunctx), sunctx)
 
 /* Same as SUNCheckLastErr, but returns with the error code always. */
 #define SUNCheckLastErrReturnAlways(sunctx) \
-  SUNCheckCallReturnAlways(SUNLastErr(sunctx), sunctx)
+  SUNCheckCallReturnAlways(SUNGetLastErr(sunctx), sunctx)
 
 /* Same as SUNCheckLastErr, but returns void. */
 #define SUNCheckLastErrReturnVoid(sunctx) \
-  SUNCheckCallReturnVoid(SUNLastErr(sunctx), sunctx)
+  SUNCheckCallReturnVoid(SUNGetLastErr(sunctx), sunctx)
 
 /* Same as SUNCheckLastErr, but returns with the error code. */
 #define SUNCheckLastErrReturnNull(sunctx) \
-  SUNCheckCallReturnNull(SUNLastErr(sunctx), sunctx)
+  SUNCheckCallReturnNull(SUNGetLastErr(sunctx), sunctx)
 
 /* SUNAssert checks if an expression is true.
    If the expression is false, it calls the SUNAssertErrHandler. */
