@@ -907,7 +907,7 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
 }
 
 
-SUNErrCode SUNLinSolSeInfoFile_SPTFQMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
                                  FILE* info_file)
 {
   /* check that the linear solver is non-null */
@@ -920,7 +920,7 @@ SUNErrCode SUNLinSolSeInfoFile_SPTFQMR(SUNLinearSolver S,
 }
 
 
-SUNErrCode SUNLinSolSePrintLevel_SPTFQMR(SUNLinearSolver S,
+SUNErrCode SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
                                    int print_level)
 {
   /* check that the linear solver is non-null */

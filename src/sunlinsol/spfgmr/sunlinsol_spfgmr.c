@@ -353,9 +353,8 @@ SUNErrCode SUNLinSolSetPreconditioner_SPFGMR(SUNLinearSolver S, void* PData,
   return(LASTFLAG(S));
 }
 
-
 SUNErrCode SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
-                                      N_Vector s2)
+                                             N_Vector s2)
 {
   /* set N_Vector pointers to integrator-supplied scaling vectors,
      and return with success */
@@ -818,9 +817,7 @@ int SUNLinSolFree_SPFGMR(SUNLinearSolver S)
   return(SUNLS_SUCCESS);
 }
 
-
-SUNErrCode SUNLinSolSeInfoFile_SPFGMR(SUNLinearSolver S,
-                                FILE* info_file)
+SUNErrCode SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver S, FILE* info_file)
 {
   /* check that the linear solver is non-null */
   if (S == NULL)
@@ -831,9 +828,7 @@ SUNErrCode SUNLinSolSeInfoFile_SPFGMR(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-
-SUNErrCode SUNLinSolSePrintLevel_SPFGMR(SUNLinearSolver S,
-                                  int print_level)
+SUNErrCode SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver S, int print_level)
 {
   /* check that the linear solver is non-null */
   if (S == NULL)

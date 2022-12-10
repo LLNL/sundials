@@ -768,7 +768,7 @@ SUNErrCode SUNLinSolFree_SPBCGS(SUNLinearSolver S)
 }
 
 
-SUNErrCode SUNLinSolSeInfoFile_SPBCGS(SUNLinearSolver S,
+SUNErrCode SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
                                 FILE* info_file)
 {
   SPBCGS_CONTENT(S)->info_file = info_file;
@@ -776,7 +776,7 @@ SUNErrCode SUNLinSolSeInfoFile_SPBCGS(SUNLinearSolver S,
 }
 
 
-SUNErrCode SUNLinSolSePrintLevel_SPBCGS(SUNLinearSolver S,
+SUNErrCode SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
                                   int print_level)
 {
   /* check for valid print level */
