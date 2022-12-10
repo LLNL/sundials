@@ -128,7 +128,9 @@ const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx);
 /* Alternative function to SUNContext_GetLastError that is more concise. */
 static inline SUNErrCode SUNGetLastErr(SUNContext sunctx)
 {
-  return sunctx->last_err;
+  SUNErrCode code = sunctx->last_err;
+  sunctx->last_err = SUN_SUCCESS;
+  return code;
 }
 
 /* Alternative function to SUNContext_SetLastError that is more concise. */
