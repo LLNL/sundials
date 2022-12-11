@@ -133,6 +133,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   /* Allocate memory for temporary N_Vectors */
   pdata->zlocal = NULL;
   pdata->zlocal = N_VNewEmpty_Serial(Nlocal, cv_mem->cv_sunctx);
+  SUNCheckLastErr(CV_SUNCTX);
   if (pdata->zlocal == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -143,6 +144,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   pdata->rlocal = NULL;
   pdata->rlocal = N_VNewEmpty_Serial(Nlocal, cv_mem->cv_sunctx);
+  SUNCheckLastErr(CV_SUNCTX);
   if (pdata->rlocal == NULL) {
     N_VDestroy(pdata->zlocal);
     SUNMatDestroy(pdata->savedP);
@@ -154,6 +156,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   pdata->tmp1 = NULL;
   pdata->tmp1 = N_VClone(cv_mem->cv_tempv);
+  SUNCheckLastErr(CV_SUNCTX);
   if (pdata->tmp1 == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -166,6 +169,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   pdata->tmp2 = NULL;
   pdata->tmp2 = N_VClone(cv_mem->cv_tempv);
+  SUNCheckLastErr(CV_SUNCTX);
   if (pdata->tmp2 == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->zlocal);
@@ -179,6 +183,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   pdata->tmp3 = NULL;
   pdata->tmp3 = N_VClone(cv_mem->cv_tempv);
+  SUNCheckLastErr(CV_SUNCTX);
   if (pdata->tmp3 == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
@@ -195,6 +200,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
   pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, cv_mem->cv_sunctx);
+  SUNCheckLastErrReturn(CV_SUNCTX);
   if (pdata->LS == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
@@ -211,7 +217,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  if (flag != SUNLS_SUCCESS) {
+  SUNCheckCall(flag, CV_SUNCTX);
+  if (flag) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
     N_VDestroy(pdata->tmp3);
@@ -238,26 +245,31 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->ipwsize = 0;
   if (cv_mem->cv_tempv->ops->nvspace) {
     N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
+    SUNCheckLastErr(CV_SUNCTX);
     pdata->rpwsize += 3*lrw1;
     pdata->ipwsize += 3*liw1;
   }
   if (pdata->rlocal->ops->nvspace) {
     N_VSpace(pdata->rlocal, &lrw1, &liw1);
+    SUNCheckLastErr(CV_SUNCTX);
     pdata->rpwsize += 2*lrw1;
     pdata->ipwsize += 2*liw1;
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    SUNCheckCall(flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
+    SUNCheckCall(flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCall(flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -459,6 +471,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   if (jok) {
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+    SUNCheckCall(retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                      __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -473,6 +486,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
+    SUNCheckCall(retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                      __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -494,6 +508,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+    SUNCheckCall(retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                    __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -507,6 +522,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
+  SUNCheckCall(retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                    __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -545,12 +561,16 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 {
   int retval;
   CVBBDPrecData pdata;
+  SUNContext sunctx;
 
   pdata = (CVBBDPrecData) bbd_data;
+  sunctx = ((CVodeMem) pdata->cvode_mem)->cv_sunctx;
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
   N_VSetArrayPointer(N_VGetArrayPointer(r), pdata->rlocal);
+  SUNCheckLastErr(sunctx);
   N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal);
+  SUNCheckLastErr(sunctx);
 
   /* Call banded solver object to do the work */
   retval = SUNLinSolSolve(pdata->LS, pdata->savedP, pdata->zlocal,
@@ -558,7 +578,9 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
   /* Detach local data arrays from rlocal and zlocal */
   N_VSetArrayPointer(NULL, pdata->rlocal);
+  SUNCheckLastErr(sunctx);
   N_VSetArrayPointer(NULL, pdata->zlocal);
+  SUNCheckLastErr(sunctx);
 
   return(retval);
 }
@@ -622,6 +644,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
 
   /* Load ytemp with y = predicted solution vector */
   N_VScale(ONE, y, ytemp);
+  SUNCheckLastErr(CV_SUNCTX);
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (pdata->cfn != NULL) {
@@ -636,15 +659,22 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
 
   /* Obtain pointers to the data for various vectors */
   y_data     =  N_VGetArrayPointer(y);
+  SUNCheckLastErr(CV_SUNCTX);
   gy_data    =  N_VGetArrayPointer(gy);
+  SUNCheckLastErr(CV_SUNCTX);
   ewt_data   =  N_VGetArrayPointer(cv_mem->cv_ewt);
+  SUNCheckLastErr(CV_SUNCTX);
   ytemp_data =  N_VGetArrayPointer(ytemp);
+  SUNCheckLastErr(CV_SUNCTX);
   gtemp_data =  N_VGetArrayPointer(gtemp);
-  if (cv_mem->cv_constraintsSet)
+  if (cv_mem->cv_constraintsSet) {
     cns_data =  N_VGetArrayPointer(cv_mem->cv_constraints);
+    SUNCheckLastErr(CV_SUNCTX);
+  }
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, cv_mem->cv_ewt);
+  SUNCheckLastErr(CV_SUNCTX);
   minInc = (gnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) *
      cv_mem->cv_uround * pdata->n_local * gnorm) : ONE;

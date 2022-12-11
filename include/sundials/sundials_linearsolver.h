@@ -188,7 +188,7 @@ SUNLsStatus SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                            N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLinSolNumIters(SUNLinearSolver S);
+int SUNLinSolNumIters(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 realtype SUNLinSolResNorm(SUNLinearSolver S);
@@ -206,7 +206,7 @@ SUNErrCode SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS,
                           long int* leniwLS);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLinSolFree(SUNLinearSolver S);
+SUNErrCode SUNLinSolFree(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
 
 /* -----------------------------------------------------------------
  * SUNLinearSolver return values

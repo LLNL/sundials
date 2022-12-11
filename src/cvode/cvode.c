@@ -462,6 +462,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 
   /* create a Newton nonlinear solver object by default */
   NLS = SUNNonlinSol_Newton(y0, CV_SUNCTX);
+  SUNCheckLastErr(CV_SUNCTX);
 
   /* check that nonlinear solver is non-NULL */
   if (NLS == NULL) {
@@ -2829,10 +2830,10 @@ static int cvNls(CVodeMem cv_mem, int nflag)
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
   /* increment counters */
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc);
+  SUNCheckCall(SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc), CV_SUNCTX);
   cv_mem->cv_nni += nni_inc;
 
-  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc);
+  SUNCheckCall(SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc), CV_SUNCTX);
   cv_mem->cv_nnf += nnf_inc;
 
   /* if the solve failed return */
