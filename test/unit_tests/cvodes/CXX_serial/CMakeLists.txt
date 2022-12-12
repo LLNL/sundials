@@ -15,22 +15,20 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-if (SUNDIALS_PRECISION MATCHES "DOUBLE")
-  set(unit_tests
-    "cvs_test_kpr.cpp\;"
-    "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_max_fx 2.0"
-    "cvs_test_kpr.cpp\;--eta_max_fs 2"
-    "cvs_test_kpr.cpp\;--eta_min_es 2 --small_nst 5"
-    "cvs_test_kpr.cpp\;--eta_min_gs 2"
-    "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_min 0.5"
-    "cvs_test_kpr.cpp\;--eta_min_ef 0.5"
-    "cvs_test_kpr.cpp\;--eta_max_ef 0.1 --small_nef 1"
-    "cvs_test_kpr.cpp\;--eta_cf 0.5"
-    "cvs_test_kpr.cpp\;--dgmax_lsetup 0.0"
-    "cvs_test_kpr.cpp\;--dgmax_jbad 1.0"
-    "cvs_test_getjac.cpp\;"
-  )
-endif()
+set(unit_tests
+  "cvs_test_kpr.cpp\;"
+  "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_max_fx 2.0"
+  "cvs_test_kpr.cpp\;--eta_max_fs 2"
+  "cvs_test_kpr.cpp\;--eta_min_es 2 --small_nst 5"
+  "cvs_test_kpr.cpp\;--eta_min_gs 2"
+  "cvs_test_kpr.cpp\;--eta_min_fx 1.0 --eta_min 0.5"
+  "cvs_test_kpr.cpp\;--eta_min_ef 0.5"
+  "cvs_test_kpr.cpp\;--eta_max_ef 0.1 --small_nef 1"
+  "cvs_test_kpr.cpp\;--eta_cf 0.5"
+  "cvs_test_kpr.cpp\;--dgmax_lsetup 0.0"
+  "cvs_test_kpr.cpp\;--dgmax_jbad 1.0"
+  "cvs_test_getjac.cpp\;"
+)
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -73,12 +71,20 @@ foreach(test_tuple ${unit_tests})
     string(REPLACE " " "_" test_name "${test_target}_${test_args}")
   endif()
 
+  if(SUNDIALS_PRECISION MATCHES "DOUBLE")
+    set(diff_output "")
+  else()
+    set(diff_output "NODIFF")
+  endif()
+
   # add test to regression tests
   sundials_add_test(${test_name} ${test_target}
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE "develop")
+    EXAMPLE_TYPE "develop"
+    ${diff_output}
+  )
 
 endforeach()
 

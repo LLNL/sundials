@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -40,6 +41,7 @@
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
 #include "cvode/cvode.h"
 #include "nvector/nvector_serial.h"
+#include "sundials/sundials_math.h"
 #include "sunlinsol/sunlinsol_dense.h"
 #include "sunmatrix/sunmatrix_dense.h"
 
@@ -168,6 +170,26 @@ int main(int argc, char* argv[])
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
 
+  // Comparison tolerance
+  sunrealtype tol = 100 * std::sqrt(SUN_UNIT_ROUNDOFF);
+  if (argc > 1)
+  {
+#if defined(SUNDIALS_SINGLE_PRECISION)
+    tol = std::stof(argv[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    tol = std::stod(argv[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+    tol = std::stold(argv[1]);
+#else
+#error "SUNDIALS precision macro not defined"
+#endif
+    if (tol <= ZERO)
+    {
+      std::cerr << "ERROR: Invalid tolerance, tol = " << tol << std::endl;
+      return 1;
+    }
+  }
+
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
@@ -251,6 +273,7 @@ int main(int argc, char* argv[])
   for (int i = 0; i < 4 * 25 + 8; i++) std::cout << "-";
   std::cout << std::endl;
 
+  int result = 0;
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
   for (sunindextype i = 0; i < ldata; i++)
   {
@@ -261,6 +284,7 @@ int main(int argc, char* argv[])
               << std::setw(25) << std::right
               << std::abs(Jdq_data[i] - Jtrue_data[i])/Jtrue_data[i]
               << std::endl;
+    result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
   }
 
   // Clean up and return with successful completion
@@ -270,7 +294,7 @@ int main(int argc, char* argv[])
   SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);
 
-  return 0;
+  return result;
 }
 
 /*---- end of file ----*/

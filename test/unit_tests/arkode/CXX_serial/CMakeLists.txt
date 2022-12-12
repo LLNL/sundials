@@ -15,29 +15,27 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-if (SUNDIALS_PRECISION MATCHES "DOUBLE")
-  set(unit_tests
-    "ark_test_analytic_sys_mri.cpp\;0"
-    "ark_test_analytic_sys_mri.cpp\;1"
-    "ark_test_dahlquist_mri.cpp\;"
-    "ark_test_butcher.cpp\;"
-    "ark_test_getjac.cpp\;"
-    "ark_test_getjac_mri.cpp\;"
-    )
-endif()
+set(unit_tests
+  "ark_test_analytic_sys_mri.cpp\;0"
+  "ark_test_analytic_sys_mri.cpp\;1"
+  "ark_test_dahlquist_mri.cpp\;"
+  "ark_test_butcher.cpp\;"
+  "ark_test_getjac.cpp\;"
+  "ark_test_getjac_mri.cpp\;"
+)
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
 
-  # parse the test tuple
+  # Parse the test tuple
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
 
   # Extract the file name without extension
   get_filename_component(test_target ${test} NAME_WE)
 
-  # Check if this test has already been added, only need to add
-  # test source files once for testing with different inputs
+  # Check if this test has already been added, only need to add test source
+  # files once for testing with different inputs
   if(NOT TARGET ${test_target})
 
     # Test source files
@@ -67,12 +65,20 @@ foreach(test_tuple ${unit_tests})
     string(REPLACE " " "_" test_name "${test_target}_${test_args}")
   endif()
 
+  if(SUNDIALS_PRECISION MATCHES "DOUBLE")
+    set(diff_output "")
+  else()
+    set(diff_output "NODIFF")
+  endif()
+
   # add test to regression tests
   sundials_add_test(${test_name} ${test_target}
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE "develop")
+    EXAMPLE_TYPE "develop"
+    ${diff_output}
+  )
 
 endforeach()
 

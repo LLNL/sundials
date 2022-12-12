@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -41,6 +42,7 @@
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_mristep.h"
 #include "nvector/nvector_serial.h"
+#include "sundials/sundials_math.h"
 #include "sunlinsol/sunlinsol_dense.h"
 #include "sunmatrix/sunmatrix_dense.h"
 
@@ -178,6 +180,26 @@ int main(int argc, char* argv[])
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
 
+  // Comparison tolerance
+  sunrealtype tol = 100 * std::sqrt(SUN_UNIT_ROUNDOFF);
+  if (argc > 1)
+  {
+#if defined(SUNDIALS_SINGLE_PRECISION)
+    tol = std::stof(argv[1]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    tol = std::stod(argv[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+    tol = std::stold(argv[1]);
+#else
+#error "SUNDIALS precision macro not defined"
+#endif
+    if (tol <= ZERO)
+    {
+      std::cerr << "ERROR: Invalid tolerance, tol = " << tol << std::endl;
+      return 1;
+    }
+  }
+
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
@@ -188,10 +210,6 @@ int main(int argc, char* argv[])
   // Create the fast integrator memory structure
   void* inner_arkode_mem = ARKStepCreate(f0, NULL, ZERO, y, sunctx);
   if (check_ptr(inner_arkode_mem, "ARKStepCreate")) return 1;
-
-  flag = ARKStepSStolerances(inner_arkode_mem, SUN_RCONST(1.0e-6),
-                             SUN_RCONST(1.0e-10));
-  if (check_flag(flag, "ARKStepSStolerances")) return 1;
 
   // Create inner stepper
   MRIStepInnerStepper inner_stepper;
@@ -275,6 +293,7 @@ int main(int argc, char* argv[])
   for (int i = 0; i < 4 * 25 + 8; i++) std::cout << "-";
   std::cout << std::endl;
 
+  int result = 0;
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
   for (sunindextype i = 0; i < ldata; i++)
   {
@@ -285,6 +304,7 @@ int main(int argc, char* argv[])
               << std::setw(25) << std::right
               << std::abs(Jdq_data[i] - Jtrue_data[i])/Jtrue_data[i]
               << std::endl;
+    result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
   }
 
   // Clean up and return with successful completion
@@ -292,9 +312,11 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNMatDestroy(Jtrue);
   SUNLinSolFree(LS);
+  MRIStepInnerStepper_Free(&inner_stepper);
+  ARKStepFree(&inner_arkode_mem);
   MRIStepFree(&arkode_mem);
 
-  return 0;
+  return result;
 }
 
 /*---- end of file ----*/
