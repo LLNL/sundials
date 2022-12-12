@@ -9,6 +9,8 @@ Added the functions ``ARKStepGetJac``, ``ARKStepGetJacTime``,
 ``IDAGetJacNumSteps``, ``KINGetJac``, ``KINGetJacNumIters`` to assist in
 debugging simulations utilizing a matrix-based linear solver.
 
+Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and IDAS.
+
 ## Changes to SUNDIALS in release 6.4.1
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.

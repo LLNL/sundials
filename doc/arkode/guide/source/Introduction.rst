@@ -126,6 +126,8 @@ Added the functions :c:func:`ARKStepGetJac`, :c:func:`ARKStepGetJacTime`,
 :c:func:`MRIStepGetJacTime`, and :c:func:`MRIStepGetJacNumSteps` to assist in
 debugging simulations utilizing a matrix-based linear solver.
 
+Fixed an underflow bug during root finding.
+
 Changes in v5.4.1
 -----------------
 
