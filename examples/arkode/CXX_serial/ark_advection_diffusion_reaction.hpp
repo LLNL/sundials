@@ -1130,6 +1130,7 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
     cout << "  rtol             = " << uopts.rtol_fast << endl;
     cout << "  atol             = " << uopts.atol_fast << endl;
     cout << "  ls setup freq    = " << uopts.ls_setup_freq << endl;
+    cout << "  etamx first step = " << uopts.etamx1_fast << endl;
     cout << "  reuse initial h  = " << uopts.save_hinit << endl;
     cout << "  reuse current h  = " << uopts.save_hcur << endl;
     cout << "  current h factor = " << uopts.hcur_factor << endl;
