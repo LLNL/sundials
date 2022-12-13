@@ -241,6 +241,15 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Integration tolerances
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-8);
+  const sunrealtype atol = SUN_RCONST(1.0e-12);
+#else
+  const sunrealtype rtol = SUN_RCONST(1.0e-6);
+  const sunrealtype atol = SUN_RCONST(1.0e-10);
+#endif
+
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
@@ -261,7 +270,7 @@ int main(int argc, char* argv[])
   flag = IDAInit(ida_mem, res, ZERO, y, yp);
   if (check_flag(flag, "IDAInit")) return 1;
 
-  flag = IDASStolerances(ida_mem, SUN_RCONST(1.0e-6), SUN_RCONST(1.0e-10));
+  flag = IDASStolerances(ida_mem, rtol, atol);
   if (check_flag(flag, "IDASStolerances")) return 1;
 
   SUNMatrix A = SUNDenseMatrix(2, 2, sunctx);

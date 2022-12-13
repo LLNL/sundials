@@ -214,6 +214,13 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Integration tolerances
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  const sunrealtype ftol = 10 * std::sqrt(SUN_UNIT_ROUNDOFF);
+#else
+  const sunrealtype ftol = 10 * std::sqrt(SUN_UNIT_ROUNDOFF);
+#endif
+
   // Create initial guess and scaling vectors
   N_Vector uu = N_VNew_Serial(3, sunctx);
   if (check_ptr(uu, "N_VNew_Serial")) return 1;
@@ -257,6 +264,10 @@ int main(int argc, char* argv[])
   // Update Jacobian every iteration
   flag = KINSetMaxSetupCalls(kin_mem, 1);
   if (check_flag(flag, "KINSetMaxSetupCalls")) return 1;
+
+  // Set function norm tolerance
+  flag = KINSetFuncNormTol(kin_mem, ftol);
+  if (check_flag(flag, "KINSetFuncNormTol")) return 1;
 
   // Call main solver
   flag = KINSol(kin_mem, uu, KIN_NONE, scale, scale);
