@@ -215,11 +215,7 @@ int main(int argc, char* argv[])
   }
 
   // Integration tolerances
-#if defined(SUNDIALS_EXTENDED_PRECISION)
   const sunrealtype ftol = 10 * std::sqrt(SUN_UNIT_ROUNDOFF);
-#else
-  const sunrealtype ftol = 10 * std::sqrt(SUN_UNIT_ROUNDOFF);
-#endif
 
   // Create initial guess and scaling vectors
   N_Vector uu = N_VNew_Serial(3, sunctx);

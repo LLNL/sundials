@@ -191,12 +191,15 @@ int main(int argc, char* argv[])
   }
 
   // Integration tolerances
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  const sunrealtype rtol = SUN_RCONST(1.0e-8);
-  const sunrealtype atol = SUN_RCONST(1.0e-12);
-#else
+  const sunrealtype atol = 100 * SUN_UNIT_ROUNDOFF;
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-3);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   const sunrealtype rtol = SUN_RCONST(1.0e-6);
-  const sunrealtype atol = SUN_RCONST(1.0e-10);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-9);
+#else
+#error "SUNDIALS precision macro not defined"
 #endif
 
   // Create initial condition

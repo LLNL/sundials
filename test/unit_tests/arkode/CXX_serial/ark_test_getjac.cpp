@@ -190,6 +190,18 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Integration tolerances
+  const sunrealtype atol = 100 * SUN_UNIT_ROUNDOFF;
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-3);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-6);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-9);
+#else
+#error "SUNDIALS precision macro not defined"
+#endif
+
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
@@ -201,7 +213,7 @@ int main(int argc, char* argv[])
   void* arkode_mem = ARKStepCreate(nullptr, f, ZERO, y, sunctx);
   if (check_ptr(arkode_mem, "ARKStepCreate")) return 1;
 
-  flag = ARKStepSStolerances(arkode_mem, SUN_RCONST(1.0e-6), SUN_RCONST(1.0e-10));
+  flag = ARKStepSStolerances(arkode_mem, rtol, atol);
   if (check_flag(flag, "ARKStepSStolerances")) return 1;
 
   SUNMatrix A = SUNDenseMatrix(2, 2, sunctx);

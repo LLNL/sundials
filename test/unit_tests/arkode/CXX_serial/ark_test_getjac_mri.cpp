@@ -200,6 +200,18 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Integration tolerances
+  const sunrealtype atol = 100 * SUN_UNIT_ROUNDOFF;
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-3);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-6);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+  const sunrealtype rtol = SUN_RCONST(1.0e-9);
+#else
+#error "SUNDIALS precision macro not defined"
+#endif
+
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
@@ -221,7 +233,7 @@ int main(int argc, char* argv[])
   void* arkode_mem = MRIStepCreate(nullptr, f, ZERO, y, inner_stepper, sunctx);
   if (check_ptr(arkode_mem, "MRIStepCreate")) return 1;
 
-  flag = MRIStepSStolerances(arkode_mem, SUN_RCONST(1.0e-6), SUN_RCONST(1.0e-10));
+  flag = MRIStepSStolerances(arkode_mem, rtol, atol);
   if (check_flag(flag, "MRIStepSStolerances")) return 1;
 
   flag = MRIStepSetFixedStep(arkode_mem, SUN_RCONST(1.0e-5));
