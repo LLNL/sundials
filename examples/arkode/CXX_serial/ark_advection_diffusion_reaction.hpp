@@ -775,14 +775,14 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   }
   else
   {
-    if (udata.splitting < 0 || udata.splitting > 3)
+    if (udata.splitting < 0 || udata.splitting > 4)
     {
       cerr << "ERROR: Invalid splitting option" << endl;
       return -1;
     }
   }
 
-  if (uopts.integrator < 0 || uopts.integrator > 4)
+  if (uopts.integrator < 0 || uopts.integrator > 3)
   {
     cerr << "ERROR: Invalid integrator option" << endl;
     return -1;
