@@ -29,7 +29,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     cvode_driver.cpp
     ida_driver.cpp
     raja/rhs3D.hpp
-    ParallelGrid.hpp
+    raja/ParallelGrid.hpp
     check_retval.h
     raja/backends.hpp)
 
@@ -77,7 +77,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       cvode_driver.cpp
       ida_driver.cpp
       raja/rhs3D.hpp
-      ParallelGrid.hpp
+      raja/ParallelGrid.hpp
       check_retval.h
       raja/backends.hpp)
 
@@ -121,7 +121,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       cvode_driver.cpp
       ida_driver.cpp
       raja/rhs3D.hpp
-      ParallelGrid.hpp
+      raja/ParallelGrid.hpp
       check_retval.h
       raja/backends.hpp)
 

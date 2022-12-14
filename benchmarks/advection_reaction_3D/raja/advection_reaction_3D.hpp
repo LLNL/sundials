@@ -27,7 +27,7 @@
 
 #include "../check_retval.h"
 #include "backends.hpp"
-#include "../ParallelGrid.hpp"
+#include "ParallelGrid.hpp"
 
 using sundials_tools::ParallelGrid;
 using sundials_tools::BoundaryType;

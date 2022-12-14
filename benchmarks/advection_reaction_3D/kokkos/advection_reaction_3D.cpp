@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
- * -----------------------------------------------------------------------------
+ * Programmer(s): Daniel R. Reynolds @ SMU 
+  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -63,13 +63,17 @@
 /* Main Program */
 int main(int argc, char *argv[])
 {
-  SUNContext ctx;
 
   /* Initialize MPI */
   MPI_Comm comm = MPI_COMM_WORLD;
   MPI_Init(&argc, &argv);
 
+  /* Initialize Kokkos */
+  Kokkos::initialize(argc, argv);
+  {
+
   /* Create SUNDIALS context */
+  SUNContext ctx;
   SUNContext_Create((void*) &comm, &ctx);
 
   /* Create SUNDIALS memory helper */
@@ -134,6 +138,8 @@ int main(int argc, char *argv[])
 
   SUNMemoryHelper_Destroy(mem_helper);
   SUNContext_Free(&ctx);
+  }
+  Kokkos::finalize();
   MPI_Finalize();
   return(0);
 }
@@ -165,67 +171,6 @@ UserData::~UserData()
 /* --------------------------------------------------------------
  * Communication functions
  * --------------------------------------------------------------*/
-
-/* Exchanges the boundary conditions only, */
-int ExchangeBCOnly(N_Vector y, UserData* udata)
-{
-  int ierr;
-  MPI_Status stat;
-  MPI_Request reqR, reqS;
-
-  /* shortcuts */
-  int nvar  = udata->grid->dof;
-  int myid  = udata->myid;
-  int first = 0;
-  int last  = udata->nprocs - 1;
-
-  /* extract the data */
-  realtype* Ydata = GetVecData(y);
-  realtype* Wsend = udata->grid->getSendBuffer("WEST");
-
-  /* open the East Irecv buffer */
-  if (myid == last)
-  {
-    ierr = MPI_Irecv(udata->grid->getRecvBuffer("EAST"), nvar, MPI_SUNREALTYPE, first,
-                     MPI_ANY_TAG, udata->comm, &reqR);
-  }
-
-  /* send first mesh node to the last processor */
-  if (myid == first)
-  {
-    RAJA::forall< EXEC_POLICY >( RAJA::RangeSegment(0, nvar),
-      [=] DEVICE_FUNC (int var) {
-      Wsend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, 0, var)];
-    });
-    ierr = MPI_Isend(Wsend, nvar, MPI_SUNREALTYPE,
-                     last, 0, udata->comm, &reqS);
-  }
-
-  if (myid == last)
-  {
-    /* wait for exchange to finish */
-    ierr = MPI_Wait(&reqR, &stat);
-    if (ierr != MPI_SUCCESS)
-    {
-      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
-      return -1;
-    }
-  }
-
-  if (myid == first)
-  {
-    /* wait for exchange to finish */
-    ierr = MPI_Wait(&reqS, &stat);
-    if (ierr != MPI_SUCCESS)
-    {
-      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
-      return -1;
-    }
-  }
-
-  return(0);
-}
-
 
 /* Starts the exchange of the neighbor information */
 int ExchangeAllStart(N_Vector y, UserData* udata)

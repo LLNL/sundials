@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
@@ -21,13 +21,18 @@
 #include <cmath>
 #include <mpi.h>
 
-#include <RAJA/RAJA.hpp>
 #include <sundials/sundials_context.h>
 #include <nvector/nvector_mpiplusx.h>
-
+#include "nvector/nvector_kokkos.hpp"
 #include "check_retval.h"
-#include "backends.hpp"
 #include "ParallelGrid.hpp"
+
+typedef Kokkos::View<double*>                 Vec1D;
+typedef Kokkos::View<double****>              Vec4D;
+typedef Kokkos::View<double*>::HostMirror     Vec1DHost;
+typedef Kokkos::View<double****>::HostMirror  Vec4DHost;
+typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>     Range3D;
+typedef Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace, Kokkos::Rank<3>> Range3DHost;
 
 using sundials_tools::ParallelGrid;
 using sundials_tools::BoundaryType;
@@ -39,13 +44,6 @@ constexpr int NDIMS = 3;
 
 /* Maximum size of output directory string */
 constexpr int MXSTR = 2048;
-
-/* Accessor macro:
-   n = number of state variables
-   i = mesh node index
-   c = component */
-#define IDX(n,i,c) ((n)*(i)+(c))
-
 
 /*
  * Data structure for problem options
