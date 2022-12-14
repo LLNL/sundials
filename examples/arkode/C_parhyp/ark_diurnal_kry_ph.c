@@ -180,6 +180,26 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
+// CUDA helper functions 
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+static size_t CUDAConfigBlockSize()
+{
+    size_t blocksize = 256;
+    return blocksize;
+}
+static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
+{
+     return ((N + blocksize - 1) / blocksize);
+}
+
+#endif 
+
+#define GRID_STRIDE_XLOOP(type, iter, max)  \
+  for (type iter = blockDim.x * blockIdx.x + threadIdx.x; \
+       iter < max; \
+       iter += blockDim.x * gridDim.x)
+
 
 /***************************** Main Program ******************************/
 int main(int argc, char *argv[])
