@@ -18,6 +18,14 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
+
+if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+  #include_directories(${CMAKE_SOURCE_DIR}/src/nvector/cuda)
+  set_source_files_properties(ark_diurnal_kry_ph.c PROPERTIES LANGUAGE CUDA)
+  #set(_cxx_std cxx_std_11)
+  #set(_memhelper sundials_sunmemcuda_obj)
+endif()  
+
 set(ARKODE_examples
   "ark_diurnal_kry_ph.c\;1\;4\;develop"
   )

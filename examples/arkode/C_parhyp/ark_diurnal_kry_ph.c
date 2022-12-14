@@ -67,6 +67,10 @@
 #include <HYPRE.h>
 #include <HYPRE_IJ_mv.h>
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#include <cuda_runtime.h>
+#endif 
+
 /* Problem Constants */
 #define NVARS        2                    /* number of species         */
 #define KH           RCONST(4.0e-6)       /* horizontal diffusivity Kh */
