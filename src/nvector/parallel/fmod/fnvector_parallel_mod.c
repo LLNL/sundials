@@ -374,18 +374,6 @@ SWIGEXPORT void _wrap_FN_VSpace_Parallel(N_Vector farg1, int64_t *farg2, int64_t
 }
 
 
-SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Parallel(N_Vector farg1) {
-  double * fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
-  
-  arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_Parallel(arg1);
-  fresult = result;
-  return fresult;
-}
-
-
 SWIGEXPORT void _wrap_FN_VSetArrayPointer_Parallel(double *farg1, N_Vector farg2) {
   realtype *arg1 = (realtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
@@ -1179,5 +1167,17 @@ SWIGEXPORT void _wrap_FN_VDestroyVectorArray_Parallel(void *farg1, int const *fa
   N_VDestroyVectorArray_Parallel(arg1,arg2);
 }
 
+
+
+SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Parallel(N_Vector farg1) {
+  double * fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  realtype *result = 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  result = (realtype *)N_VGetArrayPointer_Parallel(arg1);
+  fresult = result;
+  return fresult;
+}
 
 

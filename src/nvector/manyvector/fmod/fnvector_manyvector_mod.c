@@ -238,20 +238,6 @@ SWIGEXPORT N_Vector _wrap_FN_VGetSubvector_ManyVector(N_Vector farg1, int64_t co
 }
 
 
-SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1, int64_t const *farg2) {
-  double * fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  sunindextype arg2 ;
-  realtype *result = 0 ;
-  
-  arg1 = (N_Vector)(farg1);
-  arg2 = (sunindextype)(*farg2);
-  result = (realtype *)N_VGetSubvectorArrayPointer_ManyVector(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FN_VSetSubvectorArrayPointer_ManyVector(double *farg1, N_Vector farg2, int64_t const *farg3) {
   int fresult ;
   realtype *arg1 = (realtype *) 0 ;
@@ -1003,5 +989,19 @@ SWIGEXPORT int _wrap_FN_VEnableDotProdMultiLocal_ManyVector(N_Vector farg1, int 
   return fresult;
 }
 
+
+
+SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1, int64_t const *farg2) {
+  double * fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype arg2 ;
+  realtype *result = 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (sunindextype)(*farg2);
+  result = (realtype *)N_VGetSubvectorArrayPointer_ManyVector(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
 
 
