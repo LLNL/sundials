@@ -162,7 +162,6 @@ extern int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt);
 int SetIC(N_Vector y, UserData* udata);
 
 /* functions to exchange neighbor data */
-int ExchangeBCOnly(N_Vector y, UserData* udata);
 int ExchangeAllStart(N_Vector y, UserData* udata);
 int ExchangeAllEnd(UserData* udata);
 

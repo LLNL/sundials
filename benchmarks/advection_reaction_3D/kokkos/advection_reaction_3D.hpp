@@ -84,21 +84,21 @@ struct UserData
   int         nprocs;
   MPI_Request req[2];
 
-  /* should reactions be added to the advection or not */
+  /* Should reactions be added to the advection or not */
   bool add_reactions;
 
-  /* file handles for output */
+  /* File handles for output */
   FILE*  TFID;     /* time output file pointer     */
   FILE*  UFID;     /* solution output file pointer */
   FILE*  VFID;
   FILE*  WFID;
 
-  /* solution masks */
+  /* Solution masks */
   N_Vector umask;
   N_Vector vmask;
   N_Vector wmask;
 
-  /* problem paramaters */
+  /* Problem parameters */
   realtype  xmax; /* maximum x value              */
   realtype  A;    /* concentration of species A   */
   realtype  B;    /* w source rate                */
@@ -110,16 +110,16 @@ struct UserData
   realtype  k6;
   realtype  c;    /* advection coefficient        */
 
-  /* parallel mesh */
+  /* Parallel mesh */
   ParallelGrid<realtype,sunindextype,NDIMS>* grid;
 
-  /* count of implicit function evals by the task local nonlinear solver */
+  /* Count of implicit function evals by the task local nonlinear solver */
   long int nnlfi;
 
-  /* integrator options */
+  /* Integrator options */
   UserOptions* uopt;
 
-  /* constructor that takes the context */
+  /* Constructor that takes the context */
   UserData(SUNContext ctx) : ctx(ctx) {
     SUNContext_GetProfiler(ctx, &prof);
   }
@@ -160,7 +160,6 @@ extern int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt);
 int SetIC(N_Vector y, UserData* udata);
 
 /* functions to exchange neighbor data */
-int ExchangeBCOnly(N_Vector y, UserData* udata);
 int ExchangeAllStart(N_Vector y, UserData* udata);
 int ExchangeAllEnd(UserData* udata);
 
