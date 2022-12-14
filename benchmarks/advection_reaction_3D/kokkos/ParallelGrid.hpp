@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): Cody J. Balos @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
@@ -11,19 +12,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * A simple implementation of a parallel structured cartesian mesh class that
- * supports up to 3 dimensions and an arbitrary number of degrees of freedom.
+ * A simple implementation of a parallel structured Cartesian mesh class that
+ * supports up to 3 spatial dimensions and an arbitrary number of degrees of 
+ * freedom, and that uses Kokkos views to store communication buffer data.
  * ----------------------------------------------------------------------------*/
 
-#ifndef _SIMPLEPARGRID_H
-#define _SIMPLEPARGRID_H
+#ifndef _KOKKOSPARGRID_H
+#define _KOKKOSPARGRID_H
 
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <mpi.h>
-
-#include <sundials/sundials_memory.h>
+#include <Kokkos_Core.hpp>
 
 namespace sundials_tools
 {
@@ -56,7 +57,7 @@ public:
   // [in] width - the stencil width; defaults to 1
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
-  ParallelGrid(SUNMemoryHelper memhelp, MPI_Comm* comm, const REAL a[], const REAL b[], const GLOBALINT npts[], int dof,
+  ParallelGrid(MPI_Comm* comm, const REAL a[], const REAL b[], const GLOBALINT npts[], int dof,
                BoundaryType bc, StencilType st, int width = 1, const int npxyz[] = nullptr, bool reorder = false)
     : nx(1), ny(1), nz(1),
       nxl(1), nyl(1), nzl(1),
@@ -70,9 +71,7 @@ public:
   {
     static_assert((NDIMS >= 1 && NDIMS <= 3), "ParallelGrid NDIMS must be 1, 2 or 3");
 
-    int retval, nprocs;
-    int periods[] = {0, 0, 0};
-
+    /* Set up MPI Cartesian communicator */
     if (npxyz)
     {
       dims[0] = npxyz[0];
@@ -80,13 +79,14 @@ public:
       if (NDIMS == 3) dims[2] = npxyz[2];
     }
 
+    int retval, nprocs;
     MPI_Comm_size(*comm, &nprocs);
     retval = MPI_Dims_create(nprocs, NDIMS, dims);
     assert(retval == MPI_SUCCESS);
 
-    periods[0] = bc == BoundaryType::PERIODIC;
-    periods[1] = bc == BoundaryType::PERIODIC;
-    periods[2] = bc == BoundaryType::PERIODIC;
+    int periods[] = { bc == BoundaryType::PERIODIC, 
+                      bc == BoundaryType::PERIODIC, 
+                      bc == BoundaryType::PERIODIC };
     retval = MPI_Cart_create(*comm, NDIMS, dims, periods, reorder, comm);
     assert(retval == MPI_SUCCESS);
 
@@ -95,6 +95,7 @@ public:
 
     cart_comm = *comm;
 
+    /* Set up information for the first spatial dimension */
     npx = dims[0];
     nx  = npts[0];
     ax  = a[0];
@@ -103,11 +104,11 @@ public:
     int is = nx*(coords[0])/npx;
     int ie = nx*(coords[0]+1)/npx-1;
     nxl = ie-is+1;
-
     neq = dof * nxl;
 
     if (NDIMS >= 2)
     {
+      /* Set up information for the second spatial dimension (if applicable) */
       npy = dims[1];
       ny  = npts[1];
       ay  = a[1];
@@ -116,12 +117,12 @@ public:
       int js = ny*(coords[1])/npy;
       int je = ny*(coords[1]+1)/npy-1;
       nyl = je-js+1;
-
       neq *= nyl;
     }
 
     if (NDIMS == 3)
     {
+      /* Set up information for the third spatial dimension (if applicable) */
       npz = dims[2];
       nz  = npts[2];
       az  = a[2];
@@ -130,10 +131,10 @@ public:
       int ks = nz*(coords[2])/npz;
       int ke = nz*(coords[2]+1)/npz-1;
       nzl = ke-ks+1;
-
       neq *= nzl;
     }
 
+    /* Allocate buffers for nearest-neighbor exchange */
     if (st == StencilType::UPWIND)
       AllocateBuffersUpwind();
 
@@ -147,58 +148,45 @@ public:
   void AllocateBuffersUpwind()
   {
     int retval = 0;
-    int nbcoords[] = {0, 0, 0};
 
-    SUNMemoryHelper_Alloc(memhelp, &Wrecv_, sizeof(REAL)*dof*width*nyl*nzl,
-                          memoryType(), nullptr);
-    SUNMemoryHelper_Alloc(memhelp, &Wsend_, sizeof(REAL)*dof*width*nyl*nzl,
-                          memoryType(), nullptr);
+    /* Allocate send/receive buffers and determine ID for communication West */
+    Wrecv_ = Kokkos::View<REAL*>("Wrecv", dof*width*nyl*nzl);
+    Wsend_ = Kokkos::View<REAL*>("Wsend", dof*width*nyl*nzl);
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC)) {
-      nbcoords[0] = coords[0]-1;
-      nbcoords[1] = coords[1];
-      nbcoords[2] = coords[2];
+      int nbcoords[] = {coords[0]-1, coords[1], coords[2]};
       retval = MPI_Cart_rank(cart_comm, nbcoords, &ipW);
       assert(retval == MPI_SUCCESS);
     }
 
-    SUNMemoryHelper_Alloc(memhelp, &Erecv_, sizeof(REAL)*dof*width*nyl*nzl,
-                          memoryType(), nullptr);
-    SUNMemoryHelper_Alloc(memhelp, &Esend_, sizeof(REAL)*dof*width*nyl*nzl,
-                          memoryType(), nullptr);
+    /* Allocate send/receive buffers and determine ID for communication East */
+    Erecv_ = Kokkos::View<REAL*>("Erecv", dof*width*nyl*nzl);
+    Esend_ = Kokkos::View<REAL*>("Esend", dof*width*nyl*nzl);
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0]-1) || (bc == BoundaryType::PERIODIC)) {
-      nbcoords[0] = coords[0]+1;
-      nbcoords[1] = coords[1];
-      nbcoords[2] = coords[2];
+      int nbcoords[] = {coords[0]+1, coords[1], coords[2]};
       retval = MPI_Cart_rank(cart_comm, nbcoords, &ipE);
       assert(retval == MPI_SUCCESS);
     }
 
     if (NDIMS >= 2)
     {
-      SUNMemoryHelper_Alloc(memhelp, &Srecv_, sizeof(REAL)*dof*width*nxl*nzl,
-                            memoryType(), nullptr);
-      SUNMemoryHelper_Alloc(memhelp, &Ssend_, sizeof(REAL)*dof*width*nxl*nzl,
-                            memoryType(), nullptr);
+      /* Allocate send/receive buffers and determine ID for communication South */
+      Srecv_ = Kokkos::View<REAL*>("Srecv", dof*width*nxl*nzl);
+      Ssend_ = Kokkos::View<REAL*>("Ssend", dof*width*nxl*nzl);
       ipS = MPI_PROC_NULL;
       if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
-        nbcoords[0] = coords[0];
-        nbcoords[1] = coords[1]-1;
-        nbcoords[2] = coords[2];
+        int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
         retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
         assert(retval == MPI_SUCCESS);
       }
 
-      SUNMemoryHelper_Alloc(memhelp, &Nrecv_, sizeof(REAL)*dof*width*nxl*nzl,
-                            memoryType(), nullptr);
-      SUNMemoryHelper_Alloc(memhelp, &Nsend_, sizeof(REAL)*dof*width*nxl*nzl,
-                            memoryType(), nullptr);
+      /* Allocate send/receive buffers and determine ID for communication North */
+      Nrecv_ = Kokkos::View<REAL*>("Srecv", dof*width*nxl*nzl);
+      Nsend_ = Kokkos::View<REAL*>("Ssend", dof*width*nxl*nzl);
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
-        nbcoords[0] = coords[0];
-        nbcoords[1] = coords[1]+1;
-        nbcoords[2] = coords[2];
+        int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
         retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
         assert(retval == MPI_SUCCESS);
       }
@@ -206,28 +194,22 @@ public:
 
     if (NDIMS == 3)
     {
-      SUNMemoryHelper_Alloc(memhelp, &Brecv_, sizeof(REAL)*dof*width*nxl*nyl,
-                            memoryType(), nullptr);
-      SUNMemoryHelper_Alloc(memhelp, &Bsend_, sizeof(REAL)*dof*width*nxl*nyl,
-                            memoryType(), nullptr);
+      /* Allocate send/receive buffers and determine ID for communication Back */
+      Brecv_ = Kokkos::View<REAL*>("Brecv", dof*width*nxl*nyl);
+      Bsend_ = Kokkos::View<REAL*>("Bsend", dof*width*nxl*nyl);
       ipB = MPI_PROC_NULL;
       if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
-        nbcoords[0] = coords[0];
-        nbcoords[1] = coords[1];
-        nbcoords[2] = coords[2]-1;
+        int nbcoords[] = {coords[0], coords[1], coords[2]-1};
         retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
         assert(retval == MPI_SUCCESS);
       }
 
-      SUNMemoryHelper_Alloc(memhelp, &Frecv_, sizeof(REAL)*dof*width*nxl*nyl,
-                            memoryType(), nullptr);
-      SUNMemoryHelper_Alloc(memhelp, &Fsend_, sizeof(REAL)*dof*width*nxl*nyl,
-                            memoryType(), nullptr);
+      /* Allocate send/receive buffers and determine ID for communication Front */
+      Frecv_ = Kokkos::View<REAL*>("Frecv", dof*width*nxl*nyl);
+      Fsend_ = Kokkos::View<REAL*>("Fsend", dof*width*nxl*nyl);
       ipF = MPI_PROC_NULL;
       if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
-        nbcoords[0] = coords[0];
-        nbcoords[1] = coords[1];
-        nbcoords[2] = coords[2]+1;
+        int nbcoords[] = {coords[0], coords[1], coords[2]+1};
         retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
         assert(retval == MPI_SUCCESS);
       }
@@ -247,14 +229,14 @@ public:
     // Open an Irecv buffer for each neighbor
     if (ipW != MPI_PROC_NULL)
     {
-      retval = MPI_Irecv(getRecvBuffer("EAST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipW,
+      retval = MPI_Irecv(Erecv_.data(), int(Erecv_.size()), MPI_SUNREALTYPE, ipW,
                          1, cart_comm, req);
       assert(retval == MPI_SUCCESS);
     }
 
     if (ipE != MPI_PROC_NULL)
     {
-      retval = MPI_Irecv(getRecvBuffer("WEST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipE,
+      retval = MPI_Irecv(Wrecv_.data(), int(Wrecv_.size()), MPI_SUNREALTYPE, ipE,
                          0, cart_comm, req+1);
       assert(retval == MPI_SUCCESS);
     }
@@ -263,14 +245,14 @@ public:
     {
       if (ipS != MPI_PROC_NULL)
       {
-        retval = MPI_Irecv(getRecvBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS,
+        retval = MPI_Irecv(Nrecv_.data(), int(Nrecv_.size()), MPI_SUNREALTYPE, ipS,
                            3, cart_comm, req+2);
         assert(retval == MPI_SUCCESS);
       }
 
       if (ipN != MPI_PROC_NULL)
       {
-        retval = MPI_Irecv(getRecvBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN,
+        retval = MPI_Irecv(Srecv_.data(), int(Srecv_.size()), MPI_SUNREALTYPE, ipN,
                            2, cart_comm, req+3);
         assert(retval == MPI_SUCCESS);
       }
@@ -280,38 +262,33 @@ public:
     {
       if (ipB != MPI_PROC_NULL)
       {
-        retval = MPI_Irecv(getRecvBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB,
+        retval = MPI_Irecv(Frecv_.data(), int(Frecv_.size()), MPI_SUNREALTYPE, ipB,
                            5, cart_comm, req+4);
         assert(retval == MPI_SUCCESS);
       }
 
       if (ipF != MPI_PROC_NULL)
       {
-        retval = MPI_Irecv(getRecvBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF,
+        retval = MPI_Irecv(Brecv_.data(), int(Brecv_.size()), MPI_SUNREALTYPE, ipF,
                            4, cart_comm, req+5);
         assert(retval == MPI_SUCCESS);
       }
     }
 
     // Call user lambda to fill the send buffers
-    fill(getSendBuffer("WEST"),
-         getSendBuffer("EAST"),
-         getSendBuffer("SOUTH"),
-         getSendBuffer("NORTH"),
-         getSendBuffer("BACK"),
-         getSendBuffer("FRONT"));
+    fill(Wsend_, Esend_, Ssend_, Nsend_, Bsend_, Fsend_);
 
     // Send data to neighbors
     if (ipW != MPI_PROC_NULL)
     {
-      retval = MPI_Isend(getSendBuffer("EAST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipW, 0,
+      retval = MPI_Isend(Esend_.data(), int(Esend_.size()), MPI_SUNREALTYPE, ipW, 0,
                          cart_comm, req+6);
       assert(retval == MPI_SUCCESS);
     }
 
     if (ipE != MPI_PROC_NULL)
     {
-      retval = MPI_Isend(getSendBuffer("WEST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipE, 1,
+      retval = MPI_Isend(Wsend_.data(), int(Wsend_.size()), MPI_SUNREALTYPE, ipE, 1,
                          cart_comm, req+7);
       assert(retval == MPI_SUCCESS);
     }
@@ -320,14 +297,14 @@ public:
     {
       if (ipS != MPI_PROC_NULL)
       {
-        retval = MPI_Isend(getSendBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
+        retval = MPI_Isend(Nsend_.data(), int(Nsend_.size()), MPI_SUNREALTYPE, ipS, 2,
                            cart_comm, req+8);
         assert(retval == MPI_SUCCESS);
       }
 
       if (ipN != MPI_PROC_NULL)
       {
-        retval = MPI_Isend(getSendBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
+        retval = MPI_Isend(Ssend_.data(), int(Ssend_.size()), MPI_SUNREALTYPE, ipN, 3,
                            cart_comm, req+9);
         assert(retval == MPI_SUCCESS);
       }
@@ -337,14 +314,14 @@ public:
     {
       if (ipB != MPI_PROC_NULL)
       {
-        retval = MPI_Isend(getSendBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
+        retval = MPI_Isend(Fsend_.data(), int(Fsend_.size()), MPI_SUNREALTYPE, ipB, 4,
                            cart_comm, req+10);
         assert(retval == MPI_SUCCESS);
       }
 
       if (ipF != MPI_PROC_NULL)
       {
-        retval = MPI_Isend(getSendBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
+        retval = MPI_Isend(Bsend_.data(), int(Bsend_.size()), MPI_SUNREALTYPE, ipF, 5,
                            cart_comm, req+11);
         assert(retval == MPI_SUCCESS);
       }
@@ -424,86 +401,6 @@ public:
     return dof*nptsl();
   }
 
-  REAL* getRecvBuffer(const std::string& direction)
-  {
-    if (direction == "WEST")
-    {
-      return static_cast<REAL*>(Wrecv_->ptr);
-    }
-    else if (direction == "EAST")
-    {
-      return static_cast<REAL*>(Erecv_->ptr);
-    }
-    else if (direction == "NORTH")
-    {
-      return static_cast<REAL*>(Nrecv_->ptr);
-    }
-    else if (direction == "SOUTH")
-    {
-      return static_cast<REAL*>(Srecv_->ptr);
-    }
-    else if (direction == "FRONT")
-    {
-      return static_cast<REAL*>(Frecv_->ptr);
-    }
-    else if (direction == "BACK")
-    {
-      return static_cast<REAL*>(Brecv_->ptr);
-    }
-    else
-    {
-      return nullptr;
-    }
-  }
-
-  REAL* getSendBuffer(const std::string& direction)
-  {
-    if (direction == "WEST")
-    {
-      return static_cast<REAL*>(Wsend_->ptr);
-    }
-    else if (direction == "EAST")
-    {
-      return static_cast<REAL*>(Esend_->ptr);
-    }
-    else if (direction == "NORTH")
-    {
-      return static_cast<REAL*>(Nsend_->ptr);
-    }
-    else if (direction == "SOUTH")
-    {
-      return static_cast<REAL*>(Ssend_->ptr);
-    }
-    else if (direction == "FRONT")
-    {
-      return static_cast<REAL*>(Fsend_->ptr);
-    }
-    else if (direction == "BACK")
-    {
-      return static_cast<REAL*>(Bsend_->ptr);
-    }
-    else
-    {
-      return nullptr;
-    }
-  }
-
-  ~ParallelGrid()
-  {
-    SUNMemoryHelper_Dealloc(memhelp, Esend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Wsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Nsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Ssend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Fsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Bsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Erecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Wrecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Nrecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Srecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Frecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Brecv_, nullptr);
-  }
-
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
   int       nxl, nyl, nzl; /* number of intervals locally        */
   int       npx, npy, npz; /* numner of processes                */
@@ -529,46 +426,18 @@ private:
   StencilType  st;
   int          width;
 
-  SUNMemoryHelper memhelp;
-  SUNMemory Wsend_;            /* MPI send/recv buffers              */
-  SUNMemory Esend_;
-  SUNMemory Ssend_;
-  SUNMemory Nsend_;
-  SUNMemory Bsend_;
-  SUNMemory Fsend_;
-  SUNMemory Wrecv_;
-  SUNMemory Erecv_;
-  SUNMemory Srecv_;
-  SUNMemory Nrecv_;
-  SUNMemory Brecv_;
-  SUNMemory Frecv_;
-
-  SUNMemoryType memoryType()
-  {
-    SUNMemory test;
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_PINNED,
-                               nullptr))
-    {
-      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return(SUNMEMTYPE_PINNED);
-    }
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_DEVICE,
-                               nullptr))
-    {
-      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return(SUNMEMTYPE_DEVICE);
-    }
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_UVM,
-                               nullptr))
-    {
-      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return(SUNMEMTYPE_UVM);
-    }
-    else
-    {
-      return(SUNMEMTYPE_HOST);
-    }
-  }
+  Kokkos::View<REAL*> Wsend_;            /* MPI send/recv buffers              */
+  Kokkos::View<REAL*> Esend_;
+  Kokkos::View<REAL*> Ssend_;
+  Kokkos::View<REAL*> Nsend_;
+  Kokkos::View<REAL*> Bsend_;
+  Kokkos::View<REAL*> Fsend_;
+  Kokkos::View<REAL*> Wrecv_;
+  Kokkos::View<REAL*> Erecv_;
+  Kokkos::View<REAL*> Srecv_;
+  Kokkos::View<REAL*> Nrecv_;
+  Kokkos::View<REAL*> Brecv_;
+  Kokkos::View<REAL*> Frecv_;
 
 };
 
