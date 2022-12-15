@@ -408,6 +408,9 @@ SUNDIALS_EXPORT int ARKStepGetNumStepSolveFails(void *arkode_mem,
                                                 long int *nncfails);
 
 /* Linear solver optional output functions */
+SUNDIALS_EXPORT int ARKStepGetJac(void* arkode_mem, SUNMatrix* J);
+SUNDIALS_EXPORT int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
+SUNDIALS_EXPORT int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J);
 SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem,
                                            long int *lenrwLS,
                                            long int *leniwLS);

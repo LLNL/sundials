@@ -17,8 +17,8 @@
 # List of test tuples of the form "name\;tasks\;args"
 if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
   set(ARKODE_unit_tests
-    "ark_heat2D_mri\;2\;0"
-    "ark_heat2D_mri\;4\;1"
+    "ark_test_heat2D_mri\;2\;0"
+    "ark_test_heat2D_mri\;4\;1"
     )
 endif()
 
