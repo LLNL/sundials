@@ -52,6 +52,7 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
   helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
+  helper->ops->clone     = SUNMemoryHelper_Clone_Cuda;
   helper->ops->alloc     = SUNMemoryHelper_Alloc_Cuda;
   helper->ops->dealloc   = SUNMemoryHelper_Dealloc_Cuda;
   helper->ops->copy      = SUNMemoryHelper_Copy_Cuda;
@@ -78,6 +79,12 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
   SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm = 0;
 
   return helper;
+}
+
+SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper)
+{
+  SUNMemoryHelper hclone = SUNMemoryHelper_Cuda(helper->sunctx);
+  return hclone;
 }
 
 int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,

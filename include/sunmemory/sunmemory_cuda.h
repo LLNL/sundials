@@ -38,6 +38,9 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                                void* queue);
 
 SUNDIALS_EXPORT
+SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper);
+
+SUNDIALS_EXPORT
 int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
                                  void* queue);
 

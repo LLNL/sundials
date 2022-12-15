@@ -52,6 +52,7 @@ SUNMemoryHelper SUNMemoryHelper_Hip(SUNContext sunctx)
   helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
+  helper->ops->clone     = SUNMemoryHelper_Clone_Hip;
   helper->ops->alloc     = SUNMemoryHelper_Alloc_Hip;
   helper->ops->dealloc   = SUNMemoryHelper_Dealloc_Hip;
   helper->ops->copy      = SUNMemoryHelper_Copy_Hip;
@@ -78,6 +79,12 @@ SUNMemoryHelper SUNMemoryHelper_Hip(SUNContext sunctx)
   SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm = 0;
 
   return helper;
+}
+
+SUNMemoryHelper SUNMemoryHelper_Clone_Hip(SUNMemoryHelper helper)
+{
+  SUNMemoryHelper hclone = SUNMemoryHelper_Hip(helper->sunctx);
+  return hclone;
 }
 
 int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,

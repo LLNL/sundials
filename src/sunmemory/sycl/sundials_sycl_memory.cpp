@@ -54,6 +54,7 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   }
 
   // Set the ops
+  helper->ops->clone     = SUNMemoryHelper_Clone_Sycl;
   helper->ops->alloc     = SUNMemoryHelper_Alloc_Sycl;
   helper->ops->dealloc   = SUNMemoryHelper_Dealloc_Sycl;
   helper->ops->copy      = SUNMemoryHelper_Copy_Sycl;
@@ -79,6 +80,12 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm = 0;
 
   return helper;
+}
+
+SUNMemoryHelper SUNMemoryHelper_Clone_Syck(SUNMemoryHelper helper)
+{
+  SUNMemoryHelper hclone = SUNMemoryHelper_Sycl(helper->sunctx);
+  return hclone;
 }
 
 int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
