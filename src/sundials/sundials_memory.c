@@ -154,17 +154,17 @@ void SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, unsigned long long* n
 
 
 int SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                          size_t memsize, SUNMemoryType mem_type, void* queue)
+                          size_t mem_size, SUNMemoryType mem_type, void* queue)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   if (helper->ops->alloc == NULL) {
     ier = -1;
   } else {
-    ier = helper->ops->alloc(helper, memptr, memsize, mem_type, queue);
+    ier = helper->ops->alloc(helper, memptr, mem_size, mem_type, queue);
     if (ier == 0) {
-      (*memptr)->bytes = memsize;
-      helper->bytes_allocated += memsize;
+      (*memptr)->bytes = mem_size;
+      helper->bytes_allocated += mem_size;
       helper->num_allocations++;
       helper->bytes_high_watermark = SUNMAX(helper->bytes_allocated, helper->bytes_high_watermark);
     }
