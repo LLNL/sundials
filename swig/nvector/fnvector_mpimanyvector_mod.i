@@ -59,7 +59,7 @@
 %include "nvector/nvector_mpimanyvector.h"
 
 %insert("wrapper") %{
-SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1, int64_t const *farg2) {
+SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_MPIManyVector(N_Vector farg1, int64_t const *farg2) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype arg2 ;
@@ -67,19 +67,19 @@ SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1
   
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (realtype *)N_VGetSubvectorArrayPointer_ManyVector(arg1,arg2);
+  result = (realtype *)N_VGetSubvectorArrayPointer_MPIManyVector(arg1,arg2);
   fresult = result;
   return fresult;
 }
 %}
 
 %insert("fdecl") %{
- public :: FN_VGetSubvectorArrayPointer_ManyVector
+ public :: FN_VGetSubvectorArrayPointer_MPIManyVector
 %}
 
 %insert("finterfaces") %{
-function swigc_FN_VGetSubvectorArrayPointer_ManyVector(farg1, farg2) &
-bind(C, name="_wrap_FN_VGetSubvectorArrayPointer_ManyVector") &
+function swigc_FN_VGetSubvectorArrayPointer_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VGetSubvectorArrayPointer_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -89,7 +89,7 @@ end function
 %}
 
 %insert("fsubprograms") %{
-function FN_VGetSubvectorArrayPointer_ManyVector(v, vec_num) &
+function FN_VGetSubvectorArrayPointer_MPIManyVector(v, vec_num) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
@@ -101,7 +101,7 @@ integer(C_INT64_T) :: farg2
 
 farg1 = c_loc(v)
 farg2 = vec_num
-fresult = swigc_FN_VGetSubvectorArrayPointer_ManyVector(farg1, farg2)
-call c_f_pointer(fresult, swig_result, [FN_VGetSubvectorLocalLength_ManyVector(v, vec_num)])
+fresult = swigc_FN_VGetSubvectorArrayPointer_MPIManyVector(farg1, farg2)
+call c_f_pointer(fresult, swig_result, [FN_VGetSubvectorLocalLength_MPIManyVector(v, vec_num)])
 end function
 %}

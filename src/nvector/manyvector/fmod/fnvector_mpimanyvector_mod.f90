@@ -94,7 +94,7 @@ module fnvector_mpimanyvector_mod
  public :: FN_VEnableWrmsNormMaskVectorArray_MPIManyVector
  public :: FN_VEnableDotProdMultiLocal_MPIManyVector
 
- public :: FN_VGetSubvectorArrayPointer_ManyVector
+ public :: FN_VGetSubvectorArrayPointer_MPIManyVector
 
 
 ! WRAPPER DECLARATIONS
@@ -693,8 +693,8 @@ integer(C_INT) :: fresult
 end function
 
 
-function swigc_FN_VGetSubvectorArrayPointer_ManyVector(farg1, farg2) &
-bind(C, name="_wrap_FN_VGetSubvectorArrayPointer_ManyVector") &
+function swigc_FN_VGetSubvectorArrayPointer_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VGetSubvectorArrayPointer_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1787,7 +1787,7 @@ swig_result = fresult
 end function
 
 
-function FN_VGetSubvectorArrayPointer_ManyVector(v, vec_num) &
+function FN_VGetSubvectorArrayPointer_MPIManyVector(v, vec_num) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
@@ -1799,8 +1799,8 @@ integer(C_INT64_T) :: farg2
 
 farg1 = c_loc(v)
 farg2 = vec_num
-fresult = swigc_FN_VGetSubvectorArrayPointer_ManyVector(farg1, farg2)
-call c_f_pointer(fresult, swig_result, [FN_VGetSubvectorLocalLength_ManyVector(v, vec_num)])
+fresult = swigc_FN_VGetSubvectorArrayPointer_MPIManyVector(farg1, farg2)
+call c_f_pointer(fresult, swig_result, [FN_VGetSubvectorLocalLength_MPIManyVector(v, vec_num)])
 end function
 
 
