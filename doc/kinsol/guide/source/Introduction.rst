@@ -88,8 +88,16 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changed in v6.4.2
+-----------------
+
+A new capability to keep track of memory allocations made through the ``SUNMemoryHelper``
+classes has been added. Memory allocation stats can be accessed through the
+:c:func:`SUNMemoryHelper_GetAllocStats` family of functions. See the documentation for
+the ``SUNMemoryHelper`` classes for more details.
+
 Changes in v6.4.1
-----------------
+-----------------
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.
 

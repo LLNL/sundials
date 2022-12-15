@@ -239,6 +239,24 @@ require a SUNMemoryHelper instance:
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
+.. c:function:: int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, unsigned long long* num_allocations, \
+                                                  unsigned long long* num_deallocations, size_t* bytes_allocated, \
+                                                  size_t* bytes_high_watermark)
+
+   Returns statistics about the allocations performed with the helper.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``num_allocations`` --  (output argument) number of allocations done through the helper
+   * ``num_deallocations`` --  (output argument) number of deallocations done through the helper
+   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called
+   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper
+
+   **Returns:**
+
+   * An ``int`` flag indicating success (zero) or failure (non-zero).
+
 
 .. _SUNMemory.Description.Overridable:
 

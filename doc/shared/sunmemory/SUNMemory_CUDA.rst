@@ -134,3 +134,78 @@ The implementation provides the following operations defined by the
    **Returns:**
 
    * An ``int`` flag indicating success (zero) or failure (non-zero).
+
+
+.. c:function:: int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations, \
+                                                           unsigned long long* num_deallocations, size_t* bytes_allocated, \
+                                                           size_t* bytes_high_watermark)
+
+   Returns statistics about host memory allocations performed with the helper.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``num_allocations`` --  (output argument) number of host memory allocations done through the helper
+   * ``num_deallocations`` --  (output argument) number of host memory deallocations done through the helper
+   * ``bytes_allocated`` --  (output argument) total number of host bytes allocated through the helper at the moment this function is called
+   * ``bytes_high_watermark`` --  (output argument) max number of host bytes allocated through the helper at any moment in the lifetime of the helper
+
+   **Returns:**
+
+   * An ``int`` flag indicating success (zero) or failure (non-zero).
+
+
+.. c:function:: int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations, \
+                                                             unsigned long long* num_deallocations, size_t* bytes_allocated, \
+                                                             size_t* bytes_high_watermark)
+
+   Returns statistics about pinned memory allocations performed with the helper.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``num_allocations`` --  (output argument) number of pinned memory allocations done through the helper
+   * ``num_deallocations`` --  (output argument) number of pinned memory deallocations done through the helper
+   * ``bytes_allocated`` --  (output argument) total number of pinned bytes allocated through the helper at the moment this function is called
+   * ``bytes_high_watermark`` --  (output argument) max number of pinned bytes allocated through the helper at any moment in the lifetime of the helper
+
+   **Returns:**
+
+   * An ``int`` flag indicating success (zero) or failure (non-zero).
+
+.. c:function:: int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations, \
+                                                             unsigned long long* num_deallocations, size_t* bytes_allocated, \
+                                                             size_t* bytes_high_watermark)
+
+   Returns statistics about device memory allocations performed with the helper.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``num_allocations`` --  (output argument) number of device memory allocations done through the helper
+   * ``num_deallocations`` --  (output argument) number of device memory deallocations done through the helper
+   * ``bytes_allocated`` --  (output argument) total number of device bytes allocated through the helper at the moment this function is called
+   * ``bytes_high_watermark`` --  (output argument) max number of device bytes allocated through the helper at any moment in the lifetime of the helper
+
+   **Returns:**
+
+   * An ``int`` flag indicating success (zero) or failure (non-zero).
+
+
+.. c:function:: int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations, \
+                                                          unsigned long long* num_deallocations, size_t* bytes_allocated, \
+                                                          size_t* bytes_high_watermark)
+
+   Returns statistics about UVM memory allocations performed with the helper.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``num_allocations`` --  (output argument) number of UVM memory allocations done through the helper
+   * ``num_deallocations`` --  (output argument) number of UVM memory deallocations done through the helper
+   * ``bytes_allocated`` --  (output argument) total number of UVM bytes allocated through the helper at the moment this function is called
+   * ``bytes_high_watermark`` --  (output argument) max number of UVM bytes allocated through the helper at any moment in the lifetime of the helper
+
+   **Returns:**
+
+   * An ``int`` flag indicating success (zero) or failure (non-zero).
