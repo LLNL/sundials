@@ -41,7 +41,6 @@ contains
     type(SUNLinearSolver), pointer :: LS           ! test linear solver
     type(SUNMatrix), pointer :: A                  ! test matrices
     type(N_Vector),  pointer :: x, y, b            ! test vectors
-    real(C_DOUBLE),  pointer :: colj(:)            ! matrix column data
     real(C_DOUBLE),  pointer :: xdata(:), Adata(:) ! data arrays
     real(C_DOUBLE)           :: tmpr               ! temporary real value
     integer(C_LONG)          :: j, k
@@ -59,13 +58,12 @@ contains
     ! fill A matrix with uniform random data in [0, 1/N)
     Adata => FSUNBandMatrix_Data(A)
     do j=1, N
-      offset = smu-mu+1 + j*(smu+ml+1)
-      colj(-mu:ml) => Adata(offset:mu+ml)
+      offset = smu-mu + j*(smu+ml+1)
       kstart = merge(-j, -mu, j < mu)
       kend = merge(N-1-j, ml, j > N-1-ml)
       do k=kstart, kend
         call random_number(tmpr)
-        colj(k) = tmpr / N
+        Adata(offset+mu+ml+k) = tmpr / N
       end do
     end do
 
