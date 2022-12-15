@@ -32,7 +32,7 @@
 #include "sunmemory/sunmemory_system.h"
 #endif
 
-#include "../check_retval.h"
+#include "check_retval.h"
 
 #if defined(USE_CUDA_NVEC) || defined(USE_CUDAUVM_NVEC) || defined(USE_RAJA_NVEC)
 #define USE_CUDA

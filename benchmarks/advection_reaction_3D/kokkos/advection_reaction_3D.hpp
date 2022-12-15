@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
+ *                David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
@@ -31,8 +32,8 @@ typedef Kokkos::View<double*>                 Vec1D;
 typedef Kokkos::View<double****>              Vec4D;
 typedef Kokkos::View<double*>::HostMirror     Vec1DHost;
 typedef Kokkos::View<double****>::HostMirror  Vec4DHost;
-typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>     Range3D;
-typedef Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace, Kokkos::Rank<3>> Range3DHost;
+typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>  Range3D;
+typedef Kokkos::MDRangePolicy<Kokkos::Serial, Kokkos::Rank<3>>                 Range3DSerial;
 
 using sundials_tools::ParallelGrid;
 using sundials_tools::BoundaryType;
@@ -122,6 +123,9 @@ struct UserData
   /* Constructor that takes the context */
   UserData(SUNContext ctx) : ctx(ctx) {
     SUNContext_GetProfiler(ctx, &prof);
+    umask = vmask = wmask = nullptr;
+    TFID = UFID = VFID = WFID = nullptr;
+    uopt = nullptr;
   }
 
   /* destructor frees the problem data */
@@ -165,8 +169,9 @@ int ExchangeAllEnd(UserData* udata);
 
 /* functions for processing command line args */
 int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
-                 SUNMemoryHelper memhelper, SUNContext ctx);
+                 SUNContext ctx);
 void InputError(char *name);
+int ComponentMask(N_Vector mask, const int component, const UserData* udata);
 
 /* function to write solution to disk */
 int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt);

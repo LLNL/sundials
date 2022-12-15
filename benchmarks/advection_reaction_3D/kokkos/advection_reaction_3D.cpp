@@ -1,6 +1,7 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU 
-  * -----------------------------------------------------------------------------
+ *                David J. Gardner, Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -11,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * This demonstration problem simulates the advection and reaction of three
+ * This benchmark problem simulates the advection and reaction of three
  * chemical species, u, v, and w, in a three dimensional domain. The reaction
  * mechanism is a variation of the Brusselator problem from chemical kinetics.
  * This is a PDE system with 3 components, Y = [u,v,w], satisfying the
@@ -60,6 +61,9 @@
 
 #include "advection_reaction_3D.hpp"
 
+#define STENCIL_WIDTH 1
+
+
 /* Main Program */
 int main(int argc, char *argv[])
 {
@@ -72,43 +76,26 @@ int main(int argc, char *argv[])
   Kokkos::initialize(argc, argv);
   {
 
-  /* Create SUNDIALS context */
-  SUNContext ctx;
-  SUNContext_Create((void*) &comm, &ctx);
+    /* Create SUNDIALS context */
+    SUNContext ctx;
+    SUNContext_Create((void*) &comm, &ctx);
 
-  /* Create SUNDIALS memory helper */
-#if defined(USE_CUDA)
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Cuda(ctx);
-#elif defined(USE_HIP)
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Hip(ctx);
-#else
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(ctx);
-#endif
-
-  {
-    /* general problem variables */
+    /* General problem variables */
     N_Vector     y = NULL;      /* empty solution vector        */
     UserData     udata(ctx);    /* user data                    */
     UserOptions  uopt;          /* user options                 */
     int          retval;        /* reusable error-checking flag */
-    char         fname[MXSTR];
 
     SUNDIALS_CXX_MARK_FUNCTION(udata.prof);
 
-    /* Process input args and setup the problem */
-    retval = SetupProblem(argc, argv, &udata, &uopt, mem_helper, ctx);
+    /* Process input arguments and set up the problem */
+    retval = SetupProblem(argc, argv, &udata, &uopt, ctx);
     if (check_retval(&retval, "SetupProblem", 1, udata.myid)) MPI_Abort(comm, 1);
 
-    /* Create solution vector */
-    y = N_VMake_MPIPlusX(udata.comm, LocalNvector(udata.grid->neq, ctx), ctx);
+    /* Create solution vector (on-node and MPI-parallel versions) */
+    sundials::kokkos::Vector<> yloc{udata.grid->neq, ctx};
+    y = N_VMake_MPIPlusX(udata.comm, yloc, ctx);
     if (check_retval((void *) y, "N_VMake_MPIPlusX", 0, udata.myid)) MPI_Abort(comm, 1);
-
-    /* Enabled fused vector ops */
-    if (uopt.fused)
-    {
-      retval = EnableFusedVectorOps(y);
-      if (check_retval(&retval, "EnableFusedVectorOps", 1, udata.myid)) MPI_Abort(comm, 1);
-    }
 
     /* Set the initial condition */
     retval = SetIC(y, &udata);
@@ -117,6 +104,7 @@ int main(int argc, char *argv[])
     /* Output spatial mesh to disk (add extra point for periodic BC) */
     if (udata.myid == 0 && uopt.nout > 0)
     {
+      char fname[MXSTR];
       snprintf(fname, MXSTR, "%s/mesh.txt", uopt.outputdir);
       udata.grid->MeshToFile(fname);
     }
@@ -128,16 +116,11 @@ int main(int argc, char *argv[])
     else if (uopt.method == "CV-BDF")   retval = EvolveProblemBDF(y, &udata, &uopt);
     else if (uopt.method == "CV-ADAMS") retval = EvolveProblemAdams(y, &udata, &uopt);
     else if (uopt.method == "IDA")      retval = EvolveDAEProblem(y, &udata, &uopt);
-
     if (check_retval(&retval, "Evolve", 1, udata.myid)) MPI_Abort(comm, 1);
 
     /* Clean up */
-    N_VDestroy(N_VGetLocalVector_MPIPlusX(y));
     N_VDestroy(y);
-  }
-
-  SUNMemoryHelper_Destroy(mem_helper);
-  SUNContext_Free(&ctx);
+    SUNContext_Free(&ctx);
   }
   Kokkos::finalize();
   MPI_Finalize();
@@ -149,7 +132,6 @@ int main(int argc, char *argv[])
 UserData::~UserData()
 {
   /* free solution masks */
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
@@ -177,59 +159,57 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
 {
   SUNDIALS_MARK_BEGIN(udata->prof, "Neighbor Exchange");
 
-  /* shortcuts */
-  realtype c = udata->c;
+  /* Shortcuts */
+  const realtype c = udata->c;
+  const int nxl = udata->grid->nxl;
+  const int nyl = udata->grid->nyl;
+  const int nzl = udata->grid->nzl;
+  const int dof = udata->grid->dof;
 
-  /* extract the data */
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(GetVecData(y),
-                                                     udata->grid->nxl,
-                                                     udata->grid->nyl,
-                                                     udata->grid->nzl,
-                                                     udata->grid->dof);
+  /* Create 4D view of vector data */
+  auto ylocal{sundials::kokkos::GetVec<>(N_VGetLocalVector_MPIPlusX(y))};
+  Vec4D Yview((ylocal->View()).data(), udata->grid->nxl, udata->grid->nyl, 
+              udata->grid->nzl, udata->grid->dof);
 
   if (c > 0.0)
   {
     /* Flow moving in the positive directions uses backward difference. */
     udata->grid->ExchangeStart(
-      [=] (realtype*, realtype* Esend, realtype*, realtype* Nsend, realtype* Bsend, realtype*) {
-        int nxl = udata->grid->nxl;
-        int nyl = udata->grid->nyl;
-        int nzl = udata->grid->nzl;
-        int dof = udata->grid->dof;
+      [=] (Kokkos::View<realtype*>, Kokkos::View<realtype*> Esend, 
+           Kokkos::View<realtype*>, Kokkos::View<realtype*> Nsend, 
+           Kokkos::View<realtype*>, Kokkos::View<realtype*> Fsend) 
+      {
 
-        auto range = RAJA::make_tuple(RAJA::RangeSegment(0, std::max(1,nxl-1)),
-                                      RAJA::RangeSegment(0, std::max(1,nyl-1)),
-                                      RAJA::RangeSegment(0, std::max(1,nzl-1)));
+        /* Create 4D views of send buffers */
+        Vec4D Eview(Esend.data(), STENCIL_WIDTH, nyl, nzl, dof);
+        Vec4D Nview(Nsend.data(), nxl, STENCIL_WIDTH, nzl, dof);
+        Vec4D Fview(Fsend.data(), nxl, nyl, STENCIL_WIDTH, dof);
 
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Eview(Esend, nyl, nzl, dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Nview(Nsend, nxl, nzl, dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Bview(Bsend, nxl, nyl, dof);
+        /* Fill buffers on device */
+        Kokkos::parallel_for("Fill_buffers", 
+                             Range3D({0,0,0},{nxl,nyl,nzl}), 
+                             KOKKOS_LAMBDA (int i, int j, int k)
+        {
 
-        RAJA::kernel<XYZ_KERNEL_POL>(range,
-          [=] DEVICE_FUNC (int i, int j, int k) {
-
-          if (nxl > 1)
+          if ((nxl > 1) && (i == 0))
           {
             Eview(j,k,0) = Yview(nxl-1,j,k,0);
             Eview(j,k,1) = Yview(nxl-1,j,k,1);
             Eview(j,k,2) = Yview(nxl-1,j,k,2);
           }
 
-          if (nyl > 1)
+          if ((nyl > 1) && (j == 0))
           {
             Nview(i,k,0) = Yview(i,nyl-1,k,0);
             Nview(i,k,1) = Yview(i,nyl-1,k,1);
             Nview(i,k,2) = Yview(i,nyl-1,k,2);
           }
 
-          if (nzl > 1)
+          if ((nzl > 1) && (k == 0))
           {
-            Bview(i,j,0) = Yview(i,j,nzl-1,0);
-            Bview(i,j,1) = Yview(i,j,nzl-1,1);
-            Bview(i,j,2) = Yview(i,j,nzl-1,2);
+            Fview(i,j,0) = Yview(i,j,nzl-1,0);
+            Fview(i,j,1) = Yview(i,j,nzl-1,1);
+            Fview(i,j,2) = Yview(i,j,nzl-1,2);
           }
 
         });
@@ -238,33 +218,42 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
   else if (c < 0.0)
   {
     /* Flow moving in the negative directions uses forward difference. */
-
     udata->grid->ExchangeStart(
-      [=] (realtype* Wsend, realtype*, realtype*Ssend, realtype*, realtype*, realtype* Fsend) {
-        auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl-1),
-                                      RAJA::RangeSegment(0, udata->grid->nyl-1),
-                                      RAJA::RangeSegment(0, udata->grid->nzl-1));
+      [=] (Kokkos::View<realtype*> Wsend, Kokkos::View<realtype*>,
+           Kokkos::View<realtype*> Ssend, Kokkos::View<realtype*>,
+           Kokkos::View<realtype*> Bsend, Kokkos::View<realtype*>) 
+      {
 
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Wview(Wsend, udata->grid->nyl, udata->grid->nzl, udata->grid->dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Sview(Ssend, udata->grid->nxl, udata->grid->nzl, udata->grid->dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Fview(Fsend, udata->grid->nxl, udata->grid->nyl, udata->grid->dof);
+        /* Create 4D views of send buffers */
+        Vec4D Wview(Wsend.data(), STENCIL_WIDTH, nyl, nzl, dof);
+        Vec4D Sview(Ssend.data(), nxl, STENCIL_WIDTH, nzl, dof);
+        Vec4D Bview(Bsend.data(), nxl, nyl, STENCIL_WIDTH, dof);
 
-        RAJA::kernel<XYZ_KERNEL_POL>(range,
-          [=] DEVICE_FUNC (int i, int j, int k) {
-          Wview(j,k,0) = Yview(0,j,k,0);
-          Wview(j,k,1) = Yview(0,j,k,1);
-          Wview(j,k,2) = Yview(0,j,k,2);
+        /* Fill buffers on device */
+        Kokkos::parallel_for("Fill_buffers", 
+                             Range3D({0,0,0},{nxl,nyl,nzl}), 
+                             KOKKOS_LAMBDA (int i, int j, int k)
+        {
+          if ((nxl > 1) && (i == 0))
+          {
+            Wview(j,k,0) = Yview(0,j,k,0);
+            Wview(j,k,1) = Yview(0,j,k,1);
+            Wview(j,k,2) = Yview(0,j,k,2);
+          }
 
-          Sview(i,k,0) = Yview(i,0,k,0);
-          Sview(i,k,1) = Yview(i,0,k,1);
-          Sview(i,k,2) = Yview(i,0,k,2);
+          if ((nyl > 1) && (j == 0))
+          {
+            Sview(i,k,0) = Yview(i,0,k,0);
+            Sview(i,k,1) = Yview(i,0,k,1);
+            Sview(i,k,2) = Yview(i,0,k,2);
+          }
 
-          Fview(i,j,0) = Yview(i,j,0,0);
-          Fview(i,j,1) = Yview(i,j,0,1);
-          Fview(i,j,2) = Yview(i,j,0,2);
+          if ((nzl > 1) && (k == 0))
+          {
+            Bview(i,j,0) = Yview(i,j,0,0);
+            Bview(i,j,1) = Yview(i,j,0,1);
+            Bview(i,j,2) = Yview(i,j,0,2);
+          }
         });
       });
   }
@@ -278,9 +267,9 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
 int ExchangeAllEnd(UserData* udata)
 {
   SUNDIALS_MARK_BEGIN(udata->prof, "Neighbor Exchange");
-  udata->grid->ExchangeEnd();
+  int retval = udata->grid->ExchangeEnd();
   SUNDIALS_MARK_END(udata->prof, "Neighbor Exchange");
-  return(0);
+  return(retval);
 }
 
 
@@ -433,23 +422,23 @@ int ParseArgs(int argc, char *argv[], UserData* udata, UserOptions* uopt)
 
 /* Fills the mask vector for the component so that
    u = y .* umask, v = y .* vmask, w = y .* wmask */
-int ComponentMask(N_Vector mask, int component, const UserData* udata)
+int ComponentMask(N_Vector mask, const int component, const UserData* udata)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   N_VConst(0.0, mask);
 
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > mask_view(GetVecData(mask),
-                                                         udata->grid->nxl,
-                                                         udata->grid->nyl,
-                                                         udata->grid->nzl,
-                                                         udata->grid->dof);
-  auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                RAJA::RangeSegment(0, udata->grid->nyl),
-                                RAJA::RangeSegment(0, udata->grid->nzl));
-  RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int xi, int yi, int zi) {
-    mask_view(xi,yi,zi,component) = 1.0;
+  /* Create 4D view of mask data */
+  auto masklocal = sundials::kokkos::GetVec(N_VGetLocalVector_MPIPlusX(mask));
+  Vec4D maskview((masklocal.View()).data(), udata->grid->nxl, udata->grid->nyl, 
+                 udata->grid->nzl, udata->grid->dof);
+
+  /* Fill mask data */
+  Kokkos::parallel_for("Fill_mask", 
+                       Range3D({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}), 
+                       KOKKOS_LAMBDA (int i, int j, int k)
+  {
+    mask_view(i,j,k,component) = 1.0;
   });
 
   return 0;
@@ -458,9 +447,8 @@ int ComponentMask(N_Vector mask, int component, const UserData* udata)
 
 /* Parses the CLI arguments and sets up the problem */
 int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
-                 SUNMemoryHelper memhelper, SUNContext ctx)
+                 SUNContext ctx)
 {
-  constexpr int STENCIL_WIDTH = 1;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -503,7 +491,7 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   uopt->tf        = 10.0;         /* final time               */
   uopt->rtol      = 1.0e-6;       /* relative tolerance       */
   uopt->atol      = 1.0e-9;       /* absolute tolerance       */
-  uopt->nls       = "newton";     /* default to newton        */
+  uopt->nls       = "newton";     /* default to newton, when appropriate */
   uopt->fpaccel   = 3;            /* default number of fixed point acceleration vectors */
   uopt->precond   = 1;            /* by default, precondition when appropriate */
   uopt->fused     = 0;            /* use fused vector ops     */
@@ -519,14 +507,17 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   const sunindextype npts[] = {uopt->npts, uopt->npts, uopt->npts};
   const realtype amax[] = {0.0, 0.0, 0.0};
   const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
-  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(memhelper,
-    &udata->comm, amax, bmax, npts, 3, BoundaryType::PERIODIC, StencilType::UPWIND, STENCIL_WIDTH, uopt->npxyz
-  );
+  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(&udata->comm, amax, bmax, npts,
+      3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, STENCIL_WIDTH, uopt->npxyz);
 
   /* Create the solution masks */
-  udata->umask = N_VMake_MPIPlusX(udata->comm, LocalNvector(udata->grid->neq, ctx), ctx);
+  sundials::kokkos::Vector<> umaskloc{udata.grid->neq, ctx};
+  udata->umask = N_VMake_MPIPlusX(udata.comm, umaskloc, ctx);
+  if (check_retval((void *) udata->umask, "N_VMake_MPIPlusX", 0, udata.myid)) MPI_Abort(comm, 1);
   udata->vmask = N_VClone(udata->umask);
+  if (check_retval((void *) udata->vmask, "N_VClone", 0, udata.myid)) MPI_Abort(comm, 1);
   udata->wmask = N_VClone(udata->umask);
+  if (check_retval((void *) udata->Wmask, "N_VClone", 0, udata.myid)) MPI_Abort(comm, 1);
   ComponentMask(udata->umask, 0, udata);
   ComponentMask(udata->vmask, 1, udata);
   ComponentMask(udata->wmask, 2, udata);
@@ -554,7 +545,7 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   if (udata->myid == 0)
   {
     printf("\n\t\tAdvection-Reaction Test Problem\n\n");
-    printf("Using the %s NVECTOR\n", NVECTOR_ID_STRING);
+    printf("Using the Kokkos NVECTOR\n");
     printf("Number of Processors = %li\n", (long int) udata->nprocs);
     udata->grid->PrintInfo();
     printf("Problem Parameters:\n");
@@ -584,13 +575,13 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
 
 
 /* Compute the 3D Gaussian function. */
-DEVICE_FUNC
+KOKKOS_FUNCTION
 void Gaussian3D(realtype& x, realtype& y, realtype& z, realtype xmax)
 {
   /* Gaussian distribution defaults */
   const realtype alpha = 0.1;
-  const realtype mu[3] = { xmax/RCONST(2.0), xmax/RCONST(2.0), xmax/RCONST(2.0) };
-  const realtype sigma[3] = { xmax/RCONST(4.0), xmax/RCONST(4.0), xmax/RCONST(4.0) }; // Sigma = diag(sigma)
+  const realtype mu[] = { xmax/RCONST(2.0), xmax/RCONST(2.0), xmax/RCONST(2.0) };
+  const realtype sigma[] = { xmax/RCONST(4.0), xmax/RCONST(4.0), xmax/RCONST(4.0) }; // Sigma = diag(sigma)
 
   /* denominator = 2*sqrt(|Sigma|*(2pi)^3) */
   const realtype denom = 2.0 * sqrt((sigma[0]*sigma[1]*sigma[2])*pow(2*M_PI,3));
@@ -609,6 +600,7 @@ int SetIC(N_Vector y, UserData* udata)
   const int      nxl  = udata->grid->nxl;
   const int      nyl  = udata->grid->nyl;
   const int      nzl  = udata->grid->nzl;
+  const int      dof  = udata->grid->dof;
   const realtype dx   = udata->grid->dx;
   const realtype dy   = udata->grid->dy;
   const realtype dz   = udata->grid->dz;
@@ -628,14 +620,15 @@ int SetIC(N_Vector y, UserData* udata)
   const realtype vs = k2 * k4 * B / (k1 * k3 * A);
   const realtype ws = 3.0;
 
+  /* Create 4D view of y */
+  auto ylocal = sundials::kokkos::GetVec(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D yview((ylocal.View()).data(), nxl, nyl, nzl, dof);
+
   /* Gaussian perturbation of the steady state solution */
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > yview(GetVecData(y), nxl, nyl, nzl,
-                                                     udata->grid->dof);
-  auto range = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                RAJA::RangeSegment(0, nyl),
-                                RAJA::RangeSegment(0, nzl));
-  RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int xi, int yi, int zi) {
+  Kokkos::parallel_for("SetIC", 
+                       Range3D({0,0,0},{nxl,nyl,nzl}), 
+                       KOKKOS_LAMBDA (int xi, int yi, int zi)
+  {
     realtype x = (xcrd * nxl + xi) * dx;
     realtype y = (ycrd * nyl + yi) * dy;
     realtype z = (zcrd * nzl + zi) * dz;
@@ -655,23 +648,22 @@ int SetIC(N_Vector y, UserData* udata)
 int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
-  
-  realtype  u, v, w, N;
-  realtype* ydata = NULL;
 
-  /* get vector data array */
-  ydata = N_VGetArrayPointer(y);
-  if (check_retval((void *) ydata, "N_VGetArrayPointer", 0, udata->myid)) return -1;
+  /* Copy solution data to host mirror view */
+  CopyFromDevice(N_VGetLocalVector_MPIPlusX(y));
 
-  CopyVecFromDevice(N_VGetLocalVector_MPIPlusX(y));
+  /* create 4D view of host data */
+  auto ylocal = sundials::kokkos::GetVec(N_VGetLocalVector_MPIPlusX(y));
+  Vec4DHost yview((ylocal.HostView()).data(), udata->grid->nxl, 
+                  udata->grid->nyl, udata->grid->nzl, udata->grid->dof);
 
   /* output current solution norm to screen */
-  N = (realtype) udata->grid->npts();
-  u = N_VWL2Norm(y, udata->umask);
+  realtype N = (realtype) udata->grid->npts();
+  realtype u = N_VWL2Norm(y, udata->umask);
   u = sqrt(u*u/N);
-  v = N_VWL2Norm(y, udata->vmask);
+  realtype v = N_VWL2Norm(y, udata->vmask);
   v = sqrt(v*v/N);
-  w = N_VWL2Norm(y, udata->wmask);
+  realtype w = N_VWL2Norm(y, udata->wmask);
   w = sqrt(w*w/N);
   if (udata->myid == 0) {
     printf("     %10.6f   %10.6f   %10.6f   %10.6f\n", t, u, v, w);
@@ -685,18 +677,10 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
       fprintf(udata->TFID," %.16e\n", t);
 
     /* output results to disk */
-    RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(ydata,
-                                                       udata->grid->nxl,
-                                                       udata->grid->nyl,
-                                                       udata->grid->nzl,
-                                                       udata->grid->dof);
-
-    auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                  RAJA::RangeSegment(0, udata->grid->nyl),
-                                  RAJA::RangeSegment(0, udata->grid->nzl));
-
-    RAJA::kernel<XYZ_KERNEL_SERIAL_POLICY>(range,
-      [=] (int i, int j, int k) {
+    Kokkos::parallel_for("OutputSolution", 
+                         Range3DSerial({0,0,0},{nxl,nyl,nzl}), 
+                         KOKKOS_LAMBDA (int i, int j, int k)
+    {
       fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
       fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
       fprintf(udata->WFID," %.16e", Yview(i,j,k,2));

@@ -25,7 +25,7 @@
 #include <sundials/sundials_context.h>
 #include <nvector/nvector_mpiplusx.h>
 
-#include "../check_retval.h"
+#include "check_retval.h"
 #include "backends.hpp"
 #include "ParallelGrid.hpp"
 
