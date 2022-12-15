@@ -57,23 +57,23 @@ SUNDIALS_EXPORT
 int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_host,
-                                           unsigned long long* num_deallocations_host, size_t* bytes_allocated_host,
+int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_host,
+                                           unsigned long* num_deallocations_host, size_t* bytes_allocated_host,
                                            size_t* bytes_high_watermark_host);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_pinned,
-                                             unsigned long long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
+int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_pinned,
+                                             unsigned long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
                                              size_t* bytes_high_watermark_pinned);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_device,
-                                             unsigned long long* num_deallocations_device, size_t* bytes_allocated_device,
+int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_device,
+                                             unsigned long* num_deallocations_device, size_t* bytes_allocated_device,
                                              size_t* bytes_high_watermark_device);
 
 SUNDIALS_EXPORT                                            
-int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_uvm,
-                                          unsigned long long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
+int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_uvm,
+                                          unsigned long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
                                           size_t* bytes_high_watermark_uvm);                                            
 
 #ifdef __cplusplus

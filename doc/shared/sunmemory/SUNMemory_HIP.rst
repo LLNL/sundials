@@ -135,8 +135,8 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_GetHostAllocStats_Hip(SUNMemoryHelper helper, unsigned long long* num_allocations, \
-                                                          unsigned long long* num_deallocations, size_t* bytes_allocated, \
+.. c:function:: int SUNMemoryHelper_GetHostAllocStats_Hip(SUNMemoryHelper helper, unsigned long* num_allocations, \
+                                                          unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                           size_t* bytes_high_watermark)
 
    Returns statistics about host memory allocations performed with the helper.
@@ -154,8 +154,8 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_GetPinnedAllocStats_Hip(SUNMemoryHelper helper, unsigned long long* num_allocations, \
-                                                            unsigned long long* num_deallocations, size_t* bytes_allocated, \
+.. c:function:: int SUNMemoryHelper_GetPinnedAllocStats_Hip(SUNMemoryHelper helper, unsigned long* num_allocations, \
+                                                            unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                             size_t* bytes_high_watermark)
 
    Returns statistics about pinned memory allocations performed with the helper.
@@ -172,8 +172,8 @@ The implementation provides the following operations defined by the
 
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
-.. c:function:: int SUNMemoryHelper_GetDeviceAllocStats_Hip(SUNMemoryHelper helper, unsigned long long* num_allocations, \
-                                                            unsigned long long* num_deallocations, size_t* bytes_allocated, \
+.. c:function:: int SUNMemoryHelper_GetDeviceAllocStats_Hip(SUNMemoryHelper helper, unsigned long* num_allocations, \
+                                                            unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                             size_t* bytes_high_watermark)
 
    Returns statistics about device memory allocations performed with the helper.
@@ -191,8 +191,8 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_GetUVMAllocStats_Hip(SUNMemoryHelper helper, unsigned long long* num_allocations, \
-                                                         unsigned long long* num_deallocations, size_t* bytes_allocated, \
+.. c:function:: int SUNMemoryHelper_GetUVMAllocStats_Hip(SUNMemoryHelper helper, unsigned long* num_allocations, \
+                                                         unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                          size_t* bytes_high_watermark)
 
    Returns statistics about UVM memory allocations performed with the helper.

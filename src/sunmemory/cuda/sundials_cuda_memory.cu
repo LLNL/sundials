@@ -22,14 +22,14 @@
 #include "sundials_cuda.h"
 
 struct SUNMemoryHelper_Content_Cuda_ {
-  unsigned long long  num_allocations_host;
-  unsigned long long  num_deallocations_host;
-  unsigned long long  num_allocations_device;
-  unsigned long long  num_deallocations_device;
-  unsigned long long  num_allocations_pinned;
-  unsigned long long  num_deallocations_pinned;
-  unsigned long long  num_allocations_uvm;
-  unsigned long long  num_deallocations_uvm;
+  unsigned long  num_allocations_host;
+  unsigned long  num_deallocations_host;
+  unsigned long  num_allocations_device;
+  unsigned long  num_deallocations_device;
+  unsigned long  num_allocations_pinned;
+  unsigned long  num_deallocations_pinned;
+  unsigned long  num_allocations_uvm;
+  unsigned long  num_deallocations_uvm;
   size_t              bytes_allocated_host;
   size_t              bytes_high_watermark_host;
   size_t              bytes_allocated_device;
@@ -356,8 +356,8 @@ int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper)
   return 0;
 }
 
-int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_host,
-                                           unsigned long long* num_deallocations_host, size_t* bytes_allocated_host,
+int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_host,
+                                           unsigned long* num_deallocations_host, size_t* bytes_allocated_host,
                                            size_t* bytes_high_watermark_host)
 {
   *num_allocations_host = SUNHELPER_CONTENT(helper)->num_allocations_host;
@@ -367,8 +367,8 @@ int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long
   return 0;
 }
 
-int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_pinned,
-                                             unsigned long long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
+int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_pinned,
+                                             unsigned long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
                                              size_t* bytes_high_watermark_pinned)
 {
   *num_allocations_pinned = SUNHELPER_CONTENT(helper)->num_allocations_pinned;
@@ -378,8 +378,8 @@ int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned lo
   return 0;
 }
 
-int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_device,
-                                             unsigned long long* num_deallocations_device, size_t* bytes_allocated_device,
+int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_device,
+                                             unsigned long* num_deallocations_device, size_t* bytes_allocated_device,
                                              size_t* bytes_high_watermark_device)
 {
   *num_allocations_device = SUNHELPER_CONTENT(helper)->num_allocations_device;
@@ -389,8 +389,8 @@ int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned lo
   return 0;
 }
 
-int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_uvm,
-                                          unsigned long long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
+int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long* num_allocations_uvm,
+                                          unsigned long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
                                           size_t* bytes_high_watermark_uvm)
 {
   *num_allocations_uvm = SUNHELPER_CONTENT(helper)->num_allocations_uvm;

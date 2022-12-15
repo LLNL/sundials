@@ -239,8 +239,8 @@ require a SUNMemoryHelper instance:
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, unsigned long long* num_allocations, \
-                                                  unsigned long long* num_deallocations, size_t* bytes_allocated, \
+.. c:function:: int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, unsigned long* num_allocations, \
+                                                  unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                   size_t* bytes_high_watermark)
 
    Returns statistics about the allocations performed with the helper.
