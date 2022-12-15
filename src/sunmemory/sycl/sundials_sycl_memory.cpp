@@ -17,6 +17,7 @@
 #include <cstdlib>
 
 #include <sunmemory/sunmemory_sycl.h>
+#include <sundials/sundials_math.h>
 #include "sundials_debug.h"
 
 struct SUNMemoryHelper_Content_Sycl_ {

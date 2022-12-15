@@ -17,6 +17,7 @@
 #include <cstdlib>
 
 #include <sunmemory/sunmemory_hip.h>
+#include <sundials/sundials_math.h>
 #include "sundials_debug.h"
 #include "sundials_hip.h"
 
