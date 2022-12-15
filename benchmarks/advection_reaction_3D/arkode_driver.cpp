@@ -115,7 +115,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "ARKStepSetLinearSolver", 1, udata->myid)) return 1;
 
     /* Attach preconditioner */
-    retval = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
+    retval = ARKStepSetPreconditioner(arkode_mem, NULL, PSolve);
     if (check_retval(&retval, "ARKStepSetPreconditioner", 1, udata->myid)) return 1;
   }
   else if (uopt->nls == "fixedpoint")

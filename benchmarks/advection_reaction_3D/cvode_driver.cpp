@@ -78,7 +78,7 @@ int EvolveProblemBDF(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "CVodeSetLinearSolver", 1, udata->myid)) return 1;
 
     /* Attach preconditioner */
-    retval = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
+    retval = CVodeSetPreconditioner(cvode_mem, NULL, PSolve);
     if (check_retval(&retval, "CVodeSetPreconditioner", 1, udata->myid)) return 1;
   }
   else if (uopt->nls == "fixedpoint")

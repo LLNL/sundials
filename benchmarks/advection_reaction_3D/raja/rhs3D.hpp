@@ -661,23 +661,6 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
  * Preconditioner functions
  * --------------------------------------------------------------*/
 
-/* Sets up preconditioner solve Pz = r where P = I - gamma * dg/dy */
-static int PSetup(realtype t, N_Vector y, N_Vector ydot, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data)
-{
-  /* Unused, just return success */
-  *jcurPtr = SUNTRUE;
-  return(0);
-}
-
-/* Sets up preconditioner solve Pz = r where P = -dg/dy + gamma */
-static int PSetupRes(realtype t, N_Vector y, N_Vector ydot, N_Vector r, 
-                     realtype cj, void *user_data)
-{
-  /* Unused, just return success */
-  return(0);
-}
-
 /* Solves Pz = r where P = I - gamma * dg/dy */
 static int PSolve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
                   N_Vector z, realtype gamma, realtype delta, int lr,
