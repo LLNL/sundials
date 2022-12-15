@@ -138,6 +138,17 @@ the following additional user-callable routines:
    This function returns the *vec_num* subvector from the NVECTOR array.
 
 
+.. c:function:: sunindextype N_VGetSubvectorLocalLength_ManyVector(N_Vector v, sunindextype vec_num)
+
+   This function returns the local length of the *vec_num* subvector from the NVECTOR array.
+
+   Usage:
+
+   .. code-block:: c
+
+      local_length = N_VGetSubvectorLocalLength_ManyVector(v);
+
+
 .. c:function:: realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
 
    This function returns the data array pointer for the *vec_num*

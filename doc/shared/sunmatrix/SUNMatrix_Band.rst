@@ -377,6 +377,9 @@ following additional user-callable routines:
 
    This function returns the length of the leading dimension of the banded ``SUNMatrix``.
 
+.. c:function:: sunindextype SUNBandMatrix_LData(SUNMatrix A)
+
+   This function returns the length of the data array for the banded ``SUNMatrix``.
 
 .. c:function:: realtype* SUNBandMatrix_Data(SUNMatrix A)
 
