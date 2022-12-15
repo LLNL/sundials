@@ -100,7 +100,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
     {
       helper->content->bytes_allocated_host += memsize;
       helper->content->num_allocations_host++;
-      helper->content->bytes_high_watermark_host = SUNMAX(helper->bytes_allocated_host, helper->bytes_high_watermark_host);
+      helper->content->bytes_high_watermark_host = SUNMAX(helper->content->bytes_allocated_host, helper->content->bytes_high_watermark_host);
     }
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
@@ -115,7 +115,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
     {
       helper->content->bytes_allocated_pinned += memsize;
       helper->content->num_allocations_pinned++;
-      helper->content->bytes_high_watermark_pinned = SUNMAX(helper->bytes_allocated_pinned, helper->bytes_high_watermark_pinned);
+      helper->content->bytes_high_watermark_pinned = SUNMAX(helper->content->bytes_allocated_pinned, helper->content->bytes_high_watermark_pinned);
     }
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
@@ -130,7 +130,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
     {
       helper->content->bytes_allocated_device += memsize;
       helper->content->num_allocations_device++;
-      helper->content->bytes_high_watermark_device = SUNMAX(helper->bytes_allocated_device, helper->bytes_high_watermark_device);
+      helper->content->bytes_high_watermark_device = SUNMAX(helper->content->bytes_allocated_device, helper->content->bytes_high_watermark_device);
     }
   }
   else if (mem_type == SUNMEMTYPE_UVM)
@@ -145,7 +145,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
     {
       helper->content->bytes_allocated_uvm += memsize;
       helper->content->num_allocations_uvm++;
-      helper->content->bytes_high_watermark_uvm = SUNMAX(helper->bytes_allocated_uvm, helper->bytes_high_watermark_uvm);
+      helper->content->bytes_high_watermark_uvm = SUNMAX(helper->content->bytes_allocated_uvm, helper->content->bytes_high_watermark_uvm);
     }
   }
   else
@@ -170,8 +170,8 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
     {
       free(mem->ptr);
       mem->ptr = NULL;
-      helper->num_deallocations_host++;
-      helper->bytes_allocated_host -= mem->bytes;
+      helper->content->num_deallocations_host++;
+      helper->content->bytes_allocated_host -= mem->bytes;
     }
     else if (mem->type == SUNMEMTYPE_PINNED)
     {
@@ -182,8 +182,8 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       }
       else 
       {
-        helper->num_deallocations_pinned++;
-        helper->bytes_allocated_pinned -= mem->bytes;
+        helper->content->num_deallocations_pinned++;
+        helper->content->bytes_allocated_pinned -= mem->bytes;
       }
       mem->ptr = NULL;
     }
@@ -196,8 +196,8 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       }
       else 
       {
-        helper->num_deallocations_device++;
-        helper->bytes_allocated_device -= mem->bytes;
+        helper->content->num_deallocations_device++;
+        helper->content->bytes_allocated_device -= mem->bytes;
       }
       mem->ptr = NULL;
     }
@@ -210,8 +210,8 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       }
       else 
       {
-        helper->num_deallocations_uvm++;
-        helper->bytes_allocated_uvm -= mem->bytes;
+        helper->content->num_deallocations_uvm++;
+        helper->content->bytes_allocated_uvm -= mem->bytes;
       }
       mem->ptr = NULL;
     }
@@ -350,10 +350,10 @@ int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long
                                            unsigned long long* num_deallocations_host, size_t* bytes_allocated_host,
                                            size_t* bytes_high_watermark_host)
 {
-  *num_allocations_host = helper->num_allocations_host;
-  *num_deallocations_host = helper->num_deallocations_host;
-  *bytes_allocated_host = helper->bytes_allocated_host;
-  *bytes_high_watermark_host = helper->bytes_high_watermark_host;
+  *num_allocations_host = helper->content->num_allocations_host;
+  *num_deallocations_host = helper->content->num_deallocations_host;
+  *bytes_allocated_host = helper->content->bytes_allocated_host;
+  *bytes_high_watermark_host = helper->content->bytes_high_watermark_host;
   return 0;
 }
 
@@ -361,10 +361,10 @@ int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned lo
                                              unsigned long long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
                                              size_t* bytes_high_watermark_pinned)
 {
-  *num_allocations_pinned = helper->num_allocations_pinned;
-  *num_deallocations_pinned = helper->num_deallocations_pinned;
-  *bytes_allocated_pinned = helper->bytes_allocated_pinned;
-  *bytes_high_watermark_pinned = helper->bytes_high_watermark_pinned;
+  *num_allocations_pinned = helper->content->num_allocations_pinned;
+  *num_deallocations_pinned = helper->content->num_deallocations_pinned;
+  *bytes_allocated_pinned = helper->content->bytes_allocated_pinned;
+  *bytes_high_watermark_pinned = helper->content->bytes_high_watermark_pinned;
   return 0;
 }
 
@@ -372,10 +372,10 @@ int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned lo
                                              unsigned long long* num_deallocations_device, size_t* bytes_allocated_device,
                                              size_t* bytes_high_watermark_device)
 {
-  *num_allocations_device = helper->num_allocations_device;
-  *num_deallocations_device = helper->num_deallocations_device;
-  *bytes_allocated_device = helper->bytes_allocated_device;
-  *bytes_high_watermark_device = helper->bytes_high_watermark_device;
+  *num_allocations_device = helper->content->num_allocations_device;
+  *num_deallocations_device = helper->content->num_deallocations_device;
+  *bytes_allocated_device = helper->content->bytes_allocated_device;
+  *bytes_high_watermark_device = helper->content->bytes_high_watermark_device;
   return 0;
 }
 
@@ -383,9 +383,9 @@ int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long 
                                           unsigned long long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
                                           size_t* bytes_high_watermark_uvm)
 {
-  *num_allocations_uvm = helper->num_allocations_uvm;
-  *num_deallocations_uvm = helper->num_deallocations_uvm;
-  *bytes_allocated_uvm = helper->bytes_allocated_uvm;
-  *bytes_high_watermark_uvm = helper->bytes_high_watermark_uvm;
+  *num_allocations_uvm = helper->content->num_allocations_uvm;
+  *num_deallocations_uvm = helper->content->num_deallocations_uvm;
+  *bytes_allocated_uvm = helper->content->bytes_allocated_uvm;
+  *bytes_high_watermark_uvm = helper->content->bytes_high_watermark_uvm;
   return 0;
 }
