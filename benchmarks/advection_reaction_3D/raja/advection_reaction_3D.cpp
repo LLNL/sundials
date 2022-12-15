@@ -145,7 +145,9 @@ UserData::~UserData()
   /* free solution masks */
   N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
   N_VDestroy(umask);
+  N_VDestroy(N_VGetLocalVector_MPIPlusX(vmask));
   N_VDestroy(vmask);
+  N_VDestroy(N_VGetLocalVector_MPIPlusX(wmask));
   N_VDestroy(wmask);
 
   /* free the parallel grid */
@@ -185,7 +187,7 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
   {
     /* Flow moving in the positive directions uses backward difference. */
     udata->grid->ExchangeStart(
-      [=] (realtype*, realtype* Esend, realtype*, realtype* Nsend, realtype* Bsend, realtype*) {
+      [=] (realtype*, realtype* Esend, realtype*, realtype* Nsend, realtype*, realtype* Fsend) {
         int nxl = udata->grid->nxl;
         int nyl = udata->grid->nyl;
         int nzl = udata->grid->nzl;
@@ -200,7 +202,7 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
         RAJA::View<realtype, RAJA::Layout<3> >
           Nview(Nsend, nxl, nzl, dof);
         RAJA::View<realtype, RAJA::Layout<3> >
-          Bview(Bsend, nxl, nyl, dof);
+          Fview(Fsend, nxl, nyl, dof);
 
         RAJA::kernel<XYZ_KERNEL_POL>(range,
           [=] DEVICE_FUNC (int i, int j, int k) {
@@ -221,9 +223,9 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
 
           if (nzl > 1)
           {
-            Bview(i,j,0) = Yview(i,j,nzl-1,0);
-            Bview(i,j,1) = Yview(i,j,nzl-1,1);
-            Bview(i,j,2) = Yview(i,j,nzl-1,2);
+            Fview(i,j,0) = Yview(i,j,nzl-1,0);
+            Fview(i,j,1) = Yview(i,j,nzl-1,1);
+            Fview(i,j,2) = Yview(i,j,nzl-1,2);
           }
 
         });

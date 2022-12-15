@@ -17,8 +17,6 @@
 
 #include "advection_reaction_3D.hpp"
 
-using raja_xyz_tuple = camp::tuple<RAJA::RangeSegment, RAJA::RangeSegment, RAJA::RangeSegment>;
-
 /* --------------------------------------------------------------
  * Right hand side (RHS) and residual functions
  * --------------------------------------------------------------*/
@@ -447,8 +445,7 @@ static int AdvectionReactionResidual(realtype t, N_Vector y, N_Vector ydot,
    When using a fully implicit method, we are approximating
    dh/dy as dg/dy. */
 static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
-                               realtype gamma, raja_xyz_tuple blocks,
-                               UserData* udata)
+                               realtype gamma, UserData* udata)
 {
   /* shortcuts */
   int       dof, nxl, nyl, nzl;
@@ -463,7 +460,12 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   k3  = udata->k3;
   k4  = udata->k4;
   k6  = udata->k6;
-  
+
+  /* create tuple for block linear system */
+  auto blocks = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                 RAJA::RangeSegment(0, nyl),
+                                 RAJA::RangeSegment(0, nzl));
+
   /* create views of the data */
   RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(GetVecData(y),
                                                      nxl, nyl, nzl, dof);
@@ -549,8 +551,7 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
 /* Solve the linear systems Ax = b where A = -dg/dy + gamma.
    We are approximating dh/dy as dg/dy. */
 static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
-                                  realtype gamma, raja_xyz_tuple blocks,
-                                  UserData* udata)
+                                  realtype gamma, UserData* udata)
 {
   /* shortcuts */
   int       dof, nxl, nyl, nzl;
@@ -565,6 +566,11 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   k3    = udata->k3;
   k4    = udata->k4;
   k6    = udata->k6;
+
+  /* create tuple for block linear system */
+  auto blocks = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                 RAJA::RangeSegment(0, nyl),
+                                 RAJA::RangeSegment(0, nzl));
 
   /* create views of the data */
   RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(GetVecData(y),
@@ -655,6 +661,23 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
  * Preconditioner functions
  * --------------------------------------------------------------*/
 
+/* Sets up preconditioner solve Pz = r where P = I - gamma * dg/dy */
+static int PSetup(realtype t, N_Vector y, N_Vector ydot, booleantype jok,
+                  booleantype *jcurPtr, realtype gamma, void *user_data)
+{
+  /* Unused, just return success */
+  *jcurPtr = SUNTRUE;
+  return(0);
+}
+
+/* Sets up preconditioner solve Pz = r where P = -dg/dy + gamma */
+static int PSetupRes(realtype t, N_Vector y, N_Vector ydot, N_Vector r, 
+                     realtype cj, void *user_data)
+{
+  /* Unused, just return success */
+  return(0);
+}
+
 /* Solves Pz = r where P = I - gamma * dg/dy */
 static int PSolve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
                   N_Vector z, realtype gamma, realtype delta, int lr,
@@ -668,10 +691,7 @@ static int PSolve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* solve the task-local linear system Pz = r */
-  auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                RAJA::RangeSegment(0, udata->grid->nyl),
-                                RAJA::RangeSegment(0, udata->grid->nzl));
-  retval = SolveReactionLinSys(y, z, r, gamma, range, udata);
+  retval = SolveReactionLinSys(y, z, r, gamma, udata);
 
   return(retval);
 }
@@ -688,10 +708,7 @@ static int PSolveRes(realtype t, N_Vector y, N_Vector ydot, N_Vector F,
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* solve the task-local linear system Pz = r */
-  auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                RAJA::RangeSegment(0, udata->grid->nyl),
-                                RAJA::RangeSegment(0, udata->grid->nzl));
-  retval = SolveReactionLinSysRes(y, z, r, cj, range, udata);
+  retval = SolveReactionLinSysRes(y, z, r, cj, udata);
 
   return(retval);
 }

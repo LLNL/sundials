@@ -115,7 +115,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "ARKStepSetLinearSolver", 1, udata->myid)) return 1;
 
     /* Attach preconditioner */
-    retval = ARKStepSetPreconditioner(arkode_mem, NULL, PSolve);
+    retval = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
     if (check_retval(&retval, "ARKStepSetPreconditioner", 1, udata->myid)) return 1;
   }
   else if (uopt->nls == "fixedpoint")
@@ -588,10 +588,7 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* set up I - gamma*J and solve */
-  auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                RAJA::RangeSegment(0, udata->grid->nyl),
-                                RAJA::RangeSegment(0, udata->grid->nzl));
-  retval = SolveReactionLinSys(z, delta, delta, gamma, range, udata);
+  retval = SolveReactionLinSys(z, delta, delta, gamma, udata);
 
 
   return(retval);

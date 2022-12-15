@@ -100,7 +100,7 @@ int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "IDASetLinearSolver", 1, udata->myid)) return 1;
 
     // /* Attach preconditioner */
-    retval = IDASetPreconditioner(ida_mem, NULL, PSolveRes);
+    retval = IDASetPreconditioner(ida_mem, PSetupRes, PSolveRes);
     if (check_retval(&retval, "IDASetPreconditioner", 1, udata->myid)) return 1;
   }
   else
