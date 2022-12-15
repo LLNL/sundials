@@ -20,6 +20,26 @@
 #include "sundials_debug.h"
 #include "sundials_cuda.h"
 
+struct SUNMemoryHelper_Content_Cuda_ {
+  unsigned long long  num_allocations_host;
+  unsigned long long  num_deallocations_host;
+  unsigned long long  num_allocations_device;
+  unsigned long long  num_deallocations_device;
+  unsigned long long  num_allocations_pinned;
+  unsigned long long  num_deallocations_pinned;
+  unsigned long long  num_allocations_uvm;
+  unsigned long long  num_deallocations_uvm;
+  size_t              bytes_allocated_host;
+  size_t              bytes_high_watermark_host;
+  size_t              bytes_allocated_device;
+  size_t              bytes_high_watermark_device;
+  size_t              bytes_allocated_pinned;
+  size_t              bytes_high_watermark_pinned;
+  size_t              bytes_allocated_uvm;
+  size_t              bytes_high_watermark_uvm;
+};
+
+typedef struct SUNMemoryHelper_Content_Cuda_ SUNMemoryHelper_Content_Cuda;
 
 SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 {
@@ -33,9 +53,26 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
   helper->ops->dealloc   = SUNMemoryHelper_Dealloc_Cuda;
   helper->ops->copy      = SUNMemoryHelper_Copy_Cuda;
   helper->ops->copyasync = SUNMemoryHelper_CopyAsync_Cuda;
+  helper->ops->destroy   = SUNMemoryHelper_Destroy_Cuda;
 
-  /* Attach content and ops */
-  helper->content = NULL;
+  /* Attach content */
+  helper->content = (SUNMemoryHelper_Content_Cuda*) malloc(sizeof(SUNMemoryHelper_Content_Cuda));
+  helper->content->num_allocations_host = 0;
+  helper->content->num_deallocations_host = 0;
+  helper->content->bytes_allocated_host = 0;
+  helper->content->bytes_high_watermark_host = 0;
+  helper->content->num_allocations_device = 0;
+  helper->content->num_deallocations_device = 0;
+  helper->content->bytes_allocated_device = 0;
+  helper->content->bytes_high_watermark_device = 0;
+  helper->content->num_allocations_pinned = 0;
+  helper->content->num_deallocations_pinned = 0;
+  helper->content->bytes_allocated_pinned = 0;
+  helper->content->bytes_high_watermark_pinned = 0;
+  helper->content->num_allocations_uvm = 0;
+  helper->content->num_deallocations_uvm = 0;
+  helper->content->bytes_allocated_uvm = 0;
+  helper->content->bytes_high_watermark_uvm = 0;
 
   return helper;
 }
@@ -59,6 +96,12 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return(-1);
     }
+    else
+    {
+      helper->content->bytes_allocated_host += memsize;
+      helper->content->num_allocations_host++;
+      helper->content->bytes_high_watermark_host = SUNMAX(helper->bytes_allocated_host, helper->bytes_high_watermark_host);
+    }
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
@@ -67,6 +110,12 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMallocHost failed\n");
       free(mem);
       return(-1);
+    }
+    else
+    {
+      helper->content->bytes_allocated_pinned += memsize;
+      helper->content->num_allocations_pinned++;
+      helper->content->bytes_high_watermark_pinned = SUNMAX(helper->bytes_allocated_pinned, helper->bytes_high_watermark_pinned);
     }
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
@@ -77,6 +126,12 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return(-1);
     }
+    else
+    {
+      helper->content->bytes_allocated_device += memsize;
+      helper->content->num_allocations_device++;
+      helper->content->bytes_high_watermark_device = SUNMAX(helper->bytes_allocated_device, helper->bytes_high_watermark_device);
+    }
   }
   else if (mem_type == SUNMEMTYPE_UVM)
   {
@@ -85,6 +140,12 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMallocManaged failed\n");
       free(mem);
       return(-1);
+    }
+    else
+    {
+      helper->content->bytes_allocated_uvm += memsize;
+      helper->content->num_allocations_uvm++;
+      helper->content->bytes_high_watermark_uvm = SUNMAX(helper->bytes_allocated_uvm, helper->bytes_high_watermark_uvm);
     }
   }
   else
@@ -109,6 +170,8 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
     {
       free(mem->ptr);
       mem->ptr = NULL;
+      helper->num_deallocations_host++;
+      helper->bytes_allocated_host -= mem->bytes;
     }
     else if (mem->type == SUNMEMTYPE_PINNED)
     {
@@ -117,15 +180,38 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
         SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFreeHost failed\n");
         return(-1);
       }
+      else 
+      {
+        helper->num_deallocations_pinned++;
+        helper->bytes_allocated_pinned -= mem->bytes;
+      }
       mem->ptr = NULL;
     }
-    else if (mem->type == SUNMEMTYPE_DEVICE ||
-             mem->type == SUNMEMTYPE_UVM)
+    else if (mem->type == SUNMEMTYPE_DEVICE)
     {
       if (!SUNDIALS_CUDA_VERIFY(cudaFree(mem->ptr)))
       {
         SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFree failed\n");
         return(-1);
+      }
+      else 
+      {
+        helper->num_deallocations_device++;
+        helper->bytes_allocated_device -= mem->bytes;
+      }
+      mem->ptr = NULL;
+    }
+    else if (mem->type == SUNMEMTYPE_UVM)
+    {
+      if (!SUNDIALS_CUDA_VERIFY(cudaFree(mem->ptr)))
+      {
+        SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFree failed\n");
+        return(-1);
+      }
+      else 
+      {
+        helper->num_deallocations_uvm++;
+        helper->bytes_allocated_uvm -= mem->bytes;
       }
       mem->ptr = NULL;
     }
@@ -248,4 +334,58 @@ int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
   }
 
   return(retval);
+}
+
+int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper)
+{
+  if (helper)
+  {
+    free(helper->content);
+    free(helper);
+  }
+  return 0;
+}
+
+int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_host,
+                                           unsigned long long* num_deallocations_host, size_t* bytes_allocated_host,
+                                           size_t* bytes_high_watermark_host)
+{
+  *num_allocations_host = helper->num_allocations_host;
+  *num_deallocations_host = helper->num_deallocations_host;
+  *bytes_allocated_host = helper->bytes_allocated_host;
+  *bytes_high_watermark_host = helper->bytes_high_watermark_host;
+  return 0;
+}
+
+int SUNMemoryHelper_GetPinnedAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_pinned,
+                                             unsigned long long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
+                                             size_t* bytes_high_watermark_pinned)
+{
+  *num_allocations_pinned = helper->num_allocations_pinned;
+  *num_deallocations_pinned = helper->num_deallocations_pinned;
+  *bytes_allocated_pinned = helper->bytes_allocated_pinned;
+  *bytes_high_watermark_pinned = helper->bytes_high_watermark_pinned;
+  return 0;
+}
+
+int SUNMemoryHelper_GetDeviceAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_device,
+                                             unsigned long long* num_deallocations_device, size_t* bytes_allocated_device,
+                                             size_t* bytes_high_watermark_device)
+{
+  *num_allocations_device = helper->num_allocations_device;
+  *num_deallocations_device = helper->num_deallocations_device;
+  *bytes_allocated_device = helper->bytes_allocated_device;
+  *bytes_high_watermark_device = helper->bytes_high_watermark_device;
+  return 0;
+}
+
+int SUNMemoryHelper_GetUVMAllocStats_Cuda(SUNMemoryHelper helper, unsigned long long* num_allocations_uvm,
+                                          unsigned long long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
+                                          size_t* bytes_high_watermark_uvm)
+{
+  *num_allocations_uvm = helper->num_allocations_uvm;
+  *num_deallocations_uvm = helper->num_deallocations_uvm;
+  *bytes_allocated_uvm = helper->bytes_allocated_uvm;
+  *bytes_high_watermark_uvm = helper->bytes_high_watermark_uvm;
+  return 0;
 }

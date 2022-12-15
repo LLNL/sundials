@@ -19,6 +19,27 @@
 #include <sunmemory/sunmemory_sycl.h>
 #include "sundials_debug.h"
 
+struct SUNMemoryHelper_Content_Sycl_ {
+  unsigned long long  num_allocations_host;
+  unsigned long long  num_deallocations_host;
+  unsigned long long  num_allocations_device;
+  unsigned long long  num_deallocations_device;
+  unsigned long long  num_allocations_pinned;
+  unsigned long long  num_deallocations_pinned;
+  unsigned long long  num_allocations_uvm;
+  unsigned long long  num_deallocations_uvm;
+  size_t              bytes_allocated_host;
+  size_t              bytes_high_watermark_host;
+  size_t              bytes_allocated_device;
+  size_t              bytes_high_watermark_device;
+  size_t              bytes_allocated_pinned;
+  size_t              bytes_high_watermark_pinned;
+  size_t              bytes_allocated_uvm;
+  size_t              bytes_high_watermark_uvm;
+};
+
+typedef struct SUNMemoryHelper_Content_Sycl_ SUNMemoryHelper_Content_Sycl;
+
 SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
 {
   // Allocate the helper
@@ -34,6 +55,25 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   helper->ops->dealloc   = SUNMemoryHelper_Dealloc_Sycl;
   helper->ops->copy      = SUNMemoryHelper_Copy_Sycl;
   helper->ops->copyasync = SUNMemoryHelper_CopyAsync_Sycl;
+
+  // Attach content
+  helper->content = (SUNMemoryHelper_Content_Sycl*) malloc(sizeof(SUNMemoryHelper_Content_Sycl));
+  helper->content->num_allocations_host = 0;
+  helper->content->num_deallocations_host = 0;
+  helper->content->bytes_allocated_host = 0;
+  helper->content->bytes_high_watermark_host = 0;
+  helper->content->num_allocations_device = 0;
+  helper->content->num_deallocations_device = 0;
+  helper->content->bytes_allocated_device = 0;
+  helper->content->bytes_high_watermark_device = 0;
+  helper->content->num_allocations_pinned = 0;
+  helper->content->num_deallocations_pinned = 0;
+  helper->content->bytes_allocated_pinned = 0;
+  helper->content->bytes_high_watermark_pinned = 0;
+  helper->content->num_allocations_uvm = 0;
+  helper->content->num_deallocations_uvm = 0;
+  helper->content->bytes_allocated_uvm = 0;
+  helper->content->bytes_high_watermark_uvm = 0;
 
   return helper;
 }
@@ -72,6 +112,12 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return -1;
     }
+    else
+    {
+      helper->content->bytes_allocated_host += memsize;
+      helper->content->num_allocations_host++;
+      helper->content->bytes_high_watermark_host = SUNMAX(helper->bytes_allocated_host, helper->bytes_high_watermark_host);
+    }
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
@@ -81,6 +127,12 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_host returned NULL\n");
       free(mem);
       return -1;
+    }
+    else
+    {
+      helper->content->bytes_allocated_pinned += memsize;
+      helper->content->num_allocations_pinned++;
+      helper->content->bytes_high_watermark_pinned = SUNMAX(helper->bytes_allocated_pinned, helper->bytes_high_watermark_pinned);
     }
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
@@ -92,6 +144,12 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return -1;
     }
+    else
+    {
+      helper->content->bytes_allocated_device += memsize;
+      helper->content->num_allocations_device++;
+      helper->content->bytes_high_watermark_device = SUNMAX(helper->bytes_allocated_device, helper->bytes_high_watermark_device);
+    }
   }
   else if (mem_type == SUNMEMTYPE_UVM)
   {
@@ -101,6 +159,12 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_shared returned NULL\n");
       free(mem);
       return -1;
+    }
+    else
+    {
+      helper->content->bytes_allocated_uvm += memsize;
+      helper->content->num_allocations_uvm++;
+      helper->content->bytes_high_watermark_uvm = SUNMAX(helper->bytes_allocated_uvm, helper->bytes_high_watermark_uvm);
     }
   }
   else
@@ -131,6 +195,8 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
     {
       free(mem->ptr);
       mem->ptr = nullptr;
+      helper->num_deallocations_host++;
+      helper->bytes_allocated_host -= mem->bytes;
     }
     else if (mem->type == SUNMEMTYPE_PINNED ||
              mem->type == SUNMEMTYPE_DEVICE ||
@@ -138,6 +204,21 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
     {
       ::sycl::free(mem->ptr, *sycl_queue);
       mem->ptr = nullptr;
+      if (mem->type == SUNMEMTYPE_PINNED) 
+      {
+        helper->num_deallocations_pinned++;
+        helper->bytes_allocated_pinned -= mem->bytes;
+      }
+      else if (mem->type == SUNMEMTYPE_DEVICE)
+      {
+        helper->num_deallocations_device++;
+        helper->bytes_allocated_device -= mem->bytes;
+      }
+      else if (mem->type == SUNMEMTYPE_UVM)
+      {
+        helper->num_deallocations_uvm++;
+        helper->bytes_allocated_uvm -= mem->bytes;
+      }
     }
     else
     {
@@ -185,5 +266,59 @@ int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
   {
     sycl_queue->memcpy(dst->ptr, src->ptr, memory_size);
   }
+  return 0;
+}
+
+int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
+{
+  if (helper)
+  {
+    free(helper->content);
+    free(helper);
+  }
+  return 0;
+}
+
+int SUNMemoryHelper_GetHostAllocStats_Sycl(SUNMemoryHelper helper, unsigned long long* num_allocations_host,
+                                           unsigned long long* num_deallocations_host, size_t* bytes_allocated_host,
+                                           size_t* bytes_high_watermark_host)
+{
+  *num_allocations_host = helper->num_allocations_host;
+  *num_deallocations_host = helper->num_deallocations_host;
+  *bytes_allocated_host = helper->bytes_allocated_host;
+  *bytes_high_watermark_host = helper->bytes_high_watermark_host;
+  return 0;
+}
+
+int SUNMemoryHelper_GetPinnedAllocStats_Sycl(SUNMemoryHelper helper, unsigned long long* num_allocations_pinned,
+                                             unsigned long long* num_deallocations_pinned, size_t* bytes_allocated_pinned,
+                                             size_t* bytes_high_watermark_pinned)
+{
+  *num_allocations_pinned = helper->num_allocations_pinned;
+  *num_deallocations_pinned = helper->num_deallocations_pinned;
+  *bytes_allocated_pinned = helper->bytes_allocated_pinned;
+  *bytes_high_watermark_pinned = helper->bytes_high_watermark_pinned;
+  return 0;
+}
+
+int SUNMemoryHelper_GetDeviceAllocStats_Sycl(SUNMemoryHelper helper, unsigned long long* num_allocations_device,
+                                             unsigned long long* num_deallocations_device, size_t* bytes_allocated_device,
+                                             size_t* bytes_high_watermark_device)
+{
+  *num_allocations_device = helper->num_allocations_device;
+  *num_deallocations_device = helper->num_deallocations_device;
+  *bytes_allocated_device = helper->bytes_allocated_device;
+  *bytes_high_watermark_device = helper->bytes_high_watermark_device;
+  return 0;
+}
+
+int SUNMemoryHelper_GetUVMAllocStats_Sycl(SUNMemoryHelper helper, unsigned long long* num_allocations_uvm,
+                                          unsigned long long* num_deallocations_uvm, size_t* bytes_allocated_uvm,
+                                          size_t* bytes_high_watermark_uvm)
+{
+  *num_allocations_uvm = helper->num_allocations_uvm;
+  *num_deallocations_uvm = helper->num_deallocations_uvm;
+  *bytes_allocated_uvm = helper->bytes_allocated_uvm;
+  *bytes_high_watermark_uvm = helper->bytes_high_watermark_uvm;
   return 0;
 }
