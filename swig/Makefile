@@ -105,8 +105,6 @@ sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 patch: .FORCE
 	cd ..; 
 	
-#git apply swig/fnvector-getarraypointer.patch
-
 clean:
 	rm ../src/**/fmod/*.c; rm ../src/**/fmod/*.f90
 

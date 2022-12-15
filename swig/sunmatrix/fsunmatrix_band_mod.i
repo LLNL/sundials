@@ -110,7 +110,7 @@ integer(C_INT64_T) :: farg2
 farg1 = c_loc(a)
 farg2 = j
 fresult = swigc_FSUNBandMatrix_Column(farg1, farg2)
-call c_f_pointer(fresult, swig_result, [FSUNBandMatrix_UpperBandwidth(A)+FSUNBandMatrix_LowerBandwidth(a)+1])
+call c_f_pointer(fresult, swig_result, [FSUNBandMatrix_UpperBandwidth(a)+FSUNBandMatrix_LowerBandwidth(a)+1])
 end function
 %}
 

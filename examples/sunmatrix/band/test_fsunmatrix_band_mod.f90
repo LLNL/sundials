@@ -20,9 +20,9 @@ module test_fsunmatrix_band
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N  = 4
-  integer(C_LONG), parameter :: mu = 1
-  integer(C_LONG), parameter :: ml = 1
+  integer(C_LONG), parameter :: N  = 10
+  integer(C_LONG), parameter :: mu = 2
+  integer(C_LONG), parameter :: ml = 2
 
 contains
 
@@ -127,11 +127,11 @@ contains
     smu   = FSUNBandMatrix_StoredUpperBandwidth(A)
     Adata => FSUNBandMatrix_Data(A)
     do jj = 0, N-1
-      offset = smu-mu + jj*(smu+ml+1)
+      offset = smu-mu+1 + jj*(smu+ml+1)
       jstart = merge(-jj, -mu, jj < mu)
       jend = merge(N-1-jj, ml, jj > N-1-ml)
       do ii = jstart, jend
-        Adata(offset+mu+ml+ii) = jj - ii
+        Adata(offset+mu+ii) = jj - ii
       end do
     end do
 
@@ -252,11 +252,11 @@ integer(C_INT) function check_matrix(B, A, tol) result(fails)
   Adata => FSUNBandMatrix_Data(A)
   Bdata => FSUNBandMatrix_Data(B)
   do jj = 0, N-1
-    offset = smu-mu + jj*(smu+ml+1)
+    offset = smu-mu+1 + jj*(smu+ml+1)
     istart = merge(-jj, -mu, jj < mu)
     iend = merge(N-1-jj, ml, jj > N-1-ml)
     do ii = istart, iend
-      fails = fails + FNEQTOL(Adata(offset+mu+ml+ii), Bdata(offset+mu+ml+ii), tol)
+      fails = fails + FNEQTOL(Adata(offset+mu+ii), Bdata(offset+mu+ii), tol)
     end do
   end do
 
@@ -284,14 +284,14 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   Adata => FSUNBandMatrix_Data(A)
 
   do jj = 0, N-1
-    offset = smu-mu + jj*(smu+ml+1)
+    offset = smu-mu+1 + jj*(smu+ml+1)
     istart = merge(-jj, -mu, jj < mu)
     iend   = merge(N-1-jj, ml, jj > N-1-ml)
     do ii = istart, iend
-      if (FNEQTOL(Adata(offset+mu+ml+ii), c, tol) /= 0) then
+      if (FNEQTOL(Adata(offset+mu+ii), c, tol) /= 0) then
         fails = fails + 1
         write(*,'(A,E10.1,A,E14.7,A,I9,A,E14.7)') "tol = ", tol,  &
-              "   c = ", c, "   data[", offset+mu+ml+ii, "] = ", Adata(offset+mu+ml+ii)
+              "   c = ", c, "   data[", offset+mu+ii, "] = ", Adata(offset+mu+ii)
       end if
     end do
   end do

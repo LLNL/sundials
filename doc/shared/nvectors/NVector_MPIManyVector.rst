@@ -206,7 +206,7 @@ the following additional user-callable routines:
 
    .. code-block:: c
 
-      local_length = N_VGetSubvectorLocalLength_MPIManyVector(v);
+      local_length = N_VGetSubvectorLocalLength_MPIManyVector(v, 0);
 
 
 .. c:function:: realtype *N_VGetSubvectorArrayPointer_MPIManyVector(N_Vector v, sunindextype vec_num)

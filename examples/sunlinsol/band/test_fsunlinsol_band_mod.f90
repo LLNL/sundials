@@ -58,12 +58,12 @@ contains
     ! fill A matrix with uniform random data in [0, 1/N)
     Adata => FSUNBandMatrix_Data(A)
     do j=1, N
-      offset = smu-mu + j*(smu+ml+1)
+      offset = smu-mu+1 + j*(smu+ml+1)
       kstart = merge(-j, -mu, j < mu)
       kend = merge(N-1-j, ml, j > N-1-ml)
       do k=kstart, kend
         call random_number(tmpr)
-        Adata(offset+mu+ml+k) = tmpr / N
+        Adata(offset+mu+k) = tmpr / N
       end do
     end do
 

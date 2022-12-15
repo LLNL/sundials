@@ -146,7 +146,7 @@ the following additional user-callable routines:
 
    .. code-block:: c
 
-      local_length = N_VGetSubvectorLocalLength_ManyVector(v);
+      local_length = N_VGetSubvectorLocalLength_ManyVector(v, 0);
 
 
 .. c:function:: realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
