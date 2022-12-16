@@ -289,7 +289,7 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
       if (FNEQTOL(Adata(offset+ii), c, tol) /= 0) then
         fails = fails + 1
         write(*,'(A,E10.1,A,E14.7,A,I9,A,E14.7)') "tol = ", tol,  &
-              "   c = ", c, "   data[", offset+mu+ii, "] = ", Adata(offset+mu+ii)
+              "   c = ", c, "   data[", offset+ii, "] = ", Adata(offset+ii)
       end if
     end do
   end do

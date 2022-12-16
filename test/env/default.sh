@@ -147,8 +147,8 @@ if [ "$compilername" == "gcc" ]; then
     if [[ "$SUNDIALS_PRECISION" == "double" && "$SUNDIALS_INDEX_SIZE" == "32" ]]; then
         export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
         export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
-        export FFLAGS="${FFLAGS} -fbounds-check"
     fi
+    export FFLAGS="${FFLAGS} -fbounds-check"
 
 else
 
