@@ -57,9 +57,10 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   if(all_depends_on_dependencies_met)
 
-    # if necessary, create the CACHE variable with its default value
     if(NOT DEFINED ${NAME})
       set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
+    else()
+      set(${NAME} "${${NAME}}" CACHE ${TYPE} ${DOCSTR})
     endif()
 
     # make the option advanced if necessary

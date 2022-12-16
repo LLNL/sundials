@@ -72,6 +72,15 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in v6.5.0
+-----------------
+
+Added the functions :c:func:`IDAGetJac`, :c:func:`IDAGetJacCj`,
+:c:func:`IDAGetJacTime`, :c:func:`IDAGetJacNumSteps` to assist in debugging
+simulations utilizing a matrix-based linear solver.
+
+Fixed an underflow bug during root finding.
+
 Changes in v6.4.1
 -----------------
 

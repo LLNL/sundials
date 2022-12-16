@@ -2265,6 +2265,14 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | Corrected initial conditions                                       | :c:func:`IDAGetConsistentIC`           |
   +--------------------------------------------------------------------+----------------------------------------+
+  | Stored Jacobian of the DAE residual function                       | :c:func:`IDAGetJac`                    |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | :math:`c_j` value used in the Jacobian evaluation                  | :c:func:`IDAGetJacCj`                  |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | Time at which the Jacobian was evaluated                           | :c:func:`IDAGetJacTime`                |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | Step number at which the Jacobian was evaluated                    | :c:func:`IDAGetJacNumSteps`            |
+  +--------------------------------------------------------------------+----------------------------------------+
   | Size of real and integer workspace                                 | :c:func:`IDAGetLinWorkSpace`           |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of Jacobian evaluations                                        | :c:func:`IDAGetNumJacEvals`            |
@@ -2788,6 +2796,66 @@ IDALS linear solver interface optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following optional outputs are available from the IDALS modules:
+
+.. c:function:: int IDAGetJac(void* ida_mem, SUNMatrix* J)
+
+   Returns the internally stored copy of the Jacobian matrix of the DAE
+   residual function.
+
+   :param ida_mem: the IDA memory structure
+   :param J: the Jacobian matrix
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      With linear solvers that overwrite the input Jacobian matrix as part of
+      the linear solver setup (e.g., performing an in-place LU factorization)
+      the matrix returned by :c:func:`IDAGetJac` may differ from the matrix
+      returned by the last Jacobian evaluation.
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J)
+
+   Returns the :math:`c_j` value used to compute the internally stored copy of
+   the Jacobian matrix of the DAE residual function.
+
+   :param ida_mem: the IDA memory structure
+   :param cj_J: the :math:`c_j` value used in the Jacobian was evaluation
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int IDAGetJacTime(void* ida_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the DAE residual function was evaluated.
+
+   :param ida_mem: the IDA memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int IDAGetJacNumSteps(void* ida_mem, long int* nst_J)
+
+   Returns the value of the internal step counter at which the internally stored copy of the
+   Jacobian matrix of the DAE residual function was evaluated.
+
+   :param ida_mem: the IDA memory structure
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int IDAGetLinWorkSpace(void * ida_mem, long int * lenrwLS, long int * leniwLS)
 
