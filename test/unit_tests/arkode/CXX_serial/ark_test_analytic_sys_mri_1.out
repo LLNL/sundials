@@ -1,0 +1,26 @@
+
+Analytical ODE test problem:
+   lamda  = -100
+   reltol = 1e-06
+   abstol = 1e-10
+
+   Fixed-point nonlinear solver
+
+ARKStep Solver Statistics:
+   Return time = 0.05
+   Internal final time = 0.05
+   Internal solver steps = 1000
+   Total RHS evals:  Fe = 0,  Fi = 4946
+   Total number of nonlinear iterations = 2945
+   Total number of nonlinear solver convergence failures = 0
+
+MRIStep Solver Statistics:
+   Return time = 0.05
+   Internal final time = 0.05
+   Internal solver steps = 1000
+   Total RHS evals:  Fs = 3946
+   Total number of nonlinear iterations = 2945
+   Total number of nonlinear solver convergence failures = 0
+
+Comparing Solver Statistics:
+All tests pass!

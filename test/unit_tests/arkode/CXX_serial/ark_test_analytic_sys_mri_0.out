@@ -1,0 +1,32 @@
+
+Analytical ODE test problem:
+   lamda  = -100
+   reltol = 1e-06
+   abstol = 1e-10
+
+   Newton nonlinear solver
+
+ARKStep Solver Statistics:
+   Return time = 0.05
+   Internal final time = 0.05
+   Internal solver steps = 1000
+   Total RHS evals:  Fe = 0,  Fi = 3001
+   Total number of nonlinear iterations = 1000
+   Total number of nonlinear solver convergence failures = 0
+   Total linear solver setups = 1
+   Total RHS evals for setting up the linear system = 0
+   Total number of Jacobian evaluations = 1
+
+MRIStep Solver Statistics:
+   Return time = 0.05
+   Internal final time = 0.05
+   Internal solver steps = 1000
+   Total RHS evals:  Fs = 2001
+   Total number of nonlinear iterations = 1000
+   Total number of nonlinear solver convergence failures = 0
+   Total linear solver setups = 1
+   Total RHS evals for setting up the linear system = 0
+   Total number of Jacobian evaluations = 1
+
+Comparing Solver Statistics:
+All tests pass!

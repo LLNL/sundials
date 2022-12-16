@@ -88,8 +88,14 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in v6.5.0
+-----------------
+
+Added the functions :c:func:`KINGetJac` and :c:func:`KINGetJacNumIters` to
+assist in debugging simulations utilizing a matrix-based linear solver.
+
 Changes in v6.4.1
-----------------
+-----------------
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.
 
