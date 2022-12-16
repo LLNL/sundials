@@ -128,6 +128,9 @@ debugging simulations utilizing a matrix-based linear solver.
 
 Fixed an underflow bug during root finding.
 
+Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
+``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
+
 Changes in v5.4.1
 -----------------
 

@@ -94,6 +94,9 @@ Changes in v6.5.0
 Added the functions :c:func:`KINGetJac` and :c:func:`KINGetJacNumIters` to
 assist in debugging simulations utilizing a matrix-based linear solver.
 
+Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
+``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
+
 Changes in v6.4.1
 -----------------
 
@@ -103,7 +106,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial ``N_Vector``.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 Changes in v6.4.0
 -----------------
