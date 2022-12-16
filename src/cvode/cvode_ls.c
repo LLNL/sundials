@@ -589,7 +589,7 @@ int CVodeGetJac(void* cvode_mem, SUNMatrix* J)
   int retval;
 
   /* access CVLsMem structure; set output and return */
-  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJac", &cv_mem, &cvls_mem);
+  retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__, &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return retval;
   *J = cvls_mem->savedJ;
   return CVLS_SUCCESS;
@@ -602,7 +602,7 @@ int CVodeGetJacTime(void* cvode_mem, sunrealtype* t_J)
   int retval;
 
   /* access CVLsMem structure; set output and return */
-  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJacTime", &cv_mem,
+  retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__, &cv_mem,
                            &cvls_mem);
   if (retval != CVLS_SUCCESS) return retval;
   *t_J = cvls_mem->tnlj;
@@ -616,7 +616,7 @@ int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J)
   int retval;
 
   /* access CVLsMem structure; set output and return */
-  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJacNumSteps", &cv_mem,
+  retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__, &cv_mem,
                            &cvls_mem);
   if (retval != CVLS_SUCCESS) return retval;
   *nst_J = cvls_mem->nstlj;
