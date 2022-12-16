@@ -248,10 +248,10 @@ require a SUNMemoryHelper instance:
    **Arguments:**
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``num_allocations`` --  (output argument) number of allocations done through the helper
-   * ``num_deallocations`` --  (output argument) number of deallocations done through the helper
-   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called
-   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper
+   * ``num_allocations`` --  (output argument) number of allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
 
    **Returns:**
 

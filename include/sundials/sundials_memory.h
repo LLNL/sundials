@@ -66,8 +66,8 @@ struct _SUNMemoryHelper
 {
   void*               content;
   SUNMemoryHelper_Ops ops;
-  unsigned long long  num_allocations;
-  unsigned long long  num_deallocations;
+  unsigned long       num_allocations;
+  unsigned long       num_deallocations;
   size_t              bytes_allocated;
   size_t              bytes_high_watermark;
   SUNContext          sunctx;
@@ -106,8 +106,8 @@ SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Alias(SUNMemory mem);
 SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type);
 
 SUNDIALS_EXPORT 
-void SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, unsigned long long* num_allocations,
-                                   unsigned long long* num_deallocations, size_t* bytes_allocated,
+void SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, unsigned long* num_allocations,
+                                   unsigned long* num_deallocations, size_t* bytes_allocated,
                                    size_t* bytes_high_watermark);
 
 /*

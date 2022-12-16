@@ -82,7 +82,7 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   return helper;
 }
 
-SUNMemoryHelper SUNMemoryHelper_Clone_Syck(SUNMemoryHelper helper)
+SUNMemoryHelper SUNMemoryHelper_Clone_Sycl(SUNMemoryHelper helper)
 {
   SUNMemoryHelper hclone = SUNMemoryHelper_Sycl(helper->sunctx);
   return hclone;

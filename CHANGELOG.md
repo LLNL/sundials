@@ -9,7 +9,7 @@ classes has been added. Memory allocation stats can be accessed through the
 `SUNMemoryHelper_GetAllocStats` family of functions. See the documentation for
 the `SUNMemoryHelper` classes for more details.
 
-Add support for CUDA 12.
+Added support for CUDA 12.
 
 ## Changes to SUNDIALS in release 6.4.1
 

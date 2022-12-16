@@ -145,10 +145,10 @@ The implementation provides the following operations defined by the
    **Arguments:**
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``num_allocations`` --  (output argument) number of host memory allocations done through the helper
-   * ``num_deallocations`` --  (output argument) number of host memory deallocations done through the helper
-   * ``bytes_allocated`` --  (output argument) total number of host bytes allocated through the helper at the moment this function is called
-   * ``bytes_high_watermark`` --  (output argument) max number of host bytes allocated through the helper at any moment in the lifetime of the helper
+   * ``num_allocations`` --  (output argument) number of host memory allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of host memory deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of host bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of host bytes allocated through the helper at any moment in the lifetime of the helper.
 
    **Returns:**
 
@@ -164,10 +164,10 @@ The implementation provides the following operations defined by the
    **Arguments:**
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``num_allocations`` --  (output argument) number of pinned memory allocations done through the helper
-   * ``num_deallocations`` --  (output argument) number of pinned memory deallocations done through the helper
-   * ``bytes_allocated`` --  (output argument) total number of pinned bytes allocated through the helper at the moment this function is called
-   * ``bytes_high_watermark`` --  (output argument) max number of pinned bytes allocated through the helper at any moment in the lifetime of the helper
+   * ``num_allocations`` --  (output argument) number of pinned memory allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of pinned memory deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of pinned bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of pinned bytes allocated through the helper at any moment in the lifetime of the helper.
 
    **Returns:**
 
@@ -182,10 +182,10 @@ The implementation provides the following operations defined by the
    **Arguments:**
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``num_allocations`` --  (output argument) number of device memory allocations done through the helper
-   * ``num_deallocations`` --  (output argument) number of device memory deallocations done through the helper
-   * ``bytes_allocated`` --  (output argument) total number of device bytes allocated through the helper at the moment this function is called
-   * ``bytes_high_watermark`` --  (output argument) max number of device bytes allocated through the helper at any moment in the lifetime of the helper
+   * ``num_allocations`` --  (output argument) number of device memory allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of device memory deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of device bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of device bytes allocated through the helper at any moment in the lifetime of the helper.
 
    **Returns:**
 
@@ -201,10 +201,10 @@ The implementation provides the following operations defined by the
    **Arguments:**
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``num_allocations`` --  (output argument) number of UVM memory allocations done through the helper
-   * ``num_deallocations`` --  (output argument) number of UVM memory deallocations done through the helper
-   * ``bytes_allocated`` --  (output argument) total number of UVM bytes allocated through the helper at the moment this function is called
-   * ``bytes_high_watermark`` --  (output argument) max number of UVM bytes allocated through the helper at any moment in the lifetime of the helper
+   * ``num_allocations`` --  (output argument) number of UVM memory allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of UVM memory deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of UVM bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of UVM bytes allocated through the helper at any moment in the lifetime of the helper.
 
    **Returns:**
 

@@ -96,7 +96,7 @@ classes has been added. Memory allocation stats can be accessed through the
 :c:func:`SUNMemoryHelper_GetAllocStats` family of functions. See the documentation for
 the ``SUNMemoryHelper`` classes for more details.
 
-Add support for CUDA v12.
+Added support for CUDA v12.
 
 Changes in v5.4.1
 -----------------

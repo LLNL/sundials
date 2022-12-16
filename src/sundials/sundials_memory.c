@@ -185,7 +185,7 @@ int SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem, void* queue)
     ier = helper->ops->dealloc(helper, mem, queue);
     if (ier == 0) {
       helper->num_deallocations++;
-      helper->bytes_allocated -= mem->bytes;;
+      helper->bytes_allocated -= mem->bytes;
     }
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
