@@ -960,24 +960,21 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   }
 
   /* Check the constraints vector */
-  temptest = N_VMaxNorm(constraints);
-  SUNCheckLastErr(CV_SUNCTX);
+  temptest = SUNCheckCallLastErr(N_VMaxNorm(constraints), CV_SUNCTX);
   if ((temptest > TWOPT5) || (temptest < HALF)) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_BAD_CONSTR);
     return(CV_ILL_INPUT);
   }
 
   if ( !(cv_mem->cv_constraintsMallocDone) ) {
-    cv_mem->cv_constraints = N_VClone(constraints);
-    SUNCheckLastErr(CV_SUNCTX);
+    cv_mem->cv_constraints = SUNCheckCallLastErr(N_VClone(constraints), CV_SUNCTX);
     cv_mem->cv_lrw += cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_liw1;
     cv_mem->cv_constraintsMallocDone = SUNTRUE;
   }
 
   /* Load the constraints vector */
-  N_VScale(ONE, constraints, cv_mem->cv_constraints);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VScale(ONE, constraints, cv_mem->cv_constraints), CV_SUNCTX);
 
   cv_mem->cv_constraintsSet = SUNTRUE;
 
@@ -1356,8 +1353,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, cv_mem->cv_ewt, eweight);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VScale(ONE, cv_mem->cv_ewt, eweight), CV_SUNCTX);
 
   return(CV_SUCCESS);
 }
@@ -1379,8 +1375,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, cv_mem->cv_acor, ele);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VScale(ONE, cv_mem->cv_acor, ele), CV_SUNCTX);
 
   return(CV_SUCCESS);
 }

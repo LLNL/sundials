@@ -41,31 +41,27 @@ N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v)
 SUNDIALS_STATIC_INLINE
 sunrealtype* N_VGetArrayPointer_MPIPlusX(N_Vector v)
 {
-  sunrealtype* arr = N_VGetSubvectorArrayPointer_MPIManyVector(v, 0);
-  SUNCheckLastErr(v->sunctx);
+  sunrealtype* arr = SUNCheckCallLastErr(N_VGetSubvectorArrayPointer_MPIManyVector(v, 0), v->sunctx);
   return arr;
 }
 
 SUNDIALS_STATIC_INLINE
 void N_VSetArrayPointer_MPIPlusX(sunrealtype* vdata, N_Vector v)
 {
-  N_VSetSubvectorArrayPointer_MPIManyVector(vdata, v, 0);
-  SUNCheckLastErr(v->sunctx);
+  SUNCheckCallLastErr(N_VSetSubvectorArrayPointer_MPIManyVector(vdata, v, 0), v->sunctx);
 }
 
 SUNDIALS_STATIC_INLINE
 N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
 {
-  N_Vector result = N_VGetSubvector_MPIManyVector(v, 0);
-  SUNCheckLastErr(v->sunctx);
+  N_Vector result = SUNCheckCallLastErr(N_VGetSubvector_MPIManyVector(v, 0), v->sunctx);
   return result;
 }
 
 SUNDIALS_STATIC_INLINE
 sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
 {
-  sunindextype len = N_VGetLength(N_VGetLocalVector_MPIPlusX(v));
-  SUNCheckLastErr(v->sunctx);
+  sunindextype len = SUNCheckCallLastErr(N_VGetLength(N_VGetLocalVector_MPIPlusX(v)), v->sunctx);
   return len;
 }
 

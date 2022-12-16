@@ -69,8 +69,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext s
 
   /* Create linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty(sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  S = SUNCheckCallLastErrReturnNull(SUNLinSolNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   S->ops->gettype           = SUNLinSolGetType_SPBCGS;
@@ -125,26 +124,19 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext s
 #endif
 
   /* Allocate content */
-  content->r_star = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->r_star = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
-  content->r = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->r = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
-  content->p = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->p = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
-  content->q = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->q = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
-  content->u = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->u = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
-  content->Ap = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->Ap = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
-  content->vtemp = N_VClone(y);
-  SUNCheckLastErrReturnNull(sunctx);
+  content->vtemp = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
 
   return(S);
 }
@@ -368,8 +360,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Set r_star to initial (unscaled) residual r_0 = b - A*x_0 */
 
   if (*zeroguess) {
-    N_VScale(ONE, b, r_star);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VScale(ONE, b, r_star), S->sunctx);
   } else {
     ier = atimes(A_data, x, r_star);
     if (ier != 0) {
@@ -378,8 +369,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
     }
-    N_VLinearSum(ONE, b, -ONE, r_star, r_star);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VLinearSum(ONE, b, -ONE, r_star, r_star), S->sunctx);
   }
 
   /* Apply left preconditioner and b-scaling to r_star = r_0 */
@@ -394,18 +384,18 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
   }
   else {
-    N_VScale(ONE, r_star, r);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VScale(ONE, r_star, r), S->sunctx);
   }
 
-  if (scale_b) N_VProd(sb, r, r_star);
-  else N_VScale(ONE, r, r_star);
-  SUNCheckLastErr(S->sunctx);
+  if (scale_b) {
+    SUNCheckCallLastErr(N_VProd(sb, r, r_star), S->sunctx);
+  } else {
+    SUNCheckCallLastErr(N_VScale(ONE, r, r_star), S->sunctx);
+  }
 
   /* Initialize beta_denom to the dot product of r0 with r0 */
 
-  beta_denom = N_VDotProd(r_star, r_star);
-  SUNCheckLastErr(S->sunctx);
+  beta_denom = SUNCheckCallLastErr(N_VDotProd(r_star, r_star), S->sunctx);
 
   /* Set r_norm to L2 norm of r_star = sb P1_inv r_0, and
      return if small */
@@ -434,15 +424,12 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Copy r_star to r and p */
 
-  N_VScale(ONE, r_star, r);
-  SUNCheckLastErr(S->sunctx);
-  N_VScale(ONE, r_star, p);
-  SUNCheckLastErr(S->sunctx);
+  SUNCheckCallLastErr(N_VScale(ONE, r_star, r), S->sunctx);
+  SUNCheckCallLastErr(N_VScale(ONE, r_star, p), S->sunctx);
 
   /* Set x = sx x if non-zero guess */
   if (scale_x && !(*zeroguess)) {
-    N_VProd(sx, x, x);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VProd(sx, x, x), S->sunctx);
   }
 
   /* Begin main iteration loop */
@@ -456,14 +443,12 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     /*   Apply x-scaling: vtemp = sx_inv p */
 
     if (scale_x) N_VDiv(p, sx, vtemp);
-    else N_VScale(ONE, p, vtemp);
-    SUNCheckLastErr(S->sunctx);
+    else SUNCheckCallLastErr(N_VScale(ONE, p, vtemp), S->sunctx);
 
     /*   Apply right preconditioner: vtemp = P2_inv sx_inv p */
 
     if (preOnRight) {
-      N_VScale(ONE, vtemp, Ap);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VScale(ONE, vtemp, Ap), S->sunctx);
       ier = psolve(P_data, Ap, vtemp, delta, SUN_PREC_RIGHT);
       if (ier != 0) {
         *zeroguess  = SUNFALSE;
@@ -494,39 +479,34 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
         return(LASTFLAG(S));
       }
     } else {
-      N_VScale(ONE, Ap, vtemp);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VScale(ONE, Ap, vtemp), S->sunctx);
     }
 
     /*   Apply b-scaling: Ap = sb P1_inv A P2_inv sx_inv p */
 
     if (scale_b) N_VProd(sb, vtemp, Ap);
-    else N_VScale(ONE, vtemp, Ap);
-    SUNCheckLastErr(S->sunctx);
+    else SUNCheckCallLastErr(N_VScale(ONE, vtemp, Ap), S->sunctx);
 
     /* Calculate alpha = <r,r_star>/<Ap,r_star> */
 
-    alpha = ((beta_denom / N_VDotProd(Ap, r_star)));
-    SUNCheckLastErr(S->sunctx);
+    alpha = SUNCheckCallLastErr(N_VDotProd(Ap, r_star), S->sunctx);
+    alpha = beta_denom / alpha;
 
     /* Update q = r - alpha*Ap = r - alpha*(sb P1_inv A P2_inv sx_inv p) */
 
-    N_VLinearSum(ONE, r, -alpha, Ap, q);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VLinearSum(ONE, r, -alpha, Ap, q), S->sunctx);
 
     /* Generate u = A-tilde q */
 
     /*   Apply x-scaling: vtemp = sx_inv q */
 
     if (scale_x) N_VDiv(q, sx, vtemp);
-    else N_VScale(ONE, q, vtemp);
-    SUNCheckLastErr(S->sunctx);
+    else SUNCheckCallLastErr(N_VScale(ONE, q, vtemp), S->sunctx);
 
     /*   Apply right preconditioner: vtemp = P2_inv sx_inv q */
 
     if (preOnRight) {
-      N_VScale(ONE, vtemp, u);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VScale(ONE, vtemp, u), S->sunctx);
       ier = psolve(P_data, u, vtemp, delta, SUN_PREC_RIGHT);
       if (ier != 0) {
         *zeroguess  = SUNFALSE;
@@ -557,28 +537,24 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
         return(LASTFLAG(S));
       }
     } else {
-      N_VScale(ONE, u, vtemp);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VScale(ONE, u, vtemp), S->sunctx);
     }
 
     /*   Apply b-scaling: u = sb P1_inv A P2_inv sx_inv u */
 
     if (scale_b) N_VProd(sb, vtemp, u);
-    else N_VScale(ONE, vtemp, u);
-    SUNCheckLastErr(S->sunctx);
+    else SUNCheckCallLastErr(N_VScale(ONE, vtemp, u), S->sunctx);
 
     /* Calculate omega = <u,q>/<u,u> */
 
-    omega_denom = N_VDotProd(u, u);
-    SUNCheckLastErr(S->sunctx);
+    omega_denom = SUNCheckCallLastErr(N_VDotProd(u, u), S->sunctx);
     if (omega_denom == ZERO) omega_denom = ONE;
-    omega = (N_VDotProd(u, q) / omega_denom);
-    SUNCheckLastErr(S->sunctx);
+    omega = SUNCheckCallLastErr(N_VDotProd(u, q), S->sunctx);
+    omega /= omega_denom;
 
     /* Update x = x + alpha*p + omega*q */
     if (l == 0 && *zeroguess) {
-      N_VLinearSum(alpha, p, omega, q, x);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VLinearSum(alpha, p, omega, q, x), S->sunctx);
     } else {
       cv[0] = ONE;
       Xv[0] = x;
@@ -596,13 +572,11 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     /* Update the residual r = q - omega*u */
 
-    N_VLinearSum(ONE, q, -omega, u, r);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VLinearSum(ONE, q, -omega, u, r), S->sunctx);
 
     /* Set rho = norm(r) and check convergence */
 
-    *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
-    SUNCheckLastErr(S->sunctx);
+    *res_norm = rho = SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(r, r)), S->sunctx);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     /* print current iteration number and the residual */
@@ -626,8 +600,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     /* Not yet converged, continue iteration */
     /* Update beta = <rnew,r_star> / <rold,r_start> * alpha / omega */
 
-    beta_num = N_VDotProd(r, r_star);
-    SUNCheckLastErr(S->sunctx);
+    beta_num = SUNCheckCallLastErr(N_VDotProd(r, r_star), S->sunctx);
     beta = ((beta_num / beta_denom) * (alpha / omega));
 
     /* Update p = r + beta*(p - omega*Ap) = beta*p - beta*omega*Ap + r */
@@ -654,8 +627,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     /* Apply the x-scaling and right preconditioner: x = P2_inv sx_inv x */
 
     if (scale_x) {
-      N_VDiv(x, sx, x);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VDiv(x, sx, x), S->sunctx);
     }
     if (preOnRight) {
       ier = psolve(P_data, x, vtemp, delta, SUN_PREC_RIGHT);
@@ -665,8 +637,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
       }
-      N_VScale(ONE, vtemp, x);
-      SUNCheckLastErr(S->sunctx);
+      SUNCheckCallLastErr(N_VScale(ONE, vtemp, x), S->sunctx);
     }
 
     *zeroguess = SUNFALSE;
@@ -717,8 +688,7 @@ SUNErrCode SUNLinSolSpace_SPBCGS(SUNLinearSolver S, long int* lenrwLS,
 {
   sunindextype liw1, lrw1;
   if (SPBCGS_CONTENT(S)->vtemp->ops->nvspace) {
-    N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1);
-    SUNCheckLastErr(S->sunctx);
+    SUNCheckCallLastErr(N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1), S->sunctx);
   } else {
     lrw1 = liw1 = 0;
   }

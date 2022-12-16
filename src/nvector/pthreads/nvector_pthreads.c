@@ -162,8 +162,7 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads,
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty(sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
 
@@ -255,8 +254,7 @@ N_Vector N_VNew_Pthreads(sunindextype length, int num_threads,
   SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
 
   v = NULL;
-  v = N_VNewEmpty_Pthreads(length, num_threads, sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty_Pthreads(length, num_threads, sunctx), sunctx);
 
   /* Create data */
   if (length > 0) {
@@ -288,8 +286,7 @@ N_Vector N_VMake_Pthreads(sunindextype length, int num_threads,
   SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
 
   v = NULL;
-  v = N_VNewEmpty_Pthreads(length, num_threads, sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty_Pthreads(length, num_threads, sunctx), sunctx);
 
   if (length > 0) {
     /* Attach data */
@@ -306,8 +303,7 @@ N_Vector N_VMake_Pthreads(sunindextype length, int num_threads,
 
 N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
 {
-  N_Vector* result = N_VCloneVectorArray(count, w);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  N_Vector* result = SUNCheckCallLastErrReturnNull(N_VCloneVectorArray(count, w), w->sunctx);
   return result;
 }
 
@@ -317,8 +313,7 @@ N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w)
 {
-  N_Vector* result = N_VCloneEmptyVectorArray(count, w);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  N_Vector* result = SUNCheckCallLastErrReturnNull(N_VCloneEmptyVectorArray(count, w), w->sunctx);
   return result;
 }
 
@@ -394,8 +389,7 @@ N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty(w->sunctx);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(w->sunctx), w->sunctx);
 
   /* Attach operations */
   SUNCheckCallReturnNull(N_VCopyOps(w, v), w->sunctx);
@@ -429,8 +423,7 @@ N_Vector N_VClone_Pthreads(N_Vector w)
   sunindextype length;
 
   v = NULL;
-  v = N_VCloneEmpty_Pthreads(w);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VCloneEmpty_Pthreads(w), w->sunctx);
 
   length = NV_LENGTH_PT(w);
 
@@ -528,22 +521,19 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   booleantype test;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
-    Vaxpy_Pthreads(a,x,y);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(Vaxpy_Pthreads(a,x,y), x->sunctx);
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
-    Vaxpy_Pthreads(b,y,x);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(Vaxpy_Pthreads(b,y,x), x->sunctx);
     return;
   }
 
   /* Case: a == b == 1.0 */
 
   if ((a == ONE) && (b == ONE)) {
-    VSum_Pthreads(x, y, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VSum_Pthreads(x, y, z), x->sunctx);
     return;
   }
 
@@ -552,8 +542,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VDiff_Pthreads(v2, v1, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VDiff_Pthreads(v2, v1, z), x->sunctx);
     return;
   }
 
@@ -564,8 +553,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
     c  = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin1_Pthreads(c, v1, v2, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VLin1_Pthreads(c, v1, v2, z), x->sunctx);
     return;
   }
 
@@ -575,8 +563,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin2_Pthreads(c, v1, v2, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VLin2_Pthreads(c, v1, v2, z), x->sunctx);
     return;
   }
 
@@ -584,16 +571,14 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   /* catches case both a and b are 0.0 - user should have called N_VConst */
 
   if (a == b) {
-    VScaleSum_Pthreads(a, x, y, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VScaleSum_Pthreads(a, x, y, z), x->sunctx);
     return;
   }
 
   /* Case: a == -b */
 
   if (a == -b) {
-    VScaleDiff_Pthreads(a, x, y, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VScaleDiff_Pthreads(a, x, y, z), x->sunctx);
     return;
   }
 
@@ -938,14 +923,12 @@ void N_VScale_Pthreads(realtype c, N_Vector x, N_Vector z)
   pthread_attr_t attr;
 
   if (z == x) {  /* BLAS usage: scale x <- cx */
-    VScaleBy_Pthreads(c, x);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VScaleBy_Pthreads(c, x), x->sunctx);
     return;
   }
 
   if (c == ONE) {
-    VCopy_Pthreads(x, z);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(VCopy_Pthreads(x, z), x->sunctx);
     return;
   } else if (c == -ONE) {
     VNeg_Pthreads(x, z);
@@ -1475,8 +1458,7 @@ static void *N_VMaxNorm_PT(void *thread_data) SUNDIALS_NOEXCEPT
 
 realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
 {
-  realtype sqrsum = N_VWSqrSumLocal_Pthreads(x, w);
-  SUNCheckLastErr(x->sunctx);
+  realtype sqrsum = SUNCheckCallLastErr(N_VWSqrSumLocal_Pthreads(x, w), x->sunctx);
   return(SUNRsqrt(sqrsum/(NV_LENGTH_PT(x))));
 }
 
@@ -1587,8 +1569,7 @@ static void *N_VWSqrSum_PT(void *thread_data) SUNDIALS_NOEXCEPT
 
 realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NOEXCEPT
 {
-  realtype sqrsummask = N_VWSqrSumMaskLocal_Pthreads(x, w, id);
-  SUNCheckLastErr(x->sunctx);
+  realtype sqrsummask = SUNCheckCallLastErr(N_VWSqrSumMaskLocal_Pthreads(x, w, id), x->sunctx);
   return(SUNRsqrt(sqrsummask/(NV_LENGTH_PT(x))));
 }
 
@@ -2425,8 +2406,7 @@ SUNErrCode N_VLinearCombination_Pthreads(int nvec, realtype* c, N_Vector* X, N_V
 
   /* should have called N_VLinearSum */
   if (nvec == 2) {
-    N_VLinearSum_Pthreads(c[0], X[0], c[1], X[1], z);
-    SUNCheckLastErr(z->sunctx);
+    SUNCheckCallLastErr(N_VLinearSum_Pthreads(c[0], X[0], c[1], X[1], z), z->sunctx);
     return SUN_SUCCESS;
   }
 
@@ -2559,8 +2539,7 @@ SUNErrCode N_VScaleAddMulti_Pthreads(int nvec, realtype* a, N_Vector x, N_Vector
 
   /* should have called N_VLinearSum */
   if (nvec == 1) {
-    N_VLinearSum_Pthreads(a[0], x, ONE, Y[0], Z[0]);
-    SUNCheckLastErr(x->sunctx);
+    SUNCheckCallLastErr(N_VLinearSum_Pthreads(a[0], x, ONE, Y[0], Z[0]), x->sunctx);
     return SUN_SUCCESS;
   }
 

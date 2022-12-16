@@ -225,16 +225,14 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for ytemp and x */
-  cvls_mem->ytemp = N_VClone(cv_mem->cv_tempv);
-  SUNCheckLastErr(CV_SUNCTX);
+  cvls_mem->ytemp = SUNCheckCallLastErr(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (cvls_mem->ytemp == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
 
-  cvls_mem->x = N_VClone(cv_mem->cv_tempv);
-  SUNCheckLastErr(CV_SUNCTX);
+  cvls_mem->x = SUNCheckCallLastErr(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (cvls_mem->x == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     N_VDestroy(cvls_mem->ytemp);
@@ -244,8 +242,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
   /* For iterative LS, compute default norm conversion factor */
   if (iterative) {
-    cvls_mem->nrmfac = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
-    SUNCheckLastErr(CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErr(SUNRsqrt( N_VGetLength(cvls_mem->ytemp) ), CV_SUNCTX);
   }
 
   /* Check if solution scaling should be enabled */
@@ -373,12 +370,12 @@ int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
   } else if (nrmfac < ZERO) {
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, cvls_mem->ytemp);
-    cvls_mem->nrmfac = SUNRsqrt(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp));
-    SUNCheckLastErrReturn(CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrReturn(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   } else {
     /* compute default factor for WRMS norm from vector legnth */
-    cvls_mem->nrmfac = SUNRsqrt(N_VGetLength(cvls_mem->ytemp));
-    SUNCheckLastErrReturn(CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrReturn(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   }
 
   return(CVLS_SUCCESS);
@@ -648,8 +645,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add NVector sizes */
   if (cv_mem->cv_tempv->ops->nvspace) {
-    N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
-    SUNCheckLastErrReturn(CV_SUNCTX);
+    SUNCheckCallLastErrReturn(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1), CV_SUNCTX);
     *lenrwLS += 2*lrw1;
     *leniwLS += 2*liw1;
   }
@@ -657,8 +653,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
   /* add SUNMatrix size (only account for the one owned by Ls interface) */
   if (cvls_mem->savedJ)
     if (cvls_mem->savedJ->ops->space) {
-      retval = SUNMatSpace(cvls_mem->savedJ, &lrw, &liw);
-      SUNCheckLastErrReturn(CV_SUNCTX);
+      retval = SUNCheckCallLastErrReturn(SUNMatSpace(cvls_mem->savedJ, &lrw, &liw), CV_SUNCTX);
       if (retval == 0) {
         *lenrwLS += lrw;
         *leniwLS += liw;
@@ -667,8 +662,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (cvls_mem->LS->ops->space) {
-    retval = SUNLinSolSpace(cvls_mem->LS, &lrw, &liw);
-    SUNCheckLastErrReturn(CV_SUNCTX);
+    retval = SUNCheckCallLastErrReturn(SUNLinSolSpace(cvls_mem->LS, &lrw, &liw), CV_SUNCTX);
     if (retval == 0) {
       *lenrwLS += lrw;
       *leniwLS += liw;
@@ -938,8 +932,7 @@ SUNErrCode cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
   if (retval != 0) return(retval);
 
   /* add contribution from identity matrix */
-  N_VLinearSum(ONE, v, -cv_mem->cv_gamma, z, z);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VLinearSum(ONE, v, -cv_mem->cv_gamma, z, z), CV_SUNCTX);
 
   return(0);
 }
@@ -1100,31 +1093,25 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   ftemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */
-  jthCol = N_VCloneEmpty(tmp1);
-    SUNCheckLastErr(CV_SUNCTX);
+  jthCol = SUNCheckCallLastErr(N_VCloneEmpty(tmp1), CV_SUNCTX);
 
   /* Obtain pointers to the data for ewt, y */
-  ewt_data = N_VGetArrayPointer(cv_mem->cv_ewt);
-  SUNCheckLastErr(CV_SUNCTX);
-  y_data   = N_VGetArrayPointer(y);
-  SUNCheckLastErr(CV_SUNCTX);
+  ewt_data = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
+  y_data   = SUNCheckCallLastErr(N_VGetArrayPointer(y), CV_SUNCTX);
   if (cv_mem->cv_constraintsSet) {
-    cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
-    SUNCheckLastErr(CV_SUNCTX);
+    cns_data = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
   }
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = N_VWrmsNorm(fy, cv_mem->cv_ewt);
-  SUNCheckLastErr(CV_SUNCTX);
+  fnorm = SUNCheckCallLastErr(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
     /* Generate the jth col of J(tn,y) */
-    N_VSetArrayPointer(SUNDenseMatrix_Column(Jac,j), jthCol);
-    SUNCheckLastErr(CV_SUNCTX);
+    SUNCheckCallLastErr(N_VSetArrayPointer(SUNDenseMatrix_Column(Jac,j), jthCol), CV_SUNCTX);
 
     yjsaved = y_data[j];
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
@@ -1145,14 +1132,12 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
     y_data[j] = yjsaved;
 
     inc_inv = ONE/inc;
-    N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol);
-    SUNCheckLastErr(CV_SUNCTX);
+    SUNCheckCallLastErr(N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol), CV_SUNCTX);
 
   }
 
   /* Destroy jthCol vector */
-  N_VSetArrayPointer(NULL, jthCol);  /* SHOULDN'T BE NEEDED */
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VSetArrayPointer(NULL, jthCol), CV_SUNCTX);   /* SHOULDN'T BE NEEDED */
   N_VDestroy(jthCol);
 
   return(retval);
@@ -1198,29 +1183,21 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   ytemp = tmp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VGetArrayPointer(cv_mem->cv_ewt);
-  SUNCheckLastErr(CV_SUNCTX);
-  fy_data    = N_VGetArrayPointer(fy);
-  SUNCheckLastErr(CV_SUNCTX);
-  ftemp_data = N_VGetArrayPointer(ftemp);
-  SUNCheckLastErr(CV_SUNCTX);
-  y_data     = N_VGetArrayPointer(y);
-  SUNCheckLastErr(CV_SUNCTX);
-  ytemp_data = N_VGetArrayPointer(ytemp);
-  SUNCheckLastErr(CV_SUNCTX);
+  ewt_data   = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
+  fy_data    = SUNCheckCallLastErr(N_VGetArrayPointer(fy), CV_SUNCTX);
+  ftemp_data = SUNCheckCallLastErr(N_VGetArrayPointer(ftemp), CV_SUNCTX);
+  y_data     = SUNCheckCallLastErr(N_VGetArrayPointer(y), CV_SUNCTX);
+  ytemp_data = SUNCheckCallLastErr(N_VGetArrayPointer(ytemp), CV_SUNCTX);
   if (cv_mem->cv_constraintsSet) {
-    cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
-    SUNCheckLastErr(CV_SUNCTX);
+    cns_data = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
   }
 
   /* Load ytemp with y = predicted y vector */
-  N_VScale(ONE, y, ytemp);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VScale(ONE, y, ytemp), CV_SUNCTX);
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = N_VWrmsNorm(fy, cv_mem->cv_ewt);
-  SUNCheckLastErr(CV_SUNCTX);
+  fnorm = SUNCheckCallLastErr(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * N * fnorm) : ONE;
 
@@ -1298,14 +1275,12 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   if (retval != CVLS_SUCCESS)  return(retval);
 
   /* Initialize perturbation to 1/||v|| */
-  sig = ONE/N_VWrmsNorm(v, cv_mem->cv_ewt);
-  SUNCheckLastErr(CV_SUNCTX);
+  sig = ONE/SUNCheckCallLastErr(N_VWrmsNorm(v, cv_mem->cv_ewt), CV_SUNCTX);
 
   for (iter=0; iter<MAX_DQITERS; iter++) {
 
     /* Set work = y + sig*v */
-    N_VLinearSum(sig, v, ONE, y, work);
-    SUNCheckLastErr(CV_SUNCTX);
+    SUNCheckCallLastErr(N_VLinearSum(sig, v, ONE, y, work), CV_SUNCTX);
 
     /* Set Jv = f(tn, y+sig*v) */
     retval = cvls_mem->jt_f(t, work, Jv, cv_mem->cv_user_data);
@@ -1322,8 +1297,7 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Replace Jv by (Jv - fy)/sig */
   siginv = ONE/sig;
-  N_VLinearSum(siginv, Jv, -siginv, fy, Jv);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VLinearSum(siginv, Jv, -siginv, fy, Jv), CV_SUNCTX);
 
   return(0);
 }
@@ -1490,8 +1464,7 @@ int cvLsInitialize(CVodeMem cv_mem)
 
       /* Allocate internally saved Jacobian if not already done */
       if (cvls_mem->savedJ == NULL) {
-        cvls_mem->savedJ = SUNMatClone(cvls_mem->A);
-        SUNCheckLastErr(CV_SUNCTX);
+        cvls_mem->savedJ = SUNCheckCallLastErr(SUNMatClone(cvls_mem->A), CV_SUNCTX);
         if (cvls_mem->savedJ == NULL) {
           cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__,
                          MSG_LS_MEM_FAIL);
@@ -1739,17 +1712,14 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
      So we compute w_mean = ||w||_RMS = ||w||_2 and scale the desired tolerance accordingly. */
   } else if (cvls_mem->iterative) {
 
-    N_VConst(ONE, cvls_mem->x);
-    SUNCheckLastErr(CV_SUNCTX);
-    w_mean = N_VWrmsNorm(weight, cvls_mem->x);
-    SUNCheckLastErr(CV_SUNCTX);
+    SUNCheckCallLastErr(N_VConst(ONE, cvls_mem->x), CV_SUNCTX);
+    w_mean = SUNCheckCallLastErr(N_VWrmsNorm(weight, cvls_mem->x), CV_SUNCTX);
     delta /= w_mean;
 
   }
 
   /* Set initial guess x = 0 to LS */
-  N_VConst(ZERO, cvls_mem->x);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VConst(ZERO, cvls_mem->x), CV_SUNCTX);
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
@@ -1775,14 +1745,12 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(cvls_mem->LS, cvls_mem->A, cvls_mem->x, b, delta);
-  N_VScale(ONE, cvls_mem->x, b);
-  SUNCheckLastErr(CV_SUNCTX);
+  SUNCheckCallLastErr(N_VScale(ONE, cvls_mem->x, b), CV_SUNCTX);
 
   /* If using a direct or matrix-iterative solver, BDF method, and gamma has changed,
      scale the correction to account for change in gamma */
   if (cvls_mem->scalesol && cv_mem->cv_gamrat != ONE) {
-    N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b);
-    SUNCheckLastErr(CV_SUNCTX);
+    SUNCheckCallLastErr(N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b), CV_SUNCTX);
   }
 
   /* Retrieve statistics from iterative linear solvers */
@@ -1796,8 +1764,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
       resnorm = SUNLinSolResNorm(cvls_mem->LS);
 #endif
     if (cvls_mem->LS->ops->numiters)
-      nli_inc = SUNLinSolNumIters(cvls_mem->LS);
-      SUNCheckLastErr(CV_SUNCTX);
+      nli_inc = SUNCheckCallLastErr(SUNLinSolNumIters(cvls_mem->LS), CV_SUNCTX);
   }
 
 

@@ -76,8 +76,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty(sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
 
@@ -171,8 +170,7 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx), sunctx);
 
   /* Create data */
   if(local_length > 0) {
@@ -204,8 +202,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
-  SUNCheckLastErrReturnNull(sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx), sunctx);
 
   if (local_length > 0) {
     /* Attach data */
@@ -222,8 +219,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
 
 N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
-  N_Vector* result = N_VCloneVectorArray(count, w);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  N_Vector* result = SUNCheckCallLastErrReturnNull(N_VCloneVectorArray(count, w), w->sunctx);
   return result;
 }
 
@@ -234,8 +230,7 @@ N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
-  N_Vector* result = N_VCloneEmptyVectorArray(count, w);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  N_Vector* result = SUNCheckCallLastErrReturnNull(N_VCloneEmptyVectorArray(count, w), w->sunctx);
   return result;
 }
 
@@ -317,8 +312,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty(w->sunctx);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(w->sunctx), w->sunctx);
 
   /* Attach operations */
   SUNCheckCallReturnNull(N_VCopyOps(w, v), w->sunctx);
@@ -348,8 +342,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
   sunindextype local_length;
 
   v = NULL;
-  v = N_VCloneEmpty_Parallel(w);
-  SUNCheckLastErrReturnNull(w->sunctx);
+  v = SUNCheckCallLastErrReturnNull(N_VCloneEmpty_Parallel(w), w->sunctx);
 
   local_length  = NV_LOCLENGTH_P(w);
 
