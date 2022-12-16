@@ -94,6 +94,8 @@ Changes in v6.5.0
 Added the functions :c:func:`KINGetJac` and :c:func:`KINGetJacNumIters` to
 assist in debugging simulations utilizing a matrix-based linear solver.
 
+Added support for the SYCL backend with RAJA 2022.x.y.
+
 Changes in v6.4.1
 -----------------
 
