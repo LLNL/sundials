@@ -135,19 +135,19 @@ contains
       end do
     end do
 
-    xdata(0:N-1) => FN_VGetArrayPointer(x)
-    ydata(0:N-1) => FN_VGetArrayPointer(y)
+    xdata => FN_VGetArrayPointer(x)
+    ydata => FN_VGetArrayPointer(y)
 
     ! Fill vectors
     do jj = 0, N-1
       ! x vector
-      xdata(jj) = jj
+      xdata(jj+1) = jj
       ! y vector
-      ydata(jj) = ZERO
+      ydata(jj+1) = ZERO
       istart    = max(0_c_long, jj-ml)
       iend      = min(N-1, jj+mu)
       do ii = istart, iend
-        ydata(jj) = ydata(jj) + (ii+ii-jj)*(ii)
+        ydata(jj+1) = ydata(jj+1) + (ii+ii-jj)*(ii)
       end do
     end do
 
