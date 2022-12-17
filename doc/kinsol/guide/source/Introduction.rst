@@ -88,7 +88,7 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
-Changed in v6.4.2
+Changes in v6.5.0
 -----------------
 
 A new capability to keep track of memory allocations made through the ``SUNMemoryHelper``
@@ -96,7 +96,8 @@ classes has been added. Memory allocation stats can be accessed through the
 :c:func:`SUNMemoryHelper_GetAllocStats` family of functions. See the documentation for
 the ``SUNMemoryHelper`` classes for more details.
 
-Added support for CUDA v12.
+Added the functions :c:func:`KINGetJac` and :c:func:`KINGetJacNumIters` to
+assist in debugging simulations utilizing a matrix-based linear solver.
 
 Changes in v6.4.1
 -----------------

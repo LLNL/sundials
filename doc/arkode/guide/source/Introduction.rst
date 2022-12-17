@@ -118,8 +118,13 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v5.4.2
+Changes in v5.5.0
 -----------------
+
+Added the functions :c:func:`ARKStepGetJac`, :c:func:`ARKStepGetJacTime`,
+:c:func:`ARKStepGetJacNumSteps`, :c:func:`MRIStepGetJac`,
+:c:func:`MRIStepGetJacTime`, and :c:func:`MRIStepGetJacNumSteps` to assist in
+debugging simulations utilizing a matrix-based linear solver.
 
 Fixed an underflow bug during root finding.
 
@@ -139,7 +144,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial ``N_Vector``.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 Changes in v5.4.0
 -----------------

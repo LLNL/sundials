@@ -86,8 +86,12 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in v5.4.2
+Changes in v5.5.0
 -----------------
+
+Added the functions :c:func:`IDAGetJac`, :c:func:`IDAGetJacCj`,
+:c:func:`IDAGetJacTime`, :c:func:`IDAGetJacNumSteps` to assist in debugging
+simulations utilizing a matrix-based linear solver.
 
 Fixed an underflow bug during root finding.
 

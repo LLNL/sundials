@@ -3251,7 +3251,7 @@ static void cvPrepareNextStep(CVodeMem cv_mem, realtype dsm)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
     "CVODE::cvPrepareNextStep", "return",
-    "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d",
+    "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d\n",
     cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime, cv_mem->cv_qwait);
 #endif
 }

@@ -272,6 +272,8 @@ $tar $tarfile $distrobase/test/unit_tests/cvode/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/cvode/C_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/cvode/C_serial/cv_test_getuserdata.c
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_getjac.cpp
+$tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_getjac.out
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.cpp
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.hpp
 $tar $tarfile $distrobase/test/unit_tests/cvode/CXX_serial/cv_test_kpr.out

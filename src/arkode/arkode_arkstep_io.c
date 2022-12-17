@@ -22,7 +22,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arkode/arkode_arkstep.h"
 #include "arkode_arkstep_impl.h"
+#include "arkode_ls_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -202,6 +204,12 @@ char *ARKStepGetReturnFlagName(long int flag) {
   These wrappers for ARKLs module 'get' routines all are
   documented in arkode_arkstep.h.
   ---------------------------------------------------------------*/
+int ARKStepGetJac(void *arkode_mem, SUNMatrix *J) {
+  return arkLSGetJac(arkode_mem, J); }
+int ARKStepGetJacTime(void *arkode_mem, sunrealtype *t_J) {
+  return arkLSGetJacTime(arkode_mem, t_J); }
+int ARKStepGetJacNumSteps(void *arkode_mem, long *nst_J) {
+  return arkLSGetJacNumSteps(arkode_mem, nst_J); }
 int ARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
   return(arkLSGetWorkSpace(arkode_mem, lenrwLS, leniwLS)); }
 int ARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {

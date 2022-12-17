@@ -1,6 +1,13 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 6.4.2
+## Changes to SUNDIALS in release 6.5.0
+
+Added the functions ``ARKStepGetJac``, ``ARKStepGetJacTime``,
+``ARKStepGetJacNumSteps``, ``MRIStepGetJac``, ``MRIStepGetJacTime``,
+``MRIStepGetJacNumSteps``, ``CVodeGetJac``, ``CVodeGetJacTime``,
+``CVodeGetJacNumSteps``, ``IDAGetJac``, ``IDAGetJacCj``, ``IDAGetJacTime``,
+``IDAGetJacNumSteps``, ``KINGetJac``, ``KINGetJacNumIters`` to assist in
+debugging simulations utilizing a matrix-based linear solver.
 
 Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and IDAS.
 
@@ -19,7 +26,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial `N_Vector`.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 ## Changes to SUNDIALS in release 6.4.0
 

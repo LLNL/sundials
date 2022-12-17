@@ -3422,8 +3422,8 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
    **Return value:**
      * *ARK_SUCCESS* -- if the output was successfully.
-     * *CV_MEM_NULL* -- if the ARKStep memory was ``NULL``.
-     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+     * *ARK_MEM_NULL* -- if the ARKStep memory was ``NULL``.
+     * *ARK_ILL_INPUT* -- if an invalid formatting option was provided.
 
    .. note::
 
@@ -3834,6 +3834,9 @@ Linear Solver) or MLS (for Mass Linear Solver) has been added here
 =================================================================  ========================================
 Optional output                                                    Function name
 =================================================================  ========================================
+Stored Jacobian of the ODE RHS function                            :c:func:`ARKStepGetJac`
+Time at which the Jacobian was evaluated                           :c:func:`ARKStepGetJacTime`
+Step number at which the Jacobian was evaluated                    :c:func:`ARKStepGetJacNumSteps`
 Size of real and integer workspaces                                :c:func:`ARKStepGetLinWorkSpace()`
 No. of Jacobian evaluations                                        :c:func:`ARKStepGetNumJacEvals()`
 No. of preconditioner evaluations                                  :c:func:`ARKStepGetNumPrecEvals()`
@@ -3858,7 +3861,46 @@ No. of mass-matrix-vector setup evaluations                        :c:func:`ARKS
 Last return from a mass matrix solver function                     :c:func:`ARKStepGetLastMassFlag()`
 =================================================================  ========================================
 
+.. c:function:: int ARKStepGetJac(void* arkode_mem, SUNMatrix* J)
 
+   Returns the internally stored copy of the Jacobian matrix of the ODE
+   implicit right-hand side function.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param J: the Jacobian matrix
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the ODE implicit right-hand side function was evaluated.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J)
+
+   Returns the value of the internal step counter at which the internally stored copy of the
+   Jacobian matrix of the ODE implicit right-hand side function was evaluated.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int ARKStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS)
 
