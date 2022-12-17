@@ -397,6 +397,12 @@ following additional user-callable routines:
    column of the banded ``SUNMatrix``.  The resulting pointer should
    be indexed over the range ``-mu`` to ``ml``.
 
+   .. warning::
+
+      When calling this function from the Fortran interfaces the shape of the array
+      that is returned is ``[1]``, and the only element you can (legally) access
+      is the diagonal element. Fortran users should instead work with the
+      data array returned by :c:func:`SUNBandMatrix_Data` directly. 
 
 
 **Notes**
