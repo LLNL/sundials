@@ -65,6 +65,8 @@
 #define SUNDIALS_DEPRECATED_EXPORT
 #define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
 #define SUNDIALS_STATIC_INLINE
+#define SUNDIALS_NOEXCEPT
+#define SUNDIALS_PURE_VIRTUAL
 
 
 // Insert SUNDIALS copyright into generated C files.
