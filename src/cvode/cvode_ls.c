@@ -1491,9 +1491,8 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
               N_Vector fpred, booleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  CVLsMem  cvls_mem;
-  realtype dgamma;
-  int      retval;
+  CVLsMem cvls_mem;
+  int     retval;
 
   /* access CVLsMem structure */
   if (cv_mem->cv_lmem==NULL) {
@@ -1512,13 +1511,6 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Set CVLs N_Vector pointers to current solution and rhs */
   cvls_mem->ycur = ypred;
   cvls_mem->fcur = fpred;
-
-  /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
-  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
-  cvls_mem->jbad = (cv_mem->cv_nst == 0) ||
-    (cv_mem->cv_nst >= cvls_mem->nstlj + cvls_mem->msbj) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < cvls_mem->dgmax_jbad)) ||
-    (convfail == CV_FAIL_OTHER);
 
   /* Setup the linear system if necessary */
   if (cvls_mem->A != NULL) {

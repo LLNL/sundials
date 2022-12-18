@@ -15,6 +15,7 @@
  * ---------------------------------------------------------------------------*/
 
 #include "cvode_impl.h"
+#include "cvode_ls_impl.h"
 #include "sundials/sundials_math.h"
 
 /* constant macros */
@@ -251,6 +252,8 @@ int cvNlsInit(CVodeMem cvode_mem)
 static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  realtype dgamma;
   int      retval;
 
   if (cvode_mem == NULL) {
@@ -259,9 +262,24 @@ static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* access CVLsMem structure */
+  if (cv_mem->cv_lmem == NULL) {
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVODE",
+                   "cvNlsSetup", MSG_LS_LMEM_NULL);
+    return(CVLS_LMEM_NULL);
+  }
+  cvls_mem = (CVLsMem) cv_mem->cv_lmem;
+
   /* if the nonlinear solver marked the Jacobian as bad update convfail */
   if (jbad)
     cv_mem->convfail = CV_FAIL_BAD_J;
+
+  /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
+  dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
+  cvls_mem->jbad = (cv_mem->cv_nst == 0) ||
+    (cv_mem->cv_nst >= cvls_mem->nstlj + cvls_mem->msbj) ||
+    ((cv_mem->convfail == CV_FAIL_BAD_J) && (dgamma < cvls_mem->dgmax_jbad)) ||
+    (cv_mem->convfail == CV_FAIL_OTHER);
 
   /* setup the linear solver */
   retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, cv_mem->cv_y, cv_mem->cv_ftemp,
