@@ -59,6 +59,7 @@ defined as
       void         (*nvsetarraypointer)(realtype *, N_Vector);
       void*        (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
+      sunindextype (*nvgetlocallength)(N_Vector);
       void         (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
       void         (*nvconst)(realtype, N_Vector);
       void         (*nvprod)(N_Vector, N_Vector, N_Vector);

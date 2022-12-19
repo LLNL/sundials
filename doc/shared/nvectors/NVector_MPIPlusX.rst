@@ -89,10 +89,20 @@ user-callable routines:
    *local_vector* is ``NULL``).
 
 
-.. c:function:: N_Vector N_VGetLocal_MPIPlusX(N_Vector v)
+.. c:function:: N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
 
-   This function returns the local vector underneath the MPIPlusX
-   NVECTOR.
+   This function returns the local vector underneath the MPIPlusX NVECTOR.
+
+
+.. c:function:: sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
+
+   This function returns the local length of the vector underneath the MPIPlusX NVECTOR.
+
+   Usage:
+
+   .. code-block:: c
+
+      local_length = N_VGetLocalLength_MPIPlusX(v);
 
 
 .. c:function:: realtype *N_VGetArrayPointer_MPIPlusX(N_Vector v)
