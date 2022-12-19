@@ -122,6 +122,15 @@ Added support for the SYCL backend with RAJA 2022.x.y.
 
 Fixed an underflow bug during root finding.
 
+Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
+``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
+
+Fixed the shape of the arrays returned by ``FN_VGetArrayPointer`` functions as well
+as the ``FSUNDenseMatrix_Data``, ``FSUNBandMatrix_Data``, ``FSUNSparseMatrix_Data``,
+``FSUNSparseMatrix_IndexValues``, and ``FSUNSparseMatrix_IndexPointers`` functions.
+Compiling and running code that uses the SUNDIALS Fortran interfaces with
+bounds checking will now work. 
+
 Changes in v6.4.1
 -----------------
 

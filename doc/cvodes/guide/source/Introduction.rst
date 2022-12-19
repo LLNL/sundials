@@ -122,6 +122,15 @@ Added support for the SYCL backend with RAJA 2022.x.y.
 
 Fixed an underflow bug during root finding.
 
+Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
+``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
+
+Fixed the shape of the arrays returned by ``FN_VGetArrayPointer`` functions as well
+as the ``FSUNDenseMatrix_Data``, ``FSUNBandMatrix_Data``, ``FSUNSparseMatrix_Data``,
+``FSUNSparseMatrix_IndexValues``, and ``FSUNSparseMatrix_IndexPointers`` functions.
+Compiling and running code that uses the SUNDIALS Fortran interfaces with
+bounds checking will now work. 
+
 Changes in v6.4.1
 -----------------
 
@@ -131,7 +140,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial ``N_Vector``.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 Changes in v6.4.0
 -----------------

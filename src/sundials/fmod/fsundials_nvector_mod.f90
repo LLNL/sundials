@@ -48,6 +48,7 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvsetarraypointer
   type(C_FUNPTR), public :: nvgetcommunicator
   type(C_FUNPTR), public :: nvgetlength
+  type(C_FUNPTR), public :: nvgetlocallength
   type(C_FUNPTR), public :: nvlinearsum
   type(C_FUNPTR), public :: nvconst
   type(C_FUNPTR), public :: nvprod
@@ -93,7 +94,6 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvbufunpack
   type(C_FUNPTR), public :: nvprint
   type(C_FUNPTR), public :: nvprintfile
-  type(C_FUNPTR), public :: nvgetlocallength
  end type N_Vector_Ops
  ! struct struct _generic_N_Vector
  type, bind(C), public :: N_Vector
@@ -109,11 +109,10 @@ module fsundials_nvector_mod
  public :: FN_VCloneEmpty
  public :: FN_VDestroy
  public :: FN_VSpace
- public :: FN_VGetArrayPointer
- public :: FN_VGetDeviceArrayPointer
  public :: FN_VSetArrayPointer
  public :: FN_VGetCommunicator
  public :: FN_VGetLength
+ public :: FN_VGetLocalLength
  public :: FN_VLinearSum
  public :: FN_VConst
  public :: FN_VProd
@@ -163,7 +162,10 @@ module fsundials_nvector_mod
  public :: FN_VSetVecAtIndexVectorArray
  public :: FN_VPrint
  public :: FN_VPrintFile
- public :: FN_VGetLocalLength
+
+ public :: FN_VGetArrayPointer
+ public :: FN_VGetDeviceArrayPointer
+
 
 ! WRAPPER DECLARATIONS
 interface
@@ -228,22 +230,6 @@ type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 end subroutine
 
-function swigc_FN_VGetArrayPointer(farg1) &
-bind(C, name="_wrap_FN_VGetArrayPointer") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
-end function
-
-function swigc_FN_VGetDeviceArrayPointer(farg1) &
-bind(C, name="_wrap_FN_VGetDeviceArrayPointer") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
-end function
-
 subroutine swigc_FN_VSetArrayPointer(farg1, farg2) &
 bind(C, name="_wrap_FN_VSetArrayPointer")
 use, intrinsic :: ISO_C_BINDING
@@ -261,6 +247,14 @@ end function
 
 function swigc_FN_VGetLength(farg1) &
 bind(C, name="_wrap_FN_VGetLength") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+function swigc_FN_VGetLocalLength(farg1) &
+bind(C, name="_wrap_FN_VGetLocalLength") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -709,12 +703,21 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_FN_VGetLocalLength(farg1) &
-bind(C, name="_wrap_FN_VGetLocalLength") &
+
+function swigc_FN_VGetArrayPointer(farg1) &
+bind(C, name="_wrap_FN_VGetArrayPointer") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T) :: fresult
+type(C_PTR) :: fresult
+end function
+
+function swigc_FN_VGetDeviceArrayPointer(farg1) &
+bind(C, name="_wrap_FN_VGetDeviceArrayPointer") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
 end function
 
 end interface
@@ -823,32 +826,6 @@ farg3 = c_loc(liw(1))
 call swigc_FN_VSpace(farg1, farg2, farg3)
 end subroutine
 
-function FN_VGetArrayPointer(v) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), dimension(:), pointer :: swig_result
-type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = c_loc(v)
-fresult = swigc_FN_VGetArrayPointer(farg1)
-call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
-end function
-
-function FN_VGetDeviceArrayPointer(v) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), dimension(:), pointer :: swig_result
-type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = c_loc(v)
-fresult = swigc_FN_VGetDeviceArrayPointer(farg1)
-call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
-end function
-
 subroutine FN_VSetArrayPointer(v_data, v)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
@@ -884,6 +861,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLength(farg1)
+swig_result = fresult
+end function
+
+function FN_VGetLocalLength(v) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+fresult = swigc_FN_VGetLocalLength(farg1)
 swig_result = fresult
 end function
 
@@ -1700,17 +1690,31 @@ farg2 = outfile
 call swigc_FN_VPrintFile(farg1, farg2)
 end subroutine
 
-function FN_VGetLocalLength(v) &
+
+function FN_VGetArrayPointer(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(C_INT64_T) :: swig_result
+real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT64_T) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
-fresult = swigc_FN_VGetLocalLength(farg1)
-swig_result = fresult
+fresult = swigc_FN_VGetArrayPointer(farg1)
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)])
+end function
+
+function FN_VGetDeviceArrayPointer(v) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+real(C_DOUBLE), dimension(:), pointer :: swig_result
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+fresult = swigc_FN_VGetDeviceArrayPointer(farg1)
+call c_f_pointer(fresult, swig_result, [FN_VGetLocalLength(v)]) 
 end function
 
 
