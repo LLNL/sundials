@@ -118,6 +118,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   mem->ptr  = nullptr;
   mem->own  = SUNTRUE;
   mem->type = mem_type;
+  mem->bytes = mem_size;
 
   // Allocate the data pointer
   if (mem_type == SUNMEMTYPE_HOST)
@@ -225,16 +226,14 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
 
     if (mem->type == SUNMEMTYPE_HOST)
     {
-      free(mem->ptr);
-      mem->ptr = nullptr;
       SUNHELPER_CONTENT(helper)->num_deallocations_host++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_host -= mem->bytes;
+      free(mem->ptr);
+      mem->ptr = nullptr;
     }
     else if (mem->type == SUNMEMTYPE_PINNED || mem->type == SUNMEMTYPE_DEVICE ||
              mem->type == SUNMEMTYPE_UVM)
     {
-      ::sycl::free(mem->ptr, *sycl_queue);
-      mem->ptr = nullptr;
       if (mem->type == SUNMEMTYPE_PINNED)
       {
         SUNHELPER_CONTENT(helper)->num_deallocations_pinned++;
@@ -250,6 +249,8 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
         SUNHELPER_CONTENT(helper)->num_deallocations_uvm++;
         SUNHELPER_CONTENT(helper)->bytes_allocated_uvm -= mem->bytes;
       }
+      ::sycl::free(mem->ptr, *sycl_queue);
+      mem->ptr = nullptr;
     }
     else
     {
@@ -310,10 +311,10 @@ int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
 
 int SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
                                        SUNMemoryType mem_type,
-                                       unsigned long* num_allocations_host,
-                                       unsigned long* num_deallocations_host,
-                                       size_t* bytes_allocated_host,
-                                       size_t* bytes_high_watermark_host)
+                                       unsigned long* num_allocations,
+                                       unsigned long* num_deallocations,
+                                       size_t* bytes_allocated,
+                                       size_t* bytes_high_watermark)
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {

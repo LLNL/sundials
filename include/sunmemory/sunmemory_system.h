@@ -44,6 +44,11 @@ SUNDIALS_EXPORT
 int SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
                              SUNMemory src, size_t memory_size, void* queue);
 
+SUNDIALS_EXPORT
+int SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                      unsigned long* num_deallocations, size_t* bytes_allocated,
+                                      size_t* bytes_high_watermark);   
+
 #ifdef __cplusplus
 }
 #endif

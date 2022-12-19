@@ -99,6 +99,7 @@ int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
   mem->ptr  = NULL;
   mem->own  = SUNTRUE;
   mem->type = mem_type;
+  mem->bytes = mem_size;
 
   if (mem_type == SUNMEMTYPE_HOST)
   {
@@ -193,53 +194,44 @@ int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem, void* que
   {
     if (mem->type == SUNMEMTYPE_HOST)
     {
-      free(mem->ptr);
-      mem->ptr = NULL;
       SUNHELPER_CONTENT(helper)->num_deallocations_host++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_host -= mem->bytes;
+      free(mem->ptr);
+      mem->ptr = NULL;
     }
     else if (mem->type == SUNMEMTYPE_PINNED)
     {
+      SUNHELPER_CONTENT(helper)->num_deallocations_pinned++;
+      SUNHELPER_CONTENT(helper)->bytes_allocated_pinned -= mem->bytes;
       if (!SUNDIALS_HIP_VERIFY(hipFreeHost(mem->ptr)))
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFreeHost failed\n");
         return (-1);
       }
-      else
-      {
-        SUNHELPER_CONTENT(helper)->num_deallocations_pinned++;
-        SUNHELPER_CONTENT(helper)->bytes_allocated_pinned -= mem->bytes;
-      }
       mem->ptr = NULL;
     }
     else if (mem->type == SUNMEMTYPE_DEVICE)
     {
+      SUNHELPER_CONTENT(helper)->num_deallocations_device++;
+      SUNHELPER_CONTENT(helper)->bytes_allocated_device -= mem->bytes;
       if (!SUNDIALS_HIP_VERIFY(hipFree(mem->ptr)))
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFree failed\n");
         return (-1);
-      }
-      else
-      {
-        SUNHELPER_CONTENT(helper)->num_deallocations_device++;
-        SUNHELPER_CONTENT(helper)->bytes_allocated_device -= mem->bytes;
       }
       mem->ptr = NULL;
     }
     else if (mem->type == SUNMEMTYPE_UVM)
     {
+      SUNHELPER_CONTENT(helper)->num_deallocations_uvm++;
+      SUNHELPER_CONTENT(helper)->bytes_allocated_uvm -= mem->bytes;
       if (!SUNDIALS_HIP_VERIFY(hipFree(mem->ptr)))
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFree failed\n");
         return (-1);
-      }
-      else
-      {
-        SUNHELPER_CONTENT(helper)->num_deallocations_uvm++;
-        SUNHELPER_CONTENT(helper)->bytes_allocated_uvm -= mem->bytes;
       }
       mem->ptr = NULL;
     }
