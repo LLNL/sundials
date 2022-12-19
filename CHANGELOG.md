@@ -2,14 +2,18 @@
 
 ## Changes to SUNDIALS in release 6.5.0
 
-Added the functions ``ARKStepGetJac``, ``ARKStepGetJacTime``,
-``ARKStepGetJacNumSteps``, ``MRIStepGetJac``, ``MRIStepGetJacTime``,
-``MRIStepGetJacNumSteps``, ``CVodeGetJac``, ``CVodeGetJacTime``,
-``CVodeGetJacNumSteps``, ``IDAGetJac``, ``IDAGetJacCj``, ``IDAGetJacTime``,
-``IDAGetJacNumSteps``, ``KINGetJac``, ``KINGetJacNumIters`` to assist in
+Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
+`ARKStepGetJacNumSteps`, `MRIStepGetJac`, `MRIStepGetJacTime`,
+`MRIStepGetJacNumSteps`, `CVodeGetJac`, `CVodeGetJacTime`,
+`CVodeGetJacNumSteps`, `IDAGetJac`, `IDAGetJacCj`, `IDAGetJacTime`,
+`IDAGetJacNumSteps`, `KINGetJac`, `KINGetJacNumIters` to assist in
 debugging simulations utilizing a matrix-based linear solver.
 
-Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and IDAS.
+Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and
+IDAS.
+
+Fixed an issue with finding oneMKL when using the `icpx` compiler with the
+`-fsycl` flag as the C++ compiler instead of `dpcpp`.
 
 ## Changes to SUNDIALS in release 6.4.1
 
@@ -246,7 +250,7 @@ different reduction implementations.
 `SUNDIALS::<lib>` targets with no static/shared suffix have been added for use
 within the build directory (this mirrors the targets exported on installation).
 
-``CMAKE_C_STANDARD`` is now set to 99 by default.
+`CMAKE_C_STANDARD` is now set to 99 by default.
 
 Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
 
