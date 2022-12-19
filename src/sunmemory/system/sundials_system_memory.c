@@ -46,6 +46,8 @@ SUNMemoryHelper SUNMemoryHelper_Sys(SUNContext sunctx)
   helper->ops->dealloc       = SUNMemoryHelper_Dealloc_Sys;
   helper->ops->copy          = SUNMemoryHelper_Copy_Sys;
   helper->ops->getallocstats = SUNMemoryHelper_GetAllocStats_Sys;
+  helper->ops->clone         = SUNMemoryHelper_Clone_Sys;
+  helper->ops->destroy       = SUNMemoryHelper_Destroy_Sys;
 
   /* Attach content and ops */
   helper->content =
@@ -64,9 +66,9 @@ int SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
-  mem->ptr  = NULL;
-  mem->own  = SUNTRUE;
-  mem->type = mem_type;
+  mem->ptr   = NULL;
+  mem->own   = SUNTRUE;
+  mem->type  = mem_type;
   mem->bytes = mem_size;
 
   if (mem_type == SUNMEMTYPE_HOST)
@@ -145,5 +147,21 @@ int SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper,
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark;
   }
   else { return -1; }
+  return 0;
+}
+
+SUNMemoryHelper SUNMemoryHelper_Clone_Sys(SUNMemoryHelper helper)
+{
+  SUNMemoryHelper hclone = SUNMemoryHelper_Sys(helper->sunctx);
+  return hclone;
+}
+
+int SUNMemoryHelper_Destroy_Sys(SUNMemoryHelper helper)
+{
+  if (helper)
+  {
+    free(helper->content);
+    free(helper);
+  }
   return 0;
 }

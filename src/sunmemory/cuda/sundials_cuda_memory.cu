@@ -96,9 +96,9 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
-  mem->ptr  = NULL;
-  mem->own  = SUNTRUE;
-  mem->type = mem_type;
+  mem->ptr   = NULL;
+  mem->own   = SUNTRUE;
+  mem->type  = mem_type;
   mem->bytes = mem_size;
 
   if (mem_type == SUNMEMTYPE_HOST)
@@ -363,24 +363,24 @@ int SUNMemoryHelper_GetHostAllocStats_Cuda(SUNMemoryHelper helper,
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
-    *num_allocations SUNHELPER_CONTENT(helper)->num_allocations_pinned;
-    *num_deallocations SUNHELPER_CONTENT(helper)->num_deallocations_pinned;
-    *bytes_allocated SUNHELPER_CONTENT(helper)->bytes_allocated_pinned;
-    *bytes_high_watermark SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned;
+    *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_pinned;
+    *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_pinned;
+    *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_pinned;
+    *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned;
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
   {
-    *num_allocations SUNHELPER_CONTENT(helper)->num_allocations_device;
-    *num_deallocations SUNHELPER_CONTENT(helper)->num_deallocations_device;
-    *bytes_allocated SUNHELPER_CONTENT(helper)->bytes_allocated_device;
-    *bytes_high_watermark SUNHELPER_CONTENT(helper)->bytes_high_watermark_device;
+    *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_device;
+    *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_device;
+    *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_device;
+    *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_device;
   }
   else if (mem_type == SUNMEMTYPE_UVM)
   {
-    *num_allocations SUNHELPER_CONTENT(helper)->num_allocations_uvm;
-    *num_deallocations SUNHELPER_CONTENT(helper)->num_deallocations_uvm;
-    *bytes_allocated SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
-    *bytes_high_watermark SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
+    *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_uvm;
+    *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_uvm;
+    *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
+    *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
   else { return -1; }
   return 0;

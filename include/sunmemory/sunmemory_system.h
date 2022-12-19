@@ -49,6 +49,12 @@ int SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper, SUNMemoryType mem_
                                       unsigned long* num_deallocations, size_t* bytes_allocated,
                                       size_t* bytes_high_watermark);
 
+SUNDIALS_EXPORT
+SUNMemoryHelper SUNMemoryHelper_Clone_Sys(SUNMemoryHelper helper);
+
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Destroy_Sys(SUNMemoryHelper helper);
+
 #ifdef __cplusplus
 }
 #endif
