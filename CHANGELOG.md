@@ -1,5 +1,26 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.5.0
+
+Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
+`ARKStepGetJacNumSteps`, `MRIStepGetJac`, `MRIStepGetJacTime`,
+`MRIStepGetJacNumSteps`, `CVodeGetJac`, `CVodeGetJacTime`,
+`CVodeGetJacNumSteps`, `IDAGetJac`, `IDAGetJacCj`, `IDAGetJacTime`,
+`IDAGetJacNumSteps`, `KINGetJac`, `KINGetJacNumIters` to assist in
+debugging simulations utilizing a matrix-based linear solver.
+
+Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and
+IDAS.
+
+Fixed an issue with finding oneMKL when using the `icpx` compiler with the
+`-fsycl` flag as the C++ compiler instead of `dpcpp`.
+
+Fixed the shape of the arrays returned by `FN_VGetArrayPointer` functions as well
+as the `FSUNDenseMatrix_Data`, `FSUNBandMatrix_Data`, `FSUNSparseMatrix_Data`,
+`FSUNSparseMatrix_IndexValues`, and `FSUNSparseMatrix_IndexPointers` functions.
+Compiling and running code that uses the SUNDIALS Fortran interfaces with
+bounds checking will now work. 
+
 ## Changes to SUNDIALS in release 6.4.1
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.
@@ -8,7 +29,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial `N_Vector`.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 ## Changes to SUNDIALS in release 6.4.0
 
@@ -235,7 +256,7 @@ different reduction implementations.
 `SUNDIALS::<lib>` targets with no static/shared suffix have been added for use
 within the build directory (this mirrors the targets exported on installation).
 
-``CMAKE_C_STANDARD`` is now set to 99 by default.
+`CMAKE_C_STANDARD` is now set to 99 by default.
 
 Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
 

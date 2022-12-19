@@ -11,8 +11,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# unit_tests/kinsol level CMakeLists.txt for SUNDIALS
+# CMakeLists.txt for KINSOL unit tests
 # ---------------------------------------------------------------
 
 # C unit tests
 add_subdirectory(C_serial)
+
+# C++ unit tests
+if(CXX_FOUND)
+  add_subdirectory(CXX_serial)
+endif()

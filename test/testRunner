@@ -29,6 +29,7 @@ import subprocess
 import sys
 import argparse
 import re
+import datetime
 
 def main():
     parser = argparse.ArgumentParser(description='Sundials test runner for use in ctest.')
@@ -65,6 +66,9 @@ def main():
     parser.add_argument('--buildcmd', dest='buildCmd', type=str,
                         help='CMake command used to build the example')
 
+    parser.add_argument('--profile', dest='profile', action='store_true',
+                        help='Gather profiling data (requires Caliper to be enabled)')
+
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='run verbosely')
 
@@ -80,6 +84,7 @@ def main():
         print("runArgs=%s"%(args.runArgs))
         print("buildDir=%s"%(args.buildDir))
         print("buildCmd=%s"%(args.buildCmd))
+        print("profile=%s"%(args.profile))
 
     # regression test name and output directory
     testName  = args.testName
@@ -187,6 +192,17 @@ def main():
 
         answerPath = os.path.join(answerDir, answerFileName)
 
+        # If profiling set the CALI_CONFIG environment variable
+        if(args.profile):
+            dateTime = datetime.datetime.now().strftime("%m%d%Y_%H%M%S")
+            profilePath = os.path.join(outDir, args.testName+".%s.caliper" % dateTime)
+            os.environ['SUNDIALS_VERSION'] = subprocess.check_output(
+                    ['git', 'describe', '--abbrev=12', '--dirty', '--always', '--tags']
+                ).decode('UTF-8').strip()
+            os.environ['CALI_SERVICES_ENABLE'] = 'env'
+            os.environ['CALI_ENV_EXTRA'] = 'SUNDIALS_VERSION'
+            os.environ['CALI_CONFIG'] = 'runtime-report,hatchet-region-profile,output=%s' % profilePath
+
         # if user supplies precision info overide the default choices
         if(args.floatPrecision >= 0):
             testInfo.floatPrecision=args.floatPrecision
@@ -200,7 +216,9 @@ def main():
             print("  Integer Precision = " + str(testInfo.integerPercentage))
             print("  Command " + ' '.join(testCommand))
             print("  Answer File = " + answerPath)
-            print("  Output File = " + outPath + "\n")
+            print("  Output File = " + outPath)
+            if(args.profile):
+                print("  ENV{CALI_CONFIG} = " + os.environ['CALI_CONFIG'] + "\n")
 
         outFile = open(outPath, 'w')
         try:

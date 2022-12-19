@@ -100,7 +100,7 @@ if [ "$compilername" == "gcc" ]; then
     if [ "$bldtype" == "dbg" ]; then
         export CFLAGS="-g -O0"
         export CXXFLAGS="-g -O0"
-        export FFLAGS="-g -O0"
+        export FFLAGS="-g -O0 -fbounds-check"
         export CUDAFLAGS="-g -O0"
     else
         export CFLAGS="-g -O3"

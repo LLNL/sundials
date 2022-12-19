@@ -374,6 +374,9 @@ SUNDIALS_EXPORT int MRIStepGetNumStepSolveFails(void *arkode_mem,
                                                 long int *nncfails);
 
 /* Linear solver optional output functions */
+SUNDIALS_EXPORT int MRIStepGetJac(void* arkode_mem, SUNMatrix* J);
+SUNDIALS_EXPORT int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
+SUNDIALS_EXPORT int MRIStepGetJacNumSteps(void* arkode_mem, long* nst_J);
 SUNDIALS_EXPORT int MRIStepGetLinWorkSpace(void *arkode_mem,
                                            long int *lenrwLS,
                                            long int *leniwLS);
