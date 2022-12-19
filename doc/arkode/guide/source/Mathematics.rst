@@ -2076,3 +2076,8 @@ step attempt, or fails with the minimum step size, then the integration is halte
 and an error is returned. In this case the user may need to employ other
 strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
 :numref:`ARKODE.Usage.ERKStep.Tolerances` to satisfy the inequality constraints.
+
+.. _ARKODE.Mathematics.Relaxation:
+
+Relaxation Methods
+==================

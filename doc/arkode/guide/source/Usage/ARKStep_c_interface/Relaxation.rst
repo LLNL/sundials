@@ -34,7 +34,7 @@ Enabling or Disabling Relaxation
    :param rfn: the user-defined relaxation function
    :param rjac: the user-defined Jacobian of the relaxation function
 
-   :retval ARK_SUCCESS: the function existed successfully
+   :retval ARK_SUCCESS: the function exited successfully
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_ILL_INPUT: an invalid input combination was provided see the
                           output error message for more details
@@ -115,13 +115,10 @@ method.
 
    Sets the nonlinear solver tolerance to use when computing the relaxation
    parameter. If the tolerance is not reached within the maximum number of
-   iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), step will be
-   repeated with a smaller step size (determined by
-   :c:func:`ARKStepSetRelaxEtaFail`). The default value is 5. Input values
-   :math:`\leq 0` will result in the default value being used.
-
-   The default value is 1.0e-14. Input values :math:`\leq 0.0` will
-   result in the default value being used.
+   iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), the step will
+   be repeated with a smaller step size (determined by
+   :c:func:`ARKStepSetRelaxEtaFail`). The default value is 1.0e-14. Input values
+   :math:`\leq 0.0` will result in the default value being used.
 
    :param arkode_mem: the ARKStep memory structure
    :param tol: the nonlinear solver tolerance to use
