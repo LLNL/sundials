@@ -32,5 +32,10 @@
   %ignore N_VLinearCombinationVectorArray_## TYPE ##;
   %ignore N_VEnableScaleAddMultiVectorArray_## TYPE ##;
   %ignore N_VEnableLinearCombinationVectorArray_## TYPE ##;
+  // Ignore GetArrayPointer functions because we manually insert them
+  %ignore N_VGetArrayPointer_## TYPE ##;
+  %ignore N_VGetDeviceArrayPointer_## TYPE ##;
+  %ignore N_VGetSubvectorArrayPointer_## TYPE ##;
+  %ignore N_VGeSubvectortDeviceArrayPointer_## TYPE ##;
 %enddef
 
