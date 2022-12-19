@@ -33,6 +33,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
         void*         ptr;
         SUNMemoryType type;
         booleantype   own;
+        size_t        bytes;
       };
 
 
@@ -64,6 +65,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       {
         void*               content;
         SUNMemoryHelper_Ops ops;
+        SUNContext          sunctx;
       };
 
 
@@ -88,6 +90,9 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
         int             (*copyasync)(SUNMemoryHelper, SUNMemory dst,
                                      SUNMemory src, size_t mem_size,
                                      void* queue);
+        int             (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                         unsigned long* num_deallocations, size_t* bytes_allocated,
+                                         size_t* bytes_high_watermark);
         SUNMemoryHelper (*clone)(SUNMemoryHelper);
         int             (*destroy)(SUNMemoryHelper);
       };

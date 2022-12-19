@@ -66,10 +66,6 @@ struct _SUNMemoryHelper
 {
   void*               content;
   SUNMemoryHelper_Ops ops;
-  unsigned long       num_allocations;
-  unsigned long       num_deallocations;
-  size_t              bytes_allocated;
-  size_t              bytes_high_watermark;
   SUNContext          sunctx;
 };
 
@@ -85,6 +81,9 @@ struct _SUNMemoryHelper_Ops
   /* operations that provide default implementations */
   int             (*copyasync)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
                                size_t mem_size, void* queue);
+  int             (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                   unsigned long* num_deallocations, size_t* bytes_allocated,
+                                   size_t* bytes_high_watermark);
   SUNMemoryHelper (*clone)(SUNMemoryHelper);
   int             (*destroy)(SUNMemoryHelper);
 };
@@ -104,11 +103,6 @@ SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Alias(SUNMemory mem);
  * The SUNMemory returned will not own the ptr, therefore, it will not free
  * the ptr in Dealloc. */
 SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type);
-
-SUNDIALS_EXPORT 
-void SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, unsigned long* num_allocations,
-                                   unsigned long* num_deallocations, size_t* bytes_allocated,
-                                   size_t* bytes_high_watermark);
 
 /*
  * Required SUNMemoryHelper operations.
@@ -133,6 +127,11 @@ int SUNMemoryHelper_Copy(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
 SUNDIALS_EXPORT
 int SUNMemoryHelper_CopyAsync(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
                               size_t mem_size, void* queue);
+
+SUNDIALS_EXPORT 
+int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                  unsigned long* num_deallocations, size_t* bytes_allocated,
+                                  size_t* bytes_high_watermark);
 
 /* Clones the SUNMemoryHelper */
 SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper);

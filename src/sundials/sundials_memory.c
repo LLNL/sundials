@@ -69,10 +69,6 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
   /* Set all ops to NULL */
   memset(helper->ops, 0, sizeof(struct _SUNMemoryHelper_Ops));
   helper->content = NULL;
-  helper->num_allocations = 0;
-  helper->num_deallocations = 0;
-  helper->bytes_allocated = 0;
-  helper->bytes_high_watermark = 0;
   helper->sunctx = sunctx;
 
   return(helper);
@@ -142,14 +138,19 @@ SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type)
   return(mem);
 }
 
-void SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, unsigned long long* num_allocations,
-                                   unsigned long long* num_deallocations, size_t* bytes_allocated,
-                                   size_t* bytes_high_watermark)
+int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                  unsigned long* num_deallocations, size_t* bytes_allocated,
+                                  size_t* bytes_high_watermark)
 {
-  *num_allocations = helper->num_allocations;
-  *num_deallocations = helper->num_deallocations;
-  *bytes_allocated = helper->bytes_allocated;
-  *bytes_high_watermark = helper->bytes_high_watermark;
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
+  if (helper->ops->getallocstats) {
+    return helper->ops->getallocstats(helper, mem_type, num_allocations, num_deallocations, bytes_allocated, bytes_high_watermark);
+  } else {
+    ier = -1;
+  }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
+  return(ier);
 }
 
 
@@ -162,12 +163,6 @@ int SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
     ier = -1;
   } else {
     ier = helper->ops->alloc(helper, memptr, mem_size, mem_type, queue);
-    if (ier == 0) {
-      (*memptr)->bytes = mem_size;
-      helper->bytes_allocated += mem_size;
-      helper->num_allocations++;
-      helper->bytes_high_watermark = SUNMAX(helper->bytes_allocated, helper->bytes_high_watermark);
-    }
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
@@ -183,10 +178,6 @@ int SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem, void* queue)
     ier = 0;
   } else {
     ier = helper->ops->dealloc(helper, mem, queue);
-    if (ier == 0) {
-      helper->num_deallocations++;
-      helper->bytes_allocated -= mem->bytes;
-    }
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
