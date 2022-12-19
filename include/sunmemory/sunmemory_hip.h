@@ -54,7 +54,7 @@ int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
                                   void* queue);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper); 
+int SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
 int SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations,

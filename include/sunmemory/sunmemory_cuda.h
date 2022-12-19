@@ -59,7 +59,7 @@ int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper);
 SUNDIALS_EXPORT
 int SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations,
                                        unsigned long* num_deallocations, size_t* bytes_allocated,
-                                       size_t* bytes_high_watermark);                                    
+                                       size_t* bytes_high_watermark);
 
 #ifdef __cplusplus
 }
