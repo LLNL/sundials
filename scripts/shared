@@ -833,3 +833,7 @@ $tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/reductions
 $tar $tarfile $distrobase/test/unit_tests/reductions/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/reductions/test_reduction_operators.cpp
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/sys
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/sys/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/sys/test_sunmemory_sys.cpp
