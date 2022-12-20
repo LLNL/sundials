@@ -145,6 +145,15 @@ int main(int argc, char *argv[])
 /* Destructor for problem data */
 UserData::~UserData()
 {
+  /* close output streams */
+  if (uopt->nout > 0)
+  {
+    if (UFID) fclose(UFID);
+    if (VFID) fclose(VFID);
+    if (WFID) fclose(WFID);
+    if (TFID && myid == 0) fclose(TFID);
+  }
+
   /* free solution masks */
   N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
   N_VDestroy(umask);
@@ -155,15 +164,6 @@ UserData::~UserData()
 
   /* free the parallel grid */
   delete grid;
-
-  /* close output streams */
-  if (uopt->nout > 0)
-  {
-    if (UFID) fclose(UFID);
-    if (VFID) fclose(VFID);
-    if (WFID) fclose(WFID);
-    if (TFID && myid == 0) fclose(TFID);
-  }
 }
 
 
@@ -557,7 +557,6 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
     printf("Output directory: %s\n", uopt->outputdir);
   }
 
-
   /* return success */
   return(0);
 }
@@ -659,8 +658,10 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
   if (uopt->save)
   {
     /* output the times to disk */
-    if (udata->myid == 0 && udata->TFID)
+    if (udata->myid == 0 && udata->TFID) {
       fprintf(udata->TFID," %.16e\n", t);
+      std::fflush(udata->TFID);
+    }
 
     /* create 4D view of host data */
     realtype* ydata = NULL;
@@ -687,6 +688,9 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     fprintf(udata->UFID,"\n");
     fprintf(udata->VFID,"\n");
     fprintf(udata->WFID,"\n");
+    std::fflush(udata->UFID);
+    std::fflush(udata->VFID);
+    std::fflush(udata->WFID);
   }
   
   return(0);
