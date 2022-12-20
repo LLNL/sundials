@@ -23,7 +23,7 @@ bounds checking will now work.
 
 A new capability to keep track of memory allocations made through the `SUNMemoryHelper`
 classes has been added. Memory allocation stats can be accessed through the
-`SUNMemoryHelper_GetAllocStats` family of functions. See the documentation for
+`SUNMemoryHelper_GetAllocStats` function. See the documentation for
 the `SUNMemoryHelper` classes for more details.
 
 Added support for CUDA 12.
