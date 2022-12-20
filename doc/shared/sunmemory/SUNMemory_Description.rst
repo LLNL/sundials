@@ -244,7 +244,7 @@ require a SUNMemoryHelper instance:
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, unsigned long* num_allocations, \
+.. c:function:: int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
                                                   unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                   size_t* bytes_high_watermark)
 
@@ -253,6 +253,7 @@ require a SUNMemoryHelper instance:
    **Arguments:**
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``mem_type`` -- the ``SUNMemoryType`` to get stats for.
    * ``num_allocations`` --  (output argument) number of allocations done through the helper.
    * ``num_deallocations`` --  (output argument) number of deallocations done through the helper.
    * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called.

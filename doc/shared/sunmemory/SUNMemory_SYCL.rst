@@ -146,10 +146,10 @@ The implementation provides the following operations defined by the
 
    * ``helper`` -- the ``SUNMemoryHelper`` object.
    * ``mem_type`` -- the ``SUNMemoryType`` to get stats for.
-   * ``num_allocations`` --  (output argument) number of host memory allocations done through the helper.
-   * ``num_deallocations`` --  (output argument) number of host memory deallocations done through the helper.
-   * ``bytes_allocated`` --  (output argument) total number of host bytes allocated through the helper at the moment this function is called.
-   * ``bytes_high_watermark`` --  (output argument) max number of host bytes allocated through the helper at any moment in the lifetime of the helper.
+   * ``num_allocations`` --  (output argument) number of memory allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of memory deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
 
    **Returns:**
 
