@@ -19,9 +19,14 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
                   bool print_test_status)
 {
   // Create an in-order GPU queue
+#if SYCL_LANGUAGE_VERSION >= 2020
+  sycl::queue myQueue(sycl::gpu_selector_v,
+                      sycl::property_list{sycl::property::queue::in_order{}});
+#else
   sycl::gpu_selector selector;
   sycl::queue myQueue(selector,
                       sycl::property_list{sycl::property::queue::in_order{}});
+#endif
 
   // Try and allocate some memory
   const int N                 = 8;
@@ -30,7 +35,7 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
 
   if (print_test_status) std::cout << "  SUNMemoryHelper_Alloc... \n";
   int retval = SUNMemoryHelper_Alloc(helper, &some_memory, bytes_to_alloc,
-                                     mem_type, nullptr);
+                                     mem_type, static_cast<void*>(&myQueue));
   if (retval)
   {
     if (print_test_status) std::cout << "  SUNMemoryHelper_Alloc... FAILED\n";
@@ -43,7 +48,8 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   if (mem_type == SUNMEMTYPE_DEVICE)
   {
     for (int i = 0; i < N; i++) { host_arr[i] = i * sunrealtype{1.0}; }
-    sycl_queue.memcpy(some_memory->ptr, host_arr, bytes_to_alloc);
+    myQueue.memcpy(some_memory->ptr, host_arr, bytes_to_alloc);
+    myQueue.wait_and_throw();
     some_arr = host_arr;
   }
   else
@@ -55,10 +61,15 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   // Try and copy the memory
   if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... \n";
   SUNMemory other_memory = nullptr;
-  SUNMemoryHelper_Alloc(helper, &other_memory, bytes_to_alloc, mem_type,
-                        static_cast<void*>(&sycl_queue));
+  retval = SUNMemoryHelper_Alloc(helper, &other_memory, bytes_to_alloc,
+                                 mem_type, static_cast<void*>(&myQueue));
+  if (retval)
+  {
+    if (print_test_status) std::cout << "  SUNMemoryHelper_Alloc... FAILED\n";
+    return -1;
+  }
   retval = SUNMemoryHelper_Copy(helper, other_memory, some_memory,
-                                bytes_to_alloc, static_cast<void*>(&sycl_queue));
+                                bytes_to_alloc, static_cast<void*>(&myQueue));
   if (retval)
   {
     if (print_test_status)
@@ -68,7 +79,8 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   if (mem_type == SUNMEMTYPE_DEVICE)
   {
     sunrealtype other_arr[N];
-    sycl_queue.memcpy(other_arr, other_memory->ptr, bytes_to_alloc);
+    myQueue.memcpy(other_arr, other_memory->ptr, bytes_to_alloc);
+    myQueue.wait_and_throw();
     for (int i = 0; i < N; i++)
     {
       if (some_arr[i] != other_arr[i])
@@ -97,14 +109,14 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   // Try and deallocate
   if (print_test_status) std::cout << "  SUNMemoryHelper_Dealloc... \n";
   retval = SUNMemoryHelper_Dealloc(helper, some_memory,
-                                   static_cast<void*>(sycl_queue));
+                                   static_cast<void*>(&myQueue));
   if (retval)
   {
     if (print_test_status) std::cout << "  SUNMemoryHelper_Dealloc... FAILED\n";
     return -1;
   }
   retval = SUNMemoryHelper_Dealloc(helper, other_memory,
-                                   static_cast<void*>(sycl_queue));
+                                   static_cast<void*>(&myQueue));
   if (retval)
   {
     if (print_test_status) std::cout << "  SUNMemoryHelper_Dealloc... FAILED\n";

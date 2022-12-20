@@ -62,6 +62,7 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   helper->ops->getallocstats = SUNMemoryHelper_GetAllocStats_Sycl;
   helper->ops->copy          = SUNMemoryHelper_Copy_Sycl;
   helper->ops->copyasync     = SUNMemoryHelper_CopyAsync_Sycl;
+  helper->ops->destroy       = SUNMemoryHelper_Destroy_Sycl;
 
   // Attach content
   helper->content =
