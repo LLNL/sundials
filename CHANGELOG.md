@@ -25,6 +25,13 @@ bounds checking will now work.
 
 Fixed an implicit conversion error in the Butcher table for ESDIRK5(4)7L[2]SA2.
 
+A new capability to keep track of memory allocations made through the `SUNMemoryHelper`
+classes has been added. Memory allocation stats can be accessed through the
+`SUNMemoryHelper_GetAllocStats` function. See the documentation for
+the `SUNMemoryHelper` classes for more details.
+
+Added support for CUDA 12.
+
 ## Changes to SUNDIALS in release 6.4.1
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.

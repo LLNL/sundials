@@ -83,6 +83,13 @@ Added support for the SYCL backend with RAJA 2022.x.y.
 
 Fixed an underflow bug during root finding.
 
+A new capability to keep track of memory allocations made through the ``SUNMemoryHelper``
+classes has been added. Memory allocation stats can be accessed through the
+:c:func:`SUNMemoryHelper_GetAllocStats` function. See the documentation for
+the ``SUNMemoryHelper`` classes for more details.
+
+Added support for CUDA v12.
+
 Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
 ``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
 

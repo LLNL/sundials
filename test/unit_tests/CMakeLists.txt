@@ -42,4 +42,5 @@ endif()
 
 if(CXX_FOUND)
   add_subdirectory(reductions)
+  add_subdirectory(sunmemory)
 endif()
