@@ -53,4 +53,5 @@ foreach(test_tuple ${unit_tests})
 
 endforeach()
 
-message(STATUS "Added SUNMemory units tests")
+message(STATUS "Added SUNMemoryHelper_Sycl units tests")
+

@@ -36,7 +36,7 @@ foreach(test_tuple ${unit_tests})
       ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test} PRIVATE sundials_generic_obj sundials_sunmemhip_obj ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${test} PRIVATE sundials_generic_obj sundials_sunmemhip_obj hip::device ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -53,4 +53,5 @@ foreach(test_tuple ${unit_tests})
 
 endforeach()
 
-message(STATUS "Added SUNMemory units tests")
+message(STATUS "Added SUNMemoryHelper_Hip units tests")
+

@@ -16,11 +16,11 @@ if(ENABLE_CUDA)
   add_subdirectory(cuda)
 endif()
 
-if(ENABLE_HIP AND (TARGET sundials_sunmemhip))
+if(ENABLE_HIP)
   add_subdirectory(hip)
 endif()
 
-if(ENABLE_SYCL AND (TARGET sundials_sunmemsycl))
+if(ENABLE_SYCL)
   add_subdirectory(sycl)
 endif()
 

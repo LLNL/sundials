@@ -346,12 +346,12 @@ int SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper)
   return 0;
 }
 
-int SUNMemoryHelper_GetHostAllocStatsHip(SUNMemoryHelper helper,
-                                         SUNMemoryType mem_type,
-                                         unsigned long* num_allocations,
-                                         unsigned long* num_deallocations,
-                                         size_t* bytes_allocated,
-                                         size_t* bytes_high_watermark)
+int SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
+                                      SUNMemoryType mem_type,
+                                      unsigned long* num_allocations,
+                                      unsigned long* num_deallocations,
+                                      size_t* bytes_allocated,
+                                      size_t* bytes_high_watermark)
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {
