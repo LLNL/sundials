@@ -71,7 +71,7 @@ public:
       upwindRight(true)
   {
     static_assert((NDIMS >= 1 && NDIMS <= 3), "ParallelGrid NDIMS must be 1, 2 or 3");
-    static_assert(st == StencilType::UPWIND), "ParallelGrid stencil must be UPWIND";
+    assert(st == StencilType::UPWIND);
 
     /* Set up MPI Cartesian communicator */
     if (npxyz)
@@ -151,7 +151,6 @@ public:
   // For all faces: allocate upwind exchange buffers.
   void AllocateBuffersUpwind()
   {
-    int retval = 0;
 
     /* Allocate send/receive buffers and determine ID for communication West */
     if (upwindRight)
@@ -161,7 +160,7 @@ public:
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]-1, coords[1], coords[2]};
-      retval = MPI_Cart_rank(cart_comm, nbcoords, &ipW);
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipW);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -173,7 +172,7 @@ public:
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0]-1) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]+1, coords[1], coords[2]};
-      retval = MPI_Cart_rank(cart_comm, nbcoords, &ipE);
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipE);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -187,7 +186,7 @@ public:
       ipS = MPI_PROC_NULL;
       if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
-        retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
+        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
         assert(retval == MPI_SUCCESS);
       }
 
@@ -199,7 +198,7 @@ public:
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
-        retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
+        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
         assert(retval == MPI_SUCCESS);
       }
     }
@@ -214,7 +213,7 @@ public:
       ipB = MPI_PROC_NULL;
       if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]-1};
-        retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
+        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
         assert(retval == MPI_SUCCESS);
       }
 
@@ -226,7 +225,7 @@ public:
       ipF = MPI_PROC_NULL;
       if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]+1};
-        retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
+        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
         assert(retval == MPI_SUCCESS);
       }
     }
@@ -234,12 +233,7 @@ public:
   }
 
   // Initiate non-blocking neighbor communication
-  int ExchangeStart(std::function<void (Kokkos::View<REAL*>,
-                                        Kokkos::View<REAL*>,
-                                        Kokkos::View<REAL*>,
-                                        Kokkos::View<REAL*>,
-                                        Kokkos::View<REAL*>,
-                                        Kokkos::View<REAL*>)> fill)
+  int ExchangeStart(std::function<void ()> fill)
   {
     int retval = 0;
     nreq = 0;
@@ -304,7 +298,7 @@ public:
     }
 
     // Call user lambda to fill the send buffers
-    fill(Wsend_, Esend_, Ssend_, Nsend_, Bsend_, Fsend_);
+    fill();
 
     // Send data to neighbors
     if ((ipW != MPI_PROC_NULL) && (!upwindRight))
@@ -442,6 +436,73 @@ public:
   {
     return dof*nptsl();
   }
+
+  Kokkos::View<REAL****> GetRecvView(const std::string& direction)
+  {
+    if (direction == "WEST")
+    {
+      return Kokkos::View<REAL****>(Wrecv_.data(), 1, nyl, nzl, dof);
+    }
+    else if (direction == "EAST")
+    {
+      return Kokkos::View<REAL****>(Erecv_.data(), 1, nyl, nzl, dof);
+    }
+    else if (direction == "NORTH")
+    {
+      return Kokkos::View<REAL****>(Nrecv_.data(), nxl, 1, nzl, dof);
+    }
+    else if (direction == "SOUTH")
+    {
+      return Kokkos::View<REAL****>(Srecv_.data(), nxl, 1, nzl, dof);
+    }
+    else if (direction == "FRONT")
+    {
+      return Kokkos::View<REAL****>(Frecv_.data(), nxl, nyl, 1, dof);
+    }
+    else if (direction == "BACK")
+    {
+      return Kokkos::View<REAL****>(Brecv_.data(), nxl, nyl, 1, dof);
+    }
+    else
+    {
+      assert(direction == "ILLEGAL");
+      return Kokkos::View<REAL****>();
+    }
+  }
+
+  Kokkos::View<REAL****> GetSendView(const std::string& direction)
+  {
+    if (direction == "WEST")
+    {
+      return Kokkos::View<REAL****>(Wsend_.data(), 1, nyl, nzl, dof);
+    }
+    else if (direction == "EAST")
+    {
+      return Kokkos::View<REAL****>(Esend_.data(), 1, nyl, nzl, dof);
+    }
+    else if (direction == "NORTH")
+    {
+      return Kokkos::View<REAL****>(Nsend_.data(), nxl, 1, nzl, dof);
+    }
+    else if (direction == "SOUTH")
+    {
+      return Kokkos::View<REAL****>(Ssend_.data(), nxl, 1, nzl, dof);
+    }
+    else if (direction == "FRONT")
+    {
+      return Kokkos::View<REAL****>(Fsend_.data(), nxl, nyl, 1, dof);
+    }
+    else if (direction == "BACK")
+    {
+      return Kokkos::View<REAL****>(Bsend_.data(), nxl, nyl, 1, dof);
+    }
+    else
+    {
+      assert(direction == "ILLEGAL");
+      return Kokkos::View<REAL****>();
+    }
+  }
+
 
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
   int       nxl, nyl, nzl; /* number of intervals locally        */

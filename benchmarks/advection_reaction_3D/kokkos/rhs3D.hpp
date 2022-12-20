@@ -58,10 +58,10 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   N_VConst(0.0, ydot);
 
   /* create 4D views of the state and RHS vectors */
-  auto ylocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(y));
-  Vec4D Yview((ylocal.View()).data(), nxl, nyl, nzl, dof);
-  auto dylocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(ydot));
-  Vec4D dYview((dylocal.View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* dylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(ydot));
+  Vec4D dYview((dylocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* iterate over domain interior, computing advection */
   if (c > 0.0)
@@ -131,9 +131,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
        boundaries are west face, south face, and back face */
 
     /*   Create 4D views of receive buffers */
-    Vec4D Wrecv((udata->grid->Wrecv_).data(), STENCIL_WIDTH, nyl, nzl, dof);
-    Vec4D Srecv((udata->grid->Srecv_).data(), nxl, STENCIL_WIDTH, nzl, dof);
-    Vec4D Brecv((udata->grid->Brecv_).data(), nxl, nyl, STENCIL_WIDTH, dof);
+    Vec4D Wrecv = udata->grid->GetRecvView("WEST");
+    Vec4D Srecv = udata->grid->GetRecvView("SOUTH");
+    Vec4D Brecv = udata->grid->GetRecvView("BACK");
 
     /*   Perform calculations on device via parallel_for */
     Kokkos::parallel_for("AdvectionBoundaryWest", 
@@ -141,8 +141,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = 0;
-      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) ? Srecv(i,0,k,l);
-      const realtype YBack  = (k > 0) ? Yview(i,j,k-1,l) ? Brecv(i,j,0,l);
+      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
+      const realtype YBack  = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (Yview(i,j,k,l) - Wrecv(0,j,k,l)); // d/dx
       dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - YSouth);         // d/dy
       dYview(i,j,k,l) += cz * (Yview(i,j,k,l) - YBack);          // d/dz
@@ -152,9 +152,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = 0;
-      const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) ? Wrecv(0,j,k,l);
-      const realtype YBack = (k > 0) ? Yview(i,j,k-1,l) ? Brecv(i,j,0,l);
-      dYview(i,j,k,l)    cx * (Yview(i,j,k,l) - YWest);          // d/dx
+      const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
+      const realtype YBack = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
+      dYview(i,j,k,l)  = cx * (Yview(i,j,k,l) - YWest);          // d/dx
       dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - Srecv(i,0,k,l)); // d/dy
       dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - YBack);          // d/dz
     });
@@ -163,8 +163,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = 0;
-      const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) ? Wrecv(0,j,k,l);
-      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) ? Srecv(i,0,k,l);
+      const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
+      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
       dYview(i,j,k,l)  = cx * (Yview(i,j,k,l) - YWest);          // d/dx
       dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - YSouth);         // d/dy
       dYview(i,j,k,l) += cz * (Yview(i,j,k,l) - Brecv(i,j,0,l)); // d/dz
@@ -178,9 +178,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
        boundaries are east face, north face, and front face */
 
     /*   Create 4D views of receive buffers */
-    Vec4D Erecv((udata->grid->Erecv_).data(), STENCIL_WIDTH, nyl, nzl, dof);
-    Vec4D Nrecv((udata->grid->Nrecv_).data(), nxl, STENCIL_WIDTH, nzl, dof);
-    Vec4D Frecv((udata->grid->Frecv_).data(), nxl, nyl, STENCIL_WIDTH, dof);
+    Vec4D Erecv = udata->grid->GetRecvView("EAST");
+    Vec4D Nrecv = udata->grid->GetRecvView("NORTH");
+    Vec4D Frecv = udata->grid->GetRecvView("FRONT");
 
     /*   Perform calculations on device via parallel_for */
     Kokkos::parallel_for("AdvectionBoundaryEast", 
@@ -188,8 +188,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = nxl-1;
-      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) ? Nrecv(i,0,k,l);
-      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) ? Frecv(i,j,0,l);
+      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
+      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (Erecv(0,j,k,l) - Yview(i,j,k,l)); // d/dx
       dYview(i,j,k,l) += cy * (YNorth - Yview(i,j,k,l));         // d/dy
       dYview(i,j,k,l) += cx * (YFront - Yview(i,j,k,l));         // d/dz
@@ -199,8 +199,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = nyl-1;
-      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) ? Erecv(0,j,k,l);
-      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) ? Frecv(i,j,0,l);
+      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
+      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (YEast - Yview(i,j,k,l));          // d/dx
       dYview(i,j,k,l) += cy * (Nrecv(i,0,k,l) - Yview(i,j,k,l)); // d/dy
       dYview(i,j,k,l) += cz * (YFront - Yview(i,j,k,l));         // d/dz
@@ -210,8 +210,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = nzl-1;
-      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) ? Erecv(0,j,k,l);
-      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) ? Nrecv(i,0,k,l);
+      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
+      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
       dYview(i,j,k,l)  = cx * (YEast - Yview(i,j,k,l));          // d/dx
       dYview(i,j,k,l) += cy * (YNorth - Yview(i,j,k,l));         // d/dy
       dYview(i,j,k,l) += cz * (Frecv(i,j,0,l) - Yview(i,j,k,l)); // d/dz
@@ -245,19 +245,15 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   const int     nzl = udata->grid->nzl;
   const int     dof = udata->grid->dof;
 
-  /* local variables */
-  realtype* Ydata  = NULL;
-  realtype* dYdata = NULL;
-
   /* Zero output if not adding reactions to existing RHS */
   if (!udata->add_reactions)
     N_VConst(0.0, ydot);
   
   /* create 4D views of state and RHS vectors */
-  auto ylocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(y));
-  Vec4D Yview((ylocal.View()).data(), nxl, nyl, nzl, dof);
-  auto dylocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(ydot));
-  Vec4D dYview((dylocal.View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* dylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(ydot));
+  Vec4D dYview((dylocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* add reaction terms to RHS */
   Kokkos::parallel_for("ReactionRHS", 
@@ -341,12 +337,12 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   const realtype k6  = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
-  auto ylocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(y));
-  Vec4D Yview((ylocal.View()).data(), nxl, nyl, nzl, dof);
-  auto blocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(b));
-  Vec4D Bview((blocal.View()).data(), nxl, nyl, nzl, dof);
-  auto xlocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(x));
-  Vec4D Xview((xlocal.View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
+  SUNVector*  blocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(b));
+  Vec4D Bview((blocal->View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* xlocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(x));
+  Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* add reaction terms to RHS */
   Kokkos::parallel_for("SolveReactionLinSys", 
@@ -442,12 +438,12 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   const realtype k6  = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
-  auto ylocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(y));
-  Vec4D Yview((ylocal.View()).data(), nxl, nyl, nzl, dof);
-  auto blocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(b));
-  Vec4D Bview((blocal.View()).data(), nxl, nyl, nzl, dof);
-  auto xlocal = sundials::kokkos::GetVec(N_VGetLocal_MPIPlusX(x));
-  Vec4D Xview((xlocal.View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* blocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(b));
+  Vec4D Bview((blocal->View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* xlocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(x));
+  Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* add reaction terms to RHS */
   Kokkos::parallel_for("SolveReactionLinSys", 

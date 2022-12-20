@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "SetupProblem", 1, udata.myid)) MPI_Abort(comm, 1);
 
     /* Create solution vector (on-node and MPI-parallel versions) */
-    sundials::kokkos::Vector<> yloc{udata.grid->neq, ctx};
-    y = N_VMake_MPIPlusX(udata.comm, yloc, ctx);
+    sundials::kokkos::Vector<> yloc((unsigned int)udata.grid->neq, ctx);
+    y = N_VMake_MPIPlusX(udata.comm, yloc.Convert(), ctx);
     if (check_retval((void *) y, "N_VMake_MPIPlusX", 0, udata.myid)) MPI_Abort(comm, 1);
 
     /* Set the initial condition */
@@ -166,24 +166,21 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
   const int nzl = udata->grid->nzl;
   const int dof = udata->grid->dof;
 
-  /* Create 4D view of vector data */
-  auto ylocal{sundials::kokkos::GetVec<>(N_VGetLocalVector_MPIPlusX(y))};
-  Vec4D Yview((ylocal->View()).data(), udata->grid->nxl, udata->grid->nyl, 
-              udata->grid->nzl, udata->grid->dof);
+  /* Create 4D views of vector and send buffers */
+  SUNVector* yVec = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D Yview((yVec->View()).data(), nxl, nyl, nzl, dof);
+  Vec4D Wsend = udata->grid->GetSendView("WEST");
+  Vec4D Esend = udata->grid->GetSendView("EAST");
+  Vec4D Ssend = udata->grid->GetSendView("SOUTH");
+  Vec4D Nsend = udata->grid->GetSendView("NORTH");
+  Vec4D Bsend = udata->grid->GetSendView("BACK");
+  Vec4D Fsend = udata->grid->GetSendView("FRONT");
 
   if (c > 0.0)
   {
     /* Flow moving in the positive directions uses backward difference. */
-    udata->grid->ExchangeStart(
-      [=] (Kokkos::View<realtype*>, Kokkos::View<realtype*> Esend, 
-           Kokkos::View<realtype*>, Kokkos::View<realtype*> Nsend, 
-           Kokkos::View<realtype*>, Kokkos::View<realtype*> Fsend) 
+    udata->grid->ExchangeStart( [=] () 
       {
-
-        /* Create 4D views of send buffers */
-        Vec4D Eview(Esend.data(), STENCIL_WIDTH, nyl, nzl, dof);
-        Vec4D Nview(Nsend.data(), nxl, STENCIL_WIDTH, nzl, dof);
-        Vec4D Fview(Fsend.data(), nxl, nyl, STENCIL_WIDTH, dof);
 
         /* Fill buffers on device */
         Kokkos::parallel_for("Fill_buffers", 
@@ -193,23 +190,23 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
 
           if ((nxl > 1) && (i == 0))
           {
-            Eview(j,k,0) = Yview(nxl-1,j,k,0);
-            Eview(j,k,1) = Yview(nxl-1,j,k,1);
-            Eview(j,k,2) = Yview(nxl-1,j,k,2);
+            Esend(0,j,k,0) = Yview(nxl-1,j,k,0);
+            Esend(0,j,k,1) = Yview(nxl-1,j,k,1);
+            Esend(0,j,k,2) = Yview(nxl-1,j,k,2);
           }
 
           if ((nyl > 1) && (j == 0))
           {
-            Nview(i,k,0) = Yview(i,nyl-1,k,0);
-            Nview(i,k,1) = Yview(i,nyl-1,k,1);
-            Nview(i,k,2) = Yview(i,nyl-1,k,2);
+            Nsend(i,0,k,0) = Yview(i,nyl-1,k,0);
+            Nsend(i,0,k,1) = Yview(i,nyl-1,k,1);
+            Nsend(i,0,k,2) = Yview(i,nyl-1,k,2);
           }
 
           if ((nzl > 1) && (k == 0))
           {
-            Fview(i,j,0) = Yview(i,j,nzl-1,0);
-            Fview(i,j,1) = Yview(i,j,nzl-1,1);
-            Fview(i,j,2) = Yview(i,j,nzl-1,2);
+            Fsend(i,j,0,0) = Yview(i,j,nzl-1,0);
+            Fsend(i,j,0,1) = Yview(i,j,nzl-1,1);
+            Fsend(i,j,0,2) = Yview(i,j,nzl-1,2);
           }
 
         });
@@ -218,16 +215,8 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
   else if (c < 0.0)
   {
     /* Flow moving in the negative directions uses forward difference. */
-    udata->grid->ExchangeStart(
-      [=] (Kokkos::View<realtype*> Wsend, Kokkos::View<realtype*>,
-           Kokkos::View<realtype*> Ssend, Kokkos::View<realtype*>,
-           Kokkos::View<realtype*> Bsend, Kokkos::View<realtype*>) 
+    udata->grid->ExchangeStart( [=] () 
       {
-
-        /* Create 4D views of send buffers */
-        Vec4D Wview(Wsend.data(), STENCIL_WIDTH, nyl, nzl, dof);
-        Vec4D Sview(Ssend.data(), nxl, STENCIL_WIDTH, nzl, dof);
-        Vec4D Bview(Bsend.data(), nxl, nyl, STENCIL_WIDTH, dof);
 
         /* Fill buffers on device */
         Kokkos::parallel_for("Fill_buffers", 
@@ -236,23 +225,23 @@ int ExchangeAllStart(N_Vector y, UserData* udata)
         {
           if ((nxl > 1) && (i == 0))
           {
-            Wview(j,k,0) = Yview(0,j,k,0);
-            Wview(j,k,1) = Yview(0,j,k,1);
-            Wview(j,k,2) = Yview(0,j,k,2);
+            Wsend(0,j,k,0) = Yview(0,j,k,0);
+            Wsend(0,j,k,1) = Yview(0,j,k,1);
+            Wsend(0,j,k,2) = Yview(0,j,k,2);
           }
 
           if ((nyl > 1) && (j == 0))
           {
-            Sview(i,k,0) = Yview(i,0,k,0);
-            Sview(i,k,1) = Yview(i,0,k,1);
-            Sview(i,k,2) = Yview(i,0,k,2);
+            Ssend(i,0,k,0) = Yview(i,0,k,0);
+            Ssend(i,0,k,1) = Yview(i,0,k,1);
+            Ssend(i,0,k,2) = Yview(i,0,k,2);
           }
 
           if ((nzl > 1) && (k == 0))
           {
-            Bview(i,j,0) = Yview(i,j,0,0);
-            Bview(i,j,1) = Yview(i,j,0,1);
-            Bview(i,j,2) = Yview(i,j,0,2);
+            Bsend(i,j,0,0) = Yview(i,j,0,0);
+            Bsend(i,j,0,1) = Yview(i,j,0,1);
+            Bsend(i,j,0,2) = Yview(i,j,0,2);
           }
         });
       });
@@ -429,8 +418,8 @@ int ComponentMask(N_Vector mask, const int component, const UserData* udata)
   N_VConst(0.0, mask);
 
   /* Create 4D view of mask data */
-  auto masklocal = sundials::kokkos::GetVec(N_VGetLocalVector_MPIPlusX(mask));
-  Vec4D maskview((masklocal.View()).data(), udata->grid->nxl, udata->grid->nyl, 
+  SUNVector* masklocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(mask));
+  Vec4D maskview((masklocal->View()).data(), udata->grid->nxl, udata->grid->nyl, 
                  udata->grid->nzl, udata->grid->dof);
 
   /* Fill mask data */
@@ -438,7 +427,7 @@ int ComponentMask(N_Vector mask, const int component, const UserData* udata)
                        Range3D({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}), 
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
-    mask_view(i,j,k,component) = 1.0;
+    maskview(i,j,k,component) = 1.0;
   });
 
   return 0;
@@ -511,13 +500,13 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
       3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, STENCIL_WIDTH, uopt->npxyz);
 
   /* Create the solution masks */
-  sundials::kokkos::Vector<> umaskloc{udata.grid->neq, ctx};
-  udata->umask = N_VMake_MPIPlusX(udata.comm, umaskloc, ctx);
-  if (check_retval((void *) udata->umask, "N_VMake_MPIPlusX", 0, udata.myid)) MPI_Abort(comm, 1);
+  sundials::kokkos::Vector<> umaskloc{(unsigned int)udata->grid->neq, ctx};
+  udata->umask = N_VMake_MPIPlusX(udata->comm, umaskloc, ctx);
+  if (check_retval((void *) udata->umask, "N_VMake_MPIPlusX", 0, udata->myid)) MPI_Abort(udata->comm, 1);
   udata->vmask = N_VClone(udata->umask);
-  if (check_retval((void *) udata->vmask, "N_VClone", 0, udata.myid)) MPI_Abort(comm, 1);
+  if (check_retval((void *) udata->vmask, "N_VClone", 0, udata->myid)) MPI_Abort(udata->comm, 1);
   udata->wmask = N_VClone(udata->umask);
-  if (check_retval((void *) udata->Wmask, "N_VClone", 0, udata.myid)) MPI_Abort(comm, 1);
+  if (check_retval((void *) udata->wmask, "N_VClone", 0, udata->myid)) MPI_Abort(udata->comm, 1);
   ComponentMask(udata->umask, 0, udata);
   ComponentMask(udata->vmask, 1, udata);
   ComponentMask(udata->wmask, 2, udata);
@@ -621,8 +610,8 @@ int SetIC(N_Vector y, UserData* udata)
   const realtype ws = 3.0;
 
   /* Create 4D view of y */
-  auto ylocal = sundials::kokkos::GetVec(N_VGetLocalVector_MPIPlusX(y));
-  Vec4D yview((ylocal.View()).data(), nxl, nyl, nzl, dof);
+  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  Vec4D yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* Gaussian perturbation of the steady state solution */
   Kokkos::parallel_for("SetIC", 
@@ -650,11 +639,11 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* Copy solution data to host mirror view */
-  CopyFromDevice(N_VGetLocalVector_MPIPlusX(y));
+  SUNVector* yVec = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  sundials::kokkos::CopyFromDevice(*yVec);
 
   /* create 4D view of host data */
-  auto ylocal = sundials::kokkos::GetVec(N_VGetLocalVector_MPIPlusX(y));
-  Vec4DHost yview((ylocal.HostView()).data(), udata->grid->nxl, 
+  Vec4DHost Yview((yVec->HostView()).data(), udata->grid->nxl, 
                   udata->grid->nyl, udata->grid->nzl, udata->grid->dof);
 
   /* output current solution norm to screen */
@@ -678,7 +667,7 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
 
     /* output results to disk */
     Kokkos::parallel_for("OutputSolution", 
-                         Range3DSerial({0,0,0},{nxl,nyl,nzl}), 
+                         Range3DSerial({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}), 
                          KOKKOS_LAMBDA (int i, int j, int k)
     {
       fprintf(udata->UFID," %.16e", Yview(i,j,k,0));

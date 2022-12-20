@@ -28,12 +28,14 @@
 #include "check_retval.h"
 #include "ParallelGrid.hpp"
 
-typedef Kokkos::View<double*>                 Vec1D;
-typedef Kokkos::View<double****>              Vec4D;
-typedef Kokkos::View<double*>::HostMirror     Vec1DHost;
-typedef Kokkos::View<double****>::HostMirror  Vec4DHost;
-typedef Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>  Range3D;
-typedef Kokkos::MDRangePolicy<Kokkos::Serial, Kokkos::Rank<3>>                 Range3DSerial;
+using Vec1D = Kokkos::View<realtype*>;
+using Vec3D = Kokkos::View<realtype***>;
+using Vec4D = Kokkos::View<realtype****>;
+using Vec1DHost = Kokkos::View<realtype*>::HostMirror;
+using Vec4DHost = Kokkos::View<realtype****>::HostMirror;
+using Range3D = Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>;
+using Range3DSerial = Kokkos::MDRangePolicy<Kokkos::Serial, Kokkos::Rank<3>>;
+using SUNVector = sundials::kokkos::Vector<>;
 
 using sundials_tools::ParallelGrid;
 using sundials_tools::BoundaryType;
