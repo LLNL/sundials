@@ -192,9 +192,9 @@ public:
 
       /* Allocate send/receive buffers and determine ID for communication North */
       if (upwindRight)
-        Nsend_ = Kokkos::View<REAL*>("Ssend", dof*width*nxl*nzl);
+        Nsend_ = Kokkos::View<REAL*>("Nsend", dof*width*nxl*nzl);
       else
-        Nrecv_ = Kokkos::View<REAL*>("Srecv", dof*width*nxl*nzl);
+        Nrecv_ = Kokkos::View<REAL*>("Nrecv", dof*width*nxl*nzl);
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
@@ -233,7 +233,7 @@ public:
   }
 
   // Initiate non-blocking neighbor communication
-  int ExchangeStart(std::function<void ()> fill)
+  int ExchangeStart()
   {
     int retval = 0;
     nreq = 0;
@@ -297,9 +297,6 @@ public:
       }
     }
 
-    // Call user lambda to fill the send buffers
-    fill();
-
     // Send data to neighbors
     if ((ipW != MPI_PROC_NULL) && (!upwindRight))
     {
@@ -338,17 +335,17 @@ public:
 
     if (NDIMS == 3)
     {
-      if (ipB != MPI_PROC_NULL)
+      if ((ipB != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Isend(Fsend_.data(), int(Fsend_.size()), MPI_SUNREALTYPE, ipB, 5,
+        retval = MPI_Isend(Bsend_.data(), int(Bsend_.size()), MPI_SUNREALTYPE, ipB, 4,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
       }
 
-      if (ipF != MPI_PROC_NULL)
+      if ((ipF != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Isend(Bsend_.data(), int(Bsend_.size()), MPI_SUNREALTYPE, ipF, 4,
+        retval = MPI_Isend(Fsend_.data(), int(Fsend_.size()), MPI_SUNREALTYPE, ipF, 5,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -503,7 +500,6 @@ public:
     }
   }
 
-
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
   int       nxl, nyl, nzl; /* number of intervals locally        */
   int       npx, npy, npz; /* numner of processes                */
@@ -516,7 +512,7 @@ public:
   int       ipW, ipE;      /* MPI ranks for neighbor procs       */
   int       ipS, ipN;
   int       ipB, ipF;
-  bool      upwindRight;   /* Upwind dir: true/false == R/L       */
+  bool      upwindRight;   /* Upwind dir: true/false == R/L      */
 
   int       dims[3];
   int       coords[3];

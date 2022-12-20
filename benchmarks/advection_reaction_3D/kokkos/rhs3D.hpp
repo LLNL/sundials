@@ -46,13 +46,15 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* local variables */
   int retval;
 
-  /* begin exchanging boundary information */
-  if (udata->grid->nprocs() > 1)
-  {
-    retval = ExchangeAllStart(y, udata);
-    if (check_retval(&retval, "ExchangeAllStart", 1, udata->myid))
-      return(-1);
-  }
+  /* fill send buffers and begin exchanging boundary information */
+  SUNDIALS_MARK_BEGIN(udata->prof, "Neighbor Exchange");
+  retval = FillSendBuffers(y, udata);
+  if (check_retval(&retval, "FillSendBuffers", 1, udata->myid))
+    return(-1);
+  retval = udata->grid->ExchangeStart();
+  if (check_retval(&retval, "ExchangeStart", 1, udata->myid))
+    return(-1);
+  SUNDIALS_MARK_END(udata->prof, "Neighbor Exchange");
 
   /* set output to zero */
   N_VConst(0.0, ydot);
@@ -120,9 +122,11 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   }
 
   /* finish exchanging boundary information */
-  retval = ExchangeAllEnd(udata);
-  if (check_retval(&retval, "ExchangeAllEnd", 1, udata->myid))
+  SUNDIALS_MARK_BEGIN(udata->prof, "Neighbor Exchange");
+  retval = udata->grid->ExchangeEnd();
+  if (check_retval(&retval, "ExchangeEnd", 1, udata->myid))
     return(-1);
+  SUNDIALS_MARK_END(udata->prof, "Neighbor Exchange");
 
   /* compute advection at process boundaries */
   if (c > 0.0)
@@ -135,39 +139,42 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     Vec4D Srecv = udata->grid->GetRecvView("SOUTH");
     Vec4D Brecv = udata->grid->GetRecvView("BACK");
 
-    /*   Perform calculations on device via parallel_for */
+    /*   Perform calculations on each "lower" face */
     Kokkos::parallel_for("AdvectionBoundaryWest", 
                          Range3D({0,0,0},{nyl,nzl,dof}), 
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = 0;
+      const realtype Yijkl  = Yview(i,j,k,l);
       const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
       const realtype YBack  = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
-      dYview(i,j,k,l)  = cx * (Yview(i,j,k,l) - Wrecv(0,j,k,l)); // d/dx
-      dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - YSouth);         // d/dy
-      dYview(i,j,k,l) += cz * (Yview(i,j,k,l) - YBack);          // d/dz
+      dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(0,j,k,l)); // d/dx
+      dYview(i,j,k,l) += cy * (Yijkl - YSouth);         // d/dy
+      dYview(i,j,k,l) += cz * (Yijkl - YBack);          // d/dz
     });
     Kokkos::parallel_for("AdvectionBoundarySouth", 
                          Range3D({0,0,0},{nxl,nzl,dof}), 
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = 0;
+      const realtype Yijkl  = Yview(i,j,k,l);
       const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
       const realtype YBack = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
-      dYview(i,j,k,l)  = cx * (Yview(i,j,k,l) - YWest);          // d/dx
-      dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - Srecv(i,0,k,l)); // d/dy
-      dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - YBack);          // d/dz
+      dYview(i,j,k,l)  = cx * (Yijkl - YWest);          // d/dx
+      dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,0,k,l)); // d/dy
+      dYview(i,j,k,l) += cz * (Yijkl - YBack);          // d/dz
     });
     Kokkos::parallel_for("AdvectionBoundaryBack", 
                          Range3D({0,0,0},{nxl,nyl,dof}), 
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = 0;
+      const realtype Yijkl  = Yview(i,j,k,l);
       const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
       const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
-      dYview(i,j,k,l)  = cx * (Yview(i,j,k,l) - YWest);          // d/dx
-      dYview(i,j,k,l) += cy * (Yview(i,j,k,l) - YSouth);         // d/dy
-      dYview(i,j,k,l) += cz * (Yview(i,j,k,l) - Brecv(i,j,0,l)); // d/dz
+      dYview(i,j,k,l)  = cx * (Yijkl - YWest);          // d/dx
+      dYview(i,j,k,l) += cy * (Yijkl - YSouth);         // d/dy
+      dYview(i,j,k,l) += cz * (Yijkl - Brecv(i,j,0,l)); // d/dz
     });
 
   }
@@ -182,39 +189,42 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     Vec4D Nrecv = udata->grid->GetRecvView("NORTH");
     Vec4D Frecv = udata->grid->GetRecvView("FRONT");
 
-    /*   Perform calculations on device via parallel_for */
+    /*   Perform calculations on each "upper" face */
     Kokkos::parallel_for("AdvectionBoundaryEast", 
                          Range3D({0,0,0},{nyl,nzl,dof}), 
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = nxl-1;
+      const realtype Yijkl = Yview(i,j,k,l);
       const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
       const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
-      dYview(i,j,k,l)  = cx * (Erecv(0,j,k,l) - Yview(i,j,k,l)); // d/dx
-      dYview(i,j,k,l) += cy * (YNorth - Yview(i,j,k,l));         // d/dy
-      dYview(i,j,k,l) += cx * (YFront - Yview(i,j,k,l));         // d/dz
+      dYview(i,j,k,l)  = cx * (Erecv(0,j,k,l) - Yijkl); // d/dx
+      dYview(i,j,k,l) += cy * (YNorth - Yijkl);         // d/dy
+      dYview(i,j,k,l) += cx * (YFront - Yijkl);         // d/dz
     });
     Kokkos::parallel_for("AdvectionBoundaryNorth", 
                          Range3D({0,0,0},{nxl,nzl,dof}), 
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = nyl-1;
+      const realtype Yijkl = Yview(i,j,k,l);
       const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
       const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
-      dYview(i,j,k,l)  = cx * (YEast - Yview(i,j,k,l));          // d/dx
-      dYview(i,j,k,l) += cy * (Nrecv(i,0,k,l) - Yview(i,j,k,l)); // d/dy
-      dYview(i,j,k,l) += cz * (YFront - Yview(i,j,k,l));         // d/dz
+      dYview(i,j,k,l)  = cx * (YEast - Yijkl);          // d/dx
+      dYview(i,j,k,l) += cy * (Nrecv(i,0,k,l) - Yijkl); // d/dy
+      dYview(i,j,k,l) += cz * (YFront - Yijkl);         // d/dz
     });
     Kokkos::parallel_for("AdvectionBoundaryFront", 
                          Range3D({0,0,0},{nxl,nyl,dof}), 
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = nzl-1;
+      const realtype Yijkl = Yview(i,j,k,l);
       const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
       const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
-      dYview(i,j,k,l)  = cx * (YEast - Yview(i,j,k,l));          // d/dx
-      dYview(i,j,k,l) += cy * (YNorth - Yview(i,j,k,l));         // d/dy
-      dYview(i,j,k,l) += cz * (Frecv(i,j,0,l) - Yview(i,j,k,l)); // d/dz
+      dYview(i,j,k,l)  = cx * (YEast - Yijkl);          // d/dx
+      dYview(i,j,k,l) += cy * (YNorth - Yijkl);         // d/dy
+      dYview(i,j,k,l) += cz * (Frecv(i,j,0,l) - Yijkl); // d/dz
     });
   }
 
@@ -344,7 +354,7 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   SUNVector* xlocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(x));
   Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
 
-  /* add reaction terms to RHS */
+  /* solve reaction linear system */
   Kokkos::parallel_for("SolveReactionLinSys", 
                        Range3D({0,0,0},{nxl,nyl,nzl}), 
                        KOKKOS_LAMBDA (int i, int j, int k)
@@ -445,7 +455,7 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   SUNVector* xlocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(x));
   Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
 
-  /* add reaction terms to RHS */
+  /* solve reaction linear system */
   Kokkos::parallel_for("SolveReactionLinSys", 
                        Range3D({0,0,0},{nxl,nyl,nzl}), 
                        KOKKOS_LAMBDA (int i, int j, int k)
@@ -533,7 +543,6 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
 /* Solves Pz = r where P = I - gamma * dg/dy */
 static int PSolve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
                   N_Vector z, realtype gamma, realtype delta, int lr,
-
                   void *user_data)
 {
   /* local variables */

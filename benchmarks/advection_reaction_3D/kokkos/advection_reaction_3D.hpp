@@ -165,9 +165,8 @@ extern int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt);
 /* function to set initial condition */
 int SetIC(N_Vector y, UserData* udata);
 
-/* functions to exchange neighbor data */
-int ExchangeAllStart(N_Vector y, UserData* udata);
-int ExchangeAllEnd(UserData* udata);
+/* function to fill neighbor data */
+int FillSendBuffers(N_Vector y, UserData* udata);
 
 /* functions for processing command line args */
 int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
