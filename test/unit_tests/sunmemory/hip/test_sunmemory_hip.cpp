@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sundials/sundials_memory.h>
 #include <sundials/sundials_types.h>
-#include <sunmemory/sunmemory_cuda.h>
+#include <sunmemory/sunmemory_hip.h>
 
 int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
                   bool print_test_status)
@@ -37,8 +37,8 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   if (mem_type == SUNMEMTYPE_DEVICE)
   {
     for (int i = 0; i < N; i++) { host_arr[i] = i * sunrealtype{1.0}; }
-    cudaMemcpy(some_memory->ptr, host_arr, bytes_to_alloc,
-               cudaMemcpyHostToDevice);
+    hipMemcpy(some_memory->ptr, host_arr, bytes_to_alloc,
+               hipMemcpyHostToDevice);
     some_arr = host_arr;
   }
   else
@@ -62,8 +62,8 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   if (mem_type == SUNMEMTYPE_DEVICE)
   {
     sunrealtype other_arr[N];
-    cudaMemcpy(other_arr, other_memory->ptr, bytes_to_alloc,
-               cudaMemcpyDeviceToHost);
+    hipMemcpy(other_arr, other_memory->ptr, bytes_to_alloc,
+               hipMemcpyDeviceToHost);
     for (int i = 0; i < N; i++)
     {
       if (some_arr[i] != other_arr[i])
@@ -161,16 +161,16 @@ int main(int argc, char* argv[])
 {
   sundials::Context sunctx;
 
-  std::cout << "Testing the SUNMemoryHelper_Cuda module... \n";
+  std::cout << "Testing the SUNMemoryHelper_Hip module... \n";
 
-  std::cout << "  SUNMemoryHelper_Cuda... \n";
-  SUNMemoryHelper helper = SUNMemoryHelper_Cuda(sunctx);
+  std::cout << "  SUNMemoryHelper_Hip... \n";
+  SUNMemoryHelper helper = SUNMemoryHelper_Hip(sunctx);
   if (!helper)
   {
-    std::cout << "  SUNMemoryHelper_Cuda... FAILED\n";
+    std::cout << "  SUNMemoryHelper_Hip... FAILED\n";
     return -1;
   }
-  std::cout << "  SUNMemoryHelper_Cuda... PASSED\n";
+  std::cout << "  SUNMemoryHelper_Hip... PASSED\n";
 
   std::cout << "With host memory... \n";
   test_instance(helper, SUNMEMTYPE_HOST, true);

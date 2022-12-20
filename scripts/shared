@@ -837,3 +837,7 @@ $tar $tarfile $distrobase/test/unit_tests/sunmemory/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/sunmemory/sys
 $tar $tarfile $distrobase/test/unit_tests/sunmemory/sys/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/sunmemory/sys/test_sunmemory_sys.cpp
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/cuda/test_sunmemory_cuda.cu
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/hip/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/sunmemory/hip/test_sunmemory_hip.cpp
