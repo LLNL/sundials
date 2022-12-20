@@ -71,16 +71,18 @@ int main(int argc, char *argv[])
          (long int) cols, (long int) nblocks);
 
   // Create an in-order GPU queue
+#if SYCL_LANGUAGE_VERSION >= 2020
+  sycl::queue myQueue(sycl::gpu_selector_v,
+                      sycl::property_list{sycl::property::queue::in_order{}});
+#else
   sycl::gpu_selector selector;
   sycl::queue myQueue(selector,
                       sycl::property_list{sycl::property::queue::in_order{}});
+#endif
 
   sycl::device dev = myQueue.get_device();
   std::cout << "Running on "
             << (dev.get_info<sycl::info::device::name>())
-            << std::endl;
-  std::cout << " is host? "
-            << (dev.is_host() ? "Yes" : "No")
             << std::endl;
   std::cout << " is cpu? "
             << (dev.is_cpu() ? "Yes" : "No")

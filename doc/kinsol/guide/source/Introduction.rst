@@ -99,6 +99,8 @@ the ``SUNMemoryHelper`` classes for more details.
 Added the functions :c:func:`KINGetJac` and :c:func:`KINGetJacNumIters` to
 assist in debugging simulations utilizing a matrix-based linear solver.
 
+Added support for the SYCL backend with RAJA 2022.x.y.
+
 Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
 ``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
 

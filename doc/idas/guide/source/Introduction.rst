@@ -93,6 +93,8 @@ Added the functions :c:func:`IDAGetJac`, :c:func:`IDAGetJacCj`,
 :c:func:`IDAGetJacTime`, :c:func:`IDAGetJacNumSteps` to assist in debugging
 simulations utilizing a matrix-based linear solver.
 
+Added support for the SYCL backend with RAJA 2022.x.y.
+
 Fixed an underflow bug during root finding.
 
 A new capability to keep track of memory allocations made through the ``SUNMemoryHelper``

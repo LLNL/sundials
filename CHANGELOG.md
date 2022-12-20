@@ -9,6 +9,8 @@ Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
 `IDAGetJacNumSteps`, `KINGetJac`, `KINGetJacNumIters` to assist in
 debugging simulations utilizing a matrix-based linear solver.
 
+Added support for the SYCL backend with RAJA 2022.x.y.
+
 Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and
 IDAS.
 
