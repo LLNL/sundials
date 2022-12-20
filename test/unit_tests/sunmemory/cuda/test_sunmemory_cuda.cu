@@ -14,12 +14,18 @@
 #include <sundials/sundials_types.h>
 #include <sunmemory/sunmemory_cuda.h>
 
+__global__
+void printKernel(void* mem)
+{
+    for (int i = 0; i < 8; i++) printf("%g\n", static_cast<sunrealtype*>(mem)[i]);
+}
+
 int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type, bool print_test_status)
 {
   // Try and allocate some memory
-  int N                 = 8;
-  size_t bytes_to_alloc = N * sizeof(sunrealtype);
-  SUNMemory some_memory = nullptr;
+  const int N                 = 8;
+  const size_t bytes_to_alloc = N * sizeof(sunrealtype);
+  SUNMemory some_memory       = nullptr;
 
   if (print_test_status) std::cout << "  SUNMemoryHelper_Alloc... \n";
   int retval = SUNMemoryHelper_Alloc(helper, &some_memory, bytes_to_alloc,
@@ -31,11 +37,16 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type, bool print_tes
   }
 
   // Write to the memory
-  if (mem_type != SUNMEMTYPE_DEVICE) {
-    sunrealtype* some_arr = static_cast<sunrealtype*>(some_memory->ptr);
+  sunrealtype host_arr[N];
+  sunrealtype* some_arr = static_cast<sunrealtype*>(some_memory->ptr);
+  if (mem_type == SUNMEMTYPE_DEVICE) {
+    for (int i = 0; i < N; i++) { host_arr[i] = i * sunrealtype{1.0}; }
+    cudaMemcpy(some_memory->ptr, host_arr, bytes_to_alloc, cudaMemcpyHostToDevice);
+    some_arr = host_arr;
+  } else {
     for (int i = 0; i < N; i++) { some_arr[i] = i * sunrealtype{1.0}; }
-    if (print_test_status) std::cout << "  SUNMemoryHelper_Alloc... PASSED\n";
-  } 
+  }
+  if (print_test_status) std::cout << "  SUNMemoryHelper_Alloc... PASSED\n";
 
   // Try and copy the memory
   if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... \n";
@@ -46,20 +57,30 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type, bool print_tes
                                 bytes_to_alloc, nullptr);
   if (retval)
   {
-    if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... FAILED\n";
+    if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... FAILED retval\n";
     return -1;
   }
-  else if(mem_type != SUNMEMTYPE_DEVICE)
-  {
-    sunrealtype* other_arr = static_cast<sunrealtype*>(other_memory->ptr);
-    for (int i = 0; i < N; i++)
-    {
-      if (some_arr[i] != other_arr[i])
+  if (mem_type == SUNMEMTYPE_DEVICE) {
+    sunrealtype other_arr[N];
+    cudaMemcpy(other_arr, other_memory->ptr, bytes_to_alloc, cudaMemcpyDeviceToHost);
+      for (int i = 0; i < N; i++)
       {
-        if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... FAILED\n";
-        return -1;
+        if (some_arr[i] != other_arr[i])
+        {
+          if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... FAILED comparison\n";
+          return -1;
+        }
       }
-    }
+  } else {
+    sunrealtype* other_arr = static_cast<sunrealtype*>(other_memory->ptr);
+      for (int i = 0; i < N; i++)
+      {
+        if (some_arr[i] != other_arr[i])
+        {
+          if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... FAILED comparison\n";
+          return -1;
+        }
+      }
   }
   if (print_test_status) std::cout << "  SUNMemoryHelper_Copy... PASSED\n";
 

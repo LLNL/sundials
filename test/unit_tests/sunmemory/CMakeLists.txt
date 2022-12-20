@@ -12,7 +12,7 @@
 
 add_subdirectory(sys)
 
-if(ENABLE_CUDA AND (TARGET sundials_sunmemcuda))
+if(ENABLE_CUDA)
   add_subdirectory(cuda)
 endif()
 
