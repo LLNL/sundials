@@ -1684,6 +1684,48 @@ SWIGEXPORT int _wrap_FCVodeSetLinSysFn(void *farg1, CVLsLinSysFn farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeGetJac(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNMatrix *arg2 = (SUNMatrix *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNMatrix *)(farg2);
+  result = (int)CVodeGetJac(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetJacTime(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)CVodeGetJacTime(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetJacNumSteps(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)CVodeGetJacNumSteps(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeGetLinWorkSpace(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
