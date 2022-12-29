@@ -343,7 +343,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
     if (m == 0) {
       cv_mem->cv_acnrm = del;
     } else {
-      SUNCheckCallLastErr(N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
+      cv_mem->cv_acnrm = SUNCheckCallLastErr(N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
     }
     cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
