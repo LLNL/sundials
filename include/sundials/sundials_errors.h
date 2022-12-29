@@ -24,8 +24,6 @@
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h>
 
-#define SUNDIALS_DISABLE_ERROR_CHECKS
-
 /* ----------------------------------------------------------------------------
  * Error code definitions
  * ---------------------------------------------------------------------------*/

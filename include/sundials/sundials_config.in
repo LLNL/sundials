@@ -107,6 +107,9 @@
 /* BUILD SUNDIALS with profiling functionalities */
 #cmakedefine SUNDIALS_BUILD_WITH_PROFILING
 
+/* Disable error checking (SUNCheck family of macros) */
+#cmakedefine SUNDIALS_DISABLE_ERROR_CHECKS
+
 /* BUILD SUNDIALS with logging functionalities */
 #define SUNDIALS_LOGGING_LEVEL @SUNDIALS_LOGGING_LEVEL@
 

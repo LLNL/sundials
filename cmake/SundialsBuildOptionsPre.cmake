@@ -72,6 +72,17 @@ set(DOCSTR "Build with simulation profiling capabilities enabled")
 sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
+# Option to enable/disable error checking
+# ---------------------------------------------------------------
+
+set(DOCSTR "Build with error checking enabled/disabled. In most cases is not recommended to disable error checks.")
+sundials_option(SUNDIALS_DISABLE_ERROR_CHECKS BOOL "${DOCSTR}" OFF)
+if(SUNDIALS_DISABLE_ERROR_CHECKS)
+  message(STATUS "SUNDIALS error checking disabled")
+  message(WARNING "SUNDIALS is being built without error checks. This is not recommended in most cases, but can provide improved performance.")
+endif()
+
+# ---------------------------------------------------------------
 # Option to enable logging
 # ---------------------------------------------------------------
 
