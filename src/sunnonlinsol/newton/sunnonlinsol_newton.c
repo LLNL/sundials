@@ -363,7 +363,6 @@ SUNErrCode SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn
 SUNErrCode SUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver NLS,
                                           SUNNonlinSolLSetupFn LSetupFn)
 {
-  SUNAssert(LSetupFn, SUN_ERR_ARG_CORRUPT, NLS->sunctx);
   NEWTON_CONTENT(NLS)->LSetup = LSetupFn;
   return SUN_SUCCESS;
 }
