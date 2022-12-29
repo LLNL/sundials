@@ -211,7 +211,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  SUNCheckCall(flag, CV_SUNCTX);
+  SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
   if (flag) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
@@ -249,19 +249,19 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
-    SUNCheckCall(flag, CV_SUNCTX);
+    SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
-    SUNCheckCall(flag, CV_SUNCTX);
+    SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    SUNCheckCall(flag, CV_SUNCTX);
+    SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -463,7 +463,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   if (jok) {
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                      __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -478,7 +478,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                      __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -500,7 +500,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                    __FILE__, MSGBBD_SUNMAT_FAIL);
@@ -514,7 +514,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__, 
                    __FILE__, MSGBBD_SUNMAT_FAIL);

@@ -21,6 +21,7 @@
 
 #include "cvode_impl.h"
 #include "cvode_ls_impl.h"
+#include "sundials/sundials_errors.h"
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -197,7 +198,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* If LS supports ATimes, attach CVLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, cv_mem, cvLsATimes);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetATimes");
@@ -209,7 +210,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, cv_mem, NULL, NULL);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetPreconditioner");
@@ -463,7 +464,7 @@ int CVodeSetPreconditioner(void *cvode_mem, CVLsPrecSetupFn psetup,
   cvls_psolve = (psolve == NULL) ? NULL : cvLsPSolve;
   retval = SUNLinSolSetPreconditioner(cvls_mem->LS, cv_mem,
                                       cvls_psetup, cvls_psolve);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                    "Error in calling SUNLinSolSetPreconditioner");
@@ -1330,7 +1331,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Overwrite linear system matrix with saved J */
     retval = SUNMatCopy(cvls_mem->savedJ, A);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1345,7 +1346,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(A);
-      SUNCheckCall(retval, CV_SUNCTX);
+      SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, 
                        MSG_LS_SUNMAT_FAILED);
@@ -1370,7 +1371,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Update saved copy of the Jacobian matrix */
     retval = SUNMatCopy(A, cvls_mem->savedJ);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,
                      MSG_LS_SUNMAT_FAILED);
@@ -1382,7 +1383,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
   /* Perform linear combination A = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, A);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__,
                    __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
@@ -1513,7 +1514,7 @@ int cvLsInitialize(CVodeMem cv_mem)
 
   /* Call LS initialize routine, and return result */
   cvls_mem->last_flag = SUNLinSolInitialize(cvls_mem->LS);
-  SUNCheckCall(cvls_mem->last_flag, CV_SUNCTX);
+  SUNCheck(cvls_mem->last_flag == SUN_SUCCESS, cvls_mem->last_flag, CV_SUNCTX);
   return(cvls_mem->last_flag);
 }
 
@@ -1655,7 +1656,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* get current nonlinear solver iteration */
   retval = SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
 
   /* If the linear solver is iterative:
      test norm(b), if small, return x = 0 or x = b;
@@ -1663,11 +1664,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   if (cvls_mem->iterative) {
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
     bnorm = N_VWrmsNorm(b, weight);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (bnorm <= deltar) {
       if (curiter > 0) {
         N_VConst(ZERO, b);
-        SUNCheckCall(retval, CV_SUNCTX);
+        SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
       }
       cvls_mem->last_flag = CVLS_SUCCESS;
       return(cvls_mem->last_flag);
@@ -1688,7 +1689,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     retval = SUNLinSolSetScalingVectors(cvls_mem->LS,
                                         weight,
                                         weight);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval != SUNLS_SUCCESS) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetScalingVectors");
@@ -1723,7 +1724,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
   if (retval != SUNLS_SUCCESS) return(-1);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG

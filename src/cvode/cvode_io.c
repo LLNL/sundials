@@ -806,7 +806,7 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
   }
 
   retval = SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
   return(retval);
 }
 

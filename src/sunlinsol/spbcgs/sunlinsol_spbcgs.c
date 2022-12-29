@@ -566,7 +566,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       Xv[2] = q;
 
       ier = N_VLinearCombination(3, cv, Xv, x);
-      SUNCheckCall(ier, S->sunctx);
+      SUNCheck(ier == SUN_SUCCESS, ier, S->sunctx);
 
     }
 
@@ -614,7 +614,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     Xv[2] = r;
 
     ier = N_VLinearCombination(3, cv, Xv, p);
-    SUNCheckCall(ier, S->sunctx);
+    SUNCheck(ier == SUN_SUCCESS, ier, S->sunctx);
 
     /* udpate beta_denom for next iteration */
     beta_denom = beta_num;

@@ -28,6 +28,7 @@
 #include <nvector/nvector_pthreads.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials/sundials_errors.h"
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)
@@ -2792,16 +2793,22 @@ SUNErrCode N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
   }
 
   /* BLAS usage: axpy y <- ax+y */
-  if ((b == ONE) && (Z == Y))
-    SUNCheckCallReturnAlways(VaxpyVectorArray_Pthreads(nvec, a, X, Y), X[0]->sunctx);
+  if ((b == ONE) && (Z == Y)) {
+    SUNCheckCallReturn(VaxpyVectorArray_Pthreads(nvec, a, X, Y), X[0]->sunctx);
+    return SUN_SUCCESS;
+  }
 
   /* BLAS usage: axpy x <- by+x */
-  if ((a == ONE) && (Z == X))
-    SUNCheckCallReturnAlways(VaxpyVectorArray_Pthreads(nvec, b, Y, X), X[0]->sunctx);
+  if ((a == ONE) && (Z == X)) {
+    SUNCheckCallReturn(VaxpyVectorArray_Pthreads(nvec, b, Y, X), X[0]->sunctx);
+    return SUN_SUCCESS;
+  }
 
   /* Case: a == b == 1.0 */
-  if ((a == ONE) && (b == ONE))
-    SUNCheckCallReturnAlways(VSumVectorArray_Pthreads(nvec, X, Y, Z), X[0]->sunctx);
+  if ((a == ONE) && (b == ONE)) {
+    SUNCheckCallReturn(VSumVectorArray_Pthreads(nvec, X, Y, Z), X[0]->sunctx);
+    return SUN_SUCCESS;
+  }
 
   /* Cases:                    */
   /*   (1) a == 1.0, b = -1.0, */
@@ -2809,7 +2816,8 @@ SUNErrCode N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
     V1 = test ? Y : X;
     V2 = test ? X : Y;
-    SUNCheckCallReturnAlways(VDiffVectorArray_Pthreads(nvec, V2, V1, Z), X[0]->sunctx);
+    SUNCheckCallReturn(VDiffVectorArray_Pthreads(nvec, V2, V1, Z), X[0]->sunctx);
+    return SUN_SUCCESS;
   }
 
   /* Cases:                                                  */
@@ -2820,7 +2828,8 @@ SUNErrCode N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
     c  = test ? b : a;
     V1 = test ? Y : X;
     V2 = test ? X : Y;
-    SUNCheckCallReturnAlways(VLin1VectorArray_Pthreads(nvec, c, V1, V2, Z), X[0]->sunctx);
+    SUNCheckCallReturn(VLin1VectorArray_Pthreads(nvec, c, V1, V2, Z), X[0]->sunctx);
+    return SUN_SUCCESS;
   }
 
   /* Cases:                     */
@@ -2830,17 +2839,22 @@ SUNErrCode N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
     c = test ? b : a;
     V1 = test ? Y : X;
     V2 = test ? X : Y;
-    SUNCheckCallReturnAlways(VLin2VectorArray_Pthreads(nvec, c, V1, V2, Z), X[0]->sunctx);
+    SUNCheckCallReturn(VLin2VectorArray_Pthreads(nvec, c, V1, V2, Z), X[0]->sunctx);
+    return SUN_SUCCESS;
   }
 
   /* Case: a == b                                                         */
   /* catches case both a and b are 0.0 - user should have called N_VConst */
-  if (a == b)
-    SUNCheckCallReturnAlways(VScaleSumVectorArray_Pthreads(nvec, a, X, Y, Z), X[0]->sunctx);
+  if (a == b) {
+    SUNCheckCallReturn(VScaleSumVectorArray_Pthreads(nvec, a, X, Y, Z), X[0]->sunctx);
+    return SUN_SUCCESS;
+  }
 
   /* Case: a == -b */
-  if (a == -b)
-    SUNCheckCallReturnAlways(VScaleDiffVectorArray_Pthreads(nvec, a, X, Y, Z), X[0]->sunctx);
+  if (a == -b) {
+    SUNCheckCallReturn(VScaleDiffVectorArray_Pthreads(nvec, a, X, Y, Z), X[0]->sunctx);
+    return SUN_SUCCESS;
+  }
 
   /* Do all cases not handled above:                               */
   /*   (1) a == other, b == 0.0 - user should have called N_VScale */

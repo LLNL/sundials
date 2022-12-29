@@ -23,6 +23,7 @@
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 
+#include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
 
 
@@ -444,7 +445,8 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
 
   /* on first iteration, just do basic fixed-point update */
   if (iter == 0) {
-    SUNCheckCallLastErrReturnAlways(N_VScale(ONE, gval, x), NLS->sunctx);
+    SUNCheckCallLastErrReturn(N_VScale(ONE, gval, x), NLS->sunctx);
+    return SUN_SUCCESS;
   }
 
   /* update data structures based on current iteration index */

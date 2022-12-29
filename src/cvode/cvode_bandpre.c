@@ -168,7 +168,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  SUNCheckCall(flag, CV_SUNCTX);
+  SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
   if (flag) {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
@@ -240,21 +240,21 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
-    SUNCheckCall(flag, CV_SUNCTX);
+    SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
-    SUNCheckCall(flag, CV_SUNCTX);
+    SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    SUNCheckCall(flag, CV_SUNCTX);
+    SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     if (flag) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
@@ -355,7 +355,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNTRUE, use saved copy of J. */
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                      __FILE__, MSGBP_SUNMAT_FAIL);
@@ -370,7 +370,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNFALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                      __FILE__, MSGBP_SUNMAT_FAIL);
@@ -392,7 +392,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    SUNCheckCall(retval, CV_SUNCTX);
+    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
     if (retval < 0) {
       cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                      __FILE__, MSGBP_SUNMAT_FAIL);
@@ -406,7 +406,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Scale and add identity to get savedP = I - gamma*J. */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
-  SUNCheckCall(retval, CV_SUNCTX);
+  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                    __FILE__, MSGBP_SUNMAT_FAIL);
