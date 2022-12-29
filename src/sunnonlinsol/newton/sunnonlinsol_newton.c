@@ -350,12 +350,7 @@ SUNErrCode SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 
 SUNErrCode SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
-
-
-  /* check that the nonlinear system function is non-null */
-  if (SysFn == NULL)
-    return(SUN_NLS_ILL_INPUT);
-
+  SUNAssert(SysFn, SUN_ERR_ARG_CORRUPT, NLS->sunctx);
   NEWTON_CONTENT(NLS)->Sys = SysFn;
   return SUN_SUCCESS;
 }
