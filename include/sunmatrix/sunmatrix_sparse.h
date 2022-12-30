@@ -36,6 +36,7 @@
 #include <sundials/sundials_matrix.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_band.h>
+#include "sundials/sundials_types.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -132,12 +133,12 @@ SUNDIALS_EXPORT sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Sparse(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_Sparse(SUNMatrix A, long int *lenrw, long int *leniw);
+SUNDIALS_EXPORT SUNErrCode SUNMatZero_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int *lenrw, long int *leniw);
 
 
 #ifdef __cplusplus
