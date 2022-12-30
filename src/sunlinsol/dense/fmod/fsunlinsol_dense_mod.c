@@ -264,12 +264,12 @@ SWIGEXPORT int _wrap_FSUNLinSolSetup_Dense(SUNLinearSolver farg1, SUNMatrix farg
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-  int result;
+  SUNLsStatus result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
-  result = (int)SUNLinSolSetup_Dense(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNLsStatus)SUNLinSolSetup_Dense(arg1,arg2);
+  fresult = (SUNLsStatus)(result);
   return fresult;
 }
 
@@ -281,15 +281,15 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_Dense(SUNLinearSolver farg1, SUNMatrix farg
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   realtype arg5 ;
-  int result;
+  SUNLsStatus result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (realtype)(*farg5);
-  result = (int)SUNLinSolSolve_Dense(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
+  result = (SUNLsStatus)SUNLinSolSolve_Dense(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNLsStatus)(result);
   return fresult;
 }
 

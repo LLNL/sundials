@@ -98,6 +98,10 @@ module fcvodes_mod
  integer(C_INT), parameter, public :: CV_PROJ_MEM_NULL = -56_C_INT
  integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -57_C_INT
  integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -58_C_INT
+ integer(C_INT), parameter, public :: CV_BAD_TINTERP = -59_C_INT
+ integer(C_INT), parameter, public :: CV_SUNMAT_FAIL = -60_C_INT
+ integer(C_INT), parameter, public :: CV_BBD_JAC_FAIL = -61_C_INT
+ integer(C_INT), parameter, public :: CV_GENERIC_ERR = -98_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  integer(C_INT), parameter, public :: CV_NO_ADJ = -101_C_INT
  integer(C_INT), parameter, public :: CV_NO_FWD = -102_C_INT

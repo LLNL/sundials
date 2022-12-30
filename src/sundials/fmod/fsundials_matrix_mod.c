@@ -214,12 +214,12 @@ SWIGEXPORT int _wrap_FSUNMatCopyOps(SUNMatrix farg1, SUNMatrix farg2) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (SUNMatrix)(farg2);
-  result = (int)SUNMatCopyOps(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatCopyOps(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -259,11 +259,11 @@ SWIGEXPORT void _wrap_FSUNMatDestroy(SUNMatrix farg1) {
 SWIGEXPORT int _wrap_FSUNMatZero(SUNMatrix farg1) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (int)SUNMatZero(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatZero(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -272,12 +272,12 @@ SWIGEXPORT int _wrap_FSUNMatCopy(SUNMatrix farg1, SUNMatrix farg2) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (SUNMatrix)(farg2);
-  result = (int)SUNMatCopy(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatCopy(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -287,13 +287,13 @@ SWIGEXPORT int _wrap_FSUNMatScaleAdd(double const *farg1, SUNMatrix farg2, SUNMa
   realtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (realtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNMatrix)(farg3);
-  result = (int)SUNMatScaleAdd(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatScaleAdd(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -302,12 +302,12 @@ SWIGEXPORT int _wrap_FSUNMatScaleAddI(double const *farg1, SUNMatrix farg2) {
   int fresult ;
   realtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (realtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
-  result = (int)SUNMatScaleAddI(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatScaleAddI(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -315,11 +315,11 @@ SWIGEXPORT int _wrap_FSUNMatScaleAddI(double const *farg1, SUNMatrix farg2) {
 SWIGEXPORT int _wrap_FSUNMatMatvecSetup(SUNMatrix farg1) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (int)SUNMatMatvecSetup(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatMatvecSetup(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -329,13 +329,13 @@ SWIGEXPORT int _wrap_FSUNMatMatvec(SUNMatrix farg1, N_Vector farg2, N_Vector far
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (int)SUNMatMatvec(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatMatvec(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -345,13 +345,13 @@ SWIGEXPORT int _wrap_FSUNMatSpace(SUNMatrix farg1, long *farg2, long *farg3) {
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
-  result = (int)SUNMatSpace(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNMatSpace(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

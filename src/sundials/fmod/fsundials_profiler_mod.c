@@ -178,6 +178,13 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -209,6 +216,20 @@
 #endif
 
 
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
+}
+
+
 #include <stdlib.h>
 #ifdef _MSC_VER
 # ifndef strtoull
@@ -233,68 +254,73 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
-SWIGEXPORT int _wrap_FSUNProfiler_Free(void *farg1) {
-  int fresult ;
+SWIGEXPORT SwigClassWrapper _wrap_FSUNProfiler_Free(void *farg1) {
+  SwigClassWrapper fresult ;
   SUNProfiler *arg1 = (SUNProfiler *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler *)(farg1);
-  result = (int)SUNProfiler_Free(arg1);
-  fresult = (int)(result);
+  result = SUNProfiler_Free(arg1);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNProfiler_Begin(void *farg1, SwigArrayWrapper *farg2) {
-  int fresult ;
+SWIGEXPORT SwigClassWrapper _wrap_FSUNProfiler_Begin(void *farg1, SwigArrayWrapper *farg2) {
+  SwigClassWrapper fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNProfiler_Begin(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = SUNProfiler_Begin(arg1,(char const *)arg2);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNProfiler_End(void *farg1, SwigArrayWrapper *farg2) {
-  int fresult ;
+SWIGEXPORT SwigClassWrapper _wrap_FSUNProfiler_End(void *farg1, SwigArrayWrapper *farg2) {
+  SwigClassWrapper fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNProfiler_End(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = SUNProfiler_End(arg1,(char const *)arg2);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
-  int fresult ;
+SWIGEXPORT SwigClassWrapper _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
+  SwigClassWrapper fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNProfiler_Print(arg1,arg2);
-  fresult = (int)(result);
+  result = SUNProfiler_Print(arg1,arg2);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNProfiler_Reset(void *farg1) {
-  int fresult ;
+SWIGEXPORT SwigClassWrapper _wrap_FSUNProfiler_Reset(void *farg1) {
+  SwigClassWrapper fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
-  result = (int)SUNProfiler_Reset(arg1);
-  fresult = (int)(result);
+  result = SUNProfiler_Reset(arg1);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
   return fresult;
 }
 

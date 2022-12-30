@@ -230,12 +230,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPGMRSetPrecType(SUNLinearSolver farg1, int cons
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPGMRSetPrecType(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPGMRSetPrecType(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -244,12 +244,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPGMRSetGSType(SUNLinearSolver farg1, int const 
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPGMRSetGSType(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPGMRSetGSType(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -258,12 +258,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver farg1, int c
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPGMRSetMaxRestarts(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPGMRSetMaxRestarts(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -295,11 +295,11 @@ SWIGEXPORT int _wrap_FSUNLinSolGetID_SPGMR(SUNLinearSolver farg1) {
 SWIGEXPORT int _wrap_FSUNLinSolInitialize_SPGMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolInitialize_SPGMR(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolInitialize_SPGMR(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -309,13 +309,13 @@ SWIGEXPORT int _wrap_FSUNLinSolSetATimes_SPGMR(SUNLinearSolver farg1, void *farg
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   void *arg2 = (void *) 0 ;
   SUNATimesFn arg3 = (SUNATimesFn) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (void *)(farg2);
   arg3 = (SUNATimesFn)(farg3);
-  result = (int)SUNLinSolSetATimes_SPGMR(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSetATimes_SPGMR(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -326,14 +326,14 @@ SWIGEXPORT int _wrap_FSUNLinSolSetPreconditioner_SPGMR(SUNLinearSolver farg1, vo
   void *arg2 = (void *) 0 ;
   SUNPSetupFn arg3 = (SUNPSetupFn) 0 ;
   SUNPSolveFn arg4 = (SUNPSolveFn) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (void *)(farg2);
   arg3 = (SUNPSetupFn)(farg3);
   arg4 = (SUNPSolveFn)(farg4);
-  result = (int)SUNLinSolSetPreconditioner_SPGMR(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSetPreconditioner_SPGMR(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -343,13 +343,13 @@ SWIGEXPORT int _wrap_FSUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver farg1, N_
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (int)SUNLinSolSetScalingVectors_SPGMR(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSetScalingVectors_SPGMR(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -358,12 +358,12 @@ SWIGEXPORT int _wrap_FSUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver farg1, int con
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSolSetZeroGuess_SPGMR(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSetZeroGuess_SPGMR(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -372,12 +372,12 @@ SWIGEXPORT int _wrap_FSUNLinSolSetup_SPGMR(SUNLinearSolver farg1, SUNMatrix farg
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-  int result;
+  SUNLsStatus result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
-  result = (int)SUNLinSolSetup_SPGMR(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNLsStatus)SUNLinSolSetup_SPGMR(arg1,arg2);
+  fresult = (SUNLsStatus)(result);
   return fresult;
 }
 
@@ -389,15 +389,15 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_SPGMR(SUNLinearSolver farg1, SUNMatrix farg
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   realtype arg5 ;
-  int result;
+  SUNLsStatus result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (realtype)(*farg5);
-  result = (int)SUNLinSolSolve_SPGMR(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
+  result = (SUNLsStatus)SUNLinSolSolve_SPGMR(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNLsStatus)(result);
   return fresult;
 }
 
@@ -405,11 +405,11 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_SPGMR(SUNLinearSolver farg1, SUNMatrix farg
 SWIGEXPORT int _wrap_FSUNLinSolNumIters_SPGMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolNumIters_SPGMR(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolNumIters_SPGMR(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -455,13 +455,13 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_SPGMR(SUNLinearSolver farg1, long *farg2, l
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
-  result = (int)SUNLinSolSpace_SPGMR(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSpace_SPGMR(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -469,11 +469,11 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_SPGMR(SUNLinearSolver farg1, long *farg2, l
 SWIGEXPORT int _wrap_FSUNLinSolFree_SPGMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolFree_SPGMR(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolFree_SPGMR(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -482,12 +482,12 @@ SWIGEXPORT int _wrap_FSUNLinSolSetInfoFile_SPGMR(SUNLinearSolver farg1, void *fa
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNLinSolSetInfoFile_SPGMR(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSetInfoFile_SPGMR(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -496,12 +496,12 @@ SWIGEXPORT int _wrap_FSUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver farg1, int co
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSolSetPrintLevel_SPGMR(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSetPrintLevel_SPGMR(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
