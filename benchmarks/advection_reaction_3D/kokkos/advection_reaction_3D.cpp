@@ -149,6 +149,7 @@ UserData::~UserData()
   if (vmask != nullptr) {
     N_VDestroy(vmask);
     vmask = nullptr;
+  }
   if (wmask != nullptr) {
     N_VDestroy(wmask);
     wmask = nullptr;
