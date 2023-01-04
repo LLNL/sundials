@@ -71,7 +71,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                   RAJA::RangeSegment(1, nyl),
                                   RAJA::RangeSegment(1, nzl));
     RAJA::kernel<XYZ_KERNEL_POL>(range,
-      [=] DEVICE_FUNC (int i, int j, int k) 
+      [=] DEVICE_FUNC (int i, int j, int k)
     {
       const realtype u_ijk = Yview(i,j,k,0);
       const realtype v_ijk = Yview(i,j,k,1);
@@ -100,7 +100,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                   RAJA::RangeSegment(0, nyl-1),
                                   RAJA::RangeSegment(0, nzl-1));
     RAJA::kernel<XYZ_KERNEL_POL>(range,
-      [=] DEVICE_FUNC (int i, int j, int k) 
+      [=] DEVICE_FUNC (int i, int j, int k)
     {
       const realtype u_ijk = Yview(i,j,k,0);
       const realtype v_ijk = Yview(i,j,k,1);
@@ -130,7 +130,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     return(-1);
   SUNDIALS_MARK_END(udata->prof, "Neighbor Exchange");
 
-  
+
   /* compute advection at process boundaries */
   if (c > 0.0)
   {
@@ -150,7 +150,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                       RAJA::RangeSegment(0, nzl),
                                       RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(west_face,
-      [=] DEVICE_FUNC (int j, int k, int l) 
+      [=] DEVICE_FUNC (int j, int k, int l)
     {
       const int i = 0;
       const realtype Yijkl  = Yview(i,j,k,l);
@@ -164,7 +164,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                        RAJA::RangeSegment(0, nzl),
                                        RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(south_face,
-      [=] DEVICE_FUNC (int i, int k, int l) 
+      [=] DEVICE_FUNC (int i, int k, int l)
     {
       const int j = 0;
       const realtype Yijkl  = Yview(i,j,k,l);
@@ -179,7 +179,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                       RAJA::RangeSegment(0, dof));
 
     RAJA::kernel<XYZ_KERNEL_POL>(back_face,
-      [=] DEVICE_FUNC (int i, int j, int l) 
+      [=] DEVICE_FUNC (int i, int j, int l)
     {
       const int k = 0;
       const realtype Yijkl  = Yview(i,j,k,l);
@@ -210,7 +210,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                       RAJA::RangeSegment(0, nzl),
                                       RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(east_face,
-      [=] DEVICE_FUNC (int j, int k, int l) 
+      [=] DEVICE_FUNC (int j, int k, int l)
     {
       const int i = nxl-1;
       const realtype Yijkl = Yview(i,j,k,l);
@@ -224,7 +224,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                        RAJA::RangeSegment(0, nzl),
                                        RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(north_face,
-      [=] DEVICE_FUNC (int i, int k, int l) 
+      [=] DEVICE_FUNC (int i, int k, int l)
     {
       const int j = nyl-1;
       const realtype Yijkl = Yview(i,j,k,l);
@@ -238,7 +238,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                        RAJA::RangeSegment(0, nyl),
                                        RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(front_face,
-      [=] DEVICE_FUNC (int i, int j, int l) 
+      [=] DEVICE_FUNC (int i, int j, int l)
     {
       const int k = nzl-1;
       const realtype Yijkl = Yview(i,j,k,l);
@@ -280,7 +280,7 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* Zero output if not adding reactions to existing RHS */
   if (!udata->add_reactions)
     N_VConst(0.0, ydot);
-  
+
   /* access data arrays */
   realtype* Ydata  = NULL;
   Ydata = GetVecData(y);
@@ -302,7 +302,7 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                 RAJA::RangeSegment(0, nyl),
                                 RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int i, int j, int k) 
+    [=] DEVICE_FUNC (int i, int j, int k)
   {
     const realtype u = Yview(i,j,k,0);
     const realtype v = Yview(i,j,k,1);
@@ -393,7 +393,7 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
                                  RAJA::RangeSegment(0, nyl),
                                  RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(blocks,
-    [=] DEVICE_FUNC (int i, int j, int k) 
+    [=] DEVICE_FUNC (int i, int j, int k)
   {
 
     /* shortcuts to u, v, w for the block */
@@ -456,11 +456,11 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
                                + Bview(i,j,k,2)*(scratch_1 - scratch_5));
-    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5) 
+    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5)
                                + Bview(i,j,k,1)*(A0*A8 - scratch_9)
                                + A5*scratch_8 - A8*scratch_10 );
-    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8 
-                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) / 
+    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8
+                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) /
                      (-A8 + scratch_11*scratch_9 + scratch_13*(A5 - scratch_11*scratch_7));
 
   });
@@ -496,7 +496,7 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
                                  RAJA::RangeSegment(0, nyl),
                                  RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(blocks,
-    [=] DEVICE_FUNC (int i, int j, int k) 
+    [=] DEVICE_FUNC (int i, int j, int k)
   {
 
     /* shortcuts to u, v, w for the block */
@@ -561,11 +561,11 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
                                + Bview(i,j,k,2)*(scratch_1 - scratch_5));
-    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5) 
+    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5)
                                + Bview(i,j,k,1)*(A0*A8 - scratch_9)
                                + A5*scratch_8 - A8*scratch_10 );
-    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8 
-                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) / 
+    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8
+                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) /
                      (-A8 + scratch_11*scratch_9 + scratch_13*(A5 - scratch_11*scratch_7));
 
   });

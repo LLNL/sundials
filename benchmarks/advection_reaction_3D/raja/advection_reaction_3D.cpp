@@ -68,12 +68,13 @@
 int main(int argc, char *argv[])
 {
 
+  SUNContext ctx;
+
   /* Initialize MPI */
   MPI_Comm comm = MPI_COMM_WORLD;
   MPI_Init(&argc, &argv);
 
   /* Create SUNDIALS context */
-  SUNContext ctx;
   SUNContext_Create((void*) &comm, &ctx);
 
   /* Create SUNDIALS memory helper */
@@ -155,12 +156,19 @@ UserData::~UserData()
   }
 
   /* free solution masks */
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
-  N_VDestroy(umask);
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(vmask));
-  N_VDestroy(vmask);
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(wmask));
-  N_VDestroy(wmask);
+  if (umask != nullptr) {
+    N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
+    N_VDestroy(umask);
+    umask = nullptr;
+  }
+  if (vmask != nullptr) {
+    N_VDestroy(vmask);
+    vmask = nullptr;
+  }
+  if (wmask != nullptr) {
+    N_VDestroy(wmask);
+    wmask = nullptr;
+  }
 
   /* free the parallel grid */
   delete grid;
@@ -431,7 +439,7 @@ int ComponentMask(N_Vector mask, int component, const UserData* udata)
                                 RAJA::RangeSegment(0, udata->grid->nyl),
                                 RAJA::RangeSegment(0, udata->grid->nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int i, int j, int k) 
+    [=] DEVICE_FUNC (int i, int j, int k)
   {
     mask_view(i,j,k,component) = 1.0;
   });
@@ -498,8 +506,8 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   const sunindextype npts[] = {uopt->npts, uopt->npts, uopt->npts};
   const realtype amax[] = {0.0, 0.0, 0.0};
   const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
-  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(memhelper, &udata->comm, 
-    amax, bmax, npts, 3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, 
+  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(memhelper, &udata->comm,
+    amax, bmax, npts, 3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c,
     STENCIL_WIDTH, uopt->npxyz);
 
   /* Create the solution masks */
@@ -609,7 +617,7 @@ int SetIC(N_Vector y, UserData* udata)
   const realtype ws = 3.0;
 
   /* Create 4D view of y */
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > yview(GetVecData(y), 
+  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > yview(GetVecData(y),
                                                      nxl, nyl, nzl, dof);
 
   /* Gaussian perturbation of the steady state solution */
@@ -617,7 +625,7 @@ int SetIC(N_Vector y, UserData* udata)
                                 RAJA::RangeSegment(0, nyl),
                                 RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int i, int j, int k) 
+    [=] DEVICE_FUNC (int i, int j, int k)
   {
     realtype x = (xcrd * nxl + i) * dx;
     realtype y = (ycrd * nyl + j) * dy;
@@ -678,7 +686,7 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
                                   RAJA::RangeSegment(0, udata->grid->nyl),
                                   RAJA::RangeSegment(0, udata->grid->nzl));
     RAJA::kernel<XYZ_KERNEL_SERIAL_POLICY>(range,
-      [=] (int i, int j, int k) 
+      [=] (int i, int j, int k)
     {
       fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
       fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
@@ -692,7 +700,7 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     std::fflush(udata->VFID);
     std::fflush(udata->WFID);
   }
-  
+
   return(0);
 }
 
@@ -730,4 +738,3 @@ void InputError(char *name)
 
   MPI_Barrier(MPI_COMM_WORLD);
 }
-

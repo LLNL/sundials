@@ -125,8 +125,13 @@ struct UserData
   /* Constructor that takes the context */
   UserData(SUNContext ctx) : ctx(ctx) {
     SUNContext_GetProfiler(ctx, &prof);
-    umask = vmask = wmask = nullptr;
-    TFID = UFID = VFID = WFID = nullptr;
+    umask = nullptr;
+    vmask = nullptr;
+    wmask = nullptr;
+    TFID = nullptr;
+    UFID = nullptr;
+    VFID = nullptr;
+    WFID = nullptr;
     uopt = nullptr;
   }
 

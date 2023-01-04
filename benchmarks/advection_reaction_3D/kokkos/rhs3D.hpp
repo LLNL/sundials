@@ -24,7 +24,7 @@
 
 /* Compute the advection term f(t,y) = -c (grad * y). This is done using
    upwind 1st order finite differences.  At present, only periodic boudary
-   conditions are supported, which are handled via MPI's Cartesian 
+   conditions are supported, which are handled via MPI's Cartesian
    communicator (even for serial runs). */
 static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
@@ -69,8 +69,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   if (c > 0.0)
   {
     /* flow moving in the positive x,y,z direction */
-    Kokkos::parallel_for("AdvectionInteriorRight", 
-                         Range3D({1,1,1},{nxl,nyl,nzl}), 
+    Kokkos::parallel_for("AdvectionInteriorRight",
+                         Range3D({1,1,1},{nxl,nyl,nzl}),
                          KOKKOS_LAMBDA (int i, int j, int k)
     {
       const realtype u_ijk = Yview(i,j,k,0);
@@ -96,8 +96,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   else if (c < 0.0)
   {
     /* flow moving in the negative x,y,z direction */
-    Kokkos::parallel_for("AdvectionInteriorLeft", 
-                         Range3D({0,0,0},{nxl-1,nyl-1,nzl-1}), 
+    Kokkos::parallel_for("AdvectionInteriorLeft",
+                         Range3D({0,0,0},{nxl-1,nyl-1,nzl-1}),
                          KOKKOS_LAMBDA (int i, int j, int k)
     {
       const realtype u_ijk = Yview(i,j,k,0);
@@ -140,8 +140,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     Vec4D Brecv = udata->grid->GetRecvView("BACK");
 
     /*   Perform calculations on each "lower" face */
-    Kokkos::parallel_for("AdvectionBoundaryWest", 
-                         Range3D({0,0,0},{nyl,nzl,dof}), 
+    Kokkos::parallel_for("AdvectionBoundaryWest",
+                         Range3D({0,0,0},{nyl,nzl,dof}),
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = 0;
@@ -152,8 +152,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
       dYview(i,j,k,l) += cy * (Yijkl - YSouth);         // d/dy
       dYview(i,j,k,l) += cz * (Yijkl - YBack);          // d/dz
     });
-    Kokkos::parallel_for("AdvectionBoundarySouth", 
-                         Range3D({0,0,0},{nxl,nzl,dof}), 
+    Kokkos::parallel_for("AdvectionBoundarySouth",
+                         Range3D({0,0,0},{nxl,nzl,dof}),
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = 0;
@@ -164,8 +164,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
       dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,0,k,l)); // d/dy
       dYview(i,j,k,l) += cz * (Yijkl - YBack);          // d/dz
     });
-    Kokkos::parallel_for("AdvectionBoundaryBack", 
-                         Range3D({0,0,0},{nxl,nyl,dof}), 
+    Kokkos::parallel_for("AdvectionBoundaryBack",
+                         Range3D({0,0,0},{nxl,nyl,dof}),
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = 0;
@@ -190,8 +190,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     Vec4D Frecv = udata->grid->GetRecvView("FRONT");
 
     /*   Perform calculations on each "upper" face */
-    Kokkos::parallel_for("AdvectionBoundaryEast", 
-                         Range3D({0,0,0},{nyl,nzl,dof}), 
+    Kokkos::parallel_for("AdvectionBoundaryEast",
+                         Range3D({0,0,0},{nyl,nzl,dof}),
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = nxl-1;
@@ -202,8 +202,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
       dYview(i,j,k,l) += cy * (YNorth - Yijkl);         // d/dy
       dYview(i,j,k,l) += cx * (YFront - Yijkl);         // d/dz
     });
-    Kokkos::parallel_for("AdvectionBoundaryNorth", 
-                         Range3D({0,0,0},{nxl,nzl,dof}), 
+    Kokkos::parallel_for("AdvectionBoundaryNorth",
+                         Range3D({0,0,0},{nxl,nzl,dof}),
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = nyl-1;
@@ -214,8 +214,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
       dYview(i,j,k,l) += cy * (Nrecv(i,0,k,l) - Yijkl); // d/dy
       dYview(i,j,k,l) += cz * (YFront - Yijkl);         // d/dz
     });
-    Kokkos::parallel_for("AdvectionBoundaryFront", 
-                         Range3D({0,0,0},{nxl,nyl,dof}), 
+    Kokkos::parallel_for("AdvectionBoundaryFront",
+                         Range3D({0,0,0},{nxl,nyl,dof}),
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = nzl-1;
@@ -258,7 +258,7 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* Zero output if not adding reactions to existing RHS */
   if (!udata->add_reactions)
     N_VConst(0.0, ydot);
-  
+
   /* create 4D views of state and RHS vectors */
   SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
   Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
@@ -266,8 +266,8 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   Vec4D dYview((dylocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* add reaction terms to RHS */
-  Kokkos::parallel_for("ReactionRHS", 
-                       Range3D({0,0,0},{nxl,nyl,nzl}), 
+  Kokkos::parallel_for("ReactionRHS",
+                       Range3D({0,0,0},{nxl,nyl,nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
     const realtype u = Yview(i,j,k,0);
@@ -355,8 +355,8 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* solve reaction linear system */
-  Kokkos::parallel_for("SolveReactionLinSys", 
-                       Range3D({0,0,0},{nxl,nyl,nzl}), 
+  Kokkos::parallel_for("SolveReactionLinSys",
+                       Range3D({0,0,0},{nxl,nyl,nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
 
@@ -420,11 +420,11 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
                                + Bview(i,j,k,2)*(scratch_1 - scratch_5));
-    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5) 
+    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5)
                                + Bview(i,j,k,1)*(A0*A8 - scratch_9)
                                + A5*scratch_8 - A8*scratch_10 );
-    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8 
-                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) / 
+    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8
+                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) /
                      (-A8 + scratch_11*scratch_9 + scratch_13*(A5 - scratch_11*scratch_7));
 
   });
@@ -456,8 +456,8 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* solve reaction linear system */
-  Kokkos::parallel_for("SolveReactionLinSys", 
-                       Range3D({0,0,0},{nxl,nyl,nzl}), 
+  Kokkos::parallel_for("SolveReactionLinSys",
+                       Range3D({0,0,0},{nxl,nyl,nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
 
@@ -523,11 +523,11 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
                                + Bview(i,j,k,2)*(scratch_1 - scratch_5));
-    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5) 
+    Xview(i,j,k,1) = scratch_6*( Bview(i,j,k,2)*(scratch_7 - A0*A5)
                                + Bview(i,j,k,1)*(A0*A8 - scratch_9)
                                + A5*scratch_8 - A8*scratch_10 );
-    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8 
-                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) / 
+    Xview(i,j,k,2) = ( -Bview(i,j,k,2) + scratch_11*scratch_8
+                     + scratch_13*(Bview(i,j,k,1) - scratch_10*scratch_11)) /
                      (-A8 + scratch_11*scratch_9 + scratch_13*(A5 - scratch_11*scratch_7));
 
   });

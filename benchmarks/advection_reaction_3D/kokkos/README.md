@@ -64,7 +64,7 @@ listed below.
 | `--method <method>`         | Integrator to use: `ERK`, `ARK-DIRK`, `ARK-IMEX`, `CV-BDF`, `CV-ADAMS`, `IDA` | `ARK-DIRK`  |
 | `--nls <method>`            | Nonlinear Solver Method: `newton`, `tl-newton`, `fixedpoint`, `none`          | `newton`    |
 | `--fpaccel <int>`           | Number of fixed point acceleration vectors                                    | 3           |
-| `--nopre`                   | Disable preconditioning                                                       | False       | 
+| `--nopre`                   | Disable preconditioning                                                       | False       |
 | `--fused`                   | Enabled fused operations                                                      | Off         |
 | `--tf <realtype>`           | Final integration time `t_f`                                                  | 10.0        |
 | `--rtol <realtype>`         | Relative tolerance                                                            | 1.0e-6      |

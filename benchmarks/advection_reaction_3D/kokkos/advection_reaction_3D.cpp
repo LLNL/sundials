@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU 
+ * Programmer(s): Daniel R. Reynolds @ SMU
  *                David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -68,17 +68,18 @@
 int main(int argc, char *argv[])
 {
 
+  SUNContext ctx;
+
   /* Initialize MPI */
   MPI_Comm comm = MPI_COMM_WORLD;
   MPI_Init(&argc, &argv);
 
+  /* Create SUNDIALS context */
+  SUNContext_Create((void*) &comm, &ctx);
+
   /* Initialize Kokkos */
   Kokkos::initialize(argc, argv);
   {
-
-    /* Create SUNDIALS context */
-    SUNContext ctx;
-    SUNContext_Create((void*) &comm, &ctx);
 
     /* General problem variables */
     N_Vector     y = NULL;      /* empty solution vector        */
@@ -120,9 +121,9 @@ int main(int argc, char *argv[])
 
     /* Clean up */
     N_VDestroy(y);
-    SUNContext_Free(&ctx);
   }
   Kokkos::finalize();
+  SUNContext_Free(&ctx);
   MPI_Finalize();
   return(0);
 }
@@ -141,9 +142,17 @@ UserData::~UserData()
   }
 
   /* free solution masks */
-  N_VDestroy(umask);
-  N_VDestroy(vmask);
-  N_VDestroy(wmask);
+  if (umask != nullptr) {
+    N_VDestroy(umask);
+    umask = nullptr;
+  }
+  if (vmask != nullptr) {
+    N_VDestroy(vmask);
+    vmask = nullptr;
+  if (wmask != nullptr) {
+    N_VDestroy(wmask);
+    wmask = nullptr;
+  }
 
   /* free the parallel grid */
   delete grid;
@@ -180,18 +189,18 @@ int FillSendBuffers(N_Vector y, UserData* udata)
     Vec4D Fsend = udata->grid->GetSendView("FRONT");
 
     /* Fill buffers on device */
-    Kokkos::parallel_for("FillEastBuffer", 
-                         Range3D({0,0,0},{nyl,nzl,dof}), 
+    Kokkos::parallel_for("FillEastBuffer",
+                         Range3D({0,0,0},{nyl,nzl,dof}),
                          KOKKOS_LAMBDA (int j, int k, int l) {
       Esend(0,j,k,l) = Yview(nxl-1,j,k,l);
     });
-    Kokkos::parallel_for("FillNorthBuffer", 
-                         Range3D({0,0,0},{nxl,nzl,dof}), 
+    Kokkos::parallel_for("FillNorthBuffer",
+                         Range3D({0,0,0},{nxl,nzl,dof}),
                          KOKKOS_LAMBDA (int i, int k, int l) {
       Nsend(i,0,k,l) = Yview(i,nyl-1,k,l);
     });
-    Kokkos::parallel_for("FillFrontBuffer", 
-                         Range3D({0,0,0},{nxl,nyl,dof}), 
+    Kokkos::parallel_for("FillFrontBuffer",
+                         Range3D({0,0,0},{nxl,nyl,dof}),
                          KOKKOS_LAMBDA (int i, int j, int l) {
       Fsend(i,j,0,l) = Yview(i,j,nzl-1,l);
     });
@@ -208,18 +217,18 @@ int FillSendBuffers(N_Vector y, UserData* udata)
     Vec4D Bsend = udata->grid->GetSendView("BACK");
 
     /* Fill buffers on device */
-    Kokkos::parallel_for("FillWestBuffer", 
-                         Range3D({0,0,0},{nyl,nzl,dof}), 
+    Kokkos::parallel_for("FillWestBuffer",
+                         Range3D({0,0,0},{nyl,nzl,dof}),
                          KOKKOS_LAMBDA (int j, int k, int l) {
       Wsend(0,j,k,l) = Yview(0,j,k,l);
     });
-    Kokkos::parallel_for("FillSouthBuffer", 
-                         Range3D({0,0,0},{nxl,nzl,dof}), 
+    Kokkos::parallel_for("FillSouthBuffer",
+                         Range3D({0,0,0},{nxl,nzl,dof}),
                          KOKKOS_LAMBDA (int i, int k, int l) {
       Ssend(i,0,k,l) = Yview(i,0,k,l);
     });
-    Kokkos::parallel_for("FillBackBuffer", 
-                         Range3D({0,0,0},{nxl,nyl,dof}), 
+    Kokkos::parallel_for("FillBackBuffer",
+                         Range3D({0,0,0},{nxl,nyl,dof}),
                          KOKKOS_LAMBDA (int i, int j, int l) {
       Bsend(i,j,0,l) = Yview(i,j,0,l);
     });
@@ -387,12 +396,12 @@ int ComponentMask(N_Vector mask, const int component, const UserData* udata)
 
   /* Create 4D view of mask data */
   SUNVector* masklocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(mask));
-  Vec4D maskview((masklocal->View()).data(), udata->grid->nxl, udata->grid->nyl, 
+  Vec4D maskview((masklocal->View()).data(), udata->grid->nxl, udata->grid->nyl,
                  udata->grid->nzl, udata->grid->dof);
 
   /* Fill mask data */
-  Kokkos::parallel_for("Fill_mask", 
-                       Range3D({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}), 
+  Kokkos::parallel_for("Fill_mask",
+                       Range3D({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
     maskview(i,j,k,component) = 1.0;
@@ -579,8 +588,8 @@ int SetIC(N_Vector y, UserData* udata)
   Vec4D yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
 
   /* Gaussian perturbation of the steady state solution */
-  Kokkos::parallel_for("SetIC", 
-                       Range3D({0,0,0},{nxl,nyl,nzl}), 
+  Kokkos::parallel_for("SetIC",
+                       Range3D({0,0,0},{nxl,nyl,nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
     realtype x = (xcrd * nxl + i) * dx;
@@ -629,12 +638,12 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* create 4D view of host data */
-    Vec4DHost Yview((yVec->HostView()).data(), udata->grid->nxl, 
+    Vec4DHost Yview((yVec->HostView()).data(), udata->grid->nxl,
                     udata->grid->nyl, udata->grid->nzl, udata->grid->dof);
 
     /* output results to disk */
-    Kokkos::parallel_for("OutputSolution", 
-                         Range3DSerial({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}), 
+    Kokkos::parallel_for("OutputSolution",
+                         Range3DSerial({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}),
                          KOKKOS_LAMBDA (int i, int j, int k)
     {
       fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
@@ -649,7 +658,7 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     std::fflush(udata->VFID);
     std::fflush(udata->WFID);
   }
-  
+
   return(0);
 }
 
@@ -687,4 +696,3 @@ void InputError(char *name)
 
   MPI_Barrier(MPI_COMM_WORLD);
 }
-

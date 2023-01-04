@@ -13,7 +13,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
  * A simple implementation of a parallel structured Cartesian mesh class that
- * supports up to 3 spatial dimensions and an arbitrary number of degrees of 
+ * supports up to 3 spatial dimensions and an arbitrary number of degrees of
  * freedom, and that uses Kokkos views to store communication buffer data.
  * ----------------------------------------------------------------------------*/
 
@@ -57,8 +57,8 @@ public:
   // [in] width - the stencil width; defaults to 1
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
-  ParallelGrid(MPI_Comm* comm, const REAL a[], const REAL b[], const GLOBALINT npts[], 
-               int dof, BoundaryType bc, StencilType st, const REAL c, int width = 1, 
+  ParallelGrid(MPI_Comm* comm, const REAL a[], const REAL b[], const GLOBALINT npts[],
+               int dof, BoundaryType bc, StencilType st, const REAL c, int width = 1,
                const int npxyz[] = nullptr, bool reorder = false)
     : nx(1), ny(1), nz(1),
       nxl(1), nyl(1), nzl(1),
@@ -86,8 +86,8 @@ public:
     retval = MPI_Dims_create(nprocs, NDIMS, dims);
     assert(retval == MPI_SUCCESS);
 
-    int periods[] = { bc == BoundaryType::PERIODIC, 
-                      bc == BoundaryType::PERIODIC, 
+    int periods[] = { bc == BoundaryType::PERIODIC,
+                      bc == BoundaryType::PERIODIC,
                       bc == BoundaryType::PERIODIC };
     retval = MPI_Cart_create(*comm, NDIMS, dims, periods, reorder, comm);
     assert(retval == MPI_SUCCESS);

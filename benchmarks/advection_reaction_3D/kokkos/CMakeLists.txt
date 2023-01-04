@@ -28,7 +28,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     check_retval.h)
 
   # ensure the linker language is reset to CXX
-  set_target_properties(advection_reaction_3D_kokkos 
+  set_target_properties(advection_reaction_3D_kokkos
     PROPERTIES LINKER_LANGUAGE CXX)
 
   target_include_directories(advection_reaction_3D_kokkos

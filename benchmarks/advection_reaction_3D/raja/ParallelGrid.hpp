@@ -57,9 +57,9 @@ public:
   // [in] width - the stencil width; defaults to 1
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
-  ParallelGrid(SUNMemoryHelper memhelp, MPI_Comm* comm, const REAL a[], const REAL b[], 
-               const GLOBALINT npts[], int dof, BoundaryType bc, StencilType st, 
-               const REAL c, int width = 1, const int npxyz[] = nullptr, 
+  ParallelGrid(SUNMemoryHelper memhelp, MPI_Comm* comm, const REAL a[], const REAL b[],
+               const GLOBALINT npts[], int dof, BoundaryType bc, StencilType st,
+               const REAL c, int width = 1, const int npxyz[] = nullptr,
                bool reorder = false)
     : nx(1), ny(1), nz(1),
       nxl(1), nyl(1), nzl(1),
@@ -71,6 +71,7 @@ public:
       bc(bc), st(st), width(width),
       upwindRight(true),
       memhelp(memhelp)
+
   {
     static_assert((NDIMS >= 1 && NDIMS <= 3), "ParallelGrid NDIMS must be 1, 2 or 3");
     assert(st == StencilType::UPWIND);
@@ -88,8 +89,8 @@ public:
     retval = MPI_Dims_create(nprocs, NDIMS, dims);
     assert(retval == MPI_SUCCESS);
 
-    int periods[] = { bc == BoundaryType::PERIODIC, 
-                      bc == BoundaryType::PERIODIC, 
+    int periods[] = { bc == BoundaryType::PERIODIC,
+                      bc == BoundaryType::PERIODIC,
                       bc == BoundaryType::PERIODIC };
     retval = MPI_Cart_create(*comm, NDIMS, dims, periods, reorder, comm);
     assert(retval == MPI_SUCCESS);
@@ -158,7 +159,7 @@ public:
     if (upwindRight)
       SUNMemoryHelper_Alloc(memhelp, &Wrecv_, sizeof(REAL)*dof*width*nyl*nzl,
                             memoryType(), nullptr);
-    else 
+    else
       SUNMemoryHelper_Alloc(memhelp, &Wsend_, sizeof(REAL)*dof*width*nyl*nzl,
                             memoryType(), nullptr);
     ipW = MPI_PROC_NULL;
@@ -516,18 +517,21 @@ public:
 
   ~ParallelGrid()
   {
-    SUNMemoryHelper_Dealloc(memhelp, Esend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Wsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Nsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Ssend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Fsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Bsend_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Erecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Wrecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Nrecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Srecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Frecv_, nullptr);
-    SUNMemoryHelper_Dealloc(memhelp, Brecv_, nullptr);
+    if (upwindRight) {
+      SUNMemoryHelper_Dealloc(memhelp, Esend_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Nsend_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Fsend_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Wrecv_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Srecv_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Brecv_, nullptr);
+    } else {
+      SUNMemoryHelper_Dealloc(memhelp, Wsend_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Ssend_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Bsend_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Erecv_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Nrecv_, nullptr);
+      SUNMemoryHelper_Dealloc(memhelp, Frecv_, nullptr);
+    }
   }
 
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
