@@ -84,47 +84,74 @@ typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
  * Exported Functions for SUNLINSOL_SPFGMR
  * ---------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y,
-                                                 int pretype,
-                                                 int maxl,
-                                                 SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S,
-                                                int pretype);
-SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S,
-                                              int gstype);
-SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S,
-                                                   int maxrs);
-SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolInitialize_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetATimes_SPFGMR(SUNLinearSolver S, void* A_data,
-                                              SUNATimesFn ATimes);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetPreconditioner_SPFGMR(SUNLinearSolver S,
-                                                      void* P_data,
-                                                      SUNPSetupFn Pset,
-                                                      SUNPSolveFn Psol);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S,
-                                                      N_Vector s1,
-                                                      N_Vector s2);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S,
-                                                 booleantype onoff);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A,
-                                          N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT int SUNLinSolNumIters_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_SPFGMR(SUNLinearSolver S,
-                                          long int *lenrwLS,
-                                          long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_SPFGMR(SUNLinearSolver S);
+SUNDIALS_EXPORT
+SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl,
+                                 SUNContext sunctx);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S, int pretype);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S, int gstype);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
+
+SUNDIALS_EXPORT
+SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+SUNLinearSolver_ID SUNLinSolGetID_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolInitialize_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolSetATimes_SPFGMR(SUNLinearSolver S, void* A_data,
+                                     SUNATimesFn ATimes);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolSetPreconditioner_SPFGMR(SUNLinearSolver S, void* P_data,
+                                             SUNPSetupFn Pset, SUNPSolveFn Psol);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
+                                             N_Vector s2);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff);
+
+SUNDIALS_EXPORT
+SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                                  N_Vector b, realtype tol);
+
+SUNDIALS_EXPORT
+int SUNLinSolNumIters_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+realtype SUNLinSolResNorm_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+N_Vector SUNLinSolResid_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+sunindextype SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolSpace_SPFGMR(SUNLinearSolver S, long int* lenrwLS,
+                                 long int* leniwLS);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLinSolFree_SPFGMR(SUNLinearSolver S);
+
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-SUNErrCode SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver LS,
-                                FILE* info_file);
+SUNErrCode SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver LS, FILE* info_file);
+
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
 SUNErrCode SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver LS, int print_level);
-
 
 #ifdef __cplusplus
 }

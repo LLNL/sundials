@@ -54,7 +54,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
   SUNAssertContext(sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE, sunctx);
   SUNAssert(SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
-  SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_ILLEGAL, sunctx);
+  SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_INCOMPATIBLE, sunctx);
 
   MatrixRows = SUNDenseMatrix_Rows(A);
   SUNAssert(MatrixRows == N_VGetLength(y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);

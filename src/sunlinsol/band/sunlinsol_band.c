@@ -57,14 +57,14 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
   SUNAssertContext(sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
   SUNAssert(SUNBandMatrix_Rows(A) == SUNBandMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
-  SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_ILLEGAL, sunctx);
+  SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_INCOMPATIBLE, sunctx);
 
   /* Check that A has appropriate storage upper bandwidth for factorization */
   MatrixRows = SUNBandMatrix_Rows(A);
   SUNAssert(SUNBandMatrix_StoredUpperBandwidth(A) >=
               SUNMIN(MatrixRows - 1, SUNBandMatrix_LowerBandwidth(A) +
                                        SUNBandMatrix_UpperBandwidth(A)),
-            SUN_ERR_ARG_ILLEGAL, sunctx);
+            SUN_ERR_ARG_INCOMPATIBLE, sunctx);
   SUNAssert(MatrixRows == N_VGetLength(y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
 
   /* Create an empty linear solver */

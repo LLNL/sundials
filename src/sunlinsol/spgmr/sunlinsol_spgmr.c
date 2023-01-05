@@ -145,7 +145,7 @@ SUNErrCode SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
   /* Check for legal pretype */
   SUNAssert((pretype == SUN_PREC_NONE) || (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) || (pretype == SUN_PREC_BOTH),
-            SUN_ERR_ARG_CORRUPT, S->sunctx);
+            SUN_ERR_ARG_OUTOFRANGE, S->sunctx);
 
   /* Set pretype */
   SPGMR_CONTENT(S)->pretype = pretype;
@@ -207,6 +207,7 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
 {
   int k;
   SUNLinearSolverContent_SPGMR content;
+  SUNContext sunctx = S->sunctx;
 
   /* set shortcut to SPGMR memory structure */
   content = SPGMR_CONTENT(S);
@@ -215,7 +216,7 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->max_restarts < 0)
     content->max_restarts = SUNSPGMR_MAXRS_DEFAULT;
 
-  SUNAssert(content->ATimes, SUN_ERR_ARG_CORRUPT, S->sunctx);
+  SUNAssert(content->ATimes, SUN_ERR_ARG_CORRUPT, sunctx);
 
   if ( (content->pretype != SUN_PREC_LEFT) &&
        (content->pretype != SUN_PREC_RIGHT) &&
@@ -223,7 +224,7 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
     content->pretype = SUN_PREC_NONE;
 
   SUNAssert((content->pretype == SUN_PREC_NONE) || (content->Psolve != NULL),
-            SUN_ERR_ARG_CORRUPT, S->sunctx);
+            SUN_ERR_ARG_CORRUPT, sunctx);
 
   /* allocate solver-specific memory (where the size depends on the
      choice of maxl) here */
@@ -232,43 +233,43 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->V == NULL) {
     content->V = SUNCheckCallLastErrReturn(N_VCloneVectorArray(content->maxl + 1,
                                                                content->vtemp),
-                                           S->sunctx);
+                                           sunctx);
   }
 
   /*   Hessenberg matrix Hes */
   if (content->Hes == NULL) {
     content->Hes = (realtype **) malloc((content->maxl+1)*sizeof(realtype *));
-    SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL, S->sunctx);
+    SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL, sunctx);
 
     for (k=0; k<=content->maxl; k++) {
       content->Hes[k] = NULL;
       content->Hes[k] = (realtype *) malloc(content->maxl*sizeof(realtype));
-      SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL, S->sunctx);
+      SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL, sunctx);
     }
   }
 
   /*   Givens rotation components */
   if (content->givens == NULL) {
     content->givens = (realtype *) malloc(2*content->maxl*sizeof(realtype));
-    SUNAssert(content->givens, SUN_ERR_MALLOC_FAIL, S->sunctx);
+    SUNAssert(content->givens, SUN_ERR_MALLOC_FAIL, sunctx);
   }
 
   /*    y and g vectors */
   if (content->yg == NULL) {
     content->yg = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
-    SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL, S->sunctx);
+    SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL, sunctx);
   }
 
   /*    cv vector for fused vector ops */
   if (content->cv == NULL) {
     content->cv = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
-    SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL, S->sunctx);
+    SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL, sunctx);
   }
 
   /*    Xv vector for fused vector ops */
   if (content->Xv == NULL) {
     content->Xv = (N_Vector *) malloc((content->maxl+1)*sizeof(N_Vector));
-    SUNAssert(content->Xv, SUN_ERR_MALLOC_FAIL, S->sunctx);
+    SUNAssert(content->Xv, SUN_ERR_MALLOC_FAIL, sunctx);
   }
 
   return SUN_SUCCESS;

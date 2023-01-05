@@ -31,7 +31,7 @@
 /* SUN_ERR_CODE_LIST is an X macro that can be expanded in various ways */
 #define SUN_ERR_CODE_LIST(ENTRY)                                               \
   ENTRY(SUN_ERR_ARG_CORRUPT, "argument provided is NULL or corrupted")         \
-  ENTRY(SUN_ERR_ARG_ILLEGAL, "argument provided is illegal")                   \
+  ENTRY(SUN_ERR_ARG_INCOMPATIBLE, "argument provided is not comptaible")       \
   ENTRY(SUN_ERR_ARG_OUTOFRANGE, "argument is out of the valid range")          \
   ENTRY(SUN_ERR_ARG_WRONGTYPE, "argument provided is not the right type")      \
   ENTRY(SUN_ERR_ARG_DIMSMISMATCH, "argument dimensions do not agree")          \
@@ -223,8 +223,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                           \
   while (0)
 #else
-#define SUNCheck(expr, code, sunctx) \
-  (void)sunctx
+#define SUNCheck(expr, code, sunctx) (void)sunctx
 #endif
 
 /* SUNCheckCall performs the SUNDIALS function call, and checks the returned
