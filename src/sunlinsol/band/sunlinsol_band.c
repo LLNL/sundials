@@ -163,16 +163,17 @@ SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 {
   realtype **A_cols, *xdata;
   sunindextype *pivots;
+    SUNContext sunctx = S->sunctx;
 
   /* copy b into x */
-  N_VScale(ONE, b, x);
+  SUNCheckCallLastErr(N_VScale(ONE, b, x), sunctx);
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   xdata = NULL;
   pivots = NULL;
-  A_cols = SUNBandMatrix_Cols(A);
-  xdata = N_VGetArrayPointer(x);
+  A_cols = SUNCheckCallLastErr(SUNBandMatrix_Cols(A), sunctx);
+  xdata = SUNCheckCallLastErr(N_VGetArrayPointer(x), sunctx);
   pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) ) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
