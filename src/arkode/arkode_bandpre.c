@@ -24,6 +24,9 @@
 #include "arkode_impl.h"
 #include "arkode_bandpre_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_linearsolver.h"
 #include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
@@ -116,7 +119,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ARK_SUNCTX);
+  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -128,7 +131,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -138,7 +141,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   pdata->tmp2 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     arkFreeVec(ark_mem, &(pdata->tmp1));
@@ -149,8 +152,9 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* initialize band linear solver object */
   retval = SUNLinSolInitialize(pdata->LS);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != SUNLS_SUCCESS) {
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     arkFreeVec(ark_mem, &(pdata->tmp1));
@@ -224,6 +228,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   }
   if (pdata->LS->ops->space) {
     retval = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == SUNLS_SUCCESS) {
       *leniwBP += liw;
       *lenrwBP += lrw;
@@ -302,12 +307,13 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
    1  if the band factorization failed.
 ---------------------------------------------------------------*/
 static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bp_data)
+                            booleantype jok, booleantype *jcurPtr,
+                            realtype gamma, void *bp_data)
 {
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
+  SUNLsStatus ls_status = SUNLS_SUCCESS;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;
@@ -369,8 +375,15 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(retval);
+  ls_status = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
+  if (ls_status < 0) {
+    arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNLS_FAIL);
+    return(-1);
+  } else if (ls_status > 0) {
+    return(1);
+  }
+
+  return(0);
 }
 
 
@@ -396,15 +409,23 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                             realtype gamma, realtype delta,
                             int lr, void *bp_data)
 {
+  SUNDeclareContext(y->sunctx);
+
   ARKBandPrecData pdata;
-  int retval;
+  SUNLsStatus ls_status = SUNLS_SUCCESS;
 
   /* Assume matrix and linear solver have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;
 
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->savedP, z, r, ZERO);
-  return(retval);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP, z, r, ZERO), SUNCTX);
+  if (ls_status < 0) {
+    return(-1);
+  } else if (ls_status > 0) {
+    return(1);
+  }
+
+  return(0);
 }
 
 
@@ -427,7 +448,7 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   if (arkls_mem->P_data == NULL) return(0);
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
   arkFreeVec(ark_mem, &(pdata->tmp1));

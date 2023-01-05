@@ -24,6 +24,8 @@
 #include "arkode_impl.h"
 #include "arkode_bbdpre_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_linearsolver.h"
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
@@ -177,7 +179,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, ARK_SUNCTX);
+  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(pdata->rlocal, pdata->savedP, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->LS == NULL) {
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));
@@ -193,6 +195,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* initialize band linear solver object */
   retval = SUNLinSolInitialize(pdata->LS);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (pdata->LS == NULL) {
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));
@@ -201,7 +204,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_SUNLS_FAIL);
     return(ARKLS_SUNLS_FAIL);
@@ -239,6 +242,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   }
   if (pdata->LS->ops->space) {
     retval = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -412,6 +416,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
+  SUNLsStatus ls_status = SUNLS_SUCCESS;
 
   pdata = (ARKBBDPrecData) bbd_data;
 
@@ -472,8 +477,16 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(retval);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP), ARK_SUNCTX);
+  if (ls_status < 0) {
+    arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
+    return(-1);
+  }
+  if (ls_status > 0) {
+    return(1);
+  }
+
+  return(0);
 }
 
 
@@ -539,7 +552,7 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   if (arkls_mem->P_data == NULL) return(0);
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
   arkFreeVec(ark_mem, &(pdata->tmp1));
   arkFreeVec(ark_mem, &(pdata->tmp2));
   arkFreeVec(ark_mem, &(pdata->tmp3));

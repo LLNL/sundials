@@ -123,7 +123,7 @@ typedef struct ARKLsMemRec {
   ARKLsLinSysFn linsys;
   void* A_data;
 
-  int last_flag; /* last error flag returned by any function */
+  SUNLsStatus last_flag; /* last error flag returned by any function */
 
 } *ARKLsMem;
 

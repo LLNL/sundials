@@ -17,8 +17,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "arkode/arkode_ls.h"
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_linearsolver.h"
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -75,7 +77,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  LSType = SUNCheckCallLastErrNoRet(SUNLinSolGetType(LS), ARK_SUNCTX);
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
@@ -197,6 +199,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* If LS supports ATimes, attach ARKLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, ark_mem, arkLsATimes);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
@@ -208,6 +211,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, ark_mem, NULL, NULL);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
@@ -302,7 +306,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  LSType = SUNCheckCallLastErrNoRet(SUNLinSolGetType(LS), ARK_SUNCTX);
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
@@ -402,6 +406,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* If LS supports ATimes, attach ARKLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, ark_mem, NULL);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
@@ -413,6 +418,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, ark_mem, NULL, NULL);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
@@ -930,6 +936,7 @@ int arkLSGetWorkSpace(void *arkode_mem, long int *lenrw,
   /* add LS sizes */
   if (arkls_mem->LS->ops->space) {
     retval = SUNLinSolSpace(arkls_mem->LS, &lrw, &liw);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == SUNLS_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
@@ -1322,6 +1329,7 @@ int arkLSSetMassTimes(void *arkode_mem,
 
   /* notify linear solver to call ARKLs interface routine */
   retval = SUNLinSolSetATimes(arkls_mem->LS, ark_mem, arkLsMTimes);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != SUNLS_SUCCESS) {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetATimes");
@@ -1398,6 +1406,7 @@ int arkLSGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   /* add LS sizes */
   if (arkls_mem->LS->ops->space) {
     retval = SUNLinSolSpace(arkls_mem->LS, &lrw, &liw);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == SUNLS_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
@@ -2416,7 +2425,9 @@ int arkLsInitialize(void* arkode_mem)
   }
 
   /* Call LS initialize routine, and return result */
-  arkls_mem->last_flag = SUNLinSolInitialize(arkls_mem->LS);
+  retval = SUNLinSolInitialize(arkls_mem->LS);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  arkls_mem->last_flag = ARKLS_SUCCESS;
   return(arkls_mem->last_flag);
 }
 
@@ -2540,7 +2551,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
 
   /* Call LS setup routine -- the LS may call arkLsPSetup, who will
      pass the heuristic suggestions above to the user code(s) */
-  arkls_mem->last_flag = SUNLinSolSetup(arkls_mem->LS, arkls_mem->A);
+  arkls_mem->last_flag = SUNCheckCallLastErr(SUNLinSolSetup(arkls_mem->LS, arkls_mem->A), ARK_SUNCTX);
 
   /* If the SUNMatrix was NULL, update heuristics flags */
   if (arkls_mem->A == NULL) {
@@ -2648,6 +2659,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != SUNLS_SUCCESS) return(-1);
 
   /* Store previous nps value in nps_inc */
@@ -2679,17 +2691,21 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
                       "An error occurred in ark_step_getgammas");
       return(arkls_mem->last_flag);
     }
-    if (gamrat != ONE)  SUNCheckCallLastErrNoRet(N_VScale(TWO/(ONE + gamrat), b, b), ARK_SUNCTX);
+    if (gamrat != ONE) {
+      SUNCheckCallLastErrNoRet(N_VScale(TWO/(ONE + gamrat), b, b), ARK_SUNCTX);
+    }
   }
 
   /* Retrieve statistics from iterative linear solvers */
   resnorm = ZERO;
   nli_inc = 0;
   if (arkls_mem->iterative) {
-    if (arkls_mem->LS->ops->resnorm)
-      resnorm = SUNLinSolResNorm(arkls_mem->LS);
-    if (arkls_mem->LS->ops->numiters)
-      nli_inc = SUNLinSolNumIters(arkls_mem->LS);
+    if (arkls_mem->LS->ops->resnorm) {
+      resnorm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(arkls_mem->LS), ARK_SUNCTX);
+    }
+    if (arkls_mem->LS->ops->numiters) {
+      nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(arkls_mem->LS), ARK_SUNCTX);
+    }
   }
 
   /* Increment counters nli and ncfl */
@@ -2873,7 +2889,8 @@ int arkLsMassInitialize(void *arkode_mem)
     ark_mem->step_disablemsetup(arkode_mem);
 
   /* Call LS initialize routine */
-  arkls_mem->last_flag = SUNLinSolInitialize(arkls_mem->LS);
+  retval = SUNLinSolInitialize(arkls_mem->LS);
+  SUNCheckCall(retval, ARK_SUNCTX);
   return(arkls_mem->last_flag);
 }
 
@@ -3079,6 +3096,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != SUNLS_SUCCESS) return(-1);
 
   /* Store previous nps value in nps_inc */
@@ -3094,10 +3112,12 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   resnorm = ZERO;
   nli_inc = 0;
   if (arkls_mem->iterative) {
-    if (arkls_mem->LS->ops->resnorm)
-      resnorm = SUNLinSolResNorm(arkls_mem->LS);
-    if (arkls_mem->LS->ops->numiters)
-      nli_inc = SUNLinSolNumIters(arkls_mem->LS);
+    if (arkls_mem->LS->ops->resnorm) {
+      resnorm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(arkls_mem->LS), ARK_SUNCTX);
+    }
+    if (arkls_mem->LS->ops->numiters) {
+      nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(arkls_mem->LS), ARK_SUNCTX);
+    }
   }
 
   /* Increment counters nli and ncfl */
@@ -3179,11 +3199,15 @@ int arkLsMassFree(void *arkode_mem)
   /* detach ARKLs interface routines from LS object (ignore return values) */
   if (arkls_mem->LS) {
     if (arkls_mem->LS->ops) {
-      if (arkls_mem->LS->ops->setatimes)
-        SUNLinSolSetATimes(arkls_mem->LS, NULL, NULL);
+      if (arkls_mem->LS->ops->setatimes) {
+        SUNCheckCallNoRet(SUNLinSolSetATimes(arkls_mem->LS, NULL, NULL), ARK_SUNCTX);
+      }
 
-      if (arkls_mem->LS->ops->setpreconditioner)
-        SUNLinSolSetPreconditioner(arkls_mem->LS, NULL, NULL, NULL);
+      if (arkls_mem->LS->ops->setpreconditioner) {
+        SUNCheckCallNoRet(SUNLinSolSetPreconditioner(arkls_mem->LS, NULL, NULL,
+                                                     NULL),
+                          ARK_SUNCTX);
+      }
     }
   }
 
