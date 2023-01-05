@@ -61,8 +61,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty(sunctx);
-  SUNAssert(S, SUN_ERR_MALLOC_FAIL, sunctx);
+  S = SUNCheckCallLastErrReturnNull(SUNLinSolNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Dense;
