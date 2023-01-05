@@ -215,7 +215,6 @@ SUNErrCode SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
   SUNContext sunctx = S->sunctx;
 
   /* set shortcut to SPFGMR memory structure */
-  if (S == NULL) return(SUNLS_MEM_NULL);
   content = SPFGMR_CONTENT(S);
 
   /* ensure valid options */
@@ -244,8 +243,9 @@ SUNErrCode SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
 
   /*   Preconditioned basis vectors */
   if (content->Z == NULL) {
-    content->Z = N_VCloneVectorArray(content->maxl+1, content->vtemp);
-    SUNAssert(content->Z, SUN_ERR_MALLOC_FAIL, sunctx);
+    content->Z = SUNCheckCallLastErrReturn(N_VCloneVectorArray(content->maxl + 1,
+                                                               content->vtemp),
+                                           sunctx);
   }
 
   /*   Hessenberg matrix Hes */
@@ -332,7 +332,7 @@ SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff)
 
 SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
-  int ier;
+  SUNLsStatus status;
   SUNPSetupFn Psetup;
   void* PData;
 
@@ -343,9 +343,9 @@ SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
   /* no solver-specific setup is required, but if user-supplied
      Psetup routine exists, call that here */
   if (Psetup != NULL) {
-    ier = Psetup(PData);
-    if (ier != 0) {
-      LASTFLAG(S) = (ier < 0) ?
+    status = Psetup(PData);
+    if (status != 0) {
+      LASTFLAG(S) = (status < 0) ?
         SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
@@ -365,11 +365,12 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype beta, rotation_product, r_norm, s_product, rho;
   booleantype preOnRight, scale1, scale2, converged;
   booleantype *zeroguess;
-  int i, j, k, l, l_max, krydim, ier, ntries, max_restarts, gstype;
+  int i, j, k, l, l_max, krydim, ntries, max_restarts, gstype;
   int *nli;
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
+  SUNLsStatus status;
   SUNContext sunctx = S->sunctx;
 
   /* local shortcuts for fused vector operations */
@@ -429,10 +430,10 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (*zeroguess) {
     SUNCheckCallLastErr(N_VScale(ONE, b, vtemp), sunctx);
   } else {
-    ier = atimes(A_data, x, vtemp);
-    if (ier != 0) {
+    status = atimes(A_data, x, vtemp);
+    if (status != 0) {
       *zeroguess  = SUNFALSE;
-      LASTFLAG(S) = (ier < 0) ?
+      LASTFLAG(S) = (status < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
     }
@@ -503,10 +504,10 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /*   Apply right preconditioner: vtemp = Z[l] = P_inv s2_inv V[l]. */
       if (preOnRight) {
         SUNCheckCallLastErr(N_VScale(ONE, vtemp, V[l+1]), sunctx);
-        ier = psolve(P_data, V[l+1], vtemp, delta, SUN_PREC_RIGHT);
-        if (ier != 0) {
+        status = psolve(P_data, V[l+1], vtemp, delta, SUN_PREC_RIGHT);
+        if (status != 0) {
           *zeroguess  = SUNFALSE;
-          LASTFLAG(S) = (ier < 0) ?
+          LASTFLAG(S) = (status < 0) ?
             SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
           return(LASTFLAG(S));
         }
@@ -514,10 +515,10 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       SUNCheckCallLastErr(N_VScale(ONE, vtemp, Z[l]), sunctx);
 
       /*   Apply A: V[l+1] = A P_inv s2_inv V[l]. */
-      ier = atimes(A_data, vtemp, V[l+1]);
-      if (ier != 0) {
+      status = atimes(A_data, vtemp, V[l+1]);
+      if (status != 0) {
         *zeroguess  = SUNFALSE;
-        LASTFLAG(S) = (ier < 0) ?
+        LASTFLAG(S) = (status < 0) ?
           SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
         return(LASTFLAG(S));
       }
@@ -529,21 +530,14 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
       /* Orthogonalize V[l+1] against previous V[i]: V[l+1] = w_tilde. */
       if (gstype == SUN_CLASSICAL_GS) {
-        ier = SUNClassicalGS(V, Hes, l+1, l_max, &(Hes[l+1][l]), cv, Xv);
-        SUNCheck(ier == SUN_SUCCESS, ier, sunctx);
-        if (ier) {
-          *zeroguess  = SUNFALSE;
-          LASTFLAG(S) = SUNLS_GS_FAIL;
-          return(LASTFLAG(S));
-        }
-      } else {
-        ier = SUNModifiedGS(V, Hes, l+1, l_max, &(Hes[l+1][l]));
-        SUNCheck(ier == SUN_SUCCESS, ier, sunctx);
-        if (ier) {
-          *zeroguess  = SUNFALSE;
-          LASTFLAG(S) = SUNLS_GS_FAIL;
-          return(LASTFLAG(S));
-        }
+        SUNCheckCall(SUNClassicalGS(V, Hes, l + 1, l_max, &(Hes[l + 1][l]), cv,
+                                    Xv),
+                     sunctx);
+      }
+      else
+      {
+        SUNCheckCall(SUNModifiedGS(V, Hes, l + 1, l_max, &(Hes[l + 1][l])),
+                     sunctx);
       }
 
       /* Update the QR factorization of Hes. */

@@ -189,7 +189,6 @@ SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 
@@ -199,13 +198,13 @@ SUNErrCode SUNLinSolSpace_Band(SUNLinearSolver S, long int* lenrwLS,
   SUNAssert(SUNLinSolGetID(S) == SUNLINEARSOLVER_BAND, SUN_ERR_ARG_WRONGTYPE, S->sunctx);
   *leniwLS = 2 + BAND_CONTENT(S)->N;
   *lenrwLS = 0;
-  return(SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolFree_Band(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) return(SUN_SUCCESS);
+  if (S == NULL) return SUN_SUCCESS;
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {
@@ -221,5 +220,5 @@ SUNErrCode SUNLinSolFree_Band(SUNLinearSolver S)
     S->ops = NULL;
   }
   free(S); S = NULL;
-  return(SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

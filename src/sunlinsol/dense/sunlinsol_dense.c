@@ -113,7 +113,7 @@ SUNErrCode SUNLinSolInitialize_Dense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNLsStatus SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
@@ -174,7 +174,6 @@ SUNLsStatus SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 
@@ -184,13 +183,13 @@ SUNErrCode SUNLinSolSpace_Dense(SUNLinearSolver S, long int* lenrwLS,
   SUNAssert(SUNLinSolGetID(S) == SUNLINEARSOLVER_DENSE, SUN_ERR_ARG_WRONGTYPE, S->sunctx);
   *leniwLS = 2 + DENSE_CONTENT(S)->N;
   *lenrwLS = 0;
-  return(SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolFree_Dense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) return(SUN_SUCCESS);
+  if (S == NULL) return SUN_SUCCESS;
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {
@@ -206,5 +205,5 @@ SUNErrCode SUNLinSolFree_Dense(SUNLinearSolver S)
     S->ops = NULL;
   }
   free(S); S = NULL;
-  return(SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

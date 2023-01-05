@@ -858,7 +858,7 @@ SUNErrCode SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, long int* lenrwLS,
   return SUN_SUCCESS;
 }
 
-int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
 {
   if (S == NULL) return(SUNLS_SUCCESS);
 

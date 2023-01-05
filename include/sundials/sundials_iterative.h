@@ -115,8 +115,8 @@ enum
  */
 
 /* DEPRECATED ATimesFn: use SUNATimesFn */
-typedef SUNErrCode (*ATimesFn)(void* A_data, N_Vector v, N_Vector z);
-typedef SUNErrCode (*SUNATimesFn)(void* A_data, N_Vector v, N_Vector z);
+typedef SUNLsStatus (*ATimesFn)(void* A_data, N_Vector v, N_Vector z);
+typedef SUNLsStatus (*SUNATimesFn)(void* A_data, N_Vector v, N_Vector z);
 
 /*
  * -----------------------------------------------------------------

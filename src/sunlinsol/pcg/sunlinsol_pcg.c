@@ -22,6 +22,8 @@
 #include <sunlinsol/sunlinsol_pcg.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
@@ -136,7 +138,7 @@ SUNErrCode SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype)
   /* Check for legal pretype */
   SUNAssert((pretype == SUN_PREC_NONE) || (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) || (pretype == SUN_PREC_BOTH),
-            SUN_ERR_ARG_CORRUPT, S->sunctx);
+            SUN_ERR_ARG_OUTOFRANGE, S->sunctx);
 
   /* Set pretype */
   PRETYPE(S) = pretype;
@@ -227,7 +229,6 @@ SUNErrCode SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
   /* set N_Vector pointer to integrator-supplied scaling vector
      (only use the first one), and return with success */
   PCG_CONTENT(S)->s = s;
-  LASTFLAG(S) = SUNLS_SUCCESS;
   return SUN_SUCCESS;
 }
 
@@ -242,21 +243,20 @@ SUNErrCode SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff)
 
 SUNLsStatus SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 {
-  int ier;
+  SUNLsStatus status;
   SUNPSetupFn Psetup;
   void* PData;
 
   /* Set shortcuts to PCG memory structures */
-  if (S == NULL) return(SUNLS_MEM_NULL);
   Psetup = PCG_CONTENT(S)->Psetup;
   PData = PCG_CONTENT(S)->PData;
 
   /* no solver-specific setup is required, but if user-supplied
      Psetup routine exists, call that here */
   if (Psetup != NULL) {
-    ier = Psetup(PData);
-    if (ier != 0) {
-      LASTFLAG(S) = (ier < 0) ?
+    status = Psetup(PData);
+    if (status != 0) {
+      LASTFLAG(S) = (status < 0) ?
         SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
@@ -276,12 +276,13 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   N_Vector r, p, z, Ap, w;
   booleantype UsePrec, UseScaling, converged;
   booleantype *zeroguess;
-  int l, l_max, pretype, ier;
+  int l, l_max, pretype;
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
   realtype *res_norm;
   int *nli;
+  SUNLsStatus status;
   SUNContext sunctx = S->sunctx;
 
   /* Make local shorcuts to solver variables. */
@@ -326,10 +327,10 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   if (*zeroguess) {
     SUNCheckCallLastErr(N_VScale(ONE, b, r), sunctx);
   } else {
-    ier = atimes(A_data, x, r);
-    if (ier != 0) {
+    status = atimes(A_data, x, r);
+    if (status != 0) {
       *zeroguess  = SUNFALSE;
-      LASTFLAG(S) = (ier < 0) ?
+      LASTFLAG(S) = (status < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
     }
@@ -342,7 +343,8 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   } else {
     SUNCheckCallLastErr(N_VScale(ONE, r, Ap), sunctx);
   }
-  *res_norm = r0_norm = rho = SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(Ap, Ap)), sunctx);
+  rho = SUNCheckCallLastErr(N_VDotProd(Ap, Ap), sunctx);
+  *res_norm = r0_norm = rho = SUNRsqrt(rho);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   /* print initial residual */
@@ -366,15 +368,14 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 
   /* Apply preconditioner and b-scaling to r = r_0 */
   if (UsePrec) {
-    ier = psolve(P_data, r, z, delta, SUN_PREC_LEFT);   /* z = P^{-1}r */
-    if (ier != 0) {
+    status = psolve(P_data, r, z, delta, SUN_PREC_LEFT);   /* z = P^{-1}r */
+    if (status != 0) {
       *zeroguess  = SUNFALSE;
-      LASTFLAG(S) = (ier < 0) ?
+      LASTFLAG(S) = (status < 0) ?
         SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
       return(LASTFLAG(S));
     }
-  }
-  else {
+  } else {
     SUNCheckCallLastErr(N_VScale(ONE, r, z), sunctx);
   }
 
@@ -392,16 +393,17 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     (*nli)++;
 
     /* Generate Ap = A*p */
-    ier = atimes(A_data, p, Ap);
-    if (ier != 0) {
+    status = atimes(A_data, p, Ap);
+    if (status != 0) {
       *zeroguess  = SUNFALSE;
-      LASTFLAG(S) = (ier < 0) ?
+      LASTFLAG(S) = (status < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
     }
 
     /* Calculate alpha = <r,z> / <Ap,p> */
-    alpha = rz / SUNCheckCallLastErr(N_VDotProd(Ap, p), sunctx);
+    alpha = SUNCheckCallLastErr(N_VDotProd(Ap, p), sunctx);
+    alpha = rz / alpha;
 
     /* Update x = x + alpha*p */
     if (l == 0 && *zeroguess) {
@@ -414,9 +416,13 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     SUNCheckCallLastErr(N_VLinearSum(ONE, r, -alpha, Ap, r), sunctx);
 
     /* Set rho and check convergence */
-    if (UseScaling)  N_VProd(r, w, Ap);
-    else SUNCheckCallLastErr(N_VScale(ONE, r, Ap), sunctx);
-    *res_norm = rho = SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(Ap, Ap)), sunctx);
+    if (UseScaling) {
+      SUNCheckCallLastErr(N_VProd(r, w, Ap), sunctx);
+    } else {
+      SUNCheckCallLastErr(N_VScale(ONE, r, Ap), sunctx);
+    }
+    rho = SUNCheckCallLastErr(N_VDotProd(Ap, Ap), sunctx);
+    *res_norm = rho = SUNRsqrt(rho);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     /* print current iteration number and the residual */
@@ -442,15 +448,14 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 
     /* Apply preconditioner:  z = P^{-1}*r */
     if (UsePrec) {
-      ier = psolve(P_data, r, z, delta, SUN_PREC_LEFT);
-      if (ier != 0) {
+      status = psolve(P_data, r, z, delta, SUN_PREC_LEFT);
+      if (status != 0) {
         *zeroguess  = SUNFALSE;
-        LASTFLAG(S) = (ier < 0) ?
+        LASTFLAG(S) = (status < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
       }
-    }
-    else {
+    } else {
       SUNCheckCallLastErr(N_VScale(ONE, r, z), sunctx);
     }
 
