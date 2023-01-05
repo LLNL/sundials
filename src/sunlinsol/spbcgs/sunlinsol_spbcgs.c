@@ -23,6 +23,8 @@
 #include <sunlinsol/sunlinsol_spbcgs.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
@@ -195,28 +197,23 @@ SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S)
 
 SUNErrCode SUNLinSolInitialize_SPBCGS(SUNLinearSolver S)
 {
+  SUNContext sunctx = S->sunctx;
+
   if (SPBCGS_CONTENT(S)->maxl <= 0)
     SPBCGS_CONTENT(S)->maxl = SUNSPBCGS_MAXL_DEFAULT;
 
-  if (SPBCGS_CONTENT(S)->ATimes == NULL) {
-    LASTFLAG(S) = SUNLS_ATIMES_NULL;
-    return(LASTFLAG(S));
-  }
+  SUNAssert(SPBCGS_CONTENT(S)->ATimes, SUN_ERR_ARG_CORRUPT, S->sunctx);
 
   if ( (PRETYPE(S) != SUN_PREC_LEFT) &&
        (PRETYPE(S) != SUN_PREC_RIGHT) &&
        (PRETYPE(S) != SUN_PREC_BOTH) )
     PRETYPE(S) = SUN_PREC_NONE;
 
-  if ((PRETYPE(S) != SUN_PREC_NONE) && (SPBCGS_CONTENT(S)->Psolve == NULL)) {
-    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
-    return(LASTFLAG(S));
-  }
-
+  SUNAssert((PRETYPE(S) == SUN_PREC_NONE) || SPBCGS_CONTENT(S)->Psolve, SUN_ERR_ARG_CORRUPT, sunctx);
+  
   /* no additional memory to allocate */
 
   /* return with success */
-  LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 

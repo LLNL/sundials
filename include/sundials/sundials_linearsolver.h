@@ -187,6 +187,8 @@ SUNDIALS_EXPORT
 SUNLsStatus SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                            N_Vector b, realtype tol);
 
+/* TODO(CJB): We should consider changing the return type to long int since
+ batched solvers could in theory return a very large number here. */
 SUNDIALS_EXPORT
 int SUNLinSolNumIters(SUNLinearSolver S);
 
@@ -212,8 +214,10 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
  * SUNLinearSolver return values
  * ----------------------------------------------------------------- */
 
-/* TODO(CJB): We should deprecate all codes which are not 'numerical' errors
-              as they are covered by SUNErrCode. */
+/* TODO(CJB): We should remove all codes which are not associated
+              with recoverable errors. Typically these are 'convergence'
+              or 'numerical' in nature. Do not remove errors which
+              unrecoverable but have a recoverable dual.  */
 
 #define SUNLS_SUCCESS 0 /* successful/converged          */
 
@@ -234,6 +238,7 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
 #define SUNLS_PACKAGE_FAIL_UNREC -809 /* external package unrec. fail  */
 #define SUNLS_GS_FAIL            -810 /* Gram-Schmidt failure          */
 #define SUNLS_QRSOL_FAIL         -811 /* QRsol found singular R        */
+/* DEPRECATED: use SUNErrCode instead */
 #define SUNLS_VECTOROP_ERR     -812 /* vector operation error        */
 #define SUNLS_RES_REDUCED      801  /* nonconv. solve, resid reduced */
 #define SUNLS_CONV_FAIL        802  /* nonconvergent solve           */
