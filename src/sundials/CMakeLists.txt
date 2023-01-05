@@ -112,6 +112,7 @@ if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
   endif()
   if(ENABLE_CALIPER)
     set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
+    set(_link_caliper_if_needed PUBLIC caliper)
   endif()
 endif()
 
@@ -128,6 +129,7 @@ sundials_add_library(sundials_generic
     ${_include_caliper_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
+    ${_link_caliper_if_needed}
   OUTPUT_NAME
     sundials_generic
   VERSION
