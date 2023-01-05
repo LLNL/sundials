@@ -23,6 +23,7 @@
 
 module fsundials_context_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  implicit none
  private
 
@@ -34,12 +35,6 @@ module fsundials_context_mod
  type, bind(C) :: SwigClassWrapper
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_sunbooleantype
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, public :: SWIGTYPE_p_SUNErrCode
-  type(SwigClassWrapper), public :: swigdata
  end type
  type, public :: SWIGTYPE_p_SUNErrHandler_
   type(SwigClassWrapper), public :: swigdata
@@ -106,7 +101,7 @@ bind(C, name="_wrap_SUNContext__own_profiler_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+integer(C_INT), intent(in) :: farg2
 end subroutine
 
 function swigc_SUNContext__own_profiler_get(farg1) &
@@ -115,7 +110,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_SUNContext__logger_set(farg1, farg2) &
@@ -140,7 +135,7 @@ bind(C, name="_wrap_SUNContext__own_logger_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+integer(C_INT), intent(in) :: farg2
 end subroutine
 
 function swigc_SUNContext__own_logger_get(farg1) &
@@ -149,7 +144,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_SUNContext__last_err_set(farg1, farg2) &
@@ -157,7 +152,7 @@ bind(C, name="_wrap_SUNContext__last_err_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+integer(C_INT), intent(in) :: farg2
 end subroutine
 
 function swigc_SUNContext__last_err_get(farg1) &
@@ -166,7 +161,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_SUNContext__err_handler_set(farg1, farg2) &
@@ -230,19 +225,17 @@ function swigc_FSUNContext_GetLastError(farg1, farg2) &
 bind(C, name="_wrap_FSUNContext_GetLastError") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: fresult
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_ClearLastError(farg1) &
 bind(C, name="_wrap_FSUNContext_ClearLastError") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_PushErrHandler(farg1, farg2, farg3) &
@@ -260,49 +253,44 @@ function swigc_FSUNContext_PopErrHandler(farg1) &
 bind(C, name="_wrap_FSUNContext_PopErrHandler") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_GetProfiler(farg1, farg2) &
 bind(C, name="_wrap_FSUNContext_GetProfiler") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_SetProfiler(farg1, farg2) &
 bind(C, name="_wrap_FSUNContext_SetProfiler") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_GetLogger(farg1, farg2) &
 bind(C, name="_wrap_FSUNContext_GetLogger") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_SetLogger(farg1, farg2) &
 bind(C, name="_wrap_FSUNContext_SetLogger") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 
@@ -357,26 +345,26 @@ end function
 subroutine swigf_SUNContext__own_profiler_set(self, own_profiler)
 use, intrinsic :: ISO_C_BINDING
 class(SUNContext_), intent(in) :: self
-type(SWIGTYPE_p_sunbooleantype), intent(in) :: own_profiler
+integer(C_INT), intent(in) :: own_profiler
 type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
-farg2 = own_profiler%swigdata
+farg2 = own_profiler
 call swigc_SUNContext__own_profiler_set(farg1, farg2)
 end subroutine
 
 function swigf_SUNContext__own_profiler_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_sunbooleantype) :: swig_result
+integer(C_INT) :: swig_result
 class(SUNContext_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_SUNContext__own_profiler_get(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 subroutine swigf_SUNContext__logger_set(self, logger)
@@ -407,51 +395,51 @@ end function
 subroutine swigf_SUNContext__own_logger_set(self, own_logger)
 use, intrinsic :: ISO_C_BINDING
 class(SUNContext_), intent(in) :: self
-type(SWIGTYPE_p_sunbooleantype), intent(in) :: own_logger
+integer(C_INT), intent(in) :: own_logger
 type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
-farg2 = own_logger%swigdata
+farg2 = own_logger
 call swigc_SUNContext__own_logger_set(farg1, farg2)
 end subroutine
 
 function swigf_SUNContext__own_logger_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_sunbooleantype) :: swig_result
+integer(C_INT) :: swig_result
 class(SUNContext_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_SUNContext__own_logger_get(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 subroutine swigf_SUNContext__last_err_set(self, last_err)
 use, intrinsic :: ISO_C_BINDING
 class(SUNContext_), intent(in) :: self
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: last_err
+integer(C_INT), intent(in) :: last_err
 type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
-farg2 = last_err%swigdata
+farg2 = last_err
 call swigc_SUNContext__last_err_set(farg1, farg2)
 end subroutine
 
 function swigf_SUNContext__last_err_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 class(SUNContext_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_SUNContext__last_err_get(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 subroutine swigf_SUNContext__err_handler_set(self, err_handler)
@@ -544,30 +532,30 @@ end subroutine
 function FSUNContext_GetLastError(sunctx, last_err) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-class(SWIGTYPE_p_SUNErrCode), intent(in) :: last_err
-type(SwigClassWrapper) :: fresult 
+integer(C_INT), dimension(*), target, intent(inout) :: last_err
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
-farg2 = last_err%swigdata
+farg2 = c_loc(last_err(1))
 fresult = swigc_FSUNContext_GetLastError(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_ClearLastError(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_ClearLastError(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_PushErrHandler(sunctx, err_fn, err_user_data) &
@@ -592,78 +580,78 @@ end function
 function FSUNContext_PopErrHandler(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_PopErrHandler(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_GetProfiler(sunctx, profiler) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: profiler
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = c_loc(profiler)
 fresult = swigc_FSUNContext_GetProfiler(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_SetProfiler(sunctx, profiler) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR) :: profiler
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = profiler
 fresult = swigc_FSUNContext_SetProfiler(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_GetLogger(sunctx, logger) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: logger
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = c_loc(logger)
 fresult = swigc_FSUNContext_GetLogger(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_SetLogger(sunctx, logger) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR) :: logger
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = logger
 fresult = swigc_FSUNContext_SetLogger(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 
