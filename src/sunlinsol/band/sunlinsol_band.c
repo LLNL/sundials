@@ -69,7 +69,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNCheckCallLastErrReturnNull(SUNLinSolNewEmpty(sunctx), sunctx);
+  S = SUNCheckCallLastErrNull(SUNLinSolNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Band;
@@ -166,14 +166,14 @@ SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     SUNContext sunctx = S->sunctx;
 
   /* copy b into x */
-  SUNCheckCallLastErr(N_VScale(ONE, b, x), sunctx);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, b, x), sunctx);
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   xdata = NULL;
   pivots = NULL;
-  A_cols = SUNCheckCallLastErr(SUNBandMatrix_Cols(A), sunctx);
-  xdata = SUNCheckCallLastErr(N_VGetArrayPointer(x), sunctx);
+  A_cols = SUNCheckCallLastErrNoRet(SUNBandMatrix_Cols(A), sunctx);
+  xdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(x), sunctx);
   pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) ) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;

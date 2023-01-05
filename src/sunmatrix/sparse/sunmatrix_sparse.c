@@ -72,7 +72,7 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
 
   /* Create an empty matrix object */
   A = NULL;
-  A = SUNCheckCallLastErrReturnNull(SUNMatNewEmpty(sunctx), sunctx);
+  A = SUNCheckCallLastErrNull(SUNMatNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   A->ops->getid     = SUNMatGetID_Sparse;
@@ -168,7 +168,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, realtype droptol,
   /* allocate sparse matrix */
   As = NULL;
   As =
-    SUNCheckCallLastErrReturnNull(SUNSparseMatrix(M, N, nnz, sparsetype, sunctx),
+    SUNCheckCallLastErrNull(SUNSparseMatrix(M, N, nnz, sparsetype, sunctx),
                                   sunctx);
 
   /* copy nonzeros from Ad into As, based on CSR/CSC type */
@@ -231,7 +231,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ab, realtype droptol, int sparsetype
 
   /* allocate sparse matrix */
   As =
-    SUNCheckCallLastErrReturnNull(SUNSparseMatrix(M, N, nnz, sparsetype, sunctx),
+    SUNCheckCallLastErrNull(SUNSparseMatrix(M, N, nnz, sparsetype, sunctx),
                                   sunctx);
 
   /* copy nonzeros from Ab into As, based on CSR/CSC type */
@@ -274,11 +274,11 @@ SUNErrCode SUNSparseMatrix_ToCSR(const SUNMatrix A, SUNMatrix* Bout)
   SUNAssert(SM_SPARSETYPE_S(A) == CSC_MAT, SUN_ERR_ARG_OUTOFRANGE, sunctx);
 
   *Bout =
-    SUNCheckCallLastErrReturn(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+    SUNCheckCallLastErr(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
                                               SM_NNZ_S(A), CSR_MAT, sunctx),
                               sunctx);
 
-  SUNCheckCallReturn(format_convert(A, *Bout), sunctx);
+  SUNCheckCall(format_convert(A, *Bout), sunctx);
   return SUN_SUCCESS;
 }
 
@@ -292,11 +292,11 @@ SUNErrCode SUNSparseMatrix_ToCSC(const SUNMatrix A, SUNMatrix* Bout)
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE, sunctx);
   SUNAssert(SM_SPARSETYPE_S(A) == CSR_MAT, SUN_ERR_ARG_OUTOFRANGE, sunctx);
 
-  *Bout = SUNCheckCallLastErrReturn(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+  *Bout = SUNCheckCallLastErr(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
                                                     SM_NNZ_S(A), CSC_MAT, sunctx),
                                     sunctx);
 
-  SUNCheckCallReturn(format_convert(A, *Bout), sunctx);
+  SUNCheckCall(format_convert(A, *Bout), sunctx);
   return SUN_SUCCESS;
 }
 
@@ -466,7 +466,7 @@ SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
 {
   SUNContext sunctx = A->sunctx;
   SUNMatrix B =
-    SUNCheckCallLastErrReturnNull(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+    SUNCheckCallLastErrNull(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
                                                   SM_NNZ_S(A),
                                                   SM_SPARSETYPE_S(A), sunctx),
                                   sunctx);
@@ -546,7 +546,7 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
   }
 
   /* zero out B so that copy works correctly */
-  SUNCheckCallReturn(SUNMatZero_Sparse(B), sunctx);
+  SUNCheckCall(SUNMatZero_Sparse(B), sunctx);
 
   /* copy the data and row indices over */
   for (i=0; i<A_nz; i++){
@@ -698,7 +698,7 @@ SUNErrCode SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
     SUNAssert(x, SUN_ERR_MALLOC_FAIL, sunctx);
 
     /* create new matrix for sum */
-    C = SUNCheckCallLastErrReturn(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+    C = SUNCheckCallLastErr(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
                                                   Ap[N] + newvals,
                                                   SM_SPARSETYPE_S(A), sunctx),
                                   sunctx);
@@ -927,7 +927,7 @@ SUNErrCode SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B)
 
 
     /* create new matrix for sum */
-    C = SUNCheckCallLastErrReturn(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
+    C = SUNCheckCallLastErr(SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A),
                                                   Ap[N] + newvals,
                                                   SM_SPARSETYPE_S(A), sunctx),
                                   sunctx);
@@ -1018,9 +1018,9 @@ SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 
   /* Perform operation */
   if(SM_SPARSETYPE_S(A) == CSC_MAT) {
-    SUNCheckCallReturn(Matvec_SparseCSC(A, x, y), sunctx);
+    SUNCheckCall(Matvec_SparseCSC(A, x, y), sunctx);
   } else {
-    SUNCheckCallReturn(Matvec_SparseCSR(A, x, y), sunctx);
+    SUNCheckCall(Matvec_SparseCSR(A, x, y), sunctx);
   }
 
   return SUN_SUCCESS;
@@ -1105,8 +1105,8 @@ SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheck(Ax, SUN_ERR_ARG_CORRUPT, sunctx);
 
   /* access vector data (return if failure) */
-  xd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(x), sunctx);
-  yd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(y), sunctx);
+  xd = SUNCheckCallLastErr(N_VGetArrayPointer(x), sunctx);
+  yd = SUNCheckCallLastErr(N_VGetArrayPointer(y), sunctx);
 
   /* initialize result */
   for (i=0; i<SM_ROWS_S(A); i++)
@@ -1148,8 +1148,8 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheck(Ax, SUN_ERR_ARG_CORRUPT, sunctx);
 
   /* access vector data (return if failure) */
-  xd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(x), sunctx);
-  yd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(y), sunctx);
+  xd = SUNCheckCallLastErr(N_VGetArrayPointer(x), sunctx);
+  yd = SUNCheckCallLastErr(N_VGetArrayPointer(y), sunctx);
 
   /* initialize result */
   for (i=0; i<SM_ROWS_S(A); i++)
@@ -1182,7 +1182,7 @@ SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
     SUNContext sunctx = A->sunctx;
 
     if (SM_SPARSETYPE_S(A) == SM_SPARSETYPE_S(B)) {
-      SUNCheckCallReturn(SUNMatCopy_Sparse(A, B), sunctx);
+      SUNCheckCall(SUNMatCopy_Sparse(A, B), sunctx);
       return SUN_SUCCESS;
     }
 
@@ -1199,7 +1199,7 @@ SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
 
     nnz = Ap[n_row];
 
-    SUNCheckCallReturn(SUNMatZero_Sparse(B), sunctx);
+    SUNCheckCall(SUNMatZero_Sparse(B), sunctx);
 
     /* compute number of non-zero entries per column (if CSR) or per row (if CSC) of A */
     for (n = 0; n < nnz; n++)

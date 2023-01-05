@@ -74,7 +74,7 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
 
   /* Create an empty matrix object */
   A = NULL;
-  A = SUNCheckCallLastErrReturnNull(SUNMatNewEmpty(sunctx), sunctx);
+  A = SUNCheckCallLastErrNull(SUNMatNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   A->ops->getid     = SUNMatGetID_Band;
@@ -229,7 +229,7 @@ SUNMatrix SUNMatClone_Band(SUNMatrix A)
 {
   SUNContext sunctx = A->sunctx;
   SUNMatrix B =
-    SUNCheckCallLastErrReturnNull(SUNBandMatrixStorage(SM_COLUMNS_B(A),
+    SUNCheckCallLastErrNull(SUNBandMatrixStorage(SM_COLUMNS_B(A),
                                                        SM_UBAND_B(A),
                                                        SM_LBAND_B(A),
                                                        SM_SUBAND_B(A), sunctx),
@@ -309,7 +309,7 @@ SUNErrCode SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
   }
 
   /* Perform operation */
-  SUNCheckCallReturn(SUNMatZero_Band(B), sunctx);
+  SUNCheckCall(SUNMatZero_Band(B), sunctx);
   for (j=0; j<SM_COLUMNS_B(B); j++) {
     B_colj = SM_COLUMN_B(B,j);
     A_colj = SM_COLUMN_B(A,j);
@@ -371,8 +371,8 @@ SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
 
   /* access vector data (return if failure) */
-  xd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(x), sunctx);
-  yd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(y), sunctx);
+  xd = SUNCheckCallLastErr(N_VGetArrayPointer(x), sunctx);
+  yd = SUNCheckCallLastErr(N_VGetArrayPointer(y), sunctx);
 
   /* Perform operation */
   for (i=0; i<SM_ROWS_B(A); i++)
@@ -441,7 +441,7 @@ SUNErrCode SMScaleAddNew_Band(realtype c, SUNMatrix A, SUNMatrix B)
   ml  = SUNMAX(SM_LBAND_B(A),SM_LBAND_B(B));
   mu  = SUNMAX(SM_UBAND_B(A),SM_UBAND_B(B));
   smu = SUNMIN(SM_COLUMNS_B(A)-1, mu + ml);
-  C   = SUNCheckCallLastErrReturn(SUNBandMatrixStorage(SM_COLUMNS_B(A), mu, ml,
+  C   = SUNCheckCallLastErr(SUNBandMatrixStorage(SM_COLUMNS_B(A), mu, ml,
                                                        smu, sunctx),
                                   sunctx);
 

@@ -50,7 +50,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
             SUN_ERR_ARG_CORRUPT, sunctx);
 
   /* Create an empty nonlinear linear solver object */
-  NLS = SUNCheckCallLastErrReturnNull(SUNNonlinSolNewEmpty(sunctx), sunctx);
+  NLS = SUNCheckCallLastErrNull(SUNNonlinSolNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   NLS->ops->gettype         = SUNNonlinSolGetType_Newton;
@@ -95,7 +95,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
 #endif
 
   /* Fill allocatable content */
-  content->delta = SUNCheckCallLastErrReturnNull(N_VClone(y), sunctx);
+  content->delta = SUNCheckCallLastErrNull(N_VClone(y), sunctx);
 
   return(NLS);
 }
@@ -112,13 +112,13 @@ SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
   N_Vector w;
 
   /* create sensitivity vector wrapper */
-  w = SUNCheckCallLastErrReturnNull(N_VNew_SensWrapper(count, y), sunctx);
+  w = SUNCheckCallLastErrNull(N_VNew_SensWrapper(count, y), sunctx);
 
   /* create nonlinear solver using sensitivity vector wrapper */
-  NLS = SUNCheckCallLastErrReturnNull(SUNNonlinSol_Newton(w, sunctx), sunctx);
+  NLS = SUNCheckCallLastErrNull(SUNNonlinSol_Newton(w, sunctx), sunctx);
 
   /* free sensitivity vector wrapper */
-  SUNCheckCallLastErrReturnNull(N_VDestroy(w), sunctx);
+  SUNCheckCallLastErrNull(N_VDestroy(w), sunctx);
 
   /* return NLS object */
   return(NLS);
@@ -241,14 +241,14 @@ SUNNlsStatus SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
       NEWTON_CONTENT(NLS)->niters++;
 
       /* compute the negative of the residual for the linear system rhs */
-      SUNCheckCallLastErr(N_VScale(-ONE, delta, delta), NLS->sunctx);
+      SUNCheckCallLastErrNoRet(N_VScale(-ONE, delta, delta), NLS->sunctx);
 
       /* solve the linear system to get Newton update delta */
       retval = NEWTON_CONTENT(NLS)->LSolve(delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* update the Newton iterate */
-      SUNCheckCallLastErr(N_VLinearSum(ONE, ycor, ONE, delta, ycor), NLS->sunctx);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ycor, ONE, delta, ycor), NLS->sunctx);
 
       /* test for convergence */
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
@@ -323,7 +323,7 @@ SUNErrCode SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
   if (NLS->content) {
 
     if (NEWTON_CONTENT(NLS)->delta) {
-      SUNCheckCallLastErrReturn(N_VDestroy(NEWTON_CONTENT(NLS)->delta), NLS->sunctx);
+      SUNCheckCallLastErr(N_VDestroy(NEWTON_CONTENT(NLS)->delta), NLS->sunctx);
     }
     NEWTON_CONTENT(NLS)->delta = NULL;
 

@@ -54,7 +54,7 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
 
   /* Create an empty matrix object */
   A = NULL;
-  A = SUNCheckCallLastErrReturnNull(SUNMatNewEmpty(sunctx), sunctx);
+  A = SUNCheckCallLastErrNull(SUNMatNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
   A->ops->getid     = SUNMatGetID_Dense;
@@ -174,7 +174,7 @@ SUNMatrix SUNMatClone_Dense(SUNMatrix A)
 {
   SUNContext sunctx = A->sunctx;
   SUNMatrix B =
-    SUNCheckCallLastErrReturnNull(SUNDenseMatrix(SM_ROWS_D(A), SM_COLUMNS_D(A),
+    SUNCheckCallLastErrNull(SUNDenseMatrix(SM_ROWS_D(A), SM_COLUMNS_D(A),
                                                  sunctx),
                                   sunctx);
   return (B);
@@ -288,8 +288,8 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
 
   /* access vector data (return if NULL data pointers) */
-  xd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(x), sunctx);
-  yd = SUNCheckCallLastErrReturn(N_VGetArrayPointer(y), sunctx);
+  xd = SUNCheckCallLastErr(N_VGetArrayPointer(x), sunctx);
+  yd = SUNCheckCallLastErr(N_VGetArrayPointer(y), sunctx);
 
   /* Perform operation y = Ax */
   for (i = 0; i < SM_ROWS_D(A); i++)

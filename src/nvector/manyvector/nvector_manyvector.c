@@ -91,7 +91,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(sunctx), sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
 
@@ -181,7 +181,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 
   /* duplicate input communicator (if non-NULL) */
   if (comm != MPI_COMM_NULL) {
-    SUNCheckMPICall(MPI_Comm_dup(comm, &(content->comm)), sunctx);
+    SUNCheckMPICallNoRet(MPI_Comm_dup(comm, &(content->comm)), sunctx);
   }
 
   /* Determine overall MPIManyVector length: sum contributions from all
@@ -198,7 +198,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
     if (rank == 0) local_length += N_VGetLength(vec_array[i]);
   }
   if (content->comm != MPI_COMM_NULL) {
-    SUNCheckMPICall(MPI_Allreduce(&local_length, &(content->global_length), 1,
+    SUNCheckMPICallNoRet(MPI_Allreduce(&local_length, &(content->global_length), 1,
                                   MPI_SUNINDEXTYPE, MPI_SUM, content->comm), 
                     sunctx);
   } else {
@@ -243,13 +243,13 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
     if (nocommfound) {
 
       /* set comm to duplicate this first subvector communicator */
-      SUNCheckMPICall(MPI_Comm_dup(*vcomm, &comm), sunctx);
+      SUNCheckMPICallNoRet(MPI_Comm_dup(*vcomm, &comm), sunctx);
       nocommfound = SUNFALSE;
 
     /* otherwise, verify that vcomm matches stored comm */
     } else {
 
-      SUNCheckMPICall(MPI_Comm_compare(*vcomm, comm, &comparison), sunctx);
+      SUNCheckMPICallNoRet(MPI_Comm_compare(*vcomm, comm, &comparison), sunctx);
       SUNMPIAssert((comparison == MPI_IDENT) || (comparison == MPI_CONGRUENT),
                     SUN_ERR_MANYVECTOR_COMMNOTSAME, sunctx);
 
@@ -285,7 +285,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(sunctx), sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty(sunctx), sunctx);
 
   /* Attach operations */
 
@@ -528,7 +528,7 @@ void MVAPPEND(N_VSpace)(N_Vector v, sunindextype *lrw, sunindextype *liw)
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(v); i++) {
     /* update space requirements for this subvector (if 'nvspace' is implemented) */
     if ((MANYVECTOR_SUBVEC(v,i))->ops->nvspace != NULL) {
-      SUNCheckCallLastErr(N_VSpace(MANYVECTOR_SUBVEC(v,i), &lrw1, &liw1), v->sunctx);
+      SUNCheckCallLastErrNoRet(N_VSpace(MANYVECTOR_SUBVEC(v,i), &lrw1, &liw1), v->sunctx);
       *lrw += lrw1;
       *liw += liw1;
     }
@@ -573,7 +573,7 @@ void MVAPPEND(N_VLinearSum)(realtype a, N_Vector x, realtype b, N_Vector y, N_Ve
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VLinearSum(a, MANYVECTOR_SUBVEC(x, i), b,
+    SUNCheckCallLastErrNoRet(N_VLinearSum(a, MANYVECTOR_SUBVEC(x, i), b,
                                      MANYVECTOR_SUBVEC(y, i),
                                      MANYVECTOR_SUBVEC(z, i)),
                         x->sunctx);
@@ -587,7 +587,7 @@ void MVAPPEND(N_VConst)(realtype c, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(z); i++) {
-    SUNCheckCallLastErr(N_VConst(c, MANYVECTOR_SUBVEC(z, i)), z->sunctx);
+    SUNCheckCallLastErrNoRet(N_VConst(c, MANYVECTOR_SUBVEC(z, i)), z->sunctx);
   }
   return;
 }
@@ -600,7 +600,7 @@ void MVAPPEND(N_VProd)(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VProd(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(y, i),
+    SUNCheckCallLastErrNoRet(N_VProd(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(y, i),
                                 MANYVECTOR_SUBVEC(z, i)),
                         x->sunctx);
   }
@@ -615,7 +615,7 @@ void MVAPPEND(N_VDiv)(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VDiv(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(y, i),
+    SUNCheckCallLastErrNoRet(N_VDiv(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(y, i),
                                MANYVECTOR_SUBVEC(z, i)),
                         x->sunctx);
   }
@@ -630,7 +630,7 @@ void MVAPPEND(N_VScale)(realtype c, N_Vector x, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VScale(c, MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VScale(c, MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
   }
   return;
 }
@@ -643,7 +643,7 @@ void MVAPPEND(N_VAbs)(N_Vector x, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VAbs(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VAbs(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
   }
   return;
 }
@@ -656,7 +656,7 @@ void MVAPPEND(N_VInv)(N_Vector x, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VInv(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VInv(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
   }
   return;
 }
@@ -669,7 +669,7 @@ void MVAPPEND(N_VAddConst)(N_Vector x, realtype b, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VAddConst(MANYVECTOR_SUBVEC(x,i), b, MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VAddConst(MANYVECTOR_SUBVEC(x,i), b, MANYVECTOR_SUBVEC(z,i)), x->sunctx);
   }
   return;
 }
@@ -703,12 +703,12 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
     /* check for nvdotprodlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvdotprodlocal) {
 
-      sum += SUNCheckCallLastErr(N_VDotProdLocal(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(y,i)), x->sunctx);
+      sum += SUNCheckCallLastErrNoRet(N_VDotProdLocal(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(y,i)), x->sunctx);
 
       /* otherwise, call nvdotprod and root tasks accumulate to overall sum */
     } else {
 
-      contrib = SUNCheckCallLastErr(N_VDotProd(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(y,i)), x->sunctx);
+      contrib = SUNCheckCallLastErrNoRet(N_VDotProd(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(y,i)), x->sunctx);
 
       /* get this task's rank in subvector communicator (note: serial
          subvectors will result in rank==0) */
@@ -721,7 +721,7 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
 #else
 
     /* add subvector contribution */
-    sum += SUNCheckCallLastErr(N_VDotProd(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(y,i)), x->sunctx);
+    sum += SUNCheckCallLastErrNoRet(N_VDotProd(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(y,i)), x->sunctx);
 
 #endif
 
@@ -739,7 +739,7 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
 realtype N_VDotProd_MPIManyVector(N_Vector x, N_Vector y)
 {
   realtype lsum, gsum;
-  lsum = gsum = SUNCheckCallLastErr(N_VDotProdLocal_MPIManyVector(x,y), x->sunctx);
+  lsum = gsum = SUNCheckCallLastErrNoRet(N_VDotProdLocal_MPIManyVector(x,y), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
   return(gsum);
@@ -765,13 +765,13 @@ realtype MVAPPEND(N_VMaxNormLocal)(N_Vector x)
     /* check for nvmaxnormlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvmaxnormlocal) {
 
-      lmax = SUNCheckCallLastErr(N_VMaxNormLocal(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+      lmax = SUNCheckCallLastErrNoRet(N_VMaxNormLocal(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
       max = (max > lmax) ? max : lmax;
 
       /* otherwise, call nvmaxnorm and accumulate to overall max */
     } else {
 
-      lmax = SUNCheckCallLastErr(N_VMaxNorm(MANYVECTOR_SUBVEC(x,i)), x->sunctx); 
+      lmax = SUNCheckCallLastErrNoRet(N_VMaxNorm(MANYVECTOR_SUBVEC(x,i)), x->sunctx); 
       max = (max > lmax) ? max : lmax;
 
     }
@@ -787,7 +787,7 @@ realtype MVAPPEND(N_VMaxNormLocal)(N_Vector x)
 realtype N_VMaxNorm_MPIManyVector(N_Vector x)
 {
   realtype lmax, gmax;
-  lmax = gmax = SUNCheckCallLastErr(N_VMaxNormLocal_MPIManyVector(x), x->sunctx);
+  lmax = gmax = SUNCheckCallLastErrNoRet(N_VMaxNormLocal_MPIManyVector(x), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, MANYVECTOR_COMM(x));
   return(gmax);
@@ -823,19 +823,19 @@ realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
     /* check for nvwsqrsumlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvwsqrsumlocal) {
 
-      sum += SUNCheckCallLastErr(N_VWSqrSumLocal(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(w,i)), x->sunctx);
+      sum += SUNCheckCallLastErrNoRet(N_VWSqrSumLocal(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(w,i)), x->sunctx);
 
       /* otherwise, call nvwrmsnorm, and accumulate to overall sum on root task */
     } else {
 
-      contrib = SUNCheckCallLastErr(N_VWrmsNorm(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(w,i)), x->sunctx);
+      contrib = SUNCheckCallLastErrNoRet(N_VWrmsNorm(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(w,i)), x->sunctx);
 
       /* get this task's rank in subvector communicator (note: serial
          subvectors will result in rank==0) */
       rank = SubvectorMPIRank(MANYVECTOR_SUBVEC(x,i));
       if (rank < 0)  return(ZERO);
       if (rank == 0) {
-        N = SUNCheckCallLastErr(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+        N = SUNCheckCallLastErrNoRet(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
         sum += (contrib*contrib*N);
       }
     }
@@ -843,8 +843,8 @@ realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
 #else
 
     /* accumulate subvector contribution to overall sum */
-    contrib = SUNCheckCallLastErr(N_VWrmsNorm(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(w,i)), x->sunctx);
-    N = SUNCheckCallLastErr(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+    contrib = SUNCheckCallLastErrNoRet(N_VWrmsNorm(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(w,i)), x->sunctx);
+    N = SUNCheckCallLastErrNoRet(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
     sum += (contrib*contrib*N);
 
 #endif
@@ -864,11 +864,11 @@ realtype MVAPPEND(N_VWrmsNorm)(N_Vector x, N_Vector w)
   realtype gsum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype lsum;
-  lsum = gsum = SUNCheckCallLastErr(N_VWSqrSumLocal_MPIManyVector(x, w), x->sunctx);
+  lsum = gsum = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_MPIManyVector(x, w), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
 #else
-  gsum = SUNCheckCallLastErr(N_VWSqrSumLocal_ManyVector(x, w), x->sunctx);
+  gsum = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_ManyVector(x, w), x->sunctx);
 #endif
   return(SUNRsqrt(gsum/(MANYVECTOR_GLOBLENGTH(x))));
 }
@@ -902,14 +902,14 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
 
     /* check for nvwsqrsummasklocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvwsqrsummasklocal) {
-      sum += SUNCheckCallLastErr(N_VWSqrSumMaskLocal(MANYVECTOR_SUBVEC(x, i),
+      sum += SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal(MANYVECTOR_SUBVEC(x, i),
                                                      MANYVECTOR_SUBVEC(w, i),
                                                      MANYVECTOR_SUBVEC(id, i)),
                                  x->sunctx);
 
       /* otherwise, call nvwrmsnormmask, and accumulate to overall sum on root task */
     } else {
-      contrib = SUNCheckCallLastErr(N_VWrmsNormMask(MANYVECTOR_SUBVEC(x, i),
+      contrib = SUNCheckCallLastErrNoRet(N_VWrmsNormMask(MANYVECTOR_SUBVEC(x, i),
                                                     MANYVECTOR_SUBVEC(w, i),
                                                     MANYVECTOR_SUBVEC(id, i)),
                                     x->sunctx);
@@ -919,7 +919,7 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
       rank = SubvectorMPIRank(MANYVECTOR_SUBVEC(x,i));
       if (rank < 0)  return(ZERO);
       if (rank == 0) {
-        N = SUNCheckCallLastErr(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+        N = SUNCheckCallLastErrNoRet(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
         sum += (contrib*contrib*N);
       }
     }
@@ -927,11 +927,11 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
 #else
 
     /* accumulate subvector contribution to overall sum */
-    contrib = SUNCheckCallLastErr(N_VWrmsNormMask(MANYVECTOR_SUBVEC(x, i),
+    contrib = SUNCheckCallLastErrNoRet(N_VWrmsNormMask(MANYVECTOR_SUBVEC(x, i),
                                                   MANYVECTOR_SUBVEC(w, i),
                                                   MANYVECTOR_SUBVEC(id, i)),
                                   x->sunctx);
-    N = SUNCheckCallLastErr(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+    N = SUNCheckCallLastErrNoRet(N_VGetLength(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
     sum += (contrib*contrib*N);
 
 #endif
@@ -951,11 +951,11 @@ realtype MVAPPEND(N_VWrmsNormMask)(N_Vector x, N_Vector w, N_Vector id)
   realtype gsum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype lsum;
-  lsum = gsum = SUNCheckCallLastErr(N_VWSqrSumMaskLocal_MPIManyVector(x, w, id), x->sunctx);
+  lsum = gsum = SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal_MPIManyVector(x, w, id), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
 #else
-  gsum = SUNCheckCallLastErr(N_VWSqrSumMaskLocal_ManyVector(x, w, id), x->sunctx);
+  gsum = SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal_ManyVector(x, w, id), x->sunctx);
 #endif
   return(SUNRsqrt(gsum/(MANYVECTOR_GLOBLENGTH(x))));
 }
@@ -979,13 +979,13 @@ realtype MVAPPEND(N_VMinLocal)(N_Vector x)
     /* check for nvminlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvminlocal) {
 
-      lmin = SUNCheckCallLastErr(N_VMinLocal(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+      lmin = SUNCheckCallLastErrNoRet(N_VMinLocal(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
       min = (min < lmin) ? min : lmin;
 
       /* otherwise, call nvmin and accumulate to overall min */
     } else {
 
-      lmin = SUNCheckCallLastErr(N_VMin(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+      lmin = SUNCheckCallLastErrNoRet(N_VMin(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
       min = (min < lmin) ? min : lmin;
 
     }
@@ -1001,7 +1001,7 @@ realtype MVAPPEND(N_VMinLocal)(N_Vector x)
 realtype N_VMin_MPIManyVector(N_Vector x)
 {
   realtype lmin, gmin;
-  lmin = gmin = SUNCheckCallLastErr(N_VMinLocal_MPIManyVector(x), x->sunctx);
+  lmin = gmin = SUNCheckCallLastErrNoRet(N_VMinLocal_MPIManyVector(x), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(x));
   return(gmin);
@@ -1018,11 +1018,11 @@ realtype MVAPPEND(N_VWL2Norm)(N_Vector x, N_Vector w)
   realtype gsum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype lsum;
-  lsum = gsum = SUNCheckCallLastErr(N_VWSqrSumLocal_MPIManyVector(x, w), x->sunctx);
+  lsum = gsum = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_MPIManyVector(x, w), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
 #else
-  gsum = SUNCheckCallLastErr(N_VWSqrSumLocal_ManyVector(x, w), x->sunctx);
+  gsum = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_ManyVector(x, w), x->sunctx);
 #endif
   return(SUNRsqrt(gsum));
 }
@@ -1052,7 +1052,7 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
     /* check for nvl1normlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvl1normlocal) {
 
-      sum += SUNCheckCallLastErr(N_VL1NormLocal(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+      sum += SUNCheckCallLastErrNoRet(N_VL1NormLocal(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
 
       /* otherwise, call nvl1norm and root tasks accumulate to overall sum */
     } else {
@@ -1070,7 +1070,7 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 #else
 
     /* accumulate subvector contribution to overall sum */
-    sum += SUNCheckCallLastErr(N_VL1Norm(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
+    sum += SUNCheckCallLastErrNoRet(N_VL1Norm(MANYVECTOR_SUBVEC(x,i)), x->sunctx);
 
 #endif
 
@@ -1086,7 +1086,7 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 realtype N_VL1Norm_MPIManyVector(N_Vector x)
 {
   realtype lsum, gsum;
-  lsum = gsum = SUNCheckCallLastErr(N_VL1NormLocal_MPIManyVector(x), x->sunctx);
+  lsum = gsum = SUNCheckCallLastErrNoRet(N_VL1NormLocal_MPIManyVector(x), x->sunctx);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
   return(gsum);
@@ -1101,7 +1101,7 @@ void MVAPPEND(N_VCompare)(realtype c, N_Vector x, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
-    SUNCheckCallLastErr(N_VCompare(c, MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VCompare(c, MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
   }
   return;
 }
@@ -1127,13 +1127,13 @@ booleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
     /* check for nvinvtestlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvinvtestlocal) {
 
-      subval = SUNCheckCallLastErr(N_VInvTestLocal(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+      subval = SUNCheckCallLastErrNoRet(N_VInvTestLocal(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
       val = (val && subval);
 
       /* otherwise, call nvinvtest and accumulate to overall val */
     } else {
 
-      subval = SUNCheckCallLastErr(N_VInvTest(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
+      subval = SUNCheckCallLastErrNoRet(N_VInvTest(MANYVECTOR_SUBVEC(x,i), MANYVECTOR_SUBVEC(z,i)), x->sunctx);
       val = (val && subval);
 
     }
@@ -1152,7 +1152,7 @@ booleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
 {
   realtype val, gval;
   sunbooleantype invtest =
-    SUNCheckCallLastErr(N_VInvTestLocal_MPIManyVector(x, z), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VInvTestLocal_MPIManyVector(x, z), x->sunctx);
   val = gval = (invtest) ? ONE : ZERO;
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(x));
@@ -1180,7 +1180,7 @@ booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
 
     /* check for nvconstrmasklocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvconstrmasklocal) {
-      subval = SUNCheckCallLastErr(N_VConstrMaskLocal(MANYVECTOR_SUBVEC(c, i),
+      subval = SUNCheckCallLastErrNoRet(N_VConstrMaskLocal(MANYVECTOR_SUBVEC(c, i),
                                                       MANYVECTOR_SUBVEC(x, i),
                                                       MANYVECTOR_SUBVEC(m, i)),
                                    x->sunctx);
@@ -1188,7 +1188,7 @@ booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
 
       /* otherwise, call nvconstrmask and accumulate to overall val */
     } else {
-      subval = SUNCheckCallLastErr(N_VConstrMask(MANYVECTOR_SUBVEC(c, i),
+      subval = SUNCheckCallLastErrNoRet(N_VConstrMask(MANYVECTOR_SUBVEC(c, i),
                                                  MANYVECTOR_SUBVEC(x, i),
                                                  MANYVECTOR_SUBVEC(m, i)),
                                    x->sunctx);
@@ -1210,7 +1210,7 @@ booleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
 {
   realtype val, gval;
   sunbooleantype constrmask =
-    SUNCheckCallLastErr(N_VConstrMaskLocal_MPIManyVector(c, x, m), x->sunctx);
+    SUNCheckCallLastErrNoRet(N_VConstrMaskLocal_MPIManyVector(c, x, m), x->sunctx);
   val = gval = (constrmask) ? ONE : ZERO;
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(x));
@@ -1239,14 +1239,14 @@ realtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
     /* check for nvminquotientlocal in subvector */
     if (MANYVECTOR_SUBVEC(num,i)->ops->nvminquotientlocal) {
 
-      lmin = SUNCheckCallLastErr(N_VMinQuotientLocal(MANYVECTOR_SUBVEC(num,i), MANYVECTOR_SUBVEC(denom,i)),
+      lmin = SUNCheckCallLastErrNoRet(N_VMinQuotientLocal(MANYVECTOR_SUBVEC(num,i), MANYVECTOR_SUBVEC(denom,i)),
                                  num->sunctx);
       min = (min < lmin) ? min : lmin;
 
       /* otherwise, call nvmin and accumulate to overall min */
     } else {
 
-      lmin = SUNCheckCallLastErr(N_VMinQuotient(MANYVECTOR_SUBVEC(num,i), MANYVECTOR_SUBVEC(denom,i)),
+      lmin = SUNCheckCallLastErrNoRet(N_VMinQuotient(MANYVECTOR_SUBVEC(num,i), MANYVECTOR_SUBVEC(denom,i)),
                                  num->sunctx);
       min = (min < lmin) ? min : lmin;
 
@@ -1265,7 +1265,7 @@ realtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
 realtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
 {
   realtype lmin, gmin;
-  lmin = gmin = SUNCheckCallLastErr(N_VMinQuotientLocal_MPIManyVector(num, denom), num->sunctx);
+  lmin = gmin = SUNCheckCallLastErrNoRet(N_VMinQuotientLocal_MPIManyVector(num, denom), num->sunctx);
   if (MANYVECTOR_COMM(num) != MPI_COMM_NULL)
     MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(num));
   return(gmin);
@@ -1307,7 +1307,7 @@ SUNErrCode MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
       Ysub[j] = MANYVECTOR_SUBVEC(Y[j], i);
 
     /* compute dot products */
-    SUNCheckCallReturn(
+    SUNCheckCall(
       N_VDotProdMultiLocal(nvec, MANYVECTOR_SUBVEC(x,i), Ysub, contrib),
       x->sunctx);
 
@@ -1367,7 +1367,7 @@ SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, realtype* c, N_Vector* X, N_
     for (j=0; j<nvec; j++)  Xsub[j] = MANYVECTOR_SUBVEC(X[j],i);
 
     /* now call N_VLinearCombination for this array of subvectors */
-    SUNCheckCallReturn(
+    SUNCheckCall(
       N_VLinearCombination(nvec, c, Xsub, MANYVECTOR_SUBVEC(z,i)), 
       z->sunctx);
 
@@ -1410,7 +1410,7 @@ SUNErrCode MVAPPEND(N_VScaleAddMulti)(int nvec, realtype* a, N_Vector x, N_Vecto
     }
 
     /* now call N_VScaleAddMulti for this array of subvectors */
-    SUNCheckCallReturn(
+    SUNCheckCall(
       N_VScaleAddMulti(nvec, a, MANYVECTOR_SUBVEC(x,i), Ysub, Zsub),
       x->sunctx);
 
@@ -1437,7 +1437,7 @@ SUNErrCode MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype
 
   /* call N_VDotProdLocal for each <x,Y[i]> pair */
   for (i=0; i<nvec; i++) {
-    dotprods[i] = SUNCheckCallLastErr(N_VDotProdLocal(x,Y[i]), x->sunctx);
+    dotprods[i] = SUNCheckCallLastErrNoRet(N_VDotProdLocal(x,Y[i]), x->sunctx);
   }
 
 #ifdef MANYVECTOR_BUILD_WITH_MPI
@@ -1493,7 +1493,7 @@ SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, realtype a,
     }
 
     /* now call N_VLinearSumVectorArray for this array of subvectors */
-    SUNCheckCall(
+    SUNCheckCallNoRet(
       N_VLinearSumVectorArray(nvec, a, Xsub, b, Ysub, Zsub),
       X[0]->sunctx);
 
@@ -1540,7 +1540,7 @@ SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, realtype* c, N_Vector* X, N_V
     }
 
     /* now call N_VScaleVectorArray for this array of subvectors */
-    SUNCheckCallReturn( 
+    SUNCheckCall( 
       N_VScaleVectorArray(nvec, c, Xsub, Zsub),
       X[0]->sunctx);
 
@@ -1580,7 +1580,7 @@ SUNErrCode MVAPPEND(N_VConstVectorArray)(int nvec, realtype c, N_Vector* Z)
       Zsub[j] = MANYVECTOR_SUBVEC(Z[j],i);
 
     /* now call N_VConstVectorArray for this array of subvectors */
-    SUNCheckCallReturn(N_VConstVectorArray(nvec, c, Zsub),
+    SUNCheckCall(N_VConstVectorArray(nvec, c, Zsub),
       Z[0]->sunctx);
 
   }
@@ -1608,7 +1608,7 @@ SUNErrCode MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W, 
 
   /* call N_VWSqrSumLocal for each (X[i],W[i]) pair */
   for (i=0; i<nvec; i++) {
-    nrm[i] = SUNCheckCallLastErr(N_VWSqrSumLocal(X[i], W[i]), X[0]->sunctx);
+    nrm[i] = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal(X[i], W[i]), X[0]->sunctx);
   }
 
   /* accumulate totals */
@@ -1648,7 +1648,7 @@ SUNErrCode MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X, N_Vector*
 
   /* call N_VWSqrSumMaskLocal for each (X[i],W[i]) pair */
   for (i=0; i<nvec; i++) {
-    nrm[i] = SUNCheckCallLastErr(N_VWSqrSumMaskLocal(X[i], W[i], id), X[0]->sunctx);
+    nrm[i] = SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal(X[i], W[i], id), X[0]->sunctx);
   }
 
   /* accumulate totals */
@@ -1681,7 +1681,7 @@ SUNErrCode MVAPPEND(N_VBufSize)(N_Vector x, sunindextype* size)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
     /* get buffer sized needed for this subvector */
-    SUNCheckCallReturn(
+    SUNCheckCall(
       N_VBufSize(MANYVECTOR_SUBVEC(x,i), &subvec_size),
       x->sunctx);
 
@@ -1709,11 +1709,11 @@ SUNErrCode MVAPPEND(N_VBufPack)(N_Vector x, void *buf)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
     /* pack the output buffer starting at the given buffer location */
-    SUNCheckCallReturn(N_VBufPack(MANYVECTOR_SUBVEC(x,i), loc),
+    SUNCheckCall(N_VBufPack(MANYVECTOR_SUBVEC(x,i), loc),
       x->sunctx);
 
     /* get the offset from this subvector */
-    SUNCheckCallReturn(N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset),
+    SUNCheckCall(N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset),
       x->sunctx);
 
     /* update the buffer location for the next vector */
@@ -1740,11 +1740,11 @@ SUNErrCode MVAPPEND(N_VBufUnpack)(N_Vector x, void *buf)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
     /* unpack the input buffer starting at the given buffer location */
-    SUNCheckCallReturn(N_VBufUnpack(MANYVECTOR_SUBVEC(x,i), loc),
+    SUNCheckCall(N_VBufUnpack(MANYVECTOR_SUBVEC(x,i), loc),
       x->sunctx);
 
     /* get the offset from this subvector */
-    SUNCheckCallReturn(N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset),
+    SUNCheckCall(N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset),
       x->sunctx);
 
     /* update the buffer location for the next vector */
@@ -1921,10 +1921,10 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
 
   /* Create vector */
   v = NULL;
-  v = SUNCheckCallLastErrReturnNull(N_VNewEmpty(w->sunctx), v->sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty(w->sunctx), v->sunctx);
 
   /* Attach operations */
-  SUNCheckCallReturnNull(N_VCopyOps(w, v), w->sunctx);
+  SUNCheckCallNull(N_VCopyOps(w, v), w->sunctx);
 
   /* Create content */
   content = NULL;
@@ -1964,9 +1964,9 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
   /* Clone vectors into the subvector array */
   for (i=0; i<content->num_subvectors; i++) {
     if (cloneempty) {
-      content->subvec_array[i] = SUNCheckCallLastErr(N_VCloneEmpty(MANYVECTOR_SUBVEC(w,i)), w->sunctx);
+      content->subvec_array[i] = SUNCheckCallLastErrNoRet(N_VCloneEmpty(MANYVECTOR_SUBVEC(w,i)), w->sunctx);
     } else {
-      content->subvec_array[i] = SUNCheckCallLastErr(N_VClone(MANYVECTOR_SUBVEC(w,i)), w->sunctx);
+      content->subvec_array[i] = SUNCheckCallLastErrNoRet(N_VClone(MANYVECTOR_SUBVEC(w,i)), w->sunctx);
     }
     MVASSERT(content->subvec_array[i], SUN_ERR_ARG_CORRUPT, w->sunctx);
   }

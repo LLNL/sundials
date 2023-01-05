@@ -131,7 +131,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNCheckCallLastErr(SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP, cv_mem->cv_sunctx), CV_SUNCTX);
+  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP, cv_mem->cv_sunctx), CV_SUNCTX);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -143,7 +143,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
-  pdata->tmp1 = SUNCheckCallLastErr(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
+  pdata->tmp1 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp1 == NULL) {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
@@ -154,7 +154,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
-  pdata->tmp2 = SUNCheckCallLastErr(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
+  pdata->tmp2 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp2 == NULL) {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
@@ -503,21 +503,21 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for various vectors */
-  ewt_data   = SUNCheckCallLastErrReturn(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
-  fy_data    = SUNCheckCallLastErrReturn(N_VGetArrayPointer(fy), CV_SUNCTX);
-  ftemp_data = SUNCheckCallLastErrReturn(N_VGetArrayPointer(ftemp), CV_SUNCTX);
-  y_data     = SUNCheckCallLastErrReturn(N_VGetArrayPointer(y), CV_SUNCTX);
-  ytemp_data = SUNCheckCallLastErrReturn(N_VGetArrayPointer(ytemp), CV_SUNCTX);
+  ewt_data   = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
+  fy_data    = SUNCheckCallLastErr(N_VGetArrayPointer(fy), CV_SUNCTX);
+  ftemp_data = SUNCheckCallLastErr(N_VGetArrayPointer(ftemp), CV_SUNCTX);
+  y_data     = SUNCheckCallLastErr(N_VGetArrayPointer(y), CV_SUNCTX);
+  ytemp_data = SUNCheckCallLastErr(N_VGetArrayPointer(ytemp), CV_SUNCTX);
   if (cv_mem->cv_constraintsSet) {
-    cns_data = SUNCheckCallLastErrReturn(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+    cns_data = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
   }
 
   /* Load ytemp with y = predicted y vector. */
-  SUNCheckCallLastErrReturn(N_VScale(ONE, y, ytemp), CV_SUNCTX);
+  SUNCheckCallLastErr(N_VScale(ONE, y, ytemp), CV_SUNCTX);
 
   /* Set minimum increment based on uround and norm of f. */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = SUNCheckCallLastErrReturn(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
+  fnorm = SUNCheckCallLastErr(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * pdata->N * fnorm) : ONE;
 

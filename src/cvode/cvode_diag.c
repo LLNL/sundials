@@ -152,14 +152,14 @@ int CVDiag(void *cvode_mem)
 
   /* Allocate memory for M, bit, and bitcomp */
 
-  M = SUNCheckCallLastErr(N_VClone(vec_tmpl), CV_SUNCTX);
+  M = SUNCheckCallLastErrNoRet(N_VClone(vec_tmpl), CV_SUNCTX);
   if (M == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, __LINE__, __func__, __FILE__, MSGDG_MEM_FAIL);
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
 
-  bit = SUNCheckCallLastErr(N_VClone(vec_tmpl), CV_SUNCTX);
+  bit = SUNCheckCallLastErrNoRet(N_VClone(vec_tmpl), CV_SUNCTX);
   if (bit == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, __LINE__, __func__, __FILE__, MSGDG_MEM_FAIL);
     N_VDestroy(M);
@@ -167,7 +167,7 @@ int CVDiag(void *cvode_mem)
     return(CVDIAG_MEM_FAIL);
   }
 
-  bitcomp = SUNCheckCallLastErr(N_VClone(vec_tmpl), CV_SUNCTX);
+  bitcomp = SUNCheckCallLastErrNoRet(N_VClone(vec_tmpl), CV_SUNCTX);
   if (bitcomp == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, __LINE__, __func__, __FILE__, MSGDG_MEM_FAIL);
     N_VDestroy(M);
@@ -364,8 +364,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   else
 #endif
   {
-    SUNCheckCallLastErr(N_VLinearSum(h, fpred, -ONE, zn[1], ftemp), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VLinearSum(r, ftemp, ONE, ypred, y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(h, fpred, -ONE, zn[1], ftemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r, ftemp, ONE, ypred, y), CV_SUNCTX);
   }
 
   /* Evaluate f at perturbed y */
@@ -390,21 +390,21 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   else
 #endif
   {
-    SUNCheckCallLastErr(N_VLinearSum(ONE, M, -ONE, fpred, M), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VLinearSum(FRACT, ftemp, -h, M, M), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VProd(ftemp, ewt, y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, M, -ONE, fpred, M), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(FRACT, ftemp, -h, M, M), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VProd(ftemp, ewt, y), CV_SUNCTX);
     /* Protect against deltay_i being at roundoff level */
-    SUNCheckCallLastErr(N_VCompare(uround, y, bit), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VAddConst(bit, -ONE, bitcomp), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VProd(ftemp, bit, y), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VLinearSum(FRACT, y, -ONE, bitcomp, y), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VDiv(M, y, M), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VProd(M, bit, M), CV_SUNCTX);
-    SUNCheckCallLastErr(N_VLinearSum(ONE, M, -ONE, bitcomp, M), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VCompare(uround, y, bit), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAddConst(bit, -ONE, bitcomp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VProd(ftemp, bit, y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(FRACT, y, -ONE, bitcomp, y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDiv(M, y, M), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VProd(M, bit, M), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, M, -ONE, bitcomp, M), CV_SUNCTX);
   }
 
   /* Invert M with test for zero components */
-  invOK = SUNCheckCallLastErr(N_VInvTest(M, M), CV_SUNCTX);
+  invOK = SUNCheckCallLastErrNoRet(N_VInvTest(M, M), CV_SUNCTX);
   if (!invOK) {
     last_flag = CVDIAG_INV_FAIL;
     return(1);
@@ -447,12 +447,12 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     else
 #endif
     {
-      SUNCheckCallLastErr(N_VInv(M, M), CV_SUNCTX);
-      SUNCheckCallLastErr(N_VAddConst(M, -ONE, M), CV_SUNCTX);
-      SUNCheckCallLastErr(N_VScale(r, M, M), CV_SUNCTX);
-      SUNCheckCallLastErr(N_VAddConst(M, ONE, M), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VInv(M, M), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VAddConst(M, -ONE, M), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(r, M, M), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VAddConst(M, ONE, M), CV_SUNCTX);
     }
-    invOK = SUNCheckCallLastErr(N_VInvTest(M, M), CV_SUNCTX);
+    invOK = SUNCheckCallLastErrNoRet(N_VInvTest(M, M), CV_SUNCTX);
     if (!invOK) {
       last_flag = CVDIAG_INV_FAIL;
       return (1);
@@ -461,7 +461,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   }
 
   /* Apply M-inverse to b */
-  SUNCheckCallLastErr(N_VProd(b, M, b), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(b, M, b), CV_SUNCTX);
 
   last_flag = CVDIAG_SUCCESS;
   return(0);
