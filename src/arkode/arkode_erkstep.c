@@ -140,7 +140,7 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL)
-    N_VSpace(y0, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), ARK_SUNCTX);
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
   ark_mem->lrw1 = lrw1;
@@ -452,7 +452,7 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   /* output vector quantities */
   for (i=0; i<step_mem->stages; i++) {
     fprintf(outfile,"ERKStep: F[%i]:\n", i);
-    N_VPrintFile(step_mem->F[i], outfile);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->F[i], outfile), ARK_SUNCTX);
   }
 #endif
 }
@@ -638,7 +638,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, step_mem->F[0], f), ARK_SUNCTX);
 
     break;
 
@@ -666,11 +666,11 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       }
 
     } else {
-      N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->F[0]);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->F[0]), ARK_SUNCTX);
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, step_mem->F[0], f), ARK_SUNCTX);
 
     break;
 
@@ -750,11 +750,11 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "stage",
                      "z[0] =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp), ARK_SUNCTX);
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "stage RHS",
                      "F[0] =", "");
-  N_VPrintFile(step_mem->F[0], ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->F[0], ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   /* Loop over internal stages to the step; since the method is explicit
@@ -789,6 +789,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /*   call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -810,7 +811,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::erkStep_TakeStep", "stage RHS",
                        "F[%i] =", is);
-    N_VPrintFile(step_mem->F[is], ARK_LOGGER->debug_fp);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->F[is], ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   } /* loop over stages */
@@ -823,7 +824,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "updated solution",
                      "ycur =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   /* Solver diagnostics reporting */
@@ -1091,6 +1092,7 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
   /*   call fused vector operation to do the work */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != 0) return(ARK_VECTOROP_ERR);
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1106,10 +1108,11 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
     /* call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* fill error norm */
-    *dsmPtr = N_VWrmsNorm(yerr, ark_mem->ewt);
+    *dsmPtr = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yerr, ark_mem->ewt), ARK_SUNCTX);
   }
 
   return(ARK_SUCCESS);

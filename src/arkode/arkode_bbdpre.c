@@ -98,7 +98,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ark_mem->sunctx);
+  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ARK_SUNCTX);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
@@ -108,7 +108,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ark_mem->sunctx);
+  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ARK_SUNCTX);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -119,7 +119,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for temporary N_Vectors */
 
   pdata->zlocal = NULL;
-  pdata->zlocal = N_VNewEmpty_Serial(Nlocal, ark_mem->sunctx);
+  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->zlocal == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -129,9 +129,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   }
 
   pdata->rlocal = NULL;
-  pdata->rlocal = N_VNewEmpty_Serial(Nlocal, ark_mem->sunctx);
+  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->rlocal == NULL) {
-    N_VDestroy(pdata->zlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -141,8 +141,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   pdata->tmp1 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -153,8 +153,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->tmp2 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
     arkFreeVec(ark_mem, &(pdata->tmp1));
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -166,8 +166,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp3))) {
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -177,13 +177,13 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, ark_mem->sunctx);
+  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, ARK_SUNCTX);
   if (pdata->LS == NULL) {
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));
     arkFreeVec(ark_mem, &(pdata->tmp3));
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -197,8 +197,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));
     arkFreeVec(ark_mem, &(pdata->tmp3));
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     SUNLinSolFree(pdata->LS);
@@ -218,12 +218,12 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->rpwsize = 0;
   pdata->ipwsize = 0;
   if (ark_mem->tempv1->ops->nvspace) {
-    N_VSpace(ark_mem->tempv1, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(ark_mem->tempv1, &lrw1, &liw1), ARK_SUNCTX);
     pdata->rpwsize += 3*lrw1;
     pdata->ipwsize += 3*liw1;
   }
   if (pdata->rlocal->ops->nvspace) {
-    N_VSpace(pdata->rlocal, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(pdata->rlocal, &lrw1, &liw1), ARK_SUNCTX);
     pdata->rpwsize += 2*lrw1;
     pdata->ipwsize += 2*liw1;
   }
@@ -501,22 +501,24 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            realtype gamma, realtype delta,
                            int lr, void *bbd_data)
 {
+  SUNDeclareContext(y->sunctx);
+
   int retval;
   ARKBBDPrecData pdata;
 
   pdata = (ARKBBDPrecData) bbd_data;
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
-  N_VSetArrayPointer(N_VGetArrayPointer(r), pdata->rlocal);
-  N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(N_VGetArrayPointer(r), pdata->rlocal), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal), SUNCTX);
 
   /* Call banded solver object to do the work */
   retval = SUNLinSolSolve(pdata->LS, pdata->savedP, pdata->zlocal,
                           pdata->rlocal, ZERO);
 
   /* Detach local data arrays from rlocal and zlocal */
-  N_VSetArrayPointer(NULL, pdata->rlocal);
-  N_VSetArrayPointer(NULL, pdata->zlocal);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->rlocal), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->zlocal), SUNCTX);
 
   return(retval);
 }
@@ -541,8 +543,8 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   arkFreeVec(ark_mem, &(pdata->tmp1));
   arkFreeVec(ark_mem, &(pdata->tmp2));
   arkFreeVec(ark_mem, &(pdata->tmp3));
-  N_VDestroy(pdata->zlocal);
-  N_VDestroy(pdata->rlocal);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
 
@@ -581,7 +583,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   ark_mem = (ARKodeMem) pdata->arkode_mem;
 
   /* Load ytemp with y = predicted solution vector */
-  N_VScale(ONE, y, ytemp);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), ARK_SUNCTX);
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (pdata->cfn != NULL) {
@@ -595,16 +597,16 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   if (retval != 0) return(retval);
 
   /* Obtain pointers to the data for various vectors */
-  y_data     =  N_VGetArrayPointer(y);
-  gy_data    =  N_VGetArrayPointer(gy);
-  ewt_data   =  N_VGetArrayPointer(ark_mem->ewt);
-  ytemp_data =  N_VGetArrayPointer(ytemp);
-  gtemp_data =  N_VGetArrayPointer(gtemp);
+  y_data     =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), ARK_SUNCTX);
+  gy_data    =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gy), ARK_SUNCTX);
+  ewt_data   =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->ewt), ARK_SUNCTX);
+  ytemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), ARK_SUNCTX);
+  gtemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gtemp), ARK_SUNCTX);
   cns_data = (ark_mem->constraintsSet) ?
     N_VGetArrayPointer(ark_mem->constraints) : NULL;
 
   /* Set minimum increment based on uround and norm of g */
-  gnorm = N_VWrmsNorm(gy, ark_mem->rwt);
+  gnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(gy, ark_mem->rwt), ARK_SUNCTX);
   minInc = (gnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(ark_mem->h) *
      ark_mem->uround * pdata->n_local * gnorm) : ONE;

@@ -296,7 +296,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   }
 
   /* set a zero guess for correction */
-  N_VConst(ZERO, step_mem->zcor);
+  SUNCheckCallLastErrNoRet(N_VConst(ZERO, step_mem->zcor), ARK_SUNCTX);
 
   /* Reset the stored residual norm (for iterative linear solvers) */
   step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
@@ -309,7 +309,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_Nls", "correction",
                      "zcor =", "");
-  N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   /* increment counters */
@@ -322,7 +322,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   /* successful solve -- reset the jcur flag and apply correction */
   if (retval == SUN_NLS_SUCCESS) {
     step_mem->jcur = SUNFALSE;
-    N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur), ARK_SUNCTX);
     return(ARK_SUCCESS);
   }
 
@@ -451,7 +451,7 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* update 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur), ARK_SUNCTX);
 
   /* compute slow implicit RHS and save for later */
   retval = step_mem->nls_fsi(ark_mem->tcur, ark_mem->ycur,
@@ -469,6 +469,7 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   c[2] = -step_mem->gamma;
   X[2] = step_mem->Fsi[step_mem->stage_map[step_mem->istage]];
   retval = N_VLinearCombination(3, c, X, r);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != 0)  return(ARK_VECTOROP_ERR);
   return(ARK_SUCCESS);
 }
@@ -508,7 +509,7 @@ int mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* update 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur), ARK_SUNCTX);
 
   /* compute slow implicit RHS and save for later */
   retval = step_mem->nls_fsi(ark_mem->tcur, ark_mem->ycur,
@@ -565,7 +566,7 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
     return(SUN_NLS_SUCCESS);
 
   /* compute the norm of the correction */
-  delnrm = N_VWrmsNorm(del, ewt);
+  delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), ARK_SUNCTX);
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);

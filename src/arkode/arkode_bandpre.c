@@ -96,7 +96,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, ark_mem->sunctx);
+  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, ARK_SUNCTX);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
@@ -106,7 +106,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, ark_mem->sunctx);
+  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, ARK_SUNCTX);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -116,7 +116,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ark_mem->sunctx);
+  pdata->LS = SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ARK_SUNCTX);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -204,7 +204,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   *leniwBP = 4;
   *lenrwBP = 0;
   if (ark_mem->tempv1->ops->nvspace) {
-    N_VSpace(ark_mem->tempv1, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(ark_mem->tempv1, &lrw1, &liw1), ARK_SUNCTX);
     *leniwBP += 2*liw1;
     *lenrwBP += 2*lrw1;
   }
@@ -470,20 +470,20 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   if (fi == NULL)  return(-1);
 
   /* Obtain pointers to the data for various vectors */
-  ewt_data   = N_VGetArrayPointer(ark_mem->ewt);
-  fy_data    = N_VGetArrayPointer(fy);
-  ftemp_data = N_VGetArrayPointer(ftemp);
-  y_data     = N_VGetArrayPointer(y);
-  ytemp_data = N_VGetArrayPointer(ytemp);
+  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->ewt), ARK_SUNCTX);
+  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy), ARK_SUNCTX);
+  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp), ARK_SUNCTX);
+  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), ARK_SUNCTX);
+  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), ARK_SUNCTX);
   cns_data = (ark_mem->constraintsSet) ?
     N_VGetArrayPointer(ark_mem->constraints) : NULL;
 
   /* Load ytemp with y = predicted y vector. */
-  N_VScale(ONE, y, ytemp);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), ARK_SUNCTX);
 
   /* Set minimum increment based on uround and norm of f. */
   srur = SUNRsqrt(ark_mem->uround);
-  fnorm = N_VWrmsNorm(fy, ark_mem->rwt);
+  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, ark_mem->rwt), ARK_SUNCTX);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(ark_mem->h) *
      ark_mem->uround * pdata->N * fnorm) : ONE;

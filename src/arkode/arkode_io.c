@@ -719,7 +719,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
   }
 
   /* Check the constraints vector */
-  temptest = N_VMaxNorm(constraints);
+  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints), ARK_SUNCTX);
   if ((temptest > RCONST(2.5)) || (temptest < HALF)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_CONSTR);
     return(ARK_ILL_INPUT);
@@ -730,7 +730,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
     return(ARK_MEM_FAIL);
 
   /* Load the constraints vector */
-  N_VScale(ONE, constraints, ark_mem->constraints);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, ark_mem->constraints), ARK_SUNCTX);
   ark_mem->constraintsSet = SUNTRUE;
 
   return(ARK_SUCCESS);
@@ -1394,7 +1394,7 @@ int arkGetErrWeights(void *arkode_mem, N_Vector eweight)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  N_VScale(ONE, ark_mem->ewt, eweight);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->ewt, eweight), ARK_SUNCTX);
   return(ARK_SUCCESS);
 }
 
@@ -1413,7 +1413,7 @@ int arkGetResWeights(void *arkode_mem, N_Vector rweight)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  N_VScale(ONE, ark_mem->rwt, rweight);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->rwt, rweight), ARK_SUNCTX);
   return(ARK_SUCCESS);
 }
 

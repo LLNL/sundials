@@ -132,7 +132,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   step_mem->ownNLS = SUNFALSE;
 
   if (step_mem->implicit_rhs) {
-    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
+    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       MRIStepFree((void**) &ark_mem);  return(NULL);
@@ -217,7 +217,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL)
-    N_VSpace(y0, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), ARK_SUNCTX);
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
   ark_mem->lrw1 = lrw1;
@@ -284,7 +284,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
     step_mem->ownNLS = SUNFALSE;
 
     /* create new Newton NLS object */
-    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
+    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
     if (NLS == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       return(ARK_MEM_FAIL);
@@ -363,7 +363,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
   /* Create a default Newton NLS object (just in case; will be deleted if
      the user attaches a nonlinear solver) */
   if (step_mem->implicit_rhs && !(step_mem->NLS)) {
-    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
+    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       MRIStepFree((void**) &ark_mem); return(ARK_MEM_FAIL);
@@ -559,7 +559,7 @@ int MRIStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z), ARK_SUNCTX);
 
   return(ARK_SUCCESS);
 }
@@ -756,20 +756,20 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
   fprintf(outfile, "MRIStep: sdata:\n");
-  N_VPrintFile(step_mem->sdata, outfile);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->sdata, outfile), ARK_SUNCTX);
   fprintf(outfile, "MRIStep: zpred:\n");
-  N_VPrintFile(step_mem->zpred, outfile);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->zpred, outfile), ARK_SUNCTX);
   fprintf(outfile, "MRIStep: zcor:\n");
-  N_VPrintFile(step_mem->zcor, outfile);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->zcor, outfile), ARK_SUNCTX);
   if (step_mem->Fse)
     for (i=0; i<step_mem->nstages_active; i++) {
       fprintf(outfile,"MRIStep: Fse[%i]:\n", i);
-      N_VPrintFile(step_mem->Fse[i], outfile);
+      SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->Fse[i], outfile), ARK_SUNCTX);
     }
   if (step_mem->Fsi)
     for (i=0; i<step_mem->nstages_active; i++) {
       fprintf(outfile,"MRIStep: Fsi[%i]:\n", i);
-      N_VPrintFile(step_mem->Fsi[i], outfile);
+      SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->Fsi[i], outfile), ARK_SUNCTX);
     }
 #endif
 
@@ -1256,13 +1256,13 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     /* combine RHS vectors into output */
     if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f), ARK_SUNCTX);
     } else {
       if (step_mem->implicit_rhs) {         /* implicit */
-        N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f), ARK_SUNCTX);
       } else {                          /* explicit */
-        N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f), ARK_SUNCTX);
       }
     }
 
@@ -1304,13 +1304,13 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     /* combine RHS vectors into output */
     if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f), ARK_SUNCTX);
     } else {
       if (step_mem->implicit_rhs) {         /* implicit */
-        N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f), ARK_SUNCTX);
       } else {                          /* explicit */
-        N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f), ARK_SUNCTX);
       }
     }
     break;
@@ -1351,13 +1351,13 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     /* combine RHS vectors into output */
     if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
-      N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
-      N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->sdata, ONE, f, f), ARK_SUNCTX);
     } else {                   /* implicit */
       if (step_mem->implicit_rhs) {
-        N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->sdata, ONE, f, f), ARK_SUNCTX);
       } else {                                           /* explicit */
-        N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f), ARK_SUNCTX);
       }
     }
 
@@ -1424,28 +1424,28 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_TakeStep", "slow stage",
                      "z[0] =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 
   if (step_mem->explicit_rhs)
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "slow explicit RHS",
                        "Fse[0] =", "");
-    N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp), ARK_SUNCTX);
   }
   if (step_mem->implicit_rhs)
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "slow implicit RHS",
                        "Fsi[0] =", "");
-    N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp), ARK_SUNCTX);
   }
 #endif
 
   /* call nonlinear solver setup if it exists */
   if (step_mem->NLS)
     if ((step_mem->NLS)->ops->setup) {
-      N_VConst(ZERO, ark_mem->tempv3);   /* set guess to 0 for predictor-corrector form */
+      SUNCheckCallLastErrNoRet(N_VConst(ZERO, ark_mem->tempv3), ARK_SUNCTX);   /* set guess to 0 for predictor-corrector form */
       retval = SUNNonlinSolSetup(step_mem->NLS, ark_mem->tempv3, ark_mem);
       if (retval < 0) return(ARK_NLS_SETUP_FAIL);
       if (retval > 0) return(ARK_NLS_SETUP_RECVR);
@@ -1495,7 +1495,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "slow stage",
                        "z[%i] =", is);
-    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1567,7 +1567,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_TakeStep", "updated solution",
                      "ycur =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   /* Solver diagnostics reporting */
@@ -2041,7 +2041,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_StageDIRKNoFast", "predictor",
                      "zpred =", "");
-  N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   /* determine effective DIRK coefficients (store in cvals) */
@@ -2057,7 +2057,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_StageDIRKNoFast", "rhs data",
                      "sdata =", "");
-  N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp), ARK_SUNCTX);
 #endif
 
   /* perform implicit solve (result is stored in ark_mem->ycur); return
@@ -2185,7 +2185,7 @@ int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_ComputeInnerForcing", "forcing",
                        "forcing[%i] =", k);
-    N_VPrintFile(step_mem->stepper->forcing[k], ARK_LOGGER->debug_fp);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->stepper->forcing[k], ARK_LOGGER->debug_fp), ARK_SUNCTX);
   }
 #endif
 
@@ -2272,7 +2272,7 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
   /* if the first step (or if resized), use initial condition as guess */
   if (ark_mem->initsetup) {
-    N_VScale(ONE, ark_mem->yn, yguess);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yguess), ARK_SUNCTX);
     return(ARK_SUCCESS);
   }
 
@@ -2349,7 +2349,7 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   }
 
   /* if we made it here, use the trivial predictor (previous step solution) */
-  N_VScale(ONE, ark_mem->yn, yguess);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yguess), ARK_SUNCTX);
   return(ARK_SUCCESS);
 }
 
@@ -2424,6 +2424,7 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
 
   /* call fused vector operation to do the work */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != 0) return(ARK_VECTOROP_ERR);
 
   /* return with success */
@@ -2727,13 +2728,14 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper,
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl)
 {
+  SUNDeclareContext(stepper->sunctx);
   sunindextype lrw1, liw1;
 
   if (stepper == NULL) return ARK_ILL_INPUT;
 
   /* Set space requirements for one N_Vector */
   if (tmpl->ops->nvspace) {
-    N_VSpace(tmpl, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(tmpl, &lrw1, &liw1), SUNCTX);
   } else {
     lrw1 = 0;
     liw1 = 0;
@@ -2845,7 +2847,7 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper,
   if (stepper->forcing != NULL) {
     for (i = 0; i < stepper->nforcing; i++) {
       fprintf(outfile,"MRIStep: inner_forcing[%i]:\n", i);
-      N_VPrintFile(stepper->forcing[i], outfile);
+      SUNCheckCallLastErrNoRet(N_VPrintFile(stepper->forcing[i], outfile), ARK_SUNCTX);
     }
   }
 #endif
