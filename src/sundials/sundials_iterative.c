@@ -50,7 +50,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, realtype** h, int k, int p,
   realtype new_norm_2, new_product, vk_norm, temp;
   SUNContext sunctx = v[0]->sunctx;
 
-  vk_norm = SUNCheckCallLastErr((N_VDotProd(v[k], v[k])), sunctx);
+  vk_norm = SUNCheckCallLastErrReturn((N_VDotProd(v[k], v[k])), sunctx);
   vk_norm = SUNRsqrt(vk_norm);
   k_minus_1 = k - 1;
   i0        = SUNMAX(k - p, 0);
@@ -59,13 +59,13 @@ SUNErrCode SUNModifiedGS(N_Vector* v, realtype** h, int k, int p,
 
   for (i = i0; i < k; i++)
   {
-    h[i][k_minus_1] = SUNCheckCallLastErr(N_VDotProd(v[i], v[k]), sunctx);
-    SUNCheckCallLastErr(N_VLinearSum(ONE, v[k], -h[i][k_minus_1], v[i], v[k]), sunctx);
+    h[i][k_minus_1] = SUNCheckCallLastErrReturn(N_VDotProd(v[i], v[k]), sunctx);
+    SUNCheckCallLastErrReturn(N_VLinearSum(ONE, v[k], -h[i][k_minus_1], v[i], v[k]), sunctx);
   }
 
   /* Compute the norm of the new vector at v[k] */
 
-  *new_vk_norm = SUNCheckCallLastErr(N_VDotProd(v[k], v[k]), sunctx);
+  *new_vk_norm = SUNCheckCallLastErrReturn(N_VDotProd(v[k], v[k]), sunctx);
   *new_vk_norm = SUNRsqrt(*new_vk_norm);
 
   /* If the norm of the new vector at v[k] is less than
@@ -81,11 +81,11 @@ SUNErrCode SUNModifiedGS(N_Vector* v, realtype** h, int k, int p,
 
   for (i = i0; i < k; i++)
   {
-    new_product = SUNCheckCallLastErr(N_VDotProd(v[i], v[k]), sunctx);
+    new_product = SUNCheckCallLastErrReturn(N_VDotProd(v[i], v[k]), sunctx);
     temp = FACTOR * h[i][k_minus_1];
     if ((temp + new_product) == temp) continue;
     h[i][k_minus_1] += new_product;
-    SUNCheckCallLastErr(N_VLinearSum(ONE, v[k], -new_product, v[i], v[k]), sunctx);
+    SUNCheckCallLastErrReturn(N_VLinearSum(ONE, v[k], -new_product, v[i], v[k]), sunctx);
     new_norm_2 += SUNSQR(new_product);
   }
 
@@ -142,7 +142,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, realtype** h, int k, int p,
 
   /* Compute the norm of the new vector at v[k] */
 
-  *new_vk_norm = SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(v[k], v[k])), sunctx);
+  *new_vk_norm = SUNCheckCallLastErrReturn(SUNRsqrt(N_VDotProd(v[k], v[k])), sunctx);
 
   /* Reorthogonalize if necessary */
 
@@ -161,7 +161,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, realtype** h, int k, int p,
 
     SUNCheckCallReturn(N_VLinearCombination(k + 1, stemp, vtemp, v[k]), sunctx);
 
-    *new_vk_norm = SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(v[k], v[k])), sunctx);
+    *new_vk_norm = SUNCheckCallLastErrReturn(SUNRsqrt(N_VDotProd(v[k], v[k])), sunctx);
   }
 
   return (0);

@@ -20,6 +20,8 @@
 
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 
 #define ONE  RCONST(1.0)
 
@@ -49,23 +51,18 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
   SUNLinearSolverContent_Dense content;
   sunindextype MatrixRows;
 
-  /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_DENSE) return(NULL);
-
-  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A)) return(NULL);
-
-  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
-    return(NULL);
+  SUNAssertContext(sunctx);
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE, sunctx);
+  SUNAssert(SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
+  SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_ILLEGAL, sunctx);
 
   MatrixRows = SUNDenseMatrix_Rows(A);
-  if (MatrixRows != N_VGetLength(y)) return(NULL);
+  SUNAssert(MatrixRows == N_VGetLength(y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
 
   /* Create an empty linear solver */
   S = NULL;
   S = SUNLinSolNewEmpty(sunctx);
-  if (S == NULL) return(NULL);
+  SUNAssert(S, SUN_ERR_MALLOC_FAIL, sunctx);
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Dense;
@@ -80,7 +77,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_Dense) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  SUNAssert(content, SUN_ERR_MALLOC_FAIL, sunctx);
 
   /* Attach content */
   S->content = content;
@@ -92,7 +89,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
   /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
+  SUNAssert(content->pivots, SUN_ERR_MALLOC_FAIL, sunctx);
 
   return(S);
 }
@@ -113,27 +110,20 @@ SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S)
   return(SUNLINEARSOLVER_DENSE);
 }
 
-int SUNLinSolInitialize_Dense(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_Dense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(SUNLS_SUCCESS);
+  return(SUN_SUCCESS);
 }
 
 SUNLsStatus SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
   sunindextype *pivots;
+  SUNContext sunctx = S->sunctx;
 
-  /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) )
-    return(SUNLS_MEM_NULL);
-
-  /* Ensure that A is a dense matrix */
-  if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
-    LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(SUNLS_ILL_INPUT);
-  }
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE, sunctx);
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
@@ -160,9 +150,6 @@ SUNLsStatus SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 {
   realtype **A_cols, *xdata;
   sunindextype *pivots;
-
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
-    return(SUNLS_MEM_NULL);
 
   /* copy b into x */
   N_VScale(ONE, b, x);
@@ -192,19 +179,19 @@ sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)
   return(LASTFLAG(S));
 }
 
-int SUNLinSolSpace_Dense(SUNLinearSolver S,
-                         long int *lenrwLS,
-                         long int *leniwLS)
+SUNErrCode SUNLinSolSpace_Dense(SUNLinearSolver S, long int* lenrwLS,
+                                long int* leniwLS)
 {
+  SUNAssert(SUNLinSolGetID(S) == SUNLINEARSOLVER_DENSE, SUN_ERR_ARG_WRONGTYPE, S->sunctx);
   *leniwLS = 2 + DENSE_CONTENT(S)->N;
   *lenrwLS = 0;
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_Dense(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_Dense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) return(SUNLS_SUCCESS);
+  if (S == NULL) return(SUN_SUCCESS);
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {
@@ -220,5 +207,5 @@ int SUNLinSolFree_Dense(SUNLinearSolver S)
     S->ops = NULL;
   }
   free(S); S = NULL;
-  return(SUNLS_SUCCESS);
+  return(SUN_SUCCESS);
 }

@@ -20,6 +20,9 @@
 
 #include <sunlinsol/sunlinsol_band.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_linearsolver.h"
 
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
@@ -51,30 +54,23 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
   SUNLinearSolverContent_Band content;
   sunindextype MatrixRows;
 
-  /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_BAND) return(NULL);
-
-  if (SUNBandMatrix_Rows(A) != SUNBandMatrix_Columns(A))  return(NULL);
-
-  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
-    return(NULL);
+  SUNAssertContext(sunctx);
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
+  SUNAssert(SUNBandMatrix_Rows(A) == SUNBandMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
+  SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_ILLEGAL, sunctx);
 
   /* Check that A has appropriate storage upper bandwidth for factorization */
   MatrixRows = SUNBandMatrix_Rows(A);
-
-  if (SUNBandMatrix_StoredUpperBandwidth(A) <
-      SUNMIN(MatrixRows-1,
-             SUNBandMatrix_LowerBandwidth(A)+SUNBandMatrix_UpperBandwidth(A)))
-    return(NULL);
-
-  if (MatrixRows != N_VGetLength(y)) return(NULL);
+  SUNAssert(SUNBandMatrix_StoredUpperBandwidth(A) >=
+              SUNMIN(MatrixRows - 1, SUNBandMatrix_LowerBandwidth(A) +
+                                       SUNBandMatrix_UpperBandwidth(A)),
+            SUN_ERR_ARG_ILLEGAL, sunctx);
+  SUNAssert(MatrixRows == N_VGetLength(y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
 
   /* Create an empty linear solver */
   S = NULL;
   S = SUNLinSolNewEmpty(sunctx);
-  if (S == NULL) return(NULL);
+  SUNAssert(S, SUN_ERR_MALLOC_FAIL, sunctx);
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Band;
@@ -89,7 +85,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_Band) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  SUNAssert(content, SUN_ERR_MALLOC_FAIL, sunctx);
 
   /* Attach content */
   S->content = content;
@@ -101,7 +97,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
   /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
+  SUNAssert(content->pivots, SUN_ERR_MALLOC_FAIL, sunctx);
 
   return(S);
 }
@@ -122,27 +118,20 @@ SUNLinearSolver_ID SUNLinSolGetID_Band(SUNLinearSolver S)
   return(SUNLINEARSOLVER_BAND);
 }
 
-int SUNLinSolInitialize_Band(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_Band(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNLsStatus SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
   sunindextype *pivots;
+  SUNContext sunctx = S->sunctx;
 
-  /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) )
-    return(SUNLS_MEM_NULL);
-
-  /* Ensure that A is a band matrix */
-  if (SUNMatGetID(A) != SUNMATRIX_BAND) {
-    LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(SUNLS_ILL_INPUT);
-  }
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
@@ -176,10 +165,6 @@ SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype **A_cols, *xdata;
   sunindextype *pivots;
 
-  /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
-    return(SUNLS_MEM_NULL);
-
   /* copy b into x */
   N_VScale(ONE, b, x);
 
@@ -209,19 +194,19 @@ sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S)
   return(LASTFLAG(S));
 }
 
-int SUNLinSolSpace_Band(SUNLinearSolver S,
-                        long int *lenrwLS,
-                        long int *leniwLS)
+SUNErrCode SUNLinSolSpace_Band(SUNLinearSolver S, long int* lenrwLS,
+                               long int* leniwLS)
 {
+  SUNAssert(SUNLinSolGetID(S) == SUNLINEARSOLVER_BAND, SUN_ERR_ARG_WRONGTYPE, S->sunctx);
   *leniwLS = 2 + BAND_CONTENT(S)->N;
   *lenrwLS = 0;
-  return(SUNLS_SUCCESS);
+  return(SUN_SUCCESS);
 }
 
-int SUNLinSolFree_Band(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_Band(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) return(SUNLS_SUCCESS);
+  if (S == NULL) return(SUN_SUCCESS);
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {
@@ -237,5 +222,5 @@ int SUNLinSolFree_Band(SUNLinearSolver S)
     S->ops = NULL;
   }
   free(S); S = NULL;
-  return(SUNLS_SUCCESS);
+  return(SUN_SUCCESS);
 }
