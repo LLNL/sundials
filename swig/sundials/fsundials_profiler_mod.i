@@ -16,6 +16,8 @@
 
 %module fsundials_profiler_mod
 
+%import "../sundials/fsundials_types_mod.i"
+
 %include "../sundials/fsundials.i"
 
 // insert the include into the swig wrapper

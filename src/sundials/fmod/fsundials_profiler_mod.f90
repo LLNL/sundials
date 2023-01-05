@@ -20,21 +20,11 @@
 
 module fsundials_profiler_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  implicit none
  private
 
  ! DECLARATION CONSTRUCTS
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNErrCode
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNProfiler_Free
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -54,50 +44,45 @@ function swigc_FSUNProfiler_Free(farg1) &
 bind(C, name="_wrap_FSUNProfiler_Free") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNProfiler_Begin(farg1, farg2) &
 bind(C, name="_wrap_FSUNProfiler_Begin") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNProfiler_End(farg1, farg2) &
 bind(C, name="_wrap_FSUNProfiler_End") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNProfiler_Print(farg1, farg2) &
 bind(C, name="_wrap_FSUNProfiler_Print") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNProfiler_Reset(farg1) &
 bind(C, name="_wrap_FSUNProfiler_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 
@@ -120,14 +105,14 @@ contains
 function FSUNProfiler_Free(p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: p
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(p)
 fresult = swigc_FSUNProfiler_Free(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 
@@ -151,64 +136,64 @@ end subroutine
 function FSUNProfiler_Begin(p, name) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: p
 character(kind=C_CHAR, len=*), target :: name
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 
 farg1 = p
 call SWIG_string_to_chararray(name, farg2_chars, farg2)
 fresult = swigc_FSUNProfiler_Begin(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNProfiler_End(p, name) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: p
 character(kind=C_CHAR, len=*), target :: name
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 
 farg1 = p
 call SWIG_string_to_chararray(name, farg2_chars, farg2)
 fresult = swigc_FSUNProfiler_End(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNProfiler_Print(p, fp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: p
 type(C_PTR) :: fp
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = p
 farg2 = fp
 fresult = swigc_FSUNProfiler_Print(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNProfiler_Reset(p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: p
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = p
 fresult = swigc_FSUNProfiler_Reset(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 
