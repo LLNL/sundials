@@ -1,9 +1,8 @@
 // ---------------------------------------------------------------
-// Programmer: Seth R. Johnson @ ORNL
-//             Cody J. Balos @ LLNL
+// Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2022, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -15,29 +14,17 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_types_mod
+%module fsundials_errors_mod
 
 %include "../sundials/fsundials.i"
-%include <stdint.i>
-
-// Inform SWIG of the configure-provided types
-#define SUNDIALS_INT64_T
-#define SUNDIALS_INDEX_TYPE int64_t
-#define SUNDIALS_DOUBLE_PRECISION
 
 // Insert code into the C wrapper to check that the sizes match
 %{
-#include "sundials/sundials_types.h"
-
-#ifndef SUNDIALS_DOUBLE_PRECISION
-#error "The Fortran bindings are only targeted at double-precision"
-#endif
-
-#ifndef SUNDIALS_INT64_T
-#error "The Fortran bindings are only targeted at 64-bit indices"
-#endif
+#include "sundials/sundials_errors.h"
 %}
 
+%apply void* { SUNErrHandler };
+
 // Process and wrap functions in the following files
-%include "sundials/sundials_types.h"
+%include "sundials/sundials_errors.h"
 
