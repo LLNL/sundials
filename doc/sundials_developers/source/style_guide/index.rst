@@ -25,7 +25,7 @@ CMake files, and documentation files to ensure consistency and maintainability.
    :maxdepth: 2
 
    SourceCode
-   Classes
    Documentation
 ..
+   Classes
    CMake
