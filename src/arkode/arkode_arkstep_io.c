@@ -25,6 +25,7 @@
 #include "arkode/arkode_arkstep.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_errors.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -1276,7 +1277,8 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 
   /* send argument to NLS structure */
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
-  if (retval != SUN_NLS_SUCCESS) {
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, __LINE__, __func__, __FILE__,
                     "Error setting maxcor in SUNNonlinearSolver object");
     return(ARK_NLS_OP_ERR);

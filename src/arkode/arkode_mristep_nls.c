@@ -21,6 +21,8 @@
 
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 
 
@@ -62,8 +64,10 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if ((step_mem->NLS != NULL) && (step_mem->ownNLS))
+  if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
     retval = SUNNonlinSolFree(step_mem->NLS);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  }
 
   /* set SUNNonlinearSolver pointer */
   step_mem->NLS = NLS;
@@ -72,14 +76,16 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   /* set the nonlinear residual/fixed-point function, based on solver type */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
     retval = SUNNonlinSolSetSysFn(step_mem->NLS, mriStep_NlsResidual);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
   } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_FIXEDPOINT) {
     retval = SUNNonlinSolSetSysFn(step_mem->NLS, mriStep_NlsFPFunction);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
   } else {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid nonlinear solver type");
     return(ARK_ILL_INPUT);
   }
-  if (retval != ARK_SUCCESS) {
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting nonlinear system function failed");
     return(ARK_ILL_INPUT);
@@ -88,7 +94,7 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   /* set convergence test function */
   retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, mriStep_NlsConvTest,
                                      arkode_mem);
-  if (retval != ARK_SUCCESS) {
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting convergence test function failed");
     return(ARK_ILL_INPUT);
@@ -96,7 +102,8 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
   /* set default nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
-  if (retval != ARK_SUCCESS) {
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting maximum number of nonlinear iterations failed");
     return(ARK_ILL_INPUT);
@@ -207,22 +214,28 @@ int mriStep_NlsInit(ARKodeMem ark_mem)
   step_mem->nls_fails = 0;
 
   /* set the linear solver setup wrapper function */
-  if (step_mem->lsetup)
+  if (step_mem->lsetup) {
     retval = SUNNonlinSolSetLSetupFn(step_mem->NLS, mriStep_NlsLSetup);
-  else
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  } else {
     retval = SUNNonlinSolSetLSetupFn(step_mem->NLS, NULL);
-  if (retval != ARK_SUCCESS) {
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  }
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting the linear solver setup function failed");
     return(ARK_NLS_INIT_FAIL);
   }
 
   /* set the linear solver solve wrapper function */
-  if (step_mem->lsolve)
+  if (step_mem->lsolve) {
     retval = SUNNonlinSolSetLSolveFn(step_mem->NLS, mriStep_NlsLSolve);
-  else
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  } else {
     retval = SUNNonlinSolSetLSolveFn(step_mem->NLS, NULL);
-  if (retval != ARK_SUCCESS) {
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  }
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting linear solver solve function failed");
     return(ARK_NLS_INIT_FAIL);
@@ -230,7 +243,8 @@ int mriStep_NlsInit(ARKodeMem ark_mem)
 
   /* initialize nonlinear solver */
   retval = SUNNonlinSolInitialize(step_mem->NLS);
-  if (retval != ARK_SUCCESS) {
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_NLS_INIT_FAIL);
     return(ARK_NLS_INIT_FAIL);
   }
@@ -259,7 +273,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   booleantype callLSetup;
   long int nls_iters_inc = 0;
   long int nls_fails_inc = 0;
-  int retval;
+  SUNNlsStatus nls_status;
 
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -302,8 +316,12 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 
   /* solve the nonlinear system for the actual correction */
-  retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
-                             ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
+  nls_status =
+    SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred,
+                                               step_mem->zcor, ark_mem->ewt,
+                                               step_mem->nlscoef, callLSetup,
+                                               ark_mem),
+                             ARK_SUNCTX);
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -313,23 +331,23 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
 #endif
 
   /* increment counters */
-  (void) SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc), ARK_SUNCTX);
   step_mem->nls_iters += nls_iters_inc;
 
-  (void) SUNNonlinSolGetNumConvFails(step_mem->NLS, &nls_fails_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(step_mem->NLS, &nls_fails_inc), ARK_SUNCTX);
   step_mem->nls_fails += nls_fails_inc;
 
   /* successful solve -- reset the jcur flag and apply correction */
-  if (retval == SUN_NLS_SUCCESS) {
+  if (nls_status == SUN_NLS_SUCCESS) {
     step_mem->jcur = SUNFALSE;
     SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur), ARK_SUNCTX);
     return(ARK_SUCCESS);
   }
 
   /* check for recoverable failure, return ARKODE::CONV_FAIL */
-  if (retval == SUN_NLS_CONV_RECVR) return(CONV_FAIL);
+  if (nls_status == SUN_NLS_CONV_RECVR) return(CONV_FAIL);
 
-  return(retval);
+  return(nls_status);
 }
 
 
@@ -401,6 +419,7 @@ SUNNlsStatus mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
 
   /* retrieve nonlinear solver iteration from module */
   retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nonlin_iter);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != SUN_NLS_SUCCESS)
     return(ARK_NLS_OP_ERR);
 
@@ -570,7 +589,8 @@ SUNNlsStatus mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector de
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
-  if (retval != ARK_SUCCESS)  return(ARK_MEM_NULL);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  if (retval != SUN_SUCCESS)  return(ARK_MEM_NULL);
 
   /* update the stored estimate of the convergence rate (assumes linear convergence) */
   if (m > 0)

@@ -23,6 +23,8 @@
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -132,7 +134,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   step_mem->ownNLS = SUNFALSE;
 
   if (step_mem->implicit_rhs) {
-    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
+    NLS = SUNCheckCallLastErrNoRet(SUNNonlinSol_Newton(y0, ARK_SUNCTX), ARK_SUNCTX);
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       MRIStepFree((void**) &ark_mem);  return(NULL);
@@ -279,12 +281,13 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
 
     /* destroy existing NLS object */
     retval = SUNNonlinSolFree(step_mem->NLS);
-    if (retval != ARK_SUCCESS)  return(retval);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    if (retval != SUN_SUCCESS)  return(retval);
     step_mem->NLS = NULL;
     step_mem->ownNLS = SUNFALSE;
 
     /* create new Newton NLS object */
-    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
+    NLS = SUNCheckCallLastErrNoRet(SUNNonlinSol_Newton(y0, ARK_SUNCTX), ARK_SUNCTX);
     if (NLS == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       return(ARK_MEM_FAIL);
@@ -363,7 +366,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
   /* Create a default Newton NLS object (just in case; will be deleted if
      the user attaches a nonlinear solver) */
   if (step_mem->implicit_rhs && !(step_mem->NLS)) {
-    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
+    NLS = SUNCheckCallLastErrNoRet(SUNNonlinSol_Newton(y0, ARK_SUNCTX), ARK_SUNCTX);
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       MRIStepFree((void**) &ark_mem); return(ARK_MEM_FAIL);
@@ -615,7 +618,7 @@ void MRIStepFree(void **arkode_mem)
 
     /* free the nonlinear solver memory (if applicable) */
     if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
-      SUNNonlinSolFree(step_mem->NLS);
+      SUNCheckCallNoRet(SUNNonlinSolFree(step_mem->NLS), ARK_SUNCTX);
       step_mem->ownNLS = SUNFALSE;
     }
     step_mem->NLS = NULL;
@@ -1097,7 +1100,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
         return(ARK_MEM_FAIL);
     } else {
       if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
-        SUNNonlinSolFree(step_mem->NLS);
+        SUNCheckCallNoRet(SUNNonlinSolFree(step_mem->NLS), ARK_SUNCTX);
         step_mem->NLS = NULL;
         step_mem->ownNLS = SUNFALSE;
       }
@@ -1404,6 +1407,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   ARKodeMRIStepMem step_mem;   /* outer stepper memory       */
   int is;                      /* current stage index        */
   int retval;                  /* reusable return flag       */
+  SUNNlsStatus nls_status;
 
   /* initialize algebraic solver convergence flag to success;
      error estimate to zero */
@@ -1446,9 +1450,9 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (step_mem->NLS)
     if ((step_mem->NLS)->ops->setup) {
       SUNCheckCallLastErrNoRet(N_VConst(ZERO, ark_mem->tempv3), ARK_SUNCTX);   /* set guess to 0 for predictor-corrector form */
-      retval = SUNNonlinSolSetup(step_mem->NLS, ark_mem->tempv3, ark_mem);
-      if (retval < 0) return(ARK_NLS_SETUP_FAIL);
-      if (retval > 0) return(ARK_NLS_SETUP_RECVR);
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(step_mem->NLS, ark_mem->tempv3, ark_mem), ARK_SUNCTX);
+      if (nls_status < 0) return(ARK_NLS_SETUP_FAIL);
+      if (nls_status > 0) return(ARK_NLS_SETUP_RECVR);
     }
 
   /* The first stage is the previous time-step solution, so its RHS

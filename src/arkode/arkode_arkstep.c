@@ -22,6 +22,7 @@
 #include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -130,7 +131,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
   /* If an implicit component is to be solved, create default Newton NLS object */
   step_mem->ownNLS = SUNFALSE;
   if (step_mem->implicit)  {
-    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
+    NLS = SUNCheckCallLastErrNoRet(SUNNonlinSol_Newton(y0, ARK_SUNCTX), ARK_SUNCTX);
     if (NLS == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       ARKStepFree((void**) &ark_mem);  return(NULL);
@@ -285,12 +286,13 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 
     /* destroy existing NLS object */
     retval = SUNNonlinSolFree(step_mem->NLS);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != ARK_SUCCESS)  return(retval);
     step_mem->NLS = NULL;
     step_mem->ownNLS = SUNFALSE;
 
     /* create new Newton NLS object */
-    NLS = SUNNonlinSol_Newton(y0, ARK_SUNCTX);
+    NLS = SUNCheckCallLastErrNoRet(SUNNonlinSol_Newton(y0, ARK_SUNCTX), ARK_SUNCTX);
     if (NLS == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Error creating default Newton solver");
       return(ARK_MEM_FAIL);
@@ -1537,6 +1539,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_Vector zcor0;
   realtype* cvals;
   N_Vector* Xvecs;
+  SUNNlsStatus nls_status;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Z",
@@ -1556,9 +1559,9 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if ((step_mem->NLS)->ops->setup) {
       zcor0 = ark_mem->tempv3;
       SUNCheckCallLastErrNoRet(N_VConst(ZERO, zcor0), ARK_SUNCTX);    /* set guess to all 0 (since using predictor-corrector form) */
-      retval = SUNNonlinSolSetup(step_mem->NLS, zcor0, ark_mem);
-      if (retval < 0) return(ARK_NLS_SETUP_FAIL);
-      if (retval > 0) return(ARK_NLS_SETUP_RECVR);
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(step_mem->NLS, zcor0, ark_mem), ARK_SUNCTX);
+      if (nls_status < 0) return(ARK_NLS_SETUP_FAIL);
+      if (nls_status > 0) return(ARK_NLS_SETUP_RECVR);
     }
 
   /* loop over internal stages to the step */
