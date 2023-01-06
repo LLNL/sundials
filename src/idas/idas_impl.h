@@ -40,6 +40,7 @@ extern "C" {
 /* Shortcuts                                                       */
 /*=================================================================*/
 
+#define IDA_SUNCTX IDA_mem->ida_sunctx
 #define IDA_PROFILER IDA_mem->ida_sunctx->profiler
 #define IDA_LOGGER IDA_mem->ida_sunctx->logger
 

@@ -142,6 +142,8 @@
 #include <string.h>
 
 #include "idas_impl.h"
+#include "sundials/sundials_nonlinearsolver.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
@@ -674,7 +676,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
     IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                     "Setting the nonlinear solver failed");
     IDAFreeVectors(IDA_mem);
-    SUNNonlinSolFree(NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), IDA_SUNCTX);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -1370,7 +1372,7 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
     IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                     "Setting the nonlinear solver failed");
     IDASensFreeVectors(IDA_mem);
-    SUNNonlinSolFree(NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), IDA_SUNCTX);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -1514,7 +1516,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
     if (retval != IDA_SUCCESS) {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "Setting the nonlinear solver failed");
-      SUNNonlinSolFree(NLS);
+      SUNCheckCallNoRet(SUNNonlinSolFree(NLS), IDA_SUNCTX);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return(IDA_MEM_FAIL);
     }
@@ -3618,7 +3620,7 @@ void IDAFree(void **ida_mem)
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLS) {
-    SUNNonlinSolFree(IDA_mem->NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLS), IDA_SUNCTX);
     IDA_mem->ownNLS = SUNFALSE;
     IDA_mem->NLS = NULL;
   }
@@ -3703,12 +3705,12 @@ void IDASensFree(void *ida_mem)
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLSsim) {
-    SUNNonlinSolFree(IDA_mem->NLSsim);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSsim), IDA_SUNCTX);
     IDA_mem->ownNLSsim = SUNFALSE;
     IDA_mem->NLSsim = NULL;
   }
   if (IDA_mem->ownNLSstg) {
-    SUNNonlinSolFree(IDA_mem->NLSstg);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSstg), IDA_SUNCTX);
     IDA_mem->ownNLSstg = SUNFALSE;
     IDA_mem->NLSstg = NULL;
   }
@@ -5673,7 +5675,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 
 static int IDANls(IDAMem IDA_mem)
 {
-  int retval;
+  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   booleantype constraintsPassed, callLSetup, sensi_sim;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
@@ -5716,52 +5718,57 @@ static int IDANls(IDAMem IDA_mem)
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
-    if (sensi_sim)
-      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycorSim, IDA_mem);
-    else
-      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem);
+    if (sensi_sim) {
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycorSim, IDA_mem), IDA_SUNCTX);
+    } else {
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem), IDA_SUNCTX);
+    }
 
-    if (retval < 0) return(IDA_NLS_SETUP_FAIL);
-    if (retval > 0) return(IDA_NLS_SETUP_RECVR);
+    if (nls_status < 0) return(IDA_NLS_SETUP_FAIL);
+    if (nls_status > 0) return(IDA_NLS_SETUP_RECVR);
   }
 
   /* solve the nonlinear system */
   if (sensi_sim) {
-
-    retval = SUNNonlinSolSolve(IDA_mem->NLSsim,
-                               IDA_mem->ypredictSim, IDA_mem->ycorSim,
-                               IDA_mem->ewtSim, IDA_mem->ida_epsNewt,
-                               callLSetup, IDA_mem);
+    nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(IDA_mem->NLSsim,
+                                                            IDA_mem->ypredictSim,
+                                                            IDA_mem->ycorSim,
+                                                            IDA_mem->ewtSim,
+                                                            IDA_mem->ida_epsNewt,
+                                                            callLSetup, IDA_mem),
+                                          IDA_SUNCTX);
     /* increment counters */
-    (void) SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nni_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nni_inc), IDA_SUNCTX);
     IDA_mem->ida_nni += nni_inc;
 
-    (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLSsim, &nnf_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLSsim, &nnf_inc), IDA_SUNCTX);
     IDA_mem->ida_nnf += nnf_inc;
 
   } else {
-
-    retval = SUNNonlinSolSolve(IDA_mem->NLS,
-                               IDA_mem->ida_yypredict, IDA_mem->ida_ee,
-                               IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
-                               callLSetup, IDA_mem);
+    nls_status =
+      SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(IDA_mem->NLS,
+                                                 IDA_mem->ida_yypredict,
+                                                 IDA_mem->ida_ee, IDA_mem->ida_ewt,
+                                                 IDA_mem->ida_epsNewt,
+                                                 callLSetup, IDA_mem),
+                               IDA_SUNCTX);
 
     /* increment counter */
-    (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &nni_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLS, &nni_inc), IDA_SUNCTX);
     IDA_mem->ida_nni += nni_inc;
 
-    (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc), IDA_SUNCTX);
     IDA_mem->ida_nnf += nnf_inc;
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDANls",
                      "nls-return", "flag = %i, iters = %li, fails = %li",
-                     retval, nni_inc, nnf_inc);
+                     nls_status, nni_inc, nnf_inc);
 #endif
 
   /* return if nonlinear solver failed */
-  if (retval != SUN_NLS_SUCCESS) return(retval);
+  if (nls_status != SUN_NLS_SUCCESS) return(nls_status);
 
   /* update the state using the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);
@@ -5915,12 +5922,12 @@ static void IDAQuadPredict(IDAMem IDA_mem)
  * specified (Staggered approach).
  */
 
-static int IDASensNls(IDAMem IDA_mem)
+static SUNNlsStatus IDASensNls(IDAMem IDA_mem)
 {
   booleantype callLSetup;
   long int nniS_inc = 0;
   long int nnfS_inc = 0;
-  int retval;
+  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
 
   callLSetup = SUNFALSE;
 
@@ -5928,21 +5935,24 @@ static int IDASensNls(IDAMem IDA_mem)
   N_VConst(ZERO, IDA_mem->ycorStg);
 
   /* solve the nonlinear system */
-  retval = SUNNonlinSolSolve(IDA_mem->NLSstg,
-                             IDA_mem->ypredictStg, IDA_mem->ycorStg,
-                             IDA_mem->ewtStg, IDA_mem->ida_epsNewt,
-                             callLSetup, IDA_mem);
+  nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(IDA_mem->NLSstg,
+                                                          IDA_mem->ypredictStg,
+                                                          IDA_mem->ycorStg,
+                                                          IDA_mem->ewtStg,
+                                                          IDA_mem->ida_epsNewt,
+                                                          callLSetup, IDA_mem),
+                                        IDA_SUNCTX);
 
   /* increment counters */
-  (void) SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nniS_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nniS_inc), IDA_SUNCTX);
   IDA_mem->ida_nniS += nniS_inc;
 
-  (void) SUNNonlinSolGetNumConvFails(IDA_mem->NLSstg, &nnfS_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLSstg, &nnfS_inc), IDA_SUNCTX);
   IDA_mem->ida_nnfS += nnfS_inc;
 
-  if (retval != SUN_NLS_SUCCESS) {
+  if (nls_status != SUN_NLS_SUCCESS) {
     IDA_mem->ida_ncfnS++;
-    return(retval);
+    return(nls_status);
   }
 
   /* update using the final correction from the nonlinear solver */
@@ -5953,7 +5963,7 @@ static int IDASensNls(IDAMem IDA_mem)
                           ONE, IDA_mem->ida_ypSpredict,
                           IDA_mem->ida_cj, IDA_mem->ida_eeS, IDA_mem->ida_ypS);
 
-  return(retval);
+  return(nls_status);
 
 }
 

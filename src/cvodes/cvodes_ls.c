@@ -1721,14 +1721,19 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   do_sensi_stg1 = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_STAGGERED1));
 
   /* get current nonlinear solver iteration */
-  if (do_sensi_sim)
+  if (do_sensi_sim) {
     retval = SUNNonlinSolGetCurIter(cv_mem->NLSsim, &curiter);
-  else if (do_sensi_stg && cv_mem->sens_solve)
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+  } else if (do_sensi_stg && cv_mem->sens_solve) {
     retval = SUNNonlinSolGetCurIter(cv_mem->NLSstg, &curiter);
-  else if (do_sensi_stg1 && cv_mem->sens_solve)
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+  } else if (do_sensi_stg1 && cv_mem->sens_solve) {
     retval = SUNNonlinSolGetCurIter(cv_mem->NLSstg1, &curiter);
-  else
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+  } else {
     retval = SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+  }
 
   /* If the linear solver is iterative:
      test norm(b), if small, return x = 0 or x = b;

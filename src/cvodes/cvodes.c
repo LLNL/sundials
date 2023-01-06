@@ -191,6 +191,7 @@
 #include <string.h>
 
 #include "cvodes_impl.h"
+#include "sundials/sundials_nonlinearsolver.h"
 #include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -780,7 +781,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                    "Setting the nonlinear solver failed");
     cvFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_MEM_FAIL);
   }
@@ -1513,7 +1514,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                    "Setting the nonlinear solver failed");
     cvSensFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
     return(CV_MEM_FAIL);
   }
 
@@ -1740,7 +1741,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                    "Setting the nonlinear solver failed");
     cvSensFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
     return(CV_MEM_FAIL);
   }
 
@@ -1905,7 +1906,7 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     if (retval != CV_SUCCESS) {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "Setting the nonlinear solver failed");
-      SUNNonlinSolFree(NLS);
+      SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
       return(CV_MEM_FAIL);
     }
 
@@ -3999,7 +4000,7 @@ void CVodeFree(void **cvode_mem)
 
   /* if CVODE created the nonlinear solver object then free it */
   if (cv_mem->ownNLS) {
-    SUNNonlinSolFree(cv_mem->NLS);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLS), CV_SUNCTX);
     cv_mem->ownNLS = SUNFALSE;
     cv_mem->NLS = NULL;
   }
@@ -4101,17 +4102,17 @@ void CVodeSensFree(void *cvode_mem)
 
   /* if CVODES created a NLS object then free it */
   if (cv_mem->ownNLSsim) {
-    SUNNonlinSolFree(cv_mem->NLSsim);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSsim), CV_SUNCTX);
     cv_mem->ownNLSsim = SUNFALSE;
     cv_mem->NLSsim = NULL;
   }
   if (cv_mem->ownNLSstg) {
-    SUNNonlinSolFree(cv_mem->NLSstg);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg), CV_SUNCTX);
     cv_mem->ownNLSstg = SUNFALSE;
     cv_mem->NLSstg = NULL;
   }
   if (cv_mem->ownNLSstg1) {
-    SUNNonlinSolFree(cv_mem->NLSstg1);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg1), CV_SUNCTX);
     cv_mem->ownNLSstg1 = SUNFALSE;
     cv_mem->NLSstg1 = NULL;
   }
@@ -6324,6 +6325,7 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
+  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
   long int nni_inc = 0;
@@ -6362,43 +6364,50 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* call nonlinear solver setup if it exists */
   if ((cv_mem->NLS)->ops->setup) {
-    if (do_sensi_sim)
-      flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->ycorSim, cv_mem);
-    else
-      flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem);
+    if (do_sensi_sim) {
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(cv_mem->NLS, cv_mem->ycorSim, cv_mem), CV_SUNCTX);
+    } else {
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem), CV_SUNCTX);
+    }
 
-    if (flag < 0) return(CV_NLS_SETUP_FAIL);
-    if (flag > 0) return(SUN_NLS_CONV_RECVR);
+    if (nls_status < 0) return(CV_NLS_SETUP_FAIL);
+    if (nls_status > 0) return(SUN_NLS_CONV_RECVR);
   }
 
   /* solve the nonlinear system */
   if (do_sensi_sim) {
-
-    flag = SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim, cv_mem->ycorSim,
-                             cv_mem->ewtSim, cv_mem->cv_tq[4], callSetup, cv_mem);
+    nls_status =
+      SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim,
+                                                 cv_mem->ycorSim, cv_mem->ewtSim,
+                                                 cv_mem->cv_tq[4], callSetup,
+                                                 cv_mem),
+                               CV_SUNCTX);
 
     /* increment counters */
-    (void) SUNNonlinSolGetNumIters(cv_mem->NLSsim, &nni_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSsim, &nni_inc), CV_SUNCTX);
     cv_mem->cv_nni += nni_inc;
 
-    (void) SUNNonlinSolGetNumConvFails(cv_mem->NLSsim, &nnf_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSsim, &nnf_inc), CV_SUNCTX);
     cv_mem->cv_nnf += nnf_inc;
 
   } else {
-
-    flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
-                             cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
+    nls_status =
+      SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0],
+                                                 cv_mem->cv_acor, cv_mem->cv_ewt,
+                                                 cv_mem->cv_tq[4], callSetup,
+                                                 cv_mem),
+                               CV_SUNCTX);
 
     /* increment counters */
-    (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc), CV_SUNCTX);
     cv_mem->cv_nni += nni_inc;
 
-    (void) SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc), CV_SUNCTX);
     cv_mem->cv_nnf += nnf_inc;
   }
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) return(flag);
+  if (nls_status != SUN_NLS_SUCCESS) return(nls_status);
 
   /* solve successful */
 
@@ -6584,10 +6593,10 @@ static int cvQuadSensNls(CVodeMem cv_mem)
  * once the states y_n were obtained and passed the error test.
  */
 
-static int cvStgrNls(CVodeMem cv_mem)
+static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
 {
   booleantype callSetup;
-  int flag=CV_SUCCESS;
+  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   long int nniS_inc = 0;
   long int nnfS_inc = 0;
 
@@ -6602,21 +6611,25 @@ static int cvStgrNls(CVodeMem cv_mem)
   cv_mem->sens_solve = SUNTRUE;
 
   /* solve the nonlinear system */
-  flag = SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg, cv_mem->ycorStg,
-                           cv_mem->ewtStg, cv_mem->cv_tq[4], callSetup, cv_mem);
+  nls_status =
+    SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg,
+                                               cv_mem->ycorStg, cv_mem->ewtStg,
+                                               cv_mem->cv_tq[4], callSetup,
+                                               cv_mem),
+                             CV_SUNCTX);
 
   /* increment counters */
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg, &nniS_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSstg, &nniS_inc), CV_SUNCTX);
   cv_mem->cv_nniS += nniS_inc;
 
-  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLSstg, &nnfS_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSstg, &nnfS_inc), CV_SUNCTX);
   cv_mem->cv_nnfS += nnfS_inc;
 
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) return(flag);
+  if (nls_status != SUN_NLS_SUCCESS) return(nls_status);
 
   /* solve successful */
 
@@ -6628,7 +6641,7 @@ static int cvStgrNls(CVodeMem cv_mem)
   /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
 
-  return(flag);
+  return(nls_status);
 }
 
 /*
@@ -6639,12 +6652,13 @@ static int cvStgrNls(CVodeMem cv_mem)
  * once the states y_n were obtained and passed the error test.
  */
 
-static int cvStgr1Nls(CVodeMem cv_mem, int is)
+static SUNNlsStatus cvStgr1Nls(CVodeMem cv_mem, int is)
 {
   booleantype callSetup;
   long int nniS1_inc = 0;
   long int nnfS1_inc = 0;
   int flag=CV_SUCCESS;
+  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
 
 
   callSetup = SUNFALSE;
@@ -6658,22 +6672,26 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
   cv_mem->sens_solve = SUNTRUE;
 
   /* solve the nonlinear system */
-  flag = SUNNonlinSolSolve(cv_mem->NLSstg1,
-                           cv_mem->cv_znS[0][is], cv_mem->cv_acorS[is],
-                           cv_mem->cv_ewtS[is], cv_mem->cv_tq[4], callSetup, cv_mem);
+  nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLSstg1,
+                                                          cv_mem->cv_znS[0][is],
+                                                          cv_mem->cv_acorS[is],
+                                                          cv_mem->cv_ewtS[is],
+                                                          cv_mem->cv_tq[4],
+                                                          callSetup, cv_mem),
+                                        CV_SUNCTX);
 
   /* increment counters */
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nniS1_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nniS1_inc), CV_SUNCTX);
   cv_mem->cv_nniS1[is] += nniS1_inc;
 
-  (void) SUNNonlinSolGetNumConvFails(cv_mem->NLSstg1, &nnfS1_inc);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSstg1, &nnfS1_inc), CV_SUNCTX);
   cv_mem->cv_nnfS1[is] += nnfS1_inc;
 
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) return(flag);
+  if (nls_status != SUN_NLS_SUCCESS) return(flag);
 
   /* solve successful */
 
@@ -6684,7 +6702,7 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
   /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
 
-  return(flag);
+  return(nls_status);
 }
 
 /*

@@ -90,7 +90,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* free any existing nonlinear solver */
   if ((IDA_mem->NLSsim != NULL) && (IDA_mem->ownNLSsim))
-    retval = SUNNonlinSolFree(IDA_mem->NLSsim);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSsim), IDA_SUNCTX);
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLSsim = NLS;
@@ -101,6 +101,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* set the nonlinear residual function */
   retval = SUNNonlinSolSetSysFn(IDA_mem->NLSsim, idaNlsResidualSensSim);
+  SUNCheckCallNoRet(retval, IDA_SUNCTX);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting nonlinear system function failed");
@@ -118,6 +119,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* set max allowed nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(IDA_mem->NLSsim, MAXIT);
+  SUNCheckCallNoRet(retval, IDA_SUNCTX);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting maximum number of nonlinear iterations failed");
@@ -216,10 +218,13 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
   int retval;
 
   /* set the linear solver setup wrapper function */
-  if (IDA_mem->ida_lsetup)
+  if (IDA_mem->ida_lsetup) {
     retval = SUNNonlinSolSetLSetupFn(IDA_mem->NLSsim, idaNlsLSetupSensSim);
-  else
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  } else {
     retval = SUNNonlinSolSetLSetupFn(IDA_mem->NLSsim, NULL);
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  }
 
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -228,10 +233,13 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
   }
 
   /* set the linear solver solve wrapper function */
-  if (IDA_mem->ida_lsolve)
+  if (IDA_mem->ida_lsolve) {
     retval = SUNNonlinSolSetLSolveFn(IDA_mem->NLSsim, idaNlsLSolveSensSim);
-  else
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  } else {
     retval = SUNNonlinSolSetLSolveFn(IDA_mem->NLSsim, NULL);
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  }
 
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -410,6 +418,7 @@ static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
+  SUNCheckCallNoRet(retval, IDA_SUNCTX);
   if (retval != IDA_SUCCESS) return(IDA_MEM_NULL);
 
   /* test for convergence, first directly, then with rate estimate. */
