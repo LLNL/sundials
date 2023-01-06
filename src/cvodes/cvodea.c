@@ -662,7 +662,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int *which)
 
   /* Create and set a new CVODES object for the backward problem */
 
-  cvodeB_mem = CVodeCreate(lmmB, cv_mem->cv_sunctx);
+  cvodeB_mem = CVodeCreate(lmmB, CV_SUNCTX);
   if (cvodeB_mem == NULL) {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);

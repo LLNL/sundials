@@ -492,7 +492,7 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   maxord = (lmm == CV_ADAMS) ? ADAMS_Q_MAX : BDF_Q_MAX;
 
   /* Copy input parameters into cv_mem */
-  cv_mem->cv_sunctx = sunctx;
+  CV_SUNCTX = sunctx;
   cv_mem->cv_lmm  = lmm;
 
   /* Set uround */
@@ -762,7 +762,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   N_VScale(ONE, y0, cv_mem->cv_zn[0]);
 
   /* create a Newton nonlinear solver object by default */
-  NLS = SUNNonlinSol_Newton(y0, cv_mem->cv_sunctx);
+  NLS = SUNNonlinSol_Newton(y0, CV_SUNCTX);
 
   /* check that nonlinear solver is non-NULL */
   if (NLS == NULL) {
@@ -1491,9 +1491,9 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
 
   /* create a Newton nonlinear solver object by default */
   if (ism == CV_SIMULTANEOUS)
-    NLS = SUNNonlinSol_NewtonSens(Ns+1, cv_mem->cv_acor, cv_mem->cv_sunctx);
+    NLS = SUNNonlinSol_NewtonSens(Ns+1, cv_mem->cv_acor, CV_SUNCTX);
   else
-    NLS = SUNNonlinSol_NewtonSens(Ns, cv_mem->cv_acor, cv_mem->cv_sunctx);
+    NLS = SUNNonlinSol_NewtonSens(Ns, cv_mem->cv_acor, CV_SUNCTX);
 
   /* check that the nonlinear solver is non-NULL */
   if (NLS == NULL) {
@@ -1714,11 +1714,11 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
 
   /* create a Newton nonlinear solver object by default */
   if (ism == CV_SIMULTANEOUS)
-    NLS = SUNNonlinSol_NewtonSens(Ns+1, cv_mem->cv_acor, cv_mem->cv_sunctx);
+    NLS = SUNNonlinSol_NewtonSens(Ns+1, cv_mem->cv_acor, CV_SUNCTX);
   else if (ism == CV_STAGGERED)
-    NLS = SUNNonlinSol_NewtonSens(Ns, cv_mem->cv_acor, cv_mem->cv_sunctx);
+    NLS = SUNNonlinSol_NewtonSens(Ns, cv_mem->cv_acor, CV_SUNCTX);
   else
-    NLS = SUNNonlinSol_Newton(cv_mem->cv_acor, cv_mem->cv_sunctx);
+    NLS = SUNNonlinSol_Newton(cv_mem->cv_acor, CV_SUNCTX);
 
   /* check that the nonlinear solver is non-NULL */
   if (NLS == NULL) {
@@ -1880,12 +1880,12 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     /* create a Newton nonlinear solver object by default */
     if (ism == CV_SIMULTANEOUS)
       NLS = SUNNonlinSol_NewtonSens(cv_mem->cv_Ns+1, cv_mem->cv_acor,
-                                    cv_mem->cv_sunctx);
+                                    CV_SUNCTX);
     else if (ism == CV_STAGGERED)
       NLS = SUNNonlinSol_NewtonSens(cv_mem->cv_Ns, cv_mem->cv_acor,
-                                    cv_mem->cv_sunctx);
+                                    CV_SUNCTX);
     else
-      NLS = SUNNonlinSol_Newton(cv_mem->cv_acor, cv_mem->cv_sunctx);
+      NLS = SUNNonlinSol_Newton(cv_mem->cv_acor, CV_SUNCTX);
 
     /* check that the nonlinear solver is non-NULL */
     if (NLS == NULL) {
@@ -9202,7 +9202,7 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
   } else {
 
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, cv_mem->cv_sunctx);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, CV_SUNCTX);
 
   }
 

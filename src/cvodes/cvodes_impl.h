@@ -41,6 +41,7 @@ extern "C" {
 /* Shortcuts                                                       */
 /*=================================================================*/
 
+#define CV_SUNCTX cv_mem->cv_sunctx
 #define CV_PROFILER cv_mem->cv_sunctx->profiler
 #define CV_LOGGER cv_mem->cv_sunctx->logger
 

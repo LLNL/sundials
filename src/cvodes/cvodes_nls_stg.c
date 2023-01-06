@@ -128,20 +128,20 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->stgMallocDone == SUNFALSE) {
 
-    cv_mem->zn0Stg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, cv_mem->cv_sunctx);
+    cv_mem->zn0Stg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, CV_SUNCTX);
     if (cv_mem->zn0Stg == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ycorStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, cv_mem->cv_sunctx);
+    cv_mem->ycorStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, CV_SUNCTX);
     if (cv_mem->ycorStg == NULL) {
       N_VDestroy(cv_mem->zn0Stg);
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ewtStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, cv_mem->cv_sunctx);
+    cv_mem->ewtStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, CV_SUNCTX);
     if (cv_mem->ewtStg == NULL) {
       N_VDestroy(cv_mem->zn0Stg);
       N_VDestroy(cv_mem->ycorStg);
