@@ -99,7 +99,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, ARK_SUNCTX);
+  pdata->savedJ = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(N, mup, mlp, mup, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
@@ -109,9 +109,9 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, ARK_SUNCTX);
+  pdata->savedP = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(N, mup, mlp, storagemu, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->savedP == NULL) {
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -121,8 +121,8 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   pdata->LS = NULL;
   pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->LS == NULL) {
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -132,8 +132,8 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   pdata->tmp1 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -142,8 +142,8 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   pdata->tmp2 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     arkFreeVec(ark_mem, &(pdata->tmp1));
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
@@ -155,8 +155,8 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval != SUN_SUCCESS) {
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));
     free(pdata); pdata = NULL;
@@ -214,6 +214,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   }
   if (pdata->savedJ->ops->space) {
     retval = SUNMatSpace(pdata->savedJ, &lrw, &liw);
+SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == 0) {
       *leniwBP += liw;
       *lenrwBP += lrw;
@@ -221,6 +222,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   }
   if (pdata->savedP->ops->space) {
     retval = SUNMatSpace(pdata->savedP, &lrw, &liw);
+SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == 0) {
       *leniwBP += liw;
       *lenrwBP += lrw;
@@ -325,6 +327,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNTRUE, use saved copy of J. */
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
       return(-1);
@@ -338,6 +341,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNFALSE, call ARKBandPDQJac for new J value. */
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
+SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
       return(-1);
@@ -357,6 +361,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
       return(-1);
@@ -369,6 +374,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Scale and add identity to get savedP = I - gamma*J. */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
+SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval) {
     arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
     return(-1);
@@ -449,8 +455,8 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
   SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
-  SUNMatDestroy(pdata->savedP);
-  SUNMatDestroy(pdata->savedJ);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
   arkFreeVec(ark_mem, &(pdata->tmp1));
   arkFreeVec(ark_mem, &(pdata->tmp2));
 
@@ -539,7 +545,7 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
     for (j = group-1; j < pdata->N; j += width) {
       yj = y_data[j];
       ytemp_data[j] = y_data[j];
-      col_j = SUNBandMatrix_Column(pdata->savedJ,j);
+      col_j = SUNCheckCallLastErrNoRet(SUNBandMatrix_Column(pdata->savedJ,j), ARK_SUNCTX);
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
 
       /* Adjust sign(inc) as before. */

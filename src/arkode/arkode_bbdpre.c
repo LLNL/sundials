@@ -100,7 +100,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ARK_SUNCTX);
+  pdata->savedJ = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
@@ -110,9 +110,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ARK_SUNCTX);
+  pdata->savedP = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->savedP == NULL) {
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -123,8 +123,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->zlocal = NULL;
   pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->zlocal == NULL) {
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -134,8 +134,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ARK_SUNCTX), ARK_SUNCTX);
   if (pdata->rlocal == NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -145,8 +145,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -157,8 +157,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     arkFreeVec(ark_mem, &(pdata->tmp1));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -170,8 +170,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     arkFreeVec(ark_mem, &(pdata->tmp2));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -186,8 +186,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     arkFreeVec(ark_mem, &(pdata->tmp3));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
@@ -202,8 +202,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     arkFreeVec(ark_mem, &(pdata->tmp3));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_SUNLS_FAIL);
@@ -232,11 +232,13 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   }
   if (pdata->savedJ->ops->space) {
     retval = SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->savedP->ops->space) {
     retval = SUNMatSpace(pdata->savedP, &lrw, &liw);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -426,6 +428,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   if (jok) {
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
       return(-1);
@@ -439,6 +442,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
       return(-1);
@@ -459,6 +463,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
       return(-1);
@@ -471,6 +476,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval) {
     arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
     return(-1);
@@ -560,8 +566,8 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   arkFreeVec(ark_mem, &(pdata->tmp3));
   SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), ARK_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
-  SUNMatDestroy(pdata->savedP);
-  SUNMatDestroy(pdata->savedJ);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), ARK_SUNCTX);
 
   free(pdata);
   pdata = NULL;
@@ -658,7 +664,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
     for (j=group-1; j < pdata->n_local; j+=width) {
       yj = y_data[j];
       ytemp_data[j] = y_data[j];
-      col_j = SUNBandMatrix_Column(pdata->savedJ,j);
+      col_j = SUNCheckCallLastErrNoRet(SUNBandMatrix_Column(pdata->savedJ,j), ARK_SUNCTX);
       inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
 
       if (ark_mem->constraintsSet) {
