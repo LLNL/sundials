@@ -23,6 +23,7 @@
 #define _SUNNONLINSOL_FIXEDPOINT_H
 
 #include <sundials/sundials.h>
+#include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -91,9 +92,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
-                                        N_Vector y, N_Vector w, realtype tol,
-                                        booleantype callSetup, void* mem);
+SUNNlsStatus SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
+                                          N_Vector y, N_Vector w, realtype tol,
+                                          booleantype callSetup, void* mem);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);

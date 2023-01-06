@@ -36,8 +36,8 @@
 /* Private function prototypes */
 static booleantype compatibleMatrices(SUNMatrix A, SUNMatrix B);
 static booleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector y);
-static int Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y);
-static int Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
+static SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y);
+static SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
 static SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B);
 
 /*

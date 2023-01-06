@@ -131,7 +131,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
-    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -141,7 +141,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   pdata->tmp2 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
-    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     arkFreeVec(ark_mem, &(pdata->tmp1));
@@ -153,8 +153,8 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* initialize band linear solver object */
   retval = SUNLinSolInitialize(pdata->LS);
   SUNCheckCallNoRet(retval, ARK_SUNCTX);
-  if (retval != SUNLS_SUCCESS) {
-    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
+  if (retval != SUN_SUCCESS) {
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     arkFreeVec(ark_mem, &(pdata->tmp1));
@@ -229,7 +229,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   if (pdata->LS->ops->space) {
     retval = SUNLinSolSpace(pdata->LS, &lrw, &liw);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval == SUNLS_SUCCESS) {
+    if (retval == SUN_SUCCESS) {
       *leniwBP += liw;
       *lenrwBP += lrw;
     }
@@ -448,7 +448,7 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   if (arkls_mem->P_data == NULL) return(0);
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
-  SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
   arkFreeVec(ark_mem, &(pdata->tmp1));

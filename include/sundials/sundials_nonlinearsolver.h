@@ -102,9 +102,9 @@ struct _generic_SUNNonlinearSolver_Ops
 {
   SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
   SUNErrCode (*initialize)(SUNNonlinearSolver);
-  SUNErrCode (*setup)(SUNNonlinearSolver, N_Vector, void*);
-  SUNErrCode (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector,
-                      realtype, booleantype, void*);
+  SUNNlsStatus (*setup)(SUNNonlinearSolver, N_Vector, void*);
+  SUNNlsStatus (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector,
+                       realtype, booleantype, void*);
   SUNErrCode (*free)(SUNNonlinearSolver);
   SUNErrCode (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   SUNErrCode (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);

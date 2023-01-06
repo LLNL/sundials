@@ -122,7 +122,7 @@ struct _generic_SUNLinearSolver_Ops
   SUNErrCode (*initialize)(SUNLinearSolver);
   SUNLsStatus (*setup)(SUNLinearSolver, SUNMatrix);
   SUNLsStatus (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype);
-  SUNErrCode (*numiters)(SUNLinearSolver);
+  int (*numiters)(SUNLinearSolver);
   realtype (*resnorm)(SUNLinearSolver);
   sunindextype (*lastflag)(SUNLinearSolver);
   SUNErrCode (*space)(SUNLinearSolver, long int*, long int*);

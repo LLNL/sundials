@@ -108,24 +108,28 @@ SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type)
   return mem;
 }
 
-SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations,
-                                  unsigned long* num_deallocations, size_t* bytes_allocated,
-                                  size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper,
+                                         SUNMemoryType mem_type,
+                                         unsigned long* num_allocations,
+                                         unsigned long* num_deallocations,
+                                         size_t* bytes_allocated,
+                                         size_t* bytes_high_watermark)
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   if (helper->ops->getallocstats) {
-    return helper->ops->getallocstats(helper, mem_type, num_allocations, num_deallocations, bytes_allocated, bytes_high_watermark);
-  } else {
-    ier = SUN_ERR_NOT_IMPLEMENTED;
+    return helper->ops->getallocstats(helper, mem_type, num_allocations,
+                                      num_deallocations, bytes_allocated,
+                                      bytes_high_watermark);
   }
+  else { ier = SUN_ERR_NOT_IMPLEMENTED; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
 }
 
-
 SUNErrCode SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                          size_t mem_size, SUNMemoryType mem_type, void* queue)
+                                 size_t mem_size, SUNMemoryType mem_type,
+                                 void* queue)
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));

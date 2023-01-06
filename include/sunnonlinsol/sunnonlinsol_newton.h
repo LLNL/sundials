@@ -127,7 +127,7 @@ SUNErrCode SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
                                        SUNNonlinSolSysFn* SysFn);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS, FILE* info_file);
+SUNErrCode SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS, FILE* info_file);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
 SUNErrCode SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,

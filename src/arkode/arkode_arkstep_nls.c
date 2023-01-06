@@ -21,6 +21,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 
 
@@ -359,7 +360,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   This routine wraps the ARKODE linear solver interface 'setup'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
+SUNNlsStatus arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -403,7 +404,7 @@ int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
   This routine wraps the ARKODE linear solver interface 'solve'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
+SUNNlsStatus arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -458,7 +459,7 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
      Fi(z) (stored step_mem->Fi[step_mem->istage])
      r = zc - gamma*Fi(z) - step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
+SUNNlsStatus arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -524,7 +525,7 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
      Fi(z) (stored step_mem->Fi[step_mem->istage])
      r = M*zc - gamma*Fi(z) - step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
+SUNNlsStatus arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -598,7 +599,7 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
      Fi(z) (stored step_mem->Fi[istage])
      r = r - gamma*Fi(z)
   ---------------------------------------------------------------*/
-int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
+SUNNlsStatus arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -666,7 +667,7 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
      Fi(z) (store in step_mem->Fi[step_mem->istage])
      g = gamma*Fi(z) + step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
+SUNNlsStatus arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -732,7 +733,7 @@ int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
      g = gamma*Fi(z) + step_mem->sdata
      g = M^{-1}*g
   ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
+SUNNlsStatus arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -804,7 +805,7 @@ int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
      g = M(ti)^{-1}*(gamma*Fi(z))
      g = g + step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
+SUNNlsStatus arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -861,8 +862,8 @@ int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
       implicit, then we just declare 'success' no matter what
       is provided.
   ---------------------------------------------------------------*/
-int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                        realtype tol, N_Vector ewt, void* arkode_mem)
+SUNNlsStatus arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                                 realtype tol, N_Vector ewt, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;

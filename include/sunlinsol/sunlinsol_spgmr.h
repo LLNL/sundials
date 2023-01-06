@@ -130,7 +130,7 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLinSolNumIters_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+int SUNLinSolNumIters_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
 
 SUNDIALS_EXPORT
 realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT;

@@ -31,13 +31,15 @@
 #define RDIV       RCONST(2.0)
 
 /* private functions */
-static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);
-static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem);
+static SUNNlsStatus cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);
+static SUNNlsStatus cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem);
 
-static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem);
-static int cvNlsLSolve(N_Vector delta, void* cvode_mem);
-static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                         realtype tol, N_Vector ewt, void* cvode_mem);
+static SUNNlsStatus cvNlsLSetup(booleantype jbad, booleantype* jcur,
+                                void* cvode_mem);
+static SUNNlsStatus cvNlsLSolve(N_Vector delta, void* cvode_mem);
+static SUNNlsStatus cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor,
+                                  N_Vector del, realtype tol, N_Vector ewt,
+                                  void* cvode_mem);
 
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
 int cvNlsResid_fused(const realtype rl1,
@@ -254,7 +256,7 @@ int cvNlsInit(CVodeMem cv_mem)
 }
 
 
-static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
+static SUNNlsStatus cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -290,7 +292,7 @@ static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
 }
 
 
-static int cvNlsLSolve(N_Vector delta, void* cvode_mem)
+static SUNNlsStatus cvNlsLSolve(N_Vector delta, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -310,8 +312,8 @@ static int cvNlsLSolve(N_Vector delta, void* cvode_mem)
 }
 
 
-static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
-                         realtype tol, N_Vector ewt, void* cvode_mem)
+static SUNNlsStatus cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
+                                  realtype tol, N_Vector ewt, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int m, retval;
@@ -360,7 +362,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
 }
 
 
-static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
+static SUNNlsStatus cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int retval;
@@ -398,7 +400,7 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
 }
 
 
-static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem)
+static SUNNlsStatus cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem)
 {
  CVodeMem cv_mem;
   int retval;

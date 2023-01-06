@@ -175,12 +175,12 @@ SUNLsStatus SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return (ier);
 }
 
-SUNErrCode SUNLinSolNumIters(SUNLinearSolver S)
+int SUNLinSolNumIters(SUNLinearSolver S)
 {
-  SUNErrCode ier;
-  if (S->ops->numiters) ier = S->ops->numiters(S);
-  else ier = 0;
-  return (ier);
+  int result;
+  if (S->ops->numiters) result = S->ops->numiters(S);
+  else result = 0;
+  return (result);
 }
 
 realtype SUNLinSolResNorm(SUNLinearSolver S)

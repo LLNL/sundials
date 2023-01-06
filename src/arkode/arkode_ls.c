@@ -20,7 +20,9 @@
 #include "arkode/arkode_ls.h"
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -200,7 +202,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, ark_mem, arkLsATimes);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval != SUNLS_SUCCESS) {
+    if (retval != SUN_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
       free(arkls_mem); arkls_mem = NULL;
@@ -212,7 +214,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, ark_mem, NULL, NULL);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval != SUNLS_SUCCESS) {
+    if (retval != SUN_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
       free(arkls_mem); arkls_mem = NULL;
@@ -407,7 +409,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, ark_mem, NULL);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval != SUNLS_SUCCESS) {
+    if (retval != SUN_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
       free(arkls_mem); arkls_mem = NULL;
@@ -419,7 +421,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, ark_mem, NULL, NULL);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval != SUNLS_SUCCESS) {
+    if (retval != SUN_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
       free(arkls_mem); arkls_mem = NULL;
@@ -688,7 +690,7 @@ int arkLSSetPreconditioner(void *arkode_mem,
   arkls_psolve = (psolve == NULL) ? NULL : arkLsPSolve;
   retval = SUNLinSolSetPreconditioner(arkls_mem->LS, ark_mem,
                                       arkls_psetup, arkls_psolve);
-  if (retval != SUNLS_SUCCESS) {
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetPreconditioner");
     return(ARKLS_SUNLS_FAIL);
@@ -937,7 +939,7 @@ int arkLSGetWorkSpace(void *arkode_mem, long int *lenrw,
   if (arkls_mem->LS->ops->space) {
     retval = SUNLinSolSpace(arkls_mem->LS, &lrw, &liw);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval == SUNLS_SUCCESS) {
+    if (retval == SUN_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
     }
@@ -1279,7 +1281,7 @@ int arkLSSetMassPreconditioner(void *arkode_mem,
   arkls_mpsolve = (psolve == NULL) ? NULL : arkLsMPSolve;
   retval = SUNLinSolSetPreconditioner(arkls_mem->LS, ark_mem,
                                       arkls_mpsetup, arkls_mpsolve);
-  if (retval != SUNLS_SUCCESS) {
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetPreconditioner");
     return(ARKLS_SUNLS_FAIL);
@@ -1330,7 +1332,7 @@ int arkLSSetMassTimes(void *arkode_mem,
   /* notify linear solver to call ARKLs interface routine */
   retval = SUNLinSolSetATimes(arkls_mem->LS, ark_mem, arkLsMTimes);
   SUNCheckCallNoRet(retval, ARK_SUNCTX);
-  if (retval != SUNLS_SUCCESS) {
+  if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetATimes");
     return(ARKLS_SUNLS_FAIL);
@@ -1407,7 +1409,7 @@ int arkLSGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   if (arkls_mem->LS->ops->space) {
     retval = SUNLinSolSpace(arkls_mem->LS, &lrw, &liw);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval == SUNLS_SUCCESS) {
+    if (retval == SUN_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
     }
@@ -1621,7 +1623,7 @@ int arkLSGetLastMassFlag(void *arkode_mem, long int *flag)
   the same as the values returned by jtimes and mtimes --
   0 if successful, nonzero otherwise.
   ---------------------------------------------------------------*/
-int arkLsATimes(void *arkode_mem, N_Vector v, N_Vector z)
+SUNLsStatus arkLsATimes(void *arkode_mem, N_Vector v, N_Vector z)
 {
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
@@ -1768,7 +1770,7 @@ SUNLsStatus arkLsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
   routine. The return value is the same as the value returned
   by mtimes -- 0 if successful, nonzero otherwise.
   ---------------------------------------------------------------*/
-int arkLsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
+SUNLsStatus arkLsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -2424,10 +2426,14 @@ int arkLsInitialize(void* arkode_mem)
     arkls_mem->scalesol = SUNFALSE;
   }
 
-  /* Call LS initialize routine, and return result */
   retval = SUNLinSolInitialize(arkls_mem->LS);
   SUNCheckCallNoRet(retval, ARK_SUNCTX);
-  arkls_mem->last_flag = ARKLS_SUCCESS;
+  if (retval) {
+    arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
+  } else {
+    arkls_mem->last_flag = ARKLS_SUCCESS;
+  }
+
   return(arkls_mem->last_flag);
 }
 
@@ -2445,9 +2451,9 @@ int arkLsInitialize(void* arkode_mem)
 
   This routine then calls the LS 'setup' routine with A.
   ---------------------------------------------------------------*/
-int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
-               N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
-               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+SUNLsStatus arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
+                       N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
+                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   ARKodeMem    ark_mem = NULL;
   ARKLsMem     arkls_mem = NULL;
@@ -2580,8 +2586,8 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
   When using a non-NULL SUNMatrix, this will additionally scale
   the solution appropriately when gamrat != 1.
   ---------------------------------------------------------------*/
-int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
-               N_Vector ynow, N_Vector fnow, realtype eRNrm, int mnewt)
+SUNLsStatus arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
+                       N_Vector ynow, N_Vector fnow, realtype eRNrm, int mnewt)
 {
   realtype    bnorm, resnorm;
   ARKodeMem   ark_mem;
@@ -2590,6 +2596,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   booleantype dgamma_fail, *jcur;
   long int    nps_inc;
   int         nli_inc, retval;
+  SUNLsStatus ls_status;
 
 
   /* access ARKLsMem structure */
@@ -2625,7 +2632,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS,
                                         ark_mem->rwt,
                                         ark_mem->ewt);
-    if (retval != SUNLS_SUCCESS) {
+    if (retval != SUN_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in call to SUNLinSolSetScalingVectors");
       arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
@@ -2660,7 +2667,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
   SUNCheckCallNoRet(retval, ARK_SUNCTX);
-  if (retval != SUNLS_SUCCESS) return(-1);
+  if (retval != SUN_SUCCESS) return(-1);
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;
@@ -2677,8 +2684,9 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   }
 
   /* Call solver, and copy x to b */
-  retval = SUNLinSolSolve(arkls_mem->LS, arkls_mem->A,
-                          arkls_mem->x, b, delta);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(arkls_mem->LS, arkls_mem->A,
+                                                      arkls_mem->x, b, delta),
+                                       ARK_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(ONE, arkls_mem->x, b), ARK_SUNCTX);
 
   /* If using a direct or matrix-iterative solver, scale the correction to
@@ -2710,7 +2718,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
 
   /* Increment counters nli and ncfl */
   arkls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) arkls_mem->ncfl++;
+  if (ls_status != SUNLS_SUCCESS) arkls_mem->ncfl++;
 
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
@@ -2725,9 +2733,9 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
 #endif
 
   /* Interpret solver return value  */
-  arkls_mem->last_flag = retval;
+  arkls_mem->last_flag = ls_status;
 
-  switch(retval) {
+  switch(ls_status) {
 
   case SUNLS_SUCCESS:
     return(0);
@@ -2890,7 +2898,13 @@ int arkLsMassInitialize(void *arkode_mem)
 
   /* Call LS initialize routine */
   retval = SUNLinSolInitialize(arkls_mem->LS);
-  SUNCheckCall(retval, ARK_SUNCTX);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  if (retval) {
+    arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
+  } else {
+    arkls_mem->last_flag = ARKLS_SUCCESS;
+  }
+
   return(arkls_mem->last_flag);
 }
 
@@ -2898,8 +2912,8 @@ int arkLsMassInitialize(void *arkode_mem)
 /*---------------------------------------------------------------
   arkLsMassSetup calls the LS 'setup' routine.
   ---------------------------------------------------------------*/
-int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
-                   N_Vector vtemp2, N_Vector vtemp3)
+SUNLsStatus arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
+                           N_Vector vtemp2, N_Vector vtemp3)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -3019,8 +3033,9 @@ int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
 
   /* Call LS setup routine if applicable, and return */
   if (call_lssetup) {
-    arkls_mem->last_flag = SUNLinSolSetup(arkls_mem->LS,
-                                          arkls_mem->M_lu);
+    arkls_mem->last_flag =
+      SUNCheckCallLastErrNoRet(SUNLinSolSetup(arkls_mem->LS, arkls_mem->M_lu),
+                               ARK_SUNCTX);
     arkls_mem->nmsetups++;
   }
 
@@ -3034,7 +3049,7 @@ int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
   and scaling vectors, calling the solver, and accumulating
   statistics from the solve for use/reporting by ARKODE.
   ---------------------------------------------------------------*/
-int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
+SUNLsStatus arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 {
   realtype     resnorm, delta, rwt_mean;
   ARKodeMem    ark_mem;

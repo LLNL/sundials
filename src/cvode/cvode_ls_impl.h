@@ -136,7 +136,7 @@ typedef struct CVLsMemRec {
   -----------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-SUNErrCode cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z);
+SUNLsStatus cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z);
 SUNLsStatus cvLsPSetup(void* cvode_mem);
 SUNLsStatus cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z,
                realtype tol, int lr);

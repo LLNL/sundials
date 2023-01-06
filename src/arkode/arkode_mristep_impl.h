@@ -225,12 +225,12 @@ int mriStep_NlsInit(ARKodeMem ark_mem);
 int mriStep_Nls(ARKodeMem ark_mem, int nflag);
 
 /* private functions passed to nonlinear solver */
-int mriStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
-int mriStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
-int mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
-int mriStep_NlsLSolve(N_Vector delta, void* arkode_mem);
-int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                        realtype tol, N_Vector ewt, void* arkode_mem);
+SUNNlsStatus mriStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
+SUNNlsStatus mriStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
+SUNNlsStatus mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
+SUNNlsStatus mriStep_NlsLSolve(N_Vector delta, void* arkode_mem);
+SUNNlsStatus mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                                 realtype tol, N_Vector ewt, void* arkode_mem);
 
 
 /* Inner stepper functions */

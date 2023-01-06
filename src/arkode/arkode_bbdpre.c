@@ -204,7 +204,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), ARK_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_SUNLS_FAIL);
     return(ARKLS_SUNLS_FAIL);
@@ -516,7 +516,7 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 {
   SUNDeclareContext(y->sunctx);
 
-  int retval;
+  SUNLsStatus ls_status;
   ARKBBDPrecData pdata;
 
   pdata = (ARKBBDPrecData) bbd_data;
@@ -526,14 +526,16 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   SUNCheckCallLastErrNoRet(N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal), SUNCTX);
 
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->savedP, pdata->zlocal,
-                          pdata->rlocal, ZERO);
+  ls_status =
+    SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP,
+                                            pdata->zlocal, pdata->rlocal, ZERO),
+                             SUNCTX);
 
   /* Detach local data arrays from rlocal and zlocal */
   SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->rlocal), SUNCTX);
   SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->zlocal), SUNCTX);
 
-  return(retval);
+  return(ls_status);
 }
 
 
@@ -552,7 +554,7 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   if (arkls_mem->P_data == NULL) return(0);
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
-  SUNCheckCall(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), ARK_SUNCTX);
   arkFreeVec(ark_mem, &(pdata->tmp1));
   arkFreeVec(ark_mem, &(pdata->tmp2));
   arkFreeVec(ark_mem, &(pdata->tmp3));

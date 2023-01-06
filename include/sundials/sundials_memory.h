@@ -129,11 +129,11 @@ SUNErrCode SUNMemoryHelper_CopyAsync(SUNMemoryHelper, SUNMemory dst,
                                      SUNMemory src, size_t mem_size, void* queue);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, SUNMemoryType mem_type,
-                                  unsigned long* num_allocations,
-                                  unsigned long* num_deallocations,
-                                  size_t* bytes_allocated,
-                                  size_t* bytes_high_watermark);
+SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, SUNMemoryType mem_type,
+                                         unsigned long* num_allocations,
+                                         unsigned long* num_deallocations,
+                                         size_t* bytes_allocated,
+                                         size_t* bytes_high_watermark);
 
 /* Clones the SUNMemoryHelper */
 SUNDIALS_EXPORT

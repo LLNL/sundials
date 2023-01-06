@@ -22,6 +22,7 @@
 #include "cvode_impl.h"
 #include "cvode_ls_impl.h"
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -911,7 +912,7 @@ char *CVodeGetLinReturnFlagName(long int flag)
   The return value is the same as the value returned by jtimes --
   0 if successful, nonzero otherwise.
   -----------------------------------------------------------------*/
-SUNErrCode cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
+SUNLsStatus cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
