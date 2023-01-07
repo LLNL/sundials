@@ -405,11 +405,11 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_SPGMR(SUNLinearSolver farg1, SUNMatrix farg
 SWIGEXPORT int _wrap_FSUNLinSolNumIters_SPGMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  SUNErrCode result;
+  int result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (SUNErrCode)SUNLinSolNumIters_SPGMR(arg1);
-  fresult = (SUNErrCode)(result);
+  result = (int)SUNLinSolNumIters_SPGMR(arg1);
+  fresult = (int)(result);
   return fresult;
 }
 

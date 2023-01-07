@@ -275,7 +275,7 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver farg1, N_V
   realtype arg5 ;
   int arg6 ;
   void *arg7 = (void *) 0 ;
-  SUNErrCode result;
+  SUNNlsStatus result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (N_Vector)(farg2);
@@ -284,8 +284,8 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver farg1, N_V
   arg5 = (realtype)(*farg5);
   arg6 = (int)(*farg6);
   arg7 = (void *)(farg7);
-  result = (SUNErrCode)SUNNonlinSolSolve_FixedPoint(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
-  fresult = (SUNErrCode)(result);
+  result = (SUNNlsStatus)SUNNonlinSolSolve_FixedPoint(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  fresult = (SUNNlsStatus)(result);
   return fresult;
 }
 

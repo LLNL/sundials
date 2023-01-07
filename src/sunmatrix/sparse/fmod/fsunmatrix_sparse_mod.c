@@ -264,12 +264,12 @@ SWIGEXPORT int _wrap_FSUNSparseMatrix_ToCSR(SUNMatrix farg1, void *farg2) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) (SUNMatrix)0 ;
   SUNMatrix *arg2 = (SUNMatrix *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (SUNMatrix *)(farg2);
-  result = (int)SUNSparseMatrix_ToCSR(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNSparseMatrix_ToCSR(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -278,12 +278,12 @@ SWIGEXPORT int _wrap_FSUNSparseMatrix_ToCSC(SUNMatrix farg1, void *farg2) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) (SUNMatrix)0 ;
   SUNMatrix *arg2 = (SUNMatrix *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (SUNMatrix *)(farg2);
-  result = (int)SUNSparseMatrix_ToCSC(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNSparseMatrix_ToCSC(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -291,11 +291,11 @@ SWIGEXPORT int _wrap_FSUNSparseMatrix_ToCSC(SUNMatrix farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNSparseMatrix_Realloc(SUNMatrix farg1) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (int)SUNSparseMatrix_Realloc(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNSparseMatrix_Realloc(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -304,12 +304,12 @@ SWIGEXPORT int _wrap_FSUNSparseMatrix_Reallocate(SUNMatrix farg1, int64_t const 
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (int)SUNSparseMatrix_Reallocate(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNSparseMatrix_Reallocate(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

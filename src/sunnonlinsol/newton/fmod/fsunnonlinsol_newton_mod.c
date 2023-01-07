@@ -430,12 +430,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver farg1, v
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNNonlinSolSetInfoFile_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetInfoFile_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
