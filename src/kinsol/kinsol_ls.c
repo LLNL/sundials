@@ -22,6 +22,8 @@
 
 #include "kinsol_impl.h"
 #include "kinsol_ls_impl.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
@@ -1191,6 +1193,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   KINLsMem kinls_mem;
   int      nli_inc, retval;
   realtype res_norm, tol;
+  SUNLsStatus ls_status;
 
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL) {
@@ -1209,13 +1212,15 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(kinls_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) return(-1);
+  if (retval != SUN_SUCCESS) return(-1);
 
   /* set flag required for user-supplied J*v routine */
   kinls_mem->new_uu = SUNTRUE;
 
   /* Call solver */
-  retval = SUNLinSolSolve(kinls_mem->LS, kinls_mem->J, xx, bb, tol);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(kinls_mem->LS,
+                                                      kinls_mem->J, xx, bb, tol),
+                                       KIN_SUNCTX);
 
   /* Retrieve solver statistics */
   res_norm = ZERO;
@@ -1231,14 +1236,14 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   /* Increment counters nli and ncfl */
   kinls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) kinls_mem->ncfl++;
+  if (ls_status != SUNLS_SUCCESS) kinls_mem->ncfl++;
 
   /* Interpret solver return value */
   kinls_mem->last_flag = retval;
 
-  if ( (retval != 0) && (retval != SUNLS_RES_REDUCED) ) {
+  if ( (ls_status != 0) && (ls_status != SUNLS_RES_REDUCED) ) {
 
-    switch(retval) {
+    switch(ls_status) {
     case SUNLS_ATIMES_FAIL_REC:
     case SUNLS_PSOLVE_FAIL_REC:
       return(1);

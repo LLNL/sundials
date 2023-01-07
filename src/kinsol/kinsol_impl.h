@@ -60,6 +60,7 @@ extern "C" {
 /* Shortcuts                                                       */
 /*=================================================================*/
 
+#define KIN_SUNCTX kin_mem->kin_sunctx
 #define KIN_PROFILER kin_mem->kin_sunctx->profiler
 #define KIN_LOGGER kin_mem->kin_sunctx->logger
 

@@ -1642,6 +1642,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVLsMem  cvls_mem;
   realtype bnorm, deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
+  SUNLsStatus ls_status;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   realtype resnorm;
   long int nps_inc;
@@ -1656,20 +1657,17 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* get current nonlinear solver iteration */
-  retval = SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter), CV_SUNCTX);
 
   /* If the linear solver is iterative:
      test norm(b), if small, return x = 0 or x = b;
      set linear solver tolerance (in left/right scaled 2-norm) */
   if (cvls_mem->iterative) {
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
-    bnorm = N_VWrmsNorm(b, weight);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    bnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(b, weight), CV_SUNCTX);
     if (bnorm <= deltar) {
       if (curiter > 0) {
-        N_VConst(ZERO, b);
-        SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VConst(ZERO, b), CV_SUNCTX);
       }
       cvls_mem->last_flag = CVLS_SUCCESS;
       return(cvls_mem->last_flag);
@@ -1690,7 +1688,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     retval = SUNLinSolSetScalingVectors(cvls_mem->LS,
                                         weight,
                                         weight);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval != SUNLS_SUCCESS) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetScalingVectors");
@@ -1725,8 +1723,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
-  if (retval != SUNLS_SUCCESS) return(-1);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  if (retval != SUN_SUCCESS) return(-1);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   /* Store previous nps value in nps_inc */
@@ -1746,7 +1744,9 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   }
 
   /* Call solver, and copy x to b */
-  retval = SUNLinSolSolve(cvls_mem->LS, cvls_mem->A, cvls_mem->x, b, delta);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(cvls_mem->LS, cvls_mem->A,
+                                                      cvls_mem->x, b, delta),
+                                       CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cvls_mem->x, b), CV_SUNCTX);
 
   /* If using a direct or matrix-iterative solver, BDF method, and gamma has changed,
@@ -1772,10 +1772,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Increment counters nli and ncfl */
   cvls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) cvls_mem->ncfl++;
+  if (ls_status != SUNLS_SUCCESS) cvls_mem->ncfl++;
 
   /* Interpret solver return value  */
-  cvls_mem->last_flag = retval;
+  cvls_mem->last_flag = ls_status;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1784,7 +1784,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
 #endif
 
-  switch(retval) {
+  switch(ls_status) {
 
   case SUNLS_SUCCESS:
     return(0);

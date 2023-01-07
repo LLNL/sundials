@@ -417,27 +417,28 @@ static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
   IBBDPrecData pdata;
   IDAMem IDA_mem;
   int retval;
+  SUNLsStatus ls_status;
 
   pdata =(IBBDPrecData) bbd_data;
 
   IDA_mem = (IDAMem) pdata->ida_mem;
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
-  retval = SUNMatZero(pdata->PP);
+  SUNCheckCallNoRet(SUNMatZero(pdata->PP), IDA_SUNCTX);
   retval = IBBDDQJac(pdata, tt, c_j, yy, yp, pdata->tempv1,
                      pdata->tempv2, pdata->tempv3, pdata->tempv4);
   if (retval < 0) {
     IDAProcessError(IDA_mem, -1, __LINE__, __func__, __FILE__,
                     MSGBBD_FUNC_FAILED);
-    return(-1);
+    return(SUNLS_UNRECOV_FAILURE);
   }
   if (retval > 0) {
-    return(1);
+    return(SUNLS_RECOV_FAILURE);
   }
 
   /* Do LU factorization of matrix and return error flag */
-  retval = SUNLinSolSetup_Band(pdata->LS, pdata->PP);
-  return(retval);
+  ls_status = SUNLinSolSetup_Band(pdata->LS, pdata->PP);
+  return(ls_status);
 }
 
 
@@ -465,24 +466,31 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
                            N_Vector rr, N_Vector rvec, N_Vector zvec,
                            realtype c_j, realtype delta, void *bbd_data)
 {
+  SUNLsStatus ls_status;
   IBBDPrecData pdata;
-  int retval;
+  sunrealtype *rdata, *zdata;
+  SUNContext sunctx;
 
   pdata = (IBBDPrecData) bbd_data;
+  sunctx = ((IDAMem) pdata->ida_mem)->ida_sunctx;
 
-  /* Attach local data arrays for rvec and zvec to rlocal and zlocal */
-  N_VSetArrayPointer(N_VGetArrayPointer(rvec), pdata->rlocal);
-  N_VSetArrayPointer(N_VGetArrayPointer(zvec), pdata->zlocal);
+  /* Attach local data arrays for r and z to rlocal and zlocal */
+  rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(rvec), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(rdata, pdata->rlocal), sunctx);
+  zdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(zvec), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(zdata, pdata->zlocal), sunctx);
 
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->PP, pdata->zlocal,
-                          pdata->rlocal, ZERO);
+  ls_status =
+    SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->PP,
+                                            pdata->zlocal, pdata->rlocal, ZERO),
+                             sunctx);
 
   /* Detach local data arrays from rlocal and zlocal */
-  N_VSetArrayPointer(NULL, pdata->rlocal);
-  N_VSetArrayPointer(NULL, pdata->zlocal);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->rlocal), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->zlocal), sunctx);
 
-  return(retval);
+  return(ls_status);
 }
 
 

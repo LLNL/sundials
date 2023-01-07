@@ -29,6 +29,8 @@
 #include "kinsol_impl.h"
 #include "kinsol_ls_impl.h"
 #include "kinsol_bbdpre_impl.h"
+#include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_types.h"
 
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
@@ -362,10 +364,11 @@ int KINBBDPrecGetNumGfnEvals(void *kinmem,
     0 if successful,
     > 0 for a recoverable error - step will be retried.
   ------------------------------------------------------------------*/
-static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
-                           N_Vector fval, N_Vector fscale,
-                           void *bbd_data)
+static SUNLsStatus KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+                                   N_Vector fval, N_Vector fscale,
+                                  void *bbd_data)
 {
+  SUNLsStatus ls_status;
   KBBDPrecData pdata;
   KINMem kin_mem;
   int retval;
@@ -375,11 +378,11 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
   kin_mem = (KINMem) pdata->kin_mem;
 
   /* Call KBBDDQJac for a new Jacobian calculation and store in PP */
-  retval = SUNMatZero(pdata->PP);
-  if (retval != 0) {
+  retval = SUNCheckCallLastErrNoRet(SUNMatZero(pdata->PP), KIN_SUNCTX);
+  if (retval) {
     KINProcessError(kin_mem, -1, __LINE__, __func__, __FILE__,
                     MSGBBD_SUNMAT_FAIL);
-    return(-1);
+    return(SUNLS_UNRECOV_FAILURE);
   }
 
   retval = KBBDDQJac(pdata, uu, uscale,
@@ -387,12 +390,14 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
   if (retval != 0) {
     KINProcessError(kin_mem, -1, __LINE__, __func__, __FILE__,
                     MSGBBD_FUNC_FAILED);
-    return(-1);
+    return(SUNLS_UNRECOV_FAILURE);
   }
 
   /* Do LU factorization of P and return error flag */
-  retval = SUNLinSolSetup_Band(pdata->LS, pdata->PP);
-  return(retval);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->PP),
+                                       KIN_SUNCTX);
+
+  return (ls_status);
 }
 
 /*------------------------------------------------------------------
@@ -425,33 +430,38 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
   flag returned from the lienar solver object.
   ------------------------------------------------------------------*/
 
-static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
-                           N_Vector fval, N_Vector fscale,
-                           N_Vector vv, void *bbd_data)
+static SUNLsStatus KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
+                                   N_Vector fval, N_Vector fscale,
+                                   N_Vector vv, void *bbd_data)
 {
+  SUNLsStatus ls_status;
   KBBDPrecData pdata;
   realtype *vd;
   realtype *zd;
-  int i, retval;
+  int i;
+  SUNContext sunctx;
 
   pdata = (KBBDPrecData) bbd_data;
+  sunctx = ((KINMem) pdata->kin_mem)->kin_sunctx;
 
   /* Get data pointers */
-  vd = N_VGetArrayPointer(vv);
-  zd = N_VGetArrayPointer(pdata->zlocal);
+  vd = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(vv), sunctx);
+  zd = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(pdata->zlocal), sunctx);
 
   /* Attach local data array for vv to rlocal */
-  N_VSetArrayPointer(vd, pdata->rlocal);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(vd, pdata->rlocal), sunctx);
 
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->PP, pdata->zlocal,
-                          pdata->rlocal, ZERO);
+  ls_status =
+    SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->PP, pdata->zlocal,
+                                            pdata->rlocal, ZERO),
+                             sunctx);
 
   /* Copy result into vv */
   for (i=0; i<pdata->n_local; i++)
     vd[i] = zd[i];
 
-  return(retval);
+  return(ls_status);
 }
 
 

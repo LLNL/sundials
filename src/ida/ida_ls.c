@@ -21,6 +21,8 @@
 
 #include "ida_impl.h"
 #include "ida_ls_impl.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_band.h>
@@ -1412,6 +1414,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDALsMem idals_mem;
   int      nli_inc, retval;
   realtype tol, w_mean;
+  SUNLsStatus ls_status;
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
@@ -1474,7 +1477,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) return(-1);
+  if (retval != SUN_SUCCESS) return(-1);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {
@@ -1488,8 +1491,9 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   }
 
   /* Call solver */
-  retval = SUNLinSolSolve(idals_mem->LS, idals_mem->J,
-                          idals_mem->x, b, tol);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(idals_mem->LS, idals_mem->J,
+                                                      idals_mem->x, b, tol),
+                                       IDA_SUNCTX);
 
   /* Copy appropriate result to b (depending on solver type) */
   if (idals_mem->iterative) {
@@ -1518,12 +1522,12 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + IDA_mem->ida_cjratio), b, b);
 
   /* Increment ncfl counter */
-  if (retval != SUNLS_SUCCESS) idals_mem->ncfl++;
+  if (ls_status != SUNLS_SUCCESS) idals_mem->ncfl++;
 
   /* Interpret solver return value  */
   idals_mem->last_flag = retval;
 
-  switch(retval) {
+  switch(ls_status) {
 
   case SUNLS_SUCCESS:
     return(0);

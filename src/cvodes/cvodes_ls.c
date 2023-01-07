@@ -26,6 +26,8 @@
 
 #include "cvodes_impl.h"
 #include "cvodes_ls_impl.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -1703,6 +1705,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm, deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
   booleantype do_sensi_sim, do_sensi_stg, do_sensi_stg1;
+  SUNLsStatus ls_status;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   realtype resnorm;
   long int nps_inc;
@@ -1796,7 +1799,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) return(-1);
+  if (retval != SUN_SUCCESS) return(-1);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   /* Store previous nps value in nps_inc */
@@ -1815,7 +1818,9 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   }
 
   /* Call solver, and copy x to b */
-  retval = SUNLinSolSolve(cvls_mem->LS, cvls_mem->A, cvls_mem->x, b, delta);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(cvls_mem->LS, cvls_mem->A,
+                                                      cvls_mem->x, b, delta),
+                                       CV_SUNCTX);
   N_VScale(ONE, cvls_mem->x, b);
 
   /* If using a direct or matrix-iterative solver, BDF method, and gamma has changed,
@@ -1840,10 +1845,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Increment counters nli and ncfl */
   cvls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) cvls_mem->ncfl++;
+  if (ls_status != SUNLS_SUCCESS) cvls_mem->ncfl++;
 
   /* Interpret solver return value  */
-  cvls_mem->last_flag = retval;
+  cvls_mem->last_flag = ls_status;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1852,7 +1857,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
 #endif
 
-  switch(retval) {
+  switch(ls_status) {
 
   case SUNLS_SUCCESS:
     return(0);
