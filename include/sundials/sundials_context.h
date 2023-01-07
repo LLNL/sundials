@@ -69,6 +69,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNContext_ClearHandlers(SUNContext sunctx);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler *profiler);
 
 SUNDIALS_EXPORT

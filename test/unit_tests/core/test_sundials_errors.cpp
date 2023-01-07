@@ -13,27 +13,27 @@
 #include <gtest/gtest.h>
 #include <sundials/sundials.h>
 
-class SUNErrHandlerTest : public ::testing::Test
+class SUNErrHandlerFnTest : public ::testing::Test
 {
 protected:
-  SUNErrHandlerTest() { SUNContext_Create(nullptr, &sunctx); }
+  SUNErrHandlerFnTest() { SUNContext_Create(nullptr, &sunctx); }
 
-  ~SUNErrHandlerTest() { SUNContext_Free(&sunctx); }
+  ~SUNErrHandlerFnTest() { SUNContext_Free(&sunctx); }
 
   SUNContext sunctx;
 };
 
-TEST_F(SUNErrHandlerTest, SUNLogErrHandlerFnLogsWhenCalled)
+TEST_F(SUNErrHandlerFnTest, SUNLogErrHandlerFnLogsWhenCalled)
 {
   testing::internal::CaptureStderr();
-  std::string expected = "[ERROR][rank 0][/Volumes/Workspace/SUNDIALS/repos/feature/error-handling/test/unit_tests/core/test_sundials_errors.cpp:30][TestBody] Test log handler\n";
+  std::string expected = "[ERROR][rank 0][.*][TestBody] Test log handler\n";
   SUNLogErrHandlerFn(__LINE__, __func__, __FILE__, "Test log handler", -1,
                      nullptr, sunctx);
   std::string output = testing::internal::GetCapturedStderr(); 
-  ASSERT_EQ(output, expected);
+  ASSERT_THAT(output, testing::MatchesRegex(expected));
 }
 
-TEST_F(SUNErrHandlerTest, SUNAbortErrHandlerFnAbortsWhenCalled)
+TEST_F(SUNErrHandlerFnTest, SUNAbortErrHandlerFnAbortsWhenCalled)
 {
   ASSERT_DEATH(
     {
@@ -44,7 +44,7 @@ TEST_F(SUNErrHandlerTest, SUNAbortErrHandlerFnAbortsWhenCalled)
     "avoid program termination.\n");
 }
 
-TEST_F(SUNErrHandlerTest, SUNAssertErrHandlerFnAbortsWhenCalled)
+TEST_F(SUNErrHandlerFnTest, SUNAssertErrHandlerFnAbortsWhenCalled)
 {
   ASSERT_DEATH(
     {
@@ -52,4 +52,69 @@ TEST_F(SUNErrHandlerTest, SUNAssertErrHandlerFnAbortsWhenCalled)
                             -1, nullptr, sunctx);
     },
     "SUNAssertErrHandler: assert(.*) failed... terminating\n");
+}
+
+class SUNContextErrFunctionTests : public ::testing::Test
+{
+protected:
+  SUNContextErrFunctionTests() { SUNContext_Create(nullptr, &sunctx); }
+
+  ~SUNContextErrFunctionTests() { SUNContext_Free(&sunctx); }
+
+  SUNContext sunctx;
+};
+
+int firstHandler(int line, const char *func, const char *file, const char *msg,
+                 SUNErrCode err_code, void *err_user_data,
+                 struct SUNContext_ *sunctx)
+{
+  std::vector<int>* order = static_cast<std::vector<int>*>(err_user_data);
+  order->push_back(0);
+  return 0;
+}
+
+int secondHandler(int line, const char *func, const char *file, const char *msg,
+                  SUNErrCode err_code, void *err_user_data,
+                  struct SUNContext_ *sunctx)
+{
+  std::vector<int>* order = static_cast<std::vector<int>*>(err_user_data);
+  order->push_back(1);
+  return 0;
+}
+
+int thirdHandler(int line, const char *func, const char *file, const char *msg,
+                 SUNErrCode err_code, void *err_user_data,
+                 struct SUNContext_ *sunctx)
+{
+  std::vector<int>* order = static_cast<std::vector<int>*>(err_user_data);
+  order->push_back(2);
+  return 0;
+}
+
+TEST_F(SUNContextErrFunctionTests, SUNContextPushErrHandlerWorks)
+{
+  std::vector<int> order = {};
+  SUNContext_ClearHandlers(sunctx);
+  SUNContext_PushErrHandler(sunctx, firstHandler, static_cast<void*>(&order));
+  SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
+  SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
+  SUNHandleErr(__LINE__, __func__, __FILE__, -1, sunctx);
+  ASSERT_EQ(order.size(), 3);
+  ASSERT_EQ(order.at(0), 2);
+  ASSERT_EQ(order.at(1), 1);
+  ASSERT_EQ(order.at(2), 0);
+}
+
+TEST_F(SUNContextErrFunctionTests, SUNContextPopErrHandlerWorks)
+{
+  std::vector<int> order = {};
+  SUNContext_ClearHandlers(sunctx);
+  SUNContext_PushErrHandler(sunctx, firstHandler, static_cast<void*>(&order));
+  SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
+  SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
+  SUNContext_PopErrHandler(sunctx);
+  SUNHandleErr(__LINE__, __func__, __FILE__, -1, sunctx);
+  ASSERT_EQ(order.size(), 2);
+  ASSERT_EQ(order.at(0), 1);
+  ASSERT_EQ(order.at(1), 0);
 }

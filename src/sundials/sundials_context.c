@@ -102,9 +102,23 @@ SUNErrHandler SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_f
 SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx)
 {
   if (sunctx->err_handler) {
-    sunctx->err_handler = sunctx->err_handler->previous;
+    SUNErrHandler eh = sunctx->err_handler;
+    if (sunctx->err_handler->previous) {
+      sunctx->err_handler = sunctx->err_handler->previous;
+    } else {
+      sunctx->err_handler = NULL;
+    }
+    free(eh);
   }
-  free(sunctx->err_handler);
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_ClearHandlers(SUNContext sunctx)
+{
+  while (sunctx->err_handler != NULL)
+  {
+    SUNContext_PopErrHandler(sunctx);
+  }
   return SUN_SUCCESS;
 }
 
