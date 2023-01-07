@@ -229,6 +229,12 @@ def main():
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
 
+    # error checks
+    add_arg(group, '--disable-error-checks', 'SUNDIALS_DISABLE_ERROR_CHECKS',
+            'SUNDIALS_DISABLE_ERROR_CHECKS', 'OFF', 'BOOL',
+            'disable error checks')
+
+
     # -----------
     # Interfaces
     # -----------
