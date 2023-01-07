@@ -214,7 +214,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
   {
     if (helper->content)
     { 
-      SUNError(SUN_ERR_NOT_IMPLEMENTED, helper->sunctx);
+      SUNCheck(!helper->content, SUN_ERR_NOT_IMPLEMENTED, helper->sunctx);
       return (NULL); 
     }
     else

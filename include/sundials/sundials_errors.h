@@ -193,16 +193,6 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   free(msg);
 }
 
-#define SUNError(code, sunctx) \
-  SUNHandleErr(__LINE__, __func__, __FILE__, code, sunctx)
-
-#define SUNErrorWithMsg(code, msg, sunctx) \
-  SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, code, sunctx)
-
-#define SUNErrorWithFmtMsg(code, msg, sunctx, ...)                        \
-  SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, msg, code, sunctx, \
-                         __VA_ARGS__)
-
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 } /* extern "C" */
 #endif

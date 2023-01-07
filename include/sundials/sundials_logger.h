@@ -16,7 +16,6 @@
 #define _SUNDIALS_LOGGER_H
 
 #include <stdio.h>
-
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
@@ -26,7 +25,8 @@ extern "C" {
 
 typedef struct SUNLogger_* SUNLogger;
 
-typedef enum {
+typedef enum
+{
   SUN_LOGLEVEL_ALL     = -1,
   SUN_LOGLEVEL_NONE    = 0,
   SUN_LOGLEVEL_ERROR   = 1,
@@ -35,24 +35,40 @@ typedef enum {
   SUN_LOGLEVEL_DEBUG   = 4
 } SUNLogLevel;
 
-SUNDIALS_EXPORT SUNErrCode SUNLogger_Create(void* comm, int output_rank,
-                                     SUNLogger* logger);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger,
-                                               const char* error_filename);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger,
-                                                 const char* warning_filename);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger,
-                                               const char* debug_filename);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger,
-                                              const char* info_filename);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
-                                       const char* scope, const char* label,
-                                       const char* msg_txt, ...);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_GetOutputRank(SUNLogger logger, int* output_rank);
-SUNDIALS_EXPORT SUNErrCode SUNLogger_Destroy(SUNLogger* logger);
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger);
 
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger,
+                                      const char* error_filename);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger,
+                                        const char* warning_filename);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger,
+                                      const char* debug_filename);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
+                              const char* scope, const char* label,
+                              const char* msg_txt, ...);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_GetOutputRank(SUNLogger logger, int* output_rank);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNLogger_Destroy(SUNLogger* logger);
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 }
