@@ -27,7 +27,7 @@ jobs:
           indexsize: ${{ matrix.indexsize }}
           precision: ${{ matrix.precision }}
         env:
-          SUNDIALS_DISABLE_ERROR_CHECKS=${{ matrix.error_checks }}
+          SUNDIALS_DISABLE_ERROR_CHECKS: ${{ matrix.error_checks }}
       - name: Archive files from failed build
         uses: actions/upload-artifact@v2.2.4
         if: failure()
