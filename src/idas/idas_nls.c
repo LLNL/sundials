@@ -302,8 +302,8 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem)
   IDA_mem = (IDAMem) ida_mem;
 
   /* update yy and yp based on the current correction */
-  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, IDA_mem->ida_yy);
-  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, IDA_mem->ida_yy), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp), IDA_SUNCTX);
 
   /* evaluate residual */
   retval = IDA_mem->nls_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
@@ -313,7 +313,7 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem)
   IDA_mem->ida_nre++;
 
   /* save a copy of the residual vector in savres */
-  N_VScale(ONE, res, IDA_mem->ida_savres);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, res, IDA_mem->ida_savres), IDA_SUNCTX);
 
   if (retval < 0) return(IDA_RES_FAIL);
   if (retval > 0) return(IDA_RES_RECVR);
@@ -337,7 +337,7 @@ static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
   IDA_mem = (IDAMem) ida_mem;
 
   /* compute the norm of the correction */
-  delnrm = N_VWrmsNorm(del, ewt);
+  delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), IDA_SUNCTX);
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);

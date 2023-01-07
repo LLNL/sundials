@@ -26,6 +26,7 @@
 #include <stdlib.h>
 
 #include "cvodes_impl.h"
+#include "sundials/sundials_context.h"
 
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
@@ -780,7 +781,7 @@ int CVodeInitB(void *cvode_mem, int which,
 
   cvB_mem->cv_t0 = tB0;
   cvB_mem->cv_y = N_VClone(yB0);
-  N_VScale(ONE, yB0, cvB_mem->cv_y);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yB0, cvB_mem->cv_y), CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -851,7 +852,7 @@ int CVodeInitBS(void *cvode_mem, int which,
 
   cvB_mem->cv_t0 = tB0;
   cvB_mem->cv_y = N_VClone(yB0);
-  N_VScale(ONE, yB0, cvB_mem->cv_y);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yB0, cvB_mem->cv_y), CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -1551,7 +1552,7 @@ int CVodeGetB(void *cvode_mem, int which, realtype *tret, N_Vector yB)
     cvB_mem = cvB_mem->cv_next;
   }
 
-  N_VScale(ONE, cvB_mem->cv_y, yB);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cvB_mem->cv_y, yB), CV_SUNCTX);
   *tret = cvB_mem->cv_tout;
 
   return(CV_SUCCESS);
@@ -1607,7 +1608,7 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
   flag = CVodeGetNumSteps(cvodeB_mem, &nstB);
 
   if (nstB == 0) {
-    N_VScale(ONE, cvB_mem->cv_mem->cv_znQ[0], qB);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cvB_mem->cv_mem->cv_znQ[0], qB), CV_SUNCTX);
     *tret = cvB_mem->cv_tout;
   } else {
     flag = CVodeGetQuad(cvodeB_mem, tret, qB);
@@ -1648,7 +1649,7 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
   ck_mem->ck_zn[1] = N_VClone(cv_mem->cv_tempv);
   if (ck_mem->ck_zn[1] == NULL) {
-    N_VDestroy(ck_mem->ck_zn[0]);
+    SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[0]), CV_SUNCTX);
     free(ck_mem); ck_mem = NULL;
     return(NULL);
   }
@@ -1657,7 +1658,7 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   ck_mem->ck_zqm = 0;
 
   /* Load ckdata from cv_mem */
-  N_VScale(ONE, cv_mem->cv_zn[0], ck_mem->ck_zn[0]);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], ck_mem->ck_zn[0]), CV_SUNCTX);
   ck_mem->ck_t0    = cv_mem->cv_tn;
   ck_mem->ck_nst   = 0;
   ck_mem->ck_q     = 1;
@@ -1670,13 +1671,13 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
     ck_mem->ck_znQ[0] = N_VClone(cv_mem->cv_tempvQ);
     if (ck_mem->ck_znQ[0] == NULL) {
-      N_VDestroy(ck_mem->ck_zn[0]);
-      N_VDestroy(ck_mem->ck_zn[1]);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[0]), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[1]), CV_SUNCTX);
       free(ck_mem); ck_mem = NULL;
       return(NULL);
     }
 
-    N_VScale(ONE, cv_mem->cv_znQ[0], ck_mem->ck_znQ[0]);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_znQ[0], ck_mem->ck_znQ[0]), CV_SUNCTX);
 
   }
 
@@ -1689,9 +1690,11 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
     ck_mem->ck_znS[0] = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
     if (ck_mem->ck_znS[0] == NULL) {
-      N_VDestroy(ck_mem->ck_zn[0]);
-      N_VDestroy(ck_mem->ck_zn[1]);
-      if (ck_mem->ck_quadr) N_VDestroy(ck_mem->ck_znQ[0]);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[0]), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[1]), CV_SUNCTX);
+      if (ck_mem->ck_quadr) {
+        SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_znQ[0]), CV_SUNCTX);
+      }
       free(ck_mem); ck_mem = NULL;
       return(NULL);
     }
@@ -1709,10 +1712,10 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   if (ck_mem->ck_quadr_sensi) {
     ck_mem->ck_znQS[0] = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ);
     if (ck_mem->ck_znQS[0] == NULL) {
-      N_VDestroy(ck_mem->ck_zn[0]);
-      N_VDestroy(ck_mem->ck_zn[1]);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[0]), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[1]), CV_SUNCTX);
       if (ck_mem->ck_quadr) N_VDestroy(ck_mem->ck_znQ[0]);
-      N_VDestroyVectorArray(ck_mem->ck_znS[0], cv_mem->cv_Ns);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(ck_mem->ck_znS[0], cv_mem->cv_Ns), CV_SUNCTX);
       free(ck_mem); ck_mem = NULL;
       return(NULL);
     }
@@ -1794,7 +1797,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
       ck_mem->ck_znQ[qmax] = N_VClone(cv_mem->cv_tempvQ);
       if (ck_mem->ck_znQ[qmax] == NULL) {
         for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_znQ[jj]);
-        N_VDestroy(ck_mem->ck_zn[qmax]);
+        SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[qmax]), CV_SUNCTX);
         for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_zn[jj]);
         free(ck_mem); ck_mem = NULL;
         return(NULL);
@@ -1830,10 +1833,10 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
       if (ck_mem->ck_znS[qmax] == NULL) {
         for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroyVectorArray(ck_mem->ck_znS[jj], cv_mem->cv_Ns);
         if (ck_mem->ck_quadr) {
-          N_VDestroy(ck_mem->ck_znQ[qmax]);
+          SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_znQ[qmax]), CV_SUNCTX);
           for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_znQ[jj]);
         }
-        N_VDestroy(ck_mem->ck_zn[qmax]);
+        SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[qmax]), CV_SUNCTX);
         for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_zn[jj]);
         free(ck_mem); ck_mem = NULL;
         return(NULL);
@@ -1850,15 +1853,29 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
     for (j=0; j<=cv_mem->cv_q; j++) {
       ck_mem->ck_znQS[j] = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ);
       if (ck_mem->ck_znQS[j] == NULL) {
-        for (jj=0; jj<j; jj++) N_VDestroyVectorArray(ck_mem->ck_znQS[jj], cv_mem->cv_Ns);
-        if (cv_mem->cv_q < qmax) N_VDestroyVectorArray(ck_mem->ck_znS[qmax], cv_mem->cv_Ns);
-        for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroyVectorArray(ck_mem->ck_znS[jj], cv_mem->cv_Ns);
-        if (ck_mem->ck_quadr) {
-          if (cv_mem->cv_q < qmax) N_VDestroy(ck_mem->ck_znQ[qmax]);
-          for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_znQ[jj]);
+        for (jj=0; jj<j; jj++) {
+          N_VDestroyVectorArray(ck_mem->ck_znQS[jj], cv_mem->cv_Ns);
         }
-        if (cv_mem->cv_q < qmax) N_VDestroy(ck_mem->ck_zn[qmax]);
-        for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_zn[jj]);
+        if (cv_mem->cv_q < qmax) {
+          N_VDestroyVectorArray(ck_mem->ck_znS[qmax], cv_mem->cv_Ns);
+        }
+        for (jj=0; jj<=cv_mem->cv_q; jj++) {
+          N_VDestroyVectorArray(ck_mem->ck_znS[jj], cv_mem->cv_Ns);
+        }
+        if (ck_mem->ck_quadr) {
+          if (cv_mem->cv_q < qmax) {
+            N_VDestroy(ck_mem->ck_znQ[qmax]);
+          }
+          for (jj=0; jj<=cv_mem->cv_q; jj++) {
+            N_VDestroy(ck_mem->ck_znQ[jj]);
+          }
+        }
+        if (cv_mem->cv_q < qmax) {
+          N_VDestroy(ck_mem->ck_zn[qmax]);
+        }
+        for (jj=0; jj<=cv_mem->cv_q; jj++) {
+          N_VDestroy(ck_mem->ck_zn[jj]);
+        }
         free(ck_mem); ck_mem = NULL;
         return(NULL);
       }
@@ -1867,15 +1884,23 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
     if ( cv_mem->cv_q < qmax) {
       ck_mem->ck_znQS[qmax] = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ);
       if (ck_mem->ck_znQS[qmax] == NULL) {
-        for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroyVectorArray(ck_mem->ck_znQS[jj], cv_mem->cv_Ns);
-        N_VDestroyVectorArray(ck_mem->ck_znS[qmax], cv_mem->cv_Ns);
-        for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroyVectorArray(ck_mem->ck_znS[jj], cv_mem->cv_Ns);
-        if (ck_mem->ck_quadr) {
-          N_VDestroy(ck_mem->ck_znQ[qmax]);
-          for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_zn[jj]);
+        for (jj=0; jj<=cv_mem->cv_q; jj++) {
+          N_VDestroyVectorArray(ck_mem->ck_znQS[jj], cv_mem->cv_Ns);
         }
-        N_VDestroy(ck_mem->ck_zn[qmax]);
-        for (jj=0; jj<=cv_mem->cv_q; jj++) N_VDestroy(ck_mem->ck_zn[jj]);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(ck_mem->ck_znS[qmax], cv_mem->cv_Ns), CV_SUNCTX);
+        for (jj=0; jj<=cv_mem->cv_q; jj++) {
+          N_VDestroyVectorArray(ck_mem->ck_znS[jj], cv_mem->cv_Ns);
+        }
+        if (ck_mem->ck_quadr) {
+          SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_znQ[qmax]), CV_SUNCTX);
+          for (jj=0; jj<=cv_mem->cv_q; jj++) {
+             N_VDestroy(ck_mem->ck_zn[jj]);
+          }
+        }
+        SUNCheckCallLastErrNoRet(N_VDestroy(ck_mem->ck_zn[qmax]), CV_SUNCTX);
+        for (jj=0; jj<=cv_mem->cv_q; jj++) {
+          N_VDestroy(ck_mem->ck_zn[jj]);
+        }
         free(ck_mem); ck_mem = NULL;
         return(NULL);
       }
@@ -1892,7 +1917,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
                              cv_mem->cv_zn, ck_mem->ck_zn);
 
   if ( cv_mem->cv_q < qmax )
-    N_VScale(ONE, cv_mem->cv_zn[qmax], ck_mem->ck_zn[qmax]);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[qmax], ck_mem->ck_zn[qmax]), CV_SUNCTX);
 
   if (ck_mem->ck_quadr) {
     for (j=0; j<=cv_mem->cv_q; j++)
@@ -1902,7 +1927,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
                                cv_mem->cv_znQ, ck_mem->ck_znQ);
 
     if ( cv_mem->cv_q < qmax )
-      N_VScale(ONE, cv_mem->cv_znQ[qmax], ck_mem->ck_znQ[qmax]);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_znQ[qmax], ck_mem->ck_znQ[qmax]), CV_SUNCTX);
   }
 
   if (ck_mem->ck_sensi) {
@@ -1981,62 +2006,79 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
   CkpntMem tmp;
   int j;
 
-  if (*ck_memPtr == NULL) return;
+  if (*ck_memPtr != NULL) {
+    SUNDeclareContext((*ck_memPtr)->ck_zn[0]->sunctx);
 
-  /* store head of list */
-  tmp = *ck_memPtr;
+    /* store head of list */
+    tmp = *ck_memPtr;
 
-  /* move head of list */
-  *ck_memPtr = (*ck_memPtr)->ck_next;
+    /* move head of list */
+    *ck_memPtr = (*ck_memPtr)->ck_next;
 
-  /* free N_Vectors in tmp */
-  for (j=0;j<=tmp->ck_q;j++) N_VDestroy(tmp->ck_zn[j]);
-  if (tmp->ck_zqm != 0) N_VDestroy(tmp->ck_zn[tmp->ck_zqm]);
-
-  /* free N_Vectors for quadratures in tmp
-   * Note that at the check point at t_initial, only znQ_[0]
-   * was allocated */
-  if (tmp->ck_quadr) {
-
-    if (tmp->ck_next != NULL) {
-      for (j=0;j<=tmp->ck_q;j++) N_VDestroy(tmp->ck_znQ[j]);
-      if (tmp->ck_zqm != 0) N_VDestroy(tmp->ck_znQ[tmp->ck_zqm]);
-    } else {
-      N_VDestroy(tmp->ck_znQ[0]);
+    /* free N_Vectors in tmp */
+    for (j=0;j<=tmp->ck_q;j++) {
+      SUNCheckCallLastErrNoRet(N_VDestroy(tmp->ck_zn[j]), SUNCTX);
+    }
+    if (tmp->ck_zqm != 0){
+      SUNCheckCallLastErrNoRet(N_VDestroy(tmp->ck_zn[tmp->ck_zqm]), SUNCTX);
     }
 
-  }
+    /* free N_Vectors for quadratures in tmp
+    * Note that at the check point at t_initial, only znQ_[0]
+    * was allocated */
+    if (tmp->ck_quadr) {
 
-  /* free N_Vectors for sensitivities in tmp
-   * Note that at the check point at t_initial, only znS_[0]
-   * was allocated */
-  if (tmp->ck_sensi) {
+      if (tmp->ck_next != NULL) {
+        for (j=0;j<=tmp->ck_q;j++) {
+          SUNCheckCallLastErrNoRet(N_VDestroy(tmp->ck_znQ[j]), SUNCTX);
+        }
+        if (tmp->ck_zqm != 0) {
+          SUNCheckCallLastErrNoRet(N_VDestroy(tmp->ck_znQ[tmp->ck_zqm]), SUNCTX);
+        }
+      } else {
+        SUNCheckCallLastErrNoRet(N_VDestroy(tmp->ck_znQ[0]), SUNCTX);
+      }
 
-    if (tmp->ck_next != NULL) {
-      for (j=0;j<=tmp->ck_q;j++) N_VDestroyVectorArray(tmp->ck_znS[j], tmp->ck_Ns);
-      if (tmp->ck_zqm != 0) N_VDestroyVectorArray(tmp->ck_znS[tmp->ck_zqm], tmp->ck_Ns);
-    } else {
-      N_VDestroyVectorArray(tmp->ck_znS[0], tmp->ck_Ns);
     }
 
-  }
+    /* free N_Vectors for sensitivities in tmp
+    * Note that at the check point at t_initial, only znS_[0]
+    * was allocated */
+    if (tmp->ck_sensi) {
 
-  /* free N_Vectors for quadrature sensitivities in tmp
-   * Note that at the check point at t_initial, only znQS_[0]
-   * was allocated */
-  if (tmp->ck_quadr_sensi) {
+      if (tmp->ck_next != NULL) {
+        for (j=0;j<=tmp->ck_q;j++) {
+          SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(tmp->ck_znS[j], tmp->ck_Ns), SUNCTX);
+        }
+        if (tmp->ck_zqm != 0) {
+          SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(tmp->ck_znS[tmp->ck_zqm], tmp->ck_Ns), SUNCTX);
+        }
+      } else {
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(tmp->ck_znS[0], tmp->ck_Ns), SUNCTX);
+      }
 
-    if (tmp->ck_next != NULL) {
-      for (j=0;j<=tmp->ck_q;j++) N_VDestroyVectorArray(tmp->ck_znQS[j], tmp->ck_Ns);
-      if (tmp->ck_zqm != 0) N_VDestroyVectorArray(tmp->ck_znQS[tmp->ck_zqm], tmp->ck_Ns);
-    } else {
-      N_VDestroyVectorArray(tmp->ck_znQS[0], tmp->ck_Ns);
     }
 
+    /* free N_Vectors for quadrature sensitivities in tmp
+    * Note that at the check point at t_initial, only znQS_[0]
+    * was allocated */
+    if (tmp->ck_quadr_sensi) {
+
+      if (tmp->ck_next != NULL) {
+        for (j=0;j<=tmp->ck_q;j++) {
+          SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(tmp->ck_znQS[j], tmp->ck_Ns), SUNCTX);
+        }
+        if (tmp->ck_zqm != 0) {
+          SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(tmp->ck_znQS[tmp->ck_zqm], tmp->ck_Ns), SUNCTX);
+        }
+      } else {
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(tmp->ck_znQS[0], tmp->ck_Ns), SUNCTX);
+      }
+
+    }
+
+    free(tmp); tmp = NULL;
   }
-
-  free(tmp); tmp = NULL;
-
 }
 
 /*
@@ -2051,6 +2093,7 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
   void *cvode_mem;
 
   if (*cvB_memPtr != NULL) {
+    SUNDeclareContext((*cvB_memPtr)->cv_y->sunctx);
 
     /* Save head of the list */
     tmp = *cvB_memPtr;
@@ -2069,7 +2112,7 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
     if (tmp->cv_pfree != NULL) tmp->cv_pfree(tmp);
 
     /* Free workspace Nvector */
-    N_VDestroy(tmp->cv_y);
+    SUNCheckCallLastErrNoRet(N_VDestroy(tmp->cv_y), SUNCTX);
 
     free(tmp); tmp = NULL;
 
@@ -2212,7 +2255,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     if ( cv_mem->cv_q < qmax )
-      N_VScale(ONE, ck_mem->ck_zn[qmax], cv_mem->cv_zn[qmax]);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, ck_mem->ck_zn[qmax], cv_mem->cv_zn[qmax]), CV_SUNCTX);
 
     if (ck_mem->ck_quadr) {
       for (j=0; j<=cv_mem->cv_q; j++)
@@ -2223,7 +2266,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
       if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
       if ( cv_mem->cv_q < qmax )
-        N_VScale(ONE, ck_mem->ck_znQ[qmax], cv_mem->cv_znQ[qmax]);
+        SUNCheckCallLastErrNoRet(N_VScale(ONE, ck_mem->ck_znQ[qmax], cv_mem->cv_znQ[qmax]), CV_SUNCTX);
     }
 
     if (ck_mem->ck_sensi) {
@@ -2446,7 +2489,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
   if (ca_mem->ca_IMstoreSensi) {
     ca_mem->ca_yStmp = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
     if (ca_mem->ca_yStmp == NULL) {
-      N_VDestroy(ca_mem->ca_ytmp);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ca_mem->ca_ytmp), CV_SUNCTX);
       return(SUNFALSE);
     }
   }
@@ -2465,7 +2508,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
       break;
     }
 
-    content->y = N_VClone(cv_mem->cv_tempv);
+    content->y = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
     if (content->y == NULL) {
       free(content); content = NULL;
       ii = i;
@@ -2473,9 +2516,9 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
       break;
     }
 
-    content->yd = N_VClone(cv_mem->cv_tempv);
+    content->yd = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
     if (content->yd == NULL) {
-      N_VDestroy(content->y);
+      SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
       free(content); content = NULL;
       ii = i;
       allocOK = SUNFALSE;
@@ -2484,21 +2527,21 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 
     if (ca_mem->ca_IMstoreSensi) {
 
-      content->yS = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
+      content->yS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv), CV_SUNCTX);
       if (content->yS == NULL) {
-        N_VDestroy(content->y);
-        N_VDestroy(content->yd);
+        SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroy(content->yd), CV_SUNCTX);
         free(content); content = NULL;
         ii = i;
         allocOK = SUNFALSE;
         break;
       }
 
-      content->ySd = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
+      content->ySd = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv), CV_SUNCTX);
       if (content->ySd == NULL) {
-        N_VDestroy(content->y);
-        N_VDestroy(content->yd);
-        N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns);
+        SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroy(content->yd), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns), CV_SUNCTX);
         free(content); content = NULL;
         ii = i;
         allocOK = SUNFALSE;
@@ -2515,19 +2558,19 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 
   if (!allocOK) {
 
-    N_VDestroy(ca_mem->ca_ytmp);
+    SUNCheckCallLastErrNoRet(N_VDestroy(ca_mem->ca_ytmp), CV_SUNCTX);
 
     if (ca_mem->ca_IMstoreSensi) {
-      N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns), CV_SUNCTX);
     }
 
     for (i=0; i<ii; i++) {
       content = (HermiteDataMem) (dt_mem[i]->content);
-      N_VDestroy(content->y);
-      N_VDestroy(content->yd);
+      SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(content->yd), CV_SUNCTX);
       if (ca_mem->ca_IMstoreSensi) {
-        N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns);
-        N_VDestroyVectorArray(content->ySd, cv_mem->cv_Ns);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->ySd, cv_mem->cv_Ns), CV_SUNCTX);
       }
       free(dt_mem[i]->content); dt_mem[i]->content = NULL;
     }
@@ -2552,21 +2595,21 @@ static void CVAhermiteFree(CVodeMem cv_mem)
 
   ca_mem = cv_mem->cv_adj_mem;
 
-  N_VDestroy(ca_mem->ca_ytmp);
+  SUNCheckCallLastErrNoRet(N_VDestroy(ca_mem->ca_ytmp), CV_SUNCTX);
 
   if (ca_mem->ca_IMstoreSensi) {
-    N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns), CV_SUNCTX);
   }
 
   dt_mem = ca_mem->dt_mem;
 
   for (i=0; i<=ca_mem->ca_nsteps; i++) {
     content = (HermiteDataMem) (dt_mem[i]->content);
-    N_VDestroy(content->y);
-    N_VDestroy(content->yd);
+    SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(content->yd), CV_SUNCTX);
     if (ca_mem->ca_IMstoreSensi) {
-      N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns);
-      N_VDestroyVectorArray(content->ySd, cv_mem->cv_Ns);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->ySd, cv_mem->cv_Ns), CV_SUNCTX);
     }
     free(dt_mem[i]->content); dt_mem[i]->content = NULL;
   }
@@ -2592,7 +2635,7 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 
   /* Load solution */
 
-  N_VScale(ONE, cv_mem->cv_zn[0], content->y);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], content->y), CV_SUNCTX);
 
   if (ca_mem->ca_IMstoreSensi) {
     for (is=0; is<cv_mem->cv_Ns; is++)
@@ -2617,7 +2660,7 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 
   } else {
 
-    N_VScale(ONE/cv_mem->cv_h, cv_mem->cv_zn[1], content->yd);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE/cv_mem->cv_h, cv_mem->cv_zn[1], content->yd), CV_SUNCTX);
 
     if (ca_mem->ca_IMstoreSensi) {
       for (is=0; is<cv_mem->cv_Ns; is++)
@@ -2683,7 +2726,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
 
   if (indx == 0) {
     content0 = (HermiteDataMem) (dt_mem[0]->content);
-    N_VScale(ONE, content0->y, y);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content0->y, y), CV_SUNCTX);
 
     if (NS > 0) {
       for (is=0; is<NS; is++)
@@ -2727,6 +2770,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
     cvals[3] = delta;  Xvecs[3] = yd0;
 
     retval = N_VLinearCombination(4, cvals, Xvecs, ca_mem->ca_Y[1]);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     /* Y0 = y1 - y0 - delta * yd0 */
@@ -2735,6 +2779,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
     cvals[2] = -delta;  Xvecs[2] = yd0;
 
     retval = N_VLinearCombination(3, cvals, Xvecs, ca_mem->ca_Y[0]);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     /* Recompute YS0 and YS1, if needed */
@@ -2751,6 +2796,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
       cvals[3] = delta;  XXvecs[3] = ySd0;
 
       retval = N_VLinearCombinationVectorArray(NS, 4, cvals, XXvecs, ca_mem->ca_YS[1]);
+      SUNCheckCallNoRet(retval, CV_SUNCTX);
       if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
       /* YS0 = yS1 - yS0 - delta * ySd0 */
@@ -2759,6 +2805,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
       cvals[2] = -delta;  XXvecs[2] = ySd0;
 
       retval = N_VLinearCombinationVectorArray(NS, 3, cvals, XXvecs, ca_mem->ca_YS[0]);
+      SUNCheckCallNoRet(retval, CV_SUNCTX);
       if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     }
@@ -2786,6 +2833,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
   Xvecs[3] = ca_mem->ca_Y[1];
 
   retval = N_VLinearCombination(4, cvals, Xvecs, y);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* yS = yS0 + factor1 ySd0 + factor2 * YS[0] + factor3 YS[1], if needed */
@@ -2797,6 +2845,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
     XXvecs[3] = ca_mem->ca_YS[1];
 
     retval = N_VLinearCombinationVectorArray(NS, 4, cvals, XXvecs, yS);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   }
@@ -2841,7 +2890,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
   if (ca_mem->ca_IMstoreSensi) {
     ca_mem->ca_yStmp = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
     if (ca_mem->ca_yStmp == NULL) {
-      N_VDestroy(ca_mem->ca_ytmp);
+      SUNCheckCallLastErrNoRet(N_VDestroy(ca_mem->ca_ytmp), CV_SUNCTX);
       return(SUNFALSE);
     }
   }
@@ -2860,7 +2909,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
       break;
     }
 
-    content->y = N_VClone(cv_mem->cv_tempv);
+    content->y = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
     if (content->y == NULL) {
       free(content); content = NULL;
       ii = i;
@@ -2870,9 +2919,9 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 
     if (ca_mem->ca_IMstoreSensi) {
 
-      content->yS = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
+      content->yS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv), CV_SUNCTX);
       if (content->yS == NULL) {
-        N_VDestroy(content->y);
+        SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
         free(content); content = NULL;
         ii = i;
         allocOK = SUNFALSE;
@@ -2889,17 +2938,17 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 
   if (!allocOK) {
 
-    N_VDestroy(ca_mem->ca_ytmp);
+    SUNCheckCallLastErrNoRet(N_VDestroy(ca_mem->ca_ytmp), CV_SUNCTX);
 
     if (ca_mem->ca_IMstoreSensi) {
-      N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns), CV_SUNCTX);
     }
 
     for (i=0; i<ii; i++) {
       content = (PolynomialDataMem) (dt_mem[i]->content);
-      N_VDestroy(content->y);
+      SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
       if (ca_mem->ca_IMstoreSensi) {
-        N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns), CV_SUNCTX);
       }
       free(dt_mem[i]->content); dt_mem[i]->content = NULL;
     }
@@ -2925,19 +2974,19 @@ static void CVApolynomialFree(CVodeMem cv_mem)
 
   ca_mem = cv_mem->cv_adj_mem;
 
-  N_VDestroy(ca_mem->ca_ytmp);
+  SUNCheckCallLastErrNoRet(N_VDestroy(ca_mem->ca_ytmp), CV_SUNCTX);
 
   if (ca_mem->ca_IMstoreSensi) {
-    N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(ca_mem->ca_yStmp, cv_mem->cv_Ns), CV_SUNCTX);
   }
 
   dt_mem = ca_mem->dt_mem;
 
   for (i=0; i<=ca_mem->ca_nsteps; i++) {
     content = (PolynomialDataMem) (dt_mem[i]->content);
-    N_VDestroy(content->y);
+    SUNCheckCallLastErrNoRet(N_VDestroy(content->y), CV_SUNCTX);
     if (ca_mem->ca_IMstoreSensi) {
-      N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(content->yS, cv_mem->cv_Ns), CV_SUNCTX);
     }
     free(dt_mem[i]->content); dt_mem[i]->content = NULL;
   }
@@ -2961,7 +3010,7 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
 
   content = (PolynomialDataMem) d->content;
 
-  N_VScale(ONE, cv_mem->cv_zn[0], content->y);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], content->y), CV_SUNCTX);
 
   if (ca_mem->ca_IMstoreSensi) {
     for (is=0; is<cv_mem->cv_Ns; is++)
@@ -3014,12 +3063,13 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
 
   if (indx == 0) {
     content = (PolynomialDataMem) (dt_mem[0]->content);
-    N_VScale(ONE, content->y, y);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, y), CV_SUNCTX);
 
     if (NS > 0) {
       for (is=0; is<NS; is++)
         cv_mem->cv_cvals[is] = ONE;
       retval = N_VScaleVectorArray(NS, cv_mem->cv_cvals, content->yS, yS);
+      SUNCheckCallNoRet(retval, CV_SUNCTX);
       if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
     }
 
@@ -3058,7 +3108,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
       for(j=0;j<=order;j++) {
         ca_mem->ca_T[j] = dt_mem[base-j]->t;
         content = (PolynomialDataMem) (dt_mem[base-j]->content);
-        N_VScale(ONE, content->y, ca_mem->ca_Y[j]);
+        SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, ca_mem->ca_Y[j]), CV_SUNCTX);
 
         if (NS > 0) {
           for (is=0; is<NS; is++)
@@ -3072,7 +3122,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
       for(j=0;j<=order;j++) {
         ca_mem->ca_T[j] = dt_mem[base-1+j]->t;
         content = (PolynomialDataMem) (dt_mem[base-1+j]->content);
-        N_VScale(ONE, content->y, ca_mem->ca_Y[j]);
+        SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, ca_mem->ca_Y[j]), CV_SUNCTX);
         if (NS > 0) {
           for (is=0; is<NS; is++)
             cv_mem->cv_cvals[is] = ONE;
@@ -3087,7 +3137,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
     for(i=1;i<=order;i++) {
       for(j=order;j>=i;j--) {
         factor = dt/(ca_mem->ca_T[j]-ca_mem->ca_T[j-i]);
-        N_VLinearSum(factor, ca_mem->ca_Y[j], -factor, ca_mem->ca_Y[j-1], ca_mem->ca_Y[j]);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(factor, ca_mem->ca_Y[j], -factor, ca_mem->ca_Y[j-1], ca_mem->ca_Y[j]), CV_SUNCTX);
 
         if (NS > 0) {
           retval = N_VLinearSumVectorArray(NS,
@@ -3107,10 +3157,12 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
     cv_mem->cv_cvals[i+1] = cv_mem->cv_cvals[i] * (t-ca_mem->ca_T[i]) / dt;
 
   retval = N_VLinearCombination(order+1, cv_mem->cv_cvals, ca_mem->ca_Y, y);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   if (NS > 0) {
     retval = N_VLinearCombinationVectorArray(NS, order+1, cv_mem->cv_cvals, ca_mem->ca_YS, yS);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
 

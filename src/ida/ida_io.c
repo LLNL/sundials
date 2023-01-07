@@ -542,7 +542,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   if (id == NULL) {
     if (IDA_mem->ida_idMallocDone) {
-      N_VDestroy(IDA_mem->ida_id);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_id), IDA_SUNCTX);
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
@@ -559,7 +559,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   /* Load the id vector */
 
-  N_VScale(ONE, id, IDA_mem->ida_id);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, id, IDA_mem->ida_id), IDA_SUNCTX);
 
   return(IDA_SUCCESS);
 }
@@ -580,7 +580,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   if (constraints == NULL) {
     if (IDA_mem->ida_constraintsMallocDone) {
-      N_VDestroy(IDA_mem->ida_constraints);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_constraints), IDA_SUNCTX);
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
@@ -602,7 +602,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   /*  Check the constraints vector */
 
-  temptest = N_VMaxNorm(constraints);
+  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints), IDA_SUNCTX);
   if((temptest > TWOPT5) || (temptest < HALF)){
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_CONSTR);
     return(IDA_ILL_INPUT);
@@ -617,7 +617,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   /* Load the constraints vector */
 
-  N_VScale(ONE, constraints, IDA_mem->ida_constraints);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, IDA_mem->ida_constraints), IDA_SUNCTX);
 
   IDA_mem->ida_constraintsSet = SUNTRUE;
 
@@ -1149,7 +1149,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  N_VScale(ONE, IDA_mem->ida_ewt, eweight);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewt, eweight), IDA_SUNCTX);
 
   return(IDA_SUCCESS);
 }
@@ -1166,7 +1166,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  N_VScale(ONE, IDA_mem->ida_ee, ele);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, ele), IDA_SUNCTX);
 
   return(IDA_SUCCESS);
 }

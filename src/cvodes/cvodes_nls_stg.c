@@ -139,15 +139,15 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
 
     cv_mem->ycorStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, CV_SUNCTX);
     if (cv_mem->ycorStg == NULL) {
-      N_VDestroy(cv_mem->zn0Stg);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Stg), CV_SUNCTX);
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
     cv_mem->ewtStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns, CV_SUNCTX);
     if (cv_mem->ewtStg == NULL) {
-      N_VDestroy(cv_mem->zn0Stg);
-      N_VDestroy(cv_mem->ycorStg);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Stg), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorStg), CV_SUNCTX);
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
@@ -443,8 +443,8 @@ static int cvNlsFPFunctionSensStg(N_Vector ycorStg, N_Vector resStg, void* cvode
 
   /* evaluate sensitivity fixed point function */
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    N_VLinearSum(cv_mem->cv_h, resS[is], -ONE, cv_mem->cv_znS[1][is], resS[is]);
-    N_VScale(cv_mem->cv_rl1, resS[is], resS[is]);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, resS[is], -ONE, cv_mem->cv_znS[1][is], resS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, resS[is], resS[is]), CV_SUNCTX);
   }
 
   return(CV_SUCCESS);

@@ -655,11 +655,13 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
 
   content = (HermiteDataMem) (dt_mem[which]->content);
 
-  if (y != NULL)
-    N_VScale(ONE, content->y, y);
+  if (y != NULL) {
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, y), CV_SUNCTX);
+  }
 
-  if (yd != NULL)
-    N_VScale(ONE, content->yd, yd);
+  if (yd != NULL) {
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->yd, yd), CV_SUNCTX);
+  }
 
   return(CV_SUCCESS);
 }
@@ -705,7 +707,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
   content = (PolynomialDataMem) (dt_mem[which]->content);
 
   if (y != NULL)
-    N_VScale(ONE, content->y, y);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, y), CV_SUNCTX);
 
   *order = content->order;
 

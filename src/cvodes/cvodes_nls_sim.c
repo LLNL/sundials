@@ -148,15 +148,15 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
     cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX);
     if (cv_mem->ycorSim == NULL) {
-      N_VDestroy(cv_mem->zn0Sim);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
     cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX);
     if (cv_mem->ewtSim == NULL) {
-      N_VDestroy(cv_mem->zn0Sim);
-      N_VDestroy(cv_mem->ycorSim);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim), CV_SUNCTX);
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
@@ -391,7 +391,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   ewtS = NV_VECS_SW(ewtSim)+1;
 
   /* compute the norm of the state and sensitivity corrections */
-  del  = N_VWrmsNorm(delta, ewt);
+  del  = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt), CV_SUNCTX);
   delS = cvSensUpdateNorm(cv_mem, del, deltaS, ewtS);
 
   /* norm used in error test */
@@ -421,7 +421,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
       cv_mem->cv_acnrm = (cv_mem->cv_errconS) ? delS : del;
     } else {
       cv_mem->cv_acnrm = (cv_mem->cv_errconS) ?
-        N_VWrmsNorm(ycorSim, ewtSim) : N_VWrmsNorm(ycor, ewt);
+        SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycorSim, ewtSim) : N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
     }
     cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS);
@@ -458,7 +458,7 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   res  = NV_VEC_SW(resSim,0);
 
   /* update the state based on the current correction */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
 
   /* evaluate the rhs function */
   retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
@@ -468,8 +468,8 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   if (retval > 0) return(RHSFUNC_RECVR);
 
   /* compute the resiudal */
-  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
-  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res), CV_SUNCTX);
 
   /* extract sensitivity and residual vectors from the vector wrapper */
   ycorS = NV_VECS_SW(ycorSim)+1;
@@ -521,7 +521,7 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   res  = NV_VEC_SW(resSim,0);
 
   /* update the state based on the current correction */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
 
   /* evaluate the rhs function */
   retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
@@ -531,8 +531,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   if (retval > 0) return(RHSFUNC_RECVR);
 
   /* evaluate fixed point function */
-  N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res);
-  N_VScale(cv_mem->cv_rl1, res, res);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, res, res), CV_SUNCTX);
 
   /* extract sensitivity and residual vectors from the vector wrapper */
   ycorS = NV_VECS_SW(ycorSim)+1;
@@ -554,8 +554,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
 
   /* evaluate sensitivity fixed point function */
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    N_VLinearSum(cv_mem->cv_h, resS[is], -ONE, cv_mem->cv_znS[1][is], resS[is]);
-    N_VScale(cv_mem->cv_rl1, resS[is], resS[is]);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, resS[is], -ONE, cv_mem->cv_znS[1][is], resS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, resS[is], resS[is]), CV_SUNCTX);
   }
 
   return(CV_SUCCESS);

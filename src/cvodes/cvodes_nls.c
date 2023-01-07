@@ -322,7 +322,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* compute the norm of the correction */
-  del = N_VWrmsNorm(delta, ewt);
+  del = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt), CV_SUNCTX);
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
@@ -365,7 +365,7 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* update the state based on the current correction */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
 
   /* evaluate the rhs function */
   retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
@@ -375,8 +375,8 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   if (retval > 0) return(RHSFUNC_RECVR);
 
   /* compute the resiudal */
-  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
-  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res), CV_SUNCTX);
 
   return(CV_SUCCESS);
 }
@@ -394,7 +394,7 @@ static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* update the state based on the current correction */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
 
   /* evaluate the rhs function */
   retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
@@ -403,8 +403,8 @@ static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem)
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res);
-  N_VScale(cv_mem->cv_rl1, res, res);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, res, res), CV_SUNCTX);
 
   return(CV_SUCCESS);
 }

@@ -137,15 +137,15 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ycorSim == NULL) {
-      N_VDestroy(IDA_mem->ypredictSim);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictSim), IDA_SUNCTX);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
     IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
     if (IDA_mem->ewtSim == NULL) {
-      N_VDestroy(IDA_mem->ypredictSim);
-      N_VDestroy(IDA_mem->ycorSim);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictSim), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorSim), IDA_SUNCTX);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
@@ -354,8 +354,8 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   res  = NV_VEC_SW(resSim,0);
 
   /* update yy and yp based on the current correction */
-  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, IDA_mem->ida_yy);
-  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, IDA_mem->ida_yy), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp), IDA_SUNCTX);
 
   /* evaluate residual */
   retval = IDA_mem->nls_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
@@ -365,7 +365,7 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   IDA_mem->ida_nre++;
 
   /* save a copy of the residual vector in savres */
-  N_VScale(ONE, res, IDA_mem->ida_savres);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, res, IDA_mem->ida_savres), IDA_SUNCTX);
 
   if (retval < 0) return(IDA_RES_FAIL);
   if (retval > 0) return(IDA_RES_RECVR);
@@ -414,7 +414,7 @@ static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
   IDA_mem = (IDAMem) ida_mem;
 
   /* compute the norm of the correction */
-  delnrm = N_VWrmsNorm(del, ewt);
+  delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), IDA_SUNCTX);
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);

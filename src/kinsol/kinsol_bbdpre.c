@@ -128,7 +128,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
 
   /* Allocate memory for temporary N_Vectors */
   pdata->zlocal = NULL;
-  pdata->zlocal = N_VNew_Serial(Nlocal, kin_mem->kin_sunctx);
+  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNew_Serial(Nlocal, kin_mem->kin_sunctx), KIN_SUNCTX);
   if (pdata->zlocal == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
@@ -137,9 +137,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
 
   pdata->rlocal = NULL;
-  pdata->rlocal = N_VNewEmpty_Serial(Nlocal, kin_mem->kin_sunctx); /* empty vector */
+  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, kin_mem->kin_sunctx), KIN_SUNCTX); /* empty vector */
   if (pdata->rlocal == NULL) {
-    N_VDestroy(pdata->zlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
@@ -147,10 +147,10 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
 
   pdata->tempv1 = NULL;
-  pdata->tempv1 = N_VClone(kin_mem->kin_vtemp1);
+  pdata->tempv1 = SUNCheckCallLastErrNoRet(N_VClone(kin_mem->kin_vtemp1), KIN_SUNCTX);
   if (pdata->tempv1 == NULL) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), KIN_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
@@ -158,11 +158,11 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
 
   pdata->tempv2 = NULL;
-  pdata->tempv2 = N_VClone(kin_mem->kin_vtemp1);
+  pdata->tempv2 = SUNCheckCallLastErrNoRet(N_VClone(kin_mem->kin_vtemp1), KIN_SUNCTX);
   if (pdata->tempv2 == NULL) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
-    N_VDestroy(pdata->tempv1);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv1), KIN_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
@@ -170,12 +170,12 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
 
   pdata->tempv3 = NULL;
-  pdata->tempv3 = N_VClone(kin_mem->kin_vtemp1);
+  pdata->tempv3 = SUNCheckCallLastErrNoRet(N_VClone(kin_mem->kin_vtemp1), KIN_SUNCTX);
   if (pdata->tempv3 == NULL) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
-    N_VDestroy(pdata->tempv1);
-    N_VDestroy(pdata->tempv2);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv1), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv2), KIN_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
@@ -186,11 +186,11 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->LS = NULL;
   pdata->LS = SUNLinSol_Band(pdata->zlocal, pdata->PP, kin_mem->kin_sunctx);
   if (pdata->LS == NULL) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
-    N_VDestroy(pdata->tempv1);
-    N_VDestroy(pdata->tempv2);
-    N_VDestroy(pdata->tempv3);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv1), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv2), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv3), KIN_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
@@ -201,11 +201,11 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   flag = SUNLinSolInitialize(pdata->LS);
   SUNCheckCallNoRet(flag, KIN_SUNCTX);
   if (flag != SUNLS_SUCCESS) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
-    N_VDestroy(pdata->tempv1);
-    N_VDestroy(pdata->tempv2);
-    N_VDestroy(pdata->tempv3);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv1), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv2), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv3), KIN_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), KIN_SUNCTX);
     free(pdata); pdata = NULL;
@@ -223,17 +223,17 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->rpwsize = 0;
   pdata->ipwsize = 0;
   if (kin_mem->kin_vtemp1->ops->nvspace) {
-    N_VSpace(kin_mem->kin_vtemp1, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(kin_mem->kin_vtemp1, &lrw1, &liw1), KIN_SUNCTX);
     pdata->rpwsize += 3*lrw1;
     pdata->ipwsize += 3*liw1;
   }
   if (pdata->zlocal->ops->nvspace) {
-    N_VSpace(pdata->zlocal, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(pdata->zlocal, &lrw1, &liw1), KIN_SUNCTX);
     pdata->rpwsize += lrw1;
     pdata->ipwsize += liw1;
   }
   if (pdata->rlocal->ops->nvspace) {
-    N_VSpace(pdata->rlocal, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(pdata->rlocal, &lrw1, &liw1), KIN_SUNCTX);
     pdata->rpwsize += lrw1;
     pdata->ipwsize += liw1;
   }
@@ -483,11 +483,11 @@ static int KINBBDPrecFree(KINMem kin_mem)
   pdata = (KBBDPrecData) kinls_mem->pdata;
 
   SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), KIN_SUNCTX);
-  N_VDestroy(pdata->zlocal);
-  N_VDestroy(pdata->rlocal);
-  N_VDestroy(pdata->tempv1);
-  N_VDestroy(pdata->tempv2);
-  N_VDestroy(pdata->tempv3);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv1), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv2), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tempv3), KIN_SUNCTX);
   SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
 
   free(pdata);
@@ -523,14 +523,14 @@ static int KBBDDQJac(KBBDPrecData pdata,
   kin_mem = (KINMem) pdata->kin_mem;
 
   /* load utemp with uu = predicted solution vector */
-  N_VScale(ONE, uu, utemp);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, uu, utemp), KIN_SUNCTX);
 
   /* set pointers to the data for all vectors */
-  udata     = N_VGetArrayPointer(uu);
-  uscdata   = N_VGetArrayPointer(uscale);
-  gudata    = N_VGetArrayPointer(gu);
-  gtempdata = N_VGetArrayPointer(gtemp);
-  utempdata = N_VGetArrayPointer(utemp);
+  udata     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(uu), KIN_SUNCTX);
+  uscdata   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(uscale), KIN_SUNCTX);
+  gudata    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gu), KIN_SUNCTX);
+  gtempdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gtemp), KIN_SUNCTX);
+  utempdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(utemp), KIN_SUNCTX);
 
   /* Call gcomm and gloc to get base value of g(uu) */
   if (pdata->gcomm != NULL) {

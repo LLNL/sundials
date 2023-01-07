@@ -141,7 +141,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* Allocate memory for temporary N_Vectors */
   pdata->zlocal = NULL;
-  pdata->zlocal = N_VNewEmpty_Serial(Nlocal, CV_SUNCTX);
+  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, CV_SUNCTX), CV_SUNCTX);
   if (pdata->zlocal == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
@@ -150,9 +150,9 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     return(CVLS_MEM_FAIL);
   }
   pdata->rlocal = NULL;
-  pdata->rlocal = N_VNewEmpty_Serial(Nlocal, CV_SUNCTX);
+  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, CV_SUNCTX), CV_SUNCTX);
   if (pdata->rlocal == NULL) {
-    N_VDestroy(pdata->zlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
@@ -160,10 +160,10 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp1 = NULL;
-  pdata->tmp1 = N_VClone(cv_mem->cv_tempv);
+  pdata->tmp1 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp1 == NULL) {
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
@@ -171,11 +171,11 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
-  pdata->tmp2 = N_VClone(cv_mem->cv_tempv);
+  pdata->tmp2 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp2 == NULL) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
@@ -183,12 +183,12 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp3 = NULL;
-  pdata->tmp3 = N_VClone(cv_mem->cv_tempv);
+  pdata->tmp3 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp3 == NULL) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
@@ -200,11 +200,11 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->LS = NULL;
   pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, CV_SUNCTX);
   if (pdata->LS == NULL) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
-    N_VDestroy(pdata->tmp3);
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp3), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
@@ -216,11 +216,11 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   flag = SUNLinSolInitialize(pdata->LS);
   SUNCheckCallNoRet(flag, CV_SUNCTX);
   if (flag != SUNLS_SUCCESS) {
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
-    N_VDestroy(pdata->tmp3);
-    N_VDestroy(pdata->zlocal);
-    N_VDestroy(pdata->rlocal);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp3), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
@@ -240,12 +240,12 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->rpwsize = 0;
   pdata->ipwsize = 0;
   if (cv_mem->cv_tempv->ops->nvspace) {
-    N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1), CV_SUNCTX);
     pdata->rpwsize += 3*lrw1;
     pdata->ipwsize += 3*liw1;
   }
   if (pdata->rlocal->ops->nvspace) {
-    N_VSpace(pdata->rlocal, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(pdata->rlocal, &lrw1, &liw1), CV_SUNCTX);
     pdata->rpwsize += 2*lrw1;
     pdata->ipwsize += 2*liw1;
   }
@@ -573,11 +573,11 @@ static int cvBBDPrecFree(CVodeMem cv_mem)
   pdata = (CVBBDPrecData) cvls_mem->P_data;
 
   SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
-  N_VDestroy(pdata->tmp1);
-  N_VDestroy(pdata->tmp2);
-  N_VDestroy(pdata->tmp3);
-  N_VDestroy(pdata->zlocal);
-  N_VDestroy(pdata->rlocal);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp3), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->rlocal), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
 
@@ -618,7 +618,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Load ytemp with y = predicted solution vector */
-  N_VScale(ONE, y, ytemp);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), CV_SUNCTX);
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (pdata->cfn != NULL) {
@@ -632,16 +632,16 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
   if (retval != 0) return(retval);
 
   /* Obtain pointers to the data for various vectors */
-  y_data     =  N_VGetArrayPointer(y);
-  gy_data    =  N_VGetArrayPointer(gy);
-  ewt_data   =  N_VGetArrayPointer(cv_mem->cv_ewt);
-  ytemp_data =  N_VGetArrayPointer(ytemp);
-  gtemp_data =  N_VGetArrayPointer(gtemp);
+  y_data     =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
+  gy_data    =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gy), CV_SUNCTX);
+  ewt_data   =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
+  ytemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), CV_SUNCTX);
+  gtemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gtemp), CV_SUNCTX);
   if (cv_mem->cv_constraintsSet)
-    cns_data  =  N_VGetArrayPointer(cv_mem->cv_constraints);
+    cns_data  =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
 
   /* Set minimum increment based on uround and norm of g */
-  gnorm = N_VWrmsNorm(gy, cv_mem->cv_ewt);
+  gnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(gy, cv_mem->cv_ewt), CV_SUNCTX);
   minInc = (gnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) *
      cv_mem->cv_uround * pdata->n_local * gnorm) : ONE;

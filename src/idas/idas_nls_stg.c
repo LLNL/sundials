@@ -138,15 +138,15 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ycorStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx);
     if (IDA_mem->ycorStg == NULL) {
-      N_VDestroy(IDA_mem->ypredictStg);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
     IDA_mem->ewtStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns, IDA_mem->ida_sunctx);
     if (IDA_mem->ewtStg == NULL) {
-      N_VDestroy(IDA_mem->ypredictStg);
-      N_VDestroy(IDA_mem->ycorStg);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorStg), IDA_SUNCTX);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
@@ -324,7 +324,7 @@ static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
   IDA_mem = (IDAMem) ida_mem;
 
   /* compute the norm of the correction */
-  delnrm = N_VWrmsNorm(del, ewt);
+  delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), IDA_SUNCTX);
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);

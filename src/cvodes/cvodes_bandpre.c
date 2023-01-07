@@ -140,7 +140,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
-  pdata->tmp1 = N_VClone(cv_mem->cv_tempv);
+  pdata->tmp1 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp1 == NULL) {
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
@@ -150,12 +150,12 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
-  pdata->tmp2 = N_VClone(cv_mem->cv_tempv);
+  pdata->tmp2 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (pdata->tmp2 == NULL) {
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
-    N_VDestroy(pdata->tmp1);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBP_MEM_FAIL);
     return(CVLS_MEM_FAIL);
@@ -168,8 +168,8 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBP_SUNLS_FAIL);
     return(CVLS_SUNLS_FAIL);
@@ -224,7 +224,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   *leniwBP = 4;
   *lenrwBP = 0;
   if (cv_mem->cv_tempv->ops->nvspace) {
-    N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1);
+    SUNCheckCallLastErrNoRet(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1), CV_SUNCTX);
     *leniwBP += 2*liw1;
     *lenrwBP += 2*lrw1;
   }
@@ -449,8 +449,8 @@ static int cvBandPrecFree(CVodeMem cv_mem)
   SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
-  N_VDestroy(pdata->tmp1);
-  N_VDestroy(pdata->tmp2);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
 
   free(pdata);
   pdata = NULL;
@@ -486,20 +486,20 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
-  ewt_data   = N_VGetArrayPointer(cv_mem->cv_ewt);
-  fy_data    = N_VGetArrayPointer(fy);
-  ftemp_data = N_VGetArrayPointer(ftemp);
-  y_data     = N_VGetArrayPointer(y);
-  ytemp_data = N_VGetArrayPointer(ytemp);
+  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
+  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy), CV_SUNCTX);
+  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp), CV_SUNCTX);
+  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
+  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), CV_SUNCTX);
   if (cv_mem->cv_constraintsSet)
-    cns_data  = N_VGetArrayPointer(cv_mem->cv_constraints);
+    cns_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
 
   /* Load ytemp with y = predicted y vector. */
-  N_VScale(ONE, y, ytemp);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), CV_SUNCTX);
 
   /* Set minimum increment based on uround and norm of f. */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = N_VWrmsNorm(fy, cv_mem->cv_ewt);
+  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * pdata->N * fnorm) : ONE;
 
