@@ -1157,6 +1157,7 @@ int kinLsSetup(KINMem kin_mem)
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(kinls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(kinls_mem->J);
+      SUNCheckCallNoRet(retval, KIN_SUNCTX);
       if (retval != 0) {
         KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MATZERO_FAILED);
         kinls_mem->last_flag = KINLS_SUNMAT_FAIL;

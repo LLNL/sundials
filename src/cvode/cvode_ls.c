@@ -1861,7 +1861,7 @@ int cvLsFree(CVodeMem cv_mem)
 
   /* Free savedJ memory */
   if (cvls_mem->savedJ) {
-    SUNMatDestroy(cvls_mem->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(cvls_mem->savedJ), CV_SUNCTX);
     cvls_mem->savedJ = NULL;
   }
 

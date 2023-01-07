@@ -130,7 +130,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->zlocal = NULL;
   pdata->zlocal = N_VNew_Serial(Nlocal, kin_mem->kin_sunctx);
   if (pdata->zlocal == NULL) {
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(KINLS_MEM_FAIL);
@@ -140,7 +140,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->rlocal = N_VNewEmpty_Serial(Nlocal, kin_mem->kin_sunctx); /* empty vector */
   if (pdata->rlocal == NULL) {
     N_VDestroy(pdata->zlocal);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(KINLS_MEM_FAIL);
@@ -151,7 +151,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   if (pdata->tempv1 == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(KINLS_MEM_FAIL);
@@ -163,7 +163,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     N_VDestroy(pdata->tempv1);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(KINLS_MEM_FAIL);
@@ -176,7 +176,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->rlocal);
     N_VDestroy(pdata->tempv1);
     N_VDestroy(pdata->tempv2);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(KINLS_MEM_FAIL);
@@ -191,7 +191,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv1);
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(KINLS_MEM_FAIL);
@@ -206,7 +206,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv1);
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNLS_FAIL);
@@ -239,6 +239,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
   if (pdata->PP->ops->space) {
     flag = SUNMatSpace(pdata->PP, &lrw, &liw);
+    SUNCheckCallNoRet(flag, KIN_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -487,7 +488,7 @@ static int KINBBDPrecFree(KINMem kin_mem)
   N_VDestroy(pdata->tempv1);
   N_VDestroy(pdata->tempv2);
   N_VDestroy(pdata->tempv3);
-  SUNMatDestroy(pdata->PP);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), KIN_SUNCTX);
 
   free(pdata);
   pdata = NULL;

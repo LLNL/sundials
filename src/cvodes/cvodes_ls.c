@@ -731,6 +731,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
   if (cvls_mem->savedJ)
     if (cvls_mem->savedJ->ops->space) {
       retval = SUNMatSpace(cvls_mem->savedJ, &lrw, &liw);
+      SUNCheckCallNoRet(retval, CV_SUNCTX);
       if (retval == 0) {
         *lenrwLS += lrw;
         *leniwLS += liw;
@@ -1409,6 +1410,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Overwrite linear system matrix with saved J */
     retval = SUNMatCopy(cvls_mem->savedJ, A);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1423,6 +1425,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(A);
+      SUNCheckCallNoRet(retval, CV_SUNCTX);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
         cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1445,6 +1448,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Update saved copy of the Jacobian matrix */
     retval = SUNMatCopy(A, cvls_mem->savedJ);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1455,6 +1459,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
   /* Perform linear combination A = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, A);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
     cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1534,7 +1539,7 @@ int cvLsInitialize(CVodeMem cv_mem)
 
       /* Allocate internally saved Jacobian if not already done */
       if (cvls_mem->savedJ == NULL) {
-        cvls_mem->savedJ = SUNMatClone(cvls_mem->A);
+        cvls_mem->savedJ = SUNCheckCallLastErrNoRet(SUNMatClone(cvls_mem->A), CV_SUNCTX);
         if (cvls_mem->savedJ == NULL) {
           cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__,
                          MSG_LS_MEM_FAIL);
@@ -1935,7 +1940,7 @@ int cvLsFree(CVodeMem cv_mem)
 
   /* Free savedJ memory */
   if (cvls_mem->savedJ) {
-    SUNMatDestroy(cvls_mem->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(cvls_mem->savedJ), CV_SUNCTX);
     cvls_mem->savedJ = NULL;
   }
 

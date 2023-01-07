@@ -123,7 +123,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   pdata->zlocal = NULL;
   pdata->zlocal = N_VNewEmpty_Serial(Nlocal, IDA_mem->ida_sunctx);
   if (pdata->zlocal == NULL) {
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -132,7 +132,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   pdata->rlocal = N_VNewEmpty_Serial(Nlocal, IDA_mem->ida_sunctx);
   if (pdata->rlocal == NULL) {
     N_VDestroy(pdata->zlocal);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -142,7 +142,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   if (pdata->tempv1 == NULL){
     N_VDestroy(pdata->rlocal);
     N_VDestroy(pdata->zlocal);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -153,7 +153,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->rlocal);
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->tempv1);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -165,7 +165,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->tempv1);
     N_VDestroy(pdata->tempv2);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -178,7 +178,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv1);
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -194,7 +194,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
     N_VDestroy(pdata->tempv4);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
     return(IDALS_MEM_FAIL);
@@ -210,7 +210,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
     N_VDestroy(pdata->tempv4);
-    SUNMatDestroy(pdata->PP);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNLS_FAIL);
@@ -239,6 +239,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   }
   if (pdata->PP->ops->space) {
     flag = SUNMatSpace(pdata->PP, &lrw, &liw);
+    SUNCheckCallNoRet(flag, IDA_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -517,7 +518,7 @@ static int IDABBDPrecFree(IDAMem IDA_mem)
   N_VDestroy(pdata->tempv2);
   N_VDestroy(pdata->tempv3);
   N_VDestroy(pdata->tempv4);
-  SUNMatDestroy(pdata->PP);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->PP), IDA_SUNCTX);
 
   free(pdata);
   pdata = NULL;

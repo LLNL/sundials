@@ -1423,6 +1423,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(idals_mem->J);
+      SUNCheckCallNoRet(retval, IDA_SUNCTX);
       if (retval != 0) {
         IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MATZERO_FAILED);
         idals_mem->last_flag = IDALS_SUNMAT_FAIL;

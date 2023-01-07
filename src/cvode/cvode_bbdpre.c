@@ -125,7 +125,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->savedP = NULL;
   pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, cv_mem->cv_sunctx);
   if (pdata->savedP == NULL) {
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -136,8 +136,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->zlocal = NULL;
   pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, cv_mem->cv_sunctx), CV_SUNCTX);
   if (pdata->zlocal == NULL) {
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -147,8 +147,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, cv_mem->cv_sunctx), CV_SUNCTX);
   if (pdata->rlocal == NULL) {
     N_VDestroy(pdata->zlocal);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -159,8 +159,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   if (pdata->tmp1 == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -172,8 +172,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -186,8 +186,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tmp2);
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -203,8 +203,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tmp3);
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_MEM_FAIL);
@@ -220,8 +220,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tmp3);
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
-    SUNMatDestroy(pdata->savedP);
-    SUNMatDestroy(pdata->savedJ);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
     SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, 
@@ -251,12 +251,14 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    SUNCheckCallNoRet(flag, CV_SUNCTX);
     SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
+    SUNCheckCallNoRet(flag, CV_SUNCTX);
     SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
@@ -589,8 +591,8 @@ static int CVBBDPrecFree(CVodeMem cv_mem)
   N_VDestroy(pdata->tmp3);
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->rlocal);
-  SUNMatDestroy(pdata->savedP);
-  SUNMatDestroy(pdata->savedJ);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
 
   free(pdata);
   pdata = NULL;
