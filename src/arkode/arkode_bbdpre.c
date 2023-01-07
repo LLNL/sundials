@@ -26,6 +26,7 @@
 #include "arkode_ls_impl.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
@@ -406,19 +407,16 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
  bbd_data is a pointer to the preconditioner data set by
           ARKBBDPrecInit
 
- Return value:
- The value returned by this ARKBBDPrecSetup function is the int
-   0  if successful,
-   1  for a recoverable error (step will be retried).
+ Return value is a SUNLsStatus
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bbd_data)
+static SUNLsStatus ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                                   booleantype jok, booleantype *jcurPtr,
+                                   realtype gamma, void *bbd_data)
 {
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  SUNLsStatus ls_status = SUNLS_SUCCESS;
+  SUNLsStatus ls_status;
 
   pdata = (ARKBBDPrecData) bbd_data;
 
@@ -431,10 +429,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   /* Otherwise call ARKBBDDQJac for new J value */
@@ -443,12 +438,9 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval < 0) {
+    if (retval) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
     retval = ARKBBDDQJac(pdata, t, y, pdata->tmp1,
@@ -456,20 +448,17 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     if (retval < 0) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_BBD_FUNC_FAILED);
-      return(-1);
+      return(SUNLS_UNRECOV_FAILURE);
     }
     if (retval > 0) {
-      return(1);
+      return(SUNLS_RECOV_FAILURE);
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval < 0) {
+    if (retval) {
       arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   }
@@ -479,20 +468,13 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval) {
     arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
-    return(-1);
+    return(SUNLS_UNRECOV_FAILURE);
   }
 
   /* Do LU factorization of matrix and return error flag */
   ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP), ARK_SUNCTX);
-  if (ls_status < 0) {
-    arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BBD_SUNMAT_FAIL);
-    return(-1);
-  }
-  if (ls_status > 0) {
-    return(1);
-  }
 
-  return(0);
+  return(ls_status);
 }
 
 
@@ -515,31 +497,34 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBBDPrecSolve function is the same
  as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                           N_Vector r, N_Vector z,
-                           realtype gamma, realtype delta,
-                           int lr, void *bbd_data)
+static SUNLsStatus ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                                   N_Vector r, N_Vector z,
+                                   realtype gamma, realtype delta,
+                                   int lr, void *bbd_data)
 {
-  SUNDeclareContext(y->sunctx);
-
   SUNLsStatus ls_status;
   ARKBBDPrecData pdata;
+  sunrealtype *rdata, *zdata;
+  SUNContext sunctx;
 
   pdata = (ARKBBDPrecData) bbd_data;
+  sunctx = ((ARKodeMem) pdata->arkode_mem)->sunctx;
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
-  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(N_VGetArrayPointer(r), pdata->rlocal), SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal), SUNCTX);
+  rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(r), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(rdata, pdata->rlocal), sunctx);
+  zdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(z), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(zdata, pdata->zlocal), sunctx);
 
   /* Call banded solver object to do the work */
   ls_status =
     SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP,
                                             pdata->zlocal, pdata->rlocal, ZERO),
-                             SUNCTX);
+                             sunctx);
 
   /* Detach local data arrays from rlocal and zlocal */
-  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->rlocal), SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->zlocal), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->rlocal), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->zlocal), sunctx);
 
   return(ls_status);
 }

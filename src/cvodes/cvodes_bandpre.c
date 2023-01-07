@@ -25,6 +25,7 @@
 #include "cvodes_impl.h"
 #include "cvodes_bandpre_impl.h"
 #include "cvodes_ls_impl.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
@@ -326,6 +327,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   CVBandPrecData pdata;
   CVodeMem cv_mem;
+  SUNLsStatus ls_status;
   int retval;
 
   /* Assume matrix and lpivots have already been allocated. */
@@ -337,12 +339,11 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNTRUE, use saved copy of J. */
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBP_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    if (retval) {
+      cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
+                     __FILE__, MSGBP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   } else {
@@ -350,45 +351,46 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNFALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBP_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    if (retval) {
+      cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
+                     __FILE__, MSGBP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
     retval = cvBandPrecDQJac(pdata, t, y, fy,
                              pdata->tmp1, pdata->tmp2);
     if (retval < 0) {
-      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, __LINE__, __func__, __FILE__, MSGBP_RHSFUNC_FAILED);
-      return(-1);
+      cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
+                     __FILE__, MSGBP_RHSFUNC_FAILED);
+      return(SUNLS_UNRECOV_FAILURE);
     }
     if (retval > 0) {
-      return(1);
+      return(SUNLS_RECOV_FAILURE);
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBP_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    if (retval) {
+      cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
+                     __FILE__, MSGBP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   }
 
   /* Scale and add identity to get savedP = I - gamma*J. */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval) {
-    cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBP_SUNMAT_FAIL);
-    return(-1);
+    cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
+                   __FILE__, MSGBP_SUNMAT_FAIL);
+    return(SUNLS_UNRECOV_FAILURE);
   }
 
   /* Do LU factorization of matrix and return error flag */
-  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(retval);
+  ls_status = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
+  return(ls_status);
 }
 
 
@@ -406,22 +408,23 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   z       is the output vector computed by cvBandPrecSolve.
 
-  The value returned by the cvBandPrecSolve function is always 0,
-  indicating success.
+  The value returned is a SUNLsStatus.
   -----------------------------------------------------------------*/
 static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z, realtype gamma,
                            realtype delta, int lr, void *bp_data)
 {
-  CVBandPrecData pdata;
-  int retval;
+  SUNDeclareContext(y->sunctx);
 
-  /* Assume matrix and lpivots have already been allocated. */
-  pdata = (CVBandPrecData) bp_data;
+  CVBandPrecData pdata = (CVBandPrecData) bp_data;
+  SUNLsStatus ls_status = SUNLS_SUCCESS;
+
+  /* Assume matrix and linear solver have already been allocated. */
 
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->savedP, z, r, ZERO);
-  return(retval);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP, z, r, ZERO), SUNCTX);
+
+  return(ls_status);
 }
 
 

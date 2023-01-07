@@ -26,6 +26,7 @@
 #include "cvodes_impl.h"
 #include "cvodes_bbdpre_impl.h"
 #include "cvodes_ls_impl.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
@@ -414,7 +415,7 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
             jok == SUNFALSE means recompute Jacobian-related data
                    from scratch.
             jok == SUNTRUE  means that Jacobian data from the
-                   previous CVBBDPrecon call can be reused
+                   previous cvBBDPrecSetup call can be reused
                    (with the current value of gamma).
           A cvBBDPrecSetup call with jok == SUNTRUE should only occur
           after a call with jok == SUNFALSE.
@@ -430,17 +431,15 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
   bbd_data is a pointer to the preconditioner data set by
            CVBBDPrecInit
 
-  Return value:
-  The value returned by this cvBBDPrecSetup function is the int
-    0  if successful,
-    1  for a recoverable error (step will be retried).
+  Return value: SUNLsStatus
   -----------------------------------------------------------------*/
-static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                          booleantype jok, booleantype *jcurPtr,
-                          realtype gamma, void *bbd_data)
+static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                                  booleantype jok, booleantype *jcurPtr,
+                                  realtype gamma, void *bbd_data)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
+  SUNLsStatus ls_status;
   int retval;
 
   pdata = (CVBBDPrecData) bbd_data;
@@ -450,59 +449,57 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   if (jok) {
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    if (retval) {
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+                     __FILE__, MSGBBD_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
-  /* Otherwise call cvBBDDQJac for new J value */
+  /* Otherwise call CVBBDDQJac for new J value */
   } else {
 
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    if (retval) {
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+                     __FILE__, MSGBBD_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
     retval = cvBBDDQJac(pdata, t, y, pdata->tmp1,
                         pdata->tmp2, pdata->tmp3);
     if (retval < 0) {
-      cvProcessError(cv_mem, CV_BBD_JAC_FAIL, __LINE__, __func__, __FILE__,
-                     MSGBBD_FUNC_FAILED);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+      cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__,
+                     __FILE__, MSGBBD_FUNC_FAILED);
+      return(SUNLS_UNRECOV_FAILURE);
+    } else if (retval > 0) {
+      return(SUNLS_RECOV_FAILURE); 
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    if (retval < 0) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    if (retval) {
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+                   __FILE__, MSGBBD_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   }
 
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval) {
-    cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNMAT_FAIL);
-    return(-1);
+    cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+                   __FILE__, MSGBBD_SUNMAT_FAIL);
+    return(SUNLS_UNRECOV_FAILURE);
   }
 
   /* Do LU factorization of matrix and return error flag */
-  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(retval);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP), CV_SUNCTX);
+  return(ls_status);
 }
 
 
@@ -522,32 +519,38 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   z is the output vector computed by cvBBDPrecSolve.
 
-  The value returned by the cvBBDPrecSolve function is always 0,
-  indicating success.
+  The value returned by the cvBBDPrecSolve function is a SUNLsStatus.
   -----------------------------------------------------------------*/
-static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                          N_Vector r, N_Vector z,
-                          realtype gamma, realtype delta,
-                          int lr, void *bbd_data)
+static SUNLsStatus cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                                  N_Vector r, N_Vector z,
+                                  realtype gamma, realtype delta,
+                                  int lr, void *bbd_data)
 {
-  int retval;
+  SUNLsStatus ls_status;
   CVBBDPrecData pdata;
+  sunrealtype *rdata, *zdata;
+  SUNContext sunctx;
 
   pdata = (CVBBDPrecData) bbd_data;
+  sunctx = ((CVodeMem) pdata->cvode_mem)->cv_sunctx;
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
-  N_VSetArrayPointer(N_VGetArrayPointer(r), pdata->rlocal);
-  N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal);
+  rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(r), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(rdata, pdata->rlocal), sunctx);
+  zdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(z), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(zdata, pdata->zlocal), sunctx);
 
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->savedP, pdata->zlocal,
-                          pdata->rlocal, ZERO);
+  ls_status =
+    SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP,
+                                            pdata->zlocal, pdata->rlocal, ZERO),
+                             sunctx);
 
   /* Detach local data arrays from rlocal and zlocal */
-  N_VSetArrayPointer(NULL, pdata->rlocal);
-  N_VSetArrayPointer(NULL, pdata->zlocal);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->rlocal), sunctx);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, pdata->zlocal), sunctx);
 
-  return(retval);
+  return(ls_status);
 }
 
 

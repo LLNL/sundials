@@ -21,12 +21,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_bandpre_impl.h"
 #include "arkode_ls_impl.h"
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_types.h"
 #include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
@@ -214,7 +216,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   }
   if (pdata->savedJ->ops->space) {
     retval = SUNMatSpace(pdata->savedJ, &lrw, &liw);
-SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == 0) {
       *leniwBP += liw;
       *lenrwBP += lrw;
@@ -222,7 +224,7 @@ SUNCheckCallNoRet(retval, ARK_SUNCTX);
   }
   if (pdata->savedP->ops->space) {
     retval = SUNMatSpace(pdata->savedP, &lrw, &liw);
-SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval == 0) {
       *leniwBP += liw;
       *lenrwBP += lrw;
@@ -304,9 +306,7 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
 
  bp_data is a pointer to preconditoner data (set by ARKBandPrecInit)
 
- The value to be returned by the ARKBandPrecSetup function is
-   0  if successful, or
-   1  if the band factorization failed.
+ Returns a SUNLsStatus.
 ---------------------------------------------------------------*/
 static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
                             booleantype jok, booleantype *jcurPtr,
@@ -314,12 +314,11 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
+  SUNLsStatus ls_status;
   int retval;
-  SUNLsStatus ls_status = SUNLS_SUCCESS;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;
-
   ark_mem = (ARKodeMem) pdata->arkode_mem;
 
   if (jok) {
@@ -327,69 +326,58 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNTRUE, use saved copy of J. */
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval < 0) {
-      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    if (retval) {
+      arkProcessError(ark_mem, -1, __LINE__, __func__,
+                     __FILE__, MSG_BP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   } else {
 
-    /* If jok = SUNFALSE, call ARKBandPDQJac for new J value. */
+    /* If jok = SUNFALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
-SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval < 0) {
-      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    if (retval) {
+      arkProcessError(ark_mem, -1, __LINE__, __func__,
+                     __FILE__, MSG_BP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
     retval = ARKBandPDQJac(pdata, t, y, fy,
                            pdata->tmp1, pdata->tmp2);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_RHSFUNC_FAILED);
-      return(-1);
+      arkProcessError(ark_mem, -1, __LINE__, __func__,
+                     __FILE__, MSG_BP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
     if (retval > 0) {
-      return(1);
+      return(SUNLS_RECOV_FAILURE);
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-SUNCheckCallNoRet(retval, ARK_SUNCTX);
-    if (retval < 0) {
-      arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
-      return(-1);
-    }
-    if (retval > 0) {
-      return(1);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    if (retval) {
+      arkProcessError(ark_mem, -1, __LINE__, __func__,
+                     __FILE__, MSG_BP_SUNMAT_FAIL);
+      return(SUNLS_UNRECOV_FAILURE);
     }
 
   }
 
   /* Scale and add identity to get savedP = I - gamma*J. */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
-SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  SUNCheckCallNoRet(retval, ARK_SUNCTX);
   if (retval) {
-    arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNMAT_FAIL);
-    return(-1);
+    arkProcessError(ark_mem, -1, __LINE__, __func__,
+                   __FILE__, MSG_BP_SUNMAT_FAIL);
+    return(SUNLS_UNRECOV_FAILURE);
   }
 
   /* Do LU factorization of matrix and return error flag */
   ls_status = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  if (ls_status < 0) {
-    arkProcessError(ark_mem, -1, __LINE__, __func__, __FILE__, MSG_BP_SUNLS_FAIL);
-    return(-1);
-  } else if (ls_status > 0) {
-    return(1);
-  }
-
-  return(0);
+  return(ls_status);
 }
 
 
@@ -407,31 +395,24 @@ SUNCheckCallNoRet(retval, ARK_SUNCTX);
 
  z is the output vector computed by ARKBandPrecSolve.
 
- The value returned by the ARKBandPrecSolve function is always 0,
- indicating success.
+ Returns a SUNLsStatus.
 ---------------------------------------------------------------*/
-static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                            N_Vector r, N_Vector z,
-                            realtype gamma, realtype delta,
-                            int lr, void *bp_data)
+static SUNLsStatus ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                                    N_Vector r, N_Vector z,
+                                    realtype gamma, realtype delta,
+                                    int lr, void *bp_data)
 {
   SUNDeclareContext(y->sunctx);
 
-  ARKBandPrecData pdata;
+  ARKBandPrecData pdata = (ARKBandPrecData) bp_data;
   SUNLsStatus ls_status = SUNLS_SUCCESS;
 
   /* Assume matrix and linear solver have already been allocated. */
-  pdata = (ARKBandPrecData) bp_data;
 
   /* Call banded solver object to do the work */
   ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP, z, r, ZERO), SUNCTX);
-  if (ls_status < 0) {
-    return(-1);
-  } else if (ls_status > 0) {
-    return(1);
-  }
 
-  return(0);
+  return(ls_status);
 }
 
 
