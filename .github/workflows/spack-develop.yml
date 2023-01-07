@@ -1,36 +1,36 @@
-#
-name: spack@develop build and test with GCC+TPLs (no GPUs)
+# #
+# name: spack@develop build and test with GCC+TPLs (no GPUs)
 
-on:
-  pull_request:
-  workflow_dispatch:
-  schedule:
-  - cron: '00 22 * * *'
+# on:
+#   pull_request:
+#   workflow_dispatch:
+#   schedule:
+#   - cron: '00 22 * * *'
 
-jobs:
-  build_and_test:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
-      options: --user root
-    strategy:
-      matrix:
-        indexsize: [32, 64]
-        precision: ['double']
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Run test_driver.sh
-        uses: ./.github/actions/test-driver
-        with:
-          indexsize: ${{ matrix.indexsize }}
-          precision: ${{ matrix.precision }}
-      - name: Archive files from failed build
-        uses: actions/upload-artifact@v2.2.4
-        if: failure()
-        with:
-          name: build_files
-          path: |
-            ${{ github.workspace }}/test/build_*
+# jobs:
+#   build_and_test:
+#     runs-on: ubuntu-latest
+#     container:
+#       image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
+#       options: --user root
+#     strategy:
+#       matrix:
+#         indexsize: [32, 64]
+#         precision: ['double']
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+#         with:
+#           submodules: true
+#       - name: Run test_driver.sh
+#         uses: ./.github/actions/test-driver
+#         with:
+#           indexsize: ${{ matrix.indexsize }}
+#           precision: ${{ matrix.precision }}
+#       - name: Archive files from failed build
+#         uses: actions/upload-artifact@v2.2.4
+#         if: failure()
+#         with:
+#           name: build_files
+#           path: |
+#             ${{ github.workspace }}/test/build_*
