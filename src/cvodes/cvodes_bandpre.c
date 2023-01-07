@@ -142,7 +142,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->tmp1 = NULL;
   pdata->tmp1 = N_VClone(cv_mem->cv_tempv);
   if (pdata->tmp1 == NULL) {
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -152,7 +152,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->tmp2 = NULL;
   pdata->tmp2 = N_VClone(cv_mem->cv_tempv);
   if (pdata->tmp2 == NULL) {
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     N_VDestroy(pdata->tmp1);
@@ -163,8 +163,9 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
+  SUNCheckCallNoRet(flag, CV_SUNCTX);
   if (flag != SUNLS_SUCCESS) {
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     N_VDestroy(pdata->tmp1);
@@ -241,6 +242,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCallNoRet(flag, CV_SUNCTX);
     if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
@@ -389,8 +391,11 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ls_status = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(ls_status);
+  ls_status =
+    SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP),
+                             CV_SUNCTX);
+
+  return (ls_status);
 }
 
 
@@ -439,7 +444,7 @@ static int cvBandPrecFree(CVodeMem cv_mem)
   if (cvls_mem->P_data == NULL) return(0);
   pdata = (CVBandPrecData) cvls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
   N_VDestroy(pdata->tmp1);

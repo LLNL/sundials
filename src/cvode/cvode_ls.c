@@ -199,7 +199,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* If LS supports ATimes, attach CVLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, cv_mem, cvLsATimes);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetATimes");
@@ -211,7 +211,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, cv_mem, NULL, NULL);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetPreconditioner");
@@ -465,7 +465,7 @@ int CVodeSetPreconditioner(void *cvode_mem, CVLsPrecSetupFn psetup,
   cvls_psolve = (psolve == NULL) ? NULL : cvLsPSolve;
   retval = SUNLinSolSetPreconditioner(cvls_mem->LS, cv_mem,
                                       cvls_psetup, cvls_psolve);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                    "Error in calling SUNLinSolSetPreconditioner");
@@ -1332,7 +1332,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Overwrite linear system matrix with saved J */
     retval = SUNMatCopy(cvls_mem->savedJ, A);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1347,7 +1347,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(A);
-      SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+      SUNCheckCallNoRet(retval, CV_SUNCTX);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, 
                        MSG_LS_SUNMAT_FAILED);
@@ -1372,7 +1372,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Update saved copy of the Jacobian matrix */
     retval = SUNMatCopy(A, cvls_mem->savedJ);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,
                      MSG_LS_SUNMAT_FAILED);
@@ -1384,7 +1384,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
   /* Perform linear combination A = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, A);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__,
                    __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
@@ -1608,7 +1608,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Call LS setup routine -- the LS may call cvLsPSetup, who will
      pass the heuristic suggestions above to the user code(s) */
-  cvls_mem->last_flag = SUNLinSolSetup(cvls_mem->LS, cvls_mem->A);
+  cvls_mem->last_flag = SUNCheckCallLastErrNoRet(SUNLinSolSetup(cvls_mem->LS, cvls_mem->A), CV_SUNCTX);
 
   /* If Matrix-free, update heuristics flags */
   if (cvls_mem->A == NULL) {
@@ -1762,11 +1762,13 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   nli_inc = 0;
   if (cvls_mem->iterative) {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    if (cvls_mem->LS->ops->resnorm)
-      resnorm = SUNLinSolResNorm(cvls_mem->LS);
+    if (cvls_mem->LS->ops->resnorm) {
+      resnorm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(cvls_mem->LS), CV_SUNCTX);
+    }
 #endif
-    if (cvls_mem->LS->ops->numiters)
+    if (cvls_mem->LS->ops->numiters) {
       nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(cvls_mem->LS), CV_SUNCTX);
+    }
   }
 
 

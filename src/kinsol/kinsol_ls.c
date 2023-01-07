@@ -174,7 +174,8 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* If LS supports ATimes, attach KINLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, kin_mem, kinLsATimes);
-    if (retval != SUNLS_SUCCESS) {
+    SUNCheckCallNoRet(retval, KIN_SUNCTX);
+    if (retval != SUN_SUCCESS) {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
       free(kinls_mem); kinls_mem = NULL;
@@ -185,7 +186,8 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, kin_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS) {
+    SUNCheckCallNoRet(retval, KIN_SUNCTX);
+    if (retval != SUN_SUCCESS) {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
       free(kinls_mem); kinls_mem = NULL;
@@ -416,6 +418,7 @@ int KINGetLinWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
   /* add LS sizes */
   if (kinls_mem->LS->ops->space) {
     retval = SUNLinSolSpace(kinls_mem->LS, &lrw, &liw);
+    SUNCheckCallNoRet(retval, KIN_SUNCTX);
     if (retval == 0) {
       *lenrwLS += lrw;
       *leniwLS += liw;
@@ -1174,7 +1177,9 @@ int kinLsSetup(KINMem kin_mem)
   }
 
   /* Call LS setup routine -- the LS will call kinLsPSetup (if applicable) */
-  kinls_mem->last_flag = SUNLinSolSetup(kinls_mem->LS, kinls_mem->J);
+  kinls_mem->last_flag =
+    SUNCheckCallLastErrNoRet(SUNLinSolSetup(kinls_mem->LS, kinls_mem->J),
+                             KIN_SUNCTX);
 
   /* save nni value from most recent lsetup call */
   kin_mem->kin_nnilset = kin_mem->kin_nni;
@@ -1212,6 +1217,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(kinls_mem->LS, SUNTRUE);
+  SUNCheckCallNoRet(retval, KIN_SUNCTX);
   if (retval != SUN_SUCCESS) return(-1);
 
   /* set flag required for user-supplied J*v routine */
@@ -1224,11 +1230,13 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   /* Retrieve solver statistics */
   res_norm = ZERO;
-  if (kinls_mem->LS->ops->resnorm)
-    res_norm = SUNLinSolResNorm(kinls_mem->LS);
+  if (kinls_mem->LS->ops->resnorm) {
+    res_norm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(kinls_mem->LS), KIN_SUNCTX);
+  }
   nli_inc = 0;
-  if (kinls_mem->LS->ops->numiters)
-    nli_inc = SUNLinSolNumIters(kinls_mem->LS);
+  if (kinls_mem->LS->ops->numiters) {
+    nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(kinls_mem->LS), KIN_SUNCTX);
+  }
 
   if (kinls_mem->iterative && kin_mem->kin_printfl > 2)
     KINPrintInfo(kin_mem, PRNT_NLI, "KINLS", "kinLsSolve",

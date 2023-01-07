@@ -219,6 +219,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
+  SUNCheckCallNoRet(flag, IDA_SUNCTX);
   if (flag != SUNLS_SUCCESS) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -227,7 +228,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv3);
     N_VDestroy(pdata->tempv4);
     SUNMatDestroy(pdata->PP);
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), IDA_SUNCTX);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNLS_FAIL);
     return(IDALS_SUNLS_FAIL);
@@ -260,6 +261,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCallNoRet(flag, IDA_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -455,8 +457,10 @@ static SUNLsStatus IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ls_status = SUNLinSolSetup_Band(pdata->LS, pdata->PP);
-  return(ls_status);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->PP),
+                                       IDA_SUNCTX);
+
+  return (ls_status);
 }
 
 
@@ -524,7 +528,7 @@ static int IDABBDPrecFree(IDAMem IDA_mem)
   if (idals_mem->pdata == NULL) return(0);
   pdata = (IBBDPrecData) idals_mem->pdata;
 
-  SUNLinSolFree(pdata->LS);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), IDA_SUNCTX);
   N_VDestroy(pdata->rlocal);
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->tempv1);

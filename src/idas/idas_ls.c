@@ -245,7 +245,8 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* If LS supports ATimes, attach IDALs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, IDA_mem, idaLsATimes);
-    if (retval != SUNLS_SUCCESS) {
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    if (retval != SUN_SUCCESS) {
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
       free(idals_mem); idals_mem = NULL;
@@ -256,7 +257,8 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, IDA_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS) {
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    if (retval != SUN_SUCCESS) {
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
       free(idals_mem); idals_mem = NULL;
@@ -644,6 +646,7 @@ int IDAGetLinWorkSpace(void *ida_mem, long int *lenrwLS,
   /* add LS sizes */
   if (idals_mem->LS->ops->space) {
     retval = SUNLinSolSpace(idals_mem->LS, &lrw, &liw);
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
     if (retval == 0) {
       *lenrwLS += lrw;
       *leniwLS += liw;
@@ -1444,7 +1447,10 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
   }
 
   /* Call LS setup routine -- the LS will call idaLsPSetup if applicable */
-  idals_mem->last_flag = SUNLinSolSetup(idals_mem->LS, idals_mem->J);
+  idals_mem->last_flag =
+    SUNCheckCallLastErrNoRet(SUNLinSolSetup(idals_mem->LS, idals_mem->J),
+                             IDA_SUNCTX);
+                             
   return(idals_mem->last_flag);
 }
 
@@ -1494,7 +1500,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   /* Set scaling vectors for LS to use (if applicable) */
   if (idals_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(idals_mem->LS, weight, weight);
-    if (retval != SUNLS_SUCCESS) {
+    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    if (retval != SUN_SUCCESS) {
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetScalingVectors");
       idals_mem->last_flag = IDALS_SUNLS_FAIL;
@@ -1528,6 +1535,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
+  SUNCheckCallNoRet(retval, IDA_SUNCTX);
   if (retval != SUN_SUCCESS) return(-1);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
@@ -1550,12 +1558,15 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   if (idals_mem->iterative) {
 
     /* Retrieve solver statistics */
-    nli_inc = SUNLinSolNumIters(idals_mem->LS);
+    nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(idals_mem->LS), IDA_SUNCTX);
 
     /* Copy x (or preconditioned residual vector if no iterations required) to b */
-    if ((nli_inc == 0) && (SUNLinSolGetType(idals_mem->LS) != SUNLINEARSOLVER_MATRIX_EMBEDDED))
-      N_VScale(ONE, SUNLinSolResid(idals_mem->LS), b);
-    else N_VScale(ONE, idals_mem->x, b);
+    if ((nli_inc == 0) && (SUNLinSolGetType(idals_mem->LS) != SUNLINEARSOLVER_MATRIX_EMBEDDED)) {
+      N_Vector resid = SUNCheckCallLastErrNoRet(SUNLinSolResid(idals_mem->LS), IDA_SUNCTX);
+      N_VScale(ONE, resid, b);
+    } else {
+      N_VScale(ONE, idals_mem->x, b);
+    }
 
     /* Increment nli counter */
     idals_mem->nli += nli_inc;

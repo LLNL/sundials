@@ -213,7 +213,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
+  SUNCheckCallNoRet(flag, CV_SUNCTX);
   if (flag) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
@@ -222,7 +222,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, 
                    __FILE__, MSGBBD_SUNLS_FAIL);
@@ -263,6 +263,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCallNoRet(flag, CV_SUNCTX);
     SUNCheck(flag == SUN_SUCCESS, flag, CV_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
@@ -512,8 +513,11 @@ static SUNLsStatus CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP), CV_SUNCTX);
-  return(ls_status);
+  ls_status =
+    SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP),
+                             CV_SUNCTX);
+                             
+  return (ls_status);
 }
 
 
@@ -579,7 +583,7 @@ static int CVBBDPrecFree(CVodeMem cv_mem)
   if (cvls_mem->P_data == NULL) return(0);
   pdata = (CVBBDPrecData) cvls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
   N_VDestroy(pdata->tmp1);
   N_VDestroy(pdata->tmp2);
   N_VDestroy(pdata->tmp3);

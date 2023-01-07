@@ -157,10 +157,10 @@ SUNDIALS_EXPORT
 void SUNLinSolFreeEmpty(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
 
 SUNDIALS_EXPORT SUNDIALS_PURE_VIRTUAL SUNLinearSolver_Type
-SUNLinSolGetType(SUNLinearSolver S);
+SUNLinSolGetType(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
 
 SUNDIALS_EXPORT
-SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
+SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,

@@ -199,6 +199,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
+  SUNCheckCallNoRet(flag, KIN_SUNCTX);
   if (flag != SUNLS_SUCCESS) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -206,7 +207,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
     SUNMatDestroy(pdata->PP);
-    SUNLinSolFree(pdata->LS);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), KIN_SUNCTX);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBBD_SUNLS_FAIL);
     return(KINLS_SUNLS_FAIL);
@@ -243,6 +244,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    SUNCheckCallNoRet(flag, KIN_SUNCTX);
     pdata->rpwsize += lrw;
     pdata->ipwsize += liw;
   }
@@ -479,7 +481,7 @@ static int KINBBDPrecFree(KINMem kin_mem)
   if (kinls_mem->pdata == NULL) return(0);
   pdata = (KBBDPrecData) kinls_mem->pdata;
 
-  SUNLinSolFree(pdata->LS);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), KIN_SUNCTX);
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->rlocal);
   N_VDestroy(pdata->tempv1);
