@@ -153,12 +153,12 @@ end function
 
 subroutine FN_VSetArrayPointer_MPIPlusX(vdata, v)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), target, intent(inout) :: vdata
+real(C_DOUBLE), dimension(*), target, intent(inout) :: vdata
 type(N_Vector), target, intent(inout) :: v
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = c_loc(vdata)
+farg1 = c_loc(vdata(1))
 farg2 = c_loc(v)
 call swigc_FN_VSetArrayPointer_MPIPlusX(farg1, farg2)
 end subroutine

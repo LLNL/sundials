@@ -16,7 +16,7 @@
 
 %module fsundials_nvector_mod
 
-// Load the typedefs and generate a "use fsundials_types_mod" statement in the module
+// Load the typedefs and generate a use statements in the module
 %import "../sundials/fsundials_context_mod.i"
 %import "../sundials/fsundials_types_mod.i"
 
