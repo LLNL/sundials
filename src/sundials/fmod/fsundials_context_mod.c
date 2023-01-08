@@ -550,6 +550,18 @@ SWIGEXPORT int _wrap_FSUNContext_PopErrHandler(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNContext_ClearHandlers(void *farg1) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNErrCode)SUNContext_ClearHandlers(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNContext_GetProfiler(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;

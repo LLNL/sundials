@@ -68,6 +68,7 @@ module fsundials_context_mod
  public :: FSUNContext_ClearLastError
  public :: FSUNContext_PushErrHandler
  public :: FSUNContext_PopErrHandler
+ public :: FSUNContext_ClearHandlers
  public :: FSUNContext_GetProfiler
  public :: FSUNContext_SetProfiler
  public :: FSUNContext_GetLogger
@@ -251,6 +252,14 @@ end function
 
 function swigc_FSUNContext_PopErrHandler(farg1) &
 bind(C, name="_wrap_FSUNContext_PopErrHandler") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNContext_ClearHandlers(farg1) &
+bind(C, name="_wrap_FSUNContext_ClearHandlers") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -587,6 +596,19 @@ type(C_PTR) :: farg1
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_PopErrHandler(farg1)
+swig_result = fresult
+end function
+
+function FSUNContext_ClearHandlers(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: sunctx
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNContext_ClearHandlers(farg1)
 swig_result = fresult
 end function
 
