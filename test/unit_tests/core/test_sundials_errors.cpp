@@ -10,27 +10,26 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <sundials/sundials.h>
 
-class SUNErrHandlerFnTest : public ::testing::Test
+class SUNErrHandlerFnTest : public testing::Test
 {
 protected:
   SUNErrHandlerFnTest() { SUNContext_Create(nullptr, &sunctx); }
-
   ~SUNErrHandlerFnTest() { SUNContext_Free(&sunctx); }
-
   SUNContext sunctx;
 };
 
 TEST_F(SUNErrHandlerFnTest, SUNLogErrHandlerFnLogsWhenCalled)
 {
   testing::internal::CaptureStderr();
-  std::string expected = "[ERROR][rank 0][.*][TestBody] Test log handler\n";
-  SUNLogErrHandlerFn(__LINE__, __func__, __FILE__, "Test log handler", -1,
+  std::string message = "Test log handler";
+  SUNLogErrHandlerFn(__LINE__, __func__, __FILE__, message.c_str(), -1,
                      nullptr, sunctx);
   std::string output = testing::internal::GetCapturedStderr(); 
-  ASSERT_THAT(output, testing::MatchesRegex(expected));
+  EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"), testing::HasSubstr("[rank 0]"), testing::HasSubstr(__func__), testing::HasSubstr("Test log handler")));
 }
 
 TEST_F(SUNErrHandlerFnTest, SUNAbortErrHandlerFnAbortsWhenCalled)
@@ -54,13 +53,11 @@ TEST_F(SUNErrHandlerFnTest, SUNAssertErrHandlerFnAbortsWhenCalled)
     "SUNAssertErrHandler: assert(.*) failed... terminating\n");
 }
 
-class SUNContextErrFunctionTests : public ::testing::Test
+class SUNContextErrFunctionTests : public testing::Test
 {
 protected:
   SUNContextErrFunctionTests() { SUNContext_Create(nullptr, &sunctx); }
-
   ~SUNContextErrFunctionTests() { SUNContext_Free(&sunctx); }
-
   SUNContext sunctx;
 };
 
@@ -99,10 +96,10 @@ TEST_F(SUNContextErrFunctionTests, SUNContextPushErrHandlerWorks)
   SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
   SUNHandleErr(__LINE__, __func__, __FILE__, -1, sunctx);
-  ASSERT_EQ(order.size(), 3);
-  ASSERT_EQ(order.at(0), 2);
-  ASSERT_EQ(order.at(1), 1);
-  ASSERT_EQ(order.at(2), 0);
+  EXPECT_EQ(order.size(), 3);
+  EXPECT_EQ(order.at(0), 2);
+  EXPECT_EQ(order.at(1), 1);
+  EXPECT_EQ(order.at(2), 0);
 }
 
 TEST_F(SUNContextErrFunctionTests, SUNContextPopErrHandlerWorks)
@@ -114,7 +111,7 @@ TEST_F(SUNContextErrFunctionTests, SUNContextPopErrHandlerWorks)
   SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
   SUNContext_PopErrHandler(sunctx);
   SUNHandleErr(__LINE__, __func__, __FILE__, -1, sunctx);
-  ASSERT_EQ(order.size(), 2);
-  ASSERT_EQ(order.at(0), 1);
-  ASSERT_EQ(order.at(1), 0);
+  EXPECT_EQ(order.size(), 2);
+  EXPECT_EQ(order.at(0), 1);
+  EXPECT_EQ(order.at(1), 0);
 }
