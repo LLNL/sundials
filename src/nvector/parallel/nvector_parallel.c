@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include <sundials/sundials.h>
+#include <sundials/sundials_mpi_errors.h>
 #include <nvector/nvector_parallel.h>
 #include "sundials_nvector_impl.h"
 

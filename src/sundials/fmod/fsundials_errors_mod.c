@@ -513,58 +513,6 @@ SWIGEXPORT int _wrap_FSUNAssertErrHandlerFn(int const *farg1, SwigArrayWrapper *
 }
 
 
-SWIGEXPORT int _wrap_FSUNMPIAbortErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, SwigClassWrapper const *farg5, void *farg6, SwigClassWrapper const *farg7) {
-  int fresult ;
-  int arg1 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  char *arg4 = (char *) 0 ;
-  SUNErrCode arg5 ;
-  void *arg6 = (void *) 0 ;
-  SUNContext arg7 ;
-  int result;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (char *)(farg3->data);
-  arg4 = (char *)(farg4->data);
-  SWIG_check_nonnull(*farg5, "SUNErrCode", "SWIGTYPE_p_SUNErrCode", "SUNMPIAbortErrHandlerFn(int,char const *,char const *,char const *,SUNErrCode,void *,SUNContext)", return 0);
-  arg5 = *(SUNErrCode *)(farg5->cptr);
-  arg6 = (void *)(farg6);
-  SWIG_check_nonnull(*farg7, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNMPIAbortErrHandlerFn(int,char const *,char const *,char const *,SUNErrCode,void *,SUNContext)", return 0);
-  arg7 = *(SUNContext *)(farg7->cptr);
-  result = (int)SUNMPIAbortErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNMPIAssertErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, SwigClassWrapper const *farg5, void *farg6, SwigClassWrapper const *farg7) {
-  int fresult ;
-  int arg1 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  char *arg4 = (char *) 0 ;
-  SUNErrCode arg5 ;
-  void *arg6 = (void *) 0 ;
-  SUNContext arg7 ;
-  int result;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (char *)(farg3->data);
-  arg4 = (char *)(farg4->data);
-  SWIG_check_nonnull(*farg5, "SUNErrCode", "SWIGTYPE_p_SUNErrCode", "SUNMPIAssertErrHandlerFn(int,char const *,char const *,char const *,SUNErrCode,void *,SUNContext)", return 0);
-  arg5 = *(SUNErrCode *)(farg5->cptr);
-  arg6 = (void *)(farg6);
-  SWIG_check_nonnull(*farg7, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNMPIAssertErrHandlerFn(int,char const *,char const *,char const *,SUNErrCode,void *,SUNContext)", return 0);
-  arg7 = *(SUNContext *)(farg7->cptr);
-  result = (int)SUNMPIAssertErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT SwigArrayWrapper _wrap_FSUNGetErrMsg(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
   SwigArrayWrapper fresult ;
   SUNErrCode arg1 ;

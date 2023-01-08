@@ -45,6 +45,7 @@
 #include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_parallel.h>     /* access to MPI-parallel N_Vector     */
 #include <sundials/sundials_types.h>      /* definition of type realtype         */
+#include <sundials/sundials_mpi_errors.h>
 #include <sundials/sundials_logger.h>
 
 #include <mpi.h> /* MPI constants and types */

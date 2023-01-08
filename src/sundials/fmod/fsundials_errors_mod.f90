@@ -99,8 +99,6 @@ module fsundials_errors_mod
  public :: FSUNLogErrHandlerFn
  public :: FSUNAbortErrHandlerFn
  public :: FSUNAssertErrHandlerFn
- public :: FSUNMPIAbortErrHandlerFn
- public :: FSUNMPIAssertErrHandlerFn
  public :: FSUNGetErrMsg
  public :: FSUNGetLastErr
  public :: FSUNSetLastErr
@@ -234,38 +232,6 @@ end function
 
 function swigc_FSUNAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNAssertErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-integer(C_INT), intent(in) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
-type(C_PTR), value :: farg6
-type(SwigClassWrapper) :: farg7
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNMPIAbortErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
-bind(C, name="_wrap_FSUNMPIAbortErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-integer(C_INT), intent(in) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
-type(C_PTR), value :: farg6
-type(SwigClassWrapper) :: farg7
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNMPIAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
-bind(C, name="_wrap_FSUNMPIAssertErrHandlerFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
@@ -617,74 +583,6 @@ farg5 = err_code%swigdata
 farg6 = err_user_data
 farg7 = sunctx%swigdata
 fresult = swigc_FSUNAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
-swig_result = fresult
-end function
-
-function FSUNMPIAbortErrHandlerFn(line, func, file, msg, err_code, err_user_data, sunctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: line
-character(kind=C_CHAR, len=*), target :: func
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-character(kind=C_CHAR, len=*), target :: file
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-character(kind=C_CHAR, len=*), target :: msg
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: err_code
-type(C_PTR) :: err_user_data
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
-integer(C_INT) :: fresult 
-integer(C_INT) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-type(SwigArrayWrapper) :: farg3 
-type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
-type(C_PTR) :: farg6 
-type(SwigClassWrapper) :: farg7 
-
-farg1 = line
-call SWIG_string_to_chararray(func, farg2_chars, farg2)
-call SWIG_string_to_chararray(file, farg3_chars, farg3)
-call SWIG_string_to_chararray(msg, farg4_chars, farg4)
-farg5 = err_code%swigdata
-farg6 = err_user_data
-farg7 = sunctx%swigdata
-fresult = swigc_FSUNMPIAbortErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
-swig_result = fresult
-end function
-
-function FSUNMPIAssertErrHandlerFn(line, func, file, msg, err_code, err_user_data, sunctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: line
-character(kind=C_CHAR, len=*), target :: func
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-character(kind=C_CHAR, len=*), target :: file
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-character(kind=C_CHAR, len=*), target :: msg
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: err_code
-type(C_PTR) :: err_user_data
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
-integer(C_INT) :: fresult 
-integer(C_INT) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-type(SwigArrayWrapper) :: farg3 
-type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
-type(C_PTR) :: farg6 
-type(SwigClassWrapper) :: farg7 
-
-farg1 = line
-call SWIG_string_to_chararray(func, farg2_chars, farg2)
-call SWIG_string_to_chararray(file, farg3_chars, farg3)
-call SWIG_string_to_chararray(msg, farg4_chars, farg4)
-farg5 = err_code%swigdata
-farg6 = err_user_data
-farg7 = sunctx%swigdata
-fresult = swigc_FSUNMPIAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
