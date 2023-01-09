@@ -49,6 +49,10 @@ def main():
                                       '''Options for setting the C, C++,
                                       Fortran, and CUDA compiler and flags.''')
 
+    # Build type
+    add_arg(group, '--build-type', 'CMAKE_BUILD_TYPE', 'CMAKE_BUILD_TYPE', 'Debug', 'STRING',
+            'CMake build type (Debug, RelWithDebInfo, Release)')
+
     # C compiler
     add_arg(group, '--c-compiler', 'CC', 'CMAKE_C_COMPILER', None, 'FILEPATH',
             'C compiler')
