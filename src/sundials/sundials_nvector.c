@@ -1063,7 +1063,7 @@ N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
-  SUNAssert(index > 0, SUN_ERR_ARG_OUTOFRANGE, vs[0]->sunctx);
+  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, w->sunctx);
   vs[index] = w;
 }
 
