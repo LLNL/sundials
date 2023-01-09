@@ -219,6 +219,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
+      SUNClearLastErr(sunctx);                                           \
     }                                                                    \
   }                                                                      \
   while (0)
