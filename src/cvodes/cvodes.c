@@ -6330,7 +6330,6 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
-  int flag = CV_SUCCESS;
   SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
