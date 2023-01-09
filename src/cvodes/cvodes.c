@@ -5678,11 +5678,14 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
 
   if (deltaq==1) {
     SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_zn[cv_mem->cv_L]), CV_SUNCTX);
-    if (cv_mem->cv_quadr)
+    if (cv_mem->cv_quadr) {
       SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_znQ[cv_mem->cv_L]), CV_SUNCTX);
-    if (cv_mem->cv_sensi)
-      (void) N_VConstVectorArray(cv_mem->cv_Ns, ZERO,
-                                 cv_mem->cv_znS[cv_mem->cv_L]);
+    }
+    if (cv_mem->cv_sensi) {
+      SUNCheckCallNoRet(N_VConstVectorArray(cv_mem->cv_Ns, ZERO,
+                                            cv_mem->cv_znS[cv_mem->cv_L]),
+                        CV_SUNCTX);
+    }
     return;
   }
 
