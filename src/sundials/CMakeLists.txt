@@ -37,6 +37,7 @@ set(sundials_HEADERS
   sundials_matrix.h
   sundials_matrix.hpp
   sundials_memory.h
+  sundials_mpi_errors.h
   sundials_mpi_types.h
   sundials_nonlinearsolver.h
   sundials_nonlinearsolver.hpp
