@@ -6423,25 +6423,28 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* update the sensitivities based on the final correction from the nonlinear solver */
   if (do_sensi_sim) {
-    N_VLinearSumVectorArray(cv_mem->cv_Ns,
-                            ONE, cv_mem->cv_znS[0],
-                            ONE, cv_mem->cv_acorS, cv_mem->cv_yS);
+    SUNCheckCallNoRet(N_VLinearSumVectorArray(cv_mem->cv_Ns, ONE,
+                                              cv_mem->cv_znS[0], ONE,
+                                              cv_mem->cv_acorS, cv_mem->cv_yS),
+                      CV_SUNCTX);
   }
 
   /* compute acnrm if is was not already done by the nonlinear solver */
   if (!cv_mem->cv_acnrmcur) {
-    if (do_sensi_sim && cv_mem->cv_errconS)
-      cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->ycorSim, cv_mem->ewtSim);
-    else
-      cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
+    if (do_sensi_sim && cv_mem->cv_errconS) {
+      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->ycorSim, cv_mem->ewtSim), CV_SUNCTX);
+    } else {
+      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt), CV_SUNCTX);
+    }
   }
 
   /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
 
   /* check inequality constraints */
-  if (cv_mem->cv_constraintsSet)
+  if (cv_mem->cv_constraintsSet) {
     flag = cvCheckConstraints(cv_mem);
+  }
 
   return(flag);
 }

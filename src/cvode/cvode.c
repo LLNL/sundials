@@ -2746,8 +2746,8 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
-  int flag = CV_SUCCESS;
-  booleantype callSetup;
+  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  booleantype callSetup = SUNFALSE;
   long int nni_inc = 0;
   long int nnf_inc = 0;
 
@@ -2771,14 +2771,18 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* call nonlinear solver setup if it exists */
   if ((cv_mem->NLS)->ops->setup) {
-    flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem);
-    if (flag < 0) return(CV_NLS_SETUP_FAIL);
-    if (flag > 0) return(SUN_NLS_CONV_RECVR);
+    nls_status = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem);
+    if (nls_status < 0) return(CV_NLS_SETUP_FAIL);
+    if (nls_status > 0) return(SUN_NLS_CONV_RECVR);
   }
 
   /* solve the nonlinear system */
-  flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
-                           cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
+  nls_status =
+    SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0],
+                                               cv_mem->cv_acor, cv_mem->cv_ewt,
+                                               cv_mem->cv_tq[4], callSetup,
+                                               cv_mem),
+                             CV_SUNCTX);
 
   /* increment counters */
   SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc), CV_SUNCTX);
@@ -2788,7 +2792,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   cv_mem->cv_nnf += nnf_inc;
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) return(flag);
+  if (nls_status != SUN_NLS_SUCCESS) return(nls_status);
 
   /* solve successful */
 
@@ -2864,7 +2868,7 @@ static int cvCheckConstraints(CVodeMem cv_mem)
      accept this step */
   if (vnorm <= cv_mem->cv_tq[4]) {
     SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_acor, -ONE, tmp, cv_mem->cv_acor),
-                        CV_SUNCTX); /* acor <- acor - v */
+                             CV_SUNCTX); /* acor <- acor - v */
     return(CV_SUCCESS);
   }
 
