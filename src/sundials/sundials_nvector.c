@@ -681,7 +681,7 @@ SUNErrCode N_VConstVectorArray(int nvec, sunrealtype c, N_Vector* Z)
 
   }
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(Z[0]));
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(Z[0]));
   return(ier);
 }
 
@@ -1057,7 +1057,7 @@ void N_VDestroyVectorArray(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
 /* These function are really only for users of the Fortran interface */
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
-  SUNAssert(index > 0, SUN_ERR_ARG_OUTOFRANGE, vs[0]->sunctx);
+  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, vs[0]->sunctx);
   return vs[index];
 }
 
