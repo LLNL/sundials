@@ -6443,10 +6443,10 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* check inequality constraints */
   if (cv_mem->cv_constraintsSet) {
-    flag = cvCheckConstraints(cv_mem);
+    return cvCheckConstraints(cv_mem);
   }
 
-  return(flag);
+  return CV_SUCCESS;
 }
 
 /*

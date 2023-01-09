@@ -2808,10 +2808,11 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   cv_mem->cv_jcur = SUNFALSE;
 
   /* check inequality constraints */
-  if (cv_mem->cv_constraintsSet)
-    flag = cvCheckConstraints(cv_mem);
+  if (cv_mem->cv_constraintsSet) {
+    return cvCheckConstraints(cv_mem);
+  }
 
-  return(flag);
+  return CV_SUCCESS;
 }
 
 /*
