@@ -637,8 +637,9 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
   ewt_data   =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
   ytemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), CV_SUNCTX);
   gtemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gtemp), CV_SUNCTX);
-  if (cv_mem->cv_constraintsSet)
+  if (cv_mem->cv_constraintsSet) {
     cns_data  =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+  }
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(gy, cv_mem->cv_ewt), CV_SUNCTX);

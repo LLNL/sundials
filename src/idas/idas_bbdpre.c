@@ -586,8 +586,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   ypdata    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(yp), IDA_SUNCTX);
   gtempdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gtemp), IDA_SUNCTX);
   ewtdata   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(IDA_mem->ida_ewt), IDA_SUNCTX);
-  if (IDA_mem->ida_constraintsSet)
+  if (IDA_mem->ida_constraintsSet) {
     cnsdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(IDA_mem->ida_constraints), IDA_SUNCTX);
+  }
   ytempdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), IDA_SUNCTX);
   yptempdata= N_VGetArrayPointer(yptemp);
   grefdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gref), IDA_SUNCTX);

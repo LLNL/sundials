@@ -1180,8 +1180,9 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   /* Obtain pointers to the data for ewt, y */
   ewt_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
   y_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
-  if (cv_mem->cv_constraintsSet)
+  if (cv_mem->cv_constraintsSet) {
     cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+  }
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(cv_mem->cv_uround);
@@ -1269,8 +1270,9 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp), CV_SUNCTX);
   y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
   ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), CV_SUNCTX);
-  if (cv_mem->cv_constraintsSet)
+  if (cv_mem->cv_constraintsSet) {
     cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+  }
 
   /* Load ytemp with y = predicted y vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), CV_SUNCTX);

@@ -1043,8 +1043,9 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
   ewt_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(IDA_mem->ida_ewt), IDA_SUNCTX);
   y_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(yy), IDA_SUNCTX);
   yp_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(yp), IDA_SUNCTX);
-  if(IDA_mem->ida_constraintsSet)
+  if(IDA_mem->ida_constraintsSet) {
     cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(IDA_mem->ida_constraints), IDA_SUNCTX);
+  }
 
   srur = SUNRsqrt(IDA_mem->ida_uround);
 
@@ -1147,8 +1148,9 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
   rtemp_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(rtemp), IDA_SUNCTX);
   ytemp_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), IDA_SUNCTX);
   yptemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(yptemp), IDA_SUNCTX);
-  if (IDA_mem->ida_constraintsSet)
+  if (IDA_mem->ida_constraintsSet) {
     cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(IDA_mem->ida_constraints), IDA_SUNCTX);
+  }
 
   /* Initialize ytemp and yptemp. */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, yy, ytemp), IDA_SUNCTX);
