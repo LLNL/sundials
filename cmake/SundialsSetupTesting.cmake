@@ -133,7 +133,12 @@ if(SUNDIALS_TEST_UNITTESTS)
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   endif()
-  FetchContent_MakeAvailable(googletest)
+  # FetchContent_MakeAvailable(googletest)
+  FetchContent_GetProperties(googletest)
+  if(NOT googletest_POPULATED)
+    FetchContent_Populate(googletest)
+    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+  endif()
   include(GoogleTest)
 endif()
 
