@@ -26,6 +26,8 @@ sundials_add_library(sundials_nvecpthreads
     nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
+  LINK_LIBRARIES
+    PRIVATE Threads::Threads
   OUTPUT_NAME
     sundials_nvecpthreads
   VERSION

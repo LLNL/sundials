@@ -126,7 +126,16 @@ Added the functions :c:func:`ARKStepGetJac`, :c:func:`ARKStepGetJacTime`,
 :c:func:`MRIStepGetJacTime`, and :c:func:`MRIStepGetJacNumSteps` to assist in
 debugging simulations utilizing a matrix-based linear solver.
 
+Added support for the SYCL backend with RAJA 2022.x.y.
+
 Fixed an underflow bug during root finding.
+
+A new capability to keep track of memory allocations made through the ``SUNMemoryHelper``
+classes has been added. Memory allocation stats can be accessed through the
+:c:func:`SUNMemoryHelper_GetAllocStats` function. See the documentation for
+the ``SUNMemoryHelper`` classes for more details.
+
+Added support for CUDA v12.
 
 Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
 ``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
@@ -135,7 +144,9 @@ Fixed the shape of the arrays returned by ``FN_VGetArrayPointer`` functions as w
 as the ``FSUNDenseMatrix_Data``, ``FSUNBandMatrix_Data``, ``FSUNSparseMatrix_Data``,
 ``FSUNSparseMatrix_IndexValues``, and ``FSUNSparseMatrix_IndexPointers`` functions.
 Compiling and running code that uses the SUNDIALS Fortran interfaces with
-bounds checking will now work. 
+bounds checking will now work.
+
+Fixed an implicit conversion error in the Butcher table for ESDIRK5(4)7L[2]SA2.
 
 Changes in v5.4.1
 -----------------

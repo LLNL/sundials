@@ -45,7 +45,11 @@
 #include <sunmemory/sunmemory_sycl.h>
 #include <CL/sycl.hpp>
 #define SUNDIALS_RAJA_EXEC_STREAM RAJA::sycl_exec< 256 >
+#if RAJA_VERSION_MAJOR >= 2022
+#define SUNDIALS_RAJA_EXEC_REDUCE RAJA::sycl_exec< 256 >
+#else
 #define SUNDIALS_RAJA_EXEC_REDUCE RAJA::sycl_exec_nontrivial< 256 >
+#endif
 #define SUNDIALS_RAJA_REDUCE RAJA::sycl_reduce
 #else
 #error "Unknown RAJA backend"

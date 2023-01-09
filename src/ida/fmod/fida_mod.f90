@@ -178,6 +178,10 @@ module fida_mod
  public :: FIDASetLSNormFactor
  public :: FIDASetLinearSolutionScaling
  public :: FIDASetIncrementFactor
+ public :: FIDAGetJac
+ public :: FIDAGetJacCj
+ public :: FIDAGetJacTime
+ public :: FIDAGetJacNumSteps
  public :: FIDAGetLinWorkSpace
  public :: FIDAGetNumJacEvals
  public :: FIDAGetNumPrecEvals
@@ -1051,6 +1055,42 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetJac(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetJacCj(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetJacCj") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetJacTime(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetJacTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetJacNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetJacNumSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2751,6 +2791,70 @@ real(C_DOUBLE) :: farg2
 farg1 = ida_mem
 farg2 = dqincfac
 fresult = swigc_FIDASetIncrementFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetJac(ida_mem, j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_PTR), target, intent(inout) :: j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(j)
+fresult = swigc_FIDAGetJac(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetJacCj(ida_mem, cj_j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), target, intent(inout) :: cj_j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(cj_j)
+fresult = swigc_FIDAGetJacCj(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetJacTime(ida_mem, t_j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), target, intent(inout) :: t_j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(t_j)
+fresult = swigc_FIDAGetJacTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetJacNumSteps(ida_mem, nst_j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nst_j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(nst_j(1))
+fresult = swigc_FIDAGetJacNumSteps(farg1, farg2)
 swig_result = fresult
 end function
 

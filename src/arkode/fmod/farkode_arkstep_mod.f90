@@ -181,6 +181,9 @@ module farkode_arkstep_mod
  public :: FARKStepGetNumNonlinSolvConvFails
  public :: FARKStepGetNonlinSolvStats
  public :: FARKStepGetNumStepSolveFails
+ public :: FARKStepGetJac
+ public :: FARKStepGetJacTime
+ public :: FARKStepGetJacNumSteps
  public :: FARKStepGetLinWorkSpace
  public :: FARKStepGetNumJacEvals
  public :: FARKStepGetNumPrecEvals
@@ -1360,6 +1363,33 @@ end function
 
 function swigc_FARKStepGetNumStepSolveFails(farg1, farg2) &
 bind(C, name="_wrap_FARKStepGetNumStepSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetJac(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetJacTime(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetJacTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetJacNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetJacNumSteps") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -3738,6 +3768,54 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(nncfails(1))
 fresult = swigc_FARKStepGetNumStepSolveFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetJac(arkode_mem, j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(j)
+fresult = swigc_FARKStepGetJac(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetJacTime(arkode_mem, t_j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), target, intent(inout) :: t_j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(t_j)
+fresult = swigc_FARKStepGetJacTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetJacNumSteps(arkode_mem, nst_j) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nst_j
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nst_j(1))
+fresult = swigc_FARKStepGetJacNumSteps(farg1, farg2)
 swig_result = fresult
 end function
 
