@@ -277,13 +277,11 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 
-SUNDIALS_PURE_VIRTUAL
 N_Vector_ID N_VGetVectorID(N_Vector w)
 {
   return(w->ops->nvgetvectorid(w));
 }
 
-SUNDIALS_PURE_VIRTUAL
 N_Vector N_VClone(N_Vector w)
 {
   N_Vector result = NULL;
@@ -294,7 +292,6 @@ N_Vector N_VClone(N_Vector w)
   return result;
 }
 
-SUNDIALS_PURE_VIRTUAL
 N_Vector N_VCloneEmpty(N_Vector w)
 {
   N_Vector result;
@@ -323,14 +320,12 @@ void N_VDestroy(N_Vector v) SUNDIALS_NOEXCEPT
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   v->ops->nvspace(v, lrw, liw);
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype *N_VGetArrayPointer(N_Vector v)
 {
   return((sunrealtype *) v->ops->nvgetarraypointer(v));
@@ -344,7 +339,6 @@ sunrealtype *N_VGetDeviceArrayPointer(N_Vector v)
     return(NULL);
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VSetArrayPointer(sunrealtype *v_data, N_Vector v)
 {
   v->ops->nvsetarraypointer(v_data, v);
@@ -359,7 +353,6 @@ void *N_VGetCommunicator(N_Vector v)
     return(NULL);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunindextype N_VGetLength(N_Vector v)
 {
   return((sunindextype) v->ops->nvgetlength(v));
@@ -374,7 +367,6 @@ sunindextype N_VGetLocalLength(N_Vector v)
  * standard vector operations
  * -----------------------------------------------------------------*/
 
-SUNDIALS_PURE_VIRTUAL
 void N_VLinearSum(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -383,7 +375,6 @@ void N_VLinearSum(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VConst(sunrealtype c, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(z));
@@ -392,7 +383,6 @@ void N_VConst(sunrealtype c, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VProd(N_Vector x, N_Vector y, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -401,7 +391,6 @@ void N_VProd(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VDiv(N_Vector x, N_Vector y, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -410,7 +399,6 @@ void N_VDiv(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VScale(sunrealtype c, N_Vector x, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -419,7 +407,6 @@ void N_VScale(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VAbs(N_Vector x, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -428,7 +415,6 @@ void N_VAbs(N_Vector x, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VInv(N_Vector x, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -437,7 +423,6 @@ void N_VInv(N_Vector x, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VAddConst(N_Vector x, sunrealtype b, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -446,7 +431,6 @@ void N_VAddConst(N_Vector x, sunrealtype b, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VDotProd(N_Vector x, N_Vector y)
 {
   sunrealtype result;
@@ -456,7 +440,6 @@ sunrealtype N_VDotProd(N_Vector x, N_Vector y)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VMaxNorm(N_Vector x)
 {
   sunrealtype result;
@@ -466,7 +449,6 @@ sunrealtype N_VMaxNorm(N_Vector x)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w)
 {
   sunrealtype result;
@@ -476,7 +458,6 @@ sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 {
   sunrealtype result;
@@ -486,7 +467,6 @@ sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VMin(N_Vector x)
 {
   sunrealtype result;
@@ -496,7 +476,6 @@ sunrealtype N_VMin(N_Vector x)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VWL2Norm(N_Vector x, N_Vector w)
 {
   sunrealtype result;
@@ -506,7 +485,6 @@ sunrealtype N_VWL2Norm(N_Vector x, N_Vector w)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VL1Norm(N_Vector x)
 {
   sunrealtype result;
@@ -516,7 +494,6 @@ sunrealtype N_VL1Norm(N_Vector x)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -525,7 +502,6 @@ void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-SUNDIALS_PURE_VIRTUAL
 booleantype N_VInvTest(N_Vector x, N_Vector z)
 {
   booleantype result;
@@ -535,7 +511,6 @@ booleantype N_VInvTest(N_Vector x, N_Vector z)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 {
   booleantype result;
@@ -545,7 +520,6 @@ booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL
 sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom)
 {
   sunrealtype result;
@@ -855,7 +829,6 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
  * OPTIONAL local reduction kernels (no parallel communication)
  * -----------------------------------------------------------------*/
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y)
 {
   sunrealtype result;
@@ -865,7 +838,6 @@ sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VMaxNormLocal(N_Vector x)
 {
   sunrealtype result;
@@ -875,7 +847,6 @@ sunrealtype N_VMaxNormLocal(N_Vector x)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VMinLocal(N_Vector x)
 {
   sunrealtype result;
@@ -885,7 +856,6 @@ sunrealtype N_VMinLocal(N_Vector x)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VL1NormLocal(N_Vector x)
 {
   sunrealtype result;
@@ -895,7 +865,6 @@ sunrealtype N_VL1NormLocal(N_Vector x)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
 {
   sunrealtype result;
@@ -905,7 +874,6 @@ sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
 {
   sunrealtype result;
@@ -915,7 +883,6 @@ sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 booleantype N_VInvTestLocal(N_Vector x, N_Vector z)
 {
   booleantype result;
@@ -925,7 +892,6 @@ booleantype N_VInvTestLocal(N_Vector x, N_Vector z)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 {
   booleantype result;
@@ -935,7 +901,6 @@ booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
   return(result);
 }
 
-SUNDIALS_PURE_VIRTUAL /* TODO(CJB): either these should be marked PURE_VIRTUAL or we should handle the case when the ops is NULL (see N_VBufPack) */
 sunrealtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
 {
   sunrealtype result;
@@ -1107,7 +1072,6 @@ void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
  * Debugging functions
  * ----------------------------------------------------------------- */
 
-SUNDIALS_PURE_VIRTUAL
 void N_VPrint(N_Vector v) SUNDIALS_NOEXCEPT
 {
   if (v == NULL) {
@@ -1119,7 +1083,6 @@ void N_VPrint(N_Vector v) SUNDIALS_NOEXCEPT
   }
 }
 
-SUNDIALS_PURE_VIRTUAL
 void N_VPrintFile(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT
 {
   if (outfile != NULL) {

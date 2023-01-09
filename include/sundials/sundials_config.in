@@ -27,11 +27,6 @@
 #define SUNDIALS_NOEXCEPT
 #endif
 
-/* Indicates that the 'class' function is 'pure virtual', i.e. the
-   function only calls the op provided by an implementation and
-   provides no default implementation. */
-#define SUNDIALS_PURE_VIRTUAL 
-
 #ifndef SUNDIALS_DEPRECATED_MSG
 #  define SUNDIALS_DEPRECATED_MSG(msg) @SUNDIALS_DEPRECATED_MSG_MACRO@
 #endif
