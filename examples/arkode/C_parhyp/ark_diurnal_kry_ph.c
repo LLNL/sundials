@@ -193,12 +193,42 @@ static size_t CUDAConfigGridSize(sunindextype N, size_t &blocksize)
      return ((N + blocksize - 1) / blocksize);
 }
 
-#endif 
-
 #define GRID_STRIDE_XLOOP(type, iter, max)  \
   for (type iter = blockDim.x * blockIdx.x + threadIdx.x; \
        iter < max; \
        iter += blockDim.x * gridDim.x)
+
+
+__global__ void loadingInitialProfileKernel(int isuby, realtype dy, int isubx, realtype dx, sunindextype my_base, HYPRE_Int *iglobal, realtype *udata)
+{ 
+ int jx, jy; 
+ realtype y, cy, x, cx; 
+ sunindextype offset = 0;
+ realtype xmid = RCONST(0.5)*(XMIN + XMAX);
+ realtype ymid = RCONST(0.5)*(YMIN + YMAX);   
+ GRID_STRIDE_XLOOP(int, ly, MYSUB)
+ {
+    jy = ly + isuby*MYSUB;
+    y = YMIN + jy*dy;
+    cy = SUNSQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SUNSQR(cy);
+    GRID_STRIDE_XLOOP(int, lx, MXSUB)
+    {
+       jx = lx + isubx*MXSUB; 
+       x = XMIN + jx*dx; 
+       cx = SUNSQR(RCONST(0.1)*(x - xmid));
+       cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx); 
+       iglobal[offset] = my_base + offset; 
+       udata[offset++] = C1_SCALE*cx*cy;
+       iglobal[offset] = my_base + offset;
+       udata[offset++] = C2_SCALE*cx*cy;    
+    } 
+ }  
+}
+
+
+
+#endif 
 
 
 /***************************** Main Program ******************************/
@@ -249,8 +279,18 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorInitialize(Uij);
 
   /* Allocate and load user data block; allocate preconditioner block */
+  
+// delete the line below 
+//#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL) 
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+// detete the next four lines 
+//#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+//  cudaMalloc(&data, sizeof(*data));
+// do we need to add the test case here to check valid memory allocation 
+//#endif
+
+
   InitUserData(my_pe, comm, data);
 
   /* Set initial values and allocate u */
@@ -280,7 +320,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "ARKStepSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepSetMaxNumSteps to increase default */
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 100);
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, my_pe)) return(1);
 
   /* Call ARKStepSStolerances to specify the scalar relative tolerance
@@ -389,9 +429,13 @@ static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
   HYPRE_Int *iglobal;
 
   /* Set pointer to data array in vector u */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   udata   = (realtype*) malloc(local_length*sizeof(realtype));
   iglobal = (HYPRE_Int*) malloc(local_length*sizeof(HYPRE_Int));
-
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  cudaMalloc(&udata, local_length*sizeof(realtype));
+  cudaMalloc(&iglobal, local_length*sizeof(HYPRE_Int));
+#endif 
 
   /* Get mesh spacings, and subgrid indices for this PE */
   dx = data->dx;         dy = data->dy;
@@ -403,6 +447,8 @@ static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
   offset = 0;
   xmid = RCONST(0.5)*(XMIN + XMAX);
   ymid = RCONST(0.5)*(YMIN + YMAX);
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
@@ -422,6 +468,15 @@ static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
   HYPRE_IJVectorSetValues(Uij, local_length, iglobal, udata);
   free(iglobal);
   free(udata);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA) 
+  size_t blocksize =  CUDAConfigBlockSize(); 
+  size_t gridsize = CUDAConfigGridSize(local_length, blocksize); 
+  loadingInitialProfileKernel<<<gridsize, blocksize, 0, 0>>>(isuby, dy,isubx, dx, my_base, iglobal, udata);  	
+  HYPRE_IJVectorSetValues(Uij, local_length, iglobal, udata);	 
+  cudaFree(iglobal); 
+  cudaFree(udata); 
+#endif 
+
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */

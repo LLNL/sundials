@@ -27,8 +27,13 @@ if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
 endif()  
 
 set(ARKODE_examples
-  "ark_diurnal_kry_ph.c\;1\;4\;develop"
+  #"ark_diurnal_kry_ph.c\;1\;4\;develop"
+   "ark_diurnal_kry_ph.c\;2\;2\;develop" 
   )
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(_fused_stubs sundials_arkode_fused_stubs)
+endif()
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
