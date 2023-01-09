@@ -53,7 +53,7 @@ const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx)
   default: return "unknown error";
   }
 
-  return 0;
+  return NULL;
 }
 
 int SUNLogErrHandlerFn(int line, const char* func, const char* file, const char* msg, SUNErrCode err_code,
