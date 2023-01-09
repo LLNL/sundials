@@ -227,6 +227,8 @@ $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_context_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_context_mod.f90
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_errors_mod.c
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_errors_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.c
@@ -268,6 +270,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_memory.c
 $tar $tarfile $distrobase/src/sundials/sundials_mpi_errors.c
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
+$tar $tarfile $distrobase/src/sundials/sundials_nvector_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
 $tar $tarfile $distrobase/src/sundials/sundials_profiler.c
 $tar $tarfile $distrobase/src/sundials/sundials_reductions.hpp
