@@ -16,7 +16,7 @@
 
 message("Adding units tests")
 
-add_subdirectory(core)
+add_subdirectory(sundials)
 
 if(BUILD_ARKODE)
   add_subdirectory(arkode)
@@ -43,6 +43,5 @@ if(BUILD_KINSOL)
 endif()
 
 if(CXX_FOUND)
-  add_subdirectory(reductions)
   add_subdirectory(sunmemory)
 endif()
