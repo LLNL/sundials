@@ -118,6 +118,11 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.6.0
+-----------------
+
+Added support for relaxation Runge-Kutta methods in ARKStep.
+
 Changes in v5.5.0
 -----------------
 

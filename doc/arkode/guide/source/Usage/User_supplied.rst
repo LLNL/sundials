@@ -63,6 +63,9 @@ The user-supplied functions for ARKODE consist of:
   by the outer integrator to the inner integrator, or state data supplied
   by the inner integrator to the outer integrator.
 
+* if relaxation is enabled, a function that evaluates the dissipative or
+  conservative function :math:`\xi(y(t))` and a function to evaluate its
+  Jacobian :math:`\xi'(y(t))`.
 
 
 .. _ARKODE.Usage.ODERHS:
@@ -1114,3 +1117,48 @@ outer integrator for the outer integration.
    **Notes:**
       In a heterogeneous computing environment if any data copies between the host
       and device vector data are necessary, this is where that should occur.
+
+
+.. _ARKODE.Usage.RelaxFn:
+
+Relaxation function
+-------------------
+
+.. c:type:: int (*ARKRelaxFn)(N_Vector* y, realtype* r, void* user_data)
+
+   When applying relaxation, an :c:func:`ARKRelaxFn` function computes the
+   dissipative or conservative function :math:`\xi(y)`.
+
+   **Arguments:**
+      * *y* -- the current value of the dependent variable vector.
+      * *r* -- the array of :math:`\xi_i(y(t))` values
+      * *user_data* -- the ``user_data`` pointer that was passed to
+        :c:func:`ARKStepSetUserData`.
+
+   **Return value:**
+      An :c:func:`MRIStepPostInnerFn` function should return 0 if successful, a
+      positive value if a recoverable error occurred, or a negative value if an
+      unrecoverable error occurred. If a recoverable error occurs, the step size
+      will be reduced and the step repeated.
+
+.. _ARKODE.Usage.RelaxJacFn:
+
+Relaxation Jacobian function
+----------------------------
+
+.. c:type:: int (*ARKRelaxJacFn)(N_Vector* y, N_Vector* J, void* user_data);
+
+   When applying relaxation, an :c:func:`ARKRelaxJacFn` functions computes the
+   Jacobians of the :math:`\xi'_i(y)` function :math:`\xi_i(y(t))`.
+
+   **Arguments:**
+      * *y* -- the current value of the dependent variable vector.
+      * *J* -- the array Jacobian vectors :math:`\xi'_i(y(t))`
+      * *user_data* -- the ``user_data`` pointer that was passed to
+        :c:func:`ARKStepSetUserData`.
+
+   **Return value:**
+      An :c:func:`MRIStepPostInnerFn` function should return 0 if successful, a
+      positive value if a recoverable error occurred, or a negative value if an
+      unrecoverable error occurred. If a recoverable error occurs, the step size
+      will be reduced and the step repeated.

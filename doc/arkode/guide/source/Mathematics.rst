@@ -2081,3 +2081,40 @@ strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
 
 Relaxation Methods
 ==================
+
+For cases where the problem :eq:`ARKODE_IVP` is dissipative or conservative with
+respect to a smooth convex function :math:`\xi(y(t))`, it is desirable to ensure
+this property is preserved by the numerical method applied to the IVP. That is
+:math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative problems and
+:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative problems.
+
+To this end, ARKODE supports relaxation methods :cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation`
+to guarantee the dissipation or preservation of a global function. This is
+achieved by solving the auxiliary scalar nonlinear system
+
+.. math::
+   F(r) = \xi(y_n + r d) - \xi(y_n) - r e = 0
+   :label: ARKODE_RELAX_NLS
+
+for the relaxation factor :math:`r` at the end of each time step. The update
+direction is :math:`d = h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)`
+and the estimate of the change in :math:`\xi` is
+:math:`e = h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
+where :math:`\xi'` is the Jacobian of :math:`\xi`. The relaxed solution is given
+by
+
+.. math::
+   y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
+   :label: ARKODE_RELAX_SOL
+
+Currently, the nonlinear system :eq:`ARKODE_RELAX_NLS` can be solved using a
+fixed point or Newton iteration. Should this iteration fail to meet the
+residual tolerance in the maximum allowed number of iterations, the step size
+will be reduced by the factor :math:`\eta_\text{rf}` (default 0.25).
+Additionally, a relaxation value greater than :math:`r_\text{max}` (default 0.8)
+or less than :math:`r_\text{min}` (default 1.2) will result in a solver failure
+and the step will be repeated with the step size reduced by
+:math:`\eta_\text{rf}`.
+
+For more information on utilizing relaxation Runge-Kutta methos, see
+:numref:`ARKODE.Usage.ARKStep.Relaxation`.

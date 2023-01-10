@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.6.0
+
+Added support for relaxation Runge-Kutta methods to ARKStep.
+
 ## Changes to SUNDIALS in release 6.5.0
 
 Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
