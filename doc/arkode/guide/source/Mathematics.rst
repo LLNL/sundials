@@ -2089,19 +2089,20 @@ this property is preserved by the numerical method applied to the IVP. That is
 :math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative problems.
 
 To this end, ARKODE supports relaxation methods :cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation`
-to guarantee the dissipation or preservation of a global function. This is
+to guarantee the dissipation or preservation of a global function. Given a
+second order method with :math:`b^E_i \geq 0` and :math:`b^I_i \geq 0`, this is
 achieved by solving the auxiliary scalar nonlinear system
 
 .. math::
-   F(r) = \xi(y_n + r d) - \xi(y_n) - r e = 0
+   F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0
    :label: ARKODE_RELAX_NLS
 
 for the relaxation factor :math:`r` at the end of each time step. The update
 direction is :math:`d = h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)`
 and the estimate of the change in :math:`\xi` is
 :math:`e = h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
-where :math:`\xi'` is the Jacobian of :math:`\xi`. The relaxed solution is given
-by
+where :math:`\xi'` is the Jacobian of :math:`\xi`. The relaxed solution is then
+given by
 
 .. math::
    y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
@@ -2116,5 +2117,10 @@ or less than :math:`r_\text{min}` (default 1.2) will result in a solver failure
 and the step will be repeated with the step size reduced by
 :math:`\eta_\text{rf}`.
 
-For more information on utilizing relaxation Runge-Kutta methos, see
+In the case where there are multiple functions :math:`\xi_i(y)` of interest that
+do not need to be conserved but may also be dissipated, ARKODE will compute the
+relaxation values for each function and select :math:`r = \min_i r_i`. As a
+result each :math:`\xi_i(y)` will be dissipated.
+
+For more information on utilizing relaxation Runge-Kutta methods, see
 :numref:`ARKODE.Usage.ARKStep.Relaxation`.

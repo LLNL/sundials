@@ -32,8 +32,10 @@ Enabling or Disabling Relaxation
 
    :param arkode_mem: the ARKStep memory structure
    :param nrfn: the number of relaxation functions
-   :param rfn: the user-defined relaxation function
-   :param rjac: the user-defined Jacobian of the relaxation function
+   :param rfn: the user-defined function to compute the relaxation function
+               :math:`\xi_i(y)`
+   :param rjac: the user-defined function to compute the relaxation Jacobian
+                :math:`\xi'_i(y)`
 
    :retval ARK_SUCCESS: the function exited successfully
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
@@ -43,8 +45,7 @@ Enabling or Disabling Relaxation
 
    .. note::
 
-      If ``nrfn`` is zero and both ``rfn`` and ``rjac`` are ``NULL`` relaxation
-      is disabled.
+      If ``nrfn = 0`` and both ``rfn = rjac = NULL`` relaxation is disabled.
 
 Optional Input Functions
 ------------------------

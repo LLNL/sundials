@@ -63,9 +63,9 @@ The user-supplied functions for ARKODE consist of:
   by the outer integrator to the inner integrator, or state data supplied
   by the inner integrator to the outer integrator.
 
-* if relaxation is enabled, a function that evaluates the dissipative or
-  conservative function :math:`\xi(y(t))` and a function to evaluate its
-  Jacobian :math:`\xi'(y(t))`.
+* if relaxation is enabled (optional), a function that evaluates the dissipative
+  or conservative functions :math:`\xi_i(y(t))` (required) and a function to
+  evaluate the Jacobians :math:`\xi_i'(y(t))` (required).
 
 
 .. _ARKODE.Usage.ODERHS:
@@ -1126,18 +1126,18 @@ Relaxation function
 
 .. c:type:: int (*ARKRelaxFn)(N_Vector* y, realtype* r, void* user_data)
 
-   When applying relaxation, an :c:func:`ARKRelaxFn` function computes the
-   dissipative or conservative function :math:`\xi(y)`.
+   When applying relaxation, an :c:func:`ARKRelaxFn` function is required to
+   compute the dissipative or conservative functions :math:`\xi_i(y)`.
 
    **Arguments:**
       * *y* -- the current value of the dependent variable vector.
-      * *r* -- the array of :math:`\xi_i(y(t))` values
+      * *r* -- the array of :math:`\xi_i(y)` values.
       * *user_data* -- the ``user_data`` pointer that was passed to
         :c:func:`ARKStepSetUserData`.
 
    **Return value:**
-      An :c:func:`MRIStepPostInnerFn` function should return 0 if successful, a
-      positive value if a recoverable error occurred, or a negative value if an
+      An :c:func:`ARKRelaxFn` function should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if an
       unrecoverable error occurred. If a recoverable error occurs, the step size
       will be reduced and the step repeated.
 
@@ -1148,17 +1148,17 @@ Relaxation Jacobian function
 
 .. c:type:: int (*ARKRelaxJacFn)(N_Vector* y, N_Vector* J, void* user_data);
 
-   When applying relaxation, an :c:func:`ARKRelaxJacFn` functions computes the
-   Jacobians of the :math:`\xi'_i(y)` function :math:`\xi_i(y(t))`.
+   When applying relaxation, an :c:func:`ARKRelaxJacFn` function is required to
+   computes the Jacobians :math:`\xi'_i(y)`.
 
    **Arguments:**
       * *y* -- the current value of the dependent variable vector.
-      * *J* -- the array Jacobian vectors :math:`\xi'_i(y(t))`
+      * *J* -- an array Jacobian vectors :math:`\xi'_i(y)`.
       * *user_data* -- the ``user_data`` pointer that was passed to
         :c:func:`ARKStepSetUserData`.
 
    **Return value:**
-      An :c:func:`MRIStepPostInnerFn` function should return 0 if successful, a
+      An :c:func:`ARKRelaxJacFn` function should return 0 if successful, a
       positive value if a recoverable error occurred, or a negative value if an
       unrecoverable error occurred. If a recoverable error occurs, the step size
       will be reduced and the step repeated.

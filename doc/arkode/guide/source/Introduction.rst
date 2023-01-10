@@ -121,7 +121,9 @@ Changes from previous versions
 Changes in v5.6.0
 -----------------
 
-Added support for relaxation Runge-Kutta methods in ARKStep.
+Added support for relaxation Runge-Kutta methods in ARKStep, see
+:numref:`ARKODE.Mathematics.Relaxation` and
+:numref:`ARKODE.Usage.ARKStep.Relaxation` for more information.
 
 Changes in v5.5.0
 -----------------
