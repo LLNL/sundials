@@ -207,12 +207,11 @@ matrix update occurs when:
    * a non-fatal convergence failure just occurred, or
    * an error test failure just occurred.
 
-When forced by a convergence failure, an update of :math:`M` or
-:math:`P` may or may not involve a reevaluation of :math:`J` (in
-:math:`M`) or of Jacobian data (in :math:`P`), depending on whether
-Jacobian error was the likely cause of the failure. More generally, the
-decision is made to reevaluate :math:`J` (or instruct the user to
-reevaluate Jacobian data in :math:`P`) when:
+When an update of :math:`M` or :math:`P` occurs, it may or may not involve a
+reevaluation of :math:`J` (in :math:`M`) or of Jacobian data (in :math:`P`),
+depending on whether Jacobian error was the likely cause of the update.
+Reevaluating :math:`J` (or instructing the user to update Jacobian data in
+:math:`P`) occurs when:
 
    * starting the problem,
    * more than 50 steps have been taken since the last evaluation,
