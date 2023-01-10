@@ -1301,7 +1301,7 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
 
    The function ``CVodeSetJacEvalFrequency`` Specifies the number of steps after
    which the Jacobian information is considered out-of-date, :math:`msbj` from
-   :numref:`ARKODE.Mathematics.Linear.Setup`.
+   :numref:`CVODE.Mathematics.nls`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.

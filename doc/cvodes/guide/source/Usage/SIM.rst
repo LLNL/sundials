@@ -1298,7 +1298,7 @@ using the current :math:`\gamma` value.
 
    The function ``CVodeSetJacEvalFrequency`` Specifies the number of steps after
    which the Jacobian information is considered out-of-date, :math:`msbj` from
-   :numref:`ARKODE.Mathematics.Linear.Setup`.
+   :numref:`CVODES.Mathematics.nls`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1319,7 +1319,7 @@ using the current :math:`\gamma` value.
       As the Jacobian update frequency is only checked *within* calls to the
       linear solver setup routine, Jacobian information may be more than
       ``msbj`` steps old when updated depending on when a linear solver setup
-      call occurs. See :numref:`CVODE.Mathematics.nls` for more information on
+      call occurs. See :numref:`CVODES.Mathematics.nls` for more information on
       when linear solver setups are preformed.
 
       If ``msbj = 0``, the default value of 51 will be used. Otherwise an error
