@@ -1522,7 +1522,8 @@ void arkFreeVecArray(int count, N_Vector **v,
                      sunindextype liw1, long int *liw)
 {
   if (*v != NULL) {
-    N_VDestroyVectorArray(*v, count);
+    SUNDeclareContext((*v)[0]->sunctx);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(*v, count), SUNCTX);
     *v = NULL;
     *lrw -= count * lrw1;
     *liw -= count * liw1;

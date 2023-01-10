@@ -321,7 +321,9 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     errP = NULL;
 
   /* Copy acor into errP (if projecting the error) */
-  if (proj_mem->err_proj) N_VScale(ONE, cv_mem->cv_acor, errP);
+  if (proj_mem->err_proj) {
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, errP), CV_SUNCTX);
+  }
 
   /* Call the user projection function */
   retval = proj_mem->pfun(cv_mem->cv_tn, cv_mem->cv_y, acorP,
@@ -335,8 +337,9 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if (retval == CV_SUCCESS)
   {
     /* Recompute acnrm to be used in error test (if projecting the error) */
-    if (proj_mem->err_proj)
-      cv_mem->cv_acnrm = N_VWrmsNorm(errP, cv_mem->cv_ewt);
+    if (proj_mem->err_proj) {
+      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(errP, cv_mem->cv_ewt), CV_SUNCTX);
+    }
 
     /* The projection was successful, return now */
     cv_mem->proj_applied = SUNTRUE;

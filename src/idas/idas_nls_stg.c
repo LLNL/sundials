@@ -130,20 +130,20 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->stgMallocDone == SUNFALSE) {
 
-    IDA_mem->ypredictStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx);
+    IDA_mem->ypredictStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx), IDA_SUNCTX);
     if (IDA_mem->ypredictStg == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ycorStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx);
+    IDA_mem->ycorStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx), IDA_SUNCTX);
     if (IDA_mem->ycorStg == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ewtStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns, IDA_mem->ida_sunctx);
+    IDA_mem->ewtStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns, IDA_mem->ida_sunctx), IDA_SUNCTX);
     if (IDA_mem->ewtStg == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX);
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorStg), IDA_SUNCTX);

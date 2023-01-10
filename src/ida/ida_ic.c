@@ -162,8 +162,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   /* Allocate space and initialize temporary vectors */
 
-  IDA_mem->ida_yy0 = N_VClone(IDA_mem->ida_ee);
-  IDA_mem->ida_yp0 = N_VClone(IDA_mem->ida_ee);
+  IDA_mem->ida_yy0 = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_ee), IDA_SUNCTX);
+  IDA_mem->ida_yp0 = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_ee), IDA_SUNCTX);
   IDA_mem->ida_t0  = IDA_mem->ida_tn;
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[0], IDA_mem->ida_yy0), IDA_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[1], IDA_mem->ida_yp0), IDA_SUNCTX);

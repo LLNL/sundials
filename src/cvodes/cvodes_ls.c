@@ -307,14 +307,14 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for ytemp and x */
-  cvls_mem->ytemp = N_VClone(cv_mem->cv_tempv);
+  cvls_mem->ytemp = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (cvls_mem->ytemp == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
 
-  cvls_mem->x = N_VClone(cv_mem->cv_tempv);
+  cvls_mem->x = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (cvls_mem->x == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp), CV_SUNCTX);
@@ -323,8 +323,10 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   }
 
   /* For iterative LS, compute default norm conversion factor */
-  if (iterative)
-    cvls_mem->nrmfac = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
+  if (iterative) {
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
+  }
 
   /* Check if solution scaling should be enabled */
   if (matrixbased && cv_mem->cv_lmm == CV_BDF)
@@ -1357,7 +1359,8 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   if (retval != CVLS_SUCCESS)  return(retval);
 
   /* Initialize perturbation to 1/||v|| */
-  sig = ONE/N_VWrmsNorm(v, cv_mem->cv_ewt);
+  sig = ONE;
+  sig /= SUNCheckCallLastErrNoRet(N_VWrmsNorm(v, cv_mem->cv_ewt), CV_SUNCTX);
 
   for (iter=0; iter<MAX_DQITERS; iter++) {
 
@@ -1755,7 +1758,9 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
     bnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(b, weight), CV_SUNCTX);
     if (bnorm <= deltar) {
-      if (curiter > 0) N_VConst(ZERO, b);
+      if (curiter > 0) {
+        SUNCheckCallLastErrNoRet(N_VConst(ZERO, b), CV_SUNCTX);
+      }
       cvls_mem->last_flag = CVLS_SUCCESS;
       return(cvls_mem->last_flag);
     }

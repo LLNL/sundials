@@ -216,14 +216,14 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   }
 
   /* Allocate memory for ytemp, yptemp and x */
-  idals_mem->ytemp = N_VClone(IDA_mem->ida_tempv1);
+  idals_mem->ytemp = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_tempv1), IDA_SUNCTX);
   if (idals_mem->ytemp == NULL) {
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     free(idals_mem); idals_mem = NULL;
     return(IDALS_MEM_FAIL);
   }
 
-  idals_mem->yptemp = N_VClone(IDA_mem->ida_tempv1);
+  idals_mem->yptemp = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_tempv1), IDA_SUNCTX);
   if (idals_mem->yptemp == NULL) {
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     SUNCheckCallLastErrNoRet(N_VDestroy(idals_mem->ytemp), IDA_SUNCTX);
@@ -231,7 +231,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
     return(IDALS_MEM_FAIL);
   }
 
-  idals_mem->x = N_VClone(IDA_mem->ida_tempv1);
+  idals_mem->x = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_tempv1), IDA_SUNCTX);
   if (idals_mem->x == NULL) {
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     SUNCheckCallLastErrNoRet(N_VDestroy(idals_mem->ytemp), IDA_SUNCTX);
@@ -241,8 +241,10 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   }
 
   /* For iterative LS, compute sqrtN */
-  if (iterative)
-    idals_mem->nrmfac = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
+  if (iterative) {
+    idals_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(idals_mem->ytemp), IDA_SUNCTX);
+    idals_mem->nrmfac = SUNRsqrt(idals_mem->nrmfac);
+  }
 
   /* For matrix-based LS, enable solution scaling */
   if (matrixbased)
@@ -1207,10 +1209,12 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   if (retval != IDALS_SUCCESS)  return(retval);
 
   LSID = SUNLinSolGetID(idals_mem->LS);
-  if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR)
+  if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR) {
     sig = idals_mem->nrmfac * idals_mem->dqincfac;
-  else
-    sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
+  } else {
+    sig = idals_mem->dqincfac;
+    sig /= SUNCheckCallLastErrNoRet(N_VWrmsNorm(v, IDA_mem->ida_ewt), IDA_SUNCTX);
+  }
 
   /* Rename work1 and work2 for readibility */
   y_tmp  = work1;

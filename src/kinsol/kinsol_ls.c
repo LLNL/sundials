@@ -1121,8 +1121,9 @@ int kinLsInitialize(KINMem kin_mem)
      So we compute tol_fac = sqrt(N) / ||fscale||_L2 for scaling desired tolerances */
   if (kinls_mem->iterative && kinls_mem->LS->ops->setscalingvectors == NULL) {
     SUNCheckCallLastErrNoRet(N_VConst(ONE, kin_mem->kin_vtemp1), KIN_SUNCTX);
-    kinls_mem->tol_fac = SUNRsqrt(N_VGetLength(kin_mem->kin_vtemp1))
-                       / N_VWL2Norm(kin_mem->kin_fscale, kin_mem->kin_vtemp1);
+    kinls_mem->tol_fac = SUNCheckCallLastErrNoRet(N_VGetLength(kin_mem->kin_vtemp1), KIN_SUNCTX);
+    kinls_mem->tol_fac = SUNRsqrt(kinls_mem->tol_fac);
+    kinls_mem->tol_fac /= SUNCheckCallLastErrNoRet(N_VWL2Norm(kin_mem->kin_fscale, kin_mem->kin_vtemp1), KIN_SUNCTX);
   } else {
     kinls_mem->tol_fac = ONE;
   }

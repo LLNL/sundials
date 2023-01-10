@@ -162,7 +162,7 @@ int CVDiag(void *cvode_mem)
   bit = SUNCheckCallLastErrNoRet(N_VClone(vec_tmpl), CV_SUNCTX);
   if (bit == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, __LINE__, __func__, __FILE__, MSGDG_MEM_FAIL);
-    N_VDestroy(M);
+    SUNCheckCallLastErrNoRet(N_VDestroy(M), CV_SUNCTX);
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
@@ -170,8 +170,8 @@ int CVDiag(void *cvode_mem)
   bitcomp = SUNCheckCallLastErrNoRet(N_VClone(vec_tmpl), CV_SUNCTX);
   if (bitcomp == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, __LINE__, __func__, __FILE__, MSGDG_MEM_FAIL);
-    N_VDestroy(M);
-    N_VDestroy(bit);
+    SUNCheckCallLastErrNoRet(N_VDestroy(M), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(bit), CV_SUNCTX);
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
@@ -481,9 +481,9 @@ static int CVDiagFree(CVodeMem cv_mem)
 
   cvdiag_mem = (CVDiagMem) lmem;
 
-  N_VDestroy(M);
-  N_VDestroy(bit);
-  N_VDestroy(bitcomp);
+  SUNCheckCallLastErrNoRet(N_VDestroy(M), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(bit), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(bitcomp), CV_SUNCTX);
   free(cvdiag_mem);
   cv_mem->cv_lmem = NULL;
 

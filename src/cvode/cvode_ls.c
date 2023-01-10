@@ -237,14 +237,15 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvls_mem->x = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
   if (cvls_mem->x == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
-    N_VDestroy(cvls_mem->ytemp);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp), CV_SUNCTX);
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
 
   /* For iterative LS, compute default norm conversion factor */
   if (iterative) {
-    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(SUNRsqrt( N_VGetLength(cvls_mem->ytemp) ), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   }
 
   /* Check if solution scaling should be enabled */
@@ -371,12 +372,12 @@ int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
     cvls_mem->nrmfac = nrmfac;
   } else if (nrmfac < ZERO) {
     /* compute factor for WRMS norm with dot product */
-    N_VConst(ONE, cvls_mem->ytemp);
-    cvls_mem->nrmfac = SUNCheckCallLastErr(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ONE, cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp), CV_SUNCTX);
     cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   } else {
     /* compute default factor for WRMS norm from vector legnth */
-    cvls_mem->nrmfac = SUNCheckCallLastErr(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
     cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   }
 
@@ -1140,7 +1141,7 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 
   /* Destroy jthCol vector */
   SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, jthCol), CV_SUNCTX);   /* SHOULDN'T BE NEEDED */
-  N_VDestroy(jthCol);
+  SUNCheckCallLastErrNoRet(N_VDestroy(jthCol), CV_SUNCTX);
 
   return(retval);
 }
@@ -1851,11 +1852,11 @@ int cvLsFree(CVodeMem cv_mem)
 
   /* Free N_Vector memory */
   if (cvls_mem->ytemp) {
-    N_VDestroy(cvls_mem->ytemp);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp), CV_SUNCTX);
     cvls_mem->ytemp = NULL;
   }
   if (cvls_mem->x) {
-    N_VDestroy(cvls_mem->x);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->x), CV_SUNCTX);
     cvls_mem->x = NULL;
   }
 

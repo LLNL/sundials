@@ -1733,7 +1733,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2), CV_SUNCTX);
-  N_VDestroy(cv_mem->cv_vtemp3);
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp3), CV_SUNCTX);
   for (j=0; j <= maxord; j++) {
     SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_zn[j]), CV_SUNCTX);
   }
@@ -2459,14 +2459,14 @@ static void cvPredict(CVodeMem cv_mem)
     for (j = cv_mem->cv_q; j >= k; j--) {
       SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[j - 1], ONE,
                                        cv_mem->cv_zn[j], cv_mem->cv_zn[j - 1]),
-                          CV_SUNCTX);
+                               CV_SUNCTX);
     }
   }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
     "CVODE::cvPredict", "return", "predictor =", "");
-  N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp), CV_SUNCTX);
 #endif
 }
 

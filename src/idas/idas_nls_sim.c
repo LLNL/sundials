@@ -129,20 +129,20 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->simMallocDone == SUNFALSE) {
 
-    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
+    IDA_mem->ypredictSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx), IDA_SUNCTX);
     if (IDA_mem->ypredictSim == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
+    IDA_mem->ycorSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx), IDA_SUNCTX);
     if (IDA_mem->ycorSim == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictSim), IDA_SUNCTX);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx);
+    IDA_mem->ewtSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1, IDA_mem->ida_sunctx), IDA_SUNCTX);
     if (IDA_mem->ewtSim == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictSim), IDA_SUNCTX);
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorSim), IDA_SUNCTX);

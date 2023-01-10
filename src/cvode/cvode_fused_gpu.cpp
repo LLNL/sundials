@@ -80,19 +80,23 @@ int cvEwtSetSS_fused(const booleantype atolMin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
+  SUNDeclareContext(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(weight);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* ycur_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycur), SUNCTX);
+  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv), SUNCTX);
+  sunrealtype* weight_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(weight), SUNCTX);
 
   cvEwtSetSS_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     reltol,
     Sabstol,
-    N_VGetDeviceArrayPointer(ycur),
-    N_VGetDeviceArrayPointer(tempv),
-    N_VGetDeviceArrayPointer(weight)
+    ycur_data,
+    tempv_data,
+    weight_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR
@@ -140,19 +144,24 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
+  SUNDeclareContext(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(weight);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* Vabstol_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(Vabstol), SUNCTX);
+  sunrealtype* ycur_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycur), SUNCTX);
+  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv), SUNCTX);
+  sunrealtype* weight_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(weight), SUNCTX);
 
   cvEwtSetSV_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     reltol,
-    N_VGetDeviceArrayPointer(Vabstol),
-    N_VGetDeviceArrayPointer(ycur),
-    N_VGetDeviceArrayPointer(tempv),
-    N_VGetDeviceArrayPointer(weight)
+    Vabstol,
+    ycur_data,
+    tempv_data,
+    weight_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR
@@ -206,19 +215,25 @@ int cvCheckConstraints_fused(const N_Vector c,
                              const N_Vector mm,
                              N_Vector tempv)
 {
+  SUNDeclareContext(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)c->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(c);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(c), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* c_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(c), SUNCTX);
+  sunrealtype* ewt_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ewt), SUNCTX);
+  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y), SUNCTX);
+  sunrealtype* mm_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(mm), SUNCTX);
+  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv), SUNCTX);
 
   cvCheckConstraints_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
-    N_VGetDeviceArrayPointer(c),
-    N_VGetDeviceArrayPointer(ewt),
-    N_VGetDeviceArrayPointer(y),
-    N_VGetDeviceArrayPointer(mm),
-    N_VGetDeviceArrayPointer(tempv)
+    c_data,
+    ewt_data,
+    y_data,
+    mm_data,
+    tempv_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR
@@ -263,20 +278,25 @@ int cvNlsResid_fused(const realtype rl1,
                      const N_Vector ftemp,
                      N_Vector res)
 {
+  SUNDeclareContext(zn1->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)res->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(res);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(res), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* zn1_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(zn1), SUNCTX);
+  sunrealtype* ycor_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycor), SUNCTX);
+  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp), SUNCTX);
+  sunrealtype* res_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(res), SUNCTX);
 
   cvNlsResid_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     rl1,
     ngamma,
-    N_VGetDeviceArrayPointer(zn1),
-    N_VGetDeviceArrayPointer(ycor),
-    N_VGetDeviceArrayPointer(ftemp),
-    N_VGetDeviceArrayPointer(res)
+    zn1_data,
+    ycor_data,
+    ftemp_data,
+    res_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR
@@ -321,21 +341,27 @@ int cvDiagSetup_formY(const realtype h,
                       N_Vector ftemp,
                       N_Vector y)
 {
-  const SUNExecPolicy* exec_policy = ((NVectorContent)y->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(y);
+  SUNDeclareContext(fpred->sunctx);
+  const SUNExecPolicy* exec_policy = ((NVectorContent)fpred->content)->stream_exec_policy;
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(fpred), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* fpred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(fpred), SUNCTX);
+  sunrealtype* zn1_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(zn1), SUNCTX);
+  sunrealtype* ypred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ypred), SUNCTX);
+  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp), SUNCTX);
+  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y), SUNCTX);
 
   cvDiagSetup_formY_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     h,
     r,
-    N_VGetDeviceArrayPointer(fpred),
-    N_VGetDeviceArrayPointer(zn1),
-    N_VGetDeviceArrayPointer(ypred),
-    N_VGetDeviceArrayPointer(ftemp),
-    N_VGetDeviceArrayPointer(y)
+    fpred_data,
+    zn1_data,
+    ypred_data,
+    ftemp_data,
+    y_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR
@@ -404,10 +430,18 @@ int cvDiagSetup_buildM(const realtype fract,
                        N_Vector y,
                        N_Vector M)
 {
-  const SUNExecPolicy* exec_policy = ((NVectorContent)M->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(M);
+  SUNDeclareContext(ftemp->sunctx);
+  const SUNExecPolicy* exec_policy = ((NVectorContent)ftemp->content)->stream_exec_policy;
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(ftemp), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp), SUNCTX);
+  sunrealtype* fpred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(fpred), SUNCTX);
+  sunrealtype* ewt_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ewt), SUNCTX);
+  sunrealtype* bit_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(bit), SUNCTX);
+  sunrealtype* bitcomp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(bitcomp), SUNCTX);
+  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y), SUNCTX);
+  sunrealtype* M_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(M), SUNCTX);
 
   cvDiagSetup_buildM_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -415,13 +449,13 @@ int cvDiagSetup_buildM(const realtype fract,
     fract,
     uround,
     h,
-    N_VGetDeviceArrayPointer(ftemp),
-    N_VGetDeviceArrayPointer(fpred),
-    N_VGetDeviceArrayPointer(ewt),
-    N_VGetDeviceArrayPointer(bit),
-    N_VGetDeviceArrayPointer(bitcomp),
-    N_VGetDeviceArrayPointer(y),
-    N_VGetDeviceArrayPointer(M)
+    ftemp_data,
+    fpred_data,
+    ewt_data,
+    bit_data,
+    bitcomp_data,
+    y_data,
+    M_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR
@@ -459,16 +493,18 @@ void cvDiagSolve_updateM_kernel(const sunindextype length, const realtype r, rea
 extern "C"
 int cvDiagSolve_updateM(const realtype r, N_Vector M)
 {
+  SUNDeclareContext(M->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)M->content)->stream_exec_policy;
-  const sunindextype N = N_VGetLength(M);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(M), SUNCTX);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
+  sunrealtype* M_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(M), SUNCTX);
 
   cvDiagSolve_updateM_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     r,
-    N_VGetDeviceArrayPointer(M)
+    M_data
   );
 
 #ifdef SUNDIALS_DEBUG_GPU_LASTERROR

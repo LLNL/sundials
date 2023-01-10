@@ -986,7 +986,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   }
 
   if ( !(cv_mem->cv_constraintsMallocDone) ) {
-    cv_mem->cv_constraints = N_VClone(constraints);
+    cv_mem->cv_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints), CV_SUNCTX);
     cv_mem->cv_lrw += cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_liw1;
     cv_mem->cv_constraintsMallocDone = SUNTRUE;
@@ -1878,7 +1878,9 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector eQweight)
     return(CV_NO_QUAD);
   }
 
-  if(cv_mem->cv_errconQ) N_VScale(ONE, cv_mem->cv_ewtQ, eQweight);
+  if(cv_mem->cv_errconQ) {
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_ewtQ, eQweight), CV_SUNCTX);
+  }
 
   return(CV_SUCCESS);
 }

@@ -558,7 +558,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
     X[1] = HINT_YNEW(interp);
     X[2] = HINT_FNEW(interp);
     retval = N_VLinearCombination(3, a, X, yout);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0)  return(ARK_VECTOROP_ERR);
     break;
 
@@ -589,7 +589,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
     X[2] = HINT_FOLD(interp);
     X[3] = HINT_FNEW(interp);
     retval = N_VLinearCombination(4, a, X, yout);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
    break;
 
@@ -644,7 +644,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
     X[3] = HINT_FNEW(interp);
     X[4] = HINT_FA(interp);
     retval = N_VLinearCombination(5, a, X, yout);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
     break;
 
@@ -723,7 +723,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
     X[4] = HINT_FA(interp);
     X[5] = HINT_FB(interp);
     retval = N_VLinearCombination(6, a, X, yout);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
     break;
 

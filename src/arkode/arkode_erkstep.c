@@ -789,7 +789,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     /*   call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1108,7 +1108,7 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
     /* call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* fill error norm */

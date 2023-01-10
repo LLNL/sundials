@@ -608,8 +608,10 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   ewt_data   =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->ewt), ARK_SUNCTX);
   ytemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), ARK_SUNCTX);
   gtemp_data =  SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gtemp), ARK_SUNCTX);
-  cns_data = (ark_mem->constraintsSet) ?
-    N_VGetArrayPointer(ark_mem->constraints) : NULL;
+  cns_data   = NULL;
+  if (ark_mem->constraintsSet) {
+    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->constraints), ARK_SUNCTX);
+  }
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(gy, ark_mem->rwt), ARK_SUNCTX);

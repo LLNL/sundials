@@ -140,20 +140,20 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->simMallocDone == SUNFALSE) {
 
-    cv_mem->zn0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX);
+    cv_mem->zn0Sim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX), CV_SUNCTX);
     if (cv_mem->zn0Sim == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX);
+    cv_mem->ycorSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX), CV_SUNCTX);
     if (cv_mem->ycorSim == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX);
+    cv_mem->ewtSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX), CV_SUNCTX);
     if (cv_mem->ewtSim == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);
       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim), CV_SUNCTX);
@@ -420,8 +420,11 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
     if (m == 0) {
       cv_mem->cv_acnrm = (cv_mem->cv_errconS) ? delS : del;
     } else {
-      cv_mem->cv_acnrm = (cv_mem->cv_errconS) ?
-        SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycorSim, ewtSim) : N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
+      if (cv_mem->cv_errconS) {
+        cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycorSim, ewtSim), CV_SUNCTX);
+      } else {
+        cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
+      }
     }
     cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS);

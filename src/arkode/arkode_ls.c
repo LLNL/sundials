@@ -1984,8 +1984,10 @@ int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   /* Obtain pointers to the data for various vectors */
   ewt_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->ewt), ARK_SUNCTX);
   y_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), ARK_SUNCTX);
-  cns_data = (ark_mem->constraintsSet) ?
-    N_VGetArrayPointer(ark_mem->constraints) : NULL;
+  cns_data   = NULL;
+  if (ark_mem->constraintsSet) {
+    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->constraints), ARK_SUNCTX);
+  }
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(ark_mem->uround);
@@ -2068,8 +2070,10 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp), ARK_SUNCTX);
   y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), ARK_SUNCTX);
   ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), ARK_SUNCTX);
-  cns_data = (ark_mem->constraintsSet) ?
-    N_VGetArrayPointer(ark_mem->constraints) : NULL;
+  cns_data   = NULL;
+  if (ark_mem->constraintsSet) {
+    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ark_mem->constraints), ARK_SUNCTX);
+  }
 
   /* Load ytemp with y = predicted y vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), ARK_SUNCTX);

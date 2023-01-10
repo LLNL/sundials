@@ -939,7 +939,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
     if (cv_mem->cv_constraintsMallocDone) {
-      N_VDestroy(cv_mem->cv_constraints);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_constraints), CV_SUNCTX);
       cv_mem->cv_lrw -= cv_mem->cv_lrw1;
       cv_mem->cv_liw -= cv_mem->cv_liw1;
     }

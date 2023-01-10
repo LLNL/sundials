@@ -39,13 +39,14 @@ int cvEwtSetSS_fused(const booleantype atolmin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
-  N_VAbs(ycur, tempv);
-  N_VScale(reltol, tempv, tempv);
-  N_VAddConst(tempv, Sabstol, tempv);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, tempv), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(reltol, tempv, tempv), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAddConst(tempv, Sabstol, tempv), SUNCTX);
   if (atolmin0) {
-    if (N_VMin(tempv) <= ZERO) return(-1);
+    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(tempv), SUNCTX);
+    if (min <= ZERO) return(-1);
   }
-  N_VInv(tempv, weight);
+  SUNCheckCallLastErrNoRet(N_VInv(tempv, weight), SUNCTX);
   return 0;
 }
 
@@ -63,13 +64,14 @@ int cvEwtSetSV_fused(const booleantype atolmin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
-  N_VAbs(ycur, tempv);
-  N_VLinearSum(reltol, tempv, ONE,
-               Vabstol, tempv);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, tempv), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(reltol, tempv, ONE,
+               Vabstol, tempv), SUNCTX);
   if (atolmin0) {
-    if (N_VMin(tempv) <= ZERO) return(-1);
+    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(tempv), SUNCTX);
+    if (min <= ZERO) return(-1);
   }
-  N_VInv(tempv, weight);
+  SUNCheckCallLastErrNoRet(N_VInv(tempv, weight), SUNCTX);
   return 0;
 }
 
@@ -88,11 +90,11 @@ int cvCheckConstraints_fused(const N_Vector c,
                              const N_Vector mm,
                              N_Vector tmp)
 {
-  N_VCompare(ONEPT5, c, tmp);           /* a[i]=1 when |c[i]|=2  */
-  N_VProd(tmp, c, tmp);                 /* a * c                 */
-  N_VDiv(tmp, ewt, tmp);                /* a * c * wt            */
-  N_VLinearSum(ONE, y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
-  N_VProd(tmp, mm, tmp);                /* v = mm*(y-0.1*a*c*wt) */
+  SUNCheckCallLastErrNoRet(N_VCompare(ONEPT5, c, tmp), SUNCTX);           /* a[i]=1 when |c[i]|=2  */
+  SUNCheckCallLastErrNoRet(N_VProd(tmp, c, tmp), SUNCTX);                 /* a * c                 */
+  SUNCheckCallLastErrNoRet(N_VDiv(tmp, ewt, tmp), SUNCTX);                /* a * c * wt            */
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, -PT1, tmp, tmp), SUNCTX); /* y - 0.1 * a * c * wt  */
+  SUNCheckCallLastErrNoRet(N_VProd(tmp, mm, tmp), SUNCTX);                /* v = mm*(y-0.1*a*c*wt) */
   return 0;
 }
 
@@ -111,8 +113,8 @@ int cvNlsResid_fused(const realtype rl1,
                      const N_Vector ftemp,
                      N_Vector res)
 {
-  N_VLinearSum(rl1, zn1, ONE, ycor, res);
-  N_VLinearSum(ngamma, ftemp, ONE, res, res);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(rl1, zn1, ONE, ycor, res), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ngamma, ftemp, ONE, res, res), SUNCTX);
   return 0;
 }
 
@@ -130,8 +132,8 @@ int cvDiagSetup_formY(const realtype h,
                       N_Vector ftemp,
                       N_Vector y)
 {
-  N_VLinearSum(h, fpred, -ONE, zn1, ftemp);
-  N_VLinearSum(r, ftemp, ONE, ypred, y);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(h, fpred, -ONE, zn1, ftemp), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(r, ftemp, ONE, ypred, y), SUNCTX);
   return 0;
 }
 
@@ -153,17 +155,17 @@ int cvDiagSetup_buildM(const realtype fract,
                        N_Vector y,
                        N_Vector M)
 {
-  N_VLinearSum(ONE, M, -ONE, fpred, M);
-  N_VLinearSum(FRACT, ftemp, -h, M, M);
-  N_VProd(ftemp, ewt, y);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, M, -ONE, fpred, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(FRACT, ftemp, -h, M, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(ftemp, ewt, y), SUNCTX);
   /* Protect against deltay_i being at roundoff level */
-  N_VCompare(uround, y, bit);
-  N_VAddConst(bit, -ONE, bitcomp);
-  N_VProd(ftemp, bit, y);
-  N_VLinearSum(FRACT, y, -ONE, bitcomp, y);
-  N_VDiv(M, y, M);
-  N_VProd(M, bit, M);
-  N_VLinearSum(ONE, M, -ONE, bitcomp, M);
+  SUNCheckCallLastErrNoRet(N_VCompare(uround, y, bit), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAddConst(bit, -ONE, bitcomp), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(ftemp, bit, y), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(FRACT, y, -ONE, bitcomp, y), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDiv(M, y, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(M, bit, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, M, -ONE, bitcomp, M), SUNCTX);
   return 0;
 }
 
@@ -176,9 +178,9 @@ int cvDiagSetup_buildM(const realtype fract,
 
 int cvDiagSolve_updateM(const realtype r, N_Vector M)
 {
-  N_VInv(M, M);
-  N_VAddConst(M, -ONE, M);
-  N_VScale(r, M, M);
-  N_VAddConst(M, ONE, M);
+  SUNCheckCallLastErrNoRet(N_VInv(M, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAddConst(M, -ONE, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(r, M, M), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAddConst(M, ONE, M), SUNCTX);
   return 0;
 }

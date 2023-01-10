@@ -572,7 +572,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
     cnsdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(IDA_mem->ida_constraints), IDA_SUNCTX);
   }
   ytempdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), IDA_SUNCTX);
-  yptempdata= N_VGetArrayPointer(yptemp);
+  yptempdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(yptemp), IDA_SUNCTX);
   grefdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(gref), IDA_SUNCTX);
 
   /* Call gcomm and glocal to get base value of G(t,y,y'). */

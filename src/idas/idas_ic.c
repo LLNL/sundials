@@ -184,8 +184,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   /* Allocate space and initialize temporary vectors */
 
-  IDA_mem->ida_yy0 = N_VClone(IDA_mem->ida_ee);
-  IDA_mem->ida_yp0 = N_VClone(IDA_mem->ida_ee);
+  IDA_mem->ida_yy0 = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_ee), IDA_SUNCTX);
+  IDA_mem->ida_yp0 = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_ee), IDA_SUNCTX);
   IDA_mem->ida_t0  = IDA_mem->ida_tn;
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[0], IDA_mem->ida_yy0), IDA_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[1], IDA_mem->ida_yp0), IDA_SUNCTX);
@@ -193,8 +193,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   if (IDA_mem->ida_sensi) {
 
     /* Allocate temporary space required for sensitivity IC: yyS0 and ypS0. */
-    IDA_mem->ida_yyS0 = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_ee);
-    IDA_mem->ida_ypS0 = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_ee);
+    IDA_mem->ida_yyS0 = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_ee), IDA_SUNCTX);
+    IDA_mem->ida_ypS0 = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_ee), IDA_SUNCTX);
 
     /* Initialize sensitivity vector. */
     for (is=0; is<IDA_mem->ida_Ns; is++) {

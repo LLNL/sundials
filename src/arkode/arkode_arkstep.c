@@ -2256,7 +2256,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
     /* compute predictor */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yguess);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
     return(ARK_SUCCESS);
     break;
@@ -2389,7 +2389,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
       nvec = 0;
       arkStep_ApplyForcing(step_mem, ark_mem->tcur, step_mem->gamma, &nvec);
       retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+      SUNCheckCallNoRet(retval, ARK_SUNCTX);
       if (retval != 0) return(ARK_VECTOROP_ERR);
     } else {
       SUNCheckCallLastErrNoRet(N_VConst(ZERO, step_mem->sdata), ARK_SUNCTX);
@@ -2531,7 +2531,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
     /* call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* fill error norm */
@@ -2636,7 +2636,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsmPtr)
 
     /*   call fused vector operation to compute yerr RHS */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+    SUNCheckCallNoRet(retval, ARK_SUNCTX);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* solve for yerr */

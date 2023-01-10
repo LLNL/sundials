@@ -337,7 +337,11 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
   if (dcon <= ONE) {
-    cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, ewt);
+    if (m == 0) {
+      cv_mem->cv_acnrm = del;
+    } else {
+      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
+    }
     cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
