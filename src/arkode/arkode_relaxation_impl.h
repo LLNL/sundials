@@ -124,6 +124,8 @@ int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* j_evals);
 int arkRelaxGetNumSolveFails(void* arkode_mem, long int* fails);
 int arkRelaxGetNumSolveIters(void* arkode_mem, long int* iters);
 
+int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+
 /* -----------------------------------------------------------------------------
  * Error Messages
  * ---------------------------------------------------------------------------*/

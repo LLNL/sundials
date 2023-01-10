@@ -22,6 +22,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_relaxation_impl.h"
+#include "sundials/sundials_types.h"
 
 /* =============================================================================
  * Private Functions
@@ -412,6 +413,41 @@ int arkRelaxGetNumSolveIters(void* arkode_mem, long int* iters)
   if (retval) return retval;
 
   *iters = relax_mem->total_iters;
+
+  return ARK_SUCCESS;
+}
+
+int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeRelaxMem relax_mem;
+
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxPrintAllStats", &ark_mem,
+                             &relax_mem);
+  if (retval) return retval;
+
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    fprintf(outfile, "Relax fn evals               = %ld\n",
+            relax_mem->num_relax_fn_evals);
+    fprintf(outfile, "Relax Jac evals              = %ld\n",
+            relax_mem->num_relax_jac_evals);
+    fprintf(outfile, "Relax NLS iters              = %ld\n",
+            relax_mem->total_iters);
+    fprintf(outfile, "Relax NLS fails              = %ld\n",
+            relax_mem->total_fails);
+  case SUN_OUTPUTFORMAT_CSV:
+    fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
+    fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
+    fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->total_iters);
+    fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->total_fails);
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxPrintAllStats",
+                    "Invalid formatting option.");
+    return ARK_ILL_INPUT;
+  }
 
   return ARK_SUCCESS;
 }
