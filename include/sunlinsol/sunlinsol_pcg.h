@@ -113,16 +113,16 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
                                N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
-int SUNLinSolNumIters_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+int SUNLinSolNumIters_PCG(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-realtype SUNLinSolResNorm_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+realtype SUNLinSolResNorm_PCG(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-N_Vector SUNLinSolResid_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+N_Vector SUNLinSolResid_PCG(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSpace_PCG(SUNLinearSolver S, long int* lenrwLS,

@@ -141,7 +141,7 @@ SUNDIALS_EXPORT
 SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS) SUNDIALS_NOEXCEPT;
+void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type

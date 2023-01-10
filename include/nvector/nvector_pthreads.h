@@ -139,16 +139,16 @@ N_Vector N_VMake_Pthreads(sunindextype vec_length, int n_threads,
                           realtype* v_data, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-sunindextype N_VGetLength_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT;
+sunindextype N_VGetLength_Pthreads(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrint_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VPrint_Pthreads(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrintFile_Pthreads(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT;
+void N_VPrintFile_Pthreads(N_Vector v, FILE* outfile);
 
 SUNDIALS_EXPORT
-N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT;
+N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v);
 
 SUNDIALS_EXPORT
 N_Vector N_VCloneEmpty_Pthreads(N_Vector w);
@@ -157,17 +157,17 @@ SUNDIALS_EXPORT
 N_Vector N_VClone_Pthreads(N_Vector w);
 
 SUNDIALS_EXPORT
-void N_VDestroy_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VDestroy_Pthreads(N_Vector v);
 
 SUNDIALS_EXPORT
 void N_VSpace_Pthreads(N_Vector v, sunindextype* lrw,
-                       sunindextype* liw) SUNDIALS_NOEXCEPT;
+                       sunindextype* liw);
 
 SUNDIALS_EXPORT
-realtype* N_VGetArrayPointer_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT;
+realtype* N_VGetArrayPointer_Pthreads(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSetArrayPointer_Pthreads(realtype* v_data, N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VSetArrayPointer_Pthreads(realtype* v_data, N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT
@@ -269,11 +269,11 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT
-realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT;
+realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
 realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w,
-                                      N_Vector id) SUNDIALS_NOEXCEPT;
+                                      N_Vector id);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT

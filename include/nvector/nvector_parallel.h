@@ -105,16 +105,16 @@ N_Vector N_VMake_Parallel(MPI_Comm comm, sunindextype local_length,
                           SUNContext sunctx);
 
 SUNDIALS_EXPORT
-sunindextype N_VGetLength_Parallel(N_Vector v) SUNDIALS_NOEXCEPT;
+sunindextype N_VGetLength_Parallel(N_Vector v);
 
 SUNDIALS_EXPORT
-sunindextype N_VGetLocalLength_Parallel(N_Vector v) SUNDIALS_NOEXCEPT;
+sunindextype N_VGetLocalLength_Parallel(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrint_Parallel(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VPrint_Parallel(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrintFile_Parallel(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT;
+void N_VPrintFile_Parallel(N_Vector v, FILE* outfile);
 
 SUNDIALS_STATIC_INLINE
 N_Vector_ID N_VGetVectorID_Parallel(N_Vector v) SUNDIALS_NOEXCEPT
@@ -129,47 +129,47 @@ SUNDIALS_EXPORT
 N_Vector N_VClone_Parallel(N_Vector w);
 
 SUNDIALS_EXPORT
-void N_VDestroy_Parallel(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VDestroy_Parallel(N_Vector v);
 
 SUNDIALS_EXPORT
 void N_VSpace_Parallel(N_Vector v, sunindextype* lrw,
-                       sunindextype* liw) SUNDIALS_NOEXCEPT;
+                       sunindextype* liw);
 
 SUNDIALS_EXPORT
-realtype* N_VGetArrayPointer_Parallel(N_Vector v) SUNDIALS_NOEXCEPT;
+realtype* N_VGetArrayPointer_Parallel(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSetArrayPointer_Parallel(realtype* v_data, N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VSetArrayPointer_Parallel(realtype* v_data, N_Vector v);
 
 SUNDIALS_EXPORT
-void* N_VGetCommunicator_Parallel(N_Vector v) SUNDIALS_NOEXCEPT;
+void* N_VGetCommunicator_Parallel(N_Vector v);
 
 /* standard vector operations */
 
 SUNDIALS_EXPORT
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y,
-                           N_Vector z) SUNDIALS_NOEXCEPT;
+                           N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VConst_Parallel(realtype c, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VConst_Parallel(realtype c, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAbs_Parallel(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VAbs_Parallel(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VInv_Parallel(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VInv_Parallel(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z);
 
 SUNDIALS_EXPORT
 realtype N_VDotProd_Parallel(N_Vector x, N_Vector y);
@@ -193,7 +193,7 @@ SUNDIALS_EXPORT
 realtype N_VL1Norm_Parallel(N_Vector x);
 
 SUNDIALS_EXPORT
-void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
 booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z);
@@ -350,7 +350,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
 /* use N_VDestroyVectorArray */
 SUNDIALS_DEPRECATED_EXPORT
-void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count) SUNDIALS_NOEXCEPT;
+void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count);
 
 #ifdef __cplusplus
 }

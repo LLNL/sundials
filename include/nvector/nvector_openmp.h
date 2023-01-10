@@ -103,16 +103,16 @@ N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype* v_data,
                         int num_threads, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-sunindextype N_VGetLength_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT;
+sunindextype N_VGetLength_OpenMP(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrint_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VPrint_OpenMP(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrintFile_OpenMP(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT;
+void N_VPrintFile_OpenMP(N_Vector v, FILE* outfile);
 
 SUNDIALS_EXPORT
-N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT;
+N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v);
 
 SUNDIALS_EXPORT
 N_Vector N_VCloneEmpty_OpenMP(N_Vector w);
@@ -121,78 +121,78 @@ SUNDIALS_EXPORT
 N_Vector N_VClone_OpenMP(N_Vector w);
 
 SUNDIALS_EXPORT
-void N_VDestroy_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VDestroy_OpenMP(N_Vector v);
 
 SUNDIALS_EXPORT
 void N_VSpace_OpenMP(N_Vector v, sunindextype* lrw,
-                     sunindextype* liw) SUNDIALS_NOEXCEPT;
+                     sunindextype* liw);
 
 SUNDIALS_EXPORT
-realtype* N_VGetArrayPointer_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT;
+realtype* N_VGetArrayPointer_OpenMP(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSetArrayPointer_OpenMP(realtype* v_data, N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VSetArrayPointer_OpenMP(realtype* v_data, N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT
 void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y,
-                         N_Vector z) SUNDIALS_NOEXCEPT;
+                         N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VConst_OpenMP(realtype c, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VConst_OpenMP(realtype c, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAbs_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VAbs_OpenMP(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VInv_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VInv_OpenMP(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z);
 
 SUNDIALS_EXPORT
-realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT;
+realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
-realtype N_VMaxNorm_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT;
+realtype N_VMaxNorm_OpenMP(N_Vector x);
 
 SUNDIALS_EXPORT
-realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT;
+realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
 realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w,
-                                N_Vector id) SUNDIALS_NOEXCEPT;
+                                N_Vector id);
 
 SUNDIALS_EXPORT
-realtype N_VMin_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT;
+realtype N_VMin_OpenMP(N_Vector x);
 
 SUNDIALS_EXPORT
-realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT;
+realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
-realtype N_VL1Norm_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT;
+realtype N_VL1Norm_OpenMP(N_Vector x);
 
 SUNDIALS_EXPORT
-void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
 booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x,
-                                 N_Vector m) SUNDIALS_NOEXCEPT;
+                                 N_Vector m);
 
 SUNDIALS_EXPORT
-realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom) SUNDIALS_NOEXCEPT;
+realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
 

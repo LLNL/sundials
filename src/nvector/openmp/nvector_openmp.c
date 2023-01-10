@@ -35,47 +35,47 @@
 #define ONEPT5 RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
-static void VCopy_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT; /* z=x */
+static void VCopy_OpenMP(N_Vector x, N_Vector z); /* z=x */
 static void VSum_OpenMP(N_Vector x, N_Vector y,
-                        N_Vector z) SUNDIALS_NOEXCEPT; /* z=x+y     */
+                        N_Vector z); /* z=x+y     */
 static void VDiff_OpenMP(N_Vector x, N_Vector y,
-                         N_Vector z) SUNDIALS_NOEXCEPT; /* z=x-y     */
-static void VNeg_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT; /* z=-x */
+                         N_Vector z); /* z=x-y     */
+static void VNeg_OpenMP(N_Vector x, N_Vector z); /* z=-x */
 static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y,
-                             N_Vector z) SUNDIALS_NOEXCEPT; /* z=c(x+y)  */
+                             N_Vector z); /* z=c(x+y)  */
 static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y,
-                              N_Vector z) SUNDIALS_NOEXCEPT; /* z=c(x-y)  */
+                              N_Vector z); /* z=c(x-y)  */
 static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y,
-                         N_Vector z) SUNDIALS_NOEXCEPT; /* z=ax+y    */
+                         N_Vector z); /* z=ax+y    */
 static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y,
-                         N_Vector z) SUNDIALS_NOEXCEPT; /* z=ax-y    */
+                         N_Vector z); /* z=ax-y    */
 static void Vaxpy_OpenMP(realtype a, N_Vector x,
-                         N_Vector y) SUNDIALS_NOEXCEPT; /* y <- ax+y */
+                         N_Vector y); /* y <- ax+y */
 static void VScaleBy_OpenMP(realtype a,
-                            N_Vector x) SUNDIALS_NOEXCEPT; /* x <-
+                            N_Vector x); /* x <-
                                                                           ax */
 
 /* Private functions for special cases of vector array operations */
 static void VSumVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y,
-                                   N_Vector* Z) SUNDIALS_NOEXCEPT; /* Z=X+Y */
+                                   N_Vector* Z); /* Z=X+Y */
 static void VDiffVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y,
-                                    N_Vector* Z) SUNDIALS_NOEXCEPT; /* Z=X-Y */
+                                    N_Vector* Z); /* Z=X-Y */
 static void VScaleSumVectorArray_OpenMP(int nvec, realtype c, N_Vector* X,
                                         N_Vector* Y,
-                                        N_Vector* Z) SUNDIALS_NOEXCEPT; /* Z=c(X+Y)
+                                        N_Vector* Z); /* Z=c(X+Y)
                                                                          */
 static void VScaleDiffVectorArray_OpenMP(int nvec, realtype c, N_Vector* X,
                                          N_Vector* Y,
-                                         N_Vector* Z) SUNDIALS_NOEXCEPT; /* Z=c(X-Y)
+                                         N_Vector* Z); /* Z=c(X-Y)
                                                                           */
 static void VLin1VectorArray_OpenMP(int nvec, realtype a, N_Vector* X,
                                     N_Vector* Y,
-                                    N_Vector* Z) SUNDIALS_NOEXCEPT; /* Z=aX+Y */
+                                    N_Vector* Z); /* Z=aX+Y */
 static void VLin2VectorArray_OpenMP(int nvec, realtype a, N_Vector* X,
                                     N_Vector* Y,
-                                    N_Vector* Z) SUNDIALS_NOEXCEPT; /* Z=aX-Y */
+                                    N_Vector* Z); /* Z=aX-Y */
 static void VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X,
-                                    N_Vector* Y) SUNDIALS_NOEXCEPT; /* Y <- aX+Y
+                                    N_Vector* Y); /* Y <- aX+Y
                                                                      */
 
 /*

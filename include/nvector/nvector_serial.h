@@ -94,16 +94,16 @@ N_Vector N_VMake_Serial(sunindextype vec_length, realtype* v_data,
                         SUNContext sunctx);
 
 SUNDIALS_EXPORT
-sunindextype N_VGetLength_Serial(N_Vector v) SUNDIALS_NOEXCEPT;
+sunindextype N_VGetLength_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrint_Serial(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VPrint_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrintFile_Serial(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT;
+void N_VPrintFile_Serial(N_Vector v, FILE* outfile);
 
 SUNDIALS_EXPORT
-N_Vector_ID N_VGetVectorID_Serial(N_Vector v) SUNDIALS_NOEXCEPT;
+N_Vector_ID N_VGetVectorID_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
 N_Vector N_VCloneEmpty_Serial(N_Vector w);
@@ -112,77 +112,77 @@ SUNDIALS_EXPORT
 N_Vector N_VClone_Serial(N_Vector w);
 
 SUNDIALS_EXPORT
-void N_VDestroy_Serial(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VDestroy_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
 void N_VSpace_Serial(N_Vector v, sunindextype* lrw,
-                     sunindextype* liw) SUNDIALS_NOEXCEPT;
+                     sunindextype* liw);
 
 SUNDIALS_EXPORT
-realtype* N_VGetArrayPointer_Serial(N_Vector v) SUNDIALS_NOEXCEPT;
+realtype* N_VGetArrayPointer_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSetArrayPointer_Serial(realtype* v_data, N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VSetArrayPointer_Serial(realtype* v_data, N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT
 void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y,
-                         N_Vector z) SUNDIALS_NOEXCEPT;
+                         N_Vector z);
 SUNDIALS_EXPORT
-void N_VConst_Serial(realtype c, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VConst_Serial(realtype c, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VScale_Serial(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VScale_Serial(realtype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAbs_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VAbs_Serial(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VInv_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VInv_Serial(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAddConst_Serial(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VAddConst_Serial(N_Vector x, realtype b, N_Vector z);
 
 SUNDIALS_EXPORT
-realtype N_VDotProd_Serial(N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT;
+realtype N_VDotProd_Serial(N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
-realtype N_VMaxNorm_Serial(N_Vector x) SUNDIALS_NOEXCEPT;
+realtype N_VMaxNorm_Serial(N_Vector x);
 
 SUNDIALS_EXPORT
-realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT;
+realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w,
-                                N_Vector id) SUNDIALS_NOEXCEPT;
+                                N_Vector id);
 
 SUNDIALS_EXPORT
-realtype N_VMin_Serial(N_Vector x) SUNDIALS_NOEXCEPT;
+realtype N_VMin_Serial(N_Vector x);
 
 SUNDIALS_EXPORT
-realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT;
+realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
-realtype N_VL1Norm_Serial(N_Vector x) SUNDIALS_NOEXCEPT;
+realtype N_VL1Norm_Serial(N_Vector x);
 
 SUNDIALS_EXPORT
-void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-booleantype N_VInvTest_Serial(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT;
+booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
 booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x,
-                                 N_Vector m) SUNDIALS_NOEXCEPT;
+                                 N_Vector m);
 
 SUNDIALS_EXPORT
-realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom) SUNDIALS_NOEXCEPT;
+realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
 SUNDIALS_EXPORT
@@ -226,11 +226,11 @@ SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* 
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT
-realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT;
+realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
 realtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w,
-                                    N_Vector id) SUNDIALS_NOEXCEPT;
+                                    N_Vector id);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT
@@ -298,7 +298,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
 
 /* use N_VDestroyVectorArray */
 SUNDIALS_DEPRECATED_EXPORT
-void N_VDestroyVectorArray_Serial(N_Vector* vs, int count) SUNDIALS_NOEXCEPT;
+void N_VDestroyVectorArray_Serial(N_Vector* vs, int count);
 
 #ifdef __cplusplus
 }

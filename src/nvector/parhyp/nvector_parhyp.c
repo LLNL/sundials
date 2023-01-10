@@ -136,15 +136,15 @@
 /* Private function prototypes */
 
 /* z=x+y */
-static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 /* z=x-y */
-static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x+y) */
-static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x-y) */
-static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax+y */
-static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT;
+static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z); SUNDIALS_NOEXCEPT
 

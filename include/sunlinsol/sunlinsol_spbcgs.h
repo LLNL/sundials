@@ -89,10 +89,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT
-SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolInitialize_SPBCGS(SUNLinearSolver S);
@@ -120,16 +120,16 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                   N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
-int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSpace_SPBCGS(SUNLinearSolver S, long int* lenrwLS,

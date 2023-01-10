@@ -86,7 +86,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
 /* core functions */
 SUNDIALS_EXPORT
 SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS)
-  SUNDIALS_NOEXCEPT;
+ ;
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);

@@ -223,7 +223,7 @@ SUNDIALS_EXPORT SUNErrCode N_VCopyOps(N_Vector w, N_Vector v);
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
-SUNDIALS_EXPORT void N_VDestroy(N_Vector v) SUNDIALS_NOEXCEPT;
+SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
 SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer(N_Vector v);
 SUNDIALS_EXPORT sunrealtype* N_VGetDeviceArrayPointer(N_Vector v);
@@ -331,7 +331,7 @@ SUNDIALS_EXPORT SUNErrCode N_VBufUnpack(N_Vector x, void* buf);
 SUNDIALS_EXPORT N_Vector* N_VNewVectorArray(int count);
 SUNDIALS_EXPORT N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(int count, N_Vector w);
-SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count) SUNDIALS_NOEXCEPT;
+SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
 
 /* These function are really only for users of the Fortran interface */
 SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index);
@@ -342,8 +342,8 @@ SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index,
  * Debugging functions
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT void N_VPrint(N_Vector v) SUNDIALS_NOEXCEPT;
-SUNDIALS_EXPORT void N_VPrintFile(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT;
+SUNDIALS_EXPORT void N_VPrint(N_Vector v);
+SUNDIALS_EXPORT void N_VPrintFile(N_Vector v, FILE* outfile);
 
 #ifdef __cplusplus
 }

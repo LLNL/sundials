@@ -121,7 +121,7 @@ SUNDIALS_EXPORT
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-void SUNMatFreeEmpty(SUNMatrix A) SUNDIALS_NOEXCEPT;
+void SUNMatFreeEmpty(SUNMatrix A);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
@@ -133,7 +133,7 @@ SUNDIALS_EXPORT
 SUNMatrix SUNMatClone(SUNMatrix A);
 
 SUNDIALS_EXPORT 
-void SUNMatDestroy(SUNMatrix A) SUNDIALS_NOEXCEPT;
+void SUNMatDestroy(SUNMatrix A);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatZero(SUNMatrix A);

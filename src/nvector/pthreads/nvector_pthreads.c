@@ -67,71 +67,71 @@ static SUNErrCode VLin2VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N
 static SUNErrCode VaxpyVectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y);                    
 
 /* Pthread companion functions for vector operations */
-static void *N_VConst_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VLinearSum_PT(void *thread_data) SUNDIALS_NOEXCEPT; 
-static void *N_VProd_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VDiv_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VScale_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VAbs_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VInv_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VAddConst_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VCompare_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VDotProd_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VMaxNorm_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VWSqrSum_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VMin_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VWL2Norm_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VL1Norm_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VInvTest_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VWSqrSumMask_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VConstrMask_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VMinQuotient_PT(void *thread_data) SUNDIALS_NOEXCEPT;
+static void *N_VConst_PT(void *thread_data);
+static void *N_VLinearSum_PT(void *thread_data); 
+static void *N_VProd_PT(void *thread_data);
+static void *N_VDiv_PT(void *thread_data);
+static void *N_VScale_PT(void *thread_data);
+static void *N_VAbs_PT(void *thread_data);
+static void *N_VInv_PT(void *thread_data);
+static void *N_VAddConst_PT(void *thread_data);
+static void *N_VCompare_PT(void *thread_data);
+static void *N_VDotProd_PT(void *thread_data);
+static void *N_VMaxNorm_PT(void *thread_data);
+static void *N_VWSqrSum_PT(void *thread_data);
+static void *N_VMin_PT(void *thread_data);
+static void *N_VWL2Norm_PT(void *thread_data);
+static void *N_VL1Norm_PT(void *thread_data);
+static void *N_VInvTest_PT(void *thread_data);
+static void *N_VWSqrSumMask_PT(void *thread_data);
+static void *N_VConstrMask_PT(void *thread_data);
+static void *N_VMinQuotient_PT(void *thread_data);
 
 /* Pthread companion functions special cases of vector operations */
-static void *VCopy_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VSum_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VDiff_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VNeg_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VScaleSum_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VScaleDiff_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VLin1_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VLin2_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VScaleBy_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *Vaxpy_PT(void *thread_data) SUNDIALS_NOEXCEPT;
+static void *VCopy_PT(void *thread_data);
+static void *VSum_PT(void *thread_data);
+static void *VDiff_PT(void *thread_data);
+static void *VNeg_PT(void *thread_data);
+static void *VScaleSum_PT(void *thread_data);
+static void *VScaleDiff_PT(void *thread_data);
+static void *VLin1_PT(void *thread_data);
+static void *VLin2_PT(void *thread_data);
+static void *VScaleBy_PT(void *thread_data);
+static void *Vaxpy_PT(void *thread_data);
 
 /* Pthread companion functions for fused vector operations */
-static void *N_VLinearCombination_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VScaleAddMulti_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VDotProdMulti_PT(void *thread_data) SUNDIALS_NOEXCEPT;
+static void *N_VLinearCombination_PT(void *thread_data);
+static void *N_VScaleAddMulti_PT(void *thread_data);
+static void *N_VDotProdMulti_PT(void *thread_data);
 
 /* Pthread companion functions for vector array operations */
-static void *N_VLinearSumVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VScaleVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VConstVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VWrmsNormVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VWrmsNormMaskVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VScaleAddMultiVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *N_VLinearCombinationVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
+static void *N_VLinearSumVectorArray_PT(void *thread_data);
+static void *N_VScaleVectorArray_PT(void *thread_data);
+static void *N_VConstVectorArray_PT(void *thread_data);
+static void *N_VWrmsNormVectorArray_PT(void *thread_data);
+static void *N_VWrmsNormMaskVectorArray_PT(void *thread_data);
+static void *N_VScaleAddMultiVectorArray_PT(void *thread_data);
+static void *N_VLinearCombinationVectorArray_PT(void *thread_data);
 
 /* Pthread companion functions special cases of vector array operations */
-static void *VSumVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VDiffVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VScaleSumVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VScaleDiffVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VLin1VectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VLin2VectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VaxpyVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT;
+static void *VSumVectorArray_PT(void *thread_data);
+static void *VDiffVectorArray_PT(void *thread_data);
+static void *VScaleSumVectorArray_PT(void *thread_data);
+static void *VScaleDiffVectorArray_PT(void *thread_data);
+static void *VLin1VectorArray_PT(void *thread_data);
+static void *VLin2VectorArray_PT(void *thread_data);
+static void *VaxpyVectorArray_PT(void *thread_data);
 
 /* Pthread companion functions for XBraid interface operations */
-static void *VBufPack_PT(void *thread_data) SUNDIALS_NOEXCEPT;
-static void *VBufUnpack_PT(void *thread_data) SUNDIALS_NOEXCEPT;
+static void *VBufPack_PT(void *thread_data);
+static void *VBufUnpack_PT(void *thread_data);
 
 /* Function to determine loop values for threads */
 static void N_VSplitLoop(int myid, int *nthreads, sunindextype *N,
-                         sunindextype *start, sunindextype *end) SUNDIALS_NOEXCEPT;
+                         sunindextype *start, sunindextype *end);
 
 /* Function to initialize thread data */
-static void N_VInitThreadData(Pthreads_Data *thread_data) SUNDIALS_NOEXCEPT;
+static void N_VInitThreadData(Pthreads_Data *thread_data);
 
 /*
  * -----------------------------------------------------------------

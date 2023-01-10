@@ -76,7 +76,7 @@ SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
 /* core functions */
 SUNDIALS_EXPORT
 SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
-  SUNDIALS_NOEXCEPT;
+ ;
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS);

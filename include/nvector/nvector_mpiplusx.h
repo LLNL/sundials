@@ -73,10 +73,10 @@ SUNErrCode N_VEnableFusedOps_MPIPlusX(N_Vector v, booleantype tf)
 }
 
 SUNDIALS_EXPORT
-void N_VPrint_MPIPlusX(N_Vector x) SUNDIALS_NOEXCEPT;
+void N_VPrint_MPIPlusX(N_Vector x);
 
 SUNDIALS_EXPORT 
-void N_VPrintFile_MPIPlusX(N_Vector x, FILE* outfile) SUNDIALS_NOEXCEPT;
+void N_VPrintFile_MPIPlusX(N_Vector x, FILE* outfile);
 
 #ifdef __cplusplus
 }

@@ -154,13 +154,13 @@ SUNDIALS_EXPORT
 SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-void SUNLinSolFreeEmpty(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+void SUNLinSolFreeEmpty(SUNLinearSolver S);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type
-SUNLinSolGetType(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+SUNLinSolGetType(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
@@ -208,7 +208,7 @@ SUNErrCode SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS,
                           long int* leniwLS);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLinSolFree(SUNLinearSolver S) SUNDIALS_NOEXCEPT;
+SUNErrCode SUNLinSolFree(SUNLinearSolver S);
 
 /* -----------------------------------------------------------------
  * SUNLinearSolver return values

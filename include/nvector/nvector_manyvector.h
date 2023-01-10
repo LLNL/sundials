@@ -86,10 +86,10 @@ SUNDIALS_EXPORT
 N_Vector_ID N_VGetVectorID_ManyVector(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrint_ManyVector(N_Vector v) SUNDIALS_NOEXCEPT;
+void N_VPrint_ManyVector(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VPrintFile_ManyVector(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT;
+void N_VPrintFile_ManyVector(N_Vector v, FILE* outfile);
 
 SUNDIALS_EXPORT
 N_Vector N_VCloneEmpty_ManyVector(N_Vector w);
