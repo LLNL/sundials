@@ -97,18 +97,23 @@ struct SUNErrHandler_
 
 typedef struct SUNErrHandler_* SUNErrHandler;
 
+SUNDIALS_EXPORT
 SUNErrHandler SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data);
 
+SUNDIALS_EXPORT
 void SUNErrHandler_Destroy(SUNErrHandler eh);
 
+SUNDIALS_EXPORT
 int SUNLogErrHandlerFn(int line, const char* func, const char* file,
                        const char* msg, SUNErrCode err_code,
                        void* err_user_data, SUNContext sunctx);
 
+SUNDIALS_EXPORT
 int SUNAbortErrHandlerFn(int line, const char* func, const char* file,
                          const char* msg, SUNErrCode err_code,
                          void* err_user_data, SUNContext sunctx);
 
+SUNDIALS_EXPORT
 int SUNAssertErrHandlerFn(int line, const char* func, const char* file,
                           const char* msg, SUNErrCode err_code,
                           void* err_user_data, SUNContext sunctx);
@@ -118,6 +123,7 @@ int SUNAssertErrHandlerFn(int line, const char* func, const char* file,
  * ---------------------------------------------------------------------------*/
 
 /* Turn error code into error message */
+SUNDIALS_EXPORT
 const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx);
 
 /* Alternative function to SUNContext_GetLastError that is more concise. */
