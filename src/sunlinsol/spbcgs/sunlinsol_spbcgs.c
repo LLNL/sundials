@@ -664,28 +664,28 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 }
 
 
-int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'numiters' value */
   return (SPBCGS_CONTENT(S)->numiters);
 }
 
 
-realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   return (SPBCGS_CONTENT(S)->resnorm);
 }
 
 
-N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'r' vector */
   return (SPBCGS_CONTENT(S)->r);
 }
 
 
-sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   return (LASTFLAG(S));

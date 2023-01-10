@@ -168,13 +168,13 @@ SUNErrCode SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
 
-SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_PCG);
 }
@@ -483,28 +483,28 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 }
 
 
-int SUNLinSolNumIters_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+int SUNLinSolNumIters_PCG(SUNLinearSolver S)
 {
   /* return the stored 'numiters' value */
   return (PCG_CONTENT(S)->numiters);
 }
 
 
-realtype SUNLinSolResNorm_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+realtype SUNLinSolResNorm_PCG(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   return (PCG_CONTENT(S)->resnorm);
 }
 
 
-N_Vector SUNLinSolResid_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+N_Vector SUNLinSolResid_PCG(SUNLinearSolver S)
 {
   /* return the stored 'r' vector */
   return (PCG_CONTENT(S)->r);
 }
 
 
-sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   return (LASTFLAG(S));

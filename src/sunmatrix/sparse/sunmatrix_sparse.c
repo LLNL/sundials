@@ -473,7 +473,7 @@ SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
   return(B);
 }
 
-void SUNMatDestroy_Sparse(SUNMatrix A) SUNDIALS_NOEXCEPT
+void SUNMatDestroy_Sparse(SUNMatrix A)
 {
   if (A == NULL) return;
 

@@ -192,13 +192,13 @@ SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
 
-SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_SPGMR);
 }
@@ -698,7 +698,7 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 }
 
 
-int SUNLinSolNumIters_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+int SUNLinSolNumIters_SPGMR(SUNLinearSolver S)
 {
   return (SPGMR_CONTENT(S)->numiters);
 }
@@ -716,7 +716,7 @@ N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S)
 }
 
 
-sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S)
 {
   return(LASTFLAG(S));
 }

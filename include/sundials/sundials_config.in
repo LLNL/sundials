@@ -22,9 +22,9 @@
 /* Indicates that the function will not report an error via last_err,
    a return code. In C++, it is just defined as noexcept. */
 #if defined(__cplusplus)
-#define SUNDIALS_NOEXCEPT noexcept
+#define noexcept
 #else
-#define SUNDIALS_NOEXCEPT
+#define
 #endif
 
 #ifndef SUNDIALS_DEPRECATED_MSG

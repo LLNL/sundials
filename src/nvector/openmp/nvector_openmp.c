@@ -88,7 +88,7 @@ static void VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X,
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
+N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v)
 {
   return SUNDIALS_NVEC_OPENMP;
 }
@@ -257,7 +257,7 @@ N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_OpenMP
  */
 
-void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
+void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
 {
   N_VDestroyVectorArray(vs, count);
   return;
@@ -266,7 +266,7 @@ void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
 /* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
-sunindextype N_VGetLength_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
+sunindextype N_VGetLength_OpenMP(N_Vector v)
 {
   return NV_LENGTH_OMP(v);
 }
@@ -275,7 +275,7 @@ sunindextype N_VGetLength_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
  * Function to print a vector to stdout
  */
 
-void N_VPrint_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
+void N_VPrint_OpenMP(N_Vector x)
 {
   N_VPrintFile_OpenMP(x, stdout);
 }
@@ -284,7 +284,7 @@ void N_VPrint_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
  * Function to print a vector to outfile
  */
 
-void N_VPrintFile_OpenMP(N_Vector x, FILE *outfile) SUNDIALS_NOEXCEPT
+void N_VPrintFile_OpenMP(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -382,7 +382,7 @@ N_Vector N_VClone_OpenMP(N_Vector w)
  * Destroy vector and free vector memory
  */
 
-void N_VDestroy_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
+void N_VDestroy_OpenMP(N_Vector v)
 {
   if (v == NULL) return;
 
@@ -409,7 +409,7 @@ void N_VDestroy_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
  * Get storage requirement for N_Vector
  */
 
-void N_VSpace_OpenMP(N_Vector v, sunindextype *lrw, sunindextype *liw) SUNDIALS_NOEXCEPT
+void N_VSpace_OpenMP(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = NV_LENGTH_OMP(v);
   *liw = 1;
@@ -422,7 +422,7 @@ void N_VSpace_OpenMP(N_Vector v, sunindextype *lrw, sunindextype *liw) SUNDIALS_
  * Get vector data pointer
  */
 
-realtype *N_VGetArrayPointer_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
+realtype *N_VGetArrayPointer_OpenMP(N_Vector v)
 {
   return((realtype *) NV_DATA_OMP(v));
 }
@@ -432,7 +432,7 @@ realtype *N_VGetArrayPointer_OpenMP(N_Vector v) SUNDIALS_NOEXCEPT
  * Set vector data pointer
  */
 
-void N_VSetArrayPointer_OpenMP(realtype *v_data, N_Vector v) SUNDIALS_NOEXCEPT
+void N_VSetArrayPointer_OpenMP(realtype *v_data, N_Vector v)
 {
   if (NV_LENGTH_OMP(v) > 0) NV_DATA_OMP(v) = v_data;
 
@@ -444,7 +444,7 @@ void N_VSetArrayPointer_OpenMP(realtype *v_data, N_Vector v) SUNDIALS_NOEXCEPT
  * Compute linear combination z[i] = a*x[i]+b*y[i]
  */
 
-void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype c, *xd, *yd, *zd;
@@ -539,7 +539,7 @@ void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
  * Assigns constant value to all vector elements, z[i] = c
  */
 
-void N_VConst_OpenMP(realtype c, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VConst_OpenMP(realtype c, N_Vector z)
 {
   sunindextype i, N;
   realtype *zd;
@@ -562,7 +562,7 @@ void N_VConst_OpenMP(realtype c, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute componentwise product z[i] = x[i]*y[i]
  */
 
-void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -588,7 +588,7 @@ void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute componentwise division z[i] = x[i]/y[i]
  */
 
-void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -614,7 +614,7 @@ void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute scaler multiplication z[i] = c*x[i]
  */
 
-void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -650,7 +650,7 @@ void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute absolute value of vector components z[i] = SUNRabs(x[i])
  */
 
-void N_VAbs_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VAbs_OpenMP(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -674,7 +674,7 @@ void N_VAbs_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute componentwise inverse z[i] = 1 / x[i]
  */
 
-void N_VInv_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VInv_OpenMP(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -699,7 +699,7 @@ void N_VInv_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute componentwise addition of a scaler to a vector z[i] = x[i] + b
  */
 
-void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -724,7 +724,7 @@ void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT
  * Computes the dot product of two vectors, a = sum(x[i]*y[i])
  */
 
-realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT
+realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y)
 {
   sunindextype i, N;
   realtype sum, *xd, *yd;
@@ -751,7 +751,7 @@ realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT
  * Computes max norm of a vector
  */
 
-realtype N_VMaxNorm_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
+realtype N_VMaxNorm_OpenMP(N_Vector x)
 {
   sunindextype i, N;
   realtype tmax, max, *xd;
@@ -785,7 +785,7 @@ realtype N_VMaxNorm_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
  * Computes weighted root mean square norm of a vector
  */
 
-realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
+realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 {
   return(SUNRsqrt(N_VWSqrSumLocal_OpenMP(x, w)/(NV_LENGTH_OMP(x))));
 }
@@ -795,7 +795,7 @@ realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
  * Computes weighted root mean square norm of a masked vector
  */
 
-realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NOEXCEPT
+realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
 {
   return(SUNRsqrt(N_VWSqrSumMaskLocal_OpenMP(x, w, id)/(NV_LENGTH_OMP(x))));
 }
@@ -805,7 +805,7 @@ realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NO
  * Finds the minimun component of a vector
  */
 
-realtype N_VMin_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
+realtype N_VMin_OpenMP(N_Vector x)
 {
   sunindextype i, N;
   realtype min, *xd;
@@ -843,7 +843,7 @@ realtype N_VMin_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
  * Computes weighted L2 norm of a vector
  */
 
-realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
+realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
   realtype sum, *xd, *wd;
@@ -870,7 +870,7 @@ realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
  * Computes L1 norm of a vector
  */
 
-realtype N_VL1Norm_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
+realtype N_VL1Norm_OpenMP(N_Vector x)
 {
   sunindextype i, N;
   realtype sum, *xd;
@@ -895,7 +895,7 @@ realtype N_VL1Norm_OpenMP(N_Vector x) SUNDIALS_NOEXCEPT
  * Compare vector component values to a scaler
  */
 
-void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -921,7 +921,7 @@ void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute componentwise inverse z[i] = ONE/x[i] and checks if x[i] == ZERO
  */
 
-booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd, val;
@@ -955,7 +955,7 @@ booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute constraint mask of a vector
  */
 
-booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m) SUNDIALS_NOEXCEPT
+booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   realtype temp;
@@ -997,7 +997,7 @@ booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m) SUNDIALS_NO
  * Compute minimum componentwise quotient
  */
 
-realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom) SUNDIALS_NOEXCEPT
+realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
 {
   sunindextype i, N;
   realtype *nd, *dd, min, tmin, val;
@@ -1038,7 +1038,7 @@ realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom) SUNDIALS_NOEXCEPT
  * Computes weighted square sum of a vector
  */
 
-realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
+realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
   realtype sum, *xd, *wd;
@@ -1065,7 +1065,7 @@ realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
  * Computes weighted square sum of a masked vector
  */
 
-realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NOEXCEPT
+realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
   realtype sum, *xd, *wd, *idd;
@@ -1969,7 +1969,7 @@ SUNErrCode N_VBufUnpack_OpenMP(N_Vector x, void *buf)
  * Copy vector components into a second vector
  */
 
-static void VCopy_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+static void VCopy_OpenMP(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -1994,7 +1994,7 @@ static void VCopy_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute vector sum
  */
 
-static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -2020,7 +2020,7 @@ static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute vector difference
  */
 
-static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -2046,7 +2046,7 @@ static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute the negative of a vector
  */
 
-static void VNeg_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+static void VNeg_OpenMP(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -2071,7 +2071,7 @@ static void VNeg_OpenMP(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute scaled vector sum
  */
 
-static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -2097,7 +2097,7 @@ static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z) SUN
  * Compute scaled vector difference
  */
 
-static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -2123,7 +2123,7 @@ static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z) SU
  * Compute vector sum z[i] = a*x[i]+y[i]
  */
 
-static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -2149,7 +2149,7 @@ static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIAL
  * Compute vector difference z[i] = a*x[i]-y[i]
  */
 
-static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -2175,7 +2175,7 @@ static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIAL
  * Compute special cases of linear sum
  */
 
-static void Vaxpy_OpenMP(realtype a, N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT
+static void Vaxpy_OpenMP(realtype a, N_Vector x, N_Vector y)
 {
   sunindextype i, N;
   realtype *xd, *yd;
@@ -2216,7 +2216,7 @@ static void Vaxpy_OpenMP(realtype a, N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT
  * Compute scaled vector x[i] = a*x[i]
  */
 
-static void VScaleBy_OpenMP(realtype a, N_Vector x) SUNDIALS_NOEXCEPT
+static void VScaleBy_OpenMP(realtype a, N_Vector x)
 {
   sunindextype i, N;
   realtype *xd;
@@ -2242,7 +2242,7 @@ static void VScaleBy_OpenMP(realtype a, N_Vector x) SUNDIALS_NOEXCEPT
  * -----------------------------------------------------------------
  */
 
-static void VSumVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z) SUNDIALS_NOEXCEPT
+static void VSumVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -2269,7 +2269,7 @@ static void VSumVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector*
   }
 }
 
-static void VDiffVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z) SUNDIALS_NOEXCEPT
+static void VDiffVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -2296,7 +2296,7 @@ static void VDiffVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector
   }
 }
 
-static void VScaleSumVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z) SUNDIALS_NOEXCEPT
+static void VScaleSumVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -2323,7 +2323,7 @@ static void VScaleSumVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vec
   }
 }
 
-static void VScaleDiffVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z) SUNDIALS_NOEXCEPT
+static void VScaleDiffVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -2350,7 +2350,7 @@ static void VScaleDiffVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Ve
   }
 }
 
-static void VLin1VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z) SUNDIALS_NOEXCEPT
+static void VLin1VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -2377,7 +2377,7 @@ static void VLin1VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector*
   }
 }
 
-static void VLin2VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z) SUNDIALS_NOEXCEPT
+static void VLin2VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -2404,7 +2404,7 @@ static void VLin2VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector*
   }
 }
 
-static void VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* Y) SUNDIALS_NOEXCEPT
+static void VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* Y)
 {
   int          i;
   sunindextype j, N;
@@ -2466,7 +2466,7 @@ static void VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector*
  * -----------------------------------------------------------------
  */
 
-SUNErrCode N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf) SUNDIALS_NOEXCEPT
+SUNErrCode N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
 {
   if (tf) {
     /* enable all fused vector operations */

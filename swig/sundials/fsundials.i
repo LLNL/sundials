@@ -68,6 +68,6 @@
 #define SUNDIALS_DEPRECATED_EXPORT
 #define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
 #define SUNDIALS_STATIC_INLINE
-#define SUNDIALS_NOEXCEPT
+#define
 
 %include "fcopyright.i"

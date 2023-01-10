@@ -237,7 +237,7 @@ SUNMatrix SUNMatClone_Band(SUNMatrix A)
   return(B);
 }
 
-void SUNMatDestroy_Band(SUNMatrix A) SUNDIALS_NOEXCEPT
+void SUNMatDestroy_Band(SUNMatrix A)
 {
   if (A == NULL) return;
 

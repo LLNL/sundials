@@ -143,7 +143,7 @@ static void N_VInitThreadData(Pthreads_Data *thread_data);
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
+N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v)
 {
   return SUNDIALS_NVEC_PTHREADS;
 }
@@ -322,7 +322,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_Pthreads
  */
 
-void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
+void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count)
 {
   N_VDestroyVectorArray(vs, count);
   return;
@@ -331,7 +331,7 @@ void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
 /* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
-sunindextype N_VGetLength_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
+sunindextype N_VGetLength_Pthreads(N_Vector v)
 {
   return NV_LENGTH_PT(v);
 }
@@ -340,7 +340,7 @@ sunindextype N_VGetLength_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
  * Function to print a vector to stdout
  */
 
-void N_VPrint_Pthreads(N_Vector x) SUNDIALS_NOEXCEPT
+void N_VPrint_Pthreads(N_Vector x)
 {
   N_VPrintFile_Pthreads(x, stdout);
 }
@@ -349,7 +349,7 @@ void N_VPrint_Pthreads(N_Vector x) SUNDIALS_NOEXCEPT
  * Function to print a vector to outfile
  */
 
-void N_VPrintFile_Pthreads(N_Vector x, FILE *outfile) SUNDIALS_NOEXCEPT
+void N_VPrintFile_Pthreads(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -449,7 +449,7 @@ N_Vector N_VClone_Pthreads(N_Vector w)
  * Destroy vector and free vector memory
  */
 
-void N_VDestroy_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
+void N_VDestroy_Pthreads(N_Vector v)
 {
   if (v == NULL) return;
 
@@ -474,7 +474,7 @@ void N_VDestroy_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
  * Get storage requirement for vector
  */
 
-void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw) SUNDIALS_NOEXCEPT
+void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = NV_LENGTH_PT(v);
   *liw = 1;
@@ -487,7 +487,7 @@ void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw) SUNDIAL
  * Get vector data pointer
  */
 
-realtype *N_VGetArrayPointer_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
+realtype *N_VGetArrayPointer_Pthreads(N_Vector v)
 {
   return((realtype *) NV_DATA_PT(v));
 }
@@ -497,7 +497,7 @@ realtype *N_VGetArrayPointer_Pthreads(N_Vector v) SUNDIALS_NOEXCEPT
  * Set vector data pointer
  */
 
-void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v) SUNDIALS_NOEXCEPT
+void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v)
 {
   if (NV_LENGTH_PT(v) > 0) NV_DATA_PT(v) = v_data;
 
@@ -635,7 +635,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
  * Pthread companion function to N_VLinearSum
  */
 
-static void *N_VLinearSum_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VLinearSum_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype a, b;
@@ -721,7 +721,7 @@ void N_VConst_Pthreads(realtype c, N_Vector z)
  * Pthread companion function to N_VConst
  */
 
-static void *N_VConst_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VConst_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype c;
@@ -803,7 +803,7 @@ void N_VProd_Pthreads(N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to N_VProd
  */
 
-static void *N_VProd_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VProd_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *yd, *zd;
@@ -981,7 +981,7 @@ void N_VScale_Pthreads(realtype c, N_Vector x, N_Vector z)
  * Pthread companion function to N_VScale
  */
 
-static void *N_VScale_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VScale_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype c;
@@ -1064,7 +1064,7 @@ void N_VAbs_Pthreads(N_Vector x, N_Vector z)
  * Pthread companion function to N_VAbs
  */
 
-static void *N_VAbs_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VAbs_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *zd;
@@ -1145,7 +1145,7 @@ void N_VInv_Pthreads(N_Vector x, N_Vector z)
  * Pthread companion function to N_VInv
  */
 
-static void *N_VInv_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VInv_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *zd;
@@ -1227,7 +1227,7 @@ void N_VAddConst_Pthreads(N_Vector x, realtype b, N_Vector z)
  * Pthread companion function to N_VAddConst
  */
 
-static void *N_VAddConst_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VAddConst_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype b;
@@ -1318,7 +1318,7 @@ realtype N_VDotProd_Pthreads(N_Vector x, N_Vector y)
  * Pthread companion function to N_VDotProd
  */
 
-static void *N_VDotProd_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VDotProd_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *yd;
@@ -1417,7 +1417,7 @@ realtype N_VMaxNorm_Pthreads(N_Vector x)
  * Pthread companion function to N_VMaxNorm
  */
 
-static void *N_VMaxNorm_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VMaxNorm_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd;
@@ -1529,7 +1529,7 @@ realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w)
  * Pthread companion function to N_VWrmsNorm
  */
 
-static void *N_VWSqrSum_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VWSqrSum_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *wd;
@@ -1568,7 +1568,7 @@ static void *N_VWSqrSum_PT(void *thread_data) SUNDIALS_NOEXCEPT
  * Computes weighted root mean square norm of a masked vector
  */
 
-realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NOEXCEPT
+realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id)
 {
   realtype sqrsummask = SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal_Pthreads(x, w, id), x->sunctx);
   return(SUNRsqrt(sqrsummask/(NV_LENGTH_PT(x))));
@@ -1579,7 +1579,7 @@ realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_
  * Computes weighted square sum of a masked vector
  */
 
-realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NOEXCEPT
+realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype    N;
   int             i, nthreads;
@@ -1641,7 +1641,7 @@ realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id) SUNDI
  * Pthread companion function to N_VWSqrSumMask
  */
 
-static void *N_VWSqrSumMask_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VWSqrSumMask_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *wd, *idd;
@@ -1746,7 +1746,7 @@ realtype N_VMin_Pthreads(N_Vector x)
  * Pthread companion function to N_VMin
  */
 
-static void *N_VMin_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VMin_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd;
@@ -1848,7 +1848,7 @@ realtype N_VWL2Norm_Pthreads(N_Vector x, N_Vector w)
  * Pthread companion function to N_VWL2Norm
  */
 
-static void *N_VWL2Norm_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VWL2Norm_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *wd;
@@ -1947,7 +1947,7 @@ realtype N_VL1Norm_Pthreads(N_Vector x)
  * Pthread companion function to N_VL1Norm
  */
 
-static void *N_VL1Norm_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VL1Norm_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd;
@@ -2038,7 +2038,7 @@ void N_VCompare_Pthreads(realtype c, N_Vector x, N_Vector z)
  * Pthread companion function to N_VCompare
  */
 
-static void *N_VCompare_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VCompare_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype c;
@@ -2127,7 +2127,7 @@ booleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z)
  * Pthread companion function to N_VInvTest
  */
 
-static void *N_VInvTest_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VInvTest_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *zd;
@@ -2228,7 +2228,7 @@ booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m)
  * Pthread companion function to N_VConstrMask
  */
 
-static void *N_VConstrMask_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VConstrMask_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *cd, *xd, *md;
@@ -2338,7 +2338,7 @@ realtype N_VMinQuotient_Pthreads(N_Vector num, N_Vector denom)
  * Pthread companion function to N_VConstrMask
  */
 
-static void *N_VMinQuotient_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VMinQuotient_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *nd, *dd;
@@ -2458,7 +2458,7 @@ SUNErrCode N_VLinearCombination_Pthreads(int nvec, realtype* c, N_Vector* X, N_V
  * Pthread companion function to N_VLinearCombination
  */
 
-static void *N_VLinearCombination_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VLinearCombination_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -2592,7 +2592,7 @@ SUNErrCode N_VScaleAddMulti_Pthreads(int nvec, realtype* a, N_Vector x, N_Vector
  * Pthread companion function to N_VScaleAddMulti
  */
 
-static void *N_VScaleAddMulti_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VScaleAddMulti_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -2718,7 +2718,7 @@ SUNErrCode N_VDotProdMulti_Pthreads(int nvec, N_Vector x, N_Vector* Y, realtype*
  * Pthread companion function to N_VDotProdMulti
  */
 
-static void *N_VDotProdMulti_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VDotProdMulti_PT(void *thread_data)
 {
   Pthreads_Data   *my_data;
   sunindextype    j, start, end;
@@ -2911,7 +2911,7 @@ SUNErrCode N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
  * Pthread companion function to N_VLinearSumVectorArray
  */
 
-static void *N_VLinearSumVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VLinearSumVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -3015,7 +3015,7 @@ SUNErrCode N_VScaleVectorArray_Pthreads(int nvec, realtype* c, N_Vector* X, N_Ve
  * Pthread companion function to N_VScaleVectorArray
  */
 
-static void *N_VScaleVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VScaleVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -3128,7 +3128,7 @@ SUNErrCode N_VConstVectorArray_Pthreads(int nvec, realtype c, N_Vector* Z)
  * Pthread companion function to N_VConstVectorArray
  */
 
-static void *N_VConstVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VConstVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -3520,7 +3520,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum, realtype* a,
  * Pthread companion function to N_VScaleAddMultiVectorArray
  */
 
-static void *N_VScaleAddMultiVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VScaleAddMultiVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  k, start, end;
@@ -3701,7 +3701,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum, realtype
  * Pthread companion function to N_VLinearCombinationVectorArray
  */
 
-static void *N_VLinearCombinationVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *N_VLinearCombinationVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  k, start, end;
@@ -3787,7 +3787,7 @@ static void *N_VLinearCombinationVectorArray_PT(void *thread_data) SUNDIALS_NOEX
  * Set buffer size
  */
 
-SUNErrCode N_VBufSize_Pthreads(N_Vector x, sunindextype *size) SUNDIALS_NOEXCEPT
+SUNErrCode N_VBufSize_Pthreads(N_Vector x, sunindextype *size)
 {
   if (x == NULL) return(-1);
   *size = NV_LENGTH_PT(x) * ((sunindextype)sizeof(realtype));
@@ -3855,7 +3855,7 @@ SUNErrCode N_VBufPack_Pthreads(N_Vector x, void *buf)
  */
 
 
-static void *VBufPack_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VBufPack_PT(void *thread_data)
 {
   sunindextype  i, start, end;
   realtype      *xd, *bd;
@@ -3939,7 +3939,7 @@ SUNErrCode N_VBufUnpack_Pthreads(N_Vector x, void *buf)
  */
 
 
-static void *VBufUnpack_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VBufUnpack_PT(void *thread_data)
 {
   sunindextype  i, start, end;
   realtype      *xd, *bd;
@@ -4027,7 +4027,7 @@ static void VCopy_Pthreads(N_Vector x, N_Vector z)
  * Pthread companion function to VCopy
  */
 
-static void *VCopy_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VCopy_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *zd;
@@ -4109,7 +4109,7 @@ static void VSum_Pthreads(N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to VSum
  */
 
-static void *VSum_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VSum_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *yd, *zd;
@@ -4192,7 +4192,7 @@ static void VDiff_Pthreads(N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to VDiff
  */
 
-static void *VDiff_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VDiff_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *yd, *zd;
@@ -4274,7 +4274,7 @@ static void VNeg_Pthreads(N_Vector x, N_Vector z)
  * Pthread companion function to VNeg
  */
 
-static void *VNeg_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VNeg_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *zd;
@@ -4357,7 +4357,7 @@ static void VScaleSum_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to VScaleSum
  */
 
-static void *VScaleSum_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VScaleSum_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype c;
@@ -4443,7 +4443,7 @@ static void VScaleDiff_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to VScaleDiff
  */
 
-static void *VScaleDiff_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VScaleDiff_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype c;
@@ -4529,7 +4529,7 @@ static void VLin1_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to VLin1
  */
 
-static void *VLin1_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VLin1_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype a;
@@ -4614,7 +4614,7 @@ static void VLin2_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z)
  * Pthread companion function to VLin2
  */
 
-static void *VLin2_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VLin2_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype a;
@@ -4698,7 +4698,7 @@ static void Vaxpy_Pthreads(realtype a, N_Vector x, N_Vector y)
  * Pthread companion function to Vaxpy
  */
 
-static void *Vaxpy_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *Vaxpy_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype a;
@@ -4797,7 +4797,7 @@ static void VScaleBy_Pthreads(realtype a, N_Vector x)
  * Pthread companion function to VScaleBy
  */
 
-static void *VScaleBy_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VScaleBy_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype a;
@@ -4874,7 +4874,7 @@ static SUNErrCode VSumVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* Y, N
   return SUN_SUCCESS;
 }
 
-static void *VSumVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VSumVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -4946,7 +4946,7 @@ static SUNErrCode VDiffVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* Y, 
   return SUN_SUCCESS;
 }
 
-static void *VDiffVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VDiffVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -5019,7 +5019,7 @@ static SUNErrCode VScaleSumVectorArray_Pthreads(int nvec, realtype c, N_Vector* 
   return SUN_SUCCESS;
 }
 
-static void *VScaleSumVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VScaleSumVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -5094,7 +5094,7 @@ static SUNErrCode VScaleDiffVectorArray_Pthreads(int nvec, realtype c, N_Vector*
   return SUN_SUCCESS;
 }
 
-static void *VScaleDiffVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VScaleDiffVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -5169,7 +5169,7 @@ static SUNErrCode VLin1VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N
   return SUN_SUCCESS;
 }
 
-static void *VLin1VectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VLin1VectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -5244,7 +5244,7 @@ static SUNErrCode VLin2VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N
   return SUN_SUCCESS;
 }
 
-static void *VLin2VectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VLin2VectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -5318,7 +5318,7 @@ static SUNErrCode VaxpyVectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N
   return SUN_SUCCESS;
 }
 
-static void *VaxpyVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
+static void *VaxpyVectorArray_PT(void *thread_data)
 {
   Pthreads_Data *my_data;
   sunindextype  j, start, end;
@@ -5374,7 +5374,7 @@ static void *VaxpyVectorArray_PT(void *thread_data) SUNDIALS_NOEXCEPT
  */
 
 static void N_VSplitLoop(int myid, int *nthreads, sunindextype *N,
-			 sunindextype *start, sunindextype *end) SUNDIALS_NOEXCEPT
+			 sunindextype *start, sunindextype *end)
 {
   sunindextype q, r; /* quotient and remainder */
 
@@ -5397,7 +5397,7 @@ static void N_VSplitLoop(int myid, int *nthreads, sunindextype *N,
  * Initialize values of local thread data struct
  */
 
-static void N_VInitThreadData(Pthreads_Data *thread_data) SUNDIALS_NOEXCEPT
+static void N_VInitThreadData(Pthreads_Data *thread_data)
 {
   thread_data->start = -1;
   thread_data->end   = -1;

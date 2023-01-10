@@ -141,14 +141,14 @@ static inline void SUNSetLastErr(SUNErrCode code, SUNContext sunctx)
 }
 
 /* Alternative function to SUNContext_ClearLastError that is more concise. */
-static inline void SUNClearLastErr(SUNContext sunctx) SUNDIALS_NOEXCEPT
+static inline void SUNClearLastErr(SUNContext sunctx)
 {
   sunctx->last_err = SUN_SUCCESS;
 }
 
 static inline void SUNHandleErr(int line, const char* func, const char* file,
                                 SUNErrCode code,
-                                SUNContext sunctx) SUNDIALS_NOEXCEPT
+                                SUNContext sunctx)
 {
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
@@ -162,7 +162,7 @@ static inline void SUNHandleErr(int line, const char* func, const char* file,
 static inline void SUNHandleErrWithMsg(int line, const char* func,
                                        const char* file, const char* msg,
                                        SUNErrCode code,
-                                       SUNContext sunctx) SUNDIALS_NOEXCEPT
+                                       SUNContext sunctx)
 {
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
@@ -176,7 +176,7 @@ static inline void SUNHandleErrWithMsg(int line, const char* func,
 static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
                                           const char* file, const char* msgfmt,
                                           SUNErrCode code, SUNContext sunctx,
-                                          ...) SUNDIALS_NOEXCEPT
+                                          ...)
 {
   size_t msglen;
   char* msg;

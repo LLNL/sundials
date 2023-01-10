@@ -84,7 +84,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   }
 
   /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS); /* SUNDIALS_NOEXCEPT */
+  LSType = SUNLinSolGetType(LS); /* */
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);

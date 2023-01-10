@@ -79,7 +79,7 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
  * Free a generic SUNLinearSolver (assumes content is already empty)
  * ----------------------------------------------------------------- */
 
-void SUNLinSolFreeEmpty(SUNLinearSolver S) SUNDIALS_NOEXCEPT
+void SUNLinSolFreeEmpty(SUNLinearSolver S)
 {
   if (S == NULL) return;
 

@@ -160,7 +160,7 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
 }
 
 /* Free a generic N_Vector (assumes content is already empty) */
-void N_VFreeEmpty(N_Vector v) SUNDIALS_NOEXCEPT
+void N_VFreeEmpty(N_Vector v)
 {
   if (v == NULL) return;
 
@@ -302,7 +302,7 @@ N_Vector N_VCloneEmpty(N_Vector w)
   return result;
 }
 
-void N_VDestroy(N_Vector v) SUNDIALS_NOEXCEPT
+void N_VDestroy(N_Vector v)
 {
   if (v == NULL) return;
 
@@ -989,7 +989,7 @@ SUNErrCode N_VBufUnpack(N_Vector x, void *buf)
  *   N_VCloneVectorArray
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------*/
-N_Vector* N_VNewVectorArray(int count) SUNDIALS_NOEXCEPT
+N_Vector* N_VNewVectorArray(int count)
 {
   N_Vector* vs = NULL;
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
@@ -1038,7 +1038,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   return(vs);
 }
 
-void N_VDestroyVectorArray(N_Vector* vs, int count) SUNDIALS_NOEXCEPT
+void N_VDestroyVectorArray(N_Vector* vs, int count)
 {
   int j;
 
@@ -1072,7 +1072,7 @@ void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
  * Debugging functions
  * ----------------------------------------------------------------- */
 
-void N_VPrint(N_Vector v) SUNDIALS_NOEXCEPT
+void N_VPrint(N_Vector v)
 {
   if (v == NULL) {
     printf("NULL Vector\n");
@@ -1083,7 +1083,7 @@ void N_VPrint(N_Vector v) SUNDIALS_NOEXCEPT
   }
 }
 
-void N_VPrintFile(N_Vector v, FILE* outfile) SUNDIALS_NOEXCEPT
+void N_VPrintFile(N_Vector v, FILE* outfile)
 {
   if (outfile != NULL) {
     if (v == NULL) {

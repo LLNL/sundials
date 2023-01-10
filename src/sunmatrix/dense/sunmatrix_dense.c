@@ -180,7 +180,7 @@ SUNMatrix SUNMatClone_Dense(SUNMatrix A)
   return (B);
 }
 
-void SUNMatDestroy_Dense(SUNMatrix A) SUNDIALS_NOEXCEPT
+void SUNMatDestroy_Dense(SUNMatrix A)
 {
   if (A == NULL)
     return;

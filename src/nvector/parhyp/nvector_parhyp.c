@@ -146,7 +146,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax+y */
 static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
-static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z); SUNDIALS_NOEXCEPT
+static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 
 /*
  * -----------------------------------------------------------------
@@ -158,7 +158,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z); SUNDIA
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT
+N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v)
 {
   return SUNDIALS_NVEC_PARHYP;
 }
@@ -305,7 +305,7 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_ParHyp
  */
 
-void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count) SUNDIALS_NOEXCEPT
+void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count)
 {
   N_VDestroyVectorArray(vs, count);
   return;
@@ -316,7 +316,7 @@ void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count) SUNDIALS_NOEXCEPT
  * Extract HYPRE vector
  */
 
-HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT
+HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v)
 {
   return NV_HYPRE_PARVEC_PH(v);
 }
@@ -326,7 +326,7 @@ HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT
  * TODO: Consider using a HYPRE function for this.
  */
 
-void N_VPrint_ParHyp(N_Vector x) SUNDIALS_NOEXCEPT
+void N_VPrint_ParHyp(N_Vector x)
 {
   N_VPrintFile_ParHyp(x, stdout);
 }
@@ -336,7 +336,7 @@ void N_VPrint_ParHyp(N_Vector x) SUNDIALS_NOEXCEPT
  * TODO: Consider using a HYPRE function for this.
  */
 
-void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile) SUNDIALS_NOEXCEPT
+void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -451,7 +451,7 @@ void N_VDestroy_ParHyp(N_Vector v)
 }
 
 
-void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw) SUNDIALS_NOEXCEPT
+void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   MPI_Comm comm;
   int npes;
@@ -472,7 +472,7 @@ void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw) SUNDIALS_
  * then use HYPRE functions to get pointer to raw data of the local HYPRE
  * vector.
  */
-realtype *N_VGetArrayPointer_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT 
+realtype *N_VGetArrayPointer_ParHyp(N_Vector v) 
 {
   return NULL; /* ((realtype *) NV_DATA_PH(v)); */
 }
@@ -481,18 +481,18 @@ realtype *N_VGetArrayPointer_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT
 /*
  * This method is not implemented for HYPRE vector wrapper.
  */
-void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v) SUNDIALS_NOEXCEPT
+void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v)
 {
   /* Not implemented for Hypre vector */
 }
 
 
-void *N_VGetCommunicator_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT
+void *N_VGetCommunicator_ParHyp(N_Vector v)
 {
   return((void *) &(NV_COMM_PH(v)));
 }
 
-sunindextype N_VGetLength_ParHyp(N_Vector v) SUNDIALS_NOEXCEPT
+sunindextype N_VGetLength_ParHyp(N_Vector v)
 {
   return(NV_GLOBLENGTH_PH(v));
 }
@@ -606,7 +606,7 @@ void N_VConst_ParHyp(realtype c, N_Vector z)
  * Compute componentwise product z[i] = x[i]*y[i]
  */
 
-void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -629,7 +629,7 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
  * Compute componentwise division z[i] = x[i]/y[i]
  */
 
-void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -663,7 +663,7 @@ void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 }
 
 
-void N_VAbs_ParHyp(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VAbs_ParHyp(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -680,7 +680,7 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
   return;
 }
 
-void N_VInv_ParHyp(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VInv_ParHyp(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -697,7 +697,7 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
   return;
 }
 
-void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -714,7 +714,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z) SUNDIALS_NOEXCEPT
   return;
 }
 
-realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y) SUNDIALS_NOEXCEPT
+realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
 {
   sunindextype i, N;
   realtype sum, *xd, *yd;
@@ -738,7 +738,7 @@ realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
   return(gsum);
 }
 
-realtype N_VMaxNormLocal_ParHyp(N_Vector x) SUNDIALS_NOEXCEPT
+realtype N_VMaxNormLocal_ParHyp(N_Vector x)
 {
   sunindextype i, N;
   realtype max, *xd;
@@ -760,7 +760,7 @@ realtype N_VMaxNorm_ParHyp(N_Vector x)
   return(gmax);
 }
 
-realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w) SUNDIALS_NOEXCEPT
+realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
   realtype sum, prodi, *xd, *wd;
@@ -785,7 +785,7 @@ realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
 }
 
-realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id) SUNDIALS_NOEXCEPT
+realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
   realtype sum, prodi, *xd, *wd, *idd;
@@ -813,7 +813,7 @@ realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
 }
 
-realtype N_VMinLocal_ParHyp(N_Vector x) SUNDIALS_NOEXCEPT
+realtype N_VMinLocal_ParHyp(N_Vector x)
 {
   sunindextype i, N;
   realtype min, *xd;
@@ -847,7 +847,7 @@ realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w)
   return(SUNRsqrt(gsum));
 }
 
-realtype N_VL1NormLocal_ParHyp(N_Vector x) SUNDIALS_NOEXCEPT
+realtype N_VL1NormLocal_ParHyp(N_Vector x)
 {
   sunindextype i, N;
   realtype sum, *xd;
@@ -868,7 +868,7 @@ realtype N_VL1Norm_ParHyp(N_Vector x)
   return(gsum);
 }
 
-void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd;
@@ -886,7 +886,7 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
   return;
 }
 
-booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z) SUNDIALS_NOEXCEPT
+booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *zd, val;
@@ -919,7 +919,7 @@ booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
     return(SUNTRUE);
 }
 
-booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m) SUNDIALS_NOEXCEPT
+booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   realtype temp;
@@ -960,7 +960,7 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom) SUNDIALS_NOEXCEPT
+realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
   sunindextype i, N;
@@ -1710,7 +1710,7 @@ SUNErrCode N_VBufUnpack_ParHyp(N_Vector x, void *buf)
  * -----------------------------------------------------------------
  */
 
-static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1728,7 +1728,7 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
   return;
 }
 
-static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1747,7 +1747,7 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
 }
 
 
-static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1765,7 +1765,7 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z) SUN
   return;
 }
 
-static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1783,7 +1783,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z) SU
   return;
 }
 
-static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
@@ -1801,7 +1801,7 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIAL
   return;
 }
 
-static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z) SUNDIALS_NOEXCEPT
+static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
   realtype *xd, *yd, *zd;
