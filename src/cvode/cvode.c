@@ -2879,7 +2879,8 @@ static int cvCheckConstraints(CVodeMem cv_mem)
   /* Constraint correction is too large, reduce h by computing eta = h'/h */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], -ONE, cv_mem->cv_y, tmp), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp), CV_SUNCTX);
-  cv_mem->cv_eta = PT9*SUNCheckCallLastErrNoRet(N_VMinQuotient(cv_mem->cv_zn[0], tmp), CV_SUNCTX);
+  cv_mem->cv_eta = SUNCheckCallLastErrNoRet(N_VMinQuotient(cv_mem->cv_zn[0], tmp), CV_SUNCTX);
+  cv_mem->cv_eta *= PT9;
   cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, PT1);
   cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta,
                           cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
@@ -2960,9 +2961,10 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   /* Reduce step size; return to reattempt the step
      Note that if nflag = CONSTR_RECVR, then eta was already set in cvCheckConstraints */
-  if (nflag != CONSTR_RECVR)
+  if (nflag != CONSTR_RECVR) {
     cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta_cf,
                             cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+  }
   *nflagPtr = PREV_CONV_FAIL;
   cvRescale(cv_mem);
 
