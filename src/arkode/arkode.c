@@ -646,6 +646,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   booleantype inactive_roots;
   realtype dsm;
   int nflag, attempts, ncf, nef, constrfails;
+  int relax_fails;
 
   /* Check and process inputs */
 
@@ -829,6 +830,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     /* Looping point for step attempts */
     dsm = ZERO;
     attempts = ncf = nef = constrfails = ark_mem->last_kflag = 0;
+    relax_fails = 0;
     nflag = FIRST_CALL;
     for(;;) {
 
@@ -857,7 +859,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       /* Perform relaxation */
       if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
       {
-        kflag = arkRelax(ark_mem, &dsm, &nflag);
+        kflag = arkRelax(ark_mem, &relax_fails, &dsm, &nflag);
         if (kflag < 0) break;
       }
 

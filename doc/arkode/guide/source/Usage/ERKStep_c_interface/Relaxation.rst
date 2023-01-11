@@ -24,7 +24,7 @@ with ERKStep. For more information on relaxation Runge-Kutta methods see
 Enabling or Disabling Relaxation
 --------------------------------
 
-.. c:function:: int ERKStepSetRelaxFn(void* arkode_mem, int nrfn, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+.. c:function:: int ERKStepSetRelaxFn(void* arkode_mem, int nrfn, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 
    Attaches the user supplied functions for evaluating the relaxation function
    (``rfn``) and its Jacobian (``rjac``) and specifies the number of relaxation
@@ -53,7 +53,7 @@ Optional Input Functions
 This section describes optional input functions used to control the relaxation
 method.
 
-.. c:function:: int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf);
+.. c:function:: int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
 
    Sets the step size reduction factor applied after a failed relaxation solve.
    The default value is 0.25. Input values :math:`\geq 1` will result in the
@@ -67,7 +67,7 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower);
+.. c:function:: int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 
    Sets the smallest acceptable value for the relaxation parameter. Values
    smaller than the lower bound will result in a relaxation solve failure and
@@ -83,7 +83,21 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepSetRelaxMaxIters(void* arkode_mem, int max_iters);
+.. c:function:: int ERKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
+
+   Sets the maximum number relaxation failures allowed in a single step attempt
+   before the integration is halted with an error. The default value is 10.
+   Input values :math:`\leq 0` will result in the default value being used.
+
+   :param arkode_mem: the ERKStep memory structure
+   :param max_iters: the maximum number relaxtion failures allowed in a step
+
+   :retval ARK_SUCCESS: the value was successfully set
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
+                               ``NULL``
+
+.. c:function:: int ERKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
 
    Sets the maximum number of nonlinear iterations allowed when solving for the
    relaxation parameter. If the maximum number of iterations is reached before
@@ -100,7 +114,7 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ARKSteSetRelaxSolver(void* arkode_mem, ARKRelaxationSolver solver);
+.. c:function:: int ARKSteSetRelaxSolver(void* arkode_mem, ARKRelaxationSolver solver)
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
    The default value is ``ARK_RELAX_NEWTON``.
@@ -113,7 +127,7 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepSetRelaxTol(void* arkode_mem, sunrealtype tol);
+.. c:function:: int ERKStepSetRelaxTol(void* arkode_mem, sunrealtype tol)
 
    Sets the nonlinear solver tolerance to use when computing the relaxation
    parameter. If the tolerance is not reached within the maximum number of
@@ -130,7 +144,7 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper);
+.. c:function:: int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
 
    Sets the largest acceptable value for the relaxation parameter. Values
    larger than the upper bound will result in a relaxation solve failure and
@@ -152,7 +166,7 @@ Optional Output Functions
 This section describes optional output functions used to retrieve information
 about the performance of the relaxation method.
 
-.. c:function:: int ERKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
+.. c:function:: int ERKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
 
    Get the number of times the user's relaxation function was evaluated.
 
@@ -164,7 +178,7 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals);
+.. c:function:: int ERKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
 
    Get the number of times the user's relaxation Jacobian was evaluated.
 
@@ -176,7 +190,19 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
+.. c:function:: int ERKStepGetNumRelaxFails(void* arkode_mem, long int* fails)
+
+   Get the total number of relaxation failures.
+
+   :param arkode_mem: the ERKStep memory structure
+   :param fails: the total number of relaxation failures
+
+   :retval ARK_SUCCESS: the value was successfully set
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
+                               ``NULL``
+
+.. c:function:: int ERKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 
    Get the number of times the relaxation parameter nonlinear solver failed.
 
@@ -188,7 +214,7 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
+.. c:function:: int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 
    Get the number of relaxation parameter nonlinear solver iterations.
 

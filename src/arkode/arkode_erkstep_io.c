@@ -169,6 +169,11 @@ int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
   return arkRelaxSetLowerBound(arkode_mem, lower);
 }
 
+int ERKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
+{
+  arkRelaxSetMaxFails(arkode_mem, max_fails);
+}
+
 int ERKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
 {
   return arkRelaxSetMaxIters(arkode_mem, max_iters);
@@ -199,14 +204,19 @@ int ERKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
   return arkRelaxGetNumRelaxJacEvals(arkode_mem, J_evals);
 }
 
+int ERKStepGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
+{
+  return arkRelaxGetNumRelaxFails(arkode_mem, relax_fails);
+}
+
 int ERKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 {
-  return arkRelaxGetNumSolveFails(arkode_mem, fails);
+  return arkRelaxGetNumRelaxSolveFails(arkode_mem, fails);
 }
 
 int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 {
-  return arkRelaxGetNumSolveIters(arkode_mem, iters);
+  return arkRelaxGetNumRelaxSolveIters(arkode_mem, iters);
 }
 
 /*===============================================================

@@ -29,6 +29,7 @@
  * Relaxation Constants
  * ---------------------------------------------------------------------------*/
 
+#define ARK_RELAX_DEFAULT_MAX_FAILS   10
 #define ARK_RELAX_DEFAULT_TOL         SUN_RCONST(1.0e-14)
 #define ARK_RELAX_DEFAULT_MAX_ITERS   5
 #define ARK_RELAX_DEFAULT_LOWER_BOUND SUN_RCONST(0.8)
@@ -41,7 +42,7 @@
 
 #define ARK_RELAX_FUNC_RECV  1;
 #define ARK_RELAX_JAC_RECV   2;
-#define ARK_RELAX_SOLVE_RECV -1; /* <<< should be recoverable */
+#define ARK_RELAX_SOLVE_RECV 3;
 
 /* -----------------------------------------------------------------------------
  * Stepper Supplied Relaxation Functions
@@ -79,8 +80,10 @@ struct ARKodeRelaxMemRec
   /* relaxation variables */
   int num_relax_fn;             /* number of entropy functions         */
   int num_relax_fn_alloc;       /* allocated workspce size             */
-  long int num_relax_fn_evals;  /* counter for function evals          */
-  long int num_relax_jac_evals; /* counter for jacobian evals          */
+  int max_fails;                /* max allowed relax fails in a step   */
+  long int num_relax_fn_evals;  /* counter for total function evals    */
+  long int num_relax_jac_evals; /* counter for total jacobian evals    */
+  long int num_fails;           /* counter for total relaxation fails  */
   N_Vector* y_relax;            /* relaxed state y_n + relax * delta_y */
   N_Vector* J_vecs;             /* relaxation Jacobian vectors         */
   sunrealtype* e_old;           /* entropy at start of step y(t_{n-1}) */
@@ -95,8 +98,8 @@ struct ARKodeRelaxMemRec
   ARKRelaxationSolver solver; /* choice of relaxation solver      */
   sunrealtype tol;            /* nonlinear solve tolerance        */
   int max_iters;              /* nonlinear solve max iterations   */
-  long int total_iters;       /* total nonlinear iterations       */
-  long int total_fails;       /* number of nonlinear solver fails */
+  long int nls_iters;         /* total nonlinear iterations       */
+  long int nls_fails;         /* number of nonlinear solver fails */
 };
 
 /* -----------------------------------------------------------------------------
@@ -109,11 +112,13 @@ int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
                    ARKRelaxDeltaEFn delta_e_fn,
                    ARKRelaxGetOrderFn get_order_fn);
 int arkRelaxDestroy(ARKodeRelaxMem relax_mem);
-int arkRelax(ARKodeMem ark_mem, sunrealtype* dsm_inout, int* nflag_out);
+int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
+             int* nflag_out);
 
 /* User Functions */
 int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail);
 int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower);
+int arkRelaxSetMaxFails(void* arkode_mem, int max_fails);
 int arkRelaxSetMaxIters(void* arkode_mem, int max_iters);
 int arkRelaxSetSolver(void* arkode_mem, ARKRelaxationSolver solver);
 int arkRelaxSetTol(void* arkode_mem, sunrealtype tol);
@@ -121,8 +126,9 @@ int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper);
 
 int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
 int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* j_evals);
-int arkRelaxGetNumSolveFails(void* arkode_mem, long int* fails);
-int arkRelaxGetNumSolveIters(void* arkode_mem, long int* iters);
+int arkRelaxGetNumRelaxFails(void* arkode_mem, long int* relax_fails);
+int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
+int arkRelaxGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
 
 int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
 

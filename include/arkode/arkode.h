@@ -132,9 +132,11 @@ extern "C" {
 
 #define ARK_CONTEXT_ERR            -42
 
-#define ARK_RELAX_MEM_NULL         -43
-#define ARK_RELAX_FUNC_FAIL        -44
-#define ARK_RELAX_JAC_FAIL         -45
+#define ARK_RELAX_FAIL             -43
+#define ARK_RELAX_MEM_NULL         -44
+#define ARK_RELAX_FUNC_FAIL        -45
+#define ARK_RELAX_JAC_FAIL         -46
+
 
 #define ARK_UNRECOGNIZED_ERROR     -99
 
