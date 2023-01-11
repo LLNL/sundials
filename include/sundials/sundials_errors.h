@@ -129,21 +129,24 @@ const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx);
 /* Alternative function to SUNContext_GetLastError that is more concise. */
 static inline SUNErrCode SUNGetLastErr(SUNContext sunctx)
 {
-  SUNErrCode code  = sunctx->last_err;
-  sunctx->last_err = SUN_SUCCESS;
+  SUNErrCode code = SUN_SUCCESS;
+  (void) SUNContext_GetLastError(sunctx, &code);
   return code;
 }
 
 /* Alternative function to SUNContext_SetLastError that is more concise. */
-static inline void SUNSetLastErr(SUNErrCode code, SUNContext sunctx)
+static inline SUNErrCode SUNSetLastErr(SUNErrCode code, SUNContext sunctx)
 {
   sunctx->last_err = code;
+  return SUN_SUCCESS;
 }
 
-/* Alternative function to SUNContext_ClearLastError that is more concise. */
-static inline void SUNClearLastErr(SUNContext sunctx)
+/* Alternative function to SUNContext_PeekLastError that is more concise. */
+static inline SUNErrCode SUNPeekLastErr(SUNContext sunctx)
 {
-  sunctx->last_err = SUN_SUCCESS;
+  SUNErrCode code = SUN_SUCCESS;
+  (void) SUNContext_PeekLastError(sunctx, &code);
+  return code;
 }
 
 static inline void SUNHandleErr(int line, const char* func, const char* file,
@@ -225,7 +228,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
                    sunctx);                                              \
-      SUNClearLastErr(sunctx);                                           \
+      (void) SUNGetLastErr(sunctx);                                      \
     }                                                                    \
   }                                                                      \
   while (0)

@@ -82,12 +82,13 @@ SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
 SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode* last_err)
 {
   *last_err = sunctx->last_err;
+  sunctx->last_err = SUN_SUCCESS;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNContext_ClearLastError(SUNContext sunctx)
+SUNErrCode SUNContext_PeekLastError(SUNContext sunctx, SUNErrCode* last_err)
 {
-  sunctx->last_err = SUN_SUCCESS;
+  *last_err = sunctx->last_err;
   return SUN_SUCCESS;
 }
 
