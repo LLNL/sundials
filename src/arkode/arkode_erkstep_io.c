@@ -179,7 +179,7 @@ int ERKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
   return arkRelaxSetMaxIters(arkode_mem, max_iters);
 }
 
-int ERKStepSetRelaxSolver(void* arkode_mem, ARKRelaxationSolver solver)
+int ERKStepSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 {
   return arkRelaxSetSolver(arkode_mem, solver);
 }

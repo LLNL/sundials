@@ -323,7 +323,7 @@ int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetSolver(void* arkode_mem, ARKRelaxationSolver solver)
+int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
 {
   int retval;
   ARKodeMem ark_mem;

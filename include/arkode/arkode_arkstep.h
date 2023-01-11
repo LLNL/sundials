@@ -480,7 +480,7 @@ SUNDIALS_EXPORT int ARKStepSetRelaxLowerBound(void* arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails);
 SUNDIALS_EXPORT int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters);
 SUNDIALS_EXPORT int ARKStepSetRelaxSolver(void* arkode_mem,
-                                          ARKRelaxationSolver solver);
+                                          ARKRelaxSolver solver);
 SUNDIALS_EXPORT int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype tol);
 SUNDIALS_EXPORT int ARKStepSetRelaxUpperBound(void* arkode_mem,
                                               sunrealtype upper);

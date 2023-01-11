@@ -114,7 +114,7 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-.. c:function:: int ARKSteSetRelaxSolver(void* arkode_mem, ARKRelaxationSolver solver)
+.. c:function:: int ARKSteSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
    The default value is ``ARK_RELAX_NEWTON``.

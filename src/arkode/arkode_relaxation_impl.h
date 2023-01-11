@@ -95,7 +95,7 @@ struct ARKodeRelaxMemRec
   sunrealtype eta_fail;         /* failed relaxation step size factor  */
 
   /* nonlinear solver settings */
-  ARKRelaxationSolver solver; /* choice of relaxation solver      */
+  ARKRelaxSolver solver;      /* choice of relaxation solver      */
   sunrealtype tol;            /* nonlinear solve tolerance        */
   int max_iters;              /* nonlinear solve max iterations   */
   long int nls_iters;         /* total nonlinear iterations       */
@@ -120,7 +120,7 @@ int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail);
 int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower);
 int arkRelaxSetMaxFails(void* arkode_mem, int max_fails);
 int arkRelaxSetMaxIters(void* arkode_mem, int max_iters);
-int arkRelaxSetSolver(void* arkode_mem, ARKRelaxationSolver solver);
+int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver);
 int arkRelaxSetTol(void* arkode_mem, sunrealtype tol);
 int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper);
 
