@@ -171,7 +171,7 @@ int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 
 int ERKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
 {
-  arkRelaxSetMaxFails(arkode_mem, max_fails);
+  return arkRelaxSetMaxFails(arkode_mem, max_fails);
 }
 
 int ERKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
