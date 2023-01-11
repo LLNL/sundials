@@ -2,7 +2,8 @@
 
 ## Changes to SUNDIALS in release 6.6.0
 
-Added support for relaxation Runge-Kutta methods to ARKStep.
+Added support for relaxation Runge-Kutta methods to ERKStep and ARKStep in
+ARKODE.
 
 ## Changes to SUNDIALS in release 6.5.0
 

@@ -2123,4 +2123,5 @@ relaxation values for each function and select :math:`r = \min_i r_i`. As a
 result each :math:`\xi_i(y)` will be dissipated.
 
 For more information on utilizing relaxation Runge-Kutta methods, see
+:numref:`ARKODE.Usage.ERKStep.Relaxation` and
 :numref:`ARKODE.Usage.ARKStep.Relaxation`.
