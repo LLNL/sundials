@@ -83,6 +83,14 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
 
+/* private functions for relaxation */
+int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y);
+int erkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
+                        ARKRelaxJacFn relax_jac_fn, N_Vector* work_space_1,
+                        N_Vector* work_space_2, long int* relax_jac_fn_evals,
+                        sunrealtype* delta_e_out);
+int erkStep_GetOrder(ARKodeMem ark_mem);
+
 /*===============================================================
   Reusable ERKStep Error Messages
   ===============================================================*/

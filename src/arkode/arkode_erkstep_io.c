@@ -148,6 +148,66 @@ int ERKStepGetUserData(void *arkode_mem, void** user_data) {
 char *ERKStepGetReturnFlagName(long int flag) {
   return(arkGetReturnFlagName(flag)); }
 
+/* -----------------------------------------------------------------------------
+ * Wrappers for the ARKODE relaxation module
+ * ---------------------------------------------------------------------------*/
+
+int ERKStepSetRelaxFn(void* arkode_mem, int nrfn, ARKRelaxFn rfn,
+                      ARKRelaxJacFn rjac)
+{
+  return arkRelaxCreate(arkode_mem, nrfn, rfn, rjac, erkStep_RelaxDeltaY,
+                        erkStep_RelaxDeltaE, erkStep_GetOrder);
+}
+
+int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
+{
+  return arkRelaxSetEtaFail(arkode_mem, eta_rf);
+}
+
+int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
+{
+  return arkRelaxSetLowerBound(arkode_mem, lower);
+}
+
+int ERKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
+{
+  return arkRelaxSetMaxIters(arkode_mem, max_iters);
+}
+
+int ERKStepSetRelaxSolver(void* arkode_mem, ARKRelaxationSolver solver)
+{
+  return arkRelaxSetSolver(arkode_mem, solver);
+}
+
+int ERKStepSetRelaxTol(void* arkode_mem, sunrealtype tol)
+{
+  return arkRelaxSetTol(arkode_mem, tol);
+}
+
+int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
+{
+  return arkRelaxSetUpperBound(arkode_mem, upper);
+}
+
+int ERKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
+{
+  return arkRelaxGetNumRelaxFnEvals(arkode_mem, r_evals);
+}
+
+int ERKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
+{
+  return arkRelaxGetNumRelaxJacEvals(arkode_mem, J_evals);
+}
+
+int ERKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
+{
+  return arkRelaxGetNumSolveFails(arkode_mem, fails);
+}
+
+int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
+{
+  return arkRelaxGetNumSolveIters(arkode_mem, iters);
+}
 
 /*===============================================================
   ERKStep optional input functions -- stepper-specific

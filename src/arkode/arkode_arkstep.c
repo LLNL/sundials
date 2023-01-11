@@ -3035,7 +3035,9 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
 
   /* Initialize output */
   for (j = 0; j < num_relax_fn; j++)
+  {
     delta_e_out[j] = ZERO;
+  }
 
   /* Set arrays for fused vector operation */
   cvals = step_mem->cvals;
@@ -3072,19 +3074,21 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
       }
     }
 
-    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] + Ae[i,j] Fi[j] */
+    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
     if (retval) return ARK_VECTOROP_ERR;
 
     /* Duplicate stage to compute entropy Jacobians at z_i */
     for (j = 0; j < num_relax_fn; j++)
+    {
       N_VScale(ONE, ark_mem->tempv2, work_space_1[j]);
+    }
 
     /* Evaluate the Jacobians at z_i */
     retval = relax_jac_fn(work_space_1, work_space_2, ark_mem->user_data);
     (*num_relax_jac_evals)++;
-    if (retval < 0) return ARK_RELAX_JAC_FAIL;
-    if (retval > 0) return ARK_RELAX_JAC_RECV;
+    if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
     /* Update estimates */
     if (step_mem->explicit && step_mem->implicit)
@@ -3100,14 +3104,18 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
     else if (step_mem->explicit)
     {
       for (j = 0; j < num_relax_fn; j++)
+      {
         delta_e_out[j] += step_mem->Be->b[i] * N_VDotProdLocal(work_space_2[j],
                                                                step_mem->Fe[i]);
+      }
     }
     else if (step_mem->implicit)
     {
       for (j = 0; j < num_relax_fn; j++)
+      {
         delta_e_out[j] += step_mem->Bi->b[i] * N_VDotProdLocal(work_space_2[j],
                                                                step_mem->Fi[i]);
+      }
     }
   }
 
@@ -3115,9 +3123,9 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
   N_VDotProdMultiAllReduce(num_relax_fn, ark_mem->tempv1, delta_e_out);
 
   for (j = 0; j < num_relax_fn; j++)
+  {
     delta_e_out[j] *= ark_mem->h;
-
-  /* printf("de = %23.16e\n", delta_e_out[0]); */
+  }
 
   return ARK_SUCCESS;
 }

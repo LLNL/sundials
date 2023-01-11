@@ -40,7 +40,7 @@
  * ent(u,v) = exp(u) + exp(v) with the Jacobian
  * ent'(u,v) = [ de/du de/dv ]^T = [ exp(u) exp(v) ]^T.
  *
- * The problem is advanced in time with an explicit or implicit relaxed
+ * The problem is advanced in time with an explicit relaxed
  * Runge-Kutta method to ensure conservation of the entropy.
  * ---------------------------------------------------------------------------*/
 
@@ -48,10 +48,8 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_erkstep.h>
 #include <nvector/nvector_serial.h>
-#include <sunlinsol/sunlinsol_dense.h>
-#include <sunmatrix/sunmatrix_dense.h>
 
 /* Precision-dependent output macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -73,10 +71,6 @@
 
 /* ODE RHS function */
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-
-/* ODE RHS Jacobian function */
-int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
-        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Entropy function */
 int Ent(N_Vector* y, sunrealtype* e, void* user_data);
@@ -116,8 +110,6 @@ int main(int argc, char* argv[])
   SUNContext ctx       = NULL;
   N_Vector y           = NULL;
   N_Vector ytrue       = NULL;
-  SUNMatrix A          = NULL;
-  SUNLinearSolver LS   = NULL;
   ARKodeButcherTable B = NULL;
 
   /* Pointer to vector data array */
@@ -134,9 +126,8 @@ int main(int argc, char* argv[])
   void* arkode_mem = NULL;
 
   /* ARKODE statistics */
-  long int nst, nst_a, nfe, nfi;
-  long int nre, nrje, nri, nrf;
-  long int nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe;
+  long int nre, nrje, nri, nrf, netf;
 
   /* Number of outputs, output counter, output times, and output file */
   int nout = 10;
@@ -145,7 +136,6 @@ int main(int argc, char* argv[])
   FILE* UFID;
 
   /* Command line options */
-  int implicit        = 0;               /* explicit          */
   int relax           = 1;               /* enable relaxation */
   int steps           = 100;             /* number of steps   */
   sunrealtype fixed_h = SUN_RCONST(0.0); /* adaptive steps    */
@@ -154,18 +144,16 @@ int main(int argc, char* argv[])
    * Output Problem Setup *
    * -------------------- */
 
-  if (argc > 1) implicit = atoi(argv[1]);
-  if (argc > 2) relax = atoi(argv[2]);
-  if (argc > 3) fixed_h = (sunrealtype)atof(argv[3]);
-  if (argc > 4) steps = atoi(argv[4]);
+  if (argc > 1) relax = atoi(argv[1]);
+  if (argc > 2) fixed_h = (sunrealtype)atof(argv[2]);
+  if (argc > 3) steps = atoi(argv[3]);
 
   printf("\nConserved Exponential Entropy problem:\n");
-  if (implicit) printf("   method     = DIRK\n");
-  else printf("   method     = ERK\n");
+  printf("   method     = ERK\n");
   if (relax) printf("   relaxation = ON\n");
   else printf("   relaxation = OFF\n");
   if (fixed_h > SUN_RCONST(0.0)) printf("   fixed h    = %" GSYM "\n", fixed_h);
-  if (implicit || !(fixed_h > SUN_RCONST(0.0)))
+  if (!(fixed_h > SUN_RCONST(0.0)))
   {
     printf("   reltol     = %.1" ESYM "\n", reltol);
     printf("   abstol     = %.1" ESYM "\n", abstol);
@@ -201,48 +189,27 @@ int main(int argc, char* argv[])
   flag = Ent(&y, &ent0, NULL);
   if (check_flag(flag, "Ent")) return 1;
 
-  /* Initialize the ARKStep */
-  if (implicit) arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx);
-  else arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx);
-  if (check_ptr(arkode_mem, "ARKStepCreate")) return 1;
+  /* Initialize the ERKStep */
+  arkode_mem = ERKStepCreate(f, t0, y, ctx);
+  if (check_ptr(arkode_mem, "ERKStepCreate")) return 1;
 
   /* Specify tolerances */
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(flag, "ARKStepSStolerances")) return 1;
+  flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(flag, "ERKStepSStolerances")) return 1;
 
   if (relax)
   {
     /* Enable relaxation methods */
-    flag = ARKStepSetRelaxFn(arkode_mem, 1, Ent, JacEnt);
-    if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
+    flag = ERKStepSetRelaxFn(arkode_mem, 1, Ent, JacEnt);
+    if (check_flag(flag, "ERKStepSetRelaxFn")) return 1;
   }
 
   if (fixed_h > 0.0)
   {
     /* Set the step size */
-    flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
-  }
+    flag = ERKStepSetFixedStep(arkode_mem, fixed_h);
+    if (check_flag(flag, "ERKStepSetFixedStep")) return 1;
 
-  if (implicit)
-  {
-    /* Create dense matrix and linear solver */
-    A = SUNDenseMatrix(2, 2, ctx);
-    if (check_ptr(A, "SUNDenseMatrix")) return 1;
-
-    LS = SUNLinSol_Dense(y, A, ctx);
-    if (check_ptr(LS, "SUNLinSol_Dense")) return 1;
-
-    /* Attach the matrix and linear solver */
-    flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-    if (check_flag(flag, "ARKStepSetLinearSolver")) return 1;
-
-    /* Set Jacobian routine */
-    flag = ARKStepSetJacFn(arkode_mem, Jac);
-    if (check_flag(flag, "ARKStepSetJacFn")) return 1;
-  }
-  else if (fixed_h > 0.0)
-  {
     /* Use RK4 */
     B = ARKodeButcherTable_Alloc(4, SUNFALSE);
 
@@ -262,12 +229,12 @@ int main(int argc, char* argv[])
     B->q = 4;
     B->p = 0;
 
-    flag = ARKStepSetTables(arkode_mem, 4, 0, NULL, B);
-    if (check_flag(flag, "ARKStepSetTables")) return 1;
+    flag = ERKStepSetTable(arkode_mem, B);
+    if (check_flag(flag, "ERKStepSetTables")) return 1;
   }
 
   /* Open output stream for results, output comment line */
-  UFID = fopen("ark_conserved_exp_entropy.txt", "w");
+  UFID = fopen("ark_conserved_exp_entropy_erk.txt", "w");
   fprintf(UFID, "# vars: t u v entropy u_err v_err entropy_error\n");
 
   /* --------------- *
@@ -298,8 +265,8 @@ int main(int argc, char* argv[])
   for (iout = 0; iout < steps; iout++)
   {
     /* Evolve in time */
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
-    if (check_flag(flag, "ARKStepEvolve")) break;
+    flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
+    if (check_flag(flag, "ERKStepEvolve")) break;
 
     /* Output solution and errors */
     flag = Ent(&y, &ent, NULL);
@@ -336,60 +303,36 @@ int main(int argc, char* argv[])
    * ------------ */
 
   /* Get final statistics on how the solve progressed */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(flag, "ARKStepGetNumSteps");
+  flag = ERKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(flag, "ERKStepGetNumSteps");
 
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(flag, "ARKStepGetNumStepAttempts");
+  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(flag, "ERKStepGetNumStepAttempts");
 
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(flag, "ARKStepGetNumErrTestFails");
+  flag = ERKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(flag, "ERKStepGetNumErrTestFails");
 
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(flag, "ARKStepGetNumRhsEvals");
+  flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
+  check_flag(flag, "ERKStepGetNumRhsEvals");
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
   printf("   Total number of error test failures = %li\n", netf);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
-
-  if (implicit)
-  {
-    flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-    check_flag(flag, "ARKStepGetNumNonlinSolvIters");
-
-    flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-    check_flag(flag, "ARKStepGetNumNonlinSolvConvFails");
-
-    flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-    check_flag(flag, "ARKStepGetNumLinSolvSetups");
-
-    flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-    check_flag(flag, "ARKStepGetNumJacEvals");
-
-    flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-    check_flag(flag, "ARKStepGetNumLinRhsEvals");
-
-    printf("   Total number of Newton iterations = %li\n", nni);
-    printf("   Total number of linear solver convergence failures = %li\n", ncfn);
-    printf("   Total linear solver setups = %li\n", nsetups);
-    printf("   Total number of Jacobian evaluations = %li\n", nje);
-    printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
-  }
+  printf("   Total RHS evals = %li\n", nfe);
 
   if (relax)
   {
-    flag = ARKStepGetNumRelaxFnEvals(arkode_mem, &nre);
-    check_flag(flag, "ARKStepGetNumRelaxFnEvals");
+    flag = ERKStepGetNumRelaxFnEvals(arkode_mem, &nre);
+    check_flag(flag, "ERKStepGetNumRelaxFnEvals");
 
-    flag = ARKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
-    check_flag(flag, "ARKStepGetNumRelaxJacEvals");
+    flag = ERKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
+    check_flag(flag, "ERKStepGetNumRelaxJacEvals");
 
-    flag = ARKStepGetNumRelaxSolveIters(arkode_mem, &nri);
-    check_flag(flag, "ARKStepGetNumRelaxSolveIters");
+    flag = ERKStepGetNumRelaxSolveIters(arkode_mem, &nri);
+    check_flag(flag, "ERKStepGetNumRelaxSolveIters");
 
-    flag = ARKStepGetNumRelaxSolveFails(arkode_mem, &nrf);
-    check_flag(flag, "ARKStepGetNumRelaxSolveFails");
+    flag = ERKStepGetNumRelaxSolveFails(arkode_mem, &nrf);
+    check_flag(flag, "ERKStepGetNumRelaxSolveFails");
 
     printf("   Total Relaxation Fn evals  = %li\n", nre);
     printf("   Total Relaxation Jac evals = %li\n", nrje);
@@ -402,10 +345,8 @@ int main(int argc, char* argv[])
    * Clean up *
    * -------- */
 
-  /* Free ARKStep integrator and SUNDIALS objects */
-  ARKStepFree(&arkode_mem);
-  SUNLinSolFree(LS);
-  SUNMatDestroy(A);
+  /* Free ERKStep integrator and SUNDIALS objects */
+  ERKStepFree(&arkode_mem);
   N_VDestroy(y);
   N_VDestroy(ytrue);
   SUNContext_Free(&ctx);
@@ -425,24 +366,6 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   fdata[0] = -exp(ydata[1]);
   fdata[1] = exp(ydata[0]);
-
-  return 0;
-}
-
-/* ODE RHS Jacobian function J(t,y) = df/dy. */
-int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
-        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  sunrealtype* ydata = N_VGetArrayPointer(y);
-  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
-
-  /* column 0 */
-  Jdata[0] = 0;
-  Jdata[1] = -exp(ydata[1]);
-
-  /* column 1 */
-  Jdata[2] = exp(ydata[0]);
-  Jdata[3] = 0;
 
   return 0;
 }

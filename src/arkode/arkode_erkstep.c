@@ -1133,6 +1133,149 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   return(ARK_SUCCESS);
 }
 
+/* -----------------------------------------------------------------------------
+ * erkStep_RelaxDeltaY
+ *
+ * Computes the RK update to yn for use in relaxation methods
+ * ---------------------------------------------------------------------------*/
+
+int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y)
+{
+  int i, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeERKStepMem step_mem;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
+                    "erkStep_RelaxDeltaY", MSG_ERKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  nvec = 0;
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    cvals[nvec] = ark_mem->h * step_mem->B->b[i];
+    Xvecs[nvec] = step_mem->F[i];
+    nvec++;
+  }
+
+  /* Compute time step update (delta_y) */
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv1);
+  if (retval) return ARK_VECTOROP_ERR;
+
+  *delta_y = ark_mem->tempv1;
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * erkStep_RelaxDeltaE
+ *
+ * Computes the change in the relaxation functions for use in relaxation methods
+ * delta_e = h * sum_i b_i * <rjac(z_i), f_i>
+ * ---------------------------------------------------------------------------*/
+
+int erkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
+                        ARKRelaxJacFn relax_jac_fn, N_Vector* work_space_1,
+                        N_Vector* work_space_2, long int* num_relax_jac_evals,
+                        sunrealtype* delta_e_out)
+{
+  int i, j, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeERKStepMem step_mem;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
+                    "erkStep_RelaxDeltaE", MSG_ERKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
+
+  /* Initialize output */
+  for (j = 0; j < num_relax_fn; j++)
+  {
+    delta_e_out[j] = ZERO;
+  }
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    nvec = 0;
+
+    /* Start with y_n */
+    cvals[nvec] = ONE;
+    Xvecs[nvec] = ark_mem->yn;
+    nvec++;
+
+    /* Explicit pieces */
+    for (j = 0; j < i; j++)
+    {
+      cvals[nvec] = ark_mem->h * step_mem->B->A[i][j];
+      Xvecs[nvec] = step_mem->F[j];
+      nvec++;
+    }
+
+    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
+    if (retval) return ARK_VECTOROP_ERR;
+
+    /* Duplicate stage to compute entropy Jacobians at z_i */
+    for (j = 0; j < num_relax_fn; j++)
+    {
+      N_VScale(ONE, ark_mem->tempv2, work_space_1[j]);
+    }
+
+    /* Evaluate the Jacobians at z_i */
+    retval = relax_jac_fn(work_space_1, work_space_2, ark_mem->user_data);
+    (*num_relax_jac_evals)++;
+    if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_JAC_RECV; }
+
+    /* Update estimates */
+    for (j = 0; j < num_relax_fn; j++)
+    {
+      delta_e_out[j] += step_mem->B->b[i] * N_VDotProdLocal(work_space_2[j],
+                                                            step_mem->F[i]);
+    }
+  }
+
+  /* Ignore negative return for node-local vectors where this is a non-op */
+  N_VDotProdMultiAllReduce(num_relax_fn, ark_mem->tempv1, delta_e_out);
+
+  for (j = 0; j < num_relax_fn; j++)
+  {
+    delta_e_out[j] *= ark_mem->h;
+  }
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * erkStep_GetOrder
+ *
+ * Returns the method order
+ * ---------------------------------------------------------------------------*/
+
+int erkStep_GetOrder(ARKodeMem ark_mem)
+{
+  ARKodeERKStepMem step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
+  return step_mem->q;
+}
+
 /*===============================================================
   EOF
   ===============================================================*/
