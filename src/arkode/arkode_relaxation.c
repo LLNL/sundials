@@ -708,7 +708,7 @@ int arkRelax(ARKodeMem ark_mem, realtype* dsm_inout, int* nflag_out)
                      "ARKODE::arkStep_TakeStep_Z", "relaxation",
                      "relaxation parameter = %"RSYM", relaxed h = %"RSYM
                      ", relaxed error = %"RSYM,
-                     relax, ark_mem->h, *dsmPtr);
+                     relax_val, ark_mem->h, *dsm_into);
 #endif
 
   return ARK_SUCCESS;
