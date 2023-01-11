@@ -53,6 +53,7 @@
 
 SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_SPFGMR content;
 
@@ -164,6 +165,7 @@ SUNErrCode SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S, int pretype)
 
 SUNErrCode SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S, int gstype)
 {
+  SUNDeclareContext(S->sunctx);
   /* Check for legal gstype */
   SUNAssert(gstype == SUN_MODIFIED_GS || gstype == SUN_CLASSICAL_GS,
             SUN_ERR_ARG_OUTOFRANGE, S->sunctx);
@@ -210,9 +212,9 @@ SUNLinearSolver_ID SUNLinSolGetID_SPFGMR(SUNLinearSolver S)
 
 SUNErrCode SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
 {
+  SUNDeclareContext(S->sunctx);
   int k;
   SUNLinearSolverContent_SPFGMR content;
-  SUNContext sunctx = S->sunctx;
 
   /* set shortcut to SPFGMR memory structure */
   content = SPFGMR_CONTENT(S);
@@ -360,6 +362,7 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                   N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
+  SUNDeclareContext(S->sunctx);
   N_Vector *V, *Z, xcor, vtemp, s1, s2;
   realtype **Hes, *givens, *yg, *res_norm;
   realtype beta, rotation_product, r_norm, s_product, rho;
@@ -371,7 +374,6 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
   SUNLsStatus status;
-  SUNContext sunctx = S->sunctx;
 
   /* local shortcuts for fused vector operations */
   realtype* cv;
@@ -676,9 +678,9 @@ sunindextype SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_SPFGMR(SUNLinearSolver S, long int* lenrwLS,
                                  long int* leniwLS)
 {
+  SUNDeclareContext(S->sunctx);
   int maxl;
   sunindextype liw1, lrw1;
-  SUNContext sunctx = S->sunctx;
   maxl = SPFGMR_CONTENT(S)->maxl;
   if (SPFGMR_CONTENT(S)->vtemp->ops->nvspace) {
     SUNCheckCallLastErrNoRet(N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1), sunctx);
@@ -757,6 +759,7 @@ SUNErrCode SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver S, FILE* info_file)
 
 SUNErrCode SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver S, int print_level)
 {
+  SUNDeclareContext(S->sunctx);
   /* check for valid print level */
   SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE,
             S->sunctx);

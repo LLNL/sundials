@@ -53,6 +53,7 @@
 
 SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_SPGMR content;
 
@@ -143,6 +144,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl, SUNContext su
 
 SUNErrCode SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
 {
+  SUNDeclareContext(S->sunctx);
   /* Check for legal pretype */
   SUNAssert((pretype == SUN_PREC_NONE) || (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) || (pretype == SUN_PREC_BOTH),
@@ -160,6 +162,7 @@ SUNErrCode SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
 
 SUNErrCode SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 {
+  SUNDeclareContext(S->sunctx);
   /* Check for legal gstype */
   SUNAssert(gstype == SUN_MODIFIED_GS || gstype == SUN_CLASSICAL_GS,
             SUN_ERR_ARG_OUTOFRANGE, S->sunctx);
@@ -208,7 +211,7 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
 {
   int k;
   SUNLinearSolverContent_SPGMR content;
-  SUNContext sunctx = S->sunctx;
+  SUNDeclareContext(S->sunctx);
 
   /* set shortcut to SPGMR memory structure */
   content = SPGMR_CONTENT(S);
@@ -357,7 +360,7 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype* cv;
   N_Vector* Xv;
   SUNLsStatus status;
-  SUNContext sunctx = S->sunctx;
+  SUNDeclareContext(S->sunctx);
 
   /* Initialize some variables */
   l_plus_1 = 0;
@@ -724,6 +727,7 @@ sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_SPGMR(SUNLinearSolver S, long int* lenrwLS,
                                 long int* leniwLS)
 {
+  SUNDeclareContext(S->sunctx);
   int maxl;
   sunindextype liw1, lrw1;
   maxl = SPGMR_CONTENT(S)->maxl;
@@ -798,6 +802,7 @@ SUNErrCode SUNLinSolSetInfoFile_SPGMR(SUNLinearSolver S, FILE* info_file)
 SUNErrCode SUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver S, int print_level)
 {
   /* check for valid print level */
+  SUNDeclareContext(S->sunctx);
   SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE,
             S->sunctx);
   SPGMR_CONTENT(S)->print_level = print_level;

@@ -52,6 +52,8 @@ int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem, realtype dgmax_lsetup)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Set value or use default */
   if(dgmax_lsetup < ZERO)
     cv_mem->cv_dgmax_lsetup = DGMAX_LSETUP_DEFAULT;
@@ -78,6 +80,8 @@ int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cv_mem->cv_ehfun = ehfun;
   cv_mem->cv_eh_data = eh_data;
 
@@ -101,6 +105,8 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cv_mem->cv_errfp = errfp;
 
   return(CV_SUCCESS);
@@ -122,6 +128,8 @@ int CVodeSetUserData(void *cvode_mem, void *user_data)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   cv_mem->cv_user_data = user_data;
 
@@ -145,6 +153,8 @@ int CVodeSetMonitorFn(void *cvode_mem, CVMonitorFn fn)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
 #ifdef SUNDIALS_BUILD_WITH_MONITORING
   cv_mem->cv_monitorfun = fn;
@@ -177,6 +187,8 @@ int CVodeSetMonitorFrequency(void *cvode_mem, long int nst)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
 #ifdef SUNDIALS_BUILD_WITH_MONITORING
   cv_mem->cv_monitor_interval = nst;
   return(CV_SUCCESS);
@@ -203,6 +215,8 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (maxord <= 0) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_NEG_MAXORD);
@@ -240,6 +254,8 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Passing mxsteps=0 sets the default. Passing mxsteps<0 disables the test. */
   if (mxsteps == 0)
     cv_mem->cv_mxstep = MXSTEP_DEFAULT;
@@ -266,6 +282,8 @@ int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cv_mem->cv_mxhnil = mxhnil;
 
   return(CV_SUCCESS);
@@ -287,6 +305,8 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if( sldet && (cv_mem->cv_lmm != CV_BDF) ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_SET_SLDET);
@@ -315,6 +335,8 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cv_mem->cv_hin = hin;
 
   return(CV_SUCCESS);
@@ -336,6 +358,8 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (hmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_NEG_HMIN);
@@ -375,6 +399,8 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (hmax < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_NEG_HMAX);
@@ -418,6 +444,8 @@ int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (eta_min_fx < ZERO || eta_min_fx >= ONE)
     cv_mem->cv_eta_min_fx = ETA_MIN_FX_DEFAULT;
@@ -450,6 +478,8 @@ int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (eta_max_fs <= ONE)
     cv_mem->cv_eta_max_fs = ETA_MAX_FS_DEFAULT;
@@ -477,6 +507,8 @@ int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* set allowed value or use default */
   if (eta_max_es <= ONE)
@@ -506,6 +538,8 @@ int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (small_nst < 0)
     cv_mem->cv_small_nst = SMALL_NST_DEFAULT;
@@ -532,6 +566,8 @@ int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* set allowed value or use default */
   if (eta_max_gs <= ONE)
@@ -560,6 +596,8 @@ int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (eta_min <= ZERO || eta_min >= ONE)
     cv_mem->cv_eta_min = ETA_MIN_DEFAULT;
@@ -586,6 +624,8 @@ int CVodeSetEtaMinErrFail(void* cvode_mem, realtype eta_min_ef)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* set allowed value or use default */
   if (eta_min_ef <= ZERO || eta_min_ef >= ONE)
@@ -615,6 +655,8 @@ int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (eta_max_ef <= ZERO || eta_max_ef >= ONE)
     cv_mem->cv_eta_max_ef = ETA_MAX_EF_DEFAULT;
@@ -643,6 +685,8 @@ int CVodeSetNumFailsEtaMaxErrFail(void* cvode_mem, int small_nef)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (small_nef < 0)
     cv_mem->cv_small_nef = SMALL_NEF_DEFAULT;
@@ -670,6 +714,8 @@ int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set allowed value or use default */
   if (eta_cf <= ZERO || eta_cf >= ONE)
     cv_mem->cv_eta_cf = ETA_CF_DEFAULT;
@@ -694,6 +740,8 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
     return (CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* If CVode was called at least once, test if tstop is legal
    * (i.e. if it was not already passed).
@@ -753,6 +801,8 @@ int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cv_mem->cv_maxnef = maxnef;
 
   return(CV_SUCCESS);
@@ -775,6 +825,8 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   cv_mem->cv_maxncf = maxncf;
 
@@ -800,13 +852,15 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (cv_mem->NLS == NULL) {
     cvProcessError(NULL, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
     return (CV_MEM_FAIL);
   }
 
   retval = SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   return(retval);
 }
 
@@ -827,6 +881,8 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   cv_mem->cv_nlscoef = nlscoef;
 
@@ -851,6 +907,8 @@ int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* check for a valid input */
   if (msbp < 0) {
@@ -884,6 +942,8 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   nrt = cv_mem->cv_nrtfn;
   if (nrt==0) {
     cvProcessError(NULL, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_NO_ROOT);
@@ -913,6 +973,8 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cv_mem->cv_mxgnull = 0;
 
   return(CV_SUCCESS);
@@ -935,6 +997,8 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
@@ -1001,6 +1065,8 @@ int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
   id = N_VGetVectorID(cv_mem->cv_ewt);
   if (!cv_mem->cv_MallocDone ||
@@ -1041,6 +1107,8 @@ int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *nsteps = cv_mem->cv_nst;
 
   return(CV_SUCCESS);
@@ -1062,6 +1130,8 @@ int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *nfevals = cv_mem->cv_nfe;
 
@@ -1085,6 +1155,8 @@ int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *nlinsetups = cv_mem->cv_nsetups;
 
   return(CV_SUCCESS);
@@ -1106,6 +1178,8 @@ int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *netfails = cv_mem->cv_netf;
 
@@ -1129,6 +1203,8 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *qlast = cv_mem->cv_qu;
 
   return(CV_SUCCESS);
@@ -1150,6 +1226,8 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *qcur = cv_mem->cv_next_q;
 
@@ -1173,6 +1251,8 @@ int CVodeGetCurrentGamma(void *cvode_mem, realtype *gamma)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *gamma = cv_mem->cv_gamma;
 
   return(CV_SUCCESS);
@@ -1195,6 +1275,8 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_sldeton==SUNFALSE)
     *nslred = 0;
@@ -1221,6 +1303,8 @@ int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *hinused = cv_mem->cv_h0u;
 
   return(CV_SUCCESS);
@@ -1242,6 +1326,8 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *hlast = cv_mem->cv_hu;
 
@@ -1265,6 +1351,8 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *hcur = cv_mem->cv_next_h;
 
   return(CV_SUCCESS);
@@ -1286,6 +1374,8 @@ int CVodeGetCurrentState(void *cvode_mem, N_Vector *y)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *y = cv_mem->cv_y;
 
@@ -1309,6 +1399,8 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *tcur = cv_mem->cv_tn;
 
   return(CV_SUCCESS);
@@ -1330,6 +1422,8 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *tolsfact = cv_mem->cv_tolsf;
 
@@ -1353,6 +1447,8 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_ewt, eweight), CV_SUNCTX);
 
   return(CV_SUCCESS);
@@ -1375,6 +1471,8 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, ele), CV_SUNCTX);
 
   return(CV_SUCCESS);
@@ -1396,6 +1494,8 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *leniw = cv_mem->cv_liw;
   *lenrw = cv_mem->cv_lrw;
@@ -1422,6 +1522,8 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *nsteps     = cv_mem->cv_nst;
   *nfevals    = cv_mem->cv_nfe;
@@ -1454,6 +1556,8 @@ int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *ngevals = cv_mem->cv_nge;
 
   return(CV_SUCCESS);
@@ -1476,6 +1580,8 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   nrt = cv_mem->cv_nrtfn;
 
@@ -1502,6 +1608,8 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *nniters = cv_mem->cv_nni;
 
   return(CV_SUCCESS);
@@ -1525,6 +1633,8 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nnfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *nnfails = cv_mem->cv_nnf;
 
   return(CV_SUCCESS);
@@ -1547,6 +1657,8 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *nniters = cv_mem->cv_nni;
   *nnfails = cv_mem->cv_nnf;
@@ -1573,6 +1685,8 @@ int CVodeGetNumStepSolveFails(void *cvode_mem, long int *nncfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);
@@ -1597,6 +1711,8 @@ int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   switch(fmt)
   {
@@ -1754,6 +1870,8 @@ int CVodeGetUserData(void *cvode_mem, void** user_data)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   *user_data = cv_mem->cv_user_data;
 

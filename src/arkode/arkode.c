@@ -27,6 +27,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_context.h"
 #include <sundials/sundials.h>
 
 
@@ -66,7 +67,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   memset(ark_mem, 0, sizeof(struct ARKodeMemRec));
 
   /* Set the context */
-  ARK_SUNCTX = sunctx;
+  ark_mem->sunctx = sunctx;
 
   /* Set uround */
   ark_mem->uround = UNIT_ROUNDOFF;
@@ -200,6 +201,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
               realtype t0, ARKVecResizeFn resize, void *resize_data)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   booleantype resizeOK;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int retval;
@@ -346,6 +348,8 @@ int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol)
 
 int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* local variables */
   realtype abstolmin;
 
@@ -488,6 +492,8 @@ int arkResStolerance(ARKodeMem ark_mem, realtype rabstol)
 
 int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   /* local variables */
   realtype rabstolmin;
 
@@ -605,6 +611,8 @@ int arkResFtolerance(ARKodeMem ark_mem, ARKRwtFn rfun)
 int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
               realtype *tret, int itask)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   long int nstloc;
   int retval, kflag, istate, ir;
   int ewtsetOK;
@@ -1101,6 +1109,8 @@ int arkRwtSet(N_Vector y, N_Vector weight, void *data)
   /* data points to ark_mem here */
   ark_mem = (ARKodeMem) data;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* return if rwt is just ewt */
   if (ark_mem->rwt_is_ewt)  return(0);
 
@@ -1177,6 +1187,8 @@ void arkErrHandler(int error_code, const char *module,
 int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
             int init_type)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+
   booleantype stepperOK, nvectorOK, allocOK;
   sunindextype lrw1, liw1;
 
@@ -1375,6 +1387,8 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   arkInterpPrintMem(ark_mem->interp, outfile);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
+  SUNDeclareContext(ark_mem->sunctx);
+  
   /* output vector quantities */
   fprintf(outfile, "Vapbsol:\n");
   SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->Vabstol, outfile), ARK_SUNCTX);
@@ -1466,6 +1480,8 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
   ---------------------------------------------------------------*/
 booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   /* allocate the new vector if necessary */
   if (*v == NULL) {
     *v = SUNCheckCallLastErrNoRet(N_VClone(tmpl), ARK_SUNCTX);
@@ -1508,6 +1524,8 @@ booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
   ---------------------------------------------------------------*/
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   if (*v != NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(*v), ARK_SUNCTX);
     *v = NULL;
@@ -1550,6 +1568,8 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                          void *resize_data, sunindextype lrw_diff,
                          sunindextype liw_diff, N_Vector tmpl, N_Vector *v)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   if (*v != NULL) {
     if (resize == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(*v), ARK_SUNCTX);
@@ -1765,6 +1785,7 @@ void arkFreeVectors(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   int retval, hflag, istate;
   realtype tout_hin, rh, htmp;
   booleantype conOK;
@@ -1958,6 +1979,8 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                  realtype *tret, int itask, int *ier)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   int irfndp, retval;
   realtype troundoff;
 
@@ -2230,6 +2253,8 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   ---------------------------------------------------------------*/
 realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   realtype hub_inv, hub;
   N_Vector temp1, temp2;
 
@@ -2268,6 +2293,8 @@ realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
   ---------------------------------------------------------------*/
 int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   int retval;
 
   if (ark_mem->interp == NULL) {
@@ -2311,6 +2338,8 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   ---------------------------------------------------------------*/
 int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   int retval, mode;
   realtype troundoff;
 
@@ -2503,6 +2532,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
 int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem)
 {
   ARKodeMem ark_mem = (ARKodeMem) arkode_mem;
+  SUNDeclareContext(ark_mem->sunctx);
   SUNCheckCallLastErrNoRet(N_VAbs(ycur, ark_mem->tempv1), ARK_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1), ARK_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAddConst(ark_mem->tempv1, ark_mem->Sabstol, ark_mem->tempv1), ARK_SUNCTX);
@@ -2531,9 +2561,11 @@ int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem)
 int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
 {
   ARKodeMem ark_mem = (ARKodeMem) arkode_mem;
+  SUNDeclareContext(ark_mem->sunctx);
   SUNCheckCallLastErrNoRet(N_VAbs(ycur, ark_mem->tempv1), ARK_SUNCTX);
-  N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
-               ark_mem->Vabstol, ark_mem->tempv1);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
+                                        ark_mem->Vabstol, ark_mem->tempv1),
+                           ARK_SUNCTX);
   if (ark_mem->atolmin0) {
     sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1), ARK_SUNCTX);
     if (min <= ZERO) return(-1);
@@ -2574,6 +2606,7 @@ int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem)
   ---------------------------------------------------------------*/
 int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   SUNCheckCallLastErrNoRet(N_VAbs(My, ark_mem->tempv1), ARK_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1), ARK_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAddConst(ark_mem->tempv1, ark_mem->SRabstol, ark_mem->tempv1), ARK_SUNCTX);
@@ -2597,6 +2630,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
   ---------------------------------------------------------------*/
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   SUNCheckCallLastErrNoRet(N_VAbs(My, ark_mem->tempv1), ARK_SUNCTX);
   N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->VRabstol, ark_mem->tempv1);
@@ -2747,6 +2781,8 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
                          realtype tau, int nvec, realtype *cvals,
                          N_Vector *Xvecs, N_Vector yguess)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   realtype a0, a1, a2;
   int i, retval;
 
@@ -2857,6 +2893,8 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   --------------------------------------------------------------*/
 int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   booleantype constraintsPassed;
   N_Vector mm  = ark_mem->tempv4;
   N_Vector tmp = ark_mem->tempv1;

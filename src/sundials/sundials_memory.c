@@ -17,6 +17,7 @@
 #include <string.h>
 #include <sundials/sundials.h>
 
+#include "sundials/sundials_context.h"
 #include "sundials_debug.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
@@ -39,9 +40,8 @@ SUNMemory SUNMemoryNewEmpty()
 
 SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNMemoryHelper helper = NULL;
-
-  SUNAssertContext(sunctx);
 
   helper = (SUNMemoryHelper)malloc(sizeof(struct _SUNMemoryHelper));
   SUNAssert(helper, SUN_ERR_MALLOC_FAIL, sunctx);
@@ -210,11 +210,12 @@ SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 
 SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
 {
+  SUNDeclareContext(helper->sunctx);
   if (!helper->ops->clone)
   {
     if (helper->content)
     { 
-      SUNCheck(!helper->content, SUN_ERR_NOT_IMPLEMENTED, helper->sunctx);
+      SUNCheck(!helper->content, SUN_ERR_NOT_IMPLEMENTED, SUNCTX);
       return (NULL); 
     }
     else

@@ -714,6 +714,8 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
   /* Is ASA initialized ? */
@@ -787,6 +789,8 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
@@ -1273,6 +1277,8 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
   /* Is ASA initialized? */
@@ -1348,6 +1354,8 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
     return IDA_MEM_NULL;
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
@@ -1700,6 +1708,8 @@ int IDAGetB(void* ida_mem, int which, realtype *tret,
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
@@ -1753,6 +1763,8 @@ int IDAGetQuadB(void *ida_mem, int which, realtype *tret, N_Vector qB)
     return IDA_MEM_NULL;
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
@@ -1965,6 +1977,8 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
 static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, CkpntMem ck_mem)
 {
   int j, jj;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   for (j=0; j<ck_mem->ck_phi_alloc; j++) {
     ck_mem->ck_phi[j] = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_tempv1), IDA_SUNCTX);
@@ -2241,6 +2255,8 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
 {
   int flag, j, is;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (ck_mem->ck_next == NULL) {
 
     /* In this case, we just call the reinitialization routine,
@@ -2345,6 +2361,8 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
 
 static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
@@ -2482,6 +2500,8 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
 
 static void IDAAhermiteFree(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
@@ -2528,6 +2548,8 @@ static void IDAAhermiteFree(IDAMem IDA_mem)
 
 static int IDAAhermiteStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   HermiteDataMem content;
   int is, retval;
@@ -2573,6 +2595,8 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
                            N_Vector yy, N_Vector yp,
                           N_Vector *yyS, N_Vector *ypS)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content0, content1;
@@ -2794,6 +2818,8 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
 
 static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
@@ -2945,6 +2971,8 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
 
 static void IDAApolynomialFree(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
@@ -2999,6 +3027,8 @@ static void IDAApolynomialFree(IDAMem IDA_mem)
 
 static int IDAApolynomialStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   PolynomialDataMem content;
   int is, retval;
@@ -3045,6 +3075,8 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
                               N_Vector yy, N_Vector yp,
                               N_Vector *yyS, N_Vector *ypS)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
@@ -3228,6 +3260,8 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
 
 static int IDAAGettnSolutionYp(IDAMem IDA_mem, N_Vector yp)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+  
   int j, kord, retval;
   realtype C, D, gam;
 

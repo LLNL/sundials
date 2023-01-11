@@ -687,6 +687,8 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Check for legal input parameters */
@@ -882,6 +884,8 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Check if cvode_mem was allocated */
@@ -989,6 +993,8 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -1036,6 +1042,8 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
@@ -1097,6 +1105,8 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -1138,6 +1148,8 @@ int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Set space requirements for one N_Vector */
   SUNCheckCallLastErrNoRet(N_VSpace(yQ0, &lrw1Q, &liw1Q), CV_SUNCTX);
@@ -1195,6 +1207,8 @@ int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Ckeck if quadrature was initialized? */
   if (cv_mem->cv_QuadMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUAD, __LINE__, __func__, __FILE__, MSGCV_NO_QUAD);
@@ -1242,6 +1256,8 @@ int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Ckeck if quadrature was initialized? */
 
   if (cv_mem->cv_QuadMallocDone == SUNFALSE) {
@@ -1282,6 +1298,8 @@ int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Ckeck if quadrature was initialized? */
 
@@ -1361,6 +1379,8 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Check if CVodeSensInit or CVodeSensInit1 was already called */
 
@@ -1555,6 +1575,8 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Check if CVodeSensInit or CVodeSensInit1 was already called */
 
@@ -1791,6 +1813,8 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Was sensitivity initialized? */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -1969,6 +1993,8 @@ int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Was sensitivity initialized? */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2032,6 +2058,8 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Was sensitivity initialized? */
 
@@ -2107,6 +2135,8 @@ int CVodeSensEEtolerances(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Was sensitivity initialized? */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2141,6 +2171,8 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Check if sensitivity analysis is active */
   if (!cv_mem->cv_sensi) {
@@ -2224,6 +2256,8 @@ int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Check if sensitivity analysis is active */
   if (!cv_mem->cv_sensi) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_NO_SENSI);
@@ -2297,6 +2331,8 @@ int CVodeQuadSensSStolerances(void *cvode_mem, realtype reltolQS, realtype *abst
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Check if sensitivity was initialized */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2362,6 +2398,8 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* check if sensitivity was initialized */
 
@@ -2442,6 +2480,8 @@ int CVodeQuadSensEEtolerances(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* check if sensitivity was initialized */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2482,6 +2522,8 @@ int CVodeSensToggleOff(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Disable sensitivities */
   cv_mem->cv_sensi = SUNFALSE;
   cv_mem->cv_quadr_sensi = SUNFALSE;
@@ -2512,6 +2554,8 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   nrt = (nrtfn < 0) ? 0 : nrtfn;
 
@@ -2697,6 +2741,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3316,6 +3362,8 @@ int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y), CV_SUNCTX);
@@ -3341,6 +3389,8 @@ int CVodeComputeStateSens(void *cvode_mem, N_Vector *ycorS, N_Vector *yS)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3373,6 +3423,8 @@ int CVodeComputeStateSens1(void *cvode_mem, int idx, N_Vector ycorS1,
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3419,6 +3471,8 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3497,6 +3551,8 @@ int CVodeGetQuad(void *cvode_mem, realtype *tret, N_Vector yQout)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   *tret = cv_mem->cv_tretlast;
@@ -3535,6 +3591,8 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3618,6 +3676,8 @@ int CVodeGetSens(void *cvode_mem, realtype *tret, N_Vector *ySout)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   *tret = cv_mem->cv_tretlast;
@@ -3646,6 +3706,8 @@ int CVodeGetSens1(void *cvode_mem, realtype *tret, int is, N_Vector ySout)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3677,6 +3739,8 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyS)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3724,6 +3788,8 @@ int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyS)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3818,6 +3884,8 @@ int CVodeGetQuadSens(void *cvode_mem, realtype *tret, N_Vector *yQSout)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   *tret = cv_mem->cv_tretlast;
@@ -3839,6 +3907,8 @@ int CVodeGetQuadSens1(void *cvode_mem, realtype *tret, int is, N_Vector yQSout)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3869,6 +3939,8 @@ int CVodeGetQuadSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyQS_all)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3903,6 +3975,8 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -4002,6 +4076,8 @@ void CVodeFree(void **cvode_mem)
 
   cv_mem = (CVodeMem) (*cvode_mem);
 
+  SUNDeclareContext(CV_SUNCTX);
+
   cvFreeVectors(cv_mem);
 
   /* if CVODE created the nonlinear solver object then free it */
@@ -4057,6 +4133,8 @@ void CVodeQuadFree(void *cvode_mem)
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if(cv_mem->cv_QuadMallocDone) {
     cvQuadFreeVectors(cv_mem);
     cv_mem->cv_QuadMallocDone = SUNFALSE;
@@ -4078,6 +4156,8 @@ void CVodeSensFree(void *cvode_mem)
 
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if(cv_mem->cv_SensMallocDone) {
     if (cv_mem->cv_stgr1alloc) {
@@ -4145,6 +4225,8 @@ void CVodeQuadSensFree(void *cvode_mem)
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if(cv_mem->cv_QuadSensMallocDone) {
     cvQuadSensFreeVectors(cv_mem);
     cv_mem->cv_QuadSensMallocDone = SUNFALSE;
@@ -4210,6 +4292,7 @@ static booleantype cvCheckNvector(N_Vector tmpl)
 
 static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, j;
 
   /* Allocate ewt, acor, tempv, ftemp */
@@ -4305,6 +4388,7 @@ static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void cvFreeVectors(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int j, maxord;
 
   maxord = cv_mem->cv_qmax_alloc;
@@ -4349,6 +4433,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
 
 static booleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, j;
 
   /* Allocate ewtQ */
@@ -4415,6 +4500,7 @@ static booleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void cvQuadFreeVectors(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX); 
   int j, maxord;
 
   maxord = cv_mem->cv_qmax_allocQ;
@@ -4449,6 +4535,7 @@ static void cvQuadFreeVectors(CVodeMem cv_mem)
 
 static booleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, j;
 
   /* Allocate yS */
@@ -4552,6 +4639,7 @@ static booleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void cvSensFreeVectors(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int j, maxord;
 
   maxord = cv_mem->cv_qmax_allocS;
@@ -4593,6 +4681,7 @@ static void cvSensFreeVectors(CVodeMem cv_mem)
 
 static booleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, j;
 
   /* Allocate ftempQ */
@@ -4668,6 +4757,7 @@ static booleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void cvQuadSensFreeVectors(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int j, maxord;
 
   maxord = cv_mem->cv_qmax_allocQS;
@@ -4717,6 +4807,7 @@ static void cvQuadSensFreeVectors(CVodeMem cv_mem)
 
 static int cvInitialSetup(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int ier;
   booleantype conOK;
 
@@ -5097,6 +5188,7 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
 
 static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype hub_inv, hubQ_inv, hubS_inv, hubQS_inv, hub;
   N_Vector temp1, temp2;
   N_Vector tempQ1, tempQ2;
@@ -5221,6 +5313,7 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 
 static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int retval;
   N_Vector wrk1, wrk2;
 
@@ -5343,6 +5436,7 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 
 static int cvStep(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype saved_t;          /* time to restore to if a failure occurs   */
   realtype dsm;              /* local truncation error estimate          */
   realtype dsmQ;             /* quadrature error estimate                */
@@ -5679,6 +5773,7 @@ static void cvAdjustOrder(CVodeMem cv_mem, int deltaq)
 
 static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, j;
   realtype xi, hsum;
 
@@ -6341,6 +6436,7 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
+  SUNDeclareContext(CV_SUNCTX);
   SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
@@ -6476,6 +6572,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
 static int cvCheckConstraints(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   booleantype constraintsPassed;
   realtype vnorm;
   N_Vector mm  = cv_mem->cv_ftemp;
@@ -6537,6 +6634,7 @@ static int cvCheckConstraints(CVodeMem cv_mem)
 
 static int cvQuadNls(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int retval;
 
   /* Save quadrature correction in acorQ */
@@ -6580,6 +6678,7 @@ static int cvQuadNls(CVodeMem cv_mem)
 
 static int cvQuadSensNls(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is, retval;
 
   /* Save quadrature correction in acorQ */
@@ -6615,6 +6714,7 @@ static int cvQuadSensNls(CVodeMem cv_mem)
 
 static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   booleantype callSetup;
   SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   long int nniS_inc = 0;
@@ -6674,6 +6774,7 @@ static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
 
 static SUNNlsStatus cvStgr1Nls(CVodeMem cv_mem, int is)
 {
+  SUNDeclareContext(CV_SUNCTX);
   booleantype callSetup;
   long int nniS1_inc = 0;
   long int nnfS1_inc = 0;
@@ -6903,6 +7004,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          realtype acor_nrm,
                          int *nefPtr, long int *netfPtr, realtype *dsmPtr)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype dsm;
   int retval, is;
   N_Vector wrk1, wrk2;
@@ -7069,6 +7171,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
 static void cvCompleteStep(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i;
   int is;
 
@@ -7247,6 +7350,7 @@ static void cvSetEta(CVodeMem cv_mem)
 
 static realtype cvComputeEtaqm1(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype ddn;
 
   cv_mem->cv_etaqm1 = ZERO;
@@ -7280,6 +7384,7 @@ static realtype cvComputeEtaqm1(CVodeMem cv_mem)
 
 static realtype cvComputeEtaqp1(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype dup, cquot;
 
   cv_mem->cv_etaqp1 = ZERO;
@@ -7335,6 +7440,7 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
 
 static void cvChooseEta(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype etam;
   int is;
 
@@ -7557,6 +7663,7 @@ static int cvHandleHinOrStepFailure(CVodeMem cv_mem, int flag)
 
 static void cvBDFStab(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i,k, ldflag, factorial;
   realtype sq, sqm1, sqm2;
 
@@ -7938,6 +8045,7 @@ static int cvSLdet(CVodeMem cv_mem)
 
 static int cvRcheck1(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;
@@ -8006,6 +8114,7 @@ static int cvRcheck1(CVodeMem cv_mem)
 
 static int cvRcheck2(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;
@@ -8078,6 +8187,7 @@ static int cvRcheck2(CVodeMem cv_mem)
 
 static int cvRcheck3(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int i, ier, retval;
 
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
@@ -8422,6 +8532,7 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
+  SUNDeclareContext(CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAbs(ycur, cv_mem->cv_tempv), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv), CV_SUNCTX);
@@ -8444,6 +8555,7 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
+  SUNDeclareContext(CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAbs(ycur, cv_mem->cv_tempv), CV_SUNCTX);
   N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
                cv_mem->cv_Vabstol, cv_mem->cv_tempv);
@@ -8483,6 +8595,7 @@ static int cvQuadEwtSet(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 
 static int cvQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
+  SUNDeclareContext(CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAbs(qcur, cv_mem->cv_tempvQ), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ), CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQ, cv_mem->cv_tempvQ), CV_SUNCTX);
@@ -8500,6 +8613,7 @@ static int cvQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 
 static int cvQuadEwtSetSV(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
+  SUNDeclareContext(CV_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VAbs(qcur, cv_mem->cv_tempvQ), CV_SUNCTX);
   N_VLinearSum(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, ONE,
                cv_mem->cv_VabstolQ, cv_mem->cv_tempvQ);
@@ -8548,6 +8662,7 @@ static int cvSensEwtSet(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 
 static int cvSensEwtSetEE(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
   N_Vector pyS;
   int flag;
@@ -8571,6 +8686,7 @@ static int cvSensEwtSetEE(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 
 static int cvSensEwtSetSS(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
@@ -8592,6 +8708,7 @@ static int cvSensEwtSetSS(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 
 static int cvSensEwtSetSV(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
@@ -8644,6 +8761,7 @@ static int cvQuadSensEwtSet(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weightQ
  */
 static int cvQuadSensEwtSetEE(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weightQS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
   N_Vector pyS;
   int flag;
@@ -8662,6 +8780,7 @@ static int cvQuadSensEwtSetEE(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
 
 static int cvQuadSensEwtSetSS(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weightQS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
@@ -8678,6 +8797,7 @@ static int cvQuadSensEwtSetSS(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
 
 static int cvQuadSensEwtSetSV(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weightQS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
@@ -8707,6 +8827,7 @@ static int cvQuadSensEwtSetSV(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
 static realtype cvQuadUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
                                  N_Vector xQ, N_Vector wQ)
 {
+  SUNDeclareContext(CV_SUNCTX);
   realtype qnrm;
 
   qnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(xQ, wQ), CV_SUNCTX);
@@ -8728,6 +8849,7 @@ static realtype cvQuadUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
 
 realtype cvSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
   realtype nrm;
 
@@ -8769,6 +8891,7 @@ realtype cvSensUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
 
 static realtype cvQuadSensNorm(CVodeMem cv_mem, N_Vector *xQS, N_Vector *wQS)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int is;
   realtype nrm;
 
@@ -8940,6 +9063,8 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
   /* cvode_mem is passed here as user data */
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   delta = SUNRsqrt(SUNMAX(cv_mem->cv_reltol, cv_mem->cv_uround));
   rdelta = ONE/delta;
 
@@ -9106,6 +9231,8 @@ static int cvQuadSensRhsInternalDQ(int Ns, realtype t,
   /* cvode_mem is passed here as user data */
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   for (is=0; is<Ns; is++) {
     retval = cvQuadSensRhs1InternalDQ(cv_mem, is, t,
                                       y, yS[is],
@@ -9122,6 +9249,7 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
                                     N_Vector yQdot, N_Vector yQSdot,
                                     N_Vector tmp, N_Vector tmpQ)
 {
+  SUNDeclareContext(CV_SUNCTX);
   int retval, method;
   int nfel = 0, which;
   realtype psave, pbari;

@@ -59,6 +59,8 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Return immediately if NLS memory is NULL */
   if (NLS == NULL) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -90,8 +92,9 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if ((cv_mem->NLSsim != NULL) && (cv_mem->ownNLSsim))
+  if ((cv_mem->NLSsim != NULL) && (cv_mem->ownNLSsim)) {
     SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSsim), CV_SUNCTX);
+  }
 
   /* set SUNNonlinearSolver pointer */
   cv_mem->NLSsim = NLS;
@@ -240,6 +243,8 @@ int cvNlsInitSensSim(CVodeMem cvode_mem)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* set the linear solver setup wrapper function */
   if (cvode_mem->cv_lsetup) {
     retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLSsim, cvNlsLSetupSensSim);
@@ -379,6 +384,8 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* extract the current state and sensitivity corrections */
   ycor  = NV_VEC_SW(ycorSim,0);
 
@@ -456,6 +463,8 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* extract state and residual vectors from the vector wrapper */
   ycor = NV_VEC_SW(ycorSim,0);
   res  = NV_VEC_SW(resSim,0);
@@ -518,6 +527,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* extract state and residual vectors from the vector wrapper */
   ycor = NV_VEC_SW(ycorSim,0);

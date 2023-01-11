@@ -63,11 +63,11 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
                                sunindextype ml, sunindextype smu,
                                SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNMatrix A;
   SUNMatrixContent_Band content;
   sunindextype j, colSize;
 
-  SUNAssertContext(sunctx);
   SUNAssert(N > 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
   SUNAssert(smu >= 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
   SUNAssert(ml >= 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
@@ -124,6 +124,7 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
 
 void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i, j, start, finish;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
@@ -156,60 +157,70 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
 
 sunindextype SUNBandMatrix_Rows(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_ROWS_B(A);
 }
 
 sunindextype SUNBandMatrix_Columns(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_COLUMNS_B(A);
 }
 
 sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_LBAND_B(A);
 }
 
 sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_UBAND_B(A);
 }
 
 sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_SUBAND_B(A);
 }
 
 sunindextype SUNBandMatrix_LDim(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_LDIM_B(A);
 }
 
 sunindextype SUNBandMatrix_LData(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_LDATA_B(A);
 }
 
 realtype* SUNBandMatrix_Data(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_DATA_B(A);
 }
 
 realtype** SUNBandMatrix_Cols(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_COLS_B(A);
 }
 
 realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   return SM_COLUMN_B(A,j);
 }
@@ -227,12 +238,12 @@ SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A)
 
 SUNMatrix SUNMatClone_Band(SUNMatrix A)
 {
-  SUNContext sunctx = A->sunctx;
+  SUNDeclareContext(A->sunctx);
   SUNMatrix B =
     SUNCheckCallLastErrNull(SUNBandMatrixStorage(SM_COLUMNS_B(A),
                                                        SM_UBAND_B(A),
                                                        SM_LBAND_B(A),
-                                                       SM_SUBAND_B(A), sunctx),
+                                                       SM_SUBAND_B(A), A->sunctx),
                                   sunctx);
   return(B);
 }
@@ -267,6 +278,7 @@ void SUNMatDestroy_Band(SUNMatrix A)
 
 SUNErrCode SUNMatZero_Band(SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i;
   realtype *Adata;
 
@@ -282,9 +294,9 @@ SUNErrCode SUNMatZero_Band(SUNMatrix A)
 
 SUNErrCode SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i, j, colSize, ml, mu, smu;
   realtype *A_colj, *B_colj;
-  SUNContext sunctx = A->sunctx;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
   SUNAssert(SUNMatGetID(B) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
@@ -321,6 +333,7 @@ SUNErrCode SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
 
 SUNErrCode SUNMatScaleAddI_Band(realtype c, SUNMatrix A)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i, j;
   realtype *A_colj;
 
@@ -338,9 +351,9 @@ SUNErrCode SUNMatScaleAddI_Band(realtype c, SUNMatrix A)
 
 SUNErrCode SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i, j;
   realtype *A_colj, *B_colj;
-  SUNContext sunctx = A->sunctx;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
   SUNAssert(SUNMatGetID(B) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, sunctx);
@@ -364,9 +377,9 @@ SUNErrCode SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B)
 
 SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i, j, is, ie;
   realtype *col_j, *xd, *yd;
-  SUNContext sunctx = A->sunctx;
 
   SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
 
@@ -389,6 +402,7 @@ SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
 
 SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw)
 {
+  SUNDeclareContext(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE, A->sunctx);
   *lenrw = SM_COLUMNS_B(A) * (SM_SUBAND_B(A) + SM_LBAND_B(A) + 1);
   *leniw = 7 + SM_COLUMNS_B(A);
@@ -432,17 +446,17 @@ static booleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector 
 
 SUNErrCode SMScaleAddNew_Band(realtype c, SUNMatrix A, SUNMatrix B)
 {
+  SUNDeclareContext(A->sunctx);
   sunindextype i, j, ml, mu, smu;
   realtype *A_colj, *B_colj, *C_colj;
   SUNMatrix C;
-  SUNContext sunctx = A->sunctx;
 
   /* create new matrix large enough to hold both A and B */
   ml  = SUNMAX(SM_LBAND_B(A),SM_LBAND_B(B));
   mu  = SUNMAX(SM_UBAND_B(A),SM_UBAND_B(B));
   smu = SUNMIN(SM_COLUMNS_B(A)-1, mu + ml);
   C   = SUNCheckCallLastErr(SUNBandMatrixStorage(SM_COLUMNS_B(A), mu, ml,
-                                                       smu, sunctx),
+                                                       smu, A->sunctx),
                                   sunctx);
 
   /* scale/add c*A into new matrix */

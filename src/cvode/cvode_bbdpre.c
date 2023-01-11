@@ -76,6 +76,8 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Test if the CVLS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 
@@ -305,6 +307,8 @@ int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Test if the LS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 
@@ -352,6 +356,8 @@ int CVBBDPrecGetWorkSpace(void *cvode_mem,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 
                    __FILE__, MSGBBD_LMEM_NULL);
@@ -386,6 +392,8 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 
@@ -461,6 +469,8 @@ static SUNLsStatus CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   pdata = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
+  
+  SUNDeclareContext(CV_SUNCTX);
 
   /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
@@ -549,10 +559,9 @@ static SUNLsStatus CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   SUNLsStatus ls_status;
   CVBBDPrecData pdata;
   sunrealtype *rdata, *zdata;
-  SUNContext sunctx;
 
   pdata = (CVBBDPrecData) bbd_data;
-  sunctx = ((CVodeMem) pdata->cvode_mem)->cv_sunctx;
+  SUNDeclareContext(((CVodeMem) pdata->cvode_mem)->cv_sunctx);
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
   rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(r), sunctx);
@@ -576,6 +585,8 @@ static SUNLsStatus CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int CVBBDPrecFree(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
+  
   CVLsMem cvls_mem;
   CVBBDPrecData pdata;
 
@@ -629,6 +640,8 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
   cns_data = NULL;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
+  
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Load ytemp with y = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), CV_SUNCTX);

@@ -39,6 +39,7 @@
 void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
                     MRIStepInnerStepper stepper, SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   ARKodeMem          ark_mem;         /* outer ARKODE memory   */
   ARKodeMRIStepMem   step_mem;        /* outer stepper memory  */
   SUNNonlinearSolver NLS;             /* default nonlin solver */
@@ -216,6 +217,8 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL)
@@ -341,6 +344,8 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
     arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_ARK_NO_MALLOC);
@@ -419,6 +424,8 @@ int MRIStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepReset",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, tR, yR, RESET_INIT);
@@ -562,6 +569,8 @@ int MRIStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z), ARK_SUNCTX);
 
   return(ARK_SUCCESS);
@@ -584,6 +593,7 @@ void MRIStepFree(void **arkode_mem)
   /* conditional frees on non-NULL MRIStep module */
   ark_mem = (ARKodeMem) (*arkode_mem);
   if (ark_mem->step_mem != NULL) {
+    SUNDeclareContext(ark_mem->sunctx);
 
     step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
 
@@ -954,6 +964,8 @@ int mriStep_Init(void* arkode_mem, int init_type)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* immediately return if reset */
   if (init_type == RESET_INIT) return(ARK_SUCCESS);
 
@@ -1221,6 +1233,8 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
@@ -1418,6 +1432,8 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_TakeStep",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep step %li,  stage 0,  h = %"RSYM",  t_n = %"RSYM"\n",
@@ -1895,6 +1911,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
 int mriStep_StageERKFast(ARKodeMem ark_mem,
                          ARKodeMRIStepMem step_mem, int is)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   realtype cdiff;    /* stage time increment */
   realtype t0;       /* start time for stage */
   int retval;        /* reusable return flag */
@@ -1949,6 +1966,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem,
 int mriStep_StageERKNoFast(ARKodeMem ark_mem,
                            ARKodeMRIStepMem step_mem, int is)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   int retval, j, nvec;
 
 #ifdef SUNDIALS_DEBUG
@@ -2249,6 +2267,7 @@ int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int *stage_map,
   ---------------------------------------------------------------*/
 int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   int i, retval, jstage, nvec;
   realtype tau;
   realtype h;
@@ -2378,6 +2397,7 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   ---------------------------------------------------------------*/
 int mriStep_StageSetup(ARKodeMem ark_mem)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   /* local data */
   ARKodeMRIStepMem step_mem;
   int retval, i, j, nvec;

@@ -51,6 +51,8 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   /* return immediately if NLS memory is NULL */
   if (NLS == NULL) {
     IDAProcessError(NULL, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -89,8 +91,9 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if ((IDA_mem->NLSsim != NULL) && (IDA_mem->ownNLSsim))
+  if ((IDA_mem->NLSsim != NULL) && (IDA_mem->ownNLSsim)) {
     SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSsim), IDA_SUNCTX);
+  }
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLSsim = NLS;
@@ -216,6 +219,8 @@ int IDAGetNonlinearSystemDataSens(void *ida_mem, realtype *tcur,
 int idaNlsInitSensSim(IDAMem IDA_mem)
 {
   int retval;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   /* set the linear solver setup wrapper function */
   if (IDA_mem->ida_lsetup) {
@@ -349,6 +354,8 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   /* extract state and residual vectors from the vector wrapper */
   ycor = NV_VEC_SW(ycorSim,0);
   res  = NV_VEC_SW(resSim,0);
@@ -412,6 +419,8 @@ static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   /* compute the norm of the correction */
   delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), IDA_SUNCTX);

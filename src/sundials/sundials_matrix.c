@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <sundials/sundials.h>
+#include "sundials/sundials_context.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNMatrix A)
@@ -34,11 +35,9 @@ static SUNProfiler getSUNProfiler(SUNMatrix A)
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNMatrix     A;
   SUNMatrix_Ops ops;
-
-  /* a context is required */
-  SUNAssertContext(sunctx);
 
   /* create matrix object */
   A = NULL;
@@ -95,6 +94,7 @@ void SUNMatFreeEmpty(SUNMatrix A)
 
 SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
+  SUNDeclareContext(A->sunctx);
   /* Check that ops structures exist */
   SUNAssert(A && A->ops && A && A->ops, SUN_ERR_ARG_CORRUPT, A->sunctx);
   SUNAssert(B && B->ops && B && B->ops, SUN_ERR_ARG_CORRUPT, B->sunctx);

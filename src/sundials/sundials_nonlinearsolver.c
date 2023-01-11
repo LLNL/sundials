@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <sundials/sundials_nonlinearsolver.h>
+#include "sundials/sundials_context.h"
 #include "sundials/sundials_errors.h"
 #include "sundials_context_impl.h"
 
@@ -34,10 +35,9 @@ static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
 
 SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNNonlinearSolver     NLS;
   SUNNonlinearSolver_Ops ops;
-
-  SUNAssertContext(sunctx);
 
   /* create nonlinear solver object */
   NLS = NULL;

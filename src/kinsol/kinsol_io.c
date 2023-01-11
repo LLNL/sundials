@@ -907,6 +907,8 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   kin_mem = (KINMem) kinmem;
 
+  SUNDeclareContext(KIN_SUNCTX);
+
   if (constraints == NULL) {
     if (kin_mem->kin_constraintsSet) {
       SUNCheckCallLastErrNoRet(N_VDestroy(kin_mem->kin_constraints), KIN_SUNCTX);

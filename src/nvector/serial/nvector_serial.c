@@ -1538,11 +1538,12 @@ SUNErrCode N_VBufSize_Serial(N_Vector x, sunindextype *size)
 
 SUNErrCode N_VBufPack_Serial(N_Vector x, void *buf)
 {
+  SUNDeclareContext(x->sunctx);
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;
 
-  SUNAssert(buf, SUN_ERR_ARG_CORRUPT, x->sunctx);
+  SUNAssert(buf, SUN_ERR_ARG_CORRUPT, SUNCTX);
 
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);
@@ -1557,11 +1558,12 @@ SUNErrCode N_VBufPack_Serial(N_Vector x, void *buf)
 
 SUNErrCode N_VBufUnpack_Serial(N_Vector x, void *buf)
 {
+  SUNDeclareContext(x->sunctx);
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;
 
-  SUNAssert(buf, SUN_ERR_ARG_CORRUPT, x->sunctx);
+  SUNAssert(buf, SUN_ERR_ARG_CORRUPT, SUNCTX);
 
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);

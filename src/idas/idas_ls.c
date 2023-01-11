@@ -117,6 +117,8 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   /* Test if solver is compatible with LS interface */
   if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -361,6 +363,8 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   /* Check for legal eplifac */
   if (eplifac < ZERO) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_LS_NEG_EPLIFAC);
@@ -385,6 +389,8 @@ int IDASetLSNormFactor(void *ida_mem, realtype nrmfac)
   retval = idaLs_AccessLMem(ida_mem, "IDASetLSNormFactor",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) return(retval);
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   if (nrmfac > ZERO) {
     /* user-provided factor */
@@ -633,6 +639,8 @@ int IDAGetLinWorkSpace(void *ida_mem, long int *lenrwLS,
   retval = idaLs_AccessLMem(ida_mem, "IDAGetLinWorkSpace",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   /* start with fixed sizes plus vector/matrix pointers */
   *lenrwLS = 3;
@@ -1022,6 +1030,8 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
                     IDAMem IDA_mem, N_Vector tmp1)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   realtype inc, inc_inv, yj, ypj, srur, conj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
@@ -1120,6 +1130,8 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
                    IDAMem IDA_mem, N_Vector tmp1, N_Vector tmp2,
                    N_Vector tmp3)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
@@ -1259,6 +1271,8 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   LSID = SUNLinSolGetID(idals_mem->LS);
   if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR) {
     sig = idals_mem->nrmfac * idals_mem->dqincfac;
@@ -1395,6 +1409,8 @@ int idaLsInitialize(IDAMem IDA_mem)
 int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
                N_Vector vt1, N_Vector vt2, N_Vector vt3)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDALsMem idals_mem;
   int      retval;
 
@@ -1475,6 +1491,8 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   IDALsMem idals_mem;
   int      nli_inc, retval;
   realtype tol, w_mean;
@@ -1693,6 +1711,8 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
 ---------------------------------------------------------------*/
 int idaLsFree(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+  
   IDALsMem idals_mem;
 
   /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */

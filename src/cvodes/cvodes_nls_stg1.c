@@ -49,6 +49,8 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Return immediately if NLS memory is NULL */
   if (NLS == NULL) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -80,8 +82,9 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if ((cv_mem->NLSstg1 != NULL) && (cv_mem->ownNLSstg1))
-      SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg1), CV_SUNCTX);
+  if ((cv_mem->NLSstg1 != NULL) && (cv_mem->ownNLSstg1)) {
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg1), CV_SUNCTX);
+  }
 
   /* set SUNNonlinearSolver pointer */
   cv_mem->NLSstg1 = NLS;
@@ -151,6 +154,8 @@ int cvNlsInitSensStg1(CVodeMem cvode_mem)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* set the linear solver setup wrapper function */
   if (cvode_mem->cv_lsetup) {
@@ -278,6 +283,8 @@ static int cvNlsConvTestSensStg1(SUNNonlinearSolver NLS,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* compute the norm of the state and sensitivity corrections */
   del = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt), CV_SUNCTX);
 
@@ -319,6 +326,8 @@ static int cvNlsResidualSensStg1(N_Vector ycor, N_Vector res, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* get index of current sensitivity solve */
   is = cv_mem->sens_solve_idx;
 
@@ -352,6 +361,8 @@ static int cvNlsFPFunctionSensStg1(N_Vector ycor, N_Vector res, void* cvode_mem)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* get index of current sensitivity solve */
   is = cv_mem->sens_solve_idx;

@@ -48,7 +48,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, realtype** h, int k, int p,
 {
   int i, k_minus_1, i0;
   realtype new_norm_2, new_product, vk_norm, temp;
-  SUNContext sunctx = v[0]->sunctx;
+  SUNDeclareContext(v[0]->sunctx);
 
   vk_norm = SUNCheckCallLastErr((N_VDotProd(v[k], v[k])), sunctx);
   vk_norm = SUNRsqrt(vk_norm);
@@ -118,7 +118,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, realtype** h, int k, int p,
 {
   int i, i0, k_minus_1;
   realtype vk_norm;
-  SUNContext sunctx = v[0]->sunctx;
+  SUNDeclareContext(v[0]->sunctx);
 
   k_minus_1 = k - 1;
   i0        = SUNMAX(k - p, 0);
@@ -349,7 +349,7 @@ SUNErrCode SUNQRAdd_MGS(N_Vector* Q, realtype* R, N_Vector df, int m, int mMax,
 {
   sunindextype j;
   SUNQRData qrdata  = (SUNQRData)QRdata;
-  SUNContext sunctx = Q[0]->sunctx;
+  SUNDeclareContext(Q[0]->sunctx);
 
   SUNCheckCallLastErr(N_VScale(ONE, df, qrdata->vtemp), sunctx);
   for (j = 0; j < m; j++)
@@ -378,7 +378,7 @@ SUNErrCode SUNQRAdd_ICWY(N_Vector* Q, realtype* R, N_Vector df, int m, int mMax,
 {
   sunindextype j, k;
   SUNQRData qrdata  = (SUNQRData)QRdata;
-  SUNContext sunctx = Q[0]->sunctx;
+  SUNDeclareContext(Q[0]->sunctx);
 
   SUNCheckCallLastErr(N_VScale(ONE, df, qrdata->vtemp), sunctx);  /* stores d_fi in temp */
 
@@ -436,7 +436,7 @@ SUNErrCode SUNQRAdd_ICWY_SB(N_Vector* Q, realtype* R, N_Vector df, int m,
 {
   sunindextype j, k;
   SUNQRData qrdata  = (SUNQRData)QRdata;
-  SUNContext sunctx = Q[0]->sunctx;
+  SUNDeclareContext(Q[0]->sunctx);
 
   SUNCheckCallLastErr(N_VScale(ONE, df, qrdata->vtemp), sunctx);  /* stores d_fi in temp */
 
@@ -508,7 +508,7 @@ SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, realtype* R, N_Vector df, int m, int mMax,
 {
   sunindextype j;
   SUNQRData qrdata  = (SUNQRData)QRdata;
-  SUNContext sunctx = Q[0]->sunctx;
+  SUNDeclareContext(Q[0]->sunctx);
 
   SUNCheckCallLastErr(N_VScale(ONE, df, qrdata->vtemp), sunctx);  /* temp = df */
 
@@ -562,7 +562,7 @@ SUNErrCode SUNQRAdd_DCGS2(N_Vector* Q, realtype* R, N_Vector df, int m,
 {
   sunindextype j;
   SUNQRData qrdata  = (SUNQRData)QRdata;
-  SUNContext sunctx = Q[0]->sunctx;
+  SUNDeclareContext(Q[0]->sunctx);
 
   SUNCheckCallLastErr(N_VScale(ONE, df, qrdata->vtemp), sunctx);  /* temp = df */
 
@@ -621,7 +621,7 @@ SUNErrCode SUNQRAdd_DCGS2_SB(N_Vector* Q, realtype* R, N_Vector df, int m,
 {
   sunindextype j;
   SUNQRData qrdata  = (SUNQRData)QRdata;
-  SUNContext sunctx = Q[0]->sunctx;
+  SUNDeclareContext(Q[0]->sunctx);
 
   SUNCheckCallLastErr(N_VScale(ONE, df, qrdata->vtemp), sunctx);  /* temp = df */
 

@@ -76,6 +76,8 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Test if the CVLS linear solver interface has been attached */
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__,
@@ -218,6 +220,8 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__,
                    __FILE__, MSGBP_LMEM_NULL);
@@ -278,6 +282,8 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__,
@@ -352,6 +358,8 @@ static SUNLsStatus CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
+  
+  SUNDeclareContext(CV_SUNCTX);
 
   if (jok) {
 
@@ -456,6 +464,7 @@ static SUNLsStatus CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int CVBandPrecFree(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
   CVLsMem cvls_mem;
   CVBandPrecData pdata;
 
@@ -503,6 +512,8 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   cns_data = NULL;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
+  
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Obtain pointers to the data for various vectors */
   ewt_data   = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);

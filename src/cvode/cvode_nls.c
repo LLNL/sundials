@@ -66,6 +66,8 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Return immediately if NLS memory is NULL */
   if (NLS == NULL) {
     cvProcessError(NULL, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -96,10 +98,10 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   /* set the nonlinear system function */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
     retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNlsResidual);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
   } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_FIXEDPOINT) {
     retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNlsFPFunction);
-    SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval, CV_SUNCTX);
   } else {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Invalid nonlinear solver type");
@@ -114,7 +116,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* set convergence test function */
   retval = SUNNonlinSolSetConvTestFn(cv_mem->NLS, cvNlsConvTest, cvode_mem);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Setting convergence test function failed");
@@ -123,7 +125,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* set max allowed nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(cv_mem->NLS, NLS_MAXCOR);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Setting maximum number of nonlinear iterations failed");
@@ -164,6 +166,8 @@ int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (f)
     cv_mem->nls_f = f;
   else
@@ -195,6 +199,8 @@ int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   *tcur      = cv_mem->cv_tn;
   *ypred     = cv_mem->cv_zn[0];
   *yn        = cv_mem->cv_y;
@@ -215,6 +221,8 @@ int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
 
 int cvNlsInit(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
+  
   int retval;
 
   /* set the linear solver setup wrapper function */
@@ -222,7 +230,7 @@ int cvNlsInit(CVodeMem cv_mem)
     retval = SUNNonlinSolSetLSetupFn(cv_mem->NLS, cvNlsLSetup);
   else
     retval = SUNNonlinSolSetLSetupFn(cv_mem->NLS, NULL);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
 
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -235,7 +243,7 @@ int cvNlsInit(CVodeMem cv_mem)
     retval = SUNNonlinSolSetLSolveFn(cv_mem->NLS, cvNlsLSolve);
   else
     retval = SUNNonlinSolSetLSolveFn(cv_mem->NLS, NULL);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
 
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -245,7 +253,7 @@ int cvNlsInit(CVodeMem cv_mem)
 
   /* initialize nonlinear solver */
   retval = SUNNonlinSolInitialize(cv_mem->NLS);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    MSGCV_NLS_INIT_FAIL);
@@ -266,6 +274,8 @@ static SUNNlsStatus cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* if the nonlinear solver marked the Jacobian as bad update convfail */
   if (jbad)
@@ -303,6 +313,8 @@ static SUNNlsStatus cvNlsLSolve(N_Vector delta, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt, cv_mem->cv_y, cv_mem->cv_ftemp);
 
   if (retval < 0) return(CV_LSOLVE_FAIL);
@@ -326,12 +338,14 @@ static SUNNlsStatus cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vecto
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* compute the norm of the correction */
   del = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt), CV_SUNCTX);
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
-  SUNCheck(retval == SUN_SUCCESS, retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval, CV_SUNCTX);
   if (retval != CV_SUCCESS) return(CV_MEM_NULL);
 
   /* Test for convergence. If m > 0, an estimate of the convergence
@@ -373,6 +387,8 @@ static SUNNlsStatus cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* update the state based on the current correction */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
 
@@ -410,6 +426,8 @@ static SUNNlsStatus cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* update the state based on the current correction */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);

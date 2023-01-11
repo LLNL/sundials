@@ -136,6 +136,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
   /* Check if problem was malloc'ed */
@@ -487,6 +489,8 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
 static int IDANlsIC(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int retval, nj, is;
   N_Vector tv1, tv2, tv3;
   booleantype sensi_sim;
@@ -591,6 +595,8 @@ static int IDANlsIC(IDAMem IDA_mem)
 
 static int IDANewtonIC(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int retval, mnewt, is;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
   booleantype sensi_sim;
@@ -655,8 +661,9 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
     if(sensi_sim) {
       /* Update the iteration's step for sensitivities. */
-      for(is=0; is<IDA_mem->ida_Ns; is++)
+      for(is=0; is<IDA_mem->ida_Ns; is++) {
         SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_delnewS[is], IDA_mem->ida_deltaS[is]), IDA_SUNCTX);
+      }
     }
 
   }   /* End of Newton iteration loop */
@@ -697,6 +704,8 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
 static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   booleantype conOK;
   int retval, is, nbacks;
   realtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
@@ -744,8 +753,9 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
     /* do the same for sensitivities. */
     if(sensi_sim) {
-      for(is=0; is<IDA_mem->ida_Ns; is++)
+      for(is=0; is<IDA_mem->ida_Ns; is++) {
         SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ypS0[is], IDA_mem->ida_ypS0new[is]), IDA_SUNCTX);
+      }
     }
   }
 
@@ -814,6 +824,8 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int retval, is;
 
   /* Get residual vector F, return if failed, and save F in savres. */
@@ -856,8 +868,9 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
     if(retval > 0) return(IC_FAIL_RECOV);
 
     /* Save delnewS in savresS. */
-    for(is=0; is<IDA_mem->ida_Ns; is++)
+    for(is=0; is<IDA_mem->ida_Ns; is++) {
       SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_delnewS[is], IDA_mem->ida_savresS[is]), IDA_SUNCTX);
+    }
 
     /* Call the linear solve function to get J-inverse deltaS. */
     for(is=0; is<IDA_mem->ida_Ns; is++) {
@@ -898,6 +911,8 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+  
   int retval;
 
   retval = IDA_SUCCESS;
@@ -942,6 +957,7 @@ static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 
 static int IDANewy(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
 
   /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
@@ -991,6 +1007,8 @@ static int IDANewy(IDAMem IDA_mem)
  */
 static int IDASensNlsIC(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int retval;
   int is, nj;
 
@@ -1007,8 +1025,9 @@ static int IDASensNlsIC(IDAMem IDA_mem)
   if(retval > 0) return(IDA_FIRST_RES_FAIL);
 
   /* Save deltaS */
-  for(is=0; is<IDA_mem->ida_Ns; is++)
+  for(is=0; is<IDA_mem->ida_Ns; is++) {
     SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_deltaS[is], IDA_mem->ida_savresS[is]), IDA_SUNCTX);
+  }
 
   /* Loop over nj = number of linear solve Jacobian setups. */
 
@@ -1069,6 +1088,8 @@ static int IDASensNlsIC(IDAMem IDA_mem)
  */
 static int IDASensNewtonIC(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int retval, is, mnewt;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
 
@@ -1108,8 +1129,9 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
     if(fnorm <= IDA_mem->ida_epsNewt) return(IDA_SUCCESS);
 
     /* If not converged, copy new step vectors, and loop. */
-    for(is=0; is<IDA_mem->ida_Ns; is++)
+    for(is=0; is<IDA_mem->ida_Ns; is++) {
       SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_delnewS[is], IDA_mem->ida_deltaS[is]), IDA_SUNCTX);
+    }
 
   }   /* End of Newton iteration loop */
 
@@ -1149,6 +1171,8 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
 
 static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int is, retval, nbacks;
   realtype f1norm, fnormp, f1normp, slpi, minlam;
   realtype lambda, ratio;
@@ -1220,6 +1244,8 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int is, retval;
 
   /* Get sensitivity residual */
@@ -1236,8 +1262,9 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
 
-  for(is=0; is<IDA_mem->ida_Ns; is++)
+  for(is=0; is<IDA_mem->ida_Ns; is++) {
     SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_delnewS[is], IDA_mem->ida_savresS[is]), IDA_SUNCTX);
+  }
 
   /* Call linear solve function */
   for(is=0; is<IDA_mem->ida_Ns; is++) {
@@ -1273,6 +1300,8 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+  
   int is;
 
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {

@@ -47,11 +47,11 @@
 
 SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_Dense content;
   sunindextype MatrixRows;
 
-  SUNAssertContext(sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE, sunctx);
   SUNAssert(SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH, sunctx);
   SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_INCOMPATIBLE, sunctx);
@@ -118,9 +118,9 @@ SUNErrCode SUNLinSolInitialize_Dense(SUNLinearSolver S)
 
 SUNLsStatus SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 {
+  SUNDeclareContext(S->sunctx);
   realtype **A_cols;
   sunindextype *pivots;
-  SUNContext sunctx = S->sunctx;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE, sunctx);
 
@@ -147,9 +147,9 @@ SUNLsStatus SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 SUNLsStatus SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype tol)
 {
+  SUNDeclareContext(S->sunctx);
   realtype **A_cols, *xdata;
   sunindextype *pivots;
-  SUNContext sunctx = S->sunctx;
 
   /* copy b into x */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, b, x), sunctx);
@@ -181,6 +181,7 @@ sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_Dense(SUNLinearSolver S, long int* lenrwLS,
                                 long int* leniwLS)
 {
+  SUNDeclareContext(S->sunctx);
   SUNAssert(SUNLinSolGetID(S) == SUNLINEARSOLVER_DENSE, SUN_ERR_ARG_WRONGTYPE, S->sunctx);
   *leniwLS = 2 + DENSE_CONTENT(S)->N;
   *lenrwLS = 0;

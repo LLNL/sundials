@@ -24,6 +24,7 @@
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_nvector.h>
 #include "sundials/sundials_config.h"
+#include "sundials/sundials_context.h"
 #include "sundials/sundials_export.h"
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_types.h"
@@ -43,10 +44,9 @@ static inline SUNProfiler getSUNProfiler(N_Vector v)
 /* Create an empty NVector object */
 N_Vector N_VNewEmpty(SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   N_Vector     v;
   N_Vector_Ops ops;
-
-  SUNAssertContext(sunctx);
 
   /* create vector object */
   v = NULL;
@@ -177,6 +177,7 @@ void N_VFreeEmpty(N_Vector v)
 /* Copy a vector 'ops' structure */
 SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
 {
+  SUNDeclareContext(w->sunctx);
   /* Check that ops structures exist */
   SUNAssert(w && w->ops && v && v->ops, SUN_ERR_ARG_CORRUPT, w->sunctx);
 
@@ -998,17 +999,18 @@ N_Vector* N_VNewVectorArray(int count)
 
 N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 {
+  SUNDeclareContext(w->sunctx);
   N_Vector* vs = NULL;
   int j;
 
-  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE, w->sunctx);
+  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE, SUNCTX);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  SUNAssert(vs, SUN_ERR_MALLOC_FAIL, w->sunctx);
+  SUNAssert(vs, SUN_ERR_MALLOC_FAIL, SUNCTX);
 
   for (j = 0; j < count; j++) {
-    vs[j] = SUNCheckCallLastErrNoRet(N_VCloneEmpty(w), w->sunctx);
-    if (SUNGetLastErr(w->sunctx) < 0) {
+    vs[j] = SUNCheckCallLastErrNoRet(N_VCloneEmpty(w), SUNCTX);
+    if (SUNGetLastErr(SUNCTX) < 0) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
     }
@@ -1019,17 +1021,18 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArray(int count, N_Vector w)
 {
+  SUNDeclareContext(w->sunctx);
   int j;
   N_Vector* vs = NULL;
 
-  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE, w->sunctx);
+  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE, SUNCTX);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  SUNAssert(vs, SUN_ERR_MALLOC_FAIL, w->sunctx);
+  SUNAssert(vs, SUN_ERR_MALLOC_FAIL, SUNCTX);
 
   for (j = 0; j < count; j++) {
-    vs[j] = SUNCheckCallLastErrNoRet(N_VClone(w), w->sunctx);
-    if (SUNGetLastErr(w->sunctx) < 0) {
+    vs[j] = SUNCheckCallLastErrNoRet(N_VClone(w), SUNCTX);
+    if (SUNGetLastErr(SUNCTX) < 0) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
     }
@@ -1057,13 +1060,15 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 /* These function are really only for users of the Fortran interface */
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
+  SUNDeclareContext(vs[0]->sunctx);
   SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, vs[0]->sunctx);
   return vs[index];
 }
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
-  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, w->sunctx);
+  SUNDeclareContext(w->sunctx);
+  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, SUNCTX);
   vs[index] = w;
 }
 

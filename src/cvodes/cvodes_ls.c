@@ -150,6 +150,8 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (LS == NULL) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "LS must be non-NULL");
@@ -446,6 +448,8 @@ int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return(retval);
 
+  SUNDeclareContext(CV_SUNCTX);
+
   if (nrmfac > ZERO) {
     /* user-provided factor */
     cvls_mem->nrmfac = nrmfac;
@@ -717,6 +721,8 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
   retval = cvLs_AccessLMem(cvode_mem, "CVodeGetLinWorkSpace",
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* start with fixed sizes plus vector/matrix pointers */
   *lenrwLS = 2;
@@ -1008,6 +1014,8 @@ int cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* call Jacobian-times-vector product routine
      (either user-supplied or internal DQ) */
   retval = cvls_mem->jtimes(v, z, cv_mem->cv_tn,
@@ -1157,6 +1165,8 @@ int cvLsDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1)
 {
+  SUNDeclareContext(CV_SUNCTX);
+
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
   realtype *y_data, *ewt_data, *cns_data;
   N_Vector ftemp, jthCol;
@@ -1242,6 +1252,8 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                   CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
+  SUNDeclareContext(CV_SUNCTX);
+
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur, conj;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
@@ -1358,6 +1370,8 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
+  SUNDeclareContext(CV_SUNCTX);
+
   /* Initialize perturbation to 1/||v|| */
   sig = ONE;
   sig /= SUNCheckCallLastErrNoRet(N_VWrmsNorm(v, cv_mem->cv_ewt), CV_SUNCTX);
@@ -1406,6 +1420,8 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   retval = cvLs_AccessLMem(cvode_mem, "cvLsLinSys",
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
+
+  SUNDeclareContext(CV_SUNCTX);
 
   /* Check if Jacobian needs to be updated */
   if (jok) {
@@ -1483,6 +1499,8 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   -----------------------------------------------------------------*/
 int cvLsInitialize(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
+
   CVLsMem cvls_mem;
   int     retval;
 
@@ -1615,6 +1633,8 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
               N_Vector fpred, booleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
+  SUNDeclareContext(CV_SUNCTX);
+
   CVLsMem  cvls_mem;
   realtype dgamma;
   int      retval;
@@ -1714,6 +1734,8 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ynow, N_Vector fnow)
 {
+  SUNDeclareContext(CV_SUNCTX);
+
   CVLsMem  cvls_mem;
   realtype bnorm, deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
@@ -1928,6 +1950,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   -----------------------------------------------------------------*/
 int cvLsFree(CVodeMem cv_mem)
 {
+  SUNDeclareContext(CV_SUNCTX);
+  
   CVLsMem cvls_mem;
 
   /* Return immediately if CVodeMem or CVLsMem  are NULL */

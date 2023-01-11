@@ -295,6 +295,8 @@ int CVodeGetNumProjFails(void *cvode_mem, long int *npfails)
 int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                    int *npfailPtr)
 {
+  SUNDeclareContext(CV_SUNCTX);
+  
   int          retval;
   N_Vector     errP;
   N_Vector     acorP;

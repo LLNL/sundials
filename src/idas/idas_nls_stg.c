@@ -51,6 +51,8 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   /* return immediately if NLS memory is NULL */
   if (NLS == NULL) {
     IDAProcessError(NULL, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -171,6 +173,8 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
 int idaNlsInitSensStg(IDAMem IDA_mem)
 {
+  SUNDeclareContext(IDA_SUNCTX);
+
   int retval;
 
   /* set the linear solver setup wrapper function */
@@ -322,6 +326,8 @@ static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   /* compute the norm of the correction */
   delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), IDA_SUNCTX);

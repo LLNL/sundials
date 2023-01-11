@@ -81,6 +81,8 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
   kin_mem = (KINMem) kinmem;
 
+  SUNDeclareContext(KIN_SUNCTX);
+
   /* Test if the LS linear solver interface has been created */
   if (kin_mem->kin_lmem == NULL) {
     KINProcessError(kin_mem, KINLS_LMEM_NULL, __LINE__, __func__, __FILE__, MSGBBD_LMEM_NULL);
@@ -380,6 +382,8 @@ static SUNLsStatus KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
   kin_mem = (KINMem) pdata->kin_mem;
 
+  SUNDeclareContext(KIN_SUNCTX);
+
   /* Call KBBDDQJac for a new Jacobian calculation and store in PP */
   retval = SUNCheckCallLastErrNoRet(SUNMatZero(pdata->PP), KIN_SUNCTX);
   if (retval) {
@@ -442,10 +446,10 @@ static SUNLsStatus KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
   realtype *vd;
   realtype *zd;
   int i;
-  SUNContext sunctx;
 
   pdata = (KBBDPrecData) bbd_data;
-  sunctx = ((KINMem) pdata->kin_mem)->kin_sunctx;
+
+  SUNDeclareContext(((KINMem) pdata->kin_mem)->kin_sunctx);
 
   /* Get data pointers */
   vd = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(vv), sunctx);
@@ -473,6 +477,8 @@ static SUNLsStatus KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
   ------------------------------------------------------------------*/
 static int KINBBDPrecFree(KINMem kin_mem)
 {
+  SUNDeclareContext(KIN_SUNCTX);
+
   KINLsMem kinls_mem;
   KBBDPrecData pdata;
 
@@ -521,6 +527,8 @@ static int KBBDDQJac(KBBDPrecData pdata,
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
 
   kin_mem = (KINMem) pdata->kin_mem;
+  
+  SUNDeclareContext(KIN_SUNCTX);
 
   /* load utemp with uu = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, uu, utemp), KIN_SUNCTX);

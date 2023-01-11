@@ -557,6 +557,8 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (id == NULL) {
     if (IDA_mem->ida_idMallocDone) {
       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_id), IDA_SUNCTX);
@@ -594,6 +596,8 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   }
 
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   if (constraints == NULL) {
     if (IDA_mem->ida_constraintsMallocDone) {
@@ -1155,6 +1159,8 @@ int IDAGetConsistentIC(void *ida_mem, N_Vector yy0, N_Vector yp0)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (IDA_mem->ida_kused != 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_TOO_LATE);
     return(IDA_ILL_INPUT);
@@ -1399,6 +1405,8 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewt, eweight), IDA_SUNCTX);
 
   return(IDA_SUCCESS);
@@ -1415,6 +1423,8 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
+
+  SUNDeclareContext(IDA_SUNCTX);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, ele), IDA_SUNCTX);
 
@@ -1648,13 +1658,16 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (IDA_mem->ida_quadr==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, __LINE__, __func__, __FILE__, MSG_NO_QUAD);
     return(IDA_NO_QUAD);
   }
 
-  if(IDA_mem->ida_errconQ)
+  if(IDA_mem->ida_errconQ) {
     SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtQ, eQweight), IDA_SUNCTX);
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1750,15 +1763,19 @@ int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (IDA_mem->ida_quadr_sensi == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, __LINE__, __func__, __FILE__, MSG_NO_QUADSENSI);
     return(IDA_NO_QUADSENS);
   }
   Ns = IDA_mem->ida_Ns;
 
-  if (IDA_mem->ida_errconQS)
-    for (is=0; is<Ns; is++)
+  if (IDA_mem->ida_errconQS) {
+    for (is=0; is<Ns; is++) {
       SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtQS[is], eQSweight[is]), IDA_SUNCTX);
+    }
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1809,6 +1826,8 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, __LINE__, __func__, __FILE__, MSG_NO_SENSI);
     return(IDA_NO_SENS);
@@ -1820,13 +1839,15 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
   }
 
   if(yyS0 != NULL) {
-    for (is=0; is<IDA_mem->ida_Ns; is++)
+    for (is=0; is<IDA_mem->ida_Ns; is++) {
       SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phiS[0][is], yyS0[is]), IDA_SUNCTX);
+    }
   }
 
   if(ypS0 != NULL) {
-    for (is=0; is<IDA_mem->ida_Ns; is++)
+    for (is=0; is<IDA_mem->ida_Ns; is++) {
       SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phiS[1][is], ypS0[is]), IDA_SUNCTX);
+    }
   }
 
   return(IDA_SUCCESS);
@@ -1938,13 +1959,16 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
+  SUNDeclareContext(IDA_SUNCTX);
+
   if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, __LINE__, __func__, __FILE__, MSG_NO_SENSI);
     return(IDA_NO_SENS);
   }
 
-  for (is=0; is<IDA_mem->ida_Ns; is++)
+  for (is=0; is<IDA_mem->ida_Ns; is++) {
     SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtS[is], eSweight[is]), IDA_SUNCTX);
+  }
 
   return(IDA_SUCCESS);
 }

@@ -109,6 +109,8 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
   if (arkode_mem == NULL)  return(NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* check for valid degree */
   if (degree < 0 || degree > ARK_INTERP_MAX_DEGREE) return(NULL);
 
@@ -183,6 +185,8 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* resize vectors */
   if (interp == NULL)  return(ARK_SUCCESS);
 
@@ -227,6 +231,8 @@ void arkInterpFree_Hermite(void* arkode_mem, ARKInterp interp)
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return;
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* if interpolation structure is NULL, just return */
   if (interp == NULL) return;
@@ -333,6 +339,8 @@ int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* if this degree is already stored, just return */
   if (abs(degree) == HINT_DEGREE(interp))  return(ARK_SUCCESS);
 
@@ -375,6 +383,8 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* initialize time values */
   HINT_TOLD(interp) = tnew;
@@ -428,6 +438,8 @@ int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* copy ynew and fnew into yold and fold, respectively */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, HINT_YNEW(interp), HINT_YOLD(interp)), ARK_SUNCTX);
@@ -486,6 +498,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* set constants */
   tau2 = tau*tau;
@@ -761,6 +775,8 @@ ARKInterp arkInterpCreate_Lagrange(void* arkode_mem, int degree)
   if (arkode_mem == NULL)  return(NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* check for valid degree */
   if (degree < 0 || degree > ARK_INTERP_MAX_DEGREE) return(NULL);
 
@@ -830,6 +846,8 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* resize vectors */
   if (I == NULL)  return(ARK_SUCCESS);
   if (LINT_YHIST(I) != NULL) {
@@ -860,6 +878,8 @@ void arkInterpFree_Lagrange(void* arkode_mem, ARKInterp I)
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return;
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* if interpolation structure is NULL, just return */
   if (I == NULL) return;
@@ -969,6 +989,8 @@ int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* if this degree is already stored, just return */
   if (abs(degree)+1 == LINT_NMAX(I))  return(ARK_SUCCESS);
 
@@ -1011,6 +1033,8 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* check if storage has increased since the last init */
   if (LINT_NMAX(I) > LINT_NMAXALLOC(I)) {
@@ -1097,6 +1121,8 @@ int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, realtype tnew)
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* set readability shortcuts */
   nhist = LINT_NHIST(I);
   nmax = LINT_NMAX(I);
@@ -1172,6 +1198,8 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* set readability shortcuts */
   nhist = LINT_NHIST(I);

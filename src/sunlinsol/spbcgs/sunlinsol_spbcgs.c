@@ -54,6 +54,7 @@
 
 SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_SPBCGS content;
 
@@ -151,6 +152,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext s
 
 SUNErrCode SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 {
+  SUNDeclareContext(S->sunctx);
   /* Check for legal pretype */
   SUNAssert((pretype == SUN_PREC_NONE) || (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) || (pretype == SUN_PREC_BOTH),
@@ -198,7 +200,7 @@ SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S)
 
 SUNErrCode SUNLinSolInitialize_SPBCGS(SUNLinearSolver S)
 {
-  SUNContext sunctx = S->sunctx;
+  SUNDeclareContext(S->sunctx);
 
   if (SPBCGS_CONTENT(S)->maxl <= 0)
     SPBCGS_CONTENT(S)->maxl = SUNSPBCGS_MAXL_DEFAULT;
@@ -288,6 +290,7 @@ SUNLsStatus SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                   N_Vector b, realtype delta)
 {
+  SUNDeclareContext(S->sunctx);
   /* local data and shortcut variables */
   realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
@@ -694,6 +697,7 @@ sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_SPBCGS(SUNLinearSolver S, long int* lenrwLS,
                                  long int* leniwLS)
 {
+  SUNDeclareContext(S->sunctx);
   sunindextype liw1, lrw1;
   if (SPBCGS_CONTENT(S)->vtemp->ops->nvspace) {
     SUNCheckCallLastErrNoRet(N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1), S->sunctx);
@@ -757,6 +761,7 @@ SUNErrCode SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
 SUNErrCode SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
                                   int print_level)
 {
+  SUNDeclareContext(S->sunctx);
   /* check for valid print level */
   SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE,
             S->sunctx);

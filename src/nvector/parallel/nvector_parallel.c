@@ -69,6 +69,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
                               sunindextype global_length,
                               SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   N_Vector v;
   N_VectorContent_Parallel content;
   sunindextype n, Nsum;
@@ -170,6 +171,7 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
                          sunindextype global_length,
                          SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   N_Vector v;
   realtype *data;
 
@@ -203,6 +205,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
                           realtype *v_data,
                           SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   N_Vector v;
 
   v = NULL;

@@ -137,10 +137,13 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL)
+  if (y0->ops->nvspace != NULL) {
     SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), ARK_SUNCTX);
+  }
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
   ark_mem->lrw1 = lrw1;
@@ -189,6 +192,8 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReInit",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
@@ -243,6 +248,8 @@ int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReset",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, tR, yR, RESET_INIT);
@@ -493,6 +500,8 @@ int erkStep_Init(void* arkode_mem, int init_type)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)
     return(ARK_SUCCESS);
@@ -621,6 +630,8 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
@@ -734,6 +745,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_TakeStep",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* local shortcuts for fused vector operations */
   cvals = step_mem->cvals;
@@ -1052,6 +1065,8 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 {
+  SUNDeclareContext(ark_mem->sunctx);
+  
   /* local data */
   int retval, j, nvec;
   N_Vector y, yerr;

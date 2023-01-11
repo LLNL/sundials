@@ -24,6 +24,7 @@
 #include "arkode_impl.h"
 #include "arkode_bbdpre_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_context.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_linearsolver.h"
 #include "sundials/sundials_types.h"
@@ -74,6 +75,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecInit",
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
@@ -285,6 +288,8 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
@@ -323,6 +328,8 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
@@ -351,6 +358,8 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetNumGfnEvals",
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Return immediately if ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -421,6 +430,8 @@ static SUNLsStatus ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (ARKBBDPrecData) bbd_data;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
@@ -505,10 +516,10 @@ static SUNLsStatus ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   SUNLsStatus ls_status;
   ARKBBDPrecData pdata;
   sunrealtype *rdata, *zdata;
-  SUNContext sunctx;
-
+  
   pdata = (ARKBBDPrecData) bbd_data;
-  sunctx = ((ARKodeMem) pdata->arkode_mem)->sunctx;
+
+  SUNDeclareContext(((ARKodeMem) pdata->arkode_mem)->sunctx);
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
   rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(r), sunctx);
@@ -533,6 +544,7 @@ static SUNLsStatus ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 /*-------------------------------------------------------------*/
 static int ARKBBDPrecFree(ARKodeMem ark_mem)
 {
+  SUNDeclareContext(ark_mem->sunctx);
   ARKLsMem       arkls_mem;
   void*          ark_step_lmem;
   ARKBBDPrecData pdata;
@@ -587,6 +599,8 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
+  
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Load ytemp with y = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), ARK_SUNCTX);

@@ -35,7 +35,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                         \
     {                                                                      \
       SUNHandleErr(__LINE__, __func__, __FILE__,                           \
-                   SUN_ERR_MPI_FAIL + sun_chk_mpi_call_err_code_, sunctx); \
+                   SUN_ERR_MPI_FAIL + sun_chk_mpi_call_err_code_, SUNCTX); \
     }                                                                      \
   }                                                                        \
   while (0)
@@ -53,7 +53,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
     if (!(expr))                                                          \
     {                                                                     \
       SUNMPIAssertErrHandlerFn(__LINE__, __func__, __FILE__, #expr, code, \
-                               sunctx->err_handler->data, sunctx);        \
+                               SUNCTX->err_handler->data, SUNCTX);        \
     }                                                                     \
   }                                                                       \
   while (0)

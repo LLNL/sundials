@@ -52,10 +52,9 @@
 
 SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_PCG content;
-
-  SUNAssertContext(sunctx);
 
   /* check for legal pretype and maxl values; if illegal use defaults */
   if ((pretype != SUN_PREC_NONE)  && (pretype != SUN_PREC_LEFT) &&
@@ -135,6 +134,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
 
 SUNErrCode SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype)
 {
+  SUNDeclareContext(S->sunctx);
   /* Check for legal pretype */
   SUNAssert((pretype == SUN_PREC_NONE) || (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) || (pretype == SUN_PREC_BOTH),
@@ -182,6 +182,7 @@ SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S)
 
 SUNErrCode SUNLinSolInitialize_PCG(SUNLinearSolver S)
 {
+  SUNDeclareContext(S->sunctx);
   if (PCG_CONTENT(S)->maxl <= 0)
     PCG_CONTENT(S)->maxl = SUNPCG_MAXL_DEFAULT;
 
@@ -272,6 +273,7 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
                                N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
+  SUNDeclareContext(S->sunctx);
   realtype alpha, beta, r0_norm, rho, rz, rz_old;
   N_Vector r, p, z, Ap, w;
   booleantype UsePrec, UseScaling, converged;
@@ -283,7 +285,6 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   realtype *res_norm;
   int *nli;
   SUNLsStatus status;
-  SUNContext sunctx = S->sunctx;
 
   /* Make local shorcuts to solver variables. */
   l_max        = PCG_CONTENT(S)->maxl;
@@ -513,6 +514,7 @@ sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_PCG(SUNLinearSolver S, long int* lenrwLS,
                               long int* leniwLS)
 {
+  SUNDeclareContext(S->sunctx);
   sunindextype liw1, lrw1;
   SUNCheckCallLastErrNoRet(N_VSpace(PCG_CONTENT(S)->r, &lrw1, &liw1), S->sunctx);
   *lenrwLS = 1 + lrw1*4;
@@ -557,6 +559,7 @@ SUNErrCode SUNLinSolSetInfoFile_PCG(SUNLinearSolver S, FILE* info_file)
 
 SUNErrCode SUNLinSolSetPrintLevel_PCG(SUNLinearSolver S, int print_level)
 {
+  SUNDeclareContext(S->sunctx);
   /* check for valid print level */
   SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE,
             S->sunctx);

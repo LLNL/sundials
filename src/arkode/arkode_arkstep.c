@@ -35,6 +35,7 @@
 void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
                     SUNContext sunctx)
 {
+  SUNDeclareContext(sunctx);
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
@@ -217,10 +218,13 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL)
+  if (y0->ops->nvspace != NULL) {
     SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), ARK_SUNCTX);
+  }
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
   ark_mem->lrw1 = lrw1;
@@ -338,6 +342,8 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
     arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_ARK_NO_MALLOC);
@@ -402,6 +408,8 @@ int ARKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepReset",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, tR, yR, RESET_INIT);
@@ -578,6 +586,8 @@ int ARKStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepComputeState",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z), ARK_SUNCTX);
 
@@ -819,6 +829,8 @@ int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* free any existing system solver */
   if (step_mem->lfree != NULL)  step_mem->lfree(arkode_mem);
 
@@ -863,6 +875,8 @@ int arkStep_AttachMasssol(void* arkode_mem,
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_AttachMasssol",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* free any existing mass matrix solver */
   if (step_mem->mfree != NULL)  step_mem->mfree(arkode_mem);
@@ -1006,6 +1020,8 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* set outputs */
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   *gamma  = step_mem->gamma;
@@ -1062,6 +1078,8 @@ int arkStep_Init(void* arkode_mem, int init_type)
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_Init",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* immediately return if reset */
   if (init_type == RESET_INIT) return(ARK_SUCCESS);
@@ -1294,6 +1312,8 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_FullRHS",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* local shortcuts for use with fused vector operations */
   cvals = step_mem->cvals;
@@ -1545,6 +1565,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Z",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* local shortcuts for use with fused vector operations */
   cvals = step_mem->cvals;
@@ -1866,6 +1888,7 @@ booleantype arkStep_CheckNVector(N_Vector tmpl)
 int arkStep_SetButcherTables(ARKodeMem ark_mem)
 {
   int etable, itable;
+  SUNDeclareContext(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
 
@@ -2012,6 +2035,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
 {
   int i, j;
   booleantype okay;
+  SUNDeclareContext(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   const realtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
 
@@ -2131,6 +2155,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   int i, retval, jstage, nvec;
   realtype tau;
   realtype h;
+  SUNDeclareContext(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   realtype* cvals;
   N_Vector* Xvecs;
@@ -2346,6 +2371,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 {
   /* local data */
+  SUNDeclareContext(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   int retval, i, j, nvec;
   realtype* cvals;
@@ -2468,6 +2494,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   N_Vector y, yerr;
   realtype* cvals;
   N_Vector* Xvecs;
+  SUNDeclareContext(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2562,6 +2589,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsmPtr)
   N_Vector y, yerr;
   realtype* cvals;
   N_Vector* Xvecs;
+  SUNDeclareContext(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2852,6 +2880,8 @@ int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_SetInnerForcing",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   if (nvecs > 0) {
 

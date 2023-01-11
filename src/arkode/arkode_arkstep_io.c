@@ -324,6 +324,8 @@ int ARKStepSetDefaults(void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Set default ARKODE infrastructure parameters */
   retval = arkSetDefaults(ark_mem);
   if (retval != ARK_SUCCESS) {
@@ -380,6 +382,8 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetOptimalParams",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* access ARKodeHAdaptMem structure */
   if (ark_mem->hadapt_mem == NULL) {
@@ -552,6 +556,8 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) {
     step_mem->q = Q_DEFAULT;
@@ -607,6 +613,8 @@ int ARKStepSetLinear(void *arkode_mem, int timedepend)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* set parameters */
   step_mem->linear = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
@@ -634,6 +642,8 @@ int ARKStepSetNonlinear(void *arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* set parameters */
   step_mem->linear = SUNFALSE;
   step_mem->linear_timedep = SUNTRUE;
@@ -659,6 +669,8 @@ int ARKStepSetExplicit(void *arkode_mem)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetExplicit",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* ensure that fe is defined */
   if (step_mem->fe == NULL) {
@@ -690,6 +702,8 @@ int ARKStepSetImplicit(void *arkode_mem)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImplicit",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* ensure that fi is defined */
   if (step_mem->fi == NULL) {
@@ -730,6 +744,8 @@ int ARKStepSetImEx(void *arkode_mem)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImEx",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* ensure that fe and fi are defined */
   if (step_mem->fe == NULL) {
@@ -781,6 +797,8 @@ int ARKStepSetTables(void *arkode_mem, int q, int p,
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetTables",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* check for illegal inputs */
   if ((Bi == NULL) && (Be == NULL)) {
@@ -932,6 +950,8 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetTableNum",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* clear any existing parameters and Butcher tables */
   step_mem->stages = 0;
@@ -1102,6 +1122,8 @@ int ARKStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* if argument legal set it, otherwise set default */
   if (crdown <= ZERO) {
     step_mem->crdown = CRDOWN;
@@ -1131,6 +1153,8 @@ int ARKStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* if argument legal set it, otherwise set default */
   if (rdiv <= ZERO) {
     step_mem->rdiv = RDIV;
@@ -1159,6 +1183,8 @@ int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetDeltaGammaMax",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* if argument legal set it, otherwise set default */
   if (dgmax <= ZERO) {
@@ -1190,6 +1216,8 @@ int ARKStepSetLSetupFrequency(void *arkode_mem, int msbp)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* if argument legal set it, otherwise set default */
   if (msbp == 0) {
     step_mem->msbp = MSBP;
@@ -1217,6 +1245,8 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetPredictorMethod",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* return error if pred_method==5 and a non-NULL stage predictor function
      has been supplied */
@@ -1261,6 +1291,8 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* Return error message if no NLS module is present */
   if (step_mem->NLS == NULL) {
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, __LINE__, __func__, __FILE__,
@@ -1304,6 +1336,8 @@ int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNonlinConvCoef",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* argument <= 0 sets default, otherwise set input */
   if (nlscoef <= ZERO) {
@@ -1409,6 +1443,8 @@ int ARKStepGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* get values from step_mem */
   *fe_evals = step_mem->nfe;
   *fi_evals = step_mem->nfi;
@@ -1432,6 +1468,8 @@ int ARKStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumLinSolvSetups",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* get value from step_mem */
   *nlinsetups = step_mem->nsetups;
@@ -1459,6 +1497,8 @@ int ARKStepGetCurrentButcherTables(void *arkode_mem,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* get tables from step_mem */
   *Bi = step_mem->Bi;
   *Be = step_mem->Be;
@@ -1483,6 +1523,8 @@ int ARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetEstLocalErrors",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* copy vector to output */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->tempv1, ele), ARK_SUNCTX);
@@ -1509,6 +1551,8 @@ int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetTimestepperStats",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* set expsteps and accsteps from adaptivity structure */
   *expsteps = ark_mem->hadapt_mem->nst_exp;
@@ -1541,6 +1585,8 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   *nniters = step_mem->nls_iters;
 
   return(ARK_SUCCESS);
@@ -1562,6 +1608,8 @@ int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nnfails)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumNonlinSolvConvFails",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* set output from step_mem */
   *nnfails = step_mem->nls_fails;
@@ -1586,6 +1634,8 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNonlinSolvStats",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   *nniters = step_mem->nls_iters;
   *nnfails = step_mem->nls_fails;
@@ -1765,6 +1815,8 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  SUNDeclareContext(ark_mem->sunctx);
+
   /* output ARKODE infrastructure parameters first */
   flag = arkWriteParameters(ark_mem, fp);
   if (flag != ARK_SUCCESS) {
@@ -1822,6 +1874,8 @@ int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepWriteButcher",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  SUNDeclareContext(ark_mem->sunctx);
 
   /* check that Butcher table is non-NULL (otherwise report error) */
   if ((step_mem->Be == NULL) && (step_mem->Bi == NULL)) {
