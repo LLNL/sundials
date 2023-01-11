@@ -2146,6 +2146,39 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
     }
   }
 
+  /* check if all b values are positive for relaxation */
+  if (ark_mem->relax_enabled)
+  {
+    okay = SUNTRUE;
+    if (step_mem->explicit)
+    {
+      for (i = 0; i < step_mem->stages; i++)
+        if (step_mem->Be->b[i] < ZERO)
+          okay = SUNFALSE;
+      if (!okay)
+      {
+        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                        "arkStep_CheckButcherTables",
+                        "The explicit Butcher table has a negative b value!");
+        return ARK_INVALID_TABLE;
+      }
+    }
+
+    if (step_mem->implicit)
+    {
+      for (i = 0; i < step_mem->stages; i++)
+        if (step_mem->Bi->b[i] < ZERO)
+          okay = SUNFALSE;
+      if (!okay)
+      {
+        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                        "arkStep_CheckButcherTables",
+                        "The implicit Butcher table has a negative b value!");
+        return ARK_INVALID_TABLE;
+      }
+    }
+  }
+
   return(ARK_SUCCESS);
 }
 

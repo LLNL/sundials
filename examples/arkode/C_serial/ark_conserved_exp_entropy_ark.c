@@ -239,6 +239,11 @@ int main(int argc, char* argv[])
     /* Set Jacobian routine */
     flag = ARKStepSetJacFn(arkode_mem, Jac);
     if (check_flag(flag, "ARKStepSetJacFn")) return 1;
+
+    /* Select a Butcher table with non-negative b values */
+    flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
+                               "ARKODE_ERK_NONE");
+    if (check_flag(flag, "ARKStepSetTableName")) return 1;
   }
 
   /* Open output stream for results, output comment line */
