@@ -544,24 +544,34 @@ SWIGEXPORT SwigClassWrapper _wrap_FSUNGetLastErr(SwigClassWrapper const *farg1) 
 }
 
 
-SWIGEXPORT void _wrap_FSUNSetLastErr(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT SwigClassWrapper _wrap_FSUNSetLastErr(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
+  SwigClassWrapper fresult ;
   SUNErrCode arg1 ;
   SUNContext arg2 ;
+  SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNErrCode", "SWIGTYPE_p_SUNErrCode", "SUNSetLastErr(SUNErrCode,SUNContext)", return );
+  SWIG_check_nonnull(*farg1, "SUNErrCode", "SWIGTYPE_p_SUNErrCode", "SUNSetLastErr(SUNErrCode,SUNContext)", return SwigClassWrapper_uninitialized());
   arg1 = *(SUNErrCode *)(farg1->cptr);
-  SWIG_check_nonnull(*farg2, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNSetLastErr(SUNErrCode,SUNContext)", return );
+  SWIG_check_nonnull(*farg2, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNSetLastErr(SUNErrCode,SUNContext)", return SwigClassWrapper_uninitialized());
   arg2 = *(SUNContext *)(farg2->cptr);
-  SUNSetLastErr(arg1,arg2);
+  result = SUNSetLastErr(arg1,arg2);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
+  return fresult;
 }
 
 
-SWIGEXPORT void _wrap_FSUNClearLastErr(SwigClassWrapper const *farg1) {
+SWIGEXPORT SwigClassWrapper _wrap_FSUNPeekLastErr(SwigClassWrapper const *farg1) {
+  SwigClassWrapper fresult ;
   SUNContext arg1 ;
+  SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNClearLastErr(SUNContext)", return );
+  SWIG_check_nonnull(*farg1, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNPeekLastErr(SUNContext)", return SwigClassWrapper_uninitialized());
   arg1 = *(SUNContext *)(farg1->cptr);
-  SUNClearLastErr(arg1);
+  result = SUNPeekLastErr(arg1);
+  fresult.cptr = (SUNErrCode *)memcpy((SUNErrCode *)calloc(1,sizeof(SUNErrCode)),&result,sizeof(SUNErrCode));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
+  return fresult;
 }
 
 

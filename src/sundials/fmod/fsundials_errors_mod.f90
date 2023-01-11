@@ -102,7 +102,7 @@ module fsundials_errors_mod
  public :: FSUNGetErrMsg
  public :: FSUNGetLastErr
  public :: FSUNSetLastErr
- public :: FSUNClearLastErr
+ public :: FSUNPeekLastErr
  public :: FSUNHandleErr
  public :: FSUNHandleErrWithMsg
  public :: FSUNHandleErrWithFmtMsg
@@ -271,20 +271,24 @@ type(SwigClassWrapper) :: farg1
 type(SwigClassWrapper) :: fresult
 end function
 
-subroutine swigc_FSUNSetLastErr(farg1, farg2) &
-bind(C, name="_wrap_FSUNSetLastErr")
+function swigc_FSUNSetLastErr(farg1, farg2) &
+bind(C, name="_wrap_FSUNSetLastErr") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 type(SwigClassWrapper) :: farg2
-end subroutine
+type(SwigClassWrapper) :: fresult
+end function
 
-subroutine swigc_FSUNClearLastErr(farg1) &
-bind(C, name="_wrap_FSUNClearLastErr")
+function swigc_FSUNPeekLastErr(farg1) &
+bind(C, name="_wrap_FSUNPeekLastErr") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-end subroutine
+type(SwigClassWrapper) :: fresult
+end function
 
 subroutine swigc_FSUNHandleErr(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNHandleErr")
@@ -630,26 +634,34 @@ fresult = swigc_FSUNGetLastErr(farg1)
 swig_result%swigdata = fresult
 end function
 
-subroutine FSUNSetLastErr(code, sunctx)
+function FSUNSetLastErr(code, sunctx) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+type(SWIGTYPE_p_SUNErrCode) :: swig_result
 type(SWIGTYPE_p_SUNErrCode), intent(in) :: code
 type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+type(SwigClassWrapper) :: fresult 
 type(SwigClassWrapper) :: farg1 
 type(SwigClassWrapper) :: farg2 
 
 farg1 = code%swigdata
 farg2 = sunctx%swigdata
-call swigc_FSUNSetLastErr(farg1, farg2)
-end subroutine
+fresult = swigc_FSUNSetLastErr(farg1, farg2)
+swig_result%swigdata = fresult
+end function
 
-subroutine FSUNClearLastErr(sunctx)
+function FSUNPeekLastErr(sunctx) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+type(SWIGTYPE_p_SUNErrCode) :: swig_result
 type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+type(SwigClassWrapper) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = sunctx%swigdata
-call swigc_FSUNClearLastErr(farg1)
-end subroutine
+fresult = swigc_FSUNPeekLastErr(farg1)
+swig_result%swigdata = fresult
+end function
 
 subroutine FSUNHandleErr(line, func, file, code, sunctx)
 use, intrinsic :: ISO_C_BINDING

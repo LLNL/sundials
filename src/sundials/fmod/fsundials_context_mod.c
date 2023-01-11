@@ -509,13 +509,15 @@ SWIGEXPORT int _wrap_FSUNContext_GetLastError(void *farg1, int *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNContext_ClearLastError(void *farg1) {
+SWIGEXPORT int _wrap_FSUNContext_PeekLastError(void *farg1, int *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrCode *arg2 = (SUNErrCode *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);
-  result = (SUNErrCode)SUNContext_ClearLastError(arg1);
+  arg2 = (SUNErrCode *)(farg2);
+  result = (SUNErrCode)SUNContext_PeekLastError(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

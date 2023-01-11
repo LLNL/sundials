@@ -65,7 +65,7 @@ module fsundials_context_mod
   module procedure swigf_create_SUNContext_
  end interface
  public :: FSUNContext_GetLastError
- public :: FSUNContext_ClearLastError
+ public :: FSUNContext_PeekLastError
  public :: FSUNContext_PushErrHandler
  public :: FSUNContext_PopErrHandler
  public :: FSUNContext_ClearHandlers
@@ -231,11 +231,12 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNContext_ClearLastError(farg1) &
-bind(C, name="_wrap_FSUNContext_ClearLastError") &
+function swigc_FSUNContext_PeekLastError(farg1, farg2) &
+bind(C, name="_wrap_FSUNContext_PeekLastError") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -554,16 +555,19 @@ fresult = swigc_FSUNContext_GetLastError(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNContext_ClearLastError(sunctx) &
+function FSUNContext_PeekLastError(sunctx, last_err) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
+integer(C_INT), dimension(*), target, intent(inout) :: last_err
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
-fresult = swigc_FSUNContext_ClearLastError(farg1)
+farg2 = c_loc(last_err(1))
+fresult = swigc_FSUNContext_PeekLastError(farg1, farg2)
 swig_result = fresult
 end function
 
