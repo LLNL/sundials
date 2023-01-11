@@ -47,6 +47,8 @@ Enabling or Disabling Relaxation
 
       If ``nrfn = 0`` and both ``rfn = rjac = NULL`` relaxation is disabled.
 
+   .. versionadded:: 5.6.0
+
 Optional Input Functions
 ------------------------
 
@@ -67,6 +69,8 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 
    Sets the smallest acceptable value for the relaxation parameter. Values
@@ -83,6 +87,8 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
 
    Sets the maximum number relaxation failures allowed in a single step attempt
@@ -96,6 +102,8 @@ method.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
+
+   .. versionadded:: 5.6.0
 
 .. c:function:: int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
 
@@ -114,6 +122,8 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKSteSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
@@ -126,6 +136,8 @@ method.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
+
+   .. versionadded:: 5.6.0
 
 .. c:function:: int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype tol)
 
@@ -144,6 +156,8 @@ method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
 
    Sets the largest acceptable value for the relaxation parameter. Values
@@ -159,6 +173,8 @@ method.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
+
+   .. versionadded:: 5.6.0
 
 Optional Output Functions
 -------------------------
@@ -178,6 +194,8 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
 
    Get the number of times the user's relaxation Jacobian was evaluated.
@@ -189,6 +207,8 @@ about the performance of the relaxation method.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
+
+   .. versionadded:: 5.6.0
 
 .. c:function:: int ARKStepGetNumRelaxFails(void* arkode_mem, long int* fails)
 
@@ -202,6 +222,8 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 
    Get the number of times the relaxation parameter nonlinear solver failed.
@@ -214,6 +236,8 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
+   .. versionadded:: 5.6.0
+
 .. c:function:: int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 
    Get the number of relaxation parameter nonlinear solver iterations.
@@ -224,3 +248,6 @@ about the performance of the relaxation method.
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
+                               ``NULL``
+
+   .. versionadded:: 5.6.0
