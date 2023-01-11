@@ -21,6 +21,7 @@
 
 #include <sundials/sundials.h>
 #include <nvector/nvector_serial.h>
+#include "sundials/sundials_errors.h"
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)
@@ -41,13 +42,13 @@ static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y);                  /
 static void VScaleBy_Serial(realtype a, N_Vector x);                           /* x <- ax   */
 
 /* Private functions for special cases of vector array operations */
-static SUNErrCode VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
-static SUNErrCode VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
-static SUNErrCode VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
-static SUNErrCode VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
-static SUNErrCode VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
-static SUNErrCode VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
-static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
+static void VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
+static void VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
+static void VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
+static void VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
+static void VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
+static void VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
+static void VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
 
 /*
  * -----------------------------------------------------------------
@@ -1054,16 +1055,22 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec,
   }
 
   /* BLAS usage: axpy y <- ax+y */
-  if ((b == ONE) && (Z == Y))
-    return(VaxpyVectorArray_Serial(nvec, a, X, Y));
+  if ((b == ONE) && (Z == Y)) {
+    VaxpyVectorArray_Serial(nvec, a, X, Y);
+    return SUN_SUCCESS;
+  }
 
   /* BLAS usage: axpy x <- by+x */
-  if ((a == ONE) && (Z == X))
-    return(VaxpyVectorArray_Serial(nvec, b, Y, X));
+  if ((a == ONE) && (Z == X)) {
+    VaxpyVectorArray_Serial(nvec, b, Y, X);
+    return SUN_SUCCESS;
+  }
 
   /* Case: a == b == 1.0 */
-  if ((a == ONE) && (b == ONE))
-    return(VSumVectorArray_Serial(nvec, X, Y, Z));
+  if ((a == ONE) && (b == ONE)) {
+    VSumVectorArray_Serial(nvec, X, Y, Z);
+    return SUN_SUCCESS;
+  }
 
   /* Cases:                    */
   /*   (1) a == 1.0, b = -1.0, */
@@ -1071,7 +1078,8 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec,
   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
     V1 = test ? Y : X;
     V2 = test ? X : Y;
-    return(VDiffVectorArray_Serial(nvec, V2, V1, Z));
+    VDiffVectorArray_Serial(nvec, V2, V1, Z);
+    return SUN_SUCCESS;
   }
 
   /* Cases:                                                  */
@@ -1082,7 +1090,8 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec,
     c  = test ? b : a;
     V1 = test ? Y : X;
     V2 = test ? X : Y;
-    return(VLin1VectorArray_Serial(nvec, c, V1, V2, Z));
+    VLin1VectorArray_Serial(nvec, c, V1, V2, Z);
+    return SUN_SUCCESS;
   }
 
   /* Cases:                     */
@@ -1092,17 +1101,22 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec,
     c = test ? b : a;
     V1 = test ? Y : X;
     V2 = test ? X : Y;
-    return(VLin2VectorArray_Serial(nvec, c, V1, V2, Z));
+    VLin2VectorArray_Serial(nvec, c, V1, V2, Z);
+    return SUN_SUCCESS;
   }
 
   /* Case: a == b                                                         */
   /* catches case both a and b are 0.0 - user should have called N_VConst */
-  if (a == b)
-    return(VScaleSumVectorArray_Serial(nvec, a, X, Y, Z));
+  if (a == b) {
+    VScaleSumVectorArray_Serial(nvec, a, X, Y, Z);
+    return SUN_SUCCESS;
+  }
 
   /* Case: a == -b */
-  if (a == -b)
-    return(VScaleDiffVectorArray_Serial(nvec, a, X, Y, Z));
+  if (a == -b) {
+    VScaleDiffVectorArray_Serial(nvec, a, X, Y, Z);
+    return SUN_SUCCESS;
+  }
 
   /* Do all cases not handled above:                               */
   /*   (1) a == other, b == 0.0 - user should have called N_VScale */
@@ -1374,7 +1388,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum, realtype* a,
 
 
 SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
-                                           N_Vector** X, N_Vector* Z)
+                                                  N_Vector** X, N_Vector* Z)
 {
   SUNDeclareContext(X[0][0]->sunctx);
   int          i; /* vector arrays index in summation [0,nsum) */
@@ -1760,7 +1774,7 @@ static void VScaleBy_Serial(realtype a, N_Vector x)
  * -----------------------------------------------------------------
  */
 
-static SUNErrCode VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static void VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1777,11 +1791,9 @@ static SUNErrCode VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_V
     for (j=0; j<N; j++)
       zd[j] = xd[j] + yd[j];
   }
-
-  return SUN_SUCCESS;
 }
 
-static SUNErrCode VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static void VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1798,11 +1810,9 @@ static SUNErrCode VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_
     for (j=0; j<N; j++)
       zd[j] = xd[j] - yd[j];
   }
-
-  return SUN_SUCCESS;
 }
 
-static SUNErrCode VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static void VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1819,11 +1829,9 @@ static SUNErrCode VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X,
     for (j=0; j<N; j++)
       zd[j] = c * (xd[j] + yd[j]);
   }
-
-  return SUN_SUCCESS;
 }
 
-static SUNErrCode VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static void VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1840,11 +1848,9 @@ static SUNErrCode VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X
     for (j=0; j<N; j++)
       zd[j] = c * (xd[j] - yd[j]);
   }
-
-  return SUN_SUCCESS;
 }
 
-static SUNErrCode VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static void VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1861,11 +1867,9 @@ static SUNErrCode VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_V
     for (j=0; j<N; j++)
       zd[j] = (a * xd[j]) + yd[j];
   }
-
-  return SUN_SUCCESS;
 }
 
-static SUNErrCode VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static void VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1882,11 +1886,9 @@ static SUNErrCode VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_V
     for (j=0; j<N; j++)
       zd[j] = (a * xd[j]) - yd[j];
   }
-
-  return SUN_SUCCESS;
 }
 
-static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y)
+static void VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y)
 {
   int          i;
   sunindextype j, N;
@@ -1902,8 +1904,7 @@ static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_V
       for (j=0; j<N; j++)
         yd[j] += xd[j];
     }
-
-    return SUN_SUCCESS;
+    return;
   }
 
   if (a == -ONE) {
@@ -1913,8 +1914,7 @@ static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_V
       for (j=0; j<N; j++)
         yd[j] -= xd[j];
     }
-
-    return SUN_SUCCESS;
+    return;
   }
 
   for (i=0; i<nvec; i++) {
@@ -1923,8 +1923,6 @@ static SUNErrCode VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_V
     for (j=0; j<N; j++)
       yd[j] += a * xd[j];
   }
-
-  return SUN_SUCCESS;
 }
 
 

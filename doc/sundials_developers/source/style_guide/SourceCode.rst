@@ -233,6 +233,7 @@ Coding Conventions and Rules
 
 #. All SUNDIALS functions should return a ``SUNErrCode``. Many older functions
    do not do this and are exceptions to the rule for backwards compatiblilty. 
+   In addition, internal helper functions may or may-not return a ``SUNErrCode``.
 
 #. Functions should begin by extracting the ``SUNContext`` object with the 
    ``SUNDeclareContext()`` macro.
@@ -263,8 +264,10 @@ Coding Conventions and Rules
     SUNCheckCall(err); // Avoid except when absolutely necessary.
 
 #. All calls to SUNDIALS functions that *do not* return a ``SUNErrCode`` should
-   be followed by checking the last error stored in the ``SUNContext``. This is
-   done with the ``SUNCheckCallLastErr`` macros. 
+   be followed by checking the last error stored in the ``SUNContext``. 
+   The exception to this rule is for internal helper functions. 
+   These should not be checked unless they return a ``SUNErrCode``. 
+   These checks are done with the ``SUNCheckCallLastErr`` macros. 
 
    .. code-block:: c
 
