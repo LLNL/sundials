@@ -31,21 +31,14 @@
 #include <math.h>
 #include <stdio.h>
 
+/* Common utilities */
+#include <example_utilities.h>
+
+/* SUNDIALS headers */
 #include <arkode/arkode_arkstep.h>
 #include <nvector/nvector_serial.h>
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
-
-/* Precision-dependent output macros */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
 
 /* ----------------------- *
  * User-supplied functions *
@@ -71,10 +64,6 @@ int JacEnt(N_Vector* y, N_Vector* J, void* user_data);
 /* Analytic solution */
 int ans(sunrealtype t, N_Vector y);
 
-/* Check return flags and pointers */
-int check_flag(int flag, const char* funcname);
-int check_ptr(void* ptr, const char* funcname);
-
 /* ------------ *
  * Main Program *
  * ------------ */
@@ -93,12 +82,11 @@ int main(int argc, char* argv[])
   sunrealtype abstol = SUN_RCONST(1.0e-10);
 
   /* SUNDIALS context, vector, matrix, and linear solver objects */
-  SUNContext ctx       = NULL;
-  N_Vector y           = NULL;
-  N_Vector ytrue       = NULL;
-  SUNMatrix A          = NULL;
-  SUNLinearSolver LS   = NULL;
-  ARKodeButcherTable B = NULL;
+  SUNContext ctx     = NULL;
+  N_Vector y         = NULL;
+  N_Vector ytrue     = NULL;
+  SUNMatrix A        = NULL;
+  SUNLinearSolver LS = NULL;
 
   /* Pointer to vector data array */
   sunrealtype* ydata;
@@ -114,42 +102,44 @@ int main(int argc, char* argv[])
   void* arkode_mem = NULL;
 
   /* ARKODE statistics */
-  long int nst, nst_a, nfe, nfi, nri, nrf;
+  long int nst, nst_a, nfe, nfi;
+  long int nrf, nre, nrje, nrnlsi, nrnlsf;
   long int nsetups, nje, nfeLS, nni, ncfn, netf;
 
-  /* Number of outputs, output counter, output times, and output file */
-  int nout = 10;
-  int iout;
-  sunrealtype t, tout, dtout;
+  /* Output time and file */
+  sunrealtype t;
   FILE* UFID;
 
   /* Command line options */
-  int implicit        = 0;               /* explicit          */
-  int relax           = 0;               /* enable relaxation */
-  int steps           = 100;             /* number of steps   */
-  sunrealtype fixed_h = SUN_RCONST(0.0); /* adaptive steps    */
+  int relax    = 1; /* enable relaxation */
+  int implicit = 1; /* implicit          */
 
   /* -------------------- *
    * Output Problem Setup *
    * -------------------- */
 
-  if (argc > 1) implicit = atoi(argv[1]);
-  if (argc > 2) relax = atoi(argv[2]);
-  if (argc > 3) fixed_h = (sunrealtype)atof(argv[3]);
-  if (argc > 4) steps = atoi(argv[4]);
+  if (argc > 1) relax = atoi(argv[1]);
+  if (argc > 2) implicit = atoi(argv[2]);
 
   printf("\nDissipated Exponential Entropy problem:\n");
-  if (implicit) printf("   method     = DIRK\n");
-  else printf("   method     = ERK\n");
-  if (relax) printf("   relaxation = ON\n");
-  else printf("   relaxation = OFF\n");
-  if (fixed_h > SUN_RCONST(0.0)) printf("   fixed h    = %" GSYM "\n", fixed_h);
-  if (implicit || !(fixed_h > SUN_RCONST(0.0)))
+  if (implicit)
   {
-    printf("   reltol     = %.1" ESYM "\n", reltol);
-    printf("   abstol     = %.1" ESYM "\n", abstol);
+    printf("   method     = DIRK\n");
   }
-  printf("   steps      = %d\n", steps);
+  else
+  {
+    printf("   method     = ERK\n");
+  }
+  printf("   reltol     = %.1" ESYM "\n", reltol);
+  printf("   abstol     = %.1" ESYM "\n", abstol);
+  if (relax)
+  {
+    printf("   relaxation = ON\n");
+  }
+  else
+  {
+    printf("   relaxation = OFF\n");
+  }
   printf("\n");
 
   /* ------------ *
@@ -177,8 +167,14 @@ int main(int argc, char* argv[])
   if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
 
   /* Initialize the ARKStep */
-  if (implicit) arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx);
-  else arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx);
+  if (implicit)
+  {
+    arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx);
+  }
+  else
+  {
+    arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx);
+  }
   if (check_ptr(arkode_mem, "ARKStepCreate")) return 1;
 
   /* Specify tolerances */
@@ -190,13 +186,6 @@ int main(int argc, char* argv[])
     /* Enable relaxation methods */
     flag = ARKStepSetRelaxFn(arkode_mem, 1, Ent, JacEnt);
     if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
-  }
-
-  if (fixed_h > 0.0)
-  {
-    /* Set the step size */
-    flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
 
   if (implicit)
@@ -215,44 +204,23 @@ int main(int argc, char* argv[])
     /* Set Jacobian routine */
     flag = ARKStepSetJacFn(arkode_mem, Jac);
     if (check_flag(flag, "ARKStepSetJacFn")) return 1;
-  }
-  else if (fixed_h > 0.0)
-  {
-    /* Use RK4 */
-    B = ARKodeButcherTable_Alloc(4, SUNFALSE);
 
-    B->A[1][0] = SUN_RCONST(0.5);
-    B->A[2][1] = SUN_RCONST(0.5);
-    B->A[3][2] = SUN_RCONST(1.0);
-
-    B->c[1] = SUN_RCONST(0.5);
-    B->c[2] = SUN_RCONST(0.5);
-    B->c[3] = SUN_RCONST(1.0);
-
-    B->b[0] = SUN_RCONST(1.0) / SUN_RCONST(6.0);
-    B->b[1] = SUN_RCONST(1.0) / SUN_RCONST(3.0);
-    B->b[2] = SUN_RCONST(1.0) / SUN_RCONST(3.0);
-    B->b[3] = SUN_RCONST(1.0) / SUN_RCONST(6.0);
-
-    B->q = 4;
-    B->p = 0;
-
-    flag = ARKStepSetTables(arkode_mem, 4, 0, NULL, B);
-    if (check_flag(flag, "ARKStepSetTables")) return 1;
+    /* Select a Butcher table with non-negative b values */
+    flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
+                               "ARKODE_ERK_NONE");
+    if (check_flag(flag, "ARKStepSetTableName")) return 1;
   }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("ark_dissipated_exp_entropy.txt", "w");
-  fprintf(UFID, "# vars: t u v entropy u_err v_err entropy_error\n");
+  fprintf(UFID, "# vars: t u entropy u_err delta_entropy\n");
 
   /* --------------- *
    * Advance in Time *
    * --------------- */
 
-  /* Initial time, time between outputs, output time */
-  t     = t0;
-  dtout = tf / nout;
-  tout  = t0 + dtout;
+  /* Initial time */
+  t = t0;
 
   /* Output the initial condition and entropy */
   flag = Ent(&y, &ent0, NULL);
@@ -269,10 +237,10 @@ int main(int argc, char* argv[])
   printf(" %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM "\n",
          t, ydata[0], ent0, SUN_RCONST(0.0), SUN_RCONST(0.0));
 
-  for (iout = 0; iout < steps; iout++)
+  while (t < tf)
   {
     /* Evolve in time */
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
+    flag = ARKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
     if (check_flag(flag, "ARKStepEvolve")) break;
 
     /* Output solution and errors */
@@ -291,10 +259,6 @@ int main(int argc, char* argv[])
     fprintf(UFID,
             "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM "\n",
             t, ydata[0], ent, u_err, delta_ent);
-
-    /* Update output time */
-    tout += dtout;
-    tout = (tout > tf) ? tf : tout;
   }
 
   printf("   "
@@ -350,14 +314,26 @@ int main(int argc, char* argv[])
 
   if (relax)
   {
-    flag = ARKStepGetNumRelaxSolveIters(arkode_mem, &nri);
+    flag = ARKStepGetNumRelaxFails(arkode_mem, &nrf);
+    check_flag(flag, "ARKStepGetNumRelaxFails");
+
+    flag = ARKStepGetNumRelaxFnEvals(arkode_mem, &nre);
+    check_flag(flag, "ARKStepGetNumRelaxFnEvals");
+
+    flag = ARKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
+    check_flag(flag, "ARKStepGetNumRelaxJacEvals");
+
+    flag = ARKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
     check_flag(flag, "ARKStepGetNumRelaxSolveIters");
 
-    flag = ARKStepGetNumRelaxSolveFails(arkode_mem, &nrf);
+    flag = ARKStepGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
     check_flag(flag, "ARKStepGetNumRelaxSolveFails");
 
-    printf("   Total Relaxation iters = %li\n", nri);
-    printf("   Total Relaxation fails = %li\n", nrf);
+    printf("   Total Relaxation fails     = %li\n", nrf);
+    printf("   Total Relaxation Fn evals  = %li\n", nre);
+    printf("   Total Relaxation Jac evals = %li\n", nrje);
+    printf("   Total Relaxation NLS iters = %li\n", nrnlsi);
+    printf("   Total Relaxation NLS fails = %li\n", nrnlsf);
   }
   printf("\n");
 
@@ -425,29 +401,5 @@ int ans(sunrealtype t, N_Vector y)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
   ydata[0] = log(exp(SUN_RCONST(-0.5)) + t);
-  return 0;
-}
-
-/* Check return flags */
-int check_flag(int flag, const char* funcname)
-{
-  if (flag < 0)
-  {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-            funcname, flag);
-    return 1;
-  }
-  return 0;
-}
-
-/* Check return pointers */
-int check_ptr(void* ptr, const char* funcname)
-{
-  if (!ptr)
-  {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
   return 0;
 }

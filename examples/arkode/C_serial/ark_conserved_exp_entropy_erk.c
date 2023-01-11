@@ -48,19 +48,12 @@
 #include <math.h>
 #include <stdio.h>
 
+/* Common utilities */
+#include <example_utilities.h>
+
+/* SUNDIALS headers */
 #include <arkode/arkode_erkstep.h>
 #include <nvector/nvector_serial.h>
-
-/* Precision-dependent output macros */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
 
 /* Value of the natural number e */
 #define EVAL 2.718281828459045235360287471352662497757247093699959574966
@@ -371,29 +364,5 @@ int ans(sunrealtype t, N_Vector y)
   ydata[0] = log(EVAL + exp(SUN_RCONST(1.5))) - log(b);
   ydata[1] = log(a * exp(a * t)) - log(b);
 
-  return 0;
-}
-
-/* Check return flags */
-int check_flag(int flag, const char* funcname)
-{
-  if (flag < 0)
-  {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-            funcname, flag);
-    return 1;
-  }
-  return 0;
-}
-
-/* Check return pointers */
-int check_ptr(void* ptr, const char* funcname)
-{
-  if (!ptr)
-  {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
   return 0;
 }

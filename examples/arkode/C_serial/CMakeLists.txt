@@ -94,14 +94,6 @@ set(ARKODE_extras
   ark_robertson_stats.csv
   )
 
-# Specify libraries to link against
-set(ARKODE_LIB sundials_arkode)
-set(NVECS_LIB sundials_nvecserial)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
-
-
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
@@ -117,8 +109,16 @@ foreach(example_tuple ${ARKODE_examples})
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
+    # directories to include
+    target_include_directories(${example}
+      PRIVATE
+      ${PROJECT_SOURCE_DIR}/examples/utilities)
+
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example}
+      sundials_arkode
+      sundials_nvecserial
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -147,12 +147,6 @@ endforeach(example_tuple ${ARKODE_examples})
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
 
-  # Sundials KLU linear solver module
-  set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu)
-
-  # KLU libraries
-  list(APPEND SUNLINSOLKLU_LIBS)
-
   foreach(example_tuple ${ARKODE_examples_KLU})
 
     # parse the example tuple
@@ -170,8 +164,17 @@ if(BUILD_SUNLINSOL_KLU)
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type})
 
+    # directories to include
+    target_include_directories(${example}
+      PRIVATE
+      ${PROJECT_SOURCE_DIR}/examples/utilities)
+
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+    target_link_libraries(${example}
+      sundials_arkode
+      sundials_nvecserial
+      sundials_sunlinsolklu
+      ${EXE_EXTRA_LINK_LIBS})
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
@@ -186,12 +189,6 @@ endif()
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
 if(BUILD_SUNLINSOL_SUPERLUMT)
-
-  # Sundials SuperLU_MT linear solver module
-  set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt)
-
-  # SuperLU_MT libraries
-  list(APPEND SUNLINSOLSLUMT_LIBS ${SUPERLUMT_LIBRARIES})
 
   foreach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
@@ -211,7 +208,11 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+    target_link_libraries(${example}
+      sundials_arkode
+      sundials_nvecserial
+      sundials_sunlinsolsuperlumt
+      ${EXE_EXTRA_LINK_LIBS})
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
@@ -234,6 +235,9 @@ if(EXAMPLES_INSTALL)
   foreach(extrafile ${ARKODE_extras})
     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
   endforeach(extrafile ${ARKODE_extras})
+
+  install(FILES "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.h"
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "ARKODE")
