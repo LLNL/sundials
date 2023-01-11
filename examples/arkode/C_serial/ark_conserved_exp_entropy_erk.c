@@ -107,10 +107,9 @@ int main(int argc, char* argv[])
   sunrealtype abstol = SUN_RCONST(1.0e-10);
 
   /* SUNDIALS context, vector, matrix, and linear solver objects */
-  SUNContext ctx       = NULL;
-  N_Vector y           = NULL;
-  N_Vector ytrue       = NULL;
-  ARKodeButcherTable B = NULL;
+  SUNContext ctx = NULL;
+  N_Vector y     = NULL;
+  N_Vector ytrue = NULL;
 
   /* Pointer to vector data array */
   sunrealtype* ydata;
@@ -127,38 +126,33 @@ int main(int argc, char* argv[])
 
   /* ARKODE statistics */
   long int nst, nst_a, nfe;
-  long int nre, nrje, nri, nrf, netf;
+  long int nrf, nre, nrje, nrnlsi, nrnlsf, netf;
 
-  /* Number of outputs, output counter, output times, and output file */
-  int nout = 10;
-  int iout;
-  sunrealtype t, tout, dtout;
+  /* Output time and file */
+  sunrealtype t;
   FILE* UFID;
 
   /* Command line options */
-  int relax           = 1;               /* enable relaxation */
-  int steps           = 100;             /* number of steps   */
-  sunrealtype fixed_h = SUN_RCONST(0.0); /* adaptive steps    */
+  int relax = 1; /* enable relaxation */
 
   /* -------------------- *
    * Output Problem Setup *
    * -------------------- */
 
   if (argc > 1) relax = atoi(argv[1]);
-  if (argc > 2) fixed_h = (sunrealtype)atof(argv[2]);
-  if (argc > 3) steps = atoi(argv[3]);
 
   printf("\nConserved Exponential Entropy problem:\n");
   printf("   method     = ERK\n");
-  if (relax) printf("   relaxation = ON\n");
-  else printf("   relaxation = OFF\n");
-  if (fixed_h > SUN_RCONST(0.0)) printf("   fixed h    = %" GSYM "\n", fixed_h);
-  if (!(fixed_h > SUN_RCONST(0.0)))
+  printf("   reltol     = %.1" ESYM "\n", reltol);
+  printf("   abstol     = %.1" ESYM "\n", abstol);
+  if (relax)
   {
-    printf("   reltol     = %.1" ESYM "\n", reltol);
-    printf("   abstol     = %.1" ESYM "\n", abstol);
+    printf("   relaxation = ON\n");
   }
-  printf("   steps      = %d\n", steps);
+  else
+  {
+    printf("   relaxation = OFF\n");
+  }
   printf("\n");
 
   /* ------------ *
@@ -204,35 +198,6 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "ERKStepSetRelaxFn")) return 1;
   }
 
-  if (fixed_h > 0.0)
-  {
-    /* Set the step size */
-    flag = ERKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ERKStepSetFixedStep")) return 1;
-
-    /* Use RK4 */
-    B = ARKodeButcherTable_Alloc(4, SUNFALSE);
-
-    B->A[1][0] = SUN_RCONST(0.5);
-    B->A[2][1] = SUN_RCONST(0.5);
-    B->A[3][2] = SUN_RCONST(1.0);
-
-    B->c[1] = SUN_RCONST(0.5);
-    B->c[2] = SUN_RCONST(0.5);
-    B->c[3] = SUN_RCONST(1.0);
-
-    B->b[0] = SUN_RCONST(1.0) / SUN_RCONST(6.0);
-    B->b[1] = SUN_RCONST(1.0) / SUN_RCONST(3.0);
-    B->b[2] = SUN_RCONST(1.0) / SUN_RCONST(3.0);
-    B->b[3] = SUN_RCONST(1.0) / SUN_RCONST(6.0);
-
-    B->q = 4;
-    B->p = 0;
-
-    flag = ERKStepSetTable(arkode_mem, B);
-    if (check_flag(flag, "ERKStepSetTables")) return 1;
-  }
-
   /* Open output stream for results, output comment line */
   UFID = fopen("ark_conserved_exp_entropy_erk.txt", "w");
   fprintf(UFID, "# vars: t u v entropy u_err v_err entropy_error\n");
@@ -241,10 +206,8 @@ int main(int argc, char* argv[])
    * Advance in Time *
    * --------------- */
 
-  /* Initial time, time between outputs, output time */
-  t     = t0;
-  dtout = tf / nout;
-  tout  = t0 + dtout;
+  /* Initial time */
+  t = t0;
 
   /* Output the initial condition and entropy */
   fprintf(UFID,
@@ -262,10 +225,10 @@ int main(int argc, char* argv[])
          "\n",
          t, ydata[0], ydata[1], ent0, SUN_RCONST(0.0));
 
-  for (iout = 0; iout < steps; iout++)
+  while (t < tf)
   {
     /* Evolve in time */
-    flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
+    flag = ERKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
     if (check_flag(flag, "ERKStepEvolve")) break;
 
     /* Output solution and errors */
@@ -287,10 +250,6 @@ int main(int argc, char* argv[])
             "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM
             " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM "\n",
             t, ydata[0], ydata[1], ent, u_err, v_err, ent_err);
-
-    /* Update output time */
-    tout += dtout;
-    tout = (tout > tf) ? tf : tout;
   }
 
   printf("   "
@@ -322,22 +281,26 @@ int main(int argc, char* argv[])
 
   if (relax)
   {
+    flag = ERKStepGetNumRelaxFails(arkode_mem, &nrf);
+    check_flag(flag, "ERKStepGetNumRelaxFails");
+
     flag = ERKStepGetNumRelaxFnEvals(arkode_mem, &nre);
     check_flag(flag, "ERKStepGetNumRelaxFnEvals");
 
     flag = ERKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
     check_flag(flag, "ERKStepGetNumRelaxJacEvals");
 
-    flag = ERKStepGetNumRelaxSolveIters(arkode_mem, &nri);
+    flag = ERKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
     check_flag(flag, "ERKStepGetNumRelaxSolveIters");
 
-    flag = ERKStepGetNumRelaxSolveFails(arkode_mem, &nrf);
+    flag = ERKStepGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
     check_flag(flag, "ERKStepGetNumRelaxSolveFails");
 
+    printf("   Total Relaxation fails     = %li\n", nrf);
     printf("   Total Relaxation Fn evals  = %li\n", nre);
     printf("   Total Relaxation Jac evals = %li\n", nrje);
-    printf("   Total Relaxation iters     = %li\n", nri);
-    printf("   Total Relaxation fails     = %li\n", nrf);
+    printf("   Total Relaxation iters     = %li\n", nrnlsi);
+    printf("   Total Relaxation fails     = %li\n", nrnlsf);
   }
   printf("\n");
 
