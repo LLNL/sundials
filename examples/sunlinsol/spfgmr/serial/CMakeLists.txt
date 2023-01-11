@@ -17,10 +17,13 @@
 # Set tolerance for linear solver test based on Sundials precision
 if(SUNDIALS_PRECISION MATCHES "SINGLE")
   set(TOL "1e-5")
+  set(KRY 100)
 elseif(SUNDIALS_PRECISION MATCHES "DOUBLE")
   set(TOL "1e-13")
+  set(KRY 100)
 else()
   set(TOL "1e-14")
+  set(KRY 200)
 endif()
 
 # Example lists are tuples "name\;args\;type" where the type is
@@ -28,8 +31,8 @@ endif()
 
 # Examples using SUNDIALS SPFGMR linear solver
 set(sunlinsol_spfgmr_examples
-  "test_sunlinsol_spfgmr_serial\;100 1 100 ${TOL} 0\;"
-  "test_sunlinsol_spfgmr_serial\;100 2 100 ${TOL} 0\;"
+  "test_sunlinsol_spfgmr_serial\;100 1 ${KRY} ${TOL} 0\;"
+  "test_sunlinsol_spfgmr_serial\;100 2 ${KRY} ${TOL} 0\;"
   )
 
 # Dependencies for nvector examples
