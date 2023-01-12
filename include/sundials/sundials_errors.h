@@ -182,8 +182,9 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   char* msg;
   va_list values;
   va_start(values, sunctx);
-  msglen = vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size of
-                                                          buffer needed */
+  msglen = (size_t)vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size
+                                                                  of buffer
+                                                                  needed */
   msg = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, values);
   SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
