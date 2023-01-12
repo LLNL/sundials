@@ -51,7 +51,7 @@
 
 SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_SPTFQMR content;
 
@@ -150,7 +150,7 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl, SUNContext 
 
 SUNErrCode SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 {
-  SUNDeclareContext(S->sunctx);
+  SUNAssignSUNCTX(S->sunctx);
   /* Check for legal pretype */
   SUNAssert((pretype == SUN_PREC_NONE) || (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) || (pretype == SUN_PREC_BOTH),
@@ -198,7 +198,7 @@ SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S)
 
 SUNErrCode SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
 {
-  SUNDeclareContext(S->sunctx);
+  SUNAssignSUNCTX(S->sunctx);
   SUNLinearSolverContent_SPTFQMR content;
 
   /* set shortcut to SPTFQMR memory structure */
@@ -298,7 +298,7 @@ SUNLsStatus SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                            N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
-  SUNDeclareContext(S->sunctx);
+  SUNAssignSUNCTX(S->sunctx);
   realtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
   realtype rho[2];
   realtype r_init_norm, r_curr_norm;
@@ -849,7 +849,7 @@ sunindextype SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, long int* lenrwLS,
                                   long int* leniwLS)
 {
-  SUNDeclareContext(S->sunctx);
+  SUNAssignSUNCTX(S->sunctx);
   sunindextype liw1, lrw1;
   if (SPTFQMR_CONTENT(S)->vtemp1->ops->nvspace) {
     SUNCheckCallLastErrNoRet(N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1));
@@ -926,7 +926,7 @@ SUNErrCode SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
 SUNErrCode SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
                                    int print_level)
 {
-  SUNDeclareContext(S->sunctx);
+  SUNAssignSUNCTX(S->sunctx);
   
   /* check for valid print level */
   SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE);

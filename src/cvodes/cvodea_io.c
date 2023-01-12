@@ -634,7 +634,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -687,7 +687,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {

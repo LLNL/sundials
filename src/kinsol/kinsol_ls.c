@@ -64,7 +64,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   }
   kin_mem = (KINMem) kinmem;
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   /* Test if solver is compatible with LS interface */
   if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
@@ -406,7 +406,7 @@ int KINGetLinWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
                             &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS)  return(retval);
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   /* start with fixed sizes plus vector/matrix pointers */
   *lenrwLS = 1;
@@ -705,7 +705,7 @@ SUNLsStatus kinLsPSolve(void *kinmem, N_Vector r, N_Vector z, realtype tol, int 
                             &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS)  return(retval);
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   /* copy the rhs into z before the psolve call */
   /* Note: z returns with the solution */
@@ -786,7 +786,7 @@ int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
                     KINMem kin_mem, N_Vector tmp1, N_Vector tmp2)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   realtype inc, inc_inv, ujsaved, ujscale, sign;
   realtype *tmp2_data, *u_data, *uscale_data;
@@ -866,7 +866,7 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
                    KINMem kin_mem, N_Vector tmp1, N_Vector tmp2)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   realtype inc, inc_inv;
   N_Vector futemp, utemp;
@@ -967,7 +967,7 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
                             &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS)  return(retval);
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   /* ensure that NVector supplies requisite routines */
   if ( (v->ops->nvprod == NULL) || (v->ops->nvdotprod == NULL) ||
@@ -1016,7 +1016,7 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   ------------------------------------------------------------------*/
 int kinLsInitialize(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   KINLsMem kinls_mem;
   int      retval;
@@ -1153,7 +1153,7 @@ int kinLsInitialize(KINMem kin_mem)
   ------------------------------------------------------------------*/
 int kinLsSetup(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   KINLsMem kinls_mem;
   int      retval;
@@ -1212,7 +1212,7 @@ int kinLsSetup(KINMem kin_mem)
 int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
                realtype *sJpnorm, realtype *sFdotJp)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
   
   KINLsMem kinls_mem;
   int      nli_inc, retval;

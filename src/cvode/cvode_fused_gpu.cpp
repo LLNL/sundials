@@ -80,7 +80,7 @@ int cvEwtSetSS_fused(const booleantype atolMin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
-  SUNDeclareContext(tempv->sunctx);
+  SUNAssignSUNCTX(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight), SUNCTX);
   size_t block = exec_policy->blockSize(N);
@@ -144,7 +144,7 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
-  SUNDeclareContext(tempv->sunctx);
+  SUNAssignSUNCTX(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight), SUNCTX);
   size_t block = exec_policy->blockSize(N);
@@ -215,7 +215,7 @@ int cvCheckConstraints_fused(const N_Vector c,
                              const N_Vector mm,
                              N_Vector tempv)
 {
-  SUNDeclareContext(tempv->sunctx);
+  SUNAssignSUNCTX(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)c->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(c), SUNCTX);
   size_t block = exec_policy->blockSize(N);
@@ -278,7 +278,7 @@ int cvNlsResid_fused(const realtype rl1,
                      const N_Vector ftemp,
                      N_Vector res)
 {
-  SUNDeclareContext(zn1->sunctx);
+  SUNAssignSUNCTX(zn1->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)res->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(res), SUNCTX);
   size_t block = exec_policy->blockSize(N);
@@ -341,7 +341,7 @@ int cvDiagSetup_formY(const realtype h,
                       N_Vector ftemp,
                       N_Vector y)
 {
-  SUNDeclareContext(fpred->sunctx);
+  SUNAssignSUNCTX(fpred->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)fpred->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(fpred), SUNCTX);
   size_t block = exec_policy->blockSize(N);
@@ -430,7 +430,7 @@ int cvDiagSetup_buildM(const realtype fract,
                        N_Vector y,
                        N_Vector M)
 {
-  SUNDeclareContext(ftemp->sunctx);
+  SUNAssignSUNCTX(ftemp->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)ftemp->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(ftemp), SUNCTX);
   size_t block = exec_policy->blockSize(N);
@@ -493,7 +493,7 @@ void cvDiagSolve_updateM_kernel(const sunindextype length, const realtype r, rea
 extern "C"
 int cvDiagSolve_updateM(const realtype r, N_Vector M)
 {
-  SUNDeclareContext(M->sunctx);
+  SUNAssignSUNCTX(M->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)M->content)->stream_exec_policy;
   const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(M), SUNCTX);
   size_t block = exec_policy->blockSize(N);

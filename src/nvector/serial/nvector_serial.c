@@ -62,7 +62,7 @@ static void VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector*
 
 N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   N_Vector v;
   N_VectorContent_Serial content;
 
@@ -154,7 +154,7 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
 
 N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   N_Vector v;
   realtype *data;
 
@@ -182,7 +182,7 @@ N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
 
 N_Vector N_VMake_Serial(sunindextype length, realtype *v_data, SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   N_Vector v;
 
   
@@ -204,7 +204,7 @@ N_Vector N_VMake_Serial(sunindextype length, realtype *v_data, SUNContext sunctx
 
 N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector* result = SUNCheckCallLastErrNull(N_VCloneVectorArray(count, w));
   return result;
 }
@@ -215,7 +215,7 @@ N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector* result = SUNCheckCallLastErrNull(N_VCloneEmptyVectorArray(count, w));
   return result;
 }
@@ -226,7 +226,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Serial(N_Vector* vs, int count)
 {
-  SUNDeclareContext(vs[0]->sunctx);
+  SUNAssignSUNCTX(vs[0]->sunctx);
   SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(vs, count));
   return;
 }
@@ -254,7 +254,7 @@ sunindextype N_VGetLength_Serial(N_Vector v)
 
 void N_VPrint_Serial(N_Vector x)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   SUNCheckCallLastErrNoRet(N_VPrintFile_Serial(x, stdout));
 }
 
@@ -294,7 +294,7 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
 N_Vector N_VCloneEmpty_Serial(N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector v;
   N_VectorContent_Serial content;
 
@@ -323,7 +323,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
 
 N_Vector N_VClone_Serial(N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector v;
   realtype *data;
   sunindextype length;
@@ -641,7 +641,7 @@ realtype N_VMaxNorm_Serial(N_Vector x)
 
 realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   sunrealtype norm = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_Serial(x, w));
   norm = SUNRsqrt(norm/NV_LENGTH_S(x));
   return norm;
@@ -669,7 +669,7 @@ realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   sunrealtype norm = SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal_Serial(x, w, id));
   norm = SUNRsqrt(norm/NV_LENGTH_S(x));
   return norm;
@@ -868,7 +868,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 
 SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   
   int          i;
   sunindextype j, N;
@@ -942,7 +942,7 @@ SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vec
 
 SUNErrCode N_VScaleAddMulti_Serial(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -991,7 +991,7 @@ SUNErrCode N_VScaleAddMulti_Serial(int nvec, realtype* a, N_Vector x, N_Vector* 
 
 SUNErrCode N_VDotProdMulti_Serial(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1034,7 +1034,7 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec,
                                           realtype b, N_Vector* Y,
                                           N_Vector* Z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
 
   int          i;
   sunindextype j, N;
@@ -1143,7 +1143,7 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec,
 
 SUNErrCode N_VScaleVectorArray_Serial(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1190,7 +1190,7 @@ SUNErrCode N_VScaleVectorArray_Serial(int nvec, realtype* c, N_Vector* X, N_Vect
 
 SUNErrCode N_VConstVectorArray_Serial(int nvec, realtype c, N_Vector* Z)
 {
-  SUNDeclareContext(Z[0]->sunctx);
+  SUNAssignSUNCTX(Z[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    zd=NULL;
@@ -1222,7 +1222,7 @@ SUNErrCode N_VConstVectorArray_Serial(int nvec, realtype c, N_Vector* Z)
 SUNErrCode N_VWrmsNormVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
                                          realtype* nrm)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    wd=NULL;
@@ -1258,7 +1258,7 @@ SUNErrCode N_VWrmsNormVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
 SUNErrCode N_VWrmsNormMaskVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
                                       N_Vector id, realtype* nrm)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    wd=NULL;
@@ -1297,7 +1297,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
 SUNErrCode N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum, realtype* a,
                                               N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i, j;
   sunindextype k, N;
   realtype*    xd=NULL;
@@ -1391,7 +1391,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum, realtype* a,
 SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
                                                   N_Vector** X, N_Vector* Z)
 {
-  SUNDeclareContext(X[0][0]->sunctx);
+  SUNAssignSUNCTX(X[0][0]->sunctx);
   int          i; /* vector arrays index in summation [0,nsum) */
   int          j; /* vector index in vector array     [0,nvec) */
   sunindextype k; /* element index in vector          [0,N)    */
@@ -1539,7 +1539,7 @@ SUNErrCode N_VBufSize_Serial(N_Vector x, sunindextype *size)
 
 SUNErrCode N_VBufPack_Serial(N_Vector x, void *buf)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;
@@ -1559,7 +1559,7 @@ SUNErrCode N_VBufPack_Serial(N_Vector x, void *buf)
 
 SUNErrCode N_VBufUnpack_Serial(N_Vector x, void *buf)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;

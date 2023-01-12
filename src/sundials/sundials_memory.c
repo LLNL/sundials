@@ -40,7 +40,7 @@ SUNMemory SUNMemoryNewEmpty()
 
 SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   SUNMemoryHelper helper = NULL;
 
   helper = (SUNMemoryHelper)malloc(sizeof(struct _SUNMemoryHelper));
@@ -210,7 +210,7 @@ SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 
 SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
 {
-  SUNDeclareContext(helper->sunctx);
+  SUNAssignSUNCTX(helper->sunctx);
   if (!helper->ops->clone)
   {
     if (helper->content)

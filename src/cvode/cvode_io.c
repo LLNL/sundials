@@ -800,7 +800,7 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   if (cv_mem->NLS == NULL) {
     cvProcessError(NULL, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
@@ -938,7 +938,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
@@ -1353,7 +1353,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_ewt, eweight));
   return(CV_SUCCESS);
@@ -1376,7 +1376,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, ele));
   return(CV_SUCCESS);

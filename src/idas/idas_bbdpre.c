@@ -92,7 +92,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Test if the LS linear solver interface has been created */
   if (IDA_mem->ida_lmem == NULL) {
@@ -446,7 +446,7 @@ static SUNLsStatus IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
 
   IDA_mem = (IDAMem) pdata->ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
   SUNCheckCallNoRet(SUNMatZero(pdata->PP));
@@ -498,7 +498,7 @@ static SUNLsStatus IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
 
   pdata = (IBBDPrecData) bbd_data;
 
-  SUNDeclareContext(((IDAMem) pdata->ida_mem)->ida_sunctx);
+  SUNAssignSUNCTX(((IDAMem) pdata->ida_mem)->ida_sunctx);
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
   rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(rvec));
@@ -522,7 +522,7 @@ static SUNLsStatus IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
 /*-------------------------------------------------------------*/
 static int IDABBDPrecFree(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   IDALsMem idals_mem;
   IBBDPrecData pdata;
@@ -580,7 +580,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   realtype *col_j, conj, yj, ypj, ewtj;
 
   IDA_mem = (IDAMem) pdata->ida_mem;
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Initialize ytemp and yptemp. */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, yy, ytemp));

@@ -376,7 +376,7 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* initialize time values */
   HINT_TOLD(interp) = tnew;
@@ -431,7 +431,7 @@ int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* copy ynew and fnew into yold and fold, respectively */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, HINT_YNEW(interp), HINT_YOLD(interp)));
@@ -491,7 +491,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* set constants */
   tau2 = tau*tau;
@@ -1018,7 +1018,7 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* check if storage has increased since the last init */
   if (LINT_NMAX(I) > LINT_NMAXALLOC(I)) {
@@ -1105,7 +1105,7 @@ int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, realtype tnew)
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* set readability shortcuts */
   nhist = LINT_NHIST(I);
@@ -1183,7 +1183,7 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* set readability shortcuts */
   nhist = LINT_NHIST(I);

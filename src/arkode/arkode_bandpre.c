@@ -76,7 +76,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
@@ -201,7 +201,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Return immediately if ARKBandPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -325,7 +325,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (ARKBandPrecData) bp_data;
   ark_mem = (ARKodeMem) pdata->arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   if (jok) {
 
@@ -408,7 +408,7 @@ static SUNLsStatus ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                                     realtype gamma, realtype delta,
                                     int lr, void *bp_data)
 {
-  SUNDeclareContext(y->sunctx);
+  SUNAssignSUNCTX(y->sunctx);
 
   ARKBandPrecData pdata = (ARKBandPrecData) bp_data;
   SUNLsStatus ls_status = SUNLS_SUCCESS;
@@ -429,7 +429,7 @@ static SUNLsStatus ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 ---------------------------------------------------------------*/
 static int ARKBandPrecFree(ARKodeMem ark_mem)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKLsMem        arkls_mem;
   void*           ark_step_lmem;
   ARKBandPrecData pdata;
@@ -478,7 +478,7 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Access implicit RHS function */
   fi = NULL;

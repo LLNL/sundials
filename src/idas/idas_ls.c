@@ -117,7 +117,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Test if solver is compatible with LS interface */
   if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
@@ -388,7 +388,7 @@ int IDASetLSNormFactor(void *ida_mem, realtype nrmfac)
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) return(retval);
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   if (nrmfac > ZERO) {
     /* user-provided factor */
@@ -638,7 +638,7 @@ int IDAGetLinWorkSpace(void *ida_mem, long int *lenrwLS,
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* start with fixed sizes plus vector/matrix pointers */
   *lenrwLS = 3;
@@ -1028,7 +1028,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
                     IDAMem IDA_mem, N_Vector tmp1)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   realtype inc, inc_inv, yj, ypj, srur, conj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
@@ -1128,7 +1128,7 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
                    IDAMem IDA_mem, N_Vector tmp1, N_Vector tmp2,
                    N_Vector tmp3)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
@@ -1269,7 +1269,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   LSID = SUNLinSolGetID(idals_mem->LS);
   if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR) {
@@ -1407,7 +1407,7 @@ int idaLsInitialize(IDAMem IDA_mem)
 int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
                N_Vector vt1, N_Vector vt2, N_Vector vt3)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   IDALsMem idals_mem;
   int      retval;
@@ -1488,7 +1488,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   IDALsMem idals_mem;
   int      nli_inc, retval;
@@ -1707,7 +1707,7 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
 ---------------------------------------------------------------*/
 int idaLsFree(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
   
   IDALsMem idals_mem;
 

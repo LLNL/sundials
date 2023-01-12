@@ -433,7 +433,7 @@ int ERKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* copy vector to output */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->tempv1, ele));

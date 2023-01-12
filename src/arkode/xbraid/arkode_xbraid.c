@@ -286,7 +286,7 @@ int ARKBraid_GetLastARKStepFlag(braid_App app, int *last_flag)
 
 int ARKBraid_GetSolution(braid_App app, realtype *tout, N_Vector yout)
 {
-  SUNDeclareContext(yout->sunctx);
+  SUNAssignSUNCTX(yout->sunctx);
   ARKBraidContent content;
   if (app == NULL) return SUNBRAID_ILLINPUT;
   if (app->content == NULL) return SUNBRAID_MEMFAIL;
@@ -377,7 +377,7 @@ int ARKBraid_Init(braid_App app, realtype t, braid_Vector *u_ptr)
   int             flag;     /* return flag          */
   N_Vector        y;        /* output N_Vector      */
   ARKBraidContent content;  /* ARKBraid app content */
-  SUNDeclareContext(content->ark_mem->sunctx);
+  SUNAssignSUNCTX(content->ark_mem->sunctx);
 
   /* Check input */
   if (app == NULL) return SUNBRAID_ILLINPUT;
@@ -414,7 +414,7 @@ int ARKBraid_Access(braid_App app, braid_Vector u,
   braid_Int       idx;         /* time index for u     */
   braid_Real      time;        /* time value for u     */
   ARKBraidContent content;     /* ARKBraid app content  */
-  SUNDeclareContext(content->ark_mem->sunctx);
+  SUNAssignSUNCTX(content->ark_mem->sunctx);
 
   /* Check input */
   if (app == NULL || u == NULL || astatus == NULL) return SUNBRAID_ILLINPUT;

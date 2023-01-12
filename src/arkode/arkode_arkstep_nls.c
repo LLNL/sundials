@@ -47,7 +47,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Return immediately if NLS input is NULL */
   if (NLS == NULL) {
@@ -179,7 +179,7 @@ int ARKStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
   ---------------------------------------------------------------*/
 int arkStep_NlsInit(ARKodeMem ark_mem)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   int retval;
 
@@ -292,7 +292,7 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   booleantype callLSetup;
   long int nls_iters_inc = 0;
@@ -439,7 +439,7 @@ SUNNlsStatus arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* retrieve nonlinear solver iteration from module */
   retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nonlin_iter);
@@ -500,7 +500,7 @@ SUNNlsStatus arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arko
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -568,7 +568,7 @@ SUNNlsStatus arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arko
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -642,7 +642,7 @@ SUNNlsStatus arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkod
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -712,7 +712,7 @@ SUNNlsStatus arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* ar
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -780,7 +780,7 @@ SUNNlsStatus arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* ar
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -854,7 +854,7 @@ SUNNlsStatus arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* ark
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -915,7 +915,7 @@ SUNNlsStatus arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector de
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* if the problem is linearly implicit, just return success */
   if (step_mem->linear)

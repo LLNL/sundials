@@ -69,7 +69,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
                               sunindextype global_length,
                               SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   N_Vector v;
   N_VectorContent_Parallel content;
   sunindextype n, Nsum;
@@ -171,7 +171,7 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
                          sunindextype global_length,
                          SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   N_Vector v;
   realtype *data;
 
@@ -205,7 +205,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
                           realtype *v_data,
                           SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   N_Vector v;
 
   v = NULL;
@@ -226,7 +226,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
 
 N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector* result = SUNCheckCallLastErrNull(N_VCloneVectorArray(count, w));
   return result;
 }
@@ -238,7 +238,7 @@ N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector* result = SUNCheckCallLastErrNull(N_VCloneEmptyVectorArray(count, w));
   return result;
 }
@@ -249,7 +249,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
 {
-  SUNDeclareContext((*vs)->sunctx);
+  SUNAssignSUNCTX((*vs)->sunctx);
   SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(vs, count));
   return;
 }
@@ -278,7 +278,7 @@ sunindextype N_VGetLocalLength_Parallel(N_Vector v)
 
 void N_VPrint_Parallel(N_Vector x)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   SUNCheckCallLastErrNoRet(N_VPrintFile_Parallel(x, stdout));
 }
 
@@ -318,7 +318,7 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 
 N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector v;
   N_VectorContent_Parallel content;
 
@@ -349,7 +349,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
 N_Vector N_VClone_Parallel(N_Vector w)
 {
-  SUNDeclareContext(w->sunctx);
+  SUNAssignSUNCTX(w->sunctx);
   N_Vector v;
   realtype *data;
   sunindextype local_length;
@@ -659,7 +659,7 @@ realtype N_VDotProdLocal_Parallel(N_Vector x, N_Vector y)
 
 realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = SUNCheckCallLastErrNoRet(N_VDotProdLocal_Parallel(x,y));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x)));
@@ -686,7 +686,7 @@ realtype N_VMaxNormLocal_Parallel(N_Vector x)
 
 realtype N_VMaxNorm_Parallel(N_Vector x)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lmax, gmax;
   lmax = SUNCheckCallLastErrNoRet(N_VMaxNormLocal_Parallel(x));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_P(x)));
@@ -715,7 +715,7 @@ realtype N_VWSqrSumLocal_Parallel(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_Parallel(x, w));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x)));
@@ -746,7 +746,7 @@ realtype N_VWSqrSumMaskLocal_Parallel(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = SUNCheckCallLastErrNoRet(N_VWSqrSumMaskLocal_Parallel(x, w, id));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x)));
@@ -773,7 +773,7 @@ realtype N_VMinLocal_Parallel(N_Vector x)
 
 realtype N_VMin_Parallel(N_Vector x)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lmin, gmin;
   lmin = SUNCheckCallLastErrNoRet(N_VMinLocal_Parallel(x));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_P(x)));
@@ -782,7 +782,7 @@ realtype N_VMin_Parallel(N_Vector x)
 
 realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = SUNCheckCallLastErrNoRet(N_VWSqrSumLocal_Parallel(x, w));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x)));
@@ -807,7 +807,7 @@ realtype N_VL1NormLocal_Parallel(N_Vector x)
 
 realtype N_VL1Norm_Parallel(N_Vector x)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = SUNCheckCallLastErrNoRet(N_VL1NormLocal_Parallel(x));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x)));
@@ -859,7 +859,7 @@ booleantype N_VInvTestLocal_Parallel(N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype val, gval;
   booleantype test = SUNCheckCallLastErrNoRet(N_VInvTestLocal_Parallel(x, z));
   val = test ? ONE : ZERO;
@@ -907,7 +907,7 @@ booleantype N_VConstrMaskLocal_Parallel(N_Vector c, N_Vector x, N_Vector m)
 
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   realtype temp, temp2;
   booleantype test = SUNCheckCallLastErrNoRet(N_VConstrMaskLocal_Parallel(c, x, m));
   temp = test ? ZERO : ONE;
@@ -945,7 +945,7 @@ realtype N_VMinQuotientLocal_Parallel(N_Vector num, N_Vector denom)
 
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 {
-  SUNDeclareContext(num->sunctx);
+  SUNAssignSUNCTX(num->sunctx);
   realtype lmin, gmin;
   lmin = SUNCheckCallLastErrNoRet(N_VMinQuotientLocal_Parallel(num, denom));
   SUNCheckMPICallNoRet(MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_P(num)));
@@ -961,7 +961,7 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 
 SUNErrCode N_VLinearCombination_Parallel(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
-  SUNDeclareContext(z->sunctx);
+  SUNAssignSUNCTX(z->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    zd=NULL;
@@ -1033,7 +1033,7 @@ SUNErrCode N_VLinearCombination_Parallel(int nvec, realtype* c, N_Vector* X, N_V
 
 SUNErrCode N_VScaleAddMulti_Parallel(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1081,7 +1081,7 @@ SUNErrCode N_VScaleAddMulti_Parallel(int nvec, realtype* a, N_Vector x, N_Vector
 
 SUNErrCode N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1126,7 +1126,7 @@ SUNErrCode N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype*
 SUNErrCode N_VDotProdMultiLocal_Parallel(int nvec, N_Vector x, N_Vector* Y, 
                                          realtype* dotprods)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1153,7 +1153,7 @@ SUNErrCode N_VDotProdMultiLocal_Parallel(int nvec, N_Vector x, N_Vector* Y,
 
 SUNErrCode N_VDotProdMultiAllReduce_Parallel(int nvec_total, N_Vector x, realtype* sum)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   MPI_Comm comm;
 
   SUNMPIAssert(nvec_total > 0, SUN_ERR_ARG_OUTOFRANGE);
@@ -1179,7 +1179,7 @@ SUNErrCode N_VLinearSumVectorArray_Parallel(int nvec,
                                             realtype b, N_Vector* Y,
                                             N_Vector* Z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1286,7 +1286,7 @@ SUNErrCode N_VLinearSumVectorArray_Parallel(int nvec,
 
 SUNErrCode N_VScaleVectorArray_Parallel(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1332,7 +1332,7 @@ SUNErrCode N_VScaleVectorArray_Parallel(int nvec, realtype* c, N_Vector* X, N_Ve
 
 SUNErrCode N_VConstVectorArray_Parallel(int nvec, realtype c, N_Vector* Z)
 {
-  SUNDeclareContext(Z[0]->sunctx);
+  SUNAssignSUNCTX(Z[0]->sunctx);
   int          i;
   sunindextype j, N;
   realtype*    zd=NULL;
@@ -1362,7 +1362,7 @@ SUNErrCode N_VConstVectorArray_Parallel(int nvec, realtype c, N_Vector* Z)
 
 SUNErrCode N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
@@ -1403,7 +1403,7 @@ SUNErrCode N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, r
 SUNErrCode N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
                                                N_Vector id, realtype* nrm)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
@@ -1447,7 +1447,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* 
 SUNErrCode N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, realtype* a,
                                                 N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
-  SUNDeclareContext(X[0]->sunctx);
+  SUNAssignSUNCTX(X[0]->sunctx);
   int          i, j;
   sunindextype k, N;
   realtype*    xd=NULL;
@@ -1542,7 +1542,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
                                                     realtype* c, N_Vector** X,
                                                     N_Vector* Z)
 {
-  SUNDeclareContext(Z[0]->sunctx);
+  SUNAssignSUNCTX(Z[0]->sunctx);
   int          i; /* vector arrays index in summation [0,nsum) */
   int          j; /* vector index in vector array     [0,nvec) */
   sunindextype k; /* element index in vector          [0,N)    */
@@ -1690,7 +1690,7 @@ SUNErrCode N_VBufSize_Parallel(N_Vector x, sunindextype *size)
 
 SUNErrCode N_VBufPack_Parallel(N_Vector x, void *buf)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;
@@ -1710,7 +1710,7 @@ SUNErrCode N_VBufPack_Parallel(N_Vector x, void *buf)
 
 SUNErrCode N_VBufUnpack_Parallel(N_Vector x, void *buf)
 {
-  SUNDeclareContext(x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;

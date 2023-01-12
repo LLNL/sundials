@@ -35,7 +35,7 @@
 void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
                     SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
@@ -218,7 +218,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
@@ -583,7 +583,7 @@ int ARKStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z));
 
@@ -1301,7 +1301,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* local shortcuts for use with fused vector operations */
   cvals = step_mem->cvals;
@@ -1554,7 +1554,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* local shortcuts for use with fused vector operations */
   cvals = step_mem->cvals;
@@ -2141,7 +2141,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   int i, retval, jstage, nvec;
   realtype tau;
   realtype h;
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   realtype* cvals;
   N_Vector* Xvecs;
@@ -2357,7 +2357,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 {
   /* local data */
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
   int retval, i, j, nvec;
   realtype* cvals;
@@ -2480,7 +2480,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   N_Vector y, yerr;
   realtype* cvals;
   N_Vector* Xvecs;
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2575,7 +2575,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsmPtr)
   N_Vector y, yerr;
   realtype* cvals;
   N_Vector* Xvecs;
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */

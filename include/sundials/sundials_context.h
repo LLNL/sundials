@@ -38,15 +38,15 @@ struct SUNContext_
 
 typedef struct SUNContext_* SUNContext;
 
-/* Shortcut macro to access the SUNContext declared with SUNDeclareContext. */
+/* Shortcut macro to access the SUNContext declared with SUNAssignSUNCTX. */
 #define SUNCTX sunctx_
 
-/* The SUNDeclareContext macro is used to declare the SUNContext
+/* The SUNAssignSUNCTX macro is used to declare the SUNContext
    object to be used a function. */
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
-#define SUNDeclareContext(sunctx) SUNContext SUNCTX = sunctx
+#define SUNAssignSUNCTX(sunctx) SUNContext SUNCTX = sunctx
 #else
-#define SUNDeclareContext(sunctx) \
+#define SUNAssignSUNCTX(sunctx) \
   SUNContext SUNCTX = sunctx;     \
   (void)SUNCTX
 #endif

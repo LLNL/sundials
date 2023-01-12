@@ -907,7 +907,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   kin_mem = (KINMem) kinmem;
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   if (constraints == NULL) {
     if (kin_mem->kin_constraintsSet) {

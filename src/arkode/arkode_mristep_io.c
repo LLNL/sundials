@@ -625,7 +625,7 @@ int MRIStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Return error message if no NLS module is present */
   if (step_mem->NLS == NULL) {

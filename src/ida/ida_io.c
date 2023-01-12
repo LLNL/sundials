@@ -540,7 +540,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   if (id == NULL) {
     if (IDA_mem->ida_idMallocDone) {
@@ -580,7 +580,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   if (constraints == NULL) {
     if (IDA_mem->ida_constraintsMallocDone) {
@@ -949,7 +949,7 @@ int IDAGetConsistentIC(void *ida_mem, N_Vector yy0, N_Vector yp0)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   if (IDA_mem->ida_kused != 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_TOO_LATE);
@@ -1159,7 +1159,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewt, eweight));
 
@@ -1178,7 +1178,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, ele));
 

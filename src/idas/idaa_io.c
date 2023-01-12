@@ -670,7 +670,7 @@ int IDAGetAdjDataPointHermite(void *ida_mem, int which,
   }
   IDA_mem = (IDAMem) ida_mem; 
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
@@ -725,7 +725,7 @@ int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
   }
   IDA_mem = (IDAMem) ida_mem; 
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {

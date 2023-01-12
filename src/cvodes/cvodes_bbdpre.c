@@ -88,7 +88,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Test if the CVSLS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
@@ -451,7 +451,7 @@ static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
@@ -542,7 +542,7 @@ static SUNLsStatus cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
   pdata = (CVBBDPrecData) bbd_data;
 
-  SUNDeclareContext(((CVodeMem) pdata->cvode_mem)->cv_sunctx);
+  SUNAssignSUNCTX(((CVodeMem) pdata->cvode_mem)->cv_sunctx);
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
   rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(r));
@@ -565,7 +565,7 @@ static SUNLsStatus cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int cvBBDPrecFree(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   CVLsMem cvls_mem;
   CVBBDPrecData pdata;
@@ -621,7 +621,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Load ytemp with y = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp));

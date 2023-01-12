@@ -404,7 +404,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -577,7 +577,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -730,7 +730,7 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
@@ -1017,7 +1017,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -1511,7 +1511,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -1588,7 +1588,7 @@ int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
 
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -1694,7 +1694,7 @@ static booleantype cvCheckNvector(N_Vector tmpl)
 
 static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int j;
 
@@ -1738,7 +1738,7 @@ static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void cvFreeVectors(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int j, maxord;
 
@@ -1789,7 +1789,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
 
 static int cvInitialSetup(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int ier;
   booleantype conOK;
@@ -2027,7 +2027,7 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
 
 static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   realtype hub_inv, hub;
   N_Vector temp1, temp2;
@@ -2074,7 +2074,7 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 
 static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int retval;
 
@@ -2120,7 +2120,7 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 
 static int cvStep(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   realtype saved_t;          /* time to restore to if a failure occurs   */
   realtype dsm;              /* local truncation error estimate          */
@@ -2286,7 +2286,7 @@ static void cvAdjustOrder(CVodeMem cv_mem, int deltaq)
 
 static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int i, j;
   realtype xi, hsum;
@@ -2365,7 +2365,7 @@ static void cvAdjustBDF(CVodeMem cv_mem, int deltaq)
 
 static void cvIncreaseBDF(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   realtype alpha0, alpha1, prod, xi, xiold, hsum, A1;
   int i, j;
@@ -2410,7 +2410,7 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
 
 static void cvDecreaseBDF(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   realtype hsum, xi;
   int i, j;
@@ -2445,7 +2445,7 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 
 void cvRescale(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int j;
 
@@ -2475,7 +2475,7 @@ void cvRescale(CVodeMem cv_mem)
 
 static void cvPredict(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   int j, k;
 
@@ -2775,7 +2775,7 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
   booleantype callSetup = SUNFALSE;
   long int nni_inc = 0;
@@ -2861,7 +2861,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
 static int cvCheckConstraints(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   booleantype constraintsPassed;
   realtype vnorm;
   N_Vector mm  = cv_mem->cv_ftemp;
@@ -3010,7 +3010,7 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
 void cvRestore(CVodeMem cv_mem, realtype saved_t)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int j, k;
 
   cv_mem->cv_tn = saved_t;
@@ -3054,7 +3054,7 @@ void cvRestore(CVodeMem cv_mem, realtype saved_t)
 static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *nefPtr, realtype *dsmPtr)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   realtype dsm;
   int retval;
 
@@ -3168,7 +3168,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
 static void cvCompleteStep(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int i;
 
   cv_mem->cv_nst++;
@@ -3306,7 +3306,7 @@ static void cvSetEta(CVodeMem cv_mem)
 
 static realtype cvComputeEtaqm1(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   realtype ddn;
 
   cv_mem->cv_etaqm1 = ZERO;
@@ -3328,7 +3328,7 @@ static realtype cvComputeEtaqm1(CVodeMem cv_mem)
 
 static realtype cvComputeEtaqp1(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   realtype dup, cquot;
 
   cv_mem->cv_etaqp1 = ZERO;
@@ -3359,7 +3359,7 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
 
 static void cvChooseEta(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   realtype etam;
 
   etam = SUNMAX(cv_mem->cv_etaqm1, SUNMAX(cv_mem->cv_etaq, cv_mem->cv_etaqp1));
@@ -3524,7 +3524,7 @@ static int cvHandleHinOrStepFailure(CVodeMem cv_mem, int flag)
 
 static void cvBDFStab(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int i,k, ldflag, factorial;
   realtype sq, sqm1, sqm2;
 
@@ -3906,7 +3906,7 @@ static int cvSLdet(CVodeMem cv_mem)
 
 static int cvRcheck1(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;
@@ -3975,7 +3975,7 @@ static int cvRcheck1(CVodeMem cv_mem)
 
 static int cvRcheck2(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;
@@ -4048,7 +4048,7 @@ static int cvRcheck2(CVodeMem cv_mem)
 
 static int cvRcheck3(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int i, ier, retval;
 
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
@@ -4393,7 +4393,7 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   sunrealtype min;
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
   if (cv_mem->cv_usefused)
@@ -4436,7 +4436,7 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   sunrealtype min;
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
   if (cv_mem->cv_usefused)

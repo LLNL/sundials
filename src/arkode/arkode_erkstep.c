@@ -137,7 +137,7 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
@@ -624,7 +624,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
@@ -740,7 +740,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* local shortcuts for fused vector operations */
   cvals = step_mem->cvals;
@@ -1059,7 +1059,7 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   
   /* local data */
   int retval, j, nvec;

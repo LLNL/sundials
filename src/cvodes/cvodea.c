@@ -734,7 +734,7 @@ int CVodeInitB(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -807,7 +807,7 @@ int CVodeInitBS(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -1535,7 +1535,7 @@ int CVodeGetB(void *cvode_mem, int which, realtype *tret, N_Vector yB)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -1585,7 +1585,7 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -1641,7 +1641,7 @@ int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
 
 static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CkpntMem ck_mem;
   int is;
 
@@ -1751,7 +1751,7 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 
 static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   CkpntMem ck_mem;
   int j, jj, is, qmax;
@@ -2050,7 +2050,7 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
   int j;
 
   if (*ck_memPtr != NULL) {
-    SUNDeclareContext((*ck_memPtr)->ck_zn[0]->sunctx);
+    SUNAssignSUNCTX((*ck_memPtr)->ck_zn[0]->sunctx);
 
     /* store head of list */
     tmp = *ck_memPtr;
@@ -2136,7 +2136,7 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
   void *cvode_mem;
 
   if (*cvB_memPtr != NULL) {
-    SUNDeclareContext((*cvB_memPtr)->cv_y->sunctx);
+    SUNAssignSUNCTX((*cvB_memPtr)->cv_y->sunctx);
 
     /* Save head of the list */
     tmp = *cvB_memPtr;
@@ -2239,7 +2239,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
 
 static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   int flag, j, is, qmax, retval;
 
   if (ck_mem->ck_next == NULL) {
@@ -2519,7 +2519,7 @@ int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y)
 
 static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
@@ -2639,7 +2639,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 
 static void CVAhermiteFree(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
@@ -2678,7 +2678,7 @@ static void CVAhermiteFree(CVodeMem cv_mem)
 static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 {
   CVadjMem ca_mem;
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   HermiteDataMem content;
   int is, retval;
 
@@ -2742,7 +2742,7 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
                           N_Vector y, N_Vector *yS)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content0, content1;
@@ -2924,7 +2924,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
 
 static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
@@ -3022,7 +3022,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 
 static void CVApolynomialFree(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
@@ -3058,7 +3058,7 @@ static void CVApolynomialFree(CVodeMem cv_mem)
 
 static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   PolynomialDataMem content;
   int is, retval;
@@ -3094,7 +3094,7 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
 static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
                              N_Vector y, N_Vector *yS)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;

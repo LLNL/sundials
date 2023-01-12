@@ -66,7 +66,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Return immediately if NLS memory is NULL */
   if (NLS == NULL) {
@@ -217,7 +217,7 @@ int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
 
 int cvNlsInit(CVodeMem cv_mem)
 {
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
   
   int retval;
 
@@ -330,7 +330,7 @@ static SUNNlsStatus cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vecto
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* compute the norm of the correction */
   del = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt));
@@ -379,7 +379,7 @@ static SUNNlsStatus cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* update the state based on the current correction */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y));
@@ -419,7 +419,7 @@ static SUNNlsStatus cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
+  SUNAssignSUNCTX(CV_SUNCTX);
 
   /* update the state based on the current correction */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y));

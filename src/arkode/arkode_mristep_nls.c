@@ -47,7 +47,7 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Return immediately if NLS input is NULL */
   if (NLS == NULL) {
@@ -201,7 +201,7 @@ int MRIStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
   ---------------------------------------------------------------*/
 int mriStep_NlsInit(ARKodeMem ark_mem)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeMRIStepMem step_mem;
   int retval;
 
@@ -272,7 +272,7 @@ int mriStep_NlsInit(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 int mriStep_Nls(ARKodeMem ark_mem, int nflag)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKodeMRIStepMem step_mem;
   booleantype callLSetup;
   long int nls_iters_inc = 0;
@@ -420,7 +420,7 @@ SUNNlsStatus mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* retrieve nonlinear solver iteration from module */
   retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nonlin_iter);
@@ -474,7 +474,7 @@ SUNNlsStatus mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -534,7 +534,7 @@ SUNNlsStatus mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* update 'ycur' value as stored predictor + current corrector */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur));
@@ -589,7 +589,7 @@ SUNNlsStatus mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector de
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* if the problem is linearly implicit, just return success */
   if (step_mem->linear)

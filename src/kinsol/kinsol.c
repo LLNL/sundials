@@ -350,7 +350,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   }
   kin_mem = (KINMem) kinmem;
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(KIN_PROFILER);
 
@@ -503,7 +503,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   }
   kin_mem = (KINMem) kinmem;
 
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(KIN_PROFILER);
 
@@ -819,7 +819,7 @@ static booleantype KINCheckNvector(N_Vector tmpl)
 
 static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
@@ -1190,7 +1190,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 
 static void KINFreeVectors(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   if (kin_mem->kin_unew != NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(kin_mem->kin_unew));
@@ -1348,7 +1348,7 @@ static void KINFreeVectors(KINMem kin_mem)
 
 static int KINSolInit(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   int retval;
   realtype fmax;
@@ -1532,7 +1532,7 @@ static int KINSolInit(KINMem kin_mem)
 
 static int KINLinSolDrv(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   N_Vector x, b;
   int retval;
@@ -1593,7 +1593,7 @@ static int KINLinSolDrv(KINMem kin_mem)
 static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
                          booleantype *maxStepTaken)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   realtype pnorm, ratio;
   booleantype fOK;
@@ -1728,7 +1728,7 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
                          booleantype *maxStepTaken)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   realtype pnorm, ratio, slpi, rlmin, rlength, rl, rlmax, rldiff;
   realtype rltmp, rlprev, pt1trl, f1nprv, rllo, rlinc, alpha, beta;
@@ -2024,7 +2024,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
 static int KINConstraint(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   sunbooleantype mask;
 
@@ -2070,7 +2070,7 @@ static int KINConstraint(KINMem kin_mem)
 
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   realtype fmax, rlength, omexp;
   N_Vector delta;
@@ -2274,7 +2274,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
 static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
   SUNCheckCallLastErrNoRet(N_VProd(scale, v, kin_mem->kin_vtemp1));
   return(N_VMaxNorm(kin_mem->kin_vtemp1));
 }
@@ -2288,7 +2288,7 @@ static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
 
 static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
   realtype length;
 
   SUNCheckCallLastErrNoRet(N_VInv(kin_mem->kin_uscale, kin_mem->kin_vtemp1));
@@ -2527,7 +2527,7 @@ void KINErrHandler(int error_code, const char *module,
 
 static int KINPicardAA(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   int retval;       /* return value from user func */
   int ret;          /* iteration status            */
@@ -2675,7 +2675,7 @@ static int KINPicardAA(KINMem kin_mem)
 
 static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vector fval1)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   int retval;
 
@@ -2728,7 +2728,7 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
 
 static int KINFP(KINMem kin_mem)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
 
   int retval;       /* return value from user func */
   int ret;          /* iteration status            */
@@ -2880,7 +2880,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
                        N_Vector x, N_Vector xold,
                        long int iter, realtype *R, realtype *gamma)
 {
-  SUNDeclareContext(KIN_SUNCTX);
+  SUNAssignSUNCTX(KIN_SUNCTX);
   
   int retval;
   long int i_pt, i, j, lAA;

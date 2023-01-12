@@ -706,7 +706,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
@@ -1401,7 +1401,7 @@ int arkGetErrWeights(void *arkode_mem, N_Vector eweight)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->ewt, eweight));
   return(ARK_SUCCESS);
@@ -1422,7 +1422,7 @@ int arkGetResWeights(void *arkode_mem, N_Vector rweight)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->rwt, rweight));
   return(ARK_SUCCESS);

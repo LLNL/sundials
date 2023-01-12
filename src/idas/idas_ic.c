@@ -136,7 +136,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
@@ -489,7 +489,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
 static int IDANlsIC(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int retval, nj, is;
   N_Vector tv1, tv2, tv3;
@@ -595,7 +595,7 @@ static int IDANlsIC(IDAMem IDA_mem)
 
 static int IDANewtonIC(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int retval, mnewt, is;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
@@ -704,7 +704,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
 static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   booleantype conOK;
   int retval, is, nbacks;
@@ -824,7 +824,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int retval, is;
 
@@ -911,7 +911,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
   
   int retval;
 
@@ -957,7 +957,7 @@ static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 
 static int IDANewy(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
@@ -1007,7 +1007,7 @@ static int IDANewy(IDAMem IDA_mem)
  */
 static int IDASensNlsIC(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int retval;
   int is, nj;
@@ -1088,7 +1088,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
  */
 static int IDASensNewtonIC(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int retval, is, mnewt;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
@@ -1171,7 +1171,7 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
 
 static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int is, retval, nbacks;
   realtype f1norm, fnormp, f1normp, slpi, minlam;
@@ -1244,7 +1244,7 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
 
   int is, retval;
 
@@ -1300,7 +1300,7 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda)
 {
-  SUNDeclareContext(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_SUNCTX);
   
   int is;
 

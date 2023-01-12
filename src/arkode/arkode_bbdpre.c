@@ -76,7 +76,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
@@ -425,7 +425,7 @@ static SUNLsStatus ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
@@ -513,7 +513,7 @@ static SUNLsStatus ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   
   pdata = (ARKBBDPrecData) bbd_data;
 
-  SUNDeclareContext(((ARKodeMem) pdata->arkode_mem)->sunctx);
+  SUNAssignSUNCTX(((ARKodeMem) pdata->arkode_mem)->sunctx);
 
   /* Attach local data arrays for r and z to rlocal and zlocal */
   rdata = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(r));
@@ -537,7 +537,7 @@ static SUNLsStatus ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 /*-------------------------------------------------------------*/
 static int ARKBBDPrecFree(ARKodeMem ark_mem)
 {
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
   ARKLsMem       arkls_mem;
   void*          ark_step_lmem;
   ARKBBDPrecData pdata;
@@ -593,7 +593,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
   
-  SUNDeclareContext(ark_mem->sunctx);
+  SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Load ytemp with y = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp));

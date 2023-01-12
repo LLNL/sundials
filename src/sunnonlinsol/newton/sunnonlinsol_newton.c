@@ -39,7 +39,7 @@
 
 SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   SUNNonlinearSolver NLS;
   SUNNonlinearSolverContent_Newton content;
 
@@ -107,7 +107,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
 SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
                                            SUNContext sunctx)
 {
-  SUNDeclareContext(sunctx);
+  SUNAssignSUNCTX(sunctx);
   SUNNonlinearSolver NLS;
   N_Vector w;
 
@@ -137,7 +137,7 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 
 SUNErrCode SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   /* check that all required function pointers have been set */
   SUNAssert(NEWTON_CONTENT(NLS)->Sys && NEWTON_CONTENT(NLS)->CTest &&
               NEWTON_CONTENT(NLS)->LSolve,
@@ -179,7 +179,7 @@ SUNNlsStatus SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
                                       N_Vector ycor, N_Vector w, realtype tol,
                                       booleantype callLSetup, void* mem)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   /* local variables */
   int retval;
   booleantype jbad;
@@ -321,7 +321,7 @@ SUNNlsStatus SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
 
 SUNErrCode SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   /* free items from contents, then the generic structure */
   if (NLS->content) {
 
@@ -353,7 +353,7 @@ SUNErrCode SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 
 SUNErrCode SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   SUNAssert(SysFn, SUN_ERR_ARG_CORRUPT);
   NEWTON_CONTENT(NLS)->Sys = SysFn;
   return SUN_SUCCESS;
@@ -369,7 +369,7 @@ SUNErrCode SUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver NLS,
 SUNErrCode SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS,
                                           SUNNonlinSolLSolveFn LSolveFn)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   SUNAssert(LSolveFn, SUN_ERR_ARG_CORRUPT);
   NEWTON_CONTENT(NLS)->LSolve = LSolveFn;
   return SUN_SUCCESS;
@@ -379,7 +379,7 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
                                             SUNNonlinSolConvTestFn CTestFn,
                                             void* ctest_data)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   SUNAssert(CTestFn, SUN_ERR_ARG_CORRUPT);
 
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
@@ -393,7 +393,7 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
 
 SUNErrCode SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   SUNAssert(maxiters >= 1, SUN_ERR_ARG_OUTOFRANGE);
   NEWTON_CONTENT(NLS)->maxiters = maxiters;
   return SUN_SUCCESS;
@@ -443,7 +443,7 @@ SUNErrCode SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS, FILE* info_fil
 SUNErrCode SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,
                                             int print_level)
 {
-  SUNDeclareContext(NLS->sunctx);
+  SUNAssignSUNCTX(NLS->sunctx);
   /* check for valid print level */
   SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE);
 
