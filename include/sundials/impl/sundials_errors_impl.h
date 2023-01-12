@@ -95,6 +95,23 @@
 #define SUNCheckCallNull(call) (void)call;
 #endif
 
+/* Same as SUNCheckCall, but returns void. */
+#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
+#define SUNCheckCallVoid(call)                                           \
+  do {                                                                   \
+    SUNErrCode sun_chk_call_err_code_ = call;                            \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
+    {                                                                    \
+      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
+                   SUNCTX);                                              \
+      return;                                                            \
+    }                                                                    \
+  }                                                                      \
+  while (0)
+#else
+#define SUNCheckCallNull(call) (void)call;
+#endif
+
 /* SUNCheckLastErr checks the last_err value in the SUNContext.
    If an error occured, then it will log the error, set the last_err
    value, and calls the error handler. */
