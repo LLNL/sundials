@@ -339,6 +339,8 @@ SUNLsStatus SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
 SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype delta)
 {
+  SUNAssignSUNCTX(S->sunctx);
+
   /* local data and shortcut variables */
   N_Vector *V, xcor, vtemp, s1, s2;
   realtype **Hes, *givens, *yg, *res_norm;
@@ -353,7 +355,6 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype* cv;
   N_Vector* Xv;
   SUNLsStatus status;
-  SUNAssignSUNCTX(S->sunctx);
 
   /* Initialize some variables */
   l_plus_1 = 0;
@@ -395,7 +396,7 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file
-      && (SPGMR_CONTENT(S)->info_file != sunctx->logger->info_fp))
+      && (SPGMR_CONTENT(S)->info_file != SUNCTX->logger->info_fp))
     fprintf(SPGMR_CONTENT(S)->info_file, "SUNLINSOL_SPGMR:\n");
 #endif
 
@@ -447,13 +448,13 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   /* print initial residual */
   if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file
-      && (SPGMR_CONTENT(S)->info_file != sunctx->logger->info_fp))
+      && (SPGMR_CONTENT(S)->info_file != SUNCTX->logger->info_fp))
   {
     fprintf(SPGMR_CONTENT(S)->info_file,
             SUNLS_MSG_RESIDUAL,
             (long int) 0, *res_norm);
   }
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(SUNCTX->logger, SUN_LOGLEVEL_INFO,
     "SUNLinSolSolve_SPGMR", "initial-residual",
     "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
@@ -556,13 +557,13 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       /* print current iteration number and the residual */
       if (SPGMR_CONTENT(S)->print_level && SPGMR_CONTENT(S)->info_file
-          && (SPGMR_CONTENT(S)->info_file != sunctx->logger->info_fp))
+          && (SPGMR_CONTENT(S)->info_file != SUNCTX->logger->info_fp))
       {
         fprintf(SPGMR_CONTENT(S)->info_file,
                 SUNLS_MSG_RESIDUAL,
                 (long int) *nli, *res_norm);
       }
-      SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_INFO,
+      SUNLogger_QueueMsg(SUNCTX->logger, SUN_LOGLEVEL_INFO,
         "SUNLinSolSolve_SPGMR", "iterate-residual",
         "nli = %li, resnorm = %.16g", (long int) *nli, *res_norm);
 #endif

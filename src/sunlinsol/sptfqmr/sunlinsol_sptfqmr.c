@@ -420,7 +420,7 @@ SUNLsStatus SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
             SUNLS_MSG_RESIDUAL,
             (long int) 0, *res_norm);
   }
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(SUNCTX->logger, SUN_LOGLEVEL_INFO,
     "SUNLinSolSolve_SPFTQMR", "initial-residual",
     "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
@@ -604,7 +604,7 @@ SUNLsStatus SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                 SUNLS_MSG_RESIDUAL,
                 (long int) *nli, *res_norm);
       }
-      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+      SUNLogger_QueueMsg(SUNCTX->logger, SUN_LOGLEVEL_INFO,
         "SUNLinSolSolve_SPTFQMR", "iterate-residual",
         "nli = %li, resnorm = %.16g", (long int) 0, *res_norm);
 #endif
