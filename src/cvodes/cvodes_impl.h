@@ -22,7 +22,7 @@
 #include <cvodes/cvodes.h>
 #include <sundials/impl/sundials_errors_impl.h>
 #include "cvodes_proj_impl.h"
-#include "sundials_context_impl.h"
+#include <sundials/impl/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

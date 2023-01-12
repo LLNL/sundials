@@ -11,6 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
+ * !!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * This is a 'private' header file and should not be used in user
+ * code. It is subject to change without warning.
+ * !!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * -----------------------------------------------------------------
  * SUNDIALS context class implementation.
  * ----------------------------------------------------------------*/
 
@@ -26,13 +31,18 @@
 extern "C" {
 #endif
 
-// struct _SUNContext {
-//   SUNProfiler profiler;
-//   sunbooleantype own_profiler;
-//   SUNLogger logger;
-//   sunbooleantype own_logger;
-//   SUNErrCode last_err;
-// };
+struct SUNErrHandler_;
+
+struct SUNContext_
+{
+  SUNProfiler profiler;
+  sunbooleantype own_profiler;
+  SUNLogger logger;
+  sunbooleantype own_logger;
+  SUNErrCode last_err;
+  struct SUNErrHandler_* err_handler;
+  void* comm;
+};
 
 #ifdef __cplusplus
 }

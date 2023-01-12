@@ -19,22 +19,10 @@
 #ifndef _SUNDIALS_CONTEXT_H
 #define _SUNDIALS_CONTEXT_H
 
-#include "sundials/sundials_logger.h"
-#include "sundials/sundials_profiler.h"
-#include "sundials/sundials_types.h"
-
-struct SUNErrHandler_;
-
-struct SUNContext_
-{
-  SUNProfiler profiler;
-  sunbooleantype own_profiler;
-  SUNLogger logger;
-  sunbooleantype own_logger;
-  SUNErrCode last_err;
-  struct SUNErrHandler_* err_handler;
-  void* comm;
-};
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_logger.h>
+#include <sundials/sundials_profiler.h>
+#include <sundials/impl/sundials_context_impl.h>
 
 typedef struct SUNContext_* SUNContext;
 

@@ -23,7 +23,7 @@
 #include <sundials/sundials_profiler.h>
 #include <sundials/impl/sundials_errors_impl.h>
 
-#include "sundials_context_impl.h"
+#include <sundials/impl/sundials_context_impl.h>
 #include "sundials_debug.h"
 
 SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)

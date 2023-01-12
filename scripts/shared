@@ -116,6 +116,8 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake
 
 echo "   --- Add include files to $tarfile"
 
+$tar $tarfile $distrobase/include/sundials/impl/sundials_context_impl.h
+$tar $tarfile $distrobase/include/sundials/impl/sundials_errors_impl.h
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_base.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_config.in
@@ -246,7 +248,7 @@ $tar $tarfile $distrobase/src/sundials/fmod/fsundials_profiler_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.f90
 $tar $tarfile $distrobase/src/sundials/sundials_band.c
-$tar $tarfile $distrobase/src/sundials/sundials_context_impl.h
+
 $tar $tarfile $distrobase/src/sundials/sundials_context.c
 $tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh
 $tar $tarfile $distrobase/src/sundials/sundials_cuda.h
@@ -262,13 +264,16 @@ $tar $tarfile $distrobase/src/sundials/sundials_iterative_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_iterative.c
 $tar $tarfile $distrobase/src/sundials/sundials_lapack_defs.h
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c
+$tar $tarfile $distrobase/src/sundials/sundials_linearsolver_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_logger_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_logger.c
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
 $tar $tarfile $distrobase/src/sundials/sundials_matrix.c
+$tar $tarfile $distrobase/src/sundials/sundials_matrix_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_memory.c
 $tar $tarfile $distrobase/src/sundials/sundials_mpi_errors.c
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c
+$tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
