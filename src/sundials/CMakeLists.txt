@@ -21,8 +21,6 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
-  impl/sundials_context_impl.h
-  impl/sundials_errors_impl.h
   sundials_band.h
   sundials_base.hpp
   sundials_context.h
@@ -144,6 +142,12 @@ sundials_add_library(sundials_generic
   SOVERSION
     ${sundialslib_SOVERSION}
 )
+
+# Install private headers
+install(FILES 
+  ${SUNDIALS_SOURCE_DIR}/include/sundials/impl/sundials_context_impl.h
+  ${SUNDIALS_SOURCE_DIR}/include/sundials/impl/sundials_errors_impl.h
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/impl")
 
 # SUNDIALS_EXPORT macro
 include(GenerateExportHeader)
