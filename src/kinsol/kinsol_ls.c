@@ -176,7 +176,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* If LS supports ATimes, attach KINLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, kin_mem, kinLsATimes);
-    SUNCheckCallNoRet(retval, KIN_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval != SUN_SUCCESS) {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
@@ -188,7 +188,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, kin_mem, NULL, NULL);
-    SUNCheckCallNoRet(retval, KIN_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval != SUN_SUCCESS) {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
@@ -414,7 +414,7 @@ int KINGetLinWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
 
   /* add N_Vector sizes */
   if (kin_mem->kin_vtemp1->ops->nvspace) {
-    SUNCheckCallLastErrNoRet(N_VSpace(kin_mem->kin_vtemp1, &lrw1, &liw1), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSpace(kin_mem->kin_vtemp1, &lrw1, &liw1));
     *lenrwLS += lrw1;
     *leniwLS += liw1;
   }
@@ -422,7 +422,7 @@ int KINGetLinWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS)
   /* add LS sizes */
   if (kinls_mem->LS->ops->space) {
     retval = SUNLinSolSpace(kinls_mem->LS, &lrw, &liw);
-    SUNCheckCallNoRet(retval, KIN_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval == 0) {
       *lenrwLS += lrw;
       *leniwLS += liw;
@@ -709,7 +709,7 @@ SUNLsStatus kinLsPSolve(void *kinmem, N_Vector r, N_Vector z, realtype tol, int 
 
   /* copy the rhs into z before the psolve call */
   /* Note: z returns with the solution */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, r, z), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, r, z));
 
   /* note: user-supplied preconditioning with KINSOL does not
      support either the 'tol' or 'lr' inputs */
@@ -802,15 +802,15 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
   N = SUNDenseMatrix_Columns(Jac);
 
   /* Save pointer to the array in tmp2 */
-  tmp2_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(tmp2), KIN_SUNCTX);
+  tmp2_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(tmp2));
 
   /* Rename work vectors for readibility */
   ftemp  = tmp1;
   jthCol = tmp2;
 
   /* Obtain pointers to the data for u and uscale */
-  u_data      = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(u), KIN_SUNCTX);
-  uscale_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(kin_mem->kin_uscale), KIN_SUNCTX);
+  u_data      = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(u));
+  uscale_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(kin_mem->kin_uscale));
 
   /* This is the only for loop for 0..N-1 in KINSOL */
 
@@ -819,7 +819,7 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
     /* Generate the jth col of J(u) */
 
     /* Set data address of jthCol, and save u_j values and scaling */
-    SUNCheckCallLastErrNoRet(N_VSetArrayPointer(SUNDenseMatrix_Column(Jac,j), jthCol), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSetArrayPointer(SUNDenseMatrix_Column(Jac,j), jthCol));
     ujsaved = u_data[j];
     ujscale = ONE/uscale_data[j];
 
@@ -839,11 +839,11 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 
     /* Construct difference quotient in jthCol */
     inc_inv = ONE/inc;
-    SUNCheckCallLastErrNoRet(N_VLinearSum(inc_inv, ftemp, -inc_inv, fu, jthCol), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(inc_inv, ftemp, -inc_inv, fu, jthCol));
   }
 
   /* Restore original array pointer in tmp2 */
-  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(tmp2_data, tmp2), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(tmp2_data, tmp2));
 
   return(retval);
 }
@@ -889,14 +889,14 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
   utemp  = tmp2;
 
   /* Obtain pointers to the data for ewt, fy, futemp, y, ytemp */
-  fu_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fu), KIN_SUNCTX);
-  futemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(futemp), KIN_SUNCTX);
-  u_data      = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(u), KIN_SUNCTX);
-  uscale_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(kin_mem->kin_uscale), KIN_SUNCTX);
-  utemp_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(utemp), KIN_SUNCTX);
+  fu_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fu));
+  futemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(futemp));
+  u_data      = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(u));
+  uscale_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(kin_mem->kin_uscale));
+  utemp_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(utemp));
 
   /* Load utemp with u */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, u, utemp), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, u, utemp));
 
   /* Set bandwidth and number of column groups for band differencing */
   width   = mlower + mupper + 1;
@@ -977,25 +977,25 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   }
 
   /* scale the vector v and put Du*v into vtemp1 */
-  SUNCheckCallLastErrNoRet(N_VProd(v, kin_mem->kin_uscale, kin_mem->kin_vtemp1), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(v, kin_mem->kin_uscale, kin_mem->kin_vtemp1));
 
   /* scale u and put into Jv (used as a temporary storage) */
-  SUNCheckCallLastErrNoRet(N_VProd(u, kin_mem->kin_uscale, Jv), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(u, kin_mem->kin_uscale, Jv));
 
   /* compute dot product (Du*u).(Du*v) */
-  sutsv = SUNCheckCallLastErrNoRet(N_VDotProd(Jv, kin_mem->kin_vtemp1), KIN_SUNCTX);
+  sutsv = SUNCheckCallLastErrNoRet(N_VDotProd(Jv, kin_mem->kin_vtemp1));
 
   /* compute dot product (Du*v).(Du*v) */
-  vtv = SUNCheckCallLastErrNoRet(N_VDotProd(kin_mem->kin_vtemp1, kin_mem->kin_vtemp1), KIN_SUNCTX);
+  vtv = SUNCheckCallLastErrNoRet(N_VDotProd(kin_mem->kin_vtemp1, kin_mem->kin_vtemp1));
 
   /* compute differencing factor -- this is from p. 469, Brown and Saad paper */
-  sq1norm = SUNCheckCallLastErrNoRet(N_VL1Norm(kin_mem->kin_vtemp1), KIN_SUNCTX);
+  sq1norm = SUNCheckCallLastErrNoRet(N_VL1Norm(kin_mem->kin_vtemp1));
   sign = (sutsv >= ZERO) ? ONE : -ONE ;
   sigma = sign*(kin_mem->kin_sqrt_relfunc)*SUNMAX(SUNRabs(sutsv),sq1norm)/vtv;
   sigma_inv = ONE/sigma;
 
   /* compute the u-prime at which to evaluate the function func */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, u, sigma, v, kin_mem->kin_vtemp1), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, u, sigma, v, kin_mem->kin_vtemp1));
 
   /* call the system function to calculate func(u+sigma*v) */
   retval = kinls_mem->jt_func(kin_mem->kin_vtemp1, kin_mem->kin_vtemp2,
@@ -1004,7 +1004,7 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   if (retval != 0) return(retval);
 
   /* finish the computation of the difference quotient */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(sigma_inv, kin_mem->kin_vtemp2, -sigma_inv, kin_mem->kin_fval, Jv), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(sigma_inv, kin_mem->kin_vtemp2, -sigma_inv, kin_mem->kin_fval, Jv));
 
   return(0);
 }
@@ -1134,10 +1134,10 @@ int kinLsInitialize(KINMem kin_mem)
        <=> || b - A x ||_2 < tol * tol_fac
      So we compute tol_fac = sqrt(N) / ||fscale||_L2 for scaling desired tolerances */
   if (kinls_mem->iterative && kinls_mem->LS->ops->setscalingvectors == NULL) {
-    SUNCheckCallLastErrNoRet(N_VConst(ONE, kin_mem->kin_vtemp1), KIN_SUNCTX);
-    kinls_mem->tol_fac = SUNCheckCallLastErrNoRet(N_VGetLength(kin_mem->kin_vtemp1), KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ONE, kin_mem->kin_vtemp1));
+    kinls_mem->tol_fac = SUNCheckCallLastErrNoRet(N_VGetLength(kin_mem->kin_vtemp1));
     kinls_mem->tol_fac = SUNRsqrt(kinls_mem->tol_fac);
-    kinls_mem->tol_fac /= SUNCheckCallLastErrNoRet(N_VWL2Norm(kin_mem->kin_fscale, kin_mem->kin_vtemp1), KIN_SUNCTX);
+    kinls_mem->tol_fac /= SUNCheckCallLastErrNoRet(N_VWL2Norm(kin_mem->kin_fscale, kin_mem->kin_vtemp1));
   } else {
     kinls_mem->tol_fac = ONE;
   }
@@ -1174,7 +1174,7 @@ int kinLsSetup(KINMem kin_mem)
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(kinls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(kinls_mem->J);
-      SUNCheckCallNoRet(retval, KIN_SUNCTX);
+      SUNCheckCallNoRet(retval);
       if (retval != 0) {
         KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MATZERO_FAILED);
         kinls_mem->last_flag = KINLS_SUNMAT_FAIL;
@@ -1196,8 +1196,7 @@ int kinLsSetup(KINMem kin_mem)
 
   /* Call LS setup routine -- the LS will call kinLsPSetup (if applicable) */
   kinls_mem->last_flag =
-    SUNCheckCallLastErrNoRet(SUNLinSolSetup(kinls_mem->LS, kinls_mem->J),
-                             KIN_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNLinSolSetup(kinls_mem->LS, kinls_mem->J));
 
   /* save nni value from most recent lsetup call */
   kin_mem->kin_nnilset = kin_mem->kin_nni;
@@ -1233,11 +1232,11 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   tol = kin_mem->kin_eps * kinls_mem->tol_fac;
 
   /* Set initial guess x = 0 to LS */
-  SUNCheckCallLastErrNoRet(N_VConst(ZERO, xx), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VConst(ZERO, xx));
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(kinls_mem->LS, SUNTRUE);
-  SUNCheckCallNoRet(retval, KIN_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != SUN_SUCCESS) return(-1);
 
   /* set flag required for user-supplied J*v routine */
@@ -1245,17 +1244,16 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 
   /* Call solver */
   ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(kinls_mem->LS,
-                                                      kinls_mem->J, xx, bb, tol),
-                                       KIN_SUNCTX);
+                                                      kinls_mem->J, xx, bb, tol));
 
   /* Retrieve solver statistics */
   res_norm = ZERO;
   if (kinls_mem->LS->ops->resnorm) {
-    res_norm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(kinls_mem->LS), KIN_SUNCTX);
+    res_norm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(kinls_mem->LS));
   }
   nli_inc = 0;
   if (kinls_mem->LS->ops->numiters) {
-    nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(kinls_mem->LS), KIN_SUNCTX);
+    nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(kinls_mem->LS));
   }
 
   if (kinls_mem->iterative && kin_mem->kin_printfl > 2)
@@ -1322,16 +1320,16 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
         kinls_mem->last_flag = SUNLS_ATIMES_FAIL_UNREC;
         return(-1);
       }
-      *sJpnorm = SUNCheckCallLastErrNoRet(N_VWL2Norm(bb, kin_mem->kin_fscale), KIN_SUNCTX);
+      *sJpnorm = SUNCheckCallLastErrNoRet(N_VWL2Norm(bb, kin_mem->kin_fscale));
     }
 
     /* sFdotJp is the dot product of the scaled f vector and the scaled
        vector J*p, where the scaling uses fscale */
     if ((kin_mem->kin_inexact_ls && kin_mem->kin_etaflag == KIN_ETACHOICE1) ||
         kin_mem->kin_globalstrategy == KIN_LINESEARCH) {
-      SUNCheckCallLastErrNoRet(N_VProd(bb, kin_mem->kin_fscale, bb), KIN_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VProd(bb, kin_mem->kin_fscale, bb), KIN_SUNCTX);
-      *sFdotJp = SUNCheckCallLastErrNoRet(N_VDotProd(kin_mem->kin_fval, bb), KIN_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VProd(bb, kin_mem->kin_fscale, bb));
+      SUNCheckCallLastErrNoRet(N_VProd(bb, kin_mem->kin_fscale, bb));
+      *sFdotJp = SUNCheckCallLastErrNoRet(N_VDotProd(kin_mem->kin_fval, bb));
     }
   }
 

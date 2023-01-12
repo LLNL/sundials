@@ -690,10 +690,10 @@ int IDAGetAdjDataPointHermite(void *ida_mem, int which,
   content = (HermiteDataMem) dt_mem[which]->content;
 
   if (yy != NULL) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, yy), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, yy));
   }
   if (yd != NULL) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->yd, yd), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->yd, yd));
   }
 
   return(IDA_SUCCESS);
@@ -745,7 +745,7 @@ int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
   content = (PolynomialDataMem) dt_mem[which]->content;
  
   if (y != NULL) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, y), IDA_SUNCTX); 
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, content->y, y)); 
   }
 
   *order = content->order;

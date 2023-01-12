@@ -280,9 +280,9 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   sunindextype i, local_length;
 
   /* Check that input N_Vectors are non-NULL */
-  SUNAssert(vec_array, SUN_ERR_ARG_CORRUPT);
+  MVASSERT(vec_array, SUN_ERR_ARG_CORRUPT);
   for (i=0; i<num_subvectors; i++)
-    SUNAssert(vec_array[i], SUN_ERR_ARG_CORRUPT);
+    MVASSERT(vec_array[i], SUN_ERR_ARG_CORRUPT);
 
   /* Create vector */
   v = NULL;
@@ -354,7 +354,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ManyVector) malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
+  MVASSERT(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -367,7 +367,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
 
   content->subvec_array = NULL;
   content->subvec_array = (N_Vector *) malloc(num_subvectors * sizeof(N_Vector));
-  SUNAssert(content->subvec_array, SUN_ERR_MALLOC_FAIL);
+  MVASSERT(content->subvec_array, SUN_ERR_MALLOC_FAIL);
 
   for (i=0; i<num_subvectors; i++)
     content->subvec_array[i] = vec_array[i];
@@ -375,7 +375,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   /* Determine overall ManyVector length: sum contributions from all subvectors */
   local_length = 0;
   for (i=0; i<num_subvectors; i++) {
-    SUNAssert(vec_array[i]->ops->nvgetlength, SUN_ERR_ARG_CORRUPT);
+    MVASSERT(vec_array[i]->ops->nvgetlength, SUN_ERR_ARG_CORRUPT);
     local_length += N_VGetLength(vec_array[i]);
   }
   content->global_length = local_length;
@@ -1642,9 +1642,8 @@ SUNErrCode MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W, 
   retval = 0;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(X[0]) != MPI_COMM_NULL) {
-    MVASSERT(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM,
-                           MANYVECTOR_COMM(X[0])),
-             SUN_ERR_MPI_FAIL);
+    SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE,
+                                  MPI_SUM, MANYVECTOR_COMM(X[0])));
   }
 #endif
 
@@ -1683,9 +1682,8 @@ SUNErrCode MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X, N_Vector*
   retval = 0;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(X[0]) != MPI_COMM_NULL) {
-    MVASSERT(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM,
-                           MANYVECTOR_COMM(X[0])),
-             SUN_ERR_MPI_FAIL);
+    SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM,
+                           MANYVECTOR_COMM(X[0])));
   }
 #endif
 
@@ -1983,8 +1981,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
   /* Duplicate the input communicator (if applicable) */
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(w) != MPI_COMM_NULL) {
-    MVASSERT(MPI_Comm_dup(MANYVECTOR_COMM(w), &(content->comm)),
-             SUN_ERR_MPI_FAIL);
+    SUNCheckMPICallNull(MPI_Comm_dup(MANYVECTOR_COMM(w), &(content->comm)));
   }
 #endif
 

@@ -911,7 +911,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   if (constraints == NULL) {
     if (kin_mem->kin_constraintsSet) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(kin_mem->kin_constraints), KIN_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(kin_mem->kin_constraints));
       kin_mem->kin_lrw -= kin_mem->kin_lrw1;
       kin_mem->kin_liw -= kin_mem->kin_liw1;
     }
@@ -921,14 +921,14 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   /* Check the constraints vector */
 
-  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints), KIN_SUNCTX);
+  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints));
   if (temptest > TWOPT5){
     KINProcessError(NULL, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_CONSTRAINTS);
     return(KIN_ILL_INPUT);
   }
 
   if (!kin_mem->kin_constraintsSet) {
-    kin_mem->kin_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints), KIN_SUNCTX);
+    kin_mem->kin_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints));
     kin_mem->kin_lrw += kin_mem->kin_lrw1;
     kin_mem->kin_liw += kin_mem->kin_liw1;
     kin_mem->kin_constraintsSet = SUNTRUE;
@@ -936,7 +936,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   /* Load the constraint vector */
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, kin_mem->kin_constraints), KIN_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, kin_mem->kin_constraints));
 
   return(KIN_SUCCESS);
 }

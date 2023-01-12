@@ -201,7 +201,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* If LS supports ATimes, attach CVLs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, cv_mem, cvLsATimes);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetATimes");
@@ -213,7 +213,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, cv_mem, NULL, NULL);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetPreconditioner");
@@ -229,24 +229,24 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for ytemp and x */
-  cvls_mem->ytemp = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
+  cvls_mem->ytemp = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv));
   if (cvls_mem->ytemp == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
 
-  cvls_mem->x = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
+  cvls_mem->x = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv));
   if (cvls_mem->x == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_LS_MEM_FAIL);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp));
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
 
   /* For iterative LS, compute default norm conversion factor */
   if (iterative) {
-    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp));
     cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   }
 
@@ -382,12 +382,12 @@ int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
     cvls_mem->nrmfac = nrmfac;
   } else if (nrmfac < ZERO) {
     /* compute factor for WRMS norm with dot product */
-    SUNCheckCallLastErrNoRet(N_VConst(ONE, cvls_mem->ytemp), CV_SUNCTX);
-    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ONE, cvls_mem->ytemp));
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp));
     cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   } else {
     /* compute default factor for WRMS norm from vector legnth */
-    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp), CV_SUNCTX);
+    cvls_mem->nrmfac = SUNCheckCallLastErrNoRet(N_VGetLength(cvls_mem->ytemp));
     cvls_mem->nrmfac = SUNRsqrt(cvls_mem->nrmfac);
   }
 
@@ -482,7 +482,7 @@ int CVodeSetPreconditioner(void *cvode_mem, CVLsPrecSetupFn psetup,
   cvls_psolve = (psolve == NULL) ? NULL : cvLsPSolve;
   retval = SUNLinSolSetPreconditioner(cvls_mem->LS, cv_mem,
                                       cvls_psetup, cvls_psolve);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                    "Error in calling SUNLinSolSetPreconditioner");
@@ -672,7 +672,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add NVector sizes */
   if (cv_mem->cv_tempv->ops->nvspace) {
-    SUNCheckCallLastErr(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1), CV_SUNCTX);
+    SUNCheckCallLastErr(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1));
     *lenrwLS += 2*lrw1;
     *leniwLS += 2*liw1;
   }
@@ -680,7 +680,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
   /* add SUNMatrix size (only account for the one owned by Ls interface) */
   if (cvls_mem->savedJ)
     if (cvls_mem->savedJ->ops->space) {
-      retval = SUNCheckCallLastErr(SUNMatSpace(cvls_mem->savedJ, &lrw, &liw), CV_SUNCTX);
+      retval = SUNCheckCallLastErr(SUNMatSpace(cvls_mem->savedJ, &lrw, &liw));
       if (retval == 0) {
         *lenrwLS += lrw;
         *leniwLS += liw;
@@ -689,7 +689,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (cvls_mem->LS->ops->space) {
-    retval = SUNCheckCallLastErr(SUNLinSolSpace(cvls_mem->LS, &lrw, &liw), CV_SUNCTX);
+    retval = SUNCheckCallLastErr(SUNLinSolSpace(cvls_mem->LS, &lrw, &liw));
     if (retval == 0) {
       *lenrwLS += lrw;
       *leniwLS += liw;
@@ -981,7 +981,7 @@ SUNLsStatus cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
   if (retval != 0) return(retval);
 
   /* add contribution from identity matrix */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, v, -cv_mem->cv_gamma, z, z), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, v, -cv_mem->cv_gamma, z, z));
 
   return(0);
 }
@@ -1149,25 +1149,25 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   ftemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */
-  jthCol = SUNCheckCallLastErrNoRet(N_VCloneEmpty(tmp1), CV_SUNCTX);
+  jthCol = SUNCheckCallLastErrNoRet(N_VCloneEmpty(tmp1));
 
   /* Obtain pointers to the data for ewt, y */
-  ewt_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
-  y_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
+  ewt_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt));
+  y_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y));
   if (cv_mem->cv_constraintsSet) {
-    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints));
   }
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
+  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt));
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
     /* Generate the jth col of J(tn,y) */
-    SUNCheckCallLastErrNoRet(N_VSetArrayPointer(SUNDenseMatrix_Column(Jac,j), jthCol), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSetArrayPointer(SUNDenseMatrix_Column(Jac,j), jthCol));
 
     yjsaved = y_data[j];
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
@@ -1188,13 +1188,13 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
     y_data[j] = yjsaved;
 
     inc_inv = ONE/inc;
-    SUNCheckCallLastErrNoRet(N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(inc_inv, ftemp, -inc_inv, fy, jthCol));
 
   }
 
   /* Destroy jthCol vector */
-  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, jthCol), CV_SUNCTX);   /* SHOULDN'T BE NEEDED */
-  SUNCheckCallLastErrNoRet(N_VDestroy(jthCol), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSetArrayPointer(NULL, jthCol));   /* SHOULDN'T BE NEEDED */
+  SUNCheckCallLastErrNoRet(N_VDestroy(jthCol));
 
   return(retval);
 }
@@ -1240,21 +1240,21 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   ytemp = tmp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
-  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy), CV_SUNCTX);
-  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp), CV_SUNCTX);
-  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
-  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), CV_SUNCTX);
+  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt));
+  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy));
+  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp));
+  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y));
+  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp));
   if (cv_mem->cv_constraintsSet) {
-    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints));
   }
 
   /* Load ytemp with y = predicted y vector */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp));
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
+  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt));
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * N * fnorm) : ONE;
 
@@ -1334,12 +1334,12 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   SUNDeclareContext(CV_SUNCTX);
 
   /* Initialize perturbation to 1/||v|| */
-  sig = ONE/SUNCheckCallLastErrNoRet(N_VWrmsNorm(v, cv_mem->cv_ewt), CV_SUNCTX);
+  sig = ONE/SUNCheckCallLastErrNoRet(N_VWrmsNorm(v, cv_mem->cv_ewt));
 
   for (iter=0; iter<MAX_DQITERS; iter++) {
 
     /* Set work = y + sig*v */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(sig, v, ONE, y, work), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(sig, v, ONE, y, work));
 
     /* Set Jv = f(tn, y+sig*v) */
     retval = cvls_mem->jt_f(t, work, Jv, cv_mem->cv_user_data);
@@ -1356,7 +1356,7 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Replace Jv by (Jv - fy)/sig */
   siginv = ONE/sig;
-  SUNCheckCallLastErrNoRet(N_VLinearSum(siginv, Jv, -siginv, fy, Jv), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(siginv, Jv, -siginv, fy, Jv));
 
   return(0);
 }
@@ -1391,7 +1391,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Overwrite linear system matrix with saved J */
     retval = SUNMatCopy(cvls_mem->savedJ, A);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
@@ -1406,7 +1406,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     /* Clear the linear system matrix if necessary */
     if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
       retval = SUNMatZero(A);
-      SUNCheckCallNoRet(retval, CV_SUNCTX);
+      SUNCheckCallNoRet(retval);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, 
                        MSG_LS_SUNMAT_FAILED);
@@ -1431,7 +1431,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
     /* Update saved copy of the Jacobian matrix */
     retval = SUNMatCopy(A, cvls_mem->savedJ);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,
                      MSG_LS_SUNMAT_FAILED);
@@ -1443,7 +1443,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 
   /* Perform linear combination A = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, A);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__,
                    __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
@@ -1526,7 +1526,7 @@ int cvLsInitialize(CVodeMem cv_mem)
 
       /* Allocate internally saved Jacobian if not already done */
       if (cvls_mem->savedJ == NULL) {
-        cvls_mem->savedJ = SUNCheckCallLastErrNoRet(SUNMatClone(cvls_mem->A), CV_SUNCTX);
+        cvls_mem->savedJ = SUNCheckCallLastErrNoRet(SUNMatClone(cvls_mem->A));
         if (cvls_mem->savedJ == NULL) {
           cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__,
                          MSG_LS_MEM_FAIL);
@@ -1575,7 +1575,7 @@ int cvLsInitialize(CVodeMem cv_mem)
 
   /* Call LS initialize routine, and return result */
   cvls_mem->last_flag = SUNLinSolInitialize(cvls_mem->LS);
-  SUNCheck(cvls_mem->last_flag == SUN_SUCCESS, cvls_mem->last_flag, CV_SUNCTX);
+  SUNCheck(cvls_mem->last_flag == SUN_SUCCESS, cvls_mem->last_flag);
   return(cvls_mem->last_flag);
 }
 
@@ -1670,7 +1670,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Call LS setup routine -- the LS may call cvLsPSetup, who will
      pass the heuristic suggestions above to the user code(s) */
-  cvls_mem->last_flag = SUNCheckCallLastErrNoRet(SUNLinSolSetup(cvls_mem->LS, cvls_mem->A), CV_SUNCTX);
+  cvls_mem->last_flag = SUNCheckCallLastErrNoRet(SUNLinSolSetup(cvls_mem->LS, cvls_mem->A));
 
   /* If Matrix-free, update heuristics flags */
   if (cvls_mem->A == NULL) {
@@ -1720,17 +1720,17 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* get current nonlinear solver iteration */
-  SUNCheckCallNoRet(SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter), CV_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter));
 
   /* If the linear solver is iterative:
      test norm(b), if small, return x = 0 or x = b;
      set linear solver tolerance (in left/right scaled 2-norm) */
   if (cvls_mem->iterative) {
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
-    bnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(b, weight), CV_SUNCTX);
+    bnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(b, weight));
     if (bnorm <= deltar) {
       if (curiter > 0) {
-        SUNCheckCallLastErrNoRet(N_VConst(ZERO, b), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VConst(ZERO, b));
       }
       cvls_mem->last_flag = CVLS_SUCCESS;
       return(cvls_mem->last_flag);
@@ -1751,7 +1751,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     retval = SUNLinSolSetScalingVectors(cvls_mem->LS,
                                         weight,
                                         weight);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval != SUNLS_SUCCESS) {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetScalingVectors");
@@ -1775,18 +1775,18 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
      So we compute w_mean = ||w||_RMS = ||w||_2 and scale the desired tolerance accordingly. */
   } else if (cvls_mem->iterative) {
 
-    SUNCheckCallLastErrNoRet(N_VConst(ONE, cvls_mem->x), CV_SUNCTX);
-    w_mean = SUNCheckCallLastErrNoRet(N_VWrmsNorm(weight, cvls_mem->x), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ONE, cvls_mem->x));
+    w_mean = SUNCheckCallLastErrNoRet(N_VWrmsNorm(weight, cvls_mem->x));
     delta /= w_mean;
 
   }
 
   /* Set initial guess x = 0 to LS */
-  SUNCheckCallLastErrNoRet(N_VConst(ZERO, cvls_mem->x), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VConst(ZERO, cvls_mem->x));
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != SUN_SUCCESS) return(-1);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -1808,14 +1808,13 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Call solver, and copy x to b */
   ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(cvls_mem->LS, cvls_mem->A,
-                                                      cvls_mem->x, b, delta),
-                                       CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, cvls_mem->x, b), CV_SUNCTX);
+                                                      cvls_mem->x, b, delta));
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cvls_mem->x, b));
 
   /* If using a direct or matrix-iterative solver, BDF method, and gamma has changed,
      scale the correction to account for change in gamma */
   if (cvls_mem->scalesol && cv_mem->cv_gamrat != ONE) {
-    SUNCheckCallLastErrNoRet(N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b));
   }
 
   /* Retrieve statistics from iterative linear solvers */
@@ -1826,11 +1825,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   if (cvls_mem->iterative) {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     if (cvls_mem->LS->ops->resnorm) {
-      resnorm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(cvls_mem->LS), CV_SUNCTX);
+      resnorm = SUNCheckCallLastErrNoRet(SUNLinSolResNorm(cvls_mem->LS));
     }
 #endif
     if (cvls_mem->LS->ops->numiters) {
-      nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(cvls_mem->LS), CV_SUNCTX);
+      nli_inc = SUNCheckCallLastErrNoRet(SUNLinSolNumIters(cvls_mem->LS));
     }
   }
 
@@ -1916,17 +1915,17 @@ int cvLsFree(CVodeMem cv_mem)
 
   /* Free N_Vector memory */
   if (cvls_mem->ytemp) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->ytemp));
     cvls_mem->ytemp = NULL;
   }
   if (cvls_mem->x) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->x), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cvls_mem->x));
     cvls_mem->x = NULL;
   }
 
   /* Free savedJ memory */
   if (cvls_mem->savedJ) {
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(cvls_mem->savedJ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(cvls_mem->savedJ));
     cvls_mem->savedJ = NULL;
   }
 

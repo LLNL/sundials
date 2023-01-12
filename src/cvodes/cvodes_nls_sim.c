@@ -93,7 +93,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* free any existing nonlinear solver */
   if ((cv_mem->NLSsim != NULL) && (cv_mem->ownNLSsim)) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSsim), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSsim));
   }
 
   /* set SUNNonlinearSolver pointer */
@@ -106,10 +106,10 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* set the nonlinear system function */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
     retval = SUNNonlinSolSetSysFn(cv_mem->NLSsim, cvNlsResidualSensSim);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
   } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_FIXEDPOINT) {
     retval = SUNNonlinSolSetSysFn(cv_mem->NLSsim, cvNlsFPFunctionSensSim);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
   } else {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Invalid nonlinear solver type");
@@ -133,7 +133,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* set max allowed nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(cv_mem->NLSsim, NLS_MAXCOR);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Setting maximum number of nonlinear iterations failed");
@@ -143,23 +143,23 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->simMallocDone == SUNFALSE) {
 
-    cv_mem->zn0Sim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX), CV_SUNCTX);
+    cv_mem->zn0Sim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX));
     if (cv_mem->zn0Sim == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ycorSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX), CV_SUNCTX);
+    cv_mem->ycorSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX));
     if (cv_mem->ycorSim == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim));
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ewtSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX), CV_SUNCTX);
+    cv_mem->ewtSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX));
     if (cv_mem->ewtSim == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim));
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
@@ -248,10 +248,10 @@ int cvNlsInitSensSim(CVodeMem cvode_mem)
   /* set the linear solver setup wrapper function */
   if (cvode_mem->cv_lsetup) {
     retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLSsim, cvNlsLSetupSensSim);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
   } else {
     retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLSsim, NULL);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
   }
 
   if (retval != CV_SUCCESS) {
@@ -263,10 +263,10 @@ int cvNlsInitSensSim(CVodeMem cvode_mem)
   /* set the linear solver solve wrapper function */
   if (cvode_mem->cv_lsolve) {
     retval = SUNNonlinSolSetLSolveFn(cvode_mem->NLSsim, cvNlsLSolveSensSim);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
   } else {
     retval = SUNNonlinSolSetLSolveFn(cvode_mem->NLSsim, NULL);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
   }
 
   if (retval != CV_SUCCESS) {
@@ -398,7 +398,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   ewtS = NV_VECS_SW(ewtSim)+1;
 
   /* compute the norm of the state and sensitivity corrections */
-  del  = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt), CV_SUNCTX);
+  del  = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt));
   delS = cvSensUpdateNorm(cv_mem, del, deltaS, ewtS);
 
   /* norm used in error test */
@@ -406,7 +406,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != CV_SUCCESS) return(CV_MEM_NULL);
 
   /* Test for convergence. If m > 0, an estimate of the convergence
@@ -428,9 +428,9 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
       cv_mem->cv_acnrm = (cv_mem->cv_errconS) ? delS : del;
     } else {
       if (cv_mem->cv_errconS) {
-        cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycorSim, ewtSim), CV_SUNCTX);
+        cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycorSim, ewtSim));
       } else {
-        cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycor, ewt), CV_SUNCTX);
+        cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ycor, ewt));
       }
     }
     cv_mem->cv_acnrmcur = SUNTRUE;
@@ -470,7 +470,7 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   res  = NV_VEC_SW(resSim,0);
 
   /* update the state based on the current correction */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y));
 
   /* evaluate the rhs function */
   retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
@@ -480,8 +480,8 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   if (retval > 0) return(RHSFUNC_RECVR);
 
   /* compute the resiudal */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res));
+  SUNCheckCallLastErrNoRet(N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res));
 
   /* extract sensitivity and residual vectors from the vector wrapper */
   ycorS = NV_VECS_SW(ycorSim)+1;
@@ -535,7 +535,7 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   res  = NV_VEC_SW(resSim,0);
 
   /* update the state based on the current correction */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y));
 
   /* evaluate the rhs function */
   retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
@@ -545,8 +545,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   if (retval > 0) return(RHSFUNC_RECVR);
 
   /* evaluate fixed point function */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, res, res), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res));
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, res, res));
 
   /* extract sensitivity and residual vectors from the vector wrapper */
   ycorS = NV_VECS_SW(ycorSim)+1;
@@ -568,8 +568,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
 
   /* evaluate sensitivity fixed point function */
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, resS[is], -ONE, cv_mem->cv_znS[1][is], resS[is]), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, resS[is], resS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(cv_mem->cv_h, resS[is], -ONE, cv_mem->cv_znS[1][is], resS[is]));
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, resS[is], resS[is]));
   }
 
   return(CV_SUCCESS);

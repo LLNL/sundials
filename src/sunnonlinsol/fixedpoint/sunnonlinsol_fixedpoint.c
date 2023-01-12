@@ -54,10 +54,10 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
   /* Check that the supplied N_Vector supports all required operations */
   SUNAssert(y->ops->nvclone && y->ops->nvdestroy && y->ops->nvscale &&
               y->ops->nvlinearsum && y->ops->nvdotprod,
-            SUN_ERR_ARG_CORRUPT, sunctx);
+            SUN_ERR_ARG_CORRUPT);
 
   /* Create nonlinear linear solver */
-  NLS = SUNCheckCallLastErrNull(SUNNonlinSolNewEmpty(sunctx), sunctx);
+  NLS = SUNCheckCallLastErrNull(SUNNonlinSolNewEmpty(sunctx));
 
   /* Attach operations */
   NLS->ops->gettype         = SUNNonlinSolGetType_FixedPoint;
@@ -74,7 +74,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
   /* Create nonlinear solver content structure */
   content = NULL;
   content = (SUNNonlinearSolverContent_FixedPoint) malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
 
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_FixedPoint));
@@ -100,7 +100,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
 #endif
 
   /* Fill allocatable content */
-  SUNCheckCallNull(AllocateContent(NLS, y), sunctx);
+  SUNCheckCallNull(AllocateContent(NLS, y));
 
   return(NLS);
 }
@@ -118,13 +118,13 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
   N_Vector w = NULL;
 
   /* create sensitivity vector wrapper */
-  w = SUNCheckCallLastErrNull(N_VNew_SensWrapper(count, y), sunctx);
+  w = SUNCheckCallLastErrNull(N_VNew_SensWrapper(count, y));
 
   /* create nonlinear solver using sensitivity vector wrapper */
-  NLS = SUNCheckCallLastErrNull(SUNNonlinSol_FixedPoint(w, m, sunctx), sunctx);
+  NLS = SUNCheckCallLastErrNull(SUNNonlinSol_FixedPoint(w, m, sunctx));
 
   /* free sensitivity vector wrapper */
-  SUNCheckCallLastErrNull(N_VDestroy(w), sunctx);
+  SUNCheckCallLastErrNull(N_VDestroy(w));
 
   /* return NLS object */
   return(NLS);
@@ -145,8 +145,7 @@ SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
 {
     SUNDeclareContext(NLS->sunctx);
   /* check that all required function pointers have been set */
-  SUNAssert(FP_CONTENT(NLS)->Sys && FP_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT,
-            NLS->sunctx);
+  SUNAssert(FP_CONTENT(NLS)->Sys && FP_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT);
 
   /* reset the total number of iterations and convergence failures */
   FP_CONTENT(NLS)->niters     = 0;
@@ -184,8 +183,7 @@ SUNNlsStatus SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   N_Vector yprev, gy, delta;
 
   /* check that all required function pointers have been set */
-  SUNAssert(FP_CONTENT(NLS)->Sys && FP_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT,
-            NLS->sunctx);
+  SUNAssert(FP_CONTENT(NLS)->Sys && FP_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT);
 
   /* set local shortcut variables */
   yprev = FP_CONTENT(NLS)->yprev;
@@ -219,7 +217,7 @@ SUNNlsStatus SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
        FP_CONTENT(NLS)->curiter++ ) {
 
     /* update previous solution guess */
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, ycor, yprev), NLS->sunctx);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, ycor, yprev));
 
     /* Compute fixed-point iteration function, store in gy.
        We do not use SUNCheck macros here because Sys is a user-provided
@@ -229,18 +227,17 @@ SUNNlsStatus SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 
     /* perform fixed point update, based on choice of acceleration or not */
     if (FP_CONTENT(NLS)->m == 0) {    /* basic fixed-point solver */
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, gy, ycor), NLS->sunctx);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, gy, ycor));
     } else {                          /* Anderson-accelerated solver */
       SUNCheckCallNoRet(AndersonAccelerate(NLS, gy, ycor, yprev,
-                                      FP_CONTENT(NLS)->curiter),
-                   NLS->sunctx);
+                                      FP_CONTENT(NLS)->curiter));
     }
 
     /* increment nonlinear solver iteration counter */
     FP_CONTENT(NLS)->niters++;
 
     /* compute change in solution, and call the convergence test function */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ycor, -ONE, yprev, delta), NLS->sunctx);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ycor, -ONE, yprev, delta));
 
     /* test for convergence */
     retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
@@ -312,7 +309,7 @@ SUNErrCode SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
 SUNErrCode SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {  
   SUNDeclareContext(NLS->sunctx);
-  SUNAssert(SysFn, SUN_ERR_ARG_CORRUPT, NLS->sunctx);
+  SUNAssert(SysFn, SUN_ERR_ARG_CORRUPT);
   FP_CONTENT(NLS)->Sys = SysFn;
   return SUN_SUCCESS;
 }
@@ -322,7 +319,7 @@ SUNErrCode SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
                                                 void* ctest_data)
 {
   SUNDeclareContext(NLS->sunctx);
-  SUNAssert(CTestFn, SUN_ERR_ARG_CORRUPT, NLS->sunctx);
+  SUNAssert(CTestFn, SUN_ERR_ARG_CORRUPT);
 
   FP_CONTENT(NLS)->CTest = CTestFn;
 
@@ -335,7 +332,7 @@ SUNErrCode SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
 SUNErrCode SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS, int maxiters)
 {
   SUNDeclareContext(NLS->sunctx);
-  SUNAssert(maxiters >= 1, SUN_ERR_ARG_OUTOFRANGE, NLS->sunctx);
+  SUNAssert(maxiters >= 1, SUN_ERR_ARG_OUTOFRANGE);
   FP_CONTENT(NLS)->maxiters = maxiters;
   return SUN_SUCCESS;
 }
@@ -343,7 +340,7 @@ SUNErrCode SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS, int maxite
 SUNErrCode SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
 {
   SUNDeclareContext(NLS->sunctx);
-  SUNAssert(beta > 0, SUN_ERR_ARG_OUTOFRANGE, NLS->sunctx);
+  SUNAssert(beta > 0, SUN_ERR_ARG_OUTOFRANGE);
   
   if (beta < ONE) {
     /* enable damping */
@@ -440,19 +437,17 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   i_pt = iter-1 - ((iter-1)/maa)*maa;
 
   /* update dg[i_pt], df[i_pt], fv, gold and fold*/
-  SUNCheckCallLastErr(N_VLinearSum(ONE, gval, -ONE, xold, fv), NLS->sunctx);
+  SUNCheckCallLastErr(N_VLinearSum(ONE, gval, -ONE, xold, fv));
   if (iter > 0) {
-    SUNCheckCallLastErr(N_VLinearSum(ONE, gval, -ONE, gold, dg[i_pt]),
-                              NLS->sunctx); /* dg_new = gval - gold */
-    SUNCheckCallLastErr(N_VLinearSum(ONE, fv, -ONE, fold, df[i_pt]),
-                              NLS->sunctx); /* df_new = fv - fold */
+    SUNCheckCallLastErr(N_VLinearSum(ONE, gval, -ONE, gold, dg[i_pt])); /* dg_new = gval - gold */
+    SUNCheckCallLastErr(N_VLinearSum(ONE, fv, -ONE, fold, df[i_pt])); /* df_new = fv - fold */
   }
-  SUNCheckCallLastErr(N_VScale(ONE, gval, gold), NLS->sunctx);
-  SUNCheckCallLastErr(N_VScale(ONE, fv, fold), NLS->sunctx);
+  SUNCheckCallLastErr(N_VScale(ONE, gval, gold));
+  SUNCheckCallLastErr(N_VScale(ONE, fv, fold));
 
   /* on first iteration, just do basic fixed-point update */
   if (iter == 0) {
-    SUNCheckCallLastErr(N_VScale(ONE, gval, x), NLS->sunctx);
+    SUNCheckCallLastErr(N_VScale(ONE, gval, x));
     return SUN_SUCCESS;
   }
 
@@ -460,23 +455,23 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
 
   if (iter == 1) {   /* second iteration */
 
-    R[0] = SUNCheckCallLastErr(N_VDotProd(df[i_pt], df[i_pt]), NLS->sunctx);
+    R[0] = SUNCheckCallLastErr(N_VDotProd(df[i_pt], df[i_pt]));
     R[0] = SUNRsqrt(R[0]);
-    SUNCheckCallLastErr(N_VScale(ONE/R[0], df[i_pt], Q[i_pt]), NLS->sunctx);
+    SUNCheckCallLastErr(N_VScale(ONE/R[0], df[i_pt], Q[i_pt]));
     ipt_map[0] = 0;
 
   } else if (iter <= maa) {   /* another iteration before we've reached maa */
 
-    SUNCheckCallLastErr(N_VScale(ONE, df[i_pt], vtemp), NLS->sunctx);
+    SUNCheckCallLastErr(N_VScale(ONE, df[i_pt], vtemp));
     for (j = 0; j < iter-1; j++) {
       ipt_map[j] = j;
-      R[(iter-1)*maa+j] = SUNCheckCallLastErr(N_VDotProd(Q[j], vtemp), NLS->sunctx);
-      SUNCheckCallLastErr(N_VLinearSum(ONE, vtemp, -R[(iter-1)*maa+j], Q[j], vtemp), NLS->sunctx);
+      R[(iter-1)*maa+j] = SUNCheckCallLastErr(N_VDotProd(Q[j], vtemp));
+      SUNCheckCallLastErr(N_VLinearSum(ONE, vtemp, -R[(iter-1)*maa+j], Q[j], vtemp));
     }
-    R[(iter-1)*maa+iter-1] = SUNCheckCallLastErr(N_VDotProd(vtemp, vtemp), NLS->sunctx);
+    R[(iter-1)*maa+iter-1] = SUNCheckCallLastErr(N_VDotProd(vtemp, vtemp));
     R[(iter-1)*maa+iter-1] = SUNRsqrt(R[(iter-1)*maa+iter-1]);
     if (R[(iter-1)*maa+iter-1] == ZERO) {
-      SUNCheckCallLastErr(N_VScale(ZERO, vtemp, Q[i_pt]), NLS->sunctx);
+      SUNCheckCallLastErr(N_VScale(ZERO, vtemp, Q[i_pt]));
     } else {
       SUNCheckCallLastErr(N_VScale((ONE/R[(iter-1)*maa+iter-1]), vtemp, Q[i_pt]));
     }
@@ -502,9 +497,9 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
           R[j*maa + i] = rtemp;
         }
       }
-      SUNCheckCallLastErr(N_VLinearSum(c, Q[i], s, Q[i+1], vtemp), NLS->sunctx);
-      SUNCheckCallLastErr(N_VLinearSum(-s, Q[i], c, Q[i+1], Q[i+1]), NLS->sunctx);
-      SUNCheckCallLastErr(N_VScale(ONE, vtemp, Q[i]), NLS->sunctx);
+      SUNCheckCallLastErr(N_VLinearSum(c, Q[i], s, Q[i+1], vtemp));
+      SUNCheckCallLastErr(N_VLinearSum(-s, Q[i], c, Q[i+1], Q[i+1]));
+      SUNCheckCallLastErr(N_VScale(ONE, vtemp, Q[i]));
     }
 
     /* ahift R to the left by one */
@@ -513,12 +508,12 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
         R[(i-1)*maa + j] = R[i*maa + j];
 
     /* add the new df vector */
-    SUNCheckCallLastErr(N_VScale(ONE, df[i_pt], vtemp), NLS->sunctx);
+    SUNCheckCallLastErr(N_VScale(ONE, df[i_pt], vtemp));
     for (j = 0; j < maa-1; j++) {
-      R[(maa-1)*maa+j] = SUNCheckCallLastErr(N_VDotProd(Q[j], vtemp), NLS->sunctx);
-      SUNCheckCallLastErr(N_VLinearSum(ONE, vtemp, -R[(maa-1)*maa+j], Q[j], vtemp), NLS->sunctx);
+      R[(maa-1)*maa+j] = SUNCheckCallLastErr(N_VDotProd(Q[j], vtemp));
+      SUNCheckCallLastErr(N_VLinearSum(ONE, vtemp, -R[(maa-1)*maa+j], Q[j], vtemp));
     }
-    R[(maa-1)*maa+maa-1] = SUNCheckCallLastErr(N_VDotProd(vtemp, vtemp), NLS->sunctx);
+    R[(maa-1)*maa+maa-1] = SUNCheckCallLastErr(N_VDotProd(vtemp, vtemp));
     R[(maa-1)*maa+maa-1] = SUNRsqrt(R[(maa-1)*maa+maa-1]);
     SUNCheckCallLastErr(N_VScale((ONE/R[(maa-1)*maa+maa-1]), vtemp, Q[maa-1]));
 
@@ -533,7 +528,7 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   /* solve least squares problem and update solution */
   lAA = iter;
   if (maa < iter)  lAA = maa;
-  SUNCheckCall(N_VDotProdMulti(lAA, fv, Q, gamma), NLS->sunctx);
+  SUNCheckCall(N_VDotProdMulti(lAA, fv, Q, gamma));
 
   /* set arrays for fused vector operation */
   cvals[0] = ONE;
@@ -566,7 +561,7 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   }
 
   /* update solution */
-  SUNCheckCall(N_VLinearCombination(nvec, cvals, Xvecs, x), NLS->sunctx);
+  SUNCheckCall(N_VLinearCombination(nvec, cvals, Xvecs, x));
 
   return SUN_SUCCESS;
 }
@@ -576,42 +571,42 @@ static SUNErrCode AllocateContent(SUNNonlinearSolver NLS, N_Vector y)
   SUNDeclareContext(NLS->sunctx);
   int m = FP_CONTENT(NLS)->m;
 
-  FP_CONTENT(NLS)->yprev = SUNCheckCallLastErr(N_VClone(y), y->sunctx);
+  FP_CONTENT(NLS)->yprev = SUNCheckCallLastErr(N_VClone(y));
 
-  FP_CONTENT(NLS)->gy = SUNCheckCallLastErr(N_VClone(y), y->sunctx);
+  FP_CONTENT(NLS)->gy = SUNCheckCallLastErr(N_VClone(y));
 
-  FP_CONTENT(NLS)->delta = SUNCheckCallLastErr(N_VClone(y), y->sunctx);
+  FP_CONTENT(NLS)->delta = SUNCheckCallLastErr(N_VClone(y));
 
   /* Allocate all m-dependent content */
   if (m > 0) {
 
-    SUNCheckCallLastErr(FP_CONTENT(NLS)->fold = N_VClone(y), y->sunctx);
+    SUNCheckCallLastErr(FP_CONTENT(NLS)->fold = N_VClone(y));
 
-    SUNCheckCallLastErr(FP_CONTENT(NLS)->gold = N_VClone(y), y->sunctx);
+    SUNCheckCallLastErr(FP_CONTENT(NLS)->gold = N_VClone(y));
 
     FP_CONTENT(NLS)->imap = (int *) malloc(m * sizeof(int));
-    SUNAssert(FP_CONTENT(NLS)->imap, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->imap, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->R = (realtype *) malloc((m*m) * sizeof(realtype));
-    SUNAssert(FP_CONTENT(NLS)->R, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->R, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->gamma = (realtype *) malloc(m * sizeof(realtype));
-    SUNAssert(FP_CONTENT(NLS)->gamma, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->gamma, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->cvals = (realtype *) malloc(2*(m+1) * sizeof(realtype));
-    SUNAssert(FP_CONTENT(NLS)->cvals, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->cvals, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->df = N_VCloneVectorArray(m, y);
-    SUNAssert(FP_CONTENT(NLS)->df, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->df, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->dg = N_VCloneVectorArray(m, y);
-    SUNAssert(FP_CONTENT(NLS)->dg, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->dg, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->q = N_VCloneVectorArray(m, y);
-    SUNAssert(FP_CONTENT(NLS)->q, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->q, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->Xvecs = (N_Vector *) malloc(2*(m+1) * sizeof(N_Vector));
-    SUNAssert(FP_CONTENT(NLS)->Xvecs, SUN_ERR_MALLOC_FAIL, y->sunctx);
+    SUNAssert(FP_CONTENT(NLS)->Xvecs, SUN_ERR_MALLOC_FAIL);
   }
 
   return SUN_SUCCESS;
@@ -686,8 +681,7 @@ SUNErrCode SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS,
 {
   SUNDeclareContext(NLS->sunctx);
   /* check for valid print level */
-  SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE,
-            NLS->sunctx);
+  SUNAssert(print_level >= 0 && print_level <= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   FP_CONTENT(NLS)->print_level = print_level;
 

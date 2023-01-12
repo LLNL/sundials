@@ -250,7 +250,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL)
-    SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1));
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
   ark_mem->lrw1 = lrw1;
@@ -276,7 +276,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   }
 
   /* Copy y0 into ark_yn to set the current solution */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, ark_mem->yn), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, ark_mem->yn));
 
   /* Disable constraints */
   ark_mem->constraintsSet = SUNFALSE;
@@ -375,7 +375,7 @@ int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
                     "Missing N_VMin routine from N_Vector");
     return(ARK_ILL_INPUT);
   }
-  abstolmin = SUNCheckCallLastErrNoRet(N_VMin(abstol), ARK_SUNCTX);
+  abstolmin = SUNCheckCallLastErrNoRet(N_VMin(abstol));
   if (abstolmin < ZERO) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_ABSTOL);
     return(ARK_ILL_INPUT);
@@ -392,7 +392,7 @@ int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
     }
     ark_mem->VabstolMallocDone = SUNTRUE;
   }
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstol, ark_mem->Vabstol), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstol, ark_mem->Vabstol));
   ark_mem->reltol = reltol;
   ark_mem->itol   = ARK_SV;
 
@@ -515,7 +515,7 @@ int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
                    "Missing N_VMin routine from N_Vector");
     return(ARK_ILL_INPUT);
   }
-  rabstolmin = SUNCheckCallLastErrNoRet(N_VMin(rabstol), ARK_SUNCTX);
+  rabstolmin = SUNCheckCallLastErrNoRet(N_VMin(rabstol));
   if (rabstolmin < ZERO) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_BAD_RABSTOL);
     return(ARK_ILL_INPUT);
@@ -542,7 +542,7 @@ int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
     }
     ark_mem->VRabstolMallocDone = SUNTRUE;
   }
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, rabstol, ark_mem->VRabstol), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, rabstol, ark_mem->VRabstol));
   ark_mem->ritol = ARK_SV;
 
 
@@ -721,7 +721,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
         istate = ARK_ILL_INPUT;
         ark_mem->tretlast = *tret = ark_mem->tcur;
-        SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
         break;
       }
 
@@ -739,7 +739,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
           istate = ARK_ILL_INPUT;
           ark_mem->tretlast = *tret = ark_mem->tcur;
-          SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
           break;
         }
       }
@@ -751,19 +751,19 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                       MSG_ARK_MAX_STEPS, ark_mem->tcur);
       istate = ARK_TOO_MUCH_WORK;
       ark_mem->tretlast = *tret = ark_mem->tcur;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
       break;
     }
 
     /* Check for too much accuracy requested */
-    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ark_mem->yn, ark_mem->ewt), ARK_SUNCTX);
+    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ark_mem->yn, ark_mem->ewt));
     ark_mem->tolsf = ark_mem->uround * nrm;
     if (ark_mem->tolsf > ONE) {
       arkProcessError(ark_mem, ARK_TOO_MUCH_ACC, __LINE__, __func__, __FILE__,
                       MSG_ARK_TOO_MUCH_ACC, ark_mem->tcur);
       istate = ARK_TOO_MUCH_ACC;
       ark_mem->tretlast = *tret = ark_mem->tcur;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
       ark_mem->tolsf *= TWO;
       break;
     } else {
@@ -882,7 +882,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if (kflag != ARK_SUCCESS) {
       istate = arkHandleFailure(ark_mem, kflag);
       ark_mem->tretlast = *tret = ark_mem->tcur;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
       break;
     }
 
@@ -958,7 +958,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if (itask == ARK_ONE_STEP) {
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = ark_mem->tcur;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
       ark_mem->next_h = ark_mem->hprime;
       break;
     }
@@ -1120,7 +1120,7 @@ int arkRwtSet(N_Vector y, N_Vector weight, void *data)
     flag = ark_mem->step_mmult((void *) ark_mem, y, My);
     if (flag != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
   } else {  /* this condition should not apply, but just in case */
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, y, My), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, y, My));
   }
 
   /* call appropriate routine to fill rwt */
@@ -1228,7 +1228,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
 
     /* Set space requirements for one N_Vector */
     if (y0->ops->nvspace != NULL) {
-      SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1));
     } else {
       lrw1 = 0;
       liw1 = 0;
@@ -1263,7 +1263,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
   ark_mem->tn   = t0;
 
   /* Initialize yn */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, ark_mem->yn), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, ark_mem->yn));
 
   /* Clear any previous 'tstop' */
   ark_mem->tstopset = SUNFALSE;
@@ -1391,29 +1391,29 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   
   /* output vector quantities */
   fprintf(outfile, "Vapbsol:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->Vabstol, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->Vabstol, outfile));
   fprintf(outfile, "ewt:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ewt, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ewt, outfile));
   if (!ark_mem->rwt_is_ewt) {
     fprintf(outfile, "rwt:\n");
-    SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->rwt, outfile), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->rwt, outfile));
   }
   fprintf(outfile, "ycur:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->ycur, outfile));
   fprintf(outfile, "yn:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->yn, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->yn, outfile));
   fprintf(outfile, "fn:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->fn, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->fn, outfile));
   fprintf(outfile, "tempv1:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv1, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv1, outfile));
   fprintf(outfile, "tempv2:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv2, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv2, outfile));
   fprintf(outfile, "tempv3:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv3, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv3, outfile));
   fprintf(outfile, "tempv4:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv4, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->tempv4, outfile));
   fprintf(outfile, "constraints:\n");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->constraints, outfile), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->constraints, outfile));
 #endif
 
 }
@@ -1484,7 +1484,7 @@ booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
   
   /* allocate the new vector if necessary */
   if (*v == NULL) {
-    *v = SUNCheckCallLastErrNoRet(N_VClone(tmpl), ARK_SUNCTX);
+    *v = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
     if (*v == NULL) {
       arkFreeVectors(ark_mem);
       return(SUNFALSE);
@@ -1505,7 +1505,7 @@ booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
 
   /* allocate the new vector array if necessary */
   if (*v == NULL) {
-    *v = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(count, tmpl), SUNCTX);
+    *v = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(count, tmpl));
     if (*v == NULL) return(SUNFALSE);
     *lrw += count * lrw1;
     *liw += count * liw1;
@@ -1527,7 +1527,7 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
   SUNDeclareContext(ark_mem->sunctx);
   
   if (*v != NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(*v), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(*v));
     *v = NULL;
     ark_mem->lrw -= ark_mem->lrw1;
     ark_mem->liw -= ark_mem->liw1;
@@ -1541,7 +1541,7 @@ void arkFreeVecArray(int count, N_Vector **v,
 {
   if (*v != NULL) {
     SUNDeclareContext((*v)[0]->sunctx);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(*v, count), SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(*v, count));
     *v = NULL;
     *lrw -= count * lrw1;
     *liw -= count * liw1;
@@ -1572,9 +1572,9 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
   
   if (*v != NULL) {
     if (resize == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(*v), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(*v));
       *v = NULL;
-      *v = SUNCheckCallLastErrNoRet(N_VClone(tmpl), ARK_SUNCTX);
+      *v = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
       if (*v == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__, "Unable to clone vector");
         return(SUNFALSE);
@@ -1603,9 +1603,9 @@ booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
 
   if (*v != NULL) {
     if (resize == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(*v, count), SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(*v, count));
       *v = NULL;
-      *v = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(count, tmpl), SUNCTX);
+      *v = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(count, tmpl));
       if (*v == NULL) return(SUNFALSE);
     } else {
       for (i = 0; i < count; i++) {
@@ -1835,7 +1835,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Check to see if y0 satisfies constraints */
   if (ark_mem->constraintsSet) {
-    conOK = SUNCheckCallLastErrNoRet(N_VConstrMask(ark_mem->constraints, ark_mem->yn, ark_mem->tempv1), ARK_SUNCTX);
+    conOK = SUNCheckCallLastErrNoRet(N_VConstrMask(ark_mem->constraints, ark_mem->yn, ark_mem->tempv1));
     if (!conOK) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_ARK_Y0_FAIL_CONSTR);
       return(ARK_ILL_INPUT);
@@ -2041,7 +2041,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           ark_mem->root_mem->irfnd = 0;
           if ((irfndp == 1) && (itask == ARK_ONE_STEP)) {
             ark_mem->tretlast = *tret = ark_mem->tcur;
-            SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+            SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
             *ier = ARK_SUCCESS;
             return(1);
           }
@@ -2078,7 +2078,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   if ( itask == ARK_ONE_STEP &&
        SUNRabs(ark_mem->tcur - ark_mem->tretlast) > troundoff ) {
     ark_mem->tretlast = *tret = ark_mem->tcur;
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, yout));
     *ier = ARK_SUCCESS;
     return(1);
   }
@@ -2264,15 +2264,15 @@ realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
   temp1 = ark_mem->tempv1;
   temp2 = ark_mem->tempv2;
 
-  SUNCheckCallLastErrNoRet(N_VAbs(ark_mem->yn, temp2), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ark_mem->yn, temp2));
   ark_mem->efun(ark_mem->yn, temp1, ark_mem->e_data);
-  SUNCheckCallLastErrNoRet(N_VInv(temp1, temp1), ARK_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VLinearSum(H0_UBFACTOR, temp2, ONE, temp1, temp1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(temp1, temp1));
+  SUNCheckCallLastErrNoRet(N_VLinearSum(H0_UBFACTOR, temp2, ONE, temp1, temp1));
 
-  SUNCheckCallLastErrNoRet(N_VAbs(ark_mem->fn, temp2), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ark_mem->fn, temp2));
 
-  SUNCheckCallLastErrNoRet(N_VDiv(temp2, temp1, temp1), ARK_SUNCTX);
-  hub_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(temp1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDiv(temp2, temp1, temp1));
+  hub_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(temp1));
 
   /* bound based on tdist -- allow at most a step of magnitude
    * H0_UBFACTOR * tdist */
@@ -2304,7 +2304,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   }
 
   /* increment y with a multiple of f */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur));
 
   /* compute y', via the ODE RHS routine */
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
@@ -2312,13 +2312,13 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
   /* difference new f and original f to estimate y'' */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg, ark_mem->fn, ark_mem->tempv1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg, ark_mem->fn, ark_mem->tempv1));
 
   /* reset ycur to equal yn (unnecessary?) */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, ark_mem->ycur), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, ark_mem->ycur));
 
   /* compute norm of y'' */
-  *yddnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt), ARK_SUNCTX);
+  *yddnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt));
 
   return(ARK_SUCCESS);
 }
@@ -2386,7 +2386,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   }
 
   /* update yn to current solution */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->ycur, ark_mem->yn), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->ycur, ark_mem->yn));
 
   /* Update step size and error history arrays */
   ark_mem->hadapt_mem->ehist[1] = ark_mem->hadapt_mem->ehist[0];
@@ -2533,14 +2533,14 @@ int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem)
 {
   ARKodeMem ark_mem = (ARKodeMem) arkode_mem;
   SUNDeclareContext(ark_mem->sunctx);
-  SUNCheckCallLastErrNoRet(N_VAbs(ycur, ark_mem->tempv1), ARK_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1), ARK_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAddConst(ark_mem->tempv1, ark_mem->Sabstol, ark_mem->tempv1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, ark_mem->tempv1));
+  SUNCheckCallLastErrNoRet(N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1));
+  SUNCheckCallLastErrNoRet(N_VAddConst(ark_mem->tempv1, ark_mem->Sabstol, ark_mem->tempv1));
   if (ark_mem->atolmin0) {
-    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1), ARK_SUNCTX);
+    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1));
     if (min <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight));
   return(0);
 }
 
@@ -2562,15 +2562,14 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
 {
   ARKodeMem ark_mem = (ARKodeMem) arkode_mem;
   SUNDeclareContext(ark_mem->sunctx);
-  SUNCheckCallLastErrNoRet(N_VAbs(ycur, ark_mem->tempv1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, ark_mem->tempv1));
   SUNCheckCallLastErrNoRet(N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
-                                        ark_mem->Vabstol, ark_mem->tempv1),
-                           ARK_SUNCTX);
+                                        ark_mem->Vabstol, ark_mem->tempv1));
   if (ark_mem->atolmin0) {
-    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1), ARK_SUNCTX);
+    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1));
     if (min <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight));
   return(0);
 }
 
@@ -2590,7 +2589,7 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
 int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem)
 {
   SUNDeclareContext(ycur->sunctx);
-  SUNCheckCallLastErrNoRet(N_VConst(SMALL_REAL, weight), SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VConst(SMALL_REAL, weight));
   return(ARK_SUCCESS);
 }
 
@@ -2607,14 +2606,14 @@ int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem)
 int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
   SUNDeclareContext(ark_mem->sunctx);
-  SUNCheckCallLastErrNoRet(N_VAbs(My, ark_mem->tempv1), ARK_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1), ARK_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAddConst(ark_mem->tempv1, ark_mem->SRabstol, ark_mem->tempv1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(My, ark_mem->tempv1));
+  SUNCheckCallLastErrNoRet(N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1));
+  SUNCheckCallLastErrNoRet(N_VAddConst(ark_mem->tempv1, ark_mem->SRabstol, ark_mem->tempv1));
   if (ark_mem->Ratolmin0) {
-    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1), ARK_SUNCTX);
+    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1));
     if (min <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight));
   return(0);
 }
 
@@ -2631,14 +2630,14 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
   SUNDeclareContext(ark_mem->sunctx);
-  SUNCheckCallLastErrNoRet(N_VAbs(My, ark_mem->tempv1), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(My, ark_mem->tempv1));
   N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->VRabstol, ark_mem->tempv1);
   if (ark_mem->Ratolmin0) {
-    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1), ARK_SUNCTX);
+    sunrealtype min = SUNCheckCallLastErrNoRet(N_VMin(ark_mem->tempv1));
     if (min <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(ark_mem->tempv1, weight));
   return(0);
 }
 
@@ -2816,7 +2815,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 
   /* call fused vector operation to compute prediction */
   retval = N_VLinearCombination(nvec+2, cvals, Xvecs, yguess);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != 0)  return(ARK_VECTOROP_ERR);
   return(ARK_SUCCESS);
 }
@@ -2900,7 +2899,7 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   N_Vector tmp = ark_mem->tempv1;
 
   /* Check constraints and get mask vector mm for where constraints failed */
-  constraintsPassed = SUNCheckCallLastErrNoRet(N_VConstrMask(ark_mem->constraints, ark_mem->ycur, mm), ARK_SUNCTX);
+  constraintsPassed = SUNCheckCallLastErrNoRet(N_VConstrMask(ark_mem->constraints, ark_mem->ycur, mm));
   if (constraintsPassed) return(ARK_SUCCESS);
 
   /* Constraints not met */
@@ -2919,9 +2918,9 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_CONSTR_FAIL);
 
   /* Reduce h by computing eta = h'/h */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp), ARK_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp), ARK_SUNCTX);
-  ark_mem->eta = SUNCheckCallLastErrNoRet(N_VMinQuotient(ark_mem->yn, tmp), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp));
+  SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp));
+  ark_mem->eta = SUNCheckCallLastErrNoRet(N_VMinQuotient(ark_mem->yn, tmp));
   ark_mem->eta = RCONST(0.9)*ark_mem->eta;
   ark_mem->eta = SUNMAX(ark_mem->eta, TENTH);
 

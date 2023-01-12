@@ -860,7 +860,7 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
   }
 
   retval = SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   return(retval);
 }
 
@@ -1003,8 +1003,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
     if (cv_mem->cv_constraintsMallocDone) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_constraints), CV_SUNCTX);
-      cv_mem->cv_lrw -= cv_mem->cv_lrw1;
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_constraints));      cv_mem->cv_lrw -= cv_mem->cv_lrw1;
       cv_mem->cv_liw -= cv_mem->cv_liw1;
     }
     cv_mem->cv_constraintsMallocDone = SUNFALSE;
@@ -1024,22 +1023,19 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   }
 
   /* Check the constraints vector */
-  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints), CV_SUNCTX);
-  if ((temptest > TWOPT5) || (temptest < HALF)) {
+  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints));  if ((temptest > TWOPT5) || (temptest < HALF)) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_BAD_CONSTR);
     return(CV_ILL_INPUT);
   }
 
   if ( !(cv_mem->cv_constraintsMallocDone) ) {
-    cv_mem->cv_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints), CV_SUNCTX);
-    cv_mem->cv_lrw += cv_mem->cv_lrw1;
+    cv_mem->cv_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints));    cv_mem->cv_lrw += cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_liw1;
     cv_mem->cv_constraintsMallocDone = SUNTRUE;
   }
 
   /* Load the constraints vector */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, cv_mem->cv_constraints), CV_SUNCTX);
-
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, cv_mem->cv_constraints));
   cv_mem->cv_constraintsSet = SUNTRUE;
 
   return(CV_SUCCESS);
@@ -1449,8 +1445,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   SUNDeclareContext(CV_SUNCTX);
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_ewt, eweight), CV_SUNCTX);
-
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_ewt, eweight));
   return(CV_SUCCESS);
 }
 
@@ -1473,8 +1468,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   SUNDeclareContext(CV_SUNCTX);
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, ele), CV_SUNCTX);
-
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, ele));
   return(CV_SUCCESS);
 }
 

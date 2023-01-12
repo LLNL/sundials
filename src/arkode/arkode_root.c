@@ -331,7 +331,7 @@ int arkRootCheck1(void* arkode_mem)
   hratio = SUNMAX(rootmem->ttol/SUNRabs(ark_mem->h), TENTH);
   smallh = hratio*ark_mem->h;
   tplus = rootmem->tlo + smallh;
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->yn, smallh, ark_mem->fn, ark_mem->ycur), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->yn, smallh, ark_mem->fn, ark_mem->ycur));
   retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi,
                          rootmem->root_data);
   rootmem->nge++;
@@ -421,7 +421,7 @@ int arkRootCheck2(void* arkode_mem)
   /*     update ark_ycur with small explicit Euler step (if tplus is past tn) */
   if ( (tplus - ark_mem->tcur)*ark_mem->h >= ZERO ) {
     /* hratio = smallh/ark_mem->h; */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->ycur, smallh, ark_mem->fn, ark_mem->ycur), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, ark_mem->ycur, smallh, ark_mem->fn, ark_mem->ycur));
   } else {
     /*   set ark_ycur = y(tplus) via interpolation */
     (void) arkGetDky(ark_mem, tplus, 0, ark_mem->ycur);
@@ -479,12 +479,12 @@ int arkRootCheck3(void* arkode_mem)
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
   if (rootmem->taskc == ARK_ONE_STEP) {
     rootmem->thi = ark_mem->tcur;
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, ark_mem->ycur), ARK_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, ark_mem->ycur));
   }
   if (rootmem->taskc == ARK_NORMAL) {
     if ( (rootmem->toutc - ark_mem->tcur)*ark_mem->h >= ZERO) {
       rootmem->thi = ark_mem->tcur;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, ark_mem->ycur), ARK_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->yn, ark_mem->ycur));
     } else {
       rootmem->thi = rootmem->toutc;
       (void) arkGetDky(ark_mem, rootmem->thi, 0, ark_mem->ycur);

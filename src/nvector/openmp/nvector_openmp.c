@@ -102,12 +102,12 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sun
   N_Vector v;
   N_VectorContent_OpenMP content;
 
-  SUNAssertContext(sunctx);
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
+  
+  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   /* Create vector */
   v = NULL;
-  v = SUNCheckCallLastErrNull(N_VNewEmpty(sunctx), sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty(sunctx));
 
   /* Attach operations */
 
@@ -171,7 +171,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sun
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -194,16 +194,16 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
   N_Vector v;
   realtype *data;
 
-  SUNAssertContext(sunctx);
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
+  
+  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
-  v = SUNCheckCallLastErrNull(N_VNewEmpty_OpenMP(length, num_threads, sunctx), sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty_OpenMP(length, num_threads, sunctx));
 
   /* Create data */
   data = NULL;
   data = (realtype *) malloc(length * sizeof(realtype));
-  SUNAssert(data, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(data, SUN_ERR_MALLOC_FAIL);
 
   /* Attach data */
   NV_OWN_DATA_OMP(v) = SUNTRUE;
@@ -220,11 +220,11 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads, 
 {
   N_Vector v;
 
-  SUNAssertContext(sunctx);
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE, sunctx);
+  
+  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
-  v = SUNCheckCallLastErrNull(N_VNewEmpty_OpenMP(length, num_threads, sunctx), sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty_OpenMP(length, num_threads, sunctx));
 
   /* Attach data */
   NV_OWN_DATA_OMP(v) = SUNFALSE;
@@ -239,7 +239,7 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads, 
 
 N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 {
-  N_Vector* result = SUNCheckCallLastErrNull(N_VCloneVectorArray(count, w), w->sunctx);
+  N_Vector* result = SUNCheckCallLastErrNull(N_VCloneVectorArray(count, w));
   return result;
 }
 
@@ -249,7 +249,7 @@ N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 {
-  N_Vector* result = SUNCheckCallLastErrNull(N_VCloneEmptyVectorArray(count, w), w->sunctx);
+  N_Vector* result = SUNCheckCallLastErrNull(N_VCloneEmptyVectorArray(count, w));
   return result;
 }
 
@@ -327,15 +327,15 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = SUNCheckCallLastErrNull(N_VNewEmpty(w->sunctx), w->sunctx);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty(w->sunctx));
 
   /* Attach operations */
-  SUNCheckCallNull(N_VCopyOps(w, v), w->sunctx);
+  SUNCheckCallNull(N_VCopyOps(w, v));
 
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL, w->sunctx);
+  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -361,14 +361,14 @@ N_Vector N_VClone_OpenMP(N_Vector w)
   sunindextype length;
 
   v = NULL;
-  v = SUNCheckCallLastErrNull(N_VCloneEmpty_OpenMP(w), w->sunctx);
+  v = SUNCheckCallLastErrNull(N_VCloneEmpty_OpenMP(w));
 
   length = NV_LENGTH_OMP(w);
 
   /* Create data */
   data = NULL;
   data = (realtype *) malloc(length * sizeof(realtype));
-  SUNAssert(data, SUN_ERR_MALLOC_FAIL, w->sunctx);
+  SUNAssert(data, SUN_ERR_MALLOC_FAIL);
 
   /* Attach data */
   NV_OWN_DATA_OMP(v) = SUNTRUE;
@@ -1108,7 +1108,7 @@ SUNErrCode N_VLinearCombination_OpenMP(int nvec, realtype* c, N_Vector* X, N_Vec
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VScale */
   if (nvec == 1) {
@@ -1204,7 +1204,7 @@ SUNErrCode N_VScaleAddMulti_OpenMP(int nvec, realtype* a, N_Vector x, N_Vector* 
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, x->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VLinearSum */
   if (nvec == 1) {
@@ -1265,7 +1265,7 @@ SUNErrCode N_VDotProdMulti_OpenMP(int nvec, N_Vector x, N_Vector* Y, realtype* d
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, x->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VDotProd */
   if (nvec == 1) {
@@ -1329,7 +1329,7 @@ SUNErrCode N_VLinearSumVectorArray_OpenMP(int nvec,
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VLinearSum */
   if (nvec == 1) {
@@ -1439,7 +1439,7 @@ SUNErrCode N_VScaleVectorArray_OpenMP(int nvec, realtype* c, N_Vector* X, N_Vect
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VScale */
   if (nvec == 1) {
@@ -1497,7 +1497,7 @@ SUNErrCode N_VConstVectorArray_OpenMP(int nvec, realtype c, N_Vector* Z)
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, Z[0]->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VConst */
   if (nvec == 1) {
@@ -1537,7 +1537,7 @@ SUNErrCode N_VWrmsNormVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* W, rea
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VWrmsNorm */
   if (nvec == 1) {
@@ -1594,7 +1594,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* W,
   j = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VWrmsNorm */
   if (nvec == 1) {
@@ -1656,7 +1656,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum, realtype* a,
   k = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1 && nsum >= 1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNAssert(nvec >= 1 && nsum >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* ---------------------------
    * Special cases for nvec == 1
@@ -1765,7 +1765,7 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
   k = 0;
 
   /* invalid number of vectors */
-  SUNAssert(nvec >= 1 && nsum >= 1, SUN_ERR_ARG_OUTOFRANGE, Z[0]->sunctx);
+  SUNAssert(nvec >= 1 && nsum >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* ---------------------------
    * Special cases for nvec == 1
@@ -1924,7 +1924,7 @@ SUNErrCode N_VBufPack_OpenMP(N_Vector x, void *buf)
   realtype     *xd = NULL;
   realtype     *bd = NULL;
 
-  SUNAssert(buf, SUN_ERR_ARG_CORRUPT, x->sunctx);
+  SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
@@ -1944,7 +1944,7 @@ SUNErrCode N_VBufUnpack_OpenMP(N_Vector x, void *buf)
   realtype     *xd = NULL;
   realtype     *bd = NULL;
 
-  SUNAssert(buf, SUN_ERR_ARG_CORRUPT, x->sunctx);
+  SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);

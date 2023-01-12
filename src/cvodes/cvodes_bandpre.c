@@ -123,7 +123,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->savedP = NULL;
   pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, CV_SUNCTX);
   if (pdata->savedP == NULL) {
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBP_MEM_FAIL);
     return(CVLS_MEM_FAIL);
@@ -133,8 +133,8 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->LS = NULL;
   pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP, CV_SUNCTX);
   if (pdata->LS == NULL) {
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBP_MEM_FAIL);
     return(CVLS_MEM_FAIL);
@@ -142,22 +142,22 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
-  pdata->tmp1 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
+  pdata->tmp1 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv));
   if (pdata->tmp1 == NULL) {
-    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBP_MEM_FAIL);
     return(CVLS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
-  pdata->tmp2 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv), CV_SUNCTX);
+  pdata->tmp2 = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempv));
   if (pdata->tmp2 == NULL) {
-    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1));
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBP_MEM_FAIL);
     return(CVLS_MEM_FAIL);
@@ -165,13 +165,13 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  SUNCheckCallNoRet(flag, CV_SUNCTX);
+  SUNCheckCallNoRet(flag);
   if (flag != SUNLS_SUCCESS) {
-    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNLinSolFree(pdata->LS));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
+    SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1));
+    SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2));
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, MSGBP_SUNLS_FAIL);
     return(CVLS_SUNLS_FAIL);
@@ -228,27 +228,27 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   *leniwBP = 4;
   *lenrwBP = 0;
   if (cv_mem->cv_tempv->ops->nvspace) {
-    SUNCheckCallLastErrNoRet(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1));
     *leniwBP += 2*liw1;
     *lenrwBP += 2*lrw1;
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
-    SUNCheckCallNoRet(flag, CV_SUNCTX);
+    SUNCheckCallNoRet(flag);
     if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
-    SUNCheckCallNoRet(flag, CV_SUNCTX);
+    SUNCheckCallNoRet(flag);
     if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    SUNCheckCallNoRet(flag, CV_SUNCTX);
+    SUNCheckCallNoRet(flag);
     if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
@@ -349,7 +349,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNTRUE, use saved copy of J. */
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                      __FILE__, MSGBP_SUNMAT_FAIL);
@@ -361,7 +361,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     /* If jok = SUNFALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                      __FILE__, MSGBP_SUNMAT_FAIL);
@@ -380,7 +380,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval) {
       cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                      __FILE__, MSGBP_SUNMAT_FAIL);
@@ -391,7 +391,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Scale and add identity to get savedP = I - gamma*J. */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval) {
     cvProcessError(cv_mem, CV_BANDPRE_SETUP_FAIL, __LINE__, __func__,
                    __FILE__, MSGBP_SUNMAT_FAIL);
@@ -400,8 +400,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Do LU factorization of matrix and return error flag */
   ls_status =
-    SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP),
-                             CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(SUNLinSolSetup_Band(pdata->LS, pdata->savedP));
 
   return (ls_status);
 }
@@ -435,7 +434,8 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   /* Assume matrix and linear solver have already been allocated. */
 
   /* Call banded solver object to do the work */
-  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP, z, r, ZERO), SUNCTX);
+  ls_status = SUNCheckCallLastErrNoRet(SUNLinSolSolve(pdata->LS, pdata->savedP,
+                                                      z, r, ZERO));
 
   return(ls_status);
 }
@@ -454,11 +454,11 @@ static int cvBandPrecFree(CVodeMem cv_mem)
   if (cvls_mem->P_data == NULL) return(0);
   pdata = (CVBandPrecData) cvls_mem->P_data;
 
-  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2), CV_SUNCTX);
+  SUNCheckCallNoRet(SUNLinSolFree(pdata->LS));
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
+  SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1));
+  SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2));
 
   free(pdata);
   pdata = NULL;
@@ -496,21 +496,21 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   SUNDeclareContext(CV_SUNCTX);
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
-  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt), CV_SUNCTX);
-  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy), CV_SUNCTX);
-  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp), CV_SUNCTX);
-  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y), CV_SUNCTX);
-  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp), CV_SUNCTX);
+  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt));
+  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy));
+  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp));
+  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y));
+  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp));
   if (cv_mem->cv_constraintsSet) {
-    cns_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints), CV_SUNCTX);
+    cns_data  = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints));
   }
 
   /* Load ytemp with y = predicted y vector. */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp));
 
   /* Set minimum increment based on uround and norm of f. */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt), CV_SUNCTX);
+  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt));
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * pdata->N * fnorm) : ONE;
 

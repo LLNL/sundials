@@ -561,7 +561,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   if (id == NULL) {
     if (IDA_mem->ida_idMallocDone) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_id), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_id));
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
@@ -570,7 +570,7 @@ int IDASetId(void *ida_mem, N_Vector id)
   }
 
   if ( !(IDA_mem->ida_idMallocDone) ) {
-    IDA_mem->ida_id = SUNCheckCallLastErrNoRet(N_VClone(id), IDA_SUNCTX);
+    IDA_mem->ida_id = SUNCheckCallLastErrNoRet(N_VClone(id));
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
     IDA_mem->ida_idMallocDone = SUNTRUE;
@@ -578,7 +578,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   /* Load the id vector */
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, id, IDA_mem->ida_id), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, id, IDA_mem->ida_id));
 
   return(IDA_SUCCESS);
 }
@@ -601,7 +601,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   if (constraints == NULL) {
     if (IDA_mem->ida_constraintsMallocDone) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_constraints), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_constraints));
       IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
       IDA_mem->ida_liw -= IDA_mem->ida_liw1;
     }
@@ -623,14 +623,14 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   /*  Check the constraints vector */
 
-  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints), IDA_SUNCTX);
+  temptest = SUNCheckCallLastErrNoRet(N_VMaxNorm(constraints));
   if((temptest > TWOPT5) || (temptest < HALF)){
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_CONSTR);
     return(IDA_ILL_INPUT);
   }
 
   if ( !(IDA_mem->ida_constraintsMallocDone) ) {
-    IDA_mem->ida_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints), IDA_SUNCTX);
+    IDA_mem->ida_constraints = SUNCheckCallLastErrNoRet(N_VClone(constraints));
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
     IDA_mem->ida_constraintsMallocDone = SUNTRUE;
@@ -638,7 +638,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   /* Load the constraints vector */
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, IDA_mem->ida_constraints), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, constraints, IDA_mem->ida_constraints));
 
   IDA_mem->ida_constraintsSet = SUNTRUE;
 
@@ -1167,10 +1167,10 @@ int IDAGetConsistentIC(void *ida_mem, N_Vector yy0, N_Vector yp0)
   }
 
   if(yy0 != NULL) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[0], yy0), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[0], yy0));
   }
   if(yp0 != NULL) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[1], yp0), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phi[1], yp0));
   }
 
   return(IDA_SUCCESS);
@@ -1407,7 +1407,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 
   SUNDeclareContext(IDA_SUNCTX);
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewt, eweight), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewt, eweight));
 
   return(IDA_SUCCESS);
 }
@@ -1426,7 +1426,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
 
   SUNDeclareContext(IDA_SUNCTX);
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, ele), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, ele));
 
   return(IDA_SUCCESS);
 }
@@ -1666,7 +1666,7 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight)
   }
 
   if(IDA_mem->ida_errconQ) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtQ, eQweight), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtQ, eQweight));
   }
 
   return(IDA_SUCCESS);
@@ -1773,7 +1773,7 @@ int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
 
   if (IDA_mem->ida_errconQS) {
     for (is=0; is<Ns; is++) {
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtQS[is], eQSweight[is]), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtQS[is], eQSweight[is]));
     }
   }
 
@@ -1840,13 +1840,13 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
 
   if(yyS0 != NULL) {
     for (is=0; is<IDA_mem->ida_Ns; is++) {
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phiS[0][is], yyS0[is]), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phiS[0][is], yyS0[is]));
     }
   }
 
   if(ypS0 != NULL) {
     for (is=0; is<IDA_mem->ida_Ns; is++) {
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phiS[1][is], ypS0[is]), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_phiS[1][is], ypS0[is]));
     }
   }
 
@@ -1967,7 +1967,7 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
   }
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtS[is], eSweight[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewtS[is], eSweight[is]));
   }
 
   return(IDA_SUCCESS);

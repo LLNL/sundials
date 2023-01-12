@@ -202,7 +202,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 /* SUNCheck is like SUNAssert except it is compiled even in release mode
    unless SUNDIALS_DISABLE_ERROR_CHECKS is defined  */
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
-#define SUNCheck(expr, code, sunctx)                                          \
+#define SUNCheck(expr, code)                                                  \
   do {                                                                        \
     if (SUNHintFalse(!(expr)))                                                \
     {                                                                         \
@@ -211,7 +211,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                           \
   while (0)
 #else
-#define SUNCheck(expr, code, sunctx) (void)sunctx
+#define SUNCheck(expr, code)
 #endif
 
 /* SUNCheckCallNoRet performs the SUNDIALS function call, and checks the
@@ -269,7 +269,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 #else
-#define SUNCheckCallNull(call) call;                        
+#define SUNCheckCallNull(call) call;
 #endif
 
 /* SUNCheckLastErr checks the last_err value in the SUNContext.
@@ -297,15 +297,15 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   SUNCheckCallNull(SUNGetLastErr(SUNCTX))
 #else
 #define SUNCheckCallLastErrNoRet(call) call
-#define SUNCheckCallLastErr(call) call    
-#define SUNCheckCallLastErrVoid(call) call
-#define SUNCheckCallLastErrNull(call) call
+#define SUNCheckCallLastErr(call)      call
+#define SUNCheckCallLastErrVoid(call)  call
+#define SUNCheckCallLastErrNull(call)  call
 #endif
 
 /* SUNAssert checks if an expression is true.
    If the expression is false, it calls the SUNAssertErrHandler. */
 #if !defined(NDEBUG)
-#define SUNAssert(expr, code, sunctx)                                  \
+#define SUNAssert(expr, code)                                          \
   do {                                                                 \
     if (!(expr))                                                       \
     {                                                                  \
@@ -315,25 +315,12 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                    \
   while (0)
 #else
-#define SUNAssert(expr, code, sunctx)
+#define SUNAssert(expr, code)
 #endif
 
 /* TODO(CJB): probably should create a global handler that does not need
-   a SUNContext for this case among others where SUNContext is not available.
+   a SUNContext for cases where SUNContext is not available.
    It won't be thread safe, but that should be OK since this is a catastropic
    error. */
-/* Ensure SUNContext is not NULL by trying to access the last_err member.
-   This purposely causes a segmentation fault if the context is NULL so
-   that the error occurs on the correct line in the correct file.  */
-#if !defined(NDEBUG)
-#define SUNAssertContext(sunctx)                                               \
-  do {                                                                         \
-    SUNCTX->last_err = SUNCTX->last_err; /* trigger segfault if sunctx is NULL \
-                                          */                                   \
-  }                                                                            \
-  while (0)
-#else
-#define SUNAssertContext(sunctx)
-#endif
 
 #endif /* _SUNDIALS_ERRORS_H */

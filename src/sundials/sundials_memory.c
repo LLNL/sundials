@@ -44,10 +44,10 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
   SUNMemoryHelper helper = NULL;
 
   helper = (SUNMemoryHelper)malloc(sizeof(struct _SUNMemoryHelper));
-  SUNAssert(helper, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(helper, SUN_ERR_MALLOC_FAIL);
 
   helper->ops = (SUNMemoryHelper_Ops)malloc(sizeof(struct _SUNMemoryHelper_Ops));
-  SUNAssert(helper->ops, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(helper->ops, SUN_ERR_MALLOC_FAIL);
 
   /* Set all ops to NULL */
   memset(helper->ops, 0, sizeof(struct _SUNMemoryHelper_Ops));
@@ -215,7 +215,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
   {
     if (helper->content)
     { 
-      SUNCheck(!helper->content, SUN_ERR_NOT_IMPLEMENTED, SUNCTX);
+      SUNCheck(!helper->content, SUN_ERR_NOT_IMPLEMENTED);
       return (NULL); 
     }
     else

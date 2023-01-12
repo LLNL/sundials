@@ -615,7 +615,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
   /* Set space requirements for one N_Vector */
 
   if (yy0->ops->nvspace != NULL) {
-    SUNCheckCallLastErrNoRet(N_VSpace(yy0, &lrw1, &liw1), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSpace(yy0, &lrw1, &liw1));
   } else {
     lrw1 = 0;
     liw1 = 0;
@@ -658,8 +658,8 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_tn  = t0;
 
   /* Initialize the phi array */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yy0, IDA_mem->ida_phi[0]), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yp0, IDA_mem->ida_phi[1]), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yy0, IDA_mem->ida_phi[0]));
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yp0, IDA_mem->ida_phi[1]));
 
   /* create a Newton nonlinear solver object by default */
   NLS = SUNNonlinSol_Newton(yy0, IDA_mem->ida_sunctx);
@@ -680,7 +680,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
     IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                     "Setting the nonlinear solver failed");
     IDAFreeVectors(IDA_mem);
-    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -813,8 +813,8 @@ int IDAReInit(void *ida_mem,
 
   /* Initialize the phi array */
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yy0, IDA_mem->ida_phi[0]), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yp0, IDA_mem->ida_phi[1]), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yy0, IDA_mem->ida_phi[0]));
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yp0, IDA_mem->ida_phi[1]));
 
   /* Initialize all the counters and other optional output values */
 
@@ -930,7 +930,7 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
     return(IDA_ILL_INPUT);
   }
 
-  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstol), IDA_SUNCTX);
+  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstol));
   if (atolmin < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_ATOL);
     return(IDA_ILL_INPUT);
@@ -939,14 +939,14 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
   /* Copy tolerances into memory */
 
   if ( !(IDA_mem->ida_VatolMallocDone) ) {
-    IDA_mem->ida_Vatol = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_ewt), IDA_SUNCTX);
+    IDA_mem->ida_Vatol = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_ewt));
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_liw1;
     IDA_mem->ida_VatolMallocDone = SUNTRUE;
   }
 
   IDA_mem->ida_rtol = reltol;
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstol, IDA_mem->ida_Vatol), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstol, IDA_mem->ida_Vatol));
   IDA_mem->ida_atolmin0 = (atolmin == ZERO);
 
   IDA_mem->ida_itol = IDA_SV;
@@ -1015,7 +1015,7 @@ int IDAQuadInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
   /* Set space requirements for one N_Vector */
-  SUNCheckCallLastErrNoRet(N_VSpace(yQ0, &lrw1Q, &liw1Q), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSpace(yQ0, &lrw1Q, &liw1Q));
   IDA_mem->ida_lrw1Q = lrw1Q;
   IDA_mem->ida_liw1Q = liw1Q;
 
@@ -1028,10 +1028,10 @@ int IDAQuadInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
   }
 
   /* Initialize phiQ in the history array */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]));
 
   retval = N_VConstVectorArray(IDA_mem->ida_maxord, ZERO, IDA_mem->ida_phiQ+1);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_VECTOROP_ERR);
@@ -1092,10 +1092,10 @@ int IDAQuadReInit(void *ida_mem, N_Vector yQ0)
   }
 
   /* Initialize phiQ in the history array */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]));
 
   retval = N_VConstVectorArray(IDA_mem->ida_maxord, ZERO, IDA_mem->ida_phiQ+1);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_VECTOROP_ERR);
@@ -1199,7 +1199,7 @@ int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
     return(IDA_ILL_INPUT);
   }
 
-  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstolQ), IDA_SUNCTX);
+  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstolQ));
   if (atolmin < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_ATOLQ);
     return(IDA_ILL_INPUT);
@@ -1211,13 +1211,13 @@ int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
 
   /* clone the absolute tolerances vector (if necessary) */
   if (SUNFALSE == IDA_mem->ida_VatolQMallocDone) {
-    IDA_mem->ida_VatolQ = SUNCheckCallLastErrNoRet(N_VClone(abstolQ), IDA_SUNCTX);
+    IDA_mem->ida_VatolQ = SUNCheckCallLastErrNoRet(N_VClone(abstolQ));
     IDA_mem->ida_lrw += IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw += IDA_mem->ida_liw1Q;
     IDA_mem->ida_VatolQMallocDone = SUNTRUE;
   }
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstolQ, IDA_mem->ida_VatolQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstolQ, IDA_mem->ida_VatolQ));
   IDA_mem->ida_atolQmin0 = (atolmin == ZERO);
 
   return(IDA_SUCCESS);
@@ -1333,14 +1333,14 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
     IDA_mem->ida_cvals[is] = ONE;
 
   retval = N_VScaleVectorArray(Ns, IDA_mem->ida_cvals, yS0, IDA_mem->ida_phiS[0]);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_VECTOROP_ERR);
   }
 
   retval = N_VScaleVectorArray(Ns, IDA_mem->ida_cvals, ypS0, IDA_mem->ida_phiS[1]);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_VECTOROP_ERR);
@@ -1392,7 +1392,7 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
     IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                     "Setting the nonlinear solver failed");
     IDASensFreeVectors(IDA_mem);
-    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -1538,7 +1538,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
     if (retval != IDA_SUCCESS) {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "Setting the nonlinear solver failed");
-      SUNCheckCallNoRet(SUNNonlinSolFree(NLS), IDA_SUNCTX);
+      SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return(IDA_MEM_FAIL);
     }
@@ -1683,7 +1683,7 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
 
   atolmin = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolS[is]), IDA_SUNCTX);
+    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolS[is]));
     if (atolmin[is] < ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_ATOLS);
       free(atolmin);
@@ -1695,7 +1695,7 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
   IDA_mem->ida_rtolS = reltolS ;
 
   if ( SUNFALSE == IDA_mem->ida_VatolSMallocDone ) {
-    IDA_mem->ida_VatolS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1), IDA_SUNCTX);
+    IDA_mem->ida_VatolS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1));
     IDA_mem->ida_atolSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1;
@@ -1989,7 +1989,7 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
 
   atolmin = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolQS[is]), IDA_SUNCTX);
+    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolQS[is]));
     if (atolmin[is] < ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_ABSTOLQS);
       free(atolmin);
@@ -2002,7 +2002,7 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
   IDA_mem->ida_rtolQS = reltolQS;
 
   if ( !(IDA_mem->ida_VatolQSMallocDone) ) {
-    IDA_mem->ida_VatolQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, abstolQS[0]), IDA_SUNCTX);
+    IDA_mem->ida_VatolQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, abstolQS[0]));
     IDA_mem->ida_atolQSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
@@ -2467,11 +2467,11 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     }
 
     /* set phi[1] = hh*y' */
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]));
 
     /* set phiQ[1] = hh*yQ' */
     if (IDA_mem->ida_quadr)
-      SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]));
 
     if (IDA_mem->ida_sensi || IDA_mem->ida_quadr_sensi)
       for (is=0; is<IDA_mem->ida_Ns; is++)
@@ -3000,7 +3000,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
   /* Compute sum (c_j(t) * phi(t)) */
 
   retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k, IDA_mem->ida_phiQ+k, dkyQ);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_VECTOROP_ERR);
@@ -3509,7 +3509,7 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
 
   retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k,
                                 IDA_mem->ida_Xvecs, dkyQS);
-  SUNCheckCallNoRet(retval, CV_SUCCESS);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_VECTOROP_ERR);
@@ -3539,7 +3539,7 @@ int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y));
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return(IDA_SUCCESS);
@@ -3565,7 +3565,7 @@ int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp));
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return(IDA_SUCCESS);
@@ -3593,8 +3593,7 @@ int IDAComputeYSens(void *ida_mem, N_Vector *ycorS, N_Vector *yyS)
 
   SUNCheckCallNoRet(N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE,
                                             IDA_mem->ida_yySpredict, ONE, ycorS,
-                                            yyS),
-                    IDA_SUNCTX);
+                                            yyS));
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return(IDA_SUCCESS);
@@ -3622,8 +3621,7 @@ int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
 
   SUNCheckCallNoRet(N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE,
                                             IDA_mem->ida_ypSpredict,
-                                            IDA_mem->ida_cj, ycorS, ypS),
-                    IDA_SUNCTX);
+                                            IDA_mem->ida_cj, ycorS, ypS));
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return(IDA_SUCCESS);
@@ -3666,7 +3664,7 @@ void IDAFree(void **ida_mem)
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLS) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLS), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLS));
     IDA_mem->ownNLS = SUNFALSE;
     IDA_mem->NLS = NULL;
   }
@@ -3739,26 +3737,26 @@ void IDASensFree(void *ida_mem)
 
   /* free any vector wrappers */
   if (IDA_mem->simMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictSim), IDA_SUNCTX); IDA_mem->ypredictSim = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorSim), IDA_SUNCTX);     IDA_mem->ycorSim  = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ewtSim), IDA_SUNCTX);      IDA_mem->ewtSim   = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictSim)); IDA_mem->ypredictSim = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorSim));     IDA_mem->ycorSim  = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ewtSim));      IDA_mem->ewtSim   = NULL;
     IDA_mem->simMallocDone = SUNFALSE;
   }
   if (IDA_mem->stgMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX); IDA_mem->ypredictStg = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorStg), IDA_SUNCTX);     IDA_mem->ycorStg  = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ewtStg), IDA_SUNCTX);      IDA_mem->ewtStg   = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg)); IDA_mem->ypredictStg = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorStg));     IDA_mem->ycorStg  = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ewtStg));      IDA_mem->ewtStg   = NULL;
     IDA_mem->stgMallocDone = SUNFALSE;
   }
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLSsim) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSsim), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSsim));
     IDA_mem->ownNLSsim = SUNFALSE;
     IDA_mem->NLSsim = NULL;
   }
   if (IDA_mem->ownNLSstg) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSstg), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSstg));
     IDA_mem->ownNLSstg = SUNFALSE;
     IDA_mem->NLSstg = NULL;
   }
@@ -3855,82 +3853,82 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 
   /* Allocate ewt, ee, delta, yypredict, yppredict, savres, tempv1, tempv2, tempv3 */
 
-  IDA_mem->ida_ewt = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ewt = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_ewt == NULL) return(SUNFALSE);
 
-  IDA_mem->ida_ee = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ee = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_ee == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_delta = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_delta = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_delta == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_yypredict = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_yypredict = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_yypredict == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_yppredict = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_yppredict = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_yppredict == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_savres = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_savres = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_savres == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_tempv1 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_tempv1 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_tempv1 == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_tempv2 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_tempv2 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_tempv2 == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_tempv3 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_tempv3 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_tempv3 == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv2), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv2));
     return(SUNFALSE);
   }
 
@@ -3939,19 +3937,19 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 
   maxcol = SUNMAX(IDA_mem->ida_maxord,3);
   for (j=0; j <= maxcol; j++) {
-    IDA_mem->ida_phi[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+    IDA_mem->ida_phi[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
     if (IDA_mem->ida_phi[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv2), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv3), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv2));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv3));
       for (i=0; i < j; i++) {
-       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phi[i]), IDA_SUNCTX);
+       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phi[i]));
       }
       return(SUNFALSE);
     }
@@ -3979,18 +3977,18 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 
   int j, maxcol;
 
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt), IDA_SUNCTX);       IDA_mem->ida_ewt       = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee), IDA_SUNCTX);        IDA_mem->ida_ee        = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta), IDA_SUNCTX);     IDA_mem->ida_delta     = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict), IDA_SUNCTX); IDA_mem->ida_yypredict = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict), IDA_SUNCTX); IDA_mem->ida_yppredict = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres), IDA_SUNCTX);    IDA_mem->ida_savres    = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1), IDA_SUNCTX);    IDA_mem->ida_tempv1    = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv2), IDA_SUNCTX);    IDA_mem->ida_tempv2    = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv3), IDA_SUNCTX);    IDA_mem->ida_tempv3    = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewt));       IDA_mem->ida_ewt       = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ee));        IDA_mem->ida_ee        = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_delta));     IDA_mem->ida_delta     = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yypredict)); IDA_mem->ida_yypredict = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yppredict)); IDA_mem->ida_yppredict = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savres));    IDA_mem->ida_savres    = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv1));    IDA_mem->ida_tempv1    = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv2));    IDA_mem->ida_tempv2    = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tempv3));    IDA_mem->ida_tempv3    = NULL;
   maxcol = SUNMAX(IDA_mem->ida_maxord_alloc,3);
   for(j=0; j <= maxcol; j++) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phi[j]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phi[j]));
     IDA_mem->ida_phi[j] = NULL;
   }
 
@@ -3998,20 +3996,20 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   IDA_mem->ida_liw -= (maxcol + 10)*IDA_mem->ida_liw1;
 
   if (IDA_mem->ida_VatolMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_Vatol), IDA_SUNCTX); IDA_mem->ida_Vatol = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_Vatol)); IDA_mem->ida_Vatol = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
     IDA_mem->ida_liw -= IDA_mem->ida_liw1;
   }
 
   if (IDA_mem->ida_constraintsMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_constraints), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_constraints));
     IDA_mem->ida_constraints = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
     IDA_mem->ida_liw -= IDA_mem->ida_liw1;
   }
 
   if (IDA_mem->ida_idMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_id), IDA_SUNCTX); IDA_mem->ida_id = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_id)); IDA_mem->ida_id = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
     IDA_mem->ida_liw -= IDA_mem->ida_liw1;
   }
@@ -4036,44 +4034,44 @@ static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   int i, j;
 
   /* Allocate yyQ */
-  IDA_mem->ida_yyQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_yyQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_yyQ == NULL) {
     return (SUNFALSE);
   }
 
   /* Allocate ypQ */
-  IDA_mem->ida_ypQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ypQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_ypQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ));
     return (SUNFALSE);
   }
 
   /* Allocate ewtQ */
-  IDA_mem->ida_ewtQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ewtQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_ewtQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ));
     return (SUNFALSE);
   }
 
   /* Allocate eeQ */
-  IDA_mem->ida_eeQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_eeQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_eeQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewtQ), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewtQ));
     return (SUNFALSE);
   }
 
   for (j=0; j <= IDA_mem->ida_maxord; j++) {
-    IDA_mem->ida_phiQ[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+    IDA_mem->ida_phiQ[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
     if (IDA_mem->ida_phiQ[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewtQ), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_eeQ), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewtQ));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_eeQ));
       for (i=0; i < j; i++) {
-       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phiQ[i]), IDA_SUNCTX);
+       SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phiQ[i]));
       }
       return(SUNFALSE);
     }
@@ -4099,12 +4097,12 @@ static void IDAQuadFreeVectors(IDAMem IDA_mem)
 
   int j;
 
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ), IDA_SUNCTX);   IDA_mem->ida_yyQ = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ), IDA_SUNCTX);   IDA_mem->ida_ypQ = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewtQ), IDA_SUNCTX); IDA_mem->ida_ewtQ = NULL;
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_eeQ), IDA_SUNCTX);   IDA_mem->ida_eeQ = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_yyQ));   IDA_mem->ida_yyQ = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ypQ));   IDA_mem->ida_ypQ = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_ewtQ)); IDA_mem->ida_ewtQ = NULL;
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_eeQ));   IDA_mem->ida_eeQ = NULL;
   for(j=0; j <= IDA_mem->ida_maxord; j++) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phiQ[j]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_phiQ[j]));
     IDA_mem->ida_phiQ[j] = NULL;
   }
 
@@ -4112,7 +4110,7 @@ static void IDAQuadFreeVectors(IDAMem IDA_mem)
   IDA_mem->ida_liw -= (IDA_mem->ida_maxord+5)*IDA_mem->ida_liw1Q;
 
   if (IDA_mem->ida_VatolQMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_VatolQ), IDA_SUNCTX); IDA_mem->ida_VatolQ = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_VatolQ)); IDA_mem->ida_VatolQ = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw -= IDA_mem->ida_liw1Q;
   }
@@ -4137,71 +4135,71 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 
   /* Allocate space for workspace vectors */
 
-  IDA_mem->ida_tmpS3 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_tmpS3 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_tmpS3==NULL) {
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_ewtS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ewtS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_ewtS==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_eeS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_eeS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_eeS==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_yyS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_yyS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_yyS==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_ypS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ypS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_ypS==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_yySpredict = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_yySpredict = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_yySpredict==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_ypSpredict = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ypSpredict = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_ypSpredict==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_deltaS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_deltaS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_deltaS==NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
     return(SUNFALSE);
   }
 
@@ -4215,16 +4213,16 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 
   maxcol = SUNMAX(IDA_mem->ida_maxord,4);
   for (j=0; j <= maxcol; j++) {
-    IDA_mem->ida_phiS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+    IDA_mem->ida_phiS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
     if (IDA_mem->ida_phiS[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns));
       return(SUNFALSE);
     }
   }
@@ -4238,16 +4236,16 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   IDA_mem->ida_pbar = NULL;
   IDA_mem->ida_pbar = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
   if (IDA_mem->ida_pbar == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns));
     for (j=0; j<=maxcol; j++) {
-     SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns), IDA_SUNCTX);
+     SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns));
     }
     return(SUNFALSE);
   }
@@ -4255,16 +4253,16 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   IDA_mem->ida_plist = NULL;
   IDA_mem->ida_plist = (int *)malloc(IDA_mem->ida_Ns*sizeof(int));
   if (IDA_mem->ida_plist == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns));
     for (j=0; j<=maxcol; j++) {
-     SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns), IDA_SUNCTX);
+     SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns));
     }
     free(IDA_mem->ida_pbar); IDA_mem->ida_pbar = NULL;
     return(SUNFALSE);
@@ -4289,18 +4287,18 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
 
   int j, maxcol;
 
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_deltaS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypSpredict, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yySpredict, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_tmpS3));
 
   maxcol = SUNMAX(IDA_mem->ida_maxord_alloc, 4);
   for (j=0; j<=maxcol; j++)
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiS[j], IDA_mem->ida_Ns));
 
   free(IDA_mem->ida_pbar); IDA_mem->ida_pbar = NULL;
   free(IDA_mem->ida_plist); IDA_mem->ida_plist = NULL;
@@ -4309,7 +4307,7 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
   IDA_mem->ida_liw -= ( (maxcol+3)*IDA_mem->ida_Ns + 1 ) * IDA_mem->ida_liw1 + IDA_mem->ida_Ns;
 
   if (IDA_mem->ida_VatolSMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_VatolS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_VatolS, IDA_mem->ida_Ns));
     IDA_mem->ida_lrw -= IDA_mem->ida_Ns*IDA_mem->ida_lrw1;
     IDA_mem->ida_liw -= IDA_mem->ida_Ns*IDA_mem->ida_liw1;
     IDA_mem->ida_VatolSMallocDone = SUNFALSE;
@@ -4336,54 +4334,54 @@ static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   int i, j, maxcol;
 
   /* Allocate yQS */
-  IDA_mem->ida_yyQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_yyQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_yyQS == NULL) {
     return(SUNFALSE);
   }
 
   /* Allocate ewtQS */
-  IDA_mem->ida_ewtQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_ewtQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_ewtQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate tempvQS */
-  IDA_mem->ida_tempvQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_tempvQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_tempvQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_eeQS =  SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+  IDA_mem->ida_eeQS =  SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
   if (IDA_mem->ida_eeQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns));
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_savrhsQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), IDA_SUNCTX);
+  IDA_mem->ida_savrhsQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (IDA_mem->ida_savrhsQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeQS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeQS, IDA_mem->ida_Ns));
   }
 
   maxcol = SUNMAX(IDA_mem->ida_maxord,4);
   /* Allocate phiQS */
   for (j=0; j<=maxcol; j++) {
-    IDA_mem->ida_phiQS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl), IDA_SUNCTX);
+    IDA_mem->ida_phiQS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(IDA_mem->ida_Ns, tmpl));
     if (IDA_mem->ida_phiQS[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savrhsQ), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeQS, IDA_mem->ida_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savrhsQ));
       for (i=0; i<j; i++)
-        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiQS[i], IDA_mem->ida_Ns), IDA_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiQS[i], IDA_mem->ida_Ns));
       return(SUNFALSE);
     }
   }
@@ -4410,21 +4408,21 @@ static void IDAQuadSensFreeVectors(IDAMem IDA_mem)
 
   maxcol = SUNMAX(IDA_mem->ida_maxord, 4);
 
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savrhsQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_yyQS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ewtQS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_eeQS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_tempvQS, IDA_mem->ida_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ida_savrhsQ));
 
   for (j=0; j<=maxcol; j++) {
-   SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiQS[j], IDA_mem->ida_Ns), IDA_SUNCTX);
+   SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_phiQS[j], IDA_mem->ida_Ns));
   }
 
   IDA_mem->ida_lrw -= (maxcol + 5)*IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
   IDA_mem->ida_liw -= (maxcol + 5)*IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
 
   if (IDA_mem->ida_VatolQSMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_VatolQS, IDA_mem->ida_Ns), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_VatolQS, IDA_mem->ida_Ns));
     IDA_mem->ida_lrw -= IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw -= IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
   }
@@ -4634,7 +4632,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
       return(IDA_ILL_INPUT);
     }
 
-    conOK = SUNCheckCallLastErrNoRet(N_VConstrMask(IDA_mem->ida_constraints, IDA_mem->ida_phi[0], IDA_mem->ida_tempv2), IDA_SUNCTX);
+    conOK = SUNCheckCallLastErrNoRet(N_VConstrMask(IDA_mem->ida_constraints, IDA_mem->ida_phi[0], IDA_mem->ida_tempv2));
     if (!conOK) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_Y0_FAIL_CONSTR);
@@ -4735,13 +4733,13 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 {
   SUNDeclareContext(IDA_SUNCTX);
 
-  SUNCheckCallLastErrNoRet(N_VAbs(ycur, IDA_mem->ida_tempv1), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_Satol, IDA_mem->ida_tempv1), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, IDA_mem->ida_tempv1));
+  SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1));
+  SUNCheckCallLastErrNoRet(N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_Satol, IDA_mem->ida_tempv1));
   if (IDA_mem->ida_atolmin0) {
     if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weight), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weight));
   return(0);
 }
 
@@ -4759,13 +4757,13 @@ static int IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 {
   SUNDeclareContext(IDA_SUNCTX);
 
-  SUNCheckCallLastErrNoRet(N_VAbs(ycur, IDA_mem->ida_tempv1), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, IDA_mem->ida_tempv1));
   N_VLinearSum(IDA_mem->ida_rtol, IDA_mem->ida_tempv1,
                ONE, IDA_mem->ida_Vatol, IDA_mem->ida_tempv1);
   if (IDA_mem->ida_atolmin0) {
     if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weight), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weight));
   return(0);
 }
 
@@ -4805,13 +4803,13 @@ static int IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ)
   /* Use ypQ as temporary storage */
   tempvQ = IDA_mem->ida_ypQ;
 
-  SUNCheckCallLastErrNoRet(N_VAbs(qcur, tempvQ), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtolQ, tempvQ, tempvQ), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAddConst(tempvQ, IDA_mem->ida_SatolQ, tempvQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(qcur, tempvQ));
+  SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtolQ, tempvQ, tempvQ));
+  SUNCheckCallLastErrNoRet(N_VAddConst(tempvQ, IDA_mem->ida_SatolQ, tempvQ));
   if (IDA_mem->ida_atolQmin0) {
     if (N_VMin(tempvQ) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQ));
 
   return(0);
 }
@@ -4830,12 +4828,12 @@ static int IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ)
   /* Use ypQ as temporary storage */
   tempvQ = IDA_mem->ida_ypQ;
 
-  SUNCheckCallLastErrNoRet(N_VAbs(qcur, tempvQ), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VLinearSum(IDA_mem->ida_rtolQ, tempvQ, ONE, IDA_mem->ida_VatolQ, tempvQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(qcur, tempvQ));
+  SUNCheckCallLastErrNoRet(N_VLinearSum(IDA_mem->ida_rtolQ, tempvQ, ONE, IDA_mem->ida_VatolQ, tempvQ));
   if (IDA_mem->ida_atolQmin0) {
     if (N_VMin(tempvQ) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQ));
 
   return(0);
 }
@@ -4889,10 +4887,10 @@ static int IDASensEwtSetEE(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
   pyS = IDA_mem->ida_tempv1;
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], yScur[is], pyS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], yScur[is], pyS));
     flag = IDA_mem->ida_efun(pyS, weightS[is], IDA_mem->ida_edata);
     if (flag != 0) return(-1);
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], weightS[is], weightS[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], weightS[is], weightS[is]));
   }
 
   return(0);
@@ -4910,13 +4908,13 @@ static int IDASensEwtSetSS(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
   int is;
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], IDA_mem->ida_tempv1), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtolS, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_SatolS[is], IDA_mem->ida_tempv1), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], IDA_mem->ida_tempv1));
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtolS, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1));
+    SUNCheckCallLastErrNoRet(N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_SatolS[is], IDA_mem->ida_tempv1));
     if (IDA_mem->ida_atolSmin0[is]) {
       if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weightS[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weightS[is]));
   }
   return(0);
 }
@@ -4933,12 +4931,12 @@ static int IDASensEwtSetSV(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
   int is;
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], IDA_mem->ida_tempv1), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(IDA_mem->ida_rtolS, IDA_mem->ida_tempv1, ONE, IDA_mem->ida_VatolS[is], IDA_mem->ida_tempv1), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], IDA_mem->ida_tempv1));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(IDA_mem->ida_rtolS, IDA_mem->ida_tempv1, ONE, IDA_mem->ida_VatolS[is], IDA_mem->ida_tempv1));
     if (IDA_mem->ida_atolSmin0[is]) {
       if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weightS[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(IDA_mem->ida_tempv1, weightS[is]));
   }
 
   return(0);
@@ -4992,10 +4990,10 @@ static int IDAQuadSensEwtSetEE(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
   pyS = IDA_mem->ida_tempvQS[0];
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], yQScur[is], pyS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], yQScur[is], pyS));
     flag = IDAQuadEwtSet(IDA_mem, pyS, weightQS[is]);
     if (flag != 0) return(-1);
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], weightQS[is], weightQS[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_pbar[is], weightQS[is], weightQS[is]));
   }
 
   return(0);
@@ -5012,13 +5010,13 @@ static int IDAQuadSensEwtSetSS(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
   tempvQ = IDA_mem->ida_ypQ;
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], tempvQ), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtolQS, tempvQ, tempvQ), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VAddConst(tempvQ, IDA_mem->ida_SatolQS[is], tempvQ), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], tempvQ));
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_rtolQS, tempvQ, tempvQ));
+    SUNCheckCallLastErrNoRet(N_VAddConst(tempvQ, IDA_mem->ida_SatolQS[is], tempvQ));
     if (IDA_mem->ida_atolQSmin0[is]) {
       if (N_VMin(tempvQ) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQS[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQS[is]));
   }
 
   return(0);
@@ -5035,12 +5033,12 @@ static int IDAQuadSensEwtSetSV(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
   tempvQ = IDA_mem->ida_ypQ;
 
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], tempvQ), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(IDA_mem->ida_rtolQS, tempvQ, ONE, IDA_mem->ida_VatolQS[is], tempvQ), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], tempvQ));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(IDA_mem->ida_rtolQS, tempvQ, ONE, IDA_mem->ida_VatolQS[is], tempvQ));
     if (IDA_mem->ida_atolQSmin0[is]) {
       if (N_VMin(tempvQ) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQS[is]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(tempvQ, weightQS[is]));
   }
 
   return(0);
@@ -5626,7 +5624,7 @@ static int IDAStep(IDAMem IDA_mem)
            returns either PREDICT_AGAIN or IDA_SUCCESS
   */
 
-  SUNCheckCallLastErrNoRet(N_VScale(ck, IDA_mem->ida_ee, IDA_mem->ida_ee), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ck, IDA_mem->ida_ee, IDA_mem->ida_ee));
 
   return(IDA_SUCCESS);
 }
@@ -5812,17 +5810,17 @@ static int IDANls(IDAMem IDA_mem)
 
   /* initial guess for the correction to the predictor */
   if (sensi_sim) {
-    SUNCheckCallLastErrNoRet(N_VConst(ZERO, IDA_mem->ycorSim), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ZERO, IDA_mem->ycorSim));
   } else {
-    SUNCheckCallLastErrNoRet(N_VConst(ZERO, IDA_mem->ida_ee), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ZERO, IDA_mem->ida_ee));
   }
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
     if (sensi_sim) {
-      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycorSim, IDA_mem), IDA_SUNCTX);
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycorSim, IDA_mem));
     } else {
-      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem), IDA_SUNCTX);
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem));
     }
 
     if (nls_status < 0) return(IDA_NLS_SETUP_FAIL);
@@ -5836,13 +5834,12 @@ static int IDANls(IDAMem IDA_mem)
                                                             IDA_mem->ycorSim,
                                                             IDA_mem->ewtSim,
                                                             IDA_mem->ida_epsNewt,
-                                                            callLSetup, IDA_mem),
-                                          IDA_SUNCTX);
+                                                            callLSetup, IDA_mem));
     /* increment counters */
-    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nni_inc), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nni_inc));
     IDA_mem->ida_nni += nni_inc;
 
-    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLSsim, &nnf_inc), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLSsim, &nnf_inc));
     IDA_mem->ida_nnf += nnf_inc;
 
   } else {
@@ -5851,14 +5848,13 @@ static int IDANls(IDAMem IDA_mem)
                                                  IDA_mem->ida_yypredict,
                                                  IDA_mem->ida_ee, IDA_mem->ida_ewt,
                                                  IDA_mem->ida_epsNewt,
-                                                 callLSetup, IDA_mem),
-                               IDA_SUNCTX);
+                                                 callLSetup, IDA_mem));
 
     /* increment counter */
-    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLS, &nni_inc), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLS, &nni_inc));
     IDA_mem->ida_nni += nni_inc;
 
-    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc), IDA_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc));
     IDA_mem->ida_nnf += nnf_inc;
   }
 
@@ -5872,8 +5868,8 @@ static int IDANls(IDAMem IDA_mem)
   if (nls_status != SUN_NLS_SUCCESS) return(nls_status);
 
   /* update the state using the final correction from the nonlinear solver */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee, IDA_mem->ida_yp), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy));
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee, IDA_mem->ida_yp));
 
   /* update the sensitivities based on the final correction from the nonlinear solver */
   if (sensi_sim) {
@@ -5901,11 +5897,11 @@ static int IDANls(IDAMem IDA_mem)
     /* Constraints not met */
 
     /* Compute correction to satisfy constraints */
-    SUNCheckCallLastErrNoRet(N_VCompare(ONEPT5, IDA_mem->ida_constraints, tmp), IDA_SUNCTX);  /* a[i] =1 when |c[i]| = 2 */
-    SUNCheckCallLastErrNoRet(N_VProd(tmp, IDA_mem->ida_constraints, tmp), IDA_SUNCTX);        /* a * c                   */
-    SUNCheckCallLastErrNoRet(N_VDiv(tmp, IDA_mem->ida_ewt, tmp), IDA_SUNCTX);                 /* a * c * wt              */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1, tmp, tmp), IDA_SUNCTX); /* y - 0.1 * a * c * wt    */
-    SUNCheckCallLastErrNoRet(N_VProd(tmp, mm, tmp), IDA_SUNCTX);                              /* v = mm*(y-.1*a*c*wt)    */
+    SUNCheckCallLastErrNoRet(N_VCompare(ONEPT5, IDA_mem->ida_constraints, tmp));  /* a[i] =1 when |c[i]| = 2 */
+    SUNCheckCallLastErrNoRet(N_VProd(tmp, IDA_mem->ida_constraints, tmp));        /* a * c                   */
+    SUNCheckCallLastErrNoRet(N_VDiv(tmp, IDA_mem->ida_ewt, tmp));                 /* a * c * wt              */
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1, tmp, tmp)); /* y - 0.1 * a * c * wt    */
+    SUNCheckCallLastErrNoRet(N_VProd(tmp, mm, tmp));                              /* v = mm*(y-.1*a*c*wt)    */
 
     vnorm = IDAWrmsNorm(IDA_mem, tmp, IDA_mem->ida_ewt, SUNFALSE); /* ||v|| */
 
@@ -5922,8 +5918,8 @@ static int IDANls(IDAMem IDA_mem)
       return(IDA_CONSTR_FAIL);
 
     /* Constraints correction is too large, reduce h by computing rr = h'/h */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phi[0], -ONE, IDA_mem->ida_yy, tmp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phi[0], -ONE, IDA_mem->ida_yy, tmp));
+    SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp));
     IDA_mem->ida_eta = PT9*N_VMinQuotient(IDA_mem->ida_phi[0], tmp);
     IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta, PT1);
     IDA_mem->ida_eta = SUNMAX(IDA_mem->ida_eta,
@@ -5954,13 +5950,11 @@ static void IDAPredict(IDAMem IDA_mem)
 
   SUNCheckCallNoRet(N_VLinearCombination(IDA_mem->ida_kk + 1,
                                          IDA_mem->ida_cvals, IDA_mem->ida_phi,
-                                         IDA_mem->ida_yypredict),
-                    IDA_SUNCTX);
+                                         IDA_mem->ida_yypredict));
 
   SUNCheckCallNoRet(N_VLinearCombination(IDA_mem->ida_kk, IDA_mem->ida_gamma + 1,
                                          IDA_mem->ida_phi + 1,
-                                         IDA_mem->ida_yppredict),
-                    IDA_SUNCTX);
+                                         IDA_mem->ida_yppredict));
 }
 
 /*
@@ -5991,14 +5985,14 @@ static int IDAQuadNls(IDAMem IDA_mem)
   else if (retval > 0) return(IDA_QRHS_RECVR);
 
   if (IDA_mem->ida_quadr_sensi) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_eeQ, IDA_mem->ida_savrhsQ), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_eeQ, IDA_mem->ida_savrhsQ));
   }
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_eeQ, -ONE, IDA_mem->ida_ypQ, IDA_mem->ida_eeQ), IDA_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(ONE/IDA_mem->ida_cj, IDA_mem->ida_eeQ, IDA_mem->ida_eeQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_eeQ, -ONE, IDA_mem->ida_ypQ, IDA_mem->ida_eeQ));
+  SUNCheckCallLastErrNoRet(N_VScale(ONE/IDA_mem->ida_cj, IDA_mem->ida_eeQ, IDA_mem->ida_eeQ));
 
   /* Apply correction: yyQ = yyQ + eeQ */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yyQ, ONE, IDA_mem->ida_eeQ, IDA_mem->ida_yyQ), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yyQ, ONE, IDA_mem->ida_eeQ, IDA_mem->ida_yyQ));
 
   return(IDA_SUCCESS);
 }
@@ -6019,12 +6013,10 @@ static void IDAQuadPredict(IDAMem IDA_mem)
     IDA_mem->ida_cvals[j] = ONE;
 
   SUNCheckCallNoRet(N_VLinearCombination(IDA_mem->ida_kk + 1, IDA_mem->ida_cvals,
-                                         IDA_mem->ida_phiQ, IDA_mem->ida_yyQ),
-                    IDA_SUNCTX);
+                                         IDA_mem->ida_phiQ, IDA_mem->ida_yyQ));
 
   SUNCheckCallNoRet(N_VLinearCombination(IDA_mem->ida_kk, IDA_mem->ida_gamma + 1,
-                                         IDA_mem->ida_phiQ + 1, IDA_mem->ida_ypQ),
-                    IDA_SUNCTX);
+                                         IDA_mem->ida_phiQ + 1, IDA_mem->ida_ypQ));
 }
 
 /*
@@ -6047,7 +6039,7 @@ static SUNNlsStatus IDASensNls(IDAMem IDA_mem)
   callLSetup = SUNFALSE;
 
   /* initial guess for the correction to the predictor */
-  SUNCheckCallLastErrNoRet(N_VConst(ZERO, IDA_mem->ycorStg), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VConst(ZERO, IDA_mem->ycorStg));
 
   /* solve the nonlinear system */
   nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(IDA_mem->NLSstg,
@@ -6055,14 +6047,13 @@ static SUNNlsStatus IDASensNls(IDAMem IDA_mem)
                                                           IDA_mem->ycorStg,
                                                           IDA_mem->ewtStg,
                                                           IDA_mem->ida_epsNewt,
-                                                          callLSetup, IDA_mem),
-                                        IDA_SUNCTX);
+                                                          callLSetup, IDA_mem));
 
   /* increment counters */
-  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nniS_inc), IDA_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nniS_inc));
   IDA_mem->ida_nniS += nniS_inc;
 
-  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLSstg, &nnfS_inc), IDA_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(IDA_mem->NLSstg, &nnfS_inc));
   IDA_mem->ida_nnfS += nnfS_inc;
 
   if (nls_status != SUN_NLS_SUCCESS) {
@@ -6103,14 +6094,12 @@ static void IDASensPredict(IDAMem IDA_mem, N_Vector *yySens, N_Vector *ypSens)
   SUNCheckCallNoRet(N_VLinearCombinationVectorArray(IDA_mem->ida_Ns,
                                                     IDA_mem->ida_kk + 1,
                                                     IDA_mem->ida_cvals,
-                                                    IDA_mem->ida_phiS, yySens),
-                    IDA_SUNCTX);
+                                                    IDA_mem->ida_phiS, yySens));
 
   SUNCheckCallNoRet(N_VLinearCombinationVectorArray(IDA_mem->ida_Ns,
                                                     IDA_mem->ida_kk,
                                                     IDA_mem->ida_gamma + 1,
-                                                    IDA_mem->ida_phiS + 1, ypSens),
-                    IDA_SUNCTX);
+                                                    IDA_mem->ida_phiS + 1, ypSens));
 }
 
 /*
@@ -6152,7 +6141,7 @@ static int IDAQuadSensNls(IDAMem IDA_mem)
                                    ONE/IDA_mem->ida_cj, IDA_mem->ida_eeQS,
                                    -ONE/IDA_mem->ida_cj, ypQS,
                                    IDA_mem->ida_eeQS);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
   /* Apply correction: yyQS[is] = yyQ[is] + eeQ[is] */
@@ -6160,7 +6149,7 @@ static int IDAQuadSensNls(IDAMem IDA_mem)
                                    ONE, IDA_mem->ida_yyQS,
                                    ONE, IDA_mem->ida_eeQS,
                                    IDA_mem->ida_yyQS);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
   return(IDA_SUCCESS);
@@ -6184,14 +6173,12 @@ static void IDAQuadSensPredict(IDAMem IDA_mem, N_Vector *yQS, N_Vector *ypQS)
   SUNCheckCallNoRet(N_VLinearCombinationVectorArray(IDA_mem->ida_Ns,
                                                     IDA_mem->ida_kk + 1,
                                                     IDA_mem->ida_cvals,
-                                                    IDA_mem->ida_phiQS, yQS),
-                    IDA_SUNCTX);
+                                                    IDA_mem->ida_phiQS, yQS));
 
   SUNCheckCallNoRet(N_VLinearCombinationVectorArray(IDA_mem->ida_Ns,
                                                     IDA_mem->ida_kk,
                                                     IDA_mem->ida_gamma + 1,
-                                                    IDA_mem->ida_phiQS + 1, ypQS),
-                    IDA_SUNCTX);
+                                                    IDA_mem->ida_phiQS + 1, ypQS));
 }
 
 
@@ -6236,7 +6223,7 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
   if ( IDA_mem->ida_kk > 1 ) {
 
     /* Compute error at order k-1 */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk], ONE, IDA_mem->ida_ee, IDA_mem->ida_delta), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk], ONE, IDA_mem->ida_ee, IDA_mem->ida_delta));
     enorm_km1 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta,
                             IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
     *err_km1 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 1] * enorm_km1;
@@ -6323,7 +6310,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
   tempv = IDA_mem->ida_ypQ;
 
   /* Update error for order k. */
-  enormQ = SUNCheckCallLastErrNoRet(N_VWrmsNorm(IDA_mem->ida_eeQ, IDA_mem->ida_ewtQ), IDA_SUNCTX);
+  enormQ = SUNCheckCallLastErrNoRet(N_VWrmsNorm(IDA_mem->ida_eeQ, IDA_mem->ida_ewtQ));
   errQ_k = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enormQ;
   if (errQ_k > *err_k) {
     *err_k = errQ_k;
@@ -6334,9 +6321,9 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
   if ( IDA_mem->ida_kk > 1 ) {
 
     /* Update error at order k-1 */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phiQ[IDA_mem->ida_kk], ONE, IDA_mem->ida_eeQ, tempv), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phiQ[IDA_mem->ida_kk], ONE, IDA_mem->ida_eeQ, tempv));
     errQ_km1 = IDA_mem->ida_sigma[IDA_mem->ida_kk-1];
-    errQ_km1 *=  SUNCheckCallLastErrNoRet(N_VWrmsNorm(tempv, IDA_mem->ida_ewtQ), IDA_SUNCTX);
+    errQ_km1 *=  SUNCheckCallLastErrNoRet(N_VWrmsNorm(tempv, IDA_mem->ida_ewtQ));
     if (errQ_km1 > *err_km1) {
       *err_km1 = errQ_km1;
       check_for_reduction = SUNTRUE;
@@ -6352,9 +6339,9 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
       if ( IDA_mem->ida_kk > 2 ) {
 
         /* Update error at order k-2 */
-        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phiQ[IDA_mem->ida_kk-1], ONE, tempv, tempv), IDA_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phiQ[IDA_mem->ida_kk-1], ONE, tempv, tempv));
         errQ_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk-2];
-        errQ_km2 *= SUNCheckCallLastErrNoRet(N_VWrmsNorm(tempv, IDA_mem->ida_ewtQ), IDA_SUNCTX);
+        errQ_km2 *= SUNCheckCallLastErrNoRet(N_VWrmsNorm(tempv, IDA_mem->ida_ewtQ));
         if (errQ_km2 > *err_km2) {
           *err_km2 = errQ_km2;
         }
@@ -6835,10 +6822,10 @@ static void IDAReset(IDAMem IDA_mem)
 
   IDA_mem->ida_psi[0] = IDA_mem->ida_hh;
 
-  SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_eta, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_eta, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]));
 
   if (IDA_mem->ida_quadr)
-    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_eta, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(IDA_mem->ida_eta, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]));
 
   if (IDA_mem->ida_sensi || IDA_mem->ida_quadr_sensi)
     for(is=0; is<IDA_mem->ida_Ns; is++)
@@ -7063,10 +7050,10 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
 
   /* Save ee for possible order increase on next step */
   if (IDA_mem->ida_kused < IDA_mem->ida_maxord) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, IDA_mem->ida_phi[IDA_mem->ida_kused + 1]), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, IDA_mem->ida_phi[IDA_mem->ida_kused + 1]));
 
     if (IDA_mem->ida_quadr)
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_eeQ, IDA_mem->ida_phiQ[IDA_mem->ida_kused+1]), IDA_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_eeQ, IDA_mem->ida_phiQ[IDA_mem->ida_kused+1]));
 
     if (IDA_mem->ida_sensi || IDA_mem->ida_quadr_sensi)
       for (is=0; is<IDA_mem->ida_Ns; is++)
@@ -7134,8 +7121,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
                                                 (IDA_mem->ida_kused + 1),
                                               ONE, IDA_mem->ida_Xvecs, ONE,
                                               IDA_mem->ida_Zvecs,
-                                              IDA_mem->ida_Xvecs),
-                      IDA_SUNCTX);
+                                              IDA_mem->ida_Xvecs));
   }
 
   if (IDA_mem->ida_quadr_sensi) {
@@ -7156,8 +7142,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
                                                 (IDA_mem->ida_kused + 1),
                                               ONE, IDA_mem->ida_Xvecs, ONE,
                                               IDA_mem->ida_Zvecs,
-                                              IDA_mem->ida_Xvecs),
-                      IDA_SUNCTX);
+                                              IDA_mem->ida_Xvecs));
   }
 
 }
@@ -7267,9 +7252,9 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
   realtype nrm;
 
   if (mask) {
-    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNormMask(x, w, IDA_mem->ida_id), IDA_SUNCTX);
+    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNormMask(x, w, IDA_mem->ida_id));
   } else {
-    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(x, w), IDA_SUNCTX);
+    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(x, w));
   }
 
   return(nrm);
@@ -7346,7 +7331,7 @@ static realtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
 
   realtype qnrm;
 
-  qnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(xQ, wQ), IDA_SUNCTX);
+  qnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(xQ, wQ));
   if (old_nrm > qnrm) return(old_nrm);
   else                return(qnrm);
 }
@@ -7432,7 +7417,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   hratio = SUNMAX(IDA_mem->ida_ttol / SUNRabs(IDA_mem->ida_hh), PT1);
   smallh = hratio * IDA_mem->ida_hh;
   tplus = IDA_mem->ida_tlo + smallh;
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phi[0], smallh, IDA_mem->ida_phi[1], IDA_mem->ida_yy), IDA_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_phi[0], smallh, IDA_mem->ida_phi[1], IDA_mem->ida_yy));
   retval = IDA_mem->ida_gfun(tplus, IDA_mem->ida_yy, IDA_mem->ida_phi[1],
                              IDA_mem->ida_ghi, IDA_mem->ida_user_data);
   IDA_mem->ida_nge++;
@@ -7919,7 +7904,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
 
   Delp  = pbari * del;
   rDelp = ONE/Delp;
-  norms = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yyS, IDA_mem->ida_ewt), IDA_SUNCTX);
+  norms = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yyS, IDA_mem->ida_ewt));
   norms *= pbari;
   rDely = SUNMAX(norms, rdel) / pbari;
   Dely  = ONE/rDely;
@@ -7944,8 +7929,8 @@ static int IDASensRes1DQ(int Ns, realtype t,
     r2Del = HALF/Del;
 
     /* Forward perturb y, y' and parameter */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, yyS, ONE, yy, ytemp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, ypS, ONE, yp, yptemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, yyS, ONE, yy, ytemp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, ypS, ONE, yp, yptemp));
     IDA_mem->ida_p[which] = psave + Del;
 
     /* Save residual in resvalS */
@@ -7954,8 +7939,8 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Backward perturb y, y' and parameter */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, yyS, ONE, yy, ytemp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, ypS, ONE, yp, yptemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, yyS, ONE, yy, ytemp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, ypS, ONE, yp, yptemp));
     IDA_mem->ida_p[which] = psave - Del;
 
     /* Save residual in restemp */
@@ -7964,7 +7949,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Estimate the residual for the i-th sensitivity equation */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Del, resvalS, -r2Del, restemp, resvalS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Del, resvalS, -r2Del, restemp, resvalS));
 
     break;
 
@@ -7974,8 +7959,8 @@ static int IDASensRes1DQ(int Ns, realtype t,
     r2Dely = HALF/Dely;
 
     /* Forward perturb y and y' */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, yyS, ONE, yy, ytemp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, ypS, ONE, yp, yptemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, yyS, ONE, yy, ytemp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, ypS, ONE, yp, yptemp));
 
     /* Save residual in resvalS */
     retval = IDA_mem->ida_res(t, ytemp, yptemp, resvalS, IDA_mem->ida_user_data);
@@ -7983,8 +7968,8 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Backward perturb y and y' */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(-Dely, yyS, ONE, yy, ytemp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(-Dely, ypS, ONE, yp, yptemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(-Dely, yyS, ONE, yy, ytemp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(-Dely, ypS, ONE, yp, yptemp));
 
     /* Save residual in restemp */
     retval = IDA_mem->ida_res(t, ytemp, yptemp, restemp, IDA_mem->ida_user_data);
@@ -7992,7 +7977,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Save the first difference quotient in resvalS */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Dely, resvalS, -r2Dely, restemp, resvalS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Dely, resvalS, -r2Dely, restemp, resvalS));
 
     /* Forward perturb parameter */
     IDA_mem->ida_p[which] = psave + Delp;
@@ -8011,10 +7996,10 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Save the second difference quotient in restemp */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Delp, ytemp, -r2Delp, yptemp, restemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Delp, ytemp, -r2Delp, yptemp, restemp));
 
     /* Add the difference quotients for the sensitivity residual */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS));
 
     break;
 
@@ -8024,8 +8009,8 @@ static int IDASensRes1DQ(int Ns, realtype t,
     rDel = ONE/Del;
 
     /* Forward perturb y, y' and parameter */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, yyS, ONE, yy, ytemp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, ypS, ONE, yp, yptemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, yyS, ONE, yy, ytemp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Del, ypS, ONE, yp, yptemp));
     IDA_mem->ida_p[which] = psave + Del;
 
     /* Save residual in resvalS */
@@ -8034,15 +8019,15 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Estimate the residual for the i-th sensitivity equation */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rDel, resvalS, -rDel, resval, resvalS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rDel, resvalS, -rDel, resval, resvalS));
 
     break;
 
   case FORWARD2:
 
     /* Forward perturb y and y' */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, yyS, ONE, yy, ytemp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, ypS, ONE, yp, yptemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, yyS, ONE, yy, ytemp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(Dely, ypS, ONE, yp, yptemp));
 
     /* Save residual in resvalS */
     retval = IDA_mem->ida_res(t, ytemp, yptemp, resvalS, IDA_mem->ida_user_data);
@@ -8050,7 +8035,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Save the first difference quotient in resvalS */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rDely, resvalS, -rDely, resval, resvalS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rDely, resvalS, -rDely, resval, resvalS));
 
     /* Forward perturb parameter */
     IDA_mem->ida_p[which] = psave + Delp;
@@ -8061,10 +8046,10 @@ static int IDASensRes1DQ(int Ns, realtype t,
     if (retval != 0) return(retval);
 
     /* Save the second difference quotient in restemp */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rDelp, restemp, -rDelp, resval, restemp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rDelp, restemp, -rDelp, resval, restemp));
 
     /* Add the difference quotients for the sensitivity residual */
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, resvalS, ONE, restemp, resvalS));
 
     break;
 
@@ -8136,7 +8121,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
   psave = IDA_mem->ida_p[which];
 
   Delp  = pbari * del;
-  norms = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yyS, IDA_mem->ida_ewt), IDA_SUNCTX);
+  norms = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yyS, IDA_mem->ida_ewt));
   norms *= pbari;
   rDely = SUNMAX(norms, rdel) / pbari;
   Dely  = ONE/rDely;
@@ -8150,16 +8135,16 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
     Del = SUNMIN(Dely, Delp);
     r2Del = HALF/Del;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yy, Del, yyS, yytmp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yp, Del, ypS, yptmp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yy, Del, yyS, yytmp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yp, Del, ypS, yptmp));
     IDA_mem->ida_p[which] = psave + Del;
 
     retval = IDA_mem->ida_rhsQ(t, yytmp, yptmp, resvalQS, IDA_mem->ida_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, yyS, ONE, yy, yytmp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, ypS, ONE, yp, yptmp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, yyS, ONE, yy, yytmp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(-Del, ypS, ONE, yp, yptmp));
 
     IDA_mem->ida_p[which] = psave - Del;
 
@@ -8167,7 +8152,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Del, resvalQS, -r2Del, tmpQS, resvalQS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Del, resvalQS, -r2Del, tmpQS, resvalQS));
 
     break;
 
@@ -8176,15 +8161,15 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
     Del = SUNMIN(Dely, Delp);
     rdel = ONE/Del;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yy, Del, yyS, yytmp), IDA_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yp, Del, ypS, yptmp), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yy, Del, yyS, yytmp));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, yp, Del, ypS, yptmp));
     IDA_mem->ida_p[which] = psave + Del;
 
     retval = IDA_mem->ida_rhsQ(t, yytmp, yptmp, resvalQS, IDA_mem->ida_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rdel, resvalQS, -rdel, resvalQ, resvalQS), IDA_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rdel, resvalQS, -rdel, resvalQ, resvalQS));
 
     break;
   }

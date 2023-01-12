@@ -92,8 +92,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* free any existing nonlinear solver */
   if ((IDA_mem->NLSstg != NULL) && (IDA_mem->ownNLSstg)) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSstg), IDA_SUNCTX);
-  }
+    SUNCheckCallNoRet(SUNNonlinSolFree(IDA_mem->NLSstg));  }
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLSstg = NLS;
@@ -104,7 +103,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* set the nonlinear residual function */
   retval = SUNNonlinSolSetSysFn(IDA_mem->NLSstg, idaNlsResidualSensStg);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting nonlinear system function failed");
@@ -122,7 +121,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* set max allowed nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(IDA_mem->NLSstg, MAXIT);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting maximum number of nonlinear iterations failed");
@@ -132,24 +131,18 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->stgMallocDone == SUNFALSE) {
 
-    IDA_mem->ypredictStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx), IDA_SUNCTX);
-    if (IDA_mem->ypredictStg == NULL) {
+    IDA_mem->ypredictStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx));    if (IDA_mem->ypredictStg == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ycorStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx), IDA_SUNCTX);
-    if (IDA_mem->ycorStg == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX);
-      IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
+    IDA_mem->ycorStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns,IDA_mem->ida_sunctx));    if (IDA_mem->ycorStg == NULL) {
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg));      IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
-    IDA_mem->ewtStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns, IDA_mem->ida_sunctx), IDA_SUNCTX);
-    if (IDA_mem->ewtStg == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg), IDA_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorStg), IDA_SUNCTX);
-      IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
+    IDA_mem->ewtStg = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns, IDA_mem->ida_sunctx));    if (IDA_mem->ewtStg == NULL) {
+      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ypredictStg));      SUNCheckCallLastErrNoRet(N_VDestroy(IDA_mem->ycorStg));      IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
     }
 
@@ -180,10 +173,10 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
   /* set the linear solver setup wrapper function */
   if (IDA_mem->ida_lsetup) {
     retval = SUNNonlinSolSetLSetupFn(IDA_mem->NLSstg, idaNlsLSetupSensStg);
-    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    SUNCheckCallNoRet(retval);
   } else {
     retval = SUNNonlinSolSetLSetupFn(IDA_mem->NLSstg, NULL);
-    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    SUNCheckCallNoRet(retval);
   }
 
   if (retval != IDA_SUCCESS) {
@@ -195,10 +188,10 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
   /* set the linear solver solve wrapper function */
   if (IDA_mem->ida_lsolve) {
     retval = SUNNonlinSolSetLSolveFn(IDA_mem->NLSstg, idaNlsLSolveSensStg);
-    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    SUNCheckCallNoRet(retval);
   } else {
     retval = SUNNonlinSolSetLSolveFn(IDA_mem->NLSstg, NULL);
-    SUNCheckCallNoRet(retval, IDA_SUNCTX);
+    SUNCheckCallNoRet(retval);
   }
 
   if (retval != IDA_SUCCESS) {
@@ -330,11 +323,10 @@ static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
   SUNDeclareContext(IDA_SUNCTX);
 
   /* compute the norm of the correction */
-  delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt), IDA_SUNCTX);
-
+  delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt));
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
-  SUNCheckCallNoRet(retval, IDA_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != IDA_SUCCESS) return(IDA_MEM_NULL);
 
   /* test for convergence, first directly, then with rate estimate. */

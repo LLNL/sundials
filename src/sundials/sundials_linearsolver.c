@@ -39,17 +39,17 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
   SUNLinearSolver_Ops ops;
 
   /* a context is required */
-  SUNAssertContext(sunctx);
+  
 
   /* create linear solver object */
   LS = NULL;
   LS = (SUNLinearSolver)malloc(sizeof *LS);
-  SUNAssert(LS, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(LS, SUN_ERR_MALLOC_FAIL);
 
   /* create linear solver ops structure */
   ops = NULL;
   ops = (SUNLinearSolver_Ops)malloc(sizeof *ops);
-  SUNAssert(ops, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->gettype           = NULL;

@@ -51,12 +51,12 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   /* create vector object */
   v = NULL;
   v = (N_Vector) malloc(sizeof *v);
-  SUNAssert(v, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(v, SUN_ERR_MALLOC_FAIL);
 
   /* create vector ops structure */
   ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof *ops);
-  SUNAssert(ops, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
 
@@ -179,7 +179,7 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
 {
   SUNDeclareContext(w->sunctx);
   /* Check that ops structures exist */
-  SUNAssert(w && w->ops && v && v->ops, SUN_ERR_ARG_CORRUPT, w->sunctx);
+  SUNAssert(w && w->ops && v && v->ops, SUN_ERR_ARG_CORRUPT);
 
   /* Copy ops from w to v */
 
@@ -1003,10 +1003,10 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
   N_Vector* vs = NULL;
   int j;
 
-  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE, SUNCTX);
+  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  SUNAssert(vs, SUN_ERR_MALLOC_FAIL, SUNCTX);
+  SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
 
   for (j = 0; j < count; j++) {
     vs[j] = SUNCheckCallLastErrNoRet(N_VCloneEmpty(w));
@@ -1025,10 +1025,10 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   int j;
   N_Vector* vs = NULL;
 
-  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE, SUNCTX);
+  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  SUNAssert(vs, SUN_ERR_MALLOC_FAIL, SUNCTX);
+  SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
 
   for (j = 0; j < count; j++) {
     vs[j] = SUNCheckCallLastErrNoRet(N_VClone(w));
@@ -1061,14 +1061,14 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
   SUNDeclareContext(vs[0]->sunctx);
-  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, vs[0]->sunctx);
+  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   return vs[index];
 }
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
   SUNDeclareContext(w->sunctx);
-  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE, SUNCTX);
+  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   vs[index] = w;
 }
 

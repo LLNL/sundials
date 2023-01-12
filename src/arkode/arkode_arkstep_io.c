@@ -1309,7 +1309,7 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 
   /* send argument to NLS structure */
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
-  SUNCheckCallNoRet(retval, ARK_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != SUN_SUCCESS) {
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, __LINE__, __func__, __FILE__,
                     "Error setting maxcor in SUNNonlinearSolver object");
@@ -1527,7 +1527,7 @@ int ARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
   SUNDeclareContext(ark_mem->sunctx);
 
   /* copy vector to output */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->tempv1, ele), ARK_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, ark_mem->tempv1, ele));
 
   return(ARK_SUCCESS);
 }

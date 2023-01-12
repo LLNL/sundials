@@ -718,7 +718,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   /* Set space requirements for one N_Vector */
 
   if (y0->ops->nvspace != NULL) {
-    SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VSpace(y0, &lrw1, &liw1));
   } else {
     lrw1 = 0;
     liw1 = 0;
@@ -762,7 +762,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_tn = t0;
 
   /* Initialize zn[0] in the history array */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, cv_mem->cv_zn[0]), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, cv_mem->cv_zn[0]));
 
   /* create a Newton nonlinear solver object by default */
   NLS = SUNNonlinSol_Newton(y0, CV_SUNCTX);
@@ -783,7 +783,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                    "Setting the nonlinear solver failed");
     cvFreeVectors(cv_mem);
-    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_MEM_FAIL);
   }
@@ -927,7 +927,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
 
   /* Initialize zn[0] in the history array */
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, cv_mem->cv_zn[0]), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y0, cv_mem->cv_zn[0]));
 
   /* Initialize all the counters */
 
@@ -1064,7 +1064,7 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
                    "Missing N_VMin routine from N_Vector");
     return(CV_ILL_INPUT);
   }
-  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstol), CV_SUNCTX);
+  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstol));
   if (atolmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    MSGCV_BAD_ABSTOL);
@@ -1074,14 +1074,14 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
   /* Copy tolerances into memory */
 
   if ( !(cv_mem->cv_VabstolMallocDone) ) {
-    cv_mem->cv_Vabstol = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_ewt), CV_SUNCTX);
+    cv_mem->cv_Vabstol = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_ewt));
     cv_mem->cv_lrw += cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_liw1;
     cv_mem->cv_VabstolMallocDone = SUNTRUE;
   }
 
   cv_mem->cv_reltol = reltol;
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstol, cv_mem->cv_Vabstol), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstol, cv_mem->cv_Vabstol));
   cv_mem->cv_atolmin0 = (atolmin == ZERO);
 
   cv_mem->cv_itol = CV_SV;
@@ -1152,7 +1152,7 @@ int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
   SUNDeclareContext(CV_SUNCTX);
 
   /* Set space requirements for one N_Vector */
-  SUNCheckCallLastErrNoRet(N_VSpace(yQ0, &lrw1Q, &liw1Q), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VSpace(yQ0, &lrw1Q, &liw1Q));
   cv_mem->cv_lrw1Q = lrw1Q;
   cv_mem->cv_liw1Q = liw1Q;
 
@@ -1164,7 +1164,7 @@ int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
   }
 
   /* Initialize znQ[0] in the history array */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]));
 
   /* Copy the input parameters into CVODES state */
   cv_mem->cv_fQ = fQ;
@@ -1216,7 +1216,7 @@ int CVodeQuadReInit(void *cvode_mem, N_Vector yQ0)
   }
 
   /* Initialize znQ[0] in the history array */
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, yQ0, cv_mem->cv_znQ[0]));
 
   /* Initialize counters */
   cv_mem->cv_nfQe  = 0;
@@ -1325,7 +1325,7 @@ int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
                    "Missing N_VMin routine from N_Vector");
     return(CV_ILL_INPUT);
   }
-  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstolQ), CV_SUNCTX);
+  atolmin = SUNCheckCallLastErrNoRet(N_VMin(abstolQ));
   if (atolmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_BAD_ABSTOLQ);
     return(CV_ILL_INPUT);
@@ -1338,13 +1338,13 @@ int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
   cv_mem->cv_reltolQ  = reltolQ;
 
   if ( !(cv_mem->cv_VabstolQMallocDone) ) {
-    cv_mem->cv_VabstolQ = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempvQ), CV_SUNCTX);
+    cv_mem->cv_VabstolQ = SUNCheckCallLastErrNoRet(N_VClone(cv_mem->cv_tempvQ));
     cv_mem->cv_lrw += cv_mem->cv_lrw1Q;
     cv_mem->cv_liw += cv_mem->cv_liw1Q;
     cv_mem->cv_VabstolQMallocDone = SUNTRUE;
   }
 
-  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstolQ, cv_mem->cv_VabstolQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, abstolQ, cv_mem->cv_VabstolQ));
   cv_mem->cv_atolQmin0 = (atolmin == ZERO);
 
   return(CV_SUCCESS);
@@ -1486,7 +1486,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
     cv_mem->cv_cvals[is] = ONE;
 
   retval = N_VScaleVectorArray(Ns, cv_mem->cv_cvals, yS0, cv_mem->cv_znS[0]);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
@@ -1535,7 +1535,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                    "Setting the nonlinear solver failed");
     cvSensFreeVectors(cv_mem);
-    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
     return(CV_MEM_FAIL);
   }
 
@@ -1706,7 +1706,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     cv_mem->cv_cvals[is] = ONE;
 
   retval = N_VScaleVectorArray(Ns, cv_mem->cv_cvals, yS0, cv_mem->cv_znS[0]);
-  SUNCheckCallNoRet(retval, CV_SUNCTX);
+  SUNCheckCallNoRet(retval);
   if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
@@ -1765,7 +1765,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                    "Setting the nonlinear solver failed");
     cvSensFreeVectors(cv_mem);
-    SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
     return(CV_MEM_FAIL);
   }
 
@@ -1932,7 +1932,7 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     if (retval != CV_SUCCESS) {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "Setting the nonlinear solver failed");
-      SUNCheckCallNoRet(SUNNonlinSolFree(NLS), CV_SUNCTX);
+      SUNCheckCallNoRet(SUNNonlinSolFree(NLS));
       return(CV_MEM_FAIL);
     }
 
@@ -2088,7 +2088,7 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
   }
   atolmin = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolS[is]), CV_SUNCTX);
+    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolS[is]));
     if (atolmin[is] < ZERO) {
       cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_BAD_ABSTOLS);
       free(atolmin);
@@ -2103,7 +2103,7 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
   cv_mem->cv_reltolS = reltolS;
 
   if ( !(cv_mem->cv_VabstolSMallocDone) ) {
-    cv_mem->cv_VabstolS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv), CV_SUNCTX);
+    cv_mem->cv_VabstolS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv));
     cv_mem->cv_atolSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns*cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_Ns*cv_mem->cv_liw1;
@@ -2434,7 +2434,7 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
   }
   atolmin = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolQS[is]), CV_SUNCTX);
+    atolmin[is] = SUNCheckCallLastErrNoRet(N_VMin(abstolQS[is]));
     if (atolmin[is] < ZERO) {
       cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_BAD_ABSTOLQS);
       free(atolmin);
@@ -2449,7 +2449,7 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
   cv_mem->cv_reltolQS = reltolQS;
 
   if ( !(cv_mem->cv_VabstolQSMallocDone) ) {
-    cv_mem->cv_VabstolQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ), CV_SUNCTX);
+    cv_mem->cv_VabstolQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ));
     cv_mem->cv_atolQSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns*cv_mem->cv_lrw1Q;
     cv_mem->cv_liw += cv_mem->cv_Ns*cv_mem->cv_liw1Q;
@@ -2935,10 +2935,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     cv_mem->cv_h0u    = cv_mem->cv_h;
     cv_mem->cv_hprime = cv_mem->cv_h;
 
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_zn[1], cv_mem->cv_zn[1]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_zn[1], cv_mem->cv_zn[1]));
 
     if (cv_mem->cv_quadr)
-      SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_znQ[1], cv_mem->cv_znQ[1]), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_znQ[1], cv_mem->cv_znQ[1]));
 
     if (cv_mem->cv_sensi) {
       for (is=0; is<cv_mem->cv_Ns; is++)
@@ -3036,7 +3036,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           cv_mem->cv_irfnd = 0;
           if ((irfndp == 1) && (itask == CV_ONE_STEP)) {
             cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-            SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+            SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
             SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
             return(CV_SUCCESS);
           }
@@ -3074,7 +3074,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if ( itask == CV_ONE_STEP &&
          SUNRabs(cv_mem->cv_tn - cv_mem->cv_tretlast) > troundoff ) {
       cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
       SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
       return(CV_SUCCESS);
     }
@@ -3142,7 +3142,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
         istate = CV_ILL_INPUT;
         cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-        SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
         break;
       }
 
@@ -3153,7 +3153,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                          MSGCV_EWTQ_NOW_BAD, cv_mem->cv_tn);
           istate = CV_ILL_INPUT;
           cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
           break;
         }
       }
@@ -3165,7 +3165,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                          MSGCV_EWTS_NOW_BAD, cv_mem->cv_tn);
           istate = CV_ILL_INPUT;
           cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
           break;
         }
       }
@@ -3177,7 +3177,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                          MSGCV_EWTQS_NOW_BAD, cv_mem->cv_tn);
           istate = CV_ILL_INPUT;
           cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
           break;
         }
       }
@@ -3190,12 +3190,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                      MSGCV_MAX_STEPS, cv_mem->cv_tn);
       istate = CV_TOO_MUCH_WORK;
       cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
       break;
     }
 
     /* Check for too much accuracy requested */
-    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[0], cv_mem->cv_ewt), CV_SUNCTX);
+    nrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[0], cv_mem->cv_ewt));
     if (cv_mem->cv_quadr && cv_mem->cv_errconQ) {
       nrm = cvQuadUpdateNorm(cv_mem, nrm, cv_mem->cv_znQ[0], cv_mem->cv_ewtQ);
     }
@@ -3211,7 +3211,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                      MSGCV_TOO_MUCH_ACC, cv_mem->cv_tn);
       istate = CV_TOO_MUCH_ACC;
       cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
       cv_mem->cv_tolsf *= TWO;
       break;
     } else {
@@ -3235,7 +3235,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (kflag != CV_SUCCESS) {
       istate = cvHandleHinOrStepFailure(cv_mem, kflag);
       cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
       break;
     }
 
@@ -3321,7 +3321,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (itask == CV_ONE_STEP) {
       istate = CV_SUCCESS;
       cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], yout));
       cv_mem->cv_next_q = cv_mem->cv_qprime;
       cv_mem->cv_next_h = cv_mem->cv_hprime;
       break;
@@ -3366,7 +3366,7 @@ int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y));
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -3428,7 +3428,7 @@ int CVodeComputeStateSens1(void *cvode_mem, int idx, N_Vector ycorS1,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_znS[0][idx], ONE, ycorS1, yS1), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_znS[0][idx], ONE, ycorS1, yS1));
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -3515,7 +3515,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
     nvec += 1;
   }
   ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dky);
-  SUNCheckCallNoRet(ier, CV_SUNCTX);
+  SUNCheckCallNoRet(ier);
   if (ier != CV_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_VECTOROP_ERR);
@@ -3526,7 +3526,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
     return(CV_SUCCESS);
   }
   r = SUNRpowerI(cv_mem->cv_h, -k);
-  SUNCheckCallLastErrNoRet(N_VScale(r, dky, dky), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(r, dky, dky));
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -3640,7 +3640,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
     nvec += 1;
   }
   ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dkyQ);
-  SUNCheckCallNoRet(ier, CV_SUNCTX);
+  SUNCheckCallNoRet(ier);
   if (ier != CV_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_VECTOROP_ERR);
@@ -3651,7 +3651,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
     return(CV_SUCCESS);
   }
   r = SUNRpowerI(cv_mem->cv_h, -k);
-  SUNCheckCallLastErrNoRet(N_VScale(r, dkyQ, dkyQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(r, dkyQ, dkyQ));
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -3848,7 +3848,7 @@ int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyS)
     nvec += 1;
   }
   ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dkyS);
-  SUNCheckCallNoRet(ier, CV_SUNCTX);
+  SUNCheckCallNoRet(ier);
   if (ier != CV_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_VECTOROP_ERR);
@@ -3859,7 +3859,7 @@ int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyS)
     return(CV_SUCCESS);
   }
   r = SUNRpowerI(cv_mem->cv_h, -k);
-  SUNCheckCallLastErrNoRet(N_VScale(r, dkyS, dkyS), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(r, dkyS, dkyS));
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -4035,7 +4035,7 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
     nvec += 1;
   }
   ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dkyQS);
-  SUNCheckCallNoRet(ier, CV_SUNCTX);
+  SUNCheckCallNoRet(ier);
   if (ier != CV_SUCCESS) {
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_VECTOROP_ERR);
@@ -4046,7 +4046,7 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
     return(CV_SUCCESS);
   }
   r = SUNRpowerI(cv_mem->cv_h, -k);
-  SUNCheckCallLastErrNoRet(N_VScale(r, dkyQS, dkyQS), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(r, dkyQS, dkyQS));
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
   return(CV_SUCCESS);
@@ -4082,7 +4082,7 @@ void CVodeFree(void **cvode_mem)
 
   /* if CVODE created the nonlinear solver object then free it */
   if (cv_mem->ownNLS) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLS), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLS));
     cv_mem->ownNLS = SUNFALSE;
     cv_mem->NLS = NULL;
   }
@@ -4174,31 +4174,31 @@ void CVodeSensFree(void *cvode_mem)
 
   /* free any vector wrappers */
   if (cv_mem->simMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim), CV_SUNCTX);  cv_mem->zn0Sim  = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim), CV_SUNCTX); cv_mem->ycorSim = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ewtSim), CV_SUNCTX);  cv_mem->ewtSim  = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim));  cv_mem->zn0Sim  = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim)); cv_mem->ycorSim = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ewtSim));  cv_mem->ewtSim  = NULL;
     cv_mem->simMallocDone = SUNFALSE;
   }
   if (cv_mem->stgMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Stg), CV_SUNCTX);  cv_mem->zn0Stg  = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorStg), CV_SUNCTX); cv_mem->ycorStg = NULL;
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ewtStg), CV_SUNCTX);  cv_mem->ewtStg  = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Stg));  cv_mem->zn0Stg  = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorStg)); cv_mem->ycorStg = NULL;
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ewtStg));  cv_mem->ewtStg  = NULL;
     cv_mem->stgMallocDone = SUNFALSE;
   }
 
   /* if CVODES created a NLS object then free it */
   if (cv_mem->ownNLSsim) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSsim), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSsim));
     cv_mem->ownNLSsim = SUNFALSE;
     cv_mem->NLSsim = NULL;
   }
   if (cv_mem->ownNLSstg) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg));
     cv_mem->ownNLSstg = SUNFALSE;
     cv_mem->NLSstg = NULL;
   }
   if (cv_mem->ownNLSstg1) {
-    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg1), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolFree(cv_mem->NLSstg1));
     cv_mem->ownNLSstg1 = SUNFALSE;
     cv_mem->NLSstg1 = NULL;
   }
@@ -4297,74 +4297,74 @@ static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
   /* Allocate ewt, acor, tempv, ftemp */
 
-  cv_mem->cv_ewt = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_ewt = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_ewt == NULL) return(SUNFALSE);
 
-  cv_mem->cv_acor = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_acor = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_acor == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
     return(SUNFALSE);
   }
 
-  cv_mem->cv_tempv = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_tempv = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_tempv == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
     return(SUNFALSE);
   }
 
-  cv_mem->cv_ftemp = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_ftemp = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_ftemp == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
     return(SUNFALSE);
   }
 
-  cv_mem->cv_vtemp1 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_vtemp1 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_vtemp1 == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
     return(SUNFALSE);
   }
 
-  cv_mem->cv_vtemp2 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_vtemp2 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_vtemp2 == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
     return(SUNFALSE);
   }
 
-  cv_mem->cv_vtemp3 = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_vtemp3 = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_vtemp3 == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
     return(SUNFALSE);
   }
 
   /* Allocate zn[0] ... zn[qmax] */
 
   for (j=0; j <= cv_mem->cv_qmax; j++) {
-    cv_mem->cv_zn[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+    cv_mem->cv_zn[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
     if (cv_mem->cv_zn[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp3), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp3));
       for (i=0; i < j; i++) {
-       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_zn[i]), CV_SUNCTX);
+       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_zn[i]));
       }
       return(SUNFALSE);
     }
@@ -4393,28 +4393,28 @@ static void cvFreeVectors(CVodeMem cv_mem)
 
   maxord = cv_mem->cv_qmax_alloc;
 
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp3), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewt));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acor));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempv));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftemp));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp1));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp2));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_vtemp3));
   for (j=0; j <= maxord; j++) {
-   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_zn[j]), CV_SUNCTX);
+   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_zn[j]));
   }
 
   cv_mem->cv_lrw -= (maxord + 8)*cv_mem->cv_lrw1;
   cv_mem->cv_liw -= (maxord + 8)*cv_mem->cv_liw1;
 
   if (cv_mem->cv_VabstolMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_Vabstol), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_Vabstol));
     cv_mem->cv_lrw -= cv_mem->cv_lrw1;
     cv_mem->cv_liw -= cv_mem->cv_liw1;
   }
 
   if (cv_mem->cv_constraintsMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_constraints), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_constraints));
     cv_mem->cv_lrw -= cv_mem->cv_lrw1;
     cv_mem->cv_liw -= cv_mem->cv_liw1;
   }
@@ -4437,46 +4437,46 @@ static booleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
 
   /* Allocate ewtQ */
-  cv_mem->cv_ewtQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_ewtQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_ewtQ == NULL) {
     return(SUNFALSE);
   }
 
   /* Allocate acorQ */
-  cv_mem->cv_acorQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_acorQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_acorQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ));
     return(SUNFALSE);
   }
 
   /* Allocate yQ */
-  cv_mem->cv_yQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_yQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_yQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ));
     return(SUNFALSE);
   }
 
   /* Allocate tempvQ */
-  cv_mem->cv_tempvQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_tempvQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_tempvQ == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_yQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ));
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_yQ));
     return(SUNFALSE);
   }
 
   /* Allocate zQn[0] ... zQn[maxord] */
 
   for (j=0; j <= cv_mem->cv_qmax; j++) {
-    cv_mem->cv_znQ[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+    cv_mem->cv_znQ[j] = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
     if (cv_mem->cv_znQ[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_yQ), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempvQ), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_yQ));
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempvQ));
       for (i=0; i < j; i++) {
-       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_znQ[i]), CV_SUNCTX);
+       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_znQ[i]));
       }
       return(SUNFALSE);
     }
@@ -4505,20 +4505,20 @@ static void cvQuadFreeVectors(CVodeMem cv_mem)
 
   maxord = cv_mem->cv_qmax_allocQ;
 
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_yQ), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempvQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ewtQ));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_acorQ));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_yQ));
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_tempvQ));
 
   for (j=0; j<=maxord; j++) {
-   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_znQ[j]), CV_SUNCTX);
+   SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_znQ[j]));
   }
 
   cv_mem->cv_lrw -= (maxord + 5)*cv_mem->cv_lrw1Q;
   cv_mem->cv_liw -= (maxord + 5)*cv_mem->cv_liw1Q;
 
   if (cv_mem->cv_VabstolQMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_VabstolQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_VabstolQ));
     cv_mem->cv_lrw -= cv_mem->cv_lrw1Q;
     cv_mem->cv_liw -= cv_mem->cv_liw1Q;
   }
@@ -4539,56 +4539,56 @@ static booleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
 
   /* Allocate yS */
-  cv_mem->cv_yS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_yS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_yS == NULL) {
     return(SUNFALSE);
   }
 
   /* Allocate ewtS */
-  cv_mem->cv_ewtS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_ewtS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_ewtS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate acorS */
-  cv_mem->cv_acorS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_acorS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_acorS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate tempvS */
-  cv_mem->cv_tempvS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_tempvS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_tempvS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate ftempS */
-  cv_mem->cv_ftempS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_ftempS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_ftempS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate znS */
   for (j=0; j<=cv_mem->cv_qmax; j++) {
-    cv_mem->cv_znS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+    cv_mem->cv_znS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
     if (cv_mem->cv_znS[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns));
       for (i=0; i<j; i++)
-        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[i], cv_mem->cv_Ns), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[i], cv_mem->cv_Ns));
       return(SUNFALSE);
     }
   }
@@ -4597,26 +4597,26 @@ static booleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   cv_mem->cv_pbar = NULL;
   cv_mem->cv_pbar = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
   if (cv_mem->cv_pbar == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns));
     for (i=0; i<=cv_mem->cv_qmax; i++)
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[i], cv_mem->cv_Ns), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[i], cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   cv_mem->cv_plist = NULL;
   cv_mem->cv_plist = (int *)malloc(cv_mem->cv_Ns*sizeof(int));
   if (cv_mem->cv_plist == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns));
     for (i=0; i<=cv_mem->cv_qmax; i++)
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[i], cv_mem->cv_Ns), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[i], cv_mem->cv_Ns));
     free(cv_mem->cv_pbar); cv_mem->cv_pbar = NULL;
     return(SUNFALSE);
   }
@@ -4644,14 +4644,14 @@ static void cvSensFreeVectors(CVodeMem cv_mem)
 
   maxord = cv_mem->cv_qmax_allocS;
 
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ftempS, cv_mem->cv_Ns));
 
   for (j=0; j<=maxord; j++)
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[j], cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znS[j], cv_mem->cv_Ns));
 
   free(cv_mem->cv_pbar); cv_mem->cv_pbar = NULL;
   free(cv_mem->cv_plist); cv_mem->cv_plist = NULL;
@@ -4660,7 +4660,7 @@ static void cvSensFreeVectors(CVodeMem cv_mem)
   cv_mem->cv_liw -= (maxord + 6)*cv_mem->cv_Ns*cv_mem->cv_liw1 + cv_mem->cv_Ns;
 
   if (cv_mem->cv_VabstolSMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_VabstolS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_VabstolS, cv_mem->cv_Ns));
     cv_mem->cv_lrw -= cv_mem->cv_Ns*cv_mem->cv_lrw1;
     cv_mem->cv_liw -= cv_mem->cv_Ns*cv_mem->cv_liw1;
   }
@@ -4685,56 +4685,56 @@ static booleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
 
   /* Allocate ftempQ */
-  cv_mem->cv_ftempQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl), CV_SUNCTX);
+  cv_mem->cv_ftempQ = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
   if (cv_mem->cv_ftempQ == NULL) {
     return(SUNFALSE);
   }
 
   /* Allocate yQS */
-  cv_mem->cv_yQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_yQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_yQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ));
     return(SUNFALSE);
   }
 
   /* Allocate ewtQS */
-  cv_mem->cv_ewtQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_ewtQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_ewtQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate acorQS */
-  cv_mem->cv_acorQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_acorQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_acorQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate tempvQS */
-  cv_mem->cv_tempvQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+  cv_mem->cv_tempvQS = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
   if (cv_mem->cv_tempvQS == NULL) {
-    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorQS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns));
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorQS, cv_mem->cv_Ns));
     return(SUNFALSE);
   }
 
   /* Allocate znQS */
   for (j=0; j<=cv_mem->cv_qmax; j++) {
-    cv_mem->cv_znQS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl), CV_SUNCTX);
+    cv_mem->cv_znQS[j] = SUNCheckCallLastErrNoRet(N_VCloneVectorArray(cv_mem->cv_Ns, tmpl));
     if (cv_mem->cv_znQS[j] == NULL) {
-      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorQS, cv_mem->cv_Ns), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvQS, cv_mem->cv_Ns), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorQS, cv_mem->cv_Ns));
+      SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvQS, cv_mem->cv_Ns));
       for (i=0; i<j; i++)
-        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znQS[i], cv_mem->cv_Ns), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znQS[i], cv_mem->cv_Ns));
       return(SUNFALSE);
     }
   }
@@ -4762,21 +4762,21 @@ static void cvQuadSensFreeVectors(CVodeMem cv_mem)
 
   maxord = cv_mem->cv_qmax_allocQS;
 
-  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->cv_ftempQ));
 
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorQS, cv_mem->cv_Ns), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvQS, cv_mem->cv_Ns), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_yQS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_ewtQS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_acorQS, cv_mem->cv_Ns));
+  SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_tempvQS, cv_mem->cv_Ns));
 
   for (j=0; j<=maxord; j++)
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znQS[j], cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_znQS[j], cv_mem->cv_Ns));
 
   cv_mem->cv_lrw -= (maxord + 5)*cv_mem->cv_Ns*cv_mem->cv_lrw1Q;
   cv_mem->cv_liw -= (maxord + 5)*cv_mem->cv_Ns*cv_mem->cv_liw1Q;
 
   if (cv_mem->cv_VabstolQSMallocDone) {
-    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_VabstolQS, cv_mem->cv_Ns), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(cv_mem->cv_VabstolQS, cv_mem->cv_Ns));
     cv_mem->cv_lrw -= cv_mem->cv_Ns*cv_mem->cv_lrw1Q;
     cv_mem->cv_liw -= cv_mem->cv_Ns*cv_mem->cv_liw1Q;
   }
@@ -4838,7 +4838,7 @@ static int cvInitialSetup(CVodeMem cv_mem)
       return(CV_ILL_INPUT);
     }
 
-    conOK = SUNCheckCallLastErrNoRet(N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_zn[0], cv_mem->cv_tempv), CV_SUNCTX);
+    conOK = SUNCheckCallLastErrNoRet(N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_zn[0], cv_mem->cv_tempv));
     if (!conOK) {
       cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                      MSGCV_Y0_FAIL_CONSTR);
@@ -5205,15 +5205,15 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   temp1 = cv_mem->cv_tempv;
   temp2 = cv_mem->cv_acor;
 
-  SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_zn[0], temp2), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_zn[0], temp2));
   cv_mem->cv_efun(cv_mem->cv_zn[0], temp1, cv_mem->cv_e_data);
-  SUNCheckCallLastErrNoRet(N_VInv(temp1, temp1), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, temp2, ONE, temp1, temp1), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(temp1, temp1));
+  SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, temp2, ONE, temp1, temp1));
 
-  SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_zn[1], temp2), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_zn[1], temp2));
 
-  SUNCheckCallLastErrNoRet(N_VDiv(temp2, temp1, temp1), CV_SUNCTX);
-  hub_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(temp1), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VDiv(temp2, temp1, temp1));
+  hub_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(temp1));
 
   /* Bound based on |yQ|/|yQ'| */
 
@@ -5222,15 +5222,15 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
     tempQ1 = cv_mem->cv_tempvQ;
     tempQ2 = cv_mem->cv_acorQ;
 
-    SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQ[0], tempQ2), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQ[0], tempQ2));
     cvQuadEwtSet(cv_mem, cv_mem->cv_znQ[0], tempQ1);
-    SUNCheckCallLastErrNoRet(N_VInv(tempQ1, tempQ1), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(tempQ1, tempQ1));
+    SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1));
 
-    SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQ[1], tempQ2), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQ[1], tempQ2));
 
-    SUNCheckCallLastErrNoRet(N_VDiv(tempQ2, tempQ1, tempQ1), CV_SUNCTX);
-    hubQ_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(tempQ1), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VDiv(tempQ2, tempQ1, tempQ1));
+    hubQ_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(tempQ1));
 
     if (hubQ_inv > hub_inv) hub_inv = hubQ_inv;
 
@@ -5245,14 +5245,14 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 
     for (is=0; is<cv_mem->cv_Ns; is++) {
 
-      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znS[0][is], temp2), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VInv(tempS1[is], temp1), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, temp2, ONE, temp1, temp1), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znS[0][is], temp2));
+      SUNCheckCallLastErrNoRet(N_VInv(tempS1[is], temp1));
+      SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, temp2, ONE, temp1, temp1));
 
-      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znS[1][is], temp2), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znS[1][is], temp2));
 
-      SUNCheckCallLastErrNoRet(N_VDiv(temp2, temp1, temp1), CV_SUNCTX);
-      hubS_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(temp1), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDiv(temp2, temp1, temp1));
+      hubS_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(temp1));
 
       if (hubS_inv > hub_inv) hub_inv = hubS_inv;
 
@@ -5272,14 +5272,14 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 
     for (is=0; is<cv_mem->cv_Ns; is++) {
 
-      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQS[0][is], tempQ2), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VInv(tempQS1[is], tempQ1), CV_SUNCTX);
-      SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQS[0][is], tempQ2));
+      SUNCheckCallLastErrNoRet(N_VInv(tempQS1[is], tempQ1));
+      SUNCheckCallLastErrNoRet(N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1));
 
-      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQS[1][is], tempQ2), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VAbs(cv_mem->cv_znQS[1][is], tempQ2));
 
-      SUNCheckCallLastErrNoRet(N_VDiv(tempQ2, tempQ1, tempQ1), CV_SUNCTX);
-      hubQS_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(tempQ1), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VDiv(tempQ2, tempQ1, tempQ1));
+      hubQS_inv = SUNCheckCallLastErrNoRet(N_VMaxNorm(tempQ1));
 
       if (hubQS_inv > hub_inv) hub_inv = hubQS_inv;
 
@@ -5319,7 +5319,7 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 
   /* y <- h*y'(t) + y(t) */
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(hg, cv_mem->cv_zn[1], ONE, cv_mem->cv_zn[0], cv_mem->cv_y), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(hg, cv_mem->cv_zn[1], ONE, cv_mem->cv_zn[0], cv_mem->cv_y));
 
   if (cv_mem->cv_sensi && cv_mem->cv_errconS) {
     retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
@@ -5371,9 +5371,9 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
   /* Load estimate of ||y''|| into tempv:
    * tempv <-  (1/h) * f(t+h, h*y'(t)+y(t)) - y'(t) */
 
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE/hg, cv_mem->cv_tempv, -ONE/hg, cv_mem->cv_zn[1], cv_mem->cv_tempv), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE/hg, cv_mem->cv_tempv, -ONE/hg, cv_mem->cv_zn[1], cv_mem->cv_tempv));
 
-  *yddnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt), CV_SUNCTX);
+  *yddnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt));
 
   if (cv_mem->cv_quadr && cv_mem->cv_errconQ) {
     N_VLinearSum(ONE/hg, cv_mem->cv_tempvQ, -ONE/hg, cv_mem->cv_znQ[1],
@@ -5553,7 +5553,7 @@ static int cvStep(CVodeMem cv_mem)
 
       /* Error test on quadratures */
       if (cv_mem->cv_errconQ) {
-        cv_mem->cv_acnrmQ = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_acorQ, cv_mem->cv_ewtQ), CV_SUNCTX);
+        cv_mem->cv_acnrmQ = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_acorQ, cv_mem->cv_ewtQ));
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmQ,
                               &nefQ, &(cv_mem->cv_netfQ), &dsmQ);
 
@@ -5687,10 +5687,10 @@ static int cvStep(CVodeMem cv_mem)
   /*  Finally, we rescale the acor array to be the
       estimated local error vector. */
 
-  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acor, cv_mem->cv_acor), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acor, cv_mem->cv_acor));
 
   if (cv_mem->cv_quadr)
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acorQ, cv_mem->cv_acorQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acorQ, cv_mem->cv_acorQ));
 
   if (cv_mem->cv_sensi) {
     for (is=0; is<cv_mem->cv_Ns; is++)
@@ -5780,14 +5780,13 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
   /* On an order increase, set new column of zn to zero and return */
 
   if (deltaq==1) {
-    SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_zn[cv_mem->cv_L]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_zn[cv_mem->cv_L]));
     if (cv_mem->cv_quadr) {
-      SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_znQ[cv_mem->cv_L]), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_znQ[cv_mem->cv_L]));
     }
     if (cv_mem->cv_sensi) {
       SUNCheckCallNoRet(N_VConstVectorArray(cv_mem->cv_Ns, ZERO,
-                                            cv_mem->cv_znS[cv_mem->cv_L]),
-                        CV_SUNCTX);
+                                            cv_mem->cv_znS[cv_mem->cv_L]));
     }
     return;
   }
@@ -6107,7 +6106,7 @@ static void cvPredict(CVodeMem cv_mem)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
     "CVODES::cvPredict", "forward", "predictor =", "");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp));
 #endif
 
   if (cv_mem->cv_quadr) {
@@ -6119,7 +6118,7 @@ static void cvPredict(CVodeMem cv_mem)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
     "CVODES::cvPredict", "quad", "predictor =", "");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_znQ[0], CV_LOGGER->debug_fp), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_znQ[0], CV_LOGGER->debug_fp));
 #endif
   }
 
@@ -6134,7 +6133,7 @@ static void cvPredict(CVodeMem cv_mem)
         for(i = 0; i < cv_mem->cv_Ns; i++) {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
             "CVODES::cvPredict", "sensi", " i = %d,  predictor_i = ", i);
-          SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp), CV_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp));
         }
 #endif
       }
@@ -6152,7 +6151,7 @@ static void cvPredict(CVodeMem cv_mem)
         for(i = 0; i < cv_mem->cv_Ns; i++) {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
             "CVODES::cvPredict", "quad-sensi", " i = %d,  predictor_i = ", i);
-          SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp), CV_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp));
         }
 #endif
       }
@@ -6470,17 +6469,17 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* initial guess for the correction to the predictor */
   if (do_sensi_sim) {
-    SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->ycorSim), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->ycorSim));
   } else {
-    SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_acor), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_acor));
   }
 
   /* call nonlinear solver setup if it exists */
   if ((cv_mem->NLS)->ops->setup) {
     if (do_sensi_sim) {
-      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(cv_mem->NLS, cv_mem->ycorSim, cv_mem), CV_SUNCTX);
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(cv_mem->NLS, cv_mem->ycorSim, cv_mem));
     } else {
-      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem), CV_SUNCTX);
+      nls_status = SUNCheckCallLastErrNoRet(SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem));
     }
 
     if (nls_status < 0) return(CV_NLS_SETUP_FAIL);
@@ -6493,14 +6492,13 @@ static int cvNls(CVodeMem cv_mem, int nflag)
       SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim,
                                                  cv_mem->ycorSim, cv_mem->ewtSim,
                                                  cv_mem->cv_tq[4], callSetup,
-                                                 cv_mem),
-                               CV_SUNCTX);
+                                                 cv_mem));
 
     /* increment counters */
-    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSsim, &nni_inc), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSsim, &nni_inc));
     cv_mem->cv_nni += nni_inc;
 
-    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSsim, &nnf_inc), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSsim, &nnf_inc));
     cv_mem->cv_nnf += nnf_inc;
 
   } else {
@@ -6508,14 +6506,13 @@ static int cvNls(CVodeMem cv_mem, int nflag)
       SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0],
                                                  cv_mem->cv_acor, cv_mem->cv_ewt,
                                                  cv_mem->cv_tq[4], callSetup,
-                                                 cv_mem),
-                               CV_SUNCTX);
+                                                 cv_mem));
 
     /* increment counters */
-    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLS, &nni_inc));
     cv_mem->cv_nni += nni_inc;
 
-    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc), CV_SUNCTX);
+    SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLS, &nnf_inc));
     cv_mem->cv_nnf += nnf_inc;
   }
 
@@ -6525,22 +6522,21 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   /* solve successful */
 
   /* update the state based on the final correction from the nonlinear solver */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y));
 
   /* update the sensitivities based on the final correction from the nonlinear solver */
   if (do_sensi_sim) {
     SUNCheckCallNoRet(N_VLinearSumVectorArray(cv_mem->cv_Ns, ONE,
                                               cv_mem->cv_znS[0], ONE,
-                                              cv_mem->cv_acorS, cv_mem->cv_yS),
-                      CV_SUNCTX);
+                                              cv_mem->cv_acorS, cv_mem->cv_yS));
   }
 
   /* compute acnrm if is was not already done by the nonlinear solver */
   if (!cv_mem->cv_acnrmcur) {
     if (do_sensi_sim && cv_mem->cv_errconS) {
-      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->ycorSim, cv_mem->ewtSim), CV_SUNCTX);
+      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->ycorSim, cv_mem->ewtSim));
     } else {
-      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt), CV_SUNCTX);
+      cv_mem->cv_acnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt));
     }
   }
 
@@ -6579,19 +6575,19 @@ static int cvCheckConstraints(CVodeMem cv_mem)
   N_Vector tmp = cv_mem->cv_tempv;
 
   /* Get mask vector mm, set where constraints failed */
-  constraintsPassed = SUNCheckCallLastErrNoRet(N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_y, mm), CV_SUNCTX);
+  constraintsPassed = SUNCheckCallLastErrNoRet(N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_y, mm));
   if (constraintsPassed) return(CV_SUCCESS);
 
   /* Constraints not met */
 
   /* Compute correction to satisfy constraints */
-  SUNCheckCallLastErrNoRet(N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp), CV_SUNCTX); /* a[i]=1 when |c[i]|=2  */
-  SUNCheckCallLastErrNoRet(N_VProd(tmp, cv_mem->cv_constraints, tmp), CV_SUNCTX);       /* a * c                 */
-  SUNCheckCallLastErrNoRet(N_VDiv(tmp, cv_mem->cv_ewt, tmp), CV_SUNCTX);                /* a * c * wt            */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp), CV_SUNCTX); /* y - 0.1 * a * c * wt  */
-  SUNCheckCallLastErrNoRet(N_VProd(tmp, mm, tmp), CV_SUNCTX);                           /* v = mm*(y-0.1*a*c*wt) */
+  SUNCheckCallLastErrNoRet(N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp)); /* a[i]=1 when |c[i]|=2  */
+  SUNCheckCallLastErrNoRet(N_VProd(tmp, cv_mem->cv_constraints, tmp));       /* a * c                 */
+  SUNCheckCallLastErrNoRet(N_VDiv(tmp, cv_mem->cv_ewt, tmp));                /* a * c * wt            */
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp)); /* y - 0.1 * a * c * wt  */
+  SUNCheckCallLastErrNoRet(N_VProd(tmp, mm, tmp));                           /* v = mm*(y-0.1*a*c*wt) */
 
-  vnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(tmp, cv_mem->cv_ewt), CV_SUNCTX);        /* ||v|| */
+  vnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(tmp, cv_mem->cv_ewt));        /* ||v|| */
 
   /* If vector v of constraint corrections is small in norm, correct and
      accept this step */
@@ -6605,8 +6601,8 @@ static int cvCheckConstraints(CVodeMem cv_mem)
   if (SUNRabs(cv_mem->cv_h) <= cv_mem->cv_hmin*ONEPSM) return(CV_CONSTR_FAIL);
 
   /* Constraint correction is too large, reduce h by computing eta = h'/h */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], -ONE, cv_mem->cv_y, tmp), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], -ONE, cv_mem->cv_y, tmp));
+  SUNCheckCallLastErrNoRet(N_VProd(mm, tmp, tmp));
   cv_mem->cv_eta = PT9*N_VMinQuotient(cv_mem->cv_zn[0], tmp);
   cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, PT1);
   cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta,
@@ -6647,15 +6643,15 @@ static int cvQuadNls(CVodeMem cv_mem)
   /* If needed, save the value of yQdot = fQ into ftempQ
    * for use in evaluating fQS */
   if (cv_mem->cv_quadr_sensi) {
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_ftempQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_ftempQ));
   }
 
   N_VLinearSum(cv_mem->cv_h, cv_mem->cv_acorQ, -ONE,
                cv_mem->cv_znQ[1], cv_mem->cv_acorQ);
-  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, cv_mem->cv_acorQ, cv_mem->cv_acorQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, cv_mem->cv_acorQ, cv_mem->cv_acorQ));
 
   /* Apply correction to quadrature variables */
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_znQ[0], ONE, cv_mem->cv_acorQ, cv_mem->cv_yQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_znQ[0], ONE, cv_mem->cv_acorQ, cv_mem->cv_yQ));
 
   return(CV_SUCCESS);
 }
@@ -6694,7 +6690,7 @@ static int cvQuadSensNls(CVodeMem cv_mem)
   for (is=0; is<cv_mem->cv_Ns; is++) {
     N_VLinearSum(cv_mem->cv_h, cv_mem->cv_acorQS[is], -ONE,
                  cv_mem->cv_znQS[1][is], cv_mem->cv_acorQS[is]);
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, cv_mem->cv_acorQS[is], cv_mem->cv_acorQS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_rl1, cv_mem->cv_acorQS[is], cv_mem->cv_acorQS[is]));
     /* Apply correction to quadrature sensitivity variables */
     N_VLinearSum(ONE, cv_mem->cv_znQS[0][is], ONE,
                  cv_mem->cv_acorQS[is], cv_mem->cv_yQS[is]);
@@ -6725,7 +6721,7 @@ static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
     cv_mem->cv_crateS = ONE;
 
   /* initial guess for the correction to the predictor */
-  SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->ycorStg), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->ycorStg));
 
   /* set sens solve flag */
   cv_mem->sens_solve = SUNTRUE;
@@ -6735,14 +6731,13 @@ static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
     SUNCheckCallLastErrNoRet(SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg,
                                                cv_mem->ycorStg, cv_mem->ewtStg,
                                                cv_mem->cv_tq[4], callSetup,
-                                               cv_mem),
-                             CV_SUNCTX);
+                                               cv_mem));
 
   /* increment counters */
-  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSstg, &nniS_inc), CV_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSstg, &nniS_inc));
   cv_mem->cv_nniS += nniS_inc;
 
-  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSstg, &nnfS_inc), CV_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSstg, &nnfS_inc));
   cv_mem->cv_nnfS += nnfS_inc;
 
   /* reset sens solve flag */
@@ -6787,7 +6782,7 @@ static SUNNlsStatus cvStgr1Nls(CVodeMem cv_mem, int is)
     cv_mem->cv_crateS = ONE;
 
   /* initial guess for the correction to the predictor */
-  SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_acorS[is]), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VConst(ZERO, cv_mem->cv_acorS[is]));
 
   /* set sens solve flag */
   cv_mem->sens_solve = SUNTRUE;
@@ -6798,14 +6793,13 @@ static SUNNlsStatus cvStgr1Nls(CVodeMem cv_mem, int is)
                                                           cv_mem->cv_acorS[is],
                                                           cv_mem->cv_ewtS[is],
                                                           cv_mem->cv_tq[4],
-                                                          callSetup, cv_mem),
-                                        CV_SUNCTX);
+                                                          callSetup, cv_mem));
 
   /* increment counters */
-  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nniS1_inc), CV_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nniS1_inc));
   cv_mem->cv_nniS1[is] += nniS1_inc;
 
-  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSstg1, &nnfS1_inc), CV_SUNCTX);
+  SUNCheckCallNoRet(SUNNonlinSolGetNumConvFails(cv_mem->NLSstg1, &nnfS1_inc));
   cv_mem->cv_nnfS1[is] += nnfS1_inc;
 
   /* reset sens solve flag */
@@ -7088,7 +7082,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(CV_UNREC_RHSFUNC_ERR);
 
-  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -7104,7 +7098,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     if (retval < 0) return(CV_QRHSFUNC_FAIL);
     if (retval > 0) return(CV_UNREC_QRHSFUNC_ERR);
 
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_tempvQ, cv_mem->cv_znQ[1]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_h, cv_mem->cv_tempvQ, cv_mem->cv_znQ[1]));
 
   }
 
@@ -7218,10 +7212,10 @@ static void cvCompleteStep(CVodeMem cv_mem)
   cv_mem->cv_qwait--;
   if ((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) {
 
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]));
 
     if (cv_mem->cv_quadr)
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]));
 
     if (cv_mem->cv_sensi) {
       for (is=0; is<cv_mem->cv_Ns; is++)
@@ -7355,7 +7349,7 @@ static realtype cvComputeEtaqm1(CVodeMem cv_mem)
 
   cv_mem->cv_etaqm1 = ZERO;
   if (cv_mem->cv_q > 1) {
-    ddn = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[cv_mem->cv_q], cv_mem->cv_ewt), CV_SUNCTX);
+    ddn = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[cv_mem->cv_q], cv_mem->cv_ewt));
 
     if ( cv_mem->cv_quadr && cv_mem->cv_errconQ )
       ddn = cvQuadUpdateNorm(cv_mem, ddn, cv_mem->cv_znQ[cv_mem->cv_q],
@@ -7394,7 +7388,7 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
       SUNRpowerI(cv_mem->cv_h/cv_mem->cv_tau[2], cv_mem->cv_L);
     N_VLinearSum(-cquot, cv_mem->cv_zn[cv_mem->cv_qmax], ONE,
                  cv_mem->cv_acor, cv_mem->cv_tempv);
-    dup = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt), CV_SUNCTX);
+    dup = SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt));
 
     if ( cv_mem->cv_quadr && cv_mem->cv_errconQ ) {
       N_VLinearSum(-cquot, cv_mem->cv_znQ[cv_mem->cv_qmax], ONE,
@@ -7477,10 +7471,10 @@ static void cvChooseEta(CVodeMem cv_mem)
          * to order q+1, so it represents Delta_n in the ELTE at q+1
          */
 
-        SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]), CV_SUNCTX);
+        SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]));
 
         if (cv_mem->cv_quadr && cv_mem->cv_errconQ)
-          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]), CV_SUNCTX);
+          SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]));
 
         if (cv_mem->cv_sensi && cv_mem->cv_errconS)
         {
@@ -7523,8 +7517,8 @@ static int cvHandleHinOrStepFailure(CVodeMem cv_mem, int flag)
 
   /* Set vector of  absolute weighted local errors */
   /*
-  SUNCheckCallLastErrNoRet(N_VProd(acor, ewt, tempv), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAbs(tempv, tempv), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VProd(acor, ewt, tempv));
+  SUNCheckCallLastErrNoRet(N_VAbs(tempv, tempv));
   */
 
   /* Depending on flag, print error message and return error flag */
@@ -7679,9 +7673,9 @@ static void cvBDFStab(CVodeMem cv_mem)
     sq = factorial * cv_mem->cv_q * (cv_mem->cv_q+1) *
       cv_mem->cv_acnrm / SUNMAX(cv_mem->cv_tq[5],TINY);
     sqm1 = factorial * cv_mem->cv_q *
-      SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[cv_mem->cv_q], cv_mem->cv_ewt), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[cv_mem->cv_q], cv_mem->cv_ewt));
     sqm2 = factorial *
-      SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[cv_mem->cv_q-1], cv_mem->cv_ewt), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VWrmsNorm(cv_mem->cv_zn[cv_mem->cv_q-1], cv_mem->cv_ewt));
     cv_mem->cv_ssdat[1][1] = sqm2*sqm2;
     cv_mem->cv_ssdat[1][2] = sqm1*sqm1;
     cv_mem->cv_ssdat[1][3] = sq*sq;
@@ -8074,7 +8068,7 @@ static int cvRcheck1(CVodeMem cv_mem)
   hratio = SUNMAX(cv_mem->cv_ttol/SUNRabs(cv_mem->cv_h), PT1);
   smallh = hratio*cv_mem->cv_h;
   tplus = cv_mem->cv_tlo + smallh;
-  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], hratio, cv_mem->cv_zn[1], cv_mem->cv_y), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_zn[0], hratio, cv_mem->cv_zn[1], cv_mem->cv_y));
   retval = cv_mem->cv_gfun(tplus, cv_mem->cv_y,
                            cv_mem->cv_ghi, cv_mem->cv_user_data);
   cv_mem->cv_nge++;
@@ -8145,7 +8139,7 @@ static int cvRcheck2(CVodeMem cv_mem)
   tplus = cv_mem->cv_tlo + smallh;
   if ( (tplus - cv_mem->cv_tn)*cv_mem->cv_h >= ZERO) {
     hratio = smallh/cv_mem->cv_h;
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_y, hratio, cv_mem->cv_zn[1], cv_mem->cv_y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, cv_mem->cv_y, hratio, cv_mem->cv_zn[1], cv_mem->cv_y));
   } else {
     (void) CVodeGetDky(cv_mem, tplus, 0, cv_mem->cv_y);
   }
@@ -8193,12 +8187,12 @@ static int cvRcheck3(CVodeMem cv_mem)
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
   if (cv_mem->cv_taskc == CV_ONE_STEP) {
     cv_mem->cv_thi = cv_mem->cv_tn;
-    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_y), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_y));
   }
   if (cv_mem->cv_taskc == CV_NORMAL) {
     if ( (cv_mem->cv_toutc - cv_mem->cv_tn)*cv_mem->cv_h >= ZERO) {
       cv_mem->cv_thi = cv_mem->cv_tn;
-      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_y), CV_SUNCTX);
+      SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_y));
     } else {
       cv_mem->cv_thi = cv_mem->cv_toutc;
       (void) CVodeGetDky(cv_mem, cv_mem->cv_thi, 0, cv_mem->cv_y);
@@ -8533,13 +8527,13 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
   SUNDeclareContext(CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAbs(ycur, cv_mem->cv_tempv), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, cv_mem->cv_tempv));
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv));
+  SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv));
   if (cv_mem->cv_atolmin0) {
     if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weight), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weight));
   return(0);
 }
 
@@ -8556,13 +8550,13 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
   SUNDeclareContext(CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAbs(ycur, cv_mem->cv_tempv), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(ycur, cv_mem->cv_tempv));
   N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
                cv_mem->cv_Vabstol, cv_mem->cv_tempv);
   if (cv_mem->cv_atolmin0) {
     if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weight), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weight));
   return(0);
 }
 
@@ -8596,13 +8590,13 @@ static int cvQuadEwtSet(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 static int cvQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
   SUNDeclareContext(CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAbs(qcur, cv_mem->cv_tempvQ), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ), CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQ, cv_mem->cv_tempvQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(qcur, cv_mem->cv_tempvQ));
+  SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ));
+  SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQ, cv_mem->cv_tempvQ));
   if (cv_mem->cv_atolQmin0) {
     if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQ));
   return(0);
 }
 
@@ -8614,13 +8608,13 @@ static int cvQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 static int cvQuadEwtSetSV(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
   SUNDeclareContext(CV_SUNCTX);
-  SUNCheckCallLastErrNoRet(N_VAbs(qcur, cv_mem->cv_tempvQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VAbs(qcur, cv_mem->cv_tempvQ));
   N_VLinearSum(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, ONE,
                cv_mem->cv_VabstolQ, cv_mem->cv_tempvQ);
   if (cv_mem->cv_atolQmin0) {
     if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
   }
-  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQ), CV_SUNCTX);
+  SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQ));
   return(0);
 }
 
@@ -8671,10 +8665,10 @@ static int cvSensEwtSetEE(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
   pyS = cv_mem->cv_tempvS[0];
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], yScur[is], pyS), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], yScur[is], pyS));
     flag = cv_mem->cv_efun(pyS, weightS[is], cv_mem->cv_e_data);
     if (flag != 0) return(-1);
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], weightS[is], weightS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], weightS[is], weightS[is]));
   }
   return(0);
 }
@@ -8690,13 +8684,13 @@ static int cvSensEwtSetSS(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], cv_mem->cv_tempv), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolS, cv_mem->cv_tempv, cv_mem->cv_tempv), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_SabstolS[is], cv_mem->cv_tempv), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], cv_mem->cv_tempv));
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolS, cv_mem->cv_tempv, cv_mem->cv_tempv));
+    SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_SabstolS[is], cv_mem->cv_tempv));
     if (cv_mem->cv_atolSmin0[is]) {
       if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weightS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weightS[is]));
   }
   return(0);
 }
@@ -8712,13 +8706,13 @@ static int cvSensEwtSetSV(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], cv_mem->cv_tempv), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yScur[is], cv_mem->cv_tempv));
     N_VLinearSum(cv_mem->cv_reltolS, cv_mem->cv_tempv, ONE,
                  cv_mem->cv_VabstolS[is], cv_mem->cv_tempv);
     if (cv_mem->cv_atolSmin0[is]) {
       if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weightS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempv, weightS[is]));
   }
   return(0);
 }
@@ -8770,10 +8764,10 @@ static int cvQuadSensEwtSetEE(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
   pyS = cv_mem->cv_tempvQS[0];
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], yQScur[is], pyS), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], yQScur[is], pyS));
     flag = cvQuadEwtSet(cv_mem, pyS, weightQS[is]);
     if (flag != 0) return(-1);
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], weightQS[is], weightQS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_pbar[is], weightQS[is], weightQS[is]));
   }
   return(0);
 }
@@ -8784,13 +8778,13 @@ static int cvQuadSensEwtSetSS(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], cv_mem->cv_tempvQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolQS, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ), CV_SUNCTX);
-    SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQS[is], cv_mem->cv_tempvQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], cv_mem->cv_tempvQ));
+    SUNCheckCallLastErrNoRet(N_VScale(cv_mem->cv_reltolQS, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ));
+    SUNCheckCallLastErrNoRet(N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQS[is], cv_mem->cv_tempvQ));
     if (cv_mem->cv_atolQSmin0[is]) {
       if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQS[is]));
   }
   return(0);
 }
@@ -8801,13 +8795,13 @@ static int cvQuadSensEwtSetSV(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
   int is;
 
   for (is=0; is<cv_mem->cv_Ns; is++) {
-    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], cv_mem->cv_tempvQ), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VAbs(yQScur[is], cv_mem->cv_tempvQ));
     N_VLinearSum(cv_mem->cv_reltolQS, cv_mem->cv_tempvQ, ONE,
                  cv_mem->cv_VabstolQS[is], cv_mem->cv_tempvQ);
     if (cv_mem->cv_atolQSmin0[is]) {
       if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
     }
-    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQS[is]), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VInv(cv_mem->cv_tempvQ, weightQS[is]));
   }
   return(0);
 }
@@ -8830,7 +8824,7 @@ static realtype cvQuadUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
   SUNDeclareContext(CV_SUNCTX);
   realtype qnrm;
 
-  qnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(xQ, wQ), CV_SUNCTX);
+  qnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(xQ, wQ));
   if (old_nrm > qnrm) return(old_nrm);
   else                return(qnrm);
 }
@@ -8853,7 +8847,7 @@ realtype cvSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS)
   int is;
   realtype nrm;
 
-  SUNCheckCallNoRet(N_VWrmsNormVectorArray(cv_mem->cv_Ns, xS, wS, cv_mem->cv_cvals), CV_SUNCTX);
+  SUNCheckCallNoRet(N_VWrmsNormVectorArray(cv_mem->cv_Ns, xS, wS, cv_mem->cv_cvals));
 
   nrm = cv_mem->cv_cvals[0];
   for (is=1; is<cv_mem->cv_Ns; is++)
@@ -8895,7 +8889,7 @@ static realtype cvQuadSensNorm(CVodeMem cv_mem, N_Vector *xQS, N_Vector *wQS)
   int is;
   realtype nrm;
 
-  SUNCheckCallNoRet(N_VWrmsNormVectorArray(cv_mem->cv_Ns, xQS, wQS, cv_mem->cv_cvals), CV_SUNCTX);
+  SUNCheckCallNoRet(N_VWrmsNormVectorArray(cv_mem->cv_Ns, xQS, wQS, cv_mem->cv_cvals));
 
   nrm = cv_mem->cv_cvals[0];
   for (is=1; is<cv_mem->cv_Ns; is++)
@@ -9076,7 +9070,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 
   Deltap  = pbari * delta;
   rDeltap = ONE/Deltap;
-  norms   = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yS, cv_mem->cv_ewt), CV_SUNCTX);
+  norms   = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yS, cv_mem->cv_ewt));
   norms  *= pbari;
   rDeltay = SUNMAX(norms, rdelta) / pbari;
   Deltay  = ONE/rDeltay;
@@ -9100,21 +9094,21 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     Delta = SUNMIN(Deltay, Deltap);
     r2Delta = HALF/Delta;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Delta,yS,ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Delta,yS,ytemp));
     cv_mem->cv_p[which] = psave + Delta;
 
     retval = cv_mem->cv_f(t, ytemp, ySdot, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,-Delta,yS,ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,-Delta,yS,ytemp));
     cv_mem->cv_p[which] = psave - Delta;
 
     retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Delta,ySdot,-r2Delta,ftemp,ySdot), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Delta,ySdot,-r2Delta,ftemp,ySdot));
 
     break;
 
@@ -9123,19 +9117,19 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     r2Deltap = HALF/Deltap;
     r2Deltay = HALF/Deltay;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Deltay,yS,ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Deltay,yS,ytemp));
 
     retval = cv_mem->cv_f(t, ytemp, ySdot, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,-Deltay,yS,ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,-Deltay,yS,ytemp));
 
     retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Deltay, ySdot, -r2Deltay, ftemp, ySdot), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Deltay, ySdot, -r2Deltay, ftemp, ySdot));
 
     cv_mem->cv_p[which] = psave + Deltap;
     retval = cv_mem->cv_f(t, y, ytemp, cv_mem->cv_user_data);
@@ -9153,7 +9147,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     cvals[2] = -r2Deltap;  Xvecs[2] = ftemp;
 
     retval = N_VLinearCombination(3, cvals, Xvecs, ySdot);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     break;
@@ -9163,26 +9157,26 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     Delta = SUNMIN(Deltay, Deltap);
     rDelta = ONE/Delta;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Delta,yS,ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Delta,yS,ytemp));
     cv_mem->cv_p[which] = psave + Delta;
 
     retval = cv_mem->cv_f(t, ytemp, ySdot, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rDelta,ySdot,-rDelta,ydot,ySdot), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rDelta,ySdot,-rDelta,ydot,ySdot));
 
     break;
 
   case FORWARD2:
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Deltay,yS,ytemp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE,y,Deltay,yS,ytemp));
 
     retval = cv_mem->cv_f(t, ytemp, ySdot, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rDeltay, ySdot, -rDeltay, ydot, ySdot), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rDeltay, ySdot, -rDeltay, ydot, ySdot));
 
     cv_mem->cv_p[which] = psave + Deltap;
     retval = cv_mem->cv_f(t, y, ytemp, cv_mem->cv_user_data);
@@ -9195,7 +9189,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     cvals[2] = -rDeltap;  Xvecs[2] = ydot;
 
     retval = N_VLinearCombination(3, cvals, Xvecs, ySdot);
-    SUNCheckCallNoRet(retval, CV_SUNCTX);
+    SUNCheckCallNoRet(retval);
     if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     break;
@@ -9269,7 +9263,7 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
   psave = cv_mem->cv_p[which];
 
   Deltap  = pbari * delta;
-  norms   = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yS, cv_mem->cv_ewt), CV_SUNCTX);
+  norms   = SUNCheckCallLastErrNoRet(N_VWrmsNorm(yS, cv_mem->cv_ewt));
   norms  *= pbari;
   rDeltay = SUNMAX(norms, rdelta) / pbari;
   Deltay  = ONE/rDeltay;
@@ -9283,21 +9277,21 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
     Delta = SUNMIN(Deltay, Deltap);
     r2Delta = HALF/Delta;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, Delta, yS, tmp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, Delta, yS, tmp));
     cv_mem->cv_p[which] = psave + Delta;
 
     retval = cv_mem->cv_fQ(t, tmp, yQSdot, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, -Delta, yS, tmp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, -Delta, yS, tmp));
     cv_mem->cv_p[which] = psave - Delta;
 
     retval = cv_mem->cv_fQ(t, tmp, tmpQ, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Delta, yQSdot, -r2Delta, tmpQ, yQSdot), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(r2Delta, yQSdot, -r2Delta, tmpQ, yQSdot));
 
     break;
 
@@ -9306,14 +9300,14 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, realtype t,
     Delta = SUNMIN(Deltay, Deltap);
     rDelta = ONE/Delta;
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, Delta, yS, tmp), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, y, Delta, yS, tmp));
     cv_mem->cv_p[which] = psave + Delta;
 
     retval = cv_mem->cv_fQ(t, tmp, yQSdot, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
 
-    SUNCheckCallLastErrNoRet(N_VLinearSum(rDelta, yQSdot, -rDelta, yQdot, yQSdot), CV_SUNCTX);
+    SUNCheckCallLastErrNoRet(N_VLinearSum(rDelta, yQSdot, -rDelta, yQdot, yQSdot));
 
     break;
 

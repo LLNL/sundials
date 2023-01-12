@@ -42,12 +42,12 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
   /* create matrix object */
   A = NULL;
   A = (SUNMatrix) malloc(sizeof *A);
-  SUNAssert(A, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(A, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
   ops = (SUNMatrix_Ops) malloc(sizeof *ops);
-  SUNAssert(ops, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->getid       = NULL;
@@ -96,8 +96,8 @@ SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
   SUNDeclareContext(A->sunctx);
   /* Check that ops structures exist */
-  SUNAssert(A && A->ops && A && A->ops, SUN_ERR_ARG_CORRUPT, A->sunctx);
-  SUNAssert(B && B->ops && B && B->ops, SUN_ERR_ARG_CORRUPT, B->sunctx);
+  SUNAssert(A && A->ops && A && A->ops, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(B && B->ops && B && B->ops, SUN_ERR_ARG_CORRUPT);
 
   /* Copy ops from A to B */
   B->ops->getid       = A->ops->getid;
