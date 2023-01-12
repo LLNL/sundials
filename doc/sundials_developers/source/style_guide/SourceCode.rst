@@ -338,6 +338,27 @@ Coding Conventions and Rules
     sunrealtype tmp = SUNCheckCallLastErr(N_VDotProd(...)); 
     tmp = SUNRsqrt(tmp);
 
+#. Programmer errors should be checked with the ``SUNAssert`` or ``SUNMPIAssert`` macro.
+   By programmer errors we mean, for example, illegal inputs such as mismatching dimensions or a
+   ``NULL`` value for something that should not be. 
+
+   .. code-block:: c
+      
+      SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
+      {
+         SUNAssignSUNCTX(sunctx);
+         SUNLinearSolver S;
+         SUNLinearSolverContent_Band content;
+         sunindextype MatrixRows;
+
+         // Correct - check these with SUNAssert
+         SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+         SUNAssert(SUNBandMatrix_Rows(A) == SUNBandMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH);
+         SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_INCOMPATIBLE);
+
+         // ...
+      }
+
 #. If statements and loops should always have braces even if they are one line.
 
 #. Return statements should not unecessarily use parentheses. prefer ``return
