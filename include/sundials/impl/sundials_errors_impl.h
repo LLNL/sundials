@@ -22,6 +22,21 @@
 
 #include <sundials/sundials_errors.h>
 
+/* Shortcut macro to access the SUNContext declared with SUNAssignSUNCTX. */
+#define SUNCTX sunctx_
+
+/* The SUNAssignSUNCTX macro is used to declare the SUNContext
+   object to be used a function. */
+#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
+#define SUNAssignSUNCTX(sunctx) \
+  SUNContext SUNCTX = sunctx; \
+  (void)SUNCTX
+#else
+#define SUNAssignSUNCTX(sunctx) \
+  SUNContext SUNCTX = sunctx;   \
+  (void)SUNCTX
+#endif
+
 /* ----------------------------------------------------------------------------
  * Error checking macros
  * ---------------------------------------------------------------------------*/
