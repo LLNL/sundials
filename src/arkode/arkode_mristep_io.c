@@ -20,10 +20,6 @@
 #include <stdlib.h>
 
 #include "arkode_mristep_impl.h"
-#include "sundials/sundials_errors.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
-
 
 /*===============================================================
   MRIStep Optional input functions (wrappers for generic ARKODE

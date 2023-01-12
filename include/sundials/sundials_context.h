@@ -47,7 +47,7 @@ typedef struct SUNContext_* SUNContext;
 #define SUNAssignSUNCTX(sunctx) SUNContext SUNCTX = sunctx
 #else
 #define SUNAssignSUNCTX(sunctx) \
-  SUNContext SUNCTX = sunctx;     \
+  SUNContext SUNCTX = sunctx;   \
   (void)SUNCTX
 #endif
 

@@ -24,8 +24,6 @@
 #include <stdlib.h>
 
 #include "idas_impl.h"
-#include "sundials/sundials_context.h"
-#include <sundials/sundials_math.h>
 
 /*=================================================================*/
 /*                 IDAA Private Constants                          */

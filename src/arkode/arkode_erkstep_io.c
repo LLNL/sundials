@@ -23,9 +23,6 @@
 #include <stdlib.h>
 
 #include "arkode_erkstep_impl.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
-
 
 /*===============================================================
   ERKStep Optional input functions (wrappers for generic ARKODE

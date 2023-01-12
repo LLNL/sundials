@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sundials/sundials_math.h"
 #include "cvode_impl.h"
 
 /* Private constants */

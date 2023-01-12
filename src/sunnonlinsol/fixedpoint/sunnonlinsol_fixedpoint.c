@@ -19,13 +19,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <sundials/sundials.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 #include <sundials/sundials_nvector_senswrapper.h>
-
-#include "sundials/sundials_errors.h"
-#include "sundials_logger_impl.h"
-
+#include "sundials_nonlinearsolver_impl.h"
 
 /* Internal utility routines */
 static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval, N_Vector x,

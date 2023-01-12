@@ -26,8 +26,6 @@
 #include "cvodes_impl.h"
 #include "cvodes_bbdpre_impl.h"
 #include "cvodes_ls_impl.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
 #define MIN_INC_MULT RCONST(1000.0)

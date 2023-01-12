@@ -26,9 +26,6 @@
 #include <math.h> /* define NAN */
 
 #include <nvector/nvector_pthreads.h>
-#include <sundials/sundials_math.h>
-
-#include "sundials/sundials_errors.h"
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)

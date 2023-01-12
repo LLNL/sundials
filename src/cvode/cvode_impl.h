@@ -22,10 +22,10 @@
 #include <stdarg.h>
 
 #include <cvode/cvode.h>
+#include <sundials/impl/sundials_errors_impl.h>
 #include "cvode_proj_impl.h"
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
-#include "sundials/sundials_math.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

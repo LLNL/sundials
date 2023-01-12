@@ -21,10 +21,6 @@
 
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
-
 
 /*===============================================================
   Exported functions

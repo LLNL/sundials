@@ -17,16 +17,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "arkode/arkode_ls.h"
-#include "arkode_impl.h"
-#include "arkode_ls_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_linearsolver.h"
-#include "sundials/sundials_types.h"
+
+#include <arkode/arkode_ls.h>
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
+
+#include "arkode_impl.h"
+#include "arkode_ls_impl.h"
 
 /* constants */
 #define MIN_INC_MULT RCONST(1000.0)

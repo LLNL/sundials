@@ -68,7 +68,6 @@
 
 #include <math.h>
 
-#include <sundials/sundials.h>
 #include "kinsol_impl.h"
 
 /*

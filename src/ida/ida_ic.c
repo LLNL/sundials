@@ -20,7 +20,6 @@
 #include <stdlib.h>
 
 #include "ida_impl.h"
-#include <sundials/sundials_math.h>
 
 /*
  * =================================================================

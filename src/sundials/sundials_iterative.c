@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <sundials/sundials.h>
 
+#include <sundials/impl/sundials_errors_impl.h>
 #include "sundials_iterative_impl.h"
 
 #define FACTOR RCONST(1000.0)

@@ -20,7 +20,8 @@
 
 #include <stdarg.h>
 
-#include "idas/idas.h"
+#include <idas/idas.h>
+#include <sundials/impl/sundials_errors_impl.h>
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 

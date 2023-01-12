@@ -26,10 +26,6 @@
 #include <stdlib.h>
 
 #include "cvodes_impl.h"
-#include "sundials/sundials_context.h"
-
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
 
 /*
  * =================================================================

@@ -190,10 +190,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "cvodes_impl.h"
-#include "sundials/sundials_nonlinearsolver.h"
-#include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
+#include "cvodes_impl.h"
 
 /*=================================================================*/
 /* CVODE Private Constants                                         */

@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <sundials/sundials.h>
+#include <sundials/impl/sundials_errors_impl.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNLinearSolver S)

@@ -19,14 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/sundials.h>
-#include <sundials/sundials_mpi_errors.h>
 #include <nvector/nvector_parallel.h>
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_mpi_errors.h>
 #include "sundials_nvector_impl.h"
-
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)

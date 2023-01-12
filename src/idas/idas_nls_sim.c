@@ -14,9 +14,8 @@
  * This the implementation file for the IDA nonlinear solver interface.
  * ---------------------------------------------------------------------------*/
 
+#include <sundials/sundials_nvector_senswrapper.h>
 #include "idas_impl.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
 #define PT0001  RCONST(0.0001) /* real 0.0001 */

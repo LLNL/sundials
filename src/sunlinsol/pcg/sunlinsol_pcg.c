@@ -20,12 +20,7 @@
 #include <stdlib.h>
 
 #include <sunlinsol/sunlinsol_pcg.h>
-#include <sundials/sundials_math.h>
-
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
-#include "sundials_context_impl.h"
-#include "sundials_logger_impl.h"
+#include "sundials_linearsolver_impl.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)

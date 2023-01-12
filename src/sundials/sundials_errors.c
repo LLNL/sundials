@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_context.h>
-#include <sundials/sundials_errors.h>
 #include <sundials/sundials_logger.h>
+#include <sundials/impl/sundials_errors_impl.h>
 
 static inline char* combineFileAndLine(int line, const char* file)
 {

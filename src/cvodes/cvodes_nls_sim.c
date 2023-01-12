@@ -23,9 +23,8 @@
  * we set-up the linear solver to handle N equations at a time.
  */
 
+#include <sundials/sundials_nvector_senswrapper.h>
 #include "cvodes_impl.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
 #define ONE RCONST(1.0)

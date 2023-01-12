@@ -14,10 +14,6 @@
  * This is the implementation file for the MPIPlusX NVECTOR.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sundials/sundials.h>
-#include <nvector/nvector_mpimanyvector.h>
 #include <nvector/nvector_mpiplusx.h>
 #include "sundials_nvector_impl.h"
 

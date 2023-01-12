@@ -26,14 +26,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <nvector/nvector_serial.h>
 #include "kinsol_impl.h"
 #include "kinsol_ls_impl.h"
 #include "kinsol_bbdpre_impl.h"
-#include "sundials/sundials_linearsolver.h"
-#include "sundials/sundials_types.h"
-
-#include <sundials/sundials_math.h>
-#include <nvector/nvector_serial.h>
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)

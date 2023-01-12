@@ -16,8 +16,7 @@
 
 #include <string.h>
 #include <sundials/sundials.h>
-
-#include "sundials/sundials_context.h"
+#include <sundials/impl/sundials_errors_impl.h>
 #include "sundials_debug.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)

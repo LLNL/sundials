@@ -15,8 +15,7 @@
  * ---------------------------------------------------------------------------*/
 
 #include "cvodes_impl.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_nvector_senswrapper.h"
+#include <sundials/sundials_nvector_senswrapper.h>
 
 /* constant macros */
 #define ONE RCONST(1.0)

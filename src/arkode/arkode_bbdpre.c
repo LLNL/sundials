@@ -21,16 +21,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <nvector/nvector_serial.h>
+
 #include "arkode_impl.h"
 #include "arkode_bbdpre_impl.h"
 #include "arkode_ls_impl.h"
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_linearsolver.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
-#include <nvector/nvector_serial.h>
-
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)

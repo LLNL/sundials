@@ -21,10 +21,6 @@
 
 #include "idas_impl.h"
 #include "idas_ls_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>

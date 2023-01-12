@@ -24,14 +24,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cvodes_impl.h"
-#include "cvodes_ls_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
+#include "cvodes_impl.h"
+#include "cvodes_ls_impl.h"
 
 /* Private constants */
 #define MIN_INC_MULT RCONST(1000.0)

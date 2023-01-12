@@ -9,24 +9,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * Implementation header for N_Vector class.
+ * Implementation header for SUNMAtrix modules.
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_NVECTOR_IMPL_H
-#define _SUNDIALS_NVECTOR_IMPL_H
+#ifndef _SUNDIALS_MATRIX_IMPL_H
+#define _SUNDIALS_MATRIX_IMPL_H
 
 #include <sundials/sundials.h>
 #include <sundials/impl/sundials_errors_impl.h>
+#include "sundials_logger_impl.h"
 
-#define NVECTOR_DEFINE_ENABLE_FUSEDOP(fname, opname, suffix) \
-  SUNErrCode N_VEnable ## fname ## _ ## suffix(N_Vector v, booleantype tf) \
-  { \
-    if (tf) \
-      v->ops->nv ## opname = N_V ## fname ## _ ## suffix; \
-    else \
-      v->ops->nv ## opname = NULL; \
-    \
-    return SUN_SUCCESS; \
-  }
-
-#endif /* _SUNDIALS_NVECTOR_IMPL_H */
+#endif /* _SUNDIALS_MATRIX_IMPL_H */

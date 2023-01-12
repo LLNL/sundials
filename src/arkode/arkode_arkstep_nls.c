@@ -19,12 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
-
 
 /*===============================================================
   Exported functions

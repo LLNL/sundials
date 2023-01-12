@@ -30,9 +30,6 @@
 #include "idas_impl.h"
 #include "idas_ls_impl.h"
 #include "idas_bbdpre_impl.h"
-#include "sundials/sundials_linearsolver.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
 

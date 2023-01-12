@@ -30,7 +30,6 @@
 #include "ida_impl.h"
 #include "ida_ls_impl.h"
 #include "ida_bbdpre_impl.h"
-#include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
 

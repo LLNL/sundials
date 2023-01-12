@@ -22,13 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "arkode/arkode_arkstep.h"
 #include "arkode_arkstep_impl.h"
-#include "arkode_ls_impl.h"
-#include "sundials/sundials_errors.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
-
 
 /*===============================================================
   ARKStep Optional input functions (wrappers for generic ARKODE

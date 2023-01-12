@@ -27,8 +27,6 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
-#include "sundials/sundials_context.h"
-#include <sundials/sundials.h>
 
 
 /*===============================================================

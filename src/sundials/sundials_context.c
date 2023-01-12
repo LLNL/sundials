@@ -19,9 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_context.h>
-#include <sundials/sundials_errors.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_profiler.h>
+#include <sundials/impl/sundials_errors_impl.h>
 
 #include "sundials_context_impl.h"
 #include "sundials_debug.h"

@@ -28,7 +28,6 @@
 #include <stdlib.h>
 
 #include "idas_impl.h"
-#include <sundials/sundials_types.h>
 
 /* 
  * =================================================================

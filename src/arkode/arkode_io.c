@@ -23,8 +23,6 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
 
 
 /*===============================================================

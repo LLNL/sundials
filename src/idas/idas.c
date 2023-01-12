@@ -142,11 +142,6 @@
 #include <string.h>
 
 #include "idas_impl.h"
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_nonlinearsolver.h"
-#include "sundials/sundials_types.h"
-#include <sundials/sundials.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 

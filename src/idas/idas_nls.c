@@ -15,7 +15,6 @@
  * ---------------------------------------------------------------------------*/
 
 #include "idas_impl.h"
-#include "sundials/sundials_math.h"
 
 /* constant macros */
 #define PT0001  RCONST(0.0001) /* real 0.0001 */

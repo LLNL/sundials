@@ -26,9 +26,6 @@
 #include "cvode_impl.h"
 #include "cvode_bandpre_impl.h"
 #include "cvode_ls_impl.h"
-#include "sundials/sundials_linearsolver.h"
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)

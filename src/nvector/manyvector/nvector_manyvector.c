@@ -17,8 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials.h>
-#include "sundials/sundials_context.h"
+
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 #include <sundials/sundials_mpi_errors.h>
 #include <nvector/nvector_mpimanyvector.h>

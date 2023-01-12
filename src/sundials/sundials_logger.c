@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include "sundials/sundials_errors.h"
+#include <sundials/impl/sundials_errors_impl.h>
 #include "sundials/sundials_types.h"
 #include <stdarg.h>
 #include <stdio.h>

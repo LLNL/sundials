@@ -232,7 +232,7 @@ enum {
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
-#include "sundials/sundials_errors.h"
+#include <sundials/impl/sundials_errors_impl.h>
 
 
 typedef struct {

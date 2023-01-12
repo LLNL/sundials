@@ -20,10 +20,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials_math.h>
+
 #include <sunmatrix/sunmatrix_dense.h>
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
+#include "sundials_matrix_impl.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)

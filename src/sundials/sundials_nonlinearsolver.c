@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
+#include <sundials/impl/sundials_errors_impl.h>
 #include "sundials_context_impl.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)

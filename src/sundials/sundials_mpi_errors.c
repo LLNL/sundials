@@ -14,8 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sundials/sundials_errors.h>
+
 #include <sundials/sundials_mpi_types.h>
+#include <sundials/impl/sundials_errors_impl.h>
 
 static inline char* combineFileAndLine(int line, const char* file)
 {

@@ -19,9 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/sundials.h>
 #include <nvector/nvector_serial.h>
-#include "sundials/sundials_errors.h"
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)

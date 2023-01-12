@@ -20,8 +20,6 @@
 
 #include "arkode_impl.h"
 #include <arkode/arkode_butcher_dirk.h>
-#include <sundials/sundials_math.h>
-
 
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set DIRK methods.

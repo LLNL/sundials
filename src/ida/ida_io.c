@@ -21,8 +21,6 @@
 
 #include "ida_impl.h"
 #include "ida_ls_impl.h"
-#include "sundials/sundials_types.h"
-#include "sundials/sundials_math.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)

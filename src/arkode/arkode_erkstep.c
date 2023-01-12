@@ -19,12 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arkode_impl.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_interp_impl.h"
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_math.h>
-
 
 /*===============================================================
   ERKStep Exported functions -- Required

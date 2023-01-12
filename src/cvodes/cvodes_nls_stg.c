@@ -14,9 +14,8 @@
  * This the implementation file for the CVODES nonlinear solver interface.
  * ---------------------------------------------------------------------------*/
 
+#include <sundials/sundials_nvector_senswrapper.h>
 #include "cvodes_impl.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
 #define ONE RCONST(1.0)

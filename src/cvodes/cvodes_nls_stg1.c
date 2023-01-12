@@ -15,7 +15,6 @@
  * ---------------------------------------------------------------------------*/
 
 #include "cvodes_impl.h"
-#include "sundials/sundials_math.h"
 
 /* constant macros */
 #define ONE RCONST(1.0)

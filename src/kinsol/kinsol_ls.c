@@ -20,15 +20,11 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "kinsol_impl.h"
-#include "kinsol_ls_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
-
-#include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
+#include "kinsol_impl.h"
+#include "kinsol_ls_impl.h"
 
 /* constants */
 #define MIN_INC_MULT RCONST(1000.0)

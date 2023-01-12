@@ -85,8 +85,6 @@
 #include <string.h>
 
 #include "ida_impl.h"
-#include "sundials/sundials_nonlinearsolver.h"
-#include <sundials/sundials.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
 /*

@@ -19,7 +19,7 @@
 #ifndef _CVODE_PROJ_IMPL_H
 #define _CVODE_PROJ_IMPL_H
 
-#include "cvode/cvode.h"
+#include <cvode/cvode.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

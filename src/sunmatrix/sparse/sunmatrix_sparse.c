@@ -24,11 +24,7 @@
 #include <stdlib.h>
 
 #include <sunmatrix/sunmatrix_sparse.h>
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_math.h>
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include "sundials_matrix_impl.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
