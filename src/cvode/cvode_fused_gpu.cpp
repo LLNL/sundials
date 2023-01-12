@@ -82,12 +82,12 @@ int cvEwtSetSS_fused(const booleantype atolMin0,
 {
   SUNAssignSUNCTX(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* ycur_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycur), SUNCTX);
-  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv), SUNCTX);
-  sunrealtype* weight_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(weight), SUNCTX);
+  sunrealtype* ycur_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycur));
+  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv));
+  sunrealtype* weight_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(weight));
 
   cvEwtSetSS_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -146,13 +146,13 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
 {
   SUNAssignSUNCTX(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(weight));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* Vabstol_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(Vabstol), SUNCTX);
-  sunrealtype* ycur_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycur), SUNCTX);
-  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv), SUNCTX);
-  sunrealtype* weight_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(weight), SUNCTX);
+  sunrealtype* Vabstol_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(Vabstol));
+  sunrealtype* ycur_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycur));
+  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv));
+  sunrealtype* weight_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(weight));
 
   cvEwtSetSV_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -217,14 +217,14 @@ int cvCheckConstraints_fused(const N_Vector c,
 {
   SUNAssignSUNCTX(tempv->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)c->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(c), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(c));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* c_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(c), SUNCTX);
-  sunrealtype* ewt_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ewt), SUNCTX);
-  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y), SUNCTX);
-  sunrealtype* mm_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(mm), SUNCTX);
-  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv), SUNCTX);
+  sunrealtype* c_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(c));
+  sunrealtype* ewt_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ewt));
+  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y));
+  sunrealtype* mm_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(mm));
+  sunrealtype* tempv_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(tempv));
 
   cvCheckConstraints_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -280,13 +280,13 @@ int cvNlsResid_fused(const realtype rl1,
 {
   SUNAssignSUNCTX(zn1->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)res->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(res), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(res));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* zn1_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(zn1), SUNCTX);
-  sunrealtype* ycor_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycor), SUNCTX);
-  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp), SUNCTX);
-  sunrealtype* res_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(res), SUNCTX);
+  sunrealtype* zn1_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(zn1));
+  sunrealtype* ycor_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ycor));
+  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp));
+  sunrealtype* res_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(res));
 
   cvNlsResid_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -343,14 +343,14 @@ int cvDiagSetup_formY(const realtype h,
 {
   SUNAssignSUNCTX(fpred->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)fpred->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(fpred), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(fpred));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* fpred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(fpred), SUNCTX);
-  sunrealtype* zn1_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(zn1), SUNCTX);
-  sunrealtype* ypred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ypred), SUNCTX);
-  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp), SUNCTX);
-  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y), SUNCTX);
+  sunrealtype* fpred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(fpred));
+  sunrealtype* zn1_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(zn1));
+  sunrealtype* ypred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ypred));
+  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp));
+  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y));
 
   cvDiagSetup_formY_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -432,16 +432,16 @@ int cvDiagSetup_buildM(const realtype fract,
 {
   SUNAssignSUNCTX(ftemp->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)ftemp->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(ftemp), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(ftemp));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp), SUNCTX);
-  sunrealtype* fpred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(fpred), SUNCTX);
-  sunrealtype* ewt_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ewt), SUNCTX);
-  sunrealtype* bit_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(bit), SUNCTX);
-  sunrealtype* bitcomp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(bitcomp), SUNCTX);
-  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y), SUNCTX);
-  sunrealtype* M_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(M), SUNCTX);
+  sunrealtype* ftemp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ftemp));
+  sunrealtype* fpred_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(fpred));
+  sunrealtype* ewt_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(ewt));
+  sunrealtype* bit_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(bit));
+  sunrealtype* bitcomp_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(bitcomp));
+  sunrealtype* y_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(y));
+  sunrealtype* M_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(M));
 
   cvDiagSetup_buildM_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
@@ -495,10 +495,10 @@ int cvDiagSolve_updateM(const realtype r, N_Vector M)
 {
   SUNAssignSUNCTX(M->sunctx);
   const SUNExecPolicy* exec_policy = ((NVectorContent)M->content)->stream_exec_policy;
-  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(M), SUNCTX);
+  const sunindextype N = SUNCheckCallLastErrNoRet(N_VGetLength(M));
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
-  sunrealtype* M_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(M), SUNCTX);
+  sunrealtype* M_data = SUNCheckCallLastErrNoRet(N_VGetDeviceArrayPointer(M));
 
   cvDiagSolve_updateM_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
