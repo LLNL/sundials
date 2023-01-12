@@ -23,6 +23,9 @@
 
 #include <nvector/nvector_parhyp.h>
 #include <sundials/impl/sundials_mpi_errors_impl.h>
+#include "sundials/impl/sundials_errors_impl.h"
+#include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)
@@ -93,7 +96,7 @@
  * -----------------------------------------------------------------
  */
 
-#define SUNCheckHypreCall(call, sunctx)                           \
+#define SUNCheckHypreCall(call)                                   \
   do {                                                            \
     int hypre_ierr_ = call;                                       \
     if (hypre_ierr_)                                              \
@@ -111,7 +114,7 @@
       {                                                           \
         err_ = SUN_ERR_HYPRE_CONV;                                \
       }                                                           \
-      SUNHandleErr(__LINE__, __func__, __FILE__, err_, sunctx);   \
+      SUNHandleErr(__LINE__, __func__, __FILE__, err_, SUNCTX);   \
     }                                                             \
   }                                                               \
   while (0)
@@ -171,7 +174,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                             sunindextype global_length,
                             SUNContext sunctx)
 {
-  
+  SUNAssignSUNCTX(sunctx);  
 
   N_Vector v;
   N_VectorContent_ParHyp content;
@@ -238,7 +241,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ParHyp) malloc(sizeof *content);
-  SUNMPIAssert(content, SUN_ERR_MALLOC_FAIL, sunctx);
+  SUNMPIAssert(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -261,7 +264,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
 N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 {
-  
+  SUNAssignSUNCTX(sunctx);  
 
   N_Vector v;
   MPI_Comm comm = hypre_ParVectorComm(x);
@@ -366,23 +369,22 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 
 N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 {
+  SUNAssignSUNCTX(w->sunctx);  
+
   N_Vector v;
   N_VectorContent_ParHyp content;
 
-  if (w == NULL) return(NULL);
-
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty(w->sunctx);
-  if (v == NULL) return(NULL);
+  v = SUNCheckCallLastErrNull(N_VNewEmpty(w->sunctx));
 
   /* Attach operations */
-  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
+  SUNCheckCallNull(N_VCopyOps(w, v));
 
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ParHyp) malloc(sizeof *content);
-  if (content == NULL) { N_VDestroy(v); return(NULL); }
+  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -403,13 +405,14 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
  */
 N_Vector N_VClone_ParHyp(N_Vector w)
 {
+  SUNAssignSUNCTX(w->sunctx);  
+
   N_Vector v;
   HYPRE_ParVector vx;
   const HYPRE_ParVector wx = NV_HYPRE_PARVEC_PH(w);
 
   v = NULL;
-  v = N_VCloneEmpty_ParHyp(w);
-  if (v==NULL) return(NULL);
+  v = SUNCheckCallLastErrNull(N_VCloneEmpty_ParHyp(w));
 
   vx = hypre_ParVectorCreate(wx->comm, wx->global_size, wx->partitioning);
   hypre_ParVectorInitialize(vx);
@@ -501,6 +504,8 @@ sunindextype N_VGetLength_ParHyp(N_Vector v)
  */
 void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   sunindextype i, N;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
@@ -511,14 +516,14 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
     HYPRE_Complex   alpha=a;
     SUNCheckHypreCall( HYPRE_ParVectorAxpy(alpha, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),
-                                           (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y)), x->sunctx );
+                                           (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y)) );
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
     HYPRE_Complex   beta=b;
     SUNCheckHypreCall( HYPRE_ParVectorAxpy(beta, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y),
-                                           (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x)), x->sunctx );
+                                           (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x)) );
     return;
   }
 
@@ -592,11 +597,11 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
 
 void N_VConst_ParHyp(realtype c, N_Vector z)
 {
+  SUNAssignSUNCTX(z->sunctx);
   HYPRE_Complex value = c;
   SUNCheckHypreCall(HYPRE_ParVectorSetConstantValues((HYPRE_ParVector)
                                                        NV_HYPRE_PARVEC_PH(z),
-                                                     value),
-                    z->sunctx);
+                                                     value));
   return;
 }
 
@@ -648,14 +653,15 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   HYPRE_Complex value = c;
 
   if (x != z) {
     SUNCheckHypreCall(HYPRE_ParVectorCopy((HYPRE_ParVector)NV_HYPRE_PARVEC_PH(x),
-                                          (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(z)),
-                      x->sunctx);
+                                          (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(z)));
   }
-  HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
+  SUNCheckHypreCall(HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z)));
 
   return;
 }
@@ -728,11 +734,12 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
 
 realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   HYPRE_Real gsum;
   SUNCheckHypreCall(HYPRE_ParVectorInnerProd((HYPRE_ParVector)NV_HYPRE_PARVEC_PH(x),
                                              (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(y),
-                                             &gsum),
-                    x->sunctx);
+                                             &gsum));
   return(gsum);
 }
 
@@ -752,9 +759,10 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
 
 realtype N_VMaxNorm_ParHyp(N_Vector x)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype lmax, gmax;
   lmax = N_VMaxNormLocal_ParHyp(x);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x)));
   return(gmax);
 }
 
@@ -777,9 +785,10 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = N_VWSqrSumLocal_ParHyp(x, w);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)));
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
 }
 
@@ -805,9 +814,10 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = N_VWSqrSumMaskLocal_ParHyp(x, w, id);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)));
   return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
 }
 
@@ -831,17 +841,19 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
 
 realtype N_VMin_ParHyp(N_Vector x)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype lmin, gmin;
   lmin = N_VMinLocal_ParHyp(x);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x)));
   return(gmin);
 }
 
 realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = N_VWSqrSumLocal_ParHyp(x, w);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)));
   return(SUNRsqrt(gsum));
 }
 
@@ -860,9 +872,10 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
 
 realtype N_VL1Norm_ParHyp(N_Vector x)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype lsum, gsum;
   lsum = N_VL1NormLocal_ParHyp(x);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x)));
   return(gsum);
 }
 
@@ -908,9 +921,10 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype val, gval;
   val = (N_VInvTestLocal_ParHyp(x, z)) ? ONE : ZERO;
-  SUNCheckMPICallNoRet(MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x)));
   if (gval == ZERO)
     return(SUNFALSE);
   else
@@ -952,9 +966,10 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 
 booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
+  SUNAssignSUNCTX(x->sunctx);
   realtype temp, temp2;
   temp = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
-  SUNCheckMPICallNoRet(MPI_Allreduce(&temp, &temp2, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x)), x->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&temp, &temp2, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x)));
   return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
 }
 
@@ -988,10 +1003,10 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 
 realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
 {
+  SUNAssignSUNCTX(num->sunctx);
   realtype lmin, gmin;
   lmin = N_VMinQuotientLocal_ParHyp(num, denom);
-  SUNCheckMPICallNoRet(MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(num)),
-    num->sunctx);
+  SUNCheckMPICallNoRet(MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(num)));
   return(gmin);
 }
 
@@ -1005,13 +1020,15 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
 
 SUNErrCode N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
+  SUNAssignSUNCTX(X[0]->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    zd=NULL;
   realtype*    xd=NULL;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, z->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VScale */
   if (nvec == 1) {
@@ -1076,8 +1093,10 @@ SUNErrCode N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vec
 
 
 SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
-                             N_Vector* Z)
+                                   N_Vector* Z)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1085,7 +1104,7 @@ SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* 
   realtype*    zd=NULL;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, x->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VLinearSum */
   if (nvec == 1) {
@@ -1127,6 +1146,8 @@ SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* 
 SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                   realtype* dotprods)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1134,7 +1155,7 @@ SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   MPI_Comm     comm;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, x->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VDotProd */
   if (nvec == 1) {
@@ -1155,9 +1176,8 @@ SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  SUNCheckMPICallNoRet(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
-                                MPI_SUM, comm),
-                  x->sunctx);
+  SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
+                                MPI_SUM, comm));
 
   return SUN_SUCCESS;
 }
@@ -1173,13 +1193,15 @@ SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 SUNErrCode N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                 realtype* dotprods)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
   realtype*    yd=NULL;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, x->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* get vector length, data array, and communicator */
   N  = NV_LOCLENGTH_PH(x);
@@ -1200,10 +1222,10 @@ SUNErrCode N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 
 SUNErrCode N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x, realtype* sum)
 {
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, x->sunctx);
-  SUNCheckMPICallNoRet(MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE,
-                                MPI_SUM, NV_COMM_PH(x)),
-                  x->sunctx);
+  SUNAssignSUNCTX(x->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
+  SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE,
+                                MPI_SUM, NV_COMM_PH(x)));
   return SUN_SUCCESS;
 }
 
@@ -1220,6 +1242,8 @@ SUNErrCode N_VLinearSumVectorArray_ParHyp(int nvec,
                                    realtype b, N_Vector* Y,
                                    N_Vector* Z)
 {
+  SUNAssignSUNCTX(X[0]->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
@@ -1227,7 +1251,7 @@ SUNErrCode N_VLinearSumVectorArray_ParHyp(int nvec,
   realtype*    zd=NULL;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VLinearSum */
   if (nvec == 1) {
@@ -1254,13 +1278,15 @@ SUNErrCode N_VLinearSumVectorArray_ParHyp(int nvec,
 
 SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
+  SUNAssignSUNCTX(X[0]->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    xd=NULL;
   realtype*    zd=NULL;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VScale */
   if (nvec == 1) {
@@ -1301,12 +1327,14 @@ SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vect
 
 SUNErrCode N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
 {
+  SUNAssignSUNCTX(Z[0]->sunctx);
+
   int          i;
   sunindextype j, N;
   realtype*    zd=NULL;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, Z[0]->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VConst */
   if (nvec == 1) {
@@ -1331,6 +1359,8 @@ SUNErrCode N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
 
 SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
 {
+  SUNAssignSUNCTX(X[0]->sunctx);
+
   int          i;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
@@ -1338,7 +1368,7 @@ SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, rea
   MPI_Comm     comm;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VWrmsNorm */
   if (nvec == 1) {
@@ -1360,9 +1390,8 @@ SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, rea
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  SUNCheckMPICallNoRet(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE,
-                                MPI_SUM, comm),
-                  X[0]->sunctx);
+  SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE,
+                                MPI_SUM, comm));
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1374,6 +1403,8 @@ SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, rea
 SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, realtype* nrm)
 {
+  SUNAssignSUNCTX(X[0]->sunctx);
+
   int          i;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
@@ -1382,7 +1413,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   MPI_Comm     comm;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE, id->sunctx);
+  SUNMPIAssert(nvec >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* should have called N_VWrmsNorm */
   if (nvec == 1) {
@@ -1406,9 +1437,8 @@ SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  SUNCheckMPICallNoRet(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE,
-                                MPI_SUM, comm),
-                  id->sunctx);
+  SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE,
+                                MPI_SUM, comm));
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1420,6 +1450,8 @@ SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
 SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
                                               N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
+  SUNAssignSUNCTX(X[0]->sunctx);
+
   int          i, j;
   sunindextype k, N;
   realtype*    xd=NULL;
@@ -1430,7 +1462,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
   N_Vector*    ZZ;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1 && nsum >=1, SUN_ERR_ARG_OUTOFRANGE, X[0]->sunctx);
+  SUNMPIAssert(nvec >=1 && nsum >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* ---------------------------
    * Special cases for nvec == 1
@@ -1513,6 +1545,8 @@ SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
 SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum, realtype* c,
                                                   N_Vector** X, N_Vector* Z)
 {
+  SUNAssignSUNCTX(Z[0]->sunctx);
+
   int          i; /* vector arrays index in summation [0,nsum) */
   int          j; /* vector index in vector array     [0,nvec) */
   sunindextype k; /* element index in vector          [0,N)    */
@@ -1524,7 +1558,7 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum, realtype* 
   N_Vector*    Y;
 
   /* invalid number of vectors */
-  SUNMPIAssert(nvec >=1 && nsum >=1, SUN_ERR_ARG_OUTOFRANGE, Z[0]->sunctx);
+  SUNMPIAssert(nvec >=1 && nsum >=1, SUN_ERR_ARG_OUTOFRANGE);
 
   /* ---------------------------
    * Special cases for nvec == 1
@@ -1546,7 +1580,7 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum, realtype* 
 
     /* should have called N_VLinearCombination */
     Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    SUNMPIAssert(Y, SUN_ERR_MALLOC_FAIL, Z[0]->sunctx);
+    SUNMPIAssert(Y, SUN_ERR_MALLOC_FAIL);
 
     for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];
@@ -1567,7 +1601,7 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum, realtype* 
   if (nsum == 1) {
 
     ctmp = (realtype*) malloc(nvec * sizeof(realtype));
-    SUNMPIAssert(ctmp, SUN_ERR_MALLOC_FAIL, Z[0]->sunctx);
+    SUNMPIAssert(ctmp, SUN_ERR_MALLOC_FAIL);
 
     for (j=0; j<nvec; j++) {
       ctmp[j] = c[0];
@@ -1583,8 +1617,7 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum, realtype* 
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 2) {
     SUNCheckCall(N_VLinearSumVectorArray_ParHyp(nvec, c[0], X[0], c[1],
-                                                      X[1], Z),
-                       Z[0]->sunctx);
+                                                      X[1], Z));
     return SUN_SUCCESS;
   }
 
@@ -1666,11 +1699,13 @@ SUNErrCode N_VBufSize_ParHyp(N_Vector x, sunindextype *size)
 
 SUNErrCode N_VBufPack_ParHyp(N_Vector x, void *buf)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;
 
-  SUNMPIAssert(buf, SUN_ERR_ARG_CORRUPT, x->sunctx);
+  SUNMPIAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
@@ -1685,11 +1720,13 @@ SUNErrCode N_VBufPack_ParHyp(N_Vector x, void *buf)
 
 SUNErrCode N_VBufUnpack_ParHyp(N_Vector x, void *buf)
 {
+  SUNAssignSUNCTX(x->sunctx);
+
   sunindextype i, N;
   realtype     *xd = NULL;
   realtype     *bd = NULL;
 
-  SUNMPIAssert(buf, SUN_ERR_ARG_CORRUPT, x->sunctx);
+  SUNMPIAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
