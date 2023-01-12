@@ -478,7 +478,7 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     if (R[(iter-1)*maa+iter-1] == ZERO) {
       SUNCheckCallLastErr(N_VScale(ZERO, vtemp, Q[i_pt]), NLS->sunctx);
     } else {
-      SUNCheckCallLastErr(N_VScale((ONE/R[(iter-1)*maa+iter-1]), vtemp, Q[i_pt]), NLS->sunctx);
+      SUNCheckCallLastErr(N_VScale((ONE/R[(iter-1)*maa+iter-1]), vtemp, Q[i_pt]));
     }
     ipt_map[iter-1] = iter-1;
 
@@ -520,7 +520,7 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     }
     R[(maa-1)*maa+maa-1] = SUNCheckCallLastErr(N_VDotProd(vtemp, vtemp), NLS->sunctx);
     R[(maa-1)*maa+maa-1] = SUNRsqrt(R[(maa-1)*maa+maa-1]);
-    SUNCheckCallLastErr(N_VScale((ONE/R[(maa-1)*maa+maa-1]), vtemp, Q[maa-1]), NLS->sunctx);
+    SUNCheckCallLastErr(N_VScale((ONE/R[(maa-1)*maa+maa-1]), vtemp, Q[maa-1]));
 
     /* update the iteration map */
     j = 0;

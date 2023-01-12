@@ -29,7 +29,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
 /* TODO(CJB): the error code scheme used isnt yet properly handled by
     SUNHandleErr Also, should these be asserts? */
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
-#define SUNCheckMPICallNoRet(call, sunctx)                                 \
+#define SUNCheckMPICallNoRet(call)                                 \
   do {                                                                     \
     int sun_chk_mpi_call_err_code_ = call;                                 \
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                         \
@@ -40,7 +40,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
   }                                                                        \
   while (0)
 #else
-#define SUNCheckMPICallNoRet(call, sunctx) \
+#define SUNCheckMPICallNoRet(call) \
   call;                                    \
   (void)sunctx
 #endif
@@ -48,7 +48,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
 /* SUNMPIAssert checks if an expression is true.
    If the expression is false, it calls the SUNMPIAbortErrHandler. */
 #if !defined(NDEBUG)
-#define SUNMPIAssert(expr, code, sunctx)                                  \
+#define SUNMPIAssert(expr, code)                                  \
   do {                                                                    \
     if (!(expr))                                                          \
     {                                                                     \
@@ -58,7 +58,7 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
   }                                                                       \
   while (0)
 #else
-#define SUNMPIAssert(expr, code, sunctx)
+#define SUNMPIAssert(expr, code)
 #endif
 
 #endif /* _SUNDIALS_MPI_ERRORS_H */
