@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-#include <sundials/sundials_mpi_errors.h>
+#include <sundials/impl/sundials_mpi_errors_impl.h>
 #include <nvector/nvector_mpimanyvector.h>
 #else
 #include <nvector/nvector_manyvector.h>

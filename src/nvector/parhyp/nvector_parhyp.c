@@ -22,9 +22,7 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_parhyp.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_mpi_errors.h>
-#include <sundials/sundials_types.h>
+#include <sundials/impl/sundials_mpi_errors_impl.h>
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)

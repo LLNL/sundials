@@ -118,6 +118,7 @@ echo "   --- Add include files to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/impl/sundials_context_impl.h
 $tar $tarfile $distrobase/include/sundials/impl/sundials_errors_impl.h
+$tar $tarfile $distrobase/include/sundials/impl/sundials_mpi_errors_impl.h
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_base.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_config.in

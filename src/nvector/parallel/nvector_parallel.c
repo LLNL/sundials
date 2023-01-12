@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_parallel.h>
-#include <sundials/sundials_mpi_errors.h>
+#include <sundials/impl/sundials_mpi_errors_impl.h>
 #include "sundials_nvector_impl.h"
 
 #define ZERO   RCONST(0.0)
