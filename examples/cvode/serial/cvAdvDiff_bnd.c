@@ -151,6 +151,12 @@ int main(void)
   abstol = ATOL;
 
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
+  if (!data)
+  {
+    fprintf(stderr, "MEMORY_ERROR: malloc failed - returned NULL pointer\n");
+    return 1; 
+  }
+
   dx = data->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
   dy = data->dy = YMAX/(MY+1);
   data->hdcoef  = ONE/(dx*dx);
