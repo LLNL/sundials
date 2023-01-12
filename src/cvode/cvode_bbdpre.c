@@ -195,7 +195,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNCheckCallLastErr(SUNLinSol_Band(pdata->rlocal, pdata->savedP, cv_mem->cv_sunctx));
+  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(pdata->rlocal, pdata->savedP, cv_mem->cv_sunctx));
   if (pdata->LS == NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2));

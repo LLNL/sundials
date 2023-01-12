@@ -510,21 +510,21 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Obtain pointers to the data for various vectors */
-  ewt_data   = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_ewt));
-  fy_data    = SUNCheckCallLastErr(N_VGetArrayPointer(fy));
-  ftemp_data = SUNCheckCallLastErr(N_VGetArrayPointer(ftemp));
-  y_data     = SUNCheckCallLastErr(N_VGetArrayPointer(y));
-  ytemp_data = SUNCheckCallLastErr(N_VGetArrayPointer(ytemp));
+  ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt));
+  fy_data    = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(fy));
+  ftemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ftemp));
+  y_data     = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(y));
+  ytemp_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(ytemp));
   if (cv_mem->cv_constraintsSet) {
-    cns_data = SUNCheckCallLastErr(N_VGetArrayPointer(cv_mem->cv_constraints));
+    cns_data = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_constraints));
   }
 
   /* Load ytemp with y = predicted y vector. */
-  SUNCheckCallLastErr(N_VScale(ONE, y, ytemp));
+  SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp));
 
   /* Set minimum increment based on uround and norm of f. */
   srur = SUNRsqrt(cv_mem->cv_uround);
-  fnorm = SUNCheckCallLastErr(N_VWrmsNorm(fy, cv_mem->cv_ewt));
+  fnorm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(fy, cv_mem->cv_ewt));
   minInc = (fnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(cv_mem->cv_h) * cv_mem->cv_uround * pdata->N * fnorm) : ONE;
 

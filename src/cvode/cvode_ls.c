@@ -655,7 +655,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add NVector sizes */
   if (cv_mem->cv_tempv->ops->nvspace) {
-    SUNCheckCallLastErr(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1));
+    SUNCheckCallLastErrNoRet(N_VSpace(cv_mem->cv_tempv, &lrw1, &liw1));
     *lenrwLS += 2*lrw1;
     *leniwLS += 2*liw1;
   }
@@ -663,7 +663,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
   /* add SUNMatrix size (only account for the one owned by Ls interface) */
   if (cvls_mem->savedJ)
     if (cvls_mem->savedJ->ops->space) {
-      retval = SUNCheckCallLastErr(SUNMatSpace(cvls_mem->savedJ, &lrw, &liw));
+      retval = SUNCheckCallLastErrNoRet(SUNMatSpace(cvls_mem->savedJ, &lrw, &liw));
       if (retval == 0) {
         *lenrwLS += lrw;
         *leniwLS += liw;
@@ -672,7 +672,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (cvls_mem->LS->ops->space) {
-    retval = SUNCheckCallLastErr(SUNLinSolSpace(cvls_mem->LS, &lrw, &liw));
+    retval = SUNCheckCallLastErrNoRet(SUNLinSolSpace(cvls_mem->LS, &lrw, &liw));
     if (retval == 0) {
       *lenrwLS += lrw;
       *leniwLS += liw;
