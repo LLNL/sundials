@@ -30,10 +30,8 @@ SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
+  SUNContext sunctx    = NULL;
 
-  SUNContext sunctx;
-
-  sunctx = NULL;
   sunctx = (SUNContext)malloc(sizeof(struct SUNContext_));
 
   /* SUNContext_Create cannot assert or log since the SUNContext is not yet
@@ -41,6 +39,8 @@ SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
   if (!sunctx) {
     return SUN_ERR_MALLOC_FAIL;
   }
+
+  SUNAssignSUNCTX(sunctx);
 
 #if SUNDIALS_LOGGING_LEVEL > 0
 #if defined(SUNDIALS_LOGGING_ENABLE_MPI)
