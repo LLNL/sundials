@@ -174,8 +174,6 @@ int MRIStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   *tcur      = ark_mem->tcur;
   *zpred     = step_mem->zpred;
   *z         = ark_mem->ycur;
@@ -376,8 +374,6 @@ SUNNlsStatus mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_NlsLSetup",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* update convfail based on jbad flag */
   if (jbad)  step_mem->convfail = ARK_FAIL_BAD_J;

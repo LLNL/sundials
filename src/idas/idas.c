@@ -6677,8 +6677,6 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
 static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
                           long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr)
 {
-  SUNDeclareContext(IDA_SUNCTX);
-
   realtype err_knew;
 
   IDA_mem->ida_phase = 1;
@@ -7457,8 +7455,6 @@ static int IDARcheck1(IDAMem IDA_mem)
 
 static int IDARcheck2(IDAMem IDA_mem)
 {
-  SUNDeclareContext(IDA_SUNCTX);
-
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;

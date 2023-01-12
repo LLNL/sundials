@@ -46,9 +46,10 @@ SUNErrCode ModifiedGS(N_Vector* v, realtype** h, int k, int p,
 SUNErrCode SUNModifiedGS(N_Vector* v, realtype** h, int k, int p,
                          realtype* new_vk_norm)
 {
+  SUNDeclareContext(v[0]->sunctx);
+  
   int i, k_minus_1, i0;
   realtype new_norm_2, new_product, vk_norm, temp;
-  SUNDeclareContext(v[0]->sunctx);
 
   vk_norm = SUNCheckCallLastErr((N_VDotProd(v[k], v[k])));
   vk_norm = SUNRsqrt(vk_norm);

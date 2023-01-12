@@ -258,8 +258,6 @@ int MRIStepSetLinear(void *arkode_mem, int timedepend)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* set parameters */
   step_mem->linear = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
@@ -287,8 +285,6 @@ int MRIStepSetNonlinear(void *arkode_mem)
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetNonlinear",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* set parameters */
   step_mem->linear = SUNFALSE;
@@ -481,8 +477,6 @@ int MRIStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* if argument legal set it, otherwise set default */
   if (crdown <= ZERO) {
     step_mem->crdown = CRDOWN;
@@ -512,8 +506,6 @@ int MRIStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* if argument legal set it, otherwise set default */
   if (rdiv <= ZERO) {
     step_mem->rdiv = RDIV;
@@ -542,8 +534,6 @@ int MRIStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDeltaGammaMax",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* if argument legal set it, otherwise set default */
   if (dgmax <= ZERO) {
@@ -575,8 +565,6 @@ int MRIStepSetLSetupFrequency(void *arkode_mem, int msbp)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* if argument legal set it, otherwise set default */
   if (msbp == 0) {
     step_mem->msbp = MSBP;
@@ -605,8 +593,6 @@ int MRIStepSetPredictorMethod(void *arkode_mem, int pred_method)
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetPredictorMethod",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* Deprecate option 4 */
   if (pred_method == 4) {
@@ -684,8 +670,6 @@ int MRIStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetNonlinConvCoef",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* argument <= 0 sets default, otherwise set input */
   if (nlscoef <= ZERO) {
@@ -861,8 +845,6 @@ int MRIStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* get value from step_mem */
   *nlinsetups = step_mem->nsetups;
 
@@ -886,8 +868,6 @@ int MRIStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   *nniters = step_mem->nls_iters;
 
   return(ARK_SUCCESS);
@@ -909,8 +889,6 @@ int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nnfails)
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetNumNonlinSolvConvFails",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* set output from step_mem */
   *nnfails = step_mem->nls_fails;
@@ -935,8 +913,6 @@ int MRIStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetNonlinSolvStats",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   *nniters = step_mem->nls_iters;
   *nnfails = step_mem->nls_fails;

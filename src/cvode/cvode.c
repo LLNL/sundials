@@ -682,8 +682,6 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
-
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -794,8 +792,6 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
-
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -835,8 +831,6 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
   }
   cv_mem = (CVodeMem) cvode_mem;
   
-  SUNDeclareContext(CV_SUNCTX);
-
   nrt = (nrtfn < 0) ? 0 : nrtfn;
 
   /* If rerunning CVodeRootInit() with a different number of root

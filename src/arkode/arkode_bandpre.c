@@ -259,8 +259,6 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* Return immediately if ARKBandPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BP_PMEM_NULL);

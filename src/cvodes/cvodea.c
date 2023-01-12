@@ -290,8 +290,6 @@ int CVodeAdjReInit(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Was ASA initialized? */
@@ -337,8 +335,6 @@ void CVodeAdjFree(void *cvode_mem)
 
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_adjMallocDone) {
 
@@ -398,8 +394,6 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -651,8 +645,6 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int *which)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
@@ -887,8 +879,6 @@ int CVodeReInitB(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Was ASA initialized? */
@@ -940,8 +930,6 @@ int CVodeSStolerancesB(void *cvode_mem, int which, realtype reltolB, realtype ab
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
 
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -991,8 +979,6 @@ int CVodeSVtolerancesB(void *cvode_mem, int which, realtype reltolB, N_Vector ab
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
 
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -1041,8 +1027,6 @@ int CVodeQuadInitB(void *cvode_mem, int which,
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -1099,8 +1083,6 @@ int CVodeQuadInitBS(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Was ASA initialized? */
@@ -1155,8 +1137,6 @@ int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Was ASA initialized? */
@@ -1208,8 +1188,6 @@ int CVodeQuadSStolerancesB(void *cvode_mem, int which, realtype reltolQB, realty
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   /* Was ASA initialized? */
@@ -1256,8 +1234,6 @@ int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vect
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -1322,8 +1298,6 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -2210,7 +2184,6 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
 static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
 {
   CVadjMem ca_mem;
-  SUNDeclareContext(CV_SUNCTX);
   DtpntMem *dt_mem;
   realtype t;
   long int i;
@@ -2429,7 +2402,6 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 static int CVAfindIndex(CVodeMem cv_mem, realtype t,
                         long int *indx, booleantype *newpoint)
 {
-  SUNDeclareContext(CV_SUNCTX);
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
   int sign;
@@ -2522,8 +2494,6 @@ int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -3280,8 +3250,6 @@ static int CVArhs(realtype t, N_Vector yB,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   ca_mem = cv_mem->cv_adj_mem;
 
   cvB_mem = ca_mem->ca_bckpbCrt;
@@ -3325,8 +3293,6 @@ static int CVArhsQ(realtype t, N_Vector yB,
   int retval;
 
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   ca_mem = cv_mem->cv_adj_mem;
 

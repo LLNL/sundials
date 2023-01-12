@@ -993,8 +993,6 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -1104,8 +1102,6 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
@@ -1255,8 +1251,6 @@ int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Ckeck if quadrature was initialized? */
 
@@ -1993,8 +1987,6 @@ int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was sensitivity initialized? */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2135,8 +2127,6 @@ int CVodeSensEEtolerances(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was sensitivity initialized? */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2171,8 +2161,6 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Check if sensitivity analysis is active */
   if (!cv_mem->cv_sensi) {
@@ -2256,8 +2244,6 @@ int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Check if sensitivity analysis is active */
   if (!cv_mem->cv_sensi) {
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__, MSGCV_NO_SENSI);
@@ -2330,8 +2316,6 @@ int CVodeQuadSensSStolerances(void *cvode_mem, realtype reltolQS, realtype *abst
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Check if sensitivity was initialized */
 
@@ -2480,8 +2464,6 @@ int CVodeQuadSensEEtolerances(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* check if sensitivity was initialized */
 
   if (cv_mem->cv_SensMallocDone == SUNFALSE) {
@@ -2522,8 +2504,6 @@ int CVodeSensToggleOff(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Disable sensitivities */
   cv_mem->cv_sensi = SUNFALSE;
   cv_mem->cv_quadr_sensi = SUNFALSE;
@@ -2554,8 +2534,6 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   nrt = (nrtfn < 0) ? 0 : nrtfn;
 
@@ -3390,8 +3368,6 @@ int CVodeComputeStateSens(void *cvode_mem, N_Vector *ycorS, N_Vector *yS)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
@@ -3551,8 +3527,6 @@ int CVodeGetQuad(void *cvode_mem, realtype *tret, N_Vector yQout)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   *tret = cv_mem->cv_tretlast;
@@ -3676,8 +3650,6 @@ int CVodeGetSens(void *cvode_mem, realtype *tret, N_Vector *ySout)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   *tret = cv_mem->cv_tretlast;
@@ -3706,8 +3678,6 @@ int CVodeGetSens1(void *cvode_mem, realtype *tret, int is, N_Vector ySout)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3739,8 +3709,6 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyS)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3884,8 +3852,6 @@ int CVodeGetQuadSens(void *cvode_mem, realtype *tret, N_Vector *yQSout)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
   *tret = cv_mem->cv_tretlast;
@@ -3907,8 +3873,6 @@ int CVodeGetQuadSens1(void *cvode_mem, realtype *tret, int is, N_Vector yQSout)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -3939,8 +3903,6 @@ int CVodeGetQuadSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyQS_all)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
 
@@ -4133,8 +4095,6 @@ void CVodeQuadFree(void *cvode_mem)
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   if(cv_mem->cv_QuadMallocDone) {
     cvQuadFreeVectors(cv_mem);
     cv_mem->cv_QuadMallocDone = SUNFALSE;
@@ -4224,8 +4184,6 @@ void CVodeQuadSensFree(void *cvode_mem)
 
   if (cvode_mem == NULL) return;
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   if(cv_mem->cv_QuadSensMallocDone) {
     cvQuadSensFreeVectors(cv_mem);
@@ -9224,8 +9182,6 @@ static int cvQuadSensRhsInternalDQ(int Ns, realtype t,
 
   /* cvode_mem is passed here as user data */
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   for (is=0; is<Ns; is++) {
     retval = cvQuadSensRhs1InternalDQ(cv_mem, is, t,

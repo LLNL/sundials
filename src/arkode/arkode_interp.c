@@ -109,8 +109,6 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
   if (arkode_mem == NULL)  return(NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* check for valid degree */
   if (degree < 0 || degree > ARK_INTERP_MAX_DEGREE) return(NULL);
 
@@ -185,8 +183,6 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* resize vectors */
   if (interp == NULL)  return(ARK_SUCCESS);
 
@@ -231,8 +227,6 @@ void arkInterpFree_Hermite(void* arkode_mem, ARKInterp interp)
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return;
   ark_mem = (ARKodeMem) arkode_mem;
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* if interpolation structure is NULL, just return */
   if (interp == NULL) return;
@@ -338,8 +332,6 @@ int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* if this degree is already stored, just return */
   if (abs(degree) == HINT_DEGREE(interp))  return(ARK_SUCCESS);
@@ -775,8 +767,6 @@ ARKInterp arkInterpCreate_Lagrange(void* arkode_mem, int degree)
   if (arkode_mem == NULL)  return(NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* check for valid degree */
   if (degree < 0 || degree > ARK_INTERP_MAX_DEGREE) return(NULL);
 
@@ -846,8 +836,6 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I,
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* resize vectors */
   if (I == NULL)  return(ARK_SUCCESS);
   if (LINT_YHIST(I) != NULL) {
@@ -878,8 +866,6 @@ void arkInterpFree_Lagrange(void* arkode_mem, ARKInterp I)
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return;
   ark_mem = (ARKodeMem) arkode_mem;
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* if interpolation structure is NULL, just return */
   if (I == NULL) return;
@@ -988,8 +974,6 @@ int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* if this degree is already stored, just return */
   if (abs(degree)+1 == LINT_NMAX(I))  return(ARK_SUCCESS);

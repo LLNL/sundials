@@ -61,8 +61,6 @@ int CVodeSetAdjNoSensi(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
@@ -94,8 +92,6 @@ int CVodeSetNonlinearSolverB(void *cvode_mem, int which, SUNNonlinearSolver NLS)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -134,8 +130,6 @@ int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -177,8 +171,6 @@ int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -223,8 +215,6 @@ int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
@@ -266,8 +256,6 @@ int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -311,8 +299,6 @@ int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
@@ -354,8 +340,6 @@ int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -399,8 +383,6 @@ int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
@@ -442,8 +424,6 @@ int CVodeSetConstraintsB(void *cvode_mem, int which, N_Vector constraintsB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Is ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -491,8 +471,6 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -550,8 +528,6 @@ void *CVodeGetAdjCVodeBmem(void *cvode_mem, int which)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, 0, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
@@ -597,8 +573,6 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
@@ -759,8 +733,6 @@ int CVodeGetAdjCurrentCheckPoint(void *cvode_mem, void **addr)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {

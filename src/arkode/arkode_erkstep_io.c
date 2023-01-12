@@ -173,8 +173,6 @@ int ERKStepSetDefaults(void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* Set default ARKODE infrastructure parameters */
   retval = arkSetDefaults(arkode_mem);
   if (retval != ARK_SUCCESS) {
@@ -216,8 +214,6 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetOrder",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) {
@@ -263,8 +259,6 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetTable",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* check for legal inputs */
   if (B == NULL) {
@@ -321,8 +315,6 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID etable)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetTableNum",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* check that argument specifies an explicit table */
   if (etable<ARKODE_MIN_ERK_NUM || etable>ARKODE_MAX_ERK_NUM) {
@@ -393,8 +385,6 @@ int ERKStepGetNumRhsEvals(void *arkode_mem, long int *fevals)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* get values from step_mem */
   *fevals = step_mem->nfe;
 
@@ -418,8 +408,6 @@ int ERKStepGetCurrentButcherTable(void *arkode_mem,
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetCurrentButcherTable",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* get tables from step_mem */
   *B = step_mem->B;
@@ -472,8 +460,6 @@ int ERKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* set expsteps and accsteps from adaptivity structure */
   *expsteps = ark_mem->hadapt_mem->nst_exp;
   *accsteps = ark_mem->hadapt_mem->nst_acc;
@@ -502,8 +488,6 @@ int ERKStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepPrintAllStats",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   retval = arkPrintAllStats(arkode_mem, outfile, fmt);
   if (retval != ARK_SUCCESS) return(retval);
@@ -547,8 +531,6 @@ int ERKStepWriteParameters(void *arkode_mem, FILE *fp)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* output ARKODE infrastructure parameters first */
   retval = arkWriteParameters(arkode_mem, fp);
   if (retval != ARK_SUCCESS) {
@@ -581,8 +563,6 @@ int ERKStepWriteButcher(void *arkode_mem, FILE *fp)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepWriteButcher",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* check that Butcher table is non-NULL (otherwise report error) */
   if (step_mem->B == NULL) {

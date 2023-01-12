@@ -25,45 +25,52 @@
 
 struct SUNErrHandler_;
 
-struct SUNContext_ {
+struct SUNContext_
+{
   SUNProfiler profiler;
   sunbooleantype own_profiler;
   SUNLogger logger;
   sunbooleantype own_logger;
   SUNErrCode last_err;
-  struct SUNErrHandler_ *err_handler;
-  void *comm;
+  struct SUNErrHandler_* err_handler;
+  void* comm;
 };
 
-typedef struct SUNContext_ *SUNContext;
+typedef struct SUNContext_* SUNContext;
 
 /* Shortcut macro to access the SUNContext declared with SUNDeclareContext. */
 #define SUNCTX sunctx_
 
-/* The SUNDeclareContext macro is used to declare the SUNContext 
+/* The SUNDeclareContext macro is used to declare the SUNContext
    object to be used a function. */
+#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
 #define SUNDeclareContext(sunctx) SUNContext SUNCTX = sunctx
+#else
+#define SUNDeclareContext(sunctx) \
+  SUNContext SUNCTX = sunctx;     \
+  (void)SUNCTX
+#endif
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_Create(void *comm, SUNContext *ctx);
+SUNErrCode SUNContext_Create(void* comm, SUNContext* ctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode *last_err);
+SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode* last_err);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_PeekLastError(SUNContext sunctx, SUNErrCode* last_err);
 
 SUNDIALS_EXPORT
-struct SUNErrHandler_ *SUNContext_PushErrHandler(
-    SUNContext sunctx,
-    int (*err_fn)(int line, const char *func, const char *file, const char *msg,
-                  SUNErrCode err_code, void *err_user_data,
-                  struct SUNContext_ *sunctx),
-    void *err_user_data);
+struct SUNErrHandler_* SUNContext_PushErrHandler(
+  SUNContext sunctx,
+  int (*err_fn)(int line, const char* func, const char* file, const char* msg,
+                SUNErrCode err_code, void* err_user_data,
+                struct SUNContext_* sunctx),
+  void* err_user_data);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx);
@@ -72,19 +79,19 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_ClearHandlers(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler *profiler);
+SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger *logger);
+SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_Free(SUNContext *ctx);
+SUNErrCode SUNContext_Free(SUNContext* ctx);
 
 #ifdef __cplusplus
 }

@@ -363,8 +363,6 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(IDA_SUNCTX);
-
   /* Check for legal eplifac */
   if (eplifac < ZERO) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_LS_NEG_EPLIFAC);

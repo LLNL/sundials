@@ -230,9 +230,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 #else
-#define SUNCheckCallNoRet(call) \
-  call;                         \
-  (void)SUNCTX
+#define SUNCheckCallNoRet(call) (void)call
 #endif
 
 /* Same as SUNCheckCallNoRet, but returns with the error code if an error
@@ -250,9 +248,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 #else
-#define SUNCheckCall(call) \
-  call;                    \
-  (void)SUNCTX
+#define SUNCheckCall(call) (void)call
 #endif
 
 /* Same as SUNCheckCall, but returns with NULL. */
@@ -269,7 +265,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   }                                                                      \
   while (0)
 #else
-#define SUNCheckCallNull(call) call;
+#define SUNCheckCallNull(call) (void)call;
 #endif
 
 /* SUNCheckLastErr checks the last_err value in the SUNContext.

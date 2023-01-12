@@ -425,8 +425,6 @@ int MRIStepReset(void* arkode_mem, realtype tR, N_Vector yR)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, tR, yR, RESET_INIT);
 
@@ -1911,7 +1909,6 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
 int mriStep_StageERKFast(ARKodeMem ark_mem,
                          ARKodeMRIStepMem step_mem, int is)
 {
-  SUNDeclareContext(ark_mem->sunctx);
   realtype cdiff;    /* stage time increment */
   realtype t0;       /* start time for stage */
   int retval;        /* reusable return flag */
@@ -1966,7 +1963,6 @@ int mriStep_StageERKFast(ARKodeMem ark_mem,
 int mriStep_StageERKNoFast(ARKodeMem ark_mem,
                            ARKodeMRIStepMem step_mem, int is)
 {
-  SUNDeclareContext(ark_mem->sunctx);
   int retval, j, nvec;
 
 #ifdef SUNDIALS_DEBUG

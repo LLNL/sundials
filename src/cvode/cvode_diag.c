@@ -201,8 +201,6 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   *lenrwLS = 3*lrw1;
   *leniwLS = 3*liw1;
 
@@ -226,8 +224,6 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   if (lmem == NULL) {
     cvProcessError(cv_mem, CVDIAG_LMEM_NULL, __LINE__, __func__, __FILE__, MSGDG_LMEM_NULL);
@@ -257,8 +253,6 @@ int CVDiagGetLastFlag(void *cvode_mem, long int *flag)
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   if (lmem == NULL) {
     cvProcessError(cv_mem, CVDIAG_LMEM_NULL, __LINE__, __func__, __FILE__, MSGDG_LMEM_NULL);

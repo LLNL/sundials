@@ -283,8 +283,6 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__,
                    __FILE__, MSGBP_LMEM_NULL);

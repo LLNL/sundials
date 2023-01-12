@@ -209,7 +209,6 @@ int arkRootFree(void* arkode_mem)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  SUNDeclareContext(ark_mem->sunctx);
   if (ark_mem->root_mem != NULL) {
     if (ark_mem->root_mem->nrtfn > 0) {
       free(ark_mem->root_mem->glo);     ark_mem->root_mem->glo     = NULL;
@@ -244,7 +243,6 @@ int arkPrintRootMem(void* arkode_mem, FILE *outfile)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  SUNDeclareContext(ark_mem->sunctx);
   if (ark_mem->root_mem != NULL) {
     fprintf(outfile, "ark_nrtfn = %i\n", ark_mem->root_mem->nrtfn);
     fprintf(outfile, "ark_nge = %li\n", ark_mem->root_mem->nge);
@@ -607,7 +605,6 @@ int arkRootfind(void* arkode_mem)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  SUNDeclareContext(ark_mem->sunctx);
   rootmem = ark_mem->root_mem;
 
   imax = 0;

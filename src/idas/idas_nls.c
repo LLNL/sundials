@@ -282,8 +282,6 @@ static int idaNlsLSolve(N_Vector delta, void* ida_mem)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
-
   retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt,
                                IDA_mem->ida_yy, IDA_mem->ida_yp,
                                IDA_mem->ida_savres);

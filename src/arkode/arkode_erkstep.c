@@ -193,8 +193,6 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
     arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_ARK_NO_MALLOC);
@@ -248,8 +246,6 @@ int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReset",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, tR, yR, RESET_INIT);
@@ -499,8 +495,6 @@ int erkStep_Init(void* arkode_mem, int init_type)
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_Init",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)

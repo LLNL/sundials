@@ -207,7 +207,7 @@ Coding Conventions and Rules
 
 #. Spaces not tabs.
 
-#. Multiline comments should use ``/* */``. Inline comments may use ``/* */`` or ``//``.
+#. All comments should use ``/* */``.
 
 #. Comments should use proper spelling and grammar.
 
@@ -235,15 +235,72 @@ Coding Conventions and Rules
    do not do this and are exceptions to the rule for backwards compatiblilty. 
    In addition, internal helper functions may or may-not return a ``SUNErrCode``.
 
-#. Functions should begin by extracting the ``SUNContext`` object with the 
-   ``SUNDeclareContext()`` macro.
+#. Functions that need a ``SUNContext`` object should unpack it from the first argument
+   that has a reference to the object using the ``SUNDeclareContext()`` macro. This
+   should be done before any other line in the function when possible, otherwise
+   it should be done as soon as possible.  For example,
 
    .. code-block:: c
 
-    sunrealtype N_VDotProd(N_Vector v, N_Vector w) {
-      SUNDeclareContext(v->sunctx);
-      // ...
-    }
+      SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
+      {
+         SUNDeclareContext(X[0]->sunctx); // Correct
+         
+         int          i;
+         sunindextype j, N;
+         realtype*    zd=NULL;
+         realtype*    xd=NULL;
+
+         /* invalid number of vectors */
+         SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
+
+         /* should have called N_VScale */
+         if (nvec == 1) {
+            SUNCheckCallLastErr(N_VScale_Serial(c[0], X[0], z));
+            return SUN_SUCCESS;
+         }
+
+         // ...
+      }
+
+      SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
+      {
+         int          i;
+         sunindextype j, N;
+         realtype*    zd=NULL;
+         realtype*    xd=NULL;
+
+         SUNDeclareContext(X[0]->sunctx); // Incorrect
+
+         /* invalid number of vectors */
+         SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
+
+         /* should have called N_VScale */
+         if (nvec == 1) {
+            SUNCheckCallLastErr(N_VScale_Serial(c[0], X[0], z));
+            return SUN_SUCCESS;
+         }
+
+         // ...
+      }
+
+
+      int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
+      {
+         CVodeMem cv_mem;
+
+         if (cvode_mem==NULL) {
+            cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
+            return(CV_MEM_NULL);
+         }
+
+         cv_mem = (CVodeMem) cvode_mem;
+
+         SUNDeclareContext(cv_mem->sunctx); // Correct
+
+         // ...
+      }
+
 
 #. All references to ``SUNContext`` objects should be done via the ``SUNCTX``
    macro. The only exceptions are functions in the ``SUNContext`` class. 

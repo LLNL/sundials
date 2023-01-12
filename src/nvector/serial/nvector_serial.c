@@ -869,6 +869,7 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
   SUNDeclareContext(X[0]->sunctx);
+  
   int          i;
   sunindextype j, N;
   realtype*    zd=NULL;

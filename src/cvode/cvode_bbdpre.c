@@ -307,8 +307,6 @@ int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Test if the LS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 
@@ -356,8 +354,6 @@ int CVBBDPrecGetWorkSpace(void *cvode_mem,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 
                    __FILE__, MSGBBD_LMEM_NULL);
@@ -392,8 +388,6 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, 

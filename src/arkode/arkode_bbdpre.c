@@ -288,8 +288,6 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
@@ -328,8 +326,6 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  SUNDeclareContext(ark_mem->sunctx);
-
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKLS_PMEM_NULL, __LINE__, __func__, __FILE__, MSG_BBD_PMEM_NULL);
@@ -358,8 +354,6 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetNumGfnEvals",
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  SUNDeclareContext(ark_mem->sunctx);
 
   /* Return immediately if ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {

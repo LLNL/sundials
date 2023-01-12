@@ -280,8 +280,6 @@ int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* return with failure if jac cannot be used */
   if ((jac != NULL) && (cvls_mem->A == NULL)) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -323,8 +321,6 @@ int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem, realtype dgmax_jbad)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Set value or use default */
   if(dgmax_jbad <= ZERO)
     cvls_mem->dgmax_jbad = CVLS_DGMAX;
@@ -346,8 +342,6 @@ int CVodeSetEpsLin(void *cvode_mem, realtype eplifac)
   retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* Check for legal eplifac */
   if(eplifac < ZERO) {
@@ -408,8 +402,6 @@ int CVodeSetJacEvalFrequency(void *cvode_mem, long int msbj)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Check for legal msbj */
   if(msbj < 0) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -434,8 +426,6 @@ int CVodeSetLinearSolutionScaling(void *cvode_mem, booleantype onoff)
   retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return(retval);
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* check for valid solver and method type */
   if (!(cvls_mem->matrixbased) || cv_mem->cv_lmm != CV_BDF)
@@ -507,8 +497,6 @@ int CVodeSetJacTimes(void *cvode_mem, CVLsJacTimesSetupFn jtsetup,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* issue error if LS object does not allow user-supplied ATimes */
   if (cvls_mem->LS->ops->setatimes == NULL) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -549,8 +537,6 @@ int CVodeSetJacTimesRhsFn(void *cvode_mem, CVRhsFn jtimesRhsFn)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* check if using internal finite difference approximation */
   if (!(cvls_mem->jtimesDQ)) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -579,8 +565,6 @@ int CVodeSetLinSysFn(void *cvode_mem, CVLsLinSysFn linsys)
   retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return(retval);
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* return with failure if linsys cannot be used */
   if ((linsys != NULL) && (cvls_mem->A == NULL)) {
@@ -712,7 +696,6 @@ int CVodeGetNumJacEvals(void *cvode_mem, long int *njevals)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *njevals = cvls_mem->nje;
   return(CVLS_SUCCESS);
 }
@@ -732,7 +715,6 @@ int CVodeGetNumLinRhsEvals(void *cvode_mem, long int *nfevalsLS)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *nfevalsLS = cvls_mem->nfeDQ;
   return(CVLS_SUCCESS);
 }
@@ -751,7 +733,6 @@ int CVodeGetNumPrecEvals(void *cvode_mem, long int *npevals)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *npevals = cvls_mem->npe;
   return(CVLS_SUCCESS);
 }
@@ -770,7 +751,6 @@ int CVodeGetNumPrecSolves(void *cvode_mem, long int *npsolves)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *npsolves = cvls_mem->nps;
   return(CVLS_SUCCESS);
 }
@@ -789,7 +769,6 @@ int CVodeGetNumLinIters(void *cvode_mem, long int *nliters)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *nliters = cvls_mem->nli;
   return(CVLS_SUCCESS);
 }
@@ -808,7 +787,6 @@ int CVodeGetNumLinConvFails(void *cvode_mem, long int *nlcfails)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *nlcfails = cvls_mem->ncfl;
   return(CVLS_SUCCESS);
 }
@@ -827,7 +805,6 @@ int CVodeGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *njtsetups = cvls_mem->njtsetup;
   return(CVLS_SUCCESS);
 }
@@ -846,7 +823,6 @@ int CVodeGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *njvevals = cvls_mem->njtimes;
   return(CVLS_SUCCESS);
 }
@@ -865,8 +841,6 @@ int CVodeGetLinSolveStats(void* cvode_mem, long int* njevals, long int* nfevalsL
   retval = cvLs_AccessLMem(cvode_mem, __LINE__, __func__,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
-
-  SUNDeclareContext(CV_SUNCTX);
 
   *njevals   = cvls_mem->nje;
   *nfevalsLS = cvls_mem->nfeDQ;
@@ -893,7 +867,6 @@ int CVodeGetLastLinFlag(void *cvode_mem, long int *flag)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
   *flag = cvls_mem->last_flag;
   return(CVLS_SUCCESS);
 }
@@ -1008,8 +981,6 @@ SUNLsStatus cvLsPSetup(void *cvode_mem)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* Call user pset routine to update preconditioner and possibly
      reset jcur (pass !jbad as update suggestion) */
   retval = cvls_mem->pset(cv_mem->cv_tn, cvls_mem->ycur,
@@ -1043,8 +1014,6 @@ SUNLsStatus cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, in
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* call the user-supplied psolve routine, and accumulate count */
   retval = cvls_mem->psolve(cv_mem->cv_tn, cvls_mem->ycur,
                             cvls_mem->fcur, r, z,
@@ -1076,8 +1045,6 @@ int cvLsDQJac(realtype t, N_Vector y, N_Vector fy,
     return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {

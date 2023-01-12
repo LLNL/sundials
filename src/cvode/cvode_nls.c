@@ -166,8 +166,6 @@ int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   if (f)
     cv_mem->nls_f = f;
   else
@@ -198,8 +196,6 @@ int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
   }
 
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   *tcur      = cv_mem->cv_tn;
   *ypred     = cv_mem->cv_zn[0];
@@ -275,8 +271,6 @@ static SUNNlsStatus cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNDeclareContext(CV_SUNCTX);
-
   /* if the nonlinear solver marked the Jacobian as bad update convfail */
   if (jbad)
     cv_mem->convfail = CV_FAIL_BAD_J;
@@ -312,8 +306,6 @@ static SUNNlsStatus cvNlsLSolve(N_Vector delta, void* cvode_mem)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-
-  SUNDeclareContext(CV_SUNCTX);
 
   retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt, cv_mem->cv_y, cv_mem->cv_ftemp);
 

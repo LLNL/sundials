@@ -654,8 +654,6 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDeclareContext(IDA_SUNCTX);
-
   if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
@@ -1383,8 +1381,6 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
-
-  SUNDeclareContext(IDA_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
