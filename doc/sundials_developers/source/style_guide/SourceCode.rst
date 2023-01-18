@@ -1,5 +1,5 @@
 ..
-   Author(s): David J. Gardner, Cody J. Balos @ LLNL 
+   Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -77,17 +77,17 @@ each component of the name uses camel case. See
 .. Table:: SUNDIALS base class naming convention examples for vectors, matrices,
            linear solvers and nonlinear solvers.
 
-   +-----------------------+------------+------------+-----------------------+
-   | Base Class            | Short Name | Operation  | Method                |
-   +-----------------------+------------+------------+-----------------------+
-   | ``N_Vector``          | ``N_V``    | Linear Sum | ``N_VLinearSum``      |
-   +-----------------------+------------+------------+-----------------------+
-   | ``SUNMatrix``         | ``SUNMat`` | Zero       | ``SUNMatZero``        |
-   +-----------------------+------------+------------+-----------------------+
-   | ``SUNLinearSolver``   | ``Setup``  | Setup      | ``SUNLinSolSetup``    |
-   +-----------------------+------------+------------+-----------------------+
-   | ``SUNNonlinarSolver`` | ``Solve``  | Solve      | ``SUNNonlinSolSolve`` |
-   +-----------------------+------------+------------+-----------------------+
+   +-----------------------+------------------+------------+-----------------------+
+   | Base Class            | Short Name       | Operation  | Method                |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``N_Vector``          | ``N_V``          | Linear Sum | ``N_VLinearSum``      |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``SUNMatrix``         | ``SUNMat``       | Zero       | ``SUNMatZero``        |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``SUNLinearSolver``   | ``SUNLinSol``    | Setup      | ``SUNLinSolSetup``    |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``SUNNonlinarSolver`` | ``SUNNonlinSol`` | Solve      | ``SUNNonlinSolSolve`` |
+   +-----------------------+------------------+------------+-----------------------+
 
 Derived class implementations of the base class methods should follow the naming
 convention ``<short class name><method>_<implementation>``. See
