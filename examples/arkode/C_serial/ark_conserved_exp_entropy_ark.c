@@ -390,8 +390,8 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype* ydata = N_VGetArrayPointer(y);
   sunrealtype* fdata = N_VGetArrayPointer(ydot);
 
-  fdata[0] = -exp(ydata[1]);
-  fdata[1] = exp(ydata[0]);
+  fdata[0] = -EXP(ydata[1]);
+  fdata[1] = EXP(ydata[0]);
 
   return 0;
 }
@@ -404,12 +404,12 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   sunrealtype* Jdata = SUNDenseMatrix_Data(J);
 
   /* column 0 */
-  Jdata[0] = 0;
-  Jdata[1] = exp(ydata[0]);
+  Jdata[0] = SUN_RCONST(0.0);
+  Jdata[1] = EXP(ydata[0]);
 
   /* column 1 */
-  Jdata[2] = -exp(ydata[1]);
-  Jdata[3] = 0;
+  Jdata[2] = -EXP(ydata[1]);
+  Jdata[3] = SUN_RCONST(0.0);
 
   return 0;
 }
@@ -419,7 +419,7 @@ int Ent(N_Vector* y, sunrealtype* e, void* user_data)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y[0]);
 
-  e[0] = exp(ydata[0]) + exp(ydata[1]);
+  e[0] = EXP(ydata[0]) + EXP(ydata[1]);
 
   return 0;
 }
@@ -430,8 +430,8 @@ int JacEnt(N_Vector* y, N_Vector* J, void* user_data)
   sunrealtype* ydata = N_VGetArrayPointer(y[0]);
   sunrealtype* jdata = N_VGetArrayPointer(J[0]);
 
-  jdata[0] = exp(ydata[0]);
-  jdata[1] = exp(ydata[1]);
+  jdata[0] = EXP(ydata[0]);
+  jdata[1] = EXP(ydata[1]);
 
   return 0;
 }
@@ -446,11 +446,11 @@ int ans(sunrealtype t, N_Vector y)
   sunrealtype a, b;
   sunrealtype* ydata = N_VGetArrayPointer(y);
 
-  a = sqrt(EVAL) + EVAL;
-  b = sqrt(EVAL) + exp(a * t);
+  a = SQRT(EVAL) + EVAL;
+  b = SQRT(EVAL) + EXP(a * t);
 
-  ydata[0] = log(EVAL + exp(SUN_RCONST(1.5))) - log(b);
-  ydata[1] = log(a * exp(a * t)) - log(b);
+  ydata[0] = LOG(EVAL + EXP(SUN_RCONST(1.5))) - LOG(b);
+  ydata[1] = LOG(a * EXP(a * t)) - LOG(b);
 
   return 0;
 }
