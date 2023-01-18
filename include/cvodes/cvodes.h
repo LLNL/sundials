@@ -115,8 +115,7 @@ extern "C" {
 
 #define CV_BAD_TINTERP          -59
 #define CV_SUNMAT_FAIL          -60
-#define CV_BBD_JAC_FAIL         -61
-#define CV_BANDPRE_SETUP_FAIL   -62
+#define CV_BANDPRE_SETUP_FAIL   -61
 
 #define CV_GENERIC_ERR          -98
 #define CV_UNRECOGNIZED_ERR     -99
