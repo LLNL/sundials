@@ -14,7 +14,6 @@
 
 #include <sundials/sundials.h>
 #include <sundials/sundials_context.hpp>
-// #include <sundials/sundials_errors.hpp>
 #include <sundials/sundials_nvector.hpp>
 #include <sundials/sundials_matrix.hpp>
 #include <sundials/sundials_linearsolver.hpp>
