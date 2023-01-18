@@ -104,16 +104,16 @@ static int arkRelaxJacobian(sunrealtype* relax_vals, N_Vector* y_relax,
 /* Solve the relaxation residual equation using Newton's method */
 static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 {
-  int i, retval;
+  int i, j, retval;
   sunrealtype max_res;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* y_relax = y_n + r * delta_y */
-    for (i = 0; i < ark_mem->relax_mem->num_relax_fn; ++i)
-      N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_vals[i],
-                   ark_mem->relax_mem->delta_y, ark_mem->relax_mem->y_relax[i]);
+    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
+      N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_vals[j],
+                   ark_mem->relax_mem->delta_y, ark_mem->relax_mem->y_relax[j]);
 
     /* Compute the current residual */
     retval = arkRelaxResidual(relax_mem->relax_vals, relax_mem->y_relax,
@@ -122,8 +122,8 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 
     /* Check for convergence of all values */
     max_res = SUNRabs(relax_mem->res_vals[0]);
-    for (i = 1; i < ark_mem->relax_mem->num_relax_fn; ++i)
-      max_res = SUNMAX(max_res, relax_mem->res_vals[i]);
+    for (j = 1; j < ark_mem->relax_mem->num_relax_fn; ++j)
+      max_res = SUNMAX(max_res, relax_mem->res_vals[j]);
 
     if (max_res < relax_mem->tol) return ARK_SUCCESS;
 
@@ -135,8 +135,8 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
                               relax_mem->jac_vals, ark_mem);
     if (retval) return retval;
 
-    for (i = 0; i < ark_mem->relax_mem->num_relax_fn; ++i)
-      relax_mem->relax_vals[i] -= relax_mem->res_vals[i] / relax_mem->jac_vals[i];
+    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
+      relax_mem->relax_vals[j] -= relax_mem->res_vals[j] / relax_mem->jac_vals[j];
   }
 
   return ARK_RELAX_SOLVE_RECV;
@@ -145,16 +145,16 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 /* Solve the relaxation residual equation using Newton's method */
 static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
 {
-  int i, retval;
+  int i, j, retval;
   sunrealtype max_res;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* y_relax = y_n + r * delta_y */
-    for (i = 0; i < ark_mem->relax_mem->num_relax_fn; ++i)
-      N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_vals[i],
-                   ark_mem->relax_mem->delta_y, ark_mem->relax_mem->y_relax[i]);
+    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
+      N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_vals[j],
+                   ark_mem->relax_mem->delta_y, ark_mem->relax_mem->y_relax[j]);
 
     /* Compute the current residual */
     retval = arkRelaxResidual(relax_mem->relax_vals, relax_mem->y_relax,
@@ -163,16 +163,16 @@ static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
 
     /* Check for convergence of all values */
     max_res = SUNRabs(relax_mem->res_vals[0]);
-    for (i = 1; i < ark_mem->relax_mem->num_relax_fn; ++i)
-      max_res = SUNMAX(max_res, relax_mem->res_vals[i]);
+    for (j = 1; j < ark_mem->relax_mem->num_relax_fn; ++j)
+      max_res = SUNMAX(max_res, relax_mem->res_vals[j]);
 
     if (max_res < relax_mem->tol) return ARK_SUCCESS;
 
     /* Update iteration count */
     relax_mem->nls_iters++;
 
-    for (i = 0; i < ark_mem->relax_mem->num_relax_fn; ++i)
-      relax_mem->relax_vals[i] -= relax_mem->res_vals[i];
+    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
+      relax_mem->relax_vals[j] -= relax_mem->res_vals[j];
   }
 
   return ARK_RELAX_SOLVE_RECV;
