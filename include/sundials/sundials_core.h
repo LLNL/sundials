@@ -12,7 +12,8 @@
  * Header file that includes the SUNDIALS core.
  * ----------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_H
+#ifndef _SUNDIALS_CORE_H
+#define _SUNDIALS_CORE_H
 
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
@@ -29,4 +30,4 @@
 #include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_linearsolver.h>
 
-#endif /* _SUNDIALS_H */
+#endif /* _SUNDIALS_CORE_H */
