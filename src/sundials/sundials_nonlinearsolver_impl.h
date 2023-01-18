@@ -15,7 +15,7 @@
 #ifndef _SUNDIALS_NONLINEARSOLVER_IMPL_H
 #define _SUNDIALS_NONLINEARSOLVER_IMPL_H
 
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <sundials/impl/sundials_errors_impl.h>
 #include "sundials_logger_impl.h"
 

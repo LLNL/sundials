@@ -15,7 +15,7 @@
 #ifndef _SUNDIALS_NVECTOR_IMPL_H
 #define _SUNDIALS_NVECTOR_IMPL_H
 
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <sundials/impl/sundials_errors_impl.h>
 
 #define NVECTOR_DEFINE_ENABLE_FUSEDOP(fname, opname, suffix) \

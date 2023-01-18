@@ -19,7 +19,7 @@
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 
 #include <sundials/impl/sundials_errors_impl.h>
 #include "sundials_iterative_impl.h"

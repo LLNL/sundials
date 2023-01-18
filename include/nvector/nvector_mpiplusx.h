@@ -20,7 +20,7 @@
 #define _NVECTOR_MPIPLUSX_H
 
 #include <mpi.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <nvector/nvector_mpimanyvector.h>
 #include <sundials/impl/sundials_errors_impl.h>
 

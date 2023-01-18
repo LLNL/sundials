@@ -22,7 +22,7 @@
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <sundials/impl/sundials_errors_impl.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"

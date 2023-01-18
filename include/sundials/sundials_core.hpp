@@ -12,7 +12,7 @@
 
 #ifndef _SUNDIALS_HPP
 
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <sundials/sundials_context.hpp>
 #include <sundials/sundials_nvector.hpp>
 #include <sundials/sundials_matrix.hpp>

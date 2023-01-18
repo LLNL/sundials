@@ -38,7 +38,7 @@
 #define _NVECTOR_MANY_VECTOR_H
 
 #include <stdio.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

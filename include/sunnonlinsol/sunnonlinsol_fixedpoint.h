@@ -22,7 +22,7 @@
 #ifndef _SUNNONLINSOL_FIXEDPOINT_H
 #define _SUNNONLINSOL_FIXEDPOINT_H
 
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

@@ -19,7 +19,7 @@
 #define _KINSOL_H
 
 #include <stdio.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <kinsol/kinsol_ls.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

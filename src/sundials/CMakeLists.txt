@@ -26,6 +26,8 @@ set(sundials_HEADERS
   sundials_context.h
   sundials_context.hpp
   sundials_convertibleto.hpp
+  sundials_core.h
+  sundials_core.hpp
   sundials_dense.h
   sundials_direct.h
   sundials_errors.h
@@ -46,8 +48,6 @@ set(sundials_HEADERS
   sundials_profiler.h
   sundials_types.h
   sundials_version.h
-  sundials.h
-  sundials.hpp
   )
 
 if(BUILD_FORTRAN_MODULE_INTERFACE)

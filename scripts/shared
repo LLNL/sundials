@@ -158,8 +158,8 @@ $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_version.h
 $tar $tarfile $distrobase/include/sundials/sundials_xbraid.h
-$tar $tarfile $distrobase/include/sundials/sundials.h
-$tar $tarfile $distrobase/include/sundials/sundials.hpp
+$tar $tarfile $distrobase/include/sundials/sundials_core.h
+$tar $tarfile $distrobase/include/sundials/sundials_core.hpp
 
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h
 $tar $tarfile $distrobase/include/nvector/nvector_hip.h

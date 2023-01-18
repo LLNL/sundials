@@ -18,7 +18,7 @@
 #define _CVODES_H
 
 #include <stdio.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <cvodes/cvodes_ls.h>
 #include <cvodes/cvodes_proj.h>
 

@@ -18,7 +18,7 @@
 #define _IDAS_H
 
 #include <stdio.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <idas/idas_ls.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

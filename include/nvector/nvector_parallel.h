@@ -40,7 +40,7 @@
 
 #include <mpi.h>
 #include <stdio.h>
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <sundials/sundials_mpi_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

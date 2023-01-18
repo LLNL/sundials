@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <sundials/sundials.h>
+#include <sundials/sundials_core.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 #include "cvode_impl.h"
 
