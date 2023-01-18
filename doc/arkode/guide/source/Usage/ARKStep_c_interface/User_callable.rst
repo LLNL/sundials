@@ -2296,7 +2296,7 @@ or reevaluate Jacobian information, depends on several factors including:
 * the number of steps since Jacobian information was last evaluated.
 
 Jacobian information is considered out-of-date when :math:`msbj` or more steps
-have been completed since the last update and will be recomputed during the next
+have been completed since the last update, in which case it will be recomputed during the next
 linear solver setup call. The value of :math:`msbj` is controlled with the
 ``msbj`` argument to :c:func:`ARKStepSetJacEvalFrequency()`.
 
@@ -2389,14 +2389,14 @@ is recomputed using the current :math:`\gamma` value.
    **Notes:**
       If ``nstlj`` is the step number at which the Jacobian information was
       lasted updated and ``nst`` is the current step number,
-      ``nst - nstlj >= msbj`` indicates the Jacobian information will be updated
+      ``nst - nstlj >= msbj`` indicates that the Jacobian information will be updated
       during the next linear solver setup call.
 
       As the Jacobian update frequency is only checked *within* calls to the
       linear solver setup routine, Jacobian information may be more than
       ``msbj`` steps old when updated depending on when a linear solver setup
       call occurs. See :numref:`ARKODE.Mathematics.Linear.Setup`
-      for more information on when linear solver setups are preformed.
+      for more information on when linear solver setups are performed.
 
       Passing a value *msbj* :math:`\le 0` indicates to use the
       default value of 51.
