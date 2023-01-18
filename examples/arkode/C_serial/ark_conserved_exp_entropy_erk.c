@@ -122,18 +122,24 @@ int main(int argc, char* argv[])
   FILE* UFID;
 
   /* Command line options */
-  int relax = 1; /* enable relaxation */
+  int relax           = 1;               /* enable relaxation */
+  sunrealtype fixed_h = SUN_RCONST(0.0); /* adaptive stepping */
 
   /* -------------------- *
    * Output Problem Setup *
    * -------------------- */
 
   if (argc > 1) relax = atoi(argv[1]);
+  if (argc > 2) fixed_h = atof(argv[2]);
 
   printf("\nConserved Exponential Entropy problem:\n");
   printf("   method     = ERK\n");
   printf("   reltol     = %.1" ESYM "\n", reltol);
   printf("   abstol     = %.1" ESYM "\n", abstol);
+  if (fixed_h > SUN_RCONST(0.0))
+  {
+    printf("   fixed h    = %.1" ESYM "\n", fixed_h);
+  }
   if (relax)
   {
     printf("   relaxation = ON\n");
@@ -185,6 +191,12 @@ int main(int argc, char* argv[])
     /* Enable relaxation methods */
     flag = ERKStepSetRelaxFn(arkode_mem, 1, Ent, JacEnt);
     if (check_flag(flag, "ERKStepSetRelaxFn")) return 1;
+  }
+
+  if (fixed_h > SUN_RCONST(0.0))
+  {
+    flag = ERKStepSetFixedStep(arkode_mem, fixed_h);
+    if (check_flag(flag, "ERKStepSetFixedStep")) return 1;
   }
 
   /* Open output stream for results, output comment line */

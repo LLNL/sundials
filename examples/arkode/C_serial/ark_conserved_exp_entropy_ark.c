@@ -131,8 +131,9 @@ int main(int argc, char* argv[])
   FILE* UFID;
 
   /* Command line options */
-  int relax    = 1; /* enable relaxation */
-  int implicit = 1; /* implicit          */
+  int relax    = 1;                      /* enable relaxation */
+  int implicit = 1;                      /* implicit          */
+  sunrealtype fixed_h = SUN_RCONST(0.0); /* adaptive stepping */
 
   /* -------------------- *
    * Output Problem Setup *
@@ -140,6 +141,7 @@ int main(int argc, char* argv[])
 
   if (argc > 1) relax = atoi(argv[1]);
   if (argc > 2) implicit = atoi(argv[2]);
+  if (argc > 3) fixed_h = atof(argv[3]);
 
   printf("\nConserved Exponential Entropy problem:\n");
   if (implicit)
@@ -152,6 +154,10 @@ int main(int argc, char* argv[])
   }
   printf("   reltol     = %.1" ESYM "\n", reltol);
   printf("   abstol     = %.1" ESYM "\n", abstol);
+  if (fixed_h > SUN_RCONST(0.0))
+  {
+    printf("   fixed h    = %.1" ESYM "\n", fixed_h);
+  }
   if (relax)
   {
     printf("   relaxation = ON\n");
@@ -233,6 +239,12 @@ int main(int argc, char* argv[])
     flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
                                "ARKODE_ERK_NONE");
     if (check_flag(flag, "ARKStepSetTableName")) return 1;
+  }
+
+  if (fixed_h > SUN_RCONST(0.0))
+  {
+    flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
+    if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
 
   /* Open output stream for results, output comment line */
