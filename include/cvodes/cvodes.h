@@ -117,7 +117,6 @@ extern "C" {
 #define CV_SUNMAT_FAIL          -60
 #define CV_BANDPRE_SETUP_FAIL   -61
 
-#define CV_GENERIC_ERR          -98
 #define CV_UNRECOGNIZED_ERR     -99
 
 /* adjoint return values */

@@ -2464,7 +2464,7 @@ static int cvLsJacBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   /* Forward solution from interpolation */
   retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2497,7 +2497,7 @@ static int cvLsJacBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   else
     retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2528,7 +2528,7 @@ static int cvLsPrecSetupBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   /* Get forward solution from interpolation */
   retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2561,7 +2561,7 @@ static int cvLsPrecSetupBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   else
     retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2594,7 +2594,7 @@ static int cvLsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   /* Forward solution from interpolation */
   retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2629,7 +2629,7 @@ static int cvLsPrecSolveBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   else
     retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2660,7 +2660,7 @@ static int cvLsJacTimesSetupBWrapper(realtype t, N_Vector yB,
   /* Forward solution from interpolation */
   retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2693,7 +2693,7 @@ static int cvLsJacTimesSetupBSWrapper(realtype t, N_Vector yB,
   else
     retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2725,7 +2725,7 @@ static int cvLsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
   /* Forward solution from interpolation */
   retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2759,7 +2759,7 @@ static int cvLsJacTimesVecBSWrapper(N_Vector vB, N_Vector JvB, realtype t,
   else
     retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2793,7 +2793,7 @@ static int cvLsLinSysBWrapper(realtype t, N_Vector yB, N_Vector fyB,
   /* Forward solution from interpolation */
   retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
@@ -2830,7 +2830,7 @@ static int cvLsLinSysBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   else
     retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
   if (retval != CV_SUCCESS) {
-    cvProcessError(cv_mem, CV_GENERIC_ERR, __LINE__, __func__, __FILE__,
+    cvProcessError(cv_mem, CV_BAD_TINTERP, __LINE__, __func__, __FILE__,
                    MSG_LS_BAD_TINTERP);
     return(-1);
   }
