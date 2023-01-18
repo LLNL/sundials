@@ -63,7 +63,7 @@ Names for Vectors, Matrices, and Solvers
 
 The SUNDIALS vector, matrix, linear solver, and nonlinear solver classes use the
 naming convention ``<short class name><method>`` for base class methods where
-each component of the name uses camel case. See
+each component of the name uses Pascal case. See
 :numref:`Style.Table.OldBaseClassMethodNaming` for examples.
 
 .. note::
