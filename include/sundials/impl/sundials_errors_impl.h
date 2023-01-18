@@ -22,19 +22,16 @@
 
 #include <sundials/sundials_errors.h>
 
-/* Shortcut macro to access the SUNContext declared with SUNAssignSUNCTX. */
-#define SUNCTX sunctx_
-
 /* The SUNAssignSUNCTX macro is used to declare the SUNContext
    object to be used a function. */
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
 #define SUNAssignSUNCTX(sunctx) \
-  SUNContext SUNCTX = sunctx; \
-  (void)SUNCTX
+  SUNContext sunctx_ = sunctx;  \
+  (void)sunctx_
 #else
 #define SUNAssignSUNCTX(sunctx) \
-  SUNContext SUNCTX = sunctx;   \
-  (void)SUNCTX
+  SUNContext sunctx_ = sunctx;  \
+  (void)sunctx_
 #endif
 
 /* ----------------------------------------------------------------------------
@@ -44,13 +41,13 @@
 /* SUNCheck is like SUNAssert except it is compiled even in release mode
    unless SUNDIALS_DISABLE_ERROR_CHECKS is defined  */
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
-#define SUNCheck(expr, code)                                                  \
-  do {                                                                        \
-    if (SUNHintFalse(!(expr)))                                                \
-    {                                                                         \
-      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, #expr, code, SUNCTX); \
-    }                                                                         \
-  }                                                                           \
+#define SUNCheck(expr, code)                                                   \
+  do {                                                                         \
+    if (SUNHintFalse(!(expr)))                                                 \
+    {                                                                          \
+      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, #expr, code, sunctx_); \
+    }                                                                          \
+  }                                                                            \
   while (0)
 #else
 #define SUNCheck(expr, code)
@@ -66,8 +63,8 @@
     if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX);                                              \
-      (void)SUNGetLastErr(SUNCTX);                                       \
+                   sunctx_);                                             \
+      (void)SUNGetLastErr(sunctx_);                                      \
     }                                                                    \
   }                                                                      \
   while (0)
@@ -84,7 +81,7 @@
     if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX);                                              \
+                   sunctx_);                                             \
       return sun_chk_call_err_code_;                                     \
     }                                                                    \
   }                                                                      \
@@ -101,7 +98,7 @@
     if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX);                                              \
+                   sunctx_);                                             \
       return NULL;                                                       \
     }                                                                    \
   }                                                                      \
@@ -118,7 +115,7 @@
     if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
     {                                                                    \
       SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX);                                              \
+                   sunctx_);                                             \
       return;                                                            \
     }                                                                    \
   }                                                                      \
@@ -134,22 +131,22 @@
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
 #define SUNCheckCallLastErrNoRet(call) \
   call;                                \
-  SUNCheckCallNoRet(SUNGetLastErr(SUNCTX))
+  SUNCheckCallNoRet(SUNGetLastErr(sunctx_))
 
 /* Same as SUNCheckCallLastErrNoRet, but returns with the error code. */
 #define SUNCheckCallLastErr(call) \
   call;                           \
-  SUNCheckCall(SUNGetLastErr(SUNCTX))
+  SUNCheckCall(SUNGetLastErr(sunctx_))
 
 /* Same as SUNCheckCallLastErrNoRet, but returns void. */
 #define SUNCheckCallLastErrVoid(call) \
   call;                               \
-  SUNCheckCallVoid(SUNGetLastErr(SUNCTX))
+  SUNCheckCallVoid(SUNGetLastErr(sunctx_))
 
 /* Same as SUNCheckCallLastErrNoRet, but returns with the error code. */
 #define SUNCheckCallLastErrNull(call) \
   call;                               \
-  SUNCheckCallNull(SUNGetLastErr(SUNCTX))
+  SUNCheckCallNull(SUNGetLastErr(sunctx_))
 #else
 #define SUNCheckCallLastErrNoRet(call) call
 #define SUNCheckCallLastErr(call)      call
@@ -165,7 +162,7 @@
     if (!(expr))                                                       \
     {                                                                  \
       SUNAssertErrHandlerFn(__LINE__, __func__, __FILE__, #expr, code, \
-                            SUNCTX->err_handler->data, SUNCTX);        \
+                            sunctx_->err_handler->data, sunctx_);      \
     }                                                                  \
   }                                                                    \
   while (0)
@@ -177,7 +174,5 @@
    a SUNContext for cases where SUNContext is not available.
    It won't be thread safe, but that should be OK since this is a catastropic
    error. */
-
-
 
 #endif /* _SUNDIALS_ERRORS_IMPL_H */

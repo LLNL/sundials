@@ -1010,7 +1010,7 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 
   for (j = 0; j < count; j++) {
     vs[j] = SUNCheckCallLastErrNoRet(N_VCloneEmpty(w));
-    if (SUNGetLastErr(SUNCTX) < 0) {
+    if (SUNGetLastErr(w->sunctx) < 0) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
     }
@@ -1032,7 +1032,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
 
   for (j = 0; j < count; j++) {
     vs[j] = SUNCheckCallLastErrNoRet(N_VClone(w));
-    if (SUNGetLastErr(SUNCTX) < 0) {
+    if (SUNGetLastErr(w->sunctx) < 0) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
     }

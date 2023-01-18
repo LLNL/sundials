@@ -114,7 +114,7 @@
       {                                                           \
         err_ = SUN_ERR_HYPRE_CONV;                                \
       }                                                           \
-      SUNHandleErr(__LINE__, __func__, __FILE__, err_, SUNCTX);   \
+      SUNHandleErr(__LINE__, __func__, __FILE__, err_, sunctx_);  \
     }                                                             \
   }                                                               \
   while (0)
