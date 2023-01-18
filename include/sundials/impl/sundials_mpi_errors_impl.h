@@ -74,7 +74,7 @@
     if (!(expr))                                                          \
     {                                                                     \
       SUNMPIAssertErrHandlerFn(__LINE__, __func__, __FILE__, #expr, code, \
-                               SUNCTX->err_handler->data, sunctx_);       \
+                               sunctx_->err_handler->data, sunctx_);      \
     }                                                                     \
   }                                                                       \
   while (0)
