@@ -18,6 +18,8 @@
 #include <iostream>
 #include <vector>
 
+#include <sundials/sundials_types.h>
+
 // Check function return flag
 int check_flag(const int flag, const std::string funcname)
 {
