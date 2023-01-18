@@ -14,6 +14,8 @@
  * This file implements fused CUDA/HIP kernels for CVODE.
  * -----------------------------------------------------------------*/
 
+#include "cvode_impl.h"
+
 #ifdef USE_CUDA
 #include <cuda_runtime.h>
 #include <nvector/nvector_cuda.h>
@@ -158,7 +160,7 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
   (
     N,
     reltol,
-    Vabstol,
+    Vabstol_data,
     ycur_data,
     tempv_data,
     weight_data
