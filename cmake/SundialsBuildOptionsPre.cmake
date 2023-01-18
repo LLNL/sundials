@@ -75,7 +75,7 @@ sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 # Option to enable/disable error checking
 # ---------------------------------------------------------------
 
-set(DOCSTR "Build with error checking enabled/disabled. In most cases is not recommended to disable error checks.")
+set(DOCSTR "Build with error checking enabled/disabled. In most cases it is not recommended to disable error checks.")
 sundials_option(SUNDIALS_DISABLE_ERROR_CHECKS BOOL "${DOCSTR}" OFF)
 if(SUNDIALS_DISABLE_ERROR_CHECKS)
   message(STATUS "SUNDIALS error checking disabled")
@@ -292,7 +292,7 @@ sundials_option(SUNDIALS_TEST_OUTPUT_DIR PATH
 sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
   "Location of testing answer files" "" ADVANCED)
 
-sundials_option(SUNDIALS_TEST_PROFILE BOOL 
+sundials_option(SUNDIALS_TEST_PROFILE BOOL
   "Use Caliper to profile SUNDIALS tests" OFF ADVANCED)
 
 sundials_option(SUNDIALS_TEST_NODIFF BOOL
@@ -306,7 +306,7 @@ sundials_option(SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS STRING
 
 sundials_option(SUNDIALS_TEST_CONTAINER_MNT STRING
   "Path to project root inside the container" "/sundials" ADVANCED)
-  
+
 # Include development examples in regression tests
 sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
   "Include development tests in make test" OFF ADVANCED)
