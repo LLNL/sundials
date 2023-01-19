@@ -431,13 +431,13 @@ int IDABBDPrecGetNumGfnEvals(void *ida_mem,
    > 0    for a recoverable error (step will be retried), or
    < 0    for a nonrecoverable error (step fails).
  ----------------------------------------------------------------*/
-static SUNLsStatus IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
-                                   N_Vector rr, realtype c_j, void *bbd_data)
+static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
+                           N_Vector rr, realtype c_j, void *bbd_data)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
   int retval;
-  SUNLsStatus ls_status;
+  int ls_status;
 
   pdata =(IBBDPrecData) bbd_data;
 
@@ -485,11 +485,11 @@ static SUNLsStatus IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
   IDABBDPrecSolve returns the value returned from the linear
   solver object.
   ---------------------------------------------------------------*/
-static SUNLsStatus IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
-                                   N_Vector rr, N_Vector rvec, N_Vector zvec,
-                                   realtype c_j, realtype delta, void *bbd_data)
+static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
+                           N_Vector rr, N_Vector rvec, N_Vector zvec,
+                           realtype c_j, realtype delta, void *bbd_data)
 {
-  SUNLsStatus ls_status;
+  int ls_status;
   IBBDPrecData pdata;
   sunrealtype *rdata, *zdata;
 

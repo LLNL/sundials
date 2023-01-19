@@ -200,35 +200,6 @@ typedef enum
 
 typedef int SUNErrCode;
 
-/*
- *------------------------------------------------------------------
- * Type : SUNNlsStatus
- *------------------------------------------------------------------
- * Status code returned by some SUNNonLinearSolver functions.
- * Different than SUNErrCode, as this is used to indicate numerical
- * errors that may be recoverable or unrecoverable (e.g. convergence).
- *------------------------------------------------------------------
- */
-
-typedef int SUNNlsStatus;
-
-/*
- *------------------------------------------------------------------
- * Type : SUNLsStatus
- *------------------------------------------------------------------
- * Status code returned by some SUNLinearSolver functions.
- * Different than SUNErrCode, as this is used to indicate numerical
- * errors that may be recoverable or unrecoverable (e.g. convergence).
- *------------------------------------------------------------------
- */
-
-/* TODO(CJB): some functions return an index as a SUNLsStatus due to
-   backwards compatibility. This could result in overflow if the
-   index returned is larger than an int. We could make SUNLsStatus
-   a sunindextype, but then updating functions like PSetup and PSolve would
-   technically be API changes. */
-typedef int SUNLsStatus;
-
 #ifdef __cplusplus
 }
 #endif

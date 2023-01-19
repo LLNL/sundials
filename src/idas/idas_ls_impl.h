@@ -114,8 +114,8 @@ typedef struct IDALsMemRec {
 
 /* Interface routines called by system SUNLinearSolver */
 int idaLsATimes(void *ida_mem, N_Vector v, N_Vector z);
-SUNLsStatus idaLsPSetup(void *ida_mem);
-SUNLsStatus idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z,
+int idaLsPSetup(void *ida_mem);
+int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z,
                 realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */

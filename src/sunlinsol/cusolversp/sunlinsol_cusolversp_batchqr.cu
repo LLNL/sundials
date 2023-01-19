@@ -177,7 +177,7 @@ int SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S)
   return(SUN_CUSP_LASTFLAG(S));
 }
 
-SUNLsStatus SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
 {
   int blockrows, blockcols, blocknnz, nblock;
   int *d_rowptr, *d_colind;
@@ -268,7 +268,7 @@ SUNLsStatus SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
   return(SUN_CUSP_LASTFLAG(S));
 }
 
-SUNLsStatus SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
+int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
                                       N_Vector x, N_Vector b, realtype tol)
 {
   cusolverStatus_t status;

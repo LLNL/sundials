@@ -4456,7 +4456,7 @@ static booleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void cvQuadFreeVectors(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX); 
+  SUNAssignSUNCTX(CV_SUNCTX);
   int j, maxord;
 
   maxord = cv_mem->cv_qmax_allocQ;
@@ -6392,7 +6392,7 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
   SUNAssignSUNCTX(CV_SUNCTX);
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
   long int nni_inc = 0;
@@ -6664,11 +6664,11 @@ static int cvQuadSensNls(CVodeMem cv_mem)
  * once the states y_n were obtained and passed the error test.
  */
 
-static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
+static int cvStgrNls(CVodeMem cv_mem)
 {
   SUNAssignSUNCTX(CV_SUNCTX);
   booleantype callSetup;
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
   long int nniS_inc = 0;
   long int nnfS_inc = 0;
 
@@ -6723,14 +6723,14 @@ static SUNNlsStatus cvStgrNls(CVodeMem cv_mem)
  * once the states y_n were obtained and passed the error test.
  */
 
-static SUNNlsStatus cvStgr1Nls(CVodeMem cv_mem, int is)
+static int cvStgr1Nls(CVodeMem cv_mem, int is)
 {
   SUNAssignSUNCTX(CV_SUNCTX);
   booleantype callSetup;
   long int nniS1_inc = 0;
   long int nnfS1_inc = 0;
   int flag=CV_SUCCESS;
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
 
 
   callSetup = SUNFALSE;
@@ -9311,7 +9311,7 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
     fprintf(stderr, "%s\n\n", msg);
 #endif
 
-  } else if (cv_mem->cv_ehfun) { 
+  } else if (cv_mem->cv_ehfun) {
     /* We can call ehfun if it exists */
 
     /* DEPRECATED functionality: will remove in v7 */

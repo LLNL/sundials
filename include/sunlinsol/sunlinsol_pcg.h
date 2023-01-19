@@ -106,11 +106,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul);
+int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
-                               N_Vector b, realtype tol);
+int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
+                       N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
 int SUNLinSolNumIters_PCG(SUNLinearSolver S);

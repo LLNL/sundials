@@ -929,7 +929,7 @@ char *CVodeGetLinReturnFlagName(long int flag)
   The return value is the same as the value returned by jtimes --
   0 if successful, nonzero otherwise.
   -----------------------------------------------------------------*/
-SUNLsStatus cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
+int cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -969,7 +969,7 @@ SUNLsStatus cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
   iterative linear solvers guarantee that cvLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus cvLsPSetup(void *cvode_mem)
+int cvLsPSetup(void *cvode_mem)
 {
   int      retval;
   CVodeMem cv_mem;
@@ -1002,7 +1002,7 @@ SUNLsStatus cvLsPSetup(void *cvode_mem)
   only case in which the user's psolve routine is allowed to be
   NULL.
   -----------------------------------------------------------------*/
-SUNLsStatus cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, int lr)
+int cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, int lr)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -1374,7 +1374,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
       retval = SUNMatZero(A);
       SUNCheckCallNoRet(retval);
       if (retval) {
-        cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__, 
+        cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,
                        MSG_LS_SUNMAT_FAILED);
         cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
         return(cvls_mem->last_flag);
@@ -1671,7 +1671,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVLsMem  cvls_mem;
   realtype bnorm, deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
-  SUNLsStatus ls_status;
+  int ls_status;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   realtype resnorm;
   long int nps_inc;
@@ -1871,7 +1871,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 int cvLsFree(CVodeMem cv_mem)
 {
   SUNAssignSUNCTX(CV_SUNCTX);
-  
+
   CVLsMem cvls_mem;
 
   /* Return immediately if CVodeMem or CVLsMem  are NULL */

@@ -56,8 +56,8 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackBand(N_Vector y,
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackBand(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A,
+SUNDIALS_EXPORT int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A,
                                               N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_LapackBand(SUNLinearSolver S,

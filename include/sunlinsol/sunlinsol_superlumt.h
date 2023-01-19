@@ -102,9 +102,9 @@ SUNDIALS_EXPORT int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S,
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
-                                       N_Vector x, N_Vector b, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
+                                             N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
                                              long int *lenrwLS,

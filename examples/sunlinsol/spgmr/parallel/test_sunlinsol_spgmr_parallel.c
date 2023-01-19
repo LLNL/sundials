@@ -57,9 +57,9 @@ typedef struct {
 /*    matrix-vector product  */
 int ATimes(void* ProbData, N_Vector v, N_Vector z);
 /*    preconditioner setup */
-SUNLsStatus PSetup(void* ProbData);
+int PSetup(void* ProbData);
 /*    preconditioner solve */
-SUNLsStatus PSolve(void* ProbData, N_Vector r, N_Vector z, realtype tol, int lr);
+int PSolve(void* ProbData, N_Vector r, N_Vector z, realtype tol, int lr);
 /*    checks function return values  */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 /*    uniform random number generator in [0,1] */
@@ -512,10 +512,10 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 }
 
 /* preconditioner setup -- nothing to do here since everything is already stored */
-SUNLsStatus PSetup(void* Data) { return 0; }
+int PSetup(void* Data) { return 0; }
 
 /* preconditioner solve */
-SUNLsStatus PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
+int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 {
   /* local variables */
   realtype *r, *z, *d;

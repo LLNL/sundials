@@ -421,7 +421,7 @@ static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
   IBBDPrecData pdata;
   IDAMem IDA_mem;
   int retval;
-  SUNLsStatus ls_status;
+  int ls_status;
 
   pdata =(IBBDPrecData) bbd_data;
 
@@ -473,7 +473,7 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
                            N_Vector rr, N_Vector rvec, N_Vector zvec,
                            realtype c_j, realtype delta, void *bbd_data)
 {
-  SUNLsStatus ls_status;
+  int ls_status;
   IBBDPrecData pdata;
   sunrealtype *rdata, *zdata;
 
@@ -561,7 +561,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   realtype *col_j, conj, yj, ypj, ewtj;
 
   IDA_mem = (IDAMem) pdata->ida_mem;
-  
+
   SUNAssignSUNCTX(IDA_SUNCTX);
 
   /* Initialize ytemp and yptemp. */

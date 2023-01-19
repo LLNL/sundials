@@ -92,9 +92,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT
-SUNNlsStatus SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
-                                          N_Vector y, N_Vector w, realtype tol,
-                                          booleantype callSetup, void* mem);
+int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
+                                 N_Vector y, N_Vector w, realtype tol,
+                                 booleantype callSetup, void* mem);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);

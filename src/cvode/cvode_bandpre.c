@@ -177,7 +177,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2));
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__, 
+    cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                    MSGBP_SUNLS_FAIL);
     return(CVLS_SUNLS_FAIL);
   }
@@ -341,19 +341,19 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
     0  if successful, or
     1  if the band factorization failed.
   -----------------------------------------------------------------*/
-static SUNLsStatus CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                                   booleantype jok, booleantype *jcurPtr,
-                                   realtype gamma, void *bp_data)
+static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                           booleantype jok, booleantype *jcurPtr,
+                           realtype gamma, void *bp_data)
 {
   CVBandPrecData pdata;
   CVodeMem cv_mem;
-  SUNLsStatus ls_status;
+  int ls_status;
   int retval;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   if (jok) {
@@ -436,16 +436,16 @@ static SUNLsStatus CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   z is the output vector computed by CVBandPrecSolve.
 
-  CVBandPrecSolve returns a SUNLsStatus.
+  CVBandPrecSolve returns a int.
   -----------------------------------------------------------------*/
-static SUNLsStatus CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                                   N_Vector r, N_Vector z, realtype gamma,
-                                   realtype delta, int lr, void *bp_data)
+static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                           N_Vector r, N_Vector z, realtype gamma,
+                           realtype delta, int lr, void *bp_data)
 {
   SUNAssignSUNCTX(y->sunctx);
 
   CVBandPrecData pdata = (CVBandPrecData) bp_data;
-  SUNLsStatus ls_status = SUNLS_SUCCESS;
+  int ls_status = SUNLS_SUCCESS;
 
   /* Assume matrix and linear solver have already been allocated. */
 
@@ -506,7 +506,7 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   cns_data = NULL;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   /* Obtain pointers to the data for various vectors */

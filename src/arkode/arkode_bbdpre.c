@@ -405,16 +405,16 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
  bbd_data is a pointer to the preconditioner data set by
           ARKBBDPrecInit
 
- Return value is a SUNLsStatus
+ Return value is a int
 ---------------------------------------------------------------*/
-static SUNLsStatus ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                                   booleantype jok, booleantype *jcurPtr,
-                                   realtype gamma, void *bbd_data)
+static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                           booleantype jok, booleantype *jcurPtr,
+                           realtype gamma, void *bbd_data)
 {
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  SUNLsStatus ls_status;
+  int ls_status;
 
   pdata = (ARKBBDPrecData) bbd_data;
 
@@ -497,15 +497,15 @@ static SUNLsStatus ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBBDPrecSolve function is the same
  as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
-static SUNLsStatus ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                                   N_Vector r, N_Vector z,
-                                   realtype gamma, realtype delta,
-                                   int lr, void *bbd_data)
+static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                           N_Vector r, N_Vector z,
+                           realtype gamma, realtype delta,
+                           int lr, void *bbd_data)
 {
-  SUNLsStatus ls_status;
+  int ls_status;
   ARKBBDPrecData pdata;
   sunrealtype *rdata, *zdata;
-  
+
   pdata = (ARKBBDPrecData) bbd_data;
 
   SUNAssignSUNCTX(((ARKodeMem) pdata->arkode_mem)->sunctx);
@@ -587,7 +587,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
-  
+
   SUNAssignSUNCTX(ark_mem->sunctx);
 
   /* Load ytemp with y = predicted solution vector */

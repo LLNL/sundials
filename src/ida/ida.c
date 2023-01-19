@@ -2511,7 +2511,7 @@ static int IDANls(IDAMem IDA_mem)
 {
   SUNAssignSUNCTX(IDA_SUNCTX);
 
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
   booleantype constraintsPassed, callLSetup;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
@@ -3294,7 +3294,7 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
 static int IDARcheck1(IDAMem IDA_mem)
 {
   SUNAssignSUNCTX(IDA_SUNCTX);
-  
+
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;
@@ -3767,7 +3767,7 @@ void IDAProcessError(IDAMem ida_mem, int error_code, int line, const char *func,
     /* DEPRECATED functionality: will remove in v7 */
     ida_mem->ida_ehfun(error_code, "IDA", func, msg, ida_mem->ida_eh_data);
   } else {
-    
+
     /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, ida_mem->ida_sunctx);
 

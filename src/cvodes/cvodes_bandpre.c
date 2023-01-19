@@ -333,7 +333,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   CVBandPrecData pdata;
   CVodeMem cv_mem;
-  SUNLsStatus ls_status;
+  int ls_status;
   int retval;
 
   /* Assume matrix and lpivots have already been allocated. */
@@ -418,7 +418,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   z       is the output vector computed by cvBandPrecSolve.
 
-  The value returned is a SUNLsStatus.
+  The value returned is a int.
   -----------------------------------------------------------------*/
 static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z, realtype gamma,
@@ -427,7 +427,7 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
   SUNAssignSUNCTX(y->sunctx);
 
   CVBandPrecData pdata = (CVBandPrecData) bp_data;
-  SUNLsStatus ls_status = SUNLS_SUCCESS;
+  int ls_status = SUNLS_SUCCESS;
 
   /* Assume matrix and linear solver have already been allocated. */
 

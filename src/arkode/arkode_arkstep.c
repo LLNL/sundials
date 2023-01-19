@@ -1543,7 +1543,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_Vector zcor0;
   realtype* cvals;
   N_Vector* Xvecs;
-  SUNNlsStatus nls_status;
+  int nls_status;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Z",

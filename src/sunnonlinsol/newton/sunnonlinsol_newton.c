@@ -172,9 +172,9 @@ SUNErrCode SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   Note return values beginning with * are package specific values returned by
   the Sys, LSetup, and LSolve functions provided to the nonlinear solver.
   ----------------------------------------------------------------------------*/
-SUNNlsStatus SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
-                                      N_Vector ycor, N_Vector w, realtype tol,
-                                      booleantype callLSetup, void* mem)
+int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
+                             N_Vector ycor, N_Vector w, realtype tol,
+                             booleantype callLSetup, void* mem)
 {
   SUNAssignSUNCTX(NLS->sunctx);
   /* local variables */
@@ -186,7 +186,7 @@ SUNNlsStatus SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
   SUNAssert(NEWTON_CONTENT(NLS)->Sys && NEWTON_CONTENT(NLS)->CTest &&
               NEWTON_CONTENT(NLS)->LSolve, SUN_ERR_ARG_CORRUPT);
   SUNAssert(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
-            SUN_ERR_ARG_CORRUPT); 
+            SUN_ERR_ARG_CORRUPT);
 
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;

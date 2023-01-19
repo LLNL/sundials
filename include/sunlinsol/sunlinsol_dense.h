@@ -68,11 +68,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolInitialize_Dense(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
+int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol);
+int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                         N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S);

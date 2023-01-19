@@ -325,9 +325,9 @@ SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff)
 }
 
 
-SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
-  SUNLsStatus status;
+  int status;
   SUNPSetupFn Psetup;
   void* PData;
 
@@ -351,8 +351,8 @@ SUNLsStatus SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                  N_Vector b, realtype delta)
+int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                          N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
   SUNAssignSUNCTX(S->sunctx);
@@ -366,7 +366,7 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  SUNLsStatus status;
+  int status;
 
   /* local shortcuts for fused vector operations */
   realtype* cv;
@@ -584,7 +584,7 @@ SUNLsStatus SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       Xv[k+1] = Z[k];
     }
     SUNCheckCallNoRet(N_VLinearCombination(krydim+1, cv, Xv, xcor));
-    
+
     /* If converged, construct the final solution vector x and return. */
     if (converged) {
       if (*zeroguess) {
@@ -676,7 +676,7 @@ SUNErrCode SUNLinSolSpace_SPFGMR(SUNLinearSolver S, long int* lenrwLS,
   if (SPFGMR_CONTENT(S)->vtemp->ops->nvspace) {
     SUNCheckCallLastErrNoRet(N_VSpace(SPFGMR_CONTENT(S)->vtemp, &lrw1, &liw1));
   }
-  else { 
+  else {
     lrw1 = liw1 = 0;
   }
   *lenrwLS = lrw1*(2*maxl + 4) + maxl*(maxl + 5) + 2;
@@ -756,4 +756,3 @@ SUNErrCode SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver S, int print_level)
   SPFGMR_CONTENT(S)->print_level = print_level;
   return SUN_SUCCESS;
 }
-

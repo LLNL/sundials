@@ -901,7 +901,7 @@ int idaLsATimes(void *ida_mem, N_Vector v, N_Vector z)
   iterative linear solvers guarantee that idaLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus idaLsPSetup(void *ida_mem)
+int idaLsPSetup(void *ida_mem)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -934,7 +934,7 @@ SUNLsStatus idaLsPSetup(void *ida_mem)
   is the only case in which the user's psolve routine is allowed
   to be NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, realtype tol, int lr)
+int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, realtype tol, int lr)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -1271,7 +1271,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR) {
     sig = idals_mem->nrmfac * idals_mem->dqincfac;
   } else {
-    sig = idals_mem->dqincfac; 
+    sig = idals_mem->dqincfac;
     sig /= SUNCheckCallLastErrNoRet(N_VWrmsNorm(v, IDA_mem->ida_ewt));
   }
 
@@ -1466,7 +1466,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
   /* Call LS setup routine -- the LS will call idaLsPSetup if applicable */
   idals_mem->last_flag =
     SUNCheckCallLastErrNoRet(SUNLinSolSetup(idals_mem->LS, idals_mem->J));
-                             
+
   return(idals_mem->last_flag);
 }
 
@@ -1489,7 +1489,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   IDALsMem idals_mem;
   int      nli_inc, retval;
   realtype tol, w_mean;
-  SUNLsStatus ls_status;
+  int ls_status;
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
@@ -1704,7 +1704,7 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
 int idaLsFree(IDAMem IDA_mem)
 {
   SUNAssignSUNCTX(IDA_SUNCTX);
-  
+
   IDALsMem idals_mem;
 
   /* Return immediately if IDA_mem or IDA_mem->ida_lmem are NULL */

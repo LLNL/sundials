@@ -241,7 +241,7 @@ int SUNLinSolInitialize_KLU(SUNLinearSolver S)
 }
 
 
-SUNLsStatus SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 {
   int retval;
   realtype uround_twothirds;
@@ -349,7 +349,7 @@ SUNLsStatus SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 }
 
 
-SUNLsStatus SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                        N_Vector b, realtype tol)
 {
   int flag;

@@ -114,11 +114,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, booleantype onoff);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
+int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                   N_Vector b, realtype tol);
+int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                           N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
 int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S);

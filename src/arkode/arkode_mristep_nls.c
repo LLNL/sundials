@@ -273,7 +273,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   booleantype callLSetup;
   long int nls_iters_inc = 0;
   long int nls_fails_inc = 0;
-  SUNNlsStatus nls_status;
+  int nls_status;
 
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -360,7 +360,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   This routine wraps the ARKODE linear solver interface 'setup'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-SUNNlsStatus mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
+int mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -405,7 +405,7 @@ SUNNlsStatus mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode
   This routine wraps the ARKODE linear solver interface 'solve'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-SUNNlsStatus mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
+int mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -457,7 +457,7 @@ SUNNlsStatus mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
      Fsi(z) (stored step_mem->Fsi[step_mem->istage])
      r = zc - gamma*Fsi(z) - step_mem->sdata
   ---------------------------------------------------------------*/
-SUNNlsStatus mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
+int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -518,7 +518,7 @@ SUNNlsStatus mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
      Fsi(z) (store in step_mem->Fsi[step_mem->istage])
      g = gamma*Fsi(z) + step_mem->sdata
   ---------------------------------------------------------------*/
-SUNNlsStatus mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
+int mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -571,8 +571,8 @@ SUNNlsStatus mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
       implicit, then we just declare 'success' no matter what
       is provided.
   ---------------------------------------------------------------*/
-SUNNlsStatus mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* arkode_mem)
+int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                        realtype tol, N_Vector ewt, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;

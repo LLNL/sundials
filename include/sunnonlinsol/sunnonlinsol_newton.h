@@ -82,9 +82,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT
-SUNNlsStatus SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
-                                      N_Vector y, N_Vector w, realtype tol,
-                                      booleantype callLSetup, void* mem);
+int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0,
+                             N_Vector y, N_Vector w, realtype tol,
+                             booleantype callLSetup, void* mem);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS);

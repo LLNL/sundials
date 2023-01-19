@@ -210,7 +210,7 @@ int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
 }
 
 
-SUNLsStatus SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 {
   int_t retval;
   int panel_size, relax, lwork;
@@ -280,7 +280,7 @@ SUNLsStatus SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 }
 
 
-SUNLsStatus SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                              N_Vector b, realtype tol)
 {
   int_t retval;

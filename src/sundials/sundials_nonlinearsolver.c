@@ -122,11 +122,11 @@ SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
   return(ier);
 }
 
-SUNNlsStatus SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
-                               N_Vector w, realtype tol, booleantype callLSetup,
-                               void* mem)
+int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
+                      N_Vector w, realtype tol, booleantype callLSetup,
+                      void* mem)
 {
-  SUNNlsStatus status;
+  int status;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
   status = NLS->ops->solve(NLS, y0, y, w, tol, callLSetup, mem);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));

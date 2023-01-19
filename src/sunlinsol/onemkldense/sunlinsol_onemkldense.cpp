@@ -281,7 +281,7 @@ int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S)
 }
 
 
-SUNLsStatus SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
 {
   // Check for valid inputs
   if (!S)
@@ -440,7 +440,7 @@ SUNLsStatus SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
 }
 
 
-SUNLsStatus SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, realtype tol)
 {
   // Check for valid inputs

@@ -365,11 +365,11 @@ int KINBBDPrecGetNumGfnEvals(void *kinmem,
     0 if successful,
     > 0 for a recoverable error - step will be retried.
   ------------------------------------------------------------------*/
-static SUNLsStatus KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
-                                   N_Vector fval, N_Vector fscale,
-                                  void *bbd_data)
+static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+                           N_Vector fval, N_Vector fscale,
+                           void *bbd_data)
 {
-  SUNLsStatus ls_status;
+  int ls_status;
   KBBDPrecData pdata;
   KINMem kin_mem;
   int retval;
@@ -432,11 +432,11 @@ static SUNLsStatus KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
   flag returned from the lienar solver object.
   ------------------------------------------------------------------*/
 
-static SUNLsStatus KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
-                                   N_Vector fval, N_Vector fscale,
-                                   N_Vector vv, void *bbd_data)
+static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
+                           N_Vector fval, N_Vector fscale,
+                           N_Vector vv, void *bbd_data)
 {
-  SUNLsStatus ls_status;
+  int ls_status;
   KBBDPrecData pdata;
   realtype *vd;
   realtype *zd;
@@ -521,7 +521,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
 
   kin_mem = (KINMem) pdata->kin_mem;
-  
+
   SUNAssignSUNCTX(KIN_SUNCTX);
 
   /* load utemp with uu = predicted solution vector */

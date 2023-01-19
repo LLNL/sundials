@@ -435,15 +435,15 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
   bbd_data is a pointer to the preconditioner data set by
            CVBBDPrecInit
 
-  Return value: SUNLsStatus
+  Return value: int
   -----------------------------------------------------------------*/
-static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                                  booleantype jok, booleantype *jcurPtr,
-                                  realtype gamma, void *bbd_data)
+static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                          booleantype jok, booleantype *jcurPtr,
+                          realtype gamma, void *bbd_data)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
-  SUNLsStatus ls_status;
+  int ls_status;
   int retval;
 
   pdata = (CVBBDPrecData) bbd_data;
@@ -457,7 +457,7 @@ static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     SUNCheckCallNoRet(retval);
     if (retval) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__,
                      __FILE__, MSGBBD_SUNMAT_FAIL);
       return(SUNLS_UNRECOV_FAILURE);
     }
@@ -469,7 +469,7 @@ static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     retval = SUNMatZero(pdata->savedJ);
     SUNCheckCallNoRet(retval);
     if (retval) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__,
                      __FILE__, MSGBBD_SUNMAT_FAIL);
       return(SUNLS_UNRECOV_FAILURE);
     }
@@ -481,13 +481,13 @@ static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                      __FILE__, MSGBBD_FUNC_FAILED);
       return(SUNLS_UNRECOV_FAILURE);
     } else if (retval > 0) {
-      return(SUNLS_RECOV_FAILURE); 
+      return(SUNLS_RECOV_FAILURE);
     }
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     SUNCheckCallNoRet(retval);
     if (retval) {
-      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+      cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__,
                    __FILE__, MSGBBD_SUNMAT_FAIL);
       return(SUNLS_UNRECOV_FAILURE);
     }
@@ -498,7 +498,7 @@ static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
   SUNCheckCallNoRet(retval);
   if (retval) {
-    cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__, 
+    cvProcessError(cv_mem, CV_SUNMAT_FAIL, __LINE__, __func__,
                    __FILE__, MSGBBD_SUNMAT_FAIL);
     return(SUNLS_UNRECOV_FAILURE);
   }
@@ -527,14 +527,14 @@ static SUNLsStatus cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   z is the output vector computed by cvBBDPrecSolve.
 
-  The value returned by the cvBBDPrecSolve function is a SUNLsStatus.
+  The value returned by the cvBBDPrecSolve function is a int.
   -----------------------------------------------------------------*/
-static SUNLsStatus cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                                  N_Vector r, N_Vector z,
-                                  realtype gamma, realtype delta,
-                                  int lr, void *bbd_data)
+static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                          N_Vector r, N_Vector z,
+                          realtype gamma, realtype delta,
+                          int lr, void *bbd_data)
 {
-  SUNLsStatus ls_status;
+  int ls_status;
   CVBBDPrecData pdata;
   sunrealtype *rdata, *zdata;
 

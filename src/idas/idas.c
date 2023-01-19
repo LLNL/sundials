@@ -5768,7 +5768,7 @@ static int IDANls(IDAMem IDA_mem)
 {
   SUNAssignSUNCTX(IDA_SUNCTX);
 
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
   booleantype constraintsPassed, callLSetup, sensi_sim;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
@@ -6022,14 +6022,14 @@ static void IDAQuadPredict(IDAMem IDA_mem)
  * specified (Staggered approach).
  */
 
-static SUNNlsStatus IDASensNls(IDAMem IDA_mem)
+static int IDASensNls(IDAMem IDA_mem)
 {
   SUNAssignSUNCTX(IDA_SUNCTX);
 
   booleantype callLSetup;
   long int nniS_inc = 0;
   long int nnfS_inc = 0;
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
 
   callLSetup = SUNFALSE;
 
@@ -7380,7 +7380,7 @@ static realtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
 static int IDARcheck1(IDAMem IDA_mem)
 {
   SUNAssignSUNCTX(IDA_SUNCTX);
-  
+
   int i, retval;
   realtype smallh, hratio, tplus;
   booleantype zroot;
@@ -8212,7 +8212,7 @@ void IDAProcessError(IDAMem ida_mem, int error_code, int line, const char *func,
     /* DEPRECATED functionality: will remove in v7 */
     ida_mem->ida_ehfun(error_code, "IDAS", func, msg, ida_mem->ida_eh_data);
   } else {
-    
+
     /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, ida_mem->ida_sunctx);
 

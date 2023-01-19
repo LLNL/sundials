@@ -1661,7 +1661,7 @@ int arkLSGetLastMassFlag(void *arkode_mem, long int *flag)
   the same as the values returned by jtimes and mtimes --
   0 if successful, nonzero otherwise.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsATimes(void *arkode_mem, N_Vector v, N_Vector z)
+int arkLsATimes(void *arkode_mem, N_Vector v, N_Vector z)
 {
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
@@ -1724,7 +1724,7 @@ SUNLsStatus arkLsATimes(void *arkode_mem, N_Vector v, N_Vector z)
   iterative linear solvers guarantee that arkLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsPSetup(void *arkode_mem)
+int arkLsPSetup(void *arkode_mem)
 {
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
@@ -1769,8 +1769,8 @@ SUNLsStatus arkLsPSetup(void *arkode_mem)
   is the only case in which the user's psolve routine is allowed
   to be NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
-                        realtype tol, int lr)
+int arkLsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
+                realtype tol, int lr)
 {
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
@@ -1810,7 +1810,7 @@ SUNLsStatus arkLsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
   routine. The return value is the same as the value returned
   by mtimes -- 0 if successful, nonzero otherwise.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
+int arkLsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -1872,7 +1872,7 @@ SUNCheckCallNoRet(retval);
   linear solvers guarantee that arkLsMPSetup will only be
   called if the user's psetup routine is non-NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsMPSetup(void *arkode_mem)
+int arkLsMPSetup(void *arkode_mem)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -1906,8 +1906,8 @@ SUNLsStatus arkLsMPSetup(void *arkode_mem)
   case in which preconditioning is not done. This is the only case
   in which the user's psolve routine is allowed to be NULL.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
-                         realtype tol, int lr)
+int arkLsMPSolve(void *arkode_mem, N_Vector r, N_Vector z,
+                 realtype tol, int lr)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -2512,9 +2512,9 @@ int arkLsInitialize(void* arkode_mem)
 
   This routine then calls the LS 'setup' routine with A.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
-                       N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
-                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
+               N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
+               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   ARKodeMem    ark_mem = NULL;
   ARKLsMem     arkls_mem = NULL;
@@ -2649,8 +2649,8 @@ SUNLsStatus arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
   When using a non-NULL SUNMatrix, this will additionally scale
   the solution appropriately when gamrat != 1.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
-                       N_Vector ynow, N_Vector fnow, realtype eRNrm, int mnewt)
+int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
+               N_Vector ynow, N_Vector fnow, realtype eRNrm, int mnewt)
 {
   realtype    bnorm, resnorm;
   ARKodeMem   ark_mem;
@@ -2659,7 +2659,7 @@ SUNLsStatus arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   booleantype dgamma_fail, *jcur;
   long int    nps_inc;
   int         nli_inc, retval;
-  SUNLsStatus ls_status;
+  int ls_status;
 
 
   /* access ARKLsMem structure */
@@ -2980,8 +2980,8 @@ int arkLsMassInitialize(void *arkode_mem)
 /*---------------------------------------------------------------
   arkLsMassSetup calls the LS 'setup' routine.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
-                           N_Vector vtemp2, N_Vector vtemp3)
+int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
+                   N_Vector vtemp2, N_Vector vtemp3)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
@@ -3047,7 +3047,7 @@ SUNLsStatus arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
     /* Clear the mass matrix if necessary (direct linear solvers) */
     if (!(arkls_mem->iterative)) {
       retval = SUNMatZero(arkls_mem->M);
-SUNCheckCallNoRet(retval);
+      SUNCheckCallNoRet(retval);
       if (retval) {
         arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
         arkls_mem->last_flag = ARKLS_SUNMAT_FAIL;
@@ -3072,7 +3072,7 @@ SUNCheckCallNoRet(retval);
     /* Copy M into M_lu for factorization (direct linear solvers) */
     if (!(arkls_mem->iterative)) {
       retval = SUNMatCopy(arkls_mem->M, arkls_mem->M_lu);
-SUNCheckCallNoRet(retval);
+      SUNCheckCallNoRet(retval);
       if (retval) {
         arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
         arkls_mem->last_flag = ARKLS_SUNMAT_FAIL;
@@ -3095,7 +3095,7 @@ SUNCheckCallNoRet(retval);
   /* Call matvec setup routine if applicable */
   if (call_mvsetup) {
     retval = SUNMatMatvecSetup(arkls_mem->M);
-SUNCheckCallNoRet(retval);
+    SUNCheckCallNoRet(retval);
     arkls_mem->nmvsetup++;
     if (retval) {
       arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,  MSG_LS_SUNMAT_FAILED);
@@ -3121,7 +3121,7 @@ SUNCheckCallNoRet(retval);
   and scaling vectors, calling the solver, and accumulating
   statistics from the solve for use/reporting by ARKODE.
   ---------------------------------------------------------------*/
-SUNLsStatus arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
+int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 {
   realtype     resnorm, delta, rwt_mean;
   ARKodeMem    ark_mem;

@@ -52,8 +52,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 /* Custom linear solver data structure, accessor macros, and routines */
 static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
-static SUNLsStatus MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                         N_Vector b, realtype tol);
+static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                                 N_Vector b, realtype tol);
 static int MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check function return values */
@@ -231,8 +231,8 @@ static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S)
 }
 
 /* linear solve routine */
-static SUNLsStatus MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
-                                          N_Vector b, realtype tol)
+static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
+                                 N_Vector b, realtype tol)
 {
   /* temporary variables */
   int       retval;

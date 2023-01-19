@@ -115,8 +115,8 @@ enum
  */
 
 /* DEPRECATED ATimesFn: use SUNATimesFn */
-typedef SUNLsStatus (*ATimesFn)(void* A_data, N_Vector v, N_Vector z);
-typedef SUNLsStatus (*SUNATimesFn)(void* A_data, N_Vector v, N_Vector z);
+typedef int (*ATimesFn)(void* A_data, N_Vector v, N_Vector z);
+typedef int (*SUNATimesFn)(void* A_data, N_Vector v, N_Vector z);
 
 /*
  * -----------------------------------------------------------------
@@ -129,8 +129,8 @@ typedef SUNLsStatus (*SUNATimesFn)(void* A_data, N_Vector v, N_Vector z);
  */
 
 /* DEPRECATED PSetupFn: use SUNPSetupFn */
-typedef SUNLsStatus (*PSetupFn)(void* P_data);
-typedef SUNLsStatus (*SUNPSetupFn)(void* P_data);
+typedef int (*PSetupFn)(void* P_data);
+typedef int (*SUNPSetupFn)(void* P_data);
 
 /*
  * -----------------------------------------------------------------
@@ -159,10 +159,10 @@ typedef SUNLsStatus (*SUNPSetupFn)(void* P_data);
  */
 
 /* DEPRECATED PSolveFn: use SUNPSolveFn */
-typedef SUNLsStatus (*PSolveFn)(void* P_data, N_Vector r, N_Vector z,
-                                realtype tol, int lr);
-typedef SUNLsStatus (*SUNPSolveFn)(void* P_data, N_Vector r, N_Vector z,
-                                   realtype tol, int lr);
+typedef int (*PSolveFn)(void* P_data, N_Vector r, N_Vector z,
+                        realtype tol, int lr);
+typedef int (*SUNPSolveFn)(void* P_data, N_Vector r, N_Vector z,
+                           realtype tol, int lr);
 
 /*
  * -----------------------------------------------------------------
@@ -188,8 +188,8 @@ typedef SUNLsStatus (*SUNPSolveFn)(void* P_data, N_Vector r, N_Vector z,
  * -----------------------------------------------------------------
  */
 
-typedef SUNLsStatus (*SUNQRAddFn)(N_Vector* Q, realtype* R, N_Vector f, int m,
-                                  int mMax, void* QR_data);
+typedef int (*SUNQRAddFn)(N_Vector* Q, realtype* R, N_Vector f, int m,
+                          int mMax, void* QR_data);
 
 /*
  * -----------------------------------------------------------------
@@ -297,10 +297,10 @@ SUNErrCode ClassicalGS(N_Vector* v, realtype** h, int k, int p,
  */
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNQRfact(int n, realtype** h, realtype* q, int job);
+int SUNQRfact(int n, realtype** h, realtype* q, int job);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNQRFact instead")
-SUNLsStatus QRfact(int n, realtype** h, realtype* q, int job);
+int QRfact(int n, realtype** h, realtype* q, int job);
 
 /*
  * -----------------------------------------------------------------
@@ -335,10 +335,10 @@ SUNLsStatus QRfact(int n, realtype** h, realtype* q, int job);
  */
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNQRsol(int n, realtype** h, realtype* q, realtype* b);
+int SUNQRsol(int n, realtype** h, realtype* q, realtype* b);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNQRsol instead")
-SUNLsStatus QRsol(int n, realtype** h, realtype* q, realtype* b);
+int QRsol(int n, realtype** h, realtype* q, realtype* b);
 
 /*
  * -----------------------------------------------------------------

@@ -72,14 +72,14 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver* SUNNonlinearSolver;
  * Integrator supplied function types
  * ---------------------------------------------------------------------------*/
 
-typedef SUNNlsStatus (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
+typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
 
-typedef SUNNlsStatus (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur,
+typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur,
                                     void* mem);
 
-typedef SUNNlsStatus (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
+typedef int (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
 
-typedef SUNNlsStatus (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
+typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
                                       N_Vector del, realtype tol, N_Vector ewt,
                                       void* mem);
 
@@ -102,9 +102,9 @@ struct _generic_SUNNonlinearSolver_Ops
 {
   SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
   SUNErrCode (*initialize)(SUNNonlinearSolver);
-  SUNNlsStatus (*setup)(SUNNonlinearSolver, N_Vector, void*);
-  SUNNlsStatus (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector,
-                       realtype, booleantype, void*);
+  int (*setup)(SUNNonlinearSolver, N_Vector, void*);
+  int (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector,
+               realtype, booleantype, void*);
   SUNErrCode (*free)(SUNNonlinearSolver);
   SUNErrCode (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   SUNErrCode (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
@@ -154,8 +154,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
 
 SUNDIALS_EXPORT
-SUNNlsStatus SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w,
-                  realtype tol, booleantype callLSetup, void* mem);
+int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w,
+                      realtype tol, booleantype callLSetup, void* mem);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS);

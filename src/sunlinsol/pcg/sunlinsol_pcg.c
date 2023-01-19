@@ -237,9 +237,9 @@ SUNErrCode SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff)
 }
 
 
-SUNLsStatus SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
+int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 {
-  SUNLsStatus status;
+  int status;
   SUNPSetupFn Psetup;
   void* PData;
 
@@ -264,8 +264,8 @@ SUNLsStatus SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 }
 
 
-SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
-                               N_Vector b, realtype delta)
+int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
+                       N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
   SUNAssignSUNCTX(S->sunctx);
@@ -279,7 +279,7 @@ SUNLsStatus SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   SUNPSolveFn psolve;
   realtype *res_norm;
   int *nli;
-  SUNLsStatus status;
+  int status;
 
   /* Make local shorcuts to solver variables. */
   l_max        = PCG_CONTENT(S)->maxl;

@@ -138,27 +138,27 @@ extern "C" {
 
 /* linear solver interface functions */
 typedef int (*ARKLinsolInitFn)(void* arkode_mem);
-typedef SUNLsStatus (*ARKLinsolSetupFn)(void* arkode_mem, int convfail,
-                                        realtype tpred, N_Vector ypred,
-                                        N_Vector fpred,
-                                        booleantype *jcurPtr,
-                                        N_Vector vtemp1,
-                                        N_Vector vtemp2, N_Vector vtemp3);
-typedef SUNLsStatus (*ARKLinsolSolveFn)(void* arkode_mem, N_Vector b,
-                                        realtype tcur, N_Vector ycur,
-                                        N_Vector fcur, realtype client_tol,
-                                        int mnewt);
+typedef int (*ARKLinsolSetupFn)(void* arkode_mem, int convfail,
+                                realtype tpred, N_Vector ypred,
+                                N_Vector fpred,
+                                booleantype *jcurPtr,
+                                N_Vector vtemp1,
+                                N_Vector vtemp2, N_Vector vtemp3);
+typedef int (*ARKLinsolSolveFn)(void* arkode_mem, N_Vector b,
+                                realtype tcur, N_Vector ycur,
+                                N_Vector fcur, realtype client_tol,
+                                int mnewt);
 typedef int (*ARKLinsolFreeFn)(void* arkode_mem);
 
 /* mass-matrix solver interface functions */
 typedef int (*ARKMassInitFn)(void *arkode_mem);
-typedef SUNLsStatus (*ARKMassSetupFn)(void *arkode_mem, realtype t,
-                                      N_Vector vtemp1, N_Vector vtemp2,
-                                      N_Vector vtemp3);
-typedef SUNLsStatus (*ARKMassMultFn)(void *arkode_mem, N_Vector v,
-                                     N_Vector Mv);
-typedef SUNLsStatus (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
-                                      realtype client_tol);
+typedef int (*ARKMassSetupFn)(void *arkode_mem, realtype t,
+                              N_Vector vtemp1, N_Vector vtemp2,
+                              N_Vector vtemp3);
+typedef int (*ARKMassMultFn)(void *arkode_mem, N_Vector v,
+                             N_Vector Mv);
+typedef int (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
+                              realtype client_tol);
 typedef int (*ARKMassFreeFn)(void *arkode_mem);
 
 /* time stepper interface functions */

@@ -48,7 +48,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, realtype** h, int k, int p,
                          realtype* new_vk_norm)
 {
   SUNAssignSUNCTX(v[0]->sunctx);
-  
+
   int i, k_minus_1, i0;
   realtype new_norm_2, new_product, vk_norm, temp;
 
@@ -177,12 +177,12 @@ SUNErrCode SUNClassicalGS(N_Vector* v, realtype** h, int k, int p,
  * -----------------------------------------------------------------
  */
 
-SUNLsStatus QRfact(int n, realtype** h, realtype* q, int job)
+int QRfact(int n, realtype** h, realtype* q, int job)
 {
   return (SUNQRfact(n, h, q, job));
 }
 
-SUNLsStatus SUNQRfact(int n, realtype** h, realtype* q, int job)
+int SUNQRfact(int n, realtype** h, realtype* q, int job)
 {
   realtype c, s, temp1, temp2, temp3;
   int i, j, k, q_ptr, n_minus_1, code = 0;
@@ -298,12 +298,12 @@ SUNLsStatus SUNQRfact(int n, realtype** h, realtype* q, int job)
  * -----------------------------------------------------------------
  */
 
-SUNLsStatus QRsol(int n, realtype** h, realtype* q, realtype* b)
+int QRsol(int n, realtype** h, realtype* q, realtype* b)
 {
   return (SUNQRsol(n, h, q, b));
 }
 
-SUNLsStatus SUNQRsol(int n, realtype** h, realtype* q, realtype* b)
+int SUNQRsol(int n, realtype** h, realtype* q, realtype* b)
 {
   realtype c, s, temp1, temp2;
   int i, k, q_ptr, code = 0;

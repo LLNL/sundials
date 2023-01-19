@@ -208,16 +208,16 @@ void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
                           realtype s, int *nvec);
 
 /* private functions passed to nonlinear solver */
-SUNNlsStatus arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
-SUNNlsStatus arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
-SUNNlsStatus arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
-SUNNlsStatus arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
-SUNNlsStatus arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
-SUNNlsStatus arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
-SUNNlsStatus arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
-SUNNlsStatus arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
-SUNNlsStatus arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* arkode_mem);
+int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
+int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
+int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                        realtype tol, N_Vector ewt, void* arkode_mem);
 
 /* private functions for interfacing with MRIStep */
 int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,

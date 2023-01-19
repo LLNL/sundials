@@ -120,8 +120,8 @@ struct _generic_SUNLinearSolver_Ops
   SUNErrCode (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector);
   SUNErrCode (*setzeroguess)(SUNLinearSolver, booleantype);
   SUNErrCode (*initialize)(SUNLinearSolver);
-  SUNLsStatus (*setup)(SUNLinearSolver, SUNMatrix);
-  SUNLsStatus (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype);
+  int (*setup)(SUNLinearSolver, SUNMatrix);
+  int (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype);
   int (*numiters)(SUNLinearSolver);
   realtype (*resnorm)(SUNLinearSolver);
   sunindextype (*lastflag)(SUNLinearSolver);
@@ -181,11 +181,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolInitialize(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
+int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                           N_Vector b, realtype tol);
+int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                   N_Vector b, realtype tol);
 
 /* TODO(CJB): We should consider changing the return type to long int since
  batched solvers could in theory return a very large number here. */
@@ -199,7 +199,7 @@ SUNDIALS_EXPORT
 N_Vector SUNLinSolResid(SUNLinearSolver S);
 
 /* TODO(CJB): sunindextype being the return type here could cause a problem if
-              sunindextype happened to be smaller than SUNLsStatus (an int).  */
+              sunindextype happened to be smaller than an int.  */
 SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 

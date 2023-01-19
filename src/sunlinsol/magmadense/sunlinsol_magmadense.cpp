@@ -218,7 +218,7 @@ int SUNLinSolInitialize_MagmaDense(SUNLinearSolver S)
   return(SUNLS_SUCCESS);
 }
 
-SUNLsStatus SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
 {
   /* Check for valid inputs */
   if (S == NULL) return SUNLS_MEM_NULL;
@@ -297,7 +297,7 @@ SUNLsStatus SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-SUNLsStatus SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                               N_Vector b, realtype tol)
 {
   /* Check for valid inputs */

@@ -402,7 +402,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
@@ -575,7 +575,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
@@ -680,7 +680,7 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -728,7 +728,7 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   if (cv_mem->cv_MallocDone == SUNFALSE) {
@@ -790,7 +790,7 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   if (cv_mem->cv_MallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_MALLOC, __LINE__, __func__, __FILE__,
                    MSGCV_NO_MALLOC);
@@ -829,7 +829,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   nrt = (nrtfn < 0) ? 0 : nrtfn;
 
   /* If rerunning CVodeRootInit() with a different number of root
@@ -1015,7 +1015,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
@@ -1509,7 +1509,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
@@ -1586,7 +1586,7 @@ int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   SUNAssignSUNCTX(CV_SUNCTX);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(CV_PROFILER);
@@ -1863,7 +1863,7 @@ static int cvInitialSetup(CVodeMem cv_mem)
   if (cv_mem->proj_mem != NULL) {
     ier = cvProjInit(cv_mem->proj_mem);
     if (ier != CV_SUCCESS) {
-      cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, 
+      cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__,
                      __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
@@ -2775,7 +2775,7 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
   SUNAssignSUNCTX(CV_SUNCTX);
-  SUNNlsStatus nls_status = SUN_NLS_SUCCESS;
+  int nls_status = SUN_NLS_SUCCESS;
   booleantype callSetup = SUNFALSE;
   long int nni_inc = 0;
   long int nnf_inc = 0;
@@ -4500,7 +4500,7 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
     fprintf(stderr, "%s\n\n", msg);
 #endif
 
-  } else if (cv_mem->cv_ehfun) { 
+  } else if (cv_mem->cv_ehfun) {
     /* We can call ehfun if it exists */
 
     /* DEPRECATED functionality: will remove in v7 */

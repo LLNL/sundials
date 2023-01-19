@@ -169,9 +169,9 @@ SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   by the Sys function provided to the nonlinear solver.
   ---------------------------------------------------------------------------*/
 
-SUNNlsStatus SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
-                                          N_Vector ycor, N_Vector w, realtype tol,
-                                          booleantype callSetup, void* mem)
+int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
+                                 N_Vector ycor, N_Vector w, realtype tol,
+                                 booleantype callSetup, void* mem)
 {
   SUNAssignSUNCTX(NLS->sunctx);
   /* local variables */
@@ -303,7 +303,7 @@ SUNErrCode SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
   ============================================================================*/
 
 SUNErrCode SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
-{  
+{
   SUNAssignSUNCTX(NLS->sunctx);
   SUNAssert(SysFn, SUN_ERR_ARG_CORRUPT);
   FP_CONTENT(NLS)->Sys = SysFn;
@@ -337,7 +337,7 @@ SUNErrCode SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype be
 {
   SUNAssignSUNCTX(NLS->sunctx);
   SUNAssert(beta > 0, SUN_ERR_ARG_OUTOFRANGE);
-  
+
   if (beta < ONE) {
     /* enable damping */
     FP_CONTENT(NLS)->beta    = beta;

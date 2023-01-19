@@ -63,8 +63,8 @@ SUNDIALS_EXPORT int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver S, booleantype
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_MagmaDense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_MagmaDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_MagmaDense(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A,
+SUNDIALS_EXPORT int SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A,
                                               N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_MagmaDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_MagmaDense(SUNLinearSolver S,

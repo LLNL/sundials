@@ -312,9 +312,9 @@ SUNErrCode SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S, booleantype onff)
   return SUN_SUCCESS;
 }
 
-SUNLsStatus SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
 {
-  SUNLsStatus status = SUNLS_SUCCESS;
+  int status = SUNLS_SUCCESS;
 
   /* Set shortcuts to SPGMR memory structures */
   SUNPSetupFn Psetup = SPGMR_CONTENT(S)->Psetup;
@@ -336,8 +336,8 @@ SUNLsStatus SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype delta)
+int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                         N_Vector b, realtype delta)
 {
   SUNAssignSUNCTX(S->sunctx);
 
@@ -354,7 +354,7 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   SUNPSolveFn psolve;
   realtype* cv;
   N_Vector* Xv;
-  SUNLsStatus status;
+  int status;
 
   /* Initialize some variables */
   l_plus_1 = 0;
@@ -662,7 +662,7 @@ SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (scale2) {
       SUNCheckCallLastErrNoRet(N_VDiv(xcor, s2, xcor));
     }
-    
+
     if (preOnRight) {
       status = psolve(P_data, xcor, vtemp, delta, SUN_PREC_RIGHT);
       if (status != 0) {

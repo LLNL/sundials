@@ -177,7 +177,7 @@ int SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S)
   return(SLU_LASTFLAG(S));
 }
 
-SUNLsStatus SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
 {
   if (SLU_FIRSTFACTORIZE(S)) {
     /* Force factorization on next solve. */
@@ -198,7 +198,7 @@ SUNLsStatus SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
   return(SLU_LASTFLAG(S));
 }
 
-SUNLsStatus SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
+int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
                                N_Vector x, N_Vector b, realtype tol)
 {
   int retval;

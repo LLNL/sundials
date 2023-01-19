@@ -121,7 +121,7 @@ SUNErrCode SUNLinSolInitialize_Band(SUNLinearSolver S)
   return SUN_SUCCESS;
 }
 
-SUNLsStatus SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
   SUNAssignSUNCTX(S->sunctx);
   realtype **A_cols;
@@ -155,8 +155,8 @@ SUNLsStatus SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                N_Vector b, realtype tol)
+int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                        N_Vector b, realtype tol)
 {
   SUNAssignSUNCTX(S->sunctx);
   realtype **A_cols, *xdata;

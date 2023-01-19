@@ -55,7 +55,7 @@ struct _SUNLinearSolverContent_SPGMR
   booleantype zeroguess;
   int numiters;
   realtype resnorm;
-  SUNLsStatus last_flag;
+  int last_flag;
 
   SUNATimesFn ATimes;
   void* ATData;
@@ -123,11 +123,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S, booleantype onff);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A);
+int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol);
+int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                         N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
 int SUNLinSolNumIters_SPGMR(SUNLinearSolver S);

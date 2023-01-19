@@ -139,7 +139,7 @@ int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 }
 
 
-SUNLsStatus SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 {
   sunindextype n, ml, mu, ldim, ier;
 
@@ -171,7 +171,7 @@ SUNLsStatus SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 }
 
 
-SUNLsStatus SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                               N_Vector b, realtype tol)
 {
   sunindextype n, ml, mu, ldim, one, ier;

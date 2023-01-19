@@ -123,7 +123,7 @@ typedef struct ARKLsMemRec {
   ARKLsLinSysFn linsys;
   void* A_data;
 
-  SUNLsStatus last_flag; /* last error flag returned by any function */
+  int last_flag; /* last error flag returned by any function */
 
 } *ARKLsMem;
 
@@ -194,15 +194,15 @@ typedef struct ARKLsMassMemRec {
   ---------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-SUNLsStatus arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z);
-SUNLsStatus arkLsPSetup(void* arkode_mem);
-SUNLsStatus arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z,
+int arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z);
+int arkLsPSetup(void* arkode_mem);
+int arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z,
                 realtype tol, int lr);
 
 /* Interface routines called by mass SUNLinearSolver */
-SUNLsStatus arkLsMTimes(void* arkode_mem, N_Vector v, N_Vector z);
-SUNLsStatus arkLsMPSetup(void* arkode_mem);
-SUNLsStatus arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z,
+int arkLsMTimes(void* arkode_mem, N_Vector v, N_Vector z);
+int arkLsMPSetup(void* arkode_mem);
+int arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z,
                  realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
@@ -225,24 +225,24 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
 /* Generic linit/lsetup/lsolve/lfree interface routines for ARKODE to call */
 int arkLsInitialize(void* arkode_mem);
 
-SUNLsStatus arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
-                       N_Vector ypred, N_Vector fpred, booleantype* jcurPtr,
-                       N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
+               N_Vector ypred, N_Vector fpred, booleantype* jcurPtr,
+               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-SUNLsStatus arkLsSolve(void* arkode_mem, N_Vector b, realtype tcur,
-                       N_Vector ycur, N_Vector fcur, realtype eRnrm, int mnewt);
+int arkLsSolve(void* arkode_mem, N_Vector b, realtype tcur,
+               N_Vector ycur, N_Vector fcur, realtype eRnrm, int mnewt);
 
 int arkLsFree(void* arkode_mem);
 
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
 int arkLsMassInitialize(void* arkode_mem);
 
-SUNLsStatus arkLsMassSetup(void* arkode_mem, realtype t, N_Vector vtemp1,
-                           N_Vector vtemp2, N_Vector vtemp3);
+int arkLsMassSetup(void* arkode_mem, realtype t, N_Vector vtemp1,
+                   N_Vector vtemp2, N_Vector vtemp3);
 
-SUNLsStatus arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
+int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
 
-SUNLsStatus arkLsMassSolve(void* arkode_mem, N_Vector b, realtype nlscoef);
+int arkLsMassSolve(void* arkode_mem, N_Vector b, realtype nlscoef);
 
 int arkLsMassFree(void* arkode_mem);
 

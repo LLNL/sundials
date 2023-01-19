@@ -207,7 +207,7 @@ SUNErrCode SUNLinSolInitialize_SPBCGS(SUNLinearSolver S)
     PRETYPE(S) = SUN_PREC_NONE;
 
   SUNAssert((PRETYPE(S) == SUN_PREC_NONE) || SPBCGS_CONTENT(S)->Psolve, SUN_ERR_ARG_CORRUPT);
-  
+
   /* no additional memory to allocate */
 
   /* return with success */
@@ -255,9 +255,9 @@ SUNErrCode SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, booleantype onoff)
 }
 
 
-SUNLsStatus SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 {
-  SUNLsStatus status;
+  int status;
   SUNPSetupFn Psetup;
   void* PData;
 
@@ -281,7 +281,7 @@ SUNLsStatus SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
   return(LASTFLAG(S));
 }
 
-SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                   N_Vector b, realtype delta)
 {
   SUNAssignSUNCTX(S->sunctx);
@@ -297,7 +297,7 @@ SUNLsStatus SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   SUNPSolveFn psolve;
   realtype *res_norm;
   int *nli;
-  SUNLsStatus status;
+  int status;
 
   /* local variables for fused vector operations */
   realtype cv[3];

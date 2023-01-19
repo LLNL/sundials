@@ -64,11 +64,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolInitialize_Band(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A);
+int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                N_Vector b, realtype tol);
+int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                        N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S);

@@ -139,7 +139,7 @@ int SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 }
 
 
-SUNLsStatus SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 {
   sunindextype n, ier;
 
@@ -166,7 +166,7 @@ SUNLsStatus SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 }
 
 
-SUNLsStatus SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, realtype tol)
 {
   sunindextype n, one, ier;

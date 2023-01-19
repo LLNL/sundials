@@ -40,7 +40,7 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
   SUNLinearSolver_Ops ops;
 
   /* a context is required */
-  
+
 
   /* create linear solver object */
   LS = NULL;
@@ -157,7 +157,7 @@ SUNErrCode SUNLinSolInitialize(SUNLinearSolver S)
   return (ier);
 }
 
-SUNLsStatus SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
@@ -167,8 +167,8 @@ SUNLsStatus SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
   return (ier);
 }
 
-SUNLsStatus SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                           N_Vector b, realtype tol)
+int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                   N_Vector b, realtype tol)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));

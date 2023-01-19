@@ -126,8 +126,8 @@ SUNDIALS_EXPORT sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_KLU(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
-SUNDIALS_EXPORT SUNLsStatus SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
+SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
+SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
                                        N_Vector x, N_Vector b, realtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_KLU(SUNLinearSolver S,

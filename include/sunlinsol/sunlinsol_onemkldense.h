@@ -62,10 +62,10 @@ SUNDIALS_EXPORT
 int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A);
+int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A);
 
 SUNDIALS_EXPORT
-SUNLsStatus SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT
