@@ -1222,10 +1222,12 @@ Jacobian information, depends on several factors including:
    :math:`M`, and
 -  the number of steps since Jacobian information was last evaluated.
 
-The frequency with which to update Jacobian information can be controlled with
-the ``msbj`` argument to :c:func:`CVodeSetJacEvalFrequency`. We note that this
-is only checked *within* calls to the linear solver setup routine, so values
-:math:`<` ``msbp`` do not make sense. For linear-solvers with user-supplied
+Jacobian information is considered out-of-date when :math:`msbj` or more steps
+have been completed since the last update, in which case it will be recomputed during the next
+linear solver setup call. The value of :math:`msbj` is controlled with the
+``msbj`` argument to :c:func:`CVodeSetJacEvalFrequency()`.
+
+For linear-solvers with user-supplied
 preconditioning the above factors are used to determine whether to recommend
 updating the Jacobian information in the preconditioner (i.e., whether to set
 ``jok`` to ``SUNFALSE`` in calling the :ref:`user-supplied preconditioner setup
@@ -1297,7 +1299,9 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
 
 .. c:function:: int CVodeSetJacEvalFrequency(void* cvode_mem, long int msbj)
 
-   The function ``CVodeSetJacEvalFrequency`` specifies the frequency for  recomputing the Jacobian or recommending a preconditioner update.
+   The function ``CVodeSetJacEvalFrequency`` Specifies the number of steps after
+   which the Jacobian information is considered out-of-date, :math:`msbj` from
+   :numref:`CVODE.Mathematics.nls`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
@@ -1310,7 +1314,22 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
      * ``CVLS_ILL_INPUT`` -- The frequency ``msbj`` is negative.
 
    **Notes:**
-      The Jacobian update frequency is only checked within calls to the  linear solver setup routine, as such values of ``msbj`` < ``msbp`` will  result in recomputing the Jacobian every ``msbp`` steps. See :c:func:`CVodeSetLSetupFrequency` for setting the linear solver setup frequency  ``msbp``.  If ``msbj = 0``, the default value of 51 will be used. Otherwise an error is returned. This function must be called after the CVLS linear solver interface has been initialized through a call to :c:func:`CVodeSetLinearSolver`.
+      If ``nstlj`` is the step number at which the Jacobian information was
+      lasted updated and ``nst`` is the current step number,
+      ``nst - nstlj >= msbj`` indicates the Jacobian information will be updated
+      during the next linear solver setup call.
+
+      As the Jacobian update frequency is only checked *within* calls to the
+      linear solver setup routine, Jacobian information may be more than
+      ``msbj`` steps old when updated depending on when a linear solver setup
+      call occurs. See :numref:`CVODE.Mathematics.nls` for more information on
+      when linear solver setups are performed.
+
+      If ``msbj = 0``, the default value of 51 will be used. Otherwise an error
+      is returned.
+
+      This function must be called after  the CVLS linear solver interface has
+      been initialized through a call to :c:func:`CVodeSetLinearSolver`.
 
 When using matrix-based linear solver modules, the CVLS solver interface
 needs a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
