@@ -68,7 +68,7 @@
 #endif
 
 /* SUNMPIAssert checks if an expression is true.
-   If the expression is false, it calls the SUNMPIAbortErrHandler. */
+   If the expression is false, it calls the SUNMPIAssertErrHandler. */
 #if !defined(NDEBUG)
 #define SUNMPIAssert(expr, code)                                          \
   do {                                                                    \

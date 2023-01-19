@@ -143,7 +143,7 @@
   call;                               \
   SUNCheckCallVoid(SUNGetLastErr(sunctx_))
 
-/* Same as SUNCheckCallLastErrNoRet, but returns with the error code. */
+/* Same as SUNCheckCallLastErrNoRet, but returns NULL. */
 #define SUNCheckCallLastErrNull(call) \
   call;                               \
   SUNCheckCallNull(SUNGetLastErr(sunctx_))

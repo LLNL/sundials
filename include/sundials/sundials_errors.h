@@ -66,7 +66,7 @@
 /* Expand SUN_ERR_CODE_LIST to enum */
 #define SUN_EXPAND_TO_ENUM(name, description) name,
 
-/* SUNErrorCode range is [-1000, -2000] to avoid conflicts wiht package error
+/* SUNErrorCode range is [-1000, -2000] to avoid conflicts with package error
    codes, and old/deprecated codes for matrix and (non)linear solvers. */
 enum
 {
