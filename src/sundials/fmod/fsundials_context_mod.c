@@ -254,17 +254,17 @@ SWIGEXPORT int _wrap_FSUNContext_PeekLastError(void *farg1, int *farg2) {
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_FSUNContext_PushErrHandler(void *farg1, int (*farg2)(int,char const *,char const *,char const *,SUNErrCode,void *,struct SUNContext_ *), void *farg3) {
+SWIGEXPORT SwigClassWrapper _wrap_FSUNContext_PushErrHandler(void *farg1, SUNErrHandlerFn farg2, void *farg3) {
   SwigClassWrapper fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
-  int (*arg2)(int,char const *,char const *,char const *,SUNErrCode,void *,struct SUNContext_ *) = (int (*)(int,char const *,char const *,char const *,SUNErrCode,void *,struct SUNContext_ *)) 0 ;
+  SUNErrHandlerFn arg2 = (SUNErrHandlerFn) 0 ;
   void *arg3 = (void *) 0 ;
-  struct SUNErrHandler_ *result = 0 ;
+  SUNErrHandler result;
   
   arg1 = (SUNContext)(farg1);
-  arg2 = (int (*)(int,char const *,char const *,char const *,SUNErrCode,void *,struct SUNContext_ *))(farg2);
+  arg2 = (SUNErrHandlerFn)(farg2);
   arg3 = (void *)(farg3);
-  result = (struct SUNErrHandler_ *)SUNContext_PushErrHandler(arg1,arg2,arg3);
+  result = (SUNErrHandler)SUNContext_PushErrHandler(arg1,arg2,arg3);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
   return fresult;
@@ -312,7 +312,7 @@ SWIGEXPORT int _wrap_FSUNContext_GetProfiler(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNContext_SetProfiler(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
-  SUNProfiler arg2 ;
+  SUNProfiler arg2 = (SUNProfiler) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);
@@ -340,7 +340,7 @@ SWIGEXPORT int _wrap_FSUNContext_GetLogger(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNContext_SetLogger(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
-  SUNLogger arg2 ;
+  SUNLogger arg2 = (SUNLogger) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);

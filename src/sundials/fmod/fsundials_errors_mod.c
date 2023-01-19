@@ -308,52 +308,52 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
-SWIGEXPORT void _wrap_SUNErrHandler__previous_set(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT void _wrap_SUNErrHandler__previous_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SUNErrHandler_ *arg1 = (struct SUNErrHandler_ *) 0 ;
-  struct SUNErrHandler_ *arg2 = (struct SUNErrHandler_ *) 0 ;
+  SUNErrHandler arg2 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::previous", return );
   arg1 = (struct SUNErrHandler_ *)(farg1->cptr);
-  SWIG_check_mutable(*farg2, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::previous", return );
-  arg2 = (struct SUNErrHandler_ *)(farg2->cptr);
+  arg2 = (SUNErrHandler)(farg2);
   if (arg1) (arg1)->previous = arg2;
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_SUNErrHandler__previous_get(SwigClassWrapper const *farg1) {
-  SwigClassWrapper fresult ;
+SWIGEXPORT void * _wrap_SUNErrHandler__previous_get(SwigClassWrapper const *farg1) {
+  void * fresult ;
   struct SUNErrHandler_ *arg1 = (struct SUNErrHandler_ *) 0 ;
-  struct SUNErrHandler_ *result = 0 ;
+  SUNErrHandler result;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::previous", return SwigClassWrapper_uninitialized());
+  SWIG_check_mutable_nonnull(*farg1, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::previous", return 0);
   arg1 = (struct SUNErrHandler_ *)(farg1->cptr);
-  result = (struct SUNErrHandler_ *) ((arg1)->previous);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  result =  ((arg1)->previous);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_SUNErrHandler__call_set(SwigClassWrapper const *farg1, SUNErrHandlerFn farg2) {
+SWIGEXPORT void _wrap_SUNErrHandler__call_set(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
   struct SUNErrHandler_ *arg1 = (struct SUNErrHandler_ *) 0 ;
-  SUNErrHandlerFn arg2 = (SUNErrHandlerFn) 0 ;
+  SUNErrHandlerFn arg2 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::call", return );
   arg1 = (struct SUNErrHandler_ *)(farg1->cptr);
-  arg2 = (SUNErrHandlerFn)(farg2);
+  SWIG_check_nonnull(*farg2, "SUNErrHandlerFn", "SWIGTYPE_p_SUNErrHandlerFn", "SUNErrHandler_::call", return );
+  arg2 = *(SUNErrHandlerFn *)(farg2->cptr);
   if (arg1) (arg1)->call = arg2;
 }
 
 
-SWIGEXPORT SUNErrHandlerFn _wrap_SUNErrHandler__call_get(SwigClassWrapper const *farg1) {
-  SUNErrHandlerFn fresult ;
+SWIGEXPORT SwigClassWrapper _wrap_SUNErrHandler__call_get(SwigClassWrapper const *farg1) {
+  SwigClassWrapper fresult ;
   struct SUNErrHandler_ *arg1 = (struct SUNErrHandler_ *) 0 ;
   SUNErrHandlerFn result;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::call", return 0);
+  SWIG_check_mutable_nonnull(*farg1, "struct SUNErrHandler_ *", "SUNErrHandler_", "SUNErrHandler_::call", return SwigClassWrapper_uninitialized());
   arg1 = (struct SUNErrHandler_ *)(farg1->cptr);
-  result = (SUNErrHandlerFn) ((arg1)->call);
-  fresult = result;
+  result =  ((arg1)->call);
+  fresult.cptr = (SUNErrHandlerFn *)memcpy((SUNErrHandlerFn *)calloc(1,sizeof(SUNErrHandlerFn)),&result,sizeof(SUNErrHandlerFn));
+  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
   return fresult;
 }
 
@@ -413,22 +413,23 @@ SWIGEXPORT void _wrap_SUNErrHandler__op_assign__(SwigClassWrapper *farg1, SwigCl
 }
 
 
-SWIGEXPORT void * _wrap_FSUNErrHandler_Create(SUNErrHandlerFn farg1, void *farg2) {
+SWIGEXPORT void * _wrap_FSUNErrHandler_Create(SwigClassWrapper const *farg1, void *farg2) {
   void * fresult ;
-  SUNErrHandlerFn arg1 = (SUNErrHandlerFn) 0 ;
+  SUNErrHandlerFn arg1 ;
   void *arg2 = (void *) 0 ;
   SUNErrHandler result;
   
-  arg1 = (SUNErrHandlerFn)(farg1);
+  SWIG_check_nonnull(*farg1, "SUNErrHandlerFn", "SWIGTYPE_p_SUNErrHandlerFn", "SUNErrHandler_Create(SUNErrHandlerFn,void *)", return 0);
+  arg1 = *(SUNErrHandlerFn *)(farg1->cptr);
   arg2 = (void *)(farg2);
-  result = (SUNErrHandler)SUNErrHandler_Create(arg1,arg2);
+  result = SUNErrHandler_Create(arg1,arg2);
   fresult = result;
   return fresult;
 }
 
 
 SWIGEXPORT void _wrap_FSUNErrHandler_Destroy(void *farg1) {
-  SUNErrHandler arg1 = (SUNErrHandler) 0 ;
+  SUNErrHandler arg1 ;
   
   arg1 = (SUNErrHandler)(farg1);
   SUNErrHandler_Destroy(arg1);

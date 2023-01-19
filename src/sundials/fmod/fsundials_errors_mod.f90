@@ -67,6 +67,9 @@ module fsundials_errors_mod
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
  end type
+ type, public :: SWIGTYPE_p_SUNErrHandlerFn
+  type(SwigClassWrapper), public :: swigdata
+ end type
  ! struct struct SUNErrHandler_
  type, public :: SUNErrHandler_
   type(SwigClassWrapper), public :: swigdata
@@ -114,7 +117,7 @@ bind(C, name="_wrap_SUNErrHandler__previous_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 end subroutine
 
 function swigc_SUNErrHandler__previous_get(farg1) &
@@ -123,7 +126,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 subroutine swigc_SUNErrHandler__call_set(farg1, farg2) &
@@ -131,7 +134,7 @@ bind(C, name="_wrap_SUNErrHandler__call_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
+type(SwigClassWrapper) :: farg2
 end subroutine
 
 function swigc_SUNErrHandler__call_get(farg1) &
@@ -140,7 +143,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
+type(SwigClassWrapper) :: fresult
 end function
 
 subroutine swigc_SUNErrHandler__data_set(farg1, farg2) &
@@ -187,7 +190,8 @@ function swigc_FSUNErrHandler_Create(farg1, farg2) &
 bind(C, name="_wrap_FSUNErrHandler_Create") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
@@ -336,51 +340,51 @@ contains
 subroutine swigf_SUNErrHandler__previous_set(self, previous)
 use, intrinsic :: ISO_C_BINDING
 class(SUNErrHandler_), intent(in) :: self
-class(SUNErrHandler_), intent(in) :: previous
+type(C_PTR) :: previous
 type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
-farg2 = previous%swigdata
+farg2 = previous
 call swigc_SUNErrHandler__previous_set(farg1, farg2)
 end subroutine
 
 function swigf_SUNErrHandler__previous_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SUNErrHandler_) :: swig_result
+type(C_PTR) :: swig_result
 class(SUNErrHandler_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_SUNErrHandler__previous_get(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 subroutine swigf_SUNErrHandler__call_set(self, call)
 use, intrinsic :: ISO_C_BINDING
 class(SUNErrHandler_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: call
+type(SWIGTYPE_p_SUNErrHandlerFn), intent(in) :: call
 type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
+type(SwigClassWrapper) :: farg2 
 
 farg1 = self%swigdata
-farg2 = call
+farg2 = call%swigdata
 call swigc_SUNErrHandler__call_set(farg1, farg2)
 end subroutine
 
 function swigf_SUNErrHandler__call_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
+type(SWIGTYPE_p_SUNErrHandlerFn) :: swig_result
 class(SUNErrHandler_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_SUNErrHandler__call_get(farg1)
-swig_result = fresult
+swig_result%swigdata = fresult
 end function
 
 subroutine swigf_SUNErrHandler__data_set(self, data)
@@ -449,13 +453,13 @@ function FSUNErrHandler_Create(eh_fn, eh_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-type(C_FUNPTR), intent(in), value :: eh_fn
+type(SWIGTYPE_p_SUNErrHandlerFn), intent(in) :: eh_fn
 type(C_PTR) :: eh_data
 type(C_PTR) :: fresult 
-type(C_FUNPTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = eh_fn
+farg1 = eh_fn%swigdata
 farg2 = eh_data
 fresult = swigc_FSUNErrHandler_Create(farg1, farg2)
 swig_result = fresult
