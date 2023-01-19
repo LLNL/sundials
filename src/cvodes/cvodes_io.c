@@ -954,7 +954,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
@@ -1582,7 +1582,7 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_ewt, eweight));
 
@@ -1606,7 +1606,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, cv_mem->cv_acor, ele));
 
@@ -1878,7 +1878,7 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector eQweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (cv_mem->cv_quadr==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUAD, __LINE__, __func__, __FILE__, MSGCV_NO_QUAD);
@@ -1982,7 +1982,7 @@ int CVodeGetQuadSensErrWeights(void *cvode_mem, N_Vector *eQSweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (cv_mem->cv_quadr_sensi == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_QUADSENS, __LINE__, __func__, __FILE__, MSGCV_NO_QUADSENSI);
@@ -2134,7 +2134,7 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector *eSweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (cv_mem->cv_sensi==SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, __LINE__, __func__, __FILE__, MSGCV_NO_SENSI);

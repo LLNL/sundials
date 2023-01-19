@@ -147,7 +147,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (LS == NULL) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -445,7 +445,7 @@ int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS) return(retval);
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (nrmfac > ZERO) {
     /* user-provided factor */
@@ -719,7 +719,7 @@ int CVodeGetLinWorkSpace(void *cvode_mem, long int *lenrwLS,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* start with fixed sizes plus vector/matrix pointers */
   *lenrwLS = 2;
@@ -1011,7 +1011,7 @@ int cvLsATimes(void *cvode_mem, N_Vector v, N_Vector z)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* call Jacobian-times-vector product routine
      (either user-supplied or internal DQ) */
@@ -1162,7 +1162,7 @@ int cvLsDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
   realtype *y_data, *ewt_data, *cns_data;
@@ -1249,7 +1249,7 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                   CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur, conj;
@@ -1367,7 +1367,7 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Initialize perturbation to 1/||v|| */
   sig = ONE;
@@ -1418,7 +1418,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Check if Jacobian needs to be updated */
   if (jok) {
@@ -1496,7 +1496,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   -----------------------------------------------------------------*/
 int cvLsInitialize(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   CVLsMem cvls_mem;
   int     retval;
@@ -1630,7 +1630,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
               N_Vector fpred, booleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   CVLsMem  cvls_mem;
   realtype dgamma;
@@ -1731,7 +1731,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ynow, N_Vector fnow)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   CVLsMem  cvls_mem;
   realtype bnorm, deltar, delta, w_mean;
@@ -1887,7 +1887,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   cvls_mem->last_flag = ls_status;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+  SUNLogger_QueueMsg(cv_mem->cv_sunctx->logger, SUN_LOGLEVEL_DEBUG,
     "CVODE::cvLsSolve", "ls-stats",
     "bnorm = %.16g, resnorm = %.16g, ls_iters = %i, prec_solves = %i",
     bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
@@ -1946,7 +1946,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   -----------------------------------------------------------------*/
 int cvLsFree(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   CVLsMem cvls_mem;
 

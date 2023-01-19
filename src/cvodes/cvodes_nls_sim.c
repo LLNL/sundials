@@ -58,7 +58,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Return immediately if NLS memory is NULL */
   if (NLS == NULL) {
@@ -142,20 +142,20 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->simMallocDone == SUNFALSE) {
 
-    cv_mem->zn0Sim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX));
+    cv_mem->zn0Sim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx));
     if (cv_mem->zn0Sim == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ycorSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX));
+    cv_mem->ycorSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx));
     if (cv_mem->ycorSim == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim));
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__, MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ewtSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, CV_SUNCTX));
+    cv_mem->ewtSim = SUNCheckCallLastErrNoRet(N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx));
     if (cv_mem->ewtSim == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->zn0Sim));
       SUNCheckCallLastErrNoRet(N_VDestroy(cv_mem->ycorSim));
@@ -242,7 +242,7 @@ int cvNlsInitSensSim(CVodeMem cvode_mem)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* set the linear solver setup wrapper function */
   if (cvode_mem->cv_lsetup) {
@@ -383,7 +383,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* extract the current state and sensitivity corrections */
   ycor  = NV_VEC_SW(ycorSim,0);
@@ -462,7 +462,7 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* extract state and residual vectors from the vector wrapper */
   ycor = NV_VEC_SW(ycorSim,0);
@@ -527,7 +527,7 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* extract state and residual vectors from the vector wrapper */
   ycor = NV_VEC_SW(ycorSim,0);

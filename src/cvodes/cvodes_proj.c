@@ -294,8 +294,8 @@ int CVodeGetNumProjFails(void *cvode_mem, long int *npfails)
 int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                    int *npfailPtr)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
-  
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
+
   int          retval;
   N_Vector     errP;
   N_Vector     acorP;

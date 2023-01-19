@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -23,7 +23,7 @@
 #include "cvodes_impl.h"
 
 /* Other Constants */
-  
+
 #define FRACT RCONST(0.1)
 #define ONE   RCONST(1.0)
 
@@ -41,7 +41,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static int CVDiagFree(CVodeMem cv_mem);
 
 
-/* 
+/*
  * ================================================================
  *
  *                   PART I - forward problems
@@ -81,7 +81,7 @@ static int CVDiagFree(CVodeMem cv_mem);
 
 /*
  * -----------------------------------------------------------------
- * CVDiag 
+ * CVDiag
  * -----------------------------------------------------------------
  * This routine initializes the memory record and sets various function
  * fields specific to the diagonal linear solver module.  CVDense first
@@ -92,11 +92,11 @@ static int CVDiagFree(CVodeMem cv_mem);
  * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
  * SUNTRUE.  Finally, it allocates memory for M, bit, and bitcomp.
- * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or 
+ * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or
  * LIN_ILL_INPUT=-2.
  * -----------------------------------------------------------------
  */
-  
+
 int CVDiag(void *cvode_mem)
 {
   CVodeMem cv_mem;
@@ -109,7 +109,7 @@ int CVDiag(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Check if N_VCompare and N_VInvTest are present */
   if(vec_tmpl->ops->nvcompare == NULL ||
@@ -119,7 +119,7 @@ int CVDiag(void *cvode_mem)
   }
 
   if (lfree != NULL) lfree(cv_mem);
-  
+
   /* Set four main function fields in cv_mem */
   linit  = CVDiagInit;
   lsetup = CVDiagSetup;
@@ -137,7 +137,7 @@ int CVDiag(void *cvode_mem)
   last_flag = CVDIAG_SUCCESS;
 
   /* Allocate memory for M, bit, and bitcomp */
-    
+
   M = SUNCheckCallLastErrNoRet(N_VClone(vec_tmpl));
   if (M == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, __LINE__, __func__, __FILE__, MSGDG_MEM_FAIL);
@@ -262,7 +262,7 @@ char *CVDiagGetReturnFlagName(long int flag)
   switch(flag) {
   case CVDIAG_SUCCESS:
     sprintf(name,"CVDIAG_SUCCESS");
-    break;  
+    break;
   case CVDIAG_MEM_NULL:
     sprintf(name,"CVDIAG_MEM_NULL");
     break;
@@ -319,8 +319,8 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  * CVDiagSetup
  * -----------------------------------------------------------------
- * This routine does the setup operations for the diagonal linear 
- * solver.  It constructs a diagonal approximation to the Newton matrix 
+ * This routine does the setup operations for the diagonal linear
+ * solver.  It constructs a diagonal approximation to the Newton matrix
  * M = I - gamma*J, updates counters, and inverts M.
  * -----------------------------------------------------------------
  */
@@ -329,7 +329,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   realtype r;
   N_Vector ftemp, y;
@@ -400,14 +400,14 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   booleantype invOK;
   realtype r;
   CVDiagMem cvdiag_mem;
 
   cvdiag_mem = (CVDiagMem) lmem;
-  
+
   /* If gamma has changed, update factor in M, and save gamma value */
 
   if (gammasv != gamma) {
@@ -441,10 +441,10 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static int CVDiagFree(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
-  
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
+
   CVDiagMem cvdiag_mem;
-  
+
   cvdiag_mem = (CVDiagMem) lmem;
 
   SUNCheckCallLastErrNoRet(N_VDestroy(M));
@@ -452,12 +452,12 @@ static int CVDiagFree(CVodeMem cv_mem)
   SUNCheckCallLastErrNoRet(N_VDestroy(bitcomp));
   free(cvdiag_mem);
   cv_mem->cv_lmem = NULL;
-  
+
   return(0);
 }
 
 
-/* 
+/*
  * ================================================================
  *
  *                   PART II - backward problems
@@ -469,7 +469,7 @@ static int CVDiagFree(CVodeMem cv_mem)
 /*
  * CVDiagB
  *
- * Wrappers for the backward phase around the corresponding 
+ * Wrappers for the backward phase around the corresponding
  * CVODES functions
  */
 
@@ -492,7 +492,7 @@ int CVDiagB(void *cvode_mem, int which)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CVDIAG_NO_ADJ, __LINE__, __func__, __FILE__, MSGDG_NO_ADJ);
     return(CVDIAG_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -509,9 +509,8 @@ int CVDiagB(void *cvode_mem, int which)
   }
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
-  
+
   flag = CVDiag(cvodeB_mem);
 
   return(flag);
 }
-

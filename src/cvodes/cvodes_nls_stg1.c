@@ -48,7 +48,7 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Return immediately if NLS memory is NULL */
   if (NLS == NULL) {
@@ -154,7 +154,7 @@ int cvNlsInitSensStg1(CVodeMem cvode_mem)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* set the linear solver setup wrapper function */
   if (cvode_mem->cv_lsetup) {
@@ -282,7 +282,7 @@ static int cvNlsConvTestSensStg1(SUNNonlinearSolver NLS,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* compute the norm of the state and sensitivity corrections */
   del = SUNCheckCallLastErrNoRet(N_VWrmsNorm(delta, ewt));
@@ -325,7 +325,7 @@ static int cvNlsResidualSensStg1(N_Vector ycor, N_Vector res, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* get index of current sensitivity solve */
   is = cv_mem->sens_solve_idx;
@@ -361,7 +361,7 @@ static int cvNlsFPFunctionSensStg1(N_Vector ycor, N_Vector res, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* get index of current sensitivity solve */
   is = cv_mem->sens_solve_idx;

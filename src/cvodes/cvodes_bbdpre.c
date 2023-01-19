@@ -86,7 +86,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Test if the CVSLS linear solver interface has been created */
   if (cv_mem->cv_lmem == NULL) {
@@ -121,7 +121,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, CV_SUNCTX);
+  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk, cv_mem->cv_sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBBD_MEM_FAIL);
@@ -131,7 +131,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, CV_SUNCTX);
+  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, cv_mem->cv_sunctx);
   if (pdata->savedP == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
@@ -141,7 +141,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* Allocate memory for temporary N_Vectors */
   pdata->zlocal = NULL;
-  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, CV_SUNCTX));
+  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, cv_mem->cv_sunctx));
   if (pdata->zlocal == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
@@ -150,7 +150,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     return(CVLS_MEM_FAIL);
   }
   pdata->rlocal = NULL;
-  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, CV_SUNCTX));
+  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, cv_mem->cv_sunctx));
   if (pdata->rlocal == NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal));
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
@@ -198,7 +198,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, CV_SUNCTX);
+  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, cv_mem->cv_sunctx);
   if (pdata->LS == NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp1));
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->tmp2));
@@ -449,7 +449,7 @@ static int cvBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* If jok = SUNTRUE, use saved copy of J */
   if (jok) {
@@ -563,7 +563,7 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int cvBBDPrecFree(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   CVLsMem cvls_mem;
   CVBBDPrecData pdata;
@@ -619,7 +619,7 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Load ytemp with y = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, y, ytemp));

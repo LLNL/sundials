@@ -17,7 +17,7 @@
  * -----------------------------------------------------------------
  */
 
-/* 
+/*
  * =================================================================
  * IMPORTED HEADER FILES
  * =================================================================
@@ -29,21 +29,21 @@
 #include "cvodes_impl.h"
 #include <sundials/sundials_types.h>
 
-/* 
+/*
  * =================================================================
  * CVODEA PRIVATE CONSTANTS
  * =================================================================
  */
 
-#define ONE         RCONST(1.0) 
+#define ONE         RCONST(1.0)
 
-/* 
+/*
  * =================================================================
  * EXPORTED FUNCTIONS IMPLEMENTATION
  * =================================================================
  */
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional input functions for ASA
  * -----------------------------------------------------------------
@@ -65,7 +65,7 @@ int CVodeSetAdjNoSensi(void *cvode_mem)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   ca_mem->ca_IMstoreSensi = SUNFALSE;
@@ -73,7 +73,7 @@ int CVodeSetAdjNoSensi(void *cvode_mem)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional input functions for backward integration
  * -----------------------------------------------------------------
@@ -135,7 +135,7 @@ int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -176,7 +176,7 @@ int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -219,7 +219,7 @@ int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -261,7 +261,7 @@ int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -303,7 +303,7 @@ int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -345,7 +345,7 @@ int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -387,7 +387,7 @@ int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -453,7 +453,7 @@ int CVodeSetConstraintsB(void *cvode_mem, int which, N_Vector constraintsB)
 /*
  * CVodeSetQuad*B
  *
- * Wrappers for the backward phase around the corresponding 
+ * Wrappers for the backward phase around the corresponding
  * CVODES quadrature optional input functions
  */
 
@@ -476,7 +476,7 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -499,7 +499,7 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
   return(flag);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional output functions for backward integration
  * -----------------------------------------------------------------
@@ -508,9 +508,9 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
 /*
  * CVodeGetAdjCVodeBmem
  *
- * This function returns a (void *) pointer to the CVODES     
- * memory allocated for the backward problem. This pointer can    
- * then be used to call any of the CVodeGet* CVODES routines to  
+ * This function returns a (void *) pointer to the CVODES
+ * memory allocated for the backward problem. This pointer can
+ * then be used to call any of the CVodeGet* CVODES routines to
  * extract optional output for the backward integration phase.
  */
 
@@ -532,7 +532,7 @@ void *CVodeGetAdjCVodeBmem(void *cvode_mem, int which)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, 0, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(NULL);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
@@ -578,7 +578,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   ck_mem = ca_mem->ck_mem;
@@ -605,7 +605,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
 }
 
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Undocumented Development User-Callable Functions
  * -----------------------------------------------------------------
@@ -619,7 +619,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
  * at the 'which' data point. Cubic Hermite interpolation.
  */
 
-int CVodeGetAdjDataPointHermite(void *cvode_mem, int which, 
+int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
                                 realtype *t, N_Vector y, N_Vector yd)
 {
   CVodeMem cv_mem;
@@ -634,13 +634,13 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   dt_mem = ca_mem->dt_mem;
@@ -672,7 +672,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
  * at the 'which' data point. Polynomial interpolation.
  */
 
-int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which, 
+int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
                                    realtype *t, int *order, N_Vector y)
 {
   CVodeMem cv_mem;
@@ -687,13 +687,13 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   dt_mem = ca_mem->dt_mem;
@@ -738,7 +738,7 @@ int CVodeGetAdjCurrentCheckPoint(void *cvode_mem, void **addr)
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_ADJ, __LINE__, __func__, __FILE__, MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   *addr = (void *) ca_mem->ca_ckpntData;

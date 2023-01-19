@@ -75,7 +75,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Test if the CVSLS linear solver interface has been attached */
   if (cv_mem->cv_lmem == NULL) {
@@ -109,7 +109,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, CV_SUNCTX);
+  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, cv_mem->cv_sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSGBP_MEM_FAIL);
@@ -119,7 +119,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, CV_SUNCTX);
+  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, cv_mem->cv_sunctx);
   if (pdata->savedP == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
@@ -129,7 +129,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP, CV_SUNCTX);
+  pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP, cv_mem->cv_sunctx);
   if (pdata->LS == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
@@ -208,7 +208,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__, __FILE__, MSGBP_LMEM_NULL);
@@ -340,7 +340,7 @@ static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (CVBandPrecData) bp_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (jok) {
 
@@ -441,7 +441,7 @@ static int cvBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int cvBandPrecFree(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   CVLsMem cvls_mem;
   CVBandPrecData pdata;
@@ -491,7 +491,7 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
   ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt));
