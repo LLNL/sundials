@@ -77,7 +77,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   }
   kin_mem = (KINMem) kinmem;
 
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   /* Test if the LS linear solver interface has been created */
   if (kin_mem->kin_lmem == NULL) {
@@ -378,7 +378,7 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 
   kin_mem = (KINMem) pdata->kin_mem;
 
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   /* Call KBBDDQJac for a new Jacobian calculation and store in PP */
   retval = SUNCheckCallLastErrNoRet(SUNMatZero(pdata->PP));
@@ -471,7 +471,7 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
   ------------------------------------------------------------------*/
 static int KINBBDPrecFree(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   KINLsMem kinls_mem;
   KBBDPrecData pdata;
@@ -522,7 +522,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
 
   kin_mem = (KINMem) pdata->kin_mem;
 
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   /* load utemp with uu = predicted solution vector */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, uu, utemp));

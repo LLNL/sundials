@@ -149,12 +149,6 @@
 #define PRNT_ALPHABETA 11
 #define PRNT_ADJ       12
 
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define KIN_PROFILER kin_mem->kin_sunctx->profiler
-
 /*
  * =================================================================
  * PRIVATE FUNCTION PROTOTYPES
@@ -304,13 +298,13 @@ void *KINCreate(SUNContext sunctx)
   kin_mem->kin_debugfp          = stdout;
   kin_mem->kin_printfl          = PRINTFL_DEFAULT;
 #if SUNDIALS_LOGGING_LEVEL > 0
-  kin_mem->kin_errfp            = (KIN_LOGGER->error_fp) ? KIN_LOGGER->error_fp : stderr;
+  kin_mem->kin_errfp            = (kin_mem->kin_sunctx->logger->error_fp) ? kin_mem->kin_sunctx->logger->error_fp : stderr;
 #endif
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  kin_mem->kin_infofp           = (KIN_LOGGER->info_fp) ? KIN_LOGGER->info_fp : stdout;
+  kin_mem->kin_infofp           = (kin_mem->kin_sunctx->logger->info_fp) ? kin_mem->kin_sunctx->logger->info_fp : stdout;
 #endif
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  kin_mem->kin_debugfp          = (KIN_LOGGER->debug_fp) ? KIN_LOGGER->debug_fp : stdout;
+  kin_mem->kin_debugfp          = (kin_mem->kin_sunctx->logger->debug_fp) ? kin_mem->kin_sunctx->logger->debug_fp : stdout;
 #endif
 
   /* initialize lrw and liw */
@@ -349,13 +343,13 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   }
   kin_mem = (KINMem) kinmem;
 
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(KIN_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(kin_mem->kin_sunctx->profiler);
 
   if (func == NULL) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_FUNC_NULL);
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(KIN_ILL_INPUT);
   }
 
@@ -364,7 +358,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   nvectorOK = KINCheckNvector(tmpl);
   if (!nvectorOK) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_NVECTOR);
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(KIN_ILL_INPUT);
   }
 
@@ -386,7 +380,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   if (!allocOK) {
     KINProcessError(kin_mem, KIN_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
     free(kin_mem); kin_mem = NULL;
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(KIN_MEM_FAIL);
   }
 
@@ -445,7 +439,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 
   kin_mem->kin_MallocDone = SUNTRUE;
 
-  SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
   return(KIN_SUCCESS);
 }
 
@@ -502,13 +496,13 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   }
   kin_mem = (KINMem) kinmem;
 
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(KIN_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(kin_mem->kin_sunctx->profiler);
 
   if(kin_mem->kin_MallocDone == SUNFALSE) {
     KINProcessError(NULL, KIN_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_NO_MALLOC);
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(KIN_NO_MALLOC);
   }
 
@@ -525,13 +519,13 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   if ( kin_mem->kin_globalstrategy == KIN_FP ) {
     if (kin_mem->kin_uu == NULL) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_UU_NULL);
-      SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
       return(KIN_ILL_INPUT);
     }
 
     if (kin_mem->kin_constraintsSet != SUNFALSE) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_CONSTRAINTS_NOTOK);
-      SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
       return(KIN_ILL_INPUT);
     }
 
@@ -550,14 +544,14 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       break;
     }
 
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(ret);
   }
 
   /* initialize solver */
   ret = KINSolInit(kin_mem);
   if (ret != KIN_SUCCESS) {
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(ret);
   }
 
@@ -593,7 +587,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       kin_mem->kin_gval = SUNCheckCallLastErrNoRet(N_VClone(kin_mem->kin_unew));
       if (kin_mem->kin_gval == NULL) {
         KINProcessError(kin_mem, KIN_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
-        SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+        SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
         return(KIN_MEM_FAIL);
       }
       kin_mem->kin_liw += kin_mem->kin_liw1;
@@ -601,7 +595,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
     }
     ret = KINPicardAA(kin_mem);
 
-    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
     return(ret);
   }
 
@@ -734,7 +728,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
     break;
   }
 
-  SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(kin_mem->kin_sunctx->profiler);
   return(ret);
 }
 
@@ -818,7 +812,7 @@ static booleantype KINCheckNvector(N_Vector tmpl)
 
 static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
@@ -1189,7 +1183,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 
 static void KINFreeVectors(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   if (kin_mem->kin_unew != NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(kin_mem->kin_unew));
@@ -1347,7 +1341,7 @@ static void KINFreeVectors(KINMem kin_mem)
 
 static int KINSolInit(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   int retval;
   realtype fmax;
@@ -1531,7 +1525,7 @@ static int KINSolInit(KINMem kin_mem)
 
 static int KINLinSolDrv(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   N_Vector x, b;
   int retval;
@@ -1592,7 +1586,7 @@ static int KINLinSolDrv(KINMem kin_mem)
 static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
                          booleantype *maxStepTaken)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   realtype pnorm, ratio;
   booleantype fOK;
@@ -1727,7 +1721,7 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
                          booleantype *maxStepTaken)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   realtype pnorm, ratio, slpi, rlmin, rlength, rl, rlmax, rldiff;
   realtype rltmp, rlprev, pt1trl, f1nprv, rllo, rlinc, alpha, beta;
@@ -2023,7 +2017,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
 static int KINConstraint(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   sunbooleantype mask;
 
@@ -2069,7 +2063,7 @@ static int KINConstraint(KINMem kin_mem)
 
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   realtype fmax, rlength, omexp;
   N_Vector delta;
@@ -2273,7 +2267,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
 static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
   SUNCheckCallLastErrNoRet(N_VProd(scale, v, kin_mem->kin_vtemp1));
   return(N_VMaxNorm(kin_mem->kin_vtemp1));
 }
@@ -2287,7 +2281,7 @@ static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
 
 static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
   realtype length;
 
   SUNCheckCallLastErrNoRet(N_VInv(kin_mem->kin_uscale, kin_mem->kin_vtemp1));
@@ -2418,7 +2412,7 @@ void KINInfoHandler(const char *module, const char *function,
   }
 #endif
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(kin_mem->kin_sunctx->logger, SUN_LOGLEVEL_INFO,
     "KINSOL::KINInfoHandler", function, "%s", msg);
 #endif
 }
@@ -2526,7 +2520,7 @@ void KINErrHandler(int error_code, const char *module,
 
 static int KINPicardAA(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   int retval;       /* return value from user func */
   int ret;          /* iteration status            */
@@ -2674,7 +2668,7 @@ static int KINPicardAA(KINMem kin_mem)
 
 static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vector fval1)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   int retval;
 
@@ -2727,7 +2721,7 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
 
 static int KINFP(KINMem kin_mem)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
 
   int retval;       /* return value from user func */
   int ret;          /* iteration status            */
@@ -2740,9 +2734,9 @@ static int KINFP(KINMem kin_mem)
   tolfac = ONE;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG,
+  SUNLogger_QueueMsg(kin_mem->kin_sunctx->logger, SUN_LOGLEVEL_DEBUG,
     "KINSOL::KINFP", "begin", "%s", "u_0:");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(kin_mem->kin_uu, KIN_LOGGER->debug_fp));
+  SUNCheckCallLastErrNoRet(N_VPrintFile(kin_mem->kin_uu, kin_mem->kin_sunctx->logger->debug_fp));
 #endif
 
   /* initialize iteration count */
@@ -2759,10 +2753,10 @@ static int KINFP(KINMem kin_mem)
     kin_mem->kin_nfe++;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG,
+    SUNLogger_QueueMsg(kin_mem->kin_sunctx->logger, SUN_LOGLEVEL_DEBUG,
       "KINSOL::KINFP", "while-loop-before-compute-new",
       "G_%ld:", kin_mem->kin_nni - 1);
-    SUNCheckCallLastErrNoRet(N_VPrintFile(kin_mem->kin_fval, KIN_LOGGER->debug_fp));
+    SUNCheckCallLastErrNoRet(N_VPrintFile(kin_mem->kin_fval, kin_mem->kin_sunctx->logger->debug_fp));
 #endif
 
     if (retval < 0) {
@@ -2822,10 +2816,10 @@ static int KINFP(KINMem kin_mem)
     }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG,
+    SUNLogger_QueueMsg(kin_mem->kin_sunctx->logger, SUN_LOGLEVEL_DEBUG,
       "KINSOL::KINFP", "while-loop-after-compute-new",
       "u_%ld:\n", kin_mem->kin_nni);
-    SUNCheckCallLastErrNoRet(N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp));
+    SUNCheckCallLastErrNoRet(N_VPrintFile(kin_mem->kin_unew, kin_mem->kin_sunctx->logger->debug_fp));
 #endif
 
     /* compute change between iterations */
@@ -2879,8 +2873,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
                        N_Vector x, N_Vector xold,
                        long int iter, realtype *R, realtype *gamma)
 {
-  SUNAssignSUNCTX(KIN_SUNCTX);
-  
+  SUNAssignSUNCTX(kin_mem->kin_sunctx);
+
   int retval;
   long int i_pt, i, j, lAA;
   long int *ipt_map;
