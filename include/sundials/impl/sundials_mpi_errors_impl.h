@@ -20,6 +20,7 @@
 #ifndef _SUNDIALS_MPI_ERRORS_IMPL_H
 #define _SUNDIALS_MPI_ERRORS_IMPL_H
 
+#include <mpi.h>
 #include <sundials/sundials_mpi_errors.h>
 
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)

@@ -16,6 +16,7 @@
 #ifndef _SUNDIALS_MPI_TYPES_H
 #define _SUNDIALS_MPI_TYPES_H
 
+#include <mpi.h>
 #include <sundials/sundials_types.h>
 
 #define SUN_AsMPIComm(comm) (*((MPI_Comm*)(comm)))
