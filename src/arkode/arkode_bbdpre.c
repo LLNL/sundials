@@ -99,7 +99,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ARK_SUNCTX));
+  pdata->savedJ = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(Nlocal, muk, mlk, muk, ark_mem->sunctx));
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BBD_MEM_FAIL);
@@ -109,7 +109,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ARK_SUNCTX));
+  pdata->savedP = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu, ark_mem->sunctx));
   if (pdata->savedP == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
@@ -120,7 +120,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for temporary N_Vectors */
 
   pdata->zlocal = NULL;
-  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ARK_SUNCTX));
+  pdata->zlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ark_mem->sunctx));
   if (pdata->zlocal == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
@@ -130,7 +130,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   }
 
   pdata->rlocal = NULL;
-  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ARK_SUNCTX));
+  pdata->rlocal = SUNCheckCallLastErrNoRet(N_VNewEmpty_Serial(Nlocal, ark_mem->sunctx));
   if (pdata->rlocal == NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(pdata->zlocal));
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
@@ -178,7 +178,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(pdata->rlocal, pdata->savedP, ARK_SUNCTX));
+  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(pdata->rlocal, pdata->savedP, ark_mem->sunctx));
   if (pdata->LS == NULL) {
     arkFreeVec(ark_mem, &(pdata->tmp1));
     arkFreeVec(ark_mem, &(pdata->tmp2));

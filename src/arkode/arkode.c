@@ -491,7 +491,7 @@ int arkResStolerance(ARKodeMem ark_mem, realtype rabstol)
 int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   /* local variables */
   realtype rabstolmin;
 
@@ -610,7 +610,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
               realtype *tret, int itask)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   long int nstloc;
   int retval, kflag, istate, ir;
   int ewtsetOK;
@@ -809,7 +809,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->nst_attempts++;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+      SUNLogger_QueueMsg(ark_mem->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "ARKODE::arkEvolve", "start-step",
                          "step = %li, attempt = %i, h = %"RSYM", tcur = %"RSYM,
                          ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
@@ -1386,7 +1386,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   /* output vector quantities */
   fprintf(outfile, "Vapbsol:\n");
   SUNCheckCallLastErrNoRet(N_VPrintFile(ark_mem->Vabstol, outfile));
@@ -1479,7 +1479,7 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
 booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   /* allocate the new vector if necessary */
   if (*v == NULL) {
     *v = SUNCheckCallLastErrNoRet(N_VClone(tmpl));
@@ -1523,7 +1523,7 @@ booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   if (*v != NULL) {
     SUNCheckCallLastErrNoRet(N_VDestroy(*v));
     *v = NULL;
@@ -1567,7 +1567,7 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                          sunindextype liw_diff, N_Vector tmpl, N_Vector *v)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   if (*v != NULL) {
     if (resize == NULL) {
       SUNCheckCallLastErrNoRet(N_VDestroy(*v));
@@ -1978,7 +1978,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                  realtype *tret, int itask, int *ier)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   int irfndp, retval;
   realtype troundoff;
 
@@ -2252,7 +2252,7 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
 realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   realtype hub_inv, hub;
   N_Vector temp1, temp2;
 
@@ -2292,7 +2292,7 @@ realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
 int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   int retval;
 
   if (ark_mem->interp == NULL) {
@@ -2337,7 +2337,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   int retval, mode;
   realtype troundoff;
 
@@ -2355,7 +2355,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(ark_mem->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkCompleteStep", "end-step",
                      "step = %li, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
@@ -2779,7 +2779,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
                          N_Vector *Xvecs, N_Vector yguess)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   realtype a0, a1, a2;
   int i, retval;
 
@@ -2891,7 +2891,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 {
   SUNAssignSUNCTX(ark_mem->sunctx);
-  
+
   booleantype constraintsPassed;
   N_Vector mm  = ark_mem->tempv4;
   N_Vector tmp = ark_mem->tempv1;
@@ -3051,9 +3051,9 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line, const char *fu
     ark_mem->ehfun(error_code, "ARKODE", func, msg, ark_mem->eh_data);
 
   } else {
-    
+
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, ARK_SUNCTX);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, ark_mem->sunctx);
 
   }
 

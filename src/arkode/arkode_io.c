@@ -62,11 +62,11 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->user_rfun               = SUNFALSE;       /* no user-supplied rwt function */
   ark_mem->rfun                    = arkRwtSet;      /* built-in rwt function */
   ark_mem->r_data                  = ark_mem;        /* rwt function data */
-  ark_mem->ehfun                   = NULL; 
+  ark_mem->ehfun                   = NULL;
   ark_mem->eh_data                 = ark_mem;        /* error handler data */
   ark_mem->errfp                   = stderr;         /* output stream for errors */
 #if SUNDIALS_LOGGING_LEVEL > 0
-  ark_mem->errfp                   = (ARK_LOGGER->error_fp) ? ARK_LOGGER->error_fp : stderr;
+  ark_mem->errfp                   = (ark_mem->sunctx->logger->error_fp) ? ark_mem->sunctx->logger->error_fp : stderr;
 #endif
   ark_mem->mxstep                  = MXSTEP_DEFAULT; /* max number of steps */
   ark_mem->mxhnil                  = MXHNIL;         /* max warns of t+h==t */

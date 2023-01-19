@@ -2790,7 +2790,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
             bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkLsSolve",
+  SUNLogger_QueueMsg(ark_mem->sunctx->logger, SUN_LOGLEVEL_INFO, "ARKODE::arkLsSolve",
                      "ls-stats", "bnorm = %"RSYM", resnorm = %"RSYM
                      ", ls_iters = %i, prec_solves = %i",
                      bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
@@ -3219,7 +3219,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
             resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(ark_mem->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkLsMassSolve", "mass-ls-stats",
                      "resnorm = %"RSYM", ls_iters = %i, prec_solves = %i",
                      resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));

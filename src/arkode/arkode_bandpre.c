@@ -98,7 +98,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(N, mup, mlp, mup, ARK_SUNCTX));
+  pdata->savedJ = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(N, mup, mlp, mup, ark_mem->sunctx));
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_BP_MEM_FAIL);
@@ -108,7 +108,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(N, mup, mlp, storagemu, ARK_SUNCTX));
+  pdata->savedP = SUNCheckCallLastErrNoRet(SUNBandMatrixStorage(N, mup, mlp, storagemu, ark_mem->sunctx));
   if (pdata->savedP == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));
     free(pdata); pdata = NULL;
@@ -118,7 +118,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ARK_SUNCTX));
+  pdata->LS = SUNCheckCallLastErrNoRet(SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ark_mem->sunctx));
   if (pdata->LS == NULL) {
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedP));
     SUNCheckCallLastErrNoRet(SUNMatDestroy(pdata->savedJ));

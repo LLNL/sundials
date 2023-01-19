@@ -323,10 +323,10 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
                                                ark_mem));
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+  SUNLogger_QueueMsg(ark_mem->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_Nls", "correction",
                      "zcor =", "");
-  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp));
+  SUNCheckCallLastErrNoRet(N_VPrintFile(step_mem->zcor, ark_mem->sunctx->logger->debug_fp));
 #endif
 
   /* increment counters */

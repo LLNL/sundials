@@ -42,14 +42,6 @@ extern "C" {
 #endif
 
 /*===============================================================
-  SHORTCUTS
-  ===============================================================*/
-
-#define ARK_SUNCTX ark_mem->sunctx
-#define ARK_PROFILER ark_mem->sunctx->profiler
-#define ARK_LOGGER ark_mem->sunctx->logger
-
-/*===============================================================
   ARKODE Private Constants
   ===============================================================*/
 
