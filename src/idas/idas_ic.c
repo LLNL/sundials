@@ -135,15 +135,15 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Check if problem was malloc'ed */
 
   if(IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_NO_MALLOC);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_MALLOC);
   }
 
@@ -151,7 +151,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   ier = IDAInitialSetup(IDA_mem);
   if(ier != IDA_SUCCESS) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_SetupDone = SUNTRUE;
@@ -160,14 +160,14 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
   if(icopt != IDA_YA_YDP_INIT && icopt != IDA_Y_INIT) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_BAD_ICOPT);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
   if(icopt == IDA_YA_YDP_INIT && (IDA_mem->ida_id == NULL)) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_MISSING_ID);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -175,7 +175,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   troundoff = TWO * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(tout1));
   if(tdist < troundoff) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_TOO_CLOSE);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -218,7 +218,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
     minid = SUNCheckCallLastErrNoRet(N_VMin(IDA_mem->ida_id));
     if(minid < ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_BAD_ID);
-      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
       return(IDA_ILL_INPUT);
     }
     if(minid > HALF) IDA_mem->ida_sysindex = 0;
@@ -337,7 +337,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
     icret = IDAICFailFlag(IDA_mem, retval);
 
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(icret);
   }
 
@@ -353,7 +353,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
       SUNCheckCallLastErrNoRet(N_VDestroyVectorArray(IDA_mem->ida_ypS0, IDA_mem->ida_Ns));
     }
 
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_SUCCESS);
   }
 
@@ -370,13 +370,13 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   IDA_mem->ida_nre++;
   if(retval < 0) {
     /* res function failed unrecoverably. */
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_RES_FAIL);
   }
 
   if(retval > 0) {
     /* res function failed recoverably but no recovery possible. */
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_FIRST_RES_FAIL);
   }
 
@@ -446,12 +446,12 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
   /* On any failure, print message and return proper flag. */
   if(retval != IDA_SUCCESS) {
     icret = IDAICFailFlag(IDA_mem, retval);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(icret);
   }
 
   /* Otherwise return success flag. */
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(IDA_SUCCESS);
 }
 
@@ -488,7 +488,7 @@ int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
 
 static int IDANlsIC(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int retval, nj, is;
   N_Vector tv1, tv2, tv3;
@@ -594,7 +594,7 @@ static int IDANlsIC(IDAMem IDA_mem)
 
 static int IDANewtonIC(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int retval, mnewt, is;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
@@ -703,7 +703,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
 static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   booleantype conOK;
   int retval, is, nbacks;
@@ -823,7 +823,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int retval, is;
 
@@ -910,8 +910,8 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
-  
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
+
   int retval;
 
   retval = IDA_SUCCESS;
@@ -956,7 +956,7 @@ static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
 
 static int IDANewy(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
@@ -1006,7 +1006,7 @@ static int IDANewy(IDAMem IDA_mem)
  */
 static int IDASensNlsIC(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int retval;
   int is, nj;
@@ -1087,7 +1087,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
  */
 static int IDASensNewtonIC(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int retval, is, mnewt;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
@@ -1170,7 +1170,7 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
 
 static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int is, retval, nbacks;
   realtype f1norm, fnormp, f1normp, slpi, minlam;
@@ -1243,7 +1243,7 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
 static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int is, retval;
 
@@ -1299,8 +1299,8 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
-  
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
+
   int is;
 
   if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {

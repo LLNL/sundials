@@ -89,7 +89,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* Test if the LS linear solver interface has been created */
   if (IDA_mem->ida_lmem == NULL) {
@@ -443,7 +443,7 @@ static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
 
   IDA_mem = (IDAMem) pdata->ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
   SUNCheckCallNoRet(SUNMatZero(pdata->PP));
@@ -519,7 +519,7 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
 /*-------------------------------------------------------------*/
 static int IDABBDPrecFree(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDALsMem idals_mem;
   IBBDPrecData pdata;
@@ -577,7 +577,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   realtype *col_j, conj, yj, ypj, ewtj;
 
   IDA_mem = (IDAMem) pdata->ida_mem;
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* Initialize ytemp and yptemp. */
   SUNCheckCallLastErrNoRet(N_VScale(ONE, yy, ytemp));

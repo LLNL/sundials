@@ -36,12 +36,6 @@
 #define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for IDAAgetY */
 
 /*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
-
-#define IDA_PROFILER IDA_mem->ida_sunctx->profiler
-
-/*=================================================================*/
 /*               Private Functions Prototypes                      */
 /*=================================================================*/
 
@@ -115,17 +109,17 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   }
   IDA_mem = (IDAMem)ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   if (steps <= 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_STEPS);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
   if ( (interp != IDA_HERMITE) && (interp != IDA_POLYNOMIAL) ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_INTERP);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -133,7 +127,7 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   IDAADJ_mem = (IDAadjMem) malloc(sizeof(struct IDAadjMemRec));
   if (IDAADJ_mem == NULL) {
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSGAM_MEM_FAIL);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_MEM_FAIL);
   }
 
@@ -157,7 +151,7 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   if (IDAAdataMalloc(IDA_mem) == SUNFALSE) {
     free(IDAADJ_mem); IDAADJ_mem = NULL;
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSGAM_MEM_FAIL);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_MEM_FAIL);
   }
 
@@ -212,7 +206,7 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   IDA_mem->ida_adj = SUNTRUE;
   IDA_mem->ida_adjMallocDone = SUNTRUE;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(IDA_SUCCESS);
 }
 
@@ -235,12 +229,12 @@ int IDAAdjReInit(void *ida_mem)
   }
   IDA_mem = (IDAMem)ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Was ASA previously initialized? */
   if(IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
 
@@ -259,7 +253,7 @@ int IDAAdjReInit(void *ida_mem)
   IDAADJ_mem->ia_tstopIDAFcall = SUNFALSE;
   IDAADJ_mem->ia_firstIDABcall = SUNTRUE;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(IDA_SUCCESS);
 }
 
@@ -376,12 +370,12 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized ? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -389,27 +383,27 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   /* Check for yret != NULL */
   if (yret == NULL) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_YRET_NULL);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
   /* Check for ypret != NULL */
   if (ypret == NULL) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_YPRET_NULL);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
   /* Check for tret != NULL */
   if (tret == NULL) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_TRET_NULL);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
   /* Check for valid itask */
   if ( (itask != IDA_NORMAL) && (itask != IDA_ONE_STEP) ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_ITASK);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -436,7 +430,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
     IDAADJ_mem->ck_mem = IDAAckpntInit(IDA_mem);
     if (IDAADJ_mem->ck_mem == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
-      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
       return(IDA_MEM_FAIL);
     }
 
@@ -448,7 +442,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
       allocOK = IDAADJ_mem->ia_malloc(IDA_mem);
       if (!allocOK) {
         IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
-        SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+        SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
         return(IDA_MEM_FAIL);
       }
 
@@ -500,7 +494,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
       IDAADJ_mem->ia_newData = SUNTRUE;
       IDAADJ_mem->ia_ckpntData = IDAADJ_mem->ck_mem;
       IDAADJ_mem->ia_np = IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps + 1;
-      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
       return(flag);
     }
 
@@ -603,7 +597,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   IDAADJ_mem->ia_ckpntData = IDAADJ_mem->ck_mem;
   IDAADJ_mem->ia_np = IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps + 1;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -712,14 +706,14 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized ? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -727,14 +721,14 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   /* Check the initial time for this backward problem against the adjoint data. */
   if ( (tB0 < IDAADJ_mem->ia_tinitial) || (tB0 > IDAADJ_mem->ia_tfinal) ) {
     IDAProcessError(IDA_mem, IDA_BAD_TB0, __LINE__, __func__, __FILE__, MSGAM_BAD_TB0);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_BAD_TB0);
   }
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -752,7 +746,7 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   /* Call the IDAInit for this backward problem. */
   flag = IDAInit(ida_memB, IDAAres, tB0, yyB0, ypB0);
   if (IDA_SUCCESS != flag) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(flag);
   }
 
@@ -769,7 +763,7 @@ int IDAInitB(void *ida_mem, int which, IDAResFnB resB,
   SUNCheckCallLastErrNoRet(N_VScale(ONE, yyB0, IDAB_mem->ida_yy));
   SUNCheckCallLastErrNoRet(N_VScale(ONE, ypB0, IDAB_mem->ida_yp));
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -788,14 +782,14 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized ? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -803,21 +797,21 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   /* Check the initial time for this backward problem against the adjoint data. */
   if ( (tB0 < IDAADJ_mem->ia_tinitial) || (tB0 > IDAADJ_mem->ia_tfinal) ) {
     IDAProcessError(IDA_mem, IDA_BAD_TB0, __LINE__, __func__, __FILE__, MSGAM_BAD_TB0);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_BAD_TB0);
   }
 
   /* Were sensitivities active during the forward integration? */
   if (!IDAADJ_mem->ia_storeSensi) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_SENSI);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -836,7 +830,7 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   flag = IDAInit(ida_memB, IDAAres, tB0, yyB0, ypB0);
 
   if (flag != IDA_SUCCESS) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(flag);
   }
 
@@ -851,7 +845,7 @@ int IDAInitBS(void *ida_mem, int which, IDAResFnBS resS,
   SUNCheckCallLastErrNoRet(N_VScale(ONE, yyB0, IDAB_mem->ida_yy));
   SUNCheckCallLastErrNoRet(N_VScale(ONE, ypB0, IDAB_mem->ida_yp));
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(IDA_SUCCESS);
 }
 
@@ -872,12 +866,12 @@ int IDAReInitB(void *ida_mem, int which,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized ? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -885,14 +879,14 @@ int IDAReInitB(void *ida_mem, int which,
   /* Check the initial time for this backward problem against the adjoint data. */
   if ( (tB0 < IDAADJ_mem->ia_tinitial) || (tB0 > IDAADJ_mem->ia_tfinal) ) {
     IDAProcessError(IDA_mem, IDA_BAD_TB0, __LINE__, __func__, __FILE__, MSGAM_BAD_TB0);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_BAD_TB0);
   }
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -911,7 +905,7 @@ int IDAReInitB(void *ida_mem, int which,
   /* Call the IDAReInit for this backward problem. */
   flag = IDAReInit(ida_memB, tB0, yyB0, ypB0);
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -1098,12 +1092,12 @@ int IDAQuadInitB(void *ida_mem, int which, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -1111,7 +1105,7 @@ int IDAQuadInitB(void *ida_mem, int which, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1126,14 +1120,14 @@ int IDAQuadInitB(void *ida_mem, int which, IDAQuadRhsFnB rhsQB, N_Vector yQB0)
 
   flag = IDAQuadInit(ida_memB, IDAArhsQ, yQB0);
   if (IDA_SUCCESS != flag) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(flag);
   }
 
   IDAB_mem->ida_rhsQ_withSensi = SUNFALSE;
   IDAB_mem->ida_rhsQ = rhsQB;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -1153,12 +1147,12 @@ int IDAQuadInitBS(void *ida_mem, int which,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized ? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -1166,7 +1160,7 @@ int IDAQuadInitBS(void *ida_mem, int which,
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1185,7 +1179,7 @@ int IDAQuadInitBS(void *ida_mem, int which,
   flag = IDAQuadInit(ida_memB, IDAArhsQ, yQB0);
 
   if (flag != IDA_SUCCESS) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(flag);
   }
 
@@ -1193,7 +1187,7 @@ int IDAQuadInitBS(void *ida_mem, int which,
   IDAB_mem->ida_rhsQ_withSensi = SUNTRUE;
   IDAB_mem->ida_rhsQS = rhsQS;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(IDA_SUCCESS);
 }
 
@@ -1213,12 +1207,12 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -1226,7 +1220,7 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1241,7 +1235,7 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
 
   retval = IDAQuadReInit(ida_memB, yQB0);
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(retval);
 }
 
@@ -1275,14 +1269,14 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -1290,7 +1284,7 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1321,7 +1315,7 @@ int IDACalcICB(void *ida_mem, int which, realtype tout1,
   /* Set interpolation on in IDAARes. */
   IDAADJ_mem->ia_noInterp = SUNFALSE;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -1353,14 +1347,14 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -1368,14 +1362,14 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   /* Were sensitivities active during the forward integration? */
   if (!IDAADJ_mem->ia_storeSensi) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_SENSI);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1391,7 +1385,7 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   /* Was InitBS called for this problem? */
   if (!IDAB_mem->ida_res_withSensi) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_NO_INITBS);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1412,14 +1406,14 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
                                yyS0, IDAADJ_mem->ia_yySTmp);
   if (retval != IDA_SUCCESS) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_VECTOROP_ERR);
   }
 
   retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
                                ypS0, IDAADJ_mem->ia_ypSTmp);
   if (retval != IDA_SUCCESS) {
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_VECTOROP_ERR);
   }
 
@@ -1432,7 +1426,7 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   /* Set interpolation on in IDAARes. */
   IDAADJ_mem->ia_noInterp = SUNFALSE;
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -1474,19 +1468,19 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_BEGIN(IDA_mem->ida_sunctx->profiler);
 
   /* Is ASA initialized ? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,  MSGAM_NO_ADJ);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   if ( IDAADJ_mem->ia_nbckpbs == 0 ) {
     IDAProcessError(IDA_mem, IDA_NO_BCK, __LINE__, __func__, __FILE__, MSGAM_NO_BCK);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_BCK);
   }
   IDAB_mem = IDAADJ_mem->IDAB_mem;
@@ -1494,7 +1488,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   /* Check whether IDASolveF has been called */
   if ( IDAADJ_mem->ia_firstIDAFcall ) {
     IDAProcessError(IDA_mem, IDA_NO_FWD, __LINE__, __func__, __FILE__, MSGAM_NO_FWD);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_NO_FWD);
   }
   sign = (IDAADJ_mem->ia_tfinal - IDAADJ_mem->ia_tinitial > ZERO) ? 1 : -1;
@@ -1516,14 +1510,14 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
       if ( (sign*(tBn-IDAADJ_mem->ia_tinitial) < ZERO) || (sign*(IDAADJ_mem->ia_tfinal-tBn) < ZERO) ) {
         IDAProcessError(IDA_mem, IDA_BAD_TB0, __LINE__, __func__, __FILE__,
                         MSGAM_BAD_TB0, tmp_IDAB_mem->ida_index);
-        SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+        SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
         return(IDA_BAD_TB0);
       }
 
       if (sign*(tBn-tBout) <= ZERO) {
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_TBOUT,
                        tmp_IDAB_mem->ida_index);
-        SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+        SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
         return(IDA_ILL_INPUT);
       }
 
@@ -1537,7 +1531,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
     if ( IDAADJ_mem->ia_interpSensi && !IDAADJ_mem->ia_storeSensi) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_SENSI);
-      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
       return(IDA_ILL_INPUT);
     }
 
@@ -1547,7 +1541,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
   /* Check for valid itask */
   if ( (itaskB != IDA_NORMAL) && (itaskB != IDA_ONE_STEP) ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_ITASK);
-    SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+    SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
     return(IDA_ILL_INPUT);
   }
 
@@ -1559,7 +1553,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
       tBout = IDAADJ_mem->ia_tinitial;
     } else {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSGAM_BAD_TBOUT);
-      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
       return(IDA_ILL_INPUT);
     }
   }
@@ -1654,7 +1648,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
     if (flag <0) {
       IDAProcessError(IDA_mem, flag, __LINE__, __func__, __FILE__,
                       MSGAM_BACK_ERROR, tmp_IDAB_mem->ida_index);
-      SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+      SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
       return(flag);
     }
 
@@ -1680,7 +1674,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
 
   } /* End of loop. */
 
-  SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
+  SUNDIALS_MARK_FUNCTION_END(IDA_mem->ida_sunctx->profiler);
   return(flag);
 }
 
@@ -1706,7 +1700,7 @@ int IDAGetB(void* ida_mem, int which, realtype *tret,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
@@ -1762,7 +1756,7 @@ int IDAGetQuadB(void *ida_mem, int which, realtype *tret, N_Vector qB)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
@@ -1929,7 +1923,7 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
 
   if (*ck_memPtr != NULL) {
     SUNAssignSUNCTX((*ck_memPtr)->ck_phi[0]->sunctx);
-    
+
     /* store head of list */
     tmp = *ck_memPtr;
 
@@ -1976,7 +1970,7 @@ static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, CkpntMem ck_mem)
 {
   int j, jj;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   for (j=0; j<ck_mem->ck_phi_alloc; j++) {
     ck_mem->ck_phi[j] = SUNCheckCallLastErrNoRet(N_VClone(IDA_mem->ida_tempv1));
@@ -2253,7 +2247,7 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
 {
   int flag, j, is;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (ck_mem->ck_next == NULL) {
 
@@ -2359,7 +2353,7 @@ static int IDAAckpntGet(IDAMem IDA_mem, CkpntMem ck_mem)
 
 static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
@@ -2498,7 +2492,7 @@ static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
 
 static void IDAAhermiteFree(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
@@ -2546,7 +2540,7 @@ static void IDAAhermiteFree(IDAMem IDA_mem)
 
 static int IDAAhermiteStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   HermiteDataMem content;
@@ -2593,7 +2587,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
                            N_Vector yy, N_Vector yp,
                           N_Vector *yyS, N_Vector *ypS)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
@@ -2816,7 +2810,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
 
 static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
@@ -2969,7 +2963,7 @@ static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
 
 static void IDAApolynomialFree(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
@@ -2996,7 +2990,7 @@ static void IDAApolynomialFree(IDAMem IDA_mem)
     if(content) {
       SUNCheckCallLastErrNoRet(N_VDestroy(content->y));
 
-      if (content->yd) { 
+      if (content->yd) {
        SUNCheckCallLastErrNoRet(N_VDestroy(content->yd));
       }
 
@@ -3025,7 +3019,7 @@ static void IDAApolynomialFree(IDAMem IDA_mem)
 
 static int IDAApolynomialStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   PolynomialDataMem content;
@@ -3073,7 +3067,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
                               N_Vector yy, N_Vector yp,
                               N_Vector *yyS, N_Vector *ypS)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   IDAadjMem IDAADJ_mem;
   DtpntMem *dt_mem;
@@ -3258,8 +3252,8 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
 
 static int IDAAGettnSolutionYp(IDAMem IDA_mem, N_Vector yp)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
-  
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
+
   int j, kord, retval;
   realtype C, D, gam;
 

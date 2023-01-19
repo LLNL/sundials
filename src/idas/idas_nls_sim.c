@@ -50,7 +50,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* return immediately if NLS memory is NULL */
   if (NLS == NULL) {
@@ -219,7 +219,7 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
 {
   int retval;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* set the linear solver setup wrapper function */
   if (IDA_mem->ida_lsetup) {
@@ -353,7 +353,7 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* extract state and residual vectors from the vector wrapper */
   ycor = NV_VEC_SW(ycorSim,0);
@@ -419,7 +419,7 @@ static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* compute the norm of the correction */
   delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt));

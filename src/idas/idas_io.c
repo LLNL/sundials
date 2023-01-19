@@ -555,7 +555,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (id == NULL) {
     if (IDA_mem->ida_idMallocDone) {
@@ -595,7 +595,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (constraints == NULL) {
     if (IDA_mem->ida_constraintsMallocDone) {
@@ -1157,7 +1157,7 @@ int IDAGetConsistentIC(void *ida_mem, N_Vector yy0, N_Vector yp0)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (IDA_mem->ida_kused != 0) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_TOO_LATE);
@@ -1403,7 +1403,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ewt, eweight));
 
@@ -1422,7 +1422,7 @@ int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   SUNCheckCallLastErrNoRet(N_VScale(ONE, IDA_mem->ida_ee, ele));
 
@@ -1656,7 +1656,7 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (IDA_mem->ida_quadr==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, __LINE__, __func__, __FILE__, MSG_NO_QUAD);
@@ -1761,7 +1761,7 @@ int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (IDA_mem->ida_quadr_sensi == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_QUADSENS, __LINE__, __func__, __FILE__, MSG_NO_QUADSENSI);
@@ -1824,7 +1824,7 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, __LINE__, __func__, __FILE__, MSG_NO_SENSI);
@@ -1957,7 +1957,7 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   if (IDA_mem->ida_sensi==SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_SENS, __LINE__, __func__, __FILE__, MSG_NO_SENSI);
