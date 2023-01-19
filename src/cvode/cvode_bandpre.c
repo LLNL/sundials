@@ -73,7 +73,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Test if the CVLS linear solver interface has been attached */
   if (cv_mem->cv_lmem == NULL) {
@@ -217,7 +217,7 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVLS_LMEM_NULL, __LINE__, __func__,
@@ -354,7 +354,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   pdata = (CVBandPrecData) bp_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   if (jok) {
 
@@ -458,7 +458,7 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int CVBandPrecFree(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
   CVLsMem cvls_mem;
   CVBandPrecData pdata;
 
@@ -507,7 +507,7 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Obtain pointers to the data for various vectors */
   ewt_data   = SUNCheckCallLastErrNoRet(N_VGetArrayPointer(cv_mem->cv_ewt));

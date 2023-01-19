@@ -124,7 +124,7 @@ int CVDiag(void *cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   /* Check if N_VCompare and N_VInvTest are present */
   if(vec_tmpl->ops->nvcompare == NULL ||
@@ -344,7 +344,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 
   realtype r;
   N_Vector ftemp, y;
@@ -433,7 +433,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
   booleantype invOK;
   realtype r;
   CVDiagMem cvdiag_mem;
@@ -482,7 +482,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static int CVDiagFree(CVodeMem cv_mem)
 {
-  SUNAssignSUNCTX(CV_SUNCTX);
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
   CVDiagMem cvdiag_mem;
 
   cvdiag_mem = (CVDiagMem) lmem;
