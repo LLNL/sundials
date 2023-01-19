@@ -15,6 +15,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sundials/sundials_core.h>
 #include <sundials/sundials_mpi_types.h>
 #include <sundials/impl/sundials_mpi_errors_impl.h>
 
