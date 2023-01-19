@@ -21,8 +21,6 @@
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_types.h>
 
-#include "sundials_linearsolver.h"
-
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif

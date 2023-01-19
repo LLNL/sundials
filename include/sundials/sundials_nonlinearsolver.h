@@ -31,7 +31,7 @@
  *     pointers to such structures (SUNNonlinearSolver),
  *   - prototypes for the nonlinear solver functions which operate
  *     on/by SUNNonlinearSolver objects, and
- *   - return codes for SUNLinearSolver objects.
+ *   - return codes for SUNNonLinearSolver objects.
  * -----------------------------------------------------------------------------
  * At a minimum, a particular implementation of a SUNNonlinearSolver must do the
  * following:
@@ -50,7 +50,6 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_errors.h>
-#include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 
