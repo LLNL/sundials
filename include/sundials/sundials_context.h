@@ -20,11 +20,7 @@
 #define _SUNDIALS_CONTEXT_H
 
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_logger.h>
-#include <sundials/sundials_profiler.h>
 #include <sundials/impl/sundials_context_impl.h>
-
-typedef struct SUNContext_* SUNContext;
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -40,12 +36,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_PeekLastError(SUNContext sunctx, SUNErrCode* last_err);
 
 SUNDIALS_EXPORT
-struct SUNErrHandler_* SUNContext_PushErrHandler(
-  SUNContext sunctx,
-  int (*err_fn)(int line, const char* func, const char* file, const char* msg,
-                SUNErrCode err_code, void* err_user_data,
-                struct SUNContext_* sunctx),
-  void* err_user_data);
+SUNErrHandler SUNContext_PushErrHandler(SUNContext sunctx,
+                                        SUNErrHandlerFn err_fn,
+                                        void* err_user_data);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx);

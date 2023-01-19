@@ -200,6 +200,31 @@ typedef enum
 
 typedef int SUNErrCode;
 
+/* -----------------------------------------------------------------------------
+ * Forward declarations of SUNDIALS objects
+ * ---------------------------------------------------------------------------*/
+
+/* SUNDIALS context -- see sundials_context_impl.h */
+typedef struct SUNContext_* SUNContext;
+
+/* SUNDIALS error handler -- see sundials_errors.h */
+typedef struct SUNErrHandler_* SUNErrHandler;
+
+/* SUNDIALS profiler */
+typedef struct _SUNProfiler* SUNProfiler;
+
+/* SUNDIALS logger */
+typedef struct SUNLogger_* SUNLogger;
+
+/* -----------------------------------------------------------------------------
+ * SUNDIALS function types
+ * ---------------------------------------------------------------------------*/
+
+/* Error handler function */
+typedef int (*SUNErrHandlerFn)(int line, const char* func, const char* file,
+                               const char* msg, SUNErrCode err_code,
+                               void* err_user_data, SUNContext sunctx);
+
 #ifdef __cplusplus
 }
 #endif

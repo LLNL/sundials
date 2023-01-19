@@ -22,16 +22,11 @@
 #ifndef _SUNDIALS_CONTEXT_IMPL_H
 #define _SUNDIALS_CONTEXT_IMPL_H
 
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_logger.h>
-#include <sundials/sundials_profiler.h>
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-struct SUNErrHandler_;
 
 struct SUNContext_
 {
@@ -40,7 +35,7 @@ struct SUNContext_
   SUNLogger logger;
   sunbooleantype own_logger;
   SUNErrCode last_err;
-  struct SUNErrHandler_* err_handler;
+  SUNErrHandler err_handler;
   void* comm;
 };
 

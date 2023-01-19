@@ -15,18 +15,18 @@
 #ifndef _SUNDIALS_NVECTOR_IMPL_H
 #define _SUNDIALS_NVECTOR_IMPL_H
 
-#include <sundials/sundials_core.h>
+#include <sundials/impl/sundials_context_impl.h>
 #include <sundials/impl/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
+#include <sundials/sundials_nvector.h>
 
-#define NVECTOR_DEFINE_ENABLE_FUSEDOP(fname, opname, suffix) \
-  SUNErrCode N_VEnable ## fname ## _ ## suffix(N_Vector v, booleantype tf) \
-  { \
-    if (tf) \
-      v->ops->nv ## opname = N_V ## fname ## _ ## suffix; \
-    else \
-      v->ops->nv ## opname = NULL; \
-    \
-    return SUN_SUCCESS; \
+#define NVECTOR_DEFINE_ENABLE_FUSEDOP(fname, opname, suffix)         \
+  SUNErrCode N_VEnable##fname##_##suffix(N_Vector v, booleantype tf) \
+  {                                                                  \
+    if (tf) v->ops->nv##opname = N_V##fname##_##suffix;              \
+    else v->ops->nv##opname = NULL;                                  \
+                                                                     \
+    return SUN_SUCCESS;                                              \
   }
 
 #endif /* _SUNDIALS_NVECTOR_IMPL_H */

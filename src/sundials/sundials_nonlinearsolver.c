@@ -17,8 +17,8 @@
  * ---------------------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include <sundials/sundials_nonlinearsolver.h>
-#include "sundials/sundials_context.h"
+
+#include <sundials_nonlinearsolver_impl.h>
 #include <sundials/impl/sundials_errors_impl.h>
 #include <sundials/impl/sundials_context_impl.h>
 

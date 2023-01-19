@@ -20,8 +20,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/sundials_context.h>
-#include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h>
 
 /* ----------------------------------------------------------------------------
@@ -83,19 +83,12 @@ enum
 extern "C" {
 #endif
 
-typedef int (*SUNErrHandlerFn)(int line, const char* func, const char* file,
-                               const char* msg, SUNErrCode err_code,
-                               void* err_user_data, SUNContext sunctx);
-
 struct SUNErrHandler_
 {
-  struct SUNErrHandler_* previous; /* next error handler to call (singly
-                                      linked-list) */
+  SUNErrHandler previous; /* next error handler to call (singly linked-list) */
   SUNErrHandlerFn call;
   void* data;
 };
-
-typedef struct SUNErrHandler_* SUNErrHandler;
 
 SUNDIALS_EXPORT
 SUNErrHandler SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data);

@@ -28,8 +28,6 @@
 extern "C" {
 #endif
 
-typedef struct _SUNProfiler *SUNProfiler;
-
 SUNDIALS_EXPORT SUNErrCode SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p);
 SUNDIALS_EXPORT SUNErrCode SUNProfiler_Free(SUNProfiler* p);
 SUNDIALS_EXPORT SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name);

@@ -21,14 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_config.h>
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_export.h>
-#include <sundials/sundials_logger.h>
-#include <sundials/sundials_types.h>
-#include <sundials/impl/sundials_errors_impl.h>
-#include <sundials/impl/sundials_context_impl.h>
+#include <sundials_nvector_impl.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static inline SUNProfiler getSUNProfiler(N_Vector v)
