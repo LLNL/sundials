@@ -48,7 +48,6 @@
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_matrix.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
