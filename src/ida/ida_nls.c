@@ -48,7 +48,7 @@ int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* return immediately if NLS memory is NULL */
   if (NLS == NULL) {
@@ -191,7 +191,7 @@ int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur, N_Vector *yypred,
 
 int idaNlsInit(IDAMem IDA_mem)
 {
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   int retval;
 
@@ -302,7 +302,7 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* update yy and yp based on the current correction */
   SUNCheckCallLastErrNoRet(N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, IDA_mem->ida_yy));
@@ -339,7 +339,7 @@ static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNAssignSUNCTX(IDA_SUNCTX);
+  SUNAssignSUNCTX(IDA_mem->ida_sunctx);
 
   /* compute the norm of the correction */
   delnrm = SUNCheckCallLastErrNoRet(N_VWrmsNorm(del, ewt));
