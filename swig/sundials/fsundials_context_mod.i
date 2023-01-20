@@ -24,6 +24,7 @@
 // insert the include into the swig wrapper
 %{
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_profiler.h"
 %}
 
 %apply void* { SUNContext };

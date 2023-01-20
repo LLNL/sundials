@@ -211,6 +211,7 @@ enum {
 
 
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_profiler.h"
 
 
 typedef struct {
