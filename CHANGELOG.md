@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.6.0
+
+Fixed compilation errors in some SYCL examples when using the `icx` compiler.
+
 ## Changes to SUNDIALS in release 6.5.0
 
 Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
