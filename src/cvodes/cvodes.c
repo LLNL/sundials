@@ -6043,6 +6043,7 @@ void cvRescale(CVodeMem cv_mem)
 
 static void cvPredict(CVodeMem cv_mem)
 {
+  SUNAssignSUNCTX(cv_mem->cv_sunctx);
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   int i;
 #endif

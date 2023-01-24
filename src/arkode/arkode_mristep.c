@@ -2029,6 +2029,7 @@ int mriStep_StageDIRKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                             int is, int *nflagPtr)
 {
+  SUNAssignSUNCTX(ark_mem->sunctx);
   int retval;
 
 #ifdef SUNDIALS_DEBUG
@@ -2142,6 +2143,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                                 int stage, realtype cdiff)
 {
+  SUNAssignSUNCTX(ark_mem->sunctx);
   realtype  rcdiff;
   int       j, k, nmat, nstore, retval;
   realtype* cvals;
