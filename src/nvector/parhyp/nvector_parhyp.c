@@ -96,29 +96,6 @@
  * -----------------------------------------------------------------
  */
 
-#define SUNCheckHypreCall(call)                                   \
-  do {                                                            \
-    int hypre_ierr_ = call;                                       \
-    if (hypre_ierr_)                                              \
-    {                                                             \
-      SUNErrCode err_ = SUN_ERR_HYPRE_GENERIC;                    \
-      if (HYPRE_CheckError(hypre_ierr_, HYPRE_ERROR_MEMORY))      \
-      {                                                           \
-        err_ = SUN_ERR_HYPRE_MEMORY;                              \
-      }                                                           \
-      if (HYPRE_CheckError(hypre_ierr_, HYPRE_ERROR_ARG))         \
-      {                                                           \
-        err_ = SUN_ERR_HYPRE_ARG;                                 \
-      }                                                           \
-      if (HYPRE_CheckError(hypre_ierr_, HYPRE_ERROR_CONV))        \
-      {                                                           \
-        err_ = SUN_ERR_HYPRE_CONV;                                \
-      }                                                           \
-      SUNHandleErr(__LINE__, __func__, __FILE__, err_, sunctx_);  \
-    }                                                             \
-  }                                                               \
-  while (0)
-
 #define NV_CONTENT_PH(v)    ( (N_VectorContent_ParHyp)(v->content) )
 
 #define NV_LOCLENGTH_PH(v)  ( NV_CONTENT_PH(v)->local_length )
@@ -515,15 +492,15 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
     HYPRE_Complex   alpha=a;
-    SUNCheckHypreCall( HYPRE_ParVectorAxpy(alpha, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),
-                                           (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y)) );
+    HYPRE_ParVectorAxpy(alpha, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),
+                               (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y));
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
     HYPRE_Complex   beta=b;
-    SUNCheckHypreCall( HYPRE_ParVectorAxpy(beta, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y),
-                                           (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x)) );
+    HYPRE_ParVectorAxpy(beta, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y),
+                              (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x));
     return;
   }
 
@@ -599,9 +576,7 @@ void N_VConst_ParHyp(realtype c, N_Vector z)
 {
   SUNAssignSUNCTX(z->sunctx);
   HYPRE_Complex value = c;
-  SUNCheckHypreCall(HYPRE_ParVectorSetConstantValues((HYPRE_ParVector)
-                                                       NV_HYPRE_PARVEC_PH(z),
-                                                     value));
+  HYPRE_ParVectorSetConstantValues((HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z), value);
   return;
 }
 
@@ -658,10 +633,9 @@ void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
   HYPRE_Complex value = c;
 
   if (x != z) {
-    SUNCheckHypreCall(HYPRE_ParVectorCopy((HYPRE_ParVector)NV_HYPRE_PARVEC_PH(x),
-                                          (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(z)));
+    HYPRE_ParVectorCopy((HYPRE_ParVector)NV_HYPRE_PARVEC_PH(x), (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(z));
   }
-  SUNCheckHypreCall(HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z)));
+  HYPRE_ParVectorScale(value, (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(z));
 
   return;
 }
@@ -737,9 +711,9 @@ realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
   SUNAssignSUNCTX(x->sunctx);
 
   HYPRE_Real gsum;
-  SUNCheckHypreCall(HYPRE_ParVectorInnerProd((HYPRE_ParVector)NV_HYPRE_PARVEC_PH(x),
-                                             (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(y),
-                                             &gsum));
+  HYPRE_ParVectorInnerProd((HYPRE_ParVector)NV_HYPRE_PARVEC_PH(x),
+                           (HYPRE_ParVector)NV_HYPRE_PARVEC_PH(y),
+                           &gsum);
   return(gsum);
 }
 

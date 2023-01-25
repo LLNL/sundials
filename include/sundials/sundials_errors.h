@@ -35,10 +35,6 @@
   ENTRY(SUN_ERR_ARG_OUTOFRANGE, "argument is out of the valid range")          \
   ENTRY(SUN_ERR_ARG_WRONGTYPE, "argument provided is not the right type")      \
   ENTRY(SUN_ERR_ARG_DIMSMISMATCH, "argument dimensions do not agree")          \
-  ENTRY(SUN_ERR_HYPRE_GENERIC, "a generic error ocurred in hypre")             \
-  ENTRY(SUN_ERR_HYPRE_MEMORY, "a memory error ocurred in hypre")               \
-  ENTRY(SUN_ERR_HYPRE_ARG, "an argument error ocurred in hypre")               \
-  ENTRY(SUN_ERR_HYPRE_CONV, "a convergence error ocurred in hypre")            \
   ENTRY(SUN_ERR_LOGGER_CORRUPT, "SUNLogger is NULL or corrupt")                \
   ENTRY(SUN_ERR_LOGGER_CANNOTOPENFILE,                                         \
         "File provided to SUNLogger could not be opened")                      \
