@@ -94,8 +94,6 @@ then
         upstream_opt="--upstream=${upstream}"
     fi
 
-    spack clean -m
-
     if [[ "${shared_spack}" == "UPSTREAM" ]]
     then
         python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
