@@ -18,7 +18,7 @@
 .corona_build_and_test:
   tags:
     - shell
-    - lassen
+    - corona
   extends: [.build_toss_4_x86_64_ib_corona_script]
   stage: c_build_and_test
   needs: []
