@@ -104,6 +104,7 @@ stages:
 # Corona
 .build_toss_4_x86_64_ib_corona_script:
   script:
+    - echo ${ALLOC_NAME}
     - salloc -t ${DEFAULT_TIME} -N 1 .gitlab/build_and_test.sh
 
 # CORAL systems use spectrum LSF instead of SLURM

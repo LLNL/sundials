@@ -20,7 +20,7 @@
     - shell
     - lassen
   extends: [.build_toss_4_x86_64_ib_corona_script]
-  stage: l_build_and_test
+  stage: c_build_and_test
   needs: []
   artifacts:
     paths:
