@@ -75,6 +75,7 @@ variables:
   VERBOSE_TEST: "OFF"
   ON_LASSEN: "ON"
   ON_QUARTZ: "ON"
+  ON_CORONA: "ON"
   SHARED_SPACK: "UPSTREAM"
   BENCHMARK: "OFF"
   BENCHMARK_NNODES: 4
@@ -89,7 +90,7 @@ stages:
   - q_build_and_test
   - l_build_and_test
   - l_build_and_bench
-  # - c_build_and_test
+  - c_build_and_test
 
 # These are also templates (.name) that define project specific build commands.
 # If an allocation exist with the name defined in this pipeline, the job will
@@ -101,9 +102,9 @@ stages:
       --job-name=${ALLOC_NAME} .gitlab/build_and_test.sh
 
 # Corona
-.build_toss_3_x86_64_ib_corona_script:
+.build_toss_4_x86_64_ib_corona_script:
   script:
-    - srun -p mi60 --interactive -t ${DEFAULT_TIME} -N 1 .gitlab/build_and_test.sh
+    - salloc -t ${DEFAULT_TIME} -N 1 .gitlab/build_and_test.sh
 
 # CORAL systems use spectrum LSF instead of SLURM
 .build_blueos_3_ppc64le_ib_script:

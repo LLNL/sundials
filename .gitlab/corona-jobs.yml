@@ -1,0 +1,26 @@
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# HIP
+# ------------------------------------------------------------------------------
+
+# Builds with Hip
+corona_clang_hip:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: clang@13.0.0
+        AMDGPU_TARGET: gfx906
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 amdgpu_target=${AMDGPU_TARGET} +rocm"
+  extends: .corona_build_and_test
+
