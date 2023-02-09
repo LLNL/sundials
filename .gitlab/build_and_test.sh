@@ -61,12 +61,12 @@ then
         exit 1
     fi
 
-    prefix="/usr/workspace/sundials/tmp/"
+    prefix="/usr/workspace/sundials/tmp"
     mkdir -p "${prefix}"
     #chmod g=u "${prefix}"
     prefix="${prefix}/${hostname}"
     mkdir -p "${prefix}"
-    chmod g=u "${prefix}"
+    #chmod g=u "${prefix}"
     if [[ -z ${job_unique_id} ]]; then
         job_unique_id=manual_job_$(date +%s)
         while [[ -d ${prefix}/${job_unique_id} ]] ; do
@@ -76,7 +76,7 @@ then
     fi
     prefix="${prefix}/${job_unique_id}"
     mkdir -p "${prefix}"
-    chmod g=u "${prefix}"
+    #chmod g=u "${prefix}"
     prefix_opt="--prefix=${prefix}"
 
     # We force Spack to put all generated files (cache and configuration of
@@ -92,7 +92,7 @@ then
         upstream="/usr/workspace/sundials/spack_installs/v0.19.0/${hostname}"
         mkdir -p "${upstream}"
         #chmod g=u /usr/workspace/sundials/spack_installs/v0.19.0
-        chmod g=u ${upstream}
+        #chmod g=u ${upstream}
         upstream_opt="--upstream=${upstream}"
     fi
 
