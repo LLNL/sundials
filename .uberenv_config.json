@@ -5,6 +5,7 @@
   "package_source_dir": "../..",
   "spack_url": "https://github.com/spack/spack",
   "spack_commit": "bb8b4f9979e87ae3fb63a3adcb768eda09e5b059",
+  "spack_concretizer": "original",
   "spack_activate": {},
   "spack_configs_path": ".gitlab/radiuss-spack-configs",
   "spack_packages_path": ".gitlab/spack_packages"
