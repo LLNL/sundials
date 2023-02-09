@@ -62,7 +62,7 @@ then
     fi
 
     # temporary to change permissions
-    chmod -R g=u /usr/worksapace/sundials/tmp-ci-testing
+    chmod -R g=u /usr/workspace/sundials/tmp-ci-testing
     chmod -R g=u /usr/workspace/sundials/spack_installs
     chmod  g=u /usr/workspace/sundials/make-a-new-spack.sh
     chmod -R g=u /usr/workspace/sundials/sunrepo
