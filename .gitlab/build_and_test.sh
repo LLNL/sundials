@@ -61,10 +61,6 @@ then
         exit 1
     fi
 
-    # temporary to change permissions
-    chmod  g=u /usr/workspace/sundials/make-a-new-spack.sh
-    chmod -R g=u /usr/workspace/sundials/sunrepo
-
     prefix="/usr/workspace/sundials/tmp/"
     mkdir -p "${prefix}"
     chmod g=u "${prefix}"
