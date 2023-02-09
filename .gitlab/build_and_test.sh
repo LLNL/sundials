@@ -61,7 +61,13 @@ then
         exit 1
     fi
 
-    prefix="/usr/worksapace/sundials/tmp/"
+    # temporary to change permissions
+    chmod -R g=u /usr/worksapace/sundials/tmp-ci-testing
+    chmod -R g=u /usr/workspace/sundials/spack_installs
+    chmod  g=u /usr/workspace/sundials/make-a-new-spack.sh
+    chmod -R g=u /usr/workspace/sundials/sunrepo
+
+    prefix="/usr/workspace/sundials/tmp/"
     mkdir -p "${prefix}"
     chmod g=u "${prefix}"
     prefix="${prefix}/${hostname}"
@@ -89,8 +95,10 @@ then
 
     if [[ -d /usr/workspace/sundials ]]
     then
-        upstream="/usr/workspace/sundials/spack_installs/${hostname}"
+        upstream="/usr/workspace/sundials/spack_installs/v0.19.0/${hostname}"
         mkdir -p "${upstream}"
+        chmod g=u /usr/workspace/sundials/spack_installs/v0.19.0
+        chmod g=u ${upstream}
         upstream_opt="--upstream=${upstream}"
     fi
 
