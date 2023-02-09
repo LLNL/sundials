@@ -61,31 +61,31 @@ then
         exit 1
     fi
 
-    prefix_opt=""
-
-    if [[ -d /dev/shm ]]
-    then
-        prefix="/dev/shm/${hostname}"
-        if [[ -z ${job_unique_id} ]]; then
-          job_unique_id=manual_job_$(date +%s)
-          while [[ -d ${prefix}/${job_unique_id} ]] ; do
-              sleep 1
-              job_unique_id=manual_job_$(date +%s)
-          done
-        fi
-
-        prefix="${prefix}/${job_unique_id}"
-        mkdir -p ${prefix}
-        prefix_opt="--prefix=${prefix}"
-
-        # We force Spack to put all generated files (cache and configuration of
-        # all sorts) in a unique location so that there can be no collision
-        # with existing or concurrent Spack.
-        spack_user_cache="${prefix}/spack-user-cache"
-        export SPACK_DISABLE_LOCAL_CONFIG=""
-        export SPACK_USER_CACHE_PATH="${spack_user_cache}"
-        mkdir -p ${spack_user_cache}
+    prefix="/usr/worksapace/sundials/tmp/"
+    mkdir -p "${prefix}"
+    chmod g=u "${prefix}"
+    prefix="${prefix}/${hostname}"
+    mkdir -p "${prefix}"
+    chmod g=u "${prefix}"
+    if [[ -z ${job_unique_id} ]]; then
+        job_unique_id=manual_job_$(date +%s)
+        while [[ -d ${prefix}/${job_unique_id} ]] ; do
+            sleep 1
+            job_unique_id=manual_job_$(date +%s)
+        done
     fi
+    prefix="${prefix}/${job_unique_id}"
+    mkdir -p "${prefix}"
+    chmod g=u "${prefix}"
+    prefix_opt="--prefix=${prefix}"
+
+    # We force Spack to put all generated files (cache and configuration of
+    # all sorts) in a unique location so that there can be no collision
+    # with existing or concurrent Spack.
+    spack_user_cache="${prefix}/spack-user-cache"
+    export SPACK_DISABLE_LOCAL_CONFIG=""
+    export SPACK_USER_CACHE_PATH="${spack_user_cache}"
+    mkdir -p ${spack_user_cache}
 
     if [[ -d /usr/workspace/sundials ]]
     then
