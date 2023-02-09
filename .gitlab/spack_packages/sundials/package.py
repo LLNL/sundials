@@ -667,10 +667,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
                     cmake_cache_path("ROCM_PATH", spec["llvm-amdgpu"].prefix),
                     cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value[0])
-                    # cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value)
                 ]
             )
-
         return entries
 
     def initconfig_package_entries(self):
