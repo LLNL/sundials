@@ -666,14 +666,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
                     cmake_cache_path("ROCM_PATH", spec["llvm-amdgpu"].prefix),
+                    cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value[0])
                     # cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value)
                 ]
             )
-            if not spec.satisfies("amdgpu_target=none"):
-                amdgpu_target = spec.variants["amdgpu_target"].value
-                entries.append(
-                    cmake_cache_string("AMDGPU_TARGETS", "{0}".format(amdgpu_target[0])
-                )
 
         return entries
 
