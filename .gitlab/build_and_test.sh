@@ -63,7 +63,7 @@ then
 
     prefix="/usr/workspace/sundials/tmp/"
     mkdir -p "${prefix}"
-    chmod g=u "${prefix}"
+    #chmod g=u "${prefix}"
     prefix="${prefix}/${hostname}"
     mkdir -p "${prefix}"
     chmod g=u "${prefix}"
@@ -91,7 +91,7 @@ then
     then
         upstream="/usr/workspace/sundials/spack_installs/v0.19.0/${hostname}"
         mkdir -p "${upstream}"
-        chmod g=u /usr/workspace/sundials/spack_installs/v0.19.0
+        #chmod g=u /usr/workspace/sundials/spack_installs/v0.19.0
         chmod g=u ${upstream}
         upstream_opt="--upstream=${upstream}"
     fi
