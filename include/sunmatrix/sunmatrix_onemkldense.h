@@ -18,8 +18,9 @@
 #ifndef _SUNMATRIX_ONEMKLDENSE_H
 #define _SUNMATRIX_ONEMKLDENSE_H
 
-#include <CL/sycl.hpp>
 #include <stdio.h>
+#include <sycl/sycl.hpp>
+
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_memory.h>
 #include <sundials/sundials_sycl_policies.hpp>

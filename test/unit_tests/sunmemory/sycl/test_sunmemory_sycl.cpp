@@ -10,7 +10,7 @@
  * SUNDIALS Copyright End
  *-----------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <iostream>
 #include <sundials/sundials_memory.h>
 #include <sundials/sundials_types.h>

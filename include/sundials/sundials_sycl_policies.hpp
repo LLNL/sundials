@@ -18,9 +18,9 @@
 #ifndef _SUNDIALS_SYCLEXECPOLICIES_HPP
 #define _SUNDIALS_SYCLEXECPOLICIES_HPP
 
-#include <CL/sycl.hpp>
 #include <cstdio>
 #include <stdexcept>
+#include <sycl/sycl.hpp>
 
 namespace sundials {
 namespace sycl {

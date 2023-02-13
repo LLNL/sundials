@@ -15,9 +15,10 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <sycl/sycl.hpp>
 
 /* SUNDIALS public headers */
 #include <nvector/nvector_sycl.h>

@@ -18,7 +18,8 @@
 #ifndef _SUNLINSOL_ONEMKLDENSE_H
 #define _SUNLINSOL_ONEMKLDENSE_H
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
+
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_memory.h>

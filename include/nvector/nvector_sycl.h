@@ -18,7 +18,7 @@
 #ifndef _NVECTOR_SYCL_H
 #define _NVECTOR_SYCL_H
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <stdio.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
