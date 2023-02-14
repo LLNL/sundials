@@ -2,16 +2,17 @@
 
 The {\nvecraja} module is an experimental {\nvector} implementation using the
 \href{https://software.llnl.gov/RAJA/}{\raja} hardware abstraction layer. In
-this implementation, {\raja} allows for {\sundials} vector kernels to run on AMD
-or NVIDIA GPU devices. The module is intended for users who are already familiar
-with {\raja} and GPU programming. Building this vector module requires a C++11
-compliant compiler and either the NVIDIA CUDA programming environment, or the
-AMD ROCm HIP programming environment. When using the AMD ROCm HIP environment,
-the HIP-clang compiler must be utilized. Users can select which backend (CUDA or
-HIP) to compile with by setting the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable
-to either CUDA or HIP. Besides the {\cuda} and HIP backends, {\raja} has other
-backends such as serial, OpenMP, and OpenACC. These backends are not used in
-this {\sundials} release.
+this implementation, {\raja} allows for {\sundials} vector kernels to run on
+AMD, NVIDIA, or Intel GPU devices. The module is intended for users who are
+already familiar with {\raja} and GPU programming. Building this vector module
+requires a C++11 compliant compiler and either the NVIDIA CUDA programming
+environment, the AMD ROCm HIP programming environment, or a compiler that
+supports the SYCL abstraction layer. When using the AMD ROCm HIP environment,
+the HIP-clang compiler must be utilized. Users can select which backend to
+compile with by setting the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable to
+either CUDA, HIP, or SYCL. Besides the {\cuda}, HIP, and SYCL backends, {\raja}
+has other backends such as serial, OpenMP, and OpenACC. These backends are not
+used in this {\sundials} release.
 
 The vector content layout is as follows:
 \begin{verbatim}
@@ -42,8 +43,9 @@ are provided below.
 
 The header file to include when using this module is \id{nvector\_raja.h}. The
 installed module library to link to are
-\id{libsundials\_nveccudaraja.\textit{lib}} when using the CUDA backend and
-\id{libsundials\_nvechipraja.\textit{lib}} when using the HIP backend. The
+\id{libsundials\_nveccudaraja.\textit{lib}} when using the CUDA backend,
+\id{libsundials\_nvechipraja.\textit{lib}} when using the HIP backend, and
+\id{libsundials\_nvecsyclraja.\textit{lib}} when using the SYCL backend. The
 extension \id{\textit{.lib}} is typically \id{.so} for shared libraries and
 \id{.a} for static libraries.
 

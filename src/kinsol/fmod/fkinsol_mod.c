@@ -369,6 +369,20 @@ SWIGEXPORT int _wrap_FKINSetPrintLevel(void *farg1, int const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINSetDamping(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)KINSetDamping(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINSetMAA(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -383,6 +397,20 @@ SWIGEXPORT int _wrap_FKINSetMAA(void *farg1, long const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINSetDelayAA(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)KINSetDelayAA(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINSetDampingAA(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -392,6 +420,20 @@ SWIGEXPORT int _wrap_FKINSetDampingAA(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)KINSetDampingAA(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINSetReturnNewest(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)KINSetReturnNewest(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

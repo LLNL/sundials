@@ -160,6 +160,9 @@ for creating a \newline \id{SUNLinearSolver} object.
 \item \id{SUNLinSolSetScalingVectors\_PCG} -- since {\pcg} only
   supports symmetric scaling, the second {\nvector} argument to this
   function is ignored
+\item \id{SUNLinSolSetZeroGuess\_PCG} -- note the solver assumes a non-zero
+  guess by default and the zero guess flag is reset to \id{SUNFALSE} after each
+  call to \id{SUNLinSolSolve\_PCG}.
 \item \id{SUNLinSolSetup\_PCG}
 \item \id{SUNLinSolSolve\_PCG}
 \item \id{SUNLinSolNumIters\_PCG}
@@ -535,6 +538,7 @@ The {\sunlinsolpcg} module defines the \textit{content} field of a
 struct _SUNLinearSolverContent_PCG {
   int maxl;
   int pretype;
+  booleantype zeroguess;
   int numiters;
   realtype resnorm;
   int last_flag;

@@ -123,14 +123,15 @@ module fcvodes_mod
  public :: FCVodeSetLSetupFrequency
  public :: FCVodeSetConstraints
  public :: FCVodeSetNonlinearSolver
+ public :: FCVodeSetNlsRhsFn
  public :: FCVodeRootInit
  public :: FCVodeSetRootDirection
  public :: FCVodeSetNoInactiveRootWarn
  public :: FCVode
- public :: FCVodeGetDky
  public :: FCVodeComputeState
  public :: FCVodeComputeStateSens
  public :: FCVodeComputeStateSens1
+ public :: FCVodeGetDky
  public :: FCVodeGetWorkSpace
  public :: FCVodeGetNumSteps
  public :: FCVodeGetNumRhsEvals
@@ -586,6 +587,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSetNlsRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNlsRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeRootInit(farg1, farg2, farg3) &
 bind(C, name="_wrap_FCVodeRootInit") &
 result(fresult)
@@ -625,17 +635,6 @@ integer(C_INT), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeGetDky(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FCVodeGetDky") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(C_PTR), value :: farg4
-integer(C_INT) :: fresult
-end function
-
 function swigc_FCVodeComputeState(farg1, farg2, farg3) &
 bind(C, name="_wrap_FCVodeComputeState") &
 result(fresult)
@@ -663,6 +662,17 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetDky(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FCVodeGetDky") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg3
 type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
@@ -2922,6 +2932,22 @@ fresult = swigc_FCVodeSetNonlinearSolver(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeSetNlsRhsFn(cvode_mem, f) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_FUNPTR), intent(in), value :: f
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = f
+fresult = swigc_FCVodeSetNlsRhsFn(farg1, farg2)
+swig_result = fresult
+end function
+
 function FCVodeRootInit(cvode_mem, nrtfn, g) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2995,28 +3021,6 @@ fresult = swigc_FCVode(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FCVodeGetDky(cvode_mem, t, k, dky) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-real(C_DOUBLE), intent(in) :: t
-integer(C_INT), intent(in) :: k
-type(N_Vector), target, intent(inout) :: dky
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-integer(C_INT) :: farg3 
-type(C_PTR) :: farg4 
-
-farg1 = cvode_mem
-farg2 = t
-farg3 = k
-farg4 = c_loc(dky)
-fresult = swigc_FCVodeGetDky(farg1, farg2, farg3, farg4)
-swig_result = fresult
-end function
-
 function FCVodeComputeState(cvode_mem, ycor, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3074,6 +3078,28 @@ farg2 = idx
 farg3 = c_loc(yscor1)
 farg4 = c_loc(ys1)
 fresult = swigc_FCVodeComputeStateSens1(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FCVodeGetDky(cvode_mem, t, k, dky) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: t
+integer(C_INT), intent(in) :: k
+type(N_Vector), target, intent(inout) :: dky
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+integer(C_INT) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = cvode_mem
+farg2 = t
+farg3 = k
+farg4 = c_loc(dky)
+fresult = swigc_FCVodeGetDky(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

@@ -1719,6 +1719,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, cvls_mem->x);
 
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup) {
     cvls_mem->last_flag = cvls_mem->jtsetup(cv_mem->cv_tn, ynow, fnow,

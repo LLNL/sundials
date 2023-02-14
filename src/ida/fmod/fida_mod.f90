@@ -100,6 +100,7 @@ module fida_mod
  public :: FIDASetId
  public :: FIDASetConstraints
  public :: FIDASetNonlinearSolver
+ public :: FIDASetNlsResFn
  public :: FIDARootInit
  public :: FIDASetRootDirection
  public :: FIDASetNoInactiveRootWarn
@@ -450,6 +451,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetNlsResFn(farg1, farg2) &
+bind(C, name="_wrap_FIDASetNlsResFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1530,6 +1540,22 @@ type(C_PTR) :: farg2
 farg1 = ida_mem
 farg2 = c_loc(nls)
 fresult = swigc_FIDASetNonlinearSolver(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetNlsResFn(ida_mem, res) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_FUNPTR), intent(in), value :: res
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = res
+fresult = swigc_FIDASetNlsResFn(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -68,14 +68,48 @@ in extended {\F}.
 
 \subsection*{Changes in v5.8.0}
 
-The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
-to \id{find\_package}.
+The RAJA {\nvector} implementation has been updated to support the SYCL backend
+in addition to the CUDA and HIP backend. Users can choose the backend when
+configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
+This module remains experimental and is subject to change from version to
+version.
+
+A new {\sunmatrix} and {\sunlinsol} implementation were added to interface with
+the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the linear
+solver support general dense linear systems as well as block diagonal linear
+systems. See Chapter \ref{ss:sunlinsol_onemkldense} for more details. This
+module is experimental and is subject to change from version to version.
+
+Added a new \textit{optional} function to the SUNLinearSolver API,
+\id{SUNLinSolSetZeroGuess}, to indicate that the next call to
+\id{SUNlinSolSolve} will be made with a zero initial guess. SUNLinearSolver
+implementations that do not use the \id{SUNLinSolNewEmpty} constructor will, at
+a minimum, need set the \id{setzeroguess} function pointer in the linear solver
+\id{ops} structure to \id{NULL}. The SUNDIALS iterative linear solver
+implementations have been updated to leverage this new set function to remove
+one dot product per solve.
 
 {\ida} now supports a new ``matrix-embedded'' {\sunlinsol} type.  This type
 supports user-supplied {\sunlinsol} implementations that set up and solve the
 specified linear system at each linear solve call.  Any matrix-related data
 structures are held internally to the linear solver itself, and are not
 provided by the {\sundials} package.
+
+Added the function \id{IDASetNlsResFn} to supply an alternative residual side
+function for use within nonlinear system function evaluations.
+
+The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
+to \id{find\_package}. The exported targets no longer have \id{IMPORTED\_GLOBAL}
+set.
+
+A bug was fixed in \id{SUNMatCopyOps} where the matrix-vector product setup
+function pointer was not copied.
+
+A bug was fixed in the SPBCGS and SPTFQMR solvers for the case where a non-zero
+initial guess and a solution scaling vector are provided. This fix only impacts
+codes using SPBCGS or SPTFQMR as standalone solvers as all {\sundials} packages
+utilize a zero initial guess.
+
 
 \subsection*{Changes in v5.7.0}
 
@@ -199,7 +233,7 @@ it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
 \id{xlf2003}, or \id{xlf2003\_r}.
 
 Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
-attributes missing on some SUNDIALS API functions.
+attributes missing on some {\sundials} API functions.
 
 Added a new \id{SUNMatrix} implementation, \id{SUNMATRIX\_CUSPARSE}, that interfaces
 to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
@@ -783,14 +817,14 @@ with linear solver libraries.
 Specific changes include:
 \begin{itemize}
 \item Added generic {\sunmatrix} module with three provided implementations:
-        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        dense, banded and sparse.  These replicate previous {\sundials} Dls and
         Sls matrix structures in a single object-oriented API.
 \item Added example problems demonstrating use of generic {\sunmatrix} modules.
 \item Added generic \id{SUNLinearSolver} module with eleven provided
         implementations: {\sundials} native dense, {\sundials} native banded,
         LAPACK dense, LAPACK band, KLU,
         SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
-        previous SUNDIALS generic linear solvers in a single object-oriented
+        previous {\sundials} generic linear solvers in a single object-oriented
         API.
 \item Added example problems demonstrating use of generic \id{SUNLinearSolver}
         modules.
@@ -1063,7 +1097,7 @@ for setting optional inputs were combined into a single one.
 An optional user-supplied routine for setting the error weight
 vector was added.
 Additionally, to resolve potential variable scope issues, all
-SUNDIALS solvers release user data right after its use. The build
+{\sundials} solvers release user data right after its use. The build
 systems has been further improved to make it more robust.
 
 \subsection*{Changes in v2.2.2}

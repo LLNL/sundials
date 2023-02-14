@@ -148,6 +148,7 @@ present the SUNLinSol modules provided with SUNDIALS.
    SUNLinSol_SuperLUMT
    SUNLinSol_cuSolverSp
    SUNLinSol_MagmaDense
+   SUNLinSol_OneMklDense
    SUNLinSol_SPGMR
    SUNLinSol_SPFGMR
    SUNLinSol_SPBCGS

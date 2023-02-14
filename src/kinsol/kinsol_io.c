@@ -159,6 +159,7 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
   return(KIN_SUCCESS);
 }
 
+
 /*
  * -----------------------------------------------------------------
  * Function : KINSetInfoFile
@@ -228,16 +229,16 @@ int KINSetUserData(void *kinmem, void *user_data)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetDampingFP
+ * Function : KINSetDamping
  * -----------------------------------------------------------------
  */
 
-int KINSetDampingFP(void *kinmem, realtype beta)
+int KINSetDamping(void *kinmem, realtype beta)
 {
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDampingFP", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDamping", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -245,24 +246,23 @@ int KINSetDampingFP(void *kinmem, realtype beta)
 
   /* check for illegal input value */
   if (beta <= ZERO) {
-    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDampingFP",
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDamping",
                     "beta <= 0 illegal");
     return(KIN_ILL_INPUT);
   }
 
   if (beta < ONE) {
     /* enable damping */
-    kin_mem->kin_beta_fp = beta;
-    kin_mem->kin_damp_fp = SUNTRUE;
+    kin_mem->kin_beta    = beta;
+    kin_mem->kin_damping = SUNTRUE;
   } else {
     /* disable damping */
-    kin_mem->kin_beta_fp = ONE;
-    kin_mem->kin_damp_fp = SUNFALSE;
+    kin_mem->kin_beta    = ONE;
+    kin_mem->kin_damping = SUNFALSE;
   }
 
   return(KIN_SUCCESS);
 }
-
 
 
 /*
@@ -290,7 +290,6 @@ int KINSetMAA(void *kinmem, long int maa)
   if (maa > kin_mem->kin_mxiter) maa = kin_mem->kin_mxiter;
 
   kin_mem->kin_m_aa = maa;
-  kin_mem->kin_aamem_aa = (maa == 0) ? SUNFALSE : SUNTRUE;
 
   return(KIN_SUCCESS);
 }
@@ -314,7 +313,7 @@ int KINSetDelayAA(void *kinmem, long int delay)
   kin_mem = (KINMem) kinmem;
 
   /* check for illegal input value */
-  if (delay < ZERO) {
+  if (delay < 0) {
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDelayAA",
                     "delay < 0 illegal");
     return(KIN_ILL_INPUT);
@@ -352,12 +351,12 @@ int KINSetDampingAA(void *kinmem, realtype beta)
 
   if (beta < ONE) {
     /* enable damping */
-    kin_mem->kin_beta_aa = beta;
-    kin_mem->kin_damp_aa = SUNTRUE;
+    kin_mem->kin_beta_aa    = beta;
+    kin_mem->kin_damping_aa = SUNTRUE;
   } else {
     /* disable damping */
-    kin_mem->kin_beta_aa = ONE;
-    kin_mem->kin_damp_aa = SUNFALSE;
+    kin_mem->kin_beta_aa    = ONE;
+    kin_mem->kin_damping_aa = SUNFALSE;
   }
 
   return(KIN_SUCCESS);
@@ -365,31 +364,7 @@ int KINSetDampingAA(void *kinmem, realtype beta)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetAAStopCrit
- * -----------------------------------------------------------------
- */
-
-/*  CSW: This function is currently not supported.
-
-int KINSetAAStopCrit(void *kinmem, booleantype setstop)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetAAStopCrit", MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-  kin_mem->kin_setstop_aa = setstop;
-
-  return(KIN_SUCCESS);
-}
-*/
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSetNumMaxIters
+ * Function : KINSetReturnNewest
  * -----------------------------------------------------------------
  */
 

@@ -274,3 +274,9 @@ booleantype is_square(SUNMatrix A)
   else
     return SUNFALSE;
 }
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
+}

@@ -72,6 +72,11 @@ user-callable routines:
    preconditioning options with these solvers, this use mode is not
    supported and may result in inferior performance.
 
+.. note::
+
+   With ``PREC_RIGHT`` or ``PREC_BOTH`` the initial guess must be zero (use
+   :c:func:`SUNLinSolSetZeroGuess` to indicate the initial guess is zero).
+
 
 .. c:function:: int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 
@@ -272,6 +277,7 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
    struct _SUNLinearSolverContent_SPBCGS {
      int maxl;
      int pretype;
+     booleantype zeroguess;
      int numiters;
      realtype resnorm;
      int last_flag;
@@ -375,6 +381,10 @@ The SUNLinSol_SPBCGS module defines implementations of all
 * ``SUNLinSolSetPreconditioner_SPBCGS``
 
 * ``SUNLinSolSetScalingVectors_SPBCGS``
+
+* ``SUNLinSolSetZeroGuess_SPBCGS`` -- note the solver assumes a non-zero guess
+  by default and the zero guess flag is reset to ``SUNFALSE`` after each call to
+  :c:func:`SUNLinSolSolve_SPBCGS`.
 
 * ``SUNLinSolSetup_SPBCGS``
 

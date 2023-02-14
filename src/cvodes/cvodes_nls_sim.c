@@ -187,6 +187,15 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* Reset the acnrmcur flag to SUNFALSE */
   cv_mem->cv_acnrmcur = SUNFALSE;
 
+  /* Set the nonlinear system RHS function */
+  if (!(cv_mem->cv_f)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
+                   "CVodeSetNonlinearSolverSensSim",
+                   "The ODE RHS function is NULL");
+    return(CV_ILL_INPUT);
+  }
+  cv_mem->nls_f = cv_mem->cv_f;
+
   return(CV_SUCCESS);
 }
 
@@ -451,8 +460,8 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -515,8 +524,8 @@ static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, res,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);

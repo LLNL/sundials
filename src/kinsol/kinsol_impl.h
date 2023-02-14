@@ -71,7 +71,6 @@ typedef struct KINMemRec {
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
                                   KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
-  booleantype kin_ret_newest;  /* return the newest iteration                  */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
   booleantype kin_use_mxiter;  /* ignore stopping criteria, run to max iters   */
   long int kin_msbset;         /* maximum number of nonlinear iterations that
@@ -152,27 +151,26 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
 
-  /* fixed point options */
-  booleantype kin_damp_fp; /* flag to apply damping in FP */
-  realtype    kin_beta_fp; /* damping parameter for FP    */
+  /* fixed point and Picard options */
+  booleantype kin_ret_newest; /* return the newest FP iteration     */
+  booleantype kin_damping;    /* flag to apply damping in FP/Picard */
+  realtype    kin_beta;       /* damping parameter for FP/Picard    */
 
   /* space requirements for AA, Broyden and NLEN */
-  N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector kin_gold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
-  N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
-  N_Vector *kin_q_aa;       /* vector array needed for AA */
-  realtype kin_beta_aa;     /* beta damping parameter for AA */
-  realtype *kin_gamma_aa;   /* array of size maa used in AA */
-  realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  long int *kin_ipt_map;    /* array of size maa used in AA */
-  long int kin_m_aa;        /* parameter for AA, Broyden or NLEN */
-  long int kin_delay_aa;    /* number of iterations to delay AA */
-  booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
-  booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
-  booleantype kin_damp_aa;    /* flag to apply damping in AA */
-  realtype *kin_cv;         /* scalar array for fused vector operations */
-  N_Vector *kin_Xv;         /* vector array for fused vector operations */
+  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN */
+  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN */
+  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN */
+  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN */
+  N_Vector *kin_q_aa;         /* vector array needed for AA */
+  realtype kin_beta_aa;       /* beta damping parameter for AA */
+  realtype *kin_gamma_aa;     /* array of size maa used in AA */
+  realtype *kin_R_aa;         /* array of size maa*maa used in AA */
+  long int *kin_ipt_map;      /* array of size maa used in AA */
+  long int kin_m_aa;          /* parameter for AA, Broyden or NLEN */
+  long int kin_delay_aa;      /* number of iterations to delay AA */
+  booleantype kin_damping_aa; /* flag to apply damping in AA */
+  realtype *kin_cv;           /* scalar array for fused vector operations */
+  N_Vector *kin_Xv;           /* vector array for fused vector operations */
 
   /* space requirements for vector storage */
 

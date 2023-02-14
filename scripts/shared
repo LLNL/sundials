@@ -63,6 +63,7 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsKLU.cmake                      || ex
 $tar $tarfile $distrobase/cmake/tpl/SundialsLapack.cmake                   || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsMPI.cmake                      || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsMAGMA.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsONEMKL.cmake                   || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsOpenMP.cmake                   || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsPETSC.cmake                    || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsPOSIXTimers.cmake              || exit 1
@@ -125,13 +126,14 @@ $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                    
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp    || exit 1
 
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h       || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h   || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h      || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_magmadense.h || exit 1
-#$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h  || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h     || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h   || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h        || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h    || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h       || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_magmadense.h  || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_onemkldense.h || exit 1
+#$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h    || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h      || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h    || exit 1
 
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_cuda.h      || exit 1
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_hip.h       || exit 1
@@ -145,6 +147,7 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h                || ex
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h         || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h        || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_magmadense.h         || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_onemkldense.h        || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_pcg.h                || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spbcgs.h             || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spfgmr.h             || exit 1
@@ -160,12 +163,18 @@ $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_petscsnes.h    || ex
 $tar $tarfile $distrobase/src/CMakeLists.txt                                      || exit 1
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt                             || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.{c,f90}          || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.{c,f90}          || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.{c,f90} || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.{c,f90}         || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.{c,f90}           || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.c                || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.f90              || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.c          || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.f90        || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.c                || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.f90              || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.f90     || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.c               || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.f90             || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.c                 || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.f90               || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_band.c                            || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh                  || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
@@ -183,6 +192,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_memory.c                        
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c                 || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c                         || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_sycl.h                            || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_version.c                         || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_xbraid.c                          || exit 1
 
@@ -197,7 +207,8 @@ $tar $tarfile $distrobase/src/nvector/serial/nvector_serial.c                 ||
 $tar $tarfile $distrobase/src/nvector/serial/fnvector_serial.h                || exit 1
 $tar $tarfile $distrobase/src/nvector/serial/fnvector_serial.c                || exit 1
 $tar $tarfile $distrobase/src/nvector/serial/fmod/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/src/nvector/serial/fmod/fnvector_serial_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/nvector/serial/fmod/fnvector_serial_mod.c       || exit 1
+$tar $tarfile $distrobase/src/nvector/serial/fmod/fnvector_serial_mod.f90     || exit 1
 
 echo "   --- Add nvector/parallel module to $tarfile"
 
@@ -206,7 +217,8 @@ $tar $tarfile $distrobase/src/nvector/parallel/nvector_parallel.c               
 $tar $tarfile $distrobase/src/nvector/parallel/fnvector_parallel.h                || exit 1
 $tar $tarfile $distrobase/src/nvector/parallel/fnvector_parallel.c                || exit 1
 $tar $tarfile $distrobase/src/nvector/parallel/fmod/CMakeLists.txt                || exit 1
-$tar $tarfile $distrobase/src/nvector/parallel/fmod/fnvector_parallel_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/nvector/parallel/fmod/fnvector_parallel_mod.c       || exit 1
+$tar $tarfile $distrobase/src/nvector/parallel/fmod/fnvector_parallel_mod.f90     || exit 1
 
 echo "   --- Add nvector/parhyp module to $tarfile"
 
@@ -230,7 +242,8 @@ $tar $tarfile $distrobase/src/nvector/openmp/nvector_openmp.c                 ||
 $tar $tarfile $distrobase/src/nvector/openmp/fnvector_openmp.c                || exit 1
 $tar $tarfile $distrobase/src/nvector/openmp/fnvector_openmp.h                || exit 1
 $tar $tarfile $distrobase/src/nvector/openmp/fmod/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/src/nvector/openmp/fmod/fnvector_openmp_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/nvector/openmp/fmod/fnvector_openmp_mod.c       || exit 1
+$tar $tarfile $distrobase/src/nvector/openmp/fmod/fnvector_openmp_mod.f90     || exit 1
 
 echo "   --- Add nvector/pthreads module to $tarfile"
 
@@ -239,7 +252,8 @@ $tar $tarfile $distrobase/src/nvector/pthreads/nvector_pthreads.c               
 $tar $tarfile $distrobase/src/nvector/pthreads/fnvector_pthreads.c                || exit 1
 $tar $tarfile $distrobase/src/nvector/pthreads/fnvector_pthreads.h                || exit 1
 $tar $tarfile $distrobase/src/nvector/pthreads/fmod/CMakeLists.txt                || exit 1
-$tar $tarfile $distrobase/src/nvector/pthreads/fmod/fnvector_pthreads_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/nvector/pthreads/fmod/fnvector_pthreads_mod.c       || exit 1
+$tar $tarfile $distrobase/src/nvector/pthreads/fmod/fnvector_pthreads_mod.f90     || exit 1
 
 echo "   --- Add nvector/cuda module to $tarfile"
 
@@ -275,15 +289,18 @@ echo "   --- Add nvector/manyvector module to $tarfile"
 $tar $tarfile $distrobase/src/nvector/manyvector/CMakeLists.txt                          || exit 1
 $tar $tarfile $distrobase/src/nvector/manyvector/nvector_manyvector.c                    || exit 1
 $tar $tarfile $distrobase/src/nvector/manyvector/fmod/CMakeLists.txt                     || exit 1
-$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_manyvector_mod.{c,f90}    || exit 1
-$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_mpimanyvector_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_manyvector_mod.c          || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_manyvector_mod.f90        || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_mpimanyvector_mod.c       || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_mpimanyvector_mod.f90     || exit 1
 
 echo "   --- Add nvector/mpiplusx module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvector/mpiplusx/CMakeLists.txt                     || exit 1
 $tar $tarfile $distrobase/src/nvector/mpiplusx/nvector_mpiplusx.c                 || exit 1
 $tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/CMakeLists.txt                || exit 1
-$tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.c       || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.f90     || exit 1
 
 echo "   --- Add sunmatrix modules to $tarfile"
 
@@ -296,7 +313,8 @@ $tar $tarfile $distrobase/src/sunmatrix/band/sunmatrix_band.c                 ||
 $tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.h                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.c                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/band/fmod/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/src/sunmatrix/band/fmod/fsunmatrix_band_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/band/fmod/fsunmatrix_band_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/band/fmod/fsunmatrix_band_mod.f90     || exit 1
 
 echo "   --- Add sunmatrix/cusparse module to $tarfile"
 
@@ -311,7 +329,8 @@ $tar $tarfile $distrobase/src/sunmatrix/dense/sunmatrix_dense.c                 
 $tar $tarfile $distrobase/src/sunmatrix/dense/fsunmatrix_dense.h                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/dense/fsunmatrix_dense.c                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/dense/fmod/CMakeLists.txt               || exit 1
-$tar $tarfile $distrobase/src/sunmatrix/dense/fmod/fsunmatrix_dense_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/dense/fmod/fsunmatrix_dense_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/dense/fmod/fsunmatrix_dense_mod.f90     || exit 1
 
 echo "   --- Add sunmatrix/sparse module to $tarfile"
 
@@ -320,7 +339,8 @@ $tar $tarfile $distrobase/src/sunmatrix/sparse/sunmatrix_sparse.c               
 $tar $tarfile $distrobase/src/sunmatrix/sparse/fsunmatrix_sparse.h                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/sparse/fsunmatrix_sparse.c                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/sparse/fmod/CMakeLists.txt                || exit 1
-$tar $tarfile $distrobase/src/sunmatrix/sparse/fmod/fsunmatrix_sparse_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/sparse/fmod/fsunmatrix_sparse_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/sparse/fmod/fsunmatrix_sparse_mod.f90     || exit 1
 
 echo "   --- Add sunmatrix/slunrloc module to $tarfile"
 
@@ -333,6 +353,11 @@ $tar $tarfile $distrobase/src/sunmatrix/magmadense/CMakeLists.txt            || 
 $tar $tarfile $distrobase/src/sunmatrix/magmadense/sunmatrix_magmadense.cpp  || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/magmadense/dense_cuda_kernels.cuh    || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/magmadense/dense_hip_kernels.hip.hpp || exit 1
+
+echo "   --- Add sunmatrix/onemkldense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmatrix/onemkldense/CMakeLists.txt             || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/onemkldense/sunmatrix_onemkldense.cpp  || exit 1
 
 echo "   --- Add sunmemory modules to $tarfile"
 
@@ -364,7 +389,8 @@ $tar $tarfile $distrobase/src/sunlinsol/band/sunlinsol_band.c                 ||
 $tar $tarfile $distrobase/src/sunlinsol/band/fsunlinsol_band.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/band/fsunlinsol_band.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/band/fmod/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/band/fmod/fsunlinsol_band_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/band/fmod/fsunlinsol_band_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/band/fmod/fsunlinsol_band_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/cusolversp module to $tarfile"
 
@@ -378,7 +404,8 @@ $tar $tarfile $distrobase/src/sunlinsol/dense/sunlinsol_dense.c                 
 $tar $tarfile $distrobase/src/sunlinsol/dense/fsunlinsol_dense.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/dense/fsunlinsol_dense.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/dense/fmod/CMakeLists.txt               || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/dense/fmod/fsunlinsol_dense_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/dense/fmod/fsunlinsol_dense_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/dense/fmod/fsunlinsol_dense_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/klu module to $tarfile"
 
@@ -387,7 +414,8 @@ $tar $tarfile $distrobase/src/sunlinsol/klu/sunlinsol_klu.c                 || e
 $tar $tarfile $distrobase/src/sunlinsol/klu/fsunlinsol_klu.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/klu/fsunlinsol_klu.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/klu/fmod/CMakeLists.txt             || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/klu/fmod/fsunlinsol_klu_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/klu/fmod/fsunlinsol_klu_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/klu/fmod/fsunlinsol_klu_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/lapackband module to $tarfile"
 
@@ -408,6 +436,11 @@ echo "   --- Add sunlinsol/magmadense module to $tarfile"
 $tar $tarfile $distrobase/src/sunlinsol/magmadense/CMakeLists.txt           || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/magmadense/sunlinsol_magmadense.cpp || exit 1
 
+echo "   --- Add sunlinsol/onemkldense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/onemkldense/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/onemkldense/sunlinsol_onemkldense.cpp || exit 1
+
 echo "   --- Add sunlinsol/pcg module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunlinsol/pcg/CMakeLists.txt                  || exit 1
@@ -415,7 +448,8 @@ $tar $tarfile $distrobase/src/sunlinsol/pcg/sunlinsol_pcg.c                 || e
 $tar $tarfile $distrobase/src/sunlinsol/pcg/fsunlinsol_pcg.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/pcg/fsunlinsol_pcg.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/pcg/fmod/CMakeLists.txt             || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/pcg/fmod/fsunlinsol_pcg_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/pcg/fmod/fsunlinsol_pcg_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/pcg/fmod/fsunlinsol_pcg_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/spbcgs module to $tarfile"
 
@@ -424,7 +458,8 @@ $tar $tarfile $distrobase/src/sunlinsol/spbcgs/sunlinsol_spbcgs.c               
 $tar $tarfile $distrobase/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/spbcgs/fmod/CMakeLists.txt                || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/spbcgs/fmod/fsunlinsol_spbcgs_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/fmod/fsunlinsol_spbcgs_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/fmod/fsunlinsol_spbcgs_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/spfgmr module to $tarfile"
 
@@ -433,7 +468,8 @@ $tar $tarfile $distrobase/src/sunlinsol/spfgmr/sunlinsol_spfgmr.c               
 $tar $tarfile $distrobase/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/spfgmr/fmod/CMakeLists.txt                || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/spfgmr/fmod/fsunlinsol_spfgmr_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/fmod/fsunlinsol_spfgmr_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/fmod/fsunlinsol_spfgmr_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/spgmr module to $tarfile"
 
@@ -442,7 +478,8 @@ $tar $tarfile $distrobase/src/sunlinsol/spgmr/sunlinsol_spgmr.c                 
 $tar $tarfile $distrobase/src/sunlinsol/spgmr/fsunlinsol_spgmr.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/spgmr/fsunlinsol_spgmr.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/spgmr/fmod/CMakeLists.txt               || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/spgmr/fmod/fsunlinsol_spgmr_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/fmod/fsunlinsol_spgmr_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/fmod/fsunlinsol_spgmr_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/sptfqmr module to $tarfile"
 
@@ -451,7 +488,8 @@ $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/sunlinsol_sptfqmr.c             
 $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.h                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fmod/CMakeLists.txt                 || exit 1
-$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fmod/fsunlinsol_sptfqmr_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fmod/fsunlinsol_sptfqmr_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fmod/fsunlinsol_sptfqmr_mod.f90     || exit 1
 
 echo "   --- Add sunlinsol/superludist module to $tarfile"
 
@@ -476,7 +514,8 @@ $tar $tarfile $distrobase/src/sunnonlinsol/newton/sunnonlinsol_newton.c         
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/fsunnonlinsol_newton.h                || exit 1
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/fsunnonlinsol_newton.c                || exit 1
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/fmod/CMakeLists.txt                   || exit 1
-$tar $tarfile $distrobase/src/sunnonlinsol/newton/fmod/fsunnonlinsol_newton_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunnonlinsol/newton/fmod/fsunnonlinsol_newton_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunnonlinsol/newton/fmod/fsunnonlinsol_newton_mod.f90     || exit 1
 
 echo "   --- Add sunnonlinsol/fixedpoint modules to $tarfile"
 
@@ -485,7 +524,8 @@ $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c 
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fsunnonlinsol_fixedpoint.h                || exit 1
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fsunnonlinsol_fixedpoint.c                || exit 1
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fmod/CMakeLists.txt                       || exit 1
-$tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fmod/fsunnonlinsol_fixedpoint_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fmod/fsunnonlinsol_fixedpoint_mod.c       || exit 1
+$tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fmod/fsunnonlinsol_fixedpoint_mod.f90     || exit 1
 
 echo "   --- Add sunnonlinsol/petscsnes modules to $tarfile"
 
@@ -498,9 +538,10 @@ $tar $tarfile $distrobase/examples/CMakeLists.txt || exit 1
 
 echo "   --- Add examples utilities to $tarfile"
 
-$tar $tarfile $distrobase/examples/utilities/custom_memory_helper.h || exit 1
-$tar $tarfile $distrobase/examples/utilities/test_utilities.f90     || exit 1
-$tar $tarfile $distrobase/examples/utilities/plot_data_2d.py        || exit 1
+$tar $tarfile $distrobase/examples/utilities/custom_memory_helper_gpu.h  || exit 1
+$tar $tarfile $distrobase/examples/utilities/custom_memory_helper_sycl.h || exit 1
+$tar $tarfile $distrobase/examples/utilities/test_utilities.f90          || exit 1
+$tar $tarfile $distrobase/examples/utilities/plot_data_2d.py             || exit 1
 
 echo "   --- Add nvector examples to $tarfile"
 
@@ -546,7 +587,6 @@ $tar $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt                
 $tar $tarfile $distrobase/examples/nvector/serial/test_fnvector_serial_mod.f90                  || exit 1
 $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c                         || exit 1
 $tar $tarfile $distrobase/examples/nvector/sycl/CMakeLists.txt                                  || exit 1
-$tar $tarfile $distrobase/examples/nvector/sycl/custom_memory_helper.h                          || exit 1
 $tar $tarfile $distrobase/examples/nvector/sycl/test_nvector_sycl.cpp                           || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                                    || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c                                       || exit 1
@@ -564,6 +604,8 @@ $tar $tarfile $distrobase/examples/sunmatrix/cusparse/test_sunmatrix_cusparse.cu
 $tar $tarfile $distrobase/examples/sunmatrix/cusparse/CMakeLists.txt               || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/magmadense/test_sunmatrix_magmadense.cpp || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/magmadense/CMakeLists.txt                || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/onemkldense/CMakeLists.txt                 || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/onemkldense/test_sunmatrix_onemkldense.cpp || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_sunmatrix_dense.c          || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_fsunmatrix_dense_mod.f90   || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt                  || exit 1
@@ -602,6 +644,8 @@ $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_sunlinsol_lapackde
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/CMakeLists.txt                            || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/magmadense/test_sunlinsol_magmadense.cpp              || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/magmadense/CMakeLists.txt                             || exit 1
+$tar $tarfile $distrobase/examples/sunlinsol/onemkldense/CMakeLists.txt                            || exit 1
+$tar $tarfile $distrobase/examples/sunlinsol/onemkldense/test_sunlinsol_onemkldense.cpp            || exit 1
 #$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/test_sunlinsol_pcg_parallel.c           || exit 1
 #$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/CMakeLists.txt                          || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/pcg/serial/test_sunlinsol_pcg_serial.c                || exit 1

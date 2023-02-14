@@ -15,14 +15,14 @@ Solution method: Anderson accelerated fixed point iteration.
     damping_fp = 1
 
 Final Statistics:
-Number of nonlinear iterations:      4
-Number of function evaluations:      4
+Number of nonlinear iterations:      5
+Number of function evaluations:      5
 Computed solution:
     x = 0.5
     y = 1
-    z = -0.523598
+    z = -0.523599
 Solution error:
-    ex = 1.55795e-07
-    ey = 3.40986e-07
-    ez = 4.70544e-07
+    ex = 1.86552e-10
+    ey = 9.36789e-10
+    ez = 2.67979e-09
 PASS

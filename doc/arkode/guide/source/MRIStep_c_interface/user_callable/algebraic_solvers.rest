@@ -61,7 +61,7 @@ The current list of such constructor routines includes
 :c:func:`SUNLinSol_KLU()`,
 :c:func:`SUNLinSol_SuperLUMT()`,
 :c:func:`SUNLinSol_SuperLUDIST()`,
-:c:func:`SUNLinSol_cuSolverSp_batchQR()`,   
+:c:func:`SUNLinSol_cuSolverSp_batchQR()`,
 :c:func:`SUNLinSol_SPGMR()`,
 :c:func:`SUNLinSol_SPFGMR()`,
 :c:func:`SUNLinSol_SPBCGS()`,

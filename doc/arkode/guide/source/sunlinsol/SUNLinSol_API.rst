@@ -277,8 +277,24 @@ instead of supplying a dummy routine.
       retval = SUNLinSolSetScalingVectors(LS, s1, s2);
 
 
+.. c:function:: int SUNLinSolSetZeroGuess(SUNLinearSolver LS, booleantype onoff)
 
+   This *optional* routine indicates if the next :c:func:`SUNlinSolSolve` call
+   will be made with a zero initial guess (``SUNTRUE``) or a non-zero initial
+   guess (``SUNFALSE``). This routine should return zero for a successful call,
+   and a negative value for a failure, ideally returning one of the generic
+   error codes listed in section :ref:`SUNLinSol.ErrorCodes`.
 
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNLinSolSetZeroGuess(LS, onoff);
+
+   **Note:** It is assumed that the initial guess status is not retained across
+   calls to :c:func:`SUNLinSolSolve`. As such, the linear solver interfaces in
+   each of the SUNDIALS packages call :c:func:`SUNLinSolSetZeroGuess` prior to
+   each call to :c:func:`SUNLinSolSolve`.
 
 
 .. _SUNLinSol.GetFn:
@@ -533,6 +549,7 @@ structure is defined as
                                                PSetupFn, PSolveFn);
      int                  (*setscalingvectors)(SUNLinearSolver,
                                                N_Vector, N_Vector);
+     int                  (*setzeroguess)(SUNLinearSolver, booleantype);
      int                  (*initialize)(SUNLinearSolver);
      int                  (*setup)(SUNLinearSolver, SUNMatrix);
      int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,

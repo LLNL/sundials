@@ -478,6 +478,21 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
   to searching default system paths.
+\item[\id{ENABLE\_MAGMA}] -
+  Enable MAGMA support.
+  \\
+  Default: OFF
+  \\
+  Note: Setting this option to ON will trigger additional options
+  related to MAGMA.
+\item[\id{MAGMA\_DIR}] -
+  Path to the root of a MAGMA installation.
+  \\
+  Default: none
+\item[\id{SUNDIALS\_MAGMA\_BACKENDS}] -
+  Which MAGMA backend to use under the SUNDIALS MAGMA interface.
+  \\
+  Default: CUDA
 \item[\id{ENABLE\_MPI}] -
   Enable MPI support. This will build the parallel {\nvector} and the
   MPI-aware version of the ManyVector library.
@@ -520,6 +535,10 @@ a typical configuration on a Linux system and are provided as illustration only.
   %% Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
   %% managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
   %% LLNL's high performance computing clusters.
+\item[\id{ENABLE\_ONEMKL}] -
+  Enable oneMKL support.
+  \\
+  Default: OFF
 \item[\id{ENABLE\_OPENMP}] -
   Enable {\openmp} support (build the {\openmp} {\nvector}).
   \\
@@ -566,10 +585,11 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: OFF
   \\
-  Note: You need to enable CUDA or HIP in order to build the {\raja} vector module.
+  Note: You need to enable CUDA, HIP, or SYCL in order to build the {\raja}
+  vector module.
 \item[\id{SUNDIALS\_RAJA\_BACKENDS}] -
   If building SUNDIALS with RAJA support, this sets the RAJA
-  backend to target. Values supported are CUDA and HIP.
+  backend to target. Values supported are CUDA, HIP, or SYCL.
   \\
   Default: CUDA
 \item[\id{ENABLE\_SUPERLUDIST}] -
@@ -916,12 +936,14 @@ enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 {\raja} is a performance portability layer developed by Lawrence Livermore
 National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
 {\sundials} {\raja} modules and examples have been tested with {\raja} up to
-version 0.12.1. Building {\sundials} {\raja} modules requires a {\cuda}-enabled
-{\raja} installation. To enable {\raja}, set \id{ENABLE\_CUDA} and
-\id{ENABLE\_RAJA} to \id{ON}. If {\raja} is installed in a nonstandard location
-you will be prompted to set the variable \id{RAJA\_DIR} with the path to the
-{\raja} CMake configuration file. To enable building the {\raja} examples set
-\id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
+version 0.14.0. Building {\sundials} {\raja} modules requires a {\cuda}, HIP, or
+SYCL enabled {\raja} installation. To enable {\raja}, set \id{ENABLE\_RAJA} to
+\id{ON}, set \id{SUNDIALS\_RAJA\_BACKENDS} to the desired backend (\id{CUDA},
+\id{HIP}, or \id{SYCL}), and set \id{ENABLE\_CUDA}, \id{ENABLE\_HIP}, or
+\id{ENABLE\_SYCL}, to \id{ON} depending on the selected backend. If {\raja} is
+installed in a nonstandard location you will be prompted to set the variable
+\id{RAJA\_DIR} with the path to the {\raja} CMake configuration file. To enable
+building the {\raja} examples set \id{EXAMPLES\_ENABLE\_CXX} to \id{ON}.
 
 \subsubsection*{Building with Trilinos}
 {\trilinos} is a suite of numerical libraries developed by Sandia National

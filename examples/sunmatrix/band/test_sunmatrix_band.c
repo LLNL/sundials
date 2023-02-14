@@ -247,7 +247,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
   local_length = N_VGetLength_Serial(X);
-  
+
   /* check vector data */
   for(i=0; i < local_length; i++) {
     failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
@@ -271,4 +271,10 @@ booleantype has_data(SUNMatrix A)
 booleantype is_square(SUNMatrix A)
 {
   return SUNTRUE;
+}
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
 }

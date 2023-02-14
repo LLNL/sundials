@@ -1037,7 +1037,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    retval = idals_mem->jt_res(tt, yy, yp, rtemp, IDA_mem->ida_user_data);
+    retval = IDA_mem->ida_res(tt, yy, yp, rtemp, IDA_mem->ida_user_data);
     idals_mem->nreDQ++;
     if (retval != 0) break;
 
@@ -1231,7 +1231,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
     N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
 
     /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-    retval = IDA_mem->ida_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data);
+    retval = idals_mem->jt_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data);
     idals_mem->nreDQ++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);
@@ -1487,6 +1487,10 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, idals_mem->x);
+
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {

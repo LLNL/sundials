@@ -266,6 +266,7 @@ typedef struct CVodeMemRec {
 
   SUNNonlinearSolver NLS;      /* nonlinear solver object                   */
   booleantype ownNLS;          /* flag indicating NLS ownership             */
+  CVRhsFn nls_f;               /* f(t,y(t)) used in the nonlinear solver    */
   int convfail;                /* flag to indicate when a Jacobian update may
                                   be needed */
 
@@ -282,7 +283,7 @@ typedef struct CVodeMemRec {
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
-		   N_Vector ycur, N_Vector fcur);
+                   N_Vector ycur, N_Vector fcur);
 
   int (*cv_lfree)(struct CVodeMemRec *cv_mem);
 

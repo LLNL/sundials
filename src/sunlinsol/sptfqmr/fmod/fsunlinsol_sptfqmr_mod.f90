@@ -44,6 +44,7 @@ module fsunlinsol_sptfqmr_mod
  public :: FSUNLinSolSetATimes_SPTFQMR
  public :: FSUNLinSolSetPreconditioner_SPTFQMR
  public :: FSUNLinSolSetScalingVectors_SPTFQMR
+ public :: FSUNLinSolSetZeroGuess_SPTFQMR
  public :: FSUNLinSolSetup_SPTFQMR
  public :: FSUNLinSolSolve_SPTFQMR
  public :: FSUNLinSolNumIters_SPTFQMR
@@ -165,6 +166,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolSetZeroGuess_SPTFQMR(farg1, farg2) &
+bind(C, name="_wrap_FSUNLinSolSetZeroGuess_SPTFQMR") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -460,6 +470,22 @@ farg1 = c_loc(s)
 farg2 = c_loc(s1)
 farg3 = c_loc(s2)
 fresult = swigc_FSUNLinSolSetScalingVectors_SPTFQMR(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNLinSolSetZeroGuess_SPTFQMR(s, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(s)
+farg2 = onoff
+fresult = swigc_FSUNLinSolSetZeroGuess_SPTFQMR(farg1, farg2)
 swig_result = fresult
 end function
 

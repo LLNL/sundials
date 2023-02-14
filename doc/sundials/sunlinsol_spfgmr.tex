@@ -118,6 +118,9 @@ The {\sunlinsolspfgmr} module defines implementations of all
 \item \id{SUNLinSolSetATimes\_SPFGMR}
 \item \id{SUNLinSolSetPreconditioner\_SPFGMR}
 \item \id{SUNLinSolSetScalingVectors\_SPFGMR}
+\item \id{SUNLinSolSetZeroGuess\_SPFGMR} -- note the solver assumes a non-zero
+  guess by default and the zero guess flag is reset to \id{SUNFALSE} after each
+  call to \id{SUNLinSolSolve\_SPFGMR}.
 \item \id{SUNLinSolSetup\_SPFGMR}
 \item \id{SUNLinSolSolve\_SPFGMR}
 \item \id{SUNLinSolNumIters\_SPFGMR}
@@ -583,6 +586,7 @@ struct _SUNLinearSolverContent_SPFGMR {
   int pretype;
   int gstype;
   int max_restarts;
+  booleantype zeroguess;
   int numiters;
   realtype resnorm;
   int last_flag;

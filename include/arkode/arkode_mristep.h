@@ -173,6 +173,7 @@ SUNDIALS_EXPORT int MRIStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int MRIStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int MRIStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fs);
 SUNDIALS_EXPORT int MRIStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int MRIStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetCoupling(void *arkode_mem,

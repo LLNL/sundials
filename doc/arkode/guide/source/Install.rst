@@ -631,6 +631,24 @@ illustration only.
       ``LD_LIBRARY_PATH`` prior to searching default system
       paths.
 
+:index:`ENABLE_MAGMA <ENABLE_MAGMA (CMake option)>`
+   Enable MAGMA support.
+
+   Default: ``OFF``
+
+   .. note:: Setting this option to ``ON`` will trigger additional options
+             related to MAGMA.
+
+:index:`MAGMA_DIR <MAGMA_DIR (CMake option)>`
+   Path to the root of a MAGMA installation.
+
+   Default: none
+
+:index:`SUNDIALS_MAGMA_BACKENDS <SUNDIALS_MAGMA_BACKENDS (CMake option)>`
+   Which MAGMA backend to use under the SUNDIALS MAGMA interface.
+
+   Default: ``CUDA``
+
 :index:`ENABLE_MPI <ENABLE_MPI (CMake option)>`
    Enable MPI support. This will build the parallel nvector
    and the MPI-aware version of the ManyVector library.
@@ -672,6 +690,11 @@ illustration only.
    Default: ``mpirun``
 
    .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
+:index:`ENABLE_ONEMKL <ENABLE_ONEMKL (CMake option)>`
+   Enable oneMKL support.
+
+   Default: ``OFF``
 
 :index:`ENABLE_OPENMP <ENABLE_OPENMP (CMake option)>`
    Enable OpenMP support (build the OpenMP NVector)
@@ -720,7 +743,7 @@ illustration only.
 
 :index:`SUNDIALS_RAJA_BACKENDS <SUNDIALS_RAJA_BACKENDS (CMake option)>`
    If building SUNDIALS with RAJA support, this sets the RAJA
-   backend to target. Values supported are CUDA and HIP.
+   backend to target. Values supported are CUDA, HIP, or SYCL.
 
    Default: CUDA
 
@@ -1110,12 +1133,14 @@ RAJA is a performance portability layer developed by Lawrence
 Livermore National Laboratory and can be obtained from
 `https://github.com/LLNL/RAJA <https://github.com/LLNL/RAJA>`_.
 SUNDIALS RAJA modules and examples have been tested with RAJA
-version 0.12.1. Building SUNDIALS RAJA modules requires a CUDA-enabled
-RAJA installation. To enable RAJA, set ``ENABLE_CUDA`` and
-``ENABLE_RAJA`` to ``ON``. If RAJA is installed in a nonstandard
+version 0.14.0. Building SUNDIALS RAJA modules requires a CUDA, HIP, or SYCL
+enabled RAJA installation. To enable RAJA, set ``ENABLE_RAJA`` to ``ON``, set
+``SUNDIALS_RAJA_BACKENDS`` to the desired backend (``CUDA``, ``HIP``, or
+``SYCL``), and set ``ENABLE_CUDA``, ``ENABLE_HIP``, or ``ENABLE_SYCL`` to
+``ON`` depending on the selected backend. If RAJA is installed in a nonstandard
 location you will be prompted to set the variable ``RAJA_DIR`` with
 the path to the RAJA CMake configuration file. To enable building the
-RAJA examples set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
+RAJA examples set ``EXAMPLES_ENABLE_CXX`` to ``ON``.
 
 
 .. _Installation.CMake.ExternalLibraries.XBraid:

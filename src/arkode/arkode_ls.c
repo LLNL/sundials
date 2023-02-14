@@ -2642,6 +2642,10 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, arkls_mem->x);
 
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
+
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;
 
@@ -3073,6 +3077,10 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 
   /* Set initial guess x = 0 for LS */
   N_VConst(ZERO, arkls_mem->x);
+
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;

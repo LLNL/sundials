@@ -309,7 +309,7 @@ booleantype is_square(SUNMatrix A)
     return SUNFALSE;
 }
 
-void sync_device()
+void sync_device(SUNMatrix A)
 {
   HIP_OR_CUDA( hipDeviceSynchronize();,
                cudaDeviceSynchronize(); )

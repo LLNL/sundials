@@ -49,8 +49,8 @@ copyright = u'2012-2020, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward
 # built documents.
 #
 # The short X.Y version.
-version = 'v4.7.0'
-sun_version = 'v5.7.0'
+version = 'v4.8.0'
+sun_version = 'v5.8.0'
 
 # Set the date format (full-month-name day, full-year)
 today_fmt = '%B %d, %Y'

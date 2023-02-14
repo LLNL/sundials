@@ -102,6 +102,9 @@ for creating a \newline \id{SUNLinearSolver} object.
   a {\sunlinsolsptfqmr} object to use any of the preconditioning options
   with these solvers, this use mode is not supported and may result in
   inferior performance.
+
+  With \id{PREC\_RIGHT} or \id{PREC\_BOTH} the initial guess must be zero (use
+  \id{SUNLinSolSetZeroGuess} to indicate the initial guess is zero).
 }
 {SUNSPTFQMR}
 %
@@ -116,6 +119,9 @@ The {\sunlinsolsptfqmr} module defines implementations of all
 \item \id{SUNLinSolSetATimes\_SPTFQMR}
 \item \id{SUNLinSolSetPreconditioner\_SPTFQMR}
 \item \id{SUNLinSolSetScalingVectors\_SPTFQMR}
+\item \id{SUNLinSolSetZeroGuess\_SPTFQMR} -- note the solver assumes a non-zero
+  guess by default and the zero guess flag is reset to \id{SUNFALSE} after each
+  call to \id{SUNLinSolSolve\_SPTFQMR}.
 \item \id{SUNLinSolSetup\_SPTFQMR}
 \item \id{SUNLinSolSolve\_SPTFQMR}
 \item \id{SUNLinSolNumIters\_SPTFQMR}
@@ -491,6 +497,7 @@ The {\sunlinsolsptfqmr} module defines the \textit{content} field of a
 struct _SUNLinearSolverContent_SPTFQMR {
   int maxl;
   int pretype;
+  booleantype zeroguess;
   int numiters;
   realtype resnorm;
   int last_flag;

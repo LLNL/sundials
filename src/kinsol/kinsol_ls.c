@@ -1197,6 +1197,10 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, xx);
 
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(kinls_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
+
   /* set flag required for user-supplied J*v routine */
   kinls_mem->new_uu = SUNTRUE;
 

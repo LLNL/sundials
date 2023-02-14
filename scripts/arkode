@@ -98,11 +98,15 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c    || exit 1
 
 echo "   --- Add arkode F2003 interface to $tarfile"
 
-$tar $tarfile $distrobase/src/arkode/fmod/CMakeLists.txt || exit 1
-$tar $tarfile $distrobase/src/arkode/fmod/farkode_mod.{c,f90} || exit 1
-$tar $tarfile $distrobase/src/arkode/fmod/farkode_arkstep_mod.{c,f90} || exit 1
-$tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.{c,f90} || exit 1
-$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/CMakeLists.txt          || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mod.c           || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mod.f90         || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_arkstep_mod.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_arkstep_mod.f90 || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.f90 || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.f90 || exit 1
 
 echo "   --- Add arkode examples to $tarfile"
 
@@ -151,7 +155,8 @@ $tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.out || exi
 
 $tar $tarfile $distrobase/examples/arkode/C_petsc/CMakeLists.txt         || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_petsc/README                 || exit 1
-$tar $tarfile $distrobase/examples/arkode/C_petsc/ark_petsc_ex25.{c,out} || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_petsc/ark_petsc_ex25.c       || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_petsc/ark_petsc_ex25.out     || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt                 || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/README                         || exit 1

@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
   /* Set Fixed point damping parameter */
   if (uopt->m_aa == 0)
   {
-    retval = KINSetDampingFP(kmem, uopt->damping_fp);
+    retval = KINSetDamping(kmem, uopt->damping_fp);
   }
 
   /* Set Anderson acceleration options */
@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
   N_VDestroy(u);
   N_VDestroy(scale);
   KINFree(&kmem);
+  free(uopt);
 
   return(retval);
 }

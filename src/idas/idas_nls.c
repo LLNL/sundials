@@ -114,6 +114,42 @@ int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS)
     return(IDA_ILL_INPUT);
   }
 
+  /* Set the nonlinear system RES function */
+  if (!(IDA_mem->ida_res)) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
+                    "IDASetNonlinearSolver",
+                    "The DAE residual function is NULL");
+    return(IDA_ILL_INPUT);
+  }
+  IDA_mem->nls_res = IDA_mem->ida_res;
+
+  return(IDA_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  IDASetNlsResFn:
+
+  This routine sets an alternative user-supplied DAE residual
+  function to use in the evaluation of nonlinear system functions.
+  ---------------------------------------------------------------*/
+int IDASetNlsResFn(void *ida_mem, IDAResFn res)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASetNlsResFn",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (res)
+    IDA_mem->nls_res = res;
+  else
+    IDA_mem->nls_res = IDA_mem->ida_res;
+
   return(IDA_SUCCESS);
 }
 
@@ -149,6 +185,7 @@ int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur, N_Vector *yypred,
 
   return(IDA_SUCCESS);
 }
+
 
 
 /* -----------------------------------------------------------------------------
@@ -268,7 +305,7 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem)
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp);
 
   /* evaluate residual */
-  retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
+  retval = IDA_mem->nls_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
                             res, IDA_mem->ida_user_data);
 
   /* increment the number of residual evaluations */

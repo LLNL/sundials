@@ -683,3 +683,8 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
    else
      return SUNFALSE;
  }
+
+void sync_device(SUNMatrix A)
+{
+  cudaDeviceSynchronize();
+}

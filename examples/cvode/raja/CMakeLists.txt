@@ -1,8 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): Slaven Peles and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
-# Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
-# ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
@@ -22,21 +20,20 @@
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
   "cvAdvDiff_kry_raja\;develop"
-  #"cvAdvDiffReac_kry_raja\;develop"
   )
 
 # Add source directory to include directories
 include_directories(.)
 
-# Specify libraries to link against
-set(CVODE_LIB sundials_cvode)
-set(NVECS_LIB sundials_nvecraja)
-
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
+  set(_fused_stubs sundials_cvode_fused_stubs)
 endif()
 
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB})
+if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+  set(_lang CUDA)
+else()
+  set(_lang CXX)
+endif()
 
 # Add the build and install targets for each CVODE example
 foreach(example_tuple ${CVODE_examples})
@@ -45,21 +42,26 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
 
-  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
 
   # add example source files
   add_executable(${example} ${example}.cpp)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
+  # libraries to link against
+  target_link_libraries(${example}
+    PRIVATE
+    sundials_cvode
+    sundials_nvecraja
+    ${_fused_stubs}
+    ${EXTRA_LINK_LIBS})
+
   # add example to regression tests
   sundials_add_test(${example} ${example}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)

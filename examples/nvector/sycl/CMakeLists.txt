@@ -87,6 +87,7 @@ foreach(example_tuple ${nvector_sycl_examples})
     install(FILES ${example}.cpp
       ../test_nvector.c
       ../test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
       ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/sycl)
   endif()
@@ -97,7 +98,7 @@ endforeach(example_tuple ${nvector_sycl_examples})
 if(EXAMPLES_INSTALL)
 
   # Install extra files
-  install(FILES custom_memory_helper.h DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/sycl)
+  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/sycl)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "nvector_sycl")

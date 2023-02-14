@@ -174,6 +174,15 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
     NV_VEC_SW(IDA_mem->ewtSim,      is+1) = IDA_mem->ida_ewtS[is];
   }
 
+  /* Set the nonlinear system RES function */
+  if (!(IDA_mem->ida_res)) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
+                    "IDASetNonlinearSolverSensSim",
+                    "The DAE residual function is NULL");
+    return(IDA_ILL_INPUT);
+  }
+  IDA_mem->nls_res = IDA_mem->ida_res;
+
   return(IDA_SUCCESS);
 }
 
@@ -357,7 +366,7 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, IDA_mem->ida_yp);
 
   /* evaluate residual */
-  retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
+  retval = IDA_mem->nls_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
                             res, IDA_mem->ida_user_data);
 
   /* increment the number of residual evaluations */
