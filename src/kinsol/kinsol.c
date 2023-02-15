@@ -139,6 +139,7 @@
  * ---------------------
  */
 
+#define SUNDIALS_DEBUG  1
 #define PRNT_DEBUG      0
 #define PRNT_RETVAL     1
 #define PRNT_NNI        2
@@ -2506,15 +2507,18 @@ static int KINFP(KINMem kin_mem)
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
 
-#ifdef SUNDIALS_DEBUG
-  KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP", INFO_LIVAR, "kin_delay_aa",
-               kin_mem->kin_delay_aa);
-#endif
-
   while (ret == CONTINUE_ITERATIONS) {
 
     /* update iteration count */
     kin_mem->kin_nni++;
+
+#ifdef SUNDIALS_DEBUG
+    KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
+                 "===== Start Iteration =====");
+    KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
+                 "nni = %ld, kin_delay_aa = %ld",
+                 kin_mem->kin_nni, kin_mem->kin_delay_aa);
+#endif
 
     /* evaluate func(uu) and return if failed */
     retval = kin_mem->kin_func(kin_mem->kin_uu, kin_mem->kin_fval,
@@ -2529,6 +2533,10 @@ static int KINFP(KINMem kin_mem)
     /* compute new solution */
     if (kin_mem->kin_m_aa == 0 || kin_mem->kin_nni - 1 < kin_mem->kin_delay_aa)
     {
+#ifdef SUNDIALS_DEBUG
+      KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
+                   "beta = %26.16lg", kin_mem->kin_beta_aa);
+#endif
       if (kin_mem->kin_damping)
       {
         /* damped fixed point */
@@ -2667,6 +2675,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   /* on first iteration, do fixed point update */
   if (iter == 0)
   {
+#ifdef SUNDIALS_DEBUG
+      KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+                   "beta = %26.16lg", kin_mem->kin_beta_aa);
+#endif
     if (kin_mem->kin_damping_aa)
     {
       /* damped fixed point */
@@ -2774,6 +2786,11 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     realtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
     realtype gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
     kin_mem->kin_beta_aa = RCONST(0.9) - RCONST(0.5) * gain;
+#ifdef SUNDIALS_DEBUG
+    KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+                 "qt_fv_norm = %26.16lg, fv_norm = %26.16lg, gain = %26.16lg, beta = %26.16lg",
+                 qt_fv_norm, fv_norm, gain, kin_mem->kin_beta_aa);
+#endif
   }
 
   /* set arrays for fused vector operation */
