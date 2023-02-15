@@ -1504,6 +1504,10 @@ def KINSetDampingAA(kinmem, beta):
     return _kinsol.KINSetDampingAA(kinmem, beta)
 KINSetDampingAA = _kinsol.KINSetDampingAA
 
+def KINSetAdaptiveDampingAA(kinmem, tf):
+    return _kinsol.KINSetAdaptiveDampingAA(kinmem, tf)
+KINSetAdaptiveDampingAA = _kinsol.KINSetAdaptiveDampingAA
+
 def KINSetReturnNewest(kinmem, ret_newest):
     return _kinsol.KINSetReturnNewest(kinmem, ret_newest)
 KINSetReturnNewest = _kinsol.KINSetReturnNewest

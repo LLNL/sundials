@@ -255,6 +255,7 @@ void *KINCreate(void)
   kin_mem->kin_delay_aa         = 0;
   kin_mem->kin_beta_aa          = ONE;
   kin_mem->kin_damping_aa       = SUNFALSE;
+  kin_mem->kin_adaptive_damping_aa = SUNFALSE;
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
   kin_mem->kin_eh_data          = kin_mem;
@@ -2648,8 +2649,12 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
   ipt_map = kin_mem->kin_ipt_map;
   i_pt = iter-1 - ((iter-1) / kin_mem->kin_m_aa) * kin_mem->kin_m_aa;
+
+  /* Compute residual F(x) = G(x_old) - x_old */
   N_VLinearSum(ONE, gval, -ONE, xold, fv);
-  if (iter > 0) {
+
+  if (iter > 0)
+  {
     /* compute dg_new = gval - gval_old */
     N_VLinearSum(ONE, gval, -ONE, kin_mem->kin_gold_aa, kin_mem->kin_dg_aa[i_pt]);
     /* compute df_new = fval - fval_old */
@@ -2758,6 +2763,19 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   retval = N_VDotProdMulti((int) lAA, fv, kin_mem->kin_q_aa, gamma);
   if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
 
+  /* determine adaptive damping factor */
+  if (kin_mem->kin_adaptive_damping_aa)
+  {
+    realtype qt_fv_norm = ZERO;
+    for (i = 0; i < lAA; i++)
+      qt_fv_norm += gamma[i] * gamma[i];
+    qt_fv_norm = SUNRsqrt(qt_fv_norm);
+
+    realtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
+    realtype gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
+    kin_mem->kin_beta_aa = RCONST(0.9) - RCONST(0.5) * gain;
+  }
+
   /* set arrays for fused vector operation */
   cv[0] = ONE;
   Xv[0] = gval;
@@ -2775,7 +2793,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   }
 
   /* if enabled, apply damping */
-  if (kin_mem->kin_damping_aa) {
+  if (kin_mem->kin_damping_aa || kin_mem->kin_adaptive_damping_aa) {
     onembeta = (ONE - kin_mem->kin_beta_aa);
     cv[nvec] = -onembeta;
     Xv[nvec] = fv;

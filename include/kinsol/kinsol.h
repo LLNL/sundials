@@ -110,6 +110,7 @@ SUNDIALS_EXPORT int KINSetDamping(void *kinmem, realtype beta);
 SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetDelayAA(void *kinmem, long int delay);
 SUNDIALS_EXPORT int KINSetDampingAA(void *kinmem, realtype beta);
+SUNDIALS_EXPORT int KINSetAdaptiveDampingAA(void *kinmem, booleantype tf);
 SUNDIALS_EXPORT int KINSetReturnNewest(void *kinmem, booleantype ret_newest);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, long int mxiter);
 SUNDIALS_EXPORT int KINSetUseMaxIters(void *kinmem, booleantype use_mxiter);
