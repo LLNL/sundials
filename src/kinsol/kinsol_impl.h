@@ -170,6 +170,7 @@ typedef struct KINMemRec {
   long int kin_delay_aa;      /* number of iterations to delay AA */
   booleantype kin_damping_aa; /* flag to apply damping in AA */
   booleantype kin_adaptive_damping_aa; /* flag to apply adaptive damping in AA */
+  realtype kin_adaptive_damping_factor_aa; /* adaptive damping factor in AA */
   realtype *kin_cv;           /* scalar array for fused vector operations */
   N_Vector *kin_Xv;           /* vector array for fused vector operations */
 

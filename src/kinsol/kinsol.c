@@ -257,6 +257,7 @@ void *KINCreate(void)
   kin_mem->kin_beta_aa          = ONE;
   kin_mem->kin_damping_aa       = SUNFALSE;
   kin_mem->kin_adaptive_damping_aa = SUNFALSE;
+  kin_mem->kin_adaptive_damping_factor_aa = RCONST(0.5);
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
   kin_mem->kin_eh_data          = kin_mem;
@@ -2785,7 +2786,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
     realtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
     realtype gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
-    kin_mem->kin_beta_aa = RCONST(0.9) - RCONST(0.5) * gain;
+    kin_mem->kin_beta_aa = RCONST(0.9) - kin_mem->kin_adaptive_damping_factor_aa * gain;
 #ifdef SUNDIALS_DEBUG
     KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
                  "qt_fv_norm = %26.16lg, fv_norm = %26.16lg, gain = %26.16lg, beta = %26.16lg",
