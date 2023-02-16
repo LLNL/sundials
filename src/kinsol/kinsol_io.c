@@ -412,6 +412,30 @@ int KINSetAdaptiveDampingFactorAA(void *kinmem, realtype adf)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetAdaptiveMAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetAdaptiveMAA(void *kinmem, booleantype tf)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL)
+  {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetAdaptiveMAA",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  kin_mem->kin_adaptive_m_aa = tf;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetReturnNewest
  * -----------------------------------------------------------------
  */

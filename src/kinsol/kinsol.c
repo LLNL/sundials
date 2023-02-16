@@ -258,6 +258,7 @@ void *KINCreate(void)
   kin_mem->kin_damping_aa       = SUNFALSE;
   kin_mem->kin_adaptive_damping_aa = SUNFALSE;
   kin_mem->kin_adaptive_damping_factor_aa = RCONST(0.5);
+  kin_mem->kin_adaptive_m_aa    = SUNFALSE;
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
   kin_mem->kin_eh_data          = kin_mem;
@@ -2773,59 +2774,99 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   lAA = iter;
   if (kin_mem->kin_m_aa < iter) lAA = kin_mem->kin_m_aa;
 
-  retval = N_VDotProdMulti((int) lAA, fv, kin_mem->kin_q_aa, gamma);
-  if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
-
-  /* determine adaptive damping factor */
-  if (kin_mem->kin_adaptive_damping_aa)
+  /* Adapt acceleration depth */
+  if (kin_mem->kin_adaptive_m_aa)
   {
-    realtype qt_fv_norm = ZERO;
-    for (i = 0; i < lAA; i++)
-      qt_fv_norm += gamma[i] * gamma[i];
-    qt_fv_norm = SUNRsqrt(qt_fv_norm);
-
     realtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
-    realtype gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
-    kin_mem->kin_beta_aa = RCONST(0.9) - kin_mem->kin_adaptive_damping_factor_aa * gain;
+    long int m_aa_adapt = SUNMAX(0, floor(-log10(fv_norm)));
+    m_aa_adapt = SUNMIN(m_aa_adapt, kin_mem->kin_m_aa);
+    lAA = SUNMIN(lAA, m_aa_adapt);
 #ifdef SUNDIALS_DEBUG
     KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
-                 "qt_fv_norm = %26.16lg, fv_norm = %26.16lg, gain = %26.16lg, beta = %26.16lg",
-                 qt_fv_norm, fv_norm, gain, kin_mem->kin_beta_aa);
+                 "fv_norm = %26.16lg", fv_norm);
 #endif
   }
 
-  /* set arrays for fused vector operation */
-  cv[0] = ONE;
-  Xv[0] = gval;
-  nvec = 1;
+#ifdef SUNDIALS_DEBUG
+  KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+               "lAA = %ld", lAA);
+#endif
 
-  for (i=lAA-1; i > -1; i--) {
-    for (j=i+1; j < lAA; j++) {
-      gamma[i] = gamma[i]-R[j*kin_mem->kin_m_aa+i]*gamma[j];
+  if (lAA > 0)
+  {
+    retval = N_VDotProdMulti((int) lAA, fv, kin_mem->kin_q_aa, gamma);
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+
+    /* determine adaptive damping factor */
+    if (kin_mem->kin_adaptive_damping_aa)
+    {
+      realtype qt_fv_norm = ZERO;
+      for (i = 0; i < lAA; i++)
+        qt_fv_norm += gamma[i] * gamma[i];
+      qt_fv_norm = SUNRsqrt(qt_fv_norm);
+
+      realtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
+      realtype gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
+      kin_mem->kin_beta_aa = RCONST(0.9) - kin_mem->kin_adaptive_damping_factor_aa * gain;
+#ifdef SUNDIALS_DEBUG
+      KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+                   "qt_fv_norm = %26.16lg, fv_norm = %26.16lg, gain = %26.16lg, beta = %26.16lg",
+                   qt_fv_norm, fv_norm, gain, kin_mem->kin_beta_aa);
+#endif
     }
-    gamma[i] = gamma[i]/R[i*kin_mem->kin_m_aa+i];
 
-    cv[nvec] = -gamma[i];
-    Xv[nvec] = kin_mem->kin_dg_aa[ipt_map[i]];
-    nvec += 1;
-  }
+    /* set arrays for fused vector operation */
+    cv[0] = ONE;
+    Xv[0] = gval;
+    nvec = 1;
 
-  /* if enabled, apply damping */
-  if (kin_mem->kin_damping_aa || kin_mem->kin_adaptive_damping_aa) {
-    onembeta = (ONE - kin_mem->kin_beta_aa);
-    cv[nvec] = -onembeta;
-    Xv[nvec] = fv;
-    nvec += 1;
-    for (i = lAA - 1; i > -1; i--) {
-      cv[nvec] = onembeta * gamma[i];
-      Xv[nvec] = kin_mem->kin_df_aa[ipt_map[i]];
+    for (i=lAA-1; i > -1; i--) {
+      for (j=i+1; j < lAA; j++) {
+        gamma[i] = gamma[i]-R[j*kin_mem->kin_m_aa+i]*gamma[j];
+      }
+      gamma[i] = gamma[i]/R[i*kin_mem->kin_m_aa+i];
+
+      cv[nvec] = -gamma[i];
+      Xv[nvec] = kin_mem->kin_dg_aa[ipt_map[i]];
       nvec += 1;
     }
-  }
 
-  /* update solution */
-  retval = N_VLinearCombination(nvec, cv, Xv, x);
-  if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+    /* if enabled, apply damping */
+    if (kin_mem->kin_damping_aa || kin_mem->kin_adaptive_damping_aa) {
+      onembeta = (ONE - kin_mem->kin_beta_aa);
+      cv[nvec] = -onembeta;
+      Xv[nvec] = fv;
+      nvec += 1;
+      for (i = lAA - 1; i > -1; i--) {
+        cv[nvec] = onembeta * gamma[i];
+        Xv[nvec] = kin_mem->kin_df_aa[ipt_map[i]];
+        nvec += 1;
+      }
+    }
+
+    /* update solution */
+    retval = N_VLinearCombination(nvec, cv, Xv, x);
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+  }
+  else
+  {
+#ifdef SUNDIALS_DEBUG
+    KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+                 "beta = %26.16lg", kin_mem->kin_beta_aa);
+#endif
+    if (kin_mem->kin_damping_aa)
+    {
+      /* damped fixed point */
+      N_VLinearSum((ONE - kin_mem->kin_beta), xold, kin_mem->kin_beta_aa, gval,
+                   x);
+    }
+    else
+    {
+      /* standard fixed point */
+      N_VScale(ONE, gval, x);
+    }
+    return(0);
+  }
 
   return 0;
 }
