@@ -94,6 +94,10 @@ class KINSysPyFnPyChild(KINSysPyFn):
     self.user_sysfun = user_sysfun
 
   def actual_sysfun(self, y, g, user_data):
-    self.user_sysfun(y, g, user_data)
-    return 0
+    try:
+      flag = self.user_sysfun(y, g, user_data)
+      return int(flag)
+    except Exception as e:
+      print(e)
+      return -1
 %}
