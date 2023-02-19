@@ -16457,6 +16457,35 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_KINSetAdaptiveMAAFactor(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int res1 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  (void)self;
+  if (!SWIG_Python_UnpackTuple(args, "KINSetAdaptiveMAAFactor", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINSetAdaptiveMAAFactor" "', argument " "1"" of type '" "void *""'"); 
+  }
+  ecode2 = SWIG_AsVal_double(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "KINSetAdaptiveMAAFactor" "', argument " "2"" of type '" "realtype""'");
+  } 
+  arg2 = static_cast< realtype >(val2);
+  result = (int)KINSetAdaptiveMAAFactor(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_KINSetReturnNewest(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   void *arg1 = (void *) 0 ;
@@ -18828,6 +18857,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "KINSetAdaptiveDampingAA", _wrap_KINSetAdaptiveDampingAA, METH_VARARGS, NULL},
 	 { "KINSetAdaptiveDampingFactorAA", _wrap_KINSetAdaptiveDampingFactorAA, METH_VARARGS, NULL},
 	 { "KINSetAdaptiveMAA", _wrap_KINSetAdaptiveMAA, METH_VARARGS, NULL},
+	 { "KINSetAdaptiveMAAFactor", _wrap_KINSetAdaptiveMAAFactor, METH_VARARGS, NULL},
 	 { "KINSetReturnNewest", _wrap_KINSetReturnNewest, METH_VARARGS, NULL},
 	 { "KINSetNumMaxIters", _wrap_KINSetNumMaxIters, METH_VARARGS, NULL},
 	 { "KINSetUseMaxIters", _wrap_KINSetUseMaxIters, METH_VARARGS, NULL},

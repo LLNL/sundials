@@ -924,6 +924,9 @@ def KINSetAdaptiveDampingFactorAA(kinmem, adf):
 def KINSetAdaptiveMAA(kinmem, tf):
     return _kinsol.KINSetAdaptiveMAA(kinmem, tf)
 
+def KINSetAdaptiveMAAFactor(kinmem, adf):
+    return _kinsol.KINSetAdaptiveMAAFactor(kinmem, adf)
+
 def KINSetReturnNewest(kinmem, ret_newest):
     return _kinsol.KINSetReturnNewest(kinmem, ret_newest)
 

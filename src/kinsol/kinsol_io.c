@@ -436,6 +436,30 @@ int KINSetAdaptiveMAA(void *kinmem, booleantype tf)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetAdaptiveMAAFactor
+ * -----------------------------------------------------------------
+ */
+
+int KINSetAdaptiveMAAFactor(void *kinmem, realtype adf)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL)
+  {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetAdaptiveMAAFactor",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  kin_mem->kin_adaptive_m_aa_factor = adf;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetReturnNewest
  * -----------------------------------------------------------------
  */
