@@ -2540,6 +2540,10 @@ static int KINFP(KINMem kin_mem)
       KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
                    "beta = %26.16lg", kin_mem->kin_beta_aa);
 #endif
+#ifdef SUNDIALS_DEBUG
+      KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
+                   "lAA = 0");
+#endif
       if (kin_mem->kin_damping)
       {
         /* damped fixed point */
@@ -2682,6 +2686,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
       KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
                    "beta = %26.16lg", kin_mem->kin_beta_aa);
 #endif
+#ifdef SUNDIALS_DEBUG
+  KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+               "lAA = 0");
+#endif
     if (kin_mem->kin_damping_aa)
     {
       /* damped fixed point */
@@ -2811,7 +2819,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
       kin_mem->kin_beta_aa = RCONST(0.9) - kin_mem->kin_adaptive_damping_factor_aa * gain;
 #ifdef SUNDIALS_DEBUG
       KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
-                   "qt_fv_norm = %26.16lg, fv_norm = %26.16lg, gain = %26.16lg, beta = %26.16lg",
+                   "qt_fv_norm = %26.16lg fv_norm = %26.16lg gain = %26.16lg beta = %26.16lg",
                    qt_fv_norm, fv_norm, gain, kin_mem->kin_beta_aa);
 #endif
     }
