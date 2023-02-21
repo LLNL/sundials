@@ -2538,7 +2538,7 @@ static int KINFP(KINMem kin_mem)
     {
 #ifdef SUNDIALS_DEBUG
       KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
-                   "beta = %26.16lg", kin_mem->kin_beta_aa);
+                   "gain = -1 beta = %26.16lg", kin_mem->kin_beta_aa);
 #endif
 #ifdef SUNDIALS_DEBUG
       KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP",
@@ -2684,7 +2684,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   {
 #ifdef SUNDIALS_DEBUG
       KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
-                   "beta = %26.16lg", kin_mem->kin_beta_aa);
+                   "gain = -1 beta = %26.16lg", kin_mem->kin_beta_aa);
 #endif
 #ifdef SUNDIALS_DEBUG
   KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
@@ -2807,6 +2807,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
 
     /* determine adaptive damping factor */
+    realtype gain = RCONST(-1.0);
     if (kin_mem->kin_adaptive_damping_aa)
     {
       realtype qt_fv_norm = ZERO;
@@ -2815,14 +2816,13 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
       qt_fv_norm = SUNRsqrt(qt_fv_norm);
 
       realtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
-      realtype gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
+      gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
       kin_mem->kin_beta_aa = RCONST(0.9) - kin_mem->kin_adaptive_damping_factor_aa * gain;
-#ifdef SUNDIALS_DEBUG
-      KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
-                   "qt_fv_norm = %26.16lg fv_norm = %26.16lg gain = %26.16lg beta = %26.16lg",
-                   qt_fv_norm, fv_norm, gain, kin_mem->kin_beta_aa);
-#endif
     }
+#ifdef SUNDIALS_DEBUG
+    KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
+                 "gain = %26.16lg beta = %26.16lg", gain, kin_mem->kin_beta_aa);
+#endif
 
     /* set arrays for fused vector operation */
     cv[0] = ONE;
@@ -2861,7 +2861,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   {
 #ifdef SUNDIALS_DEBUG
     KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc",
-                 "beta = %26.16lg", kin_mem->kin_beta_aa);
+                 "gain = -1 beta = %26.16lg", kin_mem->kin_beta_aa);
 #endif
     if (kin_mem->kin_damping_aa)
     {
