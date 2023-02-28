@@ -61,49 +61,47 @@ then
         exit 1
     fi
 
-    prefix="/usr/workspace/sundials/tmp"
-    mkdir -p "${prefix}"
-    #chmod g=u "${prefix}"
-    prefix="${prefix}/${hostname}"
-    mkdir -p "${prefix}"
-    #chmod g=u "${prefix}"
-    if [[ -z ${job_unique_id} ]]; then
-        job_unique_id=manual_job_$(date +%s)
-        while [[ -d ${prefix}/${job_unique_id} ]] ; do
-            sleep 1
-            job_unique_id=manual_job_$(date +%s)
-        done
-    fi
-    prefix="${prefix}/${job_unique_id}"
-    mkdir -p "${prefix}"
-    #chmod g=u "${prefix}"
-    prefix_opt="--prefix=${prefix}"
+    prefix_opt=""
 
-    # We force Spack to put all generated files (cache and configuration of
-    # all sorts) in a unique location so that there can be no collision
-    # with existing or concurrent Spack.
-    spack_user_cache="${prefix}/spack-user-cache"
-    export SPACK_DISABLE_LOCAL_CONFIG=""
-    export SPACK_USER_CACHE_PATH="${spack_user_cache}"
-    mkdir -p ${spack_user_cache}
+    if [[ -d /dev/shm ]]
+    then
+        prefix="/dev/shm/${hostname}"
+        if [[ -z ${job_unique_id} ]]; then
+          job_unique_id=manual_job_$(date +%s)
+          while [[ -d ${prefix}/${job_unique_id} ]] ; do
+              sleep 1
+              job_unique_id=manual_job_$(date +%s)
+          done
+        fi
+
+        prefix="${prefix}/${job_unique_id}"
+        mkdir -p ${prefix}
+        prefix_opt="--prefix=${prefix}"
+
+        # We force Spack to put all generated files (cache and configuration of
+        # all sorts) in a unique location so that there can be no collision
+        # with existing or concurrent Spack.
+        spack_user_cache="${prefix}/spack-user-cache"
+        export SPACK_DISABLE_LOCAL_CONFIG=""
+        export SPACK_USER_CACHE_PATH="${spack_user_cache}"
+        mkdir -p ${spack_user_cache}
+    fi
 
     if [[ -d /usr/workspace/sundials ]]
     then
-        upstream="/usr/workspace/sundials/spack_installs/v0.19.0/${hostname}"
+        upstream="/usr/workspace/sundials/spack_installs/${hostname}"
         mkdir -p "${upstream}"
-        #chmod g=u /usr/workspace/sundials/spack_installs/v0.19.0
-        #chmod g=u ${upstream}
         upstream_opt="--upstream=${upstream}"
     fi
 
     if [[ "${shared_spack}" == "UPSTREAM" ]]
     then
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}" --spack-debug
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
     elif [[ "${shared_spack}" == "ON" ]]
     then
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}" --spack-debug
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
     else
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" --spack-debug
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
     fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
