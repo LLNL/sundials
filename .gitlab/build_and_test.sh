@@ -57,8 +57,8 @@ fi
 
 # Rocm version specific to Corona.
 if [[ -n "${AMDGPU_TARGET}" ]]; then
-    echo "module load rocm/5.1.1"
-    module load rocm/5.1.1
+    echo "module load rocm/5.4.1"
+    module load rocm/5.4.1
 fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
