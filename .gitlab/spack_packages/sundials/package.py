@@ -847,6 +847,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     [
                         cmake_cache_path("SUPERLUDIST_DIR", spec["superlu-dist"].prefix),
                         cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec),
+                        cmake_cache_path("SUPERLUDIST_INCLUDE_DIR", spec["superlu-dist"].prefix.include),
+                        cmake_cache_path("SUPERLUDIST_LIBRARY_DIR", spec["superlu-dist"].prefix.lib),
+                        cmake_cache_string("SUPERLUDIST_LIBRARIES", spec["superlu-dist"].libs),
                     ]
                 )
             else:
