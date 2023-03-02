@@ -598,6 +598,9 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
   if (SM_DATA_S(A))       Ax = SM_DATA_S(A);
   else  return (SUNMAT_MEM_FAIL);
 
+  /* create work array for storing row (column) indices */
+  w = (sunindextype *) malloc(M * sizeof(sunindextype));
+
 
   /* determine if A: contains values on the diagonal (so I can just be added in);
      if not, then increment counter for extra storage that should be required. */
@@ -608,6 +611,7 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
     for (i=Ap[j]; i<Ap[j+1]; i++) {
       if (Ai[i] == j) {
         found = SUNTRUE;
+        w[j] = i;      /* store row (column) index of diagonal element for case 1 */
         break;
       }
     }
@@ -627,22 +631,23 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
   /*   case 1: A already contains a diagonal */
   if (newvals == 0) {
 
-    /* iterate through columns, adding 1.0 to diagonal */
+    /* iterate through elements, scaling by c */
+    for (i=0; i<Ap[N]; i++)
+      Ax[i] *= c;
+
+    /* iterate through diagonal, adding 1.0 */
     for (j=0; j < SUNMIN(M,N); j++)
-      for (i=Ap[j]; i<Ap[j+1]; i++)
-        if (Ai[i] == j) {
-          Ax[i] = ONE + c*Ax[i];
-        } else {
-          Ax[i] = c*Ax[i];
-        }
+      Ax[w[j]] += ONE;
+
+    /* clean up */
+    free(w);
 
 
   /*   case 2: A has sufficient storage, but does not already contain a diagonal */
   } else if (!newmat) {
 
 
-    /* create work arrays for nonzero indices and values in a single column (row) */
-    w = (sunindextype *) malloc(M * sizeof(sunindextype));
+    /* create work array for nonzero values in a single column (row) */
     x = (realtype *) malloc(M * sizeof(realtype));
 
     /* determine storage location where last column (row) should end */
@@ -709,6 +714,9 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
 
   /*   case 3: A must be reallocated with sufficient storage */
   } else {
+
+    /* clean up */
+    free(w);
 
     /* create work array for nonzero values in a single column (row) */
     x = (realtype *) malloc(M * sizeof(realtype));
