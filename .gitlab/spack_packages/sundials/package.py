@@ -27,7 +27,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # Versions
     # ==========================================================================
     version("develop", branch="develop")
-    version("6.4.0", branch="develop")
+    version("6.4.1", sha256="7bf10a8d2920591af3fba2db92548e91ad60eb7241ab23350a9b1bc51e05e8d0")
+    version("6.4.0", sha256="0aff803a12c6d298d05b56839197dd09858631864017e255ed89e28b49b652f1")
     version("6.3.0", sha256="89a22bea820ff250aa7239f634ab07fa34efe1d2dcfde29cc8d3af11455ba2a7")
     version("6.2.0", sha256="195d5593772fc483f63f08794d79e4bab30c2ec58e6ce4b0fb6bcc0e0c48f31d")
     version("6.1.1", sha256="cfaf637b792c330396a25ef787eb59d58726c35918ebbc08e33466e45d50470c")
@@ -123,9 +124,17 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         when="@6.0.0: +profiling",
         description="Enable Caliper instrumentation/profiling",
     )
+    variant("ginkgo", default=False, when="@6.4.0:", description="Enable Ginkgo interfaces")
     variant("hypre", default=False, when="@2.7.0:", description="Enable Hypre MPI parallel vector")
-    variant("lapack", default=False, description="Enable LAPACK direct solvers")
+    variant("kokkos", default=False, when="@6.4.0:", description="Enable Kokkos vector")
+    variant(
+        "kokkos-kernels",
+        default=False,
+        when="@6.4.0:",
+        description="Enable KokkosKernels based matrix and linear solver",
+    )
     variant("klu", default=False, description="Enable KLU sparse, direct solver")
+    variant("lapack", default=False, description="Enable LAPACK direct solvers")
     variant("petsc", default=False, when="@2.7.0:", description="Enable PETSc interfaces")
     variant("magma", default=False, when="@5.7.0:", description="Enable MAGMA interface")
     variant("superlu-mt", default=False, description="Enable SuperLU_MT sparse, direct solver")
@@ -190,6 +199,23 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
     # External libraries
     depends_on("caliper", when="+caliper")
+    depends_on("ginkgo@1.5.0:", when="+ginkgo")
+    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos-kernels", when="+kokkos-kernels")
+    for cuda_arch in CudaPackage.cuda_arch_values:
+        depends_on(
+            "kokkos+cuda+cuda_lambda+cuda_constexpr cuda_arch=%s" % cuda_arch,
+            when="+kokkos +cuda cuda_arch=%s" % cuda_arch,
+        )
+        depends_on(
+            "kokkos-kernels+cuda cuda_arch=%s" % cuda_arch,
+            when="+kokkos-kernels +cuda cuda_arch=%s" % cuda_arch,
+        )
+    for rocm_arch in ROCmPackage.amdgpu_targets:
+        depends_on(
+            "kokkos+rocm amdgpu_target=%s" % rocm_arch,
+            when="+kokkos +rocm amdgpu_target=%s" % rocm_arch,
+        )
     depends_on("lapack", when="+lapack")
     depends_on("hypre+mpi@2.22.1:", when="@5.7.1: +hypre")
     depends_on("hypre+mpi@:2.22.0", when="@:5.7.0 +hypre")
@@ -205,13 +231,13 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # Require that external libraries built with the same precision
     depends_on("petsc~double~complex", when="+petsc precision=single")
     depends_on("petsc+double~complex", when="+petsc precision=double")
-    
+
     # Require that external libraries built with the same index type
     with when('+int64'):
         depends_on("hypre+mpi+int64", when="+hypre +int64")
         depends_on("petsc+int64", when="+petsc +int64")
         depends_on("superlu-dist+int64", when="+superlu-dist +int64")
-    
+
     with when('~int64'):
         depends_on("hypre+mpi~int64", when="+hypre ~int64")
         depends_on("petsc~int64", when="+petsc ~int64")
@@ -735,6 +761,25 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+caliper" in spec:
             entries.append(cmake_cache_path("CALIPER_DIR", spec["caliper"].prefix))
 
+        # Building with Ginkgo
+        if "+ginkgo" in spec:
+            gko_backends = ["REF"]
+            if "+openmp" in spec["ginkgo"] and "+openmp" in spec:
+                gko_backends.append("OMP")
+            if "+cuda" in spec["ginkgo"] and "+cuda" in spec:
+                gko_backends.append("CUDA")
+            if "+rocm" in spec["ginkgo"] and "+rocm" in spec:
+                gko_backends.append("HIP")
+            if "+oneapi" in spec["ginkgo"] and "+sycl" in spec:
+                gko_backends.append("DPCPP")
+            entries.extend(
+                [
+                    self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo"),
+                    cmake_cache_path("Ginkgo_DIR", spec["ginkgo"].prefix),
+                    cmake_cache_string("SUNDIALS_GINKGO_BACKENDS", ";".join(gko_backends)),
+                ]
+            )
+
         # Building with Hypre
         if "+hypre" in spec:
             entries.extend(
@@ -746,6 +791,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             if not spec["hypre"].variants["shared"].value:
                 hypre_libs = spec["blas"].libs + spec["lapack"].libs
                 entries.extend([cmake_cache_string("HYPRE_LIBRARIES", hypre_libs.joined(";"))])
+
+        # Building with Kokkos and KokkosKernels
+        if "+kokkos" in spec:
+            entries.extend([self.cache_option_from_variant("Kokkos_DIR", spec["kokkos"].prefix)])
+        if "+kokkos-kernels" in spec:
+            entries.extend([self.cache_option_from_variant("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
 
         # Building with KLU
         if "+klu" in spec:
@@ -795,7 +846,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 entries.extend(
                     [
                         cmake_cache_path("SUPERLUDIST_DIR", spec["superlu-dist"].prefix),
-                        cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec), 
+                        cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec),
                     ]
                 )
             else:
@@ -804,7 +855,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                         cmake_cache_path("SUPERLUDIST_INCLUDE_DIR", spec["superlu-dist"].prefix.include),
                         cmake_cache_path("SUPERLUDIST_LIBRARY_DIR", spec["superlu-dist"].prefix.lib),
                         cmake_cache_string("SUPERLUDIST_LIBRARIES", spec["superlu-dist"].libs),
-                        cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec), 
+                        cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec),
                     ]
                 )
 
