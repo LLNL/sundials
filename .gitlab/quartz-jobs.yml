@@ -55,7 +55,7 @@
 quartz_clang_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: clang@12.0.0
+      - COMPILER_SPEC: clang@12.0.1
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
