@@ -4,6 +4,9 @@
 
 Fixed compilation errors in some SYCL examples when using the `icx` compiler.
 
+Fixed bad time complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to `O(NNZ)`.
+Fixed multiplication bug in `SUNMatScaleAddI_Sparse`.
+
 ## Changes to SUNDIALS in release 6.5.0
 
 Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
