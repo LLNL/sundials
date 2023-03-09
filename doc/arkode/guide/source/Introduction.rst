@@ -118,6 +118,11 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.6.0
+-----------------
+
+Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
+
 Changes in v5.5.0
 -----------------
 

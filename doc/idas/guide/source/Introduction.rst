@@ -86,6 +86,11 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in v5.6.0
+-----------------
+
+Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
+
 Changes in v5.5.0
 -----------------
 
