@@ -24,3 +24,14 @@ corona_clang_hip:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 amdgpu_target=${AMDGPU_TARGET} +rocm~mpi"
   extends: .corona_build_and_test
 
+# ------------------------------------------------------------------------------
+# HIP + TPLs
+# ------------------------------------------------------------------------------
+corona_clang_hip_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: clang@15.0.0
+        AMDGPU_TARGET: [gfx906]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} +rocm~mpi+magma+raja ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET}"
+  extends: .corona_build_and_test
