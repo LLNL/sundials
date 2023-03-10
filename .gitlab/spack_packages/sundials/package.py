@@ -838,6 +838,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.append(cmake_cache_path("RAJA_DIR", spec["raja"].prefix))
             if "camp" in spec:
                 entries.append(cmake_cache_path("camp_DIR", spec["camp"].prefix.lib.cmake + '/camp'))
+            if "+rocm" in spec:
+                entries.append(cmake_cache_string("SUNDIALS_RAJA_BACKENDS", "HIP"))
 
         # Building with SuperLU_DIST
         if "+superlu-dist" in spec:
