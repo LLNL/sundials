@@ -18,25 +18,14 @@
 #ifndef _ARKODE_SPRKSTEP_IMPL_H
 #define _ARKODE_SPRKSTEP_IMPL_H
 
+#include <arkode/arkode.h>
+#include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h>
 #include "arkode_impl.h"
-
-/* access to MRIStepInnerStepper_Create */
-#include "arkode/arkode_mristep.h"
-#include "sundials/sundials_types.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-struct TakeStepFunctor {
-  int (*call)(TakeStep self, void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
-  int q;
-  int p;
-  int stages;
-  int num_vecs;
-  void* content;
-};
 
 /*===============================================================
   SPRK time step module constants
@@ -55,26 +44,19 @@ struct TakeStepFunctor {
   perform an symplectic-partitioned Runge-Kutta time step.
   ---------------------------------------------------------------*/
 typedef struct ARKodeSPRKStepMemRec {
-  TakeStep take_step;
-  int q;                      /* method order                 */
-  int p;                      /* embedding order              */
-  int stages;                 /* number of stages             */
-  N_Vector* scratch;          /* vectors that may be used     */
+  /* SPRK method and storage */
+  ARKodeSPRKMem method;
+  int q;                       /* method order */
+  N_Vector f1vec;
+  N_Vector f2vec;            
 
   /* SPRK problem specification */
-  ARKRhsFn *fk;               /* array of RHS functions       */
-  int num_rhs;                /* number of RHS functions      */
+  ARKRhsFn f1;                 /* p' = f1(t,q) = - dV(t,q)/dq  */
+  ARKRhsFn f2;                 /* q' = f2(p)   =   dT(p)/dp    */
 
   /* Counters */
-  long int* nfk;              /* number of calls to fk        */
-
-  // /* Data for using SPRKStep with external polynomial forcing */
-  // booleantype expforcing;  /* add forcing to explicit RHS */
-  // booleantype impforcing;  /* add forcing to implicit RHS */
-  // realtype    tshift;      /* time normalization shift    */
-  // realtype    tscale;      /* time normalization scaling  */
-  // N_Vector*   forcing;     /* array of forcing vectors    */
-  // int         nforcing;    /* number of forcing vectors   */
+  long int nf1;                /* number of calls to f1        */
+  long int nf2;                /* number of calls to f2        */
 
 } *ARKodeSPRKStepMem;
 
@@ -86,15 +68,17 @@ typedef struct ARKodeSPRKStepMemRec {
 int sprkStep_Init(void* arkode_mem, int init_type);
 int sprkStep_FullRHS(void* arkode_mem, realtype t,
                      N_Vector y, N_Vector f, int mode);
-int sprkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-int sprkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-
-int sprkStep_Fk(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_Vector Fk, int k, void* user_data);
+int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int sprkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int sprkStep_AccessStepMem(void* arkode_mem, const char *fname,
                           ARKodeMem *ark_mem, ARKodeSPRKStepMem *step_mem);
 booleantype sprkStep_CheckNVector(N_Vector tmpl);
+int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_Vector f1, void* user_data);
+int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_Vector f2, void* user_data);
+int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector prev_stage,
+                       sunrealtype bi, sunrealtype Bi, N_Vector stage_result);
 
 // /* private functions for interfacing with MRIStep */
 // int sprkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,

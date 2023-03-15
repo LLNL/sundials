@@ -1872,7 +1872,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   return(ARK_SUCCESS);
 }
 
-int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+int arkStep_TakeStep_SPRK(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1880,13 +1880,13 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_Vector Yi;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sprk",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_SPRK",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
   // if (!ark_mem->fixedstep) {
   //   arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
-  //                   "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
+  //                   "arkStep_TakeStep_SPRK", "!!!! This TakeStep only works with fixed steps !!!!");
   //   return(ARK_UNRECOGNIZED_ERROR);
   // }
 
@@ -1930,7 +1930,7 @@ int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 }
 
 /* Increment SPRK algorithm with compensated summation */
-int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+int arkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1938,13 +1938,13 @@ int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_Vector delta_Yi, yn_plus_delta_Yi;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Sprk",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_SPRK",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
   // if (!ark_mem->fixedstep) {
   //   arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::ARKStep",
-  //                   "arkStep_TakeStep_Sprk", "!!!! This TakeStep only works with fixed steps !!!!");
+  //                   "arkStep_TakeStep_SPRK", "!!!! This TakeStep only works with fixed steps !!!!");
   //   return(ARK_UNRECOGNIZED_ERROR);
   // }
 

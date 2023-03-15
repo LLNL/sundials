@@ -37,8 +37,8 @@ set(arkode_SOURCES
   arkode_mristep_nls.c
   arkode_mristep.c
   arkode_root.c
-  # arkode_sprkstep_io.c
-  # arkode_sprkstep.c
+  arkode_sprkstep_io.c
+  arkode_sprkstep.c
   arkode_sprk.c
   arkode.c
 )

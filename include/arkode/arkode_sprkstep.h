@@ -22,6 +22,7 @@
 #include <sundials/sundials_nonlinearsolver.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>
+#include <arkode/arkode_sprk.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -31,17 +32,18 @@ extern "C" {
  * SPRKStep Constants
  * ----------------- */
 
-struct TakeStepFunctor;
-typedef struct TakeStepFunctor* TakeStep;
+static const int SPRKSTEP_DEFAULT_1 = ARKODE_SYMPLECTIC_EULER_1;
+static const int SPRKSTEP_DEFAULT_2 = ARKODE_SYMPLECTIC_LEAPFROG_2;
+static const int SPRKSTEP_DEFAULT_3 = ARKODE_SYMPLECTIC_RUTH_3;
+static const int SPRKSTEP_DEFAULT_4 = ARKODE_SYMPLECTIC_MCLAUCHLAN_4;
 
 /* -------------------
  * Exported Functions
  * ------------------- */
 
 /* Create, Resize, and Reinitialization functions */
-SUNDIALS_EXPORT void* SPRKStepCreate(ARKRhsFn* fk, int num_rhs,
+SUNDIALS_EXPORT void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2,
                                      realtype t0, N_Vector y0,
-                                     TakeStepFunctor take_step,
                                      SUNContext sunctx);
 
 SUNDIALS_EXPORT int SPRKStepResize(void *arkode_mem, N_Vector ynew,
@@ -49,7 +51,7 @@ SUNDIALS_EXPORT int SPRKStepResize(void *arkode_mem, N_Vector ynew,
                                    ARKVecResizeFn resize,
                                    void *resize_data);
 
-SUNDIALS_EXPORT int SPRKStepReInit(void* arkode_mem, ARKRhsFn* fk, realtype t0, N_Vector y0);
+SUNDIALS_EXPORT int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0);
 
 SUNDIALS_EXPORT int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR);
 

@@ -220,11 +220,9 @@ int SPRKStepSetDefaults(void* arkode_mem)
     return(retval);
   }
 
-  /* Set default values for integrator optional inputs */
-  step_mem->q                = Q_DEFAULT;      /* method order */
-  step_mem->p                = 0;              /* embedding order */
-  step_mem->stages           = 0;              /* no stages */
-  step_mem->istage           = 0;              /* current stage */
+  /* set using default method order */
+  SPRKStepSetOrder(arkode_mem, 0);
+  
   return(ARK_SUCCESS);
 }
 
@@ -253,16 +251,16 @@ int SPRKStepSetOrder(void *arkode_mem, int ord)
 
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) {
-    step_mem->q = Q_DEFAULT;
+    step_mem->q = 4;
   } else {
     step_mem->q = ord;
   }
 
-  /* clear method specification, since user is requesting a change in method
-     or a reset to defaults. Spec will be set in ARKInitialSetup. */
-  step_mem->stages = 0;
-  step_mem->istage = 0;
-  step_mem->p = 0;
+  // /* clear method specification, since user is requesting a change in method
+  //    or a reset to defaults. Spec will be set in ARKInitialSetup. */
+  // step_mem->stages = 0;
+  // step_mem->istage = 0;
+  // step_mem->p = 0;
 
   return(ARK_SUCCESS);
 }
@@ -288,9 +286,9 @@ int SPRKStepGetNumRhsEvals(void *arkode_mem, long int** fk_evals)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* get values from step_mem */
-  for (rhs_k = 0; rhs_k < step_mem->num_rhs; ++rhs_k)
-    *fk_evals[rhs_k] = step_mem->nfk[rhs_k];
+  // /* get values from step_mem */
+  // for (rhs_k = 0; rhs_k < step_mem->num_rhs; ++rhs_k)
+  //   *fk_evals[rhs_k] = step_mem->nfk[rhs_k];
 
   return(ARK_SUCCESS);
 }
@@ -415,7 +413,7 @@ int SPRKStepWriteParameters(void *arkode_mem, FILE *fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "SPRKStep time step module parameters:\n");
-  fprintf(fp, "  Method order %i\n", step_mem->q);
+  fprintf(fp, "  Method order %i\n", step_mem->method->q);
   fprintf(fp, "\n");
 
   return(ARK_SUCCESS);

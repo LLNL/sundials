@@ -11,66 +11,69 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
+ * 
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <arkode/arkode_sprk.h>
-#include "arkode/arkode.h"
-#include "arkode/arkode_butcher.h"
-#include "sundials/sundials_types.h"
+#include <arkode/arkode.h>
+#include <arkode/arkode_butcher.h>
+#include <sundials/sundials_types.h>
 
-static const struct ARKodeSprkMem_s SymplecticEuler = {
-  /* q = */ 1,
-  /* stages = */ 1,
-  /* b = */ { SUN_RCONST(1.0) },
-  /* B = */ { SUN_RCONST(1.0) }
-};
+ARKodeSPRKMem ARKodeSymplecticEuler() {
+  ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(1);
+  sprk_mem->q = 1;
+  sprk_mem->stages = 1;
+  sprk_mem->b[0] = SUN_RCONST(1.0);
+  sprk_mem->B[0] = SUN_RCONST(1.0);
+  return sprk_mem;
+}
 
-static const struct ARKodeSprkMem_s PseudoLeapfrog = {
-  /* q = */ 2,
-  /* stages = */ 2,
-  /* b = */ { SUN_RCONST(0.5), SUN_RCONST(0.5) },
-  /* B = */ { SUN_RCONST(1.0), SUN_RCONST(0.0) }
-};
+ARKodeSPRKMem ARKodeSymplecticLeapfrog() {
+  ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(2);
+  sprk_mem->q = 2;
+  sprk_mem->stages = 2;
+  sprk_mem->b[0] = SUN_RCONST(0.5);
+  sprk_mem->b[1] = SUN_RCONST(0.5);
+  sprk_mem->B[0] = SUN_RCONST(1.0); 
+  sprk_mem->B[1] = SUN_RCONST(0.0);
+  return sprk_mem;
+}
 
-static const struct ARKodeSprkMem_s Ruth3 = {
-  /* q = */ 3,
-  /* stages = */ 3,
-  /* b = */ {
-     SUN_RCONST(7.0)/SUN_RCONST(24.0),
-     SUN_RCONST(3.0)/SUN_RCONST(4.0),
-    -SUN_RCONST(1.0)/SUN_RCONST(24.0)
-  },
-  /* B = */ {
-    /* a1 = */  SUN_RCONST(2.0)/SUN_RCONST(3.0),
-    /* a2 = */ -SUN_RCONST(2.0)/SUN_RCONST(3.0),
-    /* a3 = */  SUN_RCONST(1.0)
-  }
-};
+ARKodeSPRKMem ARKodeSymplecticRuth3() {
+  ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(3);
+  sprk_mem->q = 3;
+  sprk_mem->stages = 3;
+  sprk_mem->b[0] = SUN_RCONST(7.0)/SUN_RCONST(24.0);
+  sprk_mem->b[1] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
+  sprk_mem->b[2] = -SUN_RCONST(1.0)/SUN_RCONST(24.0);
+  sprk_mem->B[0] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
+  sprk_mem->B[1] = -SUN_RCONST(2.0)/SUN_RCONST(3.0);
+  sprk_mem->B[2] = SUN_RCONST(1.0);
+  return sprk_mem;
+}
 
-static const struct ARKodeSprkMem_s McLauchlan4 = {
-  /* q = */ 4,
-  /* stages = */ 4,
-  /* b = */ {
-     SUN_RCONST(0.134496199277431089),
-    -SUN_RCONST(0.224819803079420806),
-     SUN_RCONST(0.756320000515668291),
-     SUN_RCONST(0.33400360328632142)
-  },
-  /* B = */ {
-     SUN_RCONST(0.515352837431122936),
-    -SUN_RCONST(0.085782019412973646),
-     SUN_RCONST(0.441583023616466524),
-     SUN_RCONST(0.128846158365384185)
-  }
-};
+ARKodeSPRKMem ARKodeSymplecticMcLauchlan4() {
+  ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(4);
+  sprk_mem->q = 4;
+  sprk_mem->stages = 4;
+  sprk_mem->b[0] = SUN_RCONST(0.134496199277431089);
+  sprk_mem->b[1] = -SUN_RCONST(0.224819803079420806);
+  sprk_mem->b[2] = SUN_RCONST(0.756320000515668291);
+  sprk_mem->b[3] = SUN_RCONST(0.33400360328632142);
+  sprk_mem->B[0] = SUN_RCONST(0.515352837431122936); 
+  sprk_mem->B[1] = -SUN_RCONST(0.085782019412973646);
+  sprk_mem->B[2] = SUN_RCONST(0.441583023616466524);
+  sprk_mem->B[3] = SUN_RCONST(0.128846158365384185);
+  return sprk_mem;
+}
 
-ARKodeSprkMem ARKodeSprkMem_Alloc(int stages)
+ARKodeSPRKMem ARKodeSPRKMem_Alloc(int stages)
 {
-  ARKodeSprkMem sprk_mem;
+  ARKodeSPRKMem sprk_mem;
 
-  sprk_mem = (ARKodeSprkMem) malloc(sizeof(struct ARKodeSprkMem_s));
+  sprk_mem = (ARKodeSPRKMem) malloc(sizeof(struct ARKodeSPRKMem_s));
 
   sprk_mem->q = 0;
   sprk_mem->stages = stages;
@@ -80,12 +83,28 @@ ARKodeSprkMem ARKodeSprkMem_Alloc(int stages)
   return sprk_mem;
 }
 
-ARKodeSprkMem ARKodeSprkMem_Copy(ARKodeSprkMem that_sprk_mem)
+ARKodeSPRKMem ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
+{
+  switch(id) {
+    case ARKODE_SYMPLECTIC_EULER_1:
+      return ARKodeSymplecticEuler();
+    case ARKODE_SYMPLECTIC_LEAPFROG_2:
+      return ARKodeSymplecticLeapfrog();
+    case ARKODE_SYMPLECTIC_RUTH_3:
+      return ARKodeSymplecticRuth3();
+    case ARKODE_SYMPLECTIC_MCLAUCHLAN_4:
+      return ARKodeSymplecticMcLauchlan4();
+    default:
+      return NULL;
+  }
+}
+
+ARKodeSPRKMem ARKodeSPRKMem_Copy(ARKodeSPRKMem that_sprk_mem)
 {
   int i;
-  ARKodeSprkMem sprk_mem;
+  ARKodeSPRKMem sprk_mem;
 
-  sprk_mem = ARKodeSprkMem_Alloc(that_sprk_mem->stages);
+  sprk_mem = ARKodeSPRKMem_Alloc(that_sprk_mem->stages);
 
   sprk_mem->q = that_sprk_mem->q;
 
@@ -98,14 +117,14 @@ ARKodeSprkMem ARKodeSprkMem_Copy(ARKodeSprkMem that_sprk_mem)
   return sprk_mem;
 }
 
-void ARKodeSprkMem_Space(ARKodeSprkMem sprk_mem, sunindextype *liw, sunindextype *lrw)
+void ARKodeSPRKMem_Space(ARKodeSPRKMem sprk_mem, sunindextype *liw, sunindextype *lrw)
 {
   *liw = 2;
   *lrw = sprk_mem->stages * 2;
   return;
 }
 
-void ARKodeSprkMem_Free(ARKodeSprkMem sprk_mem)
+void ARKodeSPRKMem_Free(ARKodeSPRKMem sprk_mem)
 {
   if (sprk_mem)
   {
@@ -116,7 +135,7 @@ void ARKodeSprkMem_Free(ARKodeSprkMem sprk_mem)
   return;
 }
 
-int ARKodeSprkMem_ToButcher(ARKodeSprkMem sprk_mem, ARKodeButcherTable* b_ptr, ARKodeButcherTable* B_ptr)
+int ARKodeSPRKMem_ToButcher(ARKodeSPRKMem sprk_mem, ARKodeButcherTable* b_ptr, ARKodeButcherTable* B_ptr)
 {
   int i, j;
   ARKodeButcherTable b, B;

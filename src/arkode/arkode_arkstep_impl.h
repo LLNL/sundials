@@ -193,8 +193,8 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
 int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
 int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-int arkStep_TakeStep_Sprk(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-int arkStep_TakeStep_SprkInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int arkStep_TakeStep_SPRK(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int arkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,

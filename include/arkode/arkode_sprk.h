@@ -23,30 +23,41 @@
 extern "C" {
 #endif
 
-struct ARKodeSprkMem_s {
-
-  int q;           /* method order of accuracy        */
-  int stages;      /* number of stages                */
-  sunrealtype* b;  /* diagonally implicit cofficients */
-  sunrealtype* B;  /* explicit table coefficients     */
-
-};
-
-typedef _SUNDIALS_STRUCT_ ARKodeSprkMem_s *ARKodeSprkMem;
-
-/* Utility routines to allocate/free/output SPRK structures */
-SUNDIALS_EXPORT ARKodeSprkMem ARKodeSprkMem_Alloc(int stages);
-SUNDIALS_EXPORT ARKodeSprkMem ARKodeSprkMem_Copy(ARKodeSprkMem B);
-SUNDIALS_EXPORT void ARKodeSprkMem_Space(ARKodeSprkMem B, sunindextype *liw, sunindextype *lrw);
-SUNDIALS_EXPORT void ARKodeSprkMem_Free(ARKodeSprkMem B);
-SUNDIALS_EXPORT int ARKodeSprkMem_ToButcher(ARKodeSprkMem sprk_mem, ARKodeButcherTable* b_ptr, ARKodeButcherTable* B_ptr);
-
 typedef enum {
   ARKODE_SPRK_NONE = -1, /* ensure enum is signed int */
   ARKODE_MIN_SPRK_NUM = 0,
-  ARKODE_SYMPLECTIC_EULER = ARKODE_MIN_SPRK_NUM,
-  ARKODE_MAX_SPRK_NUM = ARKODE_SYMPLECTIC_EULER
+  ARKODE_SYMPLECTIC_EULER_1 = ARKODE_MIN_SPRK_NUM,
+  ARKODE_SYMPLECTIC_LEAPFROG_2,
+  ARKODE_SYMPLECTIC_RUTH_3,
+  ARKODE_SYMPLECTIC_MCLAUCHLAN_4,
+  ARKODE_MAX_SPRK_NUM = ARKODE_SYMPLECTIC_MCLAUCHLAN_4
 } ARKODE_SPRKMethodID;
+
+struct ARKodeSPRKMem_s {
+
+  int q;           /* method order of accuracy         */
+  int stages;      /* number of stages                 */
+  sunrealtype* b;  /* diagonally implicit coefficients */
+  sunrealtype* B;  /* explicit table coefficients      */
+
+};
+
+typedef _SUNDIALS_STRUCT_ ARKodeSPRKMem_s *ARKodeSPRKMem;
+
+/* Utility routines to allocate/free/output SPRK structures */
+SUNDIALS_EXPORT ARKodeSPRKMem ARKodeSPRKMem_Alloc(int stages);
+SUNDIALS_EXPORT ARKodeSPRKMem ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id);
+SUNDIALS_EXPORT ARKodeSPRKMem ARKodeSPRKMem_Copy(ARKodeSPRKMem B);
+SUNDIALS_EXPORT void ARKodeSPRKMem_Space(ARKodeSPRKMem B, sunindextype *liw, sunindextype *lrw);
+SUNDIALS_EXPORT void ARKodeSPRKMem_Free(ARKodeSPRKMem B);
+SUNDIALS_EXPORT int ARKodeSPRKMem_ToButcher(ARKodeSPRKMem sprk_mem, ARKodeButcherTable* b_ptr, ARKodeButcherTable* B_ptr);
+
+/* Different methods */
+
+ARKodeSPRKMem ARKodeSymplecticEuler();
+ARKodeSPRKMem ARKodeSymplecticLeapfrog();
+ARKodeSPRKMem ARKodeSymplecticRuth3();
+ARKodeSPRKMem ARKodeSymplecticMcLauchlan4();
 
 #ifdef __cplusplus
 }

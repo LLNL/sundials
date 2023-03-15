@@ -148,171 +148,30 @@ int main(int argc, char* argv[])
 
   /* Create SPRKStep integrator where we treat dqdt explicitly and dpdt implicitly */
   if (method == 0) {
-    const int num_rhs = 2;
-    ARKRhsFn rhs[2] = { dqdt, dpdt };
+    arkode_mem = SPRKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
-    arkode_mem = SPRKStepCreate(rhs, T0, y, SPRKStepDefaultSPRK(order), sunctx);
+    retval = SPRKStepSetOrder(arkode_mem, order);
+    if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
 
-    /* 4th order scheme [McLauchlan] */
-    if (order == 4) {
-      const sunrealtype a1 =  SUN_RCONST(0.515352837431122936);
-      const sunrealtype a2 = -SUN_RCONST(0.085782019412973646);
-      const sunrealtype a3 =  SUN_RCONST(0.441583023616466524);
-      const sunrealtype a4 =  SUN_RCONST(0.128846158365384185);
-      const sunrealtype b1 =  SUN_RCONST(0.134496199277431089);
-      const sunrealtype b2 = -SUN_RCONST(0.224819803079420806);
-      const sunrealtype b3 =  SUN_RCONST(0.756320000515668291);
-      const sunrealtype b4 =  SUN_RCONST(0.33400360328632142);
+    // if (step_mode == 1) {
+    //   retval = SPRKStepSetFixedStep(arkode_mem, dt);
+    //   if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-      Mp = ARKodeButcherTable_Alloc(4, SUNTRUE);
-      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mp->b[0] = b1;
-      Mp->b[1] = b2;
-      Mp->b[2] = b3;
-      Mp->b[3] = b4;
-      Mp->A[0][0] = b1;
-      Mp->A[1][0] = b1;
-      Mp->A[1][1] = b2;
-      Mp->A[2][0] = b1;
-      Mp->A[2][1] = b2;
-      Mp->A[2][2] = b3;
-      Mp->A[3][0] = b1;
-      Mp->A[3][1] = b2;
-      Mp->A[3][2] = b3;
-      Mp->A[3][3] = b4;
-      Mp->c[0] = Mp->b[0];
-      Mp->c[1] = Mp->b[0] + Mp->b[1];
-      Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
-      Mp->c[3] = Mp->b[0] + Mp->b[1] + Mp->b[2] + Mp->b[3];
-      Mp->q = order;
-      Mp->p = 0;
+    //   retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
+    //   if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+    // } else if (step_mode == 2 || step_mode == 3) {
+    //   /*  Adaptivity based on [Hairer and Soderlind, 2005] */
+    //   retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
+    //   if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-      Mq = ARKodeButcherTable_Alloc(4, SUNTRUE);
-      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mq->b[0] = a1;
-      Mq->b[1] = a2;
-      Mq->b[2] = a3;
-      Mq->b[3] = a4;
-      Mq->A[1][0] = a1;
-      Mq->A[2][0] = a1;
-      Mq->A[2][1] = a2;
-      Mq->A[3][0] = a1;
-      Mq->A[3][1] = a2;
-      Mq->A[3][2] = a3;
-      Mq->c[0] = SUN_RCONST(0.0);
-      Mq->c[1] = Mq->b[0];
-      Mq->c[2] = Mq->b[0] + Mq->b[1];
-      Mq->c[3] = Mq->b[0] + Mq->b[1] + Mq->b[2];
-      Mq->q = order;
-      Mq->p = 0;
-    }
+    //   udata->rho_nmhalf = udata->rho_n - udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
+    //   udata->rho_nphalf = udata->rho_nmhalf + udata->eps*G(y, udata->alpha);
+    //   retval = SPRKStepSetInitStep(arkode_mem, udata->eps/udata->rho_nphalf);
+    //   if (check_retval(&retval, "SPRKStepSetInitStep", 1)) return 1;
 
-    /* 3rd order scheme [Ruth, 1983] */
-    if (order == 3) {
-      const sunrealtype a1 =  SUN_RCONST(2.0)/SUN_RCONST(3.0);
-      const sunrealtype a2 = -SUN_RCONST(2.0)/SUN_RCONST(3.0);
-      const sunrealtype a3 =  SUN_RCONST(1.0);
-      const sunrealtype b1 =  SUN_RCONST(7.0)/SUN_RCONST(24.0);
-      const sunrealtype b2 =  SUN_RCONST(3.0)/SUN_RCONST(4.0);
-      const sunrealtype b3 = -SUN_RCONST(1.0)/SUN_RCONST(24.0);
-
-      Mp = ARKodeButcherTable_Alloc(3, SUNTRUE);
-      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mp->b[0] = b1;
-      Mp->b[1] = b2;
-      Mp->b[2] = b3;
-      Mp->A[0][0] = b1;
-      Mp->A[1][0] = b1;
-      Mp->A[1][1] = b2;
-      Mp->A[2][0] = b1;
-      Mp->A[2][1] = b2;
-      Mp->A[2][2] = b3;
-      Mp->c[0] = Mp->b[0];
-      Mp->c[1] = Mp->b[0] + Mp->b[1];
-      Mp->c[2] = Mp->b[0] + Mp->b[1] + Mp->b[2];
-      Mp->q = order;
-      Mp->p = 0;
-
-      Mq = ARKodeButcherTable_Alloc(3, SUNTRUE);
-      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mq->b[0] = a1;
-      Mq->b[1] = a2;
-      Mq->b[2] = a3;
-      Mq->A[1][0] = a1;
-      Mq->A[2][0] = a1;
-      Mq->A[2][1] = a2;
-      Mq->c[0] = Mq->b[0];
-      Mq->c[1] = Mq->b[0] + Mq->b[1];
-      Mq->c[2] = Mq->b[0] + Mq->b[1] + Mq->b[2];
-      Mq->q = order;
-      Mq->p = 0;
-    }
-
-    /* Pseudo Leapfrog */
-    if (order == 2) {
-      Mp = ARKodeButcherTable_Alloc(2, SUNTRUE);
-      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mp->b[0] = RCONST(0.5);
-      Mp->b[1] = RCONST(0.5);
-      Mp->A[0][0] = RCONST(0.5);
-      Mp->A[1][0] = RCONST(0.5);
-      Mp->A[1][1] = RCONST(0.5);
-      Mp->c[0] = RCONST(0.5);
-      Mp->c[1] = RCONST(1.0);
-      Mp->q = order;
-      Mp->p = 0;
-
-      Mq = ARKodeButcherTable_Alloc(2, SUNTRUE);
-      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mq->b[0] = RCONST(1.0);
-      Mq->A[1][0] = RCONST(1.0);
-      Mq->c[0] = RCONST(0.0);
-      Mq->c[1] = RCONST(1.0);
-      Mq->q = order;
-      Mq->p = 0;
-    }
-
-    /* Symplectic Euler */
-    if (order == 1) {
-      Mp = ARKodeButcherTable_Alloc(1, SUNTRUE);
-      if (check_retval((void *) Mp, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mp->b[0] = RCONST(1.0);
-      Mp->A[0][0] = RCONST(1.0);
-      Mp->c[0] = RCONST(1.0);
-      Mp->q = order;
-      Mp->p = 0;
-
-      Mq = ARKodeButcherTable_Alloc(1, SUNTRUE);
-      if (check_retval((void *) Mq, "ARKodeButcherTable_Alloc", 0)) return 1;
-      Mq->b[0] = RCONST(1.0);
-      Mq->A[0][0] = RCONST(0.0);
-      Mq->c[0] = RCONST(0.0);
-      Mq->q = order;
-      Mq->p = 0;
-    }
-
-    retval = SPRKStepSetTables(arkode_mem, order, 0, Mp, Mq);
-    if (check_retval(&retval, "SPRKStepSetTables", 1)) return 1;
-
-    if (step_mode == 1) {
-      retval = SPRKStepSetFixedStep(arkode_mem, dt);
-      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
-
-      retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
-      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
-    } else if (step_mode == 2 || step_mode == 3) {
-      /*  Adaptivity based on [Hairer and Soderlind, 2005] */
-      retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
-      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
-
-      udata->rho_nmhalf = udata->rho_n - udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
-      udata->rho_nphalf = udata->rho_nmhalf + udata->eps*G(y, udata->alpha);
-      retval = SPRKStepSetInitStep(arkode_mem, udata->eps/udata->rho_nphalf);
-      if (check_retval(&retval, "SPRKStepSetInitStep", 1)) return 1;
-
-      retval = SPRKStepSetMaxNumSteps(arkode_mem, (long int) 100*(ceil(Tf/dt) + 1));
-      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
-    }
+    //   retval = SPRKStepSetMaxNumSteps(arkode_mem, (long int) 100*(ceil(Tf/dt) + 1));
+    //   if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+    // }
 
     retval = SPRKStepSetUserData(arkode_mem, (void *) udata);
     if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
@@ -335,7 +194,7 @@ int main(int argc, char* argv[])
     retval = ARKStepSetUserData(arkode_mem, (void *) udata);
     if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
-    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
+    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-8), SUN_RCONST(10e-12));
     if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
   }
 
