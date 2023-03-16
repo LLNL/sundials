@@ -73,8 +73,6 @@ typedef struct ARKodeARKStepMemRec {
   booleantype  implicit;        /* SUNTRUE if fi is enabled       */
   booleantype  deduce_rhs;      /* SUNTRUE if fi is deduced after
                                    a nonlinear solve              */
-  booleantype  separable_rhs;   /* SUNTRUE if fe and fi are separable
-                                   so no nonlinear solve is needed */
 
   /* ARK method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */
@@ -193,8 +191,6 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
 int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
 int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-int arkStep_TakeStep_SPRK(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-int arkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
