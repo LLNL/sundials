@@ -10,30 +10,33 @@ def load_results(case):
    conserved = np.loadtxt('ark_kepler_conserved' + case + '.txt', delimiter=',', dtype=np.float64)
    return t, y, conserved
 
-
-sprk1 = load_results('_sprk-1')
-sprk2 = load_results('_sprk-2')
-sprk3 = load_results('_sprk-3')
-sprk4 = load_results('_sprk-4')
+# sprk1 = load_results('_sprk-1')
+# sprk2 = load_results('_sprk-2')
+# sprk3 = load_results('_sprk-3')
+# sprk4 = load_results('_sprk-4')
 erk2 = load_results('_erk-2')
 erk3 = load_results('_erk-3')
+erk4 = load_results('_erk-4')
+erk5 = load_results('_erk-5')
 # sprkinc1 = load_results('_sprkinc-1')
 # sprkinc2 = load_results('_sprkinc-2')
 # sprkinc3 = load_results('_sprkinc-3')
 
 all_to_compare = []
-all_to_compare.append(sprk1)
-all_to_compare.append(sprk2)
-all_to_compare.append(sprk3)
-all_to_compare.append(sprk4)
+# all_to_compare.append(sprk1)
+# all_to_compare.append(sprk2)
+# all_to_compare.append(sprk3)
+# all_to_compare.append(sprk4)
 all_to_compare.append(erk2)
 all_to_compare.append(erk3)
+all_to_compare.append(erk4)
+all_to_compare.append(erk5)
 # all_to_compare.append(sprkinc1)
 # all_to_compare.append(sprkinc2)
 # all_to_compare.append(sprkinc3)
 
 h = 0.01
-t = sprk1[0]
+t = erk2[0]
 trend_line_erk_2 = t*h*h
 
 energy = []
@@ -53,21 +56,23 @@ plt.xlabel('<---  t  --->')
 plt.xscale('log')
 plt.yscale('log')
 legend = []
-legend.append(r'$O(h^1)$ SPRK')
-legend.append(r'$O(h^2)$ SPRK')
-legend.append(r'$O(h^3)$ SPRK')
-legend.append(r'$O(h^4)$ SPRK')
-legend.append(r'$O(h^2)$ ERK')
-legend.append(r'$O(h^3)$ ERK')
+# legend.append(r'$O(h^1)$ SPRK')
+# legend.append(r'$O(h^2)$ SPRK')
+# legend.append(r'$O(h^3)$ SPRK')
+# legend.append(r'$O(h^4)$ SPRK')
 # legend.append(r'$O(h^1)$ SPRK (inc)')
 # legend.append(r'$O(h^2)$ SPRK (inc)')
 # legend.append(r'$O(h^3)$ SPRK (inc)')
+legend.append(r'$O(h^2)$ ERK')
+legend.append(r'$O(h^3)$ ERK')
+legend.append(r'$O(h^4)$ ERK')
+legend.append(r'$O(h^5)$ ERK')
 plt.legend(legend)
 plt.savefig('ark_kepler_energy_compare.png')
 
 momentum = []
 momentum_0 = []
-for _, sol, consv in all_to_compare:
+for _, _, consv in all_to_compare:
   momentum.append(consv[:,1])
   momentum_0.append(consv[0,1])
 momentum = np.array(momentum)
@@ -82,15 +87,17 @@ plt.xlabel('<---  t  --->')
 plt.xscale('log')
 plt.yscale('log')
 legend = []
-legend.append(r'$O(h^1)$ SPRK')
-legend.append(r'$O(h^2)$ SPRK')
-legend.append(r'$O(h^3)$ SPRK')
-legend.append(r'$O(h^4)$ SPRK')
-legend.append(r'$O(h^2)$ ERK')
-legend.append(r'$O(h^3)$ ERK')
+# legend.append(r'$O(h^1)$ SPRK')
+# legend.append(r'$O(h^2)$ SPRK')
+# legend.append(r'$O(h^3)$ SPRK')
+# legend.append(r'$O(h^4)$ SPRK')
 # legend.append(r'$O(h^1)$ SPRK (inc)')
 # legend.append(r'$O(h^2)$ SPRK (inc)')
 # legend.append(r'$O(h^3)$ SPRK (inc)')
+legend.append(r'$O(h^2)$ ERK')
+legend.append(r'$O(h^3)$ ERK')
+legend.append(r'$O(h^4)$ ERK')
+legend.append(r'$O(h^5)$ ERK')
 plt.legend(legend)
 plt.savefig('ark_kepler_momentum_compare.png')
 
@@ -114,3 +121,58 @@ plt.savefig('ark_kepler_momentum_compare.png')
 # # legend.append(r'$O(h^3)$ SPRK (inc)')
 # plt.legend(legend)
 # plt.savefig('ark_kepler_phase_compare.png')
+
+#
+#  Time plot.
+#
+plt.figure(dpi=200)
+for _, y, _ in all_to_compare:
+  plt.plot(t, y[:,0], linewidth = 2)
+  plt.plot(t, y[:,1], linewidth = 2)
+  plt.plot(t, y[:,2], linewidth = 2)
+  plt.plot(t, y[:,3], linewidth = 2)
+legend = []
+# legend.append(r'$O(h^1)$ SPRK')
+# legend.append(r'$O(h^2)$ SPRK')
+# legend.append(r'$O(h^3)$ SPRK')
+# legend.append(r'$O(h^4)$ SPRK')
+# legend.append(r'$O(h^1)$ SPRK (inc)')
+# legend.append(r'$O(h^2)$ SPRK (inc)')
+# legend.append(r'$O(h^3)$ SPRK (inc)')
+legend.append(r'$O(h^2)$ ERK')
+legend.append(r'$O(h^3)$ ERK')
+legend.append(r'$O(h^4)$ ERK')
+legend.append(r'$O(h^5)$ ERK')
+plt.legend(legend)
+plt.grid(True)
+plt.xlabel('<---  t  --->')
+plt.ylabel('<---  y(1:4)  --->')
+plt.title('ark_kepler: Solution in Time')
+plt.savefig('ark_kepler_solution_compare.png')
+plt.close()
+
+#
+#  Phase plot.
+#
+plt.figure(dpi=200)
+for _, y, _ in all_to_compare:
+  plt.plot(y[:,0], y[:,1], linewidth = 2)
+legend = []
+# legend.append(r'$O(h^1)$ SPRK')
+# legend.append(r'$O(h^2)$ SPRK')
+# legend.append(r'$O(h^3)$ SPRK')
+# legend.append(r'$O(h^4)$ SPRK')
+# legend.append(r'$O(h^1)$ SPRK (inc)')
+# legend.append(r'$O(h^2)$ SPRK (inc)')
+# legend.append(r'$O(h^3)$ SPRK (inc)')
+legend.append(r'$O(h^2)$ ERK')
+legend.append(r'$O(h^3)$ ERK')
+legend.append(r'$O(h^4)$ ERK')
+legend.append(r'$O(h^5)$ ERK')
+plt.legend(legend)
+plt.grid(True)
+plt.xlabel('<---  y1  --->')
+plt.ylabel('<---  y2  --->')
+plt.title('ark_kepler: Phase Plot')
+plt.savefig('ark_kepler_phase_compare.png')
+plt.close()

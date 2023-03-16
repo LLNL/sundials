@@ -79,6 +79,8 @@ set(ARKODE_examples_SUPERLUMT
 
 # Auxiliary files to install
 set(ARKODE_extras
+  ark_kepler_plot.py
+  ark_kepler_order.py
   plot_brusselator1D.py
   plot_brusselator1D_FEM.py
   plot_heat1D.py

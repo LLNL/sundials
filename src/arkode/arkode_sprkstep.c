@@ -96,10 +96,14 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0, SUNCont
 
   /* Allocate vectors in stepper mem */
   if (!arkAllocVec(ark_mem, y0, &(step_mem->f1vec))) {
-    SPRKStepFree((void**) &ark_mem);  return(NULL); }
+    SPRKStepFree((void**) &ark_mem);
+    return(NULL); 
+  }
 
   if (!arkAllocVec(ark_mem, y0, &(step_mem->f2vec))) {
-    SPRKStepFree((void**) &ark_mem);  return(NULL); }
+    SPRKStepFree((void**) &ark_mem);
+    return(NULL);
+  }
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_attachlinsol   = NULL;
@@ -129,7 +133,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0, SUNCont
   step_mem->f1 = f1;
   step_mem->f2 = f2;
 
-  // /* Update the ARKODE workspace requirements */
+  /* Update the ARKODE workspace requirements */
   // ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
   // ark_mem->lrw += 10;
 
@@ -373,14 +377,14 @@ void SPRKStepFree(void **arkode_mem)
   if (ark_mem->step_mem != NULL) {
     step_mem = (ARKodeSPRKStepMem) ark_mem->step_mem;
     
-    if (step_mem->f1 != NULL) {
+    if (step_mem->f1vec != NULL) {
       arkFreeVec(ark_mem, &step_mem->f1vec);
-      step_mem->f1 = NULL;
+      step_mem->f1vec = NULL;
     }
     
-    if (step_mem->f2 != NULL) {
+    if (step_mem->f2vec != NULL) {
       arkFreeVec(ark_mem, &step_mem->f2vec);
-      step_mem->f2 = NULL;
+      step_mem->f2vec = NULL;
     }
     
     ARKodeSPRKMem_Free(step_mem->method);
@@ -390,6 +394,7 @@ void SPRKStepFree(void **arkode_mem)
   }
 
   /* free memory for overall ARKODE infrastructure */
+  fprintf(stderr, ">>>>> arkode_mem->ewt=%p\n", ark_mem->ewt);
   arkFree(arkode_mem);
 }
 

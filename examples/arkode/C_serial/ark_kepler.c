@@ -90,12 +90,10 @@ int main(int argc, char* argv[])
   UserData udata;
   sunrealtype tout, tret;
   sunrealtype H0, L0;
-  ARKodeButcherTable Mp, Mq;
   void* arkode_mem;
   FILE *conserved_fp, *solution_fp, *times_fp;
   int argi, iout, retval;
 
-  Mp = Mq = NULL;
   NLS = NULL;
   y = NULL;
 
@@ -150,8 +148,8 @@ int main(int argc, char* argv[])
   if (method == 0) {
     arkode_mem = SPRKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
-    retval = SPRKStepSetOrder(arkode_mem, order);
-    if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
+    // retval = SPRKStepSetOrder(arkode_mem, order);
+    // if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
 
     // if (step_mode == 1) {
     //   retval = SPRKStepSetFixedStep(arkode_mem, dt);
@@ -159,7 +157,7 @@ int main(int argc, char* argv[])
 
     //   retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
     //   if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
-    // } else if (step_mode == 2 || step_mode == 3) {
+    // } else {
     //   /*  Adaptivity based on [Hairer and Soderlind, 2005] */
     //   retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
     //   if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
@@ -173,122 +171,158 @@ int main(int argc, char* argv[])
     //   if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
     // }
 
-    retval = SPRKStepSetUserData(arkode_mem, (void *) udata);
-    if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
+    // retval = SPRKStepSetUserData(arkode_mem, (void *) udata);
+    // if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
   } else if (method >= 1) {
+    fprintf(stderr, ">>>>> ARKStepCreate\n");
     if (method == 1) {
       arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
-      retval = ARKStepSetOrder(arkode_mem, order);
-      if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
+      // retval = ARKStepSetOrder(arkode_mem, order);
+      // if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
     } else {
       arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
 
-      retval = ARKStepSetOrder(arkode_mem, order);
-      if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
+      // retval = ARKStepSetOrder(arkode_mem, order);
+      // if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
 
-      NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
-      ARKStepSetNonlinearSolver(arkode_mem, NLS);
+      // NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
+      // ARKStepSetNonlinearSolver(arkode_mem, NLS);
     }
 
-    retval = ARKStepSetUserData(arkode_mem, (void *) udata);
-    if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+    // retval = ARKStepSetUserData(arkode_mem, (void *) udata);
+    // if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
-    retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-8), SUN_RCONST(10e-12));
-    if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+    // retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
+    // if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
+
+    // if (step_mode == 1) {
+    //   retval = ARKStepSetFixedStep(arkode_mem, dt);
+    // } else {
+    //   retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-8), SUN_RCONST(10e-12));
+    //   if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+    // }
   }
 
-  /* Open output files */
-  if (method == 0) {
-    const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
-    const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
-    const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
-    const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
-    // const char* fmt1 = "ark_kepler_conserved_sprkinc-%d.txt";
-    // const char* fmt2 = "ark_kepler_solution_sprkinc-%d.txt";
-    // const char* fmt3 = "ark_kepler_times_sprkinc-%d.txt";
-    char fname[64];
-    sprintf(fname, fmt1, order);
-    conserved_fp = fopen(fname, "w+");
-    sprintf(fname, fmt2, order);
-    solution_fp = fopen(fname, "w+");
-    sprintf(fname, fmt3, order);
-    times_fp = fopen(fname, "w+");
-    sprintf(fname, fmt4, order);
-    udata->hhist_fp = fopen(fname, "w+");
-  } else {
-    const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
-    const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
-    const char* fmt3 = "ark_kepler_times_erk-%d.txt";
-    const char* fmt4 = "ark_kepler_hhist_erk-%d.txt";
-    char fname[64];
-    sprintf(fname, fmt1, order);
-    conserved_fp = fopen(fname, "w+");
-    sprintf(fname, fmt2, order);
-    solution_fp = fopen(fname, "w+");
-    sprintf(fname, fmt3, order);
-    times_fp = fopen(fname, "w+");
-    sprintf(fname, fmt4, order);
-    udata->hhist_fp = fopen(fname, "w+");
-  }
+  // /* Open output files */
+  // if (method == 0) {
+  //   const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
+  //   const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
+  //   const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
+  //   const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
+  //   // const char* fmt1 = "ark_kepler_conserved_sprkinc-%d.txt";
+  //   // const char* fmt2 = "ark_kepler_solution_sprkinc-%d.txt";
+  //   // const char* fmt3 = "ark_kepler_times_sprkinc-%d.txt";
+  //   char fname[64];
+  //   sprintf(fname, fmt1, order);
+  //   conserved_fp = fopen(fname, "w+");
+  //   sprintf(fname, fmt2, order);
+  //   solution_fp = fopen(fname, "w+");
+  //   sprintf(fname, fmt3, order);
+  //   times_fp = fopen(fname, "w+");
+  //   sprintf(fname, fmt4, order);
+  //   udata->hhist_fp = fopen(fname, "w+");
+  // } else {
+  //   const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
+  //   const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
+  //   const char* fmt3 = "ark_kepler_times_erk-%d.txt";
+  //   const char* fmt4 = "ark_kepler_hhist_erk-%d.txt";
+  //   char fname[64];
+  //   sprintf(fname, fmt1, order);
+  //   conserved_fp = fopen(fname, "w+");
+  //   sprintf(fname, fmt2, order);
+  //   solution_fp = fopen(fname, "w+");
+  //   sprintf(fname, fmt3, order);
+  //   times_fp = fopen(fname, "w+");
+  //   sprintf(fname, fmt4, order);
+  //   udata->hhist_fp = fopen(fname, "w+");
+  // }
 
   printf("\n   Begin Kepler Problem\n\n");
 
-  /* Do integration */
-  tret = T0;
-  tout = T0+dTout;
-  H0 = Hamiltonian(y);
-  L0 = AngularMomentum(y);
-  sunrealtype Q0 = Q(y, udata->alpha)/udata->rho_n;
-  fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f, Q(p,q) = %.16f\n",
-          tret, H0, L0, Q0);
-  fprintf(times_fp, "%.16f\n", tret);
-  fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
-  N_VPrintFile(y, solution_fp);
-  for (iout = 0; iout < num_output_times; iout++) {
-    ARKStepSetStopTime(arkode_mem, tout);
-    if (step_mode == 3) {
-      while(tret < tout) {
-        retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-        if (retval < 0) break;
-        fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
-                tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
-                Q(y, udata->alpha)/udata->rho_np1-Q0);
-        fprintf(times_fp, "%.16f\n", tret);
-        fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
-        N_VPrintFile(y, solution_fp);
-      }
-    } else {
-      retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-      fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
-              tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
-              Q(y, udata->alpha)/udata->rho_np1-Q0);
-      fprintf(times_fp, "%.16f\n", tret);
-      fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
-      N_VPrintFile(y, solution_fp);
-    }
+  // /* Print out starting energy, momentum before integrating */
+  // tret = T0;
+  // tout = T0+dTout;
+  // H0 = Hamiltonian(y);
+  // L0 = AngularMomentum(y);
+  // sunrealtype Q0 = Q(y, udata->alpha)/udata->rho_n;
+  // fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f, Q(p,q) = %.16f\n",
+  //         tret, H0, L0, Q0);
+  // fprintf(times_fp, "%.16f\n", tret);
+  // fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
+  // N_VPrintFile(y, solution_fp);
 
-    if (retval >= 0) {  /* successful solve: update time */
-      tout += dTout;
-      tout = (tout > Tf) ? Tf : tout;
-    } else {            /* unsuccessful solve: break */
-      fprintf(stderr, "Solver failure, stopping integration\n");
-      break;
-    }
+  // /* Do integration */
+  // if (method == 0) {
+  //   for (iout = 0; iout < num_output_times; iout++) {
+  //     // SPRKStepSetStopTime(arkode_mem, tout);
+  //     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  //     fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+  //             tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
+  //             Q(y, udata->alpha)/udata->rho_np1-Q0);
+  //     fprintf(times_fp, "%.16f\n", tret);
+  //     fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+  //     N_VPrintFile(y, solution_fp);
+
+  //     if (retval >= 0) {  /* successful solve: update time */
+  //       tout += dTout;
+  //       tout = (tout > Tf) ? Tf : tout;
+  //     } else {            /* unsuccessful solve: break */
+  //       fprintf(stderr, "Solver failure, stopping integration\n");
+  //       break;
+  //     }
+  //   }
+  // } else {
+  //   for (iout = 0; iout < num_output_times; iout++) {
+  //     ARKStepSetStopTime(arkode_mem, tout);
+  //     if (step_mode == 3) {
+  //       while(tret < tout) {
+  //         retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
+  //         if (retval < 0) break;
+  //         fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+  //                 tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
+  //                 Q(y, udata->alpha)/udata->rho_np1-Q0);
+  //         fprintf(times_fp, "%.16f\n", tret);
+  //         fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+  //         N_VPrintFile(y, solution_fp);
+  //       }
+  //     } else {
+  //       retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  //       fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+  //               tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
+  //               Q(y, udata->alpha)/udata->rho_np1-Q0);
+  //       fprintf(times_fp, "%.16f\n", tret);
+  //       fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+  //       N_VPrintFile(y, solution_fp);
+  //     }
+
+  //     if (retval >= 0) {  /* successful solve: update time */
+  //       tout += dTout;
+  //       tout = (tout > Tf) ? Tf : tout;
+  //     } else {            /* unsuccessful solve: break */
+  //       fprintf(stderr, "Solver failure, stopping integration\n");
+  //       break;
+  //     }
+  //   }
+  // }
+
+  // fclose(udata->hhist_fp);
+  // free(udata);
+  // fclose(times_fp);
+  // fclose(conserved_fp);
+  // fclose(solution_fp);
+  // if (NLS) {
+  //   SUNNonlinSolFree(NLS);
+  // }
+  // N_VDestroy(y);
+  if (method == 0) {
+    // SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    SPRKStepFree(arkode_mem); // TODO: figure out why this is segfaulting!
+  } else {
+    fprintf(stderr, ">>>>> ARKStepFree\n");
+    // ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    ARKStepFree(arkode_mem);  // TODO: figure out why this is segfaulting!
   }
-
-  ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-
-  // ARKStepFree(arkode_mem); // TODO: figure out why this is segfaulting!
-  if (Mq) ARKodeButcherTable_Free(Mq);
-  if (Mp) ARKodeButcherTable_Free(Mp);
-  if (NLS) SUNNonlinSolFree(NLS);
-  N_VDestroy(y);
-  fclose(udata->hhist_fp);
-  free(udata);
-  fclose(times_fp);
-  fclose(conserved_fp);
-  fclose(solution_fp);
   SUNContext_Free(&sunctx);
 
   return 0;
