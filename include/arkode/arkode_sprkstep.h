@@ -33,9 +33,13 @@ extern "C" {
  * ----------------- */
 
 static const int SPRKSTEP_DEFAULT_1 = ARKODE_SYMPLECTIC_EULER_1;
-static const int SPRKSTEP_DEFAULT_2 = ARKODE_SYMPLECTIC_LEAPFROG_2;
-static const int SPRKSTEP_DEFAULT_3 = ARKODE_SYMPLECTIC_RUTH_3;
-static const int SPRKSTEP_DEFAULT_4 = ARKODE_SYMPLECTIC_MCLAUCHLAN_4;
+static const int SPRKSTEP_DEFAULT_2 = ARKODE_SYMPLECTIC_MCLACHLAN_2;
+static const int SPRKSTEP_DEFAULT_3 = ARKODE_SYMPLECTIC_MCLACHLAN_3;
+static const int SPRKSTEP_DEFAULT_4 = ARKODE_SYMPLECTIC_MCLACHLAN_4;
+static const int SPRKSTEP_DEFAULT_5 = ARKODE_SYMPLECTIC_MCLACHLAN_5;
+static const int SPRKSTEP_DEFAULT_6 = ARKODE_SYMPLECTIC_YOSHIDA_6;
+static const int SPRKSTEP_DEFAULT_8 = ARKODE_SYMPLECTIC_MCLACHLAN_8;
+static const int SPRKSTEP_DEFAULT_10 = ARKODE_SYMPLECTIC_SOFRONIOU_10;
 
 /* -------------------
  * Exported Functions
@@ -81,6 +85,7 @@ SUNDIALS_EXPORT int SPRKStepResFtolerance(void *arkode_mem,
 /* Optional input functions -- must be called AFTER SPRKStepCreate */
 SUNDIALS_EXPORT int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int SPRKStepSetOptimalParams(void *arkode_mem);
+SUNDIALS_EXPORT int SPRKStepSetMethod(void *arkode_mem, ARKODE_SPRKMethodID id);
 SUNDIALS_EXPORT int SPRKStepSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void *arkode_mem, int itype);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void *arkode_mem, int degree);

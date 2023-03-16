@@ -28,17 +28,25 @@ typedef enum {
   ARKODE_MIN_SPRK_NUM = 0,
   ARKODE_SYMPLECTIC_EULER_1 = ARKODE_MIN_SPRK_NUM,
   ARKODE_SYMPLECTIC_LEAPFROG_2,
+  ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2,
   ARKODE_SYMPLECTIC_RUTH_3,
-  ARKODE_SYMPLECTIC_MCLAUCHLAN_4,
-  ARKODE_MAX_SPRK_NUM = ARKODE_SYMPLECTIC_MCLAUCHLAN_4
+  ARKODE_SYMPLECTIC_MCLACHLAN_2,
+  ARKODE_SYMPLECTIC_MCLACHLAN_3,
+  ARKODE_SYMPLECTIC_CANDY_ROZMUS_4,
+  ARKODE_SYMPLECTIC_MCLACHLAN_4,
+  ARKODE_SYMPLECTIC_MCLACHLAN_5,
+  ARKODE_SYMPLECTIC_YOSHIDA_6,
+  ARKODE_SYMPLECTIC_MCLACHLAN_8,
+  ARKODE_SYMPLECTIC_SOFRONIOU_10,
+  ARKODE_MAX_SPRK_NUM = ARKODE_SYMPLECTIC_SOFRONIOU_10
 } ARKODE_SPRKMethodID;
 
 struct ARKodeSPRKMem_s {
 
   int q;           /* method order of accuracy         */
   int stages;      /* number of stages                 */
-  sunrealtype* b;  /* diagonally implicit coefficients */
-  sunrealtype* B;  /* explicit table coefficients      */
+  sunrealtype* a;  /* coefficients multiplying T'      */
+  sunrealtype* b;  /* coefficients multiplying -V'     */
 
 };
 
@@ -55,9 +63,15 @@ SUNDIALS_EXPORT int ARKodeSPRKMem_ToButcher(ARKodeSPRKMem sprk_mem, ARKodeButche
 /* Different methods */
 
 ARKodeSPRKMem ARKodeSymplecticEuler();
-ARKodeSPRKMem ARKodeSymplecticLeapfrog();
+ARKodeSPRKMem ARKodeSymplecticLeapfrog2();
+ARKodeSPRKMem ARKodeSymplecticPseudoLeapfrog2();
 ARKodeSPRKMem ARKodeSymplecticRuth3();
-ARKodeSPRKMem ARKodeSymplecticMcLauchlan4();
+ARKodeSPRKMem ARKodeSymplecticMcLachlan2();
+ARKodeSPRKMem ARKodeSymplecticMcLachlan3();
+ARKodeSPRKMem ARKodeSymplecticMcLachlan4();
+ARKodeSPRKMem ARKodeSymplecticMcLachlan5();
+ARKodeSPRKMem ARKodeSymplecticYoshida6();
+ARKodeSPRKMem ARKodeSymplecticMcLachlan8();
 
 #ifdef __cplusplus
 }

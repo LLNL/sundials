@@ -44,6 +44,7 @@ extern "C" {
   perform an symplectic-partitioned Runge-Kutta time step.
   ---------------------------------------------------------------*/
 typedef struct ARKodeSPRKStepMemRec {
+  
   /* SPRK method and storage */
   ARKodeSPRKMem method;
   int q;                       /* method order */

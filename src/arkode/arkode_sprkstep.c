@@ -28,7 +28,6 @@
 #include "arkode/arkode_sprkstep.h"
 #include "arkode_impl.h"
 #include "arkode_sprkstep_impl.h"
-#include "arkode_sprk_methods.h"
 #include "arkode_interp_impl.h"
 
 /*===============================================================
@@ -394,7 +393,6 @@ void SPRKStepFree(void **arkode_mem)
   }
 
   /* free memory for overall ARKODE infrastructure */
-  fprintf(stderr, ">>>>> arkode_mem->ewt=%p\n", ark_mem->ewt);
   arkFree(arkode_mem);
 }
 
@@ -442,24 +440,39 @@ int sprkStep_Init(void* arkode_mem, int init_type)
   /* initializations/checks for (re-)initialization call */
   if (init_type == FIRST_INIT) {
 
-    switch (step_mem->q) {
-      case 1:
-        step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_1);
-        break;
-      case 2:
-        step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_2);
-        break;
-      case 3:
-        step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_3);
-        break;
-      case 4:
-      default:
-        step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_4);
-        break;
+    if (!step_mem->method) {
+      switch (step_mem->q) {
+        case 1:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_1);
+          break;
+        case 2:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_2);
+          break;
+        case 3:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_3);
+          break;
+        case 4:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_4);
+          break;
+        case 5:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_5);
+          break;
+        case 6:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_6);
+          break;
+        case 7:
+        case 8:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_8);
+          break;
+        case 9:
+        case 10:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_10);
+        default:
+          step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_4);
+          break;
+      }
     }
    
-   
-
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
@@ -744,8 +757,8 @@ int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
   ARKodeSPRKMem method_mem;
+  N_Vector prev_stage;
   int retval, is;
-  N_Vector delta_Yi, yn_plus_delta_Yi;
 
   /* access ARKodeSPRKStepMem structure */
   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_TakeStep",
@@ -754,14 +767,12 @@ int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
   method_mem = step_mem->method;
 
+  prev_stage = ark_mem->yn;
   for (is = 0; is < method_mem->stages; is++) {
-    retval = sprkStep_SPRKStage(ark_mem, step_mem, ark_mem->yn,
-                                method_mem->b[is], method_mem->B[is], ark_mem->ycur);
+    retval = sprkStep_SPRKStage(ark_mem, step_mem, prev_stage,
+                                method_mem->b[is], method_mem->a[is], ark_mem->ycur);
     if (retval != ARK_SUCCESS) return(retval);
-
-    retval = sprkStep_SPRKStage(ark_mem, step_mem, ark_mem->yn,
-                                method_mem->b[is], method_mem->B[is], ark_mem->ycur);
-    if (retval != ARK_SUCCESS) return(retval);
+    prev_stage = ark_mem->ycur;
   }
 
   *nflagPtr = 0;
@@ -769,90 +780,6 @@ int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
   return ARK_SUCCESS;
 }
-
-// /* Increment SPRK algorithm with compensated summation */
-// int sprkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
-// {
-//   ARKodeMem ark_mem;
-//   ARKodeSPRKStepMem step_mem;
-//   int retval, is;
-//   N_Vector delta_Yi, yn_plus_delta_Yi;
-
-//   /* access ARKodeSPRKStepMem structure */
-//   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_TakeStep_SPRK",
-//                                  &ark_mem, &step_mem);
-//   if (retval != ARK_SUCCESS)  return(retval);
-
-//   // if (!ark_mem->fixedstep) {
-//   //   arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::SPRKStep",
-//   //                   "sprkStep_TakeStep_SPRK", "!!!! This TakeStep only works with fixed steps !!!!");
-//   //   return(ARK_UNRECOGNIZED_ERROR);
-//   // }
-
-//   /* other shortcuts */
-//   delta_Yi = ark_mem->tempv1;
-//   yn_plus_delta_Yi = ark_mem->tempv2;
-
-//   /* [ \Delta Q_0 ] = [ 0 ]
-//      [ \Delta P_0 ] = [ 0 ] */
-//   N_VConst(ZERO, delta_Yi);
-
-//   /* loop over internal stages to the step */
-//   for (is=0; is<step_mem->stages; is++) {
-//     /* store current stage index */
-//     step_mem->istage = is;
-
-//     /* set current stage time(s) */
-//     if (step_mem->implicit)
-//       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
-//     else
-//       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
-
-//     /* [ q_n ] + [ \Delta Q_i ]
-//        [     ] + [            ] */
-//     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
-
-//     /* evaluate Fi with previous stage increment */
-//     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
-//     retval = sprkStep_Fi(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
-//                         step_mem->sdata, ark_mem->user_data);
-//     if (retval != 0) return(ARK_RHSFUNC_FAIL);
-
-//     /* update the implicit stage
-//        [            ] = [                ] + [       ]
-//        [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ] */
-//     N_VLinearSum(ONE, delta_Yi,  ark_mem->h * step_mem->Bi->b[is], step_mem->sdata, delta_Yi);
-
-//     /* [     ] + [            ]
-//        [ p_n ] + [ \Delta P_i ] */
-//     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
-
-//     /* evaluate Fe with the current p_n + \Delta P_i */
-//     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
-//     retval = sprkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-//                         yn_plus_delta_Yi, step_mem->sdata, ark_mem->user_data);
-//     if (retval != 0) return(ARK_RHSFUNC_FAIL);
-
-//     /* update the explicit stage
-//        [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
-//        [            ] = [                ] + [       ] */
-//     N_VLinearSum(ONE, delta_Yi, ark_mem->h * step_mem->Be->b[is], step_mem->sdata, delta_Yi);
-//   }
-
-//   /*
-//     Now we compute the step solution via compensated summation.
-//      [ q_{n+1} ] = [ q_n ] + [ \Delta Q_i ]
-//      [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
-//   N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
-//   N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
-//   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv3);
-//   N_VLinearSum(ONE, ark_mem->tempv3, -ONE, delta_Yi, ark_mem->yerr);
-
-//   *nflagPtr = 0;
-//   *dsmPtr = 0;
-
-//   return 0;
-// }
 
 
 /*---------------------------------------------------------------
@@ -905,7 +832,7 @@ booleantype sprkStep_CheckNVector(N_Vector tmpl)
 }
 
 int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector prev_stage,
-                       sunrealtype bi, sunrealtype Bi, N_Vector stage_result)
+                       sunrealtype bi, sunrealtype ai, N_Vector stage_result)
 {
   int retval = 0;
 
@@ -914,7 +841,7 @@ int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector p
 
   /* evaluate f_1 at the previous stage value */
   N_VConst(ZERO, step_mem->f1vec); /* either have to do this or ask user to set other outputs to zero */
-  retval = sprkStep_f1(step_mem, ark_mem->tcur, prev_stage, step_mem->f1vec, ark_mem->user_data);
+  retval = sprkStep_f2(step_mem, ark_mem->tcur, prev_stage, step_mem->f1vec, ark_mem->user_data);
   if (retval != 0) return ARK_RHSFUNC_FAIL;
 
   /* update ycur with the q stage */
@@ -922,11 +849,11 @@ int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector p
 
   /* evaluate f_2 with the stage value for q */
   N_VConst(ZERO, step_mem->f2vec); /* either have to do this or ask user to set other outputs to zero */
-  retval = sprkStep_f2(step_mem, ark_mem->tn + Bi*ark_mem->h, stage_result, step_mem->f2vec, ark_mem->user_data);
+  retval = sprkStep_f1(step_mem, ark_mem->tn + ai*ark_mem->h, stage_result, step_mem->f2vec, ark_mem->user_data);
   if (retval != 0) return ARK_RHSFUNC_FAIL;
 
   /* update ycur with the stage value for p */
-  N_VLinearSum(ONE, stage_result, ark_mem->h*Bi, step_mem->f2vec, stage_result);
+  N_VLinearSum(ONE, stage_result, ark_mem->h*ai, step_mem->f2vec, stage_result);
 
   // /* keep track of the stage number */
   // step_mem->istage++;
@@ -934,20 +861,20 @@ int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector p
   return ARK_SUCCESS;
 }
 
-// int sprkStep_TakeStep_McLauchlan4(TakeStep self, void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+// int sprkStep_TakeStep_McLachlan4(TakeStep self, void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 // {
 //   int retval;
 //   ARKodeMem ark_mem;
 //   ARKodeSPRKStepMem step_mem;
-//   struct McLauchlan4Mem* method_mem;
+//   struct McLachlan4Mem* method_mem;
 
 //   /* access ARKodeSPRKStepMem structure */
-//   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_TakeStep_McLauchlan4",
+//   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_TakeStep_McLachlan4",
 //                                   &ark_mem, &step_mem);
 //   if (retval != ARK_SUCCESS) return(retval);
 
 //   step_mem->istage = 0;
-//   method_mem = (struct McLauchlan4Mem*) self->content;
+//   method_mem = (struct McLachlan4Mem*) self->content;
 
 //   retval = sprkStep_SPRKStage(ark_mem, step_mem, ark_mem->yn, method_mem->Fk,
 //                               method_mem->b1, method_mem->a1, ark_mem->ycur);
@@ -1058,4 +985,86 @@ int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector p
 //   return ARK_SUCCESS;
 // }
 
+// /* Increment SPRK algorithm with compensated summation */
+// int sprkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+// {
+//   ARKodeMem ark_mem;
+//   ARKodeSPRKStepMem step_mem;
+//   int retval, is;
+//   N_Vector delta_Yi, yn_plus_delta_Yi;
 
+//   /* access ARKodeSPRKStepMem structure */
+//   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_TakeStep_SPRK",
+//                                  &ark_mem, &step_mem);
+//   if (retval != ARK_SUCCESS)  return(retval);
+
+//   // if (!ark_mem->fixedstep) {
+//   //   arkProcessError(NULL, ARK_UNRECOGNIZED_ERROR, "ARKODE::SPRKStep",
+//   //                   "sprkStep_TakeStep_SPRK", "!!!! This TakeStep only works with fixed steps !!!!");
+//   //   return(ARK_UNRECOGNIZED_ERROR);
+//   // }
+
+//   /* other shortcuts */
+//   delta_Yi = ark_mem->tempv1;
+//   yn_plus_delta_Yi = ark_mem->tempv2;
+
+//   /* [ \Delta Q_0 ] = [ 0 ]
+//      [ \Delta P_0 ] = [ 0 ] */
+//   N_VConst(ZERO, delta_Yi);
+
+//   /* loop over internal stages to the step */
+//   for (is=0; is<step_mem->stages; is++) {
+//     /* store current stage index */
+//     step_mem->istage = is;
+
+//     /* set current stage time(s) */
+//     if (step_mem->implicit)
+//       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
+//     else
+//       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
+
+//     /* [ q_n ] + [ \Delta Q_i ]
+//        [     ] + [            ] */
+//     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
+
+//     /* evaluate Fi with previous stage increment */
+//     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
+//     retval = sprkStep_Fi(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
+//                         step_mem->sdata, ark_mem->user_data);
+//     if (retval != 0) return(ARK_RHSFUNC_FAIL);
+
+//     /* update the implicit stage
+//        [            ] = [                ] + [       ]
+//        [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ] */
+//     N_VLinearSum(ONE, delta_Yi,  ark_mem->h * step_mem->Bi->b[is], step_mem->sdata, delta_Yi);
+
+//     /* [     ] + [            ]
+//        [ p_n ] + [ \Delta P_i ] */
+//     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
+
+//     /* evaluate Fe with the current p_n + \Delta P_i */
+//     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
+//     retval = sprkStep_Fe(step_mem, ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
+//                         yn_plus_delta_Yi, step_mem->sdata, ark_mem->user_data);
+//     if (retval != 0) return(ARK_RHSFUNC_FAIL);
+
+//     /* update the explicit stage
+//        [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
+//        [            ] = [                ] + [       ] */
+//     N_VLinearSum(ONE, delta_Yi, ark_mem->h * step_mem->Be->b[is], step_mem->sdata, delta_Yi);
+//   }
+
+//   /*
+//     Now we compute the step solution via compensated summation.
+//      [ q_{n+1} ] = [ q_n ] + [ \Delta Q_i ]
+//      [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
+//   N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
+//   N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
+//   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv3);
+//   N_VLinearSum(ONE, ark_mem->tempv3, -ONE, delta_Yi, ark_mem->yerr);
+
+//   *nflagPtr = 0;
+//   *dsmPtr = 0;
+
+//   return 0;
+// }

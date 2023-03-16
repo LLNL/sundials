@@ -229,6 +229,37 @@ int SPRKStepSetDefaults(void* arkode_mem)
 /*---------------------------------------------------------------
   SPRKStepSetOrder:
 
+  Specifies the SPRK method
+
+  ** Note in documentation that this should not be called along
+  with SPRKStepSetOrder.
+  ---------------------------------------------------------------*/
+int SPRKStepSetMethod(void *arkode_mem, ARKODE_SPRKMethodID id)
+{
+  ARKodeMem ark_mem;
+  ARKodeSPRKStepMem step_mem;
+  sunindextype Blrw, Bliw;
+  int retval;
+
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetOrder",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  if (step_mem->method) {
+    ARKodeSPRKMem_Free(step_mem->method);
+    step_mem->method = NULL;
+  }
+
+  step_mem->method = ARKodeSPRKMem_Load(id);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  SPRKStepSetOrder:
+
   Specifies the method order
 
   ** Note in documentation that this should not be called along
@@ -254,6 +285,11 @@ int SPRKStepSetOrder(void *arkode_mem, int ord)
     step_mem->q = 4;
   } else {
     step_mem->q = ord;
+  }
+
+  if (step_mem->method) {
+    ARKodeSPRKMem_Free(step_mem->method);
+    step_mem->method = NULL;
   }
 
   // /* clear method specification, since user is requesting a change in method

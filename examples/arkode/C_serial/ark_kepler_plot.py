@@ -18,8 +18,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-t = np.loadtxt('ark_kepler_times_sprk-1.txt', dtype=np.float64)
-y = np.loadtxt('ark_kepler_solution_sprk-1.txt', dtype=np.float64)
+t = np.loadtxt('ark_kepler_times_sprk-2.txt', dtype=np.float64)
+y = np.loadtxt('ark_kepler_solution_sprk-2.txt', dtype=np.float64)
 y = np.reshape(y, (y.shape[0]//4, 4))
 
 plt.figure(dpi=200)
@@ -27,7 +27,7 @@ plt.plot(y[:,0], y[:,1])
 plt.savefig('ark_kepler_phase.png')
 plt.close()
 
-conserved = np.loadtxt('ark_kepler_conserved_sprk-1.txt', delimiter=',', dtype=np.float64)
+conserved = np.loadtxt('ark_kepler_conserved_sprk-2.txt', delimiter=',', dtype=np.float64)
 energy = conserved[:,0]
 energy_0 = conserved[0,0]
 L = conserved[:,1]
@@ -54,7 +54,7 @@ plt.savefig('ark_kepler_momentum.png')
 plt.close()
 
 # # Step history
-# hhist = np.loadtxt('ark_kepler_hhist_sprk-1.txt', dtype=np.float64)
+# hhist = np.loadtxt('ark_kepler_hhist_sprk-2.txt', dtype=np.float64)
 # plt.figure(dpi=200)
 # plt.title('Step Size History')
 # plt.plot(t[:-1], hhist)
