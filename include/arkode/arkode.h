@@ -139,7 +139,7 @@ extern "C" {
  * ------------------------------ */
 
 typedef int (*ARKRhsFn)(realtype t, N_Vector y,
-                         N_Vector ydot, void *user_data);
+                        N_Vector ydot, void *user_data);
 
 typedef int (*ARKRootFn)(realtype t, N_Vector y,
                          realtype *gout, void *user_data);
