@@ -60,6 +60,14 @@ foreach(test_tuple ${tests})
     sundials_nvecparallel
     MPI::MPI_CXX)
 
+  if(BUILD_SUNLINSOL_SUPERLUDIST)
+    target_compile_definitions(${target} PRIVATE USE_SUPERLU_DIST)
+    target_link_libraries(${target}
+      PRIVATE
+      sundials_sunlinsolsuperludist
+      sundials_sunmatrixslunrloc)
+  endif()
+
   install(TARGETS ${target}
     DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/diffusion_2D")
 

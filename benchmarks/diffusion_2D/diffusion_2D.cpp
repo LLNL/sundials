@@ -269,9 +269,9 @@ int UserData::setup()
   }
 
   // Determine local extents in x-direction
-  int idx         = coords[0];
-  sunindextype qx = nx / dims[0];
-  sunindextype rx = nx % dims[0];
+  idx = coords[0];    // x-coordinate
+  qx  = nx / dims[0]; // x-nodes divided evenly across x-processes
+  rx  = nx % dims[0]; // leftover x-nodes to distribute
 
   is = qx * idx + (idx < rx ? idx : rx);
   ie = is + qx - 1 + (idx < rx ? 1 : 0);
@@ -284,9 +284,9 @@ int UserData::setup()
   }
 
   // Determine local extents in y-direction
-  int idy         = coords[1];
-  sunindextype qy = ny / dims[1];
-  sunindextype ry = ny % dims[1];
+  idy = coords[1];    // y-coordinate
+  qy  = ny / dims[1]; // y-nodes divided evenly across y-processes
+  ry  = ny % dims[1]; // leftover y-nodes to distribute
 
   js = qy * idy + (idy < ry ? idy : ry);
   je = js + qy - 1 + (idy < ry ? 1 : 0);

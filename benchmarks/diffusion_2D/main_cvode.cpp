@@ -170,6 +170,19 @@ int main(int argc, char* argv[])
     // Create linear solver
     SUNLinearSolver LS = NULL;
     SUNMatrix A = nullptr;
+#if defined(USE_SUPERLU_DIST)
+    // SuperLU-DIST objects
+    SuperMatrix A_super;            // matrix object
+    gridinfo_t grid;                // process grid
+    dLUstruct_t A_lu;               // dLUstruct_t
+    dScalePermstruct_t A_scaleperm; // dScalePermstruct_t
+    dSOLVEstruct_t A_solve;         // dSOLVEstruct_t
+    SuperLUStat_t A_stat;           // SuperLUState_t
+    superlu_dist_options_t A_opts;  // options struct
+    sunrealtype* A_data = nullptr;
+    sunindextype* A_col_idxs = nullptr;
+    sunindextype* A_row_ptrs = nullptr;
+#endif
 
     int prectype = (uopts.prec) ? PREC_RIGHT : PREC_NONE;
 
@@ -204,46 +217,48 @@ int main(int argc, char* argv[])
     else if (uopts.ls == "sludist")
     {
 #if defined(USE_SUPERLU_DIST)
+      // initialize SuperLU-DIST grid
+      superlu_gridinit(MPI_COMM_WORLD, udata.npx, udata.npy, &grid);
+
       // Initialize sparse matrix data structure and SuperLU_DIST solver
       sunindextype nnz = 5 * (udata.nx - 1) * (udata.ny - 1) + 2 * udata.nx +
                          2 * (udata.ny - 2);
 
-      sunrealtype* Adata = (realtype*)malloc(nnz * sizeof(sunrealtype));
-      if (check_flag((void*)Adata, "malloc Adata", 0)) return 1;
+      A_data = (realtype*)malloc(nnz * sizeof(sunrealtype));
+      if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
 
-      sunindextype* Acolind = (sunindextype*)malloc(nnz * sizeof(sunindextype));
-      if (check_flag((void*)Acolind, "malloc Acolind", 0)) return 1;
+      A_col_idxs = (sunindextype*)malloc(nnz * sizeof(sunindextype));
+      if (check_flag((void*)A_col_idxs, "malloc Acolind", 0)) return 1;
 
-      sunindextype* Arowptr =
-        (sunindextype*)malloc((udata.nodes + 1) * sizeof(sunindextype));
-      if (check_flag((void*)Arowptr, "malloc Arowptr", 0)) return 1;
+      A_row_ptrs = (sunindextype*)malloc((udata.nodes + 1) * sizeof(sunindextype));
+      if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
 
       // SuperLU_DIST structures
-      dCreate_CompRowLoc_Matrix_dist(&Asuper, udata.nodes, udata.nodes, nnz,
-                                     udata.nodes, 0, Adata, Acolind, Arowptr,
-                                     SLU_NR_loc, SLU_D, SLU_GE);
-      dScalePermstructInit(udata.nodes, udata.nodes, &Ascaleperm);
-      dLUstructInit(udata.nodes, &Alu);
-      PStatInit(&Astat);
-      set_default_options_dist(&Aopts);
-      Aopts.PrintStat = NO;
+      dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes, nnz,
+                                     udata.nodes, 0, A_data, A_col_idxs,
+                                     A_row_ptrs, SLU_NR_loc, SLU_D, SLU_GE);
+      dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
+      dLUstructInit(udata.nodes, &A_lu);
+      PStatInit(&A_stat);
+      set_default_options_dist(&A_opts);
+      A_opts.PrintStat = NO;
 
       // SUNDIALS structures
-      A = SUNMatrix_SLUNRloc(&Asuper, &grid, ctx);
+      A = SUNMatrix_SLUNRloc(&A_super, &grid, ctx);
       if (check_flag((void*)A, "SUNMatrix_SLUNRloc", 0)) return 1;
 
-      LS = SUNLinSol_SuperLUDIST(y, A, &grid, &Alu, &Ascaleperm, &Asolve,
-                                 &Astat, &Aopts, ctx);
+      LS = SUNLinSol_SuperLUDIST(u, A, &grid, &A_lu, &A_scaleperm, &A_solve,
+                                 &A_stat, &A_opts, ctx);
       if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
 
       // NEED TO ATTACH JACOBIAN FUNCTION (add below)
+// #if defined(USE_SUPERLU_DIST)
+//     if (uopts.ls == "sludist")
+//     {
+//       CVodeSet();
+//     }
+// #endif
 
-      // Free the SuperLU_DIST structures (move to end)
-      PStatFree(&Astat);
-      dScalePermstructFree(&Ascaleperm);
-      dLUstructFree(&Alu);
-      Destroy_CompRowLoc_Matrix_dist(&Asuper);
-      superlu_gridexit(&grid);
 #else
       std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
       return 1;
@@ -379,9 +394,25 @@ int main(int argc, char* argv[])
     // Close diagnostics output file
     if (diagfp) fclose(diagfp);
 
+    // Free the SuperLU_DIST structures
+#if defined(USE_SUPERLU_DIST)
+    if (uopts.ls == "sludist")
+    {
+      PStatFree(&A_stat);
+      dScalePermstructFree(&A_scaleperm);
+      dLUstructFree(&A_lu);
+      Destroy_CompRowLoc_Matrix_dist(&A_super);
+      superlu_gridexit(&grid);
+      free(A_data);
+      free(A_col_idxs);
+      free(A_row_ptrs);
+    }
+#endif
+
     // Free integrator and linear solver
     CVodeFree(&cvode_mem);     // Free integrator memory
     SUNLinSolFree(LS);         // Free linear solver
+    SUNMatDestroy(A);          // Free matrix
 
     // Free vectors
 #if defined(USE_HIP) || defined(USE_CUDA)

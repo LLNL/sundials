@@ -96,6 +96,14 @@ struct UserData
   realtype dx = xu / (nx - 1);
   realtype dy = yu / (ny - 1);
 
+  // Minimum number of local nodes in the x and y directions
+  sunindextype qx = 0;
+  sunindextype qy = 0;
+
+  // Leftover nodes in the x and y directions
+  sunindextype rx = 0;
+  sunindextype ry = 0;
+
   // Local number of nodes in the x and y directions
   sunindextype nx_loc = 0;
   sunindextype ny_loc = 0;
@@ -117,6 +125,8 @@ struct UserData
   int npy = 0; // number of MPI processes in the y-direction
 
   int myid_c = 0; // process ID in Cartesian communicator
+  int idx    = 0; // process x-coordinate
+  int idy    = 0; // process y-coordinate
 
   // Flags denoting if this process has a neighbor
   bool HaveNbrW = true;

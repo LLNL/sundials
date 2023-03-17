@@ -210,15 +210,16 @@ int laplacian(realtype t, N_Vector u, N_Vector f, void *user_data)
 //   j -- local y index
 //   x -- x processor coordinate
 //   y -- y processor coordinate
-//   qx -- base number of nodes per x process
-//   qy -- base number of nodes per y process
-//   rx -- number of extra nodes for x processes
-//   ry -- number of extra nodes for y processes
-//   nx -- global number of nodes in the x-direction
 sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
-                          sunindextype qx, sunindextype qy, sunindextype rx,
-                          sunindextype ry, sunindextype nx)
+                          UserData* udata)
 {
+  // Unpack values
+  sunindextype qx = udata->qx;
+  sunindextype qy = udata->qy;
+  sunindextype rx = udata->rx;
+  sunindextype ry = udata->ry;
+  sunindextype nx = udata->nx;
+
   // offset from previous process rows
   sunindextype offset_p = nx * ((qy + 1) * min(y, ry) + qy * max(y - ry, 0));
 
@@ -233,18 +234,8 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
     offset_c = qy * ((qx + 1) * min(x, rx) + qx * max(x - rx, 0));
   }
 
-  // base node index for this process
-  sunindextype base = offset_p + offset_c;
-
-  // number of local x nodes
-  sunindextype nx_loc;
-  if (x < rx) nx_loc = qx + 1;
-  else nx_loc = qx;
-
   // global index for the requested local node
-  sunindextype idx = base + j * nx_loc + i;
-
-  return idx;
+  return offset_p + offset_c + j * udata->nx_loc + i;
 }
 
 // Compute the global column indices for a row
@@ -252,61 +243,42 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
 //   j -- local y index
 //   x -- x processor coordinate
 //   y -- y processor coordinate
-//   qx -- base number of nodes per x process
-//   qy -- base number of nodes per y process
-//   rx -- number of extra nodes for x processes
-//   ry -- number of extra nodes for y processes
-//   nx -- global number of nodes in the x-direction
-int matrix_columns(sunindextype i, sunindextype j, int x, int y, int npx,
-                   int npy, sunindextype qx, sunindextype qy, sunindextype rx,
-                   sunindextype ry, sunindextype nx, sunrealtype* vals,
-                   sunindextype* col_idx, sunindextype* row_nnz)
+int matrix_columns(sunindextype i, sunindextype j, int x, int y,
+                   UserData* udata, sunrealtype* vals, sunindextype* col_idx,
+                   sunindextype* row_nnz)
 {
-  // number of local x nodes
-  if (x < rx) nx_loc = qx + 1;
-  else nx_loc = qx;
+  // Unpack values
+  int npx = udata->npx;
+  int npy = udata->npy;
 
-  // number of local y nodes
-  if (y < ry) ny_loc = qy + 1;
-  else ny_loc = qy;
+  sunindextype qx = udata->qx;
+  sunindextype qy = udata->qy;
+  sunindextype rx = udata->rx;
+  sunindextype ry = udata->ry;
 
   // -----------------
   // global boundaries
   // -----------------
 
-  // south boundary
-  if (y == 0 && j == 0)
-  {
-    c_idx = global_index(i, j, x, y, qx, qy, rx, ry, nx);
-    return [0], [c_idx], 1;
-  }
+  sunindextype nx_loc = udata->nx_loc;
+  sunindextype ny_loc = udata->ny_loc;
 
-  // west boundary
-  if (x == 0 && i == 0)
+  if ((y == 0 && j == 0) ||                // south
+      (x == 0 && i == 0) ||                // west
+      (x == npx - 1 && i == nx_loc - 1) || // east
+      (y == npy - 1 && j == ny_loc - 1))   // north
   {
-    c_idx = global_index(i, j, x, y, qx, qy, rx, ry, nx);
-    return [0], [c_idx], 1;
-  }
-
-  // east boundary
-  if (x == npx - 1 && i == nx_loc - 1)
-  {
-    c_idx = global_index(i, j, x, y, qx, qy, rx, ry, nx);
-    return [0], [c_idx], 1;
-  }
-
-  // north boundary
-  if (y == npx - 1 && j == ny_loc - 1)
-  {
-    c_idx = global_index(i, j, x, y, qx, qy, rx, ry, nx);
-    return [0], [c_idx], 1;
+    vals[0]    = 0;
+    col_idx[0] = global_index(i, j, x, y, udata);
+    *row_nnz   = 1;
+    return 0;
   }
 
   // --------
   // interior
   // --------
 
-  // ordering of columns for output
+  // Ordering of columns for output
   //   0. South Neighbor
   //   1. West Neighbor
   //   Interior:
@@ -318,86 +290,95 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y, int npx,
   //   7. East Neighbor
   //   8. North Neighbor
 
-  // List of bools for where values come from
-  values  = 5 * [None];
-  columns = 5 * [None];
-  idx     = 0;
+  // Constants for computing Jacobian
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
+
+  // Value and Columns index
+  sunindextype idx = 0;
 
   // south neighbor
   if (j == 0)
   {
+    // neighbor ny_loc
     if (y - 1 < ry) ny_loc = qy + 1;
     else ny_loc = qy;
-    values[idx]  = cy;
-    columns[idx] = global_index(i, ny_loc - 1, x, y - 1, qx, qy, rx, ry, nx);
+
+    vals[idx]    = cy;
+    col_idx[idx] = global_index(i, ny_loc - 1, x, y - 1, udata);
     idx += 1;
   }
 
   // west neighbor
   if (i == 0)
   {
+    // neighbor nx_loc
     if (x - 1 < rx) nx_loc = qx + 1;
-    else:
-      nx_loc = qx;
-    values[idx]  = cx;
-    columns[idx] = global_index(nx_loc - 1, j, x - 1, y, qx, qy, rx, ry, nx);
+    else nx_loc = qx;
+
+    vals[idx]    = cx;
+    col_idx[idx] = global_index(nx_loc - 1, j, x - 1, y, udata);
     idx += 1;
   }
 
   // south interior
   if (j > 0)
   {
-    values[idx]  = cy;
-    columns[idx] = global_index(i, j - 1, x, y, qx, qy, rx, ry, nx);
+    vals[idx]    = cy;
+    col_idx[idx] = global_index(i, j - 1, x, y, udata);
     idx += 1;
   }
 
   // west interior
   if (i > 0)
   {
-    values[idx]  = cx;
-    columns[idx] = global_index(i - 1, j, x, y, qx, qy, rx, ry, nx);
+    vals[idx]    = cx;
+    col_idx[idx] = global_index(i - 1, j, x, y, udata);
     idx += 1;
   }
 
   // center
-  values[idx]  = cc;
-  columns[idx] = global_index(i, j, x, y, qx, qy, rx, ry, nx);
+  vals[idx]    = cc;
+  col_idx[idx] = global_index(i, j, x, y, udata);
   idx += 1;
 
   // east interior
   if (i < nx_loc - 1)
   {
-    values[idx]  = cx;
-    columns[idx] = global_index(i + 1, j, x, y, qx, qy, rx, ry, nx);
+    vals[idx]    = cx;
+    col_idx[idx] = global_index(i + 1, j, x, y, udata);
     idx += 1;
   }
 
   // north interior
   if (j < ny_loc - 1)
   {
-    values[idx]  = cy;
-    columns[idx] = global_index(i, j + 1, x, y, qx, qy, rx, ry, nx);
+    vals[idx]    = cy;
+    col_idx[idx] = global_index(i, j + 1, x, y, udata);
     idx += 1;
   }
 
   // east neighbor
   if (i == nx_loc - 1)
   {
-    values[idx]  = cx;
-    columns[idx] = global_index(0, j, x + 1, y, qx, qy, rx, ry, nx);
+    vals[idx]    = cx;
+    col_idx[idx] = global_index(0, j, x + 1, y, udata);
     idx += 1;
   }
 
   // north neighbor
   if (j == ny_loc - 1)
   {
-    values[idx]  = cy;
-    columns[idx] = global_index(i, 0, x, y + 1, qx, qy, rx, ry, nx);
+    vals[idx]    = cy;
+    col_idx[idx] = global_index(i, 0, x, y + 1, udata);
     idx += 1;
   }
 
-  return values, columns, 5;
+  // non-zeros in this row
+  *row_nnz = 5;
+
+  return 0;
 }
 
 int laplacian_matrix(N_Vector u, SUNMatrix L, void* user_data)
@@ -406,19 +387,25 @@ int laplacian_matrix(N_Vector u, SUNMatrix L, void* user_data)
   UserData* udata = (UserData*)user_data;
 
   // Set shortcuts
-  SuperMatrix* Lsuper   = SUNMatrix_SLUNRloc_SuperMatrix(L);
-  NRformat_loc* Lstore  = (NRformat_loc*)Lsuper->Store;
-  sunindextype* rowptrs = Lstore->rowptr;
-  sunindextype* colinds = Lstore->colind;
-  realtype* Ldata       = (realtype*)Lstore->nzval;
+  SuperMatrix*  Lsuper   = SUNMatrix_SLUNRloc_SuperMatrix(L);
+  NRformat_loc* Lstore   = (NRformat_loc*)Lsuper->Store;
+  sunindextype* row_ptrs = Lstore->rowptr;
+  sunindextype* col_idxs = Lstore->colind;
+  sunrealtype*  data     = (sunrealtype*)Lstore->nzval;
 
-  sunindextype rowptr = 0;
+  int x = udata->idx;
+  int y = udata->idy;
+
+  sunindextype idx     = 0;
+  sunindextype row_nnz = 0;
   for (sunindextype j = 0; j < udata->ny_loc; j++)
   {
     for (sunindextype i = 0; i < udata->nx_loc; i++)
     {
-      matrix_columns(i, j, x, y, npx, npy, qx, qy, rx, ry, nx);
-      rowptr += rptr;
+      matrix_columns(i, j, x, y, udata, data + row_nnz, col_idxs + row_nnz,
+                     &row_nnz);
+      row_ptrs[idx + 1] = row_ptrs[idx] + row_nnz;
+      idx++;
     }
   }
 
