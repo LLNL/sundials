@@ -41,6 +41,10 @@
 
 #include "sunlinsol/sunlinsol_pcg.h"
 #include "sunlinsol/sunlinsol_spgmr.h"
+#if defined(USE_SUPERLU_DIST)
+#include "sunmatrix/sunmatrix_slunrloc.h"
+#include "sunlinsol/sunlinsol_superludist.h"
+#endif
 
 // Macros for problem constants
 #define PI    RCONST(3.141592653589793238462643383279502884197169)
@@ -201,10 +205,17 @@ struct UserOutput
 // Common function for computing the Laplacian
 int laplacian(realtype t, N_Vector u, N_Vector f, void *user_data);
 
+#if defined(USE_SUPERLU_DIST)
+int laplacian_matrix(N_Vector u, SUNMatrix L, void* user_data);
+#endif
+
 #if defined(BENCHMARK_ODE)
 
 // ODE right hand side function
 int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data);
+
+// int diffusion_jac(realtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
+//                   void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Preconditioner setup and solve functions
 int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
@@ -219,6 +230,10 @@ int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 // DAE residual function
 int diffusion(realtype t, N_Vector u, N_Vector up, N_Vector res,
               void *user_data);
+
+// int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
+//                   N_Vector res, SUNMatrix Jac, void* user_data, N_Vector tmp1,
+//                   N_Vector tmp2, N_Vector tmp3);
 
 // Preconditioner setup and solve functions
 int PSetup(realtype t, N_Vector u, N_Vector up, N_Vector res, realtype cj,

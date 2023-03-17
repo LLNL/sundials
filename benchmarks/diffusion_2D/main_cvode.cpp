@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
 
     // Create linear solver
     SUNLinearSolver LS = NULL;
+    SUNMatrix A = nullptr;
 
     int prectype = (uopts.prec) ? PREC_RIGHT : PREC_NONE;
 
@@ -199,6 +200,60 @@ int main(int argc, char* argv[])
         flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
         if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
       }
+    }
+
+    if (uopts.ls == "superludist")
+    {
+#if defined(USE_SUPERLU_DIST)
+      // Initialize sparse matrix data structure and SuperLU_DIST solver
+      sunindextype nnz = 5 * (udata.nx - 1) * (udata.ny - 1) + 2 * udata.nx +
+                         2 * (udata.ny - 2);
+
+      sunrealtype* Adata = (realtype*)malloc(nnz * sizeof(sunrealtype));
+      if (check_flag((void*)Adata, "malloc Adata", 0)) return 1;
+
+      sunindextype* Acolind = (sunindextype*)malloc(nnz * sizeof(sunindextype));
+      if (check_flag((void*)Acolind, "malloc Acolind", 0)) return 1;
+
+      sunindextype* Arowptr =
+        (sunindextype*)malloc((udata.nodes + 1) * sizeof(sunindextype));
+      if (check_flag((void*)Arowptr, "malloc Arowptr", 0)) return 1;
+
+      // SuperLU_DIST structures
+      dCreate_CompRowLoc_Matrix_dist(&Asuper, udata.nodes, udata.nodes, nnz,
+                                     udata.nodes, 0, Adata, Acolind, Arowptr,
+                                     SLU_NR_loc, SLU_D, SLU_GE);
+      dScalePermstructInit(udata.nodes, udata.nodes, &Ascaleperm);
+      dLUstructInit(udata.nodes, &Alu);
+      PStatInit(&Astat);
+      set_default_options_dist(&Aopts);
+      Aopts.PrintStat = NO;
+
+      // SUNDIALS structures
+      A = SUNMatrix_SLUNRloc(&Asuper, &grid, ctx);
+      if (check_flag((void*)A, "SUNMatrix_SLUNRloc", 0)) return 1;
+
+      LS = SUNLinSol_SuperLUDIST(y, A, &grid, &Alu, &Ascaleperm, &Asolve,
+                                 &Astat, &Aopts, ctx);
+      if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
+
+      // NEED TO ATTACH JACOBIAN FUNCTION (add below)
+
+      // Free the SuperLU_DIST structures (move to end)
+      PStatFree(&Astat);
+      dScalePermstructFree(&Ascaleperm);
+      dLUstructFree(&Alu);
+      Destroy_CompRowLoc_Matrix_dist(&Asuper);
+      superlu_gridexit(&grid);
+#else
+      std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
+      return 1;
+#endif
+    }
+    else
+    {
+      std::cerr << "ERROR: Invalid linear solver option\n";
+      return 1;
     }
 
     // Allocate preconditioner workspace
