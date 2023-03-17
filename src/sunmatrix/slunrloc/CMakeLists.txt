@@ -20,6 +20,10 @@ install(CODE "message(\"\nInstall SUNMATRIX_SLUNRLOC\n\")")
 set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
+if(SUPERLUDIST_ROCM)
+  set(_hip_if_needed hip::device)
+endif()
+
 # Add the library
 sundials_add_library(sundials_sunmatrixslunrloc
   SOURCES
@@ -33,6 +37,7 @@ sundials_add_library(sundials_sunmatrixslunrloc
   LINK_LIBRARIES
     PUBLIC SUNDIALS::SUPERLUDIST
     $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>
+    ${_hip_if_needed}
   COMPILE_OPTIONS
     PRIVATE ${_compile_options}
   OUTPUT_NAME
