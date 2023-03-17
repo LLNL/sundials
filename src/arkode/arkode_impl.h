@@ -324,6 +324,7 @@ typedef struct ARKodeMemRec {
                              as evolving solution by the timestepper modules */
   N_Vector yn;            /* solution from the last successful step          */
   N_Vector fn;            /* full IVP right-hand side from last step         */
+  N_Vector yerr;          /* error vector for compensated summation          */
   N_Vector tempv1;        /* temporary storage vectors (for local use and by */
   N_Vector tempv2;        /* time-stepping modules)                          */
   N_Vector tempv3;
@@ -385,6 +386,7 @@ typedef struct ARKodeMemRec {
   /* Saved Values */
   realtype    h0u;          /* actual initial stepsize                     */
   realtype    tn;           /* time of last successful step                */
+  realtype    terr;         /* error in tn for compensated sums            */
   realtype    hold;         /* last successful h value used                */
   realtype    tolsf;        /* tolerance scale factor (suggestion to user) */
   booleantype VabstolMallocDone;
