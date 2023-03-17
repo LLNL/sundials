@@ -793,9 +793,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
         # Building with Kokkos and KokkosKernels
         if "+kokkos" in spec:
-            entries.extend([self.cache_option_from_variant("Kokkos_DIR", spec["kokkos"].prefix)])
+            entries.extend([cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix)])
         if "+kokkos-kernels" in spec:
-            entries.extend([self.cache_option_from_variant("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
+            entries.extend([cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
 
         # Building with KLU
         if "+klu" in spec:
