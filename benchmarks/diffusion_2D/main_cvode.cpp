@@ -251,14 +251,8 @@ int main(int argc, char* argv[])
                                  &A_stat, &A_opts, ctx);
       if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
 
-      // NEED TO ATTACH JACOBIAN FUNCTION (add below)
-// #if defined(USE_SUPERLU_DIST)
-//     if (uopts.ls == "sludist")
-//     {
-//       CVodeSet();
-//     }
-// #endif
-
+      // Disable preconditioning
+      uopts.prec = false;
 #else
       std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
       return 1;
@@ -300,6 +294,14 @@ int main(int argc, char* argv[])
     // Attach linear solver
     flag = CVodeSetLinearSolver(cvode_mem, LS, A);
     if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
+
+#if defined(USE_SUPERLU_DIST)
+    if (uopts.ls == "sludist")
+    {
+      CVodeSetJacFn(cvode_mem, diffusion_jac);
+      if (check_flag(&flag, "CVodeSetJacFn", 1)) return 1;
+    }
+#endif
 
     if (uopts.prec)
     {
@@ -394,7 +396,13 @@ int main(int argc, char* argv[])
     // Close diagnostics output file
     if (diagfp) fclose(diagfp);
 
-    // Free the SuperLU_DIST structures
+    // Free integrator and linear solver
+    CVodeFree(&cvode_mem);     // Free integrator memory
+    SUNLinSolFree(LS);         // Free linear solver
+    SUNMatDestroy(A);          // Free matrix
+
+    // Free the SuperLU_DIST structures (also frees user allocated arrays
+    // A_data, A_col_idxs, and A_row_ptrs)
 #if defined(USE_SUPERLU_DIST)
     if (uopts.ls == "sludist")
     {
@@ -403,16 +411,8 @@ int main(int argc, char* argv[])
       dLUstructFree(&A_lu);
       Destroy_CompRowLoc_Matrix_dist(&A_super);
       superlu_gridexit(&grid);
-      free(A_data);
-      free(A_col_idxs);
-      free(A_row_ptrs);
     }
 #endif
-
-    // Free integrator and linear solver
-    CVodeFree(&cvode_mem);     // Free integrator memory
-    SUNLinSolFree(LS);         // Free linear solver
-    SUNMatDestroy(A);          // Free matrix
 
     // Free vectors
 #if defined(USE_HIP) || defined(USE_CUDA)

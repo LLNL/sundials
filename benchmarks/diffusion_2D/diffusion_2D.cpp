@@ -24,18 +24,36 @@
 
 int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data)
 {
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
   // Access problem data
   UserData *udata = (UserData *) user_data;
-#endif
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian
-  int flag = laplacian(t, u, f, user_data);
+  int flag = laplacian(t, u, f, udata);
   if (check_flag(&flag, "laplacian", 1))
     return -1;
 
+  return 0;
+}
+
+int diffusion_jac(realtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
+                  void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  // Access problem data
+  UserData *udata = (UserData *) user_data;
+
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
+  // Compute the Laplacian matrix
+#if defined(USE_SUPERLU_DIST)
+  int flag = laplacian_matrix_sludist(u, Jac, udata);
+  if (check_flag(&flag, "laplacian_matrix", 1))
+    return -1;
+#else
+  std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
+  return -1;
+#endif
 
   return 0;
 }
@@ -45,21 +63,18 @@ int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data)
 int diffusion(realtype t, N_Vector u, N_Vector up, N_Vector res,
               void *user_data)
 {
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
   // Access problem data
   UserData *udata = (UserData *) user_data;
-#endif
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian
-  int flag = laplacian(t, u, res, user_data);
+  int flag = laplacian(t, u, res, udata);
   if (check_flag(&flag, "laplacian", 1))
     return -1;
 
   // Compute the residual
   N_VLinearSum(ONE, up, -ONE, res, res);
-
 
   return 0;
 }

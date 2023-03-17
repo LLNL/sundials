@@ -17,15 +17,12 @@
 #include "diffusion_2D.hpp"
 
 // Diffusion function
-int laplacian(realtype t, N_Vector u, N_Vector f, void *user_data)
+int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
 {
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
   int          flag;
   sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Start exchange
   flag = udata->start_exchange(u);
@@ -381,11 +378,8 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   return 0;
 }
 
-int laplacian_matrix(N_Vector u, SUNMatrix L, void* user_data)
+int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
 {
-  // Access problem data
-  UserData* udata = (UserData*)user_data;
-
   // Set shortcuts
   SuperMatrix*  Lsuper   = SUNMatrix_SLUNRloc_SuperMatrix(L);
   NRformat_loc* Lstore   = (NRformat_loc*)Lsuper->Store;
