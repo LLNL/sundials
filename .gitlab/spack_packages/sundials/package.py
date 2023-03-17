@@ -125,7 +125,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         description="Enable Caliper instrumentation/profiling",
     )
     variant("ginkgo", default=False, when="@6.4.0:", description="Enable Ginkgo interfaces")
-    variant("hypre", default=False, when="@2.7.0:", description="Enable Hypre MPI parallel vector")
     variant("kokkos", default=False, when="@6.4.0:", description="Enable Kokkos vector")
     variant(
         "kokkos-kernels",
@@ -133,6 +132,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         when="@6.4.0:",
         description="Enable KokkosKernels based matrix and linear solver",
     )
+    variant("hypre", default=False, when="@2.7.0:", description="Enable Hypre MPI parallel vector")
     variant("klu", default=False, description="Enable KLU sparse, direct solver")
     variant("lapack", default=False, description="Enable LAPACK direct solvers")
     variant("petsc", default=False, when="@2.7.0:", description="Enable PETSc interfaces")
@@ -666,7 +666,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc)
                 ]
             )
-
+        
         return entries
 
     def initconfig_hardware_entries(self):
@@ -752,7 +752,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
+                self.cache_option_from_variant("ENABLE_KOKKOS", "kokkos"),
+                self.cache_option_from_variant("ENABLE_KOKKOS_KERNELS", "kokkos-kernels")
             ]
         )
 
@@ -825,6 +827,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+petsc" in spec:
             if spec.version >= Version("5"):
                 entries.append(cmake_cache_path("PETSC_DIR", spec["petsc"].prefix))
+                if "+kokkos" in spec["petsc"]:
+                    entries.extend([
+                        cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix),
+                        cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)
+                    ])
             else:
                 entries.extend(
                     [
