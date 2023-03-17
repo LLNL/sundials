@@ -26,11 +26,11 @@ struct UserOptions
   int      onestep     = 0;                // one step mode, number of steps
 
   // Linear solver and preconditioner settings
-  bool     pcg      = true;   // use PCG (true) or GMRES (false)
-  bool     prec     = true;   // preconditioner on/off
-  bool     lsinfo   = false;  // output residual history
-  int      liniters = 20;     // number of linear iterations
-  realtype epslin   = ZERO;   // linear solver tolerance factor
+  std::string ls       = "cg";   // linear solver to use
+  bool        prec     = true;   // preconditioner on/off
+  bool        lsinfo   = false;  // output residual history
+  int         liniters = 20;     // number of linear iterations
+  realtype    epslin   = ZERO;   // linear solver tolerance factor
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
 
     int prectype = (uopts.prec) ? PREC_RIGHT : PREC_NONE;
 
-    if (uopts.pcg)
+    if (uopts.ls == "cg")
     {
       LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
         if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
       }
     }
-    else
+    else if (uopts.ls == "gmres")
     {
       LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
@@ -204,6 +204,11 @@ int main(int argc, char* argv[])
         flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
         if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
       }
+    }
+    else
+    {
+      std::cerr << "ERROR: Invalid linear solver option\n";
+      return 1;
     }
 
     // Allocate preconditioner workspace
@@ -461,11 +466,11 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
-  it = find(args.begin(), args.end(), "--gmres");
+  it = find(args.begin(), args.end(), "--ls");
   if (it != args.end())
   {
-    pcg = false;
-    args.erase(it);
+    ls = *(it + 1);
+    args.erase(it, it + 2);
   }
 
   it = find(args.begin(), args.end(), "--lsinfo");
@@ -500,7 +505,7 @@ void UserOptions::help()
   cout << "Integrator command line options:" << endl;
   cout << "  --rtol <rtol>       : relative tolerance" << endl;
   cout << "  --atol <atol>       : absoltue tolerance" << endl;
-  cout << "  --gmres             : use GMRES linear solver" << endl;
+  cout << "  --ls <cg|gmres>     : linear solver" << endl;
   cout << "  --lsinfo            : output residual history" << endl;
   cout << "  --liniters <iters>  : max number of iterations" << endl;
   cout << "  --epslin <factor>   : linear tolerance factor" << endl;
@@ -522,7 +527,7 @@ void UserOptions::print()
   cout << endl;
   cout << " Linear solver options:" << endl;
   cout << " --------------------------------- " << endl;
-  cout << " PCG      = " << pcg      << endl;
+  cout << " LS       = " << ls       << endl;
   cout << " precond  = " << prec     << endl;
   cout << " LS info  = " << lsinfo   << endl;
   cout << " LS iters = " << liniters << endl;
