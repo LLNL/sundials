@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
   int method    = 0;
   int order     = 1;
   int use_compsums = 0;
-  const sunrealtype dTout = SUN_RCONST(dt);
+  const sunrealtype dTout = dt;
   // const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
 
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
     if (step_mode == 0) {
       retval = ARKStepSetFixedStep(arkode_mem, dt);
     } else {
-      retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
+      retval = ARKStepSStolerances(arkode_mem, 10*SUN_UNIT_ROUNDOFF, 10*SUN_UNIT_ROUNDOFF);
       if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
     }
   }
@@ -299,10 +299,10 @@ int main(int argc, char* argv[])
   H0 = Hamiltonian(y);
   L0 = AngularMomentum(y);
   sunrealtype Q0 = Q(y, udata->alpha)/udata->rho_n;
-  fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f, Q(p,q) = %.16f\n",
+  fprintf(stdout, "t = %.4f, H(p,q) = %.16Lf, L(p,q) = %.16Lf, Q(p,q) = %.16Lf\n",
           tret, H0, L0, Q0);
-  fprintf(times_fp, "%.16f\n", tret);
-  fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
+  fprintf(times_fp, "%.16Lf\n", tret);
+  fprintf(conserved_fp, "%.16Lf, %.16Lf\n", H0, L0);
   N_VPrintFile(y, solution_fp);
 
   /* Do integration */
@@ -313,11 +313,11 @@ int main(int argc, char* argv[])
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       /* Output current integration status */
-      fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+      fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
               tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
               Q(y, udata->alpha)/udata->rho_np1-Q0);
-      fprintf(times_fp, "%.16f\n", tret);
-      fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+      fprintf(times_fp, "%.16Lf\n", tret);
+      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
       N_VPrintFile(y, solution_fp);
       
       /* Check if the solve was successful, if so, update the time and continue */
@@ -338,22 +338,22 @@ int main(int argc, char* argv[])
           if (retval < 0) break;
           
           /* Output current integration status */
-          fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+          fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
                   tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
                   Q(y, udata->alpha)/udata->rho_np1-Q0);
-          fprintf(times_fp, "%.16f\n", tret);
-          fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+          fprintf(times_fp, "%.16Lf\n", tret);
+          fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
           N_VPrintFile(y, solution_fp);
         }
       } else {
         retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
         
         /* Output current integration status */
-        fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+        fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
                 tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
                 Q(y, udata->alpha)/udata->rho_np1-Q0);
-        fprintf(times_fp, "%.16f\n", tret);
-        fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+        fprintf(times_fp, "%.16Lf\n", tret);
+        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
         N_VPrintFile(y, solution_fp);
       }
 
@@ -508,7 +508,7 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 {
   UserData udata = (UserData) user_data;
 
-  // fprintf(udata->hhist_fp, "%.16f\n", h1);
+  // fprintf(udata->hhist_fp, "%.16Lf\n", h1);
 
   const sunrealtype G_np1 = G(y, udata->alpha);
   udata->rho_np1 = udata->rho_nphalf + udata->eps*G_np1/SUN_RCONST(2.0);

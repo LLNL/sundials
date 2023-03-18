@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   int method = 0;
   int use_compsums = 0;
   sunrealtype dt = SUN_RCONST(1e-2);
-  const sunrealtype dTout = SUN_RCONST(dt);
+  const sunrealtype dTout = dt;
   // const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
 
@@ -307,9 +307,9 @@ int main(int argc, char* argv[])
     tout = T0+dTout;
     H0 = Hamiltonian(y);
     L0 = AngularMomentum(y);
-    fprintf(stdout, "t = %.4f, H(p,q) = %.16f, L(p,q) = %.16f\n", tret, H0, L0);
-    fprintf(times_fp, "%.16f\n", tret);
-    fprintf(conserved_fp, "%.16f, %.16f\n", H0, L0);
+    fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf\n", tret, H0, L0);
+    fprintf(times_fp, "%.16Lf\n", tret);
+    fprintf(conserved_fp, "%.16Lf, %.16Lf\n", H0, L0);
     N_VPrintFile(y, solution_fp);
 
     /* Do integration */
@@ -320,10 +320,10 @@ int main(int argc, char* argv[])
         retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
         /* Output current integration status */
-        // fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n",
+        // fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
         //         tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
-        fprintf(times_fp, "%.16f\n", tret);
-        fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+        fprintf(times_fp, "%.16Lf\n", tret);
+        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
         N_VPrintFile(y, solution_fp);
         
         /* Check if the solve was successful, if so, update the time and continue */
@@ -344,22 +344,22 @@ int main(int argc, char* argv[])
             if (retval < 0) break;
             
             /* Output current integration status */
-            // fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+            // fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
             //         tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
             //         Q(y, udata->alpha)/udata->rho_np1-Q0);
-            fprintf(times_fp, "%.16f\n", tret);
-            fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+            fprintf(times_fp, "%.16Lf\n", tret);
+            fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
             N_VPrintFile(y, solution_fp);
           }
         } else {
           retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
           
           /* Output current integration status */
-          // fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f, Q(p,q)-Q0 = %.16f\n",
+          // fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
           //         tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
           //         Q(y, udata->alpha)/udata->rho_np1-Q0);
-          fprintf(times_fp, "%.16f\n", tret);
-          fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
+          fprintf(times_fp, "%.16Lf\n", tret);
+          fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
           N_VPrintFile(y, solution_fp);
         }
 
@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
       }
     }
 
-    fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n",
+    fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
         tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
 
     // fclose(udata->hhist_fp);
@@ -518,7 +518,7 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 {
   UserData udata = (UserData) user_data;
 
-  // fprintf(udata->hhist_fp, "%.16f\n", h1);
+  // fprintf(udata->hhist_fp, "%.16Lf\n", h1);
 
   const sunrealtype G_np1 = G(y, udata->alpha);
   udata->rho_np1 = udata->rho_nphalf + udata->eps*G_np1/SUN_RCONST(2.0);

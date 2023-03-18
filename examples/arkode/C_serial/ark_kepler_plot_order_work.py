@@ -23,7 +23,8 @@ sprk6 = [] # Yoshida 6th order
 sprk8 = [] # McLachlan 8th order
 sprk10 = [] # Sofroniou 10th order
 
-step_sizes = [0.000010, 0.000100, 0.001000, 0.010000, 0.100000]
+# step_sizes = [0.000010, 0.000100, 0.001000, 0.010000, 0.100000]
+step_sizes = [0.000100, 0.001000, 0.010000, 0.100000]
 for dt in step_sizes:
   sprk1.append({
      'method': 'Symplectic Euler',
@@ -123,20 +124,10 @@ all_methods[10].append(sprk10)
 # Reference
 reference = load_results('_erk-8')
 
-# energy = []
-# energy_0 = []
-# for _, sol, consv in all_methods:
-#   energy.append(consv[:,0])
-#   energy_0.append(consv[0,0])
-# energy = np.array(energy)
-# energy_0 = np.array(energy_0)
-# energy_diff = np.abs(energy.T - energy_0)
-
 #
 # Solution error plot
 #
 orders = [1, 2, 3, 4, 5, 6, 8, 10]
-# orders = [4]
 for order in orders:
   plt.figure(dpi=200)
   legend = []
@@ -146,20 +137,60 @@ for order in orders:
   _, y_ref, _ = reference
   for method in all_methods[order]:
     errs = []
+    dts = []
     for d in method:
       _, y, _ = d['data']
       err = np.linalg.norm(y - y_ref, np.inf) / np.linalg.norm(y_ref, np.inf)
       print('method: %s,  dt = %s' % (d['method'], d['dt']))
       print(np.max(y))
-      # print(y_ref)
-      errs.append(err)
+      if err >= 10.:
+        continue
+      else:
+         dts.append(d['dt'])
+         errs.append(err)
     legend.append(method[0]['method'])
-    plt.plot(step_sizes, errs)
+    plt.plot(dts, errs)
   plt.xscale('log')
   plt.yscale('log')
   plt.xlabel('h')
   plt.ylabel('error')
   plt.title('Order plot for $O(h^{%d})$ methods' % order)
   plt.legend(legend)
-  plt.savefig('ark_kepler_order%d.png' % order)
+  plt.savefig('ark_kepler_sol_order%d.png' % order)
   plt.close()
+
+#
+# Energy error plot
+#
+orders = [1, 2, 3, 4, 5, 6, 8, 10]
+for order in orders:
+  plt.figure(dpi=200)
+  legend = []
+  legend.append('$O(h^{%d})$' % order)
+  order_line = np.power(step_sizes, order)
+  plt.plot(np.array(step_sizes), np.array(order_line).T, 'k--')
+  _, y_ref, _ = reference
+  for method in all_methods[order]:
+    errs = []
+    dts = []
+    for d in method:
+      _, y, conserved = d['data']
+      energy_0 = conserved[0,0]
+      energy = conserved[:,0]
+      err = np.linalg.norm(energy-energy_0, np.inf)
+      if err >= 10.:
+        continue
+      else:
+         dts.append(d['dt'])
+         errs.append(err)
+    legend.append(method[0]['method'])
+    plt.plot(dts, errs)
+  plt.xscale('log')
+  plt.yscale('log')
+  plt.xlabel('h')
+  plt.ylabel('error in energy')
+  plt.title('Order plot for $O(h^{%d})$ methods' % order)
+  plt.legend(legend)
+  plt.savefig('ark_kepler_energy_order%d.png' % order)
+  plt.close()
+

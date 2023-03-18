@@ -42,10 +42,10 @@ ARKodeSPRKMem ARKodeSymplecticLeapfrog2() {
   ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(2);
   sprk_mem->q = 2;
   sprk_mem->stages = 2;
-  sprk_mem->b[0] = SUN_RCONST(0.0);
-  sprk_mem->b[1] = SUN_RCONST(1.0);
   sprk_mem->a[0] = SUN_RCONST(0.5); 
   sprk_mem->a[1] = SUN_RCONST(0.5);
+  sprk_mem->b[0] = SUN_RCONST(0.0);
+  sprk_mem->b[1] = SUN_RCONST(1.0);
   return sprk_mem;
 }
 
@@ -53,10 +53,10 @@ ARKodeSPRKMem ARKodeSymplecticPseudoLeapfrog2() {
   ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(2);
   sprk_mem->q = 2;
   sprk_mem->stages = 2;
-  sprk_mem->b[0] = SUN_RCONST(0.5);
-  sprk_mem->b[1] = SUN_RCONST(0.5);
   sprk_mem->a[0] = SUN_RCONST(1.0); 
   sprk_mem->a[1] = SUN_RCONST(0.0);
+  sprk_mem->b[0] = SUN_RCONST(0.5);
+  sprk_mem->b[1] = SUN_RCONST(0.5);
   return sprk_mem;
 }
 
@@ -108,13 +108,13 @@ ARKodeSPRKMem ARKodeSymplecticRuth3() {
  */
 
 ARKodeSPRKMem ARKodeSymplecticMcLachlan2() {
-  ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(3);
+  ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(2);
   sprk_mem->q = 2;
   sprk_mem->stages = 2;
-  sprk_mem->a[0] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
-  sprk_mem->a[1] = SUN_RCONST(1.0) - sprk_mem->a[0];
-  sprk_mem->b[0] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
-  sprk_mem->b[1] = SUN_RCONST(1.0) - sprk_mem->b[0];
+  sprk_mem->a[1] = SUN_RCONST(1.0) - (SUN_RCONST(1.0) / SUN_RCONST(2.0)) * SUNRsqrt(2.0);
+  sprk_mem->a[0] = SUN_RCONST(1.0) - sprk_mem->a[1];
+  sprk_mem->b[1] = SUN_RCONST(1.0) / (SUN_RCONST(2.0) * (SUN_RCONST(1.0) - sprk_mem->a[1]));
+  sprk_mem->b[0] = SUN_RCONST(1.0) - sprk_mem->b[1];
   return sprk_mem;
 }
 
