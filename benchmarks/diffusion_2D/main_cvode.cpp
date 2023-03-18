@@ -221,22 +221,22 @@ int main(int argc, char* argv[])
       superlu_gridinit(MPI_COMM_WORLD, udata.npx, udata.npy, &grid);
 
       // Initialize sparse matrix data structure and SuperLU_DIST solver
-      sunindextype nnz = 5 * (udata.nx - 1) * (udata.ny - 1) + 2 * udata.nx +
-                         2 * (udata.ny - 2);
+      sunindextype nnz_loc = 5 * udata.nodes_loc;
 
-      A_data = (realtype*)malloc(nnz * sizeof(sunrealtype));
+      A_data = (realtype*)malloc(nnz_loc * sizeof(sunrealtype));
       if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
 
-      A_col_idxs = (sunindextype*)malloc(nnz * sizeof(sunindextype));
+      A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
       if (check_flag((void*)A_col_idxs, "malloc Acolind", 0)) return 1;
 
-      A_row_ptrs = (sunindextype*)malloc((udata.nodes + 1) * sizeof(sunindextype));
+      A_row_ptrs = (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
       if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
 
       // SuperLU_DIST structures
-      dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes, nnz,
-                                     udata.nodes, 0, A_data, A_col_idxs,
-                                     A_row_ptrs, SLU_NR_loc, SLU_D, SLU_GE);
+      dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes,
+                                     nnz_loc, udata.nodes_loc, 0, A_data,
+                                     A_col_idxs, A_row_ptrs, SLU_NR_loc, SLU_D,
+                                     SLU_GE);
       dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
       dLUstructInit(udata.nodes, &A_lu);
       PStatInit(&A_stat);

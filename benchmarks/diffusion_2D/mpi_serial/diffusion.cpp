@@ -210,7 +210,7 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
 sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
                           UserData* udata)
 {
-  // Unpack values
+  // Unpack values (same for all ranks)
   sunindextype qx = udata->qx;
   sunindextype qy = udata->qy;
   sunindextype rx = udata->rx;
@@ -231,8 +231,14 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
     offset_c = qy * ((qx + 1) * min(x, rx) + qx * max(x - rx, 0));
   }
 
+  // nx_loc for the input (x,y) process (not necessarily the same as nx_loc in
+  // user data because this could be the index for a neighboring rank)
+  sunindextype nx_loc;
+  if (x < rx) nx_loc = qx + 1;
+  else nx_loc = qx;
+
   // global index for the requested local node
-  return offset_p + offset_c + j * udata->nx_loc + i;
+  return offset_p + offset_c + j * nx_loc + i;
 }
 
 // Compute the global column indices for a row
@@ -257,13 +263,10 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   // global boundaries
   // -----------------
 
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  if ((y == 0 && j == 0) ||                // south
-      (x == 0 && i == 0) ||                // west
-      (x == npx - 1 && i == nx_loc - 1) || // east
-      (y == npy - 1 && j == ny_loc - 1))   // north
+  if ((y == 0 && j == 0) ||                       // south
+      (x == 0 && i == 0) ||                       // west
+      (x == npx - 1 && i == udata->nx_loc - 1) || // east
+      (y == npy - 1 && j == udata->ny_loc - 1))   // north
   {
     vals[0]    = 0;
     col_idx[0] = global_index(i, j, x, y, udata);
@@ -299,6 +302,7 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   if (j == 0)
   {
     // neighbor ny_loc
+    sunindextype ny_loc;
     if (y - 1 < ry) ny_loc = qy + 1;
     else ny_loc = qy;
 
@@ -311,6 +315,7 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   if (i == 0)
   {
     // neighbor nx_loc
+    sunindextype nx_loc;
     if (x - 1 < rx) nx_loc = qx + 1;
     else nx_loc = qx;
 
@@ -341,7 +346,7 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   idx += 1;
 
   // east interior
-  if (i < nx_loc - 1)
+  if (i < udata->nx_loc - 1)
   {
     vals[idx]    = cx;
     col_idx[idx] = global_index(i + 1, j, x, y, udata);
@@ -349,7 +354,7 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   }
 
   // north interior
-  if (j < ny_loc - 1)
+  if (j < udata->ny_loc - 1)
   {
     vals[idx]    = cy;
     col_idx[idx] = global_index(i, j + 1, x, y, udata);
@@ -357,7 +362,7 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   }
 
   // east neighbor
-  if (i == nx_loc - 1)
+  if (i == udata->nx_loc - 1)
   {
     vals[idx]    = cx;
     col_idx[idx] = global_index(0, j, x + 1, y, udata);
@@ -365,7 +370,7 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   }
 
   // north neighbor
-  if (j == ny_loc - 1)
+  if (j == udata->ny_loc - 1)
   {
     vals[idx]    = cy;
     col_idx[idx] = global_index(i, 0, x, y + 1, udata);
@@ -390,8 +395,12 @@ int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
   int x = udata->idx;
   int y = udata->idy;
 
+  // Initial row pointer value
+  row_ptrs[0] = 0;
+
   sunindextype idx     = 0;
   sunindextype row_nnz = 0;
+
   for (sunindextype j = 0; j < udata->ny_loc; j++)
   {
     for (sunindextype i = 0; i < udata->nx_loc; i++)
