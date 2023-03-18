@@ -109,6 +109,7 @@ int main(int argc, char* argv[])
   int step_mode = 0;
   int method    = 0;
   int order     = 1;
+  int use_compsums = 0;
   const sunrealtype dTout = SUN_RCONST(dt);
   // const sunrealtype dTout = SUN_RCONST(100.0);
   const int num_output_times = (int) ceil(Tf/dTout);
@@ -123,6 +124,9 @@ int main(int argc, char* argv[])
   }
   if (argc > 3) {
     order = atoi(argv[++argi]);
+  }
+  if (argc > 4) {
+    use_compsums = atoi(argv[++argi]);
   }
 
   /* Allocate and fill udata structure */
@@ -147,10 +151,61 @@ int main(int argc, char* argv[])
   if (method == 0) {
     arkode_mem = SPRKStepCreate(dpdt, dqdt, T0, y, sunctx);
 
-    retval = SPRKStepSetOrder(arkode_mem, order);
-    if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
+    switch (order) {
+      case 1:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_EULER_1);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 2:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_LEAPFROG_2);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 22:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 222:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_2);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 3:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_RUTH_3);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 33:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_3);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 4:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_CANDY_ROZMUS_4);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 44:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_4);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 5:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_5);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 6:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_YOSHIDA_6);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 8:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_8);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      case 10:
+        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_SOFRONIOU_10);
+        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+        break;
+      default:
+        fprintf(stderr, "Not a valid method\n");
+        return 1;
+    }
 
-    retval = SPRKStepSetUseCompSums(arkode_mem, 1);
+    retval = SPRKStepSetUseCompSums(arkode_mem, use_compsums);
     if (check_retval(&retval, "SPRKStepSetUseCompSums", 1)) return 1;  
 
     if (step_mode == 0) {
@@ -323,7 +378,7 @@ int main(int argc, char* argv[])
   }
   N_VDestroy(y);
   if (method == 0) {
-    // SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
     SPRKStepFree(&arkode_mem); 
   } else {
     ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);

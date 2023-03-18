@@ -93,22 +93,22 @@ SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int SPRKStepSetDenseOrder(void *arkode_mem, int dord);
 
 SUNDIALS_EXPORT int SPRKStepSetSafetyFactor(void *arkode_mem,
-                                           realtype safety);
+                                            realtype safety);
 SUNDIALS_EXPORT int SPRKStepSetErrorBias(void *arkode_mem,
-                                        realtype bias);
+                                         realtype bias);
 SUNDIALS_EXPORT int SPRKStepSetMaxGrowth(void *arkode_mem,
-                                        realtype mx_growth);
+                                         realtype mx_growth);
 SUNDIALS_EXPORT int SPRKStepSetMinReduction(void *arkode_mem,
-                                           realtype eta_min);
+                                            realtype eta_min);
 SUNDIALS_EXPORT int SPRKStepSetFixedStepBounds(void *arkode_mem,
-                                              realtype lb, realtype ub);
+                                               realtype lb, realtype ub);
 SUNDIALS_EXPORT int SPRKStepSetAdaptivityMethod(void *arkode_mem,
-                                               int imethod,
-                                               int idefault, int pq,
-                                               realtype adapt_params[3]);
+                                                int imethod,
+                                                int idefault, int pq,
+                                                realtype adapt_params[3]);
 SUNDIALS_EXPORT int SPRKStepSetAdaptivityFn(void *arkode_mem,
-                                           ARKAdaptFn hfun,
-                                           void *h_data);
+                                            ARKAdaptFn hfun,
+                                            void *h_data);
 SUNDIALS_EXPORT int SPRKStepSetMaxFirstGrowth(void *arkode_mem,
                                              realtype etamx1);
 SUNDIALS_EXPORT int SPRKStepSetMaxEFailGrowth(void *arkode_mem,
@@ -162,10 +162,6 @@ SUNDIALS_EXPORT int SPRKStepEvolve(void *arkode_mem, realtype tout,
 SUNDIALS_EXPORT int SPRKStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
 
-/* Utility function to update/compute y based on zcor */
-SUNDIALS_EXPORT int SPRKStepComputeState(void *arkode_mem, N_Vector zcor,
-                                        N_Vector z);
-
 /* Optional output functions */
 SUNDIALS_EXPORT int SPRKStepGetNumExpSteps(void *arkode_mem,
                                           long int *expsteps);
@@ -173,40 +169,40 @@ SUNDIALS_EXPORT int SPRKStepGetNumAccSteps(void *arkode_mem,
                                           long int *accsteps);
 SUNDIALS_EXPORT int SPRKStepGetNumStepAttempts(void *arkode_mem,
                                               long int *step_attempts);
-SUNDIALS_EXPORT int SPRKStepGetNumRhsEvals(void *arkode_mem, long int** fk_evals);
+SUNDIALS_EXPORT int SPRKStepGetNumRhsEvals(void *arkode_mem, long int* nf1, long int* nf2);
 SUNDIALS_EXPORT int SPRKStepGetNumErrTestFails(void *arkode_mem,
-                                              long int *netfails);
+                                               long int *netfails);
 SUNDIALS_EXPORT int SPRKStepGetEstLocalErrors(void *arkode_mem,
-                                             N_Vector ele);
+                                              N_Vector ele);
 SUNDIALS_EXPORT int SPRKStepGetWorkSpace(void *arkode_mem,
                                         long int *lenrw,
                                         long int *leniw);
 SUNDIALS_EXPORT int SPRKStepGetNumSteps(void *arkode_mem,
                                        long int *nsteps);
 SUNDIALS_EXPORT int SPRKStepGetActualInitStep(void *arkode_mem,
-                                             realtype *hinused);
+                                              realtype *hinused);
 SUNDIALS_EXPORT int SPRKStepGetLastStep(void *arkode_mem,
-                                       realtype *hlast);
+                                        realtype *hlast);
 SUNDIALS_EXPORT int SPRKStepGetCurrentStep(void *arkode_mem,
-                                          realtype *hcur);
+                                           realtype *hcur);
 SUNDIALS_EXPORT int SPRKStepGetCurrentTime(void *arkode_mem,
-                                          realtype *tcur);
+                                           realtype *tcur);
 SUNDIALS_EXPORT int SPRKStepGetCurrentState(void *arkode_mem,
-                                           N_Vector *state);
+                                            N_Vector *state);
 SUNDIALS_EXPORT int SPRKStepGetCurrentGamma(void *arkode_mem,
-                                           realtype *gamma);
+                                            realtype *gamma);
 SUNDIALS_EXPORT int SPRKStepGetCurrentMassMatrix(void *arkode_mem,
-                                                SUNMatrix *M);
+                                                 SUNMatrix *M);
 SUNDIALS_EXPORT int SPRKStepGetTolScaleFactor(void *arkode_mem,
-                                             realtype *tolsfac);
+                                              realtype *tolsfac);
 SUNDIALS_EXPORT int SPRKStepGetErrWeights(void *arkode_mem,
-                                         N_Vector eweight);
+                                          N_Vector eweight);
 SUNDIALS_EXPORT int SPRKStepGetResWeights(void *arkode_mem,
-                                         N_Vector rweight);
+                                          N_Vector rweight);
 SUNDIALS_EXPORT int SPRKStepGetUserData(void *arkode_mem,
-                                       void **user_data);
+                                        void **user_data);
 SUNDIALS_EXPORT int SPRKStepPrintAllStats(void *arkode_mem, FILE *outfile,
-                                         SUNOutputFormat fmt);
+                                          SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *SPRKStepGetReturnFlagName(long int flag);
 SUNDIALS_EXPORT int SPRKStepWriteParameters(void *arkode_mem, FILE *fp);
 
@@ -216,7 +212,7 @@ SUNDIALS_EXPORT int SPRKStepGetTimestepperStats(void *arkode_mem,
                                                long int *expsteps,
                                                long int *accsteps,
                                                long int *step_attempts,
-                                               long int **nfk_evals,
+                                               long int *nf1, long int *nf2,
                                                long int *nlinsetups,
                                                long int *netfails);
 SUNDIALS_EXPORT int SPRKStepGetStepStats(void *arkode_mem,

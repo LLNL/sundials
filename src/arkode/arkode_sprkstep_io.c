@@ -323,13 +323,12 @@ int SPRKStepSetOrder(void *arkode_mem, int ord)
 /*---------------------------------------------------------------
   SPRKStepGetNumRhsEvals:
 
-  Returns the current number of calls to fe and fi
+  Returns the current number of calls to f1 and f2
   ---------------------------------------------------------------*/
-int SPRKStepGetNumRhsEvals(void *arkode_mem, long int** fk_evals)
+int SPRKStepGetNumRhsEvals(void *arkode_mem, long int* nf1, long int* nf2)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
-  int rhs_k;
   int retval;
 
   /* access ARKodeSPRKStepMem structure */
@@ -337,9 +336,8 @@ int SPRKStepGetNumRhsEvals(void *arkode_mem, long int** fk_evals)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  // /* get values from step_mem */
-  // for (rhs_k = 0; rhs_k < step_mem->num_rhs; ++rhs_k)
-  //   *fk_evals[rhs_k] = step_mem->nfk[rhs_k];
+  *nf1 = step_mem->nf1;
+  *nf2 = step_mem->nf2;
 
   return(ARK_SUCCESS);
 }
@@ -376,14 +374,14 @@ int SPRKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
   ---------------------------------------------------------------*/
 int SPRKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
                                long int *accsteps, long int *step_attempts,
-                               long int **fk_evals,
+                               long int *nf1, long int *nf2,
                                long int *nlinsetups, long int *netfails)
 {
   ARKodeMem ark_mem;
 
   SPRKStepGetNumExpSteps(arkode_mem, expsteps);
   SPRKStepGetNumAccSteps(arkode_mem, accsteps);
-  SPRKStepGetNumRhsEvals(arkode_mem, fk_evals);
+  SPRKStepGetNumRhsEvals(arkode_mem, nf1, nf2);
   SPRKStepGetNumStepAttempts(arkode_mem, step_attempts);
   SPRKStepGetNumErrTestFails(arkode_mem, netfails);
 
@@ -410,24 +408,23 @@ int SPRKStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
   retval = arkPrintAllStats(arkode_mem, outfile, fmt);
   if (retval != ARK_SUCCESS) return(retval);
 
-  // switch(fmt)
-  // {
-  // case SUN_OUTPUTFORMAT_TABLE:
-  //   /* function evaluations */
-  //   fprintf(outfile, "Explicit RHS fn evals        = %ld\n", step_mem->nfe);
-  //   fprintf(outfile, "Implicit RHS fn evals        = %ld\n", step_mem->nfi);
-  //   break;
-  // case SUN_OUTPUTFORMAT_CSV:
-  //   /* function evaluations */
-  //   fprintf(outfile, ",Explicit RHS fn evals,%ld", step_mem->nfe);
-  //   fprintf(outfile, ",Implicit RHS fn evals,%ld", step_mem->nfi);
-  //   break;
-
-  // default:
-  //   arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "SPRKStepPrintAllStats",
-  //                   "Invalid formatting option.");
-  //   return(ARK_ILL_INPUT);
-  // }
+  switch(fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    /* function evaluations */
+    fprintf(outfile, "f1 RHS fn evals              = %ld\n", step_mem->nf1);
+    fprintf(outfile, "f2 RHS fn evals              = %ld\n", step_mem->nf2);
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    /* function evaluations */
+    fprintf(outfile, ",f1 RHS evals,%ld", step_mem->nf1);
+    fprintf(outfile, ",f2 RHS fn evals,%ld", step_mem->nf2);
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "SPRKStepPrintAllStats",
+                    "Invalid formatting option.");
+    return(ARK_ILL_INPUT);
+  }
 
   return(ARK_SUCCESS);
 }

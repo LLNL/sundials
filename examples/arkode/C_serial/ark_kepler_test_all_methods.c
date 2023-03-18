@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
   /* Default integrator Options */
   int step_mode = 0;
   int method = 0;
+  int use_compsums = 0;
   sunrealtype dt = SUN_RCONST(1e-2);
   const sunrealtype dTout = SUN_RCONST(dt);
   // const sunrealtype dTout = SUN_RCONST(100.0);
@@ -121,6 +122,9 @@ int main(int argc, char* argv[])
   }
   if (argc > 3) {
     dt = atof(argv[++argi]);
+  }
+  if (argc > 4) {
+    use_compsums = atoi(argv[++argi]);
   }
 
   /* Create the SUNDIALS context object for this simulation */
@@ -151,6 +155,9 @@ int main(int argc, char* argv[])
     /* Create SPRKStep integrator where we treat dqdt explicitly and dpdt implicitly */
     if (method == 0) {
       arkode_mem = SPRKStepCreate(dpdt, dqdt, T0, y, sunctx);
+
+      retval = SPRKStepSetUseCompSums(arkode_mem, use_compsums);
+      if (check_retval(&retval, "SPRKStepSetUseCompSums", 1)) return 1;
 
       switch (order) {
         case 1:
@@ -313,8 +320,8 @@ int main(int argc, char* argv[])
         retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
         /* Output current integration status */
-        fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n",
-                tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
+        // fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16f, L(p,q)-L0 = %.16f\n",
+        //         tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0);
         fprintf(times_fp, "%.16f\n", tret);
         fprintf(conserved_fp, "%.16f, %.16f\n", Hamiltonian(y), AngularMomentum(y));
         N_VPrintFile(y, solution_fp);
@@ -380,7 +387,7 @@ int main(int argc, char* argv[])
     }
     N_VDestroy(y);
     if (method == 0) {
-      // SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+      SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
       SPRKStepFree(&arkode_mem); 
     } else {
       ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
