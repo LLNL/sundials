@@ -105,6 +105,14 @@ foreach(test_tuple ${tests})
 
   endif()
 
+  if(BUILD_SUNLINSOL_SUPERLUDIST)
+    target_compile_definitions(${target} PRIVATE USE_SUPERLU_DIST)
+    target_link_libraries(${target}
+      PRIVATE
+      sundials_sunlinsolsuperludist
+      sundials_sunmatrixslunrloc)
+  endif()
+
   # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX
   target_include_directories(${target} PRIVATE ${MPI_CXX_INCLUDE_DIRS})
   target_link_libraries(${target} PRIVATE ${MPI_CXX_LIBRARIES})
