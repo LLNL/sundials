@@ -396,12 +396,16 @@ int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
   {
     for (sunindextype i = 0; i < udata->nx_loc; i++)
     {
-      matrix_columns(i, j, x, y, udata, data + row_nnz, col_idxs + row_nnz,
-                     &row_nnz);
+      matrix_columns(i, j, x, y, udata, data + row_ptrs[idx],
+                     col_idxs + row_ptrs[idx], &row_nnz);
       row_ptrs[idx + 1] = row_ptrs[idx] + row_nnz;
       idx++;
     }
   }
+
+  Lstore->nnz_loc = row_ptrs[idx];
+  Lstore->m_loc   = udata->nx_loc * udata->ny_loc;
+  Lstore->fst_row = global_index(0, 0, x, y, udata);
 
   // Return success
   return 0;
