@@ -85,6 +85,7 @@ SUNDIALS_EXPORT int SPRKStepResFtolerance(void *arkode_mem,
 /* Optional input functions -- must be called AFTER SPRKStepCreate */
 SUNDIALS_EXPORT int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int SPRKStepSetOptimalParams(void *arkode_mem);
+SUNDIALS_EXPORT int SPRKStepSetUseCompSums(void *arkode_mem, sunbooleantype onoff);
 SUNDIALS_EXPORT int SPRKStepSetMethod(void *arkode_mem, ARKODE_SPRKMethodID id);
 SUNDIALS_EXPORT int SPRKStepSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void *arkode_mem, int itype);

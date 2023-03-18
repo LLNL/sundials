@@ -48,8 +48,7 @@ typedef struct ARKodeSPRKStepMemRec {
   /* SPRK method and storage */
   ARKodeSPRKMem method;
   int q;                       /* method order */
-  N_Vector f1vec;
-  N_Vector f2vec;            
+  N_Vector sdata;         
 
   /* SPRK problem specification */
   ARKRhsFn f1;                 /* p' = f1(t,q) = - dV(t,q)/dq  */
@@ -58,6 +57,7 @@ typedef struct ARKodeSPRKStepMemRec {
   /* Counters */
   long int nf1;                /* number of calls to f1        */
   long int nf2;                /* number of calls to f2        */
+  int istage;
 
 } *ARKodeSPRKStepMem;
 
@@ -70,7 +70,7 @@ int sprkStep_Init(void* arkode_mem, int init_type);
 int sprkStep_FullRHS(void* arkode_mem, realtype t,
                      N_Vector y, N_Vector f, int mode);
 int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
-int sprkStep_TakeStep_SPRKInc(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int sprkStep_AccessStepMem(void* arkode_mem, const char *fname,

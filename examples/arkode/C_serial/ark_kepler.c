@@ -147,62 +147,11 @@ int main(int argc, char* argv[])
   if (method == 0) {
     arkode_mem = SPRKStepCreate(dpdt, dqdt, T0, y, sunctx);
 
-    switch (order) {
-      case 1:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_EULER_1);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 2:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_LEAPFROG_2);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 22:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 222:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_2);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 3:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_RUTH_3);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 33:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_3);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 4:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_CANDY_ROZMUS_4);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 44:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_4);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 5:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_5);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 6:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_YOSHIDA_6);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 8:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_8);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 10:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_SOFRONIOU_10);
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      default:
-        fprintf(stderr, "Not a valid method\n");
-        return 1;
-    }
+    retval = SPRKStepSetOrder(arkode_mem, order);
+    if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
 
-    // retval = SPRKStepSetOrder(arkode_mem, order);
-    // if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
+    retval = SPRKStepSetUseCompSums(arkode_mem, 1);
+    if (check_retval(&retval, "SPRKStepSetUseCompSums", 1)) return 1;  
 
     if (step_mode == 0) {
       retval = SPRKStepSetFixedStep(arkode_mem, dt);
@@ -227,7 +176,6 @@ int main(int argc, char* argv[])
     retval = SPRKStepSetUserData(arkode_mem, (void *) udata);
     if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
   } else if (method >= 1) {
-    fprintf(stderr, ">>>>> ARKStepCreate\n");
     if (method == 1) {
       arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
@@ -252,7 +200,7 @@ int main(int argc, char* argv[])
     if (step_mode == 0) {
       retval = ARKStepSetFixedStep(arkode_mem, dt);
     } else {
-      retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-8), SUN_RCONST(10e-12));
+      retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(10e-12), SUN_RCONST(10e-14));
       if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
     }
   }
@@ -262,10 +210,7 @@ int main(int argc, char* argv[])
     const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
     const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
-    const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
-    // const char* fmt1 = "ark_kepler_conserved_sprkinc-%d.txt";
-    // const char* fmt2 = "ark_kepler_solution_sprkinc-%d.txt";
-    // const char* fmt3 = "ark_kepler_times_sprkinc-%d.txt";
+    // const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
     char fname[64];
     sprintf(fname, fmt1, order);
     conserved_fp = fopen(fname, "w+");
@@ -273,13 +218,13 @@ int main(int argc, char* argv[])
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, order);
     times_fp = fopen(fname, "w+");
-    sprintf(fname, fmt4, order);
-    udata->hhist_fp = fopen(fname, "w+");
+    // sprintf(fname, fmt4, order);
+    // udata->hhist_fp = fopen(fname, "w+");
   } else {
     const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
     const char* fmt3 = "ark_kepler_times_erk-%d.txt";
-    const char* fmt4 = "ark_kepler_hhist_erk-%d.txt";
+    // const char* fmt4 = "ark_kepler_hhist_erk-%d.txt";
     char fname[64];
     sprintf(fname, fmt1, order);
     conserved_fp = fopen(fname, "w+");
@@ -287,8 +232,8 @@ int main(int argc, char* argv[])
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, order);
     times_fp = fopen(fname, "w+");
-    sprintf(fname, fmt4, order);
-    udata->hhist_fp = fopen(fname, "w+");
+    // sprintf(fname, fmt4, order);
+    // udata->hhist_fp = fopen(fname, "w+");
   }
 
   printf("\n   Begin Kepler Problem\n\n");
@@ -368,7 +313,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  fclose(udata->hhist_fp);
+  // fclose(udata->hhist_fp);
   free(udata);
   fclose(times_fp);
   fclose(conserved_fp);
@@ -508,7 +453,7 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 {
   UserData udata = (UserData) user_data;
 
-  fprintf(udata->hhist_fp, "%.16f\n", h1);
+  // fprintf(udata->hhist_fp, "%.16f\n", h1);
 
   const sunrealtype G_np1 = G(y, udata->alpha);
   udata->rho_np1 = udata->rho_nphalf + udata->eps*G_np1/SUN_RCONST(2.0);

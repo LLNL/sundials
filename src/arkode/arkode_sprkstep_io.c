@@ -227,18 +227,43 @@ int SPRKStepSetDefaults(void* arkode_mem)
 }
 
 /*---------------------------------------------------------------
-  SPRKStepSetOrder:
+  SPRKStepSetUseCompSums:
+
+  Turns on/off compensated summation in SPRKStep and ARKODE.
+  ---------------------------------------------------------------*/
+int SPRKStepSetUseCompSums(void *arkode_mem, sunbooleantype onoff)
+{
+  ARKodeMem ark_mem;
+  ARKodeSPRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetOrder",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  if (onoff) {
+    ark_mem->step = sprkStep_TakeStep_Compensated;
+  } else {
+    ark_mem->step = sprkStep_TakeStep;
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  SPRKStepSetMethod:
 
   Specifies the SPRK method
 
   ** Note in documentation that this should not be called along
-  with SPRKStepSetOrder.
+  with SPRKStepSetOrder. **
   ---------------------------------------------------------------*/
 int SPRKStepSetMethod(void *arkode_mem, ARKODE_SPRKMethodID id)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
-  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeSPRKStepMem structure */
@@ -263,16 +288,12 @@ int SPRKStepSetMethod(void *arkode_mem, ARKODE_SPRKMethodID id)
   Specifies the method order
 
   ** Note in documentation that this should not be called along
-  with SPRKStepSetTable or SPRKStepSetTableNum.  This routine
-  is used to specify a desired method order using default Butcher
-  tables, whereas any user-supplied table will have their own
-  order associated with them.
+  with SPRKStepSetMethod. ** 
   ---------------------------------------------------------------*/
 int SPRKStepSetOrder(void *arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
-  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeSPRKStepMem structure */
@@ -291,12 +312,6 @@ int SPRKStepSetOrder(void *arkode_mem, int ord)
     ARKodeSPRKMem_Free(step_mem->method);
     step_mem->method = NULL;
   }
-
-  // /* clear method specification, since user is requesting a change in method
-  //    or a reset to defaults. Spec will be set in ARKInitialSetup. */
-  // step_mem->stages = 0;
-  // step_mem->istage = 0;
-  // step_mem->p = 0;
 
   return(ARK_SUCCESS);
 }
