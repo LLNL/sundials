@@ -110,7 +110,7 @@ if(SUPERLUDIST_CUDA)
   list(APPEND SUPERLUDIST_LINK_LIBRARIES CUDA::cudart CUDA::cublas)
 endif()
 if(SUPERLUDIST_HIP)
-  list(APPEND SUPERLUDIST_LINK_LIBRARIES roc::hipblas)
+  list(APPEND SUPERLUDIST_LINK_LIBRARIES roc::hipblas hip::device)
 endif()
 
 # set package variables including SUPERLUDIST_FOUND
