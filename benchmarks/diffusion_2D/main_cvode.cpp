@@ -326,6 +326,9 @@ int main(int argc, char* argv[])
     flag = CVodeSetStopTime(cvode_mem, udata.tf);
     if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
 
+    flag = CVodeSetInitStep(cvode_mem, 1.0e-4);
+    if (check_flag(&flag, "CVodeSetInitStep", 1)) return 1;
+
     // -----------------------
     // Loop over output times
     // -----------------------

@@ -209,6 +209,8 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
   if ((S == NULL) || (A == NULL) || (x == NULL) || (b == NULL))
     return(SUNLS_MEM_NULL);
 
+  SUNMatrix_SLUNRloc_Print(A, stdout);
+
   Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);
   Astore = (NRformat_loc *) Asuper->Store;
 
