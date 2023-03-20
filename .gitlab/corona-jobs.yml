@@ -40,7 +40,7 @@ corona_clang_hip_tpls_part_1:
 corona_clang_hip_tpls_part_2:
   parallel:
     matrix:
-      - COMPILER_SPEC: clang@15.0.0
+      - COMPILER_SPEC: clang@14.0.0
         AMDGPU_TARGET: [gfx906]
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm~mpi+kokkos+kokkos-kernels ^kokkos-kernels ^kokkos+rocm~profiling amdgpu_target=${AMDGPU_TARGET}"
