@@ -178,6 +178,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "profiling", default=False, when="@6.0.0:", description="Build with profiling capabilities"
     )
 
+    # Scheduler
+    variant("scheduler", default="slurm", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm"))
+
     # ==========================================================================
     # Dependencies
     # ==========================================================================
@@ -666,7 +669,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc)
                 ]
             )
-        
+            if spec.satisfies("scheduler=flux"):
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux mini run"))
+                
+
         return entries
 
     def initconfig_hardware_entries(self):

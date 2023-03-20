@@ -21,7 +21,7 @@ corona_clang_hip:
       - COMPILER_SPEC: clang@15.0.0
         AMDGPU_TARGET: [gfx906]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm~mpi"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi"
   extends: .corona_build_and_test
 
 # ------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ corona_clang_hip_tpls_part_1:
         AMDGPU_TARGET: [gfx906]
         ROCM_VERSION: 5.2.3
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} +rocm~mpi+magma+raja+ginkgo ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET} ^hipblas@${ROCM_VERSION} ^hipsparse@${ROCM_VERSION} ^rocrand@${ROCM_VERSION} ^rocthrust@${ROCM_VERSION} ^hip@${ROCM_VERSION} ^hsa-rocr-dev@${ROCM_VERSION} ^llvm-amdgpu@${ROCM_VERSION}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+magma+raja+ginkgo ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET} ^hipblas@${ROCM_VERSION} ^hipsparse@${ROCM_VERSION} ^rocrand@${ROCM_VERSION} ^rocthrust@${ROCM_VERSION} ^hip@${ROCM_VERSION} ^hsa-rocr-dev@${ROCM_VERSION} ^llvm-amdgpu@${ROCM_VERSION}"
   extends: .corona_build_and_test
 
 corona_clang_hip_tpls_part_2:

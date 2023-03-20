@@ -293,6 +293,4 @@ sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
 sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
 
-sundials_option(ENABLE_CUSTOM_MPI_RUN_COMMAND BOOL "Enable passing in a custom command prefix to run when running MPI jobs" OFF ADVANCED)
-
-sundials_option(CUSTOM_MPI_RUN_COMMAND_PREFIX STRING "Executable prefix to append before each MPI job command." "flux mini run" ADVANCED)
+sundials_option(SUNDIALS_TEST_MPIRUN_COMMAND STRING "Job scheduler or mpirun command used to launch SUNDIALS MPI tests." "" ADVANCED)
