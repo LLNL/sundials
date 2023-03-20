@@ -21,7 +21,7 @@ corona_clang_hip:
       - COMPILER_SPEC: clang@15.0.0
         AMDGPU_TARGET: [gfx906]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm~mpi"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi"
   extends: .corona_build_and_test
 
 # ------------------------------------------------------------------------------
