@@ -39,8 +39,6 @@ struct UserOptions
   void print();
 };
 
-// Print integration statistics and timings
-static int OutputStats(void *cvode_mem, UserData *udata);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -382,8 +380,8 @@ int main(int argc, char* argv[])
     if (outproc)
     {
       cout << "Final integrator statistics:" << endl;
-      flag = OutputStats(cvode_mem, &udata);
-      if (check_flag(&flag, "OutputStats", 1)) return 1;
+      flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+      if (check_flag(&flag, "CVodePrintAllStats", 1)) return 1;
     }
 
     // ---------
@@ -426,76 +424,6 @@ int main(int argc, char* argv[])
 
   // Finalize MPI
   flag = MPI_Finalize();
-  return 0;
-}
-
-
-// -----------------------------------------------------------------------------
-// Output functions
-// -----------------------------------------------------------------------------
-
-
-// Print integrator statistics
-static int OutputStats(void *cvode_mem, UserData* udata)
-{
-  int flag;
-
-  // Get integrator and solver stats
-  long int nst, netf, nf, nni, ncfn, nli, nlcf, nsetups, nf_ls, nJv;
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_flag(&flag, "CVodeGetNumSteps", 1)) return -1;
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  if (check_flag(&flag, "CVodeGetNumErrTestFails", 1)) return -1;
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nf);
-  if (check_flag(&flag, "CVodeGetNumRhsEvals", 1)) return -1;
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  if (check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1)) return -1;
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  if (check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1)) return -1;
-  flag = CVodeGetNumLinIters(cvode_mem, &nli);
-  if (check_flag(&flag, "CVodeGetNumLinIters", 1)) return -1;
-  flag = CVodeGetNumLinConvFails(cvode_mem, &nlcf);
-  if (check_flag(&flag, "CVodeGetNumLinConvFails", 1)) return -1;
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  if (check_flag(&flag, "CVodeGetNumLinSolvSetups", 1)) return -1;
-  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nf_ls);
-  if (check_flag(&flag, "CVodeGetNumLinRhsEvals", 1)) return -1;
-  flag = CVodeGetNumJtimesEvals(cvode_mem, &nJv);
-  if (check_flag(&flag, "CVodeGetNumJtimesEvals", 1)) return -1;
-
-  cout << fixed;
-  cout << setprecision(6);
-
-  cout << "  Steps            = " << nst     << endl;
-  cout << "  Error test fails = " << netf    << endl;
-  cout << "  RHS evals        = " << nf      << endl;
-  cout << "  NLS iters        = " << nni     << endl;
-  cout << "  NLS fails        = " << ncfn    << endl;
-  cout << "  LS iters         = " << nli     << endl;
-  cout << "  LS fails         = " << nlcf    << endl;
-  cout << "  LS setups        = " << nsetups << endl;
-  cout << "  LS RHS evals     = " << nf_ls   << endl;
-  cout << "  Jv products      = " << nJv     << endl;
-  cout << endl;
-
-  // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst;
-  realtype avgli  = (realtype) nli / (realtype) nni;
-  cout << "  Avg NLS iters per step    = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter = " << avgli  << endl;
-  cout << endl;
-
-  // Get preconditioner stats
-  long int npe, nps;
-  flag = CVodeGetNumPrecEvals(cvode_mem, &npe);
-  if (check_flag(&flag, "CVodeGetNumPrecEvals", 1)) return -1;
-  flag = CVodeGetNumPrecSolves(cvode_mem, &nps);
-  if (check_flag(&flag, "CVodeGetNumPrecSolves", 1)) return -1;
-
-  cout << "  Preconditioner setups = " << npe << endl;
-  cout << "  Preconditioner solves = " << nps << endl;
-  cout << endl;
-
   return 0;
 }
 
@@ -611,15 +539,27 @@ void UserOptions::print()
   cout << " --------------------------------- " << endl;
 
   cout << endl;
-  cout << " Linear solver options:" << endl;
-  cout << " --------------------------------- " << endl;
-  cout << " LS       = " << ls       << endl;
-  cout << " precond  = " << prec     << endl;
-  cout << " LS info  = " << lsinfo   << endl;
-  cout << " LS iters = " << liniters << endl;
-  cout << " msbp     = " << msbp     << endl;
-  cout << " epslin   = " << epslin   << endl;
-  cout << " --------------------------------- " << endl;
+  if (ls == "sludist")
+  {
+    cout << " Linear solver options:" << endl;
+    cout << " --------------------------------- " << endl;
+    cout << " LS       = " << ls       << endl;
+    cout << " LS info  = " << lsinfo   << endl;
+    cout << " msbp     = " << msbp     << endl;
+    cout << " --------------------------------- " << endl;
+  }
+  else
+  {
+    cout << " Linear solver options:" << endl;
+    cout << " --------------------------------- " << endl;
+    cout << " LS       = " << ls       << endl;
+    cout << " precond  = " << prec     << endl;
+    cout << " LS info  = " << lsinfo   << endl;
+    cout << " LS iters = " << liniters << endl;
+    cout << " msbp     = " << msbp     << endl;
+    cout << " epslin   = " << epslin   << endl;
+    cout << " --------------------------------- " << endl;
+  }
 }
 
 //---- end of file ----
