@@ -215,20 +215,20 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
   sunindextype qy = udata->qy;
   sunindextype rx = udata->rx;
   sunindextype ry = udata->ry;
-  sunindextype nx = udata->nx;
+  sunindextype ny = udata->ny;
 
   // offset from previous process rows
-  sunindextype offset_p = nx * ((qy + 1) * min(y, ry) + qy * max(y - ry, 0));
+  sunindextype offset_p = ny * ((qx + 1) * min(x, rx) + qx * max(x - rx, 0));
 
   // offset within current process row
   sunindextype offset_c;
-  if (y < ry)
+  if (x < rx)
   {
-    offset_c = (qy + 1) * ((qx + 1) * min(x, rx) + qx * max(x - rx, 0));
+    offset_c = (qx + 1) * ((qy + 1) * min(y, ry) + qy * max(y - ry, 0));
   }
   else
   {
-    offset_c = qy * ((qx + 1) * min(x, rx) + qx * max(x - rx, 0));
+    offset_c = qx * ((qy + 1) * min(y, ry) + qy * max(y - ry, 0));
   }
 
   // nx_loc for the input (x,y) process (not necessarily the same as nx_loc in
@@ -279,16 +279,16 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   // --------
 
   // Ordering of columns for output
-  //   0. South Neighbor
-  //   1. West Neighbor
+  //   0. West Neighbor
+  //   1. South Neighbor
   //   Interior:
   //      2. South
   //      3. West
   //      4. Center
   //      5. East
   //      6. North
-  //   7. East Neighbor
-  //   8. North Neighbor
+  //   7. North Neighbor
+  //   8. East Neighbor
 
   // Constants for computing Jacobian
   sunrealtype cx = udata->kx / (udata->dx * udata->dx);
@@ -297,19 +297,6 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
 
   // Value and Columns index
   sunindextype idx = 0;
-
-  // south neighbor
-  if (j == 0)
-  {
-    // neighbor ny_loc
-    sunindextype ny_loc;
-    if (y - 1 < ry) ny_loc = qy + 1;
-    else ny_loc = qy;
-
-    vals[idx]    = cy;
-    col_idx[idx] = global_index(i, ny_loc - 1, x, y - 1, udata);
-    idx += 1;
-  }
 
   // west neighbor
   if (i == 0)
@@ -321,6 +308,19 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
 
     vals[idx]    = cx;
     col_idx[idx] = global_index(nx_loc - 1, j, x - 1, y, udata);
+    idx += 1;
+  }
+
+  // south neighbor
+  if (j == 0)
+  {
+    // neighbor ny_loc
+    sunindextype ny_loc;
+    if (y - 1 < ry) ny_loc = qy + 1;
+    else ny_loc = qy;
+
+    vals[idx]    = cy;
+    col_idx[idx] = global_index(i, ny_loc - 1, x, y - 1, udata);
     idx += 1;
   }
 
@@ -361,19 +361,19 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
     idx += 1;
   }
 
-  // east neighbor
-  if (i == udata->nx_loc - 1)
-  {
-    vals[idx]    = cx;
-    col_idx[idx] = global_index(0, j, x + 1, y, udata);
-    idx += 1;
-  }
-
   // north neighbor
   if (j == udata->ny_loc - 1)
   {
     vals[idx]    = cy;
     col_idx[idx] = global_index(i, 0, x, y + 1, udata);
+    idx += 1;
+  }
+
+  // east neighbor
+  if (i == udata->nx_loc - 1)
+  {
+    vals[idx]    = cx;
+    col_idx[idx] = global_index(0, j, x + 1, y, udata);
     idx += 1;
   }
 
