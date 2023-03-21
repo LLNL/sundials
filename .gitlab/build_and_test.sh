@@ -60,7 +60,6 @@ fi
 # Rocm version specific to Corona.
 if [[ "${hostname}" == "corona" ]]
 then
-    echo "module load rocm/5.4.1"
     if [-z "${ROCM_VERSION}"] 
     then
         module load rocm
