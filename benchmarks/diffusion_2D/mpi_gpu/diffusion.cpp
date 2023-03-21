@@ -630,44 +630,6 @@ int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
   Lstore->m_loc   = udata->nx_loc * udata->ny_loc;
   Lstore->fst_row = global_index(0, 0, x, y, udata);
 
-  for (int ip = 0; ip < udata->np; ip++)
-  {
-    if (ip == udata->myid_c)
-    {
-      std::cout << "My ID   = " << udata->myid_c << "\n";
-      std::cout << "x coord = " << udata->idx << "\n";
-      std::cout << "y coord = " << udata->idy << "\n";
-
-      std::cout << "nx_loc  = " << udata->nx_loc << "\n";
-      std::cout << "ny_loc  = " << udata->ny_loc << "\n";
-      std::cout << "nnz_loc = " << Lstore->nnz_loc << "\n";
-      std::cout << "m_loc   = " << Lstore->m_loc << "\n";
-      std::cout << "fst_row = " << Lstore->fst_row << "\n";
-
-      std::cout << "row_ptrs = ";
-      for (int i = 0; i <= udata->nx_loc * udata->ny_loc; i++)
-      {
-        std::cout << row_ptrs[i] << " ";
-      }
-      std::cout << std::endl << std::endl;
-
-      std::cout << "col_idxs = ";
-      for (int i = 0; i < Lstore->nnz_loc; i++)
-      {
-        std::cout << col_idxs[i] << " ";
-      }
-      std::cout << std::endl << std::endl;
-
-      std::cout << "data = ";
-      for (int i = 0; i < Lstore->nnz_loc; i++)
-      {
-        std::cout << data[i] << " ";
-      }
-      std::cout << std::endl << std::endl;
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-  }
-
   // Return success
   return 0;
 }
