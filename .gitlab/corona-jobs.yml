@@ -26,7 +26,7 @@ corona_clang_hip:
 # ------------------------------------------------------------------------------
 # HIP + TPLs
 # ------------------------------------------------------------------------------
-corona_clang_hip_tpls_part_1:
+corona_clang_hip_tpls:
   parallel:
     matrix:
       - COMPILER_SPEC: clang@14.0.0

@@ -48,7 +48,8 @@ BUILD_JOBS=${BUILD_JOBS:-"1"}
 
 # load newer python to try the clingo concretizer
 # Corona does not have python 3.8.2
-if [[ "${hostname}" == "corona" ]]; then
+if [[ "${hostname}" == "corona" ]]
+then
     echo "module load python/3.9.12"
     module load python/3.9.12
 else
@@ -57,9 +58,15 @@ else
 fi
 
 # Rocm version specific to Corona.
-if [[ "${hostname}" == "corona" ]]; then
+if [[ "${hostname}" == "corona" ]]
+then
     echo "module load rocm/5.4.1"
-    module load rocm/5.4.1
+    if [-z "${ROCM_VERSION}"] 
+    then
+        module load rocm
+    else 
+        module load rocm/${ROCM_VERSION}
+    fi
 fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
