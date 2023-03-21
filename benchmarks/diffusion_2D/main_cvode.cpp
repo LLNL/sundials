@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
     {
 #if defined(USE_SUPERLU_DIST)
       // initialize SuperLU-DIST grid
-      superlu_gridinit(MPI_COMM_WORLD, udata.npx, udata.npy, &grid);
+      superlu_gridinit(udata.comm_c, udata.npx, udata.npy, &grid);
 
       // Initialize sparse matrix data structure and SuperLU_DIST solver
       sunindextype nnz_loc = 5 * udata.nodes_loc;
