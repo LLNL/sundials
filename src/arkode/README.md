@@ -4,7 +4,7 @@
 **Daniel R. Reynolds,
   Department of Mathematics, SMU**
 
-**David J. Gardner, Carol S. Woodward, and Cody J. Balos,  
+**David J. Gardner, Carol S. Woodward, and Cody J. Balos,
   Center for Applied Scientific Computing, LLNL**
 
 ARKODE is a package for the solution of stiff, nonstiff, and multirate ordinary
@@ -27,12 +27,12 @@ nonlinear solver APIs used across SUNDIALS packages.
 
 ## Documentation
 
-See the ARKODE documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/arkode) 
+See the ARKODE documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/arkode)
 for more information about ARKODE usage.
 
 ## Installation
 
-For installation instructions see the 
+For installation instructions see the
 [SUNDIALS Installation Guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
 
 ## Release History

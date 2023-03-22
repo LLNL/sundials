@@ -1,7 +1,7 @@
 # KINSOL
 ### Version 6.5.0 (Dec 2022)
 
-**Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
+**Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner,
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
 
 **Daniel R. Reynolds, Department of Mathematics, Southern Methodist University**
@@ -30,14 +30,13 @@ calling program and all user-supplied routines are in Fortran.
 
 ## Documentation
 
-See the [KINSOL User Guide](/doc/kinsol/kin_guide.pdf) and
-[KINSOL Examples](/doc/kinsol/kin_examples.pdf) document for more information
-about IDA usage and the provided example programs respectively.
+See the KINSOL documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/kinsol)
+for more information about KINSOL usage.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
-or the "Installation Procedure" chapter in the KINSOL User Guide.
+For installation instructions see the
+[SUNDIALS Installation Guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
 
 ## Release History
 
@@ -47,7 +46,7 @@ the "SUNDIALS Release History" appendix of the KINSOL User Guide.
 
 ## References
 
-* A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, 
+* A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner,
   D. R. Reynolds and C. S. Woodward,
   "User Documentation for KINSOL v6.5.0," LLNL technical report
   UCRL-SM-208116, Dec 2022.

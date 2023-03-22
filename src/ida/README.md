@@ -30,14 +30,13 @@ program and all user-supplied routines are in Fortran.
 
 ## Documentation
 
-See the [IDA User Guide](/doc/ida/ida_guide.pdf) and
-[IDA Examples](/doc/ida/ida_examples.pdf) document for more information
-about IDA usage and the provided example programs respectively.
+See the IDA documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/ida)
+for more information about IDA usage.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
-or the "Installation Procedure" chapter in the IDA User Guide.
+For installation instructions see the
+[SUNDIALS Installation Guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
 
 ## Release History
 
