@@ -15,30 +15,24 @@ equation (ODE) systems, differential-algebraic equation (DAE) systems, and
 nonlinear algebraic systems:
 
 * ARKODE - for integrating stiff, nonstiff, and multirate ODEs of the form
-
-  $$ M(t) \\, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0 $$
+  $$M(t) \\, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0$$
 
 * CVODE - for integrating stiff and nonstiff ODEs of the form
-
-  $$ y' = f(t,y), \quad y(t_0) = y_0 $$
+  $$y' = f(t,y), \quad y(t_0) = y_0$$
 
 * CVODES - for integrating and sensitivity analysis (forward and adjoint) of
   ODEs of the form
-
-  $$ y' = f(t,y,p), \quad y(t_0) = y_0(p) $$
+  $$y' = f(t,y,p), \quad y(t_0) = y_0(p)$$
 
 * IDA - for integrating DAEs of the form
-
-  $$ F(t,y,y') = 0, \quad y(t_0) = y_0, \quad y'(t_0) = y_0' $$
+  $$F(t,y,y') = 0, \quad y(t_0) = y_0, \quad y'(t_0) = y_0'$$
 
 * IDAS - for integrating and sensitivity analysis (forward and adjoint) of DAEs
   of the form
-
-  $$ F(t,y,y',p) = 0, \quad y(t_0) = y_0(p), \quad y'(t_0) = y_0'(p) $$
+  $$F(t,y,y',p) = 0, \quad y(t_0) = y_0(p), \quad y'(t_0) = y_0'(p)$$
 
 * KINSOL - for solving nonlinear algebraic systems of the form
-
-  $$ F(u) = 0 \quad \text{or} \quad G(u) = u $$
+  $$F(u) = 0 \quad \text{or} \quad G(u) = u$$
 
 ## Installation ##
 

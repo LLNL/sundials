@@ -40,7 +40,7 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
   if (NOT TARGET ${example_target})
 
     # example source files
-    add_executable(${example_target} ${example} ../test_sunlinsol.c ../test_sunlinsol.h)
+    add_executable(${example_target} ${example})
 
     # folder for IDEs
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
@@ -48,6 +48,7 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
     # libraries to link against
     target_link_libraries(${example_target}
       PRIVATE
+      test_sunlinsol_obj
       sundials_nvecsycl
       sundials_sunlinsolonemkldense
       MKL::MKL_DPCPP

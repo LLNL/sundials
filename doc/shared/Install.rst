@@ -938,10 +938,11 @@ illustration only.
 
    .. note::
 
-      At present the only supported SYCL compiler is the DPC++ (Intel oneAPI)
-      compiler. CMake does not currently support autodetection of SYCL compilers
-      and ``CMAKE_CXX_COMPILER`` must be set to a valid SYCL compiler i.e.,
-      ``dpcpp`` in order to build with SYCL support.
+      CMake does not currently support autodetection of SYCL compilers and
+      ``CMAKE_CXX_COMPILER`` must be set to a valid SYCL compiler. At present
+      the only supported SYCL compilers are the Intel oneAPI compilers i.e.,
+      ``dpcpp`` and ``icpx``. When using ``icpx`` the ``-fsycl`` flag and any
+      ahead of time compilation flags must be added to ``CMAKE_CXX_FLAGS``.
 
 
 .. cmakeoption:: SUNDIALS_LOGGING_LEVEL
