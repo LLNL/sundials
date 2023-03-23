@@ -435,7 +435,7 @@ int laplacian_matrix_sludist(N_Vector u, sunrealtype cj, SUNMatrix L,
       matrix_row(i, j, x, y, udata, data + row_ptrs[idx],
                  col_idxs + row_ptrs[idx], &row_nnz);
 #else
-      matrix_row(i, j, x, y, udata, data + row_ptrs[idx], cj,
+      matrix_row(i, j, x, y, udata, cj, data + row_ptrs[idx],
                  col_idxs + row_ptrs[idx], &row_nnz);
 #endif
       row_ptrs[idx + 1] = row_ptrs[idx] + row_nnz;

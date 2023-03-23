@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
 #if defined(USE_SUPERLU_DIST)
     if (uopts.ls == "sludist")
     {
-      ARKStepSetJacFn(ida_mem, diffusion_jac);
+      IDASetJacFn(ida_mem, diffusion_jac);
       if (check_flag(&flag, "IDASetJacFn", 1)) return 1;
     }
 #endif
