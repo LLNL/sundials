@@ -210,6 +210,8 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
 sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
                           UserData* udata)
 {
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
   // Unpack values (same for all ranks)
   sunindextype qx = udata->qx;
   sunindextype qy = udata->qy;
@@ -250,6 +252,8 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
                    UserData* udata, sunrealtype* vals, sunindextype* col_idx,
                    sunindextype* row_nnz)
 {
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
   // Unpack values
   int npx = udata->npx;
   int npy = udata->npy;
@@ -385,6 +389,8 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
 
 int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
 {
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
   // Set shortcuts
   SuperMatrix*  Lsuper   = SUNMatrix_SLUNRloc_SuperMatrix(L);
   NRformat_loc* Lstore   = (NRformat_loc*)Lsuper->Store;
