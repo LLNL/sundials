@@ -97,6 +97,8 @@ int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
   std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
   return -1;
 #endif
+
+  return 0;
 }
 
 #else
