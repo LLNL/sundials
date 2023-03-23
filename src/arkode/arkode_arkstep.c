@@ -1595,6 +1595,9 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
         implicit_stage = SUNTRUE;
 
+    /* determine if the stage RHS will be deduced from the implicit solve */
+    deduce_stage = step_mem->deduce_rhs && implicit_stage;
+
     /* set current stage time(s) */
     if (step_mem->implicit)
       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
@@ -1711,7 +1714,6 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
-      deduce_stage = step_mem->deduce_rhs && implicit_stage;
 
       if (!deduce_stage) {
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
