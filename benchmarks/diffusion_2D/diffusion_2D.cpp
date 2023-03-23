@@ -48,7 +48,7 @@ int diffusion_jac(realtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
   // Compute the Laplacian matrix
 #if defined(USE_SUPERLU_DIST)
   int flag = laplacian_matrix_sludist(u, Jac, udata);
-  if (check_flag(&flag, "laplacian_matrix", 1))
+  if (check_flag(&flag, "laplacian_matrix_sludist", 1))
     return -1;
 #else
   std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
@@ -77,6 +77,26 @@ int diffusion(realtype t, N_Vector u, N_Vector up, N_Vector res,
   N_VLinearSum(ONE, up, -ONE, res, res);
 
   return 0;
+}
+
+int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
+                  N_Vector res, SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                  N_Vector tmp2, N_Vector tmp3)
+{
+  // Access problem data
+  UserData *udata = (UserData *) user_data;
+
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
+  // Compute the Laplacian matrix
+#if defined(USE_SUPERLU_DIST)
+  int flag = laplacian_matrix_sludist(u, cj, Jac, udata);
+  if (check_flag(&flag, "laplacian_matrix_sludist", 1))
+    return -1;
+#else
+  std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
+  return -1;
+#endif
 }
 
 #else

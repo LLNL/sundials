@@ -215,11 +215,11 @@ struct UserOutput
 // Common function for computing the Laplacian
 int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata);
 
+#if defined(BENCHMARK_ODE)
+
 #if defined(USE_SUPERLU_DIST)
 int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata);
 #endif
-
-#if defined(BENCHMARK_ODE)
 
 // ODE right hand side function
 int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data);
@@ -237,13 +237,18 @@ int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 
 #elif defined(BENCHMARK_DAE)
 
+#if defined(USE_SUPERLU_DIST)
+int laplacian_matrix_sludist(N_Vector u, sunrealtype cj, SUNMatrix L,
+                             UserData* udata);
+#endif
+
 // DAE residual function
 int diffusion(realtype t, N_Vector u, N_Vector up, N_Vector res,
               void *user_data);
 
-// int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
-//                   N_Vector res, SUNMatrix Jac, void* user_data, N_Vector tmp1,
-//                   N_Vector tmp2, N_Vector tmp3);
+int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
+                  N_Vector res, SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                  N_Vector tmp2, N_Vector tmp3);
 
 // Preconditioner setup and solve functions
 int PSetup(realtype t, N_Vector u, N_Vector up, N_Vector res, realtype cj,

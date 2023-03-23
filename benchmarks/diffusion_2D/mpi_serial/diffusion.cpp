@@ -243,14 +243,19 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
   return offset_p + offset_c + j * nx_loc + i;
 }
 
-// Compute the global column indices for a row
+// Compute a row in the global matrix
 //   i -- local x index
 //   j -- local y index
 //   x -- x processor coordinate
 //   y -- y processor coordinate
-int matrix_columns(sunindextype i, sunindextype j, int x, int y,
-                   UserData* udata, sunrealtype* vals, sunindextype* col_idx,
-                   sunindextype* row_nnz)
+#if defined(BENCHMARK_ODE)
+int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
+               sunrealtype* vals, sunindextype* col_idx, sunindextype* row_nnz)
+#else
+int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
+               sunrealtype cj, sunrealtype* vals, sunindextype* col_idx,
+               sunindextype* row_nnz)
+#endif
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -272,7 +277,11 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
       (x == npx - 1 && i == udata->nx_loc - 1) || // east
       (y == npy - 1 && j == udata->ny_loc - 1))   // north
   {
-    vals[0]    = 0;
+#if defined(BENCHMARK_ODE)
+    vals[0] = 0;
+#else
+    vals[0] = cj;
+#endif
     col_idx[0] = global_index(i, j, x, y, udata);
     *row_nnz   = 1;
     return 0;
@@ -295,9 +304,15 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   //   8. East Neighbor
 
   // Constants for computing Jacobian
+#if defined(BENCHMARK_ODE)
   sunrealtype cx = udata->kx / (udata->dx * udata->dx);
   sunrealtype cy = udata->ky / (udata->dy * udata->dy);
   sunrealtype cc = -TWO * (cx + cy);
+#else
+  sunrealtype cx = -udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = -udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = cj + TWO * (cx + cy);
+#endif
 
   // Value and Columns index
   sunindextype idx = 0;
@@ -387,16 +402,21 @@ int matrix_columns(sunindextype i, sunindextype j, int x, int y,
   return 0;
 }
 
+#if defined(BENCHMARK_ODE)
 int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
+#else
+int laplacian_matrix_sludist(N_Vector u, sunrealtype cj, SUNMatrix L,
+                             UserData* udata)
+#endif
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Set shortcuts
-  SuperMatrix*  Lsuper   = SUNMatrix_SLUNRloc_SuperMatrix(L);
+  SuperMatrix* Lsuper    = SUNMatrix_SLUNRloc_SuperMatrix(L);
   NRformat_loc* Lstore   = (NRformat_loc*)Lsuper->Store;
   sunindextype* row_ptrs = Lstore->rowptr;
   sunindextype* col_idxs = Lstore->colind;
-  sunrealtype*  data     = (sunrealtype*)Lstore->nzval;
+  sunrealtype* data      = (sunrealtype*)Lstore->nzval;
 
   int x = udata->idx;
   int y = udata->idy;
@@ -411,8 +431,13 @@ int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata)
   {
     for (sunindextype i = 0; i < udata->nx_loc; i++)
     {
-      matrix_columns(i, j, x, y, udata, data + row_ptrs[idx],
-                     col_idxs + row_ptrs[idx], &row_nnz);
+#if defined(BENCHMARK_ODE)
+      matrix_row(i, j, x, y, udata, data + row_ptrs[idx],
+                 col_idxs + row_ptrs[idx], &row_nnz);
+#else
+      matrix_row(i, j, x, y, udata, data + row_ptrs[idx], cj,
+                 col_idxs + row_ptrs[idx], &row_nnz);
+#endif
       row_ptrs[idx + 1] = row_ptrs[idx] + row_nnz;
       idx++;
     }
