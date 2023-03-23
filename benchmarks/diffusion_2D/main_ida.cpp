@@ -38,8 +38,6 @@ struct UserOptions
   void print();
 };
 
-// Print integration statistics and timings
-static int OutputStats(void *ida_mem, UserData *udata);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -174,6 +172,20 @@ int main(int argc, char* argv[])
 
     // Create linear solver
     SUNLinearSolver LS = NULL;
+    SUNMatrix A = nullptr;
+#if defined(USE_SUPERLU_DIST)
+    // SuperLU-DIST objects
+    SuperMatrix A_super;            // matrix object
+    gridinfo_t grid;                // process grid
+    dLUstruct_t A_lu;               // dLUstruct_t
+    dScalePermstruct_t A_scaleperm; // dScalePermstruct_t
+    dSOLVEstruct_t A_solve;         // dSOLVEstruct_t
+    SuperLUStat_t A_stat;           // SuperLUState_t
+    superlu_dist_options_t A_opts;  // options struct
+    sunrealtype* A_data = nullptr;
+    sunindextype* A_col_idxs = nullptr;
+    sunindextype* A_row_ptrs = nullptr;
+#endif
 
     int prectype = (uopts.prec) ? PREC_RIGHT : PREC_NONE;
 
@@ -207,8 +219,47 @@ int main(int argc, char* argv[])
     }
     else
     {
-      std::cerr << "ERROR: Invalid linear solver option\n";
+#if defined(USE_SUPERLU_DIST)
+      // initialize SuperLU-DIST grid
+      superlu_gridinit(udata.comm_c, udata.npx, udata.npy, &grid);
+
+      // Initialize sparse matrix data structure and SuperLU_DIST solver
+      sunindextype nnz_loc = 5 * udata.nodes_loc;
+
+      A_data = (realtype*)malloc(nnz_loc * sizeof(sunrealtype));
+      if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
+
+      A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
+      if (check_flag((void*)A_col_idxs, "malloc Acolind", 0)) return 1;
+
+      A_row_ptrs = (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
+      if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
+
+      // SuperLU_DIST structures
+      dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes,
+                                     nnz_loc, udata.nodes_loc, 0, A_data,
+                                     A_col_idxs, A_row_ptrs, SLU_NR_loc, SLU_D,
+                                     SLU_GE);
+      dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
+      dLUstructInit(udata.nodes, &A_lu);
+      PStatInit(&A_stat);
+      set_default_options_dist(&A_opts);
+      A_opts.PrintStat = NO;
+
+      // SUNDIALS structures
+      A = SUNMatrix_SLUNRloc(&A_super, &grid, ctx);
+      if (check_flag((void*)A, "SUNMatrix_SLUNRloc", 0)) return 1;
+
+      LS = SUNLinSol_SuperLUDIST(u, A, &grid, &A_lu, &A_scaleperm, &A_solve,
+                                 &A_stat, &A_opts, ctx);
+      if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
+
+      // Disable preconditioning
+      uopts.prec = false;
+#else
+      std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
       return 1;
+#endif
     }
 
     // Allocate preconditioner workspace
@@ -239,8 +290,16 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "IDASetUserData", 1)) return 1;
 
     // Attach linear solver
-    flag = IDASetLinearSolver(ida_mem, LS, NULL);
+    flag = IDASetLinearSolver(ida_mem, LS, A);
     if (check_flag(&flag, "IDASetLinearSolver", 1)) return 1;
+
+#if defined(USE_SUPERLU_DIST)
+    if (uopts.ls == "sludist")
+    {
+      ARKStepSetJacFn(ida_mem, diffusion_jac);
+      if (check_flag(&flag, "IDASetJacFn", 1)) return 1;
+    }
+#endif
 
     if (uopts.prec)
     {
@@ -317,8 +376,8 @@ int main(int argc, char* argv[])
     if (outproc)
     {
       cout << "Final integrator statistics:" << endl;
-      flag = OutputStats(ida_mem, &udata);
-      if (check_flag(&flag, "OutputStats", 1)) return 1;
+      flag = IDAPrintAllStats(ida_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+      if (check_flag(&flag, "IDAPrintAllStats", 1)) return 1;
     }
 
     // ---------
@@ -335,6 +394,19 @@ int main(int argc, char* argv[])
     IDAFree(&ida_mem);     // Free integrator memory
     SUNLinSolFree(LS);         // Free linear solver
 
+    // Free the SuperLU_DIST structures (also frees user allocated arrays
+    // A_data, A_col_idxs, and A_row_ptrs)
+#if defined(USE_SUPERLU_DIST)
+    if (uopts.ls == "sludist")
+    {
+      PStatFree(&A_stat);
+      dScalePermstructFree(&A_scaleperm);
+      dLUstructFree(&A_lu);
+      Destroy_CompRowLoc_Matrix_dist(&A_super);
+      superlu_gridexit(&grid);
+    }
+#endif
+
     // Free vectors
 #if defined(USE_HIP) || defined(USE_CUDA)
     N_VDestroy(N_VGetLocalVector_MPIPlusX(u));
@@ -348,76 +420,6 @@ int main(int argc, char* argv[])
 
   // Finalize MPI
   flag = MPI_Finalize();
-  return 0;
-}
-
-
-// -----------------------------------------------------------------------------
-// Output functions
-// -----------------------------------------------------------------------------
-
-
-// Print integrator statistics
-static int OutputStats(void *ida_mem, UserData* udata)
-{
-  int flag;
-
-  // Get integrator and solver stats
-  long int nst, netf, nf, nni, ncfn, nli, nlcf, nsetups, nf_ls, nJv;
-  flag = IDAGetNumSteps(ida_mem, &nst);
-  if (check_flag(&flag, "IDAGetNumSteps", 1)) return -1;
-  flag = IDAGetNumErrTestFails(ida_mem, &netf);
-  if (check_flag(&flag, "IDAGetNumErrTestFails", 1)) return -1;
-  flag = IDAGetNumResEvals(ida_mem, &nf);
-  if (check_flag(&flag, "IDAGetNumResEvals", 1)) return -1;
-  flag = IDAGetNumNonlinSolvIters(ida_mem, &nni);
-  if (check_flag(&flag, "IDAGetNumNonlinSolvIters", 1)) return -1;
-  flag = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  if (check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1)) return -1;
-  flag = IDAGetNumLinIters(ida_mem, &nli);
-  if (check_flag(&flag, "IDAGetNumLinIters", 1)) return -1;
-  flag = IDAGetNumLinConvFails(ida_mem, &nlcf);
-  if (check_flag(&flag, "IDAGetNumLinConvFails", 1)) return -1;
-  flag = IDAGetNumLinSolvSetups(ida_mem, &nsetups);
-  if (check_flag(&flag, "IDAGetNumLinSolvSetups", 1)) return -1;
-  flag = IDAGetNumLinResEvals(ida_mem, &nf_ls);
-  if (check_flag(&flag, "IDAGetNumLinResEvals", 1)) return -1;
-  flag = IDAGetNumJtimesEvals(ida_mem, &nJv);
-  if (check_flag(&flag, "IDAGetNumJtimesEvals", 1)) return -1;
-
-  cout << fixed;
-  cout << setprecision(6);
-
-  cout << "  Steps            = " << nst     << endl;
-  cout << "  Error test fails = " << netf    << endl;
-  cout << "  Res evals        = " << nf      << endl;
-  cout << "  NLS iters        = " << nni     << endl;
-  cout << "  NLS fails        = " << ncfn    << endl;
-  cout << "  LS iters         = " << nli     << endl;
-  cout << "  LS fails         = " << nlcf    << endl;
-  cout << "  LS setups        = " << nsetups << endl;
-  cout << "  LS Res evals     = " << nf_ls   << endl;
-  cout << "  Jv products      = " << nJv     << endl;
-  cout << endl;
-
-  // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst;
-  realtype avgli  = (realtype) nli / (realtype) nni;
-  cout << "  Avg NLS iters per step    = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter = " << avgli  << endl;
-  cout << endl;
-
-  // Get preconditioner stats
-  long int npe, nps;
-  flag = IDAGetNumPrecEvals(ida_mem, &npe);
-  if (check_flag(&flag, "IDAGetNumPrecEvals", 1)) return -1;
-  flag = IDAGetNumPrecSolves(ida_mem, &nps);
-  if (check_flag(&flag, "IDAGetNumPrecSolves", 1)) return -1;
-
-  cout << "  Preconditioner setups = " << npe << endl;
-  cout << "  Preconditioner solves = " << nps << endl;
-  cout << endl;
-
   return 0;
 }
 
@@ -503,13 +505,13 @@ void UserOptions::help()
 {
   cout << endl;
   cout << "Integrator command line options:" << endl;
-  cout << "  --rtol <rtol>       : relative tolerance" << endl;
-  cout << "  --atol <atol>       : absoltue tolerance" << endl;
-  cout << "  --ls <cg|gmres>     : linear solver" << endl;
-  cout << "  --lsinfo            : output residual history" << endl;
-  cout << "  --liniters <iters>  : max number of iterations" << endl;
-  cout << "  --epslin <factor>   : linear tolerance factor" << endl;
-  cout << "  --noprec            : disable preconditioner" << endl;
+  cout << "  --rtol <rtol>           : relative tolerance" << endl;
+  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --ls <cg|gmres|sludist> : linear solver" << endl;
+  cout << "  --lsinfo                : output residual history" << endl;
+  cout << "  --liniters <iters>      : max number of iterations" << endl;
+  cout << "  --epslin <factor>       : linear tolerance factor" << endl;
+  cout << "  --noprec                : disable preconditioner" << endl;
 }
 
 
@@ -525,14 +527,25 @@ void UserOptions::print()
   cout << " --------------------------------- " << endl;
 
   cout << endl;
-  cout << " Linear solver options:" << endl;
-  cout << " --------------------------------- " << endl;
-  cout << " LS       = " << ls       << endl;
-  cout << " precond  = " << prec     << endl;
-  cout << " LS info  = " << lsinfo   << endl;
-  cout << " LS iters = " << liniters << endl;
-  cout << " epslin   = " << epslin   << endl;
-  cout << " --------------------------------- " << endl;
+  if (ls == "sludist")
+  {
+    cout << " Linear solver options:" << endl;
+    cout << " --------------------------------- " << endl;
+    cout << " LS       = " << ls       << endl;
+    cout << " LS info  = " << lsinfo   << endl;
+    cout << " --------------------------------- " << endl;
+  }
+  else
+  {
+    cout << " Linear solver options:" << endl;
+    cout << " --------------------------------- " << endl;
+    cout << " LS       = " << ls       << endl;
+    cout << " precond  = " << prec     << endl;
+    cout << " LS info  = " << lsinfo   << endl;
+    cout << " LS iters = " << liniters << endl;
+    cout << " epslin   = " << epslin   << endl;
+    cout << " --------------------------------- " << endl;
+  }
 }
 
 //---- end of file ----
