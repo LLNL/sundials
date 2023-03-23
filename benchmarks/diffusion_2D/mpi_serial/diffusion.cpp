@@ -311,7 +311,7 @@ int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
 #else
   sunrealtype cx = -udata->kx / (udata->dx * udata->dx);
   sunrealtype cy = -udata->ky / (udata->dy * udata->dy);
-  sunrealtype cc = cj + TWO * (cx + cy);
+  sunrealtype cc = cj - TWO * (cx + cy);
 #endif
 
   // Value and Columns index
