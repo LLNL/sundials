@@ -69,6 +69,6 @@ foreach(test_tuple ${tests})
   endif()
 
   install(TARGETS ${target}
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/diffusion_2D")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 
 endforeach()

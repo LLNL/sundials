@@ -194,6 +194,8 @@ endif()
 
 sundials_option(BUILD_BENCHMARKS BOOL "Build the SUNDIALS benchmark suite" OFF)
 
+sundials_option(BENCHMARKS_INSTALL_PATH PATH "Output directory for installing benchmark executables" "${CMAKE_INSTALL_PREFIX}/benchmarks")
+
 # ---------------------------------------------------------------
 # Options for CMake config installation
 # ---------------------------------------------------------------

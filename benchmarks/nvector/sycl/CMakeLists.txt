@@ -19,7 +19,4 @@ set(BENCHMARKS_DIR ${PROJECT_SOURCE_DIR}/benchmarks)
 sundials_add_nvector_benchmark(test_nvector_performance_sycl
   SOURCES test_nvector_performance_sycl.cpp
   SUNDIALS_TARGETS sundials_nvecsycl
-  )
-
-install(TARGETS ${example_target}
-  DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/nvector/raja")
+  INSTALL_SUBDIR nvector/sycl)
