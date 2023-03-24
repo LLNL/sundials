@@ -220,17 +220,23 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
   sunindextype ny = udata->ny;
 
   // offset from previous process rows
-  sunindextype offset_p = ny * ((qx + 1) * min(x, rx) + qx * max(x - rx, 0));
+  sunindextype offset_p = ny * ((qx + 1) * std::min((sunindextype)x, rx)
+                                + qx * std::max((sunindextype)x - rx,
+                                                (sunindextype)0));
 
   // offset within current process row
   sunindextype offset_c;
   if (x < rx)
   {
-    offset_c = (qx + 1) * ((qy + 1) * min(y, ry) + qy * max(y - ry, 0));
+    offset_c = (qx + 1) * ((qy + 1) * std::min((sunindextype)y, ry)
+                           + qy * std::max((sunindextype)y - ry,
+                                           (sunindextype)0));
   }
   else
   {
-    offset_c = qx * ((qy + 1) * min(y, ry) + qy * max(y - ry, 0));
+    offset_c = qx * ((qy + 1) * std::min((sunindextype)y, ry)
+                     + qy * std::max((sunindextype)y - ry,
+                                     (sunindextype)0));
   }
 
   // nx_loc for the input (x,y) process (not necessarily the same as nx_loc in
