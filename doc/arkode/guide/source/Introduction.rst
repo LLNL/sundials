@@ -118,8 +118,16 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v5.6.0
+Changes in v5.5.1
 -----------------
+
+The functions :c:func:`ARKStepReInit`, :c:func:`ERKStepReInit`, and
+:c:func:`MRIStepReInit` have been updated to clear an existing stop time on
+reinitialization. Any codes relying on an unreached stop time persisting after
+reinitialization will need to reset the stop time before advancing the solution.
+Similarly the functions :c:func:`ARKStepReset`, :c:func:`ERKStepReset`, and
+:c:func:`MRIStepReset`, have been updated to clear an existing stop time if the
+reset time is past the stop time in the current integration direction.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 

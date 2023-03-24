@@ -830,6 +830,10 @@ int IDAReInit(void *ida_mem,
 
   IDA_mem->ida_SetupDone = SUNFALSE;
 
+  /* Clear stop time */
+
+  IDA_mem->ida_tstopset = SUNFALSE;
+
   /* Problem has been successfully re-initialized */
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);

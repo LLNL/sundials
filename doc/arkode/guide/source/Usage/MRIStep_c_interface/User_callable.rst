@@ -1084,7 +1084,22 @@ Optional inputs for MRIStep
 
    * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** The default is that no stop time is imposed.
+   **Notes:**
+
+      The default is that no stop time is imposed.
+
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`MRIStepSetStopTime`).
+
+      .. versionchanged:: 5.5.1
+
+         On reinitialization, :c:func:`MRIStepReInit` will clear any existing
+         stop time. When resetting the state, :c:func:`MRIStepReset` will clear
+         an existing stop time if the reset time is past the stop time in the
+         current direction of integration. In either case, a new stop can be set
+         by calling :c:func:`MRIStepSetStopTime` after the ``Reset`` or
+         ``ReInit`` call.
 
 
 .. c:function:: int MRIStepSetUserData(void* arkode_mem, void* user_data)
@@ -3464,8 +3479,9 @@ vector.
    reinitialization function should be called before calling
    :c:func:`MRIStepReInit()` to reinitialize the outer stepper.
 
-   All previously set options are retained but may be updated by calling
-   the appropriate "Set" functions.
+   Unless otherwise noted, all previously set options are retained on
+   reinitialization but may be updated by calling the appropriate "Set"
+   functions.
 
    If an error occurred, :c:func:`MRIStepReInit()` also
    sends an error message to the error handler function.
@@ -3542,8 +3558,8 @@ vector.
    If the inner (fast) stepper also needs to be reset, its reset function should
    be called before calling :c:func:`MRIStepReset()` to reset the outer stepper.
 
-   All previously set options are retained but may be updated by calling the
-   appropriate "Set" functions.
+   Unless otherwise noted, all previously set options are retained but may be
+   updated by calling the appropriate "Set" functions.
 
    If an error occurred, :c:func:`MRIStepReset()` also sends an error message to
    the error handler function.

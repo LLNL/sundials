@@ -1250,6 +1250,18 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       The default is that no stop time is imposed.
 
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`ARKStepSetStopTime`).
+
+      .. versionchanged:: 5.5.1
+
+         On reinitialization, :c:func:`ARKStepReInit` will clear any existing
+         stop time. When resetting the state, :c:func:`ARKStepReset` will clear
+         an existing stop time if the reset time is past the stop time in the
+         current direction of integration. In either case, a new stop can be set
+         by calling :c:func:`ARKStepSetStopTime` after the ``Reset`` or
+         ``ReInit`` call.
 
 
 
@@ -4530,8 +4542,9 @@ vector.
       * *ARK_ILL_INPUT* if an argument has an illegal value.
 
    **Notes:**
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
+      Unless otherwise noted, all previously set options are retained on
+      reinitialization but may be updated by calling the appropriate "Set"
+      functions.
 
       If an error occurred, :c:func:`ARKStepReInit()` also
       sends an error message to the error handler function.
@@ -4605,8 +4618,8 @@ vector.
       different step size or have ARKStep estimate a new step size use
       :c:func:`ARKStepSetInitStep()`.
 
-      All previously set options are retained but may be updated by calling the
-      appropriate "Set" functions.
+      Unless otherwise noted, all previously set options are retained but may be
+      updated by calling the appropriate "Set" functions.
 
       If an error occurred, :c:func:`ARKStepReset()` also sends an error message to
       the error handler function.

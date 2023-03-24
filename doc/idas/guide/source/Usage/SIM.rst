@@ -1162,6 +1162,12 @@ Main solver optional input functions
       is disabled (and can be reenabled only though a new call to
       :c:func:`IDASetStopTime`).
 
+      .. versionchanged:: 5.5.1
+
+         On reinitialization, :c:func:`IDAReInit` will clear any existing
+         stop time. A new stop can be set by calling :c:func:`IDASetStopTime`
+         after calling :c:func:`IDAReInit`.
+
 .. c:function:: int IDASetMaxErrTestFails(void * ida_mem, int maxnef)
 
    The function :c:func:`IDASetMaxErrTestFails` specifies the maximum number of error
@@ -3224,6 +3230,10 @@ dependent variable vector.
         illegal value.
 
    **Notes:**
+      Unless otherwise noted, all previously set options are retained on
+      reinitialization but may be updated by calling the appropriate "Set"
+      functions.
+
       If an error occurred, :c:func:`IDAReInit` also sends an error message to the
       error handler function.
 

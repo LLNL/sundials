@@ -72,8 +72,13 @@ systems.
 Changes from previous versions
 ==============================
 
-Changes in v6.6.0
+Changes in v6.5.1
 -----------------
+
+The function :c:func:`IDAReInit` has been updated to clear an existing stop
+time on reinitialization. Any codes relying on an unreached stop time persisting
+after reinitialization will need to reset the stop time before advancing the
+solution.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 

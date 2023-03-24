@@ -1086,6 +1086,12 @@ Main solver optional input functions
 
       Once the integrator returns at a stop time, any future testing for ``tstop``  is disabled (and can be reenabled only though a new call to ``CVodeSetStopTime``).
 
+      .. versionchanged:: 6.5.1
+
+         On reinitialization, :c:func:`CVodeReInit` will clear any existing
+         stop time. A new stop can be set by calling :c:func:`CVodeSetStopTime`
+         after calling :c:func:`CVodeReInit`.
+
 .. c:function:: int CVodeSetMaxErrTestFails(void* cvode_mem, int maxnef)
 
    The function ``CVodeSetMaxErrTestFails`` specifies the  maximum number of error test failures permitted in attempting one step.
@@ -3231,7 +3237,12 @@ vector.
      * ``CV_ILL_INPUT`` -- An input argument was an illegal value.
 
    **Notes:**
-      If an error occurred, ``CVodeReInit`` also sends an error message to the  error handler function.
+      Unless otherwise noted, all previously set options are retained on
+      reinitialization but may be updated by calling the appropriate "Set"
+      functions.
+
+      If an error occurred, ``CVodeReInit`` also sends an error message to the
+      error handler function.
 
 
 .. _CVODE.Usage.CC.user_fct_sim:

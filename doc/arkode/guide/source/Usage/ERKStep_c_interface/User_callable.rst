@@ -868,7 +868,18 @@ Optional inputs for ERKStep
    **Notes:**
       The default is that no stop time is imposed.
 
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`ERKStepSetStopTime`).
 
+      .. versionchanged:: 5.5.1
+
+         On reinitialization, :c:func:`ERKStepReInit` will clear any existing
+         stop time. When resetting the state, :c:func:`ERKStepReset` will clear
+         an existing stop time if the reset time is past the stop time in the
+         current direction of integration. In either case, a new stop can be set
+         by calling :c:func:`ERKStepSetStopTime` after the ``Reset`` or
+         ``ReInit`` call.
 
 
 .. c:function:: int ERKStepSetUserData(void* arkode_mem, void* user_data)
@@ -2199,8 +2210,9 @@ vector.
       * *ARK_ILL_INPUT* if an argument has an illegal value.
 
    **Notes:**
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
+      Unless otherwise noted, all previously set options are retained on
+      reinitialization but may be updated by calling the appropriate "Set"
+      functions.
 
       If an error occurred, :c:func:`ERKStepReInit()` also
       sends an error message to the error handler function.
@@ -2270,8 +2282,8 @@ vector.
       different step size or have ERKStep estimate a new step size use
       :c:func:`ERKStepSetInitStep()`.
 
-      All previously set options are retained but may be updated by calling the
-      appropriate "Set" functions.
+      Unless otherwise noted, all previously set options are retained but may be
+      updated by calling the appropriate "Set" functions.
 
       If an error occurred, :c:func:`ERKStepReset()` also sends an error message to
       the error handler function.

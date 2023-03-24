@@ -1290,9 +1290,9 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
   /* Clear any previous 'tstop' */
   ark_mem->tstopset = SUNFALSE;
 
-  /* Initializations on (re-)initialization call, skip on reset */
-  if (init_type == FIRST_INIT) {
-
+  /* Initializations on (re-)initialization call */
+  if (init_type == FIRST_INIT)
+  {
     /* Counters */
     ark_mem->nst_attempts = 0;
     ark_mem->nst          = 0;
@@ -1326,6 +1326,21 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
 
     /* Indicate that initialization has not been done before */
     ark_mem->initialized = SUNFALSE;
+
+    /* Clear stop time */
+    ark_mem->tstopset = SUNFALSE;
+  }
+  /* Initializations on reset call */
+  else
+  {
+    /* Check if tstop is valid (i.e. if it was not already passed) */
+    if (ark_mem->tstopset && ark_mem->nst > 0)
+    {
+      if ((ark_mem->tstop - ark_mem->tcur) * ark_mem->h < ZERO)
+      {
+        ark_mem->tstopset = SUNTRUE;
+      }
+    }
   }
 
   /* Indicate initialization is needed */
