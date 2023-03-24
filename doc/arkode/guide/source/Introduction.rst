@@ -121,6 +121,8 @@ Changes from previous versions
 Changes in v5.6.0
 -----------------
 
+Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
+
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 
 Changes in v5.5.0
