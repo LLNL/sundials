@@ -956,10 +956,6 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
     for (k = 1; k <= 3; k++)
       cv_mem->cv_ssdat[i-1][k-1] = ZERO;
 
-  /* Clear stop time */
-
-  cv_mem->cv_tstopset = SUNFALSE;
-
   /* Problem has been successfully re-initialized */
 
   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);

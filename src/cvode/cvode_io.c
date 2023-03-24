@@ -715,6 +715,27 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
 }
 
 /*
+ * CVodeUnsetStopTime
+ *
+ * Disable the stop time.
+ */
+
+int CVodeUnsetStopTime(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeUnsetStopTime", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_tstopset = SUNFALSE;
+
+  return(CV_SUCCESS);
+}
+
+/*
  * CVodeSetMaxErrTestFails
  *
  * Specifies the maximum number of error test failures during one

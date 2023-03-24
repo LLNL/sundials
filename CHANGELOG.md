@@ -1,13 +1,10 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 6.5.1
+## Changes to SUNDIALS in release 6.6.0
 
-The integrator ``ReInit`` functions have been updated to clear an existing stop
-time on reinitialization. Any codes relying on an unreached stop time persisting
-after reinitialization will need to reset the stop time before advancing the
-solution. In ARKODE the stepper ``Reset`` functions have been similarly updated
-to clear an existing stop time if the reset time is past the stop time in the
-current integration direction.
+Added the functions `ARKStepUnsetStopTime`, `ERKStepUnsetStopTime`,
+`MRIStepUnsetStopTime`, `CVodeUnsetStopTime`, and `IDAUnsetStopTime` to
+disable a previously set stop time.
 
 Fixed compilation errors in some SYCL examples when using the `icx` compiler.
 

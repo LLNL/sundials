@@ -693,7 +693,9 @@ Optional inputs for MRIStep
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Maximum no. of internal steps before *tout*                   | :c:func:`MRIStepSetMaxNumSteps()`       | 500                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | :math:`\infty`         |
+   | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | undefined              |
+   +---------------------------------------------------------------+-----------------------------------------+------------------------+
+   | Disable the stop time                                         | :c:func:`MRIStepUnsetStopTime`          | N/A                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`          | ``NULL``               |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
@@ -1092,14 +1094,27 @@ Optional inputs for MRIStep
       ``tstop`` is disabled (and can be reenabled only though a new call to
       :c:func:`MRIStepSetStopTime`).
 
-      .. versionchanged:: 5.5.1
+      A stop time not reached before a call to :c:func:`MRIStepReInit` or
+      :c:func:`MRIStepReset` will remain active but can be disabled by calling
+      :c:func:`MRIStepUnsetStopTime`.
 
-         On reinitialization, :c:func:`MRIStepReInit` will clear any existing
-         stop time. When resetting the state, :c:func:`MRIStepReset` will clear
-         an existing stop time if the reset time is past the stop time in the
-         current direction of integration. In either case, a new stop can be set
-         by calling :c:func:`MRIStepSetStopTime` after the ``Reset`` or
-         ``ReInit`` call.
+
+.. c:function:: int MRIStepUnsetStopTime(void* arkode_mem)
+
+   Disables the stop time set with :c:func:`MRIStepSetStopTime`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`MRIStepSetStopTime`.
+
+   .. versionadded:: 5.6.0
 
 
 .. c:function:: int MRIStepSetUserData(void* arkode_mem, void* user_data)
@@ -3479,9 +3494,8 @@ vector.
    reinitialization function should be called before calling
    :c:func:`MRIStepReInit()` to reinitialize the outer stepper.
 
-   Unless otherwise noted, all previously set options are retained on
-   reinitialization but may be updated by calling the appropriate "Set"
-   functions.
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
 
    If an error occurred, :c:func:`MRIStepReInit()` also
    sends an error message to the error handler function.
@@ -3558,8 +3572,8 @@ vector.
    If the inner (fast) stepper also needs to be reset, its reset function should
    be called before calling :c:func:`MRIStepReset()` to reset the outer stepper.
 
-   Unless otherwise noted, all previously set options are retained but may be
-   updated by calling the appropriate "Set" functions.
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
 
    If an error occurred, :c:func:`MRIStepReset()` also sends an error message to
    the error handler function.

@@ -59,6 +59,8 @@ int ERKStepSetMaxStep(void *arkode_mem, realtype hmax) {
   return(arkSetMaxStep(arkode_mem, hmax)); }
 int ERKStepSetStopTime(void *arkode_mem, realtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
+int ERKStepUnsetStopTime(void *arkode_mem) {
+  return(arkUnsetStopTime(arkode_mem)); }
 int ERKStepSetRootDirection(void *arkode_mem, int *rootdir) {
   return(arkSetRootDirection(arkode_mem, rootdir)); }
 int ERKStepSetNoInactiveRootWarn(void *arkode_mem) {
