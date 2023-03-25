@@ -526,6 +526,7 @@ int arkRootCheck3(void* arkode_mem)
   return(RTFOUND);
 }
 
+#define DIFFERENT_SIGN(a,b) ( ( (a) < 0 && (b) > 0 ) || ( (a) > 0 && (b) < 0 ) )
 
 /*---------------------------------------------------------------
   arkRootfind
@@ -631,7 +632,7 @@ int arkRootfind(void* arkode_mem)
         zroot = SUNTRUE;
       }
     } else {
-      if ( (rootmem->glo[i]*rootmem->ghi[i] < ZERO) &&
+      if ( (DIFFERENT_SIGN(rootmem->glo[i], rootmem->ghi[i])) &&
            (rootmem->rootdir[i]*rootmem->glo[i] <= ZERO) ) {
         gfrac = SUNRabs(rootmem->ghi[i]/(rootmem->ghi[i] - rootmem->glo[i]));
         if (gfrac > maxfrac) {
@@ -719,7 +720,7 @@ int arkRootfind(void* arkode_mem)
           zroot = SUNTRUE;
         }
       } else {
-        if ( (rootmem->glo[i]*rootmem->grout[i] < ZERO) &&
+        if ( (DIFFERENT_SIGN(rootmem->glo[i], rootmem->grout[i])) &&
              (rootmem->rootdir[i]*rootmem->glo[i] <= ZERO) ) {
           gfrac = SUNRabs(rootmem->grout[i]/(rootmem->grout[i] - rootmem->glo[i]));
           if (gfrac > maxfrac) {
@@ -770,7 +771,7 @@ int arkRootfind(void* arkode_mem)
     if ( (SUNRabs(rootmem->ghi[i]) == ZERO) &&
          (rootmem->rootdir[i]*rootmem->glo[i] <= ZERO) )
       rootmem->iroots[i] = rootmem->glo[i] > 0 ? -1:1;
-    if ( (rootmem->glo[i]*rootmem->ghi[i] < ZERO) &&
+    if ( (DIFFERENT_SIGN(rootmem->glo[i], rootmem->ghi[i])) &&
          (rootmem->rootdir[i]*rootmem->glo[i] <= ZERO) )
       rootmem->iroots[i] = rootmem->glo[i] > 0 ? -1:1;
   }

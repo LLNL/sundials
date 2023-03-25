@@ -1008,6 +1008,34 @@ SWIGEXPORT int _wrap_FKINSetJacTimesVecFn(void *farg1, KINLsJacTimesVecFn farg2)
 }
 
 
+SWIGEXPORT int _wrap_FKINGetJac(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNMatrix *arg2 = (SUNMatrix *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNMatrix *)(farg2);
+  result = (int)KINGetJac(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FKINGetJacNumIters(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)KINGetJacNumIters(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINGetLinWorkSpace(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

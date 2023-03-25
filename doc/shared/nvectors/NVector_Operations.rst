@@ -180,6 +180,19 @@ operations below.
       global_length = N_VGetLength(v);
 
 
+.. c:function:: sunindextype N_VGetLocalLength(N_Vector v)
+
+   Returns the local length (number of "active" entries) in the
+   NVECTOR *v*.  This value should be the length of the array
+   returned by :c:func:`N_VGetArrayPointer` or :c:func:`N_VGetDeviceArrayPointer`.
+
+   Usage:
+
+   .. code-block:: c
+
+      local_length = N_VGetLocalLength(v);
+
+
 .. c:function:: void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 
    Performs the operation *z = ax + by*, where *a* and *b* are

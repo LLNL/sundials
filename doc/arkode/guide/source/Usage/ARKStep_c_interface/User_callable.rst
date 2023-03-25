@@ -2295,11 +2295,12 @@ or reevaluate Jacobian information, depends on several factors including:
 * the change in :math:`\gamma` from the value used when constructing :math:`\mathcal{A}`, and
 * the number of steps since Jacobian information was last evaluated.
 
-The frequency with which to update Jacobian information can be controlled
-with the *msbj* argument to :c:func:`ARKStepSetJacEvalFrequency()`.
-We note that this is only checked *within* calls to the linear solver setup
-routine, so values *msbj* :math:`<` *msbp* do not make sense. For
-linear-solvers with user-supplied preconditioning the above factors are used
+Jacobian information is considered out-of-date when :math:`msbj` or more steps
+have been completed since the last update, in which case it will be recomputed during the next
+linear solver setup call. The value of :math:`msbj` is controlled with the
+``msbj`` argument to :c:func:`ARKStepSetJacEvalFrequency()`.
+
+For linear-solvers with user-supplied preconditioning the above factors are used
 to determine whether to recommend updating the Jacobian information in the
 preconditioner (i.e., whether to set *jok* to ``SUNFALSE`` in calling the
 user-supplied :c:type:`ARKLsPrecSetupFn()`). For matrix-based linear solvers
@@ -2373,8 +2374,8 @@ is recomputed using the current :math:`\gamma` value.
 
 .. c:function:: int ARKStepSetJacEvalFrequency(void* arkode_mem, long int msbj)
 
-   Specifies the frequency for recomputing the Jacobian or recommending a
-   preconditioner update, :math:`msbj` from :numref:`ARKODE.Mathematics.Linear.Setup`.
+   Specifies the number of steps after which the Jacobian information is
+   considered out-of-date, :math:`msbj` from :numref:`ARKODE.Mathematics.Linear.Setup`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -2386,11 +2387,16 @@ is recomputed using the current :math:`\gamma` value.
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
 
    **Notes:**
-      The Jacobian update frequency is only checked *within* calls to the linear
-      solver setup routine, as such values of *msbj* :math:`<` *msbp* will result
-      in recomputing the Jacobian every *msbp* steps. See
-      :c:func:`ARKStepSetLSetupFrequency()` for setting the linear solver steup
-      frequency *msbp*.
+      If ``nstlj`` is the step number at which the Jacobian information was
+      lasted updated and ``nst`` is the current step number,
+      ``nst - nstlj >= msbj`` indicates that the Jacobian information will be updated
+      during the next linear solver setup call.
+
+      As the Jacobian update frequency is only checked *within* calls to the
+      linear solver setup routine, Jacobian information may be more than
+      ``msbj`` steps old when updated depending on when a linear solver setup
+      call occurs. See :numref:`ARKODE.Mathematics.Linear.Setup`
+      for more information on when linear solver setups are performed.
 
       Passing a value *msbj* :math:`\le 0` indicates to use the
       default value of 51.
@@ -3422,8 +3428,8 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
    **Return value:**
      * *ARK_SUCCESS* -- if the output was successfully.
-     * *CV_MEM_NULL* -- if the ARKStep memory was ``NULL``.
-     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+     * *ARK_MEM_NULL* -- if the ARKStep memory was ``NULL``.
+     * *ARK_ILL_INPUT* -- if an invalid formatting option was provided.
 
    .. note::
 
@@ -3834,6 +3840,9 @@ Linear Solver) or MLS (for Mass Linear Solver) has been added here
 =================================================================  ========================================
 Optional output                                                    Function name
 =================================================================  ========================================
+Stored Jacobian of the ODE RHS function                            :c:func:`ARKStepGetJac`
+Time at which the Jacobian was evaluated                           :c:func:`ARKStepGetJacTime`
+Step number at which the Jacobian was evaluated                    :c:func:`ARKStepGetJacNumSteps`
 Size of real and integer workspaces                                :c:func:`ARKStepGetLinWorkSpace()`
 No. of Jacobian evaluations                                        :c:func:`ARKStepGetNumJacEvals()`
 No. of preconditioner evaluations                                  :c:func:`ARKStepGetNumPrecEvals()`
@@ -3858,7 +3867,46 @@ No. of mass-matrix-vector setup evaluations                        :c:func:`ARKS
 Last return from a mass matrix solver function                     :c:func:`ARKStepGetLastMassFlag()`
 =================================================================  ========================================
 
+.. c:function:: int ARKStepGetJac(void* arkode_mem, SUNMatrix* J)
 
+   Returns the internally stored copy of the Jacobian matrix of the ODE
+   implicit right-hand side function.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param J: the Jacobian matrix
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the ODE implicit right-hand side function was evaluated.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J)
+
+   Returns the value of the internal step counter at which the internally stored copy of the
+   Jacobian matrix of the ODE implicit right-hand side function was evaluated.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int ARKStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS)
 

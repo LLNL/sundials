@@ -129,9 +129,14 @@ int main(int argc, char *argv[])
   if (argc > 3) output = (atoi(argv[3])) ? true : false;
 
   // Create an in-order GPU queue
+#if SYCL_LANGUAGE_VERSION >= 2020
+  sycl::queue myQueue(sycl::gpu_selector_v,
+                      sycl::property_list{sycl::property::queue::in_order{}});
+#else
   sycl::gpu_selector selector;
   sycl::queue myQueue(selector,
                       sycl::property_list{sycl::property::queue::in_order{}});
+#endif
 
   sycl::device dev = myQueue.get_device();
   cout << "Running on "

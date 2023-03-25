@@ -1,56 +1,51 @@
-# ARKode
-### Version 5.4.1 (Oct 2022)
+# ARKODE
+### Version 5.5.0 (Dec 2022)
 
 **Daniel R. Reynolds,
   Department of Mathematics, SMU**
 
-**David J. Gardner, Carol S. Woodward, and Cody J. Balos,  
+**David J. Gardner, Carol S. Woodward, and Cody J. Balos,
   Center for Applied Scientific Computing, LLNL**
 
-ARKode is a package for the solution of stiff, nonstiff, and multirate ordinary
+ARKODE is a package for the solution of stiff, nonstiff, and multirate ordinary
 differential equation (ODE) systems (initial value problems) given in linearly
 implicit the form
 ```
 M y' = f1(t,y) + f2(t,y), y(t0) = y0.
 ```
-The integration methods implemented in ARKode include explicit and implicit
+The integration methods implemented in ARKODE include explicit and implicit
 Runge-Kutta methods, implicit-explicit (IMEX) additive Runge-Kutta methods, and
-multirate infatesemial step (MIS) methods.
+multirate infinitesimal (MRI) methods.
 
-ARKode is part of a the SUNDIALS Suite of Nonlinear and Differential/Algebraic
-equation Solvers which consists of ARKode, CVODE, CVODES, IDA, IDAS, and KINSOL.
+ARKODE is part of a the SUNDIALS Suite of Nonlinear and Differential/Algebraic
+equation Solvers which consists of ARKODE, CVODE, CVODES, IDA, IDAS, and KINSOL.
 It is written in ANSI standard C and can be used in a variety of computing
 environments including serial, shared memory, distributed memory, and
 accelerator-based (e.g., GPU) systems. This flexibility is obtained from a
 modular design that leverages the shared vector, matrix, linear solver, and
 nonlinear solver APIs used across SUNDIALS packages.
 
-For use with Fortran applications, a set of Fortran/C interface routines, called
-FARKODE, is also supplied. These are written in C, but assume that the user
-calling program and all user-supplied routines are in Fortran.
-
 ## Documentation
 
-See the [ARKode User Guide](/doc/arkode/ark_guide.pdf) and
-[ARKode Examples](/doc/arkode/ark_examples.pdf) document for more information
-about ARKode usage and the provided example programs respectively.
+See the ARKODE documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/arkode)
+for more information about ARKODE usage.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
-or "Installation Procedure" chapter in the ARKode User Guide.
+For installation instructions see the
+[SUNDIALS Installation Guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
 
 ## Release History
 
-Information on recent changes to ARKode can be found in the "Introduction"
-chapter of the ARKode User Guide and a complete release history is available in
-the "SUNDIALS Release History" appendix of the ARKode User Guide.
+Information on recent changes to ARKODE can be found in the "Introduction"
+chapter of the ARKODE User Guide and a complete release history is available in
+the "SUNDIALS Release History" appendix of the ARKODE User Guide.
 
 ## References
 
 * D. R. Reynolds, D. J. Gardner, C. S. Woodward, and C. J. Balos,
-  "User Documentation for ARKode v5.4.1," LLNL technical report
-  LLNL-SM-668082, Oct 2022.
+  "User Documentation for ARKODE v5.5.0," LLNL technical report
+  LLNL-SM-668082, Dec 2022.
 
-* D. R. Reynolds, "Example Programs for ARKode v5.4.1," Technical Report,
-  Southern Methodist University Center for Scientific Computation, Oct 2022.
+* D. R. Reynolds, "Example Programs for ARKODE v5.5.0," Technical Report,
+  Southern Methodist University Center for Scientific Computation, Dec 2022.

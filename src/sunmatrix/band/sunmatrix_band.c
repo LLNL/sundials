@@ -201,6 +201,14 @@ sunindextype SUNBandMatrix_LDim(SUNMatrix A)
     return SUNMAT_ILL_INPUT;
 }
 
+sunindextype SUNBandMatrix_LData(SUNMatrix A)
+{
+  if (SUNMatGetID(A) == SUNMATRIX_BAND)
+    return SM_LDATA_B(A);
+  else
+    return SUNMAT_ILL_INPUT;
+}
+
 realtype* SUNBandMatrix_Data(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_BAND)

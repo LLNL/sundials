@@ -88,6 +88,8 @@ SUNDIALS_EXPORT int KINSetJacTimesVecFn(void *kinmem,
   Optional outputs from the KINLS linear solver interface
   -----------------------------------------------------------------*/
 
+SUNDIALS_EXPORT int KINGetJac(void* kinmem, SUNMatrix* J);
+SUNDIALS_EXPORT int KINGetJacNumIters(void* kinmem, long int* nni_J);
 SUNDIALS_EXPORT int KINGetLinWorkSpace(void *kinmem,
                                        long int *lenrwLS,
                                        long int *leniwLS);

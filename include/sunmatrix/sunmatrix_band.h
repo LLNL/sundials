@@ -109,6 +109,7 @@ SUNDIALS_EXPORT sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_LDim(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_LData(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Data(SUNMatrix A);
 SUNDIALS_EXPORT realtype** SUNBandMatrix_Cols(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);

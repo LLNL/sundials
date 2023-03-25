@@ -1,5 +1,5 @@
 # IDA
-### Version 6.4.1 (Oct 2022)
+### Version 6.5.0 (Dec 2022)
 
 **Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -30,14 +30,13 @@ program and all user-supplied routines are in Fortran.
 
 ## Documentation
 
-See the [IDA User Guide](/doc/ida/ida_guide.pdf) and
-[IDA Examples](/doc/ida/ida_examples.pdf) document for more information
-about IDA usage and the provided example programs respectively.
+See the IDA documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/ida)
+for more information about IDA usage.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
-or the "Installation Procedure" chapter in the IDA User Guide.
+For installation instructions see the
+[SUNDIALS Installation Guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
 
 ## Release History
 
@@ -48,11 +47,11 @@ the "SUNDIALS Release History" appendix of the IDA User Guide.
 ## References
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
-  and C. S. Woodward, "User Documentation for IDA v6.4.1,"
-  LLNL technical report UCRL-SM-208112, Oct 2022.
+  and C. S. Woodward, "User Documentation for IDA v6.5.0,"
+  LLNL technical report UCRL-SM-208112, Dec 2022.
 
-* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v6.4.1,"
-  LLNL technical report UCRL-SM-208113, Oct 2022.
+* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v6.5.0,"
+  LLNL technical report UCRL-SM-208113, Dec 2022.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,
   D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and

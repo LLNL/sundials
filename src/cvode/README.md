@@ -1,7 +1,7 @@
 # CVODE
-### Version 6.4.1 (Oct 2022)
+### Version 6.5.0 (Dec 2022)
 
-**Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
+**Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner,
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
 
 **Daniel R. Reynolds, Department of Mathematics, Southern Methodist University**
@@ -30,14 +30,13 @@ calling program and all user-supplied routines are in Fortran.
 
 ## Documentation
 
-See the [CVODE User Guide](/doc/cvode/cv_guide.pdf) and
-[CVODE Examples](/doc/cvode/cv_examples.pdf) document for more information
-about CVODE usage and the provided example programs respectively.
+See the CVODE documentation at [Read the Docs](https://sundials.readthedocs.io/en/latest/cvode)
+for more information about CVODE usage.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
-or the "Installation Procedure" chapter in the CVODE User Guide.
+For installation instructions see the
+[SUNDIALS Installation Guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
 
 ## Release History
 
@@ -48,11 +47,11 @@ the "SUNDIALS Release History" appendix of the CVODE User Guide.
 ## References
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
-  and C. S. Woodward, "User Documentation for CVODE v6.4.1,"
-  LLNL technical report UCRL-SM-208108, Oct 2022.
+  and C. S. Woodward, "User Documentation for CVODE v6.5.0,"
+  LLNL technical report UCRL-SM-208108, Dec 2022.
 
-* A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v6.4.1,"
-  LLNL technical report UCRL-SM-208110, Oct 2022.
+* A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v6.5.0,"
+  LLNL technical report UCRL-SM-208110, Dec 2022.
 
 * S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
   Computers in Physics, 10(2), pp. 138-143, 1996.

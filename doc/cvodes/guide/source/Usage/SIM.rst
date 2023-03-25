@@ -1219,10 +1219,12 @@ Jacobian information, depends on several factors including:
    :math:`M`, and
 -  the number of steps since Jacobian information was last evaluated.
 
-The frequency with which to update Jacobian information can be controlled with
-the ``msbj`` argument to :c:func:`CVodeSetJacEvalFrequency`. We note that this
-is only checked *within* calls to the linear solver setup routine, so values
-:math:`<` ``msbp`` do not make sense. For linear-solvers with user-supplied
+Jacobian information is considered out-of-date when :math:`msbj` or more steps
+have been completed since the last update, in which case it will be recomputed during the next
+linear solver setup call. The value of :math:`msbj` is controlled with the
+``msbj`` argument to :c:func:`CVodeSetJacEvalFrequency()`.
+
+For linear-solvers with user-supplied
 preconditioning the above factors are used to determine whether to recommend
 updating the Jacobian information in the preconditioner (i.e., whether to set
 ``jok`` to ``SUNFALSE`` in calling the user-supplied preconditioner setup
@@ -1294,7 +1296,9 @@ using the current :math:`\gamma` value.
 
 .. c:function:: int CVodeSetJacEvalFrequency(void* cvode_mem, long int msbj)
 
-   The function ``CVodeSetJacEvalFrequency`` specifies the frequency for  recomputing the Jacobian or recommending a preconditioner update.
+   The function ``CVodeSetJacEvalFrequency`` Specifies the number of steps after
+   which the Jacobian information is considered out-of-date, :math:`msbj` from
+   :numref:`CVODES.Mathematics.nls`.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1307,7 +1311,22 @@ using the current :math:`\gamma` value.
      * ``CVLS_ILL_INPUT`` -- The frequency ``msbj`` is negative.
 
    **Notes:**
-      The Jacobian update frequency is only checked within calls to the  linear solver setup routine, as such values of ``msbj`` < ``msbp`` will  result in recomputing the Jacobian every ``msbp`` steps. See :c:func:`CVodeSetLSetupFrequency` for setting the linear solver setup frequency  ``msbp``.  If ``msbj = 0``, the default value of 51 will be used. Otherwise an error is returned. This function must be called after the CVLS linear solver interface has been initialized through a call to :c:func:`CVodeSetLinearSolver`.
+      If ``nstlj`` is the step number at which the Jacobian information was
+      lasted updated and ``nst`` is the current step number,
+      ``nst - nstlj >= msbj`` indicates that the Jacobian information will be updated
+      during the next linear solver setup call.
+
+      As the Jacobian update frequency is only checked *within* calls to the
+      linear solver setup routine, Jacobian information may be more than
+      ``msbj`` steps old when updated depending on when a linear solver setup
+      call occurs. See :numref:`CVODES.Mathematics.nls` for more information on
+      when linear solver setups are performed.
+
+      If ``msbj = 0``, the default value of 51 will be used. Otherwise an error
+      is returned.
+
+      This function must be called after  the CVLS linear solver interface has
+      been initialized through a call to :c:func:`CVodeSetLinearSolver`.
 
 When using matrix-based linear solver modules, the CVLS solver interface
 needs a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
@@ -2205,103 +2224,109 @@ the preconditioner.
 .. table:: Optional outputs from CVODES, CVLS, and CVDIAG
    :align: center
 
-   +------------------------------------------------+------------------------------------------+
-   |              **Optional output**               |            **Function name**             |
-   +================================================+==========================================+
-   | **CVODES main solver**                         |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Size of CVODES real and integer workspaces     | :c:func:`CVodeGetWorkSpace`              |
-   +------------------------------------------------+------------------------------------------+
-   | Cumulative number of internal steps            | :c:func:`CVodeGetNumSteps`               |
-   +------------------------------------------------+------------------------------------------+
-   | No. of calls to r.h.s. function                | :c:func:`CVodeGetNumRhsEvals`            |
-   +------------------------------------------------+------------------------------------------+
-   | No. of calls to linear solver setup function   | :c:func:`CVodeGetNumLinSolvSetups`       |
-   +------------------------------------------------+------------------------------------------+
-   | No. of local error test failures that have     | :c:func:`CVodeGetNumErrTestFails`        |
-   | occurred                                       |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | No. of failed steps due to a nonlinear solver  | :c:func:`CVodeGetNumStepSolveFails`      |
-   | failure                                        |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Order used during the last step                | :c:func:`CVodeGetLastOrder`              |
-   +------------------------------------------------+------------------------------------------+
-   | Order to be attempted on the next step         | :c:func:`CVodeGetCurrentOrder`           |
-   +------------------------------------------------+------------------------------------------+
-   | No. of order reductions due to stability limit | :c:func:`CVodeGetNumStabLimOrderReds`    |
-   | detection                                      |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Actual initial step size used                  | :c:func:`CVodeGetActualInitStep`         |
-   +------------------------------------------------+------------------------------------------+
-   | Step size used for the last step               | :c:func:`CVodeGetLastStep`               |
-   +------------------------------------------------+------------------------------------------+
-   | Step size to be attempted on the next step     | :c:func:`CVodeGetCurrentStep`            |
-   +------------------------------------------------+------------------------------------------+
-   | Current internal time reached by the solver    | :c:func:`CVodeGetCurrentTime`            |
-   +------------------------------------------------+------------------------------------------+
-   | Suggested factor for tolerance scaling         | :c:func:`CVodeGetTolScaleFactor`         |
-   +------------------------------------------------+------------------------------------------+
-   | Error weight vector for state variables        | :c:func:`CVodeGetErrWeights`             |
-   +------------------------------------------------+------------------------------------------+
-   | Estimated local error vector                   | :c:func:`CVodeGetEstLocalErrors`         |
-   +------------------------------------------------+------------------------------------------+
-   | No. of nonlinear solver iterations             | :c:func:`CVodeGetNumNonlinSolvIters`     |
-   +------------------------------------------------+------------------------------------------+
-   | No. of nonlinear convergence failures          | :c:func:`CVodeGetNumNonlinSolvConvFails` |
-   +------------------------------------------------+------------------------------------------+
-   | All CVODES integrator statistics               | :c:func:`CVodeGetIntegratorStats`        |
-   +------------------------------------------------+------------------------------------------+
-   | CVODES nonlinear solver statistics             | :c:func:`CVodeGetNonlinSolvStats`        |
-   +------------------------------------------------+------------------------------------------+
-   | User data pointer                              | :c:func:`CVodeGetUserData`               |
-   +------------------------------------------------+------------------------------------------+
-   | Array showing roots found                      | :c:func:`CVodeGetRootInfo`               |
-   +------------------------------------------------+------------------------------------------+
-   | No. of calls to user root function             | :c:func:`CVodeGetNumGEvals`              |
-   +------------------------------------------------+------------------------------------------+
-   | Print all statistics                           | :c:func:`CVodePrintAllStats`             |
-   +------------------------------------------------+------------------------------------------+
-   | Name of constant associated with a return flag | :c:func:`CVodeGetReturnFlagName`         |
-   +------------------------------------------------+------------------------------------------+
-   | **CVLS linear solver interface**               |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Size of real and integer workspaces            | :c:func:`CVodeGetLinWorkSpace`           |
-   +------------------------------------------------+------------------------------------------+
-   | No. of Jacobian evaluations                    | :c:func:`CVodeGetNumJacEvals`            |
-   +------------------------------------------------+------------------------------------------+
-   | No. of r.h.s. calls for finite diff.           | :c:func:`CVodeGetNumLinRhsEvals`         |
-   | Jacobian[-vector] evals.                       |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | No. of linear iterations                       | :c:func:`CVodeGetNumLinIters`            |
-   +------------------------------------------------+------------------------------------------+
-   | No. of linear convergence failures             | :c:func:`CVodeGetNumLinConvFails`        |
-   +------------------------------------------------+------------------------------------------+
-   | No. of preconditioner evaluations              | :c:func:`CVodeGetNumPrecEvals`           |
-   +------------------------------------------------+------------------------------------------+
-   | No. of preconditioner solves                   | :c:func:`CVodeGetNumPrecSolves`          |
-   +------------------------------------------------+------------------------------------------+
-   | No. of Jacobian-vector setup evaluations       | :c:func:`CVodeGetNumJTSetupEvals`        |
-   +------------------------------------------------+------------------------------------------+
-   | No. of Jacobian-vector product evaluations     | :c:func:`CVodeGetNumJtimesEvals`         |
-   +------------------------------------------------+------------------------------------------+
-   | Get all linear solver statistics in one        | :c:func:`CVodeGetLinSolvStats`           |
-   | function call                                  |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Last return from a linear solver function      | :c:func:`CVodeGetLastLinFlag`            |
-   +------------------------------------------------+------------------------------------------+
-   | Name of constant associated with a return flag | :c:func:`CVodeGetLinReturnFlagName`      |
-   +------------------------------------------------+------------------------------------------+
-   | **CVDIAG linear solver interface**             |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Size of CVDIAG real and integer workspaces     | :c:func:`CVDiagGetWorkSpace`             |
-   +------------------------------------------------+------------------------------------------+
-   | No. of r.h.s. calls for finite diff. Jacobian  | :c:func:`CVDiagGetNumRhsEvals`           |
-   | evals.                                         |                                          |
-   +------------------------------------------------+------------------------------------------+
-   | Last return from a CVDIAG function             | :c:func:`CVDiagGetLastFlag`              |
-   +------------------------------------------------+------------------------------------------+
-   | Name of constant associated with a return flag | :c:func:`CVDiagGetReturnFlagName`        |
-   +------------------------------------------------+------------------------------------------+
+   +-------------------------------------------------+------------------------------------------+
+   |              **Optional output**                |            **Function name**             |
+   +=================================================+==========================================+
+   | **CVODES main solver**                          |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Size of CVODES real and integer workspaces      | :c:func:`CVodeGetWorkSpace`              |
+   +-------------------------------------------------+------------------------------------------+
+   | Cumulative number of internal steps             | :c:func:`CVodeGetNumSteps`               |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of calls to r.h.s. function                 | :c:func:`CVodeGetNumRhsEvals`            |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of calls to linear solver setup function    | :c:func:`CVodeGetNumLinSolvSetups`       |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of local error test failures that have      | :c:func:`CVodeGetNumErrTestFails`        |
+   | occurred                                        |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of failed steps due to a nonlinear solver   | :c:func:`CVodeGetNumStepSolveFails`      |
+   | failure                                         |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Order used during the last step                 | :c:func:`CVodeGetLastOrder`              |
+   +-------------------------------------------------+------------------------------------------+
+   | Order to be attempted on the next step          | :c:func:`CVodeGetCurrentOrder`           |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of order reductions due to stability limit  | :c:func:`CVodeGetNumStabLimOrderReds`    |
+   | detection                                       |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Actual initial step size used                   | :c:func:`CVodeGetActualInitStep`         |
+   +-------------------------------------------------+------------------------------------------+
+   | Step size used for the last step                | :c:func:`CVodeGetLastStep`               |
+   +-------------------------------------------------+------------------------------------------+
+   | Step size to be attempted on the next step      | :c:func:`CVodeGetCurrentStep`            |
+   +-------------------------------------------------+------------------------------------------+
+   | Current internal time reached by the solver     | :c:func:`CVodeGetCurrentTime`            |
+   +-------------------------------------------------+------------------------------------------+
+   | Suggested factor for tolerance scaling          | :c:func:`CVodeGetTolScaleFactor`         |
+   +-------------------------------------------------+------------------------------------------+
+   | Error weight vector for state variables         | :c:func:`CVodeGetErrWeights`             |
+   +-------------------------------------------------+------------------------------------------+
+   | Estimated local error vector                    | :c:func:`CVodeGetEstLocalErrors`         |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of nonlinear solver iterations              | :c:func:`CVodeGetNumNonlinSolvIters`     |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of nonlinear convergence failures           | :c:func:`CVodeGetNumNonlinSolvConvFails` |
+   +-------------------------------------------------+------------------------------------------+
+   | All CVODES integrator statistics                | :c:func:`CVodeGetIntegratorStats`        |
+   +-------------------------------------------------+------------------------------------------+
+   | CVODES nonlinear solver statistics              | :c:func:`CVodeGetNonlinSolvStats`        |
+   +-------------------------------------------------+------------------------------------------+
+   | User data pointer                               | :c:func:`CVodeGetUserData`               |
+   +-------------------------------------------------+------------------------------------------+
+   | Array showing roots found                       | :c:func:`CVodeGetRootInfo`               |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of calls to user root function              | :c:func:`CVodeGetNumGEvals`              |
+   +-------------------------------------------------+------------------------------------------+
+   | Print all statistics                            | :c:func:`CVodePrintAllStats`             |
+   +-------------------------------------------------+------------------------------------------+
+   | Name of constant associated with a return flag  | :c:func:`CVodeGetReturnFlagName`         |
+   +-------------------------------------------------+------------------------------------------+
+   | **CVLS linear solver interface**                |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Stored Jacobian of the ODE RHS function         | :c:func:`CVodeGetJac`                    |
+   +-------------------------------------------------+------------------------------------------+
+   | Time at which the Jacobian was evaluated        | :c:func:`CVodeGetJacTime`                |
+   +-------------------------------------------------+------------------------------------------+
+   | Step number at which the Jacobian was evaluated | :c:func:`CVodeGetJacNumSteps`            |
+   +-------------------------------------------------+------------------------------------------+
+   | Size of real and integer workspaces             | :c:func:`CVodeGetLinWorkSpace`           |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of Jacobian evaluations                     | :c:func:`CVodeGetNumJacEvals`            |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of r.h.s. calls for finite diff.            | :c:func:`CVodeGetNumLinRhsEvals`         |
+   | Jacobian[-vector] evals.                        |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of linear iterations                        | :c:func:`CVodeGetNumLinIters`            |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of linear convergence failures              | :c:func:`CVodeGetNumLinConvFails`        |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of preconditioner evaluations               | :c:func:`CVodeGetNumPrecEvals`           |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of preconditioner solves                    | :c:func:`CVodeGetNumPrecSolves`          |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of Jacobian-vector setup evaluations        | :c:func:`CVodeGetNumJTSetupEvals`        |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of Jacobian-vector product evaluations      | :c:func:`CVodeGetNumJtimesEvals`         |
+   +-------------------------------------------------+------------------------------------------+
+   | Get all linear solver statistics in one         | :c:func:`CVodeGetLinSolvStats`           |
+   | function call                                   |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Last return from a linear solver function       | :c:func:`CVodeGetLastLinFlag`            |
+   +-------------------------------------------------+------------------------------------------+
+   | Name of constant associated with a return flag  | :c:func:`CVodeGetLinReturnFlagName`      |
+   +-------------------------------------------------+------------------------------------------+
+   | **CVDIAG linear solver interface**              |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Size of CVDIAG real and integer workspaces      | :c:func:`CVDiagGetWorkSpace`             |
+   +-------------------------------------------------+------------------------------------------+
+   | No. of r.h.s. calls for finite diff. Jacobian   | :c:func:`CVDiagGetNumRhsEvals`           |
+   | evals.                                          |                                          |
+   +-------------------------------------------------+------------------------------------------+
+   | Last return from a CVDIAG function              | :c:func:`CVDiagGetLastFlag`              |
+   +-------------------------------------------------+------------------------------------------+
+   | Name of constant associated with a return flag  | :c:func:`CVDiagGetReturnFlagName`        |
+   +-------------------------------------------------+------------------------------------------+
 
 .. _CVODES.Usage.SIM.optional_output.optout_main:
 
@@ -2818,6 +2843,46 @@ linear solver function. Note that, where the name of an output would
 otherwise conflict with the name of an optional output from the main
 solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
+.. c:function:: int CVodeGetJac(void* cvode_mem, SUNMatrix* J)
+
+   Returns the internally stored copy of the Jacobian matrix of the ODE
+   right-hand side function.
+
+   :param cvode_mem: the CVODES memory structure
+   :param J: the Jacobian matrix
+
+   :retval CVLS_SUCCESS: the output value has been successfully set
+   :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``
+   :retval CVLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int CVodeGetJacTime(void* cvode_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the ODE right-hand side function was evaluated.
+
+   :param cvode_mem: the CVODES memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval CVLS_SUCCESS: the output value has been successfully set
+   :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``
+   :retval CVLS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J)
+
+   Returns the value of the internal step counter at which the internally stored copy of the
+   Jacobian matrix of the ODE right-hand side function was evaluated.
+
+   :param cvode_mem: the CVODES memory structure
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
+
+   :retval CVLS_SUCCESS: the output value has been successfully set
+   :retval CVLS_MEM_NULL: ``cvode_mem`` was ``NULL``
+   :retval CVLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int CVodeGetLinWorkSpace(void* cvode_mem, long int *lenrwLS, long int *leniwLS)
 

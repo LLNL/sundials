@@ -16,7 +16,7 @@
 
 # List of test tuples of the form "name\;args"
 set(ARKODE_unit_tests
-  "ark_table_tests_f2003\;"
+  "ark_test_table_f2003\;"
   )
 
 foreach(test_tuple ${ARKODE_unit_tests})
