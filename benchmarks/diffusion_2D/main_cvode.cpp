@@ -543,7 +543,13 @@ void UserOptions::print()
   {
     cout << " Linear solver options:" << endl;
     cout << " --------------------------------- " << endl;
-    cout << " LS       = " << ls       << endl;
+#if defined(HAVE_HIP)
+    cout << " LS       = SuperLU_DIST (HIP enabled)" << endl;
+#elif defined(HAVE_CUDA)
+    cout << " LS       = SuperLU_DIST (CUDA enabled)" << endl;
+#else
+    cout << " LS       = SuperLU_DIST" << endl;
+#endif
     cout << " LS info  = " << lsinfo   << endl;
     cout << " msbp     = " << msbp     << endl;
     cout << " --------------------------------- " << endl;
