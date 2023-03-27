@@ -92,7 +92,7 @@ $|=1;
 
 my $end_of_line = $/;
 
-my $endyear = '2022';
+my $endyear = '2023';
 
 my $newCopyright = <<"END";
  # SUNDIALS Copyright Start
@@ -124,7 +124,7 @@ replaceInFiles($docFilePattern,$fileExcludePattern,$docReplacePattern,$docNewCop
 # Replace in C/C++/CUDA source files
 #############################################################################
 
-my $cFilePattern    = q!(\.[chI]|\.cpp|\.hpp|\.cu|\.cuh|\.in)$!;
+my $cFilePattern    = q!(\.[chI]|\.cpp|\.hpp|\.cu|\.cuh|\.in|\.def)$!;
 my $cReplacePattern = ' \* (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
 my $cNewCopyright   = $newCopyright;
 
