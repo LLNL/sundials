@@ -1275,7 +1275,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       The stop time can be reenabled though a new call to
       :c:func:`ARKStepSetStopTime`.
 
-   .. versionadded:: 5.6.0
+   .. versionadded:: 5.5.1
 
 
 .. c:function:: int ARKStepSetUserData(void* arkode_mem, void* user_data)

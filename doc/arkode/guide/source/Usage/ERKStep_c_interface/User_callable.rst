@@ -894,7 +894,7 @@ Optional inputs for ERKStep
       The stop time can be reenabled though a new call to
       :c:func:`ERKStepSetStopTime`.
 
-   .. versionadded:: 5.6.0
+   .. versionadded:: 5.5.1
 
 
 .. c:function:: int ERKStepSetUserData(void* arkode_mem, void* user_data)

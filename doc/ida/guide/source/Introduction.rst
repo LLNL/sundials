@@ -72,7 +72,7 @@ systems.
 Changes from previous versions
 ==============================
 
-Changes in v6.6.0
+Changes in v6.5.1
 -----------------
 
 Added the function :c:func:`IDAClearStopTime` to disable a previously set stop

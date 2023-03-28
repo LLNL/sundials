@@ -1106,7 +1106,7 @@ Main solver optional input functions
       The stop time can be reenabled though a new call to
       :c:func:`CVodeSetStopTime`.
 
-   .. versionadded:: 6.6.0
+   .. versionadded:: 6.5.1
 
 .. c:function:: int CVodeSetMaxErrTestFails(void* cvode_mem, int maxnef)
 

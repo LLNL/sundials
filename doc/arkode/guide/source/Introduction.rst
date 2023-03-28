@@ -118,7 +118,7 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v5.6.0
+Changes in v5.5.1
 -----------------
 
 Added the functions :c:func:`ARKStepClearStopTime`,

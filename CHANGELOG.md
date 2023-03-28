@@ -1,6 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 6.6.0
+## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,
 `MRIStepClearStopTime`, `CVodeClearStopTime`, and `IDAClearStopTime` to

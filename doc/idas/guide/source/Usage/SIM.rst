@@ -1182,7 +1182,7 @@ Main solver optional input functions
       The stop time can be reenabled though a new call to
       :c:func:`IDASetStopTime`.
 
-   .. versionadded:: 6.6.0
+   .. versionadded:: 6.5.1
 
 .. c:function:: int IDASetMaxErrTestFails(void * ida_mem, int maxnef)
 
