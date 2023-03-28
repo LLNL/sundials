@@ -88,7 +88,7 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
-Changes in v6.6.0
+Changes in v6.5.1
 -----------------
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.

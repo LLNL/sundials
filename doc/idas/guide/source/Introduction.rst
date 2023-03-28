@@ -86,8 +86,11 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in v5.6.0
+Changes in v5.5.1
 -----------------
+
+Added the function :c:func:`IDAClearStopTime` to disable a previously set stop
+time.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 

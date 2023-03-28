@@ -955,7 +955,9 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Maximum absolute step size :math:`h_{\text{max}}`                  | :c:func:`IDASetMaxStep`         | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | :math:`\infty` |
+   | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | undefined      |
+   +--------------------------------------------------------------------+---------------------------------+----------------+
+   | Disable the stop time                                              | :c:func:`IDAClearStopTime`      | N/A            |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Maximum no. of error test failures                                 | :c:func:`IDASetMaxErrTestFails` | 10             |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -1151,6 +1153,26 @@ Main solver optional input functions
       Once the integrator returns at a stop time, any future testing for ``tstop``
       is disabled (and can be reenabled only though a new call to
       :c:func:`IDASetStopTime`).
+
+      A stop time not reached before a call to :c:func:`IDAReInit` will
+      remain active but can be disabled by calling :c:func:`IDAClearStopTime`.
+
+.. c:function:: int IDAClearStopTime(void* ida_mem)
+
+   Disables the stop time set with :c:func:`IDASetStopTime`.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA memory block.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` if successful
+      * ``IDA_MEM_NULL`` if the IDA memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`IDASetStopTime`.
+
+   .. versionadded:: 6.5.1
 
 .. c:function:: int IDASetMaxErrTestFails(void * ida_mem, int maxnef)
 
@@ -3193,6 +3215,9 @@ dependent variable vector.
         illegal value.
 
    **Notes:**
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
+
       If an error occurred, :c:func:`IDAReInit` also sends an error message to the
       error handler function.
 
