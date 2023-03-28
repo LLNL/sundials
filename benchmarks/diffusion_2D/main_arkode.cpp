@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
       A_row_ptrs = (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
       if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
 
-      // SuperLU_DIST structures
+      // Create and initialize SuperLU_DIST structures 
       dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes,
                                      nnz_loc, udata.nodes_loc, 0, A_data,
                                      A_col_idxs, A_row_ptrs, SLU_NR_loc, SLU_D,

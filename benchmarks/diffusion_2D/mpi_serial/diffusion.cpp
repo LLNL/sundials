@@ -328,8 +328,7 @@ int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
   {
     // neighbor nx_loc
     sunindextype nx_loc;
-    if (x - 1 < rx) nx_loc = qx + 1;
-    else nx_loc = qx;
+    nx_loc = (x - 1 < rx) ? qx + 1 : qx;
 
     vals[idx]    = cx;
     col_idx[idx] = global_index(nx_loc - 1, j, x - 1, y, udata);
@@ -341,8 +340,7 @@ int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
   {
     // neighbor ny_loc
     sunindextype ny_loc;
-    if (y - 1 < ry) ny_loc = qy + 1;
-    else ny_loc = qy;
+    ny_loc = (y - 1 < ry) ? qy + 1 : qy;
 
     vals[idx]    = cy;
     col_idx[idx] = global_index(i, ny_loc - 1, x, y - 1, udata);
