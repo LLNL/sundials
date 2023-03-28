@@ -69,7 +69,7 @@ lassen_xl_cuda_tpls:
       - COMPILER_SPEC: xl@16.1.1.10
         CUDA_SPEC: [cuda@10.1.243]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda~raja+magma cuda_arch=70 ^raja+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda~raja+magma cuda_arch=70 ^magma+cuda cuda_arch=70 ^${CUDA_SPEC}"
   extends: .lassen_build_and_test
 
 lassen_gcc_cuda_tpls:
