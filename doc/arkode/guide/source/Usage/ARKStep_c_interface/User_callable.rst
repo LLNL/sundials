@@ -876,7 +876,7 @@ Maximum no. of internal steps before *tout*       :c:func:`ARKStepSetMaxNumSteps
 Maximum absolute step size                        :c:func:`ARKStepSetMaxStep`              :math:`\infty`
 Minimum absolute step size                        :c:func:`ARKStepSetMinStep`              0.0
 Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             undefined
-Disable the stop time                             :c:func:`ARKStepUnsetStopTime`           N/A
+Disable the stop time                             :c:func:`ARKStepClearStopTime`           N/A
 Supply a pointer for user data                    :c:func:`ARKStepSetUserData`             ``NULL``
 Maximum no. of ARKStep error test failures        :c:func:`ARKStepSetMaxErrTestFails`      7
 Set 'optimal' adaptivity params. for a method     :c:func:`ARKStepSetOptimalParams`        internal
@@ -1257,10 +1257,10 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
       A stop time not reached before a call to :c:func:`ARKStepReInit` or
       :c:func:`ARKStepReset` will remain active but can be disabled by calling
-      :c:func:`ARKStepUnsetStopTime`.
+      :c:func:`ARKStepClearStopTime`.
 
 
-.. c:function:: int ARKStepUnsetStopTime(void* arkode_mem)
+.. c:function:: int ARKStepClearStopTime(void* arkode_mem)
 
    Disables the stop time set with :c:func:`ARKStepSetStopTime`.
 

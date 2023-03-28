@@ -2,8 +2,8 @@
 
 ## Changes to SUNDIALS in release 6.6.0
 
-Added the functions `ARKStepUnsetStopTime`, `ERKStepUnsetStopTime`,
-`MRIStepUnsetStopTime`, `CVodeUnsetStopTime`, and `IDAUnsetStopTime` to
+Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,
+`MRIStepClearStopTime`, `CVodeClearStopTime`, and `IDAClearStopTime` to
 disable a previously set stop time.
 
 Fixed compilation errors in some SYCL examples when using the `icx` compiler.

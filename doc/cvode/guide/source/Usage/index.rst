@@ -852,7 +852,7 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
    | Value of :math:`t_{stop}`     | :c:func:`CVodeSetStopTime`                  | undefined      |
    +-------------------------------+---------------------------------------------+----------------+
-   | Disable the stop time         | :c:func:`CVodeUnsetStopTime`                | N/A            |
+   | Disable the stop time         | :c:func:`CVodeClearStopTime`                | N/A            |
    +-------------------------------+---------------------------------------------+----------------+
    | Maximum no. of error test     | :c:func:`CVodeSetMaxErrTestFails`           | 7              |
    | failures                      |                                             |                |
@@ -1089,9 +1089,9 @@ Main solver optional input functions
       Once the integrator returns at a stop time, any future testing for ``tstop``  is disabled (and can be reenabled only though a new call to ``CVodeSetStopTime``).
 
       A stop time not reached before a call to :c:func:`CVodeReInit` will
-      remain active but can be disabled by calling :c:func:`CVodeUnsetStopTime`.
+      remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
 
-.. c:function:: int CVodeUnsetStopTime(void* cvode_mem)
+.. c:function:: int CVodeClearStopTime(void* cvode_mem)
 
    Disables the stop time set with :c:func:`CVodeSetStopTime`.
 

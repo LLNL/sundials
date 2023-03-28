@@ -519,16 +519,16 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
 
 
 /*---------------------------------------------------------------
-  arkUnsetStopTime:
+  arkClearStopTime:
 
   Disable the stop time.
   ---------------------------------------------------------------*/
-int arkUnsetStopTime(void *arkode_mem)
+int arkClearStopTime(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkUnsetStopTime", MSG_ARK_NO_MEM);
+                    "arkClearStopTime", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;

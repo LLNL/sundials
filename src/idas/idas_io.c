@@ -412,12 +412,12 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
 /*-----------------------------------------------------------------*/
 
-int IDAUnsetStopTime(void *ida_mem)
+int IDAClearStopTime(void *ida_mem)
 {
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAUnsetStopTime", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAClearStopTime", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 

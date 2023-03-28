@@ -957,7 +957,7 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | undefined      |
    +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Disable the stop time                                              | :c:func:`IDAUnsetStopTime`      | N/A            |
+   | Disable the stop time                                              | :c:func:`IDAClearStopTime`      | N/A            |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Maximum no. of error test failures                                 | :c:func:`IDASetMaxErrTestFails` | 10             |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -1155,9 +1155,9 @@ Main solver optional input functions
       :c:func:`IDASetStopTime`).
 
       A stop time not reached before a call to :c:func:`IDAReInit` will
-      remain active but can be disabled by calling :c:func:`IDAUnsetStopTime`.
+      remain active but can be disabled by calling :c:func:`IDAClearStopTime`.
 
-.. c:function:: int IDAUnsetStopTime(void* ida_mem)
+.. c:function:: int IDAClearStopTime(void* ida_mem)
 
    Disables the stop time set with :c:func:`IDASetStopTime`.
 

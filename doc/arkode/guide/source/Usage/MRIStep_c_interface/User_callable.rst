@@ -695,7 +695,7 @@ Optional inputs for MRIStep
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | undefined              |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Disable the stop time                                         | :c:func:`MRIStepUnsetStopTime`          | N/A                    |
+   | Disable the stop time                                         | :c:func:`MRIStepClearStopTime`          | N/A                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`          | ``NULL``               |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
@@ -1096,10 +1096,10 @@ Optional inputs for MRIStep
 
       A stop time not reached before a call to :c:func:`MRIStepReInit` or
       :c:func:`MRIStepReset` will remain active but can be disabled by calling
-      :c:func:`MRIStepUnsetStopTime`.
+      :c:func:`MRIStepClearStopTime`.
 
 
-.. c:function:: int MRIStepUnsetStopTime(void* arkode_mem)
+.. c:function:: int MRIStepClearStopTime(void* arkode_mem)
 
    Disables the stop time set with :c:func:`MRIStepSetStopTime`.
 

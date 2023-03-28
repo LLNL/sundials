@@ -114,7 +114,7 @@ Changes from previous versions
 Changes in v6.6.0
 -----------------
 
-Added the function :c:func:`CVodeUnsetStopTime` to disable a previously set stop
+Added the function :c:func:`CVodeClearStopTime` to disable a previously set stop
 time.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.

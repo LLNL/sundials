@@ -496,7 +496,7 @@ Optional inputs for ERKStep
    +----------------------------------------------------+-----------------------------------------+------------------------+
    | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`          | undefined              |
    +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Disable the stop time                              | :c:func:`ERKStepUnsetStopTime`          | N/A                    |
+   | Disable the stop time                              | :c:func:`ERKStepClearStopTime`          | N/A                    |
    +----------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                     | :c:func:`ERKStepSetUserData()`          | ``NULL``               |
    +----------------------------------------------------+-----------------------------------------+------------------------+
@@ -876,10 +876,10 @@ Optional inputs for ERKStep
 
       A stop time not reached before a call to :c:func:`ERKStepReInit` or
       :c:func:`ERKStepReset` will remain active but can be disabled by calling
-      :c:func:`ERKStepUnsetStopTime`.
+      :c:func:`ERKStepClearStopTime`.
 
 
-.. c:function:: int ERKStepUnsetStopTime(void* arkode_mem)
+.. c:function:: int ERKStepClearStopTime(void* arkode_mem)
 
    Disables the stop time set with :c:func:`ERKStepSetStopTime`.
 
