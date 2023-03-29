@@ -544,11 +544,11 @@ void UserOptions::print()
   {
     cout << " Linear solver options:" << endl;
     cout << " --------------------------------- " << endl;
-    cout << " LS       = " << ls       << endl;
-    cout << " precond  = " << prec     << endl;
-    cout << " LS info  = " << lsinfo   << endl;
-    cout << " LS iters = " << liniters << endl;
-    cout << " epslin   = " << epslin   << endl;
+    cout << " LS       = " << ls              << endl;
+    cout << " precond  = " << preconditioning << endl;
+    cout << " LS info  = " << lsinfo          << endl;
+    cout << " LS iters = " << liniters        << endl;
+    cout << " epslin   = " << epslin          << endl;
     cout << " --------------------------------- " << endl;
   }
 }
