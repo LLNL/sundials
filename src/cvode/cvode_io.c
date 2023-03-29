@@ -2,7 +2,7 @@
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -710,6 +710,27 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
 
   cv_mem->cv_tstop = tstop;
   cv_mem->cv_tstopset = SUNTRUE;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeClearStopTime
+ *
+ * Disable the stop time.
+ */
+
+int CVodeClearStopTime(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeClearStopTime", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_tstopset = SUNFALSE;
 
   return(CV_SUCCESS);
 }

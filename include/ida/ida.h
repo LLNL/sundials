@@ -3,7 +3,7 @@
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -142,6 +142,7 @@ SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, realtype hin);
 SUNDIALS_EXPORT int IDASetMaxStep(void *ida_mem, realtype hmax);
 SUNDIALS_EXPORT int IDASetMinStep(void *ida_mem, realtype hmin);
 SUNDIALS_EXPORT int IDASetStopTime(void *ida_mem, realtype tstop);
+SUNDIALS_EXPORT int IDAClearStopTime(void *ida_mem);
 SUNDIALS_EXPORT int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
 SUNDIALS_EXPORT int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
 SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
