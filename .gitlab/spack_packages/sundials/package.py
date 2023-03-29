@@ -181,6 +181,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # Scheduler
     variant("scheduler", default="slurm", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm"))
 
+    # Benchmarking
+    variant("benchmarks", default=False, description ="Build benchmark programs")
+
     # ==========================================================================
     # Dependencies
     # ==========================================================================
@@ -730,7 +733,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_MONITORING", "monitoring"),
                 # Profiling
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_PROFILING", "profiling"),
-                self.cache_option_from_variant("ENABLE_CALIPER", "caliper")
+                self.cache_option_from_variant("ENABLE_CALIPER", "caliper"),
+                # Benchmarking
+                self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks")
             ]
         )
 
@@ -911,5 +916,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_option("F90_ENABLE", "+examples+fcmix" in spec),
                 ]
             )
+
+        if "+benchmarks" in spec:
+            entries.append(self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"))
 
         return entries

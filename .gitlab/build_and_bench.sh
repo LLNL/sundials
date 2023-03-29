@@ -10,7 +10,10 @@ d2d_dir="${benchmark_dir}/diffusion_2D"
 job_unique_id=${CI_JOB_ID:-""}
 job_timestamp=${CI_JOB_STARTED_AT:-""}
 
-benchmark_store_dir="/usr/workspace/sundials/benchmarks/$(hostname)/${job_timestamp}_${job_unique_id}"
+# remove tailing number from hostname
+hostname=${hostname%%[0-9]*}
+
+benchmark_store_dir="/usr/workspace/sundials/benchmarks/${hostname}/${job_timestamp}_${job_unique_id}"
 
 nresg=$((BENCHMARK_NNODES * 4)) # Lassen has 4 GPUs per node
 nresc=$((BENCHMARK_NNODES * 40)) # Lassen has 40 cores per node
