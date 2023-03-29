@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -875,7 +875,8 @@ Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKStepSetMaxHnilWarn
 Maximum no. of internal steps before *tout*       :c:func:`ARKStepSetMaxNumSteps`          500
 Maximum absolute step size                        :c:func:`ARKStepSetMaxStep`              :math:`\infty`
 Minimum absolute step size                        :c:func:`ARKStepSetMinStep`              0.0
-Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             N/A
+Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             undefined
+Disable the stop time                             :c:func:`ARKStepClearStopTime`           N/A
 Supply a pointer for user data                    :c:func:`ARKStepSetUserData`             ``NULL``
 Maximum no. of ARKStep error test failures        :c:func:`ARKStepSetMaxErrTestFails`      7
 Set 'optimal' adaptivity params. for a method     :c:func:`ARKStepSetOptimalParams`        internal
@@ -1250,7 +1251,31 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       The default is that no stop time is imposed.
 
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`ARKStepSetStopTime`).
 
+      A stop time not reached before a call to :c:func:`ARKStepReInit` or
+      :c:func:`ARKStepReset` will remain active but can be disabled by calling
+      :c:func:`ARKStepClearStopTime`.
+
+
+.. c:function:: int ARKStepClearStopTime(void* arkode_mem)
+
+   Disables the stop time set with :c:func:`ARKStepSetStopTime`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`ARKStepSetStopTime`.
+
+   .. versionadded:: 5.5.1
 
 
 .. c:function:: int ARKStepSetUserData(void* arkode_mem, void* user_data)
@@ -4605,8 +4630,8 @@ vector.
       different step size or have ARKStep estimate a new step size use
       :c:func:`ARKStepSetInitStep()`.
 
-      All previously set options are retained but may be updated by calling the
-      appropriate "Set" functions.
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
 
       If an error occurred, :c:func:`ARKStepReset()` also sends an error message to
       the error handler function.

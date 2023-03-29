@@ -3,7 +3,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -406,6 +406,24 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
   IDA_mem->ida_tstop = tstop;
   IDA_mem->ida_tstopset = SUNTRUE;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAClearStopTime(void *ida_mem)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAClearStopTime", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_tstopset = SUNFALSE;
 
   return(IDA_SUCCESS);
 }

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -41,6 +41,10 @@ set(CMAKE_CXX_FLAGS
 set(CMAKE_CXX_STANDARD
   @CMAKE_CXX_STANDARD@
   CACHE STRING "C++ standard")
+
+set(AMDGPU_TARGETS
+  @AMDGPU_TARGETS@
+  CACHE STRING "Target AMD gpu architectures (e.g. gfx90a)")
 
 # Specify project name and languages
 project(@SOLVER@_hip_examples C CXX)
