@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -118,8 +118,12 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v5.6.0
+Changes in v5.5.1
 -----------------
+
+Added the functions :c:func:`ARKStepClearStopTime`,
+:c:func:`ERKStepClearStopTime`, and :c:func:`MRIStepClearStopTime` to disable a
+previously set stop time.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 

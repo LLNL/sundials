@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -48,6 +48,8 @@ int MRIStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
   return(arkSetMaxHnilWarns(arkode_mem, mxhnil)); }
 int MRIStepSetStopTime(void *arkode_mem, realtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
+int MRIStepClearStopTime(void *arkode_mem) {
+  return(arkClearStopTime(arkode_mem)); }
 int MRIStepSetRootDirection(void *arkode_mem, int *rootdir) {
   return(arkSetRootDirection(arkode_mem, rootdir)); }
 int MRIStepSetNoInactiveRootWarn(void *arkode_mem) {
