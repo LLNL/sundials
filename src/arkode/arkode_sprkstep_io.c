@@ -227,11 +227,11 @@ int SPRKStepSetDefaults(void* arkode_mem)
 }
 
 /*---------------------------------------------------------------
-  SPRKStepSetUseCompSums:
+  SPRKStepSetUseCompensatedSums:
 
   Turns on/off compensated summation in SPRKStep and ARKODE.
   ---------------------------------------------------------------*/
-int SPRKStepSetUseCompSums(void *arkode_mem, sunbooleantype onoff)
+int SPRKStepSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
@@ -243,8 +243,10 @@ int SPRKStepSetUseCompSums(void *arkode_mem, sunbooleantype onoff)
   if (retval != ARK_SUCCESS) { return(retval); }
 
   if (onoff) {
+    arkSetUseCompensatedSums(arkode_mem, SUNTRUE);
     ark_mem->step = sprkStep_TakeStep_Compensated;
   } else {
+    arkSetUseCompensatedSums(arkode_mem, SUNFALSE);
     ark_mem->step = sprkStep_TakeStep;
   }
 

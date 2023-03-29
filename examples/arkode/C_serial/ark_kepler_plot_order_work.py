@@ -99,50 +99,56 @@ for dt in step_sizes:
      'dt': dt
   })
 
+orders = [1, 2, 3, 4, 5, 6, 8, 10]
 all_methods = {}
-all_methods[1] = []
-all_methods[1].append(sprk1)
-all_methods[2] = []
-all_methods[2].append(sprk2)
-all_methods[2].append(sprk22)
-all_methods[2].append(sprk222)
-all_methods[3] = []
-all_methods[3].append(sprk3)
-all_methods[3].append(sprk33)
-all_methods[4] = []
-all_methods[4].append(sprk4)
-all_methods[4].append(sprk44)
-all_methods[5] = []
-all_methods[5].append(sprk5)
-all_methods[6] = []
-all_methods[6].append(sprk6)
-all_methods[8] = []
-all_methods[8].append(sprk8)
-all_methods[10] = []
-all_methods[10].append(sprk10)
+if 1 in orders:
+   all_methods[1] = []
+   all_methods[1].append(sprk1)
+if 2 in orders:
+   all_methods[2] = []
+   all_methods[2].append(sprk2)
+   all_methods[2].append(sprk22)
+   all_methods[2].append(sprk222)
+if 3 in orders:
+   all_methods[3] = []
+   all_methods[3].append(sprk3)
+   all_methods[3].append(sprk33)
+if 4 in orders:
+   all_methods[4] = []
+   all_methods[4].append(sprk4)
+   all_methods[4].append(sprk44)
+if 5 in orders:
+   all_methods[5] = []
+   all_methods[5].append(sprk5)
+if 6 in orders:
+   all_methods[6] = []
+   all_methods[6].append(sprk6)
+if 8 in orders:
+   all_methods[8] = []
+   all_methods[8].append(sprk8)
+if 10 in orders:
+   all_methods[10] = []
+   all_methods[10].append(sprk10)
 
-# Reference
-reference = load_results('_erk-8')
+# Reference solution
+_, y_ref, _ = load_results('_erk-8')
 
 #
 # Solution error plot
 #
-orders = [1, 2, 3, 4, 5, 6, 8, 10]
 for order in orders:
   plt.figure(dpi=200)
   legend = []
   legend.append('$O(h^{%d})$' % order)
   order_line = np.power(step_sizes, order)
   plt.plot(np.array(step_sizes), np.array(order_line).T, 'k--')
-  _, y_ref, _ = reference
   for method in all_methods[order]:
     errs = []
     dts = []
     for d in method:
       _, y, _ = d['data']
       err = np.linalg.norm(y - y_ref, np.inf) / np.linalg.norm(y_ref, np.inf)
-      print('method: %s,  dt = %s' % (d['method'], d['dt']))
-      print(np.max(y))
+      print('method: %15s,  dt = %.6f, err = %g' % (d['method'], d['dt'], err))
       if err >= 10.:
         continue
       else:
@@ -162,14 +168,12 @@ for order in orders:
 #
 # Energy error plot
 #
-orders = [1, 2, 3, 4, 5, 6, 8, 10]
 for order in orders:
   plt.figure(dpi=200)
   legend = []
   legend.append('$O(h^{%d})$' % order)
   order_line = np.power(step_sizes, order)
   plt.plot(np.array(step_sizes), np.array(order_line).T, 'k--')
-  _, y_ref, _ = reference
   for method in all_methods[order]:
     errs = []
     dts = []
@@ -178,6 +182,7 @@ for order in orders:
       energy_0 = conserved[0,0]
       energy = conserved[:,0]
       err = np.linalg.norm(energy-energy_0, np.inf)
+      print('method: %15s,  dt = %.6f, energy err = %g' % (d['method'], d['dt'], err))
       if err >= 10.:
         continue
       else:
@@ -193,4 +198,3 @@ for order in orders:
   plt.legend(legend)
   plt.savefig('ark_kepler_energy_order%d.png' % order)
   plt.close()
-

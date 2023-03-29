@@ -952,10 +952,10 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
          (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = tout;
-      // /* Only use dense output when we tcur is not within 10*eps of tout already.*/
-      // if (SUNRCompare(ark_mem->tcur - tout, ZERO)) {
-      //   (void) arkGetDky(ark_mem, tout, 0, yout);
-      // }
+      /* Only use dense output when we tcur is not within 10*eps of tout already.*/
+      if (SUNRCompare(ark_mem->tcur - tout, ZERO)) {
+        (void) arkGetDky(ark_mem, tout, 0, yout);
+      }
       ark_mem->next_h = ark_mem->hprime;
       break;
     }
@@ -965,10 +965,10 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
       if (SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        // /* Only use dense output when we tcur is not within 10*eps of tstop already.*/
-        // if (SUNRCompare(ark_mem->tcur - ark_mem->tstop, ZERO)) {
-        //   (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
-        // }
+        /* Only use dense output when we tcur is not within 10*eps of tstop already.*/
+        if (SUNRCompare(ark_mem->tcur - ark_mem->tstop, ZERO)) {
+          (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+        }
         ark_mem->tretlast = *tret = ark_mem->tstop;
         ark_mem->tstopset = SUNFALSE;
         istate = ARK_TSTOP_RETURN;
@@ -2374,14 +2374,20 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   int retval, mode;
   realtype troundoff;
 
-
   /* Set current time to the end of the step (in case the last
      stage time does not coincide with the step solution time).
      If tstop is enabled, it is possible for tn + h to be past
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
-  // compensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); /* TODO(CJB): I am guessing we would want this to be optional, but perhaps performance comparisons should be done (with small problems). */
-  ark_mem->tcur = ark_mem->tn + ark_mem->h;
+
+  /* During long-time integration, roundoff can creep into tcur. 
+     Compensated summation fixes this but with increased cost, so it is optional. */
+  if (ark_mem->use_compensated_sums) {
+    compensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); 
+  } else {
+    ark_mem->tcur = ark_mem->tn + ark_mem->h;
+  }
+
   if ( ark_mem->tstopset ) {
     troundoff = FUZZ_FACTOR * ark_mem->uround *
       (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));

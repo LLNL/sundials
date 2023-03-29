@@ -56,8 +56,8 @@ static sunrealtype Hamiltonian(N_Vector y);
 static sunrealtype AngularMomentum(N_Vector y);
 
 static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int dqdt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int dpdt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int force(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static sunrealtype Q(N_Vector yvec, sunrealtype alpha);
 static sunrealtype G(N_Vector yvec, sunrealtype alpha);
@@ -98,9 +98,10 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
+  // sunrealtype Tf          = SUN_RCONST(150.0);
   sunrealtype Tf          = SUN_RCONST(1000.0);
   // sunrealtype Tf          = SUN_RCONST(100000.0);
-  const sunrealtype dt    = SUN_RCONST(1e-2);
+  sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
   // const sunrealtype delta = SUN_RCONST(0.015);
   const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
@@ -110,8 +111,7 @@ int main(int argc, char* argv[])
   int method    = 0;
   int order     = 1;
   int use_compsums = 0;
-  const sunrealtype dTout = dt;
-  // const sunrealtype dTout = SUN_RCONST(100.0);
+  const sunrealtype dTout = SUN_RCONST(1.);
   const int num_output_times = (int) ceil(Tf/dTout);
 
   /* Parse CLI args */
@@ -126,6 +126,9 @@ int main(int argc, char* argv[])
     order = atoi(argv[++argi]);
   }
   if (argc > 4) {
+    dt = atof(argv[++argi]);
+  }
+  if (argc > 5) {
     use_compsums = atoi(argv[++argi]);
   }
 
@@ -147,9 +150,9 @@ int main(int argc, char* argv[])
   /* Fill the initial conditions */
   InitialConditions(y, ecc);
 
-  /* Create SPRKStep integrator where we treat dqdt explicitly and dpdt implicitly */
+  /* Create SPRKStep integrator */
   if (method == 0) {
-    arkode_mem = SPRKStepCreate(dpdt, dqdt, T0, y, sunctx);
+    arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
     switch (order) {
       case 1:
@@ -205,8 +208,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    retval = SPRKStepSetUseCompSums(arkode_mem, use_compsums);
-    if (check_retval(&retval, "SPRKStepSetUseCompSums", 1)) return 1;  
+    retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
+    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;  
 
     if (step_mode == 0) {
       retval = SPRKStepSetFixedStep(arkode_mem, dt);
@@ -237,7 +240,7 @@ int main(int argc, char* argv[])
       retval = ARKStepSetOrder(arkode_mem, order);
       if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
     } else {
-      arkode_mem = ARKStepCreate(dqdt, dpdt, T0, y, sunctx);
+      arkode_mem = ARKStepCreate(velocity, force, T0, y, sunctx);
 
       retval = ARKStepSetOrder(arkode_mem, order);
       if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
@@ -262,16 +265,16 @@ int main(int argc, char* argv[])
 
   /* Open output files */
   if (method == 0) {
-    const char* fmt1 = "ark_kepler_conserved_sprk-%d.txt";
-    const char* fmt2 = "ark_kepler_solution_sprk-%d.txt";
-    const char* fmt3 = "ark_kepler_times_sprk-%d.txt";
+    const char* fmt1 = "ark_kepler_conserved_sprk-%d-dt-%.6f.txt";
+    const char* fmt2 = "ark_kepler_solution_sprk-%d-dt-%.6f.txt";
+    const char* fmt3 = "ark_kepler_times_sprk-%d-dt-%.6f.txt";
     // const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
     char fname[64];
-    sprintf(fname, fmt1, order);
+    sprintf(fname, fmt1, order, dt);
     conserved_fp = fopen(fname, "w+");
-    sprintf(fname, fmt2, order);
+    sprintf(fname, fmt2, order, dt);
     solution_fp = fopen(fname, "w+");
-    sprintf(fname, fmt3, order);
+    sprintf(fname, fmt3, order, dt);
     times_fp = fopen(fname, "w+");
     // sprintf(fname, fmt4, order);
     // udata->hhist_fp = fopen(fname, "w+");
@@ -299,7 +302,7 @@ int main(int argc, char* argv[])
   H0 = Hamiltonian(y);
   L0 = AngularMomentum(y);
   sunrealtype Q0 = Q(y, udata->alpha)/udata->rho_n;
-  fprintf(stdout, "t = %.4f, H(p,q) = %.16Lf, L(p,q) = %.16Lf, Q(p,q) = %.16Lf\n",
+  fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf, Q(p,q) = %.16Lf\n",
           tret, H0, L0, Q0);
   fprintf(times_fp, "%.16Lf\n", tret);
   fprintf(conserved_fp, "%.16Lf, %.16Lf\n", H0, L0);
@@ -309,11 +312,10 @@ int main(int argc, char* argv[])
   if (method == 0) {
     for (iout = 0; iout < num_output_times; iout++) {
       // SPRKStepSetStopTime(arkode_mem, tout);
-      
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       /* Output current integration status */
-      fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
+      fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
               tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
               Q(y, udata->alpha)/udata->rho_np1-Q0);
       fprintf(times_fp, "%.16Lf\n", tret);
@@ -338,7 +340,7 @@ int main(int argc, char* argv[])
           if (retval < 0) break;
           
           /* Output current integration status */
-          fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
+          fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
                   tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
                   Q(y, udata->alpha)/udata->rho_np1-Q0);
           fprintf(times_fp, "%.16Lf\n", tret);
@@ -349,7 +351,7 @@ int main(int argc, char* argv[])
         retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
         
         /* Output current integration status */
-        fprintf(stdout, "t = %.4f, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
                 tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
                 Q(y, udata->alpha)/udata->rho_np1-Q0);
         fprintf(times_fp, "%.16Lf\n", tret);
@@ -437,13 +439,13 @@ int dydt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   int retval = 0;
 
-  retval += dpdt(t, yvec, ydotvec, user_data);
-  retval += dqdt(t, yvec, ydotvec, user_data);
+  retval += force(t, yvec, ydotvec, user_data);
+  retval += velocity(t, yvec, ydotvec, user_data);
 
   return retval;
 }
 
-int dqdt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   sunrealtype* y = N_VGetArrayPointer(yvec);
   sunrealtype* ydot = N_VGetArrayPointer(ydotvec);
@@ -457,7 +459,7 @@ int dqdt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   return 0;
 }
 
-int dpdt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   UserData udata = (UserData) user_data;
   sunrealtype* y = N_VGetArrayPointer(yvec);

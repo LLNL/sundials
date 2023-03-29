@@ -76,10 +76,10 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflag
 int sprkStep_AccessStepMem(void* arkode_mem, const char *fname,
                           ARKodeMem *ark_mem, ARKodeSPRKStepMem *step_mem);
 booleantype sprkStep_CheckNVector(N_Vector tmpl);
+/* f1 = p' (Force evaluation) */
 int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_Vector f1, void* user_data);
+/* f2 = q' (Velocity evaluation) */
 int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_Vector f2, void* user_data);
-int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector prev_stage,
-                       sunrealtype bi, sunrealtype Bi, N_Vector stage_result);
 
 // /* private functions for interfacing with MRIStep */
 // int sprkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,

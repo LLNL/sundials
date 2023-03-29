@@ -413,6 +413,8 @@ typedef struct ARKodeMemRec {
   /* User-supplied stage solution post-processing function */
   ARKPostProcessFn ProcessStage;
 
+  sunbooleantype use_compensated_sums;
+
   /* XBraid interface variables */
   booleantype force_pass;  /* when true the step attempt loop will ignore the
                               return value (kflag) from arkCheckTemporalError
@@ -1003,6 +1005,7 @@ int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf);
 int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data);
 int arkSetMaxErrTestFails(void *arkode_mem, int maxnef);
 int arkSetMaxConvFails(void *arkode_mem, int maxncf);
+int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff);
 int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw);
 int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts);
 int arkGetNumSteps(void *arkode_mem, long int *nsteps);

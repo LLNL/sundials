@@ -51,6 +51,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set default values for integrator optional inputs */
+  ark_mem->use_compensated_sums = SUNFALSE; 
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
   ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
@@ -1258,6 +1259,31 @@ int arkSetMaxConvFails(void *arkode_mem, int maxncf)
   return(ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  arkSetUseCompensatedSums:
+
+  Specifies that ARKODE should use compensated (Kahan) summation
+  where relevant to mitigate roundoff error.
+  ---------------------------------------------------------------*/
+int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetUseCompensatedSums", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  /* argument <= 0 sets default, otherwise set input */
+  if (onoff) {
+    ark_mem->use_compensated_sums = SUNTRUE;
+  } else {
+    ark_mem->use_compensated_sums = SUNFALSE;
+  }
+
+  return(ARK_SUCCESS);
+}
 
 
 /*===============================================================

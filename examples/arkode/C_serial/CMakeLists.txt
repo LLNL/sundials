@@ -40,7 +40,6 @@ set(ARKODE_examples
   "ark_reaction_diffusion_mri\;\;develop"
   "ark_brusselator_1D_mri\;\;develop"
   "ark_kepler\;\;develop"
-  "ark_kepler_test_all_methods\;\;develop"
   "ark_kpr_mri\;\;develop"
   "ark_kpr_mri\;0 0.002\;develop"
   "ark_kpr_mri\;1 0.002\;develop"

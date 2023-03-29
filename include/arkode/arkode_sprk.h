@@ -45,8 +45,11 @@ struct ARKodeSPRKMem_s {
 
   int q;           /* method order of accuracy         */
   int stages;      /* number of stages                 */
-  sunrealtype* a;  /* coefficients multiplying T'      */
-  sunrealtype* b;  /* coefficients multiplying -V'     */
+  sunrealtype* a;  /* coefficients multiplying q'     */
+  sunrealtype* b;  /* coefficients multiplying p'     */
+
+  /* the a_i coefficients generate the explicit Butcher table */
+  /* the b_i coefficients generate the diagonally-implicit Butcher table */
 
 };
 

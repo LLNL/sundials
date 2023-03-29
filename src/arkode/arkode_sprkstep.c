@@ -743,8 +743,7 @@ int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
-  ARKodeSPRKMem method_mem;
-  N_Vector prev_stage;
+  N_Vector prev_stage, curr_stage;
   int retval, is;
 
   /* access ARKodeSPRKStepMem structure */
@@ -752,14 +751,35 @@ int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                   &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  method_mem = step_mem->method;
-
   prev_stage = ark_mem->yn;
-  for (is = 0; is < method_mem->stages; is++) {
-    retval = sprkStep_SPRKStage(ark_mem, step_mem, prev_stage,
-                                method_mem->b[is], method_mem->a[is], ark_mem->ycur);
-    if (retval != ARK_SUCCESS) return(retval);
-    prev_stage = ark_mem->ycur;
+  curr_stage = ark_mem->ycur;
+  for (is = 0; is < step_mem->method->stages; is++) {
+    sunrealtype ai = step_mem->method->a[is];
+    sunrealtype bi = step_mem->method->b[is];
+
+    /* Set current stage time(s) */
+    ark_mem->tcur = ark_mem->tn + ai*ark_mem->h;
+
+    /* Evaluate p' with the previous velocity */
+    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
+    retval = sprkStep_f1(step_mem, ark_mem->tcur, prev_stage, step_mem->sdata, ark_mem->user_data);
+    if (retval != 0) return ARK_RHSFUNC_FAIL;
+
+    /* Position update */
+    N_VLinearSum(ONE, prev_stage, ark_mem->h*bi, step_mem->sdata, curr_stage);
+
+    /* Evaluate q' with the current positions */
+    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
+    retval = sprkStep_f2(step_mem, ark_mem->tcur, curr_stage, step_mem->sdata, ark_mem->user_data);
+    if (retval != 0) return ARK_RHSFUNC_FAIL;
+
+    /* Velocity update */
+    N_VLinearSum(ONE, curr_stage, ark_mem->h*ai, step_mem->sdata, curr_stage);
+
+    /* keep track of the stage number */
+    step_mem->istage++;
+    
+    prev_stage = curr_stage;
   }
 
   *nflagPtr = 0;
@@ -804,13 +824,13 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflag
        [     ] + [            ] */
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
 
-    /* evaluate Fi with previous stage increment */
+    /* Evaluate p' with the previous velocity */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
     retval = sprkStep_f1(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
                          step_mem->sdata, ark_mem->user_data);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
-    /* update the implicit stage
+    /* Incremental position update:
        [            ] = [                ] + [       ]
        [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ] */
     N_VLinearSum(ONE, delta_Yi,  ark_mem->h * method->b[is], step_mem->sdata, delta_Yi);
@@ -819,13 +839,13 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflag
        [ p_n ] + [ \Delta P_i ] */
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
 
-    /* evaluate Fe with the current p_n + \Delta P_i */
+    /* Evaluate q' with the current positions */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
     retval = sprkStep_f2(step_mem, ark_mem->tn + method->a[is]*ark_mem->h,
                          yn_plus_delta_Yi, step_mem->sdata, ark_mem->user_data);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
-    /* update the explicit stage
+    /* Incremental velocity update:
        [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ]
        [            ] = [                ] + [       ] */
     N_VLinearSum(ONE, delta_Yi, ark_mem->h * method->a[is], step_mem->sdata, delta_Yi);
@@ -893,34 +913,4 @@ booleantype sprkStep_CheckNVector(N_Vector tmpl)
        (tmpl->ops->nvwrmsnorm  == NULL) )
     return(SUNFALSE);
   return(SUNTRUE);
-}
-
-int sprkStep_SPRKStage(ARKodeMem ark_mem, ARKodeSPRKStepMem step_mem, N_Vector prev_stage,
-                       sunrealtype bi, sunrealtype ai, N_Vector stage_result)
-{
-  int retval = 0;
-
-  /* set current stage time(s) */
-  ark_mem->tcur = ark_mem->tn + bi*ark_mem->h;
-
-  /* evaluate f_1 at the previous stage value */
-  N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
-  retval = sprkStep_f2(step_mem, ark_mem->tcur, prev_stage, step_mem->sdata, ark_mem->user_data);
-  if (retval != 0) return ARK_RHSFUNC_FAIL;
-
-  /* update ycur with the q stage */
-  N_VLinearSum(ONE, prev_stage, ark_mem->h*bi, step_mem->sdata, stage_result);
-
-  /* evaluate f_2 with the stage value for q */
-  N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to set other outputs to zero */
-  retval = sprkStep_f1(step_mem, ark_mem->tn + ai*ark_mem->h, stage_result, step_mem->sdata, ark_mem->user_data);
-  if (retval != 0) return ARK_RHSFUNC_FAIL;
-
-  /* update ycur with the stage value for p */
-  N_VLinearSum(ONE, stage_result, ark_mem->h*ai, step_mem->sdata, stage_result);
-
-  /* keep track of the stage number */
-  step_mem->istage++;
-
-  return ARK_SUCCESS;
 }
