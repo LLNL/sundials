@@ -125,6 +125,8 @@ Added the functions :c:func:`ARKStepClearStopTime`,
 :c:func:`ERKStepClearStopTime`, and :c:func:`MRIStepClearStopTime` to disable a
 previously set stop time.
 
+Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
+
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 
 Changes in v5.5.0

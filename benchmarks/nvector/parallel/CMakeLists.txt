@@ -18,5 +18,5 @@ sundials_add_nvector_benchmark(nvector_parallel_benchmark
   SOURCES test_nvector_performance_parallel.c
   SUNDIALS_TARGETS sundials_nvecparallel
   LINK_LIBRARIES MPI::MPI_CXX
-  INSTALL_SUBDIR benchmarks/nvector/parallel
+  INSTALL_SUBDIR nvector/parallel
   )

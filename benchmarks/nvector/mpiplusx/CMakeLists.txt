@@ -18,5 +18,5 @@ sundials_add_nvector_benchmark(nvector_mpiplusx_benchmark
   SOURCES test_nvector_performance_mpiplusx.c
   SUNDIALS_TARGETS sundials_nvecserial sundials_nvecmpiplusx
   LINK_LIBRARIES MPI::MPI_CXX
-  INSTALL_SUBDIR benchmarks/nvector/mpiplusx
+  INSTALL_SUBDIR nvector/mpiplusx
   )

@@ -17,5 +17,5 @@ message(STATUS "Added HIP NVECTOR benchmark")
 sundials_add_nvector_benchmark(nvector_hip_benchmark
   SOURCES test_nvector_performance_hip.cpp
   SUNDIALS_TARGETS sundials_nvechip
-  INSTALL_SUBDIR benchmarks/nvector/hip
+  INSTALL_SUBDIR nvector/hip
   )

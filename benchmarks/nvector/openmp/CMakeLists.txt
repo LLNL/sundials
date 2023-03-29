@@ -24,5 +24,5 @@ message(STATUS "Added OpenMP NVECTOR benchmark")
 sundials_add_nvector_benchmark(nvector_openmp_benchmark
   SOURCES test_nvector_performance_openmp.c
   SUNDIALS_TARGETS sundials_nvecopenmp
-  INSTALL_SUBDIR benchmarks/nvector/openmp
+  INSTALL_SUBDIR nvector/openmp
   )

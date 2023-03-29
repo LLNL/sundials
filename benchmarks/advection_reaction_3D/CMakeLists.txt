@@ -51,10 +51,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     ${OTHER_LIBS})
 
   install(TARGETS advection_reaction_3D
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
   install(FILES README.md
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
   # ----------------------------------------------------------------------------
   # MPI + CUDA
@@ -100,7 +100,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     target_compile_definitions(advection_reaction_3D_mpicuda PRIVATE USE_CUDA_NVEC)
 
     install(TARGETS advection_reaction_3D_mpicuda
-      DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D")
+      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
   endif()
 
@@ -139,7 +139,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     target_compile_definitions(advection_reaction_3D_mpihip PRIVATE USE_HIP_NVEC)
 
     install(TARGETS advection_reaction_3D_mpihip
-      DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D")
+      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
   endif()
 

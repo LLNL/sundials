@@ -24,18 +24,36 @@
 
 int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data)
 {
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
   // Access problem data
   UserData *udata = (UserData *) user_data;
-#endif
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian
-  int flag = laplacian(t, u, f, user_data);
+  int flag = laplacian(t, u, f, udata);
   if (check_flag(&flag, "laplacian", 1))
     return -1;
 
+  return 0;
+}
+
+int diffusion_jac(realtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
+                  void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  // Access problem data
+  UserData *udata = (UserData *) user_data;
+
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
+  // Compute the Laplacian matrix
+#if defined(USE_SUPERLU_DIST)
+  int flag = laplacian_matrix_sludist(u, Jac, udata);
+  if (check_flag(&flag, "laplacian_matrix_sludist", 1))
+    return -1;
+#else
+  std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
+  return -1;
+#endif
 
   return 0;
 }
@@ -45,21 +63,40 @@ int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data)
 int diffusion(realtype t, N_Vector u, N_Vector up, N_Vector res,
               void *user_data)
 {
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
   // Access problem data
   UserData *udata = (UserData *) user_data;
-#endif
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian
-  int flag = laplacian(t, u, res, user_data);
+  int flag = laplacian(t, u, res, udata);
   if (check_flag(&flag, "laplacian", 1))
     return -1;
 
   // Compute the residual
   N_VLinearSum(ONE, up, -ONE, res, res);
 
+  return 0;
+}
+
+int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
+                  N_Vector res, SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                  N_Vector tmp2, N_Vector tmp3)
+{
+  // Access problem data
+  UserData *udata = (UserData *) user_data;
+
+  SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
+  // Compute the Laplacian matrix
+#if defined(USE_SUPERLU_DIST)
+  int flag = laplacian_matrix_sludist(u, cj, Jac, udata);
+  if (check_flag(&flag, "laplacian_matrix_sludist", 1))
+    return -1;
+#else
+  std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
+  return -1;
+#endif
 
   return 0;
 }
@@ -269,9 +306,9 @@ int UserData::setup()
   }
 
   // Determine local extents in x-direction
-  int idx         = coords[0];
-  sunindextype qx = nx / dims[0];
-  sunindextype rx = nx % dims[0];
+  idx = coords[0];    // x-coordinate
+  qx  = nx / dims[0]; // x-nodes divided evenly across x-processes
+  rx  = nx % dims[0]; // leftover x-nodes to distribute
 
   is = qx * idx + (idx < rx ? idx : rx);
   ie = is + qx - 1 + (idx < rx ? 1 : 0);
@@ -284,9 +321,9 @@ int UserData::setup()
   }
 
   // Determine local extents in y-direction
-  int idy         = coords[1];
-  sunindextype qy = ny / dims[1];
-  sunindextype ry = ny % dims[1];
+  idy = coords[1];    // y-coordinate
+  qy  = ny / dims[1]; // y-nodes divided evenly across y-processes
+  ry  = ny % dims[1]; // leftover y-nodes to distribute
 
   js = qy * idy + (idy < ry ? idy : ry);
   je = js + qy - 1 + (idy < ry ? 1 : 0);

@@ -30,6 +30,14 @@ set(sunlinsol_superludist_dependencies
   test_sunlinsol
   )
 
+if(SUPERLUDIST_CUDA)
+  set(_ex_lang CUDA)
+elseif(SUPERLUDIST_ROCM)
+  set(_ex_lang HIP)
+else()
+  set(_ex_lang CXX)
+endif()
+
 if(MPI_C_COMPILER AND MPI_CXX_COMPILER)
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
@@ -53,6 +61,7 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example_target})
+
     # example source files
     add_executable(${example_target} ${example}
       ../test_sunlinsol.c)
@@ -93,14 +102,6 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
     NODIFF)
 
 endforeach(example_tuple ${sunlinsol_superludist_examples})
-
-if(SUPERLUDIST_CUDA)
-  set(_ex_lang CUDA)
-elseif(SUPERLUDIST_ROCM)
-  set(_ex_lang HIP)
-else()
-  set(_ex_lang CXX)
-endif()
 
 if(EXAMPLES_INSTALL)
 
