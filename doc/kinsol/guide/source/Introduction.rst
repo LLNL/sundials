@@ -88,7 +88,7 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
-Changes in v6.6.0
+Changes in v6.5.1
 -----------------
 
 Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.

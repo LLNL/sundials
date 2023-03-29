@@ -111,8 +111,11 @@ Fortran.
 Changes from previous versions
 ==============================
 
-Changes in v6.6.0
+Changes in v6.5.1
 -----------------
+
+Added the function :c:func:`CVodeClearStopTime` to disable a previously set stop
+time.
 
 Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
 

@@ -412,6 +412,24 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
 
 /*-----------------------------------------------------------------*/
 
+int IDAClearStopTime(void *ida_mem)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAClearStopTime", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  IDA_mem->ida_tstopset = SUNFALSE;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
 {
   IDAMem IDA_mem;

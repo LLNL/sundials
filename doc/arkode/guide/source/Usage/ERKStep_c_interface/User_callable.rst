@@ -494,7 +494,9 @@ Optional inputs for ERKStep
    +----------------------------------------------------+-----------------------------------------+------------------------+
    | Minimum absolute step size                         | :c:func:`ERKStepSetMinStep()`           |  0.0                   |
    +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`          | :math:`\infty`         |
+   | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`          | undefined              |
+   +----------------------------------------------------+-----------------------------------------+------------------------+
+   | Disable the stop time                              | :c:func:`ERKStepClearStopTime`          | N/A                    |
    +----------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                     | :c:func:`ERKStepSetUserData()`          | ``NULL``               |
    +----------------------------------------------------+-----------------------------------------+------------------------+
@@ -868,7 +870,31 @@ Optional inputs for ERKStep
    **Notes:**
       The default is that no stop time is imposed.
 
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`ERKStepSetStopTime`).
 
+      A stop time not reached before a call to :c:func:`ERKStepReInit` or
+      :c:func:`ERKStepReset` will remain active but can be disabled by calling
+      :c:func:`ERKStepClearStopTime`.
+
+
+.. c:function:: int ERKStepClearStopTime(void* arkode_mem)
+
+   Disables the stop time set with :c:func:`ERKStepSetStopTime`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`ERKStepSetStopTime`.
+
+   .. versionadded:: 5.5.1
 
 
 .. c:function:: int ERKStepSetUserData(void* arkode_mem, void* user_data)
@@ -2270,8 +2296,8 @@ vector.
       different step size or have ERKStep estimate a new step size use
       :c:func:`ERKStepSetInitStep()`.
 
-      All previously set options are retained but may be updated by calling the
-      appropriate "Set" functions.
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
 
       If an error occurred, :c:func:`ERKStepReset()` also sends an error message to
       the error handler function.

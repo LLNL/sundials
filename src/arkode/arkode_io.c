@@ -519,6 +519,27 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
 
 
 /*---------------------------------------------------------------
+  arkClearStopTime:
+
+  Disable the stop time.
+  ---------------------------------------------------------------*/
+int arkClearStopTime(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkClearStopTime", MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  ark_mem->tstopset = SUNFALSE;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   arkSetFixedStep:
 
   Specifies to use a fixed time step size instead of performing

@@ -852,6 +852,8 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
    | Value of :math:`t_{stop}`     | :c:func:`CVodeSetStopTime`                  | undefined      |
    +-------------------------------+---------------------------------------------+----------------+
+   | Disable the stop time         | :c:func:`CVodeClearStopTime`                | N/A            |
+   +-------------------------------+---------------------------------------------+----------------+
    | Maximum no. of error test     | :c:func:`CVodeSetMaxErrTestFails`           | 7              |
    | failures                      |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
@@ -1085,6 +1087,26 @@ Main solver optional input functions
       The default, if this routine is not called, is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for ``tstop``  is disabled (and can be reenabled only though a new call to ``CVodeSetStopTime``).
+
+      A stop time not reached before a call to :c:func:`CVodeReInit` will
+      remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
+
+.. c:function:: int CVodeClearStopTime(void* cvode_mem)
+
+   Disables the stop time set with :c:func:`CVodeSetStopTime`.
+
+   **Arguments:**
+      * ``cvode_mem`` -- pointer to the CVODE memory block.
+
+   **Return value:**
+      * ``CV_SUCCESS`` if successful
+      * ``CV_MEM_NULL`` if the CVODE memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`CVodeSetStopTime`.
+
+   .. versionadded:: 6.5.1
 
 .. c:function:: int CVodeSetMaxErrTestFails(void* cvode_mem, int maxnef)
 
@@ -3231,7 +3253,11 @@ vector.
      * ``CV_ILL_INPUT`` -- An input argument was an illegal value.
 
    **Notes:**
-      If an error occurred, ``CVodeReInit`` also sends an error message to the  error handler function.
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
+
+      If an error occurred, ``CVodeReInit`` also sends an error message to the
+      error handler function.
 
 
 .. _CVODE.Usage.CC.user_fct_sim:

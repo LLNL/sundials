@@ -240,6 +240,7 @@ SUNDIALS_EXPORT int ARKStepSetMaxStep(void *arkode_mem,
                                       realtype hmax);
 SUNDIALS_EXPORT int ARKStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
+SUNDIALS_EXPORT int ARKStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetFixedStep(void *arkode_mem,
                                         realtype hfixed);
 SUNDIALS_EXPORT int ARKStepSetMaxNumConstrFails(void *arkode_mem,
