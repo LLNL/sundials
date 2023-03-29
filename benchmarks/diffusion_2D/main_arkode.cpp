@@ -31,12 +31,12 @@ struct UserOptions
   bool     diagnostics = false;            // output diagnostics
 
   // Linear solver and preconditioner settings
-  std::string ls        = "cg";   // linear solver to use
-  bool         prec     = true;   // preconditioner on/off
-  bool         lsinfo   = false;  // output residual history
-  int          liniters = 20;     // number of linear iterations
-  int          msbp     = 0;      // preconditioner setup frequency
-  realtype     epslin   = ZERO;   // linear solver tolerance factor
+  std::string ls              = "cg";   // linear solver to use
+  bool        preconditioning = true;   // preconditioner on/off
+  bool        lsinfo          = false;  // output residual history
+  int         liniters        = 20;     // number of linear iterations
+  int         msbp            = 0;      // preconditioner setup frequency
+  realtype    epslin          = ZERO;   // linear solver tolerance factor
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -175,19 +175,19 @@ int main(int argc, char* argv[])
     SUNMatrix A = nullptr;
 #if defined(USE_SUPERLU_DIST)
     // SuperLU-DIST objects
-    SuperMatrix A_super;            // matrix object
-    gridinfo_t grid;                // process grid
-    dLUstruct_t A_lu;               // dLUstruct_t
-    dScalePermstruct_t A_scaleperm; // dScalePermstruct_t
-    dSOLVEstruct_t A_solve;         // dSOLVEstruct_t
-    SuperLUStat_t A_stat;           // SuperLUState_t
-    superlu_dist_options_t A_opts;  // options struct
+    SuperMatrix A_super;
+    gridinfo_t grid;
+    dLUstruct_t A_lu;
+    dScalePermstruct_t A_scaleperm;
+    dSOLVEstruct_t A_solve;
+    SuperLUStat_t A_stat;
+    superlu_dist_options_t A_opts;
     sunrealtype* A_data = nullptr;
     sunindextype* A_col_idxs = nullptr;
     sunindextype* A_row_ptrs = nullptr;
 #endif
 
-    int prectype = (uopts.prec) ? PREC_RIGHT : PREC_NONE;
+    int prectype = (uopts.preconditioning) ? PREC_RIGHT : PREC_NONE;
 
     if (uopts.ls == "cg")
     {
@@ -220,10 +220,10 @@ int main(int argc, char* argv[])
     else
     {
 #if defined(USE_SUPERLU_DIST)
-      // initialize SuperLU-DIST grid
+      // Initialize SuperLU-DIST grid
       superlu_gridinit(udata.comm_c, udata.npx, udata.npy, &grid);
 
-      // Initialize sparse matrix data structure and SuperLU_DIST solver
+      // Create arrays for CSR matrix: data, column indices, and row pointers
       sunindextype nnz_loc = 5 * udata.nodes_loc;
 
       A_data = (realtype*)malloc(nnz_loc * sizeof(sunrealtype));
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
       A_row_ptrs = (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
       if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
 
-      // Create and initialize SuperLU_DIST structures 
+      // Create and initialize SuperLU_DIST structures
       dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes,
                                      nnz_loc, udata.nodes_loc, 0, A_data,
                                      A_col_idxs, A_row_ptrs, SLU_NR_loc, SLU_D,
@@ -254,8 +254,7 @@ int main(int argc, char* argv[])
                                  &A_stat, &A_opts, ctx);
       if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
 
-      // Disable preconditioning
-      uopts.prec = false;
+      uopts.preconditioning = false;
 #else
       std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
       return 1;
@@ -263,7 +262,7 @@ int main(int argc, char* argv[])
     }
 
     // Allocate preconditioner workspace
-    if (uopts.prec)
+    if (uopts.preconditioning)
     {
       udata.diag = N_VClone(u);
       if (check_flag((void *) (udata.diag), "N_VClone", 0)) return 1;
@@ -297,7 +296,7 @@ int main(int argc, char* argv[])
     }
 #endif
 
-    if (uopts.prec)
+    if (uopts.preconditioning)
     {
       // Attach preconditioner
       flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
