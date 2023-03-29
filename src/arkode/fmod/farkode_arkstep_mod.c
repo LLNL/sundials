@@ -1103,6 +1103,18 @@ SWIGEXPORT int _wrap_FARKStepSetStopTime(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepClearStopTime(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKStepClearStopTime(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetFixedStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
