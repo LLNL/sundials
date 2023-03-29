@@ -14,8 +14,9 @@
 # benchmarks level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-  message(WARNING "SUNDIALS is not being built in \"Release\" mode, "
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release" OR
+      CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+  message(WARNING "SUNDIALS is not being built in a \"Release\" mode, "
           "benchmark performance will be affected")
 endif()
 

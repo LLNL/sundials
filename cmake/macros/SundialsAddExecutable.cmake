@@ -45,6 +45,6 @@ macro(sundials_add_nvector_benchmark NAME)
   endif()
 
   install(TARGETS ${NAME}
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/${arg_INSTALL_SUBDIR}")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/${arg_INSTALL_SUBDIR}")
 
 endmacro(sundials_add_nvector_benchmark)

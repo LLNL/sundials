@@ -54,6 +54,6 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   endif()
 
   install(TARGETS ${example_target}
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/nvector/raja")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/benchmarks/nvector/raja")
 
 endforeach()

@@ -69,7 +69,6 @@ message(STATUS "SUPERLUDIST_OpenMP:         ${SUPERLUDIST_OpenMP}")
 message(STATUS "SUPERLUDIST_CUDA:           ${SUPERLUDIST_CUDA}")
 message(STATUS "SUPERLUDIST_ROCM:           ${SUPERLUDIST_ROCM}")
 
-
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------

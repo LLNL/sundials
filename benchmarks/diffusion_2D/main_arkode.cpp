@@ -31,12 +31,12 @@ struct UserOptions
   bool     diagnostics = false;            // output diagnostics
 
   // Linear solver and preconditioner settings
-  bool     pcg      = true;   // use PCG (true) or GMRES (false)
-  bool     prec     = true;   // preconditioner on/off
-  bool     lsinfo   = false;  // output residual history
-  int      liniters = 20;     // number of linear iterations
-  int      msbp     = 0;      // preconditioner setup frequency
-  realtype epslin   = ZERO;   // linear solver tolerance factor
+  std::string ls              = "cg";   // linear solver to use
+  bool        preconditioning = true;   // preconditioner on/off
+  bool        lsinfo          = false;  // output residual history
+  int         liniters        = 20;     // number of linear iterations
+  int         msbp            = 0;      // preconditioner setup frequency
+  realtype    epslin          = ZERO;   // linear solver tolerance factor
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -44,8 +44,6 @@ struct UserOptions
   void print();
 };
 
-// Print integration statistics and timings
-static int OutputStats(void *arkode_mem, UserData *udata);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -174,10 +172,24 @@ int main(int argc, char* argv[])
 
     // Create linear solver
     SUNLinearSolver LS = NULL;
+    SUNMatrix A = nullptr;
+#if defined(USE_SUPERLU_DIST)
+    // SuperLU-DIST objects
+    SuperMatrix A_super;
+    gridinfo_t grid;
+    dLUstruct_t A_lu;
+    dScalePermstruct_t A_scaleperm;
+    dSOLVEstruct_t A_solve;
+    SuperLUStat_t A_stat;
+    superlu_dist_options_t A_opts;
+    sunrealtype* A_data = nullptr;
+    sunindextype* A_col_idxs = nullptr;
+    sunindextype* A_row_ptrs = nullptr;
+#endif
 
-    int prectype = (uopts.prec) ? PREC_RIGHT : PREC_NONE;
+    int prectype = (uopts.preconditioning) ? PREC_RIGHT : PREC_NONE;
 
-    if (uopts.pcg)
+    if (uopts.ls == "cg")
     {
       LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
@@ -191,7 +203,7 @@ int main(int argc, char* argv[])
         if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
       }
     }
-    else
+    else if (uopts.ls == "gmres")
     {
       LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
@@ -205,9 +217,52 @@ int main(int argc, char* argv[])
         if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
       }
     }
+    else
+    {
+#if defined(USE_SUPERLU_DIST)
+      // Initialize SuperLU-DIST grid
+      superlu_gridinit(udata.comm_c, udata.npx, udata.npy, &grid);
+
+      // Create arrays for CSR matrix: data, column indices, and row pointers
+      sunindextype nnz_loc = 5 * udata.nodes_loc;
+
+      A_data = (realtype*)malloc(nnz_loc * sizeof(sunrealtype));
+      if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
+
+      A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
+      if (check_flag((void*)A_col_idxs, "malloc Acolind", 0)) return 1;
+
+      A_row_ptrs = (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
+      if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
+
+      // Create and initialize SuperLU_DIST structures
+      dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes,
+                                     nnz_loc, udata.nodes_loc, 0, A_data,
+                                     A_col_idxs, A_row_ptrs, SLU_NR_loc, SLU_D,
+                                     SLU_GE);
+      dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
+      dLUstructInit(udata.nodes, &A_lu);
+      PStatInit(&A_stat);
+      set_default_options_dist(&A_opts);
+      A_opts.PrintStat = NO;
+
+      // SUNDIALS structures
+      A = SUNMatrix_SLUNRloc(&A_super, &grid, ctx);
+      if (check_flag((void*)A, "SUNMatrix_SLUNRloc", 0)) return 1;
+
+      LS = SUNLinSol_SuperLUDIST(u, A, &grid, &A_lu, &A_scaleperm, &A_solve,
+                                 &A_stat, &A_opts, ctx);
+      if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
+
+      uopts.preconditioning = false;
+#else
+      std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
+      return 1;
+#endif
+    }
 
     // Allocate preconditioner workspace
-    if (uopts.prec)
+    if (uopts.preconditioning)
     {
       udata.diag = N_VClone(u);
       if (check_flag((void *) (udata.diag), "N_VClone", 0)) return 1;
@@ -230,10 +285,18 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
 
     // Attach linear solver
-    flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
+    flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
-    if (uopts.prec)
+#if defined(USE_SUPERLU_DIST)
+    if (uopts.ls == "sludist")
+    {
+      ARKStepSetJacFn(arkode_mem, diffusion_jac);
+      if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+    }
+#endif
+
+    if (uopts.preconditioning)
     {
       // Attach preconditioner
       flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
@@ -343,8 +406,8 @@ int main(int argc, char* argv[])
     if (outproc)
     {
       cout << "Final integrator statistics:" << endl;
-      flag = OutputStats(arkode_mem, &udata);
-      if (check_flag(&flag, "OutputStats", 1)) return 1;
+      flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+      if (check_flag(&flag, "ARKStepPrintAllStats", 1)) return 1;
     }
 
     // ---------
@@ -361,6 +424,19 @@ int main(int argc, char* argv[])
     ARKStepFree(&arkode_mem);
     SUNLinSolFree(LS);
 
+    // Free the SuperLU_DIST structures (also frees user allocated arrays
+    // A_data, A_col_idxs, and A_row_ptrs)
+#if defined(USE_SUPERLU_DIST)
+    if (uopts.ls == "sludist")
+    {
+      PStatFree(&A_stat);
+      dScalePermstructFree(&A_scaleperm);
+      dLUstructFree(&A_lu);
+      Destroy_CompRowLoc_Matrix_dist(&A_super);
+      superlu_gridexit(&grid);
+    }
+#endif
+
     // Free vectors
 #if defined(USE_HIP) || defined(USE_CUDA)
     N_VDestroy(N_VGetLocalVector_MPIPlusX(u));
@@ -373,79 +449,6 @@ int main(int argc, char* argv[])
 
   // Finalize MPI
   flag = MPI_Finalize();
-  return 0;
-}
-
-
-// -----------------------------------------------------------------------------
-// Output functions
-// -----------------------------------------------------------------------------
-
-
-// Print integrator statistics
-static int OutputStats(void *arkode_mem, UserData* udata)
-{
-  int flag;
-
-  // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return -1;
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return -1;
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return -1;
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return -1;
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return -1;
-  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return -1;
-  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return -1;
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return -1;
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) return -1;
-  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return -1;
-
-  cout << fixed;
-  cout << setprecision(6);
-
-  cout << "  Steps            = " << nst     << endl;
-  cout << "  Step attempts    = " << nst_a   << endl;
-  cout << "  Error test fails = " << netf    << endl;
-  cout << "  RHS evals        = " << nfi     << endl;
-  cout << "  NLS iters        = " << nni     << endl;
-  cout << "  NLS fails        = " << ncfn    << endl;
-  cout << "  LS iters         = " << nli     << endl;
-  cout << "  LS fails         = " << nlcf    << endl;
-  cout << "  LS setups        = " << nsetups << endl;
-  cout << "  LS RHS evals     = " << nfi_ls  << endl;
-  cout << "  Jv products      = " << nJv     << endl;
-  cout << endl;
-
-  // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst_a;
-  realtype avgli  = (realtype) nli / (realtype) nni;
-  cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
-  cout << endl;
-
-  // Get preconditioner stats
-  long int npe, nps;
-  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-  if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) return -1;
-  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-  if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) return -1;
-
-  cout << "  Preconditioner setups = " << npe << endl;
-  cout << "  Preconditioner solves = " << nps << endl;
-  cout << endl;
-
   return 0;
 }
 
@@ -529,11 +532,11 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it);
   }
 
-  it = find(args.begin(), args.end(), "--gmres");
+  it = find(args.begin(), args.end(), "--ls");
   if (it != args.end())
   {
-    pcg = false;
-    args.erase(it);
+    ls = *(it + 1);
+    args.erase(it, it + 2);
   }
 
   it = find(args.begin(), args.end(), "--lsinfo");
@@ -573,19 +576,19 @@ void UserOptions::help()
 {
   cout << endl;
   cout << "Integrator command line options:" << endl;
-  cout << "  --rtol <rtol>       : relative tolerance" << endl;
-  cout << "  --atol <atol>       : absoltue tolerance" << endl;
-  cout << "  --nonlinear         : disable linearly implicit flag" << endl;
-  cout << "  --order <ord>       : method order" << endl;
-  cout << "  --fixedstep <step>  : used fixed step size" << endl;
-  cout << "  --controller <ctr>  : time step adaptivity controller" << endl;
-  cout << "  --diagnostics       : output diagnostics" << endl;
-  cout << "  --gmres             : use GMRES linear solver" << endl;
-  cout << "  --lsinfo            : output residual history" << endl;
-  cout << "  --liniters <iters>  : max number of iterations" << endl;
-  cout << "  --epslin <factor>   : linear tolerance factor" << endl;
-  cout << "  --noprec            : disable preconditioner" << endl;
-  cout << "  --msbp <steps>      : max steps between prec setups" << endl;
+  cout << "  --rtol <rtol>           : relative tolerance" << endl;
+  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --nonlinear             : disable linearly implicit flag" << endl;
+  cout << "  --order <ord>           : method order" << endl;
+  cout << "  --fixedstep <step>      : used fixed step size" << endl;
+  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
+  cout << "  --diagnostics           : output diagnostics" << endl;
+  cout << "  --ls <cg|gmres|sludist> : linear solver" << endl;
+  cout << "  --lsinfo                : output residual history" << endl;
+  cout << "  --liniters <iters>      : max number of iterations" << endl;
+  cout << "  --epslin <factor>       : linear tolerance factor" << endl;
+  cout << "  --noprec                : disable preconditioner" << endl;
+  cout << "  --msbp <steps>          : max steps between prec setups" << endl;
 }
 
 
@@ -606,15 +609,33 @@ void UserOptions::print()
   cout << " --------------------------------- " << endl;
 
   cout << endl;
-  cout << " Linear solver options:" << endl;
-  cout << " --------------------------------- " << endl;
-  cout << " PCG      = " << pcg      << endl;
-  cout << " precond  = " << prec     << endl;
-  cout << " LS info  = " << lsinfo   << endl;
-  cout << " LS iters = " << liniters << endl;
-  cout << " msbp     = " << msbp     << endl;
-  cout << " epslin   = " << epslin   << endl;
-  cout << " --------------------------------- " << endl;
+  if (ls == "sludist")
+  {
+    cout << " Linear solver options:" << endl;
+    cout << " --------------------------------- " << endl;
+#if defined(HAVE_HIP)
+    cout << " LS       = SuperLU_DIST (HIP enabled)" << endl;
+#elif defined(HAVE_CUDA)
+    cout << " LS       = SuperLU_DIST (CUDA enabled)" << endl;
+#else
+    cout << " LS       = SuperLU_DIST" << endl;
+#endif
+    cout << " LS info  = " << lsinfo   << endl;
+    cout << " msbp     = " << msbp     << endl;
+    cout << " --------------------------------- " << endl;
+  }
+  else
+  {
+    cout << " Linear solver options:" << endl;
+    cout << " --------------------------------- " << endl;
+    cout << " LS       = " << ls              << endl;
+    cout << " precond  = " << preconditioning << endl;
+    cout << " LS info  = " << lsinfo          << endl;
+    cout << " LS iters = " << liniters        << endl;
+    cout << " msbp     = " << msbp            << endl;
+    cout << " epslin   = " << epslin          << endl;
+    cout << " --------------------------------- " << endl;
+  }
 }
 
 //---- end of file ----

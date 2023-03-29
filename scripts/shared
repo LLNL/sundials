@@ -790,6 +790,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_CXX_MPI_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_CUDA_MPI_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_HIP_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_HIP_MPI_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_MPI_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F2003_ex.in

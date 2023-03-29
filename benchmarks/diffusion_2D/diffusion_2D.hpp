@@ -41,6 +41,10 @@
 
 #include "sunlinsol/sunlinsol_pcg.h"
 #include "sunlinsol/sunlinsol_spgmr.h"
+#if defined(USE_SUPERLU_DIST)
+#include "sunmatrix/sunmatrix_slunrloc.h"
+#include "sunlinsol/sunlinsol_superludist.h"
+#endif
 
 // Macros for problem constants
 #define PI    RCONST(3.141592653589793238462643383279502884197169)
@@ -92,6 +96,14 @@ struct UserData
   realtype dx = xu / (nx - 1);
   realtype dy = yu / (ny - 1);
 
+  // Minimum number of local nodes in the x and y directions
+  sunindextype qx = 0;
+  sunindextype qy = 0;
+
+  // Leftover nodes in the x and y directions
+  sunindextype rx = 0;
+  sunindextype ry = 0;
+
   // Local number of nodes in the x and y directions
   sunindextype nx_loc = 0;
   sunindextype ny_loc = 0;
@@ -113,6 +125,8 @@ struct UserData
   int npy = 0; // number of MPI processes in the y-direction
 
   int myid_c = 0; // process ID in Cartesian communicator
+  int idx    = 0; // process x-coordinate
+  int idy    = 0; // process y-coordinate
 
   // Flags denoting if this process has a neighbor
   bool HaveNbrW = true;
@@ -199,12 +213,19 @@ struct UserOutput
 // -----------------------------------------------------------------------------
 
 // Common function for computing the Laplacian
-int laplacian(realtype t, N_Vector u, N_Vector f, void *user_data);
+int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata);
 
 #if defined(BENCHMARK_ODE)
 
+#if defined(USE_SUPERLU_DIST)
+int laplacian_matrix_sludist(N_Vector u, SUNMatrix L, UserData* udata);
+#endif
+
 // ODE right hand side function
 int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data);
+
+int diffusion_jac(realtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
+                  void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Preconditioner setup and solve functions
 int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
@@ -216,9 +237,18 @@ int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 
 #elif defined(BENCHMARK_DAE)
 
+#if defined(USE_SUPERLU_DIST)
+int laplacian_matrix_sludist(N_Vector u, sunrealtype cj, SUNMatrix L,
+                             UserData* udata);
+#endif
+
 // DAE residual function
 int diffusion(realtype t, N_Vector u, N_Vector up, N_Vector res,
               void *user_data);
+
+int diffusion_jac(realtype t, realtype cj, N_Vector u, N_Vector up,
+                  N_Vector res, SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                  N_Vector tmp2, N_Vector tmp3);
 
 // Preconditioner setup and solve functions
 int PSetup(realtype t, N_Vector u, N_Vector up, N_Vector res, realtype cj,

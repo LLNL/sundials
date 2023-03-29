@@ -34,6 +34,6 @@ if(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA)
   endif()
 
   install(FILES README.md
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/diffusion_2D")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 
 endif()
