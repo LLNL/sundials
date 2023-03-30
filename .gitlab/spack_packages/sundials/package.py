@@ -670,7 +670,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 ]
             )
             if spec.satisfies("scheduler=flux"):
-                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux mini run"))
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
                 
 
         return entries
