@@ -628,6 +628,18 @@ SWIGEXPORT int _wrap_FCVodeSetStopTime(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeClearStopTime(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)CVodeClearStopTime(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeSetUseIntegratorFusedKernels(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

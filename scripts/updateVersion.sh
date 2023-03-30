@@ -20,7 +20,7 @@
 # releases the label string is "".
 sun_major=${1:-6}
 sun_minor=${2:-5}
-sun_patch=${3:-0}
+sun_patch=${3:-1}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
@@ -344,16 +344,11 @@ new_entry=$(printf "| %-3s %-4s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s 
     ${idas_ver} ${kin_ver})
 divider="+----------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
 
-# Check if the entry already exists in the table and insert new release history
-# row after line 23
-if grep -xq "$new_entry" $fn; then
-    echo "WARNING: release history table not updated, version exists"
-else
-    sedi '23 a\
-    '"${divider}"''$'\n' $fn
-    sedi '23 a\
-    '"${new_entry}"''$'\n' $fn
-fi
+# insert new release history row after line 23
+sedi '23 a\
+'"${divider}"''$'\n' $fn
+sedi '23 a\
+'"${new_entry}"''$'\n' $fn
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
