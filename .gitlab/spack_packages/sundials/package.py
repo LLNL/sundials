@@ -179,10 +179,13 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     )
 
     # Scheduler
-    variant("scheduler", default="slurm", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm"))
+    variant("scheduler", default="slurm", description="Specify which scheduler the system runs on", values=("flux", "lsf", "slurm"))
 
     # Benchmarking
-    variant("benchmarks", default=False, description ="Build benchmark programs")
+    variant("benchmarks", default=False, description="Build benchmark programs")
+
+    # Profiling examples
+    variant("profile-examples", default=False, when="+caliper +profiling", description="Build examples with profiling capabilities")
 
     # ==========================================================================
     # Dependencies
@@ -205,6 +208,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
     # External libraries
     depends_on("caliper", when="+caliper")
+    depends_on("caliper~adiak", when="+profile-examples")
     depends_on("ginkgo@1.5.0:", when="+ginkgo")
     depends_on("kokkos", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos-kernels")
@@ -673,7 +677,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 ]
             )
             if spec.satisfies("scheduler=flux"):
-                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux mini run"))
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
                 
 
         return entries
@@ -735,7 +739,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_PROFILING", "profiling"),
                 self.cache_option_from_variant("ENABLE_CALIPER", "caliper"),
                 # Benchmarking
-                self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks")
+                self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"),
+                # Profile examples
+                self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples")
             ]
         )
 
@@ -763,7 +769,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
+                self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo")
             ]
         )
 
@@ -784,7 +791,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 gko_backends.append("DPCPP")
             entries.extend(
                 [
-                    self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo"),
                     cmake_cache_path("Ginkgo_DIR", spec["ginkgo"].prefix),
                     cmake_cache_string("SUNDIALS_GINKGO_BACKENDS", ";".join(gko_backends)),
                 ]
@@ -916,8 +922,4 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_option("F90_ENABLE", "+examples+fcmix" in spec),
                 ]
             )
-
-        if "+benchmarks" in spec:
-            entries.append(self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"))
-
         return entries
