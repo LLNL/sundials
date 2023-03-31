@@ -35,20 +35,24 @@
  *
  * The program also accepts command line arguments to change the method
  * used and time-stepping strategy. The program can be run like so
- *     ./ark_kepler [step mode] [method family] [method order/variant] [dt]
- * [compensated sums] where [step mode] = 0 uses a fixed time step dt [step
- * mode] = 1 uses adaptive time stepping [method family] = 0 indicates a SPRK
- * method should be used [method family] = 1 indicates an ERK method should be
- * used [method order] in {1, 2, 22, 222, 3, 33, 4, 44, 5, 6, 8, 10} indicates
- * the method order, and for 2nd, 3rd, and 4th order SPRK, the variant of the
- * method family to use. I.e., when method family = 1, then: 1 - Symplectic
- * Euler 2 - 2nd order Leapfrog 22 - 2nd order Pseudo Leapfrog 222 - 2nd order
- * McLachlan 3 - 3rd order Ruth 33 - 3rd order McLachlan 4 - 4th order
- * Candy-Rozmus 44 - 4th order McLachlan 5 - 5th order McLachlan 6 - 6th order
- * Yoshid 8 - 8th order McLachlan 10 - 10th order Sofroniou When method family =
- * 1, then method order just is the order of the ERK method. [dt] - time step
- * size for fixed-step time stepping [compensated sums] - use compensated
- * summation for greater accuracy when using SPRK methods
+ *     ./ark_kepler [step mode] [method family] [method order/variant] [dt] [compensated sums]
+ * where
+ *     [step mode] = 0 uses a fixed time step dt 
+ *     [step mode] = 1 uses adaptive time stepping 
+ *     [method family] = 0 indicates a SPRK method should be used 
+ *     [method family] = 1 indicates an ERK method should be used 
+ *     [method order] in {1, 2, 22, 222, 3, 33, 4, 44, 5, 6, 8, 10} indicates the method order,
+ *     and for 2nd, 3rd, and 4th order SPRK, the variant of the method family to use. I.e., 
+ *     when method family = 1, then: 
+ *         1 - Symplectic Euler, 2 - 2nd order Leapfrog, 22 - 2nd order Pseudo Leapfrog,
+ *         222 - 2nd order McLachlan, 3 - 3rd order Ruth, 33 - 3rd order McLachlan,
+ *         4 - 4th order Candy-Rozmus, 44 - 4th order McLachlan, 5 - 5th order McLachlan,
+ *          6 - 6th order Yoshida, 8 - 8th order McLachlan, 10 - 10th order Sofroniou 
+ *     When method family = 1, then method order just is the order of the ERK method.
+ *     [dt] - time step size for fixed-step time stepping, or when using adaptivity the 
+ *      constant which bounds the error like O(eps^p) where p is the method order.
+ *     [compensated sums] = 0, dont use compensated summation for greater accuracy when using SPRK methods
+ *     [compensated sums] = 1, use compensated summation for greater accuracy when using SPRK methods
  *
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
@@ -58,18 +62,17 @@
  *    ISSN 0179-3632
  * --------------------------------------------------------------------------*/
 
-#include <arkode/arkode_arkstep.h>  /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h> /* prototypes for MRIStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
-
-#include "arkode/arkode_sprk.h"
-#include "sundials/sundials_nonlinearsolver.h"
-#include "sundials/sundials_nvector.h"
-#include "sundials/sundials_types.h"
-#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
+#include <sundials/sundials_nonlinearsolver.h>
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
+#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
@@ -118,10 +121,8 @@ int main(int argc, char* argv[])
   y   = NULL;
 
   /* Default problem parameters */
-  const sunrealtype T0 = SUN_RCONST(0.0);
-  // sunrealtype Tf          = SUN_RCONST(150.0);
-  sunrealtype Tf = SUN_RCONST(1000.0);
-  // sunrealtype Tf          = SUN_RCONST(100000.0);
+  const sunrealtype T0  = SUN_RCONST(0.0);
+  sunrealtype Tf        = SUN_RCONST(1000.0);
   sunrealtype dt        = SUN_RCONST(1e-2);
   const sunrealtype ecc = SUN_RCONST(0.6);
 
@@ -142,10 +143,17 @@ int main(int argc, char* argv[])
   if (argc > 5) { use_compsums = atoi(argv[++argi]); }
 
   /* Allocate and fill udata structure */
-  udata        = (UserData)malloc(sizeof(*udata));
-  udata->ecc   = ecc;
+  udata      = (UserData)malloc(sizeof(*udata));
+  udata->ecc = ecc;
+  /* Adaptivity controller parameters */
+  /* Controller's integral gain. Increasing this will result in a higher
+     rate of change in the step size, while decreasing it will result in 
+     a lower rate of change. */
   udata->alpha = SUN_RCONST(3.0) / SUN_RCONST(2.0);
+  /* Controller's set-point. The error in the Hamiltonian is bounded by
+   * O(eps^p) where p is the method order. */
   udata->eps   = dt;
+  /* Controller step density initial value. */
   udata->rho_n = SUN_RCONST(1.0);
 
   /* Create the SUNDIALS context object for this simulation */
@@ -229,9 +237,10 @@ int main(int argc, char* argv[])
     }
     else
     {
-      /*  Adaptivity based on [Hairer and Soderlind, 2005] */
+      /*  Adaptivity based on https://doi.org/10.1137/04060699 (Hairer and
+       * Soderlind, 2005). */
       retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
-      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
+      if (check_retval(&retval, "SPRKStepSetAdaptivityFn", 1)) return 1;
 
       udata->rho_nmhalf = udata->rho_n -
                           udata->eps * G(y, udata->alpha) / SUN_RCONST(2.0);
@@ -239,8 +248,8 @@ int main(int argc, char* argv[])
       retval = SPRKStepSetInitStep(arkode_mem, udata->eps / udata->rho_nphalf);
       if (check_retval(&retval, "SPRKStepSetInitStep", 1)) return 1;
 
-      retval = SPRKStepSetMaxNumSteps(arkode_mem,
-                                      (long int)100 * (ceil(Tf / dt) + 1));
+      /* Set the max number of time steps to something large. */
+      retval = SPRKStepSetMaxNumSteps(arkode_mem, 100000000);
       if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
     }
 
@@ -288,7 +297,7 @@ int main(int argc, char* argv[])
     const char* fmt1 = "ark_kepler_conserved_sprk-%d-dt-%.6f.txt";
     const char* fmt2 = "ark_kepler_solution_sprk-%d-dt-%.6f.txt";
     const char* fmt3 = "ark_kepler_times_sprk-%d-dt-%.6f.txt";
-    // const char* fmt4 = "ark_kepler_hhist_sprk-%d.txt";
+    const char* fmt4 = "ark_kepler_hhist_sprk-%d-dt-%.6f.txt";
     char fname[64];
     sprintf(fname, fmt1, order, dt);
     conserved_fp = fopen(fname, "w+");
@@ -296,15 +305,14 @@ int main(int argc, char* argv[])
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, order, dt);
     times_fp = fopen(fname, "w+");
-    // sprintf(fname, fmt4, order);
-    // udata->hhist_fp = fopen(fname, "w+");
+    sprintf(fname, fmt4, order, dt);
+    udata->hhist_fp = fopen(fname, "w+");
   }
   else
   {
-    const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
-    const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
-    const char* fmt3 = "ark_kepler_times_erk-%d.txt";
-    // const char* fmt4 = "ark_kepler_hhist_erk-%d.txt";
+    const char* fmt1 = "ark_kepler_conserved_erk-%d-dt-%.6f.txt";
+    const char* fmt2 = "ark_kepler_solution_erk-%d-dt-%.6f.txt";
+    const char* fmt3 = "ark_kepler_times_erk-%d-dt-%.6f.txt";
     char fname[64];
     sprintf(fname, fmt1, order);
     conserved_fp = fopen(fname, "w+");
@@ -312,8 +320,6 @@ int main(int argc, char* argv[])
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, order);
     times_fp = fopen(fname, "w+");
-    // sprintf(fname, fmt4, order);
-    // udata->hhist_fp = fopen(fname, "w+");
   }
 
   printf("\n   Begin Kepler Problem\n\n");
@@ -346,6 +352,9 @@ int main(int argc, char* argv[])
       fprintf(times_fp, "%.16Lf\n", tret);
       fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
               AngularMomentum(y));
+      sunrealtype hlast;
+      SPRKStepGetLastStep(arkode_mem, &hlast);
+      fprintf(udata->hhist_fp, "%.16Lf\n", hlast);
       N_VPrintFile(y, solution_fp);
 
       /* Check if the solve was successful, if so, update the time and continue
@@ -413,7 +422,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  // fclose(udata->hhist_fp);
+  if (udata->hhist_fp) { fclose(udata->hhist_fp); }
   free(udata);
   fclose(times_fp);
   fclose(conserved_fp);
@@ -516,6 +525,9 @@ int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   return 0;
 }
 
+/* Functions needed to implement the step density integrating controller
+   proposed by Hairer and Soderlind in https://doi.org/10.1137/04060699. */
+
 sunrealtype G(N_Vector yvec, sunrealtype alpha)
 {
   sunrealtype* y       = N_VGetArrayPointer(yvec);
@@ -546,8 +558,6 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
           int p, sunrealtype* hnew, void* user_data)
 {
   UserData udata = (UserData)user_data;
-
-  // fprintf(udata->hhist_fp, "%.16Lf\n", h1);
 
   const sunrealtype G_np1 = G(y, udata->alpha);
   udata->rho_np1 = udata->rho_nphalf + udata->eps * G_np1 / SUN_RCONST(2.0);

@@ -24,7 +24,7 @@ sprk8 = [] # McLachlan 8th order
 sprk10 = [] # Sofroniou 10th order
 
 # step_sizes = [0.000010, 0.000100, 0.001000, 0.010000, 0.100000]
-step_sizes = [0.000100, 0.001000, 0.010000, 0.100000]
+step_sizes = [0.000100, 0.001000, 0.010000, 0.100000, 0.500000]
 for dt in step_sizes:
   sprk1.append({
      'method': 'Symplectic Euler',
@@ -131,7 +131,7 @@ if 10 in orders:
    all_methods[10].append(sprk10)
 
 # Reference solution
-_, y_ref, _ = load_results('_erk-8')
+_, y_ref, _ = load_results('_sprk-10-dt-0.000100')
 
 #
 # Solution error plot
@@ -147,7 +147,7 @@ for order in orders:
     dts = []
     for d in method:
       _, y, _ = d['data']
-      err = np.linalg.norm(y - y_ref, np.inf) / np.linalg.norm(y_ref, np.inf)
+      err = np.linalg.norm(y - y_ref, 2) / np.linalg.norm(y_ref, 2)
       print('method: %15s,  dt = %.6f, err = %g' % (d['method'], d['dt'], err))
       if err >= 10.:
         continue
@@ -181,7 +181,7 @@ for order in orders:
       _, y, conserved = d['data']
       energy_0 = conserved[0,0]
       energy = conserved[:,0]
-      err = np.linalg.norm(energy-energy_0, np.inf)
+      err = np.linalg.norm(energy-energy_0, 2)
       print('method: %15s,  dt = %.6f, energy err = %g' % (d['method'], d['dt'], err))
       if err >= 10.:
         continue

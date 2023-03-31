@@ -360,9 +360,6 @@ int SPRKStepSetDefaults(void* arkode_mem)
     return (retval);
   }
 
-  /* Fixed step mode by default */
-  SPRKStepSetFixedStep(ark_mem, 0.01);
-
   /* set using default method order */
   SPRKStepSetOrder(arkode_mem, 0);
 
