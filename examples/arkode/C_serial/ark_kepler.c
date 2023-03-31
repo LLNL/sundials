@@ -1,6 +1,6 @@
-/* ----------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Programmer(s): Cody J. Balos @ LLNL
- * ----------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2022, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,16 +10,20 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * ----------------------------------------------------------------
- * We consider the perturbed Kepler problem
+ * ----------------------------------------------------------------------------
+ * We consider the  Kepler problem. We choose one
+ * body to be the center of our coordinate system and then we use the
+ * coordinates q = (q1, q2) to represent the position of the second body
+ * relative to the first (center). This yields the
+ * ODE: 
  *    dq/dt = [ p1 ]
  *            [ p2 ]
- *    dp/dt = [ -q1 / (q1^2 + q2^2)^(3/2) - delta*q1 / (q1^2 + q2^2)^(5/2) ]
- *          = [ -q2 / (q1^2 + q2^2)^(3/2) - delta*q2 / (q1^2 + q2^2)^(5/2) ]
- * (delta = 0.015) with the initial conditions
+ *    dp/dt = [ -q1 / (q1^2 + q2^2)^(3/2) - q1 / (q1^2 + q2^2)^(5/2) ]
+ *          = [ -q2 / (q1^2 + q2^2)^(3/2) - q2 / (q1^2 + q2^2)^(5/2) ]
+ * with the initial conditions
  *    q(0) = [ 1 - e ],  p(0) = [        0          ]
  *           [   0   ]          [ sqrt((1+e)/(1-e)) ]
- * where e = 0.6 is the eccentricity.
+ * where e = 0.6 is the eccentricity. 
  *
  * The Hamiltonian for the system,
  *    H(p,q) = 1/2 * (p1^2 + p2^2) - 1/sqrt(q1^2 + q2^2)
@@ -27,8 +31,8 @@
  * is conserved as well as the angular momentum,
  *    L(p,q) = q1*p2 - q2*p1.
  *
- * We solve the problem by letting y = [ q, p ]^T then using
- * ARKStep.
+ * We solve the problem by letting y = [ q, p ]^T then using a symplectic 
+ * integrator via the SPRKStep time-stepper of ARKODE.
  *
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
@@ -36,7 +40,7 @@
  *    Algorithms for Ordinary Differential Equations
  *    Springer, 2006,
  *    ISSN 0179-3632
- * ----------------------------------------------------------------*/
+ * --------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <math.h>
@@ -53,7 +57,7 @@
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 static void InitialConditions(N_Vector y0, sunrealtype ecc);
-static sunrealtype Hamiltonian(N_Vector y);
+static sunrealtype Hamiltonian(N_Vector yvec);
 static sunrealtype AngularMomentum(N_Vector y);
 
 static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
@@ -69,7 +73,7 @@ static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 
 typedef struct {
   sunrealtype ecc;
-  sunrealtype delta;
+  sunrealtype mu;
 
   /* for time-step control */
   sunrealtype eps;
@@ -99,13 +103,12 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  // sunrealtype Tf          = SUN_RCONST(150.0);
-  sunrealtype Tf          = SUN_RCONST(1000.0);
+  sunrealtype Tf          = SUN_RCONST(150.0);
+  // sunrealtype Tf          = SUN_RCONST(1000.0);
   // sunrealtype Tf          = SUN_RCONST(100000.0);
   sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
-  // const sunrealtype delta = SUN_RCONST(0.015);
-  const sunrealtype delta = SUN_RCONST(0.0); // unperturbed
+  const sunrealtype mu    = SUN_RCONST(0.005);
 
   /* Default integrator Options */
   int step_mode = 0;
@@ -136,7 +139,7 @@ int main(int argc, char* argv[])
   /* Allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->ecc   = ecc;
-  udata->delta = delta;
+  udata->mu    = mu;
   udata->alpha = SUN_RCONST(3.0)/SUN_RCONST(2.0);
   udata->eps   = dt;
   udata->rho_n = SUN_RCONST(1.0);
@@ -405,6 +408,11 @@ void InitialConditions(N_Vector y0vec, sunrealtype ecc)
   y0[3] = SUNRsqrt((one + ecc)/(one - ecc));
 }
 
+void Solution(N_Vector yvec, UserData user_data)
+{
+ 
+}
+
 sunrealtype Hamiltonian(N_Vector yvec)
 {
   sunrealtype H = 0.0;
@@ -412,11 +420,6 @@ sunrealtype Hamiltonian(N_Vector yvec)
   const sunrealtype sqrt_qTq = SUNRsqrt(y[0]*y[0] + y[1]*y[1]);
   const sunrealtype pTp = y[2]*y[2] + y[3]*y[3];
 
-  // Perturbed
-  // H = SUN_RCONST(0.5)*pTp - SUN_RCONST(1.0)/sqrt_qTq
-    // - SUN_RCONST(0.005) / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0)) / SUN_RCONST(2.0);
-
-  // Unperturbed
   H = SUN_RCONST(0.5)*pTp - SUN_RCONST(1.0)/sqrt_qTq;
 
   return H;
@@ -465,16 +468,13 @@ int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   UserData udata = (UserData) user_data;
   sunrealtype* y = N_VGetArrayPointer(yvec);
   sunrealtype* ydot = N_VGetArrayPointer(ydotvec);
-  const sunrealtype delta = udata->delta;
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
   const sunrealtype sqrt_qTq = SUNRsqrt(q1*q1 + q2*q2);
 
   // ydot[0] = ydot[1] = SUN_RCONST(0.0);
-  ydot[2] =         - q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0))
-            - delta * q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(5.0));
-  ydot[3] =         - q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0))
-            - delta * q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(5.0));
+  ydot[2] = - q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
+  ydot[3] = - q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
 
   return 0;
 }
