@@ -262,6 +262,11 @@ int SPRKStepGetCurrentState(void* arkode_mem, N_Vector* state)
 //   return (arkGetWorkSpace(arkode_mem, lenrw, leniw));
 // }
 
+int SPRKStepGetRootInfo(void* arkode_mem, int* rootsfound)
+{
+  return (arkGetRootInfo(arkode_mem, rootsfound));
+}
+
 int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused,
                          realtype* hlast, realtype* hcur, realtype* tcur)
 {

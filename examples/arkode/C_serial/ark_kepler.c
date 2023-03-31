@@ -73,6 +73,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
+#include "arkode/arkode.h"
 
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
@@ -83,6 +84,7 @@ static sunrealtype AngularMomentum(N_Vector y);
 static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int rootfn(sunrealtype t, N_Vector y, sunrealtype *gout, void* user_data);
 
 static sunrealtype Q(N_Vector yvec, sunrealtype alpha);
 static sunrealtype G(N_Vector yvec, sunrealtype alpha);
@@ -116,6 +118,7 @@ int main(int argc, char* argv[])
   void* arkode_mem;
   FILE *conserved_fp, *solution_fp, *times_fp;
   int argi, iout, retval;
+  int rootsfound = 0; 
 
   NLS = NULL;
   y   = NULL;
@@ -170,6 +173,11 @@ int main(int argc, char* argv[])
   if (method == 0)
   {
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
+
+    /* TODO(CJB): Enabling rootfinding results in 1 extra RHS eval per time step
+       because it makes us enable Hermite interpolation, which calls fullrhs. */
+    SPRKStepRootInit(arkode_mem, 1, rootfn);
+    if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
 
     switch (order)
     {
@@ -276,6 +284,9 @@ int main(int argc, char* argv[])
       ARKStepSetNonlinearSolver(arkode_mem, NLS);
     }
 
+    ARKStepRootInit(arkode_mem, 1, rootfn);
+    if (check_retval(&retval, "ARKStepRootInit", 1)) return 1;
+
     retval = ARKStepSetUserData(arkode_mem, (void*)udata);
     if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
@@ -314,11 +325,11 @@ int main(int argc, char* argv[])
     const char* fmt2 = "ark_kepler_solution_erk-%d-dt-%.6f.txt";
     const char* fmt3 = "ark_kepler_times_erk-%d-dt-%.6f.txt";
     char fname[64];
-    sprintf(fname, fmt1, order);
+    sprintf(fname, fmt1, order, dt);
     conserved_fp = fopen(fname, "w+");
-    sprintf(fname, fmt2, order);
+    sprintf(fname, fmt2, order, dt);
     solution_fp = fopen(fname, "w+");
-    sprintf(fname, fmt3, order);
+    sprintf(fname, fmt3, order, dt);
     times_fp = fopen(fname, "w+");
   }
 
@@ -342,8 +353,23 @@ int main(int argc, char* argv[])
   {
     for (iout = 0; iout < num_output_times; iout++)
     {
+      sunrealtype hlast = SUN_RCONST(0.0);
+
       SPRKStepSetStopTime(arkode_mem, tout);
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+
+      if (retval == ARK_ROOT_RETURN) {
+        fprintf(stdout, "ROOT RETURN:\t");
+        SPRKStepGetRootInfo(arkode_mem, &rootsfound);
+        fprintf(stdout, "t = %.4Lf g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg\n", tret,
+                rootsfound, N_VGetArrayPointer(y)[0], N_VGetArrayPointer(y)[1]);
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
+                tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
+                Q(y, udata->alpha) / udata->rho_np1 - Q0);
+
+        /* Continue to tout */
+        retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+      }
 
       /* Output current integration status */
       fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
@@ -352,7 +378,7 @@ int main(int argc, char* argv[])
       fprintf(times_fp, "%.16Lf\n", tret);
       fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
               AngularMomentum(y));
-      sunrealtype hlast;
+
       SPRKStepGetLastStep(arkode_mem, &hlast);
       fprintf(udata->hhist_fp, "%.16Lf\n", hlast);
       N_VPrintFile(y, solution_fp);
@@ -376,36 +402,29 @@ int main(int argc, char* argv[])
     for (iout = 0; iout < num_output_times; iout++)
     {
       ARKStepSetStopTime(arkode_mem, tout);
-      if (step_mode == 3)
-      {
-        while (tret < tout)
-        {
-          retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-          if (retval < 0) break;
+      retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
-          /* Output current integration status */
-          fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
-                  tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
-                  Q(y, udata->alpha) / udata->rho_np1 - Q0);
-          fprintf(times_fp, "%.16Lf\n", tret);
-          fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
-                  AngularMomentum(y));
-          N_VPrintFile(y, solution_fp);
-        }
-      }
-      else
-      {
-        retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-
-        /* Output current integration status */
+      if (retval == ARK_ROOT_RETURN) {
+        fprintf(stdout, "ROOT RETURN:\t");
+        ARKStepGetRootInfo(arkode_mem, &rootsfound);
+        fprintf(stdout, "t = %.4Lf g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg\n", tret,
+                rootsfound, N_VGetArrayPointer(y)[0], N_VGetArrayPointer(y)[1]);
         fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
                 tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
                 Q(y, udata->alpha) / udata->rho_np1 - Q0);
-        fprintf(times_fp, "%.16Lf\n", tret);
-        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
-                AngularMomentum(y));
-        N_VPrintFile(y, solution_fp);
+
+        /* Continue to tout */
+        retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
       }
+
+      /* Output current integration status */
+      fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
+              tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
+              Q(y, udata->alpha) / udata->rho_np1 - Q0);
+      fprintf(times_fp, "%.16Lf\n", tret);
+      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
+              AngularMomentum(y));
+      N_VPrintFile(y, solution_fp);
 
       /* Check if the solve was successful, if so, update the time and continue
        */
@@ -521,6 +540,19 @@ int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   // ydot[0] = ydot[1] = SUN_RCONST(0.0);
   ydot[2] = -q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
   ydot[3] = -q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
+
+  return 0;
+}
+
+int rootfn(sunrealtype t, N_Vector yvec, sunrealtype *gout, void* user_data)
+{
+  UserData udata       = (UserData)user_data;
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
+  const sunrealtype q1 = y[0];
+  const sunrealtype q2 = y[1];
+
+  /* We want to know when the body crosses the position (0.36, -0.22) */
+  gout[0] = (q1 - SUN_RCONST(0.36)) + (q2 + SUN_RCONST(0.22));
 
   return 0;
 }

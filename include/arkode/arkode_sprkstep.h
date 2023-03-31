@@ -150,6 +150,7 @@ SUNDIALS_EXPORT int SPRKStepGetLastStep(void* arkode_mem, realtype* hlast);
 SUNDIALS_EXPORT int SPRKStepGetCurrentStep(void* arkode_mem, realtype* hcur);
 SUNDIALS_EXPORT int SPRKStepGetCurrentTime(void* arkode_mem, realtype* tcur);
 SUNDIALS_EXPORT int SPRKStepGetCurrentState(void* arkode_mem, N_Vector* state);
+SUNDIALS_EXPORT int SPRKStepGetRootInfo(void* arkode_mem, int* rootsfound);
 // SUNDIALS_EXPORT int SPRKStepGetCurrentGamma(void *arkode_mem,
 //                                             realtype *gamma);
 // SUNDIALS_EXPORT int SPRKStepGetCurrentMassMatrix(void *arkode_mem,

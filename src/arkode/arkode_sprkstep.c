@@ -142,12 +142,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   step_mem->nf2    = 0;
   step_mem->istage = 0;
 
-  // /* Initialize external polynomial forcing data */
-  // step_mem->expforcing = SUNFALSE;
-  // step_mem->impforcing = SUNFALSE;
-  // step_mem->forcing    = NULL;
-  // step_mem->nforcing   = 0;
-
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
