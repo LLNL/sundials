@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------
- * We consider the  Kepler problem. We choose one body to be the center of our
+ * We consider the Kepler problem. We choose one body to be the center of our
  * coordinate system and then we use the coordinates q = (q1, q2) to represent
  * the position of the second body relative to the first (center). This yields
  * the ODE: 
@@ -26,13 +26,40 @@
  *
  * The Hamiltonian for the system,
  *    H(p,q) = 1/2 * (p1^2 + p2^2) - 1/sqrt(q1^2 + q2^2)
- *            - 1/200 / (2 * sqrt(q1^2 + q2^2)^3))
  * is conserved as well as the angular momentum,
  *    L(p,q) = q1*p2 - q2*p1.
  *
- * We solve the problem by letting y = [ q, p ]^T then using a symplectic 
- * integrator via the SPRKStep time-stepper of ARKODE.
- *
+ * By default We solve the problem by letting y = [ q, p ]^T then using a 4th
+ * order symplectic integrator via the SPRKStep time-stepper of ARKODE with a
+ * fixed time-step size.
+ * 
+ * The program also accepts command line arguments to change the method
+ * used and time-stepping strategy. The program can be run like so
+ *     ./ark_kepler [step mode] [method family] [method order/variant] [dt] [compensated sums] 
+ * where
+ *  [step mode] = 0 uses a fixed time step dt
+ *  [step mode] = 1 uses adaptive time stepping
+ *  [method family] = 0 indicates a SPRK method should be used
+ *  [method family] = 1 indicates an ERK method should be used
+ *  [method order] in {1, 2, 22, 222, 3, 33, 4, 44, 5, 6, 8, 10} indicates the method order, and
+ *                 for 2nd, 3rd, and 4th order SPRK, the variant of the method family to use. 
+ *                 I.e., when method family = 1, then:
+ *                    1 - Symplectic Euler
+ *                    2 - 2nd order Leapfrog
+ *                    22 - 2nd order Pseudo Leapfrog
+ *                    222 - 2nd order McLachlan
+ *                    3 - 3rd order Ruth
+ *                    33 - 3rd order McLachlan
+ *                    4 - 4th order Candy-Rozmus
+ *                    44 - 4th order McLachlan
+ *                    5 - 5th order McLachlan
+ *                    6 - 6th order Yoshid
+ *                    8 - 8th order McLachlan
+ *                    10 - 10th order Sofroniou
+ *                 When method family = 1, then method order just is the order of the ERK method.
+ *  [dt] - time step size for fixed-step time stepping
+ *  [compensated sums] - use compensated summation for greater accuracy when using SPRK methods
+ * 
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
  *    Geometric Numerical Integration: Structure-Preserving
@@ -101,8 +128,8 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = SUN_RCONST(150.0);
-  // sunrealtype Tf          = SUN_RCONST(1000.0);
+  // sunrealtype Tf          = SUN_RCONST(150.0);
+  sunrealtype Tf          = SUN_RCONST(1000.0);
   // sunrealtype Tf          = SUN_RCONST(100000.0);
   sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
@@ -110,7 +137,7 @@ int main(int argc, char* argv[])
   /* Default integrator Options */
   int step_mode = 0;
   int method    = 0;
-  int order     = 1;
+  int order     = 4;
   int use_compsums = 0;
   const sunrealtype dTout = SUN_RCONST(1.);
   const int num_output_times = (int) ceil(Tf/dTout);
