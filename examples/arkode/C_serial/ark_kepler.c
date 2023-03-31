@@ -14,7 +14,7 @@
  * We consider the Kepler problem. We choose one body to be the center of our
  * coordinate system and then we use the coordinates q = (q1, q2) to represent
  * the position of the second body relative to the first (center). This yields
- * the ODE: 
+ * the ODE:
  *    dq/dt = [ p1 ]
  *            [ p2 ]
  *    dp/dt = [ -q1 / (q1^2 + q2^2)^(3/2) ]
@@ -22,7 +22,7 @@
  * with the initial conditions
  *    q(0) = [ 1 - e ],  p(0) = [        0          ]
  *           [   0   ]          [ sqrt((1+e)/(1-e)) ]
- * where e = 0.6 is the eccentricity. 
+ * where e = 0.6 is the eccentricity.
  *
  * The Hamiltonian for the system,
  *    H(p,q) = 1/2 * (p1^2 + p2^2) - 1/sqrt(q1^2 + q2^2)
@@ -32,34 +32,24 @@
  * By default We solve the problem by letting y = [ q, p ]^T then using a 4th
  * order symplectic integrator via the SPRKStep time-stepper of ARKODE with a
  * fixed time-step size.
- * 
+ *
  * The program also accepts command line arguments to change the method
  * used and time-stepping strategy. The program can be run like so
- *     ./ark_kepler [step mode] [method family] [method order/variant] [dt] [compensated sums] 
- * where
- *  [step mode] = 0 uses a fixed time step dt
- *  [step mode] = 1 uses adaptive time stepping
- *  [method family] = 0 indicates a SPRK method should be used
- *  [method family] = 1 indicates an ERK method should be used
- *  [method order] in {1, 2, 22, 222, 3, 33, 4, 44, 5, 6, 8, 10} indicates the method order, and
- *                 for 2nd, 3rd, and 4th order SPRK, the variant of the method family to use. 
- *                 I.e., when method family = 1, then:
- *                    1 - Symplectic Euler
- *                    2 - 2nd order Leapfrog
- *                    22 - 2nd order Pseudo Leapfrog
- *                    222 - 2nd order McLachlan
- *                    3 - 3rd order Ruth
- *                    33 - 3rd order McLachlan
- *                    4 - 4th order Candy-Rozmus
- *                    44 - 4th order McLachlan
- *                    5 - 5th order McLachlan
- *                    6 - 6th order Yoshid
- *                    8 - 8th order McLachlan
- *                    10 - 10th order Sofroniou
- *                 When method family = 1, then method order just is the order of the ERK method.
- *  [dt] - time step size for fixed-step time stepping
- *  [compensated sums] - use compensated summation for greater accuracy when using SPRK methods
- * 
+ *     ./ark_kepler [step mode] [method family] [method order/variant] [dt]
+ * [compensated sums] where [step mode] = 0 uses a fixed time step dt [step
+ * mode] = 1 uses adaptive time stepping [method family] = 0 indicates a SPRK
+ * method should be used [method family] = 1 indicates an ERK method should be
+ * used [method order] in {1, 2, 22, 222, 3, 33, 4, 44, 5, 6, 8, 10} indicates
+ * the method order, and for 2nd, 3rd, and 4th order SPRK, the variant of the
+ * method family to use. I.e., when method family = 1, then: 1 - Symplectic
+ * Euler 2 - 2nd order Leapfrog 22 - 2nd order Pseudo Leapfrog 222 - 2nd order
+ * McLachlan 3 - 3rd order Ruth 33 - 3rd order McLachlan 4 - 4th order
+ * Candy-Rozmus 44 - 4th order McLachlan 5 - 5th order McLachlan 6 - 6th order
+ * Yoshid 8 - 8th order McLachlan 10 - 10th order Sofroniou When method family =
+ * 1, then method order just is the order of the ERK method. [dt] - time step
+ * size for fixed-step time stepping [compensated sums] - use compensated
+ * summation for greater accuracy when using SPRK methods
+ *
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
  *    Geometric Numerical Integration: Structure-Preserving
@@ -68,36 +58,37 @@
  *    ISSN 0179-3632
  * --------------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include <arkode/arkode_arkstep.h>  /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_sprkstep.h> /* prototypes for MRIStep fcts., consts */
 #include <math.h>
-#include <arkode/arkode_sprkstep.h>      /* prototypes for MRIStep fcts., consts */
-#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
-#include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
+#include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
+#include <stdio.h>
+#include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
+
 #include "arkode/arkode_sprk.h"
 #include "sundials/sundials_nonlinearsolver.h"
 #include "sundials/sundials_nvector.h"
 #include "sundials/sundials_types.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 static void InitialConditions(N_Vector y0, sunrealtype ecc);
 static sunrealtype Hamiltonian(N_Vector yvec);
 static sunrealtype AngularMomentum(N_Vector y);
 
-static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int force(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 static sunrealtype Q(N_Vector yvec, sunrealtype alpha);
 static sunrealtype G(N_Vector yvec, sunrealtype alpha);
 static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
-                 sunrealtype h3, sunrealtype e1, sunrealtype e2,
-                 sunrealtype e3, int q, int p, sunrealtype *hnew,
-                 void *user_data);
+                 sunrealtype h3, sunrealtype e1, sunrealtype e2, sunrealtype e3,
+                 int q, int p, sunrealtype* hnew, void* user_data);
 
-typedef struct {
+typedef struct
+{
   sunrealtype ecc;
 
   /* for time-step control */
@@ -108,8 +99,8 @@ typedef struct {
   sunrealtype rho_n;
   sunrealtype rho_np1;
 
-  FILE *hhist_fp;
-} *UserData;
+  FILE* hhist_fp;
+} * UserData;
 
 int main(int argc, char* argv[])
 {
@@ -124,46 +115,36 @@ int main(int argc, char* argv[])
   int argi, iout, retval;
 
   NLS = NULL;
-  y = NULL;
+  y   = NULL;
 
   /* Default problem parameters */
-  const sunrealtype T0    = SUN_RCONST(0.0);
+  const sunrealtype T0 = SUN_RCONST(0.0);
   // sunrealtype Tf          = SUN_RCONST(150.0);
-  sunrealtype Tf          = SUN_RCONST(1000.0);
+  sunrealtype Tf = SUN_RCONST(1000.0);
   // sunrealtype Tf          = SUN_RCONST(100000.0);
-  sunrealtype dt    = SUN_RCONST(1e-2);
-  const sunrealtype ecc   = SUN_RCONST(0.6);
+  sunrealtype dt        = SUN_RCONST(1e-2);
+  const sunrealtype ecc = SUN_RCONST(0.6);
 
   /* Default integrator Options */
-  int step_mode = 0;
-  int method    = 0;
-  int order     = 4;
-  int use_compsums = 0;
-  const sunrealtype dTout = SUN_RCONST(1.);
-  const int num_output_times = (int) ceil(Tf/dTout);
+  int step_mode              = 0;
+  int method                 = 0;
+  int order                  = 4;
+  int use_compsums           = 0;
+  const sunrealtype dTout    = SUN_RCONST(1.);
+  const int num_output_times = (int)ceil(Tf / dTout);
 
   /* Parse CLI args */
   argi = 0;
-  if (argc > 1) {
-    step_mode = atoi(argv[++argi]);
-  }
-  if (argc > 2) {
-    method = atoi(argv[++argi]);
-  }
-  if (argc > 3) {
-    order = atoi(argv[++argi]);
-  }
-  if (argc > 4) {
-    dt = atof(argv[++argi]);
-  }
-  if (argc > 5) {
-    use_compsums = atoi(argv[++argi]);
-  }
+  if (argc > 1) { step_mode = atoi(argv[++argi]); }
+  if (argc > 2) { method = atoi(argv[++argi]); }
+  if (argc > 3) { order = atoi(argv[++argi]); }
+  if (argc > 4) { dt = atof(argv[++argi]); }
+  if (argc > 5) { use_compsums = atoi(argv[++argi]); }
 
   /* Allocate and fill udata structure */
-  udata = (UserData) malloc(sizeof(*udata));
+  udata        = (UserData)malloc(sizeof(*udata));
   udata->ecc   = ecc;
-  udata->alpha = SUN_RCONST(3.0)/SUN_RCONST(2.0);
+  udata->alpha = SUN_RCONST(3.0) / SUN_RCONST(2.0);
   udata->eps   = dt;
   udata->rho_n = SUN_RCONST(1.0);
 
@@ -178,95 +159,105 @@ int main(int argc, char* argv[])
   InitialConditions(y, ecc);
 
   /* Create SPRKStep integrator */
-  if (method == 0) {
+  if (method == 0)
+  {
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
-    switch (order) {
-      case 1:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticEuler());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 2:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticLeapfrog2());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 22:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticPseudoLeapfrog2());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 222:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan2());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 3:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 33:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 4:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticCandyRozmus4());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 44:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 5:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan5());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 6:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticYoshida6());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 8:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan8());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      case 10:
-        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticSofroniou10());
-        if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-        break;
-      default:
-        fprintf(stderr, "Not a valid method\n");
-        return 1;
+    switch (order)
+    {
+    case 1:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticEuler());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 2:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticLeapfrog2());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 22:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticPseudoLeapfrog2());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 222:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan2());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 3:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 33:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 4:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticCandyRozmus4());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 44:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 5:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan5());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 6:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticYoshida6());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 8:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan8());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    case 10:
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticSofroniou10());
+      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
+      break;
+    default: fprintf(stderr, "Not a valid method\n"); return 1;
     }
 
     retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
-    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;  
+    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;
 
-    if (step_mode == 0) {
+    if (step_mode == 0)
+    {
       retval = SPRKStepSetFixedStep(arkode_mem, dt);
       if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-      retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int) ceil(Tf/dt)) + 1);
+      retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
       if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
-    } else {
+    }
+    else
+    {
       /*  Adaptivity based on [Hairer and Soderlind, 2005] */
       retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
       if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-      udata->rho_nmhalf = udata->rho_n - udata->eps*G(y, udata->alpha)/SUN_RCONST(2.0);
-      udata->rho_nphalf = udata->rho_nmhalf + udata->eps*G(y, udata->alpha);
-      retval = SPRKStepSetInitStep(arkode_mem, udata->eps/udata->rho_nphalf);
+      udata->rho_nmhalf = udata->rho_n -
+                          udata->eps * G(y, udata->alpha) / SUN_RCONST(2.0);
+      udata->rho_nphalf = udata->rho_nmhalf + udata->eps * G(y, udata->alpha);
+      retval = SPRKStepSetInitStep(arkode_mem, udata->eps / udata->rho_nphalf);
       if (check_retval(&retval, "SPRKStepSetInitStep", 1)) return 1;
 
-      retval = SPRKStepSetMaxNumSteps(arkode_mem, (long int) 100*(ceil(Tf/dt) + 1));
+      retval = SPRKStepSetMaxNumSteps(arkode_mem,
+                                      (long int)100 * (ceil(Tf / dt) + 1));
       if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
     }
 
-    retval = SPRKStepSetUserData(arkode_mem, (void *) udata);
+    retval = SPRKStepSetUserData(arkode_mem, (void*)udata);
     if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
-  } else if (method >= 1) {
-    if (method == 1) {
+  }
+  else if (method >= 1)
+  {
+    if (method == 1)
+    {
       arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
       retval = ARKStepSetOrder(arkode_mem, order);
       if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-    } else {
+    }
+    else
+    {
       arkode_mem = ARKStepCreate(velocity, force, T0, y, sunctx);
 
       retval = ARKStepSetOrder(arkode_mem, order);
@@ -276,22 +267,24 @@ int main(int argc, char* argv[])
       ARKStepSetNonlinearSolver(arkode_mem, NLS);
     }
 
-    retval = ARKStepSetUserData(arkode_mem, (void *) udata);
+    retval = ARKStepSetUserData(arkode_mem, (void*)udata);
     if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
     retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
     if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
 
-    if (step_mode == 0) {
-      retval = ARKStepSetFixedStep(arkode_mem, dt);
-    } else {
-      retval = ARKStepSStolerances(arkode_mem, 100*SUN_UNIT_ROUNDOFF, 100*SUN_UNIT_ROUNDOFF);
+    if (step_mode == 0) { retval = ARKStepSetFixedStep(arkode_mem, dt); }
+    else
+    {
+      retval = ARKStepSStolerances(arkode_mem, 100 * SUN_UNIT_ROUNDOFF,
+                                   100 * SUN_UNIT_ROUNDOFF);
       if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
     }
   }
 
   /* Open output files */
-  if (method == 0) {
+  if (method == 0)
+  {
     const char* fmt1 = "ark_kepler_conserved_sprk-%d-dt-%.6f.txt";
     const char* fmt2 = "ark_kepler_solution_sprk-%d-dt-%.6f.txt";
     const char* fmt3 = "ark_kepler_times_sprk-%d-dt-%.6f.txt";
@@ -305,7 +298,9 @@ int main(int argc, char* argv[])
     times_fp = fopen(fname, "w+");
     // sprintf(fname, fmt4, order);
     // udata->hhist_fp = fopen(fname, "w+");
-  } else {
+  }
+  else
+  {
     const char* fmt1 = "ark_kepler_conserved_erk-%d.txt";
     const char* fmt2 = "ark_kepler_solution_erk-%d.txt";
     const char* fmt3 = "ark_kepler_times_erk-%d.txt";
@@ -324,73 +319,94 @@ int main(int argc, char* argv[])
   printf("\n   Begin Kepler Problem\n\n");
 
   /* Print out starting energy, momentum before integrating */
-  tret = T0;
-  tout = T0+dTout;
-  H0 = Hamiltonian(y);
-  L0 = AngularMomentum(y);
-  sunrealtype Q0 = Q(y, udata->alpha)/udata->rho_n;
-  fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf, Q(p,q) = %.16Lf\n",
+  tret           = T0;
+  tout           = T0 + dTout;
+  H0             = Hamiltonian(y);
+  L0             = AngularMomentum(y);
+  sunrealtype Q0 = Q(y, udata->alpha) / udata->rho_n;
+  fprintf(stdout,
+          "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf, Q(p,q) = %.16Lf\n",
           tret, H0, L0, Q0);
   fprintf(times_fp, "%.16Lf\n", tret);
   fprintf(conserved_fp, "%.16Lf, %.16Lf\n", H0, L0);
   N_VPrintFile(y, solution_fp);
 
   /* Do integration */
-  if (method == 0) {
-    for (iout = 0; iout < num_output_times; iout++) {
+  if (method == 0)
+  {
+    for (iout = 0; iout < num_output_times; iout++)
+    {
       SPRKStepSetStopTime(arkode_mem, tout);
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       /* Output current integration status */
       fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
-              tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
-              Q(y, udata->alpha)/udata->rho_np1-Q0);
+              tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
+              Q(y, udata->alpha) / udata->rho_np1 - Q0);
       fprintf(times_fp, "%.16Lf\n", tret);
-      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
+      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
+              AngularMomentum(y));
       N_VPrintFile(y, solution_fp);
-      
-      /* Check if the solve was successful, if so, update the time and continue */
-      if (retval >= 0) {
+
+      /* Check if the solve was successful, if so, update the time and continue
+       */
+      if (retval >= 0)
+      {
         tout += dTout;
         tout = (tout > Tf) ? Tf : tout;
-      } else {
+      }
+      else
+      {
         fprintf(stderr, "Solver failure, stopping integration\n");
         break;
       }
     }
-  } else {
-    for (iout = 0; iout < num_output_times; iout++) {
+  }
+  else
+  {
+    for (iout = 0; iout < num_output_times; iout++)
+    {
       ARKStepSetStopTime(arkode_mem, tout);
-      if (step_mode == 3) {
-        while(tret < tout) {
+      if (step_mode == 3)
+      {
+        while (tret < tout)
+        {
           retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
           if (retval < 0) break;
-          
+
           /* Output current integration status */
           fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
-                  tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
-                  Q(y, udata->alpha)/udata->rho_np1-Q0);
+                  tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
+                  Q(y, udata->alpha) / udata->rho_np1 - Q0);
           fprintf(times_fp, "%.16Lf\n", tret);
-          fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
+          fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
+                  AngularMomentum(y));
           N_VPrintFile(y, solution_fp);
         }
-      } else {
+      }
+      else
+      {
         retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-        
+
         /* Output current integration status */
         fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
-                tret, Hamiltonian(y)-H0, AngularMomentum(y)-L0,
-                Q(y, udata->alpha)/udata->rho_np1-Q0);
+                tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
+                Q(y, udata->alpha) / udata->rho_np1 - Q0);
         fprintf(times_fp, "%.16Lf\n", tret);
-        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y), AngularMomentum(y));
+        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
+                AngularMomentum(y));
         N_VPrintFile(y, solution_fp);
       }
 
-      /* Check if the solve was successful, if so, update the time and continue */
-      if (retval >= 0) { 
+      /* Check if the solve was successful, if so, update the time and continue
+       */
+      if (retval >= 0)
+      {
         tout += dTout;
         tout = (tout > Tf) ? Tf : tout;
-      } else {
+      }
+      else
+      {
         fprintf(stderr, "Solver failure, stopping integration\n");
         break;
       }
@@ -402,16 +418,17 @@ int main(int argc, char* argv[])
   fclose(times_fp);
   fclose(conserved_fp);
   fclose(solution_fp);
-  if (NLS) {
-    SUNNonlinSolFree(NLS);
-  }
+  if (NLS) { SUNNonlinSolFree(NLS); }
   N_VDestroy(y);
-  if (method == 0) {
+  if (method == 0)
+  {
     SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    SPRKStepFree(&arkode_mem); 
-  } else {
+    SPRKStepFree(&arkode_mem);
+  }
+  else
+  {
     ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    ARKStepFree(&arkode_mem);  
+    ARKStepFree(&arkode_mem);
   }
 
   SUNContext_Free(&sunctx);
@@ -423,41 +440,38 @@ void InitialConditions(N_Vector y0vec, sunrealtype ecc)
 {
   const sunrealtype zero = SUN_RCONST(0.0);
   const sunrealtype one  = SUN_RCONST(1.0);
-  sunrealtype* y0 = N_VGetArrayPointer(y0vec);
+  sunrealtype* y0        = N_VGetArrayPointer(y0vec);
 
   y0[0] = one - ecc;
   y0[1] = zero;
   y0[2] = zero;
-  y0[3] = SUNRsqrt((one + ecc)/(one - ecc));
+  y0[3] = SUNRsqrt((one + ecc) / (one - ecc));
 }
 
-void Solution(N_Vector yvec, UserData user_data)
-{
- 
-}
+void Solution(N_Vector yvec, UserData user_data) {}
 
 sunrealtype Hamiltonian(N_Vector yvec)
 {
-  sunrealtype H = 0.0;
-  sunrealtype* y = N_VGetArrayPointer(yvec);
-  const sunrealtype sqrt_qTq = SUNRsqrt(y[0]*y[0] + y[1]*y[1]);
-  const sunrealtype pTp = y[2]*y[2] + y[3]*y[3];
+  sunrealtype H              = 0.0;
+  sunrealtype* y             = N_VGetArrayPointer(yvec);
+  const sunrealtype sqrt_qTq = SUNRsqrt(y[0] * y[0] + y[1] * y[1]);
+  const sunrealtype pTp      = y[2] * y[2] + y[3] * y[3];
 
-  H = SUN_RCONST(0.5)*pTp - SUN_RCONST(1.0)/sqrt_qTq;
+  H = SUN_RCONST(0.5) * pTp - SUN_RCONST(1.0) / sqrt_qTq;
 
   return H;
 }
 
 sunrealtype AngularMomentum(N_Vector yvec)
 {
-  sunrealtype L = 0.0;
-  sunrealtype* y = N_VGetArrayPointer(yvec);
+  sunrealtype L        = 0.0;
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
   const sunrealtype p1 = y[2];
   const sunrealtype p2 = y[3];
 
-  L = q1*p2 - q2*p1;
+  L = q1 * p2 - q2 * p1;
 
   return L;
 }
@@ -474,8 +488,8 @@ int dydt(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
 int velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  sunrealtype* y = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot = N_VGetArrayPointer(ydotvec);
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot    = N_VGetArrayPointer(ydotvec);
   const sunrealtype p1 = y[2];
   const sunrealtype p2 = y[3];
 
@@ -488,61 +502,60 @@ int velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
 int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  UserData udata = (UserData) user_data;
-  sunrealtype* y = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot = N_VGetArrayPointer(ydotvec);
-  const sunrealtype q1 = y[0];
-  const sunrealtype q2 = y[1];
-  const sunrealtype sqrt_qTq = SUNRsqrt(q1*q1 + q2*q2);
+  UserData udata             = (UserData)user_data;
+  sunrealtype* y             = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot          = N_VGetArrayPointer(ydotvec);
+  const sunrealtype q1       = y[0];
+  const sunrealtype q2       = y[1];
+  const sunrealtype sqrt_qTq = SUNRsqrt(q1 * q1 + q2 * q2);
 
   // ydot[0] = ydot[1] = SUN_RCONST(0.0);
-  ydot[2] = - q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
-  ydot[3] = - q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
+  ydot[2] = -q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
+  ydot[3] = -q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
 
   return 0;
 }
 
 sunrealtype G(N_Vector yvec, sunrealtype alpha)
 {
-  sunrealtype* y = N_VGetArrayPointer(yvec);
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
   const sunrealtype p1 = y[2];
   const sunrealtype p2 = y[3];
 
-  const sunrealtype pTq = p1*q1 + p2*q2;
-  const sunrealtype qTq = q1*q1 + q2*q2;
+  const sunrealtype pTq = p1 * q1 + p2 * q2;
+  const sunrealtype qTq = q1 * q1 + q2 * q2;
 
   return (-alpha * pTq / qTq);
 }
 
 sunrealtype Q(N_Vector yvec, sunrealtype alpha)
 {
-  sunrealtype* y = N_VGetArrayPointer(yvec);
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
   const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
 
-  const sunrealtype qTq = q1*q1 + q2*q2;
+  const sunrealtype qTq = q1 * q1 + q2 * q2;
 
-  return SUNRpowerR(qTq, -alpha/SUN_RCONST(2.0));
+  return SUNRpowerR(qTq, -alpha / SUN_RCONST(2.0));
 }
 
 int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
-          sunrealtype h3, sunrealtype e1, sunrealtype e2,
-          sunrealtype e3, int q, int p, sunrealtype *hnew,
-          void *user_data)
+          sunrealtype h3, sunrealtype e1, sunrealtype e2, sunrealtype e3, int q,
+          int p, sunrealtype* hnew, void* user_data)
 {
-  UserData udata = (UserData) user_data;
+  UserData udata = (UserData)user_data;
 
   // fprintf(udata->hhist_fp, "%.16Lf\n", h1);
 
   const sunrealtype G_np1 = G(y, udata->alpha);
-  udata->rho_np1 = udata->rho_nphalf + udata->eps*G_np1/SUN_RCONST(2.0);
+  udata->rho_np1 = udata->rho_nphalf + udata->eps * G_np1 / SUN_RCONST(2.0);
 
-  udata->rho_nmhalf = udata->rho_nphalf;
-  const sunrealtype rho_nphalf_next = udata->rho_nmhalf + udata->eps*G_np1;
+  udata->rho_nmhalf                 = udata->rho_nphalf;
+  const sunrealtype rho_nphalf_next = udata->rho_nmhalf + udata->eps * G_np1;
 
-  *hnew = udata->eps/rho_nphalf_next;
+  *hnew = udata->eps / rho_nphalf_next;
 
   return 0;
 }
@@ -555,29 +568,37 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-int check_retval(void *returnvalue, const char *funcname, int opt)
+int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return 1; }}
+      return 1;
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   return 0;
 }
