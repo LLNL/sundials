@@ -17,6 +17,7 @@
 #ifndef _ARKODE_BUTCHER_H
 #define _ARKODE_BUTCHER_H
 
+#include <stdio.h>
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
