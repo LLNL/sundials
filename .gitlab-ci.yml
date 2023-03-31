@@ -108,7 +108,7 @@ stages:
 .build_toss_4_x86_64_ib_corona_script:
   script:
     - echo ${ALLOC_NAME}
-    - flux mini alloc -N 1 -t ${DEFAULT_TIME}  .gitlab/build_and_test.sh
+    - flux alloc -N 1 -t ${DEFAULT_TIME}  .gitlab/build_and_test.sh
 
 # CORAL systems use spectrum LSF instead of SLURM
 .build_blueos_3_ppc64le_ib_script:
