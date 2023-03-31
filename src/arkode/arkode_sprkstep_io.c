@@ -257,10 +257,10 @@ int SPRKStepGetCurrentState(void* arkode_mem, N_Vector* state)
 //   return (arkGetResWeights(arkode_mem, rweight));
 // }
 
-int SPRKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
-{
-  return (arkGetWorkSpace(arkode_mem, lenrw, leniw));
-}
+// int SPRKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
+// {
+//   return (arkGetWorkSpace(arkode_mem, lenrw, leniw));
+// }
 
 int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused,
                          realtype* hlast, realtype* hcur, realtype* tcur)

@@ -46,9 +46,9 @@ extern "C" {
 typedef struct ARKodeSPRKStepMemRec {
   
   /* SPRK method and storage */
-  ARKodeSPRKMem method;
+  ARKodeSPRKMem method;        /* method spec  */
   int q;                       /* method order */
-  N_Vector sdata;         
+  N_Vector sdata;              /* persisted stage data         */
 
   /* SPRK problem specification */
   ARKRhsFn f1;                 /* p' = f1(t,q) = - dV(t,q)/dq  */

@@ -136,8 +136,8 @@ SUNDIALS_EXPORT int SPRKStepGetNumErrTestFails(void* arkode_mem,
                                                long int* netfails);
 // SUNDIALS_EXPORT int SPRKStepGetEstLocalErrors(void *arkode_mem,
 //                                               N_Vector ele);
-SUNDIALS_EXPORT int SPRKStepGetWorkSpace(void* arkode_mem, long int* lenrw,
-                                         long int* leniw);
+// SUNDIALS_EXPORT int SPRKStepGetWorkSpace(void* arkode_mem, long int* lenrw,
+//                                          long int* leniw);
 SUNDIALS_EXPORT int SPRKStepGetNumSteps(void* arkode_mem, long int* nsteps);
 SUNDIALS_EXPORT int SPRKStepGetActualInitStep(void* arkode_mem,
                                               realtype* hinused);

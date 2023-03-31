@@ -127,10 +127,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0, SUNCont
   step_mem->f1 = f1;
   step_mem->f2 = f2;
 
-  /* Update the ARKODE workspace requirements */
-  // ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
-  // ark_mem->lrw += 10;
-
   /* Initialize the counters */
   step_mem->nf1 = 0;
   step_mem->nf2 = 0;
@@ -602,6 +598,10 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   return(ARK_SUCCESS);
 }
 
+/* Standard formulation of SPRK. 
+   This requires only 2 vectors in principle, but we use three
+   since we persist the stage data. Only the stage data vector
+   belongs to SPRKStep, the rest are reused from ARKODE. */
 int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
@@ -651,14 +651,16 @@ int sprkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   return ARK_SUCCESS;
 }
 
-/* Increment SPRK algorithm with compensated summation */
+/* Increment SPRK algorithm with compensated summation.
+   This algorithm requires 6 vectors, but 5 of them are reused
+   from the ARKODE core. */
 int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
   ARKodeSPRKMem method;
   int retval, is;
-  N_Vector delta_Yi, yn_plus_delta_Yi;
+  N_Vector delta_Yi, yn_plus_delta_Yi, diff;
 
   /* access ARKodeSPRKStepMem structure */
   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_TakeStep_SPRK",
@@ -667,9 +669,10 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflag
 
   method = step_mem->method;
 
-  /* other shortcuts */
+  /* Vector shortcuts */
   delta_Yi = ark_mem->tempv1;
   yn_plus_delta_Yi = ark_mem->tempv2;
+  diff = ark_mem->tempv3;
 
   /* [ \Delta Q_0 ] = [ 0 ]
      [ \Delta P_0 ] = [ 0 ] */
@@ -720,8 +723,8 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype *dsmPtr, int *nflag
      [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
   N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
   N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv3);
-  N_VLinearSum(ONE, ark_mem->tempv3, -ONE, delta_Yi, ark_mem->yerr);
+  N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, diff);
+  N_VLinearSum(ONE, diff, -ONE, delta_Yi, ark_mem->yerr);
 
   *nflagPtr = 0;
   *dsmPtr = 0;
