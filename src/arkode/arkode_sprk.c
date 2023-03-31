@@ -356,6 +356,8 @@ ARKodeSPRKMem ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
       return ARKodeSymplecticEuler();
     case ARKODE_SYMPLECTIC_LEAPFROG_2:
       return ARKodeSymplecticLeapfrog2();
+    case ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2:
+      return ARKodeSymplecticPseudoLeapfrog2();
     case ARKODE_SYMPLECTIC_RUTH_3:
       return ARKodeSymplecticRuth3();
     case ARKODE_SYMPLECTIC_MCLACHLAN_2:

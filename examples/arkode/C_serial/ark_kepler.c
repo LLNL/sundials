@@ -44,6 +44,7 @@
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
 #include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
+#include "arkode/arkode_sprk.h"
 #include "sundials/sundials_nonlinearsolver.h"
 #include "sundials/sundials_nvector.h"
 #include "sundials/sundials_types.h"
@@ -156,51 +157,51 @@ int main(int argc, char* argv[])
 
     switch (order) {
       case 1:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_EULER_1);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticEuler());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 2:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_LEAPFROG_2);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticLeapfrog2());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 22:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticPseudoLeapfrog2());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 222:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_2);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan2());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 3:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_RUTH_3);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 33:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_3);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 4:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_CANDY_ROZMUS_4);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticCandyRozmus4());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 44:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_4);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 5:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_5);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan5());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 6:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_YOSHIDA_6);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticYoshida6());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 8:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_MCLACHLAN_8);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan8());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       case 10:
-        retval = SPRKStepSetMethod(arkode_mem, ARKODE_SYMPLECTIC_SOFRONIOU_10);
+        retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticSofroniou10());
         if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
         break;
       default:
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
     if (step_mode == 0) {
       retval = ARKStepSetFixedStep(arkode_mem, dt);
     } else {
-      retval = ARKStepSStolerances(arkode_mem, 10*SUN_UNIT_ROUNDOFF, 10*SUN_UNIT_ROUNDOFF);
+      retval = ARKStepSStolerances(arkode_mem, 100*SUN_UNIT_ROUNDOFF, 100*SUN_UNIT_ROUNDOFF);
       if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
     }
   }
@@ -311,7 +312,7 @@ int main(int argc, char* argv[])
   /* Do integration */
   if (method == 0) {
     for (iout = 0; iout < num_output_times; iout++) {
-      // SPRKStepSetStopTime(arkode_mem, tout);
+      SPRKStepSetStopTime(arkode_mem, tout);
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       /* Output current integration status */

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>
@@ -51,7 +52,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set default values for integrator optional inputs */
-  ark_mem->use_compensated_sums = SUNFALSE; 
+  ark_mem->use_compensated_sums    = SUNFALSE; 
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
   ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
@@ -134,7 +135,8 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* check for legal itype input */
-  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE)) {
+  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE)
+      && (itype != ARK_INTERP_NONE)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                     "arkSetInterpolantType",
                     "Illegal interpolation type input.");
@@ -159,8 +161,10 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
      the maximum possible interpolant degree. */
   if (itype == ARK_INTERP_HERMITE) {
     ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
-  } else {
+  } else if (itype == ARK_INTERP_NONE) {
     ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
+  } else {
+    ark_mem->interp = NULL;
   }
   if (ark_mem->interp == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetInterpolantType",

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# generate reference solution - use 8th order ERK method and near roundoff tolerances 
-./ark_kepler 1 1 8
+# generate reference solution - use 8th order ERK method with tiny timestep
+./ark_kepler 1 0 8 0.000001
 
 orders=(1 2 22 222 3 33 4 44 5 6 8 10)
 dts=(0.1 0.01 0.001 0.0001)

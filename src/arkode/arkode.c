@@ -952,8 +952,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
          (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = tout;
-      /* Only use dense output when we tcur is not within 10*eps of tout already.*/
-      if (SUNRCompare(ark_mem->tcur - tout, ZERO)) {
+      if (!SUNRCompare(SUNRabs(ark_mem->tcur - tout), FUZZ_FACTOR*ark_mem->uround)) {
         (void) arkGetDky(ark_mem, tout, 0, yout);
       }
       ark_mem->next_h = ark_mem->hprime;
@@ -965,8 +964,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
       if (SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        /* Only use dense output when we tcur is not within 10*eps of tstop already.*/
-        if (SUNRCompare(ark_mem->tcur - ark_mem->tstop, ZERO)) {
+        if (!SUNRCompare(SUNRabs(ark_mem->tcur - ark_mem->tstop), FUZZ_FACTOR*ark_mem->uround)) {
           (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
         }
         ark_mem->tretlast = *tret = ark_mem->tstop;
@@ -976,7 +974,6 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
       /* limit upcoming step if it will overcome tstop */
       if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
-        // printf(">>> hprime = %g\n", ark_mem->hprime);
         ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur) *
           (ONE-FOUR*ark_mem->uround);
         ark_mem->eta = ark_mem->hprime/ark_mem->h;

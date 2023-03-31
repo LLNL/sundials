@@ -67,6 +67,7 @@ extern "C" {
 /*    interpolation module types */
 #define ARK_INTERP_HERMITE  0
 #define ARK_INTERP_LAGRANGE 1
+#define ARK_INTERP_NONE     2
 
 
 /* return values */

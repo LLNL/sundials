@@ -69,12 +69,14 @@ ARKodeSPRKMem ARKodeSymplecticEuler();
 ARKodeSPRKMem ARKodeSymplecticLeapfrog2();
 ARKodeSPRKMem ARKodeSymplecticPseudoLeapfrog2();
 ARKodeSPRKMem ARKodeSymplecticRuth3();
+ARKodeSPRKMem ARKodeSymplecticCandyRozmus4();
 ARKodeSPRKMem ARKodeSymplecticMcLachlan2();
 ARKodeSPRKMem ARKodeSymplecticMcLachlan3();
 ARKodeSPRKMem ARKodeSymplecticMcLachlan4();
 ARKodeSPRKMem ARKodeSymplecticMcLachlan5();
 ARKodeSPRKMem ARKodeSymplecticYoshida6();
 ARKodeSPRKMem ARKodeSymplecticMcLachlan8();
+ARKodeSPRKMem ARKodeSymplecticSofroniou10();
 
 #ifdef __cplusplus
 }

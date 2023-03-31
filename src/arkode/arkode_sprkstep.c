@@ -281,46 +281,6 @@ int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   return(ARK_SUCCESS);
 }
 
-
-/*---------------------------------------------------------------
-  SPRKStepSStolerances, SPRKStepSVtolerances, SPRKStepWFtolerances,
-  SPRKStepResStolerance, SPRKStepResVtolerance, SPRKStepResFtolerance:
-
-  These routines set integration tolerances (wrappers for general
-  ARKODE utility routines)
-  ---------------------------------------------------------------*/
-
-// int SPRKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
-// {
-//   return(arkSStolerances((ARKodeMem) arkode_mem, reltol, abstol));
-// }
-
-// int SPRKStepSVtolerances(void *arkode_mem, realtype reltol, N_Vector abstol)
-// {
-//   return(arkSVtolerances((ARKodeMem) arkode_mem, reltol, abstol));
-// }
-
-// int SPRKStepWFtolerances(void *arkode_mem, ARKEwtFn efun)
-// {
-//   return(arkWFtolerances((ARKodeMem) arkode_mem, efun));
-// }
-
-// int SPRKStepResStolerance(void *arkode_mem, realtype rabstol)
-// {
-//   return(arkResStolerance((ARKodeMem) arkode_mem, rabstol));
-// }
-
-// int SPRKStepResVtolerance(void *arkode_mem, N_Vector rabstol)
-// {
-//   return(arkResVtolerance((ARKodeMem) arkode_mem, rabstol));
-// }
-
-// int SPRKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
-// {
-//   return(arkResFtolerance((ARKodeMem) arkode_mem, rfun));
-// }
-
-
 /*---------------------------------------------------------------
   SPRKStepEvolve:
 
@@ -467,6 +427,18 @@ int sprkStep_Init(void* arkode_mem, int init_type)
    
   }
 
+  /* Signal to shared arkode module that fullrhs is not required after each step */
+  ark_mem->call_fullrhs = SUNFALSE;
+
+  if (ark_mem->fixedstep && !ark_mem->root_mem) {
+    /* In fixed step mode, we do not need an interpolation module.
+       If adaptivity or rootfinding is enabled, we will need it. */
+    arkSetInterpolantType(ark_mem, ARK_INTERP_NONE);
+  }
+
+  // TODO(CJB): setting this to NULL is not supported in arkode right now. Should this really exist in fixed step mode?
+  // ark_mem->hadapt_mem = NULL;
+
   return(ARK_SUCCESS);
 }
 
@@ -489,12 +461,8 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_V
 /*---------------------------------------------------------------
   sprkStep_FullRHS:
 
-  Rewriting the problem
-    My' = fe(t,y) + fi(t,y)
-  in the form
-    y' = M^{-1}*[ fe(t,y) + fi(t,y) ],
-  this routine computes the full right-hand side vector,
-    f = M^{-1}*[ fe(t,y) + fi(t,y) ]
+  This is just a wrapper to call the user-supplied RHS,
+  f1(t,y) + f2(t,y).
 
   This will be called in one of three 'modes':
     ARK_FULLRHS_START -> called at the beginning of a simulation
@@ -503,238 +471,133 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur, N_V
     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
   If it is called in ARK_FULLRHS_START mode, we store the vectors
-  fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for possible reuse in the
-  first stage of the subsequent time step.
+  f1(t,y) and f2(t,y) in sdata for possible reuse in the first stage 
+  of the subsequent time step.
 
-  If it is called in ARK_FULLRHS_END mode and the ARK method
-  coefficients support it, we may just copy vectors Fe[stages] and
-  Fi[stages] to fill f instead of calling fe() and fi().
+  TODO(CJB): the reuse is not yet supported
+  If it is called in ARK_FULLRHS_END mode and the method coefficients
+  support it, we may just copy the stage vectors to fill f instead
+  of calling f().
 
   ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, or when estimating the initial time step size, so we strive to
-  store the intermediate parts so that they do not interfere
-  with the other two modes.
+  steps, so we strive to store the intermediate parts so that they
+  do not interfere with the other two modes.
   ---------------------------------------------------------------*/
 int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                      int mode)
 {
-  // ARKodeMem ark_mem;
-  // ARKodeSPRKStepMem step_mem;
-  // int nvec, retval;
-  // booleantype recomputeRHS;
-  // realtype* cvals;
-  // N_Vector* Xvecs;
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeSPRKStepMem step_mem;
+  booleantype recomputeRHS;
 
-  // /* access ARKodeSPRKStepMem structure */
-  // retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_FullRHS",
-  //                                &ark_mem, &step_mem);
-  // if (retval != ARK_SUCCESS)  return(retval);
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStep_FullRHS",
+                                  &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
 
-  // /* local shortcuts for use with fused vector operations */
-  // cvals = step_mem->cvals;
-  // Xvecs = step_mem->Xvecs;
+  /* perform RHS functions contingent on 'mode' argument */
+  switch(mode) {
 
-  // /* setup mass-matrix if required (use output f as a temporary) */
-  // if ((step_mem->mass_type == MASS_TIMEDEP) && (step_mem->msetup != NULL)) {
-  //   retval = step_mem->msetup((void *) ark_mem, t, f,
-  //                             ark_mem->tempv2, ark_mem->tempv3);
-  //   if (retval != ARK_SUCCESS)  return(ARK_MASSSETUP_FAIL);
-  // }
+  /* ARK_FULLRHS_START: called at the beginning of a simulation
+     Store the vectors f1(t,y) in sdata for possible reuse
+     in the first stage of the subsequent time step. 
+     We don't store f2(t,y) because it is not reusable in
+     the subsequent time step (which calls it with a updated state). */
+  case ARK_FULLRHS_START:
 
-  // /* perform RHS functions contingent on 'mode' argument */
-  // switch(mode) {
+    /* Since the RHS is component-wise split, we assume that only the relevant
+       components are modified in a call to f1/f2. Under this assumption we can
+       call both with the same output vector. */
+    retval = sprkStep_f1(step_mem, t, y, step_mem->sdata, ark_mem->user_data);
+    if (retval != 0) {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      return(ARK_RHSFUNC_FAIL);
+    }
 
-  // /* ARK_FULLRHS_START: called at the beginning of a simulation
-  //    Store the vectors fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for
-  //    possible reuse in the first stage of the subsequent time step */
-  // case ARK_FULLRHS_START:
+    /* Copy sdata into the output vector f */
+    N_VScale(ONE, step_mem->sdata, f);
 
-  //   /* call fe if the problem has an explicit component */
-  //   if (step_mem->explicit) {
-  //     retval = sprkStep_Fe(step_mem, t, y, step_mem->Fe[0], ark_mem->user_data);
-  //     if (retval != 0) {
-  //       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                       "sprkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-  //       return(ARK_RHSFUNC_FAIL);
-  //     }
-  //     /* apply external polynomial forcing */
-  //     if (step_mem->expforcing) {
-  //       cvals[0] = ONE;
-  //       Xvecs[0] = step_mem->Fe[0];
-  //       nvec     = 1;
-  //       sprkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-  //       N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
-  //     }
-  //   }
+    retval = sprkStep_f2(step_mem, t, y, f, ark_mem->user_data);
+    if (retval != 0) {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      return(ARK_RHSFUNC_FAIL);
+    }
 
-  //   /* call fi if the problem has an implicit component */
-  //   if (step_mem->implicit) {
-  //     retval = sprkStep_Fi(step_mem, t, y, step_mem->Fi[0], ark_mem->user_data);
-  //     if (retval != 0) {
-  //       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                       "sprkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-  //       return(ARK_RHSFUNC_FAIL);
-  //     }
-  //     /* apply external polynomial forcing */
-  //     if (step_mem->impforcing) {
-  //       cvals[0] = ONE;
-  //       Xvecs[0] = step_mem->Fi[0];
-  //       nvec     = 1;
-  //       sprkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-  //       N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
-  //     }
-  //   }
-
-  //   /* combine RHS vector(s) into output */
-  //   if (step_mem->explicit && step_mem->implicit) { /* ImEx */
-  //     N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
-  //   } else if (step_mem->implicit) {                   /* implicit */
-  //     N_VScale(ONE, step_mem->Fi[0], f);
-  //   } else {                                           /* explicit */
-  //     N_VScale(ONE, step_mem->Fe[0], f);
-  //   }
-
-  //   break;
+    break;
 
 
-  // /* ARK_FULLRHS_END: called at the end of a successful step
-  //    If the ARK method coefficients support it, we just copy the last stage RHS
-  //    vectors to fill f instead of calling fe() and fi().
-  //    Copy the results to Fe[0] and Fi[0] if the ARK coefficients support it. */
-  // case ARK_FULLRHS_END:
+  /* ARK_FULLRHS_END: called at the end of a successful step
+     If the method coefficients support it, we just copy the last stage RHS
+     vectors to fill f instead of calling f(t,y).
+     Copy the results to sdata if the coefficients support it. */
+  case ARK_FULLRHS_END:
 
-  //   /* determine if explicit/implicit RHS functions need to be recomputed */
-  //   recomputeRHS = SUNFALSE;
-  //   if ( step_mem->explicit && (SUNRabs(step_mem->Be->c[step_mem->stages-1]-ONE)>TINY) )
-  //     recomputeRHS = SUNTRUE;
-  //   if ( step_mem->implicit && (SUNRabs(step_mem->Bi->c[step_mem->stages-1]-ONE)>TINY) )
-  //     recomputeRHS = SUNTRUE;
+    /* TODO(CJB): Right now we cannot leverage this because we do 
+       not store the function evals for reuse anywhere. Consider
+       doing this if it does drastically increase storage. */
 
-  //   /* base RHS calls on recomputeRHS argument */
-  //   if (recomputeRHS) {
+    /* determine if explicit RHS function needs to be recomputed */
+    recomputeRHS = SUNFALSE;
+    if (SUNRabs(step_mem->method->a[step_mem->method->stages - 1] - ONE) > TINY) {
+      recomputeRHS = SUNTRUE;
+    }
 
-  //     /* call fe if the problem has an explicit component */
-  //     if (step_mem->explicit) {
-  //       retval = sprkStep_Fe(step_mem, t, y, step_mem->Fe[0], ark_mem->user_data);
-  //       if (retval != 0) {
-  //         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                         "sprkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-  //         return(ARK_RHSFUNC_FAIL);
-  //       }
-  //       /* apply external polynomial forcing */
-  //       if (step_mem->expforcing) {
-  //         cvals[0] = ONE;
-  //         Xvecs[0] = step_mem->Fe[0];
-  //         nvec     = 1;
-  //         sprkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-  //         N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
-  //       }
-  //     }
+    /* base RHS calls on recomputeRHS argument */
+    // if (recomputeRHS) {
 
-  //     /* call fi if the problem has an implicit component */
-  //     if (step_mem->implicit) {
-  //       retval = sprkStep_Fi(step_mem, t, y, step_mem->Fi[0], ark_mem->user_data);
-  //       if (retval != 0) {
-  //         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                         "sprkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-  //         return(ARK_RHSFUNC_FAIL);
-  //       }
-  //       /* apply external polynomial forcing */
-  //       if (step_mem->impforcing) {
-  //         cvals[0] = ONE;
-  //         Xvecs[0] = step_mem->Fi[0];
-  //         nvec     = 1;
-  //         sprkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-  //         N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
-  //       }
-  //     }
-  //   } else {
-  //     if (step_mem->explicit)
-  //       N_VScale(ONE, step_mem->Fe[step_mem->stages-1], step_mem->Fe[0]);
-  //     if (step_mem->implicit)
-  //       N_VScale(ONE, step_mem->Fi[step_mem->stages-1], step_mem->Fi[0]);
-  //   }
+      retval = sprkStep_f1(step_mem, t, y, step_mem->sdata, ark_mem->user_data);
+      if (retval != 0) {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                        "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        return(ARK_RHSFUNC_FAIL);
+      }
 
-  //   /* combine RHS vector(s) into output */
-  //   if (step_mem->explicit && step_mem->implicit) { /* ImEx */
-  //     N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
-  //   } else if (step_mem->implicit) {                   /* implicit */
-  //     N_VScale(ONE, step_mem->Fi[0], f);
-  //   } else {                                           /* explicit */
-  //     N_VScale(ONE, step_mem->Fe[0], f);
-  //   }
+      /* Copy sdata into the output vector f */
+      N_VScale(ONE, step_mem->sdata, f);
 
-  //   break;
+      retval = sprkStep_f2(step_mem, t, y, f, ark_mem->user_data);
+      if (retval != 0) {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                        "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        return(ARK_RHSFUNC_FAIL);
+      }
 
-  // /* ARK_FULLRHS_OTHER: called for dense output in-between steps or for
-  //    estimation of the initial time step size, store the intermediate
-  //    calculations in such a way as to not interfere with the other two modes */
-  // case ARK_FULLRHS_OTHER:
+    // } else {
+      // N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->sdata);
+    // }
 
-  //   /* call fe if the problem has an explicit component (store in ark_tempv2) */
-  //   if (step_mem->explicit) {
-  //     retval = sprkStep_Fe(step_mem, t, y, ark_mem->tempv2, ark_mem->user_data);
-  //     if (retval != 0) {
-  //       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                       "sprkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-  //       return(ARK_RHSFUNC_FAIL);
-  //     }
-  //     /* apply external polynomial forcing */
-  //     if (step_mem->expforcing) {
-  //       cvals[0] = ONE;
-  //       Xvecs[0] = ark_mem->tempv2;
-  //       nvec     = 1;
-  //       sprkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-  //       N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
-  //     }
-  //   }
+    break;
 
-  //   /* call fi if the problem has an implicit component (store in sdata) */
-  //   if (step_mem->implicit) {
-  //     retval = sprkStep_Fi(step_mem, t, y, step_mem->sdata, ark_mem->user_data);
-  //     if (retval != 0) {
-  //       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                       "sprkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-  //       return(ARK_RHSFUNC_FAIL);
-  //     }
-  //     /* apply external polynomial forcing */
-  //     if (step_mem->impforcing) {
-  //       cvals[0] = ONE;
-  //       Xvecs[0] = step_mem->sdata;
-  //       nvec     = 1;
-  //       sprkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-  //       N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-  //     }
-  //   }
+  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
+      store the intermediate calculations in such a way as to not
+      interfere with the other two modes */
+  case ARK_FULLRHS_OTHER:
 
-  //   /* combine RHS vector(s) into output */
-  //   if (step_mem->explicit && step_mem->implicit) { /* ImEx */
-  //     N_VLinearSum(ONE, step_mem->sdata, ONE, ark_mem->tempv2, f);
-  //   } else if (step_mem->implicit) {                   /* implicit */
-  //     N_VScale(ONE, step_mem->sdata, f);
-  //   } else {                                           /* explicit */
-  //     N_VScale(ONE, ark_mem->tempv2, f);
-  //   }
+    retval = sprkStep_f1(step_mem, t, y, f, ark_mem->user_data);
+    if (retval != 0) {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      return(ARK_RHSFUNC_FAIL);
+    }
 
-  //   break;
+    retval = sprkStep_f2(step_mem, t, y, f, ark_mem->user_data);
+    if (retval != 0) {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      return(ARK_RHSFUNC_FAIL);
+    }
 
-  // default:
-  //   /* return with RHS failure if unknown mode is passed */
-  //   arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-  //                   "sprkStep_FullRHS", "Unknown full RHS mode");
-  //   return(ARK_RHSFUNC_FAIL);
-  // }
+    break;
 
-  // /* if M != I, then update f = M^{-1}*f */
-  // if (step_mem->mass_type != MASS_IDENTITY) {
-  //   retval = step_mem->msolve((void *) ark_mem, f,
-  //                             step_mem->nlscoef/ark_mem->h);
-  //   if (retval != ARK_SUCCESS) {
-  //     arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::SPRKStep",
-  //                     "sprkStep_FullRHS", "Mass matrix solver failure");
-  //     return(ARK_MASSSOLVE_FAIL);
-  //   }
-  // }
+  default:
+    /* return with RHS failure if unknown mode is passed */
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
+                    "SPRKStep_FullRHS", "Unknown full RHS mode");
+    return(ARK_RHSFUNC_FAIL);
+  }
 
   return(ARK_SUCCESS);
 }
