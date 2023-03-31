@@ -58,6 +58,11 @@ SUNDIALS_EXPORT int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2,
 
 SUNDIALS_EXPORT int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR);
 
+/* Rootfinding functions */
+
+/* Rootfinding initialization */
+SUNDIALS_EXPORT int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
+
 /* Optional input functions -- must be called AFTER SPRKStepCreate */
 SUNDIALS_EXPORT int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int SPRKStepSetOptimalParams(void* arkode_mem);
