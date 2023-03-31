@@ -72,7 +72,6 @@ static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 
 typedef struct {
   sunrealtype ecc;
-  sunrealtype mu;
 
   /* for time-step control */
   sunrealtype eps;
@@ -107,7 +106,6 @@ int main(int argc, char* argv[])
   // sunrealtype Tf          = SUN_RCONST(100000.0);
   sunrealtype dt    = SUN_RCONST(1e-2);
   const sunrealtype ecc   = SUN_RCONST(0.6);
-  const sunrealtype mu    = SUN_RCONST(0.005);
 
   /* Default integrator Options */
   int step_mode = 0;
@@ -138,7 +136,6 @@ int main(int argc, char* argv[])
   /* Allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->ecc   = ecc;
-  udata->mu    = mu;
   udata->alpha = SUN_RCONST(3.0)/SUN_RCONST(2.0);
   udata->eps   = dt;
   udata->rho_n = SUN_RCONST(1.0);
