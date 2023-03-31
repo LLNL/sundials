@@ -11,15 +11,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------
- * We consider the  Kepler problem. We choose one
- * body to be the center of our coordinate system and then we use the
- * coordinates q = (q1, q2) to represent the position of the second body
- * relative to the first (center). This yields the
- * ODE: 
+ * We consider the  Kepler problem. We choose one body to be the center of our
+ * coordinate system and then we use the coordinates q = (q1, q2) to represent
+ * the position of the second body relative to the first (center). This yields
+ * the ODE: 
  *    dq/dt = [ p1 ]
  *            [ p2 ]
- *    dp/dt = [ -q1 / (q1^2 + q2^2)^(3/2) - q1 / (q1^2 + q2^2)^(5/2) ]
- *          = [ -q2 / (q1^2 + q2^2)^(3/2) - q2 / (q1^2 + q2^2)^(5/2) ]
+ *    dp/dt = [ -q1 / (q1^2 + q2^2)^(3/2) ]
+ *          = [ -q2 / (q1^2 + q2^2)^(3/2) ]
  * with the initial conditions
  *    q(0) = [ 1 - e ],  p(0) = [        0          ]
  *           [   0   ]          [ sqrt((1+e)/(1-e)) ]
