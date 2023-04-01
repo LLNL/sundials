@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
   const sunrealtype dTout    = SUN_RCONST(1.);
   const int num_output_times = (int)ceil(Tf / dTout);
 
+  printf("\n   Begin Kepler Problem\n\n");
+
   /* Parse CLI args */
   argi = 0;
   if (argc > 1) { step_mode = atoi(argv[++argi]); }
@@ -183,50 +185,62 @@ int main(int argc, char* argv[])
     {
     case 1:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticEuler());
+      fprintf(stdout, "Using symplectic Euler O(h^1)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 2:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticLeapfrog2());
+      fprintf(stdout, "Using symplectic Leapfrog O(h^2)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 22:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticPseudoLeapfrog2());
+      fprintf(stdout, "Using symplectic Pseudo Leapfrog O(h^2)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 222:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan2());
+      fprintf(stdout, "Using symplectic McLachlan O(h^2)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 3:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticRuth3());
+      fprintf(stdout, "Using symplectic Ruth O(h^3)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 33:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
+      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
+      fprintf(stdout, "Using symplectic McLachlan O(h^3)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 4:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticCandyRozmus4());
+      fprintf(stdout, "Using symplectic Candy-Rozmus O(h^4)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 44:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
+      fprintf(stdout, "Using symplectic McLachlan O(h^4)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 5:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan5());
+      fprintf(stdout, "Using symplectic McLachlan O(h^5)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 6:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticYoshida6());
+      fprintf(stdout, "Using symplectic Yoshida O(h^6)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 8:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan8());
+      fprintf(stdout, "Using symplectic McLachlan O(h^8)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     case 10:
       retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticSofroniou10());
+      fprintf(stdout, "Using symplectic Sofroniou O(h^10)\n");
       if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
       break;
     default: fprintf(stderr, "Not a valid method\n"); return 1;
@@ -332,8 +346,6 @@ int main(int argc, char* argv[])
     sprintf(fname, fmt3, order, dt);
     times_fp = fopen(fname, "w+");
   }
-
-  printf("\n   Begin Kepler Problem\n\n");
 
   /* Print out starting energy, momentum before integrating */
   tret           = T0;
