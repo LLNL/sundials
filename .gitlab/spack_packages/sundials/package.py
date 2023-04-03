@@ -179,13 +179,22 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     )
 
     # Scheduler
-    variant("scheduler", default="slurm", description="Specify which scheduler the system runs on", values=("flux", "lsf", "slurm"))
+    variant(
+        "scheduler", 
+        default="slurm", 
+        description="Specify which scheduler the system runs on", 
+        values=("flux", "lsf", "slurm")
+    )
 
     # Benchmarking
     variant("benchmarks", default=False, description="Build benchmark programs")
 
     # Profiling examples
-    variant("profile-examples", default=False, when="+caliper +profiling", description="Build examples with profiling capabilities")
+    variant(
+        "profile-examples", 
+        default=False, 
+        when="+caliper +profiling", 
+        description="Build examples with profiling capabilities")
 
     # ==========================================================================
     # Dependencies

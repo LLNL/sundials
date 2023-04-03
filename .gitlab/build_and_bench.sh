@@ -33,6 +33,14 @@ cd "${benchmark_dir}"
 # because we are interested in individual region timings.
 export CUDA_LAUNCH_BLOCKING=1
 
+if [[ -d ${build_dir}]]
+then 
+    module load cmake/3.23 # --test-dir flag requires cmake 3.20 or higher
+    date
+    export CALI_CONFIG="spot(output=${benchmark_store_dir}/example_tests.cali),runtime-report(calc.inclusive)"
+    ctest --output-on-failure --verbose --test-dir ${build_dir} -T  test 2>&1 | tee tests_output.txt
+fi
+
 if [[ -d ${ar3d_dir} ]]
 then
     date
@@ -40,23 +48,23 @@ then
     if [[ -f ${ar3d_dir}/advection_reaction_3D_mpicuda ]]
     then
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_arkimex_tlnewton.cali),runtime-report(calc.inclusive)"
-        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method ARK-IMEX --nls tl-newton --tf 10.0 --dont-save
+        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method ARK-IMEX --nls tl-newton --tf 10.0
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_arkdirk_newton.cali),runtime-report(calc.inclusive)"
-        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method ARK-DIRK --nls newton --tf 10.0 --dont-save
+        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method ARK-DIRK --nls newton --tf 10.0
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_cvbdf_newton.cali),runtime-report(calc.inclusive)"
-        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method CV-BDF --nls newton --tf 10.0 --dont-save
+        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method CV-BDF --nls newton --tf 10.0
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_ida_newton.cali),runtime-report(calc.inclusive)"
-        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method IDA --nls newton --tf 10.0 --dont-save
+        jsrun --smpiargs="-gpu" -n${nresg} -a1 -c1 -g1 "${ar3d_dir}/advection_reaction_3D_mpicuda" --method IDA --nls newton --tf 10.0
     elif [[ -f ${ar3d_dir}/advection_reaction_3D ]]
     then
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_mpionly_arkimex_tlnewton.cali),runtime-report(calc.inclusive)"
-        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method ARK-IMEX --nls tl-newton --tf 2.0 --dont-save
+        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method ARK-IMEX --nls tl-newton --tf 2.0
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_mpionly_arkdirk_newton.cali),runtime-report(calc.inclusive)"
-        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method ARK-DIRK --nls newton --tf 2.0 --dont-save
+        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method ARK-DIRK --nls newton --tf 2.0
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_mpionly_cvbdf_newton.cali),runtime-report(calc.inclusive)"
-        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method CV-BDF --nls newton --tf 2.0 --dont-save
+        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method CV-BDF --nls newton --tf 2.0
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_mpionly_ida_newton.cali),runtime-report(calc.inclusive)"
-        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method IDA --nls newton --tf 2.0 --dont-save
+        jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method IDA --nls newton --tf 2.0
     fi
 
     date
