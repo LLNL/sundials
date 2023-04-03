@@ -33,12 +33,13 @@ cd "${benchmark_dir}"
 # because we are interested in individual region timings.
 export CUDA_LAUNCH_BLOCKING=1
 
-if [[ -d ${build_dir}]]
+if [[ -d ${build_dir} ]]
 then 
     module load cmake/3.23 # --test-dir flag requires cmake 3.20 or higher
     date
     export CALI_CONFIG="spot(output=${benchmark_store_dir}/example_tests.cali),runtime-report(calc.inclusive)"
     ctest --output-on-failure --verbose --test-dir ${build_dir} -T  test 2>&1 | tee tests_output.txt
+    date
 fi
 
 if [[ -d ${ar3d_dir} ]]
