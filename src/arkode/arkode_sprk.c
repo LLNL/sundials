@@ -374,6 +374,8 @@ ARKodeSPRKMem ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
       return ARKodeSymplecticYoshida6();
     case ARKODE_SYMPLECTIC_MCLACHLAN_8:
       return ARKodeSymplecticMcLachlan8();
+    case ARKODE_SYMPLECTIC_SOFRONIOU_10:
+      return ARKodeSymplecticSofroniou10();
     default:
       return NULL;
   }

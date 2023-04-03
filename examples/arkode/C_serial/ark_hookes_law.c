@@ -11,7 +11,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------
-
+ * This example considers the motion of a spring with an attached mass using
+ * the symplectic integrators available in SPRKStep. Our ODE model is,
+ *    x'(t) = v
+ *    v'(t) = -k/m x
+ * where k is the spring constant and m is the mass. For convenience we choose
+ * k = 8 and m = 1 and let omega = sqrt(k/m). We simulate the problem on
+ * t = [0, 0.1] with the initial conditions x(0) = 0.2, v(0) = 0.
+ * This problem setup has the exact solution
+ *    x(t) = 0.2*cos(t*omega),
+ *    v(t) = -0.2*omega*sin(t*omega).
+ * The potential energy,
+ *    U = 1/2*k*x^2
+ * is conserved and is the Hamiltonian for the system. The symplectic methods
+ * in SPRKStep conserve U provided a sufficiently small time-step size is used.
+ *
+ * The problem can be run like so:
+ *    ./ark_hookes_law [order] [dt] [use_compsums]
+ *
+ * Order sets the order of the method to use, dt is the time step size, and
+ * use_compsums turns on (1) or off (0) compensated summation inside SPRKStep.
+ * Compensated summation increases accuracy but at increased cost. 
  * --------------------------------------------------------------------------*/
 
 #include <arkode/arkode_sprk.h>
@@ -35,25 +55,26 @@ typedef struct
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 static void InitialConditions(N_Vector y0);
-static sunrealtype Hamiltonian(N_Vector yvec, sunrealtype dt, UserData udata);
+static sunrealtype Solution(sunrealtype t, N_Vector y, N_Vector solvec,
+                            UserData udata);
+static sunrealtype Energy(N_Vector yvec, sunrealtype dt, UserData udata);
 
-static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int Velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int Force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 int main(int argc, char* argv[])
 {
   SUNContext sunctx;
-  N_Vector y;
+  N_Vector y, solution;
   SUNNonlinearSolver NLS;
   UserData udata;
   sunrealtype tout, tret;
-  sunrealtype H0;
   void* arkode_mem;
-  // FILE *conserved_fp, *solution_fp, *times_fp;
   int argi, iout, retval;
 
-  NLS = NULL;
-  y   = NULL;
+  NLS      = NULL;
+  y        = NULL;
+  solution = NULL;
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
@@ -61,10 +82,9 @@ int main(int argc, char* argv[])
   sunrealtype dt          = SUN_RCONST(1e-4);
   const sunrealtype A     = SUN_RCONST(0.2);
   const sunrealtype B     = SUN_RCONST(0.0);
-  const sunrealtype omega = SUN_RCONST(64.);
+  const sunrealtype omega = SUN_RCONST(64.0);
 
   /* Default integrator Options */
-  int step_mode              = 0;
   int method                 = 0;
   int order                  = 4;
   int use_compsums           = 1;
@@ -90,78 +110,17 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate our state vector */
-  y = N_VNew_Serial(4, sunctx);
+  y        = N_VNew_Serial(2, sunctx);
+  solution = N_VClone(y);
 
   /* Fill the initial conditions */
   InitialConditions(y);
 
   /* Create SPRKStep integrator */
-  arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
+  arkode_mem = SPRKStepCreate(Force, Velocity, T0, y, sunctx);
 
-  switch (order)
-  {
-  case 1:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticEuler());
-    fprintf(stdout, "Using symplectic Euler O(h^1)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 2:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticLeapfrog2());
-    fprintf(stdout, "Using symplectic Leapfrog O(h^2)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 22:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticPseudoLeapfrog2());
-    fprintf(stdout, "Using symplectic Pseudo Leapfrog O(h^2)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 222:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan2());
-    fprintf(stdout, "Using symplectic McLachlan O(h^2)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 3:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticRuth3());
-    fprintf(stdout, "Using symplectic Ruth O(h^3)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 33:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
-    fprintf(stdout, "Using symplectic McLachlan O(h^3)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 4:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticCandyRozmus4());
-    fprintf(stdout, "Using symplectic Candy-Rozmus O(h^4)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 44:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
-    fprintf(stdout, "Using symplectic McLachlan O(h^4)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 5:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan5());
-    fprintf(stdout, "Using symplectic McLachlan O(h^5)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 6:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticYoshida6());
-    fprintf(stdout, "Using symplectic Yoshida O(h^6)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 8:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan8());
-    fprintf(stdout, "Using symplectic McLachlan O(h^8)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  case 10:
-    retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticSofroniou10());
-    fprintf(stdout, "Using symplectic Sofroniou O(h^10)\n\n");
-    if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-    break;
-  default: fprintf(stderr, "Not a valid method\n"); return 1;
-  }
+  retval = SPRKStepSetOrder(arkode_mem, order);
+  if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
 
   retval = SPRKStepSetUserData(arkode_mem, udata);
   if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
@@ -178,8 +137,7 @@ int main(int argc, char* argv[])
   /* Print out starting energy, momentum before integrating */
   tret = T0;
   tout = T0 + dTout;
-  H0   = Hamiltonian(y, dt, udata);
-  fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf\n", tret, H0);
+  fprintf(stdout, "t = %.6Lf, energy = %.6Lf\n", tret, Energy(y, dt, udata));
 
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
@@ -188,7 +146,8 @@ int main(int argc, char* argv[])
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
     /* Output current integration status */
-    fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf\n", tret, Hamiltonian(y, dt, udata) - H0);
+    fprintf(stdout, "t = %.6Lf, sol. err = %.6Lf, energy = %.6Lf\n", tret,
+            Solution(tret, y, solution, udata), Energy(y, dt, udata));
 
     /* Check if the solve was successful, if so, update the time and continue
      */
@@ -221,16 +180,21 @@ void InitialConditions(N_Vector y0vec)
   y0[1]           = SUN_RCONST(0.0);
 }
 
-void Solution(sunrealtype t, N_Vector solvec, UserData udata)
+sunrealtype Solution(sunrealtype t, N_Vector y, N_Vector solvec, UserData udata)
 {
   sunrealtype* sol = N_VGetArrayPointer(solvec);
-
-  sol[0] = udata->A * sin(t * udata->omega) + udata->B * cos(t * udata->omega);
-
-  return;
+  /* compute error */
+  sol[0] = SUN_RCONST(0.2) * cos(udata->omega * t);
+  sol[1] = -SUN_RCONST(0.2) * udata->omega * sin(udata->omega * t);
+  N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), solvec, solvec);
+  sunrealtype err = N_VMaxNorm(solvec);
+  /* restore solution vec */
+  sol[0] = SUN_RCONST(0.2) * cos(udata->omega * t);
+  sol[1] = -SUN_RCONST(0.2) * udata->omega * sin(udata->omega * t);
+  return err;
 }
 
-sunrealtype Hamiltonian(N_Vector yvec, sunrealtype dt, UserData udata)
+sunrealtype Energy(N_Vector yvec, sunrealtype dt, UserData udata)
 {
   sunrealtype H            = 0.0;
   sunrealtype* y           = N_VGetArrayPointer(yvec);
@@ -238,22 +202,22 @@ sunrealtype Hamiltonian(N_Vector yvec, sunrealtype dt, UserData udata)
   const sunrealtype v      = y[1];
   const sunrealtype omega2 = udata->omega * udata->omega;
 
-  H = (v*v + omega2 * x*x - omega2 * dt * v * x) / SUN_RCONST(2.0);
+  H = (v * v + omega2 * x * x) / SUN_RCONST(2.0);
 
   return H;
 }
 
-int velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int Velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  sunrealtype* y       = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot    = N_VGetArrayPointer(ydotvec);
+  sunrealtype* y    = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot = N_VGetArrayPointer(ydotvec);
 
-  ydot[0] = ydot[1];
+  ydot[0] = y[1];
 
   return 0;
 }
 
-int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int Force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
   UserData udata           = (UserData)user_data;
   sunrealtype* y           = N_VGetArrayPointer(yvec);

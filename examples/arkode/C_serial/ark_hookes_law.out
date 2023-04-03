@@ -1,0 +1,28 @@
+
+   Begin Hooke's Law Problem
+
+t = 0.000000, energy = 81.920000
+t = 0.010000, sol. err = 0.000000, energy = 81.920000
+t = 0.020000, sol. err = 0.000000, energy = 81.920000
+t = 0.030000, sol. err = 0.000000, energy = 81.920000
+t = 0.040000, sol. err = 0.000000, energy = 81.920000
+t = 0.050000, sol. err = 0.000000, energy = 81.920000
+t = 0.060000, sol. err = 0.000000, energy = 81.920000
+t = 0.070000, sol. err = 0.000000, energy = 81.920000
+t = 0.080000, sol. err = 0.000000, energy = 81.920000
+t = 0.090000, sol. err = 0.000000, energy = 81.920000
+t = 0.100000, sol. err = 0.000000, energy = 81.920000
+
+Current time                 = 0.099999999999999991673327315311326
+Steps                        = 1000
+Step attempts                = 1000
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.00010000000000000000479217360238593
+Last step size               = 0.00010000000000000000479217360238593
+Current step size            = 0.00010000000000000000479217360238593
+f1 RHS fn evals              = 4001
+f2 RHS fn evals              = 4001

@@ -410,7 +410,7 @@ int sprkStep_Init(void* arkode_mem, int init_type)
       case 7:
       case 8: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_8); break;
       case 9:
-      case 10: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_10);
+      case 10: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_10); break;
       default: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_4); break;
       }
     }
