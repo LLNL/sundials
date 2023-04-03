@@ -28,6 +28,7 @@ then
 fi
 
 cd "${benchmark_dir}"
+ls
 
 # We use synchronous kernel launches for benchmarking
 # because we are interested in individual region timings.
@@ -37,7 +38,7 @@ if [[ -d ${build_dir} ]]
 then 
     module load cmake/3.23 # --test-dir flag requires cmake 3.20 or higher
     date
-    export CALI_CONFIG="spot(output=${benchmark_store_dir}/example_tests.cali),runtime-report(calc.inclusive)"
+    export CALI_CONFIG="spot(output=${benchmark_store_dir}/test_suite.cali),runtime-report(calc.inclusive)"
     ctest --output-on-failure --verbose --test-dir ${build_dir} -T  test 2>&1 | tee tests_output.txt
     date
 fi
@@ -45,7 +46,6 @@ fi
 if [[ -d ${ar3d_dir} ]]
 then
     date
-
     if [[ -f ${ar3d_dir}/advection_reaction_3D_mpicuda ]]
     then
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_arkimex_tlnewton.cali),runtime-report(calc.inclusive)"
@@ -67,7 +67,6 @@ then
         export CALI_CONFIG="spot(output=${benchmark_store_dir}/ar3d_mpionly_ida_newton.cali),runtime-report(calc.inclusive)"
         jsrun -n${nresc} -a1 -c1 "${ar3d_dir}/advection_reaction_3D" --method IDA --nls newton --tf 2.0
     fi
-
     date
 fi
 
