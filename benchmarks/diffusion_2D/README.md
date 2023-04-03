@@ -19,7 +19,7 @@ $$u(0,\mathbf{x}) = \sin^2(\pi x) \sin^2(\pi y),$$
 
 and stationary boundary conditions
 
-$$\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,x_{max},y) = \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,y_{max}) = 0.$$
+$$\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,x_{\text{max}},y) = \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,y_{\text{max}}) = 0.$$
 
 The source term is given by
 
@@ -56,10 +56,10 @@ listed below.
 | `--npy <int>`                        | Number of MPI tasks in the y-direction (0 forces MPI to decide)                          | 0       |
 | `--nx <int>`                         | Number of mesh points in the x-direction                                                 | 32      |
 | `--ny <int>`                         | Number of mesh points in the y-direction                                                 | 32      |
-| `--xu <realtype>`                    | The domain upper bound in the x-direction $x_{max}$                                        | 1.0     |
-| `--yu <realtype>`                    | The domain upper bound in the y-direction $y_{max}$                                        | 1.0     |
-| `--kx <realtype>`                    | Diffusion coefficient in the x-direction $k_x$                                            | 1.0     |
-| `--ky <realtype>`                    | Diffusion coefficient in the y-direction $k_y$                                            | 1.0     |
+| `--xu <realtype>`                    | The domain upper bound in the x-direction $x_{\text{max}}$                               | 1.0     |
+| `--yu <realtype>`                    | The domain upper bound in the y-direction $y_{\text{max}}$                               | 1.0     |
+| `--kx <realtype>`                    | Diffusion coefficient in the x-direction $k_x$                                           | 1.0     |
+| `--ky <realtype>`                    | Diffusion coefficient in the y-direction $k_y$                                           | 1.0     |
 | `--tf <realtype>`                    | The final time `tf`                                                                      | 1.0     |
 | `--noforcing`                        | Disable the forcing term                                                                 | Enabled |
 | Output Options                       |                                                                                          |         |
