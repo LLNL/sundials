@@ -160,6 +160,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetNonlinConvCoef
  public :: FMRIStepSetMaxHnilWarns
  public :: FMRIStepSetStopTime
+ public :: FMRIStepClearStopTime
  public :: FMRIStepSetFixedStep
  public :: FMRIStepSetRootDirection
  public :: FMRIStepSetNoInactiveRootWarn
@@ -730,6 +731,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepClearStopTime(farg1) &
+bind(C, name="_wrap_FMRIStepClearStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -2301,6 +2310,19 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = tstop
 fresult = swigc_FMRIStepSetStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepClearStopTime(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FMRIStepClearStopTime(farg1)
 swig_result = fresult
 end function
 

@@ -1177,14 +1177,27 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
-    /* Limit interpolant degree based on method order (use negative
-       argument to specify update instead of overwrite) */
-    if (ark_mem->interp != NULL) {
-      retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
-      if (retval != ARK_SUCCESS) {
+    /* Limit max interpolant degree (negative input only overwrites the current
+       interpolant degree if it is greater than abs(input). */
+    if (ark_mem->interp != NULL)
+    {
+      if (step_mem->q > 1)
+      {
+        /* Limit max degree to at most one less than the method global order */
+        retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q - 1));
+      }
+      else
+      {
+        /* Allow for linear interpolant with first order methods to ensure
+           solution values are returned at the time interval end points */
+        retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q));
+      }
+
+      if (retval != ARK_SUCCESS)
+      {
         arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
                         "Unable to update interpolation polynomial degree");
-        return(ARK_ILL_INPUT);
+        return (ARK_ILL_INPUT);
       }
     }
 

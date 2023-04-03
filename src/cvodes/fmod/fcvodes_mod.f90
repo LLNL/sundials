@@ -133,6 +133,7 @@ module fcvodes_mod
  public :: FCVodeSetNonlinearSolver
  public :: FCVodeSetStabLimDet
  public :: FCVodeSetStopTime
+ public :: FCVodeClearStopTime
  public :: FCVodeSetUserData
  public :: FCVodeSetEtaFixedStepBounds
  public :: FCVodeSetEtaMaxFirstStep
@@ -641,6 +642,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeClearStopTime(farg1) &
+bind(C, name="_wrap_FCVodeClearStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -3217,6 +3226,19 @@ real(C_DOUBLE) :: farg2
 farg1 = cvode_mem
 farg2 = tstop
 fresult = swigc_FCVodeSetStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeClearStopTime(cvode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = cvode_mem
+fresult = swigc_FCVodeClearStopTime(farg1)
 swig_result = fresult
 end function
 
