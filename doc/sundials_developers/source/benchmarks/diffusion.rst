@@ -68,7 +68,7 @@ IDA. With ARKODE, an adaptive step diagonally implicit Runge-Kutta (DIRK) method
 is applied. When using CVODE or IDA, adaptive order and step BDF methods are
 used.
 
-Be default, the nonlinear system(s) in each time step are solved using an
+By default, the nonlinear system(s) in each time step are solved using an
 inexact Newton method paired with a matrix-free CG linear solver and a Jacobi
 preconditioner. A matrix-free GMRES linear solver may be selected at run time.
 If SUNDIALS is built with the SuperLU_DIST interface enabled a modified Newton
@@ -179,7 +179,7 @@ Building
 To build the benchmark executables SUNDIALS should be configured with ARKODE,
 CVODE, or IDA enabled, MPI support turned on, and benchmarks enabled. If
 SUNDIALS is configured with SuperLU_DIST enabled this linear solver can be
-selected at run time and may utilizie OpenMP, CUDA, or ROCM (HIP) for on-node
+selected at run time and may utilize OpenMP, CUDA, or ROCM (HIP) for on-node
 parallelism. If SUNDIALS is configured with CUDA or HIP support enabled
 additional executables utilizing CUDA and HIP will be built. See the SUNDIALS
 installation guide for more details on configuring, building, and installing.

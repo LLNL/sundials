@@ -35,7 +35,7 @@ IDA. With ARKODE, an adaptive step diagonally implicit Runge-Kutta (DIRK) method
 is applied. When using CVODE or IDA, adaptive order and step BDF methods are
 used.
 
-Be default, the nonlinear system(s) in each time step are solved using an
+By default, the nonlinear system(s) in each time step are solved using an
 inexact Newton method paired with a matrix-free CG linear solver and a Jacobi
 preconditioner. A matrix-free GMRES linear solver may be selected at run time.
 If SUNDIALS is built with the SuperLU_DIST interface enabled a modified Newton
