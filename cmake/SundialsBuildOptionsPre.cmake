@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -193,6 +193,8 @@ endif()
 # ---------------------------------------------------------------
 
 sundials_option(BUILD_BENCHMARKS BOOL "Build the SUNDIALS benchmark suite" OFF)
+
+sundials_option(BENCHMARKS_INSTALL_PATH PATH "Output directory for installing benchmark executables" "${CMAKE_INSTALL_PREFIX}/benchmarks")
 
 # ---------------------------------------------------------------
 # Options for CMake config installation

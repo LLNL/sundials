@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -513,6 +513,27 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
 
   ark_mem->tstop    = tstop;
   ark_mem->tstopset = SUNTRUE;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkClearStopTime:
+
+  Disable the stop time.
+  ---------------------------------------------------------------*/
+int arkClearStopTime(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkClearStopTime", MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  ark_mem->tstopset = SUNFALSE;
 
   return(ARK_SUCCESS);
 }

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1177,14 +1177,27 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
-    /* Limit interpolant degree based on method order (use negative
-       argument to specify update instead of overwrite) */
-    if (ark_mem->interp != NULL) {
-      retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
-      if (retval != ARK_SUCCESS) {
+    /* Limit max interpolant degree (negative input only overwrites the current
+       interpolant degree if it is greater than abs(input). */
+    if (ark_mem->interp != NULL)
+    {
+      if (step_mem->q > 1)
+      {
+        /* Limit max degree to at most one less than the method global order */
+        retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q - 1));
+      }
+      else
+      {
+        /* Allow for linear interpolant with first order methods to ensure
+           solution values are returned at the time interval end points */
+        retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q));
+      }
+
+      if (retval != ARK_SUCCESS)
+      {
         arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
                         "Unable to update interpolation polynomial degree");
-        return(ARK_ILL_INPUT);
+        return (ARK_ILL_INPUT);
       }
     }
 
@@ -1595,6 +1608,9 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
         implicit_stage = SUNTRUE;
 
+    /* determine if the stage RHS will be deduced from the implicit solve */
+    deduce_stage = step_mem->deduce_rhs && implicit_stage;
+
     /* set current stage time(s) */
     if (step_mem->implicit)
       ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
@@ -1711,7 +1727,6 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
-      deduce_stage = step_mem->deduce_rhs && implicit_stage;
 
       if (!deduce_stage) {
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,

@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -1390,23 +1390,21 @@ following circumstances:
 * if the problem is linearly implicit and :math:`\gamma` has
   changed by a factor larger than 100 times machine epsilon.
 
-When an update is forced due to a convergence failure, an update of
-:math:`\tilde{\mathcal A}` or :math:`P` may or may not involve a
-re-evaluation of :math:`J` (in :math:`\tilde{\mathcal A}`) or of
-Jacobian data (in :math:`P`), depending on whether errors in the
-Jacobian were the likely cause of the failure.  More generally, the
-decision is made to re-evaluate :math:`J` (or instruct the user to
-update :math:`P`) when:
+When an update of :math:`\tilde{\mathcal A}` or :math:`P` occurs, it may or may
+not involve a reevaluation of :math:`J` (in :math:`\tilde{\mathcal A}`) or of
+Jacobian data (in :math:`P`), depending on whether errors in the Jacobian were
+the likely cause for the update. Reevaluating :math:`J` (or instructing the
+user to update :math:`P`) occurs when:
 
 * starting the problem,
-* more than :math:`msbj=50` steps have been taken since the last evaluation,
+* more than :math:`msbj=50` steps have been taken since the last evaluation
+  (this value may be modified by the user),
 * a convergence failure occurred with an outdated matrix, and the
   value :math:`\tilde{\gamma}` of :math:`\gamma` at the last update
   satisfies :math:`\left|\gamma/\tilde{\gamma} - 1\right| > 0.2`,
 * a convergence failure occurred that forced a step size reduction, or
 * if the problem is linearly implicit and :math:`\gamma` has
   changed by a factor larger than 100 times machine epsilon.
-
 
 However, for linear solvers and preconditioners that do not
 rely on costly matrix construction and factorization operations

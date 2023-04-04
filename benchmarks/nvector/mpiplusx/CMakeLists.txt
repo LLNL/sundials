@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -18,5 +18,5 @@ sundials_add_nvector_benchmark(nvector_mpiplusx_benchmark
   SOURCES test_nvector_performance_mpiplusx.c
   SUNDIALS_TARGETS sundials_nvecserial sundials_nvecmpiplusx
   LINK_LIBRARIES MPI::MPI_CXX
-  INSTALL_SUBDIR benchmarks/nvector/mpiplusx
+  INSTALL_SUBDIR nvector/mpiplusx
   )

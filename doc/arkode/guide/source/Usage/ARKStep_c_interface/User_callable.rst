@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -875,7 +875,8 @@ Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKStepSetMaxHnilWarn
 Maximum no. of internal steps before *tout*       :c:func:`ARKStepSetMaxNumSteps`          500
 Maximum absolute step size                        :c:func:`ARKStepSetMaxStep`              :math:`\infty`
 Minimum absolute step size                        :c:func:`ARKStepSetMinStep`              0.0
-Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             N/A
+Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             undefined
+Disable the stop time                             :c:func:`ARKStepClearStopTime`           N/A
 Supply a pointer for user data                    :c:func:`ARKStepSetUserData`             ``NULL``
 Maximum no. of ARKStep error test failures        :c:func:`ARKStepSetMaxErrTestFails`      7
 Set 'optimal' adaptivity params. for a method     :c:func:`ARKStepSetOptimalParams`        internal
@@ -970,10 +971,17 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       If a user calls both this routine and :c:func:`ARKStepSetInterpolantType()`, then
       :c:func:`ARKStepSetInterpolantType()` must be called first.
 
-      Since the accuracy of any polynomial interpolant is limited by the accuracy of
-      the time-step solutions on which it is based, the *actual* polynomial degree that
-      is used by ARKStep will be the minimum of :math:`q-1` and the input *degree*,
-      where :math:`q` is the order of accuracy for the time integration method.
+      Since the accuracy of any polynomial interpolant is limited by the
+      accuracy of the time-step solutions on which it is based, the *actual*
+      polynomial degree that is used by ARKStep will be the minimum of
+      :math:`q-1` and the input *degree*, for :math:`q > 1` where :math:`q` is
+      the order of accuracy for the time integration method.
+
+      .. versionchanged:: 5.5.1
+
+         When :math:`q=1`, a linear interpolant is the default to ensure values
+         obtained by the integrator are returned at the ends of the time
+         interval.
 
 
 
@@ -1250,7 +1258,31 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       The default is that no stop time is imposed.
 
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`ARKStepSetStopTime`).
 
+      A stop time not reached before a call to :c:func:`ARKStepReInit` or
+      :c:func:`ARKStepReset` will remain active but can be disabled by calling
+      :c:func:`ARKStepClearStopTime`.
+
+
+.. c:function:: int ARKStepClearStopTime(void* arkode_mem)
+
+   Disables the stop time set with :c:func:`ARKStepSetStopTime`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`ARKStepSetStopTime`.
+
+   .. versionadded:: 5.5.1
 
 
 .. c:function:: int ARKStepSetUserData(void* arkode_mem, void* user_data)
@@ -2295,11 +2327,12 @@ or reevaluate Jacobian information, depends on several factors including:
 * the change in :math:`\gamma` from the value used when constructing :math:`\mathcal{A}`, and
 * the number of steps since Jacobian information was last evaluated.
 
-The frequency with which to update Jacobian information can be controlled
-with the *msbj* argument to :c:func:`ARKStepSetJacEvalFrequency()`.
-We note that this is only checked *within* calls to the linear solver setup
-routine, so values *msbj* :math:`<` *msbp* do not make sense. For
-linear-solvers with user-supplied preconditioning the above factors are used
+Jacobian information is considered out-of-date when :math:`msbj` or more steps
+have been completed since the last update, in which case it will be recomputed during the next
+linear solver setup call. The value of :math:`msbj` is controlled with the
+``msbj`` argument to :c:func:`ARKStepSetJacEvalFrequency()`.
+
+For linear-solvers with user-supplied preconditioning the above factors are used
 to determine whether to recommend updating the Jacobian information in the
 preconditioner (i.e., whether to set *jok* to ``SUNFALSE`` in calling the
 user-supplied :c:type:`ARKLsPrecSetupFn()`). For matrix-based linear solvers
@@ -2373,8 +2406,8 @@ is recomputed using the current :math:`\gamma` value.
 
 .. c:function:: int ARKStepSetJacEvalFrequency(void* arkode_mem, long int msbj)
 
-   Specifies the frequency for recomputing the Jacobian or recommending a
-   preconditioner update, :math:`msbj` from :numref:`ARKODE.Mathematics.Linear.Setup`.
+   Specifies the number of steps after which the Jacobian information is
+   considered out-of-date, :math:`msbj` from :numref:`ARKODE.Mathematics.Linear.Setup`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -2386,11 +2419,16 @@ is recomputed using the current :math:`\gamma` value.
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
 
    **Notes:**
-      The Jacobian update frequency is only checked *within* calls to the linear
-      solver setup routine, as such values of *msbj* :math:`<` *msbp* will result
-      in recomputing the Jacobian every *msbp* steps. See
-      :c:func:`ARKStepSetLSetupFrequency()` for setting the linear solver steup
-      frequency *msbp*.
+      If ``nstlj`` is the step number at which the Jacobian information was
+      lasted updated and ``nst`` is the current step number,
+      ``nst - nstlj >= msbj`` indicates that the Jacobian information will be updated
+      during the next linear solver setup call.
+
+      As the Jacobian update frequency is only checked *within* calls to the
+      linear solver setup routine, Jacobian information may be more than
+      ``msbj`` steps old when updated depending on when a linear solver setup
+      call occurs. See :numref:`ARKODE.Mathematics.Linear.Setup`
+      for more information on when linear solver setups are performed.
 
       Passing a value *msbj* :math:`\le 0` indicates to use the
       default value of 51.
@@ -4599,8 +4637,8 @@ vector.
       different step size or have ARKStep estimate a new step size use
       :c:func:`ARKStepSetInitStep()`.
 
-      All previously set options are retained but may be updated by calling the
-      appropriate "Set" functions.
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
 
       If an error occurred, :c:func:`ARKStepReset()` also sends an error message to
       the error handler function.

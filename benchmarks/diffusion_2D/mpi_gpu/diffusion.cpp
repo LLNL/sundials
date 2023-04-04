@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -356,14 +356,11 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
 
 // Diffusion function
-int laplacian(realtype t, N_Vector u, N_Vector f, void *user_data)
+int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
 {
-  int flag;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
+
+  int flag;
 
   // Start exchange
   flag = udata->start_exchange(u);
