@@ -671,8 +671,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc)
                 ]
             )
-            if spec.satisfies("scheduler=flux"):
+            if "scheduler=flux" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
+            if "scheduler=slurm" in spec:
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "srun"))
+            if "scheduler=lsf" in spec:
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "jsrun"))
                 
 
         return entries
