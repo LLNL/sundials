@@ -50,7 +50,9 @@
 # ON_QUARTZ:
 # Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
 #
-# SPACK_PREFIX: prefix used for shared spack installation, usually this a spack version number that matches the version set in the uberenv_config.json file. Spack installs go in /usr/workspace/sundials/spack_installs/${SPACK_PREFIX}/$(hostname).
+# SPACK_PREFIX: prefix used for shared spack installation.
+# Usually this a spack version number that matches the version set in the uberenv_config.json file. 
+# Spack installs go in /usr/workspace/sundials/spack_installs/${SPACK_PREFIX}/$(hostname).
 #
 # SHARED_SPACK:
 # If "ON", then a shared spack install that has been pre-configured is utilized.
