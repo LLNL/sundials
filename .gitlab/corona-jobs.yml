@@ -36,7 +36,7 @@ corona_rocmcc_tpls:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+magma+raja ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET}"
   extends: .corona_build_and_test
 
-corona_rocmcc_5_2_3_tpls:
+corona_rocmcc_tpls_2:
   parallel:
     matrix:
       - COMPILER_SPEC: rocmcc@5.2.3
@@ -44,3 +44,4 @@ corona_rocmcc_5_2_3_tpls:
         ROCM_VERSION: 5.2.3
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+ginkgo+kokkos+kokkos-kernels ^kokkos-kernels ^kokkos+rocm~profiling amdgpu_target=${AMDGPU_TARGET} ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^hipblas@${ROCM_VERSION} ^hipsparse@${ROCM_VERSION} ^rocrand@${ROCM_VERSION} ^rocthrust@${ROCM_VERSION} ^hip@${ROCM_VERSION} ^hsa-rocr-dev@${ROCM_VERSION} ^llvm-amdgpu@${ROCM_VERSION}"
+  extends: .corona_build_and_test
