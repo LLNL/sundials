@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,5 +24,5 @@ message(STATUS "Added OpenMP NVECTOR benchmark")
 sundials_add_nvector_benchmark(nvector_openmp_benchmark
   SOURCES test_nvector_performance_openmp.c
   SUNDIALS_TARGETS sundials_nvecopenmp
-  INSTALL_SUBDIR benchmarks/nvector/openmp
+  INSTALL_SUBDIR nvector/openmp
   )

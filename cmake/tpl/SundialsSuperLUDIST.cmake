@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -68,7 +68,6 @@ message(STATUS "SUPERLUDIST_INDEX_SIZE:     ${SUPERLUDIST_INDEX_SIZE}")
 message(STATUS "SUPERLUDIST_OpenMP:         ${SUPERLUDIST_OpenMP}")
 message(STATUS "SUPERLUDIST_CUDA:           ${SUPERLUDIST_CUDA}")
 message(STATUS "SUPERLUDIST_ROCM:           ${SUPERLUDIST_ROCM}")
-
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -36,4 +36,4 @@ target_include_directories(test_nvector_performance_openmpdev PRIVATE ..)
 target_link_libraries(test_nvector_performance_openmpdev ${SUNDIALS_LIBS})
 
 install(TARGETS test_nvector_performance_openmpdev
-  DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/nvector/openmpdev")
+  DESTINATION "${BENCHMARKS_INSTALL_PATH}/nvector/openmpdev")

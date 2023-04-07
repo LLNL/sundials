@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -975,6 +975,7 @@ int arkSetInitStep(void *arkode_mem, realtype hin);
 int arkSetMinStep(void *arkode_mem, realtype hmin);
 int arkSetMaxStep(void *arkode_mem, realtype hmax);
 int arkSetStopTime(void *arkode_mem, realtype tstop);
+int arkClearStopTime(void *arkode_mem);
 int arkSetFixedStep(void *arkode_mem, realtype hfixed);
 int arkSetRootDirection(void *arkode_mem, int *rootdir);
 int arkSetNoInactiveRootWarn(void *arkode_mem);

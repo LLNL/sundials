@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -155,6 +155,7 @@ SUNDIALS_EXPORT int ERKStepSetMaxStep(void *arkode_mem,
                                       realtype hmax);
 SUNDIALS_EXPORT int ERKStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
+SUNDIALS_EXPORT int ERKStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int ERKStepSetFixedStep(void *arkode_mem,
                                         realtype hfixed);
 SUNDIALS_EXPORT int ERKStepSetMaxNumConstrFails(void *arkode_mem,

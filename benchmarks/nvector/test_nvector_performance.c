@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1301,7 +1301,8 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype *c;
   N_Vector *Y;
 
@@ -1513,7 +1514,8 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype *c;
   N_Vector *Y, *Z;
 
@@ -1645,7 +1647,8 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype *c;
   N_Vector *Y;
 
@@ -1718,7 +1721,8 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype a, b;
   N_Vector *X, *Y, *Z;
 
@@ -1803,7 +1807,8 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype *c;
   N_Vector *Y, *Z;
 
@@ -1932,7 +1937,8 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype c;
   N_Vector *Y;
 
@@ -2007,7 +2013,8 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype *c;
   N_Vector *Z, *W;
 
@@ -2088,7 +2095,8 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, ier;
+  int      i, j;
+  int      ier = 0;
   realtype *c;
   N_Vector *Z, *W, ID;
 
@@ -2173,7 +2181,8 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, k, ier;
+  int      i, j, k;
+  int      ier = 0;
   realtype *c;
   N_Vector *X, **Y, **Z;
 
@@ -2336,7 +2345,8 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   double   favgtime, fsdevtime, fmintime, fmaxtime;
   double   uavgtime, usdevtime, umintime, umaxtime;
   double   *ftimes, *utimes;
-  int      i, j, k, ier;
+  int      i, j, k;
+  int      ier = 0;
   realtype *c;
   N_Vector **X, *Z;
 

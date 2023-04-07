@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -38,7 +38,7 @@ else
     sun_ver="${sun_major}.${sun_minor}.${sun_patch}-${sun_label}"
 fi
 
-# Set the ARKode version values. Assume the major version is one less than the
+# Set the ARKODE version values. Assume the major version is one less than the
 # SUNDIALS major version.
 ark_major=$(( sun_major - 1 ))
 ark_minor=$sun_minor
@@ -225,9 +225,9 @@ sedi "s/### Version.*/### Version ${sun_ver} (${date}) ###/" ../README.md
 
 fn="../src/arkode/README.md"
 sedi "s/### Version.*/### Version ${ark_ver} (${date})/" $fn
-sedi "s/\"User Documentation for ARKode v.*/\"User Documentation for ARKode v${ark_ver},\" LLNL technical report/" $fn
+sedi "s/\"User Documentation for ARKODE v.*/\"User Documentation for ARKODE v${ark_ver},\" LLNL technical report/" $fn
 sedi "s/LLNL-SM-668082,.*/LLNL-SM-668082, ${date}./" $fn
-sedi "s/\"Example Programs for ARKode v.*/\"Example Programs for ARKode v${ark_ver},\" Technical Report,/" $fn
+sedi "s/\"Example Programs for ARKODE v.*/\"Example Programs for ARKODE v${ark_ver},\" Technical Report,/" $fn
 sedi "s/Scientific Computation.*/Scientific Computation, ${date}./" $fn
 
 fn="../src/cvode/README.md"
