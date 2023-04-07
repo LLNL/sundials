@@ -10,6 +10,13 @@ Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
 
 Fixed compilation errors in some SYCL examples when using the `icx` compiler.
 
+The default interpolant in ARKODE when using a first order method has been
+updated to a linear interpolant to ensure values obtained by the integrator are
+returned at the ends of the time interval. To restore the previous behavior of
+using a constant interpolant call `ARKStepSetInterpolantDegree`,
+`ERKStepSetInterpolantDegree`, or `MRIStepSetInterpolantDegree` and set the
+interpolant degree to zero before evolving the problem.
+
 ## Changes to SUNDIALS in release 6.5.0
 
 Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,

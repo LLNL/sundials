@@ -98,6 +98,7 @@ module fida_mod
  public :: FIDASetMaxStep
  public :: FIDASetMinStep
  public :: FIDASetStopTime
+ public :: FIDAClearStopTime
  public :: FIDASetMaxErrTestFails
  public :: FIDASetSuppressAlg
  public :: FIDASetId
@@ -417,6 +418,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAClearStopTime(farg1) &
+bind(C, name="_wrap_FIDAClearStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -1604,6 +1613,19 @@ real(C_DOUBLE) :: farg2
 farg1 = ida_mem
 farg2 = tstop
 fresult = swigc_FIDASetStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAClearStopTime(ida_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = ida_mem
+fresult = swigc_FIDAClearStopTime(farg1)
 swig_result = fresult
 end function
 

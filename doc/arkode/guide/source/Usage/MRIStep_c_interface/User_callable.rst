@@ -804,10 +804,16 @@ Optional inputs for MRIStep
    If a user calls both this routine and :c:func:`MRIStepSetInterpolantType()`, then
    :c:func:`MRIStepSetInterpolantType()` must be called first.
 
-   Since the accuracy of any polynomial interpolant is limited by the accuracy of
-   the time-step solutions on which it is based, the *actual* polynomial degree that
-   is used by MRIStep will be the minimum of :math:`q-1` and the input *degree*,
-   where :math:`q` is the order of accuracy for the time integration method.
+   Since the accuracy of any polynomial interpolant is limited by the accuracy
+   of the time-step solutions on which it is based, the *actual* polynomial
+   degree that is used by MRIStep will be the minimum of :math:`q-1` and the
+   input *degree*, for :math:`q > 1` where :math:`q` is the order of accuracy
+   for the time integration method.
+
+   .. versionchanged:: 5.5.1
+
+      When :math:`q=1`, a linear interpolant is the default to ensure values
+      obtained by the integrator are returned at the ends of the time interval.
 
 
 

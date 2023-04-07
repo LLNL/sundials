@@ -27,6 +27,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # Versions
     # ==========================================================================
     version("develop", branch="develop")
+    version("6.5.1", sha256="4252303805171e4dbdd19a01e52c1dcfe0dafc599c3cfedb0a5c2ffb045a8a75")
+    version("6.5.0", sha256="4e0b998dff292a2617e179609b539b511eb80836f5faacf800e688a886288502")
     version("6.4.1", sha256="7bf10a8d2920591af3fba2db92548e91ad60eb7241ab23350a9b1bc51e05e8d0")
     version("6.4.0", sha256="0aff803a12c6d298d05b56839197dd09858631864017e255ed89e28b49b652f1")
     version("6.3.0", sha256="89a22bea820ff250aa7239f634ab07fa34efe1d2dcfde29cc8d3af11455ba2a7")
@@ -125,6 +127,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         description="Enable Caliper instrumentation/profiling",
     )
     variant("ginkgo", default=False, when="@6.4.0:", description="Enable Ginkgo interfaces")
+    variant("hypre", default=False, when="@2.7.0:", description="Enable Hypre MPI parallel vector")
     variant("kokkos", default=False, when="@6.4.0:", description="Enable Kokkos vector")
     variant(
         "kokkos-kernels",
@@ -132,7 +135,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         when="@6.4.0:",
         description="Enable KokkosKernels based matrix and linear solver",
     )
-    variant("hypre", default=False, when="@2.7.0:", description="Enable Hypre MPI parallel vector")
     variant("klu", default=False, description="Enable KLU sparse, direct solver")
     variant("lapack", default=False, description="Enable LAPACK direct solvers")
     variant("petsc", default=False, when="@2.7.0:", description="Enable PETSc interfaces")
@@ -669,8 +671,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc)
                 ]
             )
-            if spec.satisfies("scheduler=flux"):
-                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux mini run"))
+            if "scheduler=flux" in spec:
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
+            if "scheduler=slurm" in spec:
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "srun"))
+            if "scheduler=lsf" in spec:
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "jsrun"))
                 
 
         return entries
@@ -698,7 +704,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
                     cmake_cache_path("ROCM_PATH", spec["llvm-amdgpu"].prefix),
-                    cmake_cache_string("AMDGPU_TARGETS", spec.variants["amdgpu_target"].value[0])
+                    cmake_cache_string("AMDGPU_TARGETS", ";".join(spec.variants["amdgpu_target"].value))
                 ]
             )
         return entries
@@ -865,11 +871,15 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     ]
                 )
             else:
+                superludist_libs = []
+                superludist_libs.extend(spec["parmetis"].libs)
+                superludist_libs.extend(spec["metis"].libs)
+                superludist_libs.extend(spec["superlu-dist"].libs)
                 entries.extend(
                     [
                         cmake_cache_path("SUPERLUDIST_INCLUDE_DIR", spec["superlu-dist"].prefix.include),
                         cmake_cache_path("SUPERLUDIST_LIBRARY_DIR", spec["superlu-dist"].prefix.lib),
-                        cmake_cache_string("SUPERLUDIST_LIBRARIES", spec["superlu-dist"].libs),
+                        cmake_cache_string("SUPERLUDIST_LIBRARIES", ";".join(superludist_libs)),
                         cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec),
                     ]
                 )
