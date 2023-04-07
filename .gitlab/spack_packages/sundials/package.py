@@ -181,7 +181,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     )
 
     # Scheduler
-    variant("scheduler", default="slurm", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm"))
+    variant("scheduler", default="default", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm", "default"))
 
     # ==========================================================================
     # Dependencies
