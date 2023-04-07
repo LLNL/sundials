@@ -294,3 +294,5 @@ sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
 # Include unit tests in regression tests
 sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
+
+sundials_option(SUNDIALS_TEST_MPIRUN_COMMAND STRING "Job scheduler or mpirun command used to launch SUNDIALS MPI tests." "" ADVANCED)

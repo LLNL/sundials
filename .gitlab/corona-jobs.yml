@@ -1,0 +1,37 @@
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# HIP
+# ------------------------------------------------------------------------------
+
+# Builds with Hip
+corona_clang_hip:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@5.4.1
+        AMDGPU_TARGET: [gfx906]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi"
+  extends: .corona_build_and_test
+
+# ------------------------------------------------------------------------------
+# HIP + TPLs
+# ------------------------------------------------------------------------------
+corona_clang_hip_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@5.4.1
+        AMDGPU_TARGET: [gfx906]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+magma+raja ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET}"
+  extends: .corona_build_and_test
