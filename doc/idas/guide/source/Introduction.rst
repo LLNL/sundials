@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -86,8 +86,13 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in v5.6.0
+Changes in v5.5.1
 -----------------
+
+Added the function :c:func:`IDAClearStopTime` to disable a previously set stop
+time.
+
+Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
 

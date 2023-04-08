@@ -3,7 +3,7 @@
  *                and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -147,6 +147,7 @@ SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
 SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, realtype tstop);
+SUNDIALS_EXPORT int CVodeClearStopTime(void *cvode_mem);
 SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 

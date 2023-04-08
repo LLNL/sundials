@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -17,5 +17,5 @@ message(STATUS "Added HIP NVECTOR benchmark")
 sundials_add_nvector_benchmark(nvector_hip_benchmark
   SOURCES test_nvector_performance_hip.cpp
   SUNDIALS_TARGETS sundials_nvechip
-  INSTALL_SUBDIR benchmarks/nvector/hip
+  INSTALL_SUBDIR nvector/hip
   )
