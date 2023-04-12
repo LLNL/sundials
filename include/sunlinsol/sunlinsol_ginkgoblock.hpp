@@ -186,6 +186,7 @@ public:
     setup_called_ = true;
     matrix_       = A;
 
+#ifdef GKO_SETUP_SCALING
     SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
     solver_factory_ = GkoBatchSolverType::build()                       //
                           .with_default_max_iterations(max_iters_)      //
@@ -200,6 +201,7 @@ public:
     SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
     solver_ = solver_factory_->generate(matrix_->GkoMtx());
     SUNDIALS_MARK_END(sunProfiler(), "generate solver");
+#endif
 
     return SUNLS_SUCCESS;
   }
@@ -209,6 +211,23 @@ public:
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "start",
                        "num_blocks = %d, tol = %.16g", num_blocks_, tol);
+#endif
+
+#ifdef GKO_SOLVE_SCALING
+    SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
+    solver_factory_ = GkoBatchSolverType::build()                       //
+                          .with_default_max_iterations(max_iters_)      //
+                          .with_default_residual_tol(SUN_UNIT_ROUNDOFF) //
+                          .with_tolerance_type(tolerance_type_)         //
+                          .with_preconditioner(precon_factory_)         //
+                          .with_left_scaling_op(left_scale_vec_)        //
+                          .with_right_scaling_op(right_scale_vec_)      //
+                          .on(gkoExec());
+    SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
+
+    SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
+    solver_ = solver_factory_->generate(matrix_->GkoMtx());
+    SUNDIALS_MARK_END(sunProfiler(), "generate solver");
 #endif
 
     SUNDIALS_MARK_BEGIN(sunProfiler(), "set tolerance");
