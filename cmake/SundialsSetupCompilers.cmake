@@ -347,7 +347,9 @@ endif()
 # C++ settings
 # ===============================================================
 
-if(BUILD_BENCHMARKS OR EXAMPLES_ENABLE_CXX OR
+if(BUILD_BENCHMARKS OR
+    EXAMPLES_ENABLE_CXX OR
+    SUNDIALS_TEST_UNITTESTS OR
     ENABLE_CUDA OR
     ENABLE_HIP OR
     ENABLE_SYCL OR
