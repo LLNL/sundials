@@ -59,13 +59,19 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
   sunrealtype* vdata   = N_VGetArrayPointer(zn[0]);
   sunrealtype  scale   = ONE;
 
+  std::cout << std::setw(4) << "idx"
+            << std::setw(25) << "scaled zn"
+            << std::setw(25) << "true value"
+            << std::setw(25) << "relative error"
+            << std::endl;
+
   PR_true_dot(tret, tmp, 0, udata);
   for (sunindextype i = 0; i < N; i++)
   {
     std::cout << std::setw(4) << 0
               << std::setw(25) << scale * vdata[i]
               << std::setw(25) << tmpdata[i]
-              << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
+              << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
               << std::endl;
   }
 
@@ -77,7 +83,7 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
     std::cout << std::setw(4) << 1
               << std::setw(25) << scale * vdata[i]
               << std::setw(25) << tmpdata[i]
-              << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
+              << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
               << std::endl;
   }
 
@@ -92,17 +98,7 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
       std::cout << std::setw(4) << 2
                 << std::setw(25) << scale * vdata[i]
                 << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
-                << std::endl;
-    }
-  }
-  else
-  {
-    vdata = N_VGetArrayPointer(zn[2]);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      std::cout << std::setw(4) << 2
-                << std::setw(25) << vdata[i]
+                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
                 << std::endl;
     }
   }
@@ -117,17 +113,7 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
       std::cout << std::setw(4) << 3
                 << std::setw(25) << scale * vdata[i]
                 << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
-                << std::endl;
-    }
-  }
-  else
-  {
-    vdata = N_VGetArrayPointer(zn[3]);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      std::cout << std::setw(4) << 3
-                << std::setw(25) << vdata[i]
+                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
                 << std::endl;
     }
   }
@@ -142,17 +128,7 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
       std::cout << std::setw(4) << 4
                 << std::setw(25) << scale * vdata[i]
                 << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
-                << std::endl;
-    }
-  }
-  else
-  {
-    vdata = N_VGetArrayPointer(zn[4]);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      std::cout << std::setw(4) << 4
-                << std::setw(25) << vdata[i]
+                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
                 << std::endl;
     }
   }
@@ -167,17 +143,7 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
       std::cout << std::setw(4) << 5
                 << std::setw(25) << scale * vdata[i]
                 << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
-                << std::endl;
-    }
-  }
-  else
-  {
-    vdata = N_VGetArrayPointer(zn[5]);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      std::cout << std::setw(4) << 5
-                << std::setw(25) << vdata[i]
+                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
                 << std::endl;
     }
   }
