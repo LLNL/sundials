@@ -96,6 +96,16 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
                 << std::endl;
     }
   }
+  else
+  {
+    vdata = N_VGetArrayPointer(zn[2]);
+    for (sunindextype i = 0; i < N; i++)
+    {
+      std::cout << std::setw(4) << 2
+                << std::setw(25) << vdata[i]
+                << std::endl;
+    }
+  }
 
   if (order > 2)
   {
@@ -108,6 +118,16 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
                 << std::setw(25) << scale * vdata[i]
                 << std::setw(25) << tmpdata[i]
                 << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
+                << std::endl;
+    }
+  }
+  else
+  {
+    vdata = N_VGetArrayPointer(zn[3]);
+    for (sunindextype i = 0; i < N; i++)
+    {
+      std::cout << std::setw(4) << 3
+                << std::setw(25) << vdata[i]
                 << std::endl;
     }
   }
@@ -126,6 +146,16 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
                 << std::endl;
     }
   }
+  else
+  {
+    vdata = N_VGetArrayPointer(zn[4]);
+    for (sunindextype i = 0; i < N; i++)
+    {
+      std::cout << std::setw(4) << 4
+                << std::setw(25) << vdata[i]
+                << std::endl;
+    }
+  }
 
   if (order > 4)
   {
@@ -138,6 +168,16 @@ int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
                 << std::setw(25) << scale * vdata[i]
                 << std::setw(25) << tmpdata[i]
                 << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i])
+                << std::endl;
+    }
+  }
+  else
+  {
+    vdata = N_VGetArrayPointer(zn[5]);
+    for (sunindextype i = 0; i < N; i++)
+    {
+      std::cout << std::setw(4) << 5
+                << std::setw(25) << vdata[i]
                 << std::endl;
     }
   }
@@ -196,7 +236,6 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Initial time and final times
-  sunrealtype tret = ZERO;
   sunrealtype tf   = SUN_RCONST(10.0);
 
   // History of solution times
@@ -221,13 +260,11 @@ int main(int argc, char* argv[])
   // 27 steps - reach 5th order
   for (int i = 1; i <= 11; i++)
   {
-    flag = CVode(cvode_mem, tf, y, &tret, CV_ONE_STEP);
+    flag = CVode(cvode_mem, tf, y, &(thist[i]), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) return 1;
 
-    thist[i] = tret;
-
     std::cout << " Step Number: " << std::setw(3) << i
-              << " | Time: " << std::setw(21) << tret
+              << " | Time: " << std::setw(21) << thist[i]
               << " | Step Size: " << std::setw(21) << cv_mem->cv_h
               << " | Order: " << cv_mem->cv_q << std::endl;
 
@@ -235,6 +272,36 @@ int main(int argc, char* argv[])
     PrintNordsieck(i, thist, ytmp, cv_mem->cv_zn, cv_mem->cv_h,
                    cv_mem->cv_q, udata);
     if (check_flag(flag, "PrintNordsieck")) return 1;
+
+    // Create a new Nordsieck array
+    N_VDestroy(y);
+    N_VDestroy(ytmp);
+    y = N_VNew_Serial(i + 1, sunctx);
+    ytmp = N_VClone(y);
+    N_Vector* znew = N_VCloneVectorArray(6, y);
+    for (int j = 0; j <= 5; j++)
+    {
+      sunrealtype* zdata    = N_VGetArrayPointer(cv_mem->cv_zn[j]);
+      sunrealtype* znewdata = N_VGetArrayPointer(znew[j]);
+      for (int k = 0; k < i + 1; k++)
+      {
+        znewdata[k] = zdata[0];
+      }
+    }
+    flag = CVodeResizeHistory(cvode_mem, &thist[i], znew, 0);
+    if (check_flag(flag, "CVodeResizeHistory")) return 1;
+    N_VDestroyVectorArray(znew, 6);
+
+    // "Resize" the nonlinear solver
+    SUNNonlinSolFree(NLS);
+    NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
+    if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
+
+    flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
+    if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
+
+    flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
+    if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
   }
   std::cout << std::endl;
 

@@ -648,6 +648,70 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   return(CV_SUCCESS);
 }
 
+int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
+                       int n_hist)
+{
+  if (!cvode_mem)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeReInit", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  CVodeMem cv_mem = (CVodeMem) cvode_mem;
+
+  /* Make sure number of inputs is sufficient for the current (next) order */
+  /* Make sure times[0] == tn */
+
+  N_Vector tmpl = y_hist[0];
+  int maxord = cv_mem->cv_qmax_alloc;
+
+  N_VDestroy(cv_mem->cv_ewt);
+  cv_mem->cv_ewt = N_VClone(tmpl);
+
+  N_VDestroy(cv_mem->cv_acor);
+  cv_mem->cv_acor = N_VClone(tmpl);
+
+  N_VDestroy(cv_mem->cv_tempv);
+  cv_mem->cv_tempv = N_VClone(tmpl);
+
+  N_VDestroy(cv_mem->cv_ftemp);
+  cv_mem->cv_ftemp = N_VClone(tmpl);
+
+  N_VDestroy(cv_mem->cv_vtemp1);
+  cv_mem->cv_vtemp1 = N_VClone(tmpl);
+
+  N_VDestroy(cv_mem->cv_vtemp2);
+  cv_mem->cv_vtemp2 = N_VClone(tmpl);
+
+  N_VDestroy(cv_mem->cv_vtemp3);
+  cv_mem->cv_vtemp3 = N_VClone(tmpl);
+
+  for (int j = 0; j <= maxord; j++)
+  {
+    N_VDestroy(cv_mem->cv_zn[j]);
+    cv_mem->cv_zn[j] = N_VClone(tmpl);
+    N_VConst(NAN, cv_mem->cv_zn[j]);
+    /* For testing where new hist is actually a copy of zn */
+    N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]);
+  }
+
+  if (cv_mem->cv_VabstolMallocDone)
+  {
+    N_VDestroy(cv_mem->cv_Vabstol);
+    cv_mem->cv_Vabstol = N_VClone(tmpl);
+  }
+
+  /* User will need to set a new constraints vector */
+  if (cv_mem->cv_constraintsMallocDone)
+  {
+    N_VDestroy(cv_mem->cv_constraints);
+    cv_mem->cv_constraintsMallocDone = SUNFALSE;
+    cv_mem->cv_constraintsSet = SUNFALSE;
+  }
+
+  return CV_SUCCESS;
+}
+
+
 /*-----------------------------------------------------------------*/
 
 /*
