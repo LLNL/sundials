@@ -651,6 +651,8 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                        int n_hist)
 {
+  int retval = 0;
+
   if (!cvode_mem)
   {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeReInit", MSGCV_NO_MEM);
@@ -690,13 +692,14 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     N_VDestroy(cv_mem->cv_zn[j]);
     cv_mem->cv_zn[j] = N_VClone(tmpl);
     N_VConst(NAN, cv_mem->cv_zn[j]);
-    /* For testing where new hist is actually a copy of zn */
+    /* Test 0: Input y_hist is actually a copy of zn */
     /* N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
   }
 
+  /* Test 1: Copy yn, evaluate fn, and y_hist is actually a copy of zn */
   N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
-  int retval = cv_mem->cv_f(t_hist[0], y_hist[0],
-                            cv_mem->cv_zn[1], cv_mem->cv_user_data);
+  retval = cv_mem->cv_f(t_hist[0], y_hist[0],
+                        cv_mem->cv_zn[1], cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval)
   {
@@ -1825,6 +1828,7 @@ static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
   for (j=0; j <= cv_mem->cv_qmax; j++) {
     cv_mem->cv_zn[j] = N_VClone(tmpl);
+    N_VConst(NAN, cv_mem->cv_zn[j]);
     if (cv_mem->cv_zn[j] == NULL) {
       N_VDestroy(cv_mem->cv_ewt);
       N_VDestroy(cv_mem->cv_acor);
