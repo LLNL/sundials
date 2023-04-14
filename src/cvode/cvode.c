@@ -648,6 +648,80 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   return(CV_SUCCESS);
 }
 
+sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist)
+{
+  sunrealtype p, q, r;
+
+  p = ZERO;
+  for (int l = 0; l < 3; l++)
+  {
+    if (l == j) continue;
+    q = ZERO;
+
+    for (int i = 0; i < 3; i++)
+    {
+      if (i == j) continue;
+      if (i == l) continue;
+      r = ONE;
+
+      for (int k = 0; k < 3; k++)
+      {
+        if (k == j) continue;
+        if (k == i) continue;
+        if (k == l) continue;
+        r *= (t - t_hist[k]) / (t_hist[j] - t_hist[k]);
+      }
+      q += r / (t_hist[j] - t_hist[i]);
+    }
+    p += q / (t_hist[j] - t_hist[l]);
+  }
+
+  return p;
+}
+
+
+realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist)
+{
+  sunrealtype p, q, r, s;
+
+  p = ZERO;
+  for (int m = 0; m < 4; m++)
+  {
+    if (m == j) continue;
+    q = ZERO;
+
+    for (int l = 0; l < 4; l++)
+    {
+      if (l == j) continue;
+      if (l == m) continue;
+      r = ZERO;
+
+      for (int i = 0; i < 4; i++)
+      {
+        if (i == j) continue;
+        if (i == m) continue;
+        if (i == l) continue;
+        s = ONE;
+
+        for (int k = 0; k < 4; k++)
+        {
+          if (k == j) continue;
+          if (k == m) continue;
+          if (k == l) continue;
+          if (k == i) continue;
+          s *= (t - t_hist[k]) / (t_hist[j] - t_hist[k]);
+        }
+        r += s / (t_hist[j] - t_hist[i]);
+      }
+      q += r / (t_hist[j] - t_hist[l]);
+    }
+    p += q / (t_hist[j] - t_hist[m]);
+  }
+
+  return p;
+}
+
+
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                        int n_hist)
 {
@@ -714,6 +788,38 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     /* For testing where new hist is actually a copy of zn */
     N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]);
   }
+
+  /* Test 2: Copy yn, evaluate fn, and compute derivatives from polynomial */
+  sunrealtype a[4];
+
+  /* zn[0] = y_n-1 */
+  N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+  /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+  retval = cv_mem->cv_f(t_hist[0], y_hist[0],
+                        cv_mem->cv_zn[1], cv_mem->cv_user_data);
+  cv_mem->cv_nfe++;
+  if (retval)
+  {
+    cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                   MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+    return CV_RHSFUNC_FAIL;
+  }
+  N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+
+  /* zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) */
+  for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, t_hist[0], t_hist);
+  N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]);
+  N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO,
+           cv_mem->cv_zn[2], cv_mem->cv_zn[2]);
+
+  /* zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
+  for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist);
+  N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]);
+  N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0),
+           cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
+
+  /* >>> need to adjust q and qprime, not apply order change update <<< */
 
   if (cv_mem->cv_VabstolMallocDone)
   {
