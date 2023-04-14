@@ -807,17 +807,23 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
   N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
 
-  /* zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) */
-  for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, t_hist[0], t_hist);
-  N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]);
-  N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO,
-           cv_mem->cv_zn[2], cv_mem->cv_zn[2]);
+  /* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) */
+  if (cv_mem->cv_qprime >= 2)
+  {
+    for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, t_hist[0], t_hist);
+    N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]);
+    N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO,
+             cv_mem->cv_zn[2], cv_mem->cv_zn[2]);
+  }
 
-  /* zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
-  for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist);
-  N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]);
-  N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0),
-           cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
+  /* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
+  if (cv_mem->cv_qprimt >= 3)
+  {
+    for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist);
+    N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]);
+    N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0),
+             cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
+  }
 
   /* >>> need to adjust q and qprime, not apply order change update <<< */
 
