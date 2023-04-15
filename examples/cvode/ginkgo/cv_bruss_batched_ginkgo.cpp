@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
   auto precond_factory = gko::share(gko::preconditioner::BatchJacobi<sunrealtype>::build().on(gko_exec));
   SUNLinearSolverView LS{gko_exec, gko::stop::batch::ToleranceType::absolute,
                          nullptr, udata.nbatches, sunctx};
-  LS.setEnableScaling(true);
+  LS.setEnableScaling(2);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0) {

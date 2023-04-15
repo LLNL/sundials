@@ -88,7 +88,7 @@ public:
         solver_factory_(nullptr), solver_(nullptr), left_scale_vec_(nullptr), right_scale_vec_(nullptr),
         matrix_(nullptr), logger_(nullptr), num_blocks_(num_blocks), max_iters_(max_iters),
         avg_iter_count_(sunrealtype{0.0}), sum_of_avg_iters_(sunrealtype{0.0}), stddev_iter_count_(sunrealtype{0.0}),
-        previous_max_res_norm_(sunrealtype{0.0}), ones_(nullptr), s2inv_(nullptr), sundials::impl::BaseLinearSolver(sunctx)
+        previous_max_res_norm_(sunrealtype{0.0}), ones_(nullptr), s2inv_(nullptr), scaling_mode_(2), sundials::impl::BaseLinearSolver(sunctx)
   {
     initSUNLinSol(sunctx);
   }
@@ -139,9 +139,9 @@ public:
 
   std::shared_ptr<const gko::Executor> gkoExec() const { return gko_exec_; }
 
-  void setEnableScaling(bool onoff)
+  void setEnableScaling(int mode)
   {
-    if (!onoff) {
+    if (!mode) {
       object_->ops->setscalingvectors = nullptr;
       left_scale_vec_                 = nullptr;
       right_scale_vec_                = nullptr;
@@ -150,6 +150,7 @@ public:
       object_->ops->setscalingvectors =
           SUNLinSolSetScalingVectors_GinkgoBlock<BlockLinearSolver<GkoBatchSolverType, GkoBatchMatType>>;
     }
+    scaling_mode_ = mode;
   }
 
   SUNLinearSolver Convert() override { return object_.get(); }
@@ -183,25 +184,26 @@ public:
       return SUNLS_ILL_INPUT;
     }
 
-    setup_called_ = true;
     matrix_       = A;
 
-#ifdef GKO_SETUP_SCALING
-    SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
-    solver_factory_ = GkoBatchSolverType::build()                       //
-                          .with_default_max_iterations(max_iters_)      //
-                          .with_default_residual_tol(SUN_UNIT_ROUNDOFF) //
-                          .with_tolerance_type(tolerance_type_)         //
-                          .with_preconditioner(precon_factory_)         //
-                          .with_left_scaling_op(left_scale_vec_)        //
-                          .with_right_scaling_op(right_scale_vec_)      //
-                          .on(gkoExec());
-    SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
+    if (scaling_mode_ == 0 || scaling_mode_ == 1) {
+      SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::setup", "scaling",
+                         "using setup scaling");
+      SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
+      solver_factory_ = GkoBatchSolverType::build()                       //
+                            .with_default_max_iterations(max_iters_)      //
+                            .with_default_residual_tol(SUN_UNIT_ROUNDOFF) //
+                            .with_tolerance_type(tolerance_type_)         //
+                            .with_preconditioner(precon_factory_)         //
+                            .with_left_scaling_op(left_scale_vec_)        //
+                            .with_right_scaling_op(right_scale_vec_)      //
+                            .on(gkoExec());
+      SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
-    SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
-    solver_ = solver_factory_->generate(matrix_->GkoMtx());
-    SUNDIALS_MARK_END(sunProfiler(), "generate solver");
-#endif
+      SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
+      solver_ = solver_factory_->generate(matrix_->GkoMtx());
+      SUNDIALS_MARK_END(sunProfiler(), "generate solver");
+    }
 
     return SUNLS_SUCCESS;
   }
@@ -213,22 +215,24 @@ public:
                        "num_blocks = %d, tol = %.16g", num_blocks_, tol);
 #endif
 
-#ifdef GKO_SOLVE_SCALING
-    SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
-    solver_factory_ = GkoBatchSolverType::build()                       //
-                          .with_default_max_iterations(max_iters_)      //
-                          .with_default_residual_tol(SUN_UNIT_ROUNDOFF) //
-                          .with_tolerance_type(tolerance_type_)         //
-                          .with_preconditioner(precon_factory_)         //
-                          .with_left_scaling_op(left_scale_vec_)        //
-                          .with_right_scaling_op(right_scale_vec_)      //
-                          .on(gkoExec());
-    SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
+    if (scaling_mode_ == 2) {
+      SUNLogger_QueueMsg(sunLogger(), SUN_LOGLEVEL_INFO, "sundials::ginkgo::BlockLinearSolver::solve", "scaling",
+                         "using solve scaling");
+      SUNDIALS_MARK_BEGIN(sunProfiler(), "build solver factory");
+      solver_factory_ = GkoBatchSolverType::build()                       //
+                            .with_default_max_iterations(max_iters_)      //
+                            .with_default_residual_tol(SUN_UNIT_ROUNDOFF) //
+                            .with_tolerance_type(tolerance_type_)         //
+                            .with_preconditioner(precon_factory_)         //
+                            .with_left_scaling_op(left_scale_vec_)        //
+                            .with_right_scaling_op(right_scale_vec_)      //
+                            .on(gkoExec());
+      SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
-    SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
-    solver_ = solver_factory_->generate(matrix_->GkoMtx());
-    SUNDIALS_MARK_END(sunProfiler(), "generate solver");
-#endif
+      SUNDIALS_MARK_BEGIN(sunProfiler(), "generate solver");
+      solver_ = solver_factory_->generate(matrix_->GkoMtx());
+      SUNDIALS_MARK_END(sunProfiler(), "generate solver");
+    }
 
     SUNDIALS_MARK_BEGIN(sunProfiler(), "set tolerance");
     solver_->set_residual_tolerance(tol);
@@ -347,12 +351,12 @@ private:
   std::shared_ptr<gko::log::BatchConvergence<sunrealtype>> logger_;
   sunindextype num_blocks_;
   int max_iters_;
-  bool setup_called_;
   sunrealtype avg_iter_count_;
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
   sunrealtype previous_max_res_norm_;
   sundials::experimental::NVectorView ones_, s2inv_;
+  int scaling_mode_;
 
   void initSUNLinSol(SUNContext sunctx)
   {
