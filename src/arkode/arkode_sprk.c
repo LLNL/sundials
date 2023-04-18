@@ -25,8 +25,8 @@ ARKodeSPRKMem ARKodeSymplecticEuler() {
   ARKodeSPRKMem sprk_mem = ARKodeSPRKMem_Alloc(1);
   sprk_mem->q = 1;
   sprk_mem->stages = 1;
-  sprk_mem->b[0] = SUN_RCONST(1.0);
   sprk_mem->a[0] = SUN_RCONST(1.0);
+  sprk_mem->b[0] = SUN_RCONST(1.0);
   return sprk_mem;
 }
 
