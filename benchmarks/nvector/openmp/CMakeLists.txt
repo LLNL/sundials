@@ -29,7 +29,6 @@ sundials_add_nvector_benchmark(nvector_openmp_benchmark
 
 # NUM_NODES based on Lassen system for 1 node
 sundials_add_benchmark(nvector_openmp_benchmark nvector_openmp_benchmark
-  NUM_NODES 1
-  BENCHMARK_VAR
-    ";"
+  NUM_NODES 40
+  BENCHMARK_ARGS "10 10 10 10 10 10"
   )

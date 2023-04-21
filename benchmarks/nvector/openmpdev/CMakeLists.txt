@@ -40,7 +40,6 @@ install(TARGETS test_nvector_performance_openmpdev
 
 # NUM_NODES based on Lassen system for 1 node
 sundials_add_benchmark(test_nvector_performance_openmpdev test_nvector_performance_openmpdev
-  NUM_NODES 1
-  BENCHMARK_VAR
-    ";"
+  NUM_NODES 40
+  BENCHMARK_ARGS "10 10 10 10 10 10"
   )
