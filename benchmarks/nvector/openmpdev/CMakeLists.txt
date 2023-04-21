@@ -37,3 +37,10 @@ target_link_libraries(test_nvector_performance_openmpdev ${SUNDIALS_LIBS})
 
 install(TARGETS test_nvector_performance_openmpdev
   DESTINATION "${BENCHMARKS_INSTALL_PATH}/nvector/openmpdev")
+
+# NUM_NODES based on Lassen system for 1 node
+sundials_add_benchmark(test_nvector_performance_openmpdev test_nvector_performance_openmpdev
+  NUM_NODES 1
+  BENCHMARK_VAR
+    ";"
+  )

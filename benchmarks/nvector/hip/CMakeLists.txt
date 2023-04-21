@@ -19,3 +19,10 @@ sundials_add_nvector_benchmark(nvector_hip_benchmark
   SUNDIALS_TARGETS sundials_nvechip
   INSTALL_SUBDIR nvector/hip
   )
+
+# NUM_NODES based on Corona system for 1 node
+sundials_add_benchmark(nvector_serial_benchmark nvector_serial_benchmark
+  NUM_NODES 8
+  ENABLE_GPU
+  BENCHMARK_ARGS "10 10 10 10 10 10"
+  )

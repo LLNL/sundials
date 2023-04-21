@@ -20,3 +20,9 @@ sundials_add_nvector_benchmark(nvector_parallel_benchmark
   LINK_LIBRARIES MPI::MPI_CXX
   INSTALL_SUBDIR nvector/parallel
   )
+
+# NUM_NODES based on Lassen system for 1 node
+sundials_add_benchmark(nvector_parallel_benchmark nvector_parallel_benchmark
+  NUM_NODES 40
+  BENCHMARK_ARGS "10 10 10 10 10 10"
+  )

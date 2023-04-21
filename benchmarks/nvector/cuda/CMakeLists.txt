@@ -19,3 +19,10 @@ sundials_add_nvector_benchmark(nvector_cuda_benchmark
   SUNDIALS_TARGETS sundials_nveccuda
   INSTALL_SUBDIR nvector/cuda
   )
+
+# NUM_NODES based on 1 lassen node
+sundials_add_benchmark(nvector_cuda_benchmark nvector_cuda_benchmark
+  NUM_NODES 4
+  ENABLE_GPU
+  BENCHMARK_ARGS "10 10 10 10 10 10"
+  )

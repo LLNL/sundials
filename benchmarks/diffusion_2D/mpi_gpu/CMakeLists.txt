@@ -74,6 +74,28 @@ foreach(test_tuple ${tests})
 
   add_executable(${target} ${sources})
 
+  if("${backend}" STREQUAL "USE_CUDA")
+
+    # based on Lassen system from build_and_bench (1 nodes).
+    # sundials_add_benchmark(${target} ${target}
+    #   NUM_NODES 4
+    #   ENABLE_GPU
+    #   IDENTIFIER "d2d_${package}_cuda"
+    # )
+
+  endif()
+
+  if("${backend}" STREQUAL "USE_HIP")
+
+    # based on the Corona system for 1 node
+    sundials_add_benchmark(${target} ${target}
+      NUM_NODES 8
+      ENABLE_GPU
+      IDENTIFIER "d2d_${package}_hip"
+    )
+
+  endif()
+
   set_target_properties(${target} PROPERTIES FOLDER "Benchmarks")
 
   target_compile_definitions(${target} PRIVATE ${problem_type})
