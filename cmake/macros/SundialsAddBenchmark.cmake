@@ -21,14 +21,6 @@ macro(sundials_add_benchmark NAME EXECUTABLE)
   cmake_parse_arguments(sundials_add_benchmark
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  # command line arguments for the test runner script
-  set(TEST_RUNNER_ARGS
-    "--verbose"
-    "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-    "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}"
-    "--nodiff"
-    )
-
   # set the target name
   if(sundials_add_benchmark_IDENTIFIER)
     set(TARGET_NAME ${NAME}_${sundials_add_benchmark_IDENTIFIER})
@@ -40,6 +32,19 @@ macro(sundials_add_benchmark NAME EXECUTABLE)
       set(TARGET_NAME ${NAME}_run)
     endif()
   endif()
+
+  # Make the output directory if it doesn't exist
+  if(NOT EXISTS ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME})
+    file(MAKE_DIRECTORY ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME})
+  endif()
+
+  # command line arguments for the test runner script
+  set(TEST_RUNNER_ARGS
+    "--verbose"
+    "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
+    "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}"
+    "--nodiff"
+    )
 
   # incorporate scheduler arguments into test_runner
   if(SUNDIALS_SCHEDULER_COMMAND STREQUAL "flux run")
