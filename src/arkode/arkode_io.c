@@ -161,7 +161,7 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
      the maximum possible interpolant degree. */
   if (itype == ARK_INTERP_HERMITE) {
     ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
-  } else if (itype == ARK_INTERP_NONE) {
+  } else if (itype == ARK_INTERP_LAGRANGE) {
     ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
   } else {
     ark_mem->interp = NULL;

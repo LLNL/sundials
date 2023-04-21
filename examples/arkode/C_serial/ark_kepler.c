@@ -176,8 +176,7 @@ int main(int argc, char* argv[])
   {
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
-    /* TODO(CJB): Enabling rootfinding results in 1 extra RHS eval per time step
-       because it makes us enable Hermite interpolation, which calls fullrhs. */
+    /* Enable temporal root-finding */
     SPRKStepRootInit(arkode_mem, 1, rootfn);
     if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
 
@@ -360,6 +359,8 @@ int main(int argc, char* argv[])
   fprintf(conserved_fp, "%.16Lf, %.16Lf\n", H0, L0);
   N_VPrintFile(y, solution_fp);
 
+  N_Vector dky = N_VClone(y);
+
   /* Do integration */
   if (method == 0)
   {
@@ -383,13 +384,16 @@ int main(int argc, char* argv[])
         retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
       }
 
+      /* Show what happens when you do dense output */
+      SPRKStepGetDky(arkode_mem, tret-SUN_RCONST(0.1)*dt, 0, dky);
+
       /* Output current integration status */
       fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf, Q(p,q)-Q0 = %.16Lf\n",
-              tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0,
+              tret-SUN_RCONST(0.5)*dt, Hamiltonian(dky) - H0, AngularMomentum(dky) - L0,
               Q(y, udata->alpha) / udata->rho_np1 - Q0);
       fprintf(times_fp, "%.16Lf\n", tret);
-      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
-              AngularMomentum(y));
+      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(dky),
+              AngularMomentum(dky));
 
       SPRKStepGetLastStep(arkode_mem, &hlast);
       fprintf(udata->hhist_fp, "%.16Lf\n", hlast);

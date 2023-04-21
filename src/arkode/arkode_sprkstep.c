@@ -152,6 +152,12 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
     return (NULL);
   }
 
+  /* We use Lagrange interpolation by default otherwise extra RHS calls are
+     needed. This is because we cannot reuse the f2 RHS in TakeStep since it is
+     a staggered time step. Additionally, it seems Lagrange interpolation does
+     a better job of conservation. */
+  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+
   return ((void*)ark_mem);
 }
 
@@ -410,7 +416,9 @@ int sprkStep_Init(void* arkode_mem, int init_type)
       case 7:
       case 8: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_8); break;
       case 9:
-      case 10: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_10); break;
+      case 10:
+        step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_10);
+        break;
       default: step_mem->method = ARKodeSPRKMem_Load(SPRKSTEP_DEFAULT_4); break;
       }
     }
@@ -420,15 +428,9 @@ int sprkStep_Init(void* arkode_mem, int init_type)
    */
   ark_mem->call_fullrhs = SUNFALSE;
 
-  if (ark_mem->fixedstep && !ark_mem->root_mem)
-  {
-    /* In fixed step mode, we do not need an interpolation module.
-       If adaptivity or rootfinding is enabled, we will need it. */
-    arkSetInterpolantType(ark_mem, ARK_INTERP_NONE);
-  }
-
   // TODO(CJB): setting this to NULL is not supported in arkode right now.
-  // Should this really exist in fixed step mode? ark_mem->hadapt_mem = NULL;
+  // Should this really exist in fixed step mode? 
+  // ark_mem->hadapt_mem = NULL;
 
   return (ARK_SUCCESS);
 }
@@ -481,7 +483,6 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
   f1(t,y) and f2(t,y) in sdata for possible reuse in the first stage
   of the subsequent time step.
 
-  TODO(CJB): the reuse is not yet supported
   If it is called in ARK_FULLRHS_END mode and the method coefficients
   support it, we may just copy the stage vectors to fill f instead
   of calling f().
@@ -506,85 +507,8 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   /* perform RHS functions contingent on 'mode' argument */
   switch (mode)
   {
-  /* ARK_FULLRHS_START: called at the beginning of a simulation
-     Store the vectors f1(t,y) in sdata for possible reuse
-     in the first stage of the subsequent time step.
-     We don't store f2(t,y) because it is not reusable in
-     the subsequent time step (which calls it with a updated state). */
   case ARK_FULLRHS_START:
-
-    /* Since the RHS is component-wise split, we assume that only the relevant
-       components are modified in a call to f1/f2. Under this assumption we can
-       call both with the same output vector. */
-    retval = sprkStep_f1(step_mem, t, y, step_mem->sdata, ark_mem->user_data);
-    if (retval != 0)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-
-    /* Copy sdata into the output vector f */
-    N_VScale(ONE, step_mem->sdata, f);
-
-    retval = sprkStep_f2(step_mem, t, y, f, ark_mem->user_data);
-    if (retval != 0)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-
-    break;
-
-  /* ARK_FULLRHS_END: called at the end of a successful step
-     If the method coefficients support it, we just copy the last stage RHS
-     vectors to fill f instead of calling f(t,y).
-     Copy the results to sdata if the coefficients support it. */
   case ARK_FULLRHS_END:
-
-    /* TODO(CJB): Right now we cannot leverage this because we do
-       not store the function evals for reuse anywhere. Consider
-       doing this if it does drastically increase storage. */
-
-    /* determine if explicit RHS function needs to be recomputed */
-    recomputeRHS = SUNFALSE;
-    if (SUNRabs(step_mem->method->a[step_mem->method->stages - 1] - ONE) > TINY)
-    {
-      recomputeRHS = SUNTRUE;
-    }
-
-    /* base RHS calls on recomputeRHS argument */
-    // if (recomputeRHS) {
-
-    retval = sprkStep_f1(step_mem, t, y, step_mem->sdata, ark_mem->user_data);
-    if (retval != 0)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-
-    /* Copy sdata into the output vector f */
-    N_VScale(ONE, step_mem->sdata, f);
-
-    retval = sprkStep_f2(step_mem, t, y, f, ark_mem->user_data);
-    if (retval != 0)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-
-    // } else {
-    // N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->sdata);
-    // }
-
-    break;
-
-  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
-      store the intermediate calculations in such a way as to not
-      interfere with the other two modes */
   case ARK_FULLRHS_OTHER:
 
     retval = sprkStep_f1(step_mem, t, y, f, ark_mem->user_data);
