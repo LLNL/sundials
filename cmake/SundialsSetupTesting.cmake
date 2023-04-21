@@ -99,3 +99,16 @@ if(EXAMPLES_INSTALL)
     "All installation tests complete.")
 
 endif()
+
+# If benchmarks are enabled, set up `make benchmark`
+# Use the test runner to set up benchmarking
+if(BUILD_BENCHMARKS)
+
+  message("SUNDIALS Benchmarking")
+  
+  # Create benchmark targets
+  add_custom_target(benchmark
+    ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+    "All benchmarks complete."
+  )
+endif()
