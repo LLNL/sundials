@@ -726,6 +726,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   for(;;) {
 
     ark_mem->next_h = ark_mem->h;
+    // fprintf(stderr, ">>> next_h=%g\n", (double) ark_mem->next_h);
 
     /* Reset and check ewt and rwt */
     if (!ark_mem->initsetup) {

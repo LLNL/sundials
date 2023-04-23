@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
@@ -163,6 +164,13 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt",
                     "Error in accuracy-based adaptivity function.");
     return (ARK_ILL_INPUT);
+  }
+
+  /* TODO(CJB): with the Symplectic controller, I want ARKODE to take exactly the step my adaptivity function says to take. */
+  if (hadapt_mem->imethod == ARK_ADAPT_CUSTOM) {
+    ark_mem->eta = ONE;
+    ark_mem->h = h_acc;
+    return ARK_SUCCESS;
   }
 
   /* determine direction of integration */
