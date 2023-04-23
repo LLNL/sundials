@@ -13,11 +13,11 @@ def load_results(case):
 # sprk1 = load_results('_sprk-1')
 # sprk2 = load_results('_sprk-2')
 # sprk3 = load_results('_sprk-3')
-sprk4 = load_results('_sprk-4-dt-0.010000')
+sprk4 = load_results('_sprkinc-4-dt-1.00e-01')
 # sprk5 = load_results('_sprk-5')
 # erk2 = load_results('_erk-2')
 # erk3 = load_results('_erk-3')
-erk4 = load_results('_erk-4-dt-0.010000')
+erk4 = load_results('_sprk-4-dt-1.00e-01')
 # erk5 = load_results('_erk-8')
 
 all_to_compare = []
@@ -35,15 +35,10 @@ all_to_compare.append(erk4)
 # all_to_compare.append(sprkinc3)
 
 legend = []
-# legend.append(r'$O(h^1)$ SPRK')
-# legend.append(r'$O(h^2)$ SPRK')
-# legend.append(r'$O(h^3)$ SPRK')
-legend.append(r'$O(h^4)$ SPRK')
-# legend.append(r'$O(h^5)$ SPRK')
-# legend.append(r'$O(h^2)$ ERK')
-# legend.append(r'$O(h^3)$ ERK')
-legend.append(r'$O(h^4)$ ERK')
-# legend.append(r'$O(h^5)$ ERK')
+legend.append(r'$O(h^4)$ SPRK error in E')
+legend.append(r'$O(h^4)$ ERK error in E')
+legend.append(r'$O(h^4)$ SPRK error in L')
+legend.append(r'$O(h^4)$ ERK error in L')
 
 h = 0.01
 t = erk4[0]
@@ -57,16 +52,6 @@ energy = np.array(energy)
 energy_0 = np.array(energy_0)
 energy_diff = np.abs(energy.T - energy_0)
 
-plt.figure(dpi=200)
-plt.title('Error in Energy')
-plt.plot(t, energy_diff)
-plt.ylabel(r'$| H(t,p,q) - H(t_0,p_0,q_0) |$')
-plt.xlabel('<---  t  --->')
-plt.xscale('log')
-plt.yscale('log')
-plt.legend(legend)
-plt.savefig('ark_kepler_energy_compare.png')
-
 momentum = []
 momentum_0 = []
 for _, _, consv in all_to_compare:
@@ -77,14 +62,16 @@ momentum_0 = np.array(momentum_0)
 momentum_diff = np.abs(momentum.T - momentum_0)
 
 plt.figure(dpi=200)
-plt.title('Error in Momentum, h = %g' % h)
-plt.plot(t, momentum_diff)
-plt.ylabel(r'$| L(t,p,q) - L(t_0,p_0,q_0) |$')
+plt.title('Error in Momentum')
+# plt.plot(t, np.abs(energy_diff))
+plt.plot(t, np.abs(momentum_diff))
+plt.ylabel('Error')
 plt.xlabel('<---  t  --->')
 plt.xscale('log')
 plt.yscale('log')
 plt.legend(legend)
-plt.savefig('ark_kepler_momentum_compare.png')
+plt.savefig('ark_kepler_error_energy_momentum_comparison.png')
+plt.close()
 
 # _, sol1, _ = sprk1
 # _, sol2, _ = sprkinc1
@@ -100,33 +87,33 @@ plt.savefig('ark_kepler_momentum_compare.png')
 # plt.legend(legend)
 # plt.savefig('ark_kepler_phase_compare.png')
 
-#
-#  Time plot.
-#
-plt.figure(dpi=200)
-for _, y, _ in all_to_compare:
-  plt.plot(t, y[:,0], linewidth = 2)
-  plt.plot(t, y[:,1], linewidth = 2)
-  plt.plot(t, y[:,2], linewidth = 2)
-  plt.plot(t, y[:,3], linewidth = 2)
-plt.legend(legend)
-plt.grid(True)
-plt.xlabel('<---  t  --->')
-plt.ylabel('<---  y(1:4)  --->')
-plt.title('ark_kepler: Solution in Time')
-plt.savefig('ark_kepler_solution_compare.png')
-plt.close()
+# #
+# #  Time plot.
+# #
+# plt.figure(dpi=200)
+# for _, y, _ in all_to_compare:
+#   plt.plot(t, y[:,0], linewidth = 2)
+#   plt.plot(t, y[:,1], linewidth = 2)
+#   plt.plot(t, y[:,2], linewidth = 2)
+#   plt.plot(t, y[:,3], linewidth = 2)
+# plt.legend(legend)
+# plt.grid(True)
+# plt.xlabel('<---  t  --->')
+# plt.ylabel('<---  y(1:4)  --->')
+# plt.title('ark_kepler: Solution in Time')
+# plt.savefig('ark_kepler_solution_compare.png')
+# plt.close()
 
-#
-#  Phase plot.
-#
-plt.figure(dpi=200)
-for _, y, _ in all_to_compare:
-  plt.plot(y[:,0], y[:,1], linewidth = 2)
-plt.legend(legend)
-plt.grid(True)
-plt.xlabel('<---  y1  --->')
-plt.ylabel('<---  y2  --->')
-plt.title('ark_kepler: Phase Plot')
-plt.savefig('ark_kepler_phase_compare.png')
-plt.close()
+# #
+# #  Phase plot.
+# #
+# plt.figure(dpi=200)
+# for _, y, _ in all_to_compare:
+#   plt.plot(y[:,0], y[:,1], linewidth = 2)
+# plt.legend(legend)
+# plt.grid(True)
+# plt.xlabel('<---  y1  --->')
+# plt.ylabel('<---  y2  --->')
+# plt.title('ark_kepler: Phase Plot')
+# plt.savefig('ark_kepler_phase_compare.png')
+# plt.close()
