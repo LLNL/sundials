@@ -85,6 +85,7 @@ module farkode_erkstep_mod
  public :: FERKStepSetMinStep
  public :: FERKStepSetMaxStep
  public :: FERKStepSetStopTime
+ public :: FERKStepClearStopTime
  public :: FERKStepSetFixedStep
  public :: FERKStepSetMaxNumConstrFails
  public :: FERKStepSetRootDirection
@@ -466,6 +467,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepClearStopTime(farg1) &
+bind(C, name="_wrap_FERKStepClearStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -1483,6 +1492,19 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = tstop
 fresult = swigc_FERKStepSetStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepClearStopTime(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FERKStepClearStopTime(farg1)
 swig_result = fresult
 end function
 

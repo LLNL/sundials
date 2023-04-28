@@ -11,10 +11,10 @@
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-# Tags and rules to run tests on Lassen
+# Tags and rules to run tests on Corona
 # ------------------------------------------------------------------------------
 
-# Generic corona build job, extending build script for IBM P9 systems
+# Generic Corona build job, extending build script for Toss 4 x86_64 Systems
 .corona_build_and_test:
   tags:
     - shell
@@ -29,7 +29,7 @@
     when: always
   rules:
     # Don't run if...
-    - if: '$CI_COMMIT_BRANCH =~ /_lnone/ || $ON_CORONA == "OFF" || $BENCHMARK == "ON"'
+    - if: '$CI_COMMIT_BRANCH =~ /_cnone/ || $ON_CORONA == "OFF" || $BENCHMARK == "ON"'
       when: never
     # Default is to run if previous stage succeeded
     - when: on_success

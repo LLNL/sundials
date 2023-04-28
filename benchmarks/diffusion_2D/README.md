@@ -8,24 +8,26 @@ required.
 
 This code simulates the anisotropic 2D heat equation,
 
-$$\frac{\partial u}{\partial t} = k_x \frac{\partial^2 u}{\partial x^2} + k_y \frac{\partial^2 u}{\partial y^2} + b,$$
+$$\frac{\partial u}{\partial t} = \nabla \cdot (D \nabla u) + b(t, \mathbf{x})$$
 
-where $k_x$ and $k_y$ are the diffusion coefficients. The system is evolved for
-$t$ in $[0, t_f]$ and $(x,y) = X$ in $[0, X_{max}]^2$ with the initial condition
+where $D$ is a diagonal matrix with entries $k_x$ and $k_y$. The system is
+evolved for $t \in [0, t_f]$ on the rectangular domain
+$(x,y) \equiv \mathbf{x} \in [\mathbf{0}, \mathbf{x}_{\text{max}}]^2$, with the
+initial condition
 
-$$u(0,X) = \sin^2(\pi x) \sin^2(\pi y),$$
+$$u(0,\mathbf{x}) = \sin^2(\pi x) \sin^2(\pi y),$$
 
 and stationary boundary conditions
 
-$$\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,x_{max},y) = \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,y_{max}) = 0.$$
+$$\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,x_{\text{max}},y) = \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,y_{\text{max}}) = 0.$$
 
 The source term is given by
 
-$$b(t,X) = -2 \pi \sin^2(\pi x) \sin^2(\pi y) \sin(\pi t) \cos(\pi t) - k_x 2 \pi^2 (\cos^2(\pi x) - \sin^2(\pi x)) \sin^2(\pi y) \cos^2(\pi t) - k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x) \cos^2(\pi t).$$
+$$b(t,\mathbf{x}) = -2 \pi \sin^2(\pi x) \sin^2(\pi y) \sin(\pi t) \cos(\pi t) - k_x 2 \pi^2 (\cos^2(\pi x) - \sin^2(\pi x)) \sin^2(\pi y) \cos^2(\pi t) - k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x) \cos^2(\pi t).$$
 
 Under this setup, the problem has the analytical solution
 
-$$u(t,X) = \sin^2(\pi x) \sin^2(\pi y) \cos^2(\pi t).$$
+$$u(t,\mathbf{x}) = \sin^2(\pi x) \sin^2(\pi y) \cos^2(\pi t).$$
 
 Spatial derivatives are computed using second-order centered differences on a
 uniform spatial grid. The problem can be evolved in time with ARKODE, CVODE, or
@@ -33,11 +35,12 @@ IDA. With ARKODE, an adaptive step diagonally implicit Runge-Kutta (DIRK) method
 is applied. When using CVODE or IDA, adaptive order and step BDF methods are
 used.
 
-In all cases, the nonlinear system(s) in each time step are solved using an
-inexact Newton method paired with a matrix-free PCG or GMRES linear solver and a
-Jacobi preconditioner. If SUNDIALS is built with the SuperLU_DIST interface enabled
-a modified Newton method with SuperLU_DIST as the direct linear solver may also be
-selected at run time.
+By default, the nonlinear system(s) in each time step are solved using an
+inexact Newton method paired with a matrix-free CG linear solver and a Jacobi
+preconditioner. A matrix-free GMRES linear solver may be selected at run time.
+If SUNDIALS is built with the SuperLU_DIST interface enabled a modified Newton
+method with SuperLU_DIST as the direct linear solver may also be selected at run
+time.
 
 ## Options
 
@@ -53,10 +56,10 @@ listed below.
 | `--npy <int>`                        | Number of MPI tasks in the y-direction (0 forces MPI to decide)                          | 0       |
 | `--nx <int>`                         | Number of mesh points in the x-direction                                                 | 32      |
 | `--ny <int>`                         | Number of mesh points in the y-direction                                                 | 32      |
-| `--ux <realtype>`                    | The domain upper bound in the x-direction `x_max`                                        | 1.0     |
-| `--uy <realtype>`                    | The domain upper bound in the y-direction `y_max`                                        | 1.0     |
-| `--kx <realtype>`                    | Diffusion coefficient in the x-direction `kx`                                            | 1.0     |
-| `--ky <realtype>`                    | Diffusion coefficient in the y-direction `ky`                                            | 1.0     |
+| `--xu <realtype>`                    | The domain upper bound in the x-direction $x_{\text{max}}$                               | 1.0     |
+| `--yu <realtype>`                    | The domain upper bound in the y-direction $y_{\text{max}}$                               | 1.0     |
+| `--kx <realtype>`                    | Diffusion coefficient in the x-direction $k_x$                                           | 1.0     |
+| `--ky <realtype>`                    | Diffusion coefficient in the y-direction $k_y$                                           | 1.0     |
 | `--tf <realtype>`                    | The final time `tf`                                                                      | 1.0     |
 | `--noforcing`                        | Disable the forcing term                                                                 | Enabled |
 | Output Options                       |                                                                                          |         |
@@ -94,9 +97,11 @@ Based on the configuration, executables for each integrator and backend option
 are built and installed in `<BENCHMARKS_INSTALL_PATH>/diffusion_2D`. The
 executables follow the naming convention `<package>_diffusion_2D_<parallelism>`
 where `<package>` is `arkode`, `cvode`, or `ida` and `<parallelism>` is `mpi` for
-MPI only parallelism, `mpicuda` for MPI + CUDA, and `mpihip` for MPI + HIP. Note
-when using the SuperLU_DIST linear solver computations will be offloaded to the
-GPU in the MPI only executables if CUDA or ROCM support is enabled in SuperLU_DIST.
+MPI only parallelism, `mpicuda` for MPI + CUDA, and `mpihip` for MPI + HIP.
+
+**Note:** When using the SuperLU_DIST linear solver computations will be
+offloaded to the GPU in the MPI only executables if CUDA or ROCM support is
+enabled in SuperLU_DIST.
 
 On Summit, with the default environment
 ```

@@ -271,7 +271,8 @@ Updating Spack
 To update the spack commit used for the CI:
 
 1. The first thing to do is update the spack commit in the ``.uberenv_config.json`` file.
-2. Then, a pipeline should be manually launched from the GitLab UI with the ``SHARED_SPACK`` CI variable set to ``ON`` and the ``SPACK_PREFIX`` variable to the version of spack being set in the uberenv_config.json. 
+2. Then, a pipeline should be manually launched from the GitLab UI with the ``SHARED_SPACK`` CI variable set
+to ``ON`` and the ``SPACK_PREFIX`` variable to the version of spack being set in the uberenv_config.json. 
 
 This will create a new spack installation and rebuild all of the specs. 
 
