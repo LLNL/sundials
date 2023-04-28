@@ -73,9 +73,9 @@ foreach(test_tuple ${tests})
   install(TARGETS ${target}
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 
-  # NUM_NODES based 1 node for testing purposes
+  # NUM_CORES based 1 node for testing purposes
   sundials_add_benchmark(${target} ${target}
-    NUM_NODES 40
+    NUM_CORES 32
     IDENTIFIER "d2d_${package}_serial"
   )
 

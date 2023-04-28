@@ -78,7 +78,7 @@ foreach(test_tuple ${tests})
 
     # based on Lassen system from build_and_bench (1 nodes).
     # sundials_add_benchmark(${target} ${target}
-    #   NUM_NODES 4
+    #   NUM_CORES 2
     #   ENABLE_GPU
     #   IDENTIFIER "d2d_${package}_cuda"
     # )
@@ -89,7 +89,7 @@ foreach(test_tuple ${tests})
 
     # based on the Corona system for 1 node
     sundials_add_benchmark(${target} ${target}
-      NUM_NODES 8
+      NUM_CORES 8
       ENABLE_GPU
       IDENTIFIER "d2d_${package}_hip"
     )

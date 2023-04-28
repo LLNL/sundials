@@ -21,7 +21,7 @@ foreach(backend ${KOKKOS_EXAMPLES_BACKENDS})
     )
 
   sundials_add_benchmark(test_nvector_performance_kokkos.${backend} test_nvector_performance_kokkos.${backend}
-    NUM_NODES 4
+    NUM_CORES 4
     ENABLE_GPU
     BENCHMARK_ARGS "10 10 10 10 10 10"
   )

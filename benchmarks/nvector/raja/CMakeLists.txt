@@ -43,7 +43,7 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
     )
   
   sundials_add_benchmark(${example_target} ${example_target}
-    NUM_NODES 4
+    NUM_CORES 4
     ENABLE_GPU
     BENCHMARK_ARGS "10 10 10 10 10 10"
     )

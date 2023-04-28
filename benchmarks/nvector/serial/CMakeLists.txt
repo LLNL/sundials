@@ -22,8 +22,8 @@ sundials_add_nvector_benchmark(nvector_serial_benchmark
   INSTALL_SUBDIR nvector/serial
   )
 
-# NUM_NODES based on Lassen system for 1 node
+# NUM_CORES based on Lassen system for 1 node
 sundials_add_benchmark(nvector_serial_benchmark nvector_serial_benchmark
-  NUM_NODES 40
+  NUM_CORES 40
   BENCHMARK_ARGS "10 10 10 10 10 10"
   )

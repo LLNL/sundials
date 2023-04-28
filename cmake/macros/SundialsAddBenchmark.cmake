@@ -7,10 +7,10 @@
 macro(sundials_add_benchmark NAME EXECUTABLE)
   # Define single value parameters the macro takes in to set up the test runner
   #
-  # NUM_NODES         = number of nodes (GPU count or CPU count) to run on or number of resource sets
+  # NUM_CORES         = number of cores (GPU count or CPU count) to run on or number of resource sets
   # BENCHMARK_ARGS    = arguments to pass to the executable
   # IDENTIFIER        = suffix to append to end of benchmark name
-  set(oneValueArgs NUM_NODES BENCHMARK_ARGS IDENTIFIER)
+  set(oneValueArgs NUM_CORES BENCHMARK_ARGS IDENTIFIER)
 
   # TEST_RUNNER_ARGS  = command line arguments to pass to the test executable
   set(multiValueArgs TEST_RUNNER_ARGS )
@@ -45,22 +45,23 @@ macro(sundials_add_benchmark NAME EXECUTABLE)
     "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}"
     "--nodiff"
     )
-
+  
   # incorporate scheduler arguments into test_runner
   if(SUNDIALS_SCHEDULER_COMMAND STREQUAL "flux run")
-    set(SCHEDULER_STRING " -nnodes=${sundials_add_benchmark_NUM_NODES}")
+    set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES}")
   elseif(SUNDIALS_SCHEDULER_COMMAND STREQUAL "jsrun" AND ${sundials_add_benchmark_ENABLE_GPU})
-    set(SCHEDULER_STRING " --smpiargs=\\\"-gpu\\\" -n${sundials_add_benchmark_NUM_NODES} -a1 -c1 -g1")
+    set(SCHEDULER_STRING " --smpiargs=\\\"-gpu\\\" -n${sundials_add_benchmark_NUM_CORES} -a1 -c1 -g1")
   elseif(SUNDIALS_SCHEDULER_COMMAND STREQUAL "jsrun")
-    set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_NODES} -a1 -c1")
+    set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES} -a1 -c1")
   elseif(SUNDIALS_SCHEDULER_COMMAND STREQUAL "srun")
-    set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_NODES} --cpus-per-task=1 --ntasks-per-node=1")
+    set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES} --cpus-per-task=1 --ntasks-per-node=1")
   endif()
   string(REPLACE " " ";" SCHEDULER_ARGS "${SCHEDULER_STRING}")
+  string(REPLACE " " ";" SCHEDULER_COMMAND_ARGS "${SUNDIALS_SCHEDULER_COMMAND}")
 
   # taken from SundialsAddTest
   string(STRIP "${RUN_COMMAND}" RUN_COMMAND)
-  set(RUN_COMMAND ${SUNDIALS_SCHEDULER_COMMAND} ${SCHEDULER_ARGS})
+  set(RUN_COMMAND ${SCHEDULER_COMMAND_ARGS} ${SCHEDULER_ARGS})
   list(APPEND TEST_RUNNER_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
   # enable test runner to set up caliper output paths and configs

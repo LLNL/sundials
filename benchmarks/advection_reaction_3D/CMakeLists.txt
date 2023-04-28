@@ -63,13 +63,13 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     "--method IDA --nls newton --tf 10.0 --dont-save\;ida_newton"
     )
 
-  # NUM_NODES based on Lassen system for 1 node
+  # NUM_CORES based on Lassen system for 1 node
   foreach(benchmark_tuple ${BENCHMARK_VAR})
     list(GET benchmark_tuple 0 benchmark_args)
     list(GET benchmark_tuple 1 identifier)
 
     sundials_add_benchmark(advection_reaction_3D advection_reaction_3D
-      NUM_NODES 40
+      NUM_CORES 40
       BENCHMARK_ARGS ${benchmark_args}
       IDENTIFIER ${identifier}
       )
@@ -127,14 +127,14 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
         "--method CV-BDF --nls newton --tf 10.0 --dont-save\;cvbdf_newton_cuda"
         "--method IDA --nls newton --tf 10.0 --dont-save\;ida_newton_cuda"
       )
-    # NUM_NODES based on Lassen system for 1 node
+    # NUM_CORES based on Lassen system for 1 node
     foreach(benchmark_tuple ${BENCHMARK_VAR})
       list(GET benchmark_tuple 0 benchmark_args)
       list(GET benchmark_tuple 1 identifier)
 
       sundials_add_benchmark(advection_reaction_3D_mpicuda advection_reaction_3D_mpicuda
         ENABLE_GPU
-        NUM_NODES 4
+        NUM_CORES 4
         BENCHMARK_ARGS ${benchmark_args}
         IDENTIFIER ${identifier}
         )
@@ -180,7 +180,6 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     install(TARGETS advection_reaction_3D_mpihip
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
-    # NUM_NODES based on Corona system for 1 node
     set(BENCHMARK_VAR 
         "--method ARK-IMEX --nls tl-newton --tf 10.0 --dont-save\;arkimex_tlnewton_hip"
         "--method ARK-DIRK --nls newton --tf 10.0 --dont-save\;arkdirk_newton_hip"
@@ -193,9 +192,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       list(GET benchmark_tuple 0 benchmark_args)
       list(GET benchmark_tuple 1 identifier)
 
+      # NUM_CORES based on Corona system for 1 node
       sundials_add_benchmark(advection_reaction_3D_mpihip advection_reaction_3D_mpihip
         ENABLE_GPU
-        NUM_NODES 8
+        NUM_CORES 8
         BENCHMARK_ARGS ${benchmark_args}
         IDENTIFIER ${identifier}
         )
