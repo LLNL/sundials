@@ -58,6 +58,11 @@ if(ENABLE_CALIPER)
   set(SUNDIALS_CALIPER_ENABLED TRUE)
 endif()
 
+# prepare substitution variable SUNDIALS_ADIAK_ENABLED for sundials_config.h
+if(ENABLE_ADIAK)
+  set(SUNDIALS_ADIAK_ENABLED TRUE)
+endif()
+
 # prepare substitution variable SUNDIALS_MPI_ENABLED for sundials_config.h
 if(ENABLE_MPI)
   set(SUNDIALS_MPI_ENABLED TRUE)

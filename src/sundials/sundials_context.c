@@ -30,6 +30,10 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
 
+#if defined(SUNDIALS_ADIAK_ENABLED)
+  adiak_helper();
+#endif
+
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
 #endif
@@ -193,6 +197,11 @@ int SUNContext_Free(SUNContext* sunctx)
   }
 #endif
 
+#if defined(SUNDIALS_ENABLE_ADIAK)
+  adiak_fini();
+  adiak_clean();
+#endif
+
   if ((*sunctx)->logger && (*sunctx)->own_logger)
   {
     SUNLogger_Destroy(&(*sunctx)->logger);
@@ -203,3 +212,22 @@ int SUNContext_Free(SUNContext* sunctx)
 
   return (0);
 }
+
+#if defined(SUNDIALS_ENABLE_ADIAK)
+static void adiak_helper() {
+  adiak_user();
+  adiak_uid();
+  adiak_launchdate();
+  adiak_executable();
+  adiak_cmdline();
+  adiak_hostname();
+  adiak_clustername();
+
+  adiak_job_size();
+  adiak_hostlist();
+  
+  adiak_walltime();
+  adiak_cputime();
+  adiak_systime();
+}
+#endif
