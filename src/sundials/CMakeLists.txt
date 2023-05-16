@@ -113,6 +113,10 @@ if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
   if(ENABLE_CALIPER)
     set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
     set(_link_caliper_if_needed PUBLIC caliper)
+    if(ENABLE_ADIAK)
+      set(_include_adiak_if_needed PUBLIC ${adiak_INCLUDE_DIRS})
+      set(_link_adiak_if_needed PUBLIC ${adiak_LIBARIES} ${CMAKE_DL_LIBS})
+    endif()
   endif()
 endif()
 
@@ -127,9 +131,11 @@ sundials_add_library(sundials_generic
   INCLUDE_DIRECTORIES
     ${_include_mpi_if_needed}
     ${_include_caliper_if_needed}
+    ${_include_adiak_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
     ${_link_caliper_if_needed}
+    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_generic
   VERSION

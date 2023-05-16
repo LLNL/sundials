@@ -112,6 +112,9 @@
 /* Caliper */
 #cmakedefine SUNDIALS_CALIPER_ENABLED
 
+/* Adiak */
+#cmakedefine SUNDIALS_ADIAK_ENABLED
+
 /* Ginkgo backends */
 #cmakedefine SUNDIALS_GINKGO_BACKENDS_CUDA
 #cmakedefine SUNDIALS_GINKGO_BACKENDS_HIP
@@ -142,6 +145,9 @@
 #cmakedefine SUNDIALS_RAJA_BACKENDS_CUDA
 #cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
 #cmakedefine SUNDIALS_RAJA_BACKENDS_SYCL
+
+/* RAJA version number */
+#define RAJA_VERSION @RAJA_PACKAGE_VERSION@
 
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled

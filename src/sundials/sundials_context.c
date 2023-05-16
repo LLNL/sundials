@@ -15,6 +15,8 @@
  * SUNDIALS objects in a simulation share.
  * ----------------------------------------------------------------*/
 
+#include "adiak.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,13 +31,13 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
-
-#if defined(SUNDIALS_ADIAK_ENABLED)
-  adiak_helper();
-#endif
-
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
+#endif
+
+#ifdef SUNDIALS_ADIAK_ENABLED 
+  adiak_init(comm);
+  sun_adiak_helper();
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL > 0 
@@ -197,9 +199,9 @@ int SUNContext_Free(SUNContext* sunctx)
   }
 #endif
 
-#if defined(SUNDIALS_ENABLE_ADIAK)
+#ifdef SUNDIALS_ADIAK_ENABLED
+  // adiak_clean();
   adiak_fini();
-  adiak_clean();
 #endif
 
   if ((*sunctx)->logger && (*sunctx)->own_logger)
@@ -213,8 +215,8 @@ int SUNContext_Free(SUNContext* sunctx)
   return (0);
 }
 
-#if defined(SUNDIALS_ENABLE_ADIAK)
-static void adiak_helper() {
+#ifdef SUNDIALS_ADIAK_ENABLED
+static void sun_adiak_helper() {
   adiak_user();
   adiak_uid();
   adiak_launchdate();
@@ -225,9 +227,12 @@ static void adiak_helper() {
 
   adiak_job_size();
   adiak_hostlist();
+
+  // make the c version
+  adiak_namevalue("sample_variable", (adiak_category_t)(1), "import.category" "%s", "example");
   
-  adiak_walltime();
-  adiak_cputime();
-  adiak_systime();
+#ifdef SUNDIALS_RAJA_INCLUDED
+  adiak_namevalue("raja_version", static_cast<adiak_category_t>(2), "import.category", "%s", RAJA_VERSION);
+#endif
 }
 #endif

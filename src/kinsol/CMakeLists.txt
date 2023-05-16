@@ -42,6 +42,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
   set(_link_caliper_if_needed PUBLIC caliper)
+  if(ENABLE_ADIAK)
+    set(_include_adiak_if_needed PUBLIC ${adiak_INCLUDE_DIRe})
+    set(_link_adiak_if_needed PUBLIC ${adiak_LIBARIES} ${CMAKE_DL_LIBS})
+  endif()
 endif()
 
 # Create the library
@@ -54,6 +58,7 @@ sundials_add_library(sundials_kinsol
     kinsol
   INCLUDE_DIRECTORIES
     ${_include_caliper_if_needed}
+    ${_include_adiak_if_needed}
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_sunmemsys_obj
@@ -71,6 +76,7 @@ sundials_add_library(sundials_kinsol
   LINK_LIBRARIES
     # Link to caliper if conditions are met.
     ${_link_caliper_if_needed}
+    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_kinsol
   VERSION
