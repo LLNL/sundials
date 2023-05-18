@@ -105,6 +105,16 @@
 #define SUNDIALS_MAX_SPRINTF_SIZE @SUNDIALS_MAX_SPRINTF_SIZE@
 #endif
 
+/* Build metadata */
+#define SUN_CXX_COMPILER "@CMAKE_CXX_COMPILER_ID@"
+#define SUN_CXX_COMPILER_VERSION "@CMAKE_CXX_COMPILER_VERSION@"
+#define SUN_CXX_COMPILER_FLAGS "@CMAKE_CXX_FLAGS@"
+
+#define SUN_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+
+#cmakedefine SUNDIALS_CI_JOB
+#cmakedefine SUN_CI_JOB_ID
+
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
  * -----------------------------------------------------------------*/
@@ -141,13 +151,32 @@
   */
 #cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
 
+/* RAJA */
+#cmakedefine SUNDIALS_RAJA_ENABLED
+
 /* RAJA backends */
 #cmakedefine SUNDIALS_RAJA_BACKENDS_CUDA
 #cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
 #cmakedefine SUNDIALS_RAJA_BACKENDS_SYCL
 
-/* RAJA version number */
-#define RAJA_VERSION @RAJA_PACKAGE_VERSION@
+/* RAJA version number*/
+#define SUN_RAJA_VERSION "@RAJA_VERSION@"
+
+/* OpenMP *
+#cmakedefine SUNDIALS_OPENMP_ENABLED
+#define SUN_OPENMP_VERSION "@OpenMP_VERSION@"
+
+/* ------------------------------------------------------------------
+ * SUNDIALS language macros
+ * -----------------------------------------------------------------*/
+
+/* CUDA */
+#cmakedefine SUNDIALS_CUDA_ENABLED
+#define SUN_CUDA_VERSION "@CMAKE_CUDA_COMPILER_VERSION@"
+
+/* HIP */
+#cmakedefine SUNDIALS_HIP_ENABLED
+#define SUN_HIP_VERSION "@HIP_VERSION@"
 
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled

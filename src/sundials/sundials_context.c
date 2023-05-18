@@ -15,7 +15,9 @@
  * SUNDIALS objects in a simulation share.
  * ----------------------------------------------------------------*/
 
+#ifdef SUNDIALS_ADIAK_ENABLED 
 #include "adiak.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -200,7 +202,6 @@ int SUNContext_Free(SUNContext* sunctx)
 #endif
 
 #ifdef SUNDIALS_ADIAK_ENABLED
-  // adiak_clean();
   adiak_fini();
 #endif
 
@@ -217,22 +218,39 @@ int SUNContext_Free(SUNContext* sunctx)
 
 #ifdef SUNDIALS_ADIAK_ENABLED
 static void sun_adiak_helper() {
-  adiak_user();
-  adiak_uid();
   adiak_launchdate();
   adiak_executable();
   adiak_cmdline();
-  adiak_hostname();
   adiak_clustername();
 
   adiak_job_size();
   adiak_hostlist();
+  adiak_num_hosts();
 
-  // make the c version
-  adiak_namevalue("sample_variable", (adiak_category_t)(1), "import.category" "%s", "example");
-  
-#ifdef SUNDIALS_RAJA_INCLUDED
-  adiak_namevalue("raja_version", static_cast<adiak_category_t>(2), "import.category", "%s", RAJA_VERSION);
+  adiak_namevalue("cxx_compiler", 2, NULL, "%s", SUN_CXX_COMPILER);
+  adiak_namevalue("cxx_compiler_version", 2, NULL, "%s", SUN_CXX_COMPILER_VERSION);
+  adiak_namevalue("cxx_compiler_flags", 2, NULL, "%s", SUN_CXX_COMPILER_FLAGS);
+
+  adiak_namevalue("build_type", 2, NULL, "%s", SUN_BUILD_TYPE);
+
+#ifdef SUNDIALS_CI_JOB
+  adiak_namevalue("ci_job_id", 2, NULL, "%s", SUN_CI_JOB_ID);
+#endif
+
+#ifdef SUNDIALS_RAJA_ENABLED
+  adiak_namevalue("raja_version", 2, NULL, "%s", SUN_RAJA_VERSION);
+#endif
+
+#ifdef SUNDIALS_OPENMP_ENABLED
+  adiak_namevalue("openmp_version", 2, NULL, "%s", SUN_OPENMP_VERSION);
+#endif
+
+#ifdef SUNDIALS_CUDA_ENABLED
+  adiak_namevalue("cuda_version", 2, NULL, "%s", SUN_CUDA_VERSION);
+#endif
+
+#ifdef SUNDIALS_HIP_ENABLED
+  adiak_namevalue("hip_version", 2, NULL, "%s", SUN_HIP_VERSION);
 #endif
 }
 #endif

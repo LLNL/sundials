@@ -39,6 +39,11 @@ else()
   set(SUNDIALS_USE_GENERIC_MATH TRUE)
 endif()
 
+if($ENV{CI_JOB_ID})
+  set(SUNDIALS_CI_JOB TRUE)
+  set(SUN_CI_JOB_ID $ENV{CI_JOB_ID})
+endif()
+
 # ============================================================================
 # Generate macros and substitution variables related to TPLs
 # that SUNDIALS is being built with.
@@ -71,6 +76,21 @@ endif()
 # prepare substitution variable SUNDIALS_TRILINOS_HAVE_MPI for sundials_config.h
 if(Trilinos_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
+endif()
+
+# prepare substitution variable SUNDIALS_RAJA_ENABLED for sundials_config.h
+if(ENABLE_RAJA)
+  set(SUNDIALS_RAJA_ENABLED TRUE)
+endif()
+
+# prepare substitution variable SUNDIALS_CUDA_ENABLED for sundials_config.h
+if(ENABLE_CUDA)
+  set(SUNDIALS_CUDA_ENABLED TRUE)
+endif()
+
+# prepare substitution variable SUNDIALS_MPI_ENABLED for sundials_config.h
+if(ENABLE_HIP)
+  set(SUNDIALS_HIP_ENABLED TRUE)
 endif()
 
 # prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
