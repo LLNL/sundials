@@ -20,9 +20,3 @@ sundials_add_nvector_benchmark(nvector_mpiplusx_benchmark
   LINK_LIBRARIES MPI::MPI_CXX
   INSTALL_SUBDIR nvector/mpiplusx
   )
-
-# NUM_CORES based on Lassen system for 1 node
-sundials_add_benchmark(nvector_mpiplusx_benchmark nvector_mpiplusx_benchmark
-  NUM_CORES 40
-  BENCHMARK_ARGS "10 10 10 10 10 10"
-  )

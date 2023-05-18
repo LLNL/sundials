@@ -20,9 +20,3 @@ sundials_add_nvector_benchmark(nvector_cuda_benchmark
   INSTALL_SUBDIR nvector/cuda
   )
 
-# NUM_CORES based on 1 lassen node
-sundials_add_benchmark(nvector_cuda_benchmark nvector_cuda_benchmark
-  NUM_CORES 4
-  ENABLE_GPU
-  BENCHMARK_ARGS "10 10 10 10 10 10"
-  )

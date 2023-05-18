@@ -22,9 +22,3 @@ sundials_add_nvector_benchmark(nvector_pthreads_benchmark
   LINK_LIBRARIES Threads::Threads
   INSTALL_SUBDIR nvector/pthreads
   )
-
-# NUM_CORES based on Lassen system for 1 node
-sundials_add_benchmark(nvector_pthreads_benchmark nvector_pthreads_benchmark
-  NUM_CORES 40
-  BENCHMARK_ARGS "10 10 10 10 10 10"
-  )

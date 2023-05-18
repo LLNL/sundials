@@ -22,9 +22,3 @@ sundials_add_nvector_benchmark(nvector_parhyp_benchmark
   LINK_LIBRARIES MPI::MPI_C SUNDIALS::HYPRE
   INSTALL_SUBDIR nvector/parhyp
   )
-
-# NUM_CORES based on Lassen system for 1 node
-sundials_add_benchmark(nvector_parhyp_benchmark nvector_parhyp_benchmark
-  NUM_CORES 40
-  BENCHMARK_ARGS "10 10 10 10 10 10"
-  )

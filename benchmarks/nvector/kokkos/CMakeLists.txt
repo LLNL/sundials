@@ -20,12 +20,6 @@ foreach(backend ${KOKKOS_EXAMPLES_BACKENDS})
     INSTALL_SUBDIR nvector/kokkos
     )
 
-  sundials_add_benchmark(test_nvector_performance_kokkos.${backend} test_nvector_performance_kokkos.${backend}
-    NUM_CORES 4
-    ENABLE_GPU
-    BENCHMARK_ARGS "10 10 10 10 10 10"
-  )
-
   target_compile_definitions(test_nvector_performance_kokkos.${backend} PRIVATE USE_${backend})
 
   install(TARGETS test_nvector_performance_kokkos.${backend}

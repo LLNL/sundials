@@ -22,9 +22,3 @@ sundials_add_nvector_benchmark(nvector_petsc_benchmark
   LINK_LIBRARIES MPI::MPI_C PUBLIC SUNDIALS::PETSC
   INSTALL_SUBDIR nvector/petsc
   )
-
-# NUM_CORES based on Lassen system for 1 node
-sundials_add_benchmark(nvector_petsc_benchmark nvector_petsc_benchmark
-  NUM_CORES 40
-  BENCHMARK_ARGS "10 10 10 10 10 10"
-  )

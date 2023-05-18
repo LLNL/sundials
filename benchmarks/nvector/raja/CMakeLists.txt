@@ -41,12 +41,6 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
     SOURCES test_nvector_performance_raja.cpp
     SUNDIALS_TARGETS sundials_nvecraja
     )
-  
-  sundials_add_benchmark(${example_target} ${example_target}
-    NUM_CORES 4
-    ENABLE_GPU
-    BENCHMARK_ARGS "10 10 10 10 10 10"
-    )
 
   target_compile_definitions(${example_target}
     PRIVATE ${_defines})
