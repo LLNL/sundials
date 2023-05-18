@@ -297,4 +297,5 @@ sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STIRNG "Job scheduler command to use to launch SUNDIALS MPI tests." "" ADVANCED)
 
-sundials_option(SUNDIALS_BENCHMARK_OUTPUT_DIR STRING "Specify where to put benchmark output." "/usr/workspace/pan13/sundials/benchmarks" ADVANCED)
+sundials_option(SUNDIALS_PROFILE_OUTPUT_DIR STRING "Specify where to put benchmark output." "" DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING ADVANCED)
+

@@ -94,6 +94,10 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         list(APPEND TEST_ARGS "--profile")
       endif()
 
+      # if(SUNDIALS_PROFILING_OUTPUT_DIR AND SUNDIALS_TEST_PROFILE)
+      #  list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_PROFILING_OUTPUT_DIR}")
+      # else
+
       # check for a non-default output directory
       if(SUNDIALS_TEST_OUTPUT_DIR)
         list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}")
