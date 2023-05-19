@@ -63,16 +63,13 @@
 /* Main Program */
 int main(int argc, char *argv[])
 {
-  SUNContext ctx;
-
   /* Initialize MPI */
   MPI_Comm comm = MPI_COMM_WORLD;
   MPI_Init(&argc, &argv);
 
-  /* Create SUNDIALS context */
-  SUNContext_Create((void*) &comm, &ctx);
-
   {
+    sundials::Context ctx;
+
     /* general problem variables */
     N_Vector     y = NULL;      /* empty solution vector        */
     UserData     udata(ctx);    /* user data                    */
@@ -133,7 +130,6 @@ int main(int argc, char *argv[])
     SUNMemoryHelper_Destroy(mem_helper);
   }
 
-  SUNContext_Free(&ctx);
   MPI_Finalize();
   return(0);
 }
