@@ -72,15 +72,6 @@ int main(int argc, char *argv[])
   /* Create SUNDIALS context */
   SUNContext_Create((void*) &comm, &ctx);
 
-  /* Create SUNDIALS memory helper */
-#if defined(USE_CUDA)
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Cuda(ctx);
-#elif defined(USE_HIP)
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Hip(ctx);
-#else
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(ctx);
-#endif
-
   {
     /* general problem variables */
     N_Vector     y = NULL;      /* empty solution vector        */
@@ -90,6 +81,15 @@ int main(int argc, char *argv[])
     char         fname[MXSTR];
 
     SUNDIALS_CXX_MARK_FUNCTION(udata.prof);
+
+  /* Create SUNDIALS memory helper */
+#if defined(USE_CUDA)
+    SUNMemoryHelper mem_helper = SUNMemoryHelper_Cuda(ctx);
+#elif defined(USE_HIP)
+    SUNMemoryHelper mem_helper = SUNMemoryHelper_Hip(ctx);
+#else
+    SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(ctx);
+#endif
 
     /* Process input args and setup the problem */
     retval = SetupProblem(argc, argv, &udata, &uopt, mem_helper, ctx);
@@ -130,9 +130,9 @@ int main(int argc, char *argv[])
     /* Clean up */
     N_VDestroy(N_VGetLocalVector_MPIPlusX(y));
     N_VDestroy(y);
+    SUNMemoryHelper_Destroy(mem_helper);
   }
 
-  SUNMemoryHelper_Destroy(mem_helper);
   SUNContext_Free(&ctx);
   MPI_Finalize();
   return(0);
