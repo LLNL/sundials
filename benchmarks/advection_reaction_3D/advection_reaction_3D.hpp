@@ -24,6 +24,7 @@
 #include <RAJA/RAJA.hpp>
 #include <sundials/sundials_context.h>
 #include <nvector/nvector_mpiplusx.h>
+#include <sundials/sundials_memory.hpp>
 
 #include "check_retval.h"
 #include "backends.hpp"
@@ -78,6 +79,7 @@ struct UserOptions
 struct UserData
 {
   SUNContext ctx;
+  SUNMemoryHelper helper;
   SUNProfiler prof;
 
   /* MPI data */
@@ -122,7 +124,7 @@ struct UserData
   UserOptions* uopt;
 
   /* constructor that takes the context */
-  UserData(SUNContext ctx) : ctx(ctx) {
+  UserData(SUNContext ctx, SUNMemoryHelper helper) : ctx(ctx),  helper(helper){
     SUNContext_GetProfiler(ctx, &prof);
   }
 
@@ -167,8 +169,7 @@ int ExchangeAllStart(N_Vector y, UserData* udata);
 int ExchangeAllEnd(UserData* udata);
 
 /* functions for processing command line args */
-int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
-                 SUNMemoryHelper memhelper, SUNContext ctx);
+int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt);
 void InputError(char *name);
 
 /* function to write solution to disk */

@@ -57,10 +57,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
   set(BENCHMARK_VAR
-    "--method ARK-IMEX --nls tl-newton --tf 10.0 --dont-save\;arkimex_tlnewton"
-    "--method ARK-DIRK --nls newton --tf 10.0 --dont-save\;arkdirk_newton"
-    "--method CV-BDF --nls newton --tf 10.0 --dont-save\;cvbdf_newton"
-    "--method IDA --nls newton --tf 10.0 --dont-save\;ida_newton"
+    "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton"
+    "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton"
+    "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton"
+    "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton"
     )
 
   # NUM_CORES based on Lassen system for 1 node
@@ -122,10 +122,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
     set(BENCHMARK_VAR
-        "--method ARK-IMEX --nls tl-newton --tf 10.0 --dont-save\;arkimex_tlnewton_cuda"
-        "--method ARK-DIRK --nls newton --tf 10.0 --dont-save\;arkdirk_newton_cuda"
-        "--method CV-BDF --nls newton --tf 10.0 --dont-save\;cvbdf_newton_cuda"
-        "--method IDA --nls newton --tf 10.0 --dont-save\;ida_newton_cuda"
+        "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton_cuda"
+        "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton_cuda"
+        "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton_cuda"
+        "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton_cuda"
       )
     # NUM_CORES based on Lassen system for 1 node
     foreach(benchmark_tuple ${BENCHMARK_VAR})
@@ -181,10 +181,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
     set(BENCHMARK_VAR 
-        "--method ARK-IMEX --nls tl-newton --tf 10.0 --dont-save\;arkimex_tlnewton_hip"
-        "--method ARK-DIRK --nls newton --tf 10.0 --dont-save\;arkdirk_newton_hip"
-        "--method CV-BDF --nls newton --tf 10.0 --dont-save\;cvbdf_newton_hip"
-        "--method IDA --nls newton --tf 10.0 --dont-save\;ida_newton_hip"
+        "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton_hip"
+        "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton_hip"
+        "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton_hip"
+        "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton_hip"
       )
 
 

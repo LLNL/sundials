@@ -19,4 +19,3 @@ sundials_add_nvector_benchmark(nvector_cuda_benchmark
   SUNDIALS_TARGETS sundials_nveccuda
   INSTALL_SUBDIR nvector/cuda
   )
-

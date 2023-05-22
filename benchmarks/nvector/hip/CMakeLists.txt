@@ -19,4 +19,3 @@ sundials_add_nvector_benchmark(nvector_hip_benchmark
   SUNDIALS_TARGETS sundials_nvechip
   INSTALL_SUBDIR nvector/hip
   )
-

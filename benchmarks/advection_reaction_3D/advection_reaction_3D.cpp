@@ -60,10 +60,13 @@
 
 #include "advection_reaction_3D.hpp"
 
+using namespace sundials::experimental;
+
 /* Main Program */
 int main(int argc, char *argv[])
 {
   SUNContext ctx;
+  SUNProfiler prof;
 
   /* Initialize MPI */
   MPI_Comm comm = MPI_COMM_WORLD;
@@ -71,28 +74,32 @@ int main(int argc, char *argv[])
 
   /* Create SUNDIALS context */
   SUNContext_Create((void*) &comm, &ctx);
+  SUNContext_GetProfiler(ctx, &prof);
 
   {
+    SUNDIALS_CXX_MARK_FUNCTION(prof);
+
+    /* Create SUNDIALS memory helper */
+#if defined(USE_CUDA)
+    SUNMemoryHelperView mem_helper(SUNMemoryHelper_Cuda(ctx));
+    //SUNMemoryHelper mem_helper = SUNMemoryHelper_Cuda(ctx);
+#elif defined(USE_HIP)
+    SUNMemoryHelperView mem_helper(SUNMemoryHelper_Hip(ctx));
+    //SUNMemoryHelper mem_helper = SUNMemoryHelper_Hip(ctx);
+#else
+    SUNMemoryHelperView mem_helper(SUNMemoryHelper_Sys(ctx));
+    //SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(ctx);
+#endif
+
     /* general problem variables */
     N_Vector     y = NULL;      /* empty solution vector        */
-    UserData     udata(ctx);    /* user data                    */
+    UserData     udata(ctx, mem_helper);    /* user data                    */
     UserOptions  uopt;          /* user options                 */
     int          retval;        /* reusable error-checking flag */
     char         fname[MXSTR];
 
-    SUNDIALS_CXX_MARK_FUNCTION(udata.prof);
-
-  /* Create SUNDIALS memory helper */
-#if defined(USE_CUDA)
-    SUNMemoryHelper mem_helper = SUNMemoryHelper_Cuda(ctx);
-#elif defined(USE_HIP)
-    SUNMemoryHelper mem_helper = SUNMemoryHelper_Hip(ctx);
-#else
-    SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(ctx);
-#endif
-
     /* Process input args and setup the problem */
-    retval = SetupProblem(argc, argv, &udata, &uopt, mem_helper, ctx);
+    retval = SetupProblem(argc, argv, &udata, &uopt);
     if (check_retval(&retval, "SetupProblem", 1, udata.myid)) MPI_Abort(comm, 1);
 
     /* Create solution vector */
@@ -130,7 +137,6 @@ int main(int argc, char *argv[])
     /* Clean up */
     N_VDestroy(N_VGetLocalVector_MPIPlusX(y));
     N_VDestroy(y);
-    SUNMemoryHelper_Destroy(mem_helper);
   }
 
   SUNContext_Free(&ctx);
@@ -512,8 +518,7 @@ int ComponentMask(N_Vector mask, int component, const UserData* udata)
 
 
 /* Parses the CLI arguments and sets up the problem */
-int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
-                 SUNMemoryHelper memhelper, SUNContext ctx)
+int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt)
 {
   constexpr int STENCIL_WIDTH = 1;
 
@@ -574,12 +579,12 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   const sunindextype npts[] = {uopt->npts, uopt->npts, uopt->npts};
   const realtype amax[] = {0.0, 0.0, 0.0};
   const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
-  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(memhelper,
+  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(udata->helper,
     &udata->comm, amax, bmax, npts, 3, BoundaryType::PERIODIC, StencilType::UPWIND, STENCIL_WIDTH, uopt->npxyz
   );
 
   /* Create the solution masks */
-  udata->umask = N_VMake_MPIPlusX(udata->comm, LocalNvector(udata->grid->neq, ctx), ctx);
+  udata->umask = N_VMake_MPIPlusX(udata->comm, LocalNvector(udata->grid->neq, udata->ctx), udata->ctx);
   udata->vmask = N_VClone(udata->umask);
   udata->wmask = N_VClone(udata->umask);
   ComponentMask(udata->umask, 0, udata);
