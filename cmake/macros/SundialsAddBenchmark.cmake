@@ -7,7 +7,7 @@
 macro(sundials_add_benchmark NAME EXECUTABLE)
   # Define single value parameters the macro takes in to set up the test runner
   #
-  # NUM_CORES         = number of cores (GPU count or CPU count) to run on or number of resource sets
+  # NUM_CORES         = number of cores (GPU count or CPU count) to run on/number of resource sets
   # BENCHMARK_ARGS    = arguments to pass to the executable
   # IDENTIFIER        = suffix to append to end of benchmark name
   set(oneValueArgs NUM_CORES BENCHMARK_ARGS IDENTIFIER)
@@ -33,22 +33,13 @@ macro(sundials_add_benchmark NAME EXECUTABLE)
     endif()
   endif()
 
-  # Make the output directory if it doesn't exist
-  #if(NOT EXISTS ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
-  #  file(MAKE_DIRECTORY ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
-  #endif()
+  if(NOT DEFINED SUNDIALS_CALI_DIR)
+    set(SUNDIALS_CALI_DIR ${PROJECT_BINARY_DIR}/Benchmarking)   
+  endif()
 
-  # check if the env variable exists
-  if(DEFINED ENV{SUNDIALS_CALI_DIR})
-    set(SUNDIALS_CALI_DIR $ENV{SUNDIALS_CALI_DIR})
-    if(NOT EXISTS ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
-      file(MAKE_DIRECTORY ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
-    endif()
-  else()
-    set(SUNDIALS_CALI_DIR ${PROJECT_BINARY_DIR}/Benchmarking)
-    if(NOT EXISTS ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
-      file(MAKE_DIRECTORY ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
-    endif()    
+  # make the caliper output directory if it doesn't exist
+  if(NOT EXISTS ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
+    file(MAKE_DIRECTORY ${SUNDIALS_CALI_DIR}/${TARGET_NAME})
   endif()
 
   # command line arguments for the test runner script

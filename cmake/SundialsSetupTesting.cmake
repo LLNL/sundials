@@ -62,6 +62,13 @@ if(SUNDIALS_TEST_DEVTESTS)
     endif()
   endif()
 
+  # If SUNDIALS_CALI_DIR was provided make sure it exists
+  if(DEFINED(SUNDIALS_CALI_DIR))
+    if(NOT EXISTS ${SUNDIALS_CALI_DIR}/tests)
+      file(MAKE_DIRECTORY ${SUNDIALS_CALI_DIR}/tests)
+    endif()
+  endif()
+
   # Check if using non-default comparison precisions when testing
   if(SUNDIALS_TEST_FLOAT_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default float precision: ${SUNDIALS_TEST_FLOAT_PRECISION}")
@@ -101,7 +108,6 @@ if(EXAMPLES_INSTALL)
 endif()
 
 # If benchmarks are enabled, set up `make benchmark`
-# Use the test runner to set up benchmarking
 if(BUILD_BENCHMARKS)
 
   message("SUNDIALS Benchmarking")
