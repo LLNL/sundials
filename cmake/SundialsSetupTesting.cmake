@@ -62,10 +62,10 @@ if(SUNDIALS_TEST_DEVTESTS)
     endif()
   endif()
 
-  # If SUNDIALS_CALI_DIR was provided make sure it exists
-  if(DEFINED(SUNDIALS_CALI_DIR))
-    if(NOT EXISTS ${SUNDIALS_CALI_DIR}/tests)
-      file(MAKE_DIRECTORY ${SUNDIALS_CALI_DIR}/tests)
+  # If SUNDIALS_CALIPER_OUTPUT_DIR was provided make sure it exists
+  if(SUNDIALS_CALIPER_OUTPUT_DIR)
+    if(NOT EXISTS ${SUNDIALS_CALIPER_OUTPUT_DIR}/tests)
+      file(MAKE_DIRECTORY ${SUNDIALS_CALIPER_OUTPUT_DIR}/tests)
     endif()
   endif()
 

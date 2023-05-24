@@ -297,4 +297,4 @@ sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 
-sundials_option(SUNDIALS_CALI_DIR STRING "Location to write caliper files" "" ADVANCED)
+sundials_option(SUNDIALS_CALIPER_OUTPUT_DIR STRING "Location to write caliper files" "" ADVANCED)

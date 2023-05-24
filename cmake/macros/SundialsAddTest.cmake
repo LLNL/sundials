@@ -94,9 +94,9 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         list(APPEND TEST_ARGS "--profile")
       endif()
 
-      # set califile output directory
-      if(DEFINED(SUNDIALS_CALI_DIR) AND SUNDIALS_TEST_PROFILE)
-        list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_CALI_DIR}/tests")
+      # set califile output directory if profiling
+      if(SUNDIALS_CALIPER_OUTPUT_DIR AND SUNDIALS_TEST_PROFILE)
+        list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_CALIPER_OUTPUT_DIR}/tests")
       else()
         # check for a non-default output directory
         if(SUNDIALS_TEST_OUTPUT_DIR)

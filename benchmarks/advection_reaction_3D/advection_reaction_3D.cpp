@@ -139,7 +139,6 @@ int main(int argc, char *argv[])
     N_VDestroy(y);
   }
 
-  SUNContext_Free(&ctx);
   MPI_Finalize();
   return(0);
 }
