@@ -49,8 +49,8 @@ if(SUNDIALS_TEST_DEVTESTS)
   # If a non-default output directory was provided make sure it exists
   if(SUNDIALS_TEST_OUTPUT_DIR)
     message(STATUS "Using non-default test output directory: ${SUNDIALS_TEST_OUTPUT_DIR}")
-    if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR})
-      file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR})
+    if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR}/Testing)
+      file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR}/Testing)
     endif()
   endif()
 
@@ -59,13 +59,6 @@ if(SUNDIALS_TEST_DEVTESTS)
     message(STATUS "Using non-default test answer directory: ${SUNDIALS_TEST_ANSWER_DIR}")
     if(NOT EXISTS ${SUNDIALS_TEST_ANSWER_DIR})
       print_error("SUNDIALS_TEST_ANSWER_DIR does not exist!")
-    endif()
-  endif()
-
-  # If SUNDIALS_CALIPER_OUTPUT_DIR was provided make sure it exists
-  if(SUNDIALS_CALIPER_OUTPUT_DIR)
-    if(NOT EXISTS ${SUNDIALS_CALIPER_OUTPUT_DIR}/tests)
-      file(MAKE_DIRECTORY ${SUNDIALS_CALIPER_OUTPUT_DIR}/tests)
     endif()
   endif()
 
