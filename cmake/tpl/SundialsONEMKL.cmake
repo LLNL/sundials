@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -52,11 +52,19 @@ endif()
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
 
+# Workaround bug in MKLConfig.cmake when using icpx -fsycl instead of dpcpp as
+# the C++ compiler
+if(ENABLE_SYCL)
+  set(DPCPP_COMPILER ON)
+endif()
+
 # Look for CMake configuration file in oneMKL installation
 find_package(MKL CONFIG
              PATHS "${ONEMKL_DIR}" "${ONEMKL_DIR}/lib/cmake/mkl"
              NO_DEFAULT_PATH
              REQUIRED)
+
+message(STATUS "MKL Targets: ${MKL_IMPORTED_TARGETS}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL

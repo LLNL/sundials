@@ -7,37 +7,40 @@ required.
 ## Problem description
 
 This code simulates the anisotropic 2D heat equation,
-```
-    u_t = kx u_xx + ky u_yy + b,
-```
-where `kx` and `ky` are the diffusion coefficients. The system is evolved for
-`t` in `[0, tf]` and `(x,y) = X` in `[0, X_max]^2` with the initial condition
-```
-    u(0,X) = sin^2(pi x) sin^2(pi y),
-```
+
+$$\frac{\partial u}{\partial t} = \nabla \cdot (D \nabla u) + b(t, \mathbf{x})$$
+
+where $D$ is a diagonal matrix with entries $k_x$ and $k_y$. The system is
+evolved for $t \in [0, t_f]$ on the rectangular domain
+$(x,y) \equiv \mathbf{x} \in [\mathbf{0}, \mathbf{x}_{\text{max}}]^2$, with the
+initial condition
+
+$$u(0,\mathbf{x}) = \sin^2(\pi x) \sin^2(\pi y),$$
+
 and stationary boundary conditions
-```
-     u_t(t,0,y) = u_t(t,x_max,y) = u_t(t,x,0) = u_t(t,x,y_max) = 0.
-```
+
+$$\frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,x_{\text{max}},y) = \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,y_{\text{max}}) = 0.$$
+
 The source term is given by
-```
-     b(t,X) = -2 pi sin^2(pi x) sin^2(pi y) sin(pi t) cos(pi t)
-              - kx 2 pi^2 (cos^2(pi x) - sin^2(pi x)) sin^2(pi y) cos^2(pi t)
-              - ky 2 pi^2 (cos^2(pi y) - sin^2(pi y)) sin^2(pi x) cos^2(pi t).
-```
+
+$$b(t,\mathbf{x}) = -2 \pi \sin^2(\pi x) \sin^2(\pi y) \sin(\pi t) \cos(\pi t) - k_x 2 \pi^2 (\cos^2(\pi x) - \sin^2(\pi x)) \sin^2(\pi y) \cos^2(\pi t) - k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x) \cos^2(\pi t).$$
+
 Under this setup, the problem has the analytical solution
-```
-     u(t,X) = sin^2(pi x) sin^2(pi y) cos^2(pi t).
-```
+
+$$u(t,\mathbf{x}) = \sin^2(\pi x) \sin^2(\pi y) \cos^2(\pi t).$$
+
 Spatial derivatives are computed using second-order centered differences on a
 uniform spatial grid. The problem can be evolved in time with ARKODE, CVODE, or
 IDA. With ARKODE, an adaptive step diagonally implicit Runge-Kutta (DIRK) method
 is applied. When using CVODE or IDA, adaptive order and step BDF methods are
 used.
 
-In all cases, the nonlinear system(s) in each time step are solved using an
-inexact Newton method paired with a matrix-free PCG or GMRES linear solver and a
-Jacobi preconditioner.
+By default, the nonlinear system(s) in each time step are solved using an
+inexact Newton method paired with a matrix-free CG linear solver and a Jacobi
+preconditioner. A matrix-free GMRES linear solver may be selected at run time.
+If SUNDIALS is built with the SuperLU_DIST interface enabled a modified Newton
+method with SuperLU_DIST as the direct linear solver may also be selected at run
+time.
 
 ## Options
 
@@ -53,10 +56,10 @@ listed below.
 | `--npy <int>`                        | Number of MPI tasks in the y-direction (0 forces MPI to decide)                          | 0       |
 | `--nx <int>`                         | Number of mesh points in the x-direction                                                 | 32      |
 | `--ny <int>`                         | Number of mesh points in the y-direction                                                 | 32      |
-| `--ux <realtype>`                    | The domain upper bound in the x-direction `x_max`                                        | 1.0     |
-| `--uy <realtype>`                    | The domain upper bound in the y-direction `y_max`                                        | 1.0     |
-| `--kx <realtype>`                    | Diffusion coefficient in the x-direction `kx`                                            | 1.0     |
-| `--ky <realtype>`                    | Diffusion coefficient in the y-direction `ky`                                            | 1.0     |
+| `--xu <realtype>`                    | The domain upper bound in the x-direction $x_{\text{max}}$                               | 1.0     |
+| `--yu <realtype>`                    | The domain upper bound in the y-direction $y_{\text{max}}$                               | 1.0     |
+| `--kx <realtype>`                    | Diffusion coefficient in the x-direction $k_x$                                           | 1.0     |
+| `--ky <realtype>`                    | Diffusion coefficient in the y-direction $k_y$                                           | 1.0     |
 | `--tf <realtype>`                    | The final time `tf`                                                                      | 1.0     |
 | `--noforcing`                        | Disable the forcing term                                                                 | Enabled |
 | Output Options                       |                                                                                          |         |
@@ -67,7 +70,7 @@ listed below.
 | `--atol <realtype>`                  | Absolute tolerance                                                                       | 1e-10   |
 | `--maxsteps <int>`                   | Max number of steps between outputs (0 uses the integrator default)                      | 0       |
 | `--onstep <int>`                     | Number of steps to run using `ONE_STEP` mode for debugging (0 uses `NORMAL` mode)        | 0       |
-| `--gmres`                            | Use GMRES rather than PCG                                                                | PCG     |
+| `--ls <cg,gmres,sludist>`            | Linear solver: CG, GMRES, or SuperLU_DIST                                                | cg      |
 | `--lsinfo`                           | Output linear solver diagnostics                                                         | Off     |
 | `--liniters <int>`                   | Number of linear iterations                                                              | 20      |
 | `--epslin <realtype>`                | Linear solve tolerance factor (0 uses the integrator default)                            | 0       |
@@ -78,20 +81,27 @@ listed below.
 | `--nonlinear`                        | Treat the problem as nonlinearly implicit                                                | Linear  |
 | `--diagnostics`                      | Output integrator diagnostics                                                            | Off     |
 
-## Running
+## Building
 
 To build the benchmark executables SUNDIALS should be configured with ARKODE,
-CVODE, or IDA enabled and with MPI support on. Additionally, either CUDA or HIP
-support must be on to build executables utilizing NVIDIA or AMD GPUs. See the
-installation guide for more details on configuring, building, and installing
-SUNDIALS.
+CVODE, or IDA enabled, MPI support turned on, and benchmarks enabled. If
+SUNDIALS is configured with SuperLU_DIST enabled this linear solver can be
+selected at run time and may utilizie OpenMP, CUDA, or ROCM (HIP) for on-node
+parallelism. If SUNDIALS is configured with CUDA or HIP support enabled
+additional executables utilizing CUDA and HIP will be built. See the SUNDIALS
+installation guide for more details on configuring, building, and installing.
+
+## Running
 
 Based on the configuration, executables for each integrator and backend option
-are built and installed in the `<install prefix>/bin/benchmarks/diffusion_2D`
-directory. The executables follow the naming convention
-`<package>_diffusion_2D_<parallelism>` where `<package>` is `arkode`,
-`cvode`, or `ida` and `<parallelism>` is `mpi` for MPI only parallelism,
-`mpicuda` for MPI + CUDA, and `mpihip` for MPI + HIP.
+are built and installed in `<BENCHMARKS_INSTALL_PATH>/diffusion_2D`. The
+executables follow the naming convention `<package>_diffusion_2D_<parallelism>`
+where `<package>` is `arkode`, `cvode`, or `ida` and `<parallelism>` is `mpi` for
+MPI only parallelism, `mpicuda` for MPI + CUDA, and `mpihip` for MPI + HIP.
+
+**Note:** When using the SuperLU_DIST linear solver computations will be
+offloaded to the GPU in the MPI only executables if CUDA or ROCM support is
+enabled in SuperLU_DIST.
 
 On Summit, with the default environment
 ```
@@ -113,4 +123,15 @@ On Lassen, with the environment
 an example `jsrun` command using CUDA-aware MPI is
 ```
 jsrun -n 2 -a 1 -c 1 -g 1 ./cvode_diffusion_2D_mpicuda
+```
+
+On Crusher, with the environment
+```
+  Compiler: clang/14.0.2
+  MPI: cray-mpich/8.1.17
+  ROCM: rocm/5.2.0
+```
+an example `srun` command is
+```
+srun -N1 -n8 -c1 --gpus-per-node=8 --gpu-bind=closest ./cvode_diffusion_2D_mpi
 ```

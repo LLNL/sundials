@@ -16,7 +16,7 @@
 if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
   if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
-    set(OTHER_RAJA_LIBS OpenMP::OpenMP_CXX)
+    set(OTHER_LIBS OpenMP::OpenMP_CXX)
   endif()
 
   # ----------------------------------------------------------------------------
@@ -53,10 +53,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     ${OTHER_LIBS})
 
   install(TARGETS advection_reaction_3D_raja
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D/raja")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   install(FILES README.md ../scripts/compare_error.py ../scripts/compute_error.py ../scripts/pickle_solution_output.py
-    DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D/raja")
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   # ----------------------------------------------------------------------------
   # MPI + CUDA
@@ -103,7 +103,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     target_compile_definitions(advection_reaction_3D_raja_mpicuda PRIVATE USE_CUDA_NVEC)
 
     install(TARGETS advection_reaction_3D_raja_mpicuda
-      DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D/raja")
+      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   endif()
 
@@ -144,7 +144,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     target_compile_definitions(advection_reaction_3D_raja_mpihip PRIVATE USE_HIP_NVEC)
 
     install(TARGETS advection_reaction_3D_raja_mpihip
-      DESTINATION "${CMAKE_INSTALL_BINDIR}/benchmarks/advection_reaction_3D/raja")
+      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   endif()
 

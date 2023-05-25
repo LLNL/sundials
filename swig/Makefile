@@ -2,7 +2,7 @@
 # Programmer: Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -103,8 +103,8 @@ sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 	done
 
 patch: .FORCE
-	cd ..; git apply swig/fnvector-getarraypointer.patch
-
+	cd ..; 
+	
 clean:
 	rm ../src/**/fmod/*.c; rm ../src/**/fmod/*.f90
 

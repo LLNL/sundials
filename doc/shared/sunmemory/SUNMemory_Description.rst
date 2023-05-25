@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -33,6 +33,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
         void*         ptr;
         SUNMemoryType type;
         booleantype   own;
+        size_t        bytes;
       };
 
 
@@ -64,6 +65,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       {
         void*               content;
         SUNMemoryHelper_Ops ops;
+        SUNContext          sunctx;
       };
 
 
@@ -88,6 +90,9 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
         int             (*copyasync)(SUNMemoryHelper, SUNMemory dst,
                                      SUNMemory src, size_t mem_size,
                                      void* queue);
+        int             (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                         unsigned long* num_deallocations, size_t* bytes_allocated,
+                                         size_t* bytes_high_watermark);
         SUNMemoryHelper (*clone)(SUNMemoryHelper);
         int             (*destroy)(SUNMemoryHelper);
       };
@@ -238,6 +243,25 @@ require a SUNMemoryHelper instance:
 
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
+
+.. c:function:: int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
+                                                  unsigned long* num_deallocations, size_t* bytes_allocated, \
+                                                  size_t* bytes_high_watermark)
+
+   Returns statistics about the allocations performed with the helper.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``mem_type`` -- the ``SUNMemoryType`` to get stats for.
+   * ``num_allocations`` --  (output argument) number of allocations done through the helper.
+   * ``num_deallocations`` --  (output argument) number of deallocations done through the helper.
+   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called.
+   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
+
+   **Returns:**
+
+   * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
 .. _SUNMemory.Description.Overridable:

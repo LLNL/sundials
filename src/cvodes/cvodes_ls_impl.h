@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -93,6 +93,7 @@ typedef struct CVLsMemRec {
   long int ncfl;      /* ncfl = total number of convergence failures  */
   long int njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int njtimes;   /* njtimes = total number of calls to jtimes    */
+  sunrealtype tnlj;   /* tnlj = t_n at last jac/pset call             */
 
   /* Preconditioner computation
    * (a) user-provided:

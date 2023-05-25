@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -17,8 +17,8 @@
 # List of test tuples of the form "name\;tasks\;args"
 if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
   set(ARKODE_unit_tests
-    "ark_heat2D_mri\;2\;0"
-    "ark_heat2D_mri\;4\;1"
+    "ark_test_heat2D_mri\;2\;0"
+    "ark_test_heat2D_mri\;4\;1"
     )
 endif()
 

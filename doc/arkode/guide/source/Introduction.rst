@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -118,10 +118,53 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v5.4.2
+Changes in v5.5.1
 -----------------
 
+Added the functions :c:func:`ARKStepClearStopTime`,
+:c:func:`ERKStepClearStopTime`, and :c:func:`MRIStepClearStopTime` to disable a
+previously set stop time.
+
+Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
+
+Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
+
+The default interpolant in ARKODE when using a first order method has been
+updated to a linear interpolant to ensure values obtained by the integrator are
+returned at the ends of the time interval. To restore the previous behavior of
+using a constant interpolant call :c:func:`ARKStepSetInterpolantDegree`,
+:c:func:`ERKStepSetInterpolantDegree`, or :c:func:`MRIStepSetInterpolantDegree`
+and set the interpolant degree to zero before evolving the problem.
+
+Changes in v5.5.0
+-----------------
+
+Added the functions :c:func:`ARKStepGetJac`, :c:func:`ARKStepGetJacTime`,
+:c:func:`ARKStepGetJacNumSteps`, :c:func:`MRIStepGetJac`,
+:c:func:`MRIStepGetJacTime`, and :c:func:`MRIStepGetJacNumSteps` to assist in
+debugging simulations utilizing a matrix-based linear solver.
+
+Added support for the SYCL backend with RAJA 2022.x.y.
+
 Fixed an underflow bug during root finding.
+
+A new capability to keep track of memory allocations made through the ``SUNMemoryHelper``
+classes has been added. Memory allocation stats can be accessed through the
+:c:func:`SUNMemoryHelper_GetAllocStats` function. See the documentation for
+the ``SUNMemoryHelper`` classes for more details.
+
+Added support for CUDA v12.
+
+Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
+``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
+
+Fixed the shape of the arrays returned by ``FN_VGetArrayPointer`` functions as well
+as the ``FSUNDenseMatrix_Data``, ``FSUNBandMatrix_Data``, ``FSUNSparseMatrix_Data``,
+``FSUNSparseMatrix_IndexValues``, and ``FSUNSparseMatrix_IndexPointers`` functions.
+Compiling and running code that uses the SUNDIALS Fortran interfaces with
+bounds checking will now work.
+
+Fixed an implicit conversion error in the Butcher table for ESDIRK5(4)7L[2]SA2.
 
 Changes in v5.4.1
 -----------------
@@ -132,7 +175,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial ``N_Vector``.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 Changes in v5.4.0
 -----------------

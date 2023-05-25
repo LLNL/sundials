@@ -3,7 +3,7 @@
 # Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -148,3 +148,6 @@ echo "   --- Add kinsol unit tests to $tarfile"
 $tar $tarfile $distrobase/test/unit_tests/kinsol/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/kinsol/C_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/kinsol/C_serial/kin_test_getuserdata.c
+$tar $tarfile $distrobase/test/unit_tests/kinsol/CXX_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/kinsol/CXX_serial/kin_test_getjac.cpp
+$tar $tarfile $distrobase/test/unit_tests/kinsol/CXX_serial/kin_test_getjac.out

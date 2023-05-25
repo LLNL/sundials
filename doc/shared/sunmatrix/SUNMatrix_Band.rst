@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -377,6 +377,9 @@ following additional user-callable routines:
 
    This function returns the length of the leading dimension of the banded ``SUNMatrix``.
 
+.. c:function:: sunindextype SUNBandMatrix_LData(SUNMatrix A)
+
+   This function returns the length of the data array for the banded ``SUNMatrix``.
 
 .. c:function:: realtype* SUNBandMatrix_Data(SUNMatrix A)
 
@@ -394,6 +397,12 @@ following additional user-callable routines:
    column of the banded ``SUNMatrix``.  The resulting pointer should
    be indexed over the range ``-mu`` to ``ml``.
 
+   .. warning::
+
+      When calling this function from the Fortran interfaces the shape of the array
+      that is returned is ``[1]``, and the only element you can (legally) access
+      is the diagonal element. Fortran users should instead work with the
+      data array returned by :c:func:`SUNBandMatrix_Data` directly. 
 
 
 **Notes**

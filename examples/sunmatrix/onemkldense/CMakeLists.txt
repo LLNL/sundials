@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -42,7 +42,7 @@ foreach(example_tuple ${sunmatrix_onemkldense_examples})
   if (NOT TARGET ${example_target})
 
     # example source files
-    add_executable(${example_target} ${example} ../test_sunmatrix.c ../test_sunmatrix.h)
+    add_executable(${example_target} ${example})
 
     # folder for IDEs
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
@@ -50,6 +50,7 @@ foreach(example_tuple ${sunmatrix_onemkldense_examples})
     # libraries to link against
     target_link_libraries(${example_target}
       PRIVATE
+      test_sunmatrix_obj
       sundials_nvecsycl
       sundials_sunmatrixonemkldense
       MKL::MKL_DPCPP

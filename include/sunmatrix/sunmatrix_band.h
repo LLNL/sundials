@@ -5,7 +5,7 @@
  * Based on code sundials_direct.h by: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -109,6 +109,7 @@ SUNDIALS_EXPORT sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_LDim(SUNMatrix A);
+SUNDIALS_EXPORT sunindextype SUNBandMatrix_LData(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Data(SUNMatrix A);
 SUNDIALS_EXPORT realtype** SUNBandMatrix_Cols(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);

@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -20,7 +20,7 @@
 #include <sundials/sundials_memory.h>
 
 int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                         size_t memsize, SUNMemoryType mem_type, void* queue)
+                         size_t mem_size, SUNMemoryType mem_type, void* queue)
 {
   if (!queue) return -1;
   sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
@@ -33,13 +33,13 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
 
   if (mem_type == SUNMEMTYPE_HOST)
   {
-    mem->ptr  = malloc(memsize);
+    mem->ptr  = malloc(mem_size);
     if (mem->ptr == NULL) { free(mem); return -1; }
     mem->type = SUNMEMTYPE_HOST;
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
   {
-    mem->ptr = sycl::malloc_device(memsize, *sycl_queue);
+    mem->ptr = sycl::malloc_device(mem_size, *sycl_queue);
     if (mem->ptr == NULL) { free(mem); return -1; }
     mem->type = SUNMEMTYPE_DEVICE;
   }

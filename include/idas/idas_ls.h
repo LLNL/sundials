@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -115,6 +115,10 @@ SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,
   Optional outputs from the IDALS linear solver interface
   -----------------------------------------------------------------*/
 
+SUNDIALS_EXPORT int IDAGetJac(void* ida_mem, SUNMatrix* J);
+SUNDIALS_EXPORT int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J);
+SUNDIALS_EXPORT int IDAGetJacTime(void* ida_mem, sunrealtype* t_J);
+SUNDIALS_EXPORT int IDAGetJacNumSteps(void* ida_mem, long int* nst_J);
 SUNDIALS_EXPORT int IDAGetLinWorkSpace(void *ida_mem,
                                        long int *lenrwLS,
                                        long int *leniwLS);

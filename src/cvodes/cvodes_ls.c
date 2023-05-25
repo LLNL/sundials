@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -344,7 +344,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
 
 /*===============================================================
-  Optional input/output routines
+  Optional Set routines
   ===============================================================*/
 
 
@@ -663,6 +663,50 @@ int CVodeSetLinSysFn(void *cvode_mem, CVLsLinSysFn linsys)
   return(CVLS_SUCCESS);
 }
 
+/*===============================================================
+  Optional Get routines
+  ===============================================================*/
+
+int CVodeGetJac(void* cvode_mem, SUNMatrix* J)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  int retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJac", &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return retval;
+  *J = cvls_mem->savedJ;
+  return CVLS_SUCCESS;
+}
+
+int CVodeGetJacTime(void* cvode_mem, sunrealtype* t_J)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  int retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJacTime", &cv_mem,
+                           &cvls_mem);
+  if (retval != CVLS_SUCCESS) return retval;
+  *t_J = cvls_mem->tnlj;
+  return CVLS_SUCCESS;
+}
+
+int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  int retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJacNumSteps", &cv_mem,
+                           &cvls_mem);
+  if (retval != CVLS_SUCCESS) return retval;
+  *nst_J = cvls_mem->nstlj;
+  return CVLS_SUCCESS;
+}
 
 /* CVodeGetLinWorkSpace returns the length of workspace allocated
    for the CVLS linear solver interface */
@@ -943,7 +987,6 @@ char *CVodeGetLinReturnFlagName(long int flag)
 
   return(name);
 }
-
 
 /*=================================================================
   CVSLS private functions
@@ -1619,6 +1662,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     if (*jcurPtr) {
       cvls_mem->nje++;
       cvls_mem->nstlj = cv_mem->cv_nst;
+      cvls_mem->tnlj = cv_mem->cv_tn;
     }
 
     /* Check linsys() return value and return if necessary */
@@ -1656,6 +1700,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     if (*jcurPtr) {
       cvls_mem->npe++;
       cvls_mem->nstlj = cv_mem->cv_nst;
+      cvls_mem->tnlj = cv_mem->cv_tn;
     }
 
     /* Update jcur flag if we suggested an update */
@@ -1681,7 +1726,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm, deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
   booleantype do_sensi_sim, do_sensi_stg, do_sensi_stg1;
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   realtype resnorm;
   long int nps_inc;
 #endif
@@ -1772,7 +1817,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
   if (retval != SUNLS_SUCCESS) return(-1);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   /* Store previous nps value in nps_inc */
   nps_inc = cvls_mem->nps;
 #endif
@@ -1799,12 +1844,12 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b);
 
   /* Retrieve statistics from iterative linear solvers */
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   resnorm = ZERO;
 #endif
   nli_inc = 0;
   if (cvls_mem->iterative) {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     if (cvls_mem->LS->ops->resnorm)
       resnorm = SUNLinSolResNorm(cvls_mem->LS);
 #endif
@@ -1820,9 +1865,9 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Interpret solver return value  */
   cvls_mem->last_flag = retval;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
-    "CVODES::cvLsSolve", "ls-stats",
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+    "CVODE::cvLsSolve", "ls-stats",
     "bnorm = %.16g, resnorm = %.16g, ls_iters = %i, prec_solves = %i",
     bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
 #endif

@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -136,6 +136,17 @@ the following additional user-callable routines:
 .. c:function:: N_Vector N_VGetSubvector_ManyVector(N_Vector v, sunindextype vec_num)
 
    This function returns the *vec_num* subvector from the NVECTOR array.
+
+
+.. c:function:: sunindextype N_VGetSubvectorLocalLength_ManyVector(N_Vector v, sunindextype vec_num)
+
+   This function returns the local length of the *vec_num* subvector from the NVECTOR array.
+
+   Usage:
+
+   .. code-block:: c
+
+      local_length = N_VGetSubvectorLocalLength_ManyVector(v, 0);
 
 
 .. c:function:: realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)

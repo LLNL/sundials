@@ -3,7 +3,7 @@
 # Programmer(s): Cody J. Balos and David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -148,6 +148,9 @@ if [ "$compilername" == "gcc" ]; then
         export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
         export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
     fi
+    # TODO(CJB): add this back after we upgrade the GNU compiler stack on the Jenkins box
+    # Currently this causes the compiler to segfault on many of the Fortran example codes.
+    # export FFLAGS="${FFLAGS} -fbounds-check"
 
 else
 

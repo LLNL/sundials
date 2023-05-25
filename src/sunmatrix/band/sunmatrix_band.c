@@ -6,7 +6,7 @@
  *    Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -197,6 +197,14 @@ sunindextype SUNBandMatrix_LDim(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_BAND)
     return SM_LDIM_B(A);
+  else
+    return SUNMAT_ILL_INPUT;
+}
+
+sunindextype SUNBandMatrix_LData(SUNMatrix A)
+{
+  if (SUNMatGetID(A) == SUNMATRIX_BAND)
+    return SM_LDATA_B(A);
   else
     return SUNMAT_ILL_INPUT;
 }

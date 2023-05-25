@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,8 +14,9 @@
 # benchmarks level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-  message(WARNING "SUNDIALS is not being built in \"Release\" mode, "
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release" OR
+      CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+  message(WARNING "SUNDIALS is not being built in a \"Release\" mode, "
           "benchmark performance will be affected")
 endif()
 

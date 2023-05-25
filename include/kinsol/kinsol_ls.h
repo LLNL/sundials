@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -88,6 +88,8 @@ SUNDIALS_EXPORT int KINSetJacTimesVecFn(void *kinmem,
   Optional outputs from the KINLS linear solver interface
   -----------------------------------------------------------------*/
 
+SUNDIALS_EXPORT int KINGetJac(void* kinmem, SUNMatrix* J);
+SUNDIALS_EXPORT int KINGetJacNumIters(void* kinmem, long int* nni_J);
 SUNDIALS_EXPORT int KINGetLinWorkSpace(void *kinmem,
                                        long int *lenrwLS,
                                        long int *leniwLS);

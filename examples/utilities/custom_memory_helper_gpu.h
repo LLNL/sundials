@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -45,7 +45,7 @@ static void gpuVerify(MY_GPU(Error_t) code, const char *file, int line, int abor
 }
 
 int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                         size_t memsize, SUNMemoryType mem_type, void* queue)
+                         size_t mem_size, SUNMemoryType mem_type, void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
@@ -54,14 +54,14 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
 
   if (mem_type == SUNMEMTYPE_HOST)
   {
-    mem->ptr  = malloc(memsize);
+    mem->ptr  = malloc(mem_size);
     if (mem->ptr == NULL) { free(mem); return(-1); }
     mem->type = SUNMEMTYPE_HOST;
   }
   else if (mem_type == SUNMEMTYPE_UVM ||
            mem_type == SUNMEMTYPE_DEVICE)
   {
-    MY_GPUCHK( MY_GPU(Malloc)(&(mem->ptr), memsize) );
+    MY_GPUCHK( MY_GPU(Malloc)(&(mem->ptr), mem_size) );
     mem->type = SUNMEMTYPE_DEVICE;
   }
   else

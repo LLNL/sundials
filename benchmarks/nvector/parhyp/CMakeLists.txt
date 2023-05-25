@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -20,5 +20,5 @@ sundials_add_nvector_benchmark(nvector_parhyp_benchmark
   SOURCES test_nvector_performance_parhyp.c
   SUNDIALS_TARGETS sundials_nvecparhyp
   LINK_LIBRARIES MPI::MPI_C SUNDIALS::HYPRE
-  INSTALL_SUBDIR benchmarks/nvector/parhyp
+  INSTALL_SUBDIR nvector/parhyp
   )

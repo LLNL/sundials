@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -1452,32 +1452,34 @@ Linear Solver) has been added here (e.g., ``lenrwLS``).
 .. _KINSOL.Usage.CC.optional_output.Table:
 .. table:: Optional outputs from KINSOL and KINLS
 
-  ======================================================== ==================================
-  **Optional output**                                      **Function name**
-  ======================================================== ==================================
+  ==============================================================  ==================================
+  **Optional output**                                             **Function name**
+  ==============================================================  ==================================
   **KINSOL main solver**
-  Size of KINSOL real and integer workspaces               :c:func:`KINGetWorkSpace`
-  Number of function evaluations                           :c:func:`KINGetNumFuncEvals`
-  Number of nonlinear iterations                           :c:func:`KINGetNumNonlinSolvIters`
-  Number of :math:`\beta`-condition failures               :c:func:`KINGetNumBetaCondFails`
-  Number of backtrack operations                           :c:func:`KINGetNumBacktrackOps`
-  Scaled norm of :math:`F`                                 :c:func:`KINGetFuncNorm`
-  Scaled norm of the step                                  :c:func:`KINGetStepLength`
-  User data pointer                                        :c:func:`KINGetUserData`
-  Print all statistics                                     :c:func:`KINPrintAllStats`
-  Name of constant associated with a return flag           :c:func:`KINGetReturnFlagName`
+  Size of KINSOL real and integer workspaces                      :c:func:`KINGetWorkSpace`
+  Number of function evaluations                                  :c:func:`KINGetNumFuncEvals`
+  Number of nonlinear iterations                                  :c:func:`KINGetNumNonlinSolvIters`
+  Number of :math:`\beta`-condition failures                      :c:func:`KINGetNumBetaCondFails`
+  Number of backtrack operations                                  :c:func:`KINGetNumBacktrackOps`
+  Scaled norm of :math:`F`                                        :c:func:`KINGetFuncNorm`
+  Scaled norm of the step                                         :c:func:`KINGetStepLength`
+  User data pointer                                               :c:func:`KINGetUserData`
+  Print all statistics                                            :c:func:`KINPrintAllStats`
+  Name of constant associated with a return flag                  :c:func:`KINGetReturnFlagName`
   **KINLS linear solver interface**
-  Size of real and integer workspaces                      :c:func:`KINGetLinWorkSpace`
-  No. of Jacobian evaluations                              :c:func:`KINGetNumJacEvals`
-  No. of :math:`F` calls for D.Q. Jacobian[-vector] evals. :c:func:`KINGetNumLinFuncEvals`
-  No. of linear iterations                                 :c:func:`KINGetNumLinIters`
-  No. of linear convergence failures                       :c:func:`KINGetNumLinConvFails`
-  No. of preconditioner evaluations                        :c:func:`KINGetNumPrecEvals`
-  No. of preconditioner solves                             :c:func:`KINGetNumPrecSolves`
-  No. of Jacobian-vector product evaluations               :c:func:`KINGetNumJtimesEvals`
-  Last return from a KINLS function                        :c:func:`KINGetLastLinFlag`
-  Name of constant associated with a return flag           :c:func:`KINGetLinReturnFlagName`
-  ======================================================== ==================================
+  Stored Jacobian of the nonlinear system                         :c:func:`KINGetJac`
+  Nonlinear iteration number at which the Jacobian was evaluated  :c:func:`KINGetJacNumIters`
+  Size of real and integer workspaces                             :c:func:`KINGetLinWorkSpace`
+  No. of Jacobian evaluations                                     :c:func:`KINGetNumJacEvals`
+  No. of :math:`F` calls for D.Q. Jacobian[-vector] evals.        :c:func:`KINGetNumLinFuncEvals`
+  No. of linear iterations                                        :c:func:`KINGetNumLinIters`
+  No. of linear convergence failures                              :c:func:`KINGetNumLinConvFails`
+  No. of preconditioner evaluations                               :c:func:`KINGetNumPrecEvals`
+  No. of preconditioner solves                                    :c:func:`KINGetNumPrecSolves`
+  No. of Jacobian-vector product evaluations                      :c:func:`KINGetNumJtimesEvals`
+  Last return from a KINLS function                               :c:func:`KINGetLastLinFlag`
+  Name of constant associated with a return flag                  :c:func:`KINGetLinReturnFlagName`
+  ==============================================================  ==================================
 
 
 .. _KINSOL.Usage.CC.optional_output.optout_main:
@@ -1662,6 +1664,41 @@ KINLS linear solver interface optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following optional outputs are available from the KINLS modules:
+
+.. c:function:: int KINGetJac(void* kin_mem, SUNMatrix* J)
+
+   Returns the internally stored copy of the Jacobian matrix of the nonlinear
+   system function.
+
+   :param kin_mem: the KINSOL solver object
+   :param J: the Jacobian matrix
+
+   :retval KINLS_SUCCESS: the output value has been successfully set
+   :retval KINLS_MEM_NULL: ``kin_mem`` was ``NULL``
+   :retval KINLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      With linear solvers that overwrite the input Jacobian matrix as part of
+      the linear solver setup (e.g., performing an in-place LU factorization)
+      the matrix returned by :c:func:`KINGetJac` may differ from the matrix
+      returned by the last Jacobian evaluation.
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int KINGetJacNumIters(void* kin_mem, sunrealtype* nni_J)
+
+   Returns the nonlinear iteration number at which the Jacobian was evaluated.
+
+   :param kin_mem: the KINSOL memory structure
+   :param nni_J: the nonlinear iteration number
+
+   :retval KINLS_SUCCESS: the output value has been successfully set
+   :retval KINLS_MEM_NULL: ``kin_mem`` was ``NULL``
+   :retval KINLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int KINGetLinWorkSpace(void * kin_mem, long int * lenrwLS, long int * leniwLS)
 

@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,7 +24,8 @@ set(unit_tests
   "ida_test_kpr.cpp\;--eta_min_ef 0.5"
   "ida_test_kpr.cpp\;--eta_cf 0.5"
   "ida_test_kpr.cpp\;--dcj 0.9"
-  )
+  "ida_test_getjac.cpp\;"
+)
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -67,12 +68,20 @@ foreach(test_tuple ${unit_tests})
     string(REPLACE " " "_" test_name "${test_target}_${test_args}")
   endif()
 
+  if(SUNDIALS_PRECISION MATCHES "DOUBLE")
+    set(diff_output "")
+  else()
+    set(diff_output "NODIFF")
+  endif()
+
   # add test to regression tests
   sundials_add_test(${test_name} ${test_target}
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE "develop")
+    EXAMPLE_TYPE "develop"
+    ${diff_output}
+  )
 
 endforeach()
 

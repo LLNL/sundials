@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -75,6 +75,8 @@ typedef struct IDALsMemRec {
   long int ncfn0;     /* ncfn0 = saved ncfn (for performance monitor) */
   long int ncfl0;     /* ncfl0 = saved ncfl (for performance monitor) */
   long int nwarn;     /* nwarn = no. of warnings (for perf. monitor)  */
+  long int nstlj;     /* nstlj = nst at last jac/pset call            */
+  sunrealtype tnlj;   /* tnlj = t_n at last jac/pset call             */
 
   int last_flag;      /* last error return flag                       */
 

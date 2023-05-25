@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2022, Lawrence Livermore National Security
+! Copyright (c) 2002-2023, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -20,9 +20,9 @@ module test_fsunmatrix_band
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N  = 4
-  integer(C_LONG), parameter :: mu = 1
-  integer(C_LONG), parameter :: ml = 1
+  integer(C_LONG), parameter :: N  = 10
+  integer(C_LONG), parameter :: mu = 2
+  integer(C_LONG), parameter :: ml = 2
 
 contains
 
@@ -100,14 +100,15 @@ contains
     use fsundials_matrix_mod
     use fnvector_serial_mod
     use fsunmatrix_band_mod
+    use fsundials_futils_mod
     use test_sunmatrix
 
     implicit none
 
     type(SUNMatrix), pointer :: A, I
     type(N_Vector),  pointer :: x, y
-    real(C_DOUBLE),  pointer :: Adata(:), Idata(:), colj(:), xdata(:), ydata(:)
-    integer(C_LONG)          :: ii, jj, smu, jstart, jend, offset
+    real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
+    integer(C_LONG)          :: ii, jj, smu, istart, iend, offset
 
     fails = 0
 
@@ -118,39 +119,35 @@ contains
 
     ! Fill identity matrix
     Idata => FSUNBandMatrix_Data(I)
-    do jj = 0, N-1
-      colj => FSUNBandMatrix_Column(I, jj)
-      colj(1) = ONE
+    do jj = 1, N
+      Idata(jj) = ONE
     end do
 
     ! Fill A matrix
     smu   = FSUNBandMatrix_StoredUpperBandwidth(A)
     Adata => FSUNBandMatrix_Data(A)
-    do jj = 0, N-1
-      offset = smu-mu+1 + jj*(smu+ml+1)
-      colj(-mu:ml) => Adata(offset:mu+ml)
-      jstart = merge(-jj, -mu, jj < mu)
-      jend = merge(N-1-jj, ml, jj > N-1-ml)
-      do ii = jstart, jend
-        colj(ii) = jj - ii
+    do jj = 1, N
+      offset = (jj-1)*(smu+ml+1) + smu + 1 ! offset to diagonal
+      istart = merge(-mu, -(jj-1), jj > mu) ! above diagonal
+      iend = merge(N-jj , ml, jj > N - ml)  ! below diagonal
+      do ii = istart, iend
+        Adata(offset+ii) = (jj-1) - ii
       end do
     end do
 
-    xdata(0:N-1) => FN_VGetArrayPointer(x)
-    ydata(0:N-1) => FN_VGetArrayPointer(y)
+    xdata => FN_VGetArrayPointer(x)
+    ydata => FN_VGetArrayPointer(y)
 
     ! Fill vectors
-    do ii = 0, N-1
-
+    do jj = 0, N-1
       ! x vector
-      xdata(ii) = ii
-
+      xdata(jj+1) = jj
       ! y vector
-      ydata(ii) = ZERO
-      jstart    = max(0_c_long, ii-ml)
-      jend      = min(N-1, ii+mu)
-      do jj = jstart, jend
-        ydata(ii) = ydata(ii) + (jj+jj-ii)*(jj)
+      ydata(jj+1) = ZERO
+      istart    = max(0_c_long, jj-ml)
+      iend      = min(N-1, jj+mu)
+      do ii = istart, iend
+        ydata(jj+1) = ydata(jj+1) + (ii+ii-jj)*(ii)
       end do
     end do
 
@@ -210,7 +207,7 @@ integer(C_INT) function check_matrix(B, A, tol) result(fails)
 
   type(SUNMatrix) :: A, B
   real(C_DOUBLE)  :: tol
-  real(C_DOUBLE), pointer :: Adata(:), Bdata(:), Acolj(:), Bcolj(:)
+  real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
   integer(C_LONG) :: N, smu, mu, ml, ii, istart, iend, jj, offset
 
   fails = 0
@@ -252,14 +249,12 @@ integer(C_INT) function check_matrix(B, A, tol) result(fails)
 
   Adata => FSUNBandMatrix_Data(A)
   Bdata => FSUNBandMatrix_Data(B)
-  do jj = 0, N-1
-    offset = smu-mu+1 + jj*(smu+ml+1)
-    Acolj(-mu:ml) => Adata(offset:mu+ml)
-    Bcolj(-mu:ml) => Bdata(offset:mu+ml)
-    istart = merge(-jj, -mu, jj < mu)
-    iend = merge(N-1-jj, ml, jj > N-1-ml)
+  do jj = 1, N
+    offset = (jj-1)*(smu+ml+1) + smu + 1  ! offset to diagonal
+    istart = merge(-mu, -(jj-1), jj > mu) ! above diagonal
+    iend = merge(N-jj , ml, jj > N - ml)  ! below diagonal
     do ii = istart, iend
-      fails = fails + FNEQTOL(Acolj(ii), Bcolj(ii), tol)
+      fails = fails + FNEQTOL(Adata(offset+ii), Bdata(offset+ii), tol)
     end do
   end do
 
@@ -275,7 +270,7 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
 
   type(SUNMatrix) :: A
   real(C_DOUBLE)  :: c, tol
-  real(C_DOUBLE), pointer :: Adata(:), colj(:)
+  real(C_DOUBLE), pointer :: Adata(:)
   integer(C_LONG) :: N, smu, mu, ml, ii, istart, iend, jj, offset
 
   fails = 0
@@ -286,16 +281,15 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   ml  = FSUNBandMatrix_LowerBandwidth(A)
   Adata => FSUNBandMatrix_Data(A)
 
-  do jj = 0, N-1
-    offset = smu-mu+1 + jj*(smu+ml+1)
-    colj(-mu:ml) => Adata(offset:mu+ml)
-    istart = merge(-jj, -mu, jj < mu)
-    iend   = merge(N-1-jj, ml, jj > N-1-ml)
+  do jj = 1, N
+    offset = (jj-1)*(smu+ml+1) + smu + 1  ! offset to diagonal
+    istart = merge(-mu, -(jj-1), jj > mu) ! above diagonal
+    iend = merge(N-jj , ml, jj > N - ml)  ! below diagonal
     do ii = istart, iend
-      if (FNEQTOL(colj(ii), c, tol) /= 0) then
+      if (FNEQTOL(Adata(offset+ii), c, tol) /= 0) then
         fails = fails + 1
         write(*,'(A,E10.1,A,E14.7,A,I9,A,E14.7)') "tol = ", tol,  &
-              "   c = ", c, "   data[", ii, "] = ", colj(ii)
+              "   c = ", c, "   data[", offset+ii, "] = ", Adata(offset+ii)
       end if
     end do
   end do

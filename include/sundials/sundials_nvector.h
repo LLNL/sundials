@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -112,6 +112,7 @@ struct _generic_N_Vector_Ops
   void (*nvsetarraypointer)(realtype*, N_Vector);
   void* (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
+  sunindextype (*nvgetlocallength)(N_Vector);
 
   /* standard vector operations */
   void (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
@@ -182,10 +183,6 @@ struct _generic_N_Vector_Ops
   void (*nvprint)(N_Vector);
   void (*nvprintfile)(N_Vector, FILE*);
 
-  /* WARNING: this function should not be used, it is here as a temporary
-      fix for https://github.com/LLNL/sundials/issues/160 (fortran getarraypointer bug). */
-  sunindextype (*nvgetlocallength)(N_Vector);
-
 #ifdef __cplusplus
   _generic_N_Vector_Ops() = default;
 #endif
@@ -226,6 +223,7 @@ SUNDIALS_EXPORT realtype* N_VGetDeviceArrayPointer(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer(realtype* v_data, N_Vector v);
 SUNDIALS_EXPORT void* N_VGetCommunicator(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
@@ -318,11 +316,6 @@ SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vect
 
 SUNDIALS_EXPORT void N_VPrint(N_Vector v);
 SUNDIALS_EXPORT void N_VPrintFile(N_Vector v, FILE* outfile);
-
-
-  /* WARNING: this function should not be used, it is here as a temporary
-      fix for https://github.com/LLNL/sundials/issues/160 (fortran getarraypointer bug). */
-  SUNDIALS_DEPRECATED_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
 #ifdef __cplusplus
 }

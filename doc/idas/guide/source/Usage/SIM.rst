@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -965,7 +965,9 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Maximum absolute step size :math:`h_{\text{max}}`                  | :c:func:`IDASetMaxStep`         | :math:`\infty` |
    +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | :math:`\infty` |
+   | Value of :math:`t_{stop}`                                          | :c:func:`IDASetStopTime`        | undefined      |
+   +--------------------------------------------------------------------+---------------------------------+----------------+
+   | Disable the stop time                                              | :c:func:`IDAClearStopTime`      | N/A            |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Maximum no. of error test failures                                 | :c:func:`IDASetMaxErrTestFails` | 10             |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -1161,6 +1163,26 @@ Main solver optional input functions
       Once the integrator returns at a stop time, any future testing for ``tstop``
       is disabled (and can be reenabled only though a new call to
       :c:func:`IDASetStopTime`).
+
+      A stop time not reached before a call to :c:func:`IDAReInit` will
+      remain active but can be disabled by calling :c:func:`IDAClearStopTime`.
+
+.. c:function:: int IDAClearStopTime(void* ida_mem)
+
+   Disables the stop time set with :c:func:`IDASetStopTime`.
+
+   **Arguments:**
+      * ``ida_mem`` -- pointer to the IDA memory block.
+
+   **Return value:**
+      * ``IDA_SUCCESS`` if successful
+      * ``IDA_MEM_NULL`` if the IDA memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`IDASetStopTime`.
+
+   .. versionadded:: 6.5.1
 
 .. c:function:: int IDASetMaxErrTestFails(void * ida_mem, int maxnef)
 
@@ -2291,6 +2313,14 @@ preconditioner.
   +--------------------------------------------------------------------+----------------------------------------+
   | Corrected initial conditions                                       | :c:func:`IDAGetConsistentIC`           |
   +--------------------------------------------------------------------+----------------------------------------+
+  | Stored Jacobian of the DAE residual function                       | :c:func:`IDAGetJac`                    |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | :math:`c_j` value used in the Jacobian evaluation                  | :c:func:`IDAGetJacCj`                  |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | Time at which the Jacobian was evaluated                           | :c:func:`IDAGetJacTime`                |
+  +--------------------------------------------------------------------+----------------------------------------+
+  | Step number at which the Jacobian was evaluated                    | :c:func:`IDAGetJacNumSteps`            |
+  +--------------------------------------------------------------------+----------------------------------------+
   | Size of real and integer workspace                                 | :c:func:`IDAGetLinWorkSpace`           |
   +--------------------------------------------------------------------+----------------------------------------+
   | No. of Jacobian evaluations                                        | :c:func:`IDAGetNumJacEvals`            |
@@ -2823,6 +2853,66 @@ IDALS linear solver interface optional output functions
 
 The following optional outputs are available from the IDALS modules:
 
+.. c:function:: int IDAGetJac(void* ida_mem, SUNMatrix* J)
+
+   Returns the internally stored copy of the Jacobian matrix of the DAE
+   residual function.
+
+   :param ida_mem: the IDAS memory structure
+   :param J: the Jacobian matrix
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      With linear solvers that overwrite the input Jacobian matrix as part of
+      the linear solver setup (e.g., performing an in-place LU factorization)
+      the matrix returned by :c:func:`IDAGetJac` may differ from the matrix
+      returned by the last Jacobian evaluation.
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J)
+
+   Returns the :math:`c_j` value used to compute the internally stored copy of
+   the Jacobian matrix of the DAE residual function.
+
+   :param ida_mem: the IDAS memory structure
+   :param cj_J: the :math:`c_j` value used in the Jacobian was evaluation
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int IDAGetJacTime(void* ida_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the DAE residual function was evaluated.
+
+   :param ida_mem: the IDAS memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int IDAGetJacNumSteps(void* ida_mem, long int* nst_J)
+
+   Returns the value of the internal step counter at which the internally stored copy of the
+   Jacobian matrix of the DAE residual function was evaluated.
+
+   :param ida_mem: the IDAS memory structure
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
+
+   :retval IDALS_SUCCESS: the output value has been successfully set
+   :retval IDALS_MEM_NULL: ``ida_mem`` was ``NULL``
+   :retval IDALS_LMEM_NULL: the linear solver interface has not been initialized
+
 .. c:function:: int IDAGetLinWorkSpace(void * ida_mem, long int * lenrwLS, long int * leniwLS)
 
    The function :c:func:`IDAGetLinWorkSpace` returns the sizes of the real and integer
@@ -3156,6 +3246,9 @@ dependent variable vector.
         illegal value.
 
    **Notes:**
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
+
       If an error occurred, :c:func:`IDAReInit` also sends an error message to the
       error handler function.
 

@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,6 +41,12 @@ static booleantype SMCompatible_cuSparse(SUNMatrix, SUNMatrix);
 static SUNMatrix SUNMatrix_cuSparse_NewEmpty(SUNContext sunctx);
 #if CUDART_VERSION >= 11000
 static cusparseStatus_t CreateSpMatDescr(SUNMatrix, cusparseSpMatDescr_t*);
+#endif
+
+#if CUDART_VERSION >= 12000
+#define SPMV_ALG CUSPARSE_SPMV_CSR_ALG1
+#else
+#define SPMV_ALG CUSPARSE_MV_ALG_DEFAULT
 #endif
 
 /* Macros for handling the different function names based on precision */
@@ -1072,7 +1078,7 @@ int SUNMatMatvecSetup_cuSparse(SUNMatrix A)
                               CUSPARSE_OPERATION_NON_TRANSPOSE,
                               &one, SMCU_CONTENT(A)->spmat_descr,
                               SMCU_CONTENT(A)->vecX, &one, SMCU_CONTENT(A)->vecY,
-                              CUDA_R_XF, CUSPARSE_MV_ALG_DEFAULT,
+                              CUDA_R_XF, SPMV_ALG,
                               &SMCU_CONTENT(A)->bufferSize) );
 
     if ( SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &SMCU_CONTENT(A)->dBufferMem,
@@ -1124,7 +1130,7 @@ int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y)
                                              &one, SMCU_CONTENT(A)->spmat_descr,
                                              SMCU_CONTENT(A)->vecX, &one,
                                              SMCU_CONTENT(A)->vecY, CUDA_R_XF,
-                                             CUSPARSE_MV_ALG_DEFAULT,
+                                             SPMV_ALG,
                                              SMCU_CONTENT(A)->dBufferMem->ptr) );
     }
 #else

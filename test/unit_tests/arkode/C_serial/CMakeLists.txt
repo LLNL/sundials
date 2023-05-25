@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -26,10 +26,10 @@ set(ARKODE_unit_tests
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 2.0 8.0"
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 1.0 5.0"
   "ark_test_getuserdata\;"
-  "ark_interp_check\;-100"
-  "ark_interp_check\;-10000"
-  "ark_interp_check\;-1000000"
-  "ark_reset_check\;"
+  "ark_test_interp\;-100"
+  "ark_test_interp\;-10000"
+  "ark_test_interp\;-1000000"
+  "ark_test_reset\;"
   )
 
 # Add the build and install targets for each test

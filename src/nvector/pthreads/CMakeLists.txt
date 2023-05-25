@@ -2,7 +2,7 @@
 # Programmer(s): Steve Smith and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -26,6 +26,8 @@ sundials_add_library(sundials_nvecpthreads
     nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
+  LINK_LIBRARIES
+    PRIVATE Threads::Threads
   OUTPUT_NAME
     sundials_nvecpthreads
   VERSION

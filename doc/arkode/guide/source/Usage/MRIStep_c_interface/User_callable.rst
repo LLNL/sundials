@@ -3,7 +3,7 @@
                   Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -693,7 +693,9 @@ Optional inputs for MRIStep
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Maximum no. of internal steps before *tout*                   | :c:func:`MRIStepSetMaxNumSteps()`       | 500                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | :math:`\infty`         |
+   | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | undefined              |
+   +---------------------------------------------------------------+-----------------------------------------+------------------------+
+   | Disable the stop time                                         | :c:func:`MRIStepClearStopTime`          | N/A                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`          | ``NULL``               |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
@@ -802,10 +804,16 @@ Optional inputs for MRIStep
    If a user calls both this routine and :c:func:`MRIStepSetInterpolantType()`, then
    :c:func:`MRIStepSetInterpolantType()` must be called first.
 
-   Since the accuracy of any polynomial interpolant is limited by the accuracy of
-   the time-step solutions on which it is based, the *actual* polynomial degree that
-   is used by MRIStep will be the minimum of :math:`q-1` and the input *degree*,
-   where :math:`q` is the order of accuracy for the time integration method.
+   Since the accuracy of any polynomial interpolant is limited by the accuracy
+   of the time-step solutions on which it is based, the *actual* polynomial
+   degree that is used by MRIStep will be the minimum of :math:`q-1` and the
+   input *degree*, for :math:`q > 1` where :math:`q` is the order of accuracy
+   for the time integration method.
+
+   .. versionchanged:: 5.5.1
+
+      When :math:`q=1`, a linear interpolant is the default to ensure values
+      obtained by the integrator are returned at the ends of the time interval.
 
 
 
@@ -1084,7 +1092,35 @@ Optional inputs for MRIStep
 
    * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** The default is that no stop time is imposed.
+   **Notes:**
+
+      The default is that no stop time is imposed.
+
+      Once the integrator returns at a stop time, any future testing for
+      ``tstop`` is disabled (and can be reenabled only though a new call to
+      :c:func:`MRIStepSetStopTime`).
+
+      A stop time not reached before a call to :c:func:`MRIStepReInit` or
+      :c:func:`MRIStepReset` will remain active but can be disabled by calling
+      :c:func:`MRIStepClearStopTime`.
+
+
+.. c:function:: int MRIStepClearStopTime(void* arkode_mem)
+
+   Disables the stop time set with :c:func:`MRIStepSetStopTime`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   **Notes:**
+      The stop time can be reenabled though a new call to
+      :c:func:`MRIStepSetStopTime`.
+
+   .. versionadded:: 5.5.1
 
 
 .. c:function:: int MRIStepSetUserData(void* arkode_mem, void* user_data)
@@ -2945,6 +2981,12 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
    +--------------------------------------------------------------------+------------------------------------------+
    | Optional output                                                    | Function name                            |
    +--------------------------------------------------------------------+------------------------------------------+
+   | Stored Jacobian of the ODE RHS function                            | :c:func:`MRIStepGetJac`                  |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Time at which the Jacobian was evaluated                           | :c:func:`MRIStepGetJacTime`              |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Step number at which the Jacobian was evaluated                    | :c:func:`MRIStepGetJacNumSteps`          |
+   +--------------------------------------------------------------------+------------------------------------------+
    | Size of real and integer workspaces                                | :c:func:`MRIStepGetLinWorkSpace()`       |
    +--------------------------------------------------------------------+------------------------------------------+
    | No. of Jacobian evaluations                                        | :c:func:`MRIStepGetNumJacEvals()`        |
@@ -2968,7 +3010,47 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
    | Name of constant associated with a return flag                     | :c:func:`MRIStepGetLinReturnFlagName()`  |
    +--------------------------------------------------------------------+------------------------------------------+
 
+.. c:function:: int MRIStepGetJac(void* arkode_mem, SUNMatrix* J)
 
+   Returns the internally stored copy of the Jacobian matrix of the ODE
+   implicit slow right-hand side function.
+
+   :param arkode_mem: the MRIStep memory structure
+   :param J: the Jacobian matrix
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+   .. warning::
+
+      This function is provided for debugging purposes and the values in the
+      returned matrix should not be altered.
+
+.. c:function:: int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J)
+
+   Returns the time at which the internally stored copy of the Jacobian matrix
+   of the ODE implicit slow right-hand side function was evaluated.
+
+   :param arkode_mem: the MRIStep memory structure
+   :param t_J: the time at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
+
+.. c:function:: int MRIStepGetJacNumSteps(void* arkode_mem, long int* nst_J)
+
+   Returns the value of the internal step counter at which the internally stored copy of the
+   Jacobian matrix of the ODE implicit slow right-hand side function was
+   evaluated.
+
+   :param arkode_mem: the MRIStep memory structure
+   :param nst_J: the value of the internal step counter at which the Jacobian was evaluated
+
+   :retval ARKLS_SUCCESS: the output value has been successfully set
+   :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
 
 .. c:function:: int MRIStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS)
 
@@ -3496,8 +3578,8 @@ vector.
    If the inner (fast) stepper also needs to be reset, its reset function should
    be called before calling :c:func:`MRIStepReset()` to reset the outer stepper.
 
-   All previously set options are retained but may be updated by calling the
-   appropriate "Set" functions.
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
 
    If an error occurred, :c:func:`MRIStepReset()` also sends an error message to
    the error handler function.

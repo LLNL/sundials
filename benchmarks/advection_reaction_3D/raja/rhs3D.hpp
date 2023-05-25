@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -70,9 +70,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     auto range = RAJA::make_tuple(RAJA::RangeSegment(1, nxl),
                                   RAJA::RangeSegment(1, nyl),
                                   RAJA::RangeSegment(1, nzl));
+
     RAJA::kernel<XYZ_KERNEL_POL>(range,
-      [=] DEVICE_FUNC (int i, int j, int k)
-    {
+      [=] DEVICE_FUNC (int i, int j, int k) {
       const realtype u_ijk = Yview(i,j,k,0);
       const realtype v_ijk = Yview(i,j,k,1);
       const realtype w_ijk = Yview(i,j,k,2);
@@ -100,8 +100,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                   RAJA::RangeSegment(0, nyl-1),
                                   RAJA::RangeSegment(0, nzl-1));
     RAJA::kernel<XYZ_KERNEL_POL>(range,
-      [=] DEVICE_FUNC (int i, int j, int k)
-    {
+      [=] DEVICE_FUNC (int i, int j, int k) {
       const realtype u_ijk = Yview(i,j,k,0);
       const realtype v_ijk = Yview(i,j,k,1);
       const realtype w_ijk = Yview(i,j,k,2);
@@ -150,8 +149,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                       RAJA::RangeSegment(0, nzl),
                                       RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(west_face,
-      [=] DEVICE_FUNC (int j, int k, int l)
-    {
+      [=] DEVICE_FUNC (int j, int k, int l) {
       const int i = 0;
       const realtype Yijkl  = Yview(i,j,k,l);
       const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
@@ -164,8 +162,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                        RAJA::RangeSegment(0, nzl),
                                        RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(south_face,
-      [=] DEVICE_FUNC (int i, int k, int l)
-    {
+      [=] DEVICE_FUNC (int i, int k, int l) {
       const int j = 0;
       const realtype Yijkl  = Yview(i,j,k,l);
       const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
@@ -179,8 +176,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                       RAJA::RangeSegment(0, dof));
 
     RAJA::kernel<XYZ_KERNEL_POL>(back_face,
-      [=] DEVICE_FUNC (int i, int j, int l)
-    {
+      [=] DEVICE_FUNC (int i, int j, int l) {
       const int k = 0;
       const realtype Yijkl  = Yview(i,j,k,l);
       const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
@@ -210,8 +206,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                       RAJA::RangeSegment(0, nzl),
                                       RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(east_face,
-      [=] DEVICE_FUNC (int j, int k, int l)
-    {
+      [=] DEVICE_FUNC (int j, int k, int l) {
       const int i = nxl-1;
       const realtype Yijkl = Yview(i,j,k,l);
       const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
@@ -224,8 +219,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                        RAJA::RangeSegment(0, nzl),
                                        RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(north_face,
-      [=] DEVICE_FUNC (int i, int k, int l)
-    {
+      [=] DEVICE_FUNC (int i, int k, int l) {
       const int j = nyl-1;
       const realtype Yijkl = Yview(i,j,k,l);
       const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
@@ -238,8 +232,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                        RAJA::RangeSegment(0, nyl),
                                        RAJA::RangeSegment(0, dof));
     RAJA::kernel<XYZ_KERNEL_POL>(front_face,
-      [=] DEVICE_FUNC (int i, int j, int l)
-    {
+      [=] DEVICE_FUNC (int i, int j, int l) {
       const int k = nzl-1;
       const realtype Yijkl = Yview(i,j,k,l);
       const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
@@ -302,8 +295,7 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                                 RAJA::RangeSegment(0, nyl),
                                 RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int i, int j, int k)
-  {
+    [=] DEVICE_FUNC (int i, int j, int k) {
     const realtype u = Yview(i,j,k,0);
     const realtype v = Yview(i,j,k,1);
     const realtype w = Yview(i,j,k,2);
@@ -393,8 +385,7 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
                                  RAJA::RangeSegment(0, nyl),
                                  RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(blocks,
-    [=] DEVICE_FUNC (int i, int j, int k)
-  {
+    [=] DEVICE_FUNC (int i, int j, int k) {
 
     /* shortcuts to u, v, w for the block */
     const realtype u = Yview(i,j,k,0);
@@ -496,8 +487,7 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
                                  RAJA::RangeSegment(0, nyl),
                                  RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(blocks,
-    [=] DEVICE_FUNC (int i, int j, int k)
-  {
+    [=] DEVICE_FUNC (int i, int j, int k) {
 
     /* shortcuts to u, v, w for the block */
     const realtype u = Yview(i,j,k,0);

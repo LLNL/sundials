@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -84,6 +84,7 @@ typedef struct ARKLsMemRec {
   long int ncfl;      /* ncfl = total number of convergence failures  */
   long int njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int njtimes;   /* njtimes = total number of calls to jtimes    */
+  sunrealtype tnlj;   /* tnlj = t_n at last jac/pset call             */
 
   /* Preconditioner computation
     (a) user-provided:
@@ -284,6 +285,9 @@ int arkLSSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
 int arkLSSetUserData(void *arkode_mem, void* user_data);
 int arkLSSetMassUserData(void *arkode_mem, void* user_data);
 
+int arkLSGetJac(void* arkode_mem, SUNMatrix* J);
+int arkLSGetJacTime(void* arkode_mem, sunrealtype* t_J);
+int arkLSGetJacNumSteps(void* arkode_mem, long int* nst_J);
 int arkLSGetWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
 int arkLSGetNumJacEvals(void* arkode_mem, long int* njevals);
 int arkLSGetNumPrecEvals(void* arkode_mem, long int* npevals);

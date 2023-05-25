@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -253,6 +253,7 @@ SUNDIALS_EXPORT int MRIStepSetMaxHnilWarns(void *arkode_mem,
                                            int mxhnil);
 SUNDIALS_EXPORT int MRIStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
+SUNDIALS_EXPORT int MRIStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetFixedStep(void *arkode_mem,
                                         realtype hsfixed);
 SUNDIALS_EXPORT int MRIStepSetRootDirection(void *arkode_mem,
@@ -374,6 +375,9 @@ SUNDIALS_EXPORT int MRIStepGetNumStepSolveFails(void *arkode_mem,
                                                 long int *nncfails);
 
 /* Linear solver optional output functions */
+SUNDIALS_EXPORT int MRIStepGetJac(void* arkode_mem, SUNMatrix* J);
+SUNDIALS_EXPORT int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
+SUNDIALS_EXPORT int MRIStepGetJacNumSteps(void* arkode_mem, long* nst_J);
 SUNDIALS_EXPORT int MRIStepGetLinWorkSpace(void *arkode_mem,
                                            long int *lenrwLS,
                                            long int *leniwLS);

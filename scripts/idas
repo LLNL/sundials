@@ -3,7 +3,7 @@
 # Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2022, Lawrence Livermore National Security
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -155,6 +155,8 @@ $tar $tarfile $distrobase/test/unit_tests/idas/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/idas/C_serial/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/idas/C_serial/idas_test_getuserdata.c
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/CMakeLists.txt
+$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_getjac.cpp
+$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_getjac.out
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.cpp
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.hpp
 $tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.out

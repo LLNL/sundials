@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -263,7 +263,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
 
 /*===============================================================
-  Optional input/output routines
+  Optional Set routines
   ===============================================================*/
 
 
@@ -582,6 +582,50 @@ int CVodeSetLinSysFn(void *cvode_mem, CVLsLinSysFn linsys)
   return(CVLS_SUCCESS);
 }
 
+/*===============================================================
+  Optional Get routines
+  ===============================================================*/
+
+int CVodeGetJac(void* cvode_mem, SUNMatrix* J)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  int retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJac", &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return retval;
+  *J = cvls_mem->savedJ;
+  return CVLS_SUCCESS;
+}
+
+int CVodeGetJacTime(void* cvode_mem, sunrealtype* t_J)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  int retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJacTime", &cv_mem,
+                           &cvls_mem);
+  if (retval != CVLS_SUCCESS) return retval;
+  *t_J = cvls_mem->tnlj;
+  return CVLS_SUCCESS;
+}
+
+int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J)
+{
+  CVodeMem cv_mem;
+  CVLsMem cvls_mem;
+  int retval;
+
+  /* access CVLsMem structure; set output and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetJacNumSteps", &cv_mem,
+                           &cvls_mem);
+  if (retval != CVLS_SUCCESS) return retval;
+  *nst_J = cvls_mem->nstlj;
+  return CVLS_SUCCESS;
+}
 
 /* CVodeGetLinWorkSpace returns the length of workspace allocated
    for the CVLS linear solver interface */
@@ -856,7 +900,6 @@ char *CVodeGetLinReturnFlagName(long int flag)
 
   return(name);
 }
-
 
 /*=================================================================
   CVLS private functions
@@ -1291,7 +1334,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     retval = SUNMatCopy(cvls_mem->savedJ, A);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                     "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
       return(cvls_mem->last_flag);
     }
@@ -1306,7 +1349,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
       retval = SUNMatZero(A);
       if (retval) {
         cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                       "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
         cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
         return(cvls_mem->last_flag);
       }
@@ -1317,7 +1360,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
                            vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       cvProcessError(cv_mem, CVLS_JACFUNC_UNRECVR, "CVLS",
-                     "cvLsSetup",  MSG_LS_JACFUNC_FAILED);
+                     "cvLsLinSys",  MSG_LS_JACFUNC_FAILED);
       cvls_mem->last_flag = CVLS_JACFUNC_UNRECVR;
       return(-1);
     }
@@ -1330,7 +1373,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     retval = SUNMatCopy(A, cvls_mem->savedJ);
     if (retval) {
       cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                     "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
       cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
       return(cvls_mem->last_flag);
     }
@@ -1341,7 +1384,7 @@ static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   retval = SUNMatScaleAddI(-gamma, A);
   if (retval) {
     cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVLS",
-                   "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+                   "cvLsLinSys",  MSG_LS_SUNMAT_FAILED);
     cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
     return(cvls_mem->last_flag);
   }
@@ -1532,6 +1575,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     if (*jcurPtr) {
       cvls_mem->nje++;
       cvls_mem->nstlj = cv_mem->cv_nst;
+      cvls_mem->tnlj = cv_mem->cv_tn;
     }
 
     /* Check linsys() return value and return if necessary */
@@ -1569,6 +1613,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     if (*jcurPtr) {
       cvls_mem->npe++;
       cvls_mem->nstlj = cv_mem->cv_nst;
+      cvls_mem->tnlj = cv_mem->cv_tn;
     }
 
     /* Update jcur flag if we suggested an update */
@@ -1676,6 +1721,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Store previous nps value in nps_inc */
   nps_inc = cvls_mem->nps;
 #endif
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup) {
     cvls_mem->last_flag = cvls_mem->jtsetup(cv_mem->cv_tn, ynow, fnow,

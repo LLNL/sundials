@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -117,6 +117,9 @@ SUNDIALS_EXPORT int CVodeSetLinSysFn(void *cvode_mem, CVLsLinSysFn linsys);
   Optional outputs from the CVLS linear solver interface
   -----------------------------------------------------------------*/
 
+SUNDIALS_EXPORT int CVodeGetJac(void *cvode_mem, SUNMatrix *J);
+SUNDIALS_EXPORT int CVodeGetJacTime(void *cvode_mem, sunrealtype *t_J);
+SUNDIALS_EXPORT int CVodeGetJacNumSteps(void *cvode_mem, long int *nst_J);
 SUNDIALS_EXPORT int CVodeGetLinWorkSpace(void *cvode_mem,
                                          long int *lenrwLS,
                                          long int *leniwLS);
@@ -144,7 +147,6 @@ SUNDIALS_EXPORT int CVodeGetLinSolveStats(void* cvode_mem,
 SUNDIALS_EXPORT int CVodeGetLastLinFlag(void *cvode_mem,
                                         long int *flag);
 SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);
-
 
 /*=================================================================
   Backward problems

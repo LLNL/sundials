@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2022, Lawrence Livermore National Security
+   Copyright (c) 2002-2023, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -91,8 +91,18 @@ user-callable routines:
 
 .. c:function:: N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
 
-   This function returns the local vector underneath the MPIPlusX
-   NVECTOR.
+   This function returns the local vector underneath the MPIPlusX NVECTOR.
+
+
+.. c:function:: sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
+
+   This function returns the local length of the vector underneath the MPIPlusX NVECTOR.
+
+   Usage:
+
+   .. code-block:: c
+
+      local_length = N_VGetLocalLength_MPIPlusX(v);
 
 
 .. c:function:: realtype *N_VGetArrayPointer_MPIPlusX(N_Vector v)

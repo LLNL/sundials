@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -489,7 +489,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
 
 
 /*===============================================================
-  Optional input/output (called by time-stepper modules)
+  Optional Set functions (called by time-stepper modules)
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -864,6 +864,50 @@ int arkLSSetUserData(void *arkode_mem, void* user_data)
   arkls_mem->P_data = user_data;
 
   return(ARKLS_SUCCESS);
+}
+
+/*===============================================================
+  Optional Get functions (called by time-stepper modules)
+  ===============================================================*/
+
+int arkLSGetJac(void* arkode_mem, SUNMatrix* J)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem arkls_mem;
+  int retval;
+
+  /* access ARKLsMem structure; set output and return */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJac", &ark_mem, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return retval;
+  *J = arkls_mem->savedJ;
+  return ARKLS_SUCCESS;
+}
+
+int arkLSGetJacTime(void* arkode_mem, sunrealtype* t_J)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem arkls_mem;
+  int retval;
+
+  /* access ARKLsMem structure; set output and return */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJacTime", &ark_mem, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return retval;
+  *t_J = arkls_mem->tnlj;
+  return ARKLS_SUCCESS;
+}
+
+int arkLSGetJacNumSteps(void* arkode_mem, long int* nst_J)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem arkls_mem;
+  int retval;
+
+  /* access ARKLsMem structure; set output and return */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJacNumSteps", &ark_mem,
+                            &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return retval;
+  *nst_J = arkls_mem->nstlj;
+  return ARKLS_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -2500,6 +2544,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
     if (*jcurPtr) {
       arkls_mem->nje++;
       arkls_mem->nstlj = ark_mem->nst;
+      arkls_mem->tnlj = tpred;
     }
 
     /* Check linsys() return value and return if necessary */
@@ -2537,6 +2582,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
     if (*jcurPtr) {
       arkls_mem->npe++;
       arkls_mem->nstlj = ark_mem->nst;
+      arkls_mem->tnlj = tpred;
     }
 
     /* Update jcurPtr flag if we suggested an update */

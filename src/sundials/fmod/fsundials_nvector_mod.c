@@ -280,30 +280,6 @@ SWIGEXPORT void _wrap_FN_VSpace(N_Vector farg1, int64_t *farg2, int64_t *farg3) 
 }
 
 
-SWIGEXPORT double * _wrap_FN_VGetArrayPointer(N_Vector farg1) {
-  double * fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
-  
-  arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer(arg1);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT double * _wrap_FN_VGetDeviceArrayPointer(N_Vector farg1) {
-  double * fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
-  
-  arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetDeviceArrayPointer(arg1);
-  fresult = result;
-  return fresult;
-}
-
-
 SWIGEXPORT void _wrap_FN_VSetArrayPointer(double *farg1, N_Vector farg2) {
   realtype *arg1 = (realtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
@@ -333,6 +309,18 @@ SWIGEXPORT int64_t _wrap_FN_VGetLength(N_Vector farg1) {
   
   arg1 = (N_Vector)(farg1);
   result = N_VGetLength(arg1);
+  fresult = (sunindextype)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int64_t _wrap_FN_VGetLocalLength(N_Vector farg1) {
+  int64_t fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype result;
+  
+  arg1 = (N_Vector)(farg1);
+  result = N_VGetLocalLength(arg1);
   fresult = (sunindextype)(result);
   return fresult;
 }
@@ -1026,16 +1014,28 @@ SWIGEXPORT void _wrap_FN_VPrintFile(N_Vector farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int64_t _wrap_FN_VGetLocalLength(N_Vector farg1) {
-  int64_t fresult ;
+
+SWIGEXPORT double * _wrap_FN_VGetArrayPointer(N_Vector farg1) {
+  double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  sunindextype result;
+  realtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
-  result = N_VGetLocalLength(arg1);
-  fresult = (sunindextype)(result);
+  result = (realtype *)N_VGetArrayPointer(arg1);
+  fresult = result;
   return fresult;
 }
 
+
+SWIGEXPORT double * _wrap_FN_VGetDeviceArrayPointer(N_Vector farg1) {
+  double * fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  realtype *result = 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  result = (realtype *)N_VGetDeviceArrayPointer(arg1);
+  fresult = result;
+  return fresult;
+}
 
 

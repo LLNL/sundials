@@ -3,7 +3,7 @@
  *                David J. Gardner, Radu Serban and Aaron Collier @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -214,7 +214,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
 
 
 /*==================================================================
-  Optional input/output routines
+  Optional Set routines
   ==================================================================*/
 
 /*------------------------------------------------------------------
@@ -363,6 +363,35 @@ int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn)
   return(KINLS_SUCCESS);
 }
 
+/*==================================================================
+  Optional Get routines
+  ==================================================================*/
+
+int KINGetJac(void* kinmem, SUNMatrix* J)
+{
+  KINMem kin_mem;
+  KINLsMem kinls_mem;
+  int retval;
+
+  /* access KINLsMem structure; set output and return */
+  retval = kinLs_AccessLMem(kinmem, "KINGetJac", &kin_mem, &kinls_mem);
+  if (retval != KINLS_SUCCESS) return retval;
+  *J = kinls_mem->J;
+  return KINLS_SUCCESS;
+}
+
+int KINGetJacNumIters(void* kinmem, long int* nni_J)
+{
+  KINMem kin_mem;
+  KINLsMem kinls_mem;
+  int retval;
+
+  /* access KINLsMem structure; set output and return */
+  retval = kinLs_AccessLMem(kinmem, "KINGetJacNumIters", &kin_mem, &kinls_mem);
+  if (retval != KINLS_SUCCESS) return retval;
+  *nni_J = kin_mem->kin_nnilset;
+  return KINLS_SUCCESS;
+}
 
 /*------------------------------------------------------------------
   KINGetLinWorkSpace returns the integer and real workspace size

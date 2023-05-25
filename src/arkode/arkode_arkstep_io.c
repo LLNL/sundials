@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -22,7 +22,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arkode/arkode_arkstep.h"
 #include "arkode_arkstep_impl.h"
+#include "arkode_ls_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -57,6 +59,8 @@ int ARKStepSetMaxStep(void *arkode_mem, realtype hmax) {
   return(arkSetMaxStep(arkode_mem, hmax)); }
 int ARKStepSetStopTime(void *arkode_mem, realtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
+int ARKStepClearStopTime(void *arkode_mem) {
+  return(arkClearStopTime(arkode_mem)); }
 int ARKStepSetRootDirection(void *arkode_mem, int *rootdir) {
   return(arkSetRootDirection(arkode_mem, rootdir)); }
 int ARKStepSetNoInactiveRootWarn(void *arkode_mem) {
@@ -202,6 +206,12 @@ char *ARKStepGetReturnFlagName(long int flag) {
   These wrappers for ARKLs module 'get' routines all are
   documented in arkode_arkstep.h.
   ---------------------------------------------------------------*/
+int ARKStepGetJac(void *arkode_mem, SUNMatrix *J) {
+  return arkLSGetJac(arkode_mem, J); }
+int ARKStepGetJacTime(void *arkode_mem, sunrealtype *t_J) {
+  return arkLSGetJacTime(arkode_mem, t_J); }
+int ARKStepGetJacNumSteps(void *arkode_mem, long *nst_J) {
+  return arkLSGetJacNumSteps(arkode_mem, nst_J); }
 int ARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
   return(arkLSGetWorkSpace(arkode_mem, lenrwLS, leniwLS)); }
 int ARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {

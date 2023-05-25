@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -140,6 +140,9 @@ struct UserOptions
   // Step size selection (ZERO = adaptive steps)
   realtype fixed_h      = ZERO;
   realtype fixed_h_fast = ZERO;
+
+  // First step growth factor
+  realtype etamx1_fast = ZERO;
 
   int maxsteps      = 10000;  // max steps between outputs
   int controller    = -1;     // step size adaptivity method
@@ -610,6 +613,7 @@ void InputHelp()
   cout << "  --predictor_fast <int>   : MRI fast nonlinear solver predictor\n";
   cout << "  --lssetupfreq_fast <int> : MRI fast LS setup frequency\n";
   cout << "  --maxsteps <int>         : max steps between outputs\n";
+  cout << "  --etamx1_fast <real>     : max step size growth in first step\n";
   cout << "  --linear                 : linearly implicit\n";
   cout << "  --save_hinit             : reuse initial fast step\n";
   cout << "  --save_hcur              : reuse current fast step\n";
@@ -714,6 +718,7 @@ int ReadInputs(vector<string> &args, UserData &udata, UserOptions &uopts,
   find_arg(args, "--controller_fast", uopts.controller_fast);
   find_arg(args, "--lssetupfreq_fast", uopts.ls_setup_freq_fast);
   find_arg(args, "--maxsteps", uopts.maxsteps);
+  find_arg(args, "--etamx1_fast", uopts.etamx1_fast);
   find_arg(args, "--linear", uopts.linear);
   find_arg(args, "--save_hinit", uopts.save_hinit);
   find_arg(args, "--save_hcur", uopts.save_hcur);
@@ -1092,31 +1097,31 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
     cout << "  atol             = " << uopts.atol_fast << endl;
     cout << "  order            = " << uopts.order_fast << endl;
     cout << "  fixed h          = " << uopts.fixed_h_fast << endl;
-    if (uopts.controller <= 0)
+    if (uopts.controller_fast <= 0)
       cout << "  controller       = PID" << endl;
-    else if (uopts.controller == 1)
+    else if (uopts.controller_fast == 1)
       cout << "  controller       = PI" << endl;
-    else if (uopts.controller == 2)
+    else if (uopts.controller_fast == 2)
       cout << "  controller       = I" << endl;
-    else if (uopts.controller == 3)
+    else if (uopts.controller_fast == 3)
       cout << "  controller       = explicit Gustafsson" << endl;
-    else if (uopts.controller == 4)
+    else if (uopts.controller_fast == 4)
       cout << "  controller       = implicit Gustafsson" << endl;
-    else if (uopts.controller == 5)
+    else if (uopts.controller_fast == 5)
       cout << "  controller       = IMEX Gustafsson" << endl;
     else
-      cout << "  controller       = " << uopts.controller << endl;
-    if (uopts.predictor == 0)
+      cout << "  controller       = " << uopts.controller_fast << endl;
+    if (uopts.predictor_fast == 0)
       cout << "  predictor        = trivial" << endl;
-    else if (uopts.predictor == 1)
+    else if (uopts.predictor_fast == 1)
       cout << "  predictor        = max order" << endl;
-    else if (uopts.predictor == 2)
+    else if (uopts.predictor_fast == 2)
       cout << "  predictor        = variable order" << endl;
-    else if (uopts.predictor == 3)
+    else if (uopts.predictor_fast == 3)
       cout << "  predictor        = cutoff order" << endl;
     else
-      cout << "  predictor        = " << uopts.predictor << endl;
-    cout << "  ls setup freq    = " << uopts.ls_setup_freq << endl;
+      cout << "  predictor        = " << uopts.predictor_fast << endl;
+    cout << "  ls setup freq    = " << uopts.ls_setup_freq_fast << endl;
   }
   else if (uopts.integrator == 3)
   {
@@ -1125,6 +1130,7 @@ int PrintSetup(UserData &udata, UserOptions &uopts)
     cout << "  rtol             = " << uopts.rtol_fast << endl;
     cout << "  atol             = " << uopts.atol_fast << endl;
     cout << "  ls setup freq    = " << uopts.ls_setup_freq << endl;
+    cout << "  etamx first step = " << uopts.etamx1_fast << endl;
     cout << "  reuse initial h  = " << uopts.save_hinit << endl;
     cout << "  reuse current h  = " << uopts.save_hcur << endl;
     cout << "  current h factor = " << uopts.hcur_factor << endl;

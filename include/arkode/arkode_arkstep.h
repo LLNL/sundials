@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -240,6 +240,7 @@ SUNDIALS_EXPORT int ARKStepSetMaxStep(void *arkode_mem,
                                       realtype hmax);
 SUNDIALS_EXPORT int ARKStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
+SUNDIALS_EXPORT int ARKStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetFixedStep(void *arkode_mem,
                                         realtype hfixed);
 SUNDIALS_EXPORT int ARKStepSetMaxNumConstrFails(void *arkode_mem,
@@ -408,6 +409,9 @@ SUNDIALS_EXPORT int ARKStepGetNumStepSolveFails(void *arkode_mem,
                                                 long int *nncfails);
 
 /* Linear solver optional output functions */
+SUNDIALS_EXPORT int ARKStepGetJac(void* arkode_mem, SUNMatrix* J);
+SUNDIALS_EXPORT int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
+SUNDIALS_EXPORT int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J);
 SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem,
                                            long int *lenrwLS,
                                            long int *leniwLS);

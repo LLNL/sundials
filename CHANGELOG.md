@@ -1,8 +1,53 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 6.4.2
+## Changes to SUNDIALS in release 6.5.1
 
-Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and IDAS.
+Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,
+`MRIStepClearStopTime`, `CVodeClearStopTime`, and `IDAClearStopTime` to
+disable a previously set stop time.
+
+Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
+
+Fixed compilation errors in some SYCL examples when using the `icx` compiler.
+
+The default interpolant in ARKODE when using a first order method has been
+updated to a linear interpolant to ensure values obtained by the integrator are
+returned at the ends of the time interval. To restore the previous behavior of
+using a constant interpolant call `ARKStepSetInterpolantDegree`,
+`ERKStepSetInterpolantDegree`, or `MRIStepSetInterpolantDegree` and set the
+interpolant degree to zero before evolving the problem.
+
+## Changes to SUNDIALS in release 6.5.0
+
+Added the functions `ARKStepGetJac`, `ARKStepGetJacTime`,
+`ARKStepGetJacNumSteps`, `MRIStepGetJac`, `MRIStepGetJacTime`,
+`MRIStepGetJacNumSteps`, `CVodeGetJac`, `CVodeGetJacTime`,
+`CVodeGetJacNumSteps`, `IDAGetJac`, `IDAGetJacCj`, `IDAGetJacTime`,
+`IDAGetJacNumSteps`, `KINGetJac`, `KINGetJacNumIters` to assist in
+debugging simulations utilizing a matrix-based linear solver.
+
+Added support for the SYCL backend with RAJA 2022.x.y.
+
+Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and
+IDAS.
+
+Fixed an issue with finding oneMKL when using the `icpx` compiler with the
+`-fsycl` flag as the C++ compiler instead of `dpcpp`.
+
+Fixed the shape of the arrays returned by `FN_VGetArrayPointer` functions as well
+as the `FSUNDenseMatrix_Data`, `FSUNBandMatrix_Data`, `FSUNSparseMatrix_Data`,
+`FSUNSparseMatrix_IndexValues`, and `FSUNSparseMatrix_IndexPointers` functions.
+Compiling and running code that uses the SUNDIALS Fortran interfaces with
+bounds checking will now work.
+
+Fixed an implicit conversion error in the Butcher table for ESDIRK5(4)7L[2]SA2.
+
+A new capability to keep track of memory allocations made through the `SUNMemoryHelper`
+classes has been added. Memory allocation stats can be accessed through the
+`SUNMemoryHelper_GetAllocStats` function. See the documentation for
+the `SUNMemoryHelper` classes for more details.
+
+Added support for CUDA 12.
 
 ## Changes to SUNDIALS in release 6.4.1
 
@@ -12,7 +57,7 @@ Fixed a compilation error with the Intel oneAPI 2022.2 Fortran compiler in the
 Fortran 2003 interface test for the serial `N_Vector`.
 
 Fixed a bug in the SUNLINSOL_LAPACKBAND and SUNLINSOL_LAPACKDENSE modules
-which would cause the tests to fail on some platforms. 
+which would cause the tests to fail on some platforms.
 
 ## Changes to SUNDIALS in release 6.4.0
 
@@ -239,7 +284,7 @@ different reduction implementations.
 `SUNDIALS::<lib>` targets with no static/shared suffix have been added for use
 within the build directory (this mirrors the targets exported on installation).
 
-``CMAKE_C_STANDARD`` is now set to 99 by default.
+`CMAKE_C_STANDARD` is now set to 99 by default.
 
 Fixed exported `SUNDIALSConfig.cmake` when profiling is enabled without Caliper.
 
