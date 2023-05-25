@@ -231,6 +231,7 @@ static void sun_adiak_helper() {
   adiak_namevalue("cxx_compiler_version", 2, NULL, "%s", SUN_CXX_COMPILER_VERSION);
   adiak_namevalue("cxx_compiler_flags", 2, NULL, "%s", SUN_CXX_COMPILER_FLAGS);
 
+  adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
   adiak_namevalue("build_type", 2, NULL, "%s", SUN_BUILD_TYPE);
 
 #ifdef SUNDIALS_CI_JOB
