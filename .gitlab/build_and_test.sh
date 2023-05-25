@@ -224,7 +224,8 @@ then
     then
         output_dir="/usr/workspace/sundials/caliper"
         $cmake_exe \
-            -DSUNDIALS_TEST_OUTPUT_DIR=${output_dir}
+            -DSUNDIALS_TEST_OUTPUT_DIR=${output_dir} \
+            "${project_dir}"
     fi
 
     VERBOSE_TEST=${VERBOSE_TEST:-"ON"}
