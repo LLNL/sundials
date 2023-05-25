@@ -26,7 +26,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # ==========================================================================
     # Versions
     # ==========================================================================
-    version("develop", branch="develop")
+    version("develop", branch="feature/persistent-benchmarking-test-branch")
+    # version("develop", branch="develop")
     version("6.5.1", sha256="4252303805171e4dbdd19a01e52c1dcfe0dafc599c3cfedb0a5c2ffb045a8a75")
     version("6.5.0", sha256="4e0b998dff292a2617e179609b539b511eb80836f5faacf800e688a886288502")
     version("6.4.1", sha256="7bf10a8d2920591af3fba2db92548e91ad60eb7241ab23350a9b1bc51e05e8d0")
@@ -120,6 +121,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     variant("sycl", default=False, when="@5.7.0:", description="Enable SYCL vector")
 
     # External libraries
+    variant("adiak", default=False, when="+caliper", description="Enable Adiak interfaces")
     variant(
         "caliper",
         default=False,
@@ -195,8 +197,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     variant(
         "profile-examples", 
         default=False, 
-        when="+caliper +profiling", 
+        when="+adiak +caliper", 
         description="Build examples with profiling capabilities")
+
+    # Benchmarking
+    variant("benchmarks", default=False, description="Build benchmark programs")
 
     # ==========================================================================
     # Dependencies
@@ -218,8 +223,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     depends_on("raja+rocm", when="+raja +rocm")
 
     # External libraries
+    depends_on("adiak", when="+adiak")
     depends_on("caliper", when="+caliper")
-    depends_on("caliper~adiak", when="+profile-examples")
     depends_on("ginkgo@1.5.0:", when="+ginkgo")
     depends_on("kokkos", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos-kernels")
@@ -753,10 +758,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 # Profiling
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_PROFILING", "profiling"),
                 self.cache_option_from_variant("ENABLE_CALIPER", "caliper"),
+                self.cache_option_from_variant("ENABLE_ADIAK", "adiak"),
                 # Benchmarking
                 self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"),
                 # Profile examples
-                self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples")
+                self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
+                self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples")
             ]
         )
 
@@ -789,9 +796,15 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             ]
         )
 
+        # Building with Adiak
+        if "+adiak" in spec: 
+            entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
+
         # Building with Caliper
         if "+caliper" in spec:
             entries.append(cmake_cache_path("CALIPER_DIR", spec["caliper"].prefix))
+            if "+adiak" in spec["caliper"]:
+                entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
 
         # Building with Ginkgo
         if "+ginkgo" in spec:
