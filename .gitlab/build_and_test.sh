@@ -219,6 +219,14 @@ then
 
     cd "${build_dir}"
 
+    # configure .cali file output directory
+    if [[ "${BENCHMARK}" == "ON" ]] && [[ -d /usr/workspace/sundials ]]
+    then
+        output_dir="/usr/workspace/sundials/caliper"
+        $cmake_exe \
+            -DSUNDIALS_TEST_OUTPUT_DIR=${output_dir}
+    fi
+
     VERBOSE_TEST=${VERBOSE_TEST:-"ON"}
     if [[ "${VERBOSE_TEST}" == "ON" ]]; then
         verbose_test='--verbose'
