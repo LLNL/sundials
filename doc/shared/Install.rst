@@ -1445,6 +1445,18 @@ CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
 SUNDIALS has been tested with the CUDA toolkit versions 10 and 11.
 
 
+.. _Installation.Cmake.ExternalLibraries.HIP:
+
+Building with HIP
+^^^^^^^^^^^^^^^^^^^^^^
+HIP(heterogeneous-compute interface for portability) allows developers to create portable applications for AMD and NVIDIA GPUs. HIP can be obtained from `HIP GitHub repository<https://github.com/ROCm-Developer-Tools/HIP>`_.
+
+To enable HIP, set ``ENABLE_HIP`` to ``ON`` and set ``AMDGPU_TARGETS`` to the desired target(ex. gfx705).
+In addition, set ``CMAKE_C_COMPILER`` and ``CMAKE_CXX_COMPILER`` to point to an installation of ``hipcc``.
+
+SUNDIALS has been tested with HIP versions between 5.0.0 to 5.4.3.
+
+
 .. _Installation.CMake.ExternalLibraries.RAJA:
 
 Building with RAJA

@@ -238,7 +238,7 @@ then used to create an environment variable ``SPEC`` with a Spack spec used by
 Benchmark Jobs
 ^^^^^^^^^^^^^^
 
-See `SUNDIALS Continuous Performance Testing (CPT)` for more details.
+See :ref:`SUNDIALS Continuous Performance Testing (CPT)<CPT>` for more details.
 
 GitLab CI Test Script
 ---------------------
@@ -258,7 +258,7 @@ build, and test SUNDIALS. This script leverages two Git submodules:
   repository that provides spack configuration files for various LLNL platfornms
   i.e., ``compilers.yaml`` and ``packages.yaml`` files for Quartz, Lassen, etc.
 
-These submodues work in conjunction with ``spack_packages/sundials/package.py``
+These submodules work in conjunction with ``spack_packages/sundials/package.py``
 to configure and build any third-party libraries needed by the SUNDIALS
 configuration and generates an initial CMake cache file for building SUNDIALS.
 Other packages can be added to ``spack_packages/<package name>/package.py``

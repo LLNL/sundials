@@ -11,6 +11,9 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
+
+.. _CPT:
+
 Continuous Performance Testing (CPT)
 ====================================
 
@@ -29,12 +32,14 @@ FUTURE: WE WILL TRACK PERFORMANCE OVER TIME WITH `CALIPER <https://lc.llnl.gov/c
 Locally Building and Running the CPT
 ------------------------------------
 
-The SUNDIALS example suite can be run with Caliper profiling enabled for the CPT suite by setting the CMake options
+The SUNDIALS example suite can be run with Caliper profiling enabled and Adiak enabled for the CPT suite by setting the CMake options
 
 .. code-block:: cmake
 
-  cmake -DSUNDIALS_BUILD_WITH_PROFILING=ON -DENABLE_CALIPER=ON -DCaliper_DIR=/path/to/caliper -DSUNDIALS_TEST_DEVTESTS=ON -DSUNDIALS_TEST_PROFILE=ON 
+  cmake -DSUNDIALS_BUILD_WITH_PROFILING=ON -DENABLE_CALIPER=ON -DCaliper_DIR=/path/to/caliper -DENABLE_ADIAK=ON -Dadiak_DIR=/path/to/adiak/lib/cmake/adiak -DSUNDIALS_TEST_DEVTESTS=ON -DSUNDIALS_TEST_PROFILE=ON 
 
-This command will result in ``--profile`` option being passed to the SUNDIALS test runner Python script, ``test/testRunner``, which will in turn set the ``CALI_CONFIG`` environment variable before running every test so that when you run ``make test`` the examples will produce `.cali` output files documenting the performance.
+This command will result in ``--profile`` option being passed to the SUNDIALS test runner Python script, ``test/testRunner``, which will in turn set the ``CALI_CONFIG`` environment variable before running every test so that when you run ``make test`` the examples will produce `.cali` output files documenting the performance. Running ``make benchmark`` will execute all the available benchmarks and produce `.cali` output files for each one.
+
+To specify where `.cali` output files are placed, define the CMake option SUNDIALS_TEST_OUTPUT_DIR with the directory path. By default `.cali` output files are placed in the build directory (:numref:`Installation`) under ``Benchmarking/output`` and ``Testing/output``.
 
 Refer to documentation section :ref:`Benchmarks` for instructions on building and running the ``benchmarks/`` programs locally.
