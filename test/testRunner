@@ -196,11 +196,7 @@ def main():
         if(args.profile):
             dateTime = datetime.datetime.now().strftime("%m%d%Y_%H%M%S")
             profilePath = os.path.join(outDir, args.testName+".%s.cali" % dateTime)
-            os.environ['SUNDIALS_VERSION'] = subprocess.check_output(
-                    ['git', 'describe', '--abbrev=12', '--dirty', '--always', '--tags']
-                ).decode('UTF-8').strip()
             os.environ['CALI_SERVICES_ENABLE'] = 'env'
-            os.environ['CALI_ENV_EXTRA'] = 'SUNDIALS_VERSION'
             os.environ['CALI_CONFIG'] = 'runtime-report,hatchet-region-profile,spot(output=%s)' % profilePath
 
         # if user supplies precision info overide the default choices
