@@ -189,17 +189,27 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
                                             M,           // stride in P_i
                                             num_blocks); // number of blocks
 
+#ifdef SUNDIALS_ONEMKL_USE_GETRS_BATCHED
     LS_S_SCRATCH_SIZE(S)=
       getrs_batch_scratchpad_size<realtype>(*queue,      // device queue
                                             oneapi::mkl::transpose::nontrans,
                                             M,           // number of rows in A_i
                                             1,           // number of right-hand sides
-                                            M,           // leading dimension of A_i
+                                            M,           // leading dimensino of A_i
                                             M * N,       // stride between A_i
                                             M,           // stride between pivots
                                             M,           // leading dimension of B_i
                                             M,           // stride between B_i
                                             num_blocks); // number of blocks
+#else
+    LS_S_SCRATCH_SIZE(S) =
+      getrs_scratchpad_size<realtype>(*queue,  // device queue
+                                      oneapi::mkl::transpose::nontrans,
+                                      M,      // number of rows in A
+                                      1,      // number of right-hand sizes
+                                      M,      // leading dimension of A
+                                      M);     // leading dimension of B
+#endif
   }
   else
   {
@@ -457,6 +467,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   if (num_blocks > 1)
   {
+#ifdef SUNDIALS_ONEMKL_USE_GETRS_BATCHED
     try
     {
       getrs_batch(*queue,        // device queue
@@ -480,6 +491,30 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       SUNDIALS_DEBUG_ERROR("An exception occured in getrs_batch\n");
       ier = -1;
     }
+#else
+    try
+    {
+      for (sunindextype i = 0; i < num_blocks; i++)
+      {
+        getrs(*queue,            // device queue
+              oneapi::mkl::transpose::nontrans,
+              M,                 // number of rows
+              1,                 // number of right-hand sides
+              Adata + i * M * N, // factorized matrix data
+              M,                 // leading dimension of A
+              pivots,            // array of pivots
+              xdata + i * M,     // right-hand side data
+              M,                 // leading dimension of B_i
+              scratchpad,        // scratchpad memory
+              scratch_size);     // scratchpad size
+      }
+    }
+    catch(oneapi::mkl::lapack::exception const& e)
+    {
+      SUNDIALS_DEBUG_ERROR("An exception occured in getrs\n");
+      ier = -1;
+    }
+#endif
   }
   else
   {
