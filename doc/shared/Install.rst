@@ -1012,6 +1012,22 @@ illustration only.
 
    Default: None
 
+.. cmakeoption:: ENABLE_ADIAK
+   
+   Enable Adiak support
+
+   Default: OFF
+
+   .. note::
+      
+      Using Adiak requires setting :cmakeop:`ENABLE_CALIPER` and :cmakeop:`SUNDIALS_BUILD_WITH_PROFILING` to ``ON``.
+
+.. cmakeoption:: adiak_DIR
+
+   Path to the root of an Adiak installation
+
+   Default: None
+
 .. cmakeoption:: SUNDIALS_F77_FUNC_CASE
 
    Specify the case to use in the Fortran name-mangling scheme,
