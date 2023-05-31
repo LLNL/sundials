@@ -50,7 +50,7 @@ if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   set(_link_caliper_if_needed PUBLIC caliper)
   if(ENABLE_ADIAK)
     set(_include_adiak_if_needed PUBLIC ${adiak_INCLUDE_DIRS})
-    set(_link_adiak_if_needed PUBLIC ${CMAKE_DL_LIBS} ${adiak_LIBARIES})
+    set(_link_adiak_if_needed PUBLIC ${adiak_LIBARIES} ${CMAKE_DL_LIBS})
   endif()
 endif()
 
