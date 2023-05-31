@@ -348,19 +348,19 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
               scratchpad,        // scratchpad memory
               scratch_size);     // scratchpad size
       }
-      catch(oneapi::mkl::lapack::exception const& e)
+    }
+    catch(oneapi::mkl::lapack::exception const& e)
+    {
+      SUNDIALS_DEBUG_ERROR("An exception occured in getrf\n");
+      if (e.info())
       {
-        SUNDIALS_DEBUG_ERROR("An exception occured in getrf\n");
-        if (e.info())
-        {
-          // An illegal value was providied or the scratch pad is too small
-          ier = -1;
-        }
-        else
-        {
-          // The diagonal element of some of U_i is zero
-          ier = 1;
-        }
+        // An illegal value was providied or the scratch pad is too small
+        ier = -1;
+      }
+      else
+      {
+        // The diagonal element of some of U_i is zero
+        ier = 1;
       }
     }
 #else
