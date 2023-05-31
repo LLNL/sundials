@@ -62,8 +62,8 @@ sundials_option(ENABLE_HIP BOOL "Enable HIP support" OFF)
 sundials_option(ENABLE_SYCL BOOL "Enable SYCL support" OFF)
 
 sundials_option(SUNDIALS_SYCL_2020_UNSUPPORTED BOOL
-                "Work around incomplete incomplete SYCL 2020 support" OFF
-                DEPENDS_ON ENABLE_ONEMKL
+                "Work around incomplete compiler support for SYCL 2020" OFF
+                DEPENDS_ON ENABLE_SYCL
                 ADVANCED)
 
 # ---------------------------------------------------------------
