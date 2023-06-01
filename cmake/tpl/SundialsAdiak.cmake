@@ -56,19 +56,24 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
   set(adiak_TEST_DIR ${PROJECT_BINARY_DIR}/adiak_TEST)
   file(MAKE_DIRECTORY ${adiak_TEST_DIR})
 
-  # Create a CMakeLists.txt file
-  file(WRITE ${adiak_TEST_DIR}/CMakeLists.txt "")
-
   # Create a C source file
-  file(WRITE ${adiak_TEST_DIR}/ltest.c "")
+  file(WRITE ${adiak_TEST_DIR}/ltest.c
+  "\#include <adiak.h>\n"
+  "int main()\n"
+  "{\n"
+  "  adiak_init(NULL);\n"
+  "  adiak_fini();\n" 
+  "  return 0;\n"
+  "}\n")
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${adiak_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${adiak_TEST_DIR} ${adiak_TEST_DIR} ltest
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(COMPILE_OK ${adiak_TEST_DIR} ${adiak_TEST_DIR}/ltest.c
+    OUTPUT_VARIABLE COMPILE_OUTPUT
+    LINK_LIBRARIES adiak::adiak ${CMAKE_DL_LIBS})
 
   # Process test result
   if(COMPILE_OK)

@@ -42,7 +42,7 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   set(_link_caliper_if_needed PUBLIC caliper)
   if(ENABLE_ADIAK)
-    set(_link_adiak_if_needed PUBLIC adiak::adiak)
+    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
   endif()
 endif()
 

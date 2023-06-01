@@ -115,7 +115,7 @@ if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
     set(_link_caliper_if_needed PUBLIC caliper)
   endif()
   if(ENABLE_ADIAK)
-    set(_link_adiak_if_needed PRIVATE adiak::adiak)
+    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
   endif()
 endif()
 
