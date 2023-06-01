@@ -664,7 +664,7 @@ int arkRelaxDestroy(ARKodeRelaxMem relax_mem)
     relax_mem->y_relax = NULL;
   }
 
-  if (relax_mem->y_relax)
+  if (relax_mem->J_vecs)
   {
     N_VDestroyVectorArray(relax_mem->J_vecs, relax_mem->num_relax_fn_alloc);
     relax_mem->J_vecs = NULL;
