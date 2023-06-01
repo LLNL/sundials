@@ -471,12 +471,14 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
             relax_mem->nls_iters);
     fprintf(outfile, "Relax NLS fails              = %ld\n",
             relax_mem->nls_fails);
+    break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
     fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
     fprintf(outfile, ",Relax fails,%ld", relax_mem->num_fails);
     fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->nls_iters);
     fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
+    break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxPrintAllStats",
                     "Invalid formatting option.");
