@@ -52,11 +52,9 @@ set(cvodes_HEADERS
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
-  set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
   set(_link_caliper_if_needed PUBLIC caliper)
   if(ENABLE_ADIAK)
-    set(_include_adiak_if_needed PUBLIC ${adiak_INCLUDE_DIRS})
-    set(_link_adiak_if_needed PUBLIC ${adiak_LIBARIES} ${CMAKE_DL_LIBS})
+    set(_link_adiak_if_needed PUBLIC adiak::adiak)
   endif()
 endif()
 
@@ -68,9 +66,6 @@ sundials_add_library(sundials_cvodes
     ${cvodes_HEADERS}
   INCLUDE_SUBDIR
     cvodes
-  INCLUDE_DIRECTORIES
-    ${_include_caliper_if_needed}
-    ${_include_adiak_if_needed}
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_sunmemsys_obj
