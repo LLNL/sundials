@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Programmer(s): Cody J. Balos @ LLNL
+# Programmer(s): Yu Pan @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -40,11 +40,8 @@ endif()
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
 
-find_package(adiak
-             PATHS "${adiak_DIR}"
-             NO_DEFAULT_PATH
-             REQUIRED)
-message(STATUS "ADIAK_LIBRARIES:     ${adiak_LIBRARIES}")
+find_package(adiak REQUIRED)
+message(STATUS "ADIAK_LIBRARIES:   ${adiak_LIBRARIES}")
 message(STATUS "ADIAK_INCLUDE_DIR: ${adiak_INCLUDE_DIR}")
 
 

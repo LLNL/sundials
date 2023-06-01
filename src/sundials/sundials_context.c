@@ -15,10 +15,6 @@
  * SUNDIALS objects in a simulation share.
  * ----------------------------------------------------------------*/
 
-#ifdef SUNDIALS_ADIAK_ENABLED 
-#include "adiak.h"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +24,11 @@
 
 #include "sundials_context_impl.h"
 #include "sundials_debug.h"
+
+#ifdef SUNDIALS_ADIAK_ENABLED
+#include <adiak.h>
+void sunAdiakCollectMetadata();
+#endif
 
 int SUNContext_Create(void* comm, SUNContext* sunctx)
 {
@@ -39,7 +40,7 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
 
 #ifdef SUNDIALS_ADIAK_ENABLED 
   adiak_init(comm);
-  sun_adiak_helper();
+  sunAdiakCollectMetadata(comm);
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL > 0 
@@ -217,7 +218,7 @@ int SUNContext_Free(SUNContext* sunctx)
 }
 
 #ifdef SUNDIALS_ADIAK_ENABLED
-static void sun_adiak_helper() {
+void sunAdiakCollectMetadata() {
   adiak_launchdate();
   adiak_executable();
   adiak_cmdline();

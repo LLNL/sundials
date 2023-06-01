@@ -162,7 +162,7 @@
 /* RAJA version number*/
 #define SUN_RAJA_VERSION "@RAJA_VERSION@"
 
-/* OpenMP *
+/* OpenMP */
 #cmakedefine SUNDIALS_OPENMP_ENABLED
 #define SUN_OPENMP_VERSION "@OpenMP_VERSION@"
 
