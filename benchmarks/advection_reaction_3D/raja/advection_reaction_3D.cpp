@@ -675,23 +675,20 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     realtype* ydata = NULL;
     ydata = N_VGetArrayPointer(y);
     if (check_retval((void *) ydata, "N_VGetArrayPointer", 0, udata->myid)) return -1;
-    RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(ydata,
-                                                       udata->grid->nxl,
-                                                       udata->grid->nyl,
-                                                       udata->grid->nzl,
-                                                       udata->grid->dof);
+    const int nxl = udata->grid->nxl;
+    const int nyl = udata->grid->nyl;
+    const int nzl = udata->grid->nzl;
+    const int dof = udata->grid->dof;
+    RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(ydata, nxl, nyl, nzl, dof);
 
     /* output results to disk */
-    auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                  RAJA::RangeSegment(0, udata->grid->nyl),
-                                  RAJA::RangeSegment(0, udata->grid->nzl));
-    RAJA::kernel<XYZ_KERNEL_SERIAL_POLICY>(range,
-      [=] (int i, int j, int k)
-    {
-      fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
-      fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
-      fprintf(udata->WFID," %.16e", Yview(i,j,k,2));
-    });
+    for (int i = 0; i < nxl; i++)
+      for (int j = 0; j < nyl; j++)
+        for (int k = 0; k < nzl; k++) {
+          fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
+          fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
+          fprintf(udata->WFID," %.16e", Yview(i,j,k,2));
+        }
 
     fprintf(udata->UFID,"\n");
     fprintf(udata->VFID,"\n");
