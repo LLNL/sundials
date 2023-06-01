@@ -41,13 +41,6 @@ set(ida_HEADERS
 # Add prefix with complete path to the IDA header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/ida/ ida_HEADERS)
 
-if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
-  set(_link_caliper_if_needed PUBLIC caliper)
-  if(ENABLE_ADIAK)
-    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
-  endif()
-endif()
-
 # Create the library
 sundials_add_library(sundials_ida
   SOURCES
@@ -72,10 +65,6 @@ sundials_add_library(sundials_ida
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-  LINK_LIBRARIES
-    # Link to caliper if conditions are met.
-    ${_link_caliper_if_needed}
-    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_ida
   VERSION

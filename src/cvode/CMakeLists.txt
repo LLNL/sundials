@@ -101,13 +101,6 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   set(_fused_link_lib sundials_cvode_fused_stubs)
 endif()
 
-if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
-  set(_link_caliper_if_needed PUBLIC caliper)
-  if(ENABLE_ADIAK)
-    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
-  endif()
-endif()
-
 # Create the library
 sundials_add_library(sundials_cvode
   SOURCES
@@ -135,9 +128,6 @@ sundials_add_library(sundials_cvode
   LINK_LIBRARIES
     # Link to stubs so examples work.
     PRIVATE ${_fused_link_lib}
-    # Link to caliper if conditions are met.
-    ${_link_caliper_if_needed}
-    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_cvode
   VERSION
