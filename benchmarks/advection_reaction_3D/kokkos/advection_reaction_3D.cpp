@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "SetupProblem", 1, udata.myid)) MPI_Abort(comm, 1);
 
     /* Create solution vector (on-node and MPI-parallel versions) */
-    sundials::kokkos::Vector<> yloc((unsigned int)udata.grid->neq, ctx);
-    y = N_VMake_MPIPlusX(udata.comm, yloc.Convert(), ctx);
+    SUNVector yloc{(unsigned int)udata.grid->neq, ctx};
+    y = N_VMake_MPIPlusX(udata.comm, yloc, ctx);
     if (check_retval((void *) y, "N_VMake_MPIPlusX", 0, udata.myid)) MPI_Abort(comm, 1);
 
     /* Set the initial condition */
@@ -470,17 +470,19 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   const sunindextype npts[] = {uopt->npts, uopt->npts, uopt->npts};
   const realtype amax[] = {0.0, 0.0, 0.0};
   const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
-  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(&udata->comm, amax, bmax, npts,
+  udata->grid = new ParallelGrid<sunindextype,NDIMS>(&udata->comm, amax, bmax, npts,
       3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, STENCIL_WIDTH, uopt->npxyz);
 
   /* Create the solution masks */
-  sundials::kokkos::Vector<> umaskloc{(unsigned int)udata->grid->neq, ctx};
-  udata->umask = N_VMake_MPIPlusX(udata->comm, umaskloc, ctx);
+  SUNVector *umaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
+  udata->umask = N_VMake_MPIPlusX(udata->comm, *umaskloc, ctx);
   if (check_retval((void *) udata->umask, "N_VMake_MPIPlusX", 0, udata->myid)) MPI_Abort(udata->comm, 1);
-  udata->vmask = N_VClone(udata->umask);
-  if (check_retval((void *) udata->vmask, "N_VClone", 0, udata->myid)) MPI_Abort(udata->comm, 1);
-  udata->wmask = N_VClone(udata->umask);
-  if (check_retval((void *) udata->wmask, "N_VClone", 0, udata->myid)) MPI_Abort(udata->comm, 1);
+  SUNVector *vmaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
+  udata->vmask = N_VMake_MPIPlusX(udata->comm, *vmaskloc, ctx);
+  if (check_retval((void *) udata->vmask, "N_VMake_MPIPlusX", 0, udata->myid)) MPI_Abort(udata->comm, 1);
+  SUNVector *wmaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
+  udata->wmask = N_VMake_MPIPlusX(udata->comm, *wmaskloc, ctx);
+  if (check_retval((void *) udata->wmask, "N_VMake_MPIPlusX", 0, udata->myid)) MPI_Abort(udata->comm, 1);
   ComponentMask(udata->umask, 0, udata);
   ComponentMask(udata->vmask, 1, udata);
   ComponentMask(udata->wmask, 2, udata);
@@ -509,7 +511,16 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   if (udata->myid == 0)
   {
     printf("\n\t\tAdvection-Reaction Test Problem\n\n");
-    printf("Using the MPI+Kokkos NVECTOR\n");
+    printf("Using the MPI+Kokkos NVECTOR");
+#if defined(USE_CUDA)
+    printf(" with the CUDA back-end\n");
+#elif defined(USE_HIP)
+    printf(" with the HIP back-end\n");
+#elif defined(USE_OPENMP)
+    printf(" with the OpenMP back-end and %i threads\n", omp_get_max_threads());
+#else
+    printf(" with the serial back-end\n");
+#endif
     printf("Number of Processors = %li\n", (long int) udata->nprocs);
     udata->grid->PrintInfo();
     printf("Problem Parameters:\n");
@@ -614,8 +625,8 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* Copy solution data to host mirror view */
-  SUNVector* yVec = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
-  sundials::kokkos::CopyFromDevice(*yVec);
+  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
+  sundials::kokkos::CopyFromDevice(*ylocal);
 
   /* output current solution norm to screen */
   realtype N = (realtype) udata->grid->npts();
@@ -639,18 +650,20 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* create 4D view of host data */
-    Vec4DHost Yview((yVec->HostView()).data(), udata->grid->nxl,
-                    udata->grid->nyl, udata->grid->nzl, udata->grid->dof);
+    const int nxl = udata->grid->nxl;
+    const int nyl = udata->grid->nyl;
+    const int nzl = udata->grid->nzl;
+    const int dof = udata->grid->dof;
+    Vec4DHost yview((ylocal->HostView()).data(), nxl, nyl, nzl, dof);
 
     /* output results to disk */
-    Kokkos::parallel_for("OutputSolution",
-                         Range3DSerial({0,0,0},{udata->grid->nxl,udata->grid->nyl,udata->grid->nzl}),
-                         KOKKOS_LAMBDA (int i, int j, int k)
-    {
-      fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
-      fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
-      fprintf(udata->WFID," %.16e", Yview(i,j,k,2));
-    });
+    for (int i = 0; i < nxl; i++)
+      for (int j = 0; j < nyl; j++)
+        for (int k = 0; k < nzl; k++) {
+          fprintf(udata->UFID," %.16e", yview(i,j,k,0));
+          fprintf(udata->VFID," %.16e", yview(i,j,k,1));
+          fprintf(udata->WFID," %.16e", yview(i,j,k,2));
+        }
 
     fprintf(udata->UFID,"\n");
     fprintf(udata->VFID,"\n");

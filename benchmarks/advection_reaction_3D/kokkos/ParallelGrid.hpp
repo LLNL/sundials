@@ -25,6 +25,33 @@
 #include <fstream>
 #include <mpi.h>
 #include <Kokkos_Core.hpp>
+#include <sundials/sundials_types.h>
+
+
+/* Set execution space */
+#if defined(USE_CUDA)
+using ExecSpace = Kokkos::Cuda;
+#elif defined(USE_HIP)
+#if KOKKOS_VERSION / 10000 > 3
+using ExecSpace = Kokkos::HIP;
+#else
+using ExecSpace = Kokkos::Experimental::HIP;
+#endif
+#elif defined(USE_OPENMP)
+using ExecSpace = Kokkos::OpenMP;
+#else
+using ExecSpace = Kokkos::Serial;
+#endif
+
+/* Set Kokkos type shortcuts */
+using Vec1D = Kokkos::View<realtype*>;
+using Vec3D = Kokkos::View<realtype***, Kokkos::LayoutRight>;
+using Vec4D = Kokkos::View<realtype****, Kokkos::LayoutRight>;
+using Vec1DHost = Vec1D::HostMirror;
+using Vec4DHost = Vec4D::HostMirror;
+using Range3D = Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>;
+using Range3DSerial = Kokkos::MDRangePolicy<Kokkos::Serial, Kokkos::Rank<3>>;
+
 
 namespace sundials_tools
 {
@@ -41,7 +68,7 @@ enum class StencilType
   UPWIND
 };
 
-template<typename REAL, typename GLOBALINT, int NDIMS>
+template<typename GLOBALINT, int NDIMS>
 class ParallelGrid
 {
 public:
@@ -57,8 +84,8 @@ public:
   // [in] width - the stencil width; defaults to 1
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
-  ParallelGrid(MPI_Comm* comm, const REAL a[], const REAL b[], const GLOBALINT npts[],
-               int dof, BoundaryType bc, StencilType st, const REAL c, int width = 1,
+  ParallelGrid(MPI_Comm* comm, const realtype a[], const realtype b[], const GLOBALINT npts[],
+               int dof, BoundaryType bc, StencilType st, const realtype c, int width = 1,
                const int npxyz[] = nullptr, bool reorder = false)
     : nx(1), ny(1), nz(1),
       nxl(1), nyl(1), nzl(1),
@@ -105,7 +132,7 @@ public:
     nx  = npts[0];
     ax  = a[0];
     bx  = b[0];
-    dx  = (bx-ax) / (REAL) nx;
+    dx  = (bx-ax) / (realtype) nx;
     int is = nx*(coords[0])/npx;
     int ie = nx*(coords[0]+1)/npx-1;
     nxl = ie-is+1;
@@ -118,7 +145,7 @@ public:
       ny  = npts[1];
       ay  = a[1];
       by  = b[1];
-      dy  = (by-ay) / (REAL) ny;
+      dy  = (by-ay) / (realtype) ny;
       int js = ny*(coords[1])/npy;
       int je = ny*(coords[1]+1)/npy-1;
       nyl = je-js+1;
@@ -132,7 +159,7 @@ public:
       nz  = npts[2];
       az  = a[2];
       bz  = b[2];
-      dz  = (bz-az) / (REAL) nz;
+      dz  = (bz-az) / (realtype) nz;
       int ks = nz*(coords[2])/npz;
       int ke = nz*(coords[2]+1)/npz-1;
       nzl = ke-ks+1;
@@ -154,9 +181,9 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication West */
     if (upwindRight)
-      Wrecv_ = Kokkos::View<REAL*>("Wrecv", dof*width*nyl*nzl);
+      Wrecv_ = Vec1D("Wrecv", dof*width*nyl*nzl);
     else
-      Wsend_ = Kokkos::View<REAL*>("Wsend", dof*width*nyl*nzl);
+      Wsend_ = Vec1D("Wsend", dof*width*nyl*nzl);
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]-1, coords[1], coords[2]};
@@ -166,9 +193,9 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication East */
     if (upwindRight)
-      Esend_ = Kokkos::View<REAL*>("Esend", dof*width*nyl*nzl);
+      Esend_ = Vec1D("Esend", dof*width*nyl*nzl);
     else
-      Erecv_ = Kokkos::View<REAL*>("Erecv", dof*width*nyl*nzl);
+      Erecv_ = Vec1D("Erecv", dof*width*nyl*nzl);
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0]-1) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]+1, coords[1], coords[2]};
@@ -180,9 +207,9 @@ public:
     {
       /* Allocate send/receive buffers and determine ID for communication South */
       if (upwindRight)
-        Srecv_ = Kokkos::View<REAL*>("Srecv", dof*width*nxl*nzl);
+        Srecv_ = Vec1D("Srecv", dof*width*nxl*nzl);
       else
-        Ssend_ = Kokkos::View<REAL*>("Ssend", dof*width*nxl*nzl);
+        Ssend_ = Vec1D("Ssend", dof*width*nxl*nzl);
       ipS = MPI_PROC_NULL;
       if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
@@ -192,9 +219,9 @@ public:
 
       /* Allocate send/receive buffers and determine ID for communication North */
       if (upwindRight)
-        Nsend_ = Kokkos::View<REAL*>("Nsend", dof*width*nxl*nzl);
+        Nsend_ = Vec1D("Nsend", dof*width*nxl*nzl);
       else
-        Nrecv_ = Kokkos::View<REAL*>("Nrecv", dof*width*nxl*nzl);
+        Nrecv_ = Vec1D("Nrecv", dof*width*nxl*nzl);
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
@@ -207,9 +234,9 @@ public:
     {
       /* Allocate send/receive buffers and determine ID for communication Back */
       if (upwindRight)
-        Brecv_ = Kokkos::View<REAL*>("Brecv", dof*width*nxl*nyl);
+        Brecv_ = Vec1D("Brecv", dof*width*nxl*nyl);
       else
-        Bsend_ = Kokkos::View<REAL*>("Bsend", dof*width*nxl*nyl);
+        Bsend_ = Vec1D("Bsend", dof*width*nxl*nyl);
       ipB = MPI_PROC_NULL;
       if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]-1};
@@ -219,9 +246,9 @@ public:
 
       /* Allocate send/receive buffers and determine ID for communication Front */
       if (upwindRight)
-        Fsend_ = Kokkos::View<REAL*>("Fsend", dof*width*nxl*nyl);
+        Fsend_ = Vec1D("Fsend", dof*width*nxl*nyl);
       else
-        Frecv_ = Kokkos::View<REAL*>("Frecv", dof*width*nxl*nyl);
+        Frecv_ = Vec1D("Frecv", dof*width*nxl*nyl);
       ipF = MPI_PROC_NULL;
       if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]+1};
@@ -434,78 +461,78 @@ public:
     return dof*nptsl();
   }
 
-  Kokkos::View<REAL****> GetRecvView(const std::string& direction)
+  Vec4D GetRecvView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return Kokkos::View<REAL****>(Wrecv_.data(), 1, nyl, nzl, dof);
+      return Vec4D(Wrecv_.data(), 1, nyl, nzl, dof);
     }
     else if (direction == "EAST")
     {
-      return Kokkos::View<REAL****>(Erecv_.data(), 1, nyl, nzl, dof);
+      return Vec4D(Erecv_.data(), 1, nyl, nzl, dof);
     }
     else if (direction == "NORTH")
     {
-      return Kokkos::View<REAL****>(Nrecv_.data(), nxl, 1, nzl, dof);
+      return Vec4D(Nrecv_.data(), nxl, 1, nzl, dof);
     }
     else if (direction == "SOUTH")
     {
-      return Kokkos::View<REAL****>(Srecv_.data(), nxl, 1, nzl, dof);
+      return Vec4D(Srecv_.data(), nxl, 1, nzl, dof);
     }
     else if (direction == "FRONT")
     {
-      return Kokkos::View<REAL****>(Frecv_.data(), nxl, nyl, 1, dof);
+      return Vec4D(Frecv_.data(), nxl, nyl, 1, dof);
     }
     else if (direction == "BACK")
     {
-      return Kokkos::View<REAL****>(Brecv_.data(), nxl, nyl, 1, dof);
+      return Vec4D(Brecv_.data(), nxl, nyl, 1, dof);
     }
     else
     {
       assert(direction == "ILLEGAL");
-      return Kokkos::View<REAL****>();
+      return Vec4D();
     }
   }
 
-  Kokkos::View<REAL****> GetSendView(const std::string& direction)
+  Vec4D GetSendView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return Kokkos::View<REAL****>(Wsend_.data(), 1, nyl, nzl, dof);
+      return Vec4D(Wsend_.data(), 1, nyl, nzl, dof);
     }
     else if (direction == "EAST")
     {
-      return Kokkos::View<REAL****>(Esend_.data(), 1, nyl, nzl, dof);
+      return Vec4D(Esend_.data(), 1, nyl, nzl, dof);
     }
     else if (direction == "NORTH")
     {
-      return Kokkos::View<REAL****>(Nsend_.data(), nxl, 1, nzl, dof);
+      return Vec4D(Nsend_.data(), nxl, 1, nzl, dof);
     }
     else if (direction == "SOUTH")
     {
-      return Kokkos::View<REAL****>(Ssend_.data(), nxl, 1, nzl, dof);
+      return Vec4D(Ssend_.data(), nxl, 1, nzl, dof);
     }
     else if (direction == "FRONT")
     {
-      return Kokkos::View<REAL****>(Fsend_.data(), nxl, nyl, 1, dof);
+      return Vec4D(Fsend_.data(), nxl, nyl, 1, dof);
     }
     else if (direction == "BACK")
     {
-      return Kokkos::View<REAL****>(Bsend_.data(), nxl, nyl, 1, dof);
+      return Vec4D(Bsend_.data(), nxl, nyl, 1, dof);
     }
     else
     {
       assert(direction == "ILLEGAL");
-      return Kokkos::View<REAL****>();
+      return Vec4D();
     }
   }
 
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
   int       nxl, nyl, nzl; /* number of intervals locally        */
   int       npx, npy, npz; /* numner of processes                */
-  REAL      dx, dy, dz;    /* mesh spacing                       */
-  REAL      ax, ay, az;    /* domain in [a, b]                   */
-  REAL      bx, by, bz;
+  realtype  dx, dy, dz;    /* mesh spacing                       */
+  realtype  ax, ay, az;    /* domain in [a, b]                   */
+  realtype  bx, by, bz;
   int       dof;           /* degrees of freedom per node        */
   int       neq;           /* total number of equations locally  */
 
@@ -527,18 +554,18 @@ private:
   StencilType  st;
   int          width;
 
-  Kokkos::View<REAL*> Wsend_;            /* MPI send/recv buffers              */
-  Kokkos::View<REAL*> Esend_;
-  Kokkos::View<REAL*> Ssend_;
-  Kokkos::View<REAL*> Nsend_;
-  Kokkos::View<REAL*> Bsend_;
-  Kokkos::View<REAL*> Fsend_;
-  Kokkos::View<REAL*> Wrecv_;
-  Kokkos::View<REAL*> Erecv_;
-  Kokkos::View<REAL*> Srecv_;
-  Kokkos::View<REAL*> Nrecv_;
-  Kokkos::View<REAL*> Brecv_;
-  Kokkos::View<REAL*> Frecv_;
+  Vec1D Wsend_;            /* MPI send/recv buffers              */
+  Vec1D Esend_;
+  Vec1D Ssend_;
+  Vec1D Nsend_;
+  Vec1D Bsend_;
+  Vec1D Fsend_;
+  Vec1D Wrecv_;
+  Vec1D Erecv_;
+  Vec1D Srecv_;
+  Vec1D Nrecv_;
+  Vec1D Brecv_;
+  Vec1D Frecv_;
 
 };
 

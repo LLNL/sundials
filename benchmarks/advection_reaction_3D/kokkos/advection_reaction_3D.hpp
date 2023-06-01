@@ -28,14 +28,8 @@
 #include "check_retval.h"
 #include "ParallelGrid.hpp"
 
-using Vec1D = Kokkos::View<realtype*>;
-using Vec3D = Kokkos::View<realtype***>;
-using Vec4D = Kokkos::View<realtype****>;
-using Vec1DHost = Kokkos::View<realtype*>::HostMirror;
-using Vec4DHost = Kokkos::View<realtype****>::HostMirror;
-using Range3D = Kokkos::MDRangePolicy<Kokkos::DefaultExecutionSpace, Kokkos::Rank<3>>;
-using Range3DSerial = Kokkos::MDRangePolicy<Kokkos::Serial, Kokkos::Rank<3>>;
-using SUNVector = sundials::kokkos::Vector<>;
+/* Set SUNDIALS Kokkos vector shortcut */
+using SUNVector = sundials::kokkos::Vector<ExecSpace>;
 
 using sundials_tools::ParallelGrid;
 using sundials_tools::BoundaryType;
@@ -114,7 +108,7 @@ struct UserData
   realtype  c;    /* advection coefficient        */
 
   /* Parallel mesh */
-  ParallelGrid<realtype,sunindextype,NDIMS>* grid;
+  ParallelGrid<sunindextype,NDIMS>* grid;
 
   /* Count of implicit function evals by the task local nonlinear solver */
   long int nnlfi;
