@@ -60,10 +60,8 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   N_VConst(0.0, ydot);
 
   /* create 4D views of the state and RHS vectors */
-  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
-  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
-  SUNVector* dylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(ydot));
-  Vec4D dYview((dylocal->View()).data(), nxl, nyl, nzl, dof);
+  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
+  Vec4D dYview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(ydot)), nxl, nyl, nzl, dof);
 
   /* iterate over domain interior, computing advection */
   if (c > 0.0)
@@ -135,9 +133,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
        boundaries are west face, south face, and back face */
 
     /*   Create 4D views of receive buffers */
-    Vec4D Wrecv = udata->grid->GetRecvView("WEST");
-    Vec4D Srecv = udata->grid->GetRecvView("SOUTH");
-    Vec4D Brecv = udata->grid->GetRecvView("BACK");
+    Vec4D Wrecv(udata->grid->GetRecvView("WEST"),  1, nyl, nzl, dof);
+    Vec4D Srecv(udata->grid->GetRecvView("SOUTH"), nxl, 1, nzl, dof);
+    Vec4D Brecv(udata->grid->GetRecvView("BACK"),  nxl, nyl, 1, dof);
 
     /*   Perform calculations on each "lower" face */
     Kokkos::parallel_for("AdvectionBoundaryWest",
@@ -185,9 +183,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
        boundaries are east face, north face, and front face */
 
     /*   Create 4D views of receive buffers */
-    Vec4D Erecv = udata->grid->GetRecvView("EAST");
-    Vec4D Nrecv = udata->grid->GetRecvView("NORTH");
-    Vec4D Frecv = udata->grid->GetRecvView("FRONT");
+    Vec4D Erecv(udata->grid->GetRecvView("EAST"),  1, nyl, nzl, dof);
+    Vec4D Nrecv(udata->grid->GetRecvView("NORTH"), nxl, 1, nzl, dof);
+    Vec4D Frecv(udata->grid->GetRecvView("FRONT"), nxl, nyl, 1, dof);
 
     /*   Perform calculations on each "upper" face */
     Kokkos::parallel_for("AdvectionBoundaryEast",
@@ -260,10 +258,8 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     N_VConst(0.0, ydot);
 
   /* create 4D views of state and RHS vectors */
-  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
-  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
-  SUNVector* dylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(ydot));
-  Vec4D dYview((dylocal->View()).data(), nxl, nyl, nzl, dof);
+  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
+  Vec4D dYview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(ydot)), nxl, nyl, nzl, dof);
 
   /* add reaction terms to RHS */
   Kokkos::parallel_for("ReactionRHS",
@@ -334,7 +330,7 @@ static int AdvectionReactionResidual(realtype t, N_Vector y, N_Vector ydot,
    When using a fully implicit method, we are approximating
    dh/dy as dg/dy. */
 static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
-                               realtype gamma, UserData* udata)
+                               const realtype gamma, UserData* udata)
 {
   /* set variable shortcuts */
   const int dof = udata->grid->dof;
@@ -347,12 +343,9 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   const realtype k6  = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
-  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
-  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
-  SUNVector*  blocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(b));
-  Vec4D Bview((blocal->View()).data(), nxl, nyl, nzl, dof);
-  SUNVector* xlocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(x));
-  Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
+  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
+  Vec4D Bview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(b)), nxl, nyl, nzl, dof);
+  Vec4D Xview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(x)), nxl, nyl, nzl, dof);
 
   /* solve reaction linear system */
   Kokkos::parallel_for("SolveReactionLinSys",
@@ -366,56 +359,42 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
     const realtype w = Yview(i,j,k,2);
 
     //
-    // compute J = dg/dy
+    // compute A = I - gamma*(dg/dy)
     //
 
     /* 1st row: u, v, w */
-    realtype A0 = -k2 * w + 2.0 * k3 * u * v - k4;
-    realtype A1 =  k3 * u * u;
-    realtype A2 = -k2 * u;
+    const realtype A0 = 1. - gamma * (-k2 * w + 2.0 * k3 * u * v - k4);
+    const realtype A1 = -gamma * (k3 * u * u);
+    const realtype A2 = -gamma * (-k2 * u);
 
     /* 2nd row: u, v, w */
-    realtype A3 =  k2 * w - 2.0 * k3 * u * v;
-    realtype A4 = -k3 * u * u;
-    realtype A5 =  k2 * u;
+    const realtype A3 = -gamma * (k2 * w - 2.0 * k3 * u * v);
+    const realtype A4 = 1. - gamma * (-k3 * u * u);
+    const realtype A5 = -gamma * (k2 * u);
 
     /* 3rd row: u, v, w */
-    realtype A6 = -k2 * w;
-    realtype A7 =  0.0;
-    realtype A8 = -k2 * u - k6;
+    const realtype A6 = -gamma * (-k2 * w);
+    const realtype A7 =  0.0;
+    const realtype A8 = 1. - gamma * (-k2 * u - k6);
 
     //
-    // compute A = I - gamma*J
+    // compute x = A^{-1}*b
     //
 
-    A0 = 1. - (gamma * A0);
-    A1 = -gamma * A1;
-    A2 = -gamma * A2;
-    A3 = -gamma * A3;
-    A4 = 1. - (gamma * A4);
-    A5 = -gamma * A5;
-    A6 = -gamma * A6;
-    A7 = -gamma * A7;
-    A8 = 1. - (gamma * A8);
-
-    //
-    // compute x = A^{-1}b
-    //
-
-    realtype scratch_0 = A4*A8;
-    realtype scratch_1 = A1*A5;
-    realtype scratch_2 = A2*A7;
-    realtype scratch_3 = A5*A7;
-    realtype scratch_4 = A1*A8;
-    realtype scratch_5 = A2*A4;
-    realtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
-    realtype scratch_7 = A2*A3;
-    realtype scratch_8 = A6*Bview(i,j,k,0);
-    realtype scratch_9 = A2*A6;
-    realtype scratch_10 = A3*Bview(i,j,k,0);
-    realtype scratch_11 = 1.0/A0;
-    realtype scratch_12 = A1*scratch_11;
-    realtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
+    const realtype scratch_0 = A4*A8;
+    const realtype scratch_1 = A1*A5;
+    const realtype scratch_2 = A2*A7;
+    const realtype scratch_3 = A5*A7;
+    const realtype scratch_4 = A1*A8;
+    const realtype scratch_5 = A2*A4;
+    const realtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
+    const realtype scratch_7 = A2*A3;
+    const realtype scratch_8 = A6*Bview(i,j,k,0);
+    const realtype scratch_9 = A2*A6;
+    const realtype scratch_10 = A3*Bview(i,j,k,0);
+    const realtype scratch_11 = 1.0/A0;
+    const realtype scratch_12 = A1*scratch_11;
+    const realtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
 
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
@@ -435,7 +414,7 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
 /* Solve the linear systems Ax = b where A = -dg/dy + gamma.
    We are approximating dh/dy as dg/dy. */
 static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
-                                  realtype gamma, UserData* udata)
+                                  const realtype gamma, UserData* udata)
 {
   /* set variable shortcuts */
   const int dof = udata->grid->dof;
@@ -448,12 +427,9 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   const realtype k6  = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
-  SUNVector* ylocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
-  Vec4D Yview((ylocal->View()).data(), nxl, nyl, nzl, dof);
-  SUNVector* blocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(b));
-  Vec4D Bview((blocal->View()).data(), nxl, nyl, nzl, dof);
-  SUNVector* xlocal = sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(x));
-  Vec4D Xview((xlocal->View()).data(), nxl, nyl, nzl, dof);
+  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
+  Vec4D Bview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(b)), nxl, nyl, nzl, dof);
+  Vec4D Xview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(x)), nxl, nyl, nzl, dof);
 
   /* solve reaction linear system */
   Kokkos::parallel_for("SolveReactionLinSys",
@@ -467,58 +443,44 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
     const realtype w = Yview(i,j,k,2);
 
     //
-    // compute dg/dy
-    //
-
-    /* 1st row: u, v, w */
-    realtype A0 = -k2 * w + 2.0 * k3 * u * v - k4;
-    realtype A1 =  k3 * u * u;
-    realtype A2 = -k2 * u;
-
-    /* 2nd row: u, v, w */
-    realtype A3 =  k2 * w - 2.0 * k3 * u * v;
-    realtype A4 = -k3 * u * u;
-    realtype A5 =  k2 * u;
-
-    /* 3rd row: u, v, w */
-    realtype A6 = -k2 * w;
-    realtype A7 =  0.0;
-    realtype A8 = -k2 * u - k6;
-
-    //
     // compute A = -dg/dy + gamma*diag(df/dydot)
     // where diag(df/dydot) is approximated as
     // diag([udot, vdot, wdot])
     //
 
-    A0 = -A0 + gamma;
-    A1 = -A1;
-    A2 = -A2;
-    A3 = -A3;
-    A4 = -A4 + gamma;
-    A5 = -A5;
-    A6 = -A6;
-    A7 = -A7;
-    A8 = -A8 + gamma;
+    /* 1st row: u, v, w */
+    const realtype A0 = -(-k2 * w + 2.0 * k3 * u * v - k4) + gamma;
+    const realtype A1 = -(k3 * u * u);
+    const realtype A2 = -(-k2 * u);
+
+    /* 2nd row: u, v, w */
+    const realtype A3 = -(k2 * w - 2.0 * k3 * u * v);
+    const realtype A4 = -(-k3 * u * u) + gamma;
+    const realtype A5 = -(k2 * u);
+
+    /* 3rd row: u, v, w */
+    const realtype A6 = -(-k2 * w);
+    const realtype A7 =  0.0;
+    const realtype A8 = -(-k2 * u - k6) + gamma;
 
     //
-    // compute x = A^{-1}b
+    // compute x = A^{-1}*b
     //
 
-    realtype scratch_0 = A4*A8;
-    realtype scratch_1 = A1*A5;
-    realtype scratch_2 = A2*A7;
-    realtype scratch_3 = A5*A7;
-    realtype scratch_4 = A1*A8;
-    realtype scratch_5 = A2*A4;
-    realtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
-    realtype scratch_7 = A2*A3;
-    realtype scratch_8 = A6*Bview(i,j,k,0);
-    realtype scratch_9 = A2*A6;
-    realtype scratch_10 = A3*Bview(i,j,k,0);
-    realtype scratch_11 = 1.0/A0;
-    realtype scratch_12 = A1*scratch_11;
-    realtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
+    const realtype scratch_0 = A4*A8;
+    const realtype scratch_1 = A1*A5;
+    const realtype scratch_2 = A2*A7;
+    const realtype scratch_3 = A5*A7;
+    const realtype scratch_4 = A1*A8;
+    const realtype scratch_5 = A2*A4;
+    const realtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
+    const realtype scratch_7 = A2*A3;
+    const realtype scratch_8 = A6*Bview(i,j,k,0);
+    const realtype scratch_9 = A2*A6;
+    const realtype scratch_10 = A3*Bview(i,j,k,0);
+    const realtype scratch_11 = 1.0/A0;
+    const realtype scratch_12 = A1*scratch_11;
+    const realtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
 
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)

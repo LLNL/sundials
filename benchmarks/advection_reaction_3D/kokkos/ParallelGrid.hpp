@@ -28,29 +28,30 @@
 #include <sundials/sundials_types.h>
 
 
-/* Set execution space */
+/* Set Kokkos execution space and type shortcuts */
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
+using MemSpace  = Kokkos::CudaSpace;
 #elif defined(USE_HIP)
 #if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
+using MemSpace  = Kokkos::HIPSpace;
 #else
 using ExecSpace = Kokkos::Experimental::HIP;
+using MemSpace  = Kokkos::Experimental::HIPSpace;
 #endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
+using MemSpace  = Kokkos::HostSpace;
 #else
 using ExecSpace = Kokkos::Serial;
+using MemSpace  = Kokkos::HostSpace;
 #endif
-
-/* Set Kokkos type shortcuts */
-using Vec1D = Kokkos::View<realtype*>;
-using Vec3D = Kokkos::View<realtype***, Kokkos::LayoutRight>;
-using Vec4D = Kokkos::View<realtype****, Kokkos::LayoutRight>;
+using Vec1D = Kokkos::View<realtype*, MemSpace>;
+using Vec4D = Kokkos::View<realtype****, MemSpace>;
 using Vec1DHost = Vec1D::HostMirror;
 using Vec4DHost = Vec4D::HostMirror;
 using Range3D = Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>;
-using Range3DSerial = Kokkos::MDRangePolicy<Kokkos::Serial, Kokkos::Rank<3>>;
 
 
 namespace sundials_tools
@@ -180,10 +181,13 @@ public:
   {
 
     /* Allocate send/receive buffers and determine ID for communication West */
-    if (upwindRight)
-      Wrecv_ = Vec1D("Wrecv", dof*width*nyl*nzl);
-    else
-      Wsend_ = Vec1D("Wsend", dof*width*nyl*nzl);
+    if (upwindRight) {
+      Wrecv_  = Vec1D("Wrecv",      dof*width*nyl*nzl);
+      WrecvH_ = Kokkos::create_mirror_view(Wrecv_);
+    } else {
+      Wsend_  = Vec1D("Wsend",      dof*width*nyl*nzl);
+      WsendH_ = Kokkos::create_mirror_view(Wsend_);
+    }
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]-1, coords[1], coords[2]};
@@ -192,10 +196,13 @@ public:
     }
 
     /* Allocate send/receive buffers and determine ID for communication East */
-    if (upwindRight)
-      Esend_ = Vec1D("Esend", dof*width*nyl*nzl);
-    else
-      Erecv_ = Vec1D("Erecv", dof*width*nyl*nzl);
+    if (upwindRight) {
+      Esend_  = Vec1D("Esend",      dof*width*nyl*nzl);
+      EsendH_ = Kokkos::create_mirror_view(Esend_);
+    } else {
+      Erecv_  = Vec1D("Erecv", dof*width*nyl*nzl);
+      ErecvH_ = Kokkos::create_mirror_view(Erecv_);
+    }
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0]-1) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]+1, coords[1], coords[2]};
@@ -206,10 +213,13 @@ public:
     if (NDIMS >= 2)
     {
       /* Allocate send/receive buffers and determine ID for communication South */
-      if (upwindRight)
-        Srecv_ = Vec1D("Srecv", dof*width*nxl*nzl);
-      else
-        Ssend_ = Vec1D("Ssend", dof*width*nxl*nzl);
+      if (upwindRight) {
+        Srecv_  = Vec1D("Srecv", dof*width*nxl*nzl);
+        SrecvH_ = Kokkos::create_mirror_view(Srecv_);
+      } else {
+        Ssend_  = Vec1D("Ssend", dof*width*nxl*nzl);
+        SsendH_ = Kokkos::create_mirror_view(Ssend_);
+      }
       ipS = MPI_PROC_NULL;
       if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
@@ -218,10 +228,13 @@ public:
       }
 
       /* Allocate send/receive buffers and determine ID for communication North */
-      if (upwindRight)
-        Nsend_ = Vec1D("Nsend", dof*width*nxl*nzl);
-      else
-        Nrecv_ = Vec1D("Nrecv", dof*width*nxl*nzl);
+      if (upwindRight) {
+        Nsend_  = Vec1D("Nsend", dof*width*nxl*nzl);
+        NsendH_ = Kokkos::create_mirror_view(Nsend_);
+      } else {
+        Nrecv_  = Vec1D("Nrecv", dof*width*nxl*nzl);
+        NrecvH_ = Kokkos::create_mirror_view(Nrecv_);
+      }
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
@@ -233,10 +246,13 @@ public:
     if (NDIMS == 3)
     {
       /* Allocate send/receive buffers and determine ID for communication Back */
-      if (upwindRight)
-        Brecv_ = Vec1D("Brecv", dof*width*nxl*nyl);
-      else
-        Bsend_ = Vec1D("Bsend", dof*width*nxl*nyl);
+      if (upwindRight) {
+        Brecv_  = Vec1D("Brecv", dof*width*nxl*nyl);
+        BrecvH_ = Kokkos::create_mirror_view(Brecv_);
+      } else {
+        Bsend_  = Vec1D("Bsend", dof*width*nxl*nyl);
+        BsendH_ = Kokkos::create_mirror_view(Bsend_);
+      }
       ipB = MPI_PROC_NULL;
       if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]-1};
@@ -245,10 +261,13 @@ public:
       }
 
       /* Allocate send/receive buffers and determine ID for communication Front */
-      if (upwindRight)
-        Fsend_ = Vec1D("Fsend", dof*width*nxl*nyl);
-      else
-        Frecv_ = Vec1D("Frecv", dof*width*nxl*nyl);
+      if (upwindRight) {
+        Fsend_  = Vec1D("Fsend", dof*width*nxl*nyl);
+        FsendH_ = Kokkos::create_mirror_view(Fsend_);
+      } else {
+        Frecv_  = Vec1D("Frecv", dof*width*nxl*nyl);
+        FrecvH_ = Kokkos::create_mirror_view(Frecv_);
+      }
       ipF = MPI_PROC_NULL;
       if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]+1};
@@ -269,10 +288,10 @@ public:
     for (int i=0; i<12; i++)
       req[i] = MPI_REQUEST_NULL;
 
-    // Open an Irecv buffer for each neighbor
+    // Open an Irecv buffer on host for each neighbor
     if ((ipW != MPI_PROC_NULL) && (upwindRight))
     {
-      retval = MPI_Irecv(Wrecv_.data(), int(Wrecv_.size()), MPI_SUNREALTYPE, ipW,
+      retval = MPI_Irecv(WrecvH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipW,
                          1, cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -280,7 +299,7 @@ public:
 
     if ((ipE != MPI_PROC_NULL) && (!upwindRight))
     {
-      retval = MPI_Irecv(Erecv_.data(), int(Erecv_.size()), MPI_SUNREALTYPE, ipE,
+      retval = MPI_Irecv(ErecvH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipE,
                          0, cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -290,7 +309,7 @@ public:
     {
       if ((ipS != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Irecv(Srecv_.data(), int(Srecv_.size()), MPI_SUNREALTYPE, ipS,
+        retval = MPI_Irecv(SrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS,
                            3, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -298,7 +317,7 @@ public:
 
       if ((ipN != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Irecv(Nrecv_.data(), int(Nrecv_.size()), MPI_SUNREALTYPE, ipN,
+        retval = MPI_Irecv(NrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN,
                            2, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -309,7 +328,7 @@ public:
     {
       if ((ipB != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Irecv(Brecv_.data(), int(Brecv_.size()), MPI_SUNREALTYPE, ipB,
+        retval = MPI_Irecv(BrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB,
                            5, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -317,17 +336,18 @@ public:
 
       if ((ipF != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Irecv(Frecv_.data(), int(Frecv_.size()), MPI_SUNREALTYPE, ipF,
+        retval = MPI_Irecv(FrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF,
                            4, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
       }
     }
 
-    // Send data to neighbors
+    // Send data to neighbors, first copying from device to host buffers
     if ((ipW != MPI_PROC_NULL) && (!upwindRight))
     {
-      retval = MPI_Isend(Wsend_.data(), int(Wsend_.size()), MPI_SUNREALTYPE, ipW, 0,
+      Kokkos::deep_copy(WsendH_, Wsend_);
+      retval = MPI_Isend(WsendH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipW, 0,
                          cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -335,7 +355,8 @@ public:
 
     if ((ipE != MPI_PROC_NULL) && (upwindRight))
     {
-      retval = MPI_Isend(Esend_.data(), int(Esend_.size()), MPI_SUNREALTYPE, ipE, 1,
+      Kokkos::deep_copy(EsendH_, Esend_);
+      retval = MPI_Isend(EsendH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipE, 1,
                          cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -345,7 +366,8 @@ public:
     {
       if ((ipS != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Isend(Ssend_.data(), int(Ssend_.size()), MPI_SUNREALTYPE, ipS, 2,
+        Kokkos::deep_copy(SsendH_, Ssend_);
+        retval = MPI_Isend(SsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -353,7 +375,8 @@ public:
 
       if ((ipN != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Isend(Nsend_.data(), int(Nsend_.size()), MPI_SUNREALTYPE, ipN, 3,
+        Kokkos::deep_copy(NsendH_, Nsend_);
+        retval = MPI_Isend(NsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -364,7 +387,8 @@ public:
     {
       if ((ipB != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Isend(Bsend_.data(), int(Bsend_.size()), MPI_SUNREALTYPE, ipB, 4,
+        Kokkos::deep_copy(BsendH_, Bsend_);
+        retval = MPI_Isend(BsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -372,7 +396,8 @@ public:
 
       if ((ipF != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Isend(Fsend_.data(), int(Fsend_.size()), MPI_SUNREALTYPE, ipF, 5,
+        Kokkos::deep_copy(FsendH_, Fsend_);
+        retval = MPI_Isend(FsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -395,6 +420,24 @@ public:
     // Wait for messages to finish send/receive
     retval = MPI_Waitall(nreq, req, stat);
     assert(retval == MPI_SUCCESS);
+
+    // Copy data from host to device buffers
+    if ((ipW != MPI_PROC_NULL) && (upwindRight))
+      Kokkos::deep_copy(Wrecv_, WrecvH_);
+    if ((ipE != MPI_PROC_NULL) && (!upwindRight))
+      Kokkos::deep_copy(Erecv_, ErecvH_);
+    if (NDIMS >= 2) {
+      if ((ipS != MPI_PROC_NULL) && (upwindRight))
+        Kokkos::deep_copy(Srecv_, SrecvH_);
+      if ((ipN != MPI_PROC_NULL) && (!upwindRight))
+        Kokkos::deep_copy(Nrecv_, NrecvH_);
+    }
+    if (NDIMS >= 3) {
+      if ((ipB != MPI_PROC_NULL) && (upwindRight))
+        Kokkos::deep_copy(Brecv_, BrecvH_);
+      if ((ipF != MPI_PROC_NULL) && (!upwindRight))
+        Kokkos::deep_copy(Frecv_, FrecvH_);
+    }
 
     return retval;
   }
@@ -461,69 +504,69 @@ public:
     return dof*nptsl();
   }
 
-  Vec4D GetRecvView(const std::string& direction)
+  realtype* GetRecvView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return Vec4D(Wrecv_.data(), 1, nyl, nzl, dof);
+      return static_cast<realtype*>(Wrecv_.data());
     }
     else if (direction == "EAST")
     {
-      return Vec4D(Erecv_.data(), 1, nyl, nzl, dof);
+      return static_cast<realtype*>(Erecv_.data());
     }
     else if (direction == "NORTH")
     {
-      return Vec4D(Nrecv_.data(), nxl, 1, nzl, dof);
+      return static_cast<realtype*>(Nrecv_.data());
     }
     else if (direction == "SOUTH")
     {
-      return Vec4D(Srecv_.data(), nxl, 1, nzl, dof);
+      return static_cast<realtype*>(Srecv_.data());
     }
     else if (direction == "FRONT")
     {
-      return Vec4D(Frecv_.data(), nxl, nyl, 1, dof);
+      return static_cast<realtype*>(Frecv_.data());
     }
     else if (direction == "BACK")
     {
-      return Vec4D(Brecv_.data(), nxl, nyl, 1, dof);
+      return static_cast<realtype*>(Brecv_.data());
     }
     else
     {
       assert(direction == "ILLEGAL");
-      return Vec4D();
+      return nullptr;
     }
   }
 
-  Vec4D GetSendView(const std::string& direction)
+  realtype* GetSendView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return Vec4D(Wsend_.data(), 1, nyl, nzl, dof);
+      return static_cast<realtype*>(Wsend_.data());
     }
     else if (direction == "EAST")
     {
-      return Vec4D(Esend_.data(), 1, nyl, nzl, dof);
+      return static_cast<realtype*>(Esend_.data());
     }
     else if (direction == "NORTH")
     {
-      return Vec4D(Nsend_.data(), nxl, 1, nzl, dof);
+      return static_cast<realtype*>(Nsend_.data());
     }
     else if (direction == "SOUTH")
     {
-      return Vec4D(Ssend_.data(), nxl, 1, nzl, dof);
+      return static_cast<realtype*>(Ssend_.data());
     }
     else if (direction == "FRONT")
     {
-      return Vec4D(Fsend_.data(), nxl, nyl, 1, dof);
+      return static_cast<realtype*>(Fsend_.data());
     }
     else if (direction == "BACK")
     {
-      return Vec4D(Bsend_.data(), nxl, nyl, 1, dof);
+      return static_cast<realtype*>(Bsend_.data());
     }
     else
     {
       assert(direction == "ILLEGAL");
-      return Vec4D();
+      return nullptr;
     }
   }
 
@@ -566,6 +609,18 @@ private:
   Vec1D Nrecv_;
   Vec1D Brecv_;
   Vec1D Frecv_;
+  Vec1DHost WsendH_;       /* MPI send/recv buffers (host)       */
+  Vec1DHost EsendH_;
+  Vec1DHost SsendH_;
+  Vec1DHost NsendH_;
+  Vec1DHost BsendH_;
+  Vec1DHost FsendH_;
+  Vec1DHost WrecvH_;
+  Vec1DHost ErecvH_;
+  Vec1DHost SrecvH_;
+  Vec1DHost NrecvH_;
+  Vec1DHost BrecvH_;
+  Vec1DHost FrecvH_;
 
 };
 
