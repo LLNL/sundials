@@ -184,9 +184,6 @@ int FillSendBuffers(N_Vector y, UserData* udata)
     /* Flow moving in the positive directions uses backward difference. */
 
     /* Create 4D views of send buffers */
-    // Vec4D Esend = udata->grid->GetSendView("EAST");
-    // Vec4D Nsend = udata->grid->GetSendView("NORTH");
-    // Vec4D Fsend = udata->grid->GetSendView("FRONT");
     Vec4D Esend(udata->grid->GetSendView("EAST"),  1, nyl, nzl, dof);
     Vec4D Nsend(udata->grid->GetSendView("NORTH"), nxl, 1, nzl, dof);
     Vec4D Fsend(udata->grid->GetSendView("FRONT"), nxl, nyl, 1, dof);
@@ -215,9 +212,6 @@ int FillSendBuffers(N_Vector y, UserData* udata)
     /* Flow moving in the negative directions uses forward difference. */
 
     /* Create 4D views of send buffers */
-    // Vec4D Wsend = udata->grid->GetSendView("WEST");
-    // Vec4D Ssend = udata->grid->GetSendView("SOUTH");
-    // Vec4D Bsend = udata->grid->GetSendView("BACK");
     Vec4D Wsend(udata->grid->GetSendView("WEST"),  1, nyl, nzl, dof);
     Vec4D Ssend(udata->grid->GetSendView("SOUTH"), nxl, 1, nzl, dof);
     Vec4D Bsend(udata->grid->GetSendView("BACK"),  nxl, nyl, 1, dof);
