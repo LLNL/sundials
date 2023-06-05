@@ -634,6 +634,18 @@ illustration only.
 
    Default: None
 
+.. cmakeoption:: ENABLE_HIP
+
+   Enable HIP Support
+
+   Default: ``OFF``
+
+.. cmakeoption:: AMDGPU_TARGETS
+
+   Specify which AMDGPU processor(s) to target.
+
+   Default: None
+
 .. cmakeoption:: ENABLE_HYPRE
 
    Flag to enable *hypre* support
