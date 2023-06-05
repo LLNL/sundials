@@ -57,14 +57,15 @@
      ARKODE_ARK548L2SAb_DIRK_8_4_5*   ESDIRK     Y         Y       N
      ARKODE_ESDIRK547L2SA_7_4_5       ESDIRK     Y         Y       N
      ARKODE_ESDIRK547L2SA2_7_4_5      ESDIRK     Y         Y       N
-    -----------------------------------------------------------------
+     ARKODE_ARK2_DIRK_3_1_2           ESDIRK     Y         Y       Y
+     -----------------------------------------------------------------
 */
 
 ARK_BUTCHER_TABLE(ARKODE_DIRK_NONE, {
     return NULL;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_XXXX, { /* SDIRK-XXXX (A,L stable) */
+ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
 
     /* 1 - 1 / sqrt(2) */

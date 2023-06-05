@@ -52,6 +52,7 @@
      ARKODE_ARK548L2SAb_ERK_8_4_5*       N
      ARKODE_VERNER_8_5_6                 Y
      ARKODE_FEHLBERG_13_7_8              Y
+     ARKODE_ARK2_ERK_3_1_2               Y
     --------------------------------
      ARKODE_KNOTH_WOLKE_3_3^             Y
     --------------------------------
@@ -77,13 +78,13 @@ ARK_BUTCHER_TABLE(ARKODE_HEUN_EULER_2_1_2, { /* Heun-Euler-ERK */
     return B;
  })
 
-ARK_BUTCHER_TABLE(ARKODE_XXXX, { /* ERK-XXXX */
+ARK_BUTCHER_TABLE(ARKODE_ARK2_ERK_3_1_2, { /* ARK2 Explicit Table */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
 
     /* 1 - 1 / sqrt(2) */
     const sunrealtype gamma = SUN_RCONST(1.0) - SUN_RCONST(1.0) / SUNRsqrt(SUN_RCONST(2.0));
     /* (3 + 2 sqrt(2)) / 6 */
-    const sunrealtype alpha = (SUN_RCONST(1.0) / SUN_RCONST(6.0)) * (SUN_RCONST(3.0) + SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0));
+    const sunrealtype alpha = (SUN_RCONST(3.0) + SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0))) / SUN_RCONST(6.0);
     /* 1 / (2 sqrt(2)) */
     const sunrealtype delta = SUN_RCONST(1.0) / (SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0)));
     /* 2 - sqrt(2) */
