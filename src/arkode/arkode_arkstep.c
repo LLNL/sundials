@@ -1924,6 +1924,8 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
     switch (step_mem->q) {
 
     case(2):
+      etable = ARKSTEP_DEFAULT_ARK_ETABLE_2;
+      itable = ARKSTEP_DEFAULT_ARK_ITABLE_2;
     case(3):
       etable = ARKSTEP_DEFAULT_ARK_ETABLE_3;
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_3;
