@@ -65,6 +65,25 @@ ARK_BUTCHER_TABLE(ARKODE_DIRK_NONE, {
     return NULL;
   })
 
+ARK_BUTCHER_TABLE(ARKODE_SDIRK_2_1_2, { /* SDIRK-2-1 (A,B stable) */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
+    B->q = 2;
+    B->p = 1;
+
+    B->A[0][0] = RCONST(1.0);
+    B->A[1][0] = RCONST(-1.0);
+    B->A[1][1] = RCONST(1.0);
+
+    B->b[0] = RCONST(0.5);
+    B->b[1] = RCONST(0.5);
+
+    B->d[0] = RCONST(1.0);
+
+    B->c[0] = RCONST(1.0);
+    B->c[1] = RCONST(0.0);
+    return B;
+  })
+
 ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
 
@@ -97,25 +116,6 @@ ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) 
     B->c[1] = twogamma;
     B->c[2] = SUN_RCONST(1.0);
 
-    return B;
-  })
-
-ARK_BUTCHER_TABLE(ARKODE_SDIRK_2_1_2, { /* SDIRK-2-1 (A,B stable) */
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
-    B->q = 2;
-    B->p = 1;
-
-    B->A[0][0] = RCONST(1.0);
-    B->A[1][0] = RCONST(-1.0);
-    B->A[1][1] = RCONST(1.0);
-
-    B->b[0] = RCONST(0.5);
-    B->b[1] = RCONST(0.5);
-
-    B->d[0] = RCONST(1.0);
-
-    B->c[0] = RCONST(1.0);
-    B->c[1] = RCONST(0.0);
     return B;
   })
 
