@@ -113,7 +113,7 @@
 #define SUN_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
 #cmakedefine SUNDIALS_CI_JOB
-#cmakedefine SUN_CI_JOB_ID
+#define SUN_CI_JOB_ID "@SUN_CI_JOB_ID@"
 
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
