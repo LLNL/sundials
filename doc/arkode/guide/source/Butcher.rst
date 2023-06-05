@@ -1646,8 +1646,8 @@ Additive Butcher tables
 ---------------------------
 
 In the category of additive Runge--Kutta methods for split implicit and
-explicit calculations, ARKODE includes methods that have orders 3
-through 5, with embeddings that are of orders 2 through 4.  These
+explicit calculations, ARKODE includes methods that have orders 2
+through 5, with embeddings that are of orders 1 through 4.  These
 Butcher table pairs are as follows:
 
 * :index:`2nd-order pair <ARK-3-1-2 ARK method>`:
