@@ -13,25 +13,25 @@
 ! SPDX-License-Identifier: BSD-3-Clause
 ! SUNDIALS Copyright End
 ! ------------------------------------------------------------------
-! The following test simulates a brusselator problem from chemical 
-! kinetics.  This is an ODE system with 3 components, Y = [u,v,w], 
+! The following test simulates a brusselator problem from chemical
+! kinetics.  This is an ODE system with 3 components, Y = [u,v,w],
 ! satisfying the equations,
 !    du/dt = a - (w+1)*u + v*u^2
 !    dv/dt = w*u - v*u^2
 !    dw/dt = (b-w)/ep - w*u
-! for t in the interval [0.0, 10.0], with initial conditions 
-! Y0 = [u0,v0,w0].  We use the initial conditions and parameters 
+! for t in the interval [0.0, 10.0], with initial conditions
+! Y0 = [u0,v0,w0].  We use the initial conditions and parameters
 !    u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
-! Here, all three solution components exhibit a rapid transient 
-! change during the first 0.2 time units, followed by a slow and 
+! Here, all three solution components exhibit a rapid transient
+! change during the first 0.2 time units, followed by a slow and
 ! smooth evolution.
-! 
-! This program solves a the Fortran ODE test problem using the 
+!
+! This program solves a the Fortran ODE test problem using the
 ! FARKODE interface for the ARKode ODE solver module.
-! 
-! This program uses the IMEX ARK solver; here the 
+!
+! This program uses the IMEX ARK solver; here the
 ! implicit systems are solved with a modified Newton iteration
-! with the SUNDENSE linear solver.  The Jacobian routine and 
+! with the SUNDENSE linear solver.  The Jacobian routine and
 ! right-hand side routines are supplied.
 !
 ! Output is printed 10 times throughout the defined time interval.
@@ -50,16 +50,10 @@ module ode_mod
   integer(c_long), parameter :: neq = 3
 
   ! ODE parameters
-  double precision, dimension(neq) :: y
-  double precision, dimension(3)   :: rpar
-
-  ! set initial conditions, problem parameters
-  y0(1) = 3.9d0     ! u0
-  y0(2) = 1.1d0     ! v0
-  y0(3) = 2.8d0     ! w0
-  rpar(1) = 1.2d0  ! a
-  rpar(2) = 2.5d0  ! b
-  rpar(3) = 1.d-5  ! ep
+  double precision, parameter, dimension(neq) :: y0 = (/ 3.9d0, 1.1d0, 2.8d0 /)
+  double precision, parameter :: a = 1.2d0
+  double precision, parameter :: b = 2.5d0
+  double precision, parameter :: ep = 1.d-5
 
 contains
 
@@ -90,7 +84,10 @@ contains
     type(N_Vector) :: sunvec_f   ! rhs N_Vector
     type(c_ptr) :: user_data                     ! user-defined data
 
-    ! pointers to data in SUNDAILS vectors
+    ! local data
+    real(c_double) :: u, v, w
+
+    ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(neq) :: yvec(:)
     real(c_double), pointer, dimension(neq) :: fvec(:)
 
@@ -99,11 +96,8 @@ contains
     ! get data arrays from SUNDIALS vectors
     yvec => FN_VGetArrayPointer(sunvec_y)
     fvec => FN_VGetArrayPointer(sunvec_f)
-    
+
     ! set temporary values
-    a  = rpar(1)
-    b  = rpar(2)
-    ep = rpar(3)
     u  = yvec(1)
     v  = yvec(2)
     w  = yvec(3)
@@ -119,7 +113,7 @@ contains
 
   end function ExpRhsFn
 
-  
+
   ! ----------------------------------------------------------------
   ! ImpRhsFn provides the right hand side implicit function for the
   ! ODE: dy1/dt = f1(t,y1,y2,y3)
@@ -147,7 +141,10 @@ contains
     type(N_Vector) :: sunvec_f   ! rhs N_Vector
     type(c_ptr) :: user_data                     ! user-defined data
 
-    ! pointers to data in SUNDAILS vectors
+    ! local data
+    real(c_double) :: u, v, w
+
+    ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(neq) :: yvec(:)
     real(c_double), pointer, dimension(neq) :: fvec(:)
 
@@ -156,11 +153,8 @@ contains
     ! get data arrays from SUNDIALS vectors
     yvec => FN_VGetArrayPointer(sunvec_y)
     fvec => FN_VGetArrayPointer(sunvec_f)
-    
+
     ! set temporary values
-    a  = rpar(1)
-    b  = rpar(2)
-    ep = rpar(3)
     u  = yvec(1)
     v  = yvec(2)
     w  = yvec(3)
@@ -217,8 +211,8 @@ contains
     J(1:3, 1:3) => FSUNDenseMatrix_Data(sunmat_J)
 
     ! fill Jacobian entries
-    J = 0.d0
-    J(3,3) = -1.d0/rpar(3)
+    J(1:3, 1:3) = 0.d0
+    J(3,3) = -1.d0/ep
 
     ! return success
     ierr = 0
@@ -241,12 +235,14 @@ program main
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
+  use fsundials_context_mod      ! Fortran interface to SUNContext
   use ode_mod                    ! ODE functions
 
   !======= Declarations =========
   implicit none
 
   ! local variables
+  type(c_ptr)    :: ctx                      ! SUNDIALS context for the simulation
   real(c_double) :: tstart                   ! initial time
   real(c_double) :: tend                     ! final time
   real(c_double) :: rtol, atol               ! relative and absolute tolerance
@@ -258,6 +254,7 @@ program main
   integer(c_int) :: ierr                     ! error flag from C functions
   integer(c_int) :: nout                     ! number of outputs
   integer(c_int) :: outstep                  ! output loop counter
+  integer(c_long):: mxsteps                  ! max num steps
 
   real(c_double), parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
   integer(c_int), parameter :: order = 3        ! method order
@@ -270,6 +267,9 @@ program main
 
   !======= Internals ============
 
+  ! create the SUNDIALS context
+  ierr = FSUNContext_Create(c_null_ptr, ctx)
+
   ! initialize ODE
   tstart = 0.0d0
   tend   = 10.0d0
@@ -279,7 +279,7 @@ program main
   nout   = ceiling(tend/dtout)
 
   ! create SUNDIALS N_Vector
-  sunvec_y => FN_VNew_Serial(neq)
+  sunvec_y => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -290,17 +290,17 @@ program main
   yvec = y0
 
   ! create ARKStep memory
-  arkode_mem = FARKStepCreate(c_funloc(ImpRhsFn), c_funloc(ExpRhsFn), tstart, sunvec_y)
+  arkode_mem = FARKStepCreate(c_funloc(ExpRhsFn), c_funloc(ImpRhsFn), tstart, sunvec_y, ctx)
   if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
 
   ! Tell ARKODE to use a dense linear solver.
-  sunmat_A => FSUNDenseMatrix(neq, neq)
+  sunmat_A => FSUNDenseMatrix(neq, neq, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
-  sunls => FSUNDenseLinearSolver(sunvec_y, sunmat_A)
+  sunls => FSUNLinSol_Dense(sunvec_y, sunmat_A, ctx)
   if (.not. associated(sunls)) then
      print *, 'ERROR: sunls = NULL'
      stop 1
@@ -340,9 +340,17 @@ program main
     stop 1
   end if
 
-  imethod = 4     ! Make sure this matches what Fortran 90 did.
+!!$  mxsteps = 5000
+!!$  ierr = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
+!!$  if (ierr /= 0) then
+!!$    print *, 'Error in FARKStepSetNonlinConvCoef'
+!!$    stop 1
+!!$  end if
+
+  imethod = 0
   idefault = 1
   pq = 0
+  adapt_params = 0.d0
   ierr = FARKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
   if (ierr /= 0) then
      print *, 'Error in FARKStepSetAdaptivityMethod, ierr = ', ierr, '; halting'
@@ -353,7 +361,7 @@ program main
   open(100, file='solution.txt')
   write(100,*) '# t u v w'
 
-  ! output initial condition to disk 
+  ! output initial condition to disk
   write(100,'(3x,4(es23.16,1x))') tstart, yvec
 
 
@@ -362,7 +370,7 @@ program main
   print *, 'Finished initialization, starting time steps'
   print *, '   '
   print *, '       t           u           v           w       '
-  print *, '---------------------------------------------------'
+  print *, ' ---------------------------------------------------'
   print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
   do outstep = 1,nout
 
@@ -370,7 +378,7 @@ program main
      tout = min(tout + dtout, tend)
      ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
      if (ierr /= 0) then
-        print *, 'Error in FARKODE, ierr = ', ierr, '; halting'
+        print *, 'Error in FARKStepEvolve, ierr = ', ierr, '; halting'
         stop 1
      endif
 
@@ -379,7 +387,7 @@ program main
      write(100,'(3x,4(es23.16,1x))') tcur, yvec(1), yvec(2), yvec(3)
 
   enddo
-  print *, '  ----------------------------------------------------'
+  print *, ' ----------------------------------------------------'
   close(100)
 
   ! diagnostics output
@@ -390,6 +398,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
+  ierr = FSUNContext_Free(ctx)
 
 end program main
 

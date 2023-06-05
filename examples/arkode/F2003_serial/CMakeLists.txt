@@ -20,6 +20,7 @@
 # Examples using SUNDIALS linear solvers
 set(FARKODE_examples
   "ark_analytic_f2003\;\;develop"
+  "ark_bruss_f2003\;\;develop"
   "ark_kpr_mri_f2003\;\;develop"
   "ark_kpr_mri_f2003\;0 0.002\;develop"
   "ark_kpr_mri_f2003\;1 0.002\;develop"
@@ -31,6 +32,7 @@ set(FARKODE_examples
   "ark_kpr_mri_f2003\;7 0.001\;develop"
   "ark_kpr_mri_f2003\;8 0.001\;develop"
   "ark_kpr_mri_f2003\;9 0.001\;develop"
+  "ark_roberts_dnsL_f2003\;\;develop"
   )
 
 set(FARKODE_tests
