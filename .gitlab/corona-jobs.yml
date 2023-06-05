@@ -35,3 +35,16 @@ corona_clang_hip_tpls:
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+magma+raja ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET}"
   extends: .corona_build_and_test
+
+# ------------------------------------------------------------------------------
+# Corona Profile Example Jobs
+# ------------------------------------------------------------------------------
+
+corona_test_profile:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@5.4.1
+        AMDGPU_TARGET: [gfx906]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+adiak+caliper+profile-examples"
+  extends: .corona_build_and_test
