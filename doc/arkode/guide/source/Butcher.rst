@@ -180,6 +180,34 @@ This is the default 2nd order explicit method.
    region is outlined in blue; the embedding's region is in red.
 
 
+.. _Butcher.ARK2_ERK:
+
+ARK2-ERK-3-1-2
+^^^^^^^^^^^^^^
+
+.. index:: ARK2-ERK-3-1-2
+
+Accessible via the constant ``ARKODE_ARK2_ERK_3_1_2`` to
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadERK()`.
+Accessible via the string ``"ARKODE_ARK2_ERK_3_1_2"`` to
+:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
+:c:func:`ARKodeButcherTable_LoadERKByName()`.
+This is the explicit portion of the default 2nd order additive method (the
+explicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     0            & 0                           & 0                       & 0 \\
+     2 - \sqrt{2} & 2 - \sqrt{2}                & 0                       & 0 \\
+     1            & 1 - \frac{3 + 2\sqrt{2}}{6} & \frac{3 + 2\sqrt{2}}{6} & 0 \\
+     \hline
+     2 & \frac{1}{2\sqrt{2}}    & \frac{1}{2\sqrt{2}}    & 1 - \frac{1}{\sqrt{2}} \\
+     1 & \frac{4 - \sqrt{2}}{8} & \frac{4 - \sqrt{2}}{8} & \frac{1}{2\sqrt{2}}    \\
+   \end{array}
+
 
 .. _Butcher.Bogacki_Shampine:
 
@@ -815,6 +843,34 @@ are A- and B-stable.
    Linear stability region for the SDIRK-2-1-2 method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
+
+.. _Butcher.ARK2_DIRK:
+
+ARK2-DIRK-3-1-2
+^^^^^^^^^^^^^^^
+
+.. index:: ARK2-DIRK-3-1-2
+
+Accessible via the constant ``ARKODE_ARK2_DIRK_3_1_2`` to
+:c:func:`ARKStepSetTableNum()`, or
+:c:func:`ARKodeButcherTable_LoadERK()`.
+Accessible via the string ``"ARKODE_ARK2_DIRK_3_1_2"`` to
+:c:func:`ARKStepSetTableName()`, or
+:c:func:`ARKodeButcherTable_LoadERKByName()`.
+This is the implicit portion of the default 2nd order additive method (the
+implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     0            & 0                      & 0                      & 0 \\
+     2 - \sqrt{2} & 1 - \frac{1}{\sqrt{2}} & 1 - \frac{1}{\sqrt{2}} & 0 \\
+     1            & \frac{1}{2\sqrt{2}}    & \frac{1}{2\sqrt{2}}    & 1 - \frac{1}{\sqrt{2}} \\
+     \hline
+     2 & \frac{1}{2\sqrt{2}}    & \frac{1}{2\sqrt{2}}    & 1 - \frac{1}{\sqrt{2}} \\
+     1 & \frac{4 - \sqrt{2}}{8} & \frac{4 - \sqrt{2}}{8} & \frac{1}{2\sqrt{2}}    \\
+   \end{array}
 
 
 .. _Butcher.Billington:
@@ -1593,6 +1649,12 @@ In the category of additive Runge--Kutta methods for split implicit and
 explicit calculations, ARKODE includes methods that have orders 3
 through 5, with embeddings that are of orders 2 through 4.  These
 Butcher table pairs are as follows:
+
+* :index:`2nd-order pair <ARK-3-1-2 ARK method>`:
+  :numref:`Butcher.ARK2_ERK` with :numref:`Butcher.ARK2_DIRK`,
+  corresponding to Butcher tables ``ARKODE_ARK2_ERK_3_1_2`` and
+  ``ARKODE_ARK2_DIRK_3_1_2`` for :c:func:`ARKStepSetTableNum()`
+  or :c:func:`ARKStepSetTableName()`.
 
 * :index:`3rd-order pair <ARK-4-2-3 ARK method>`:
   :numref:`Butcher.ARK_4_2_3_E` with :numref:`Butcher.ARK_4_2_3_I`,
