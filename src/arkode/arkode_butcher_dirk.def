@@ -68,17 +68,16 @@ ARK_BUTCHER_TABLE(ARKODE_SDIRK_2_1_2, { /* SDIRK-2-1 (A,B stable) */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
     B->q = 2;
     B->p = 1;
-    
+
     B->A[0][0] = RCONST(1.0);
     B->A[1][0] = RCONST(-1.0);
     B->A[1][1] = RCONST(1.0);
-    
+
     B->b[0] = RCONST(0.5);
     B->b[1] = RCONST(0.5);
-    
+
     B->d[0] = RCONST(1.0);
 
-    
     B->c[0] = RCONST(1.0);
     B->c[1] = RCONST(0.0);
     return B;
@@ -620,7 +619,7 @@ ARK_BUTCHER_TABLE(ARKODE_ESDIRK324L2SA_4_2_3, { /* ESDIRK3(2)4L[2]SA (A,L stable
     const sunrealtype g4 = g3 * g;
     const sunrealtype g5 = g4 * g;
     const sunrealtype c3 = RCONST(0.6);
-    
+
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;

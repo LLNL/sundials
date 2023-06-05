@@ -684,4 +684,3 @@ ARK_BUTCHER_TABLE(ARKODE_KNOTH_WOLKE_3_3, { /* Knoth-Wolke-ERK */
     B->c[2] = RCONST(3.0)/RCONST(4.0);
     return B;
   })
-
