@@ -208,6 +208,13 @@ explicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
      1 & \frac{4 - \sqrt{2}}{8} & \frac{4 - \sqrt{2}}{8} & \frac{1}{2\sqrt{2}}    \\
    \end{array}
 
+.. figure:: /figs/arkode/ark2_erk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ARK2-ERK method. The method's
+   region is outlined in blue; the embedding's region is in red.
+
 
 .. _Butcher.Bogacki_Shampine:
 
@@ -871,6 +878,13 @@ implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
      2 & \frac{1}{2\sqrt{2}}    & \frac{1}{2\sqrt{2}}    & 1 - \frac{1}{\sqrt{2}} \\
      1 & \frac{4 - \sqrt{2}}{8} & \frac{4 - \sqrt{2}}{8} & \frac{1}{2\sqrt{2}}    \\
    \end{array}
+
+.. figure:: /figs/arkode/ark2_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ARK2-DIRK method. The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
 .. _Butcher.Billington:
