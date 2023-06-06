@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s):  Cody J. Balos @ LLNL
+#                 Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -22,24 +23,25 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
   # MPI only
   # ----------------------------------------------------------------------------
 
-  add_executable(advection_reaction_3D
+  add_executable(advection_reaction_3D_raja
     advection_reaction_3D.cpp
     arkode_driver.cpp
     cvode_driver.cpp
     ida_driver.cpp
     rhs3D.hpp
     ParallelGrid.hpp
+    check_retval.h
     backends.hpp)
 
   # ensure the linker language is reset to CXX
-  set_target_properties(advection_reaction_3D PROPERTIES LINKER_LANGUAGE CXX)
+  set_target_properties(advection_reaction_3D_raja PROPERTIES LINKER_LANGUAGE CXX)
 
-  target_include_directories(advection_reaction_3D
+  target_include_directories(advection_reaction_3D_raja
     PRIVATE
     ${PROJECT_SOURCE_DIR}/utilities
     ${MPI_CXX_INCLUDE_DIRS})
 
-  target_link_libraries(advection_reaction_3D
+  target_link_libraries(advection_reaction_3D_raja
     PRIVATE
     sundials_arkode
     sundials_cvode
@@ -50,11 +52,11 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     ${MPI_CXX_LIBRARIES}
     ${OTHER_LIBS})
 
-  install(TARGETS advection_reaction_3D
-    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
+  install(TARGETS advection_reaction_3D_raja
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
-  install(FILES README.md
-    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
+  install(FILES README.md ../scripts/compare_error.py ../scripts/compute_error.py ../scripts/pickle_solution_output.py
+    DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   # ----------------------------------------------------------------------------
   # MPI + CUDA
@@ -68,25 +70,26 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     set_source_files_properties(cvode_driver.cpp PROPERTIES LANGUAGE CUDA)
     set_source_files_properties(ida_driver.cpp PROPERTIES LANGUAGE CUDA)
 
-    add_executable(advection_reaction_3D_mpicuda
+    add_executable(advection_reaction_3D_raja_mpicuda
       advection_reaction_3D.cpp
       arkode_driver.cpp
       cvode_driver.cpp
       ida_driver.cpp
       rhs3D.hpp
       ParallelGrid.hpp
+      check_retval.h
       backends.hpp)
 
     # ensure the linker language is reset to CXX
-    set_target_properties(advection_reaction_3D_mpicuda
+    set_target_properties(advection_reaction_3D_raja_mpicuda
       PROPERTIES LINKER_LANGUAGE CXX)
 
-    target_include_directories(advection_reaction_3D_mpicuda
+    target_include_directories(advection_reaction_3D_raja_mpicuda
       PRIVATE
       ${PROJECT_SOURCE_DIR}/utilities
       ${MPI_CXX_INCLUDE_DIRS})
 
-    target_link_libraries(advection_reaction_3D_mpicuda
+    target_link_libraries(advection_reaction_3D_raja_mpicuda
       PRIVATE
       sundials_arkode
       sundials_cvode
@@ -97,10 +100,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       ${MPI_CXX_LIBRARIES}
       ${OTHER_LIBS})
 
-    target_compile_definitions(advection_reaction_3D_mpicuda PRIVATE USE_CUDA_NVEC)
+    target_compile_definitions(advection_reaction_3D_raja_mpicuda PRIVATE USE_CUDA_NVEC)
 
-    install(TARGETS advection_reaction_3D_mpicuda
-      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
+    install(TARGETS advection_reaction_3D_raja_mpicuda
+      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   endif()
 
@@ -110,21 +113,23 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
   if(BUILD_NVECTOR_HIP)
 
-    add_executable(advection_reaction_3D_mpihip
+    add_executable(advection_reaction_3D_raja_mpihip
       advection_reaction_3D.cpp
+      advection_reaction_3D.hpp
       arkode_driver.cpp
       cvode_driver.cpp
       ida_driver.cpp
       rhs3D.hpp
       ParallelGrid.hpp
+      check_retval.h
       backends.hpp)
 
-    target_include_directories(advection_reaction_3D_mpihip
+    target_include_directories(advection_reaction_3D_raja_mpihip
       PRIVATE
       ${PROJECT_SOURCE_DIR}/utilities
       ${MPI_CXX_INCLUDE_DIRS})
 
-    target_link_libraries(advection_reaction_3D_mpihip
+    target_link_libraries(advection_reaction_3D_raja_mpihip
       PRIVATE
       sundials_arkode
       sundials_cvode
@@ -136,10 +141,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       ${MPI_CXX_LIBRARIES}
       ${OTHER_LIBS})
 
-    target_compile_definitions(advection_reaction_3D_mpihip PRIVATE USE_HIP_NVEC)
+    target_compile_definitions(advection_reaction_3D_raja_mpihip PRIVATE USE_HIP_NVEC)
 
-    install(TARGETS advection_reaction_3D_mpihip
-      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
+    install(TARGETS advection_reaction_3D_raja_mpihip
+      DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   endif()
 

@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): Cody J. Balos @ LLNL
- *                Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -12,19 +12,47 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * A simple implementation of a parallel structured cartesian mesh class that
- * supports up to 3 dimensions and an arbitrary number of degrees of freedom.
+ * A simple implementation of a parallel structured Cartesian mesh class that
+ * supports up to 3 spatial dimensions and an arbitrary number of degrees of
+ * freedom, and that uses Kokkos views to store communication buffer data.
  * ----------------------------------------------------------------------------*/
 
-#ifndef _SIMPLEPARGRID_H
-#define _SIMPLEPARGRID_H
+#ifndef _KOKKOSPARGRID_H
+#define _KOKKOSPARGRID_H
 
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <mpi.h>
+#include <Kokkos_Core.hpp>
+#include <sundials/sundials_types.h>
 
-#include <sundials/sundials_memory.h>
+
+/* Set Kokkos execution space and type shortcuts */
+#if defined(USE_CUDA)
+using ExecSpace = Kokkos::Cuda;
+using MemSpace  = Kokkos::CudaSpace;
+#elif defined(USE_HIP)
+#if KOKKOS_VERSION / 10000 > 3
+using ExecSpace = Kokkos::HIP;
+using MemSpace  = Kokkos::HIPSpace;
+#else
+using ExecSpace = Kokkos::Experimental::HIP;
+using MemSpace  = Kokkos::Experimental::HIPSpace;
+#endif
+#elif defined(USE_OPENMP)
+using ExecSpace = Kokkos::OpenMP;
+using MemSpace  = Kokkos::HostSpace;
+#else
+using ExecSpace = Kokkos::Serial;
+using MemSpace  = Kokkos::HostSpace;
+#endif
+using Vec1D = Kokkos::View<realtype*, MemSpace>;
+using Vec4D = Kokkos::View<realtype****, MemSpace>;
+using Vec1DHost = Vec1D::HostMirror;
+using Vec4DHost = Vec4D::HostMirror;
+using Range3D = Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>;
+
 
 namespace sundials_tools
 {
@@ -41,7 +69,7 @@ enum class StencilType
   UPWIND
 };
 
-template<typename REAL, typename GLOBALINT, int NDIMS>
+template<typename GLOBALINT, int NDIMS>
 class ParallelGrid
 {
 public:
@@ -57,10 +85,9 @@ public:
   // [in] width - the stencil width; defaults to 1
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
-  ParallelGrid(SUNMemoryHelper memhelp, MPI_Comm* comm, const REAL a[], const REAL b[],
-               const GLOBALINT npts[], int dof, BoundaryType bc, StencilType st,
-               const REAL c, int width = 1, const int npxyz[] = nullptr,
-               bool reorder = false)
+  ParallelGrid(MPI_Comm* comm, const realtype a[], const realtype b[], const GLOBALINT npts[],
+               int dof, BoundaryType bc, StencilType st, const realtype c, int width = 1,
+               const int npxyz[] = nullptr, bool reorder = false)
     : nx(1), ny(1), nz(1),
       nxl(1), nyl(1), nzl(1),
       npx(1), npy(1), npz(1),
@@ -69,9 +96,7 @@ public:
       bx(0.0), by(0.0), bz(0.0),
       dof(dof), dims{0,0,0}, coords{0,0,0},
       bc(bc), st(st), width(width),
-      upwindRight(true),
-      memhelp(memhelp)
-
+      upwindRight(true)
   {
     static_assert((NDIMS >= 1 && NDIMS <= 3), "ParallelGrid NDIMS must be 1, 2 or 3");
     assert(st == StencilType::UPWIND);
@@ -108,7 +133,7 @@ public:
     nx  = npts[0];
     ax  = a[0];
     bx  = b[0];
-    dx  = (bx-ax) / (REAL) nx;
+    dx  = (bx-ax) / (realtype) nx;
     int is = nx*(coords[0])/npx;
     int ie = nx*(coords[0]+1)/npx-1;
     nxl = ie-is+1;
@@ -121,7 +146,7 @@ public:
       ny  = npts[1];
       ay  = a[1];
       by  = b[1];
-      dy  = (by-ay) / (REAL) ny;
+      dy  = (by-ay) / (realtype) ny;
       int js = ny*(coords[1])/npy;
       int je = ny*(coords[1]+1)/npy-1;
       nyl = je-js+1;
@@ -135,7 +160,7 @@ public:
       nz  = npts[2];
       az  = a[2];
       bz  = b[2];
-      dz  = (bz-az) / (REAL) nz;
+      dz  = (bz-az) / (realtype) nz;
       int ks = nz*(coords[2])/npz;
       int ke = nz*(coords[2]+1)/npz-1;
       nzl = ke-ks+1;
@@ -151,17 +176,18 @@ public:
   // TODO:
   //  - support non-periodic boundary conditions
   // For all faces where neighbors exist: determine neighbor process indices.
-  // For all faces: allocate exchange buffers.
+  // For all faces: allocate upwind exchange buffers.
   void AllocateBuffersUpwind()
   {
 
     /* Allocate send/receive buffers and determine ID for communication West */
-    if (upwindRight)
-      SUNMemoryHelper_Alloc(memhelp, &Wrecv_, sizeof(REAL)*dof*width*nyl*nzl,
-                            memoryType(), nullptr);
-    else
-      SUNMemoryHelper_Alloc(memhelp, &Wsend_, sizeof(REAL)*dof*width*nyl*nzl,
-                            memoryType(), nullptr);
+    if (upwindRight) {
+      Wrecv_  = Vec1D("Wrecv",      dof*width*nyl*nzl);
+      WrecvH_ = Kokkos::create_mirror_view(Wrecv_);
+    } else {
+      Wsend_  = Vec1D("Wsend",      dof*width*nyl*nzl);
+      WsendH_ = Kokkos::create_mirror_view(Wsend_);
+    }
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]-1, coords[1], coords[2]};
@@ -170,12 +196,13 @@ public:
     }
 
     /* Allocate send/receive buffers and determine ID for communication East */
-    if (upwindRight)
-      SUNMemoryHelper_Alloc(memhelp, &Esend_, sizeof(REAL)*dof*width*nyl*nzl,
-                            memoryType(), nullptr);
-    else
-      SUNMemoryHelper_Alloc(memhelp, &Erecv_, sizeof(REAL)*dof*width*nyl*nzl,
-                            memoryType(), nullptr);
+    if (upwindRight) {
+      Esend_  = Vec1D("Esend",      dof*width*nyl*nzl);
+      EsendH_ = Kokkos::create_mirror_view(Esend_);
+    } else {
+      Erecv_  = Vec1D("Erecv", dof*width*nyl*nzl);
+      ErecvH_ = Kokkos::create_mirror_view(Erecv_);
+    }
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0]-1) || (bc == BoundaryType::PERIODIC)) {
       int nbcoords[] = {coords[0]+1, coords[1], coords[2]};
@@ -186,12 +213,13 @@ public:
     if (NDIMS >= 2)
     {
       /* Allocate send/receive buffers and determine ID for communication South */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Srecv_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Ssend_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
+      if (upwindRight) {
+        Srecv_  = Vec1D("Srecv", dof*width*nxl*nzl);
+        SrecvH_ = Kokkos::create_mirror_view(Srecv_);
+      } else {
+        Ssend_  = Vec1D("Ssend", dof*width*nxl*nzl);
+        SsendH_ = Kokkos::create_mirror_view(Ssend_);
+      }
       ipS = MPI_PROC_NULL;
       if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
@@ -200,12 +228,13 @@ public:
       }
 
       /* Allocate send/receive buffers and determine ID for communication North */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Nsend_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Nrecv_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
+      if (upwindRight) {
+        Nsend_  = Vec1D("Nsend", dof*width*nxl*nzl);
+        NsendH_ = Kokkos::create_mirror_view(Nsend_);
+      } else {
+        Nrecv_  = Vec1D("Nrecv", dof*width*nxl*nzl);
+        NrecvH_ = Kokkos::create_mirror_view(Nrecv_);
+      }
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
@@ -217,12 +246,13 @@ public:
     if (NDIMS == 3)
     {
       /* Allocate send/receive buffers and determine ID for communication Back */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Brecv_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Bsend_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
+      if (upwindRight) {
+        Brecv_  = Vec1D("Brecv", dof*width*nxl*nyl);
+        BrecvH_ = Kokkos::create_mirror_view(Brecv_);
+      } else {
+        Bsend_  = Vec1D("Bsend", dof*width*nxl*nyl);
+        BsendH_ = Kokkos::create_mirror_view(Bsend_);
+      }
       ipB = MPI_PROC_NULL;
       if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]-1};
@@ -231,12 +261,13 @@ public:
       }
 
       /* Allocate send/receive buffers and determine ID for communication Front */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Fsend_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Frecv_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
+      if (upwindRight) {
+        Fsend_  = Vec1D("Fsend", dof*width*nxl*nyl);
+        FsendH_ = Kokkos::create_mirror_view(Fsend_);
+      } else {
+        Frecv_  = Vec1D("Frecv", dof*width*nxl*nyl);
+        FrecvH_ = Kokkos::create_mirror_view(Frecv_);
+      }
       ipF = MPI_PROC_NULL;
       if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
         int nbcoords[] = {coords[0], coords[1], coords[2]+1};
@@ -257,10 +288,10 @@ public:
     for (int i=0; i<12; i++)
       req[i] = MPI_REQUEST_NULL;
 
-    // Open an Irecv buffer for each neighbor
+    // Open an Irecv buffer on host for each neighbor
     if ((ipW != MPI_PROC_NULL) && (upwindRight))
     {
-      retval = MPI_Irecv(getRecvBuffer("WEST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipW,
+      retval = MPI_Irecv(WrecvH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipW,
                          1, cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -268,7 +299,7 @@ public:
 
     if ((ipE != MPI_PROC_NULL) && (!upwindRight))
     {
-      retval = MPI_Irecv(getRecvBuffer("EAST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipE,
+      retval = MPI_Irecv(ErecvH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipE,
                          0, cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -278,7 +309,7 @@ public:
     {
       if ((ipS != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Irecv(getRecvBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS,
+        retval = MPI_Irecv(SrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS,
                            3, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -286,7 +317,7 @@ public:
 
       if ((ipN != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Irecv(getRecvBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN,
+        retval = MPI_Irecv(NrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN,
                            2, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -297,7 +328,7 @@ public:
     {
       if ((ipB != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Irecv(getRecvBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB,
+        retval = MPI_Irecv(BrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB,
                            5, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -305,17 +336,18 @@ public:
 
       if ((ipF != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Irecv(getRecvBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF,
+        retval = MPI_Irecv(FrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF,
                            4, cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
       }
     }
 
-    // Send data to neighbors
+    // Send data to neighbors, first copying from device to host buffers
     if ((ipW != MPI_PROC_NULL) && (!upwindRight))
     {
-      retval = MPI_Isend(getSendBuffer("WEST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipW, 0,
+      Kokkos::deep_copy(WsendH_, Wsend_);
+      retval = MPI_Isend(WsendH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipW, 0,
                          cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -323,7 +355,8 @@ public:
 
     if ((ipE != MPI_PROC_NULL) && (upwindRight))
     {
-      retval = MPI_Isend(getSendBuffer("EAST"), dof*nyl*nzl, MPI_SUNREALTYPE, ipE, 1,
+      Kokkos::deep_copy(EsendH_, Esend_);
+      retval = MPI_Isend(EsendH_.data(), dof*width*nyl*nzl, MPI_SUNREALTYPE, ipE, 1,
                          cart_comm, req+nreq);
       assert(retval == MPI_SUCCESS);
       nreq++;
@@ -333,7 +366,8 @@ public:
     {
       if ((ipS != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Isend(getSendBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
+        Kokkos::deep_copy(SsendH_, Ssend_);
+        retval = MPI_Isend(SsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -341,7 +375,8 @@ public:
 
       if ((ipN != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Isend(getSendBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
+        Kokkos::deep_copy(NsendH_, Nsend_);
+        retval = MPI_Isend(NsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -352,7 +387,8 @@ public:
     {
       if ((ipB != MPI_PROC_NULL) && (!upwindRight))
       {
-        retval = MPI_Isend(getSendBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
+        Kokkos::deep_copy(BsendH_, Bsend_);
+        retval = MPI_Isend(BsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -360,7 +396,8 @@ public:
 
       if ((ipF != MPI_PROC_NULL) && (upwindRight))
       {
-        retval = MPI_Isend(getSendBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
+        Kokkos::deep_copy(FsendH_, Fsend_);
+        retval = MPI_Isend(FsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
                            cart_comm, req+nreq);
         assert(retval == MPI_SUCCESS);
         nreq++;
@@ -383,6 +420,24 @@ public:
     // Wait for messages to finish send/receive
     retval = MPI_Waitall(nreq, req, stat);
     assert(retval == MPI_SUCCESS);
+
+    // Copy data from host to device buffers
+    if ((ipW != MPI_PROC_NULL) && (upwindRight))
+      Kokkos::deep_copy(Wrecv_, WrecvH_);
+    if ((ipE != MPI_PROC_NULL) && (!upwindRight))
+      Kokkos::deep_copy(Erecv_, ErecvH_);
+    if (NDIMS >= 2) {
+      if ((ipS != MPI_PROC_NULL) && (upwindRight))
+        Kokkos::deep_copy(Srecv_, SrecvH_);
+      if ((ipN != MPI_PROC_NULL) && (!upwindRight))
+        Kokkos::deep_copy(Nrecv_, NrecvH_);
+    }
+    if (NDIMS >= 3) {
+      if ((ipB != MPI_PROC_NULL) && (upwindRight))
+        Kokkos::deep_copy(Brecv_, BrecvH_);
+      if ((ipF != MPI_PROC_NULL) && (!upwindRight))
+        Kokkos::deep_copy(Frecv_, FrecvH_);
+    }
 
     return retval;
   }
@@ -449,31 +504,31 @@ public:
     return dof*nptsl();
   }
 
-  REAL* getRecvBuffer(const std::string& direction)
+  realtype* GetRecvView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return static_cast<REAL*>(Wrecv_->ptr);
+      return static_cast<realtype*>(Wrecv_.data());
     }
     else if (direction == "EAST")
     {
-      return static_cast<REAL*>(Erecv_->ptr);
+      return static_cast<realtype*>(Erecv_.data());
     }
     else if (direction == "NORTH")
     {
-      return static_cast<REAL*>(Nrecv_->ptr);
+      return static_cast<realtype*>(Nrecv_.data());
     }
     else if (direction == "SOUTH")
     {
-      return static_cast<REAL*>(Srecv_->ptr);
+      return static_cast<realtype*>(Srecv_.data());
     }
     else if (direction == "FRONT")
     {
-      return static_cast<REAL*>(Frecv_->ptr);
+      return static_cast<realtype*>(Frecv_.data());
     }
     else if (direction == "BACK")
     {
-      return static_cast<REAL*>(Brecv_->ptr);
+      return static_cast<realtype*>(Brecv_.data());
     }
     else
     {
@@ -482,64 +537,45 @@ public:
     }
   }
 
-  REAL* getSendBuffer(const std::string& direction)
+  realtype* GetSendView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return static_cast<REAL*>(Wsend_->ptr);
+      return static_cast<realtype*>(Wsend_.data());
     }
     else if (direction == "EAST")
     {
-      return static_cast<REAL*>(Esend_->ptr);
+      return static_cast<realtype*>(Esend_.data());
     }
     else if (direction == "NORTH")
     {
-      return static_cast<REAL*>(Nsend_->ptr);
+      return static_cast<realtype*>(Nsend_.data());
     }
     else if (direction == "SOUTH")
     {
-      return static_cast<REAL*>(Ssend_->ptr);
+      return static_cast<realtype*>(Ssend_.data());
     }
     else if (direction == "FRONT")
     {
-      return static_cast<REAL*>(Fsend_->ptr);
+      return static_cast<realtype*>(Fsend_.data());
     }
     else if (direction == "BACK")
     {
-      return static_cast<REAL*>(Bsend_->ptr);
+      return static_cast<realtype*>(Bsend_.data());
     }
     else
     {
       assert(direction == "ILLEGAL");
       return nullptr;
-    }
-  }
-
-  ~ParallelGrid()
-  {
-    if (upwindRight) {
-      SUNMemoryHelper_Dealloc(memhelp, Esend_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Nsend_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Fsend_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Wrecv_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Srecv_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Brecv_, nullptr);
-    } else {
-      SUNMemoryHelper_Dealloc(memhelp, Wsend_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Ssend_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Bsend_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Erecv_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Nrecv_, nullptr);
-      SUNMemoryHelper_Dealloc(memhelp, Frecv_, nullptr);
     }
   }
 
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
   int       nxl, nyl, nzl; /* number of intervals locally        */
   int       npx, npy, npz; /* numner of processes                */
-  REAL      dx, dy, dz;    /* mesh spacing                       */
-  REAL      ax, ay, az;    /* domain in [a, b]                   */
-  REAL      bx, by, bz;
+  realtype  dx, dy, dz;    /* mesh spacing                       */
+  realtype  ax, ay, az;    /* domain in [a, b]                   */
+  realtype  bx, by, bz;
   int       dof;           /* degrees of freedom per node        */
   int       neq;           /* total number of equations locally  */
 
@@ -561,46 +597,30 @@ private:
   StencilType  st;
   int          width;
 
-  SUNMemoryHelper memhelp;
-  SUNMemory Wsend_;            /* MPI send/recv buffers              */
-  SUNMemory Esend_;
-  SUNMemory Ssend_;
-  SUNMemory Nsend_;
-  SUNMemory Bsend_;
-  SUNMemory Fsend_;
-  SUNMemory Wrecv_;
-  SUNMemory Erecv_;
-  SUNMemory Srecv_;
-  SUNMemory Nrecv_;
-  SUNMemory Brecv_;
-  SUNMemory Frecv_;
-
-  SUNMemoryType memoryType()
-  {
-    SUNMemory test;
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_PINNED,
-                               nullptr))
-    {
-      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return(SUNMEMTYPE_PINNED);
-    }
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_DEVICE,
-                               nullptr))
-    {
-      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return(SUNMEMTYPE_DEVICE);
-    }
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_UVM,
-                               nullptr))
-    {
-      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return(SUNMEMTYPE_UVM);
-    }
-    else
-    {
-      return(SUNMEMTYPE_HOST);
-    }
-  }
+  Vec1D Wsend_;            /* MPI send/recv buffers              */
+  Vec1D Esend_;
+  Vec1D Ssend_;
+  Vec1D Nsend_;
+  Vec1D Bsend_;
+  Vec1D Fsend_;
+  Vec1D Wrecv_;
+  Vec1D Erecv_;
+  Vec1D Srecv_;
+  Vec1D Nrecv_;
+  Vec1D Brecv_;
+  Vec1D Frecv_;
+  Vec1DHost WsendH_;       /* MPI send/recv buffers (host)       */
+  Vec1DHost EsendH_;
+  Vec1DHost SsendH_;
+  Vec1DHost NsendH_;
+  Vec1DHost BsendH_;
+  Vec1DHost FsendH_;
+  Vec1DHost WrecvH_;
+  Vec1DHost ErecvH_;
+  Vec1DHost SrecvH_;
+  Vec1DHost NrecvH_;
+  Vec1DHost BrecvH_;
+  Vec1DHost FrecvH_;
 
 };
 
