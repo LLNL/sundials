@@ -853,10 +853,10 @@ ARK2-DIRK-3-1-2
 
 Accessible via the constant ``ARKODE_ARK2_DIRK_3_1_2`` to
 :c:func:`ARKStepSetTableNum()`, or
-:c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKodeButcherTable_LoadDIRK()`.
 Accessible via the string ``"ARKODE_ARK2_DIRK_3_1_2"`` to
 :c:func:`ARKStepSetTableName()`, or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
 This is the implicit portion of the default 2nd order additive method (the
 implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
 
