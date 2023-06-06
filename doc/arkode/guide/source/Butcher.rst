@@ -209,7 +209,7 @@ explicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
    \end{array}
 
 .. figure:: /figs/arkode/ark2_erk_stab_region.png
-   :scale: 50 %
+   :scale: 65 %
    :align: center
 
    Linear stability region for the ARK2-ERK method. The method's
@@ -880,7 +880,7 @@ implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
    \end{array}
 
 .. figure:: /figs/arkode/ark2_dirk_stab_region.png
-   :scale: 50 %
+   :scale: 65 %
    :align: center
 
    Linear stability region for the ARK2-DIRK method. The method's
