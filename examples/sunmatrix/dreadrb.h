@@ -23,15 +23,13 @@
 #ifndef _DREADRB_H_
 #define _DREADRB_H_
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
+void dreadrb_dist(int iam, FILE* fp, SUNMatrix* Aout, SUNContext sunctx);
 
-void dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout, SUNContext sunctx);
-
-
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 }
 #endif
 

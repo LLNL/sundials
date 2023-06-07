@@ -2,7 +2,7 @@
  * -----------------------------------------------------------------
  * $Revision: 4378 $
  * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,13 +25,14 @@
 
 #include <cvode/cvode_hypamgpre.h>
 #include <sundials/sundials_band.h>
-#include "_hypre_utilities.h"
+
+#include "HYPRE.h"
 #include "HYPRE_krylov.h"
 #include "HYPRE_parcsr_ls.h"
-#include "HYPRE.h"
 #include "_hypre_parcsr_mv.h"
+#include "_hypre_utilities.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -41,8 +42,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct CVBoomerAMGDataRec {
-
+typedef struct CVBoomerAMGDataRec
+{
   /* passed by user to CVBoomerAMGAlloc and used by PrecSetup/PrecSolve */
 
   sunindextype mudq, mldq, mukeep, mlkeep;
@@ -58,7 +59,7 @@ typedef struct CVBoomerAMGDataRec {
   long int rpwsize;
   long int ipwsize;
   long int nge;
-  
+
   int ilower, iupper, jlower, jupper, N;
 
   HYPRE_IJMatrix A;
@@ -70,9 +71,9 @@ typedef struct CVBoomerAMGDataRec {
   HYPRE_Solver solver, precond;
 
   /* pointer to cvode_mem */
-  void *cvode_mem;
+  void* cvode_mem;
 
-} *CVBoomerAMGData;
+} * CVBoomerAMGData;
 
 /*
  * -----------------------------------------------------------------
@@ -80,12 +81,16 @@ typedef struct CVBoomerAMGDataRec {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBD_MEM_NULL    "Integrator memory is NULL."
-#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
+#define MSGBBD_MEM_NULL "Integrator memory is NULL."
+#define MSGBBD_LMEM_NULL                                                   \
+  "Linear solver memory is NULL. One of the SPILS linear solvers must be " \
+  "attached."
 #define MSGBBD_MEM_FAIL    "A memory request failed."
 #define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. CVBoomerAMGInit must be called."
-#define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
+#define MSGBBD_PMEM_NULL \
+  "BBD peconditioner memory is NULL. CVBoomerAMGInit must be called."
+#define MSGBBD_FUNC_FAILED \
+  "The gloc or cfn routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_config.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -29,7 +29,6 @@ SUNDIALS_EXPORT FILE* SUNDIALSFileOpen(const char* filename, const char* modes);
 
 /* Close a file pointer with the given file name. */
 SUNDIALS_EXPORT void SUNDIALSFileClose(FILE* fp);
-
 
 #ifdef __cplusplus
 }

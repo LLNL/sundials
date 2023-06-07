@@ -31,18 +31,19 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* Default SPTFQMR solver parameters */
-#define SUNSPTFQMR_MAXL_DEFAULT    5
+#define SUNSPTFQMR_MAXL_DEFAULT 5
 
 /* ------------------------------------------
  * SPTFQMR Implementation of SUNLinearSolver
  * ------------------------------------------ */
 
-struct _SUNLinearSolverContent_SPTFQMR {
+struct _SUNLinearSolverContent_SPTFQMR
+{
   int maxl;
   int pretype;
   booleantype zeroguess;
@@ -63,7 +64,7 @@ struct _SUNLinearSolverContent_SPTFQMR {
   N_Vector d;
   N_Vector v;
   N_Vector p;
-  N_Vector *r;
+  N_Vector* r;
   N_Vector u;
   N_Vector vtemp1;
   N_Vector vtemp2;
@@ -73,20 +74,16 @@ struct _SUNLinearSolverContent_SPTFQMR {
   FILE* info_file;
 };
 
-typedef struct _SUNLinearSolverContent_SPTFQMR *SUNLinearSolverContent_SPTFQMR;
+typedef struct _SUNLinearSolverContent_SPTFQMR* SUNLinearSolverContent_SPTFQMR;
 
- /* -------------------------------------
+/* -------------------------------------
  * Exported Functions SUNLINSOL_SPTFQMR
  * -------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y,
-                                                  int pretype,
-                                                  int maxl,
-                                                  SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S,
-                                                 int pretype);
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S,
-                                             int maxl);
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype,
+                                                  int maxl, SUNContext sunctx);
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S);
@@ -97,8 +94,7 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver S,
                                                        SUNPSetupFn Pset,
                                                        SUNPSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
-                                                       N_Vector s1,
-                                                       N_Vector s2);
+                                                       N_Vector s1, N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S,
                                                   booleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A);
@@ -108,16 +104,13 @@ SUNDIALS_EXPORT int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
-                                           long int *lenrwLS,
-                                           long int *leniwLS);
+SUNDIALS_EXPORT int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, long int* lenrwLS,
+                                           long int* leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver LS,
-                                 FILE* info_file);
+int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver LS, FILE* info_file);
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
 int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver LS, int print_level);
-
 
 #ifdef __cplusplus
 }

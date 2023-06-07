@@ -16,30 +16,26 @@
  * a banded difference quotient Jacobian-based preconditioner.
  * -----------------------------------------------------------------*/
 
-
 #ifndef _CVBANDPRE_H
 #define _CVBANDPRE_H
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-
 /* BandPrec inititialization function */
 
-SUNDIALS_EXPORT int CVBandPrecInit(void *cvode_mem, sunindextype N,
+SUNDIALS_EXPORT int CVBandPrecInit(void* cvode_mem, sunindextype N,
                                    sunindextype mu, sunindextype ml);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void *cvode_mem,
-                                           long int *lenrwLS,
-                                           long int *leniwLS);
-SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void *cvode_mem,
-                                             long int *nfevalsBP);
-
+SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void* cvode_mem, long int* lenrwLS,
+                                           long int* leniwLS);
+SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void* cvode_mem,
+                                             long int* nfevalsBP);
 
 #ifdef __cplusplus
 }

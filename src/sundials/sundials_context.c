@@ -34,7 +34,7 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
 #endif
 
-#if SUNDIALS_LOGGING_LEVEL > 0 
+#if SUNDIALS_LOGGING_LEVEL > 0
 #if defined(SUNDIALS_LOGGING_ENABLE_MPI)
   if (SUNLogger_CreateFromEnv(comm, &logger))
 #else
@@ -44,10 +44,7 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
     return (-1);
   }
 #else
-  if (SUNLogger_Create(NULL, 0, &logger)) 
-  {
-    return (-1);
-  }
+  if (SUNLogger_Create(NULL, 0, &logger)) { return (-1); }
   SUNLogger_SetErrorFilename(logger, "");
   SUNLogger_SetWarningFilename(logger, "");
   SUNLogger_SetInfoFilename(logger, "");
@@ -76,10 +73,7 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
 
 int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
+  if (sunctx == NULL) { return (-1); }
 
 #ifdef SUNDIALS_BUILD_WITH_PROFILING
   /* get profiler */
@@ -93,10 +87,7 @@ int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
 
 int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
+  if (sunctx == NULL) { return (-1); }
 
 #ifdef SUNDIALS_BUILD_WITH_PROFILING
   /* free any existing profiler */
@@ -116,10 +107,7 @@ int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
 
 int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
+  if (sunctx == NULL) { return (-1); }
 
   /* get logger */
   *logger = sunctx->logger;
@@ -129,18 +117,12 @@ int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger)
 
 int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
+  if (sunctx == NULL) { return (-1); }
 
   /* free any existing logger */
   if (sunctx->logger && sunctx->own_logger)
   {
-    if (SUNLogger_Destroy(&(sunctx->logger)))
-    {
-      return (-1);
-    }
+    if (SUNLogger_Destroy(&(sunctx->logger))) { return (-1); }
     sunctx->logger = NULL;
   }
 
@@ -158,14 +140,8 @@ int SUNContext_Free(SUNContext* sunctx)
   char* sunprofiler_print_env;
 #endif
 
-  if (!sunctx)
-  {
-    return (0);
-  }
-  if (!(*sunctx))
-  {
-    return (0);
-  }
+  if (!sunctx) { return (0); }
+  if (!(*sunctx)) { return (0); }
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   /* Find out where we are printing to */
@@ -173,14 +149,12 @@ int SUNContext_Free(SUNContext* sunctx)
   fp                    = NULL;
   if (sunprofiler_print_env)
   {
-    if (!strcmp(sunprofiler_print_env, "0"))
-      fp = NULL;
+    if (!strcmp(sunprofiler_print_env, "0")) fp = NULL;
     else if (!strcmp(sunprofiler_print_env, "1") ||
              !strcmp(sunprofiler_print_env, "TRUE") ||
              !strcmp(sunprofiler_print_env, "stdout"))
       fp = stdout;
-    else
-      fp = fopen(sunprofiler_print_env, "a");
+    else fp = fopen(sunprofiler_print_env, "a");
   }
 
   /* Enforce that the profiler is freed before finalizing,

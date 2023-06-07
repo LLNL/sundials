@@ -46,10 +46,9 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*
  * -----------------------------------------------------------------
@@ -62,9 +61,10 @@ extern "C" {
  * interfacing C with C++ code
  */
 
-struct _N_VectorContent_Trilinos {};
+struct _N_VectorContent_Trilinos
+{};
 
-typedef struct _N_VectorContent_Trilinos *N_VectorContent_Trilinos;
+typedef struct _N_VectorContent_Trilinos* N_VectorContent_Trilinos;
 
 /*
  * -----------------------------------------------------------------
@@ -74,7 +74,6 @@ typedef struct _N_VectorContent_Trilinos *N_VectorContent_Trilinos;
  *    N_VNewEmpty_Trilinos
  * -----------------------------------------------------------------
  */
-
 
 /*
  * -----------------------------------------------------------------
@@ -97,10 +96,12 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Trilinos(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Trilinos(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Trilinos(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Trilinos(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Trilinos(N_Vector v, sunindextype *lrw, sunindextype *liw);
-SUNDIALS_EXPORT void *N_VGetCommunicator_Trilinos(N_Vector v);
+SUNDIALS_EXPORT void N_VSpace_Trilinos(N_Vector v, sunindextype* lrw,
+                                       sunindextype* liw);
+SUNDIALS_EXPORT void* N_VGetCommunicator_Trilinos(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_Trilinos(N_Vector v);
-SUNDIALS_EXPORT void N_VLinearSum_Trilinos(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VLinearSum_Trilinos(realtype a, N_Vector x, realtype b,
+                                           N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Trilinos(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Trilinos(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_Trilinos(N_Vector x, N_Vector y, N_Vector z);
@@ -111,13 +112,15 @@ SUNDIALS_EXPORT void N_VAddConst_Trilinos(N_Vector x, realtype b, N_Vector z);
 SUNDIALS_EXPORT realtype N_VDotProd_Trilinos(N_Vector x, N_Vector y);
 SUNDIALS_EXPORT realtype N_VMaxNorm_Trilinos(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWrmsNorm_Trilinos(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_Trilinos(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT realtype N_VWrmsNormMask_Trilinos(N_Vector x, N_Vector w,
+                                                  N_Vector id);
 SUNDIALS_EXPORT realtype N_VMin_Trilinos(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWL2Norm_Trilinos(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VL1Norm_Trilinos(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Trilinos(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x,
+                                                   N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */

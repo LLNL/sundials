@@ -20,72 +20,61 @@
 
 #include <CL/sycl.hpp>
 #include <stdio.h>
-
-#include <sundials/sundials_sycl_policies.hpp>
-#include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_sycl_policies.hpp>
 #include <sunmemory/sunmemory_sycl.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /* -----------------------------------------------------------------
  * SYCL implementation of N_Vector
  * ----------------------------------------------------------------- */
 
-
 struct _N_VectorContent_Sycl
 {
-  sunindextype       length;
-  booleantype        own_helper;
-  SUNMemory          host_data;
-  SUNMemory          device_data;
+  sunindextype length;
+  booleantype own_helper;
+  SUNMemory host_data;
+  SUNMemory device_data;
   SUNSyclExecPolicy* stream_exec_policy;
   SUNSyclExecPolicy* reduce_exec_policy;
-  SUNMemoryHelper    mem_helper;
-  ::sycl::queue*     queue;
-  void*              priv; /* 'private' data */
+  SUNMemoryHelper mem_helper;
+  ::sycl::queue* queue;
+  void* priv; /* 'private' data */
 };
 
-typedef struct _N_VectorContent_Sycl *N_VectorContent_Sycl;
-
+typedef struct _N_VectorContent_Sycl* N_VectorContent_Sycl;
 
 /* -----------------------------------------------------------------
  * NVECTOR_SYCL implementation specific functions
  * ----------------------------------------------------------------- */
 
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Sycl(SUNContext sunctx);
-SUNDIALS_EXPORT N_Vector N_VNew_Sycl(sunindextype length,
-                                     ::sycl::queue *Q,
+SUNDIALS_EXPORT N_Vector N_VNew_Sycl(sunindextype length, ::sycl::queue* Q,
                                      SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewManaged_Sycl(sunindextype length,
-                                            ::sycl::queue *Q,
-                                            SUNContext sunctx);
+                                            ::sycl::queue* Q, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
                                                 booleantype use_managed_mem,
                                                 SUNMemoryHelper helper,
-                                                ::sycl::queue *Q,
+                                                ::sycl::queue* Q,
                                                 SUNContext sunctx);
-SUNDIALS_EXPORT N_Vector N_VMake_Sycl(sunindextype length,
-                                      realtype *h_vdata,
-                                      realtype *d_vdata,
-                                      ::sycl::queue *Q,
+SUNDIALS_EXPORT N_Vector N_VMake_Sycl(sunindextype length, realtype* h_vdata,
+                                      realtype* d_vdata, ::sycl::queue* Q,
                                       SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMakeManaged_Sycl(sunindextype length,
-                                             realtype *vdata,
-                                             ::sycl::queue *Q,
+                                             realtype* vdata, ::sycl::queue* Q,
                                              SUNContext sunctx);
 
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Sycl(realtype* h_vdata, N_Vector v);
-SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Sycl(realtype* d_vdata,
-                                                   N_Vector v);
+SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Sycl(realtype* d_vdata, N_Vector v);
 SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Sycl(N_Vector x);
-SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Sycl(N_Vector x,
-                                                SUNSyclExecPolicy* stream_exec_policy,
-                                                SUNSyclExecPolicy* reduce_exec_policy);
+SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Sycl(
+  N_Vector x, SUNSyclExecPolicy* stream_exec_policy,
+  SUNSyclExecPolicy* reduce_exec_policy);
 SUNDIALS_EXPORT void N_VCopyToDevice_Sycl(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Sycl(N_Vector v);
 
@@ -97,40 +86,36 @@ sunindextype N_VGetLength_Sycl(N_Vector x)
 }
 
 SUNDIALS_STATIC_INLINE
-realtype *N_VGetHostArrayPointer_Sycl(N_Vector x)
+realtype* N_VGetHostArrayPointer_Sycl(N_Vector x)
 {
   N_VectorContent_Sycl content = (N_VectorContent_Sycl)x->content;
-  return(content->host_data == NULL ? NULL : (realtype*)content->host_data->ptr);
+  return (content->host_data == NULL ? NULL : (realtype*)content->host_data->ptr);
 }
 
 SUNDIALS_STATIC_INLINE
-realtype *N_VGetDeviceArrayPointer_Sycl(N_Vector x)
+realtype* N_VGetDeviceArrayPointer_Sycl(N_Vector x)
 {
   N_VectorContent_Sycl content = (N_VectorContent_Sycl)x->content;
-  return(content->device_data == NULL ? NULL : (realtype*)content->device_data->ptr);
+  return (content->device_data == NULL ? NULL
+                                       : (realtype*)content->device_data->ptr);
 }
-
 
 /* -----------------------------------------------------------------
  * NVECTOR API functions
  * ----------------------------------------------------------------- */
 
-
 SUNDIALS_STATIC_INLINE
-N_Vector_ID N_VGetVectorID_Sycl(N_Vector v)
-{
-  return SUNDIALS_NVEC_SYCL;
-}
+N_Vector_ID N_VGetVectorID_Sycl(N_Vector v) { return SUNDIALS_NVEC_SYCL; }
 
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Sycl(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Sycl(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Sycl(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Sycl(N_Vector v, sunindextype *lrw,
-                                   sunindextype *liw);
+SUNDIALS_EXPORT void N_VSpace_Sycl(N_Vector v, sunindextype* lrw,
+                                   sunindextype* liw);
 
 /* standard vector operations */
-SUNDIALS_EXPORT void N_VLinearSum_Sycl(realtype a, N_Vector x,
-                                       realtype b, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VLinearSum_Sycl(realtype a, N_Vector x, realtype b,
+                                       N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Sycl(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Sycl(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_Sycl(N_Vector x, N_Vector y, N_Vector z);
@@ -153,16 +138,15 @@ SUNDIALS_EXPORT booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x,
 SUNDIALS_EXPORT realtype N_VMinQuotient_Sycl(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination_Sycl(int nvec, realtype* c, N_Vector* X,
-                                              N_Vector Z);
+SUNDIALS_EXPORT int N_VLinearCombination_Sycl(int nvec, realtype* c,
+                                              N_Vector* X, N_Vector Z);
 SUNDIALS_EXPORT int N_VScaleAddMulti_Sycl(int nvec, realtype* c, N_Vector X,
                                           N_Vector* Y, N_Vector* Z);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_Sycl(int nvec,
-                                                 realtype a, N_Vector* X,
-                                                 realtype b, N_Vector* Y,
-                                                 N_Vector* Z);
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Sycl(int nvec, realtype a,
+                                                 N_Vector* X, realtype b,
+                                                 N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT int N_VScaleVectorArray_Sycl(int nvec, realtype* c, N_Vector* X,
                                              N_Vector* Z);
 SUNDIALS_EXPORT int N_VConstVectorArray_Sycl(int nvec, realtype c, N_Vector* Z);
@@ -185,19 +169,17 @@ SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w,
                                                   N_Vector id);
 
 /* OPTIONAL XBraid interface operations */
-SUNDIALS_EXPORT int N_VBufSize_Sycl(N_Vector x, sunindextype *size);
-SUNDIALS_EXPORT int N_VBufPack_Sycl(N_Vector x, void *buf);
-SUNDIALS_EXPORT int N_VBufUnpack_Sycl(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufSize_Sycl(N_Vector x, sunindextype* size);
+SUNDIALS_EXPORT int N_VBufPack_Sycl(N_Vector x, void* buf);
+SUNDIALS_EXPORT int N_VBufUnpack_Sycl(N_Vector x, void* buf);
 
 /* OPTIONAL operations for debugging */
 SUNDIALS_EXPORT void N_VPrint_Sycl(N_Vector v);
-SUNDIALS_EXPORT void N_VPrintFile_Sycl(N_Vector v, FILE *outfile);
-
+SUNDIALS_EXPORT void N_VPrintFile_Sycl(N_Vector v, FILE* outfile);
 
 /* -----------------------------------------------------------------
  * Enable / disable fused vector operations
  * ----------------------------------------------------------------- */
-
 
 SUNDIALS_EXPORT int N_VEnableFusedOps_Sycl(N_Vector v, booleantype tf);
 
@@ -209,8 +191,7 @@ SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Sycl(N_Vector v,
                                                        booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Sycl(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableConstVectorArray_Sycl(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Sycl(N_Vector v,
-                                                      booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Sycl(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v,
                                                           booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v,

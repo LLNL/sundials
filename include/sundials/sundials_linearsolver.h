@@ -104,7 +104,7 @@ typedef enum
 typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver_Ops* SUNLinearSolver_Ops;
 
 /* Forward reference for pointer to SUNLinearSolver object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver *SUNLinearSolver;
+typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver* SUNLinearSolver;
 
 /* Structure containing function pointers to linear solver operations */
 struct _generic_SUNLinearSolver_Ops
@@ -154,11 +154,15 @@ SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data, SUNATimesFn ATimes);
+SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
+                                       SUNATimesFn ATimes);
 
-SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data, SUNPSetupFn Pset, SUNPSolveFn Psol);
+SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
+                                               SUNPSetupFn Pset,
+                                               SUNPSolveFn Psol);
 
-SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2);
+SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
+                                               N_Vector s2);
 
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff);
 
@@ -166,7 +170,8 @@ SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A);
 
-SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, realtype tol);
+SUNDIALS_EXPORT int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                                   N_Vector b, realtype tol);
 
 SUNDIALS_EXPORT int SUNLinSolNumIters(SUNLinearSolver S);
 
@@ -176,7 +181,8 @@ SUNDIALS_EXPORT N_Vector SUNLinSolResid(SUNLinearSolver S);
 
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS);
+SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS,
+                                   long int* leniwLS);
 
 SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 

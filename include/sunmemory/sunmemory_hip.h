@@ -20,10 +20,9 @@
 #include <hip/hip_runtime.h>
 #include <sundials/sundials_memory.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /* Implementation specific functions */
 
@@ -50,15 +49,17 @@ int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
 
 SUNDIALS_EXPORT
 int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
-                                  SUNMemory src, size_t memory_size,
-                                  void* queue);
+                                  SUNMemory src, size_t memory_size, void* queue);
 
 SUNDIALS_EXPORT
 int SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations,
-                                      unsigned long* num_deallocations, size_t* bytes_allocated,
+int SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
+                                      SUNMemoryType mem_type,
+                                      unsigned long* num_allocations,
+                                      unsigned long* num_deallocations,
+                                      size_t* bytes_allocated,
                                       size_t* bytes_high_watermark);
 
 #ifdef __cplusplus

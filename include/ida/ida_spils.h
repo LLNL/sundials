@@ -22,10 +22,9 @@
 
 #include <ida/ida_ls.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*===============================================================
   Function Types (typedefs for equivalent types in ida_ls.h)
@@ -41,52 +40,51 @@ typedef IDALsJacTimesVecFn IDASpilsJacTimesVecFn;
   ====================================================================*/
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
-int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS);
+int IDASpilsSetLinearSolver(void* ida_mem, SUNLinearSolver LS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetPreconditioner instead")
-int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
+int IDASpilsSetPreconditioner(void* ida_mem, IDASpilsPrecSetupFn pset,
                               IDASpilsPrecSolveFn psolve);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacTimes instead")
-int IDASpilsSetJacTimes(void *ida_mem, IDASpilsJacTimesSetupFn jtsetup,
+int IDASpilsSetJacTimes(void* ida_mem, IDASpilsJacTimesSetupFn jtsetup,
                         IDASpilsJacTimesVecFn jtimes);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetEpsLin instead")
-int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac);
+int IDASpilsSetEpsLin(void* ida_mem, realtype eplifac);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetIncrementFactor instead")
-int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac);
+int IDASpilsSetIncrementFactor(void* ida_mem, realtype dqincfac);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
-int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+int IDASpilsGetWorkSpace(void* ida_mem, long int* lenrwLS, long int* leniwLS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumPrecEvals instead")
-int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
+int IDASpilsGetNumPrecEvals(void* ida_mem, long int* npevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumPrecSolves instead")
-int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
+int IDASpilsGetNumPrecSolves(void* ida_mem, long int* npsolves);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinIters instead")
-int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
+int IDASpilsGetNumLinIters(void* ida_mem, long int* nliters);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinConvFails instead")
-int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
+int IDASpilsGetNumConvFails(void* ida_mem, long int* nlcfails);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJTSetupEvals instead")
-int IDASpilsGetNumJTSetupEvals(void *ida_mem, long int *njtsetups);
+int IDASpilsGetNumJTSetupEvals(void* ida_mem, long int* njtsetups);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJtimesEvals instead")
-int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+int IDASpilsGetNumJtimesEvals(void* ida_mem, long int* njvevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
-int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+int IDASpilsGetNumResEvals(void* ida_mem, long int* nrevalsLS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
-int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
+int IDASpilsGetLastFlag(void* ida_mem, long int* flag);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
-char *IDASpilsGetReturnFlagName(long int flag);
-
+char* IDASpilsGetReturnFlagName(long int flag);
 
 #ifdef __cplusplus
 }

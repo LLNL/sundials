@@ -18,14 +18,12 @@
 #ifndef _SUNDIALS_SYCLEXECPOLICIES_HPP
 #define _SUNDIALS_SYCLEXECPOLICIES_HPP
 
+#include <CL/sycl.hpp>
 #include <cstdio>
 #include <stdexcept>
-#include <CL/sycl.hpp>
 
-namespace sundials
-{
-namespace sycl
-{
+namespace sundials {
+namespace sycl {
 
 class ExecPolicy
 {
@@ -33,9 +31,9 @@ public:
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
   virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
   virtual ExecPolicy* clone() const = 0;
+
   virtual ~ExecPolicy() {}
 };
-
 
 /*
  * A kernel execution policy that maps each thread to a work unit.
@@ -46,9 +44,7 @@ public:
 class ThreadDirectExecPolicy : public ExecPolicy
 {
 public:
-  ThreadDirectExecPolicy(const size_t blockDim)
-    : blockDim_(blockDim)
-  {}
+  ThreadDirectExecPolicy(const size_t blockDim) : blockDim_(blockDim) {}
 
   ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
     : blockDim_(ex.blockDim_)

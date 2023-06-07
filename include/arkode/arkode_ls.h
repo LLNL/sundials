@@ -23,16 +23,15 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*=================================================================
   ARKLS Constants
   =================================================================*/
 
-#define ARKLS_SUCCESS           0
+#define ARKLS_SUCCESS          0
 #define ARKLS_MEM_NULL         -1
 #define ARKLS_LMEM_NULL        -2
 #define ARKLS_ILL_INPUT        -3
@@ -46,54 +45,45 @@ extern "C" {
 #define ARKLS_SUNMAT_FAIL      -11
 #define ARKLS_SUNLS_FAIL       -12
 
-
 /*=================================================================
   ARKLS user-supplied function prototypes
   =================================================================*/
 
-typedef int (*ARKLsJacFn)(realtype t, N_Vector y, N_Vector fy,
-                          SUNMatrix Jac, void *user_data,
-                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+typedef int (*ARKLsJacFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+                          void* user_data, N_Vector tmp1, N_Vector tmp2,
+                          N_Vector tmp3);
 
-typedef int (*ARKLsMassFn)(realtype t, SUNMatrix M, void *user_data,
+typedef int (*ARKLsMassFn)(realtype t, SUNMatrix M, void* user_data,
                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-typedef int (*ARKLsPrecSetupFn)(realtype t, N_Vector y,
-                                N_Vector fy, booleantype jok,
-                                booleantype *jcurPtr,
-                                realtype gamma, void *user_data);
+typedef int (*ARKLsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
+                                booleantype jok, booleantype* jcurPtr,
+                                realtype gamma, void* user_data);
 
-typedef int (*ARKLsPrecSolveFn)(realtype t, N_Vector y,
-                                N_Vector fy, N_Vector r,
-                                N_Vector z, realtype gamma,
-                                realtype delta, int lr,
-                                void *user_data);
+typedef int (*ARKLsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy, N_Vector r,
+                                N_Vector z, realtype gamma, realtype delta,
+                                int lr, void* user_data);
 
-typedef int (*ARKLsJacTimesSetupFn)(realtype t, N_Vector y,
-                                    N_Vector fy, void *user_data);
+typedef int (*ARKLsJacTimesSetupFn)(realtype t, N_Vector y, N_Vector fy,
+                                    void* user_data);
 
-typedef int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv,
-                                  realtype t, N_Vector y,
-                                  N_Vector fy, void *user_data,
-                                  N_Vector tmp);
+typedef int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
+                                  N_Vector fy, void* user_data, N_Vector tmp);
 
 typedef int (*ARKLsLinSysFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                             SUNMatrix M, booleantype jok, booleantype *jcur,
-                             realtype gamma, void *user_data, N_Vector tmp1,
+                             SUNMatrix M, booleantype jok, booleantype* jcur,
+                             realtype gamma, void* user_data, N_Vector tmp1,
                              N_Vector tmp2, N_Vector tmp3);
 
-typedef int (*ARKLsMassTimesSetupFn)(realtype t, void *mtimes_data);
+typedef int (*ARKLsMassTimesSetupFn)(realtype t, void* mtimes_data);
 
+typedef int (*ARKLsMassTimesVecFn)(N_Vector v, N_Vector Mv, realtype t,
+                                   void* mtimes_data);
 
-typedef int (*ARKLsMassTimesVecFn)(N_Vector v, N_Vector Mv,
-                                   realtype t, void *mtimes_data);
+typedef int (*ARKLsMassPrecSetupFn)(realtype t, void* user_data);
 
-typedef int (*ARKLsMassPrecSetupFn)(realtype t, void *user_data);
-
-typedef int (*ARKLsMassPrecSolveFn)(realtype t, N_Vector r,
-                                    N_Vector z, realtype delta,
-                                    int lr, void *user_data);
-
+typedef int (*ARKLsMassPrecSolveFn)(realtype t, N_Vector r, N_Vector z,
+                                    realtype delta, int lr, void* user_data);
 
 #ifdef __cplusplus
 }

@@ -15,29 +15,28 @@
  * -------------------------------------------------------------------------- */
 
 #include "sundials/sundials_xbraid.h"
+
 #include "sundials/sundials_math.h"
 
 #define ONE RCONST(1.0)
-
 
 /* -------------------------
  * Create and free utilities
  * ------------------------- */
 
-
 /* Create an empty SUNBraidApp instance */
-int SUNBraidApp_NewEmpty(braid_App *app)
+int SUNBraidApp_NewEmpty(braid_App* app)
 {
   SUNBraidOps ops;
 
   /* Create XBraid interface object */
   *app = NULL;
-  *app = (braid_App) malloc(sizeof(struct _braid_App_struct));
+  *app = (braid_App)malloc(sizeof(struct _braid_App_struct));
   if (*app == NULL) return SUNBRAID_ALLOCFAIL;
 
   /* Create operations structure */
   ops = NULL;
-  ops = (SUNBraidOps) malloc(sizeof(struct _SUNBraidOps));
+  ops = (SUNBraidOps)malloc(sizeof(struct _SUNBraidOps));
   if (ops == NULL)
   {
     free(*app);
@@ -55,9 +54,8 @@ int SUNBraidApp_NewEmpty(braid_App *app)
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Free and empty SUNBraidApp instance */
-int SUNBraidApp_FreeEmpty(braid_App *app)
+int SUNBraidApp_FreeEmpty(braid_App* app)
 {
   if (*app == NULL) return SUNBRAID_SUCCESS;
 
@@ -70,34 +68,30 @@ int SUNBraidApp_FreeEmpty(braid_App *app)
   return SUNBRAID_SUCCESS;
 }
 
-
 /* ----------------------
  * Generic app operations
  * ---------------------- */
 
-
 /* Get a template vector from the integrator */
-int SUNBraidApp_GetVecTmpl(braid_App app, N_Vector *y)
+int SUNBraidApp_GetVecTmpl(braid_App app, N_Vector* y)
 {
   if (app->ops->getvectmpl == NULL) return SUNBRAID_OPNULL;
   return app->ops->getvectmpl(app, y);
 }
 
-
 /* -------------------------
  * SUNBraid Vector Functions
  * ------------------------- */
 
-
 /* Create a new vector wrapper */
-int SUNBraidVector_New(N_Vector y, SUNBraidVector *u)
+int SUNBraidVector_New(N_Vector y, SUNBraidVector* u)
 {
   /* Check for valid N_Vector */
   if (y == NULL) return SUNBRAID_ILLINPUT;
 
   /* Create new vector wrapper */
   *u = NULL;
-  *u = (SUNBraidVector) malloc(sizeof(struct _braid_Vector_struct));
+  *u = (SUNBraidVector)malloc(sizeof(struct _braid_Vector_struct));
   if (*u == NULL) return SUNBRAID_ALLOCFAIL;
 
   /* Attach N_Vector */
@@ -106,9 +100,8 @@ int SUNBraidVector_New(N_Vector y, SUNBraidVector *u)
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Get the wrapped NVector */
-int SUNBraidVector_GetNVector(SUNBraidVector u, N_Vector *y)
+int SUNBraidVector_GetNVector(SUNBraidVector u, N_Vector* y)
 {
   /* Check for valid wrapper */
   if (u == NULL) return SUNBRAID_ILLINPUT;
@@ -120,11 +113,10 @@ int SUNBraidVector_GetNVector(SUNBraidVector u, N_Vector *y)
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Create clone of an existing vector */
-int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector *v_ptr)
+int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector* v_ptr)
 {
-  int      flag;
+  int flag;
   N_Vector vy;
 
   /* Check for valid wrapper */
@@ -144,7 +136,6 @@ int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector *v_ptr)
 
   return SUNBRAID_SUCCESS;
 }
-
 
 /* Free vector */
 int SUNBraidVector_Free(braid_App app, braid_Vector u)
@@ -166,7 +157,6 @@ int SUNBraidVector_Free(braid_App app, braid_Vector u)
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Compute alpha x + beta y -> y */
 int SUNBraidVector_Sum(braid_App app, braid_Real alpha, braid_Vector x,
                        braid_Real beta, braid_Vector y)
@@ -180,10 +170,8 @@ int SUNBraidVector_Sum(braid_App app, braid_Real alpha, braid_Vector x,
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Compute L2 norm */
-int SUNBraidVector_SpatialNorm(braid_App app, braid_Vector u,
-                               braid_Real *norm_ptr)
+int SUNBraidVector_SpatialNorm(braid_App app, braid_Vector u, braid_Real* norm_ptr)
 {
   /* Check for valid wrapper */
   if (u == NULL) return SUNBRAID_ILLINPUT;
@@ -195,12 +183,11 @@ int SUNBraidVector_SpatialNorm(braid_App app, braid_Vector u,
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Compute message buffer size */
-int SUNBraidVector_BufSize(braid_App app, braid_Int *size_ptr,
+int SUNBraidVector_BufSize(braid_App app, braid_Int* size_ptr,
                            braid_BufferStatus bstatus)
 {
-  int      flag;  /* return flag     */
+  int flag;       /* return flag     */
   N_Vector ytmpl; /* template vector */
 
   /* Get template vector */
@@ -214,9 +201,8 @@ int SUNBraidVector_BufSize(braid_App app, braid_Int *size_ptr,
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Pack message buffer */
-int SUNBraidVector_BufPack(braid_App app, braid_Vector u, void *buffer,
+int SUNBraidVector_BufPack(braid_App app, braid_Vector u, void* buffer,
                            braid_BufferStatus bstatus)
 {
   int flag; /* return flag */
@@ -232,12 +218,11 @@ int SUNBraidVector_BufPack(braid_App app, braid_Vector u, void *buffer,
   return SUNBRAID_SUCCESS;
 }
 
-
 /* Unpack message buffer */
-int SUNBraidVector_BufUnpack(braid_App app, void *buffer, braid_Vector *u_ptr,
+int SUNBraidVector_BufUnpack(braid_App app, void* buffer, braid_Vector* u_ptr,
                              braid_BufferStatus bstatus)
 {
-  int      flag;  /* return flag     */
+  int flag;       /* return flag     */
   N_Vector ytmpl; /* template vector */
   N_Vector y;     /* new NVector     */
 

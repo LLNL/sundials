@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <sundials/sundials_types.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -114,7 +114,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct _DlsMat {
+typedef struct _DlsMat
+{
   int type;
   sunindextype M;
   sunindextype N;
@@ -122,10 +123,10 @@ typedef struct _DlsMat {
   sunindextype mu;
   sunindextype ml;
   sunindextype s_mu;
-  realtype *data;
+  realtype* data;
   sunindextype ldata;
-  realtype **cols;
-} *SUNDlsMat; /* DEPRECATED DlsMat: use SUNDlsMat instead */
+  realtype** cols;
+} * SUNDlsMat; /* DEPRECATED DlsMat: use SUNDlsMat instead */
 
 typedef SUNDlsMat DlsMat;
 
@@ -152,13 +153,13 @@ typedef SUNDlsMat DlsMat;
  * -----------------------------------------------------------------
  */
 
-#define SUNDLS_DENSE_COL(A,j) ((A->cols)[j])
-#define SUNDLS_DENSE_ELEM(A,i,j) ((A->cols)[j][i])
+#define SUNDLS_DENSE_COL(A, j)     ((A->cols)[j])
+#define SUNDLS_DENSE_ELEM(A, i, j) ((A->cols)[j][i])
 
 /* DEPRECATED DENSE_COL: use SUNDLS_DENSE_COL instead */
-#define DENSE_COL(A,j) SUNDLS_DENSE_COL(A,j)
+#define DENSE_COL(A, j) SUNDLS_DENSE_COL(A, j)
 /* DEPRECATED DENSE_ELEM: use SUNDLS_DENSE_ELEM instead */
-#define DENSE_ELEM(A,i,j) SUNDLS_DENSE_ELEM(A,i,j)
+#define DENSE_ELEM(A, i, j) SUNDLS_DENSE_ELEM(A, i, j)
 
 /*
  * -----------------------------------------------------------------
@@ -182,16 +183,16 @@ typedef SUNDlsMat DlsMat;
  * -----------------------------------------------------------------
  */
 
-#define SUNDLS_BAND_COL(A,j) (((A->cols)[j])+(A->s_mu))
-#define SUNDLS_BAND_COL_ELEM(col_j,i,j) (col_j[(i)-(j)])
-#define SUNDLS_BAND_ELEM(A,i,j) ((A->cols)[j][(i)-(j)+(A->s_mu)])
+#define SUNDLS_BAND_COL(A, j)             (((A->cols)[j]) + (A->s_mu))
+#define SUNDLS_BAND_COL_ELEM(col_j, i, j) (col_j[(i) - (j)])
+#define SUNDLS_BAND_ELEM(A, i, j)         ((A->cols)[j][(i) - (j) + (A->s_mu)])
 
 /* DEPRECATED BAND_COL: use SUNDLS_BAND_COL */
-#define BAND_COL(A,j) SUNDLS_BAND_COL(A,j)
+#define BAND_COL(A, j) SUNDLS_BAND_COL(A, j)
 /* DEPRECATED BAND_COL_ELEM: use SUNDLS_BAND_COL_ELEM */
-#define BAND_COL_ELEM(col_j,i,j) SUNDLS_BAND_COL_ELEM(col_j,i,j)
+#define BAND_COL_ELEM(col_j, i, j) SUNDLS_BAND_COL_ELEM(col_j, i, j)
 /* DEPRECATED BAND_ELEM: use SUNDLS_BAND_ELEM */
-#define BAND_ELEM(A,i,j) SUNDLS_BAND_ELEM(A,i,j)
+#define BAND_ELEM(A, i, j) SUNDLS_BAND_ELEM(A, i, j)
 
 /*
  * ==================================================================
@@ -238,12 +239,12 @@ DlsMat NewDenseMat(sunindextype M, sunindextype N);
  */
 
 SUNDIALS_EXPORT
-SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu,
-                               sunindextype ml, sunindextype smu);
+SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
+                               sunindextype smu);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewBandMat instead")
-DlsMat NewBandMat(sunindextype N, sunindextype mu,
-                  sunindextype ml, sunindextype smu);
+DlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
+                  sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -320,10 +321,10 @@ realtype* NewRealArray(sunindextype N);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DestroyArray(void *p);
+void SUNDlsMat_DestroyArray(void* p);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DestroyArray instead")
-void DestroyArray(void *p);
+void DestroyArray(void* p);
 
 /*
  * -----------------------------------------------------------------
@@ -371,10 +372,10 @@ void SetToZero(DlsMat A);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_PrintMat(SUNDlsMat A, FILE *outfile);
+void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_PrintMat")
-void PrintMat(DlsMat A, FILE *outfile);
+void PrintMat(DlsMat A, FILE* outfile);
 
 /*
  * ==================================================================
@@ -393,8 +394,7 @@ realtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
                                 sunindextype ml);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newBandMat instead")
-realtype** newBandMat(sunindextype n, sunindextype smu,
-                      sunindextype ml);
+realtype** newBandMat(sunindextype n, sunindextype smu, sunindextype ml);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_destroyMat(realtype** a);
@@ -418,14 +418,13 @@ SUNDIALS_EXPORT
 realtype* SUNDlsMat_newRealArray(sunindextype m);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newRealArray instead")
-  realtype* newRealArray(sunindextype m);
+realtype* newRealArray(sunindextype m);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_destroyArray(void* v);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_destroyArray instead")
 void destroyArray(void* v);
-
 
 #ifdef __cplusplus
 }

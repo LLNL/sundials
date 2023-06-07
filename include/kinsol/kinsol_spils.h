@@ -23,10 +23,9 @@
 
 #include <kinsol/kinsol_ls.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*===============================================================
   Function Types (typedefs for equivalent types in kinsol_ls.h)
@@ -41,42 +40,41 @@ typedef KINLsJacTimesVecFn KINSpilsJacTimesVecFn;
   ====================================================================*/
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetLinearSolver instead")
-int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS);
+int KINSpilsSetLinearSolver(void* kinmem, SUNLinearSolver LS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetPreconditioner instead")
-int KINSpilsSetPreconditioner(void *kinmem, KINSpilsPrecSetupFn psetup,
+int KINSpilsSetPreconditioner(void* kinmem, KINSpilsPrecSetupFn psetup,
                               KINSpilsPrecSolveFn psolve);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetJacTimesVecFn instead")
-int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv);
+int KINSpilsSetJacTimesVecFn(void* kinmem, KINSpilsJacTimesVecFn jtv);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinWorkSpace instead")
-int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS);
+int KINSpilsGetWorkSpace(void* kinmem, long int* lenrwLS, long int* leniwLS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumPrecEvals instead")
-int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
+int KINSpilsGetNumPrecEvals(void* kinmem, long int* npevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumPrecSolves instead")
-int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
+int KINSpilsGetNumPrecSolves(void* kinmem, long int* npsolves);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinIters instead")
-int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
+int KINSpilsGetNumLinIters(void* kinmem, long int* nliters);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinConvFails instead")
-int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
+int KINSpilsGetNumConvFails(void* kinmem, long int* nlcfails);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumJtimesEvals instead")
-int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
+int KINSpilsGetNumJtimesEvals(void* kinmem, long int* njvevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinFuncEvals instead")
-int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevals);
+int KINSpilsGetNumFuncEvals(void* kinmem, long int* nfevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLastLinFlag instead")
-int KINSpilsGetLastFlag(void *kinmem, long int *flag);
+int KINSpilsGetLastFlag(void* kinmem, long int* flag);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinReturnFlagName instead")
-char *KINSpilsGetReturnFlagName(long int flag);
-
+char* KINSpilsGetReturnFlagName(long int flag);
 
 #ifdef __cplusplus
 }

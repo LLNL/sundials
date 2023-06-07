@@ -23,7 +23,4 @@ FILE* SUNDIALSFileOpen(const char* filename, const char* mode)
 }
 
 /* Close a file pointer with the given file name. */
-void SUNDIALSFileClose(FILE* fp)
-{
-  fclose(fp);
-}
+void SUNDIALSFileClose(FILE* fp) { fclose(fp); }

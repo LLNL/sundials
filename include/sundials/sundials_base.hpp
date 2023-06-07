@@ -35,7 +35,9 @@ public:
   BaseObject() = default;
 
   BaseObject(SUNContext sunctx)
-      : sunctx_(sunctx), object_(std::make_unique<ObjectStruct>()), object_ops_(std::make_unique<ObjectOps>())
+    : sunctx_(sunctx),
+      object_(std::make_unique<ObjectStruct>()),
+      object_ops_(std::make_unique<ObjectOps>())
   {
     object_->content = this;
     object_->sunctx  = sunctx_;
@@ -44,7 +46,9 @@ public:
 
   // Move constructor
   BaseObject(BaseObject&& other) noexcept
-      : sunctx_(std::move(other.sunctx_)), object_(std::move(other.object_)), object_ops_(std::move(other.object_ops_))
+    : sunctx_(std::move(other.sunctx_)),
+      object_(std::move(other.object_)),
+      object_ops_(std::move(other.object_ops_))
   {
     object_->content = this;
     object_->sunctx  = sunctx_;
@@ -53,8 +57,9 @@ public:
 
   // Copy constructor
   BaseObject(const BaseObject& other)
-      : sunctx_(other.sunctx_), object_(std::make_unique<ObjectStruct>()),
-        object_ops_(std::make_unique<ObjectOps>(*other.object_ops_))
+    : sunctx_(other.sunctx_),
+      object_(std::make_unique<ObjectStruct>()),
+      object_ops_(std::make_unique<ObjectOps>(*other.object_ops_))
   {
     object_->content = this;
     object_->sunctx  = other.sunctx_;
@@ -89,10 +94,7 @@ public:
   virtual ~BaseObject() = 0;
 
   // Getters
-  SUNContext sunctx() const
-  {
-    return this->object_->sunctx;
-  }
+  SUNContext sunctx() const { return this->object_->sunctx; }
 
 protected:
   // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
@@ -116,38 +118,28 @@ class ClassView : public sundials::ConvertibleTo<T>
 {
 public:
   ClassView() : object_(nullptr) {}
+
   ClassView(T&& object) : object_(std::make_unique<T>(object)) {}
 
   ClassView(const ClassView&)  = delete;
   ClassView(ClassView&& other) = default;
 
   ClassView& operator=(const ClassView&) = delete;
-  ClassView& operator=(ClassView&& rhs) = default;
+  ClassView& operator=(ClassView&& rhs)  = default;
 
   ~ClassView()
   {
-    if (object_) {
-      Deleter{}(this->Convert());
-    }
+    if (object_) { Deleter{}(this->Convert()); }
   };
 
   // Override ConvertibleTo functions
-  T Convert() override
-  {
-    return *object_.get();
-  }
-  T Convert() const override
-  {
-    return *object_.get();
-  }
-  operator T() override
-  {
-    return *object_.get();
-  }
-  operator T() const override
-  {
-    return *object_.get();
-  }
+  T Convert() override { return *object_.get(); }
+
+  T Convert() const override { return *object_.get(); }
+
+  operator T() override { return *object_.get(); }
+
+  operator T() const override { return *object_.get(); }
 
 private:
   std::unique_ptr<T> object_;

@@ -21,10 +21,9 @@
 
 #include <idas/idas_ls.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*=================================================================
   Function Types (typedefs for equivalent types in ida_ls.h)
@@ -39,40 +38,35 @@ typedef IDALsJacFnBS IDADlsJacFnBS;
   ===================================================================*/
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
-int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
-                          SUNMatrix A);
+int IDADlsSetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFn instead")
-int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
+int IDADlsSetJacFn(void* ida_mem, IDADlsJacFn jac);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
-                       long int *leniwLS);
+int IDADlsGetWorkSpace(void* ida_mem, long int* lenrwLS, long int* leniwLS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJacEvals instead")
-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+int IDADlsGetNumJacEvals(void* ida_mem, long int* njevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
-int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+int IDADlsGetNumResEvals(void* ida_mem, long int* nrevalsLS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
-int IDADlsGetLastFlag(void *ida_mem, long int *flag);
+int IDADlsGetLastFlag(void* ida_mem, long int* flag);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
-char *IDADlsGetReturnFlagName(long int flag);
-
+char* IDADlsGetReturnFlagName(long int flag);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolverB instead")
-int IDADlsSetLinearSolverB(void *ida_mem, int which,
-                           SUNLinearSolver LS, SUNMatrix A);
+int IDADlsSetLinearSolverB(void* ida_mem, int which, SUNLinearSolver LS,
+                           SUNMatrix A);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFnB instead")
-int IDADlsSetJacFnB(void *ida_mem, int which, IDADlsJacFnB jacB);
+int IDADlsSetJacFnB(void* ida_mem, int which, IDADlsJacFnB jacB);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFnBS instead")
-int IDADlsSetJacFnBS(void *ida_mem, int which, IDADlsJacFnBS jacBS);
-
-
+int IDADlsSetJacFnBS(void* ida_mem, int which, IDADlsJacFnBS jacBS);
 
 #ifdef __cplusplus
 }

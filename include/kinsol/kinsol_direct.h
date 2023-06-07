@@ -22,10 +22,9 @@
 
 #include <kinsol/kinsol_ls.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*=================================================================
   Function Types (typedefs for equivalent types in kinsol_ls.h)
@@ -38,26 +37,25 @@ typedef KINLsJacFn KINDlsJacFn;
   ===================================================================*/
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetLinearSolver instead")
-int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
+int KINDlsSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetJacFn instead")
-int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
+int KINDlsSetJacFn(void* kinmem, KINDlsJacFn jac);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinWorkSpace instead")
-int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+int KINDlsGetWorkSpace(void* kinmem, long int* lenrw, long int* leniw);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumJacEvals instead")
-int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
+int KINDlsGetNumJacEvals(void* kinmem, long int* njevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinFuncEvals instead")
-int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
+int KINDlsGetNumFuncEvals(void* kinmem, long int* nfevals);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLastLinFlag instead")
-int KINDlsGetLastFlag(void *kinmem, long int *flag);
+int KINDlsGetLastFlag(void* kinmem, long int* flag);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinReturnFlagName instead")
-char *KINDlsGetReturnFlagName(long int flag);
-
+char* KINDlsGetReturnFlagName(long int flag);
 
 #ifdef __cplusplus
 }

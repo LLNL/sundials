@@ -30,8 +30,10 @@ extern "C" {
 typedef struct _SUNContext* SUNContext;
 
 SUNDIALS_EXPORT int SUNContext_Create(void* comm, SUNContext* ctx);
-SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler);
-SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
+SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx,
+                                           SUNProfiler* profiler);
+SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx,
+                                           SUNProfiler profiler);
 SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
 SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);

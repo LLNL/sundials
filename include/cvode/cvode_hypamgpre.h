@@ -2,7 +2,7 @@
  * -----------------------------------------------------------------
  * $Revision: 4378 $
  * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,8 +17,8 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the CVHYPRE_BOOMERAMG module, for a
- * interface to hypre's BoomerAMG preconditioner, for use with CVODE, a CVSPILS linear
- * solver, and the ParHyp implementation of NVECTOR.
+ * interface to hypre's BoomerAMG preconditioner, for use with CVODE, a CVSPILS
+ * linear solver, and the ParHyp implementation of NVECTOR.
  *
  * Summary:
  *
@@ -46,7 +46,7 @@
  *   ier = CVode(...);
  *   ...
  *   CVodeFree(&cvode_mem);
- * 
+ *
  *   Free y0
  *
  * The user-supplied routines required are:
@@ -94,20 +94,17 @@
 #ifndef _CVHYPRE_BOOMERAMG_H
 #define _CVHYPRE_BOOMERAMG_H
 
-#include <sundials/sundials_nvector.h>
 #include <mpi.h>
-#include "_hypre_utilities.h"
-#include "HYPRE_krylov.h"
-#include "HYPRE_parcsr_ls.h"
-#include "HYPRE.h"
-#include "_hypre_utilities.h"
-#include "HYPRE_krylov.h"
-#include "HYPRE_parcsr_ls.h"
-#include "HYPRE.h"
-#include "_hypre_parcsr_mv.h"
 #include <nvector/nvector_parhyp.h>
+#include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#include "HYPRE.h"
+#include "HYPRE_krylov.h"
+#include "HYPRE_parcsr_ls.h"
+#include "_hypre_parcsr_mv.h"
+#include "_hypre_utilities.h"
+
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -116,14 +113,14 @@ extern "C" {
  * Type: CVParCsrJacFn
  * -----------------------------------------------------------------
  *
- * A dense Jacobian approximation function Jac must be of type 
+ * A dense Jacobian approximation function Jac must be of type
  * CVDlsDenseJacFn. Its parameters are:
  *
  * N   is the problem size.
  *
  * Jac is the dense matrix (of type SUNDlsMat) that will be loaded
- *     by a CVDlsDenseJacFn with an approximation to the Jacobian 
- *     matrix J = (df_i/dy_j) at the point (t,y). 
+ *     by a CVDlsDenseJacFn with an approximation to the Jacobian
+ *     matrix J = (df_i/dy_j) at the point (t,y).
  *
  * t   is the current value of the independent variable.
  *
@@ -139,28 +136,31 @@ extern "C" {
  * vectors of length N which can be used by a CVDlsDenseJacFn
  * as temporary storage or work space.
  *
- * A CVParCsrJacFn should return 0 if successful, a positive 
- * value if a recoverable error occurred, and a negative value if 
+ * A CVParCsrJacFn should return 0 if successful, a positive
+ * value if a recoverable error occurred, and a negative value if
  * an unrecoverable error occurred.
  *
  * -----------------------------------------------------------------
- *                                                                
- * NOTE: If the user's Jacobian routine needs other quantities,   
+ *
+ * NOTE: If the user's Jacobian routine needs other quantities,
  *     they are accessible as follows: hcur (the current stepsize)
- *     and ewt (the error weight vector) are accessible through   
- *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively 
- *     (see cvode.h). The unit roundoff is available as 
+ *     and ewt (the error weight vector) are accessible through
+ *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively
+ *     (see cvode.h). The unit roundoff is available as
  *     UNIT_ROUNDOFF defined in sundials_types.h.
  *
  * -----------------------------------------------------------------
  */
-  
-  
-typedef int (*CVParCsrJacFn)(sunindextype N, sunindextype ilower, sunindextype iupper, sunindextype jlower, sunindextype jupper, realtype gamma, realtype t,
-			       N_Vector y, N_Vector fy, 
-			       HYPRE_IJMatrix* Jac, void *user_data,
-			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-typedef int (*CVJacobianIJUpdateFn)(HYPRE_IJMatrix* pointer_A, int ilower, int iupper, int jlower, int jupper, void *jac_data);
+
+typedef int (*CVParCsrJacFn)(sunindextype N, sunindextype ilower,
+                             sunindextype iupper, sunindextype jlower,
+                             sunindextype jupper, realtype gamma, realtype t,
+                             N_Vector y, N_Vector fy, HYPRE_IJMatrix* Jac,
+                             void* user_data, N_Vector tmp1, N_Vector tmp2,
+                             N_Vector tmp3);
+typedef int (*CVJacobianIJUpdateFn)(HYPRE_IJMatrix* pointer_A, int ilower,
+                                    int iupper, int jlower, int jupper,
+                                    void* jac_data);
 
 /*
  * -----------------------------------------------------------------
@@ -205,16 +205,17 @@ typedef int (*CVJacobianIJUpdateFn)(HYPRE_IJMatrix* pointer_A, int ilower, int i
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jupper, int N);
+SUNDIALS_EXPORT int CVBoomerAMGInit(void* cvode_mem, int ilower, int iupper,
+                                    int jlower, int jupper, int N);
 
 /*
-SUNDIALS_EXPORT int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy, 
-                          booleantype jok, booleantype *jcurPtr, 
-                          realtype gamma, void *bbd_data, 
+SUNDIALS_EXPORT int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy,
+                          booleantype jok, booleantype *jcurPtr,
+                          realtype gamma, void *bbd_data,
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy, 
-                          N_Vector r, N_Vector z, 
+SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
+                          N_Vector r, N_Vector z,
                           realtype gamma, realtype delta,
                           int lr, void *bbd_data, N_Vector tmp);*/
 
@@ -224,9 +225,9 @@ SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  * CVBoomerAMGReInit re-initializes the HYPRE_BOOMERAMG module when solving a
  * sequence of problems of the same size with CVSPGMR/CVHYPRE_BOOMERAMG or
- * CVSPBCG/CVHYPRE_BOOMERAMG or CVSPTFQMR/CVHYPRE_BOOMERAMG provided there is no change 
- * in Nlocal, mukeep, or mlkeep. After solving one problem, and after 
- * calling CVodeReInit to re-initialize the integrator for a subsequent 
+ * CVSPBCG/CVHYPRE_BOOMERAMG or CVSPTFQMR/CVHYPRE_BOOMERAMG provided there is no
+ * change in Nlocal, mukeep, or mlkeep. After solving one problem, and after
+ * calling CVodeReInit to re-initialize the integrator for a subsequent
  * problem, call CVBoomerAMGReInit.
  *
  * All arguments have the same names and meanings as those
@@ -240,16 +241,15 @@ SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, sunindextype mudq, sunindextype mldq,
-				    realtype dqrely);
+SUNDIALS_EXPORT int CVBoomerAMGReInit(void* cvode_mem, sunindextype mudq,
+                                      sunindextype mldq, realtype dqrely);
 
 /*
  * -----------------------------------------------------------------
  * HYPRE_BOOMERAMG optional output extraction routines
  * -----------------------------------------------------------------
- * CVBoomerAMGGetWorkSpace returns the HYPRE_BOOMERAMG real and integer work space
- *                       sizes.
- * CVBoomerAMGGetNumGfnEvals returns the number of calls to gfn.
+ * CVBoomerAMGGetWorkSpace returns the HYPRE_BOOMERAMG real and integer work
+ * space sizes. CVBoomerAMGGetNumGfnEvals returns the number of calls to gfn.
  *
  * The return value of CVBoomerAMGGet* is one of:
  *   CVSPILS_SUCCESS if no errors occurred
@@ -259,8 +259,10 @@ SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, sunindextype mudq, sunind
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int CVBoomerAMGGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-SUNDIALS_EXPORT int CVBoomerAMGGetNumGfnEvals(void *cvode_mem, long int *ngevalsBBDP);
+SUNDIALS_EXPORT int CVBoomerAMGGetWorkSpace(void* cvode_mem, long int* lenrwLS,
+                                            long int* leniwLS);
+SUNDIALS_EXPORT int CVBoomerAMGGetNumGfnEvals(void* cvode_mem,
+                                              long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }

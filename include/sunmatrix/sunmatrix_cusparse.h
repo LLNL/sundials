@@ -20,16 +20,14 @@
 #ifndef _SUNMATRIX_CUSPARSE_H
 #define _SUNMATRIX_CUSPARSE_H
 
-#include <stdio.h>
-
 #include <cuda_runtime.h>
 #include <cusparse.h>
-
+#include <stdio.h>
 #include <sundials/sundials_cuda_policies.hpp>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_memory.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -38,10 +36,11 @@ extern "C" {
  * ------------------------------------------ */
 
 /* storage formats */
-#define SUNMAT_CUSPARSE_CSR 0
+#define SUNMAT_CUSPARSE_CSR  0
 #define SUNMAT_CUSPARSE_BCSR 1
 
-struct _SUNMatrix_Content_cuSparse {
+struct _SUNMatrix_Content_cuSparse
+{
   int M;
   int N;
   int NNZ;
@@ -68,24 +67,25 @@ struct _SUNMatrix_Content_cuSparse {
   SUNCudaExecPolicy* exec_policy;
 };
 
-typedef struct _SUNMatrix_Content_cuSparse *SUNMatrix_Content_cuSparse;
+typedef struct _SUNMatrix_Content_cuSparse* SUNMatrix_Content_cuSparse;
 
 /* ------------------------------------------------------------------
  * Constructors.
  * ------------------------------------------------------------------ */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp,
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ,
+                                                    cusparseHandle_t cusp,
                                                     SUNContext sunctx);
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ,
-                                                     int *rowptrs , int *colind , realtype *data,
-                                                     cusparseHandle_t cusp, SUNContext sunctx);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_MakeCSR(
+  cusparseMatDescr_t mat_descr, int M, int N, int NNZ, int* rowptrs,
+  int* colind, realtype* data, cusparseHandle_t cusp, SUNContext sunctx);
 
-/* Creates a CSR block-diagonal matrix where each block shares the same sparsity structure.
-   Reduces memory usage by only storing the row pointers and column indices for one block. */
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols,
-                                                         int blocknnz, cusparseHandle_t cusp,
-                                                         SUNContext sunctx);
-
+/* Creates a CSR block-diagonal matrix where each block shares the same sparsity
+   structure. Reduces memory usage by only storing the row pointers and column
+   indices for one block. */
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(
+  int nblocks, int blockrows, int blockcols, int blocknnz,
+  cusparseHandle_t cusp, SUNContext sunctx);
 
 /* ------------------------------------------------------------------
  * Implementation specific routines.
@@ -99,19 +99,24 @@ SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A);
 SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexValues(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNMatrix_cuSparse_Data(SUNMatrix A);
 
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno);
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy);
+SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A,
+                                                       booleantype yesno);
+SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetKernelExecPolicy(
+  SUNMatrix A, SUNCudaExecPolicy* exec_policy);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockRows(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockColumns(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockNNZ(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNMatrix_cuSparse_BlockData(SUNMatrix A, int blockidx);
 SUNDIALS_EXPORT cusparseMatDescr_t SUNMatrix_cuSparse_MatDescr(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix device, realtype* h_data,
-                                                    int* h_idxptrs, int* h_idxvals);
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix device, realtype* h_data,
-                                                      int* h_idxptrs, int* h_idxvals);
-
+SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix device,
+                                                    realtype* h_data,
+                                                    int* h_idxptrs,
+                                                    int* h_idxvals);
+SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix device,
+                                                      realtype* h_data,
+                                                      int* h_idxptrs,
+                                                      int* h_idxvals);
 
 /* ------------------------------------------------------------------
  * SUNMatrix API routines.
@@ -126,7 +131,6 @@ SUNDIALS_EXPORT int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B
 SUNDIALS_EXPORT int SUNMatScaleAddI_cuSparse(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvecSetup_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y);
-
 
 #ifdef __cplusplus
 }

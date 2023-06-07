@@ -26,7 +26,8 @@
 extern "C" {
 #endif
 
-struct _SUNContext {
+struct _SUNContext
+{
   SUNProfiler profiler;
   booleantype own_profiler;
   SUNLogger logger;

@@ -34,6 +34,7 @@ struct NVectorDeleter
     if (v) N_VDestroy(v);
   }
 };
+
 using NVectorView = ClassView<N_Vector, NVectorDeleter>;
 } // namespace experimental
 } // namespace sundials

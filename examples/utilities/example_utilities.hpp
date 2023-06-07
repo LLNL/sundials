@@ -35,10 +35,12 @@ int check_ptr(const void* ptr, const std::string funcname)
   return 1;
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, sunrealtype& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     sunrealtype& dest)
 {
   auto it = std::find(args.begin(), args.end(), key);
-  if (it != args.end()) {
+  if (it != args.end())
+  {
 #if defined(SUNDIALS_SINGLE_PRECISION)
     dest = stof(*(it + 1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -50,37 +52,45 @@ inline void find_arg(std::vector<std::string>& args, const std::string key, sunr
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, long long& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     long long& dest)
 {
   auto it = std::find(args.begin(), args.end(), key);
-  if (it != args.end()) {
+  if (it != args.end())
+  {
     dest = stoll(*(it + 1));
     args.erase(it, it + 2);
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, long int& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     long int& dest)
 {
   auto it = std::find(args.begin(), args.end(), key);
-  if (it != args.end()) {
+  if (it != args.end())
+  {
     dest = stol(*(it + 1));
     args.erase(it, it + 2);
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, int& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     int& dest)
 {
   auto it = std::find(args.begin(), args.end(), key);
-  if (it != args.end()) {
+  if (it != args.end())
+  {
     dest = stoi(*(it + 1));
     args.erase(it, it + 2);
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, bool& dest, bool store = true)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     bool& dest, bool store = true)
 {
   auto it = std::find(args.begin(), args.end(), key);
-  if (it != args.end()) {
+  if (it != args.end())
+  {
     dest = store;
     args.erase(it);
   }

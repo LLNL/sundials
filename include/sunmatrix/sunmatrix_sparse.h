@@ -34,10 +34,10 @@
 
 #include <stdio.h>
 #include <sundials/sundials_matrix.h>
-#include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_band.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -48,52 +48,51 @@ extern "C" {
 #define CSC_MAT 0
 #define CSR_MAT 1
 
-
 /* ------------------------------------------
  * Sparse Implementation of SUNMATRIX_SPARSE
  * ------------------------------------------ */
 
-struct _SUNMatrixContent_Sparse {
+struct _SUNMatrixContent_Sparse
+{
   sunindextype M;
   sunindextype N;
   sunindextype NNZ;
   sunindextype NP;
-  realtype *data;
+  realtype* data;
   int sparsetype;
-  sunindextype *indexvals;
-  sunindextype *indexptrs;
+  sunindextype* indexvals;
+  sunindextype* indexptrs;
   /* CSC indices */
-  sunindextype **rowvals;
-  sunindextype **colptrs;
+  sunindextype** rowvals;
+  sunindextype** colptrs;
   /* CSR indices */
-  sunindextype **colvals;
-  sunindextype **rowptrs;
+  sunindextype** colvals;
+  sunindextype** rowptrs;
 };
 
-typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
-
+typedef struct _SUNMatrixContent_Sparse* SUNMatrixContent_Sparse;
 
 /* ---------------------------------------
  * Macros for access to SUNMATRIX_SPARSE
  * --------------------------------------- */
 
-#define SM_CONTENT_S(A)     ( (SUNMatrixContent_Sparse)(A->content) )
+#define SM_CONTENT_S(A) ((SUNMatrixContent_Sparse)(A->content))
 
-#define SM_ROWS_S(A)        ( SM_CONTENT_S(A)->M )
+#define SM_ROWS_S(A) (SM_CONTENT_S(A)->M)
 
-#define SM_COLUMNS_S(A)     ( SM_CONTENT_S(A)->N )
+#define SM_COLUMNS_S(A) (SM_CONTENT_S(A)->N)
 
-#define SM_NNZ_S(A)         ( SM_CONTENT_S(A)->NNZ )
+#define SM_NNZ_S(A) (SM_CONTENT_S(A)->NNZ)
 
-#define SM_NP_S(A)          ( SM_CONTENT_S(A)->NP )
+#define SM_NP_S(A) (SM_CONTENT_S(A)->NP)
 
-#define SM_SPARSETYPE_S(A)  ( SM_CONTENT_S(A)->sparsetype )
+#define SM_SPARSETYPE_S(A) (SM_CONTENT_S(A)->sparsetype)
 
-#define SM_DATA_S(A)        ( SM_CONTENT_S(A)->data )
+#define SM_DATA_S(A) (SM_CONTENT_S(A)->data)
 
-#define SM_INDEXVALS_S(A)   ( SM_CONTENT_S(A)->indexvals )
+#define SM_INDEXVALS_S(A) (SM_CONTENT_S(A)->indexvals)
 
-#define SM_INDEXPTRS_S(A)   ( SM_CONTENT_S(A)->indexptrs )
+#define SM_INDEXPTRS_S(A) (SM_CONTENT_S(A)->indexptrs)
 
 /* ----------------------------------------
  * Exported Functions for SUNMATRIX_SPARSE
@@ -103,12 +102,10 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
                                           sunindextype NNZ, int sparsetype,
                                           SUNContext sunctx);
 
-SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A,
-                                                   realtype droptol,
+SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, realtype droptol,
                                                    int sparsetype);
 
-SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A,
-                                                  realtype droptol,
+SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
                                                   int sparsetype);
 
 SUNDIALS_EXPORT int SUNSparseMatrix_ToCSR(const SUNMatrix A, SUNMatrix* Bout);
@@ -137,8 +134,8 @@ SUNDIALS_EXPORT int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_Sparse(SUNMatrix A, long int *lenrw, long int *leniw);
-
+SUNDIALS_EXPORT int SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw,
+                                       long int* leniw);
 
 #ifdef __cplusplus
 }

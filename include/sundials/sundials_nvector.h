@@ -147,13 +147,17 @@ struct _generic_N_Vector_Ops
   int (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
 
   /* OPTIONAL vector array operations */
-  int (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype, N_Vector*, N_Vector*);
+  int (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype, N_Vector*,
+                                N_Vector*);
   int (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
   int (*nvconstvectorarray)(int, realtype, N_Vector*);
   int (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, realtype*);
-  int (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector, realtype*);
-  int (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*, N_Vector**, N_Vector**);
-  int (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**, N_Vector*);
+  int (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
+                                   realtype*);
+  int (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*, N_Vector**,
+                                    N_Vector**);
+  int (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**,
+                                        N_Vector*);
 
   /*
    * OPTIONAL operations with no default implementation.
@@ -226,7 +230,8 @@ SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
 /* standard vector operations */
-SUNDIALS_EXPORT void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VLinearSum(realtype a, N_Vector x, realtype b,
+                                  N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv(N_Vector x, N_Vector y, N_Vector z);
@@ -251,27 +256,37 @@ SUNDIALS_EXPORT realtype N_VMinQuotient(N_Vector num, N_Vector denom);
  */
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination(int nvec, realtype* c, N_Vector* X, N_Vector z);
+SUNDIALS_EXPORT int N_VLinearCombination(int nvec, realtype* c, N_Vector* X,
+                                         N_Vector z);
 
-SUNDIALS_EXPORT int N_VScaleAddMulti(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleAddMulti(int nvec, realtype* a, N_Vector x,
+                                     N_Vector* Y, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y,
+                                    realtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray(int nvec, realtype a, N_Vector* X, realtype b, N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VLinearSumVectorArray(int nvec, realtype a, N_Vector* X,
+                                            realtype b, N_Vector* Y, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VScaleVectorArray(int nvec, realtype* c, N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray(int nvec, realtype* c, N_Vector* X,
+                                        N_Vector* Z);
 
 SUNDIALS_EXPORT int N_VConstVectorArray(int nvec, realtype c, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W,
+                                           realtype* nrm);
 
-SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W,
+                                               N_Vector id, realtype* nrm);
 
-SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X, N_Vector** Y,
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a,
+                                                N_Vector* X, N_Vector** Y,
                                                 N_Vector** Z);
 
-SUNDIALS_EXPORT int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c, N_Vector** X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray(int nvec, int nsum,
+                                                    realtype* c, N_Vector** X,
+                                                    N_Vector* Z);
 
 /*
  * OPTIONAL operations with no default implementation.
@@ -285,12 +300,15 @@ SUNDIALS_EXPORT realtype N_VL1NormLocal(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id);
 SUNDIALS_EXPORT booleantype N_VInvTestLocal(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x,
+                                               N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
 
 /* single buffer reduction operations */
-SUNDIALS_EXPORT int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods);
-SUNDIALS_EXPORT int N_VDotProdMultiAllReduce(int nvec_total, N_Vector x, realtype* sum);
+SUNDIALS_EXPORT int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
+                                         realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiAllReduce(int nvec_total, N_Vector x,
+                                             realtype* sum);
 
 /* XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize(N_Vector x, sunindextype* size);
@@ -308,7 +326,8 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
 
 /* These function are really only for users of the Fortran interface */
 SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index);
-SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w);
+SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index,
+                                                 N_Vector w);
 
 /* -----------------------------------------------------------------
  * Debugging functions

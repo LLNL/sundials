@@ -29,18 +29,19 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* Default PCG solver parameters */
-#define SUNPCG_MAXL_DEFAULT    5
+#define SUNPCG_MAXL_DEFAULT 5
 
 /* --------------------------------------
  * PCG Implementation of SUNLinearSolver
  * -------------------------------------- */
 
-struct _SUNLinearSolverContent_PCG {
+struct _SUNLinearSolverContent_PCG
+{
   int maxl;
   int pretype;
   booleantype zeroguess;
@@ -64,21 +65,16 @@ struct _SUNLinearSolverContent_PCG {
   FILE* info_file;
 };
 
-typedef struct _SUNLinearSolverContent_PCG *SUNLinearSolverContent_PCG;
-
+typedef struct _SUNLinearSolverContent_PCG* SUNLinearSolverContent_PCG;
 
 /* -------------------------------------
  * Exported Functions for SUNLINSOL_PCG
  * ------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_PCG(N_Vector y,
-                                              int pretype,
-                                              int maxl,
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl,
                                               SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_PCGSetPrecType(SUNLinearSolver S,
-                                             int pretype);
-SUNDIALS_EXPORT int SUNLinSol_PCGSetMaxl(SUNLinearSolver S,
-                                         int maxl);
+SUNDIALS_EXPORT int SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_EXPORT int SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S);
@@ -86,12 +82,10 @@ SUNDIALS_EXPORT int SUNLinSolInitialize_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_PCG(SUNLinearSolver S, void* A_data,
                                            SUNATimesFn ATimes);
 SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_PCG(SUNLinearSolver S,
-                                                   void* P_data,
-                                                   SUNPSetupFn Pset,
+                                                   void* P_data, SUNPSetupFn Pset,
                                                    SUNPSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S,
-                                                   N_Vector s,
-                                                   N_Vector nul);
+                                                   N_Vector s, N_Vector nul);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S,
                                               booleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul);
@@ -101,13 +95,11 @@ SUNDIALS_EXPORT int SUNLinSolNumIters_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_PCG(SUNLinearSolver S,
-                                       long int *lenrwLS,
-                                       long int *leniwLS);
+SUNDIALS_EXPORT int SUNLinSolSpace_PCG(SUNLinearSolver S, long int* lenrwLS,
+                                       long int* leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_PCG(SUNLinearSolver S);
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNLinSolSetInfoFile_PCG(SUNLinearSolver LS,
-                             FILE* info_file);
+int SUNLinSolSetInfoFile_PCG(SUNLinearSolver LS, FILE* info_file);
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
 int SUNLinSolSetPrintLevel_PCG(SUNLinearSolver LS, int print_level);
 

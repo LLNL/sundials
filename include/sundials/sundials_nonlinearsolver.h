@@ -71,11 +71,13 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver* SUNNonlinearSolver;
 
 typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
 
-typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur, void* mem);
+typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur,
+                                    void* mem);
 
 typedef int (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
 
-typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol, N_Vector ewt,
+typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
+                                      N_Vector del, realtype tol, N_Vector ewt,
                                       void* mem);
 
 /* -----------------------------------------------------------------------------
@@ -98,7 +100,8 @@ struct _generic_SUNNonlinearSolver_Ops
   SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
   int (*initialize)(SUNNonlinearSolver);
   int (*setup)(SUNNonlinearSolver, N_Vector, void*);
-  int (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, booleantype, void*);
+  int (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype,
+               booleantype, void*);
   int (*free)(SUNNonlinearSolver);
   int (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   int (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
@@ -139,30 +142,39 @@ SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver N
 
 SUNDIALS_EXPORT int SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
+SUNDIALS_EXPORT int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y,
+                                      void* mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, realtype tol,
+SUNDIALS_EXPORT int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0,
+                                      N_Vector y, N_Vector w, realtype tol,
                                       booleantype callLSetup, void* mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolFree(SUNNonlinearSolver NLS);
 
 /* set functions */
-SUNDIALS_EXPORT int SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
+SUNDIALS_EXPORT int SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS,
+                                         SUNNonlinSolSysFn SysFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn);
+SUNDIALS_EXPORT int SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS,
+                                            SUNNonlinSolLSetupFn SetupFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn);
+SUNDIALS_EXPORT int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS,
+                                            SUNNonlinSolLSolveFn SolveFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data);
+SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
+                                              SUNNonlinSolConvTestFn CTestFn,
+                                              void* ctest_data);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters);
 
 /* get functions */
-SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int* niters);
+SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS,
+                                            long int* niters);
 
 SUNDIALS_EXPORT int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int* iter);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails);
+SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
+                                                long int* nconvfails);
 
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver return values

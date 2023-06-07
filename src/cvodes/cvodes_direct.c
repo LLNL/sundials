@@ -16,10 +16,10 @@
  * linear solver interface in cvodes_ls.h.
  * -----------------------------------------------------------------*/
 
-#include <cvodes/cvodes_ls.h>
 #include <cvodes/cvodes_direct.h>
+#include <cvodes/cvodes_ls.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -27,38 +27,56 @@ extern "C" {
   Exported Functions (wrappers for equivalent routines in cvodes_ls.h)
   =================================================================*/
 
-int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
-                         SUNMatrix A)
-{ return(CVodeSetLinearSolver(cvode_mem, LS, A)); }
+int CVDlsSetLinearSolver(void* cvode_mem, SUNLinearSolver LS, SUNMatrix A)
+{
+  return (CVodeSetLinearSolver(cvode_mem, LS, A));
+}
 
-int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
-{ return(CVodeSetJacFn(cvode_mem, jac)); }
+int CVDlsSetJacFn(void* cvode_mem, CVDlsJacFn jac)
+{
+  return (CVodeSetJacFn(cvode_mem, jac));
+}
 
-int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
-                      long int *leniwLS)
-{ return(CVodeGetLinWorkSpace(cvode_mem, lenrwLS, leniwLS)); }
+int CVDlsGetWorkSpace(void* cvode_mem, long int* lenrwLS, long int* leniwLS)
+{
+  return (CVodeGetLinWorkSpace(cvode_mem, lenrwLS, leniwLS));
+}
 
-int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
-{ return(CVodeGetNumJacEvals(cvode_mem, njevals)); }
+int CVDlsGetNumJacEvals(void* cvode_mem, long int* njevals)
+{
+  return (CVodeGetNumJacEvals(cvode_mem, njevals));
+}
 
-int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
-{ return(CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS)); }
+int CVDlsGetNumRhsEvals(void* cvode_mem, long int* nfevalsLS)
+{
+  return (CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS));
+}
 
-int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
-{ return(CVodeGetLastLinFlag(cvode_mem, flag)); }
+int CVDlsGetLastFlag(void* cvode_mem, long int* flag)
+{
+  return (CVodeGetLastLinFlag(cvode_mem, flag));
+}
 
-char *CVDlsGetReturnFlagName(long int flag)
-{ return(CVodeGetLinReturnFlagName(flag)); }
+char* CVDlsGetReturnFlagName(long int flag)
+{
+  return (CVodeGetLinReturnFlagName(flag));
+}
 
-int CVDlsSetLinearSolverB(void *cvode_mem, int which,
-                          SUNLinearSolver LS, SUNMatrix A)
-{ return(CVodeSetLinearSolverB(cvode_mem, which, LS, A)); }
+int CVDlsSetLinearSolverB(void* cvode_mem, int which, SUNLinearSolver LS,
+                          SUNMatrix A)
+{
+  return (CVodeSetLinearSolverB(cvode_mem, which, LS, A));
+}
 
-int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB)
-{ return(CVodeSetJacFnB(cvode_mem, which, jacB)); }
+int CVDlsSetJacFnB(void* cvode_mem, int which, CVDlsJacFnB jacB)
+{
+  return (CVodeSetJacFnB(cvode_mem, which, jacB));
+}
 
-int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS)
-{ return(CVodeSetJacFnBS(cvode_mem, which, jacBS)); }
+int CVDlsSetJacFnBS(void* cvode_mem, int which, CVDlsJacFnBS jacBS)
+{
+  return (CVodeSetJacFnBS(cvode_mem, which, jacBS));
+}
 
 #ifdef __cplusplus
 }

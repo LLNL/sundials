@@ -26,7 +26,8 @@ extern "C" {
 
 typedef struct SUNLogger_* SUNLogger;
 
-typedef enum {
+typedef enum
+{
   SUN_LOGLEVEL_ALL     = -1,
   SUN_LOGLEVEL_NONE    = 0,
   SUN_LOGLEVEL_ERROR   = 1,

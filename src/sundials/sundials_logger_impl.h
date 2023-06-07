@@ -23,15 +23,16 @@
 
 #include "sundials_hashmap.h"
 
-#define SUNDIALS_LOGGING_ERROR 1
+#define SUNDIALS_LOGGING_ERROR   1
 #define SUNDIALS_LOGGING_WARNING 2
-#define SUNDIALS_LOGGING_INFO 3
-#define SUNDIALS_LOGGING_DEBUG 4
+#define SUNDIALS_LOGGING_INFO    3
+#define SUNDIALS_LOGGING_DEBUG   4
 #if SUNDIALS_LOGGING_LEVEL > SUNDIALS_LOGGING_DEBUG
 #define SUNDIALS_LOGGING_EXTRA_DEBUG
 #endif
 
-struct SUNLogger_ {
+struct SUNLogger_
+{
   /* MPI information */
   void* commptr;
   int output_rank;
