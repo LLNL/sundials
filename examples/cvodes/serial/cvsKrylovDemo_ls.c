@@ -207,24 +207,36 @@ int main(int argc, char* argv[])
   monitor   = 0;
 
   /* Retrieve the command-line options */
-  if (argc > 1) nrmfactor = atoi(argv[1]);
-  if (argc > 2) monitor   = atoi(argv[2]);
+  if (argc > 1) {
+    nrmfactor = atoi(argv[1]);
+  }
+  if (argc > 2) {
+    monitor = atoi(argv[2]);
+  }
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Open info file if monitoring is turned on */
   if (monitor) {
     infofp = fopen("cvKrylovDemo_ls-info.txt", "w+");
-    if (check_retval((void *)infofp, "fopen", 0)) return(1);
+    if (check_retval((void *)infofp, "fopen", 0)) {
+      return (1);
+    }
   }
 
   /* Allocate memory, and set problem data, initial values, tolerances */
   u = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   data = AllocUserData();
-  if (check_retval((void *)data, "AllocUserData", 2)) return(1);
+  if (check_retval((void *)data, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(data);
   SetInitialProfiles(u, data->dx, data->dy);
   abstol=ATOL;
@@ -233,38 +245,54 @@ int main(int argc, char* argv[])
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Set the pointer to user-defined data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create the SUNNonlinearSolver */
   NLS = SUNNonlinSol_Newton(u, sunctx);
-  if (check_retval(&retval, "SUNNonlinSol_Newton", 0)) return(1);
+  if (check_retval(&retval, "SUNNonlinSol_Newton", 0)) {
+    return (1);
+  }
   if (monitor) {
     /* Set the print level set to 1, so that the nonlinear residual
        is printed every newton iteration. */
     retval = SUNNonlinSolSetPrintLevel_Newton(NLS, 1);
-    if (check_retval(&retval, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
+    if (check_retval(&retval, "SUNNonlinSolSetPrintLevel_Newton", 1)) {
+      return (1);
+    }
     retval = SUNNonlinSolSetInfoFile_Newton(NLS, infofp);
-    if (check_retval(&retval, "SUNNonlinSolSetInfoFile_Newton", 1)) return(1);
+    if (check_retval(&retval, "SUNNonlinSolSetInfoFile_Newton", 1)) {
+      return (1);
+    }
   }
 
   /* Call CVodeSetNonlinearSolver to attach the nonlinear solver to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-  if (check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetNonlinearSolver", 1)) {
+    return (1);
+  }
 
   /* START: Loop through SPGMR, SPFGMR, SPBCG and SPTFQMR linear solver modules */
   for (linsolver = 0; linsolver < 4; ++linsolver) {
@@ -278,8 +306,9 @@ int main(int argc, char* argv[])
     /* Re-initialize CVode for the solution of the same problem, but
        using a different linear solver module */
       retval = CVodeReInit(cvode_mem, T0, u);
-      if (check_retval(&retval, "CVodeReInit", 1)) return(1);
-
+      if (check_retval(&retval, "CVodeReInit", 1)) {
+        return (1);
+      }
     }
 
     /* Free previous linear solver and attach a new linear solver module */
@@ -303,15 +332,23 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
-      if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+        return (1);
+      }
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPGMR", 1)) {
+          return (1);
+        }
         retval = SUNLinSolSetInfoFile_SPGMR(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPGMR", 1)) {
+          return (1);
+        }
       }
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -331,15 +368,23 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPFGMR to specify the linear solver SPFGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPFGMR(u, SUN_PREC_LEFT, 0, sunctx);
-      if (check_retval((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPFGMR", 0)) {
+        return (1);
+      }
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPFGMR(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPFGMR", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPFGMR", 1)) {
+          return (1);
+        }
         retval = SUNLinSolSetInfoFile_SPFGMR(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPFGMR", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPFGMR", 1)) {
+          return (1);
+        }
       }
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -359,15 +404,23 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPBCGS(u, SUN_PREC_LEFT, 0, sunctx);
-      if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) {
+        return (1);
+      }
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPBCGS(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPBCGS", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPBCGS", 1)) {
+          return (1);
+        }
         retval = SUNLinSolSetInfoFile_SPBCGS(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPBCGS", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPBCGS", 1)) {
+          return (1);
+        }
       }
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -387,15 +440,23 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPTFQMR(u, SUN_PREC_LEFT, 0, sunctx);
-      if (check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) {
+        return (1);
+      }
       if (monitor) {
         retval = SUNLinSolSetPrintLevel_SPTFQMR(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPTFQMR", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPTFQMR", 1)) {
+          return (1);
+        }
         retval = SUNLinSolSetInfoFile_SPTFQMR(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPTFQMR", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPTFQMR", 1)) {
+          return (1);
+        }
       }
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
     }
@@ -404,7 +465,9 @@ int main(int argc, char* argv[])
     /* Set preconditioner setup and solve routines Precond and PSolve,
        and the pointer to the user-defined block data */
     retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
-    if (check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetPreconditioner", 1)) {
+      return (1);
+    }
 
     /* Set the linear solver tolerance conversion factor */
     switch(nrmfactor) {
@@ -424,14 +487,18 @@ int main(int argc, char* argv[])
     }
 
     retval = CVodeSetLSNormFactor(cvode_mem, nrmfac);
-    if (check_retval(&retval, "CVodeSetLSNormFactor", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetLSNormFactor", 1)) {
+      return (1);
+    }
 
     /* In loop over output points, call CVode, print results, and test for error */
     printf(" \n2-species diurnal advection-diffusion problem\n\n");
     for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
       retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
       PrintOutput(cvode_mem, u, t);
-      if(check_retval(&retval, "CVode", 1)) break;
+      if (check_retval(&retval, "CVode", 1)) {
+        break;
+      }
     }
 
     PrintFinalStats(cvode_mem, linsolver);
@@ -439,7 +506,9 @@ int main(int argc, char* argv[])
   }  /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
 
   /* Free memory */
-  if (monitor) fclose(infofp);
+  if (monitor) {
+    fclose(infofp);
+  }
   N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
@@ -623,8 +692,10 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
   printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
-  if (linsolver < 2)
-    printf("======================================================================\n\n");
+  if (linsolver < 2) {
+    printf("==================================================================="
+           "===\n\n");
+  }
 }
 
 /* Check function return value...
@@ -784,9 +855,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
     /* jok = SUNTRUE: Copy Jbd to P */
 
-    for (jy=0; jy < MY; jy++)
-      for (jx=0; jx < MX; jx++)
+    for (jy = 0; jy < MY; jy++) {
+      for (jx = 0; jx < MX; jx++) {
         SUNDlsMat_denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+      }
+    }
 
     *jcurPtr = SUNFALSE;
 
@@ -830,9 +903,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
   /* Scale by -gamma */
 
-  for (jy=0; jy < MY; jy++)
-    for (jx=0; jx < MX; jx++)
+  for (jy = 0; jy < MY; jy++) {
+    for (jx = 0; jx < MX; jx++) {
       SUNDlsMat_denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+    }
+  }
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
@@ -840,7 +915,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
     for (jy=0; jy < MY; jy++) {
       SUNDlsMat_denseAddIdentity(P[jx][jy], NUM_SPECIES);
       retval =SUNDlsMat_denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
-      if (retval != 0) return(1);
+      if (retval != 0) {
+        return (1);
+      }
     }
   }
 

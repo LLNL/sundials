@@ -100,29 +100,39 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   scale = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)scale, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* -----------------------------------------
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void *)kmem, "KINCreate", 0)) {
+    return (1);
+  }
 
   /* y is used as a template */
 
   retval = KINInit(kmem, func, y);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) {
+    return (1);
+  }
 
   /* -------------------
    * Set optional inputs
@@ -132,28 +142,36 @@ int main()
 
   fnormtol  = FTOL;
   retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) {
+    return (1);
+  }
 
   /* -------------------------
    * Create band SUNMatrix
    * ------------------------- */
 
   J = SUNBandMatrix(NEQ, NX, NX, sunctx);
-  if(check_retval((void *)J, "SUNBandMatrix", 0)) return(1);
+  if (check_retval((void *)J, "SUNBandMatrix", 0)) {
+    return (1);
+  }
 
   /* ---------------------------
    * Create band SUNLinearSolver
    * --------------------------- */
 
   LS = SUNLinSol_Band(y, J, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Band", 0)) {
+    return (1);
+  }
 
   /* -------------------------
    * Attach band linear solver
    * ------------------------- */
 
   retval = KINSetLinearSolver(kmem, LS, J);
-  if(check_retval(&retval, "KINSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* ------------------------------
    * Parameters for Modified Newton
@@ -162,13 +180,17 @@ int main()
   /* Force a Jacobian re-evaluation every mset iterations */
   mset = 100;
   retval = KINSetMaxSetupCalls(kmem, mset);
-  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) return(1);
+  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) {
+    return (1);
+  }
 
   /* Every msubset iterations, test if a Jacobian evaluation
      is necessary */
   msubset = 1;
   retval = KINSetMaxSubSetupCalls(kmem, msubset);
-  if (check_retval(&retval, "KINSetMaxSubSetupCalls", 1)) return(1);
+  if (check_retval(&retval, "KINSetMaxSubSetupCalls", 1)) {
+    return (1);
+  }
 
   /* -------------
    * Initial guess
@@ -189,8 +211,9 @@ int main()
                 KIN_LINESEARCH, /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
-
+  if (check_retval(&retval, "KINSol", 1)) {
+    return (1);
+  }
 
   /* ------------------------------------
    * Print solution and solver statistics
@@ -199,7 +222,9 @@ int main()
   /* Get scaled norm of the system function */
 
   retval = KINGetFuncNorm(kmem, &fnorm);
-  if (check_retval(&retval, "KINGetfuncNorm", 1)) return(1);
+  if (check_retval(&retval, "KINGetfuncNorm", 1)) {
+    return (1);
+  }
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);

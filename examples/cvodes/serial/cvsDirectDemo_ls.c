@@ -187,14 +187,20 @@ static int Problem1(void)
   cvode_mem = NULL;
 
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   y = N_VNew_Serial(P1_NEQ, sunctx);
-  if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   PrintIntro1();
 
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   for (miter=FUNC; miter <= DIAG; miter++) {
     ero = ZERO;
@@ -206,22 +212,29 @@ static int Problem1(void)
 
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f1, P1_T0, y);
-      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      if (check_retval(&retval, "CVodeInit", 1)) {
+        return (1);
+      }
 
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      if (check_retval(&retval, "CVodeSStolerances", 1)) {
+        return (1);
+      }
 
     } else {
 
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P1_T0, y);
-      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-
+      if (check_retval(&retval, "CVodeReInit", 1)) {
+        return (1);
+      }
     }
 
     retval = PrepareNextRun(sunctx, cvode_mem, CV_ADAMS, miter, y, &A, 0, 0, &LS, &NLS);
-    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
+    if (check_retval(&retval, "PrepareNextRun", 1)) {
+      return (1);
+    }
 
     PrintHeader1();
 
@@ -229,9 +242,13 @@ static int Problem1(void)
       retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
       check_retval(&retval, "CVode", 1);
       temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastOrder", 1)) {
+        ++nerr;
+      }
       temp_retval = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastStep", 1)) {
+        ++nerr;
+      }
       PrintOutput1(t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
       if (retval != CV_SUCCESS) {
         nerr++;
@@ -239,7 +256,9 @@ static int Problem1(void)
       }
       if (iout%2 == 0) {
         er = fabs(NV_Ith_S(y,0)) / abstol;
-        if (er > ero) ero = er;
+        if (er > ero) {
+          ero = er;
+        }
         if (er > P1_TOL_FACTOR) {
           nerr++;
           PrintErrOutput(P1_TOL_FACTOR);
@@ -257,7 +276,9 @@ static int Problem1(void)
   A = NULL;
 
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   for (miter=FUNC; miter <= DIAG; miter++) {
     ero = ZERO;
@@ -269,22 +290,29 @@ static int Problem1(void)
 
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f1, P1_T0, y);
-      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      if (check_retval(&retval, "CVodeInit", 1)) {
+        return (1);
+      }
 
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      if (check_retval(&retval, "CVodeSStolerances", 1)) {
+        return (1);
+      }
 
     } else {
 
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P1_T0, y);
-      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-
+      if (check_retval(&retval, "CVodeReInit", 1)) {
+        return (1);
+      }
     }
 
     retval = PrepareNextRun(sunctx, cvode_mem, CV_BDF, miter, y, &A, 0, 0, &LS, &NLS);
-    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
+    if (check_retval(&retval, "PrepareNextRun", 1)) {
+      return (1);
+    }
 
     PrintHeader1();
 
@@ -292,9 +320,13 @@ static int Problem1(void)
       retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
       check_retval(&retval, "CVode", 1);
       temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastOrder", 1)) {
+        ++nerr;
+      }
       temp_retval = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastStep", 1)) {
+        ++nerr;
+      }
       PrintOutput1(t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
       if (retval != CV_SUCCESS) {
         nerr++;
@@ -302,7 +334,9 @@ static int Problem1(void)
       }
       if (iout%2 == 0) {
         er = fabs(NV_Ith_S(y,0)) / abstol;
-        if (er > ero) ero = er;
+        if (er > ero) {
+          ero = er;
+        }
         if (er > P1_TOL_FACTOR) {
           nerr++;
           PrintErrOutput(P1_TOL_FACTOR);
@@ -408,18 +442,26 @@ static int Problem2(void)
   cvode_mem = NULL;
 
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   y = N_VNew_Serial(P2_NEQ, sunctx);
-  if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   PrintIntro2();
 
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
-    if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
+    if ((miter == DENSE_USER) || (miter == DENSE_DQ)) {
+      continue;
+    }
     ero = ZERO;
     N_VConst(ZERO, y);
     NV_Ith_S(y,0) = ONE;
@@ -429,22 +471,29 @@ static int Problem2(void)
 
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f2, P2_T0, y);
-      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      if (check_retval(&retval, "CVodeInit", 1)) {
+        return (1);
+      }
 
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      if (check_retval(&retval, "CVodeSStolerances", 1)) {
+        return (1);
+      }
 
     } else {
 
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P2_T0, y);
-      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-
+      if (check_retval(&retval, "CVodeReInit", 1)) {
+        return (1);
+      }
     }
 
     retval = PrepareNextRun(sunctx, cvode_mem, CV_ADAMS, miter, y, &A, P2_MU, P2_ML, &LS, &NLS);
-    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
+    if (check_retval(&retval, "PrepareNextRun", 1)) {
+      return (1);
+    }
 
     PrintHeader2();
 
@@ -453,16 +502,22 @@ static int Problem2(void)
       check_retval(&retval, "CVode", 1);
       erm = MaxError(y, t);
       temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastOrder", 1)) {
+        ++nerr;
+      }
       temp_retval = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastStep", 1)) {
+        ++nerr;
+      }
       PrintOutput2(t, erm, qu, hu);
       if (retval != CV_SUCCESS) {
         nerr++;
         break;
       }
       er = erm / abstol;
-        if (er > ero) ero = er;
+      if (er > ero) {
+        ero = er;
+      }
         if (er > P2_TOL_FACTOR) {
           nerr++;
           PrintErrOutput(P2_TOL_FACTOR);
@@ -481,10 +536,14 @@ static int Problem2(void)
   A = NULL;
 
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
-    if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
+    if ((miter == DENSE_USER) || (miter == DENSE_DQ)) {
+      continue;
+    }
     ero = ZERO;
     N_VConst(ZERO, y);
     NV_Ith_S(y,0) = ONE;
@@ -494,22 +553,29 @@ static int Problem2(void)
 
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f2, P2_T0, y);
-      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      if (check_retval(&retval, "CVodeInit", 1)) {
+        return (1);
+      }
 
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      if (check_retval(&retval, "CVodeSStolerances", 1)) {
+        return (1);
+      }
 
     } else {
 
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P2_T0, y);
-      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-
+      if (check_retval(&retval, "CVodeReInit", 1)) {
+        return (1);
+      }
     }
 
     retval = PrepareNextRun(sunctx, cvode_mem, CV_BDF, miter, y, &A, P2_MU, P2_ML, &LS, &NLS);
-    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
+    if (check_retval(&retval, "PrepareNextRun", 1)) {
+      return (1);
+    }
 
     PrintHeader2();
 
@@ -518,16 +584,22 @@ static int Problem2(void)
       check_retval(&retval, "CVode", 1);
       erm = MaxError(y, t);
       temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastOrder", 1)) {
+        ++nerr;
+      }
       temp_retval = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
+      if (check_retval(&temp_retval, "CVodeGetLastStep", 1)) {
+        ++nerr;
+      }
       PrintOutput2(t, erm, qu, hu);
       if (retval != CV_SUCCESS) {
         nerr++;
         break;
       }
       er = erm / abstol;
-        if (er > ero) ero = er;
+      if (er > ero) {
+        ero = er;
+      }
         if (er > P2_TOL_FACTOR) {
           nerr++;
           PrintErrOutput(P2_TOL_FACTOR);
@@ -603,8 +675,12 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     for (i=0; i < P2_MESHX; i++) {
       k = i + j * P2_MESHX;
       d = -TWO*ydata[k];
-      if (i != 0) d += P2_ALPH1 * ydata[k-1];
-      if (j != 0) d += P2_ALPH2 * ydata[k-P2_MESHX];
+      if (i != 0) {
+        d += P2_ALPH1 * ydata[k - 1];
+      }
+      if (j != 0) {
+        d += P2_ALPH2 * ydata[k - P2_MESHX];
+      }
       dydata[k] = d;
     }
   }
@@ -639,8 +715,12 @@ static int Jac2(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
       k = i + j * P2_MESHX;
       kthCol = SM_COLUMN_B(J,k);
       SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO;
-      if (i != P2_MESHX-1) SM_COLUMN_ELEMENT_B(kthCol,k+1,k) = P2_ALPH1;
-      if (j != P2_MESHY-1) SM_COLUMN_ELEMENT_B(kthCol,k+P2_MESHX,k) = P2_ALPH2;
+      if (i != P2_MESHX - 1) {
+        SM_COLUMN_ELEMENT_B(kthCol, k + 1, k) = P2_ALPH1;
+      }
+      if (j != P2_MESHY - 1) {
+        SM_COLUMN_ELEMENT_B(kthCol, k + P2_MESHX, k) = P2_ALPH2;
+      }
     }
   }
 
@@ -652,10 +732,14 @@ static realtype MaxError(N_Vector y, realtype t)
   sunindextype i, j, k;
   realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
 
-  if (t == ZERO) return(ZERO);
+  if (t == ZERO) {
+    return (ZERO);
+  }
 
   ydata = N_VGetArrayPointer(y);
-  if (t <= THIRTY) ex = exp(-TWO*t);
+  if (t <= THIRTY) {
+    ex = exp(-TWO * t);
+  }
 
   for (j = 0; j < P2_MESHY; j++) {
     ifact_inv = ONE;
@@ -663,7 +747,9 @@ static realtype MaxError(N_Vector y, realtype t)
       k = i + j * P2_MESHX;
       yt = pow(t, i+j) * ex * ifact_inv * jfact_inv;
       er = fabs(ydata[k] - yt);
-      if (er > maxError) maxError = er;
+      if (er > maxError) {
+        maxError = er;
+      }
       ifact_inv /= (i+1);
     }
     jfact_inv /= (j+1);
@@ -678,12 +764,15 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 {
   int retval = CV_SUCCESS;
 
-  if (*NLS)
+  if (*NLS) {
     SUNNonlinSolFree(*NLS);
-  if (*LS)
+  }
+  if (*LS) {
     SUNLinSolFree(*LS);
-  if (*A)
+  }
+  if (*A) {
     SUNMatDestroy(*A);
+  }
 
   printf("\n\n-------------------------------------------------------------");
 
@@ -700,22 +789,30 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 
     /* create fixed point nonlinear solver object */
     *NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
-    if(check_retval((void *)*NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+    if (check_retval((void *)*NLS, "SUNNonlinSol_FixedPoint", 0)) {
+      return (1);
+    }
 
     /* attach nonlinear solver object to CVode */
     retval = CVodeSetNonlinearSolver(cvode_mem, *NLS);
-    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetNonlinearSolver", 1)) {
+      return (1);
+    }
 
   } else {
     printf("NEWTON\n");
 
     /* create Newton nonlinear solver object */
     *NLS = SUNNonlinSol_Newton(y, sunctx);
-    if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+    if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) {
+      return (1);
+    }
 
     /* attach nonlinear solver object to CVode */
     retval = CVodeSetNonlinearSolver(cvode_mem, *NLS);
-    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetNonlinearSolver", 1)) {
+      return (1);
+    }
 
     printf("Linear Solver           : ");
 
@@ -726,19 +823,27 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 
       /* Create dense SUNMatrix for use in linear solves */
       *A = SUNDenseMatrix(P1_NEQ, P1_NEQ, sunctx);
-      if(check_retval((void *)*A, "SUNDenseMatrix", 0)) return(1);
+      if (check_retval((void *)*A, "SUNDenseMatrix", 0)) {
+        return (1);
+      }
 
       /* Create dense SUNLinearSolver object for use by CVode */
       *LS = SUNLinSol_Dense(y, *A, sunctx);
-      if(check_retval((void *)*LS, "SUNLinSol_Dense", 0)) return(1);
+      if (check_retval((void *)*LS, "SUNLinSol_Dense", 0)) {
+        return (1);
+      }
 
       /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
       retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return (1);
+      }
 
       /* Set the user-supplied Jacobian routine Jac */
       retval = CVodeSetJacFn(cvode_mem, Jac1);
-      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+        return (1);
+      }
       break;
 
     case DENSE_DQ :
@@ -746,19 +851,27 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 
       /* Create dense SUNMatrix for use in linear solves */
       *A = SUNDenseMatrix(P1_NEQ, P1_NEQ, sunctx);
-      if(check_retval((void *)*A, "SUNDenseMatrix", 0)) return(1);
+      if (check_retval((void *)*A, "SUNDenseMatrix", 0)) {
+        return (1);
+      }
 
       /* Create dense SUNLinearSolver object for use by CVode */
       *LS = SUNLinSol_Dense(y, *A, sunctx);
-      if(check_retval((void *)*LS, "SUNLinSol_Dense", 0)) return(1);
+      if (check_retval((void *)*LS, "SUNLinSol_Dense", 0)) {
+        return (1);
+      }
 
       /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
       retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return (1);
+      }
 
       /* Use a difference quotient Jacobian */
       retval = CVodeSetJacFn(cvode_mem, NULL);
-      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+        return (1);
+      }
       break;
 
     case DIAG :
@@ -766,7 +879,9 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 
       /* Call CVDiag to create/attach the CVODE-specific diagonal solver */
       retval = CVDiag(cvode_mem);
-      if(check_retval(&retval, "CVDiag", 1)) return(1);
+      if (check_retval(&retval, "CVDiag", 1)) {
+        return (1);
+      }
       break;
 
     case BAND_USER :
@@ -774,19 +889,27 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 
       /* Create band SUNMatrix for use in linear solves */
       *A = SUNBandMatrix(P2_NEQ, mu, ml, sunctx);
-      if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
+      if (check_retval((void *)*A, "SUNBandMatrix", 0)) {
+        return (1);
+      }
 
       /* Create banded SUNLinearSolver object for use by CVode */
       *LS = SUNLinSol_Band(y, *A, sunctx);
-      if(check_retval((void *)*LS, "SUNLinSol_Band", 0)) return(1);
+      if (check_retval((void *)*LS, "SUNLinSol_Band", 0)) {
+        return (1);
+      }
 
       /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
       retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return (1);
+      }
 
       /* Set the user-supplied Jacobian routine Jac */
       retval = CVodeSetJacFn(cvode_mem, Jac2);
-      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+        return (1);
+      }
       break;
 
     case BAND_DQ  :
@@ -794,19 +917,27 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
 
       /* Create band SUNMatrix for use in linear solves */
       *A = SUNBandMatrix(P2_NEQ, mu, ml, sunctx);
-      if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
+      if (check_retval((void *)*A, "SUNBandMatrix", 0)) {
+        return (1);
+      }
 
       /* Create banded SUNLinearSolver object for use by CVode */
       *LS = SUNLinSol_Band(y, *A, sunctx);
-      if(check_retval((void *)*LS, "SUNLinSol_Band", 0)) return(1);
+      if (check_retval((void *)*LS, "SUNLinSol_Band", 0)) {
+        return (1);
+      }
 
       /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
       retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+        return (1);
+      }
 
       /* Use a difference quotient Jacobian */
       retval = CVodeSetJacFn(cvode_mem, NULL);
-      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+        return (1);
+      }
       break;
     }
   }

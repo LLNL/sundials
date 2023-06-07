@@ -70,7 +70,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecInit",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
@@ -256,8 +258,9 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->nge = 0;
 
   /* make sure P_data is free from any previous allocations */
-  if (arkls_mem->pfree)
+  if (arkls_mem->pfree) {
     arkls_mem->pfree(ark_mem);
+  }
 
   /* Point to the new P_data field in the LS memory */
   arkls_mem->P_data = pdata;
@@ -287,7 +290,9 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecReInit",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -326,7 +331,9 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetWorkSpace",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -356,7 +363,9 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetNumGfnEvals",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Return immediately if ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -548,11 +557,17 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   ARKBBDPrecData pdata;
 
   /* Return immediately if ARKodeMem, ARKLsMem or ARKBandPrecData are NULL */
-  if (ark_mem == NULL) return(0);
+  if (ark_mem == NULL) {
+    return (0);
+  }
   ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
-  if (ark_step_lmem == NULL) return(0);
+  if (ark_step_lmem == NULL) {
+    return (0);
+  }
   arkls_mem = (ARKLsMem) ark_step_lmem;
-  if (arkls_mem->P_data == NULL) return(0);
+  if (arkls_mem->P_data == NULL) {
+    return (0);
+  }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
   SUNLinSolFree(pdata->LS);
@@ -604,13 +619,17 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   /* Call cfn and gloc to get base value of g(t,y) */
   if (pdata->cfn != NULL) {
     retval = pdata->cfn(pdata->n_local, t, y, ark_mem->user_data);
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
   }
 
   retval = pdata->gloc(pdata->n_local, t, ytemp, gy,
                        ark_mem->user_data);
   pdata->nge++;
-  if (retval != 0) return(retval);
+  if (retval != 0) {
+    return (retval);
+  }
 
   /* Obtain pointers to the data for various vectors */
   y_data     =  N_VGetArrayPointer(y);
@@ -642,8 +661,15 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (ark_mem->constraintsSet) {
         conj = cns_data[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       ytemp_data[j] += inc;
@@ -653,7 +679,9 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
     retval = pdata->gloc(pdata->n_local, t, ytemp, gtemp,
                          ark_mem->user_data);
     pdata->nge++;
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < pdata->n_local; j+=width) {
@@ -664,16 +692,24 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 
       if (ark_mem->constraintsSet) {
         conj = cns_data[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mukeep);
       i2 = SUNMIN(j+pdata->mlkeep, pdata->n_local-1);
-      for (i=i1; i <= i2; i++)
-        SM_COLUMN_ELEMENT_B(col_j,i,j) =
-          inc_inv * (gtemp_data[i] - gy_data[i]);
+      for (i = i1; i <= i2; i++) {
+        SM_COLUMN_ELEMENT_B(col_j, i, j) =
+            inc_inv * (gtemp_data[i] - gy_data[i]);
+      }
     }
   }
 

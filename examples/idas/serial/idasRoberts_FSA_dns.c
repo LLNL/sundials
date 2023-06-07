@@ -147,11 +147,15 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
   data->p[0] = RCONST(0.040);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
@@ -159,14 +163,18 @@ int main(int argc, char *argv[])
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   Ith(y,1) = ONE;
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
   yp = N_VClone(y);
-  if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* These initial conditions are NOT consistent. See IDACalcIC below. */
   Ith(yp,1) = RCONST(0.1);
@@ -175,11 +183,15 @@ int main(int argc, char *argv[])
 
   /* Create IDAS object */
   ida_mem = IDACreate(ctx);
-  if (check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)ida_mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   /* Allocate space for IDAS */
   retval = IDAInit(ida_mem, res, T0, y, yp);
-  if (check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   /* Specify scalar relative tol. and vector absolute tol. */
   reltol = RCONST(1.0e-6);
@@ -188,7 +200,9 @@ int main(int argc, char *argv[])
   Ith(abstol,2) = RCONST(1.0e-14);
   Ith(abstol,3) = RCONST(1.0e-6);
   retval = IDASVtolerances(ida_mem, reltol, abstol);
-  if (check_retval(&retval, "IDASVtolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASVtolerances", 1)) {
+    return (1);
+  }
 
   /* Set ID vector */
   id = N_VClone(y);
@@ -196,23 +210,33 @@ int main(int argc, char *argv[])
   Ith(id,2) = 1.0;
   Ith(id,3) = 0.0;
   retval = IDASetId(ida_mem, id);
-  if (check_retval(&retval, "IDASetId", 1)) return(1);
+  if (check_retval(&retval, "IDASetId", 1)) {
+    return (1);
+  }
 
   /* Attach user data */
   retval = IDASetUserData(ida_mem, data);
-  if (check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -224,12 +248,20 @@ int main(int argc, char *argv[])
     pbar[2] = data->p[2];
 
     yS = N_VCloneVectorArray(NS, y);
-    if (check_retval((void *)yS, "N_VCloneVectorArray", 0)) return(1);
-    for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
+    if (check_retval((void *)yS, "N_VCloneVectorArray", 0)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      N_VConst(ZERO, yS[is]);
+    }
 
     ypS = N_VCloneVectorArray(NS, y);
-    if (check_retval((void *)ypS, "N_VCloneVectorArray", 0)) return(1);
-    for (is=0;is<NS;is++) N_VConst(ZERO, ypS[is]);
+    if (check_retval((void *)ypS, "N_VCloneVectorArray", 0)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      N_VConst(ZERO, ypS[is]);
+    }
 
     /*
     * Only non-zero sensitivity I.C. are ypS[0]:
@@ -240,24 +272,36 @@ int main(int argc, char *argv[])
     */
 
     retval = IDASensInit(ida_mem, NS, sensi_meth, resS, yS, ypS);
-    if(check_retval(&retval, "IDASensInit", 1)) return(1);
+    if (check_retval(&retval, "IDASensInit", 1)) {
+      return (1);
+    }
 
     retval = IDASensEEtolerances(ida_mem);
-    if(check_retval(&retval, "IDASensEEtolerances", 1)) return(1);
+    if (check_retval(&retval, "IDASensEEtolerances", 1)) {
+      return (1);
+    }
 
     retval = IDASetSensErrCon(ida_mem, err_con);
-    if (check_retval(&retval, "IDASetSensErrCon", 1)) return(1);
+    if (check_retval(&retval, "IDASetSensErrCon", 1)) {
+      return (1);
+    }
 
     retval = IDASetSensParams(ida_mem, data->p, pbar, NULL);
-    if (check_retval(&retval, "IDASetSensParams", 1)) return(1);
+    if (check_retval(&retval, "IDASetSensParams", 1)) {
+      return (1);
+    }
 
     printf("Sensitivity: YES ");
-    if(sensi_meth == IDA_SIMULTANEOUS)
+    if (sensi_meth == IDA_SIMULTANEOUS) {
       printf("( SIMULTANEOUS +");
-    else
+    } else {
       printf("( STAGGERED +");
-    if(err_con) printf(" FULL ERROR CONTROL )");
-    else        printf(" PARTIAL ERROR CONTROL )");
+    }
+    if (err_con) {
+      printf(" FULL ERROR CONTROL )");
+    } else {
+      printf(" PARTIAL ERROR CONTROL )");
+    }
 
   } else {
 
@@ -277,7 +321,9 @@ int main(int argc, char *argv[])
 
   if (sensi) {
     yQS = N_VCloneVectorArray(NS, yQ);
-    for (is=0;is<NS;is++) N_VConst(ZERO, yQS[is]);
+    for (is = 0; is < NS; is++) {
+      N_VConst(ZERO, yQS[is]);
+    }
 
     IDAQuadSensInit(ida_mem, NULL, yQS);
   }
@@ -286,10 +332,14 @@ int main(int argc, char *argv[])
      enabled, this function also try to find consistent IC for the sensitivities. */
 
   retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, T1);;
-  if (check_retval(&retval, "IDACalcIC", 1)) return(1);
+  if (check_retval(&retval, "IDACalcIC", 1)) {
+    return (1);
+  }
 
   retval = IDAGetConsistentIC(ida_mem, y, yp);
-  if (check_retval(&retval, "IDAGetConsistentIC", 1)) return(1);
+  if (check_retval(&retval, "IDAGetConsistentIC", 1)) {
+    return (1);
+  }
 
   PrintIC(y, yp);
 
@@ -311,13 +361,17 @@ int main(int argc, char *argv[])
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
 
     retval = IDASolve(ida_mem, tout, &t, y, yp, IDA_NORMAL);
-    if (check_retval(&retval, "IDASolve", 1)) break;
+    if (check_retval(&retval, "IDASolve", 1)) {
+      break;
+    }
 
     PrintOutput(ida_mem, t, y);
 
     if (sensi) {
       retval = IDAGetSens(ida_mem, &t, yS);
-      if (check_retval(&retval, "IDAGetSens", 1)) break;
+      if (check_retval(&retval, "IDAGetSens", 1)) {
+        break;
+      }
       PrintSensOutput(yS);
     }
     printf("-----------------------------------------");
@@ -356,14 +410,16 @@ int main(int argc, char *argv[])
   strcpy(fname, "idasRoberts_FSA_dns_stats");
   if (sensi)
   {
-    if(sensi_meth == IDA_SIMULTANEOUS)
+    if (sensi_meth == IDA_SIMULTANEOUS) {
       strcat(fname, "_-sensi_sim");
-    else
+    } else {
       strcat(fname, "_-sensi_stg");
-    if(err_con)
+    }
+    if (err_con) {
       strcat(fname, "_t");
-    else
+    } else {
       strcat(fname, "_f");
+    }
   }
   strcat(fname, ".csv");
   FID = fopen(fname, "w");
@@ -523,33 +579,39 @@ static void ProcessArgs(int argc, char *argv[],
   *sensi_meth = -1;
   *err_con = SUNFALSE;
 
-  if (argc < 2) WrongArgs(argv[0]);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = SUNFALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = SUNTRUE;
-  else
+  if (argc < 2) {
     WrongArgs(argv[0]);
+  }
+
+  if (strcmp(argv[1], "-nosensi") == 0) {
+    *sensi = SUNFALSE;
+  } else if (strcmp(argv[1], "-sensi") == 0) {
+    *sensi = SUNTRUE;
+  } else {
+    WrongArgs(argv[0]);
+  }
 
   if (*sensi) {
 
-    if (argc != 4)
+    if (argc != 4) {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[2],"sim") == 0)
+    if (strcmp(argv[2], "sim") == 0) {
       *sensi_meth = IDA_SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
+    } else if (strcmp(argv[2], "stg") == 0) {
       *sensi_meth = IDA_STAGGERED;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[3],"t") == 0)
+    if (strcmp(argv[3], "t") == 0) {
       *err_con = SUNTRUE;
-    else if (strcmp(argv[3],"f") == 0)
+    } else if (strcmp(argv[3], "f") == 0) {
       *err_con = SUNFALSE;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
   }
 
 }

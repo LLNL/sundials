@@ -108,7 +108,9 @@ int main() {
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /*
    * Initialization
@@ -128,10 +130,14 @@ int main() {
 
   /* Create and initialize serial vector for the solution */
   y = N_VNew_Serial(N, ctx);
-  if (check_retval((void *) y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
 
   retval = SetInitialCondition(y, udata);
-  if (check_retval(&retval, "SetInitialCondition", 1)) return 1;
+  if (check_retval(&retval, "SetInitialCondition", 1)) {
+    return 1;
+  }
 
   /*
    * Create the slow integrator and set options
@@ -141,24 +147,34 @@ int main() {
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
-  if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_retval((void *)inner_arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Attach user data to fast integrator */
   retval = ARKStepSetUserData(inner_arkode_mem, (void *) udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
 
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, -1, ARKODE_KNOTH_WOLKE_3_3);
-  if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetTableNum", 1)) {
+    return 1;
+  }
 
   /* Set the fast step size */
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
-  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) {
+    return 1;
+  }
 
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
                                             &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) {
+    return 1;
+  }
 
   /*
    * Create the slow integrator and set options
@@ -168,19 +184,27 @@ int main() {
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
-  if (check_retval((void *) arkode_mem, "MRIStepCreate", 0)) return 1;
+  if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) {
+    return 1;
+  }
 
   /* Pass udata to user functions */
   retval = MRIStepSetUserData(arkode_mem, (void *) udata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetUserData", 1)) {
+    return 1;
+  }
 
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) {
+    return 1;
+  }
 
   /* Increase max num steps  */
   retval = MRIStepSetMaxNumSteps(arkode_mem, 10000);
-  if (check_retval(&retval, "MRIStepSetMaxNumSteps", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetMaxNumSteps", 1)) {
+    return 1;
+  }
 
   /*
    * Integrate ODE
@@ -188,7 +212,9 @@ int main() {
 
   /* output mesh to disk */
   FID=fopen("heat_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
+  for (i = 0; i < N; i++) {
+    fprintf(FID, "  %.16" ESYM "\n", udata->dx * i);
+  }
   fclose(FID);
 
   /* Open output stream for results, access data array */
@@ -196,7 +222,9 @@ int main() {
   data = N_VGetArrayPointer(y);
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
+  for (i = 0; i < N; i++) {
+    fprintf(UFID, " %.16" ESYM "", data[i]);
+  }
   fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls MRIStepEvolve to perform the integration, then
@@ -211,11 +239,15 @@ int main() {
 
     /* call integrator */
     retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) break;
+    if (check_retval(&retval, "MRIStepEvolve", 1)) {
+      break;
+    }
 
     /* print solution stats and output results to disk */
     printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
+    for (i = 0; i < N; i++) {
+      fprintf(UFID, " %.16" ESYM "", data[i]);
+    }
     fprintf(UFID,"\n");
 
     /* successful solve: update output time */
@@ -264,15 +296,20 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* access state array data */
   Y = N_VGetArrayPointer(y);
-  if (check_retval((void *) Y, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Y, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* access RHS array data */
   Ydot = N_VGetArrayPointer(ydot);
-  if (check_retval((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydot, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate over domain, computing reaction term */
-  for (i = 0; i < N; i++)
+  for (i = 0; i < N; i++) {
     Ydot[i] = Y[i] * Y[i] * (RCONST(1.0) - Y[i]);
+  }
 
   /* Return with success */
   return 0;
@@ -292,11 +329,15 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* access state array data */
   Y = N_VGetArrayPointer(y);
-  if (check_retval((void *) Y, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Y, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* access RHS array data */
   Ydot = N_VGetArrayPointer(ydot);
-  if (check_retval((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydot, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate over domain, computing diffusion term */
   c1 = k/dx/dx;
@@ -306,8 +347,9 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   Ydot[0] = c2*(Y[1] - Y[0]);
 
   /* interior points */
-  for (i=1; i<N-1; i++)
-    Ydot[i] = c1*Y[i-1] - c2*Y[i] + c1*Y[i+1];
+  for (i = 1; i < N - 1; i++) {
+    Ydot[i] = c1 * Y[i - 1] - c2 * Y[i] + c1 * Y[i + 1];
+  }
 
   /* right boundary condition */
   Ydot[N-1] = c2*(Y[N-2] - Y[N-1]);
@@ -331,11 +373,14 @@ static int SetInitialCondition(N_Vector y, UserData user_data)
 
   /* access state array data */
   Y = N_VGetArrayPointer(y);
-  if (check_retval((void *) Y, "N_VGetArrayPointer", 0)) return -1;
+  if (check_retval((void *)Y, "N_VGetArrayPointer", 0)) {
+    return -1;
+  }
 
   /* set initial condition */
-  for (i = 0; i < N; i++)
-    Y[i] = RCONST(1.0)/(1 + exp(lam*(i*dx-RCONST(1.0))));
+  for (i = 0; i < N; i++) {
+    Y[i] = RCONST(1.0) / (1 + exp(lam * (i * dx - RCONST(1.0))));
+  }
 
   /* Return with success */
   return 0;

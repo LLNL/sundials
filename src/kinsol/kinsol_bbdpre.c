@@ -259,8 +259,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->nge = 0;
 
   /* make sure pdata is free from any previous allocations */
-  if (kinls_mem->pfree != NULL)
+  if (kinls_mem->pfree != NULL) {
     kinls_mem->pfree(kin_mem);
+  }
 
   /* Point to the new pdata field in the LS memory */
   kinls_mem->pdata = pdata;
@@ -466,8 +467,9 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
                           pdata->rlocal, ZERO);
 
   /* Copy result into vv */
-  for (i=0; i<pdata->n_local; i++)
+  for (i = 0; i < pdata->n_local; i++) {
     vd[i] = zd[i];
+  }
 
   return(retval);
 }
@@ -481,10 +483,14 @@ static int KINBBDPrecFree(KINMem kin_mem)
   KINLsMem kinls_mem;
   KBBDPrecData pdata;
 
-  if (kin_mem->kin_lmem == NULL) return(0);
+  if (kin_mem->kin_lmem == NULL) {
+    return (0);
+  }
   kinls_mem = (KINLsMem) kin_mem->kin_lmem;
 
-  if (kinls_mem->pdata == NULL) return(0);
+  if (kinls_mem->pdata == NULL) {
+    return (0);
+  }
   pdata = (KBBDPrecData) kinls_mem->pdata;
 
   SUNLinSolFree(pdata->LS);
@@ -540,12 +546,16 @@ static int KBBDDQJac(KBBDPrecData pdata,
   /* Call gcomm and gloc to get base value of g(uu) */
   if (pdata->gcomm != NULL) {
     retval = pdata->gcomm(pdata->n_local, uu, kin_mem->kin_user_data);
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
   }
 
   retval = pdata->gloc(pdata->n_local, uu, gu, kin_mem->kin_user_data);
   pdata->nge++;
-  if (retval != 0) return(retval);
+  if (retval != 0) {
+    return (retval);
+  }
 
   /* Set bandwidth and number of column groups for band differencing */
   width = pdata->mldq + pdata->mudq + 1;
@@ -563,7 +573,9 @@ static int KBBDDQJac(KBBDPrecData pdata,
     /* Evaluate g with incremented u */
     retval = pdata->gloc(pdata->n_local, utemp, gtemp, kin_mem->kin_user_data);
     pdata->nge++;
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
 
     /* restore utemp, then form and load difference quotients */
     for (j = group - 1; j < pdata->n_local; j += width) {
@@ -573,8 +585,9 @@ static int KBBDDQJac(KBBDPrecData pdata,
       inc_inv = ONE / inc;
       i1 = SUNMAX(0, (j - pdata->mukeep));
       i2 = SUNMIN((j + pdata->mlkeep), (pdata->n_local - 1));
-      for (i = i1; i <= i2; i++)
+      for (i = i1; i <= i2; i++) {
         SM_COLUMN_ELEMENT_B(col_j, i, j) = inc_inv * (gtempdata[i] - gudata[i]);
+      }
     }
   }
 

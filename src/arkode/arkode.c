@@ -232,7 +232,9 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
 
   /* Update time-stepping parameters */
   /*   adjust upcoming step size depending on hscale */
-  if (hscale < ZERO)  hscale = ONE;
+  if (hscale < ZERO) {
+    hscale = ONE;
+  }
   if (hscale != ONE) {
 
     /* Encode hscale into ark_mem structure */
@@ -240,19 +242,20 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
     ark_mem->hprime *= hscale;
 
     /* If next step would overtake tstop, adjust stepsize */
-    if ( ark_mem->tstopset )
+    if (ark_mem->tstopset) {
       if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->hprime > ZERO ) {
         ark_mem->hprime = (ark_mem->tstop-ark_mem->tcur) *
           (ONE-FOUR*ark_mem->uround);
         ark_mem->eta = ark_mem->hprime/ark_mem->h;
       }
-
+    }
   }
 
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL)
+  if (y0->ops->nvspace != NULL) {
     N_VSpace(y0, &lrw1, &liw1);
+  }
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
   ark_mem->lrw1 = lrw1;
@@ -682,7 +685,9 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
   /* store copy of itask if using root-finding */
   if (ark_mem->root_mem != NULL) {
-    if (itask == ARK_NORMAL) ark_mem->root_mem->toutc = tout;
+    if (itask == ARK_NORMAL) {
+      ark_mem->root_mem->toutc = tout;
+    }
     ark_mem->root_mem->taskc = itask;
   }
 
@@ -693,14 +698,17 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   if (ark_mem->initsetup) {
     ark_mem->tretlast = *tret = ark_mem->tcur;
     retval = arkInitialSetup(ark_mem, tout);
-    if (retval!= ARK_SUCCESS) return(retval);
+    if (retval != ARK_SUCCESS) {
+      return (retval);
+    }
   }
 
   /* perform stopping tests */
-  if (!ark_mem->initsetup)
-    if (arkStopTests(ark_mem, tout, yout, tret, itask, &retval))
-      return(retval);
-
+  if (!ark_mem->initsetup) {
+    if (arkStopTests(ark_mem, tout, yout, tret, itask, &retval)) {
+      return (retval);
+    }
+  }
 
   /*--------------------------------------------------
     Looping point for successful internal steps
@@ -734,12 +742,13 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                                ark_mem->ewt,
                                ark_mem->e_data);
       if (ewtsetOK != 0) {
-        if (ark_mem->itol == ARK_WF)
+        if (ark_mem->itol == ARK_WF) {
           arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkEvolve",
                           MSG_ARK_EWT_NOW_FAIL, ark_mem->tcur);
-        else
+        } else {
           arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkEvolve",
                           MSG_ARK_EWT_NOW_BAD, ark_mem->tcur);
+        }
 
         istate = ARK_ILL_INPUT;
         ark_mem->tretlast = *tret = ark_mem->tcur;
@@ -752,12 +761,13 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                                  ark_mem->rwt,
                                  ark_mem->r_data);
         if (ewtsetOK != 0) {
-          if (ark_mem->itol == ARK_WF)
+          if (ark_mem->itol == ARK_WF) {
             arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkEvolve",
                             MSG_ARK_RWT_NOW_FAIL, ark_mem->tcur);
-          else
+          } else {
             arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkEvolve",
                             MSG_ARK_RWT_NOW_BAD, ark_mem->tcur);
+          }
 
           istate = ARK_ILL_INPUT;
           ark_mem->tretlast = *tret = ark_mem->tcur;
@@ -795,12 +805,14 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     /* Check for h below roundoff level in tn */
     if (ark_mem->tcur + ark_mem->h == ark_mem->tcur) {
       ark_mem->nhnil++;
-      if (ark_mem->nhnil <= ark_mem->mxhnil)
+      if (ark_mem->nhnil <= ark_mem->mxhnil) {
         arkProcessError(ark_mem, ARK_WARNING, "ARKODE", "arkEvolve",
                         MSG_ARK_HNIL, ark_mem->tcur, ark_mem->h);
-      if (ark_mem->nhnil == ark_mem->mxhnil)
+      }
+      if (ark_mem->nhnil == ark_mem->mxhnil) {
         arkProcessError(ark_mem, ARK_WARNING, "ARKODE", "arkEvolve",
                         MSG_ARK_HNIL_DONE);
+      }
     }
 
     /* Update parameter for upcoming step size */
@@ -844,16 +856,22 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
            >0 => step encountered recoverable failure; reduce step if possible
            <0 => step encountered unrecoverable failure */
       kflag = ark_mem->step((void*) ark_mem, &dsm, &nflag);
-      if (kflag < 0)  break;
+      if (kflag < 0) {
+        break;
+      }
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
-      if (kflag < 0)  break;
+      if (kflag < 0) {
+        break;
+      }
 
       /* perform constraint-handling (if selected, and if solver check passed) */
       if (ark_mem->constraintsSet && (kflag == ARK_SUCCESS)) {
         kflag = arkCheckConstraints(ark_mem, &constrfails, &nflag);
-        if (kflag < 0)  break;
+        if (kflag < 0) {
+          break;
+        }
       }
 
       /* when fixed time-stepping is enabled, 'success' == successful stage solves
@@ -866,7 +884,9 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       /* check temporal error (if checks above passed) */
       if (kflag == ARK_SUCCESS) {
         kflag = arkCheckTemporalError(ark_mem, &nflag, &nef, dsm);
-        if (kflag < 0)  break;
+        if (kflag < 0) {
+          break;
+        }
       }
 
       /* if we've made it here then no nonrecoverable failures occurred; someone above
@@ -884,10 +904,14 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
 
       /* break attempt loop on successful step */
-      if (kflag == ARK_SUCCESS)  break;
+      if (kflag == ARK_SUCCESS) {
+        break;
+      }
 
       /* unsuccessful step, if |h| = hmin, return ARK_ERR_FAILURE */
-      if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_ERR_FAILURE);
+      if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM) {
+        return (ARK_ERR_FAILURE);
+      }
 
       /* update h, hprime and next_h for next iteration */
       ark_mem->h *= ark_mem->eta;
@@ -898,7 +922,9 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     /* If step attempt loop succeeded, complete step (update current time, solution,
        error stepsize history arrays; call user-supplied step postprocessing function)
        (added stuff from arkStep_PrepareNextStep -- revisit) */
-    if (kflag == ARK_SUCCESS)  kflag = arkCompleteStep(ark_mem, dsm);
+    if (kflag == ARK_SUCCESS) {
+      kflag = arkCompleteStep(ark_mem, dsm);
+    }
 
     /* If step attempt loop failed, process flag and return to user */
     if (kflag != ARK_SUCCESS) {
@@ -1037,7 +1063,9 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
   /* Allow for some slack */
   tfuzz = FUZZ_FACTOR * ark_mem->uround *
     (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->hold));
-  if (ark_mem->hold < ZERO) tfuzz = -tfuzz;
+  if (ark_mem->hold < ZERO) {
+    tfuzz = -tfuzz;
+  }
   tp = ark_mem->tcur - ark_mem->hold - tfuzz;
   tn1 = ark_mem->tcur + tfuzz;
   if ((t-tp)*(t-tn1) > ZERO) {
@@ -1069,7 +1097,9 @@ void arkFree(void **arkode_mem)
 {
   ARKodeMem ark_mem;
 
-  if (*arkode_mem == NULL) return;
+  if (*arkode_mem == NULL) {
+    return;
+  }
 
   ark_mem = (ARKodeMem) (*arkode_mem);
 
@@ -1132,13 +1162,17 @@ int arkRwtSet(N_Vector y, N_Vector weight, void *data)
   ark_mem = (ARKodeMem) data;
 
   /* return if rwt is just ewt */
-  if (ark_mem->rwt_is_ewt)  return(0);
+  if (ark_mem->rwt_is_ewt) {
+    return (0);
+  }
 
   /* put M*y into ark_tempv1 */
   My = ark_mem->tempv1;
   if (ark_mem->step_mmult != NULL) {
     flag = ark_mem->step_mmult((void *) ark_mem, y, My);
-    if (flag != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+    if (flag != ARK_SUCCESS) {
+      return (ARK_MASSMULT_FAIL);
+    }
   } else {  /* this condition should not apply, but just in case */
     N_VScale(ONE, y, My);
   }
@@ -1170,10 +1204,11 @@ void arkErrHandler(int error_code, const char *module,
   /* data points to ark_mem here */
   ark_mem = (ARKodeMem) data;
 
-  if (error_code == ARK_WARNING)
+  if (error_code == ARK_WARNING) {
     sprintf(err_type,"WARNING");
-  else
-    sprintf(err_type,"ERROR");
+  } else {
+    sprintf(err_type, "ERROR");
+  }
 
 #ifndef NO_FPRINTF_OUTPUT
   if (ark_mem->errfp!=NULL) {
@@ -1225,8 +1260,9 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
   }
 
   /* Check if reset was called before the first Evolve call */
-  if (init_type == RESET_INIT && !(ark_mem->initialized))
+  if (init_type == RESET_INIT && !(ark_mem->initialized)) {
     init_type = FIRST_INIT;
+  }
 
   /* Check if allocations have been done i.e., is this first init call */
   if (ark_mem->MallocDone == SUNFALSE) {
@@ -1402,8 +1438,9 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "maxconstrfails = %i\n", ark_mem->maxconstrfails);
 
   /* output root-finding quantities */
-  if (ark_mem->root_mem != NULL)
-    (void) arkPrintRootMem((void*) ark_mem, outfile);
+  if (ark_mem->root_mem != NULL) {
+    (void)arkPrintRootMem((void *)ark_mem, outfile);
+  }
 
   /* output interpolation quantities */
   arkInterpPrintMem(ark_mem->interp, outfile);
@@ -1448,11 +1485,10 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   ---------------------------------------------------------------*/
 booleantype arkCheckTimestepper(ARKodeMem ark_mem)
 {
-  if ( (ark_mem->step_init    == NULL) ||
-       (ark_mem->step         == NULL) ||
-       (ark_mem->step_mem     == NULL) ||
-       (ark_mem->step_fullrhs == NULL) )
-    return(SUNFALSE);
+  if ((ark_mem->step_init == NULL) || (ark_mem->step == NULL) ||
+      (ark_mem->step_mem == NULL) || (ark_mem->step_fullrhs == NULL)) {
+    return (SUNFALSE);
+  }
   return(SUNTRUE);
 }
 
@@ -1465,20 +1501,16 @@ booleantype arkCheckTimestepper(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
 {
-  if ((tmpl->ops->nvclone     == NULL) ||
-      (tmpl->ops->nvdestroy   == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) ||
-      (tmpl->ops->nvconst     == NULL) ||
-      (tmpl->ops->nvdiv       == NULL) ||
-      (tmpl->ops->nvscale     == NULL) ||
-      (tmpl->ops->nvabs       == NULL) ||
-      (tmpl->ops->nvinv       == NULL) ||
-      (tmpl->ops->nvaddconst  == NULL) ||
-      (tmpl->ops->nvmaxnorm   == NULL) ||
-      (tmpl->ops->nvwrmsnorm  == NULL))
+  if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
+      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
+      (tmpl->ops->nvdiv == NULL) || (tmpl->ops->nvscale == NULL) ||
+      (tmpl->ops->nvabs == NULL) || (tmpl->ops->nvinv == NULL) ||
+      (tmpl->ops->nvaddconst == NULL) || (tmpl->ops->nvmaxnorm == NULL) ||
+      (tmpl->ops->nvwrmsnorm == NULL)) {
     return(SUNFALSE);
-  else
-    return(SUNTRUE);
+  } else {
+    return (SUNTRUE);
+  }
 }
 
 
@@ -1522,7 +1554,9 @@ booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
   /* allocate the new vector array if necessary */
   if (*v == NULL) {
     *v = N_VCloneVectorArray(count, tmpl);
-    if (*v == NULL) return(SUNFALSE);
+    if (*v == NULL) {
+      return (SUNFALSE);
+    }
     *lrw += count * lrw1;
     *liw += count * liw1;
   }
@@ -1617,10 +1651,14 @@ booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
       N_VDestroyVectorArray(*v, count);
       *v = NULL;
       *v = N_VCloneVectorArray(count, tmpl);
-      if (*v == NULL) return(SUNFALSE);
+      if (*v == NULL) {
+        return (SUNFALSE);
+      }
     } else {
       for (i = 0; i < count; i++) {
-        if (resize((*v)[i], tmpl, resize_data)) return(SUNFALSE);
+        if (resize((*v)[i], tmpl, resize_data)) {
+          return (SUNFALSE);
+        }
       }
     }
     *lrw += count * lrw_diff;
@@ -1646,36 +1684,44 @@ booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
 booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
   /* Allocate ewt if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->ewt))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->ewt)) {
+    return (SUNFALSE);
+  }
 
   /* Set rwt to point at ewt */
-  if (ark_mem->rwt_is_ewt)
+  if (ark_mem->rwt_is_ewt) {
     ark_mem->rwt = ark_mem->ewt;
+  }
 
   /* Allocate yn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn)) {
+    return (SUNFALSE);
+  }
 
   /* Allocate fn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->fn))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->fn)) {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv1 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1)) {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv2 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2)) {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv3 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3)) {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv4 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4))
-    return(SUNFALSE);
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4)) {
+    return (SUNFALSE);
+  }
 
   return(SUNTRUE);
 }
@@ -1699,60 +1745,71 @@ booleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
                              sunindextype liw_diff, N_Vector tmpl)
 {
   /* Vabstol */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->Vabstol))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->Vabstol)) {
+    return (SUNFALSE);
+  }
 
   /* VRabstol */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->VRabstol))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->VRabstol)) {
+    return (SUNFALSE);
+  }
 
   /* ewt */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->ewt))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->ewt)) {
+    return (SUNFALSE);
+  }
 
   /* rwt  */
   if (ark_mem->rwt_is_ewt) {      /* update pointer to ewt */
     ark_mem->rwt = ark_mem->ewt;
   } else {                        /* resize if distinct from ewt */
-    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                      liw_diff, tmpl, &ark_mem->rwt))
-      return(SUNFALSE);
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                      &ark_mem->rwt)) {
+      return (SUNFALSE);
+    }
   }
 
   /* yn */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->yn))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->yn)) {
+    return (SUNFALSE);
+  }
 
   /* fn */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->fn))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->fn)) {
+    return (SUNFALSE);
+  }
 
   /* tempv* */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->tempv1))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv1)) {
+    return (SUNFALSE);
+  }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->tempv2))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv2)) {
+    return (SUNFALSE);
+  }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->tempv3))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv3)) {
+    return (SUNFALSE);
+  }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->tempv4))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv4)) {
+    return (SUNFALSE);
+  }
 
   /* constraints */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                    liw_diff, tmpl, &ark_mem->constraints))
-    return(SUNFALSE);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->constraints)) {
+    return (SUNFALSE);
+  }
 
   return(SUNTRUE);
 }
@@ -1767,8 +1824,9 @@ booleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
 void arkFreeVectors(ARKodeMem ark_mem)
 {
   arkFreeVec(ark_mem, &ark_mem->ewt);
-  if (!ark_mem->rwt_is_ewt)
+  if (!ark_mem->rwt_is_ewt) {
     arkFreeVec(ark_mem, &ark_mem->rwt);
+  }
   arkFreeVec(ark_mem, &ark_mem->tempv1);
   arkFreeVec(ark_mem, &ark_mem->tempv2);
   arkFreeVec(ark_mem, &ark_mem->tempv3);
@@ -1856,12 +1914,13 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   /* Load initial error weights */
   retval = ark_mem->efun(ark_mem->yn, ark_mem->ewt, ark_mem->e_data);
   if (retval != 0) {
-    if (ark_mem->itol == ARK_WF)
+    if (ark_mem->itol == ARK_WF) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                       "arkInitialSetup", MSG_ARK_EWT_FAIL);
-    else
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                      "arkInitialSetup", MSG_ARK_BAD_EWT);
+    } else {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkInitialSetup",
+                      MSG_ARK_BAD_EWT);
+    }
     return(ARK_ILL_INPUT);
   }
 
@@ -1871,30 +1930,37 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   } else {
     retval = ark_mem->rfun(ark_mem->yn, ark_mem->rwt, ark_mem->r_data);
     if (retval != 0) {
-      if (ark_mem->itol == ARK_WF)
+      if (ark_mem->itol == ARK_WF) {
         arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                         "arkInitialSetup", MSG_ARK_RWT_FAIL);
-      else
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                        "arkInitialSetup", MSG_ARK_BAD_RWT);
+      } else {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkInitialSetup",
+                        MSG_ARK_BAD_RWT);
+      }
       return(ARK_ILL_INPUT);
     }
   }
 
   /* If necessary, temporarily set h as it is used to compute the tolerance in a
      potential mass matrix solve when computing the full rhs */
-  if (ark_mem->h == ZERO) ark_mem->h = ONE;
+  if (ark_mem->h == ZERO) {
+    ark_mem->h = ONE;
+  }
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
                                  ark_mem->fn, ARK_FULLRHS_START);
-  if (retval != 0) return(ARK_RHSFUNC_FAIL);
+  if (retval != 0) {
+    return (ARK_RHSFUNC_FAIL);
+  }
 
   /* Fill initial interpolation data (if needed) */
   if (ark_mem->interp != NULL) {
     retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
-    if (retval != 0)  return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
   }
 
   /* initialization complete */
@@ -1916,12 +1982,15 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     if (ark_mem->h == ZERO) {
       /* Again, temporarily set h for estimating an optimal value */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
-      if (ark_mem->h == ZERO)  ark_mem->h = ONE;
+      if (ark_mem->h == ZERO) {
+        ark_mem->h = ONE;
+      }
       /* Estimate the first step size */
       tout_hin = tout;
-      if ( ark_mem->tstopset &&
-           (tout-ark_mem->tcur)*(tout-ark_mem->tstop) > ZERO )
+      if (ark_mem->tstopset &&
+          (tout - ark_mem->tcur) * (tout - ark_mem->tstop) > ZERO) {
         tout_hin = ark_mem->tstop;
+      }
       hflag = arkHin(ark_mem, tout_hin);
       if (hflag != ARK_SUCCESS) {
         istate = arkHandleFailure(ark_mem, hflag);
@@ -1939,9 +2008,12 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
     /* Enforce step size bounds */
     rh = SUNRabs(ark_mem->h)*ark_mem->hmax_inv;
-    if (rh > ONE) ark_mem->h /= rh;
-    if (SUNRabs(ark_mem->h) < ark_mem->hmin)
-      ark_mem->h *= ark_mem->hmin/SUNRabs(ark_mem->h);
+    if (rh > ONE) {
+      ark_mem->h /= rh;
+    }
+    if (SUNRabs(ark_mem->h) < ark_mem->hmin) {
+      ark_mem->h *= ark_mem->hmin / SUNRabs(ark_mem->h);
+    }
 
     /* Check for approach to tstop */
     if (ark_mem->tstopset) {
@@ -1956,11 +2028,12 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     ark_mem->hprime = ark_mem->h;
   } else {
     /* If next step would overtake tstop, adjust stepsize */
-    if (ark_mem->tstopset)
+    if (ark_mem->tstopset) {
       if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
         ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
         ark_mem->eta = ark_mem->hprime/ark_mem->h;
       }
+    }
   }
 
   /* Check for zeros of root function g at and near t0. */
@@ -2006,7 +2079,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   /* First, check for a root in the last step taken, other than the
      last root found, if any.  If itask = ARK_ONE_STEP and y(tn) was not
      returned because of an intervening root, return y(tn) now.     */
-  if (ark_mem->root_mem != NULL)
+  if (ark_mem->root_mem != NULL) {
     if (ark_mem->root_mem->nrtfn > 0) {
 
       /* Shortcut to roots found in previous step */
@@ -2072,6 +2145,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
 
     } /* end of root stop check */
+  }
 
   /* In ARK_NORMAL mode, test if tout was reached */
   if ( (itask == ARK_NORMAL) &&
@@ -2174,13 +2248,17 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   booleantype hgOK;
 
   /* If tout is too close to tn, give up */
-  if ((tdiff = tout-ark_mem->tcur) == ZERO) return(ARK_TOO_CLOSE);
+  if ((tdiff = tout - ark_mem->tcur) == ZERO) {
+    return (ARK_TOO_CLOSE);
+  }
 
   sign = (tdiff > ZERO) ? 1 : -1;
   tdist = SUNRabs(tdiff);
   tround = ark_mem->uround * SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(tout));
 
-  if (tdist < TWO*tround) return(ARK_TOO_CLOSE);
+  if (tdist < TWO * tround) {
+    return (ARK_TOO_CLOSE);
+  }
 
   /* Set lower and upper bounds on h0, and take geometric mean
      as first trial value.
@@ -2191,8 +2269,11 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   hg  = SUNRsqrt(hlb*hub);
 
   if (hub < hlb) {
-    if (sign == -1) ark_mem->h = -hg;
-    else            ark_mem->h =  hg;
+    if (sign == -1) {
+      ark_mem->h = -hg;
+    } else {
+      ark_mem->h = hg;
+    }
     return(ARK_SUCCESS);
   }
 
@@ -2207,7 +2288,9 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
       hgs = hg*sign;
       retval = arkYddNorm(ark_mem, hgs, &yddnrm);
       /* If f() failed unrecoverably, give up */
-      if (retval < 0) return(ARK_RHSFUNC_FAIL);
+      if (retval < 0) {
+        return (ARK_RHSFUNC_FAIL);
+      }
       /* If successful, we can use ydd */
       if (retval == ARK_SUCCESS) {hgOK = SUNTRUE; break;}
       /* f() failed recoverably; cut step size and test it again */
@@ -2217,7 +2300,9 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
     /* If f() failed recoverably H0_ITERS times */
     if (!hgOK) {
       /* Exit if this is the first or second pass. No recovery possible */
-      if (count1 <= 2) return(ARK_REPTD_RHSFUNC_ERR);
+      if (count1 <= 2) {
+        return (ARK_REPTD_RHSFUNC_ERR);
+      }
       /* We have a fall-back option. The value hs is a previous hnew which
          passed through f(). Use it and break */
       hnew = hs;
@@ -2231,12 +2316,16 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
     hnew = (yddnrm*hub*hub > TWO) ? SUNRsqrt(TWO/yddnrm) : SUNRsqrt(hg*hub);
 
     /* If last pass, stop now with hnew */
-    if (count1 == H0_ITERS) break;
+    if (count1 == H0_ITERS) {
+      break;
+    }
 
     hrat = hnew/hg;
 
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
-    if ((hrat > HALF) && (hrat < TWO)) break;
+    if ((hrat > HALF) && (hrat < TWO)) {
+      break;
+    }
 
     /* After one pass, if ydd seems to be bad, use fall-back value. */
     if ((count1 > 1) && (hrat > TWO)) {
@@ -2250,9 +2339,15 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
 
   /* Apply bounds, bias factor, and attach sign */
   h0 = H0_BIAS*hnew;
-  if (h0 < hlb) h0 = hlb;
-  if (h0 > hub) h0 = hub;
-  if (sign == -1) h0 = -h0;
+  if (h0 < hlb) {
+    h0 = hlb;
+  }
+  if (h0 > hub) {
+    h0 = hub;
+  }
+  if (sign == -1) {
+    h0 = -h0;
+  }
   ark_mem->h = h0;
 
   return(ARK_SUCCESS);
@@ -2291,7 +2386,9 @@ realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
   hub = H0_UBFACTOR*tdist;
 
   /* Use the smaller of the two */
-  if (hub*hub_inv > ONE) hub = ONE/hub_inv;
+  if (hub * hub_inv > ONE) {
+    hub = ONE / hub_inv;
+  }
 
   return(hub);
 }
@@ -2319,7 +2416,9 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   /* compute y', via the ODE RHS routine */
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
                                  ark_mem->tempv1, ARK_FULLRHS_OTHER);
-  if (retval != 0) return(ARK_RHSFUNC_FAIL);
+  if (retval != 0) {
+    return (ARK_RHSFUNC_FAIL);
+  }
 
   /* difference new f and original f to estimate y'' */
   N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg, ark_mem->fn, ark_mem->tempv1);
@@ -2360,8 +2459,9 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   if ( ark_mem->tstopset ) {
     troundoff = FUZZ_FACTOR * ark_mem->uround *
       (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
-    if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff)
+    if (SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
       ark_mem->tcur = ark_mem->tstop;
+    }
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
@@ -2376,13 +2476,17 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     retval = ark_mem->ProcessStep(ark_mem->tcur,
                                   ark_mem->ycur,
                                   ark_mem->ps_data);
-    if (retval != 0) return(ARK_POSTPROCESS_STEP_FAIL);
+    if (retval != 0) {
+      return (ARK_POSTPROCESS_STEP_FAIL);
+    }
   }
 
   /* update interpolation structure */
   if (ark_mem->interp != NULL) {
     retval = arkInterpUpdate(ark_mem, ark_mem->interp, ark_mem->tcur);
-    if (retval != ARK_SUCCESS)  return(retval);
+    if (retval != ARK_SUCCESS) {
+      return (retval);
+    }
   }
 
   /* call fullrhs if needed */
@@ -2390,7 +2494,9 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
-    if (retval != 0) return(ARK_RHSFUNC_FAIL);
+    if (retval != 0) {
+      return (ARK_RHSFUNC_FAIL);
+    }
   }
 
   /* update yn to current solution */
@@ -2544,7 +2650,9 @@ int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem)
   N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1);
   N_VAddConst(ark_mem->tempv1, ark_mem->Sabstol, ark_mem->tempv1);
   if (ark_mem->atolmin0) {
-    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+    if (N_VMin(ark_mem->tempv1) <= ZERO) {
+      return (-1);
+    }
   }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
@@ -2571,7 +2679,9 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
   N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->Vabstol, ark_mem->tempv1);
   if (ark_mem->atolmin0) {
-    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+    if (N_VMin(ark_mem->tempv1) <= ZERO) {
+      return (-1);
+    }
   }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
@@ -2612,7 +2722,9 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
   N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1);
   N_VAddConst(ark_mem->tempv1, ark_mem->SRabstol, ark_mem->tempv1);
   if (ark_mem->Ratolmin0) {
-    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+    if (N_VMin(ark_mem->tempv1) <= ZERO) {
+      return (-1);
+    }
   }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
@@ -2634,7 +2746,9 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
   N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->VRabstol, ark_mem->tempv1);
   if (ark_mem->Ratolmin0) {
-    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+    if (N_VMin(ark_mem->tempv1) <= ZERO) {
+      return (-1);
+    }
   }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
@@ -2820,7 +2934,9 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 
   /* call fused vector operation to compute prediction */
   retval = N_VLinearCombination(nvec+2, cvals, Xvecs, yguess);
-  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  if (retval != 0) {
+    return (ARK_VECTOROP_ERR);
+  }
   return(ARK_SUCCESS);
 }
 
@@ -2839,13 +2955,17 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 {
   ARKodeHAdaptMem hadapt_mem;
 
-  if (*nflagPtr == ARK_SUCCESS) return(ARK_SUCCESS);
+  if (*nflagPtr == ARK_SUCCESS) {
+    return (ARK_SUCCESS);
+  }
 
   /* The nonlinear soln. failed; increment ncfn */
   ark_mem->ncfn++;
 
   /* If fixed time stepping, then return with convergence failure */
-  if (ark_mem->fixedstep) return(ARK_CONV_FAILURE);
+  if (ark_mem->fixedstep) {
+    return (ARK_CONV_FAILURE);
+  }
 
   /* Otherwise, access adaptivity structure */
   if (ark_mem->hadapt_mem == NULL) {
@@ -2857,10 +2977,15 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 
   /* Return if lsetup, lsolve, or rhs failed unrecoverably */
   if (*nflagPtr < 0) {
-    if (*nflagPtr == ARK_LSETUP_FAIL)       return(ARK_LSETUP_FAIL);
-    else if (*nflagPtr == ARK_LSOLVE_FAIL)  return(ARK_LSOLVE_FAIL);
-    else if (*nflagPtr == ARK_RHSFUNC_FAIL) return(ARK_RHSFUNC_FAIL);
-    else                                    return(ARK_NLS_OP_ERR);
+    if (*nflagPtr == ARK_LSETUP_FAIL) {
+      return (ARK_LSETUP_FAIL);
+    } else if (*nflagPtr == ARK_LSOLVE_FAIL) {
+      return (ARK_LSOLVE_FAIL);
+    } else if (*nflagPtr == ARK_RHSFUNC_FAIL) {
+      return (ARK_RHSFUNC_FAIL);
+    } else {
+      return (ARK_NLS_OP_ERR);
+    }
   }
 
   /* At this point, nflag = CONV_FAIL or RHSFUNC_RECVR; increment ncf */
@@ -2871,8 +2996,12 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
      return ARK_CONV_FAILURE or ARK_REPTD_RHSFUNC_ERR. */
   if ((*ncfPtr == ark_mem->maxncf) ||
       (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM)) {
-    if (*nflagPtr == CONV_FAIL)     return(ARK_CONV_FAILURE);
-    if (*nflagPtr == RHSFUNC_RECVR) return(ARK_REPTD_RHSFUNC_ERR);
+    if (*nflagPtr == CONV_FAIL) {
+      return (ARK_CONV_FAILURE);
+    }
+    if (*nflagPtr == RHSFUNC_RECVR) {
+      return (ARK_REPTD_RHSFUNC_ERR);
+    }
   }
 
   /* Reduce step size due to convergence failure */
@@ -2902,7 +3031,9 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 
   /* Check constraints and get mask vector mm for where constraints failed */
   constraintsPassed = N_VConstrMask(ark_mem->constraints, ark_mem->ycur, mm);
-  if (constraintsPassed) return(ARK_SUCCESS);
+  if (constraintsPassed) {
+    return (ARK_SUCCESS);
+  }
 
   /* Constraints not met */
 
@@ -2911,13 +3042,19 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   (*constrfails)++;
 
   /* Return with error if reached max fails in a step */
-  if (*constrfails == ark_mem->maxconstrfails) return(ARK_CONSTR_FAIL);
+  if (*constrfails == ark_mem->maxconstrfails) {
+    return (ARK_CONSTR_FAIL);
+  }
 
   /* Return with error if using fixed step sizes */
-  if (ark_mem->fixedstep) return(ARK_CONSTR_FAIL);
+  if (ark_mem->fixedstep) {
+    return (ARK_CONSTR_FAIL);
+  }
 
   /* Return with error if |h| == hmin */
-  if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_CONSTR_FAIL);
+  if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM) {
+    return (ARK_CONSTR_FAIL);
+  }
 
   /* Reduce h by computing eta = h'/h */
   N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp);
@@ -2972,10 +3109,14 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   nsttmp = (dsm <= ONE) ? ark_mem->nst+1 : ark_mem->nst;
   retval = arkAdapt((void*) ark_mem, hadapt_mem, ark_mem->ycur, ttmp,
                     ark_mem->h, dsm, nsttmp);
-  if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
+  if (retval != ARK_SUCCESS) {
+    return (ARK_ERR_FAILURE);
+  }
 
   /* If est. local error norm dsm passes test, return ARK_SUCCESS */
-  if (dsm <= ONE) return(ARK_SUCCESS);
+  if (dsm <= ONE) {
+    return (ARK_SUCCESS);
+  }
 
   /* Test failed; increment counters, set nflag */
   (*nefPtr)++;
@@ -2983,14 +3124,17 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   *nflagPtr = PREV_ERR_FAIL;
 
   /* At maxnef failures, return ARK_ERR_FAILURE */
-  if (*nefPtr == ark_mem->maxnef)  return(ARK_ERR_FAILURE);
+  if (*nefPtr == ark_mem->maxnef) {
+    return (ARK_ERR_FAILURE);
+  }
 
   /* Set etamax=1 to prevent step size increase at end of this step */
   hadapt_mem->etamax = ONE;
 
   /* Enforce failure bounds on eta, update h, and return for retry of step */
-  if (*nefPtr >= hadapt_mem->small_nef)
+  if (*nefPtr >= hadapt_mem->small_nef) {
     ark_mem->eta = SUNMIN(ark_mem->eta, hadapt_mem->etamxf);
+  }
 
   return(TRY_AGAIN);
 }

@@ -114,7 +114,9 @@ int main(void)
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   id = N_VNew_Serial(NEQ, ctx);
   yy = N_VClone(id);
@@ -164,15 +166,21 @@ int main(void)
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   retval = IDASensInit(mem, NP, IDA_SIMULTANEOUS, NULL, yyS, ypS);
   pbar[0] = data->params[0];pbar[1] = data->params[1];
@@ -185,7 +193,9 @@ int main(void)
   retval = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
   retval = IDASetQuadErrCon(mem, SUNTRUE);
 
-  for (is=0; is<NP; is++) N_VConst(ZERO, qS[is]);
+  for (is = 0; is < NP; is++) {
+    N_VConst(ZERO, qS[is]);
+  }
   retval = IDAQuadSensInit(mem, rhsQS, qS);
   atolS[0] = atolS[1] = ATOLQ;
   retval = IDAQuadSensSStolerances(mem, RTOLQ, atolS);
@@ -196,12 +206,16 @@ int main(void)
   printf("\nForward integration ... ");
 
   retval = IDASolve(mem, TEND, &tret, yy, yp, IDA_NORMAL);
-  if (check_retval(&retval, "IDASolve", 1)) return(1);
+  if (check_retval(&retval, "IDASolve", 1)) {
+    return (1);
+  }
 
   printf("done!\n");
 
   retval = PrintFinalStats(mem);
-  if (check_retval(&retval, "PrintFinalStats", 1)) return(1);
+  if (check_retval(&retval, "PrintFinalStats", 1)) {
+    return (1);
+  }
 
   IDAGetQuad(mem, &tret, q);
   printf("--------------------------------------------\n");
@@ -242,15 +256,21 @@ int main(void)
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   N_VConst(ZERO, q);
   IDAQuadInit(mem, rhsQ, q);

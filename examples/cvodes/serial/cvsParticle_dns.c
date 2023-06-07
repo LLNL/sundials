@@ -142,18 +142,26 @@ int main(int argc, char* argv[])
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate and initialize user data structure */
   udata = (UserData) malloc(sizeof *udata);
-  if (check_retval((void *)udata, "malloc", 0)) return(1);
+  if (check_retval((void *)udata, "malloc", 0)) {
+    return (1);
+  }
 
   retval = InitUserData(&argc, &argv, udata);
-  if (check_retval(&retval, "InitUserData", 1)) return(1);
+  if (check_retval(&retval, "InitUserData", 1)) {
+    return (1);
+  }
 
   /* Create serial vector to store the solution */
   y = N_VNew_Serial(2, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Set initial contion */
   ydata    = N_VGetArrayPointer(y);
@@ -162,60 +170,86 @@ int main(int argc, char* argv[])
 
   /* Create serial vector to store the solution error */
   e = N_VClone(y);
-  if (check_retval((void *)y, "N_VClone", 0)) return(1);
+  if (check_retval((void *)y, "N_VClone", 0)) {
+    return (1);
+  }
 
   /* Set initial error */
   N_VConst(ZERO, e);
 
   /* Create CVODES memory */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Initialize CVODES */
   retval = CVodeInit(cvode_mem, f, t, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Attach user-defined data structure to CVODES */
   retval = CVodeSetUserData(cvode_mem, udata);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Set integration tolerances */
   retval = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(2, 2, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver to CVODES */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set a user-supplied Jacobian function */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+    return (1);
+  }
 
   /* Set a user-supplied projection function */
   if (udata->proj)
   {
     retval = CVodeSetProjFn(cvode_mem, Proj);
-    if(check_retval(&retval, "CVodeSetProjFn", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjFn", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetProjErrEst(cvode_mem, udata->projerr);
-    if(check_retval(&retval, "CVodeSetProjErrEst", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjErrEst", 1)) {
+      return (1);
+    }
   }
 
   /* Set max steps between outputs */
   retval = CVodeSetMaxNumSteps(cvode_mem, 100000);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   /* Output problem setup */
   retval = PrintUserData(udata);
-  if(check_retval(&retval, "PrintUserData", 1)) return(1);
+  if (check_retval(&retval, "PrintUserData", 1)) {
+    return (1);
+  }
 
   /* Output initial condition */
   printf("\n     t            x              y");
@@ -248,21 +282,29 @@ int main(int argc, char* argv[])
     if (udata->tstop || udata->nout == 0)
     {
       retval = CVodeSetStopTime(cvode_mem, tout);
-      if (check_retval(&retval, "CVodeSetStopTime", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetStopTime", 1)) {
+        return (1);
+      }
     }
 
     /* Advance in time */
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
 
     /* Output solution and error */
     if (udata->nout > 0)
     {
       retval = ComputeError(t, y, e, &ec, udata);
-      if (check_retval(&retval, "ComputeError", 1)) break;
+      if (check_retval(&retval, "ComputeError", 1)) {
+        break;
+      }
 
       WriteOutput(t, y, e, ec, 1, YFID, EFID);
-      if (check_retval(&retval, "WriteOutput", 1)) break;
+      if (check_retval(&retval, "WriteOutput", 1)) {
+        break;
+      }
     }
 
     /* Update output time */
@@ -285,10 +327,14 @@ int main(int argc, char* argv[])
 
   /* Output final solution and error to screen */
   ComputeError(t, y, e, &ec, udata);
-  if (check_retval(&retval, "ComputeError", 1)) return(1);
+  if (check_retval(&retval, "ComputeError", 1)) {
+    return (1);
+  }
 
   WriteOutput(t, y, e, ec, 0, NULL, NULL);
-  if (check_retval(&retval, "WriteOutput", 1)) return(1);
+  if (check_retval(&retval, "WriteOutput", 1)) {
+    return (1);
+  }
 
   /* Print some final statistics */
   PrintStats(cvode_mem);
@@ -459,14 +505,18 @@ static int InitUserData(int *argc, char ***argv, UserData udata)
   }
 
   /* If projection is disabled then disable error projection */
-  if (!(udata->proj)) udata->projerr = 0;
+  if (!(udata->proj)) {
+    udata->projerr = 0;
+  }
 
   return(0);
 }
 
 static int PrintUserData(UserData udata)
 {
-  if (udata == NULL) return(-1);
+  if (udata == NULL) {
+    return (-1);
+  }
 
   printf("\nParticle traveling on the unit circle example\n");
   printf("---------------------------------------------\n");
@@ -522,7 +572,9 @@ static int ComputeError(realtype t, N_Vector y, N_Vector e, realtype *ec,
 
   /* solution error */
   retval = ComputeSolution(t, e, udata);
-  if (check_retval(&retval, "ComputeSolution", 1)) return(1);
+  if (check_retval(&retval, "ComputeSolution", 1)) {
+    return (1);
+  }
   N_VLinearSum(ONE, y, -ONE, e, e);
 
   /* constraint error */
@@ -547,7 +599,9 @@ static int WriteOutput(realtype t, N_Vector y, N_Vector e, realtype ec,
   else
   {
     /* check file pointers */
-    if (YFID == NULL || EFID == NULL) return(1);
+    if (YFID == NULL || EFID == NULL) {
+      return (1);
+    }
 
     /* output solution to disk */
     fprintf(YFID, "%24.16" ESYM" %24.16" ESYM" %24.16"ESYM"\n",

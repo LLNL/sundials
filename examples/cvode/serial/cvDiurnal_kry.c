@@ -179,13 +179,19 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate memory, and set problem data, initial values, tolerances */
   u = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   data = AllocUserData();
-  if(check_retval((void *)data, "AllocUserData", 2)) return(1);
+  if (check_retval((void *)data, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(data);
   SetInitialProfiles(u, data->dx, data->dy);
   abstol = ATOL;
@@ -194,46 +200,64 @@ int main()
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Set the pointer to user-defined data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR
    * with left preconditioning and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* Call CVodeSetLinearSolver to attach the linear sovler to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* set the JAcobian-times-vector function */
   retval = CVodeSetJacTimes(cvode_mem, NULL, jtv);
-  if(check_retval(&retval, "CVodeSetJacTimes", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacTimes", 1)) {
+    return (1);
+  }
 
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
-  if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1)) {
+    return (1);
+  }
 
   /* In loop over output points, call CVode, print results, test for error */
   printf(" \n2-species diurnal advection-diffusion problem\n\n");
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     PrintOutput(cvode_mem, u, t);
-    if(check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
   }
 
   PrintFinalStats(cvode_mem);
@@ -717,9 +741,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
     /* jok = SUNTRUE: Copy Jbd to P */
 
-    for (jy=0; jy < MY; jy++)
-      for (jx=0; jx < MX; jx++)
+    for (jy = 0; jy < MY; jy++) {
+      for (jx = 0; jx < MX; jx++) {
         SUNDlsMat_denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+      }
+    }
 
     *jcurPtr = SUNFALSE;
 
@@ -763,9 +789,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
   /* Scale by -gamma */
 
-  for (jy=0; jy < MY; jy++)
-    for (jx=0; jx < MX; jx++)
+  for (jy = 0; jy < MY; jy++) {
+    for (jx = 0; jx < MX; jx++) {
       SUNDlsMat_denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+    }
+  }
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
@@ -773,7 +801,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
     for (jy=0; jy < MY; jy++) {
       SUNDlsMat_denseAddIdentity(P[jx][jy], NUM_SPECIES);
       retval = SUNDlsMat_denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
-      if (retval != 0) return(1);
+      if (retval != 0) {
+        return (1);
+      }
     }
   }
 

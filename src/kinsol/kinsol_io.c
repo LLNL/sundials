@@ -264,7 +264,9 @@ int KINSetMAA(void *kinmem, long int maa)
     return(KIN_ILL_INPUT);
   }
 
-  if (maa > kin_mem->kin_mxiter) maa = kin_mem->kin_mxiter;
+  if (maa > kin_mem->kin_mxiter) {
+    maa = kin_mem->kin_mxiter;
+  }
 
   kin_mem->kin_m_aa = maa;
 
@@ -410,10 +412,11 @@ int KINSetNumMaxIters(void *kinmem, long int mxiter)
     return(KIN_ILL_INPUT);
   }
 
-  if (mxiter == 0)
+  if (mxiter == 0) {
     kin_mem->kin_mxiter = MXITER_DEFAULT;
-  else
+  } else {
     kin_mem->kin_mxiter = mxiter;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -482,10 +485,11 @@ int KINSetMaxSetupCalls(void *kinmem, long int msbset)
     return(KIN_ILL_INPUT);
   }
 
-  if (msbset == 0)
+  if (msbset == 0) {
     kin_mem->kin_msbset = MSBSET_DEFAULT;
-  else
+  } else {
     kin_mem->kin_msbset = msbset;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -512,10 +516,11 @@ int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub)
     return(KIN_ILL_INPUT);
   }
 
-  if (msbsetsub == 0)
+  if (msbsetsub == 0) {
     kin_mem->kin_msbset_sub = MSBSET_SUB_DEFAULT;
-  else
+  } else {
     kin_mem->kin_msbset_sub = msbsetsub;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -571,10 +576,11 @@ int KINSetEtaConstValue(void *kinmem, realtype eta)
     return(KIN_ILL_INPUT);
   }
 
-  if (eta == ZERO)
+  if (eta == ZERO) {
     kin_mem->kin_eta = POINT1;
-  else
+  } else {
     kin_mem->kin_eta = eta;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -596,27 +602,31 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
 
   kin_mem = (KINMem) kinmem;
 
-  if ((ealpha <= ONE) || (ealpha > TWO))
+  if ((ealpha <= ONE) || (ealpha > TWO)) {
     if (ealpha != ZERO) {
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaParams", MSG_BAD_ALPHA);
       return(KIN_ILL_INPUT);
     }
+  }
 
-  if (ealpha == ZERO)
+  if (ealpha == ZERO) {
     kin_mem->kin_eta_alpha = TWO;
-  else
+  } else {
     kin_mem->kin_eta_alpha = ealpha;
+  }
 
-  if ((egamma <= ZERO) || (egamma > ONE))
+  if ((egamma <= ZERO) || (egamma > ONE)) {
     if (egamma != ZERO) {
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaParams", MSG_BAD_GAMMA);
       return(KIN_ILL_INPUT);
     }
+  }
 
-  if (egamma == ZERO)
+  if (egamma == ZERO) {
     kin_mem->kin_eta_gamma = POINT9;
-  else
+  } else {
     kin_mem->kin_eta_gamma = egamma;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -645,10 +655,11 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
     return(KIN_ILL_INPUT);
   }
 
-  if (omegamin == ZERO)
+  if (omegamin == ZERO) {
     kin_mem->kin_omega_min = OMEGA_MIN;
-  else
+  } else {
     kin_mem->kin_omega_min = omegamin;
+  }
 
   /* check omegamax */
 
@@ -662,17 +673,18 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
     if (kin_mem->kin_omega_min > OMEGA_MAX) {
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
       return(KIN_ILL_INPUT);
+    } else {
+      kin_mem->kin_omega_max = OMEGA_MAX;
     }
-    else kin_mem->kin_omega_max = OMEGA_MAX;
 
   } else {
 
     if (kin_mem->kin_omega_min > omegamax) {
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
       return(KIN_ILL_INPUT);
+    } else {
+      kin_mem->kin_omega_max = omegamax;
     }
-    else kin_mem->kin_omega_max = omegamax;
-
   }
 
   return(KIN_SUCCESS);
@@ -781,10 +793,11 @@ int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
     return(KIN_ILL_INPUT);
   }
 
-  if (mxnbcf == 0)
+  if (mxnbcf == 0) {
     kin_mem->kin_mxnbcf = MXNBCF_DEFAULT;
-  else
+  } else {
     kin_mem->kin_mxnbcf = mxnbcf;
+  }
 
   return(KIN_SUCCESS);
 

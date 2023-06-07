@@ -165,13 +165,19 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate and initialize u, and set problem data and tolerances */
   u = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   data = (UserData) malloc(sizeof *data);
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
   InitUserData(data);
   SetInitialProfiles(u, data->dx, data->dy);
   abstol = ATOL;
@@ -180,36 +186,50 @@ int main()
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Set the pointer to user-defined data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR
    * with left preconditioning and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* Call CVodeSetLinearSolver to attach the linear sovler to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* Call CVBandPreInit to initialize band preconditioner */
   ml = mu = 2;
   retval = CVBandPrecInit(cvode_mem, NEQ, mu, ml);
-  if(check_retval(&retval, "CVBandPrecInit", 0)) return(1);
+  if (check_retval(&retval, "CVBandPrecInit", 0)) {
+    return (1);
+  }
 
   PrintIntro(mu, ml);
 
@@ -224,13 +244,19 @@ int main()
       SetInitialProfiles(u, data->dx, data->dy);
 
       retval = CVodeReInit(cvode_mem, T0, u);
-      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
+      if (check_retval(&retval, "CVodeReInit", 1)) {
+        return (1);
+      }
 
       retval = SUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_RIGHT);
-      if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
+      if (check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1)) {
+        return (1);
+      }
 
       retval = CVBandPrecInit(cvode_mem, NEQ, mu, ml);
-      if(check_retval(&retval, "CVBandPrecInit", 0)) return(1);
+      if (check_retval(&retval, "CVBandPrecInit", 0)) {
+        return (1);
+      }
 
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");

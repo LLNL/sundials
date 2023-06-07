@@ -85,7 +85,9 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
@@ -95,7 +97,9 @@ int main()
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   N_VConst(RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
@@ -103,29 +107,45 @@ int main()
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) &lamda);  /* Pass lamda to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);  /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) {
+    return 1;
+  }
   LS = SUNLinSol_Dense(y, A, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
+  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) {
+    return 1;
+  }
 
   /* Linear solver interface */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
   flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Set Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) {
+    return 1;
+  }
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinear", 1)) {
+    return 1;
+  }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
@@ -143,7 +163,9 @@ int main()
   while (Tf - t > 1.0e-15) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      break;
+    }
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));          /* access/print solution */
     fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));
     if (flag >= 0) {                                         /* successful solve: update time */

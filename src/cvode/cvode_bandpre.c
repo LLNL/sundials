@@ -181,8 +181,9 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   }
 
   /* make sure P_data is free from any previous allocations */
-  if (cvls_mem->pfree)
+  if (cvls_mem->pfree) {
     cvls_mem->pfree(cv_mem);
+  }
 
   /* Point to the new P_data field in the LS memory */
   cvls_mem->P_data = pdata;
@@ -239,19 +240,25 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
-    if (flag != 0) return(-1);
+    if (flag != 0) {
+      return (-1);
+    }
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
-    if (flag != 0) return(-1);
+    if (flag != 0) {
+      return (-1);
+    }
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    if (flag != 0) return(-1);
+    if (flag != 0) {
+      return (-1);
+    }
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
@@ -449,10 +456,14 @@ static int CVBandPrecFree(CVodeMem cv_mem)
   CVLsMem cvls_mem;
   CVBandPrecData pdata;
 
-  if (cv_mem->cv_lmem == NULL) return(0);
+  if (cv_mem->cv_lmem == NULL) {
+    return (0);
+  }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
-  if (cvls_mem->P_data == NULL) return(0);
+  if (cvls_mem->P_data == NULL) {
+    return (0);
+  }
   pdata = (CVBandPrecData) cvls_mem->P_data;
 
   SUNLinSolFree(pdata->LS);
@@ -500,8 +511,9 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
-  if (cv_mem->cv_constraintsSet)
+  if (cv_mem->cv_constraintsSet) {
     cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
+  }
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
@@ -526,8 +538,15 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (cv_mem->cv_constraintsSet) {
         conj = cns_data[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       ytemp_data[j] += inc;
@@ -536,7 +555,9 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
     /* Evaluate f with incremented y. */
     retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
     pdata->nfeBP++;
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < pdata->N; j += width) {
@@ -548,15 +569,24 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
       /* Adjust sign(inc) as before. */
       if (cv_mem->cv_constraintsSet) {
         conj = cns_data[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mu);
       i2 = SUNMIN(j + pdata->ml, pdata->N - 1);
-      for (i=i1; i <= i2; i++)
-        SM_COLUMN_ELEMENT_B(col_j,i,j) = inc_inv * (ftemp_data[i] - fy_data[i]);
+      for (i = i1; i <= i2; i++) {
+        SM_COLUMN_ELEMENT_B(col_j, i, j) =
+            inc_inv * (ftemp_data[i] - fy_data[i]);
+      }
     }
   }
 

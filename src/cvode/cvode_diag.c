@@ -131,7 +131,9 @@ int CVDiag(void *cvode_mem)
     return(CVDIAG_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(cv_mem);
+  if (lfree != NULL) {
+    lfree(cv_mem);
+  }
 
   /* Set four main function fields in cv_mem */
   linit  = CVDiagInit;

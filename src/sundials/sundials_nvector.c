@@ -41,12 +41,16 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   N_Vector     v;
   N_Vector_Ops ops;
 
-  if (sunctx == NULL) return(NULL);
+  if (sunctx == NULL) {
+    return (NULL);
+  }
 
   /* create vector object */
   v = NULL;
   v = (N_Vector) malloc(sizeof *v);
-  if (v == NULL) return(NULL);
+  if (v == NULL) {
+    return (NULL);
+  }
 
   /* create vector ops structure */
   ops = NULL;
@@ -157,10 +161,14 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
 /* Free a generic N_Vector (assumes content is already empty) */
 void N_VFreeEmpty(N_Vector v)
 {
-  if (v == NULL)  return;
+  if (v == NULL) {
+    return;
+  }
 
   /* free non-NULL ops structure */
-  if (v->ops)  free(v->ops);
+  if (v->ops) {
+    free(v->ops);
+  }
   v->ops = NULL;
 
   /* free overall N_Vector object and return */
@@ -172,8 +180,12 @@ void N_VFreeEmpty(N_Vector v)
 int N_VCopyOps(N_Vector w, N_Vector v)
 {
   /* Check that ops structures exist */
-  if (w == NULL || v == NULL) return(-1);
-  if (w->ops == NULL || v->ops == NULL) return(-1);
+  if (w == NULL || v == NULL) {
+    return (-1);
+  }
+  if (w->ops == NULL || v->ops == NULL) {
+    return (-1);
+  }
 
   /* Copy ops from w to v */
 
@@ -299,11 +311,15 @@ N_Vector N_VCloneEmpty(N_Vector w)
 
 void N_VDestroy(N_Vector v)
 {
-  if (v == NULL) return;
+  if (v == NULL) {
+    return;
+  }
 
   /* if the destroy operation exists use it */
-  if (v->ops)
-    if (v->ops->nvdestroy) { v->ops->nvdestroy(v); return; }
+  if (v->ops) {
+    if (v->ops->nvdestroy) { v->ops->nvdestroy(v); return;
+    }
+  }
 
   /* if we reach this point, either ops == NULL or nvdestroy == NULL,
      try to cleanup by freeing the content, ops, and vector */
@@ -327,10 +343,11 @@ realtype *N_VGetArrayPointer(N_Vector v)
 
 realtype *N_VGetDeviceArrayPointer(N_Vector v)
 {
-  if (v->ops->nvgetdevicearraypointer)
+  if (v->ops->nvgetdevicearraypointer) {
     return((realtype *) v->ops->nvgetdevicearraypointer(v));
-  else
-    return(NULL);
+  } else {
+    return (NULL);
+  }
 }
 
 void N_VSetArrayPointer(realtype *v_data, N_Vector v)
@@ -341,10 +358,11 @@ void N_VSetArrayPointer(realtype *v_data, N_Vector v)
 
 void *N_VGetCommunicator(N_Vector v)
 {
-  if (v->ops->nvgetcommunicator)
+  if (v->ops->nvgetcommunicator) {
     return(v->ops->nvgetcommunicator(v));
-  else
-    return(NULL);
+  } else {
+    return (NULL);
+  }
 }
 
 sunindextype N_VGetLength(N_Vector v)
@@ -738,7 +756,9 @@ int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
       }
 
       ier = X[0]->ops->nvscaleaddmulti(nsum, a, X[i], YY, ZZ);
-      if (ier != 0) break;
+      if (ier != 0) {
+        break;
+      }
     }
 
     /* free array of vectors */
@@ -782,7 +802,9 @@ int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c,
       }
 
       ier = Z[0]->ops->nvlinearcombination(nsum, c, Y, Z[i]);
-      if (ier != 0) break;
+      if (ier != 0) {
+        break;
+      }
     }
 
     /* free array of vectors */
@@ -897,8 +919,9 @@ int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   int i;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
 
-  if (x->ops->nvdotprodmultilocal)
-    return((int) x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods));
+  if (x->ops->nvdotprodmultilocal) {
+    return ((int)x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods));
+  }
 
   if (x->ops->nvdotprodlocal) {
     for (i = 0; i < nvec; i++) {
@@ -914,8 +937,9 @@ int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 int N_VDotProdMultiAllReduce(int nvec, N_Vector x, realtype* sum)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  if (x->ops->nvdotprodmultiallreduce)
-    return(x->ops->nvdotprodmultiallreduce(nvec, x, sum));
+  if (x->ops->nvdotprodmultiallreduce) {
+    return (x->ops->nvdotprodmultiallreduce(nvec, x, sum));
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(-1);
 }
@@ -928,10 +952,11 @@ int N_VBufSize(N_Vector x, sunindextype *size)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  if (x->ops->nvbufsize == NULL)
+  if (x->ops->nvbufsize == NULL) {
     ier = -1;
-  else
+  } else {
     ier = x->ops->nvbufsize(x, size);
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(ier);
 }
@@ -940,10 +965,11 @@ int N_VBufPack(N_Vector x, void *buf)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  if (x->ops->nvbufpack == NULL)
+  if (x->ops->nvbufpack == NULL) {
     ier = -1;
-  else
+  } else {
     ier = x->ops->nvbufpack(x, buf);
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(ier);
 }
@@ -952,10 +978,11 @@ int N_VBufUnpack(N_Vector x, void *buf)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  if (x->ops->nvbufunpack == NULL)
+  if (x->ops->nvbufunpack == NULL) {
     ier = -1;
-  else
+  } else {
     ier = x->ops->nvbufunpack(x, buf);
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(ier);
 }
@@ -971,10 +998,14 @@ N_Vector* N_VNewVectorArray(int count)
 {
   N_Vector* vs = NULL;
 
-  if (count <= 0) return(NULL);
+  if (count <= 0) {
+    return (NULL);
+  }
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
+  if (vs == NULL) {
+    return (NULL);
+  }
 
   return(vs);
 }
@@ -984,10 +1015,14 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
   N_Vector* vs = NULL;
   int j;
 
-  if (count <= 0) return(NULL);
+  if (count <= 0) {
+    return (NULL);
+  }
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
+  if (vs == NULL) {
+    return (NULL);
+  }
 
   for (j = 0; j < count; j++) {
     vs[j] = N_VCloneEmpty(w);
@@ -1005,10 +1040,14 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   N_Vector* vs = NULL;
   int j;
 
-  if (count <= 0) return(NULL);
+  if (count <= 0) {
+    return (NULL);
+  }
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  if (vs == NULL) return(NULL);
+  if (vs == NULL) {
+    return (NULL);
+  }
 
   for (j = 0; j < count; j++) {
     vs[j] = N_VClone(w);
@@ -1025,7 +1064,9 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 {
   int j;
 
-  if (vs == NULL) return;
+  if (vs == NULL) {
+    return;
+  }
 
   for (j = 0; j < count; j++) {
     N_VDestroy(vs[j]);
@@ -1040,16 +1081,24 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 /* These function are really only for users of the Fortran interface */
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
-  if (vs==NULL)       return NULL;
-  else if (index < 0) return NULL;
-  else                return vs[index];
+  if (vs == NULL) {
+    return NULL;
+  } else if (index < 0) {
+    return NULL;
+  } else {
+    return vs[index];
+  }
 }
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
-  if (vs==NULL)       return;
-  else if (index < 0) return;
-  else                vs[index] = w;
+  if (vs == NULL) {
+    return;
+  } else if (index < 0) {
+    return;
+  } else {
+    vs[index] = w;
+  }
 }
 
 

@@ -102,8 +102,9 @@ int main(int argc, char *argv[])
     colj = SUNBandMatrix_Column(A, j);
     kstart = (j<uband) ? -j : -uband;
     kend = (j>cols-1-lband) ? cols-1-j: lband;
-    for (k=kstart; k<=kend; k++)
-      colj[k] = (realtype) rand() / (realtype) RAND_MAX;
+    for (k = kstart; k <= kend; k++) {
+      colj[k] = (realtype)rand() / (realtype)RAND_MAX;
+    }
 
     /* x entry */
     xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
@@ -210,19 +211,21 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   local_length = N_VGetLength_Serial(X);
 
   /* check vector data */
-  for(i=0; i < local_length; i++)
+  for (i = 0; i < local_length; i++) {
     failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+  }
 
   if (failure > ZERO) {
     maxerr = ZERO;
-    for(i=0; i < local_length; i++)
-      maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i]), maxerr);
+    for (i = 0; i < local_length; i++) {
+      maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]), maxerr);
+    }
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, tol);
     return(1);
+  } else {
+    return (0);
   }
-  else
-    return(0);
 }
 
 void sync_device()

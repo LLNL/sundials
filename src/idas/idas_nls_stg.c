@@ -95,8 +95,9 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if ((IDA_mem->NLSstg != NULL) && (IDA_mem->ownNLSstg))
+  if ((IDA_mem->NLSstg != NULL) && (IDA_mem->ownNLSstg)) {
     retval = SUNNonlinSolFree(IDA_mem->NLSstg);
+  }
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLSstg = NLS;
@@ -183,10 +184,11 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
   int retval;
 
   /* set the linear solver setup wrapper function */
-  if (IDA_mem->ida_lsetup)
+  if (IDA_mem->ida_lsetup) {
     retval = SUNNonlinSolSetLSetupFn(IDA_mem->NLSstg, idaNlsLSetupSensStg);
-  else
+  } else {
     retval = SUNNonlinSolSetLSetupFn(IDA_mem->NLSstg, NULL);
+  }
 
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "idaNlsInitSensStg",
@@ -195,10 +197,11 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
   }
 
   /* set the linear solver solve wrapper function */
-  if (IDA_mem->ida_lsolve)
+  if (IDA_mem->ida_lsolve) {
     retval = SUNNonlinSolSetLSolveFn(IDA_mem->NLSstg, idaNlsLSolveSensStg);
-  else
+  } else {
     retval = SUNNonlinSolSetLSolveFn(IDA_mem->NLSstg, NULL);
+  }
 
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "idaNlsInitSensStg",
@@ -245,8 +248,12 @@ static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
   IDA_mem->ida_ss = TWENTY;
   IDA_mem->ida_ssS = TWENTY;
 
-  if (retval < 0) return(IDA_LSETUP_FAIL);
-  if (retval > 0) return(IDA_LSETUP_RECVR);
+  if (retval < 0) {
+    return (IDA_LSETUP_FAIL);
+  }
+  if (retval > 0) {
+    return (IDA_LSETUP_RECVR);
+  }
 
   return(IDA_SUCCESS);
 }
@@ -268,8 +275,12 @@ static int idaNlsLSolveSensStg(N_Vector deltaStg, void* ida_mem)
                                  IDA_mem->ida_ewtS[is], IDA_mem->ida_yy,
                                  IDA_mem->ida_yp, IDA_mem->ida_delta);
 
-    if (retval < 0) return(IDA_LSOLVE_FAIL);
-    if (retval > 0) return(IDA_LSOLVE_RECVR);
+    if (retval < 0) {
+      return (IDA_LSOLVE_FAIL);
+    }
+    if (retval > 0) {
+      return (IDA_LSOLVE_RECVR);
+    }
   }
 
   return(IDA_SUCCESS);
@@ -305,8 +316,12 @@ static int idaNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg, void* ida_me
   /* increment the number of sens residual evaluations */
   IDA_mem->ida_nrSe++;
 
-  if (retval < 0) return(IDA_SRES_FAIL);
-  if (retval > 0) return(IDA_SRES_RECVR);
+  if (retval < 0) {
+    return (IDA_SRES_FAIL);
+  }
+  if (retval > 0) {
+    return (IDA_SRES_RECVR);
+  }
 
   return(IDA_SUCCESS);
 }
@@ -331,19 +346,27 @@ static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector
 
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
-  if (retval != IDA_SUCCESS) return(IDA_MEM_NULL);
+  if (retval != IDA_SUCCESS) {
+    return (IDA_MEM_NULL);
+  }
 
   /* test for convergence, first directly, then with rate estimate. */
   if (m == 0){
     IDA_mem->ida_oldnrm = delnrm;
-    if (delnrm <= IDA_mem->ida_toldel) return(SUN_NLS_SUCCESS);
+    if (delnrm <= IDA_mem->ida_toldel) {
+      return (SUN_NLS_SUCCESS);
+    }
   } else {
     rate = SUNRpowerR( delnrm/IDA_mem->ida_oldnrm, ONE/m );
-    if (rate > RATEMAX) return(SUN_NLS_CONV_RECVR);
+    if (rate > RATEMAX) {
+      return (SUN_NLS_CONV_RECVR);
+    }
     IDA_mem->ida_ssS = rate/(ONE - rate);
   }
 
-  if (IDA_mem->ida_ssS*delnrm <= tol) return(SUN_NLS_SUCCESS);
+  if (IDA_mem->ida_ssS * delnrm <= tol) {
+    return (SUN_NLS_SUCCESS);
+  }
 
   /* not yet converged */
   return(SUN_NLS_CONTINUE);

@@ -123,7 +123,9 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* User data */
 
@@ -133,19 +135,29 @@ int main()
 
   /* Create serial vectors of length NEQ */
   u1 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u1, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u1, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   u2 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u2, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u2, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   u = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   s = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)s, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)s, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   c = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)c, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   SetInitialGuess1(u1,data);
   SetInitialGuess2(u2,data);
@@ -163,31 +175,49 @@ int main()
 
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void *)kmem, "KINCreate", 0)) {
+    return (1);
+  }
 
   retval = KINSetUserData(kmem, data);
-  if (check_retval(&retval, "KINSetUserData", 1)) return(1);
+  if (check_retval(&retval, "KINSetUserData", 1)) {
+    return (1);
+  }
   retval = KINSetConstraints(kmem, c);
-  if (check_retval(&retval, "KINSetConstraints", 1)) return(1);
+  if (check_retval(&retval, "KINSetConstraints", 1)) {
+    return (1);
+  }
   retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) {
+    return (1);
+  }
   retval = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_retval(&retval, "KINSetScaledStepTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetScaledStepTol", 1)) {
+    return (1);
+  }
 
   retval = KINInit(kmem, func, u);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix */
   J = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if(check_retval((void *)J, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)J, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(u, J, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver to KINSOL */
   retval = KINSetLinearSolver(kmem, LS, J);
-  if(check_retval(&retval, "KINSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(fnormtol, scsteptol);
@@ -286,21 +316,27 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
 
   printf("\n");
 
-  if (mset==1)
+  if (mset == 1) {
     printf("Exact Newton");
-  else
+  } else {
     printf("Modified Newton");
+  }
 
-  if (glstr == KIN_NONE)
+  if (glstr == KIN_NONE) {
     printf("\n");
-  else
+  } else {
     printf(" with line search\n");
+  }
 
   retval = KINSetMaxSetupCalls(kmem, mset);
-  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) return(1);
+  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) {
+    return (1);
+  }
 
   retval = KINSol(kmem, u, glstr, s, s);
-  if (check_retval(&retval, "KINSol", 1)) return(1);
+  if (check_retval(&retval, "KINSol", 1)) {
+    return (1);
+  }
 
   printf("Solution:\n  [x1,x2] = ");
   PrintOutput(u);

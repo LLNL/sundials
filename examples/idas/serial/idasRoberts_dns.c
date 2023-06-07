@@ -114,15 +114,23 @@ int main(void)
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yy, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   yp = N_VClone(yy);
-  if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   avtol = N_VClone(yy);
-  if(check_retval((void *)avtol, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)avtol, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
   yval  = N_VGetArrayPointer(yy);
@@ -150,43 +158,63 @@ int main(void)
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
   retval = IDAInit(mem, resrob, t0, yy, yp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
   /* Call IDASVtolerances to set tolerances */
   retval = IDASVtolerances(mem, rtol, avtol);
-  if(check_retval(&retval, "IDASVtolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASVtolerances", 1)) {
+    return (1);
+  }
 
   /* Call IDARootInit to specify the root function grob with 2 components */
   retval = IDARootInit(mem, 2, grob);
-  if (check_retval(&retval, "IDARootInit", 1)) return(1);
+  if (check_retval(&retval, "IDARootInit", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine */
   retval = IDASetJacFn(mem, jacrob);
-  if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
+  if (check_retval(&retval, "IDASetJacFn", 1)) {
+    return (1);
+  }
 
   /* Create Newton SUNNonlinearSolver object. IDA uses a
    * Newton SUNNonlinearSolver by default, so it is unecessary
    * to create it and attach it. It is done in this example code
    * solely for demonstration purposes. */
   NLS = SUNNonlinSol_Newton(yy, ctx);
-  if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+  if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) {
+    return (1);
+  }
 
   /* Attach the nonlinear solver */
   retval = IDASetNonlinearSolver(mem, NLS);
-  if(check_retval(&retval, "IDASetNonlinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetNonlinearSolver", 1)) {
+    return (1);
+  }
 
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
@@ -198,7 +226,9 @@ int main(void)
 
     PrintOutput(mem,tret,yy);
 
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (1);
+    }
 
     if (retval == IDA_ROOT_RETURN) {
       retvalr = IDAGetRootInfo(mem, rootsfound);
@@ -211,7 +241,9 @@ int main(void)
       tout *= RCONST(10.0);
     }
 
-    if (iout == NOUT) break;
+    if (iout == NOUT) {
+      break;
+    }
   }
 
   /* Print final statistics to the screen */

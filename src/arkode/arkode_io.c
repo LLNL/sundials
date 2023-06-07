@@ -280,20 +280,24 @@ int arkSetUserData(void *arkode_mem, void *user_data)
   ark_mem->user_data = user_data;
 
   /* Set data for efun */
-  if (ark_mem->user_efun)
+  if (ark_mem->user_efun) {
     ark_mem->e_data = user_data;
+  }
 
   /* Set data for rfun */
-  if (ark_mem->user_rfun)
+  if (ark_mem->user_rfun) {
     ark_mem->r_data = user_data;
+  }
 
   /* Set data for root finding */
-  if (ark_mem->root_mem != NULL)
+  if (ark_mem->root_mem != NULL) {
     ark_mem->root_mem->root_data = user_data;
+  }
 
   /* Set data for post-processing a step */
-  if (ark_mem->ProcessStep != NULL)
+  if (ark_mem->ProcessStep != NULL) {
     ark_mem->ps_data = user_data;
+  }
 
   return(ARK_SUCCESS);
 }
@@ -341,10 +345,11 @@ int arkSetMaxNumSteps(void *arkode_mem, long int mxsteps)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Passing mxsteps=0 sets the default. Passing mxsteps<0 disables the test. */
-  if (mxsteps == 0)
+  if (mxsteps == 0) {
     ark_mem->mxstep = MXSTEP_DEFAULT;
-  else
+  } else {
     ark_mem->mxstep = mxsteps;
+  }
 
   return(ARK_SUCCESS);
 }
@@ -566,11 +571,14 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
 
   /* re-attach internal error weight functions if necessary */
   if ((hfixed == ZERO) && (!ark_mem->user_efun)) {
-    if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL)
+    if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL) {
       retval = arkSVtolerances(ark_mem, ark_mem->reltol, ark_mem->Vabstol);
-    else
+    } else {
       retval = arkSStolerances(ark_mem, ark_mem->reltol, ark_mem->Sabstol);
-    if (retval != ARK_SUCCESS) return(retval);
+    }
+    if (retval != ARK_SUCCESS) {
+      return (retval);
+    }
   }
 
   /* set ark_mem entry */
@@ -615,8 +623,9 @@ int arkSetRootDirection(void *arkode_mem, int *rootdir)
                     "arkSetRootDirection", MSG_ARK_NO_ROOT);
     return(ARK_ILL_INPUT);
   }
-  for(i=0; i<ark_root_mem->nrtfn; i++)
+  for (i = 0; i < ark_root_mem->nrtfn; i++) {
     ark_root_mem->rootdir[i] = rootdir[i];
+  }
   return(ARK_SUCCESS);
 }
 
@@ -757,8 +766,9 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
   }
 
   /* Allocate the internal constrains vector (if necessary) */
-  if (!arkAllocVec(ark_mem, constraints, &ark_mem->constraints))
-    return(ARK_MEM_FAIL);
+  if (!arkAllocVec(ark_mem, constraints, &ark_mem->constraints)) {
+    return (ARK_MEM_FAIL);
+  }
 
   /* Load the constraints vector */
   N_VScale(ONE, constraints, ark_mem->constraints);
@@ -785,10 +795,11 @@ int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Passing maxfails = 0 sets the default, otherwise set to input */
-  if (maxfails <= 0)
+  if (maxfails <= 0) {
     ark_mem->maxconstrfails = MAXCONSTRFAILS;
-  else
+  } else {
     ark_mem->maxconstrfails = maxfails;
+  }
 
   return(ARK_SUCCESS);
 }
@@ -809,7 +820,9 @@ int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetCFLFraction",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* check for allowable parameters */
   if (cfl_frac >= ONE) {
@@ -844,7 +857,9 @@ int arkSetSafetyFactor(void *arkode_mem, realtype safety)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetSafetyFactor",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* check for allowable parameters */
   if (safety >= ONE) {
@@ -878,7 +893,9 @@ int arkSetErrorBias(void *arkode_mem, realtype bias)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetErrorBias",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* set allowed value, otherwise set default */
   if (bias < ONE) {
@@ -906,7 +923,9 @@ int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxGrowth",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* set allowed value, otherwise set default */
   if (mx_growth <= ONE) {
@@ -934,7 +953,9 @@ int arkSetMinReduction(void *arkode_mem, realtype eta_min)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetMinReduction",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* set allowed value, otherwise set default */
   if (eta_min >= ONE || eta_min <= ZERO) {
@@ -961,7 +982,9 @@ int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetFixedStepBounds",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* set allowable interval, otherwise set defaults */
   if ((lb <= ONE) && (ub >= ONE)) {
@@ -991,7 +1014,9 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetAdaptivityMethod",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* check for allowable parameters */
   if ((imethod > ARK_ADAPT_IMEX_GUS) || (imethod < ARK_ADAPT_PID)) {
@@ -1051,7 +1076,9 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetAdaptivityFn",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* NULL hfun sets default, otherwise set inputs */
   if (hfun == NULL) {
@@ -1082,7 +1109,9 @@ int arkSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxFirstGrowth",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* if argument legal set it, otherwise set default */
   if (etamx1 <= ONE) {
@@ -1109,7 +1138,9 @@ int arkSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxEFailGrowth",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* if argument legal set it, otherwise set default */
   if ((etamxf <= ZERO) || (etamxf > ONE)) {
@@ -1136,7 +1167,9 @@ int arkSetSmallNumEFails(void *arkode_mem, int small_nef)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetSmallNumEFails",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* if argument legal set it, otherwise set default */
   if (small_nef <= 0) {
@@ -1163,7 +1196,9 @@ int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxCFailGrowth",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* if argument legal set it, otherwise set default */
   if ((etacf <= ZERO) || (etacf > ONE)) {
@@ -1190,7 +1225,9 @@ int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data)
   ARKodeMem ark_mem;
   retval = arkAccessHAdaptMem(arkode_mem, "arkSetStabilityFn",
                               &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* NULL argument sets default, otherwise set inputs */
   if (EStab == NULL) {
@@ -1534,8 +1571,9 @@ int arkGetRootInfo(void *arkode_mem, int *rootsfound)
     return(ARK_MEM_NULL);
   }
   ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
-  for (i=0; i<ark_root_mem->nrtfn; i++)
+  for (i = 0; i < ark_root_mem->nrtfn; i++) {
     rootsfound[i] = ark_root_mem->iroots[i];
+  }
   return(ARK_SUCCESS);
 }
 
@@ -1901,12 +1939,15 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "ARKODE solver parameters:\n");
-  if (ark_mem->hmin != ZERO)
-    fprintf(fp, "  Minimum step size = %" RSYM"\n",ark_mem->hmin);
-  if (ark_mem->hmax_inv != ZERO)
-    fprintf(fp, "  Maximum step size = %" RSYM"\n",ONE/ark_mem->hmax_inv);
-  if (ark_mem->fixedstep)
+  if (ark_mem->hmin != ZERO) {
+    fprintf(fp, "  Minimum step size = %" RSYM "\n", ark_mem->hmin);
+  }
+  if (ark_mem->hmax_inv != ZERO) {
+    fprintf(fp, "  Maximum step size = %" RSYM "\n", ONE / ark_mem->hmax_inv);
+  }
+  if (ark_mem->fixedstep) {
     fprintf(fp, "  Fixed time-stepping enabled\n");
+  }
   if (ark_mem->itol == ARK_WF) {
     fprintf(fp, "  User provided error weight function\n");
   } else {
@@ -1928,8 +1969,9 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
       }
     }
   }
-  if (ark_mem->hin != ZERO)
-    fprintf(fp, "  Initial step size = %" RSYM"\n",ark_mem->hin);
+  if (ark_mem->hin != ZERO) {
+    fprintf(fp, "  Initial step size = %" RSYM "\n", ark_mem->hin);
+  }
   fprintf(fp, "\n");
   fprintf(fp, "  Maximum step increase (first step) = %"RSYM"\n",
           ark_mem->hadapt_mem->etamx1);

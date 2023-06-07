@@ -51,19 +51,22 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
   int retval;
 
   /* Check that the supplied N_Vector is non-NULL */
-  if (y == NULL) return(NULL);
+  if (y == NULL) {
+    return (NULL);
+  }
 
   /* Check that the supplied N_Vector supports all required operations */
-  if ( (y->ops->nvclone     == NULL) ||
-       (y->ops->nvdestroy   == NULL) ||
-       (y->ops->nvscale     == NULL) ||
-       (y->ops->nvlinearsum == NULL) ||
-       (y->ops->nvdotprod   == NULL) )
-    return(NULL);
+  if ((y->ops->nvclone == NULL) || (y->ops->nvdestroy == NULL) ||
+      (y->ops->nvscale == NULL) || (y->ops->nvlinearsum == NULL) ||
+      (y->ops->nvdotprod == NULL)) {
+    return (NULL);
+  }
 
   /* Create nonlinear linear solver */
   NLS = SUNNonlinSolNewEmpty(sunctx);
-  if (NLS == NULL) return(NULL);
+  if (NLS == NULL) {
+    return (NULL);
+  }
 
   /* Attach operations */
   NLS->ops->gettype         = SUNNonlinSolGetType_FixedPoint;
@@ -150,11 +153,14 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS)
 int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that all required function pointers have been set */
-  if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
-    return(SUN_NLS_MEM_NULL);
+  if ((FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL)) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* reset the total number of iterations and convergence failures */
   FP_CONTENT(NLS)->niters     = 0;
@@ -190,20 +196,20 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   N_Vector yprev, gy, delta;
 
   /* check that the inputs are non-null */
-  if ( (NLS  == NULL) ||
-       (y0   == NULL) ||
-       (ycor == NULL) ||
-       (w    == NULL) ||
-       (mem  == NULL) )
-    return(SUN_NLS_MEM_NULL);
+  if ((NLS == NULL) || (y0 == NULL) || (ycor == NULL) || (w == NULL) ||
+      (mem == NULL)) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that all required function pointers have been set */
-  if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
-    return(SUN_NLS_MEM_NULL);
+  if ((FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL)) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that all required function pointers have been set */
-  if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
-    return(SUN_NLS_MEM_NULL);
+  if ((FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL)) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* set local shortcut variables */
   yprev = FP_CONTENT(NLS)->yprev;
@@ -241,7 +247,9 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 
     /* compute fixed-point iteration function, store in gy */
     retval = FP_CONTENT(NLS)->Sys(ycor, gy, mem);
-    if (retval != SUN_NLS_SUCCESS) break;
+    if (retval != SUN_NLS_SUCCESS) {
+      break;
+    }
 
     /* perform fixed point update, based on choice of acceleration or not */
     if (FP_CONTENT(NLS)->m == 0) {    /* basic fixed-point solver */
@@ -276,7 +284,9 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 #endif
 
     /* return if successful */
-    if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
+    if (retval == SUN_NLS_SUCCESS) {
+      return (SUN_NLS_SUCCESS);
+    }
 
     /* check if the iterations should continue; otherwise increment the
        convergence failure count and return error flag */
@@ -297,7 +307,9 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
-  if (NLS == NULL)  return(SUN_NLS_SUCCESS);
+  if (NLS == NULL) {
+    return (SUN_NLS_SUCCESS);
+  }
 
   /* free items from content structure, then the structure itself */
   if (NLS->content) {
@@ -326,12 +338,14 @@ int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
 int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that the nonlinear system function is non-null */
-  if (SysFn == NULL)
-    return(SUN_NLS_ILL_INPUT);
+  if (SysFn == NULL) {
+    return (SUN_NLS_ILL_INPUT);
+  }
 
   FP_CONTENT(NLS)->Sys = SysFn;
   return(SUN_NLS_SUCCESS);
@@ -342,12 +356,14 @@ int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
                                          void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that the convergence test function is non-null */
-  if (CTestFn == NULL)
-    return(SUN_NLS_ILL_INPUT);
+  if (CTestFn == NULL) {
+    return (SUN_NLS_ILL_INPUT);
+  }
 
   FP_CONTENT(NLS)->CTest = CTestFn;
 
@@ -360,12 +376,14 @@ int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
 int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS, int maxiters)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that maxiters is a vaild */
-  if (maxiters < 1)
-    return(SUN_NLS_ILL_INPUT);
+  if (maxiters < 1) {
+    return (SUN_NLS_ILL_INPUT);
+  }
 
   FP_CONTENT(NLS)->maxiters = maxiters;
   return(SUN_NLS_SUCCESS);
@@ -374,12 +392,14 @@ int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS, int maxiters)
 int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check that beta is a vaild */
-  if (beta <= ZERO)
-    return(SUN_NLS_ILL_INPUT);
+  if (beta <= ZERO) {
+    return (SUN_NLS_ILL_INPUT);
+  }
 
   if (beta < ONE) {
     /* enable damping */
@@ -402,8 +422,9 @@ int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
 int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS, long int *niters)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* return number of nonlinear iterations in the last solve */
   *niters = FP_CONTENT(NLS)->niters;
@@ -414,8 +435,9 @@ int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS, long int *niters)
 int SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS, int *iter)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* return the current nonlinear solver iteration count */
   *iter = FP_CONTENT(NLS)->curiter;
@@ -426,8 +448,9 @@ int SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS, int *iter)
 int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS, long int *nconvfails)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* return the total number of nonlinear convergence failures */
   *nconvfails = FP_CONTENT(NLS)->nconvfails;
@@ -438,8 +461,9 @@ int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS, long int *nco
 int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* return the nonlinear system defining function */
   *SysFn = FP_CONTENT(NLS)->Sys;
@@ -491,7 +515,9 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   beta    = FP_CONTENT(NLS)->beta;
 
   /* reset ipt_map, i_pt */
-  for (i = 0; i < maa; i++)  ipt_map[i]=0;
+  for (i = 0; i < maa; i++) {
+    ipt_map[i] = 0;
+  }
   i_pt = iter-1 - ((iter-1)/maa)*maa;
 
   /* update dg[i_pt], df[i_pt], fv, gold and fold*/
@@ -559,9 +585,11 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     }
 
     /* ahift R to the left by one */
-    for (i = 1; i < maa; i++)
-      for (j = 0; j < maa-1; j++)
-        R[(i-1)*maa + j] = R[i*maa + j];
+    for (i = 1; i < maa; i++) {
+      for (j = 0; j < maa - 1; j++) {
+        R[(i - 1) * maa + j] = R[i * maa + j];
+      }
+    }
 
     /* add the new df vector */
     N_VScale(ONE, df[i_pt], vtemp);
@@ -574,25 +602,32 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
 
     /* update the iteration map */
     j = 0;
-    for (i = i_pt+1; i < maa; i++)
+    for (i = i_pt + 1; i < maa; i++) {
       ipt_map[j++] = i;
-    for (i = 0; i < i_pt+1; i++)
+    }
+    for (i = 0; i < i_pt + 1; i++) {
       ipt_map[j++] = i;
+    }
   }
 
   /* solve least squares problem and update solution */
   lAA = iter;
-  if (maa < iter)  lAA = maa;
+  if (maa < iter) {
+    lAA = maa;
+  }
   retval = N_VDotProdMulti(lAA, fv, Q, gamma);
-  if (retval != 0)  return(SUN_NLS_VECTOROP_ERR);
+  if (retval != 0) {
+    return (SUN_NLS_VECTOROP_ERR);
+  }
 
   /* set arrays for fused vector operation */
   cvals[0] = ONE;
   Xvecs[0] = gval;
   nvec = 1;
   for (i = lAA-1; i > -1; i--) {
-    for (j = i+1; j < lAA; j++)
-      gamma[i] -= R[j*maa+i]*gamma[j];
+    for (j = i + 1; j < lAA; j++) {
+      gamma[i] -= R[j * maa + i] * gamma[j];
+    }
     if (gamma[i] == ZERO) {
       gamma[i] = ZERO;
     } else {
@@ -618,7 +653,9 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
 
   /* update solution */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, x);
-  if (retval != 0)  return(SUN_NLS_VECTOROP_ERR);
+  if (retval != 0) {
+    return (SUN_NLS_VECTOROP_ERR);
+  }
 
   return(SUN_NLS_SUCCESS);
 }
@@ -744,8 +781,9 @@ int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS,
                                        FILE* info_file)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   FP_CONTENT(NLS)->info_file = info_file;
 
@@ -756,12 +794,14 @@ int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS,
                                          int print_level)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) {
+    return (SUN_NLS_MEM_NULL);
+  }
 
   /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUN_NLS_ILL_INPUT);
+  if (print_level < 0 || print_level > 1) {
+    return (SUN_NLS_ILL_INPUT);
+  }
 
   FP_CONTENT(NLS)->print_level = print_level;
 

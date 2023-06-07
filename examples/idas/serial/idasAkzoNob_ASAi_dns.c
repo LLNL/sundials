@@ -112,7 +112,9 @@ int main()
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Allocate user data. */
   data = (UserData) malloc(sizeof(*data));
@@ -130,9 +132,13 @@ int main()
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yy, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   yp = N_VClone(yy);
-  if (check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Set IC */
   Ith(yy,1) = y01;
@@ -152,64 +158,93 @@ int main()
 
  /* Create and initialize q0 for quadratures. */
   q = N_VNew_Serial(1, ctx);
-  if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)q, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(q,1) = ZERO;
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDAInit(mem, res, T0, yy, yp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
-
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   /* Set tolerances. */
   retval = IDASStolerances(mem, RTOL, ATOL);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   /* Attach user data. */
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Initialize QUADRATURE(S). */
   retval = IDAQuadInit(mem, rhsQ, q);
-  if (check_retval(&retval, "IDAQuadInit", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadInit", 1)) {
+    return (1);
+  }
 
   /* Set tolerances and error control for quadratures. */
   retval = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  if (check_retval(&retval, "IDAQuadSStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadSStolerances", 1)) {
+    return (1);
+  }
 
   retval = IDASetQuadErrCon(mem, SUNTRUE);
-  if (check_retval(&retval, "IDASetQuadErrCon", 1)) return(1);
+  if (check_retval(&retval, "IDASetQuadErrCon", 1)) {
+    return (1);
+  }
 
   /* Prepare ADJOINT. */
   retval = IDAAdjInit(mem, STEPS, IDA_HERMITE);
-  if (check_retval(&retval, "IDAAdjInit", 1)) return(1);
+  if (check_retval(&retval, "IDAAdjInit", 1)) {
+    return (1);
+  }
 
   /* FORWARD run. */
   printf("Forward integration ... ");
   retval = IDASolveF(mem, TF, &time, yy, yp, IDA_NORMAL, &ncheck);
-  if (check_retval(&retval, "IDASolveF", 1)) return(1);
+  if (check_retval(&retval, "IDASolveF", 1)) {
+    return (1);
+  }
 
   retval = IDAGetNumSteps(mem, &nst);
-  if (check_retval(&retval, "IDAGetNumSteps", 1)) return(1);
+  if (check_retval(&retval, "IDAGetNumSteps", 1)) {
+    return (1);
+  }
 
   printf("done ( nst = %ld )\n",nst);
 
   retval = IDAGetQuad(mem, &time, q);
-  if (check_retval(&retval, "IDAGetQuad", 1)) return(1);
+  if (check_retval(&retval, "IDAGetQuad", 1)) {
+    return (1);
+  }
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("G:          %24.16Lf \n",Ith(q,1));
@@ -223,50 +258,72 @@ int main()
 
   /* Initialize yB */
   yB = N_VClone(yy);
-  if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   N_VConst(ZERO, yB);
 
   ypB = N_VClone(yB);
-  if (check_retval((void *)ypB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)ypB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   N_VConst(ZERO, ypB);
   Ith(ypB,1) = - ONE;
 
   retval = IDACreateB(mem, &indexB);
-  if (check_retval(&retval, "IDACreateB", 1)) return(1);
+  if (check_retval(&retval, "IDACreateB", 1)) {
+    return (1);
+  }
 
   retval = IDAInitB(mem, indexB, resB, TF, yB, ypB);
-  if (check_retval(&retval, "IDAInitB", 1)) return(1);
+  if (check_retval(&retval, "IDAInitB", 1)) {
+    return (1);
+  }
 
   retval = IDASStolerancesB(mem, indexB, RTOLB, ATOLB);
-  if (check_retval(&retval, "IDASStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerancesB", 1)) {
+    return (1);
+  }
 
   retval = IDASetUserDataB(mem, indexB, data);
-  if (check_retval(&retval, "IDASetUserDataB", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserDataB", 1)) {
+    return (1);
+  }
 
   retval = IDASetMaxNumStepsB(mem, indexB, 1000);
 
   /* Create dense SUNMatrix for use in linear solves */
   AB = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)AB, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)AB, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LSB = SUNLinSol_Dense(yB, AB, ctx);
-  if(check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LSB, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolverB(mem, indexB, LSB, AB);
-  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolverB", 1)) {
+    return (1);
+  }
 
   printf("Backward integration ... ");
 
   retval = IDASolveB(mem, T0, IDA_NORMAL);
-  if (check_retval(&retval, "IDASolveB", 1)) return(1);
+  if (check_retval(&retval, "IDASolveB", 1)) {
+    return (1);
+  }
 
   IDAGetNumSteps(IDAGetAdjIDABmem(mem, indexB), &nstB);
   printf("done ( nst = %ld )\n", nstB);
 
   retval = IDAGetB(mem, indexB, &time, yB, ypB);
-  if (check_retval(&retval, "IDAGetB", 1)) return(1);
+  if (check_retval(&retval, "IDAGetB", 1)) {
+    return (1);
+  }
 
   PrintOutput(time, yB, ypB);
 

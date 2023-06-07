@@ -54,14 +54,20 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 
   prod = RCONST(1.0);
   expt = abs(exponent);
-  for(i = 1; i <= expt; i++) prod *= base;
-  if (exponent < 0) prod = RCONST(1.0)/prod;
+  for (i = 1; i <= expt; i++) {
+    prod *= base;
+  }
+  if (exponent < 0) {
+    prod = RCONST(1.0) / prod;
+  }
   return(prod);
 }
 
 sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
-  if (base <= RCONST(0.0)) return(RCONST(0.0));
+  if (base <= RCONST(0.0)) {
+    return (RCONST(0.0));
+  }
 
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -89,13 +95,19 @@ booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   /* If a and b are exactly equal.
    * This also covers the case where a and b are both inf under IEEE 754.
    */
-  if (a == b) return(SUNFALSE);
+  if (a == b) {
+    return (SUNFALSE);
+  }
 
   /* If a or b are NaN */
-  if (sunIsNaN(a) || sunIsNaN(b)) return(SUNTRUE);
+  if (sunIsNaN(a) || sunIsNaN(b)) {
+    return (SUNTRUE);
+  }
 
   /* If one of a or b are Inf (since we handled both being inf above) */
-  if (sunIsInf(a) || sunIsInf(b)) return(SUNTRUE);
+  if (sunIsInf(a) || sunIsInf(b)) {
+    return (SUNTRUE);
+  }
 
   diff = SUNRabs(a - b);
   norm = SUNMIN(SUNRabs(a + b), BIG_REAL);

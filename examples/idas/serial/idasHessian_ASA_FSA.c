@@ -163,7 +163,9 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, ypS[0]); N_VConst(ZERO, ypS[1]);
 
   qS = N_VCloneVectorArray(NP, q);
-  for(is=0; is<NP; is++) N_VConst(ZERO, qS[is]);
+  for (is = 0; is < NP; is++) {
+    N_VConst(ZERO, qS[is]);
+  }
 
   ida_mem = IDACreate(ctx);
 
@@ -175,15 +177,21 @@ int main(int argc, char *argv[])
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   retval = IDASetUserData(ida_mem, data);
   retval = IDASetMaxNumSteps(ida_mem, 1500);
@@ -261,15 +269,21 @@ int main(int argc, char *argv[])
 
   /* Create dense SUNMatrix for use in linear solves */
   AB1 = SUNDenseMatrix(2*NEQ, 2*NEQ, ctx);
-  if(check_retval((void *)AB1, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)AB1, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LSB1 = SUNLinSol_Dense(yyB1, AB1, ctx);
-  if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
-  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolverB", 1)) {
+    return (1);
+  }
 
   retval = IDAQuadInitBS(ida_mem, indexB1, rhsQBS1, qB1);
 
@@ -302,15 +316,21 @@ int main(int argc, char *argv[])
 
   /* Create dense SUNMatrix for use in linear solves */
   AB2 = SUNDenseMatrix(2*NEQ, 2*NEQ, ctx);
-  if(check_retval((void *)AB2, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)AB2, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LSB2 = SUNLinSol_Dense(yyB2, AB2, ctx);
-  if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
-  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolverB", 1)) {
+    return (1);
+  }
 
   retval = IDAQuadInitBS(ida_mem, indexB2, rhsQBS2, qB2);
 
@@ -398,15 +418,21 @@ int main(int argc, char *argv[])
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   retval = IDASetUserData(ida_mem, data);
   retval = IDASetMaxNumSteps(ida_mem, 10000);

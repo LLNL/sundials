@@ -183,7 +183,9 @@ int main(int argc, char *argv[])
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
 
   /* Initialize sensitivity variables (reaction rates for this problem) */
   data->p[0] = RCONST(0.04);
@@ -192,11 +194,15 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Initialize y */
   Ith(y,1) = Y1;
@@ -206,38 +212,54 @@ int main(int argc, char *argv[])
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
    * the multiplicative error weights w_i for use in the weighted RMS norm */
   retval = CVodeWFtolerances(cvode_mem, ewt);
-  if (check_retval(&retval, "CVodeWFtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeWFtolerances", 1)) {
+    return (1);
+  }
 
   /* Attach user data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+    return (1);
+  }
 
   printf(" \n3-species kinetics problem\n");
 
@@ -251,41 +273,58 @@ int main(int argc, char *argv[])
 
     /* Set sensitivity initial conditions */
     yS = N_VCloneVectorArray(NS, y);
-    if (check_retval((void *)yS, "N_VCloneVectorArray", 0)) return(1);
-    for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
+    if (check_retval((void *)yS, "N_VCloneVectorArray", 0)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      N_VConst(ZERO, yS[is]);
+    }
 
     /* Call CVodeSensInit1 to activate forward sensitivity computations
      * and allocate internal memory for COVEDS related to sensitivity
      * calculations. Computes the right-hand sides of the sensitivity
      * ODE, one at a time */
     retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, fS, yS);
-    if(check_retval(&retval, "CVodeSensInit", 1)) return(1);
+    if (check_retval(&retval, "CVodeSensInit", 1)) {
+      return (1);
+    }
 
     /* Call CVodeSensEEtolerances to estimate tolerances for sensitivity
      * variables based on the rolerances supplied for states variables and
      * the scaling factor pbar */
     retval = CVodeSensEEtolerances(cvode_mem);
-    if(check_retval(&retval, "CVodeSensEEtolerances", 1)) return(1);
+    if (check_retval(&retval, "CVodeSensEEtolerances", 1)) {
+      return (1);
+    }
 
     /* Set sensitivity analysis optional inputs */
     /* Call CVodeSetSensErrCon to specify the error control strategy for
      * sensitivity variables */
     retval = CVodeSetSensErrCon(cvode_mem, err_con);
-    if (check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensErrCon", 1)) {
+      return (1);
+    }
 
     /* Call CVodeSetSensParams to specify problem parameter information for
      * sensitivity calculations */
     retval = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
-    if (check_retval(&retval, "CVodeSetSensParams", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensParams", 1)) {
+      return (1);
+    }
 
     printf("Sensitivity: YES ");
-    if(sensi_meth == CV_SIMULTANEOUS)
+    if (sensi_meth == CV_SIMULTANEOUS) {
       printf("( SIMULTANEOUS +");
-    else
-      if(sensi_meth == CV_STAGGERED) printf("( STAGGERED +");
-      else                           printf("( STAGGERED1 +");
-    if(err_con) printf(" FULL ERROR CONTROL )");
-    else        printf(" PARTIAL ERROR CONTROL )");
+    } else if (sensi_meth == CV_STAGGERED) {
+      printf("( STAGGERED +");
+    } else {
+      printf("( STAGGERED1 +");
+    }
+    if (err_con) {
+      printf(" FULL ERROR CONTROL )");
+    } else {
+      printf(" PARTIAL ERROR CONTROL )");
+    }
 
   } else {
 
@@ -307,7 +346,9 @@ int main(int argc, char *argv[])
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
 
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
 
     PrintOutput(cvode_mem, t, y);
 
@@ -315,7 +356,9 @@ int main(int argc, char *argv[])
      * successful return from CVode */
     if (sensi) {
       retval = CVodeGetSens(cvode_mem, &t, yS);
-      if (check_retval(&retval, "CVodeGetSens", 1)) break;
+      if (check_retval(&retval, "CVodeGetSens", 1)) {
+        break;
+      }
       PrintOutputS(yS);
     }
     printf("-----------------------------------------");
@@ -331,17 +374,18 @@ int main(int argc, char *argv[])
   strcpy(fname, "cvsRoberts_FSA_dns_stats");
   if (sensi)
   {
-    if(sensi_meth == CV_SIMULTANEOUS)
+    if (sensi_meth == CV_SIMULTANEOUS) {
       strcat(fname, "_-sensi_sim");
-    else
-      if(sensi_meth == CV_STAGGERED)
-        strcat(fname, "_-sensi_stg");
-      else
-        strcat(fname, "_-sensi_stg1");
-    if(err_con)
+    } else if (sensi_meth == CV_STAGGERED) {
+      strcat(fname, "_-sensi_stg");
+    } else {
+      strcat(fname, "_-sensi_stg1");
+    }
+    if (err_con) {
       strcat(fname, "_t");
-    else
+    } else {
       strcat(fname, "_f");
+    }
   }
   strcat(fname, ".csv");
   FID = fopen(fname, "w");
@@ -350,7 +394,9 @@ int main(int argc, char *argv[])
 
   /* Free memory */
   N_VDestroy(y);                            /* Free y vector */
-  if (sensi) N_VDestroyVectorArray(yS, NS); /* Free yS vector */
+  if (sensi) {
+    N_VDestroyVectorArray(yS, NS); /* Free yS vector */
+  }
   free(data);                               /* Free user data */
   CVodeFree(&cvode_mem);                    /* Free CVODES memory */
   SUNLinSolFree(LS);                        /* Free the linear solver memory */
@@ -473,7 +519,9 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
   for (i=1; i<=3; i++) {
     yy = Ith(y,i);
     ww = rtol * ABS(yy) + atol[i-1];
-    if (ww <= 0.0) return (-1);
+    if (ww <= 0.0) {
+      return (-1);
+    }
     Ith(w,i) = 1.0/ww;
   }
 
@@ -497,35 +545,41 @@ static void ProcessArgs(int argc, char *argv[],
   *sensi_meth = -1;
   *err_con = SUNFALSE;
 
-  if (argc < 2) WrongArgs(argv[0]);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = SUNFALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = SUNTRUE;
-  else
+  if (argc < 2) {
     WrongArgs(argv[0]);
+  }
+
+  if (strcmp(argv[1], "-nosensi") == 0) {
+    *sensi = SUNFALSE;
+  } else if (strcmp(argv[1], "-sensi") == 0) {
+    *sensi = SUNTRUE;
+  } else {
+    WrongArgs(argv[0]);
+  }
 
   if (*sensi) {
 
-    if (argc != 4)
+    if (argc != 4) {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[2],"sim") == 0)
+    if (strcmp(argv[2], "sim") == 0) {
       *sensi_meth = CV_SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
+    } else if (strcmp(argv[2], "stg") == 0) {
       *sensi_meth = CV_STAGGERED;
-    else if (strcmp(argv[2],"stg1") == 0)
+    } else if (strcmp(argv[2], "stg1") == 0) {
       *sensi_meth = CV_STAGGERED1;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[3],"t") == 0)
+    if (strcmp(argv[3], "t") == 0) {
       *err_con = SUNTRUE;
-    else if (strcmp(argv[3],"f") == 0)
+    } else if (strcmp(argv[3], "f") == 0) {
       *err_con = SUNFALSE;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
   }
 
 }

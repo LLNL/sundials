@@ -148,11 +148,15 @@ int main(int argc, char *argv[])
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
-  if (check_retval((void *) udata, "malloc", 2)) return 1;
+  if (check_retval((void *)udata, "malloc", 2)) {
+    return 1;
+  }
 
   /* store the inputs in the UserData structure */
   udata->N  = N;
@@ -178,37 +182,59 @@ int main(int argc, char *argv[])
 
   /* Create solution vector */
   y = N_VNew_Serial(NEQ, ctx);      /* Create vector for solution */
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
 
   /* Set initial condition */
   retval = SetIC(y, udata);
-  if (check_retval(&retval, "SetIC", 1)) return 1;
+  if (check_retval(&retval, "SetIC", 1)) {
+    return 1;
+  }
 
   /* Create vector masks */
   umask = N_VClone(y);
-  if (check_retval((void *)umask, "N_VClone", 0)) return 1;
+  if (check_retval((void *)umask, "N_VClone", 0)) {
+    return 1;
+  }
 
   vmask = N_VClone(y);
-  if (check_retval((void *)vmask, "N_VClone", 0)) return 1;
+  if (check_retval((void *)vmask, "N_VClone", 0)) {
+    return 1;
+  }
 
   wmask = N_VClone(y);
-  if (check_retval((void *)wmask, "N_VClone", 0)) return 1;
+  if (check_retval((void *)wmask, "N_VClone", 0)) {
+    return 1;
+  }
 
   /* Set mask array values for each solution component */
   N_VConst(0.0, umask);
   data = N_VGetArrayPointer(umask);
-  if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,0)] = RCONST(1.0);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    data[IDX(i, 0)] = RCONST(1.0);
+  }
 
   N_VConst(0.0, vmask);
   data = N_VGetArrayPointer(vmask);
-  if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,1)] = RCONST(1.0);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    data[IDX(i, 1)] = RCONST(1.0);
+  }
 
   N_VConst(0.0, wmask);
   data = N_VGetArrayPointer(wmask);
-  if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    data[IDX(i, 2)] = RCONST(1.0);
+  }
 
   /*
    * Create the fast integrator and set options
@@ -216,41 +242,59 @@ int main(int argc, char *argv[])
 
   /* Initialize matrix and linear solver data structures */
   A = SUNBandMatrix(NEQ, 4, 4, ctx);
-  if (check_retval((void *)A, "SUNBandMatrix", 0)) return 1;
+  if (check_retval((void *)A, "SUNBandMatrix", 0)) {
+    return 1;
+  }
 
   LS = SUNLinSol_Band(y, A, ctx);
-  if (check_retval((void *)LS, "SUNLinSol_Band", 0)) return 1;
+  if (check_retval((void *)LS, "SUNLinSol_Band", 0)) {
+    return 1;
+  }
 
   /* Initialize the fast integrator. Specify the implicit fast right-hand side
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y, ctx);
-  if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_retval((void *)inner_arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Attach user data to fast integrator */
   retval = ARKStepSetUserData(inner_arkode_mem, (void *) udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
 
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, ARKODE_ARK324L2SA_DIRK_4_2_3, -1);
-  if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetTableNum", 1)) {
+    return 1;
+  }
 
   /* Specify fast tolerances */
   retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Attach matrix and linear solver */
   retval = ARKStepSetLinearSolver(inner_arkode_mem, LS, A);
-  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* Set the Jacobian routine */
   retval = ARKStepSetJacFn(inner_arkode_mem, Jf);
-  if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetJacFn", 1)) {
+    return 1;
+  }
 
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
                                             &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) {
+    return 1;
+  }
 
   /*
    * Create the slow integrator and set options
@@ -260,19 +304,27 @@ int main(int argc, char *argv[])
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
-  if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+  if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) {
+    return 1;
+  }
 
   /* Pass udata to user functions */
   retval = MRIStepSetUserData(arkode_mem, (void *) udata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetUserData", 1)) {
+    return 1;
+  }
 
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) {
+    return 1;
+  }
 
   /* output spatial mesh to disk (add extra point for periodic BC) */
   FID=fopen("mesh.txt","w");
-  for (i=0; i<N+1; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
+  for (i = 0; i < N + 1; i++) {
+    fprintf(FID, "  %.16" ESYM "\n", udata->dx * i);
+  }
   fclose(FID);
 
   /* Open output stream for results, access data arrays */
@@ -282,17 +334,25 @@ int main(int argc, char *argv[])
 
   /* output initial condition to disk (extra output for periodic BC) */
   data = N_VGetArrayPointer(y);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[IDX(i,0)]);
+  for (i = 0; i < N; i++) {
+    fprintf(UFID, " %.16" ESYM, data[IDX(i, 0)]);
+  }
   fprintf(UFID," %.16"ESYM, data[IDX(0,0)]);
   fprintf(UFID,"\n");
 
-  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM, data[IDX(i,1)]);
+  for (i = 0; i < N; i++) {
+    fprintf(VFID, " %.16" ESYM, data[IDX(i, 1)]);
+  }
   fprintf(VFID," %.16"ESYM, data[IDX(0,1)]);
   fprintf(VFID,"\n");
 
-  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM, data[IDX(i,2)]);
+  for (i = 0; i < N; i++) {
+    fprintf(WFID, " %.16" ESYM, data[IDX(i, 2)]);
+  }
   fprintf(WFID," %.16"ESYM, data[IDX(0,2)]);
   fprintf(WFID,"\n");
 
@@ -307,7 +367,9 @@ int main(int argc, char *argv[])
 
     /* call integrator */
     retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) break;
+    if (check_retval(&retval, "MRIStepEvolve", 1)) {
+      break;
+    }
 
     /* access/print solution statistics */
     u = N_VWL2Norm(y,umask);
@@ -319,15 +381,21 @@ int main(int argc, char *argv[])
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
 
     /* output results to disk (extr output for periodic BC) */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[IDX(i,0)]);
+    for (i = 0; i < N; i++) {
+      fprintf(UFID, " %.16" ESYM, data[IDX(i, 0)]);
+    }
     fprintf(UFID," %.16"ESYM, data[IDX(0,0)]);
     fprintf(UFID,"\n");
 
-    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM, data[IDX(i,1)]);
+    for (i = 0; i < N; i++) {
+      fprintf(VFID, " %.16" ESYM, data[IDX(i, 1)]);
+    }
     fprintf(VFID," %.16"ESYM, data[IDX(0,1)]);
     fprintf(VFID,"\n");
 
-    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM, data[IDX(i,2)]);
+    for (i = 0; i < N; i++) {
+      fprintf(WFID, " %.16" ESYM, data[IDX(i, 2)]);
+    }
     fprintf(WFID," %.16"ESYM, data[IDX(0,2)]);
     fprintf(WFID,"\n");
 
@@ -415,10 +483,14 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
-  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   dYdata = N_VGetArrayPointer(ydot);
-  if (check_retval((void *)dYdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)dYdata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate over domain, computing reactions */
   for (i=0; i<N; i++) {
@@ -458,10 +530,14 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
-  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   dYdata = N_VGetArrayPointer(ydot);
-  if (check_retval((void *)dYdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)dYdata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate over domain, computing advection */
   tmp = -c/dx;
@@ -522,7 +598,9 @@ static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 
   /* access solution array */
   Ydata = N_VGetArrayPointer(y);
-  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate over nodes, filling in Jacobian entries */
   for (i=0; i<N; i++) {

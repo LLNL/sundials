@@ -93,34 +93,52 @@ int main(void)
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Initialize data structures */
   yy = N_VNew_Serial(NEQ, ctx);         /* Create serial vector for solution */
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)yy, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   yp = N_VClone(yy);               /* Create serial vector for solution derivative */
-  if (check_retval((void *)yp, "N_VClone", 0)) return 1;
+  if (check_retval((void *)yp, "N_VClone", 0)) {
+    return 1;
+  }
   analytical_solution(T0, yy, yp); /* Specify initial conditions */
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
   ida_mem = IDACreate(ctx);
-  if(check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)ida_mem, "IDACreate", 0)) {
+    return (1);
+  }
   retval = IDAInit(ida_mem, fres, T0, yy, yp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   /* Set routines */
   retval = IDASetUserData(ida_mem, (void *) &alpha);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
   retval = IDASStolerances(ida_mem, reltol, abstol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   /* Create custom matrix-embedded linear solver */
   LS = MatrixEmbeddedLS(ida_mem, ctx);
-  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) return 1;
+  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) {
+    return 1;
+  }
 
   /* Attach the linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* In loop, call IDASolve, print results, and test for error.
      Stops when the final time has been reached. */
@@ -131,7 +149,9 @@ int main(void)
   while (Tf - t > 1.0e-15) {
 
     retval = IDASolve(ida_mem, tout, &t, yy, yp, IDA_NORMAL);   /* call integrator */
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (1);
+    }
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t,
            NV_Ith_S(yy,0), NV_Ith_S(yy,1));                     /* access/print solution */
     if (retval >= 0) {                                          /* successful solve: update time */
@@ -211,7 +231,9 @@ static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx)
 {
   /* Create an empty linear solver */
   SUNLinearSolver LS = SUNLinSolNewEmpty(ctx);
-  if (LS == NULL) return NULL;
+  if (LS == NULL) {
+    return NULL;
+  }
 
   /* Attach operations */
   LS->ops->gettype = MatrixEmbeddedLSType;
@@ -249,8 +271,9 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   /* retrieve implicit system data from IDA */
   retval = IDAGetNonlinearSystemData(LS->content, &tcur, &yypred, &yppred,
                                      &yyn, &ypn, &res, &cj, &user_data);
-  if (check_retval((void *)&retval, "IDAGetNonlinearSystemData", 1))
-    return(-1);
+  if (check_retval((void *)&retval, "IDAGetNonlinearSystemData", 1)) {
+    return (-1);
+  }
 
   /* extract stiffness parameter from user_data */
   rdata = (realtype *) user_data;
@@ -278,7 +301,9 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
 /* destructor */
 static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
-  if (LS == NULL) return(SUNLS_SUCCESS);
+  if (LS == NULL) {
+    return (SUNLS_SUCCESS);
+  }
   LS->content = NULL;
   SUNLinSolFreeEmpty(LS);
   return(SUNLS_SUCCESS);

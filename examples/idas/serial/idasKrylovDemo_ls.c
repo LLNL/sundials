@@ -138,29 +138,43 @@ int main(int argc, char* argv[])
   nrmfactor   = 0;
 
   /* Retrieve the command-line options */
-  if (argc > 1) nrmfactor = atoi(argv[1]);
+  if (argc > 1) {
+    nrmfactor = atoi(argv[1]);
+  }
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Allocate N-vectors and the user data structure. */
 
   uu = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)uu, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)up, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)res, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   data = (UserData) malloc(sizeof *data);
   data->pp = NULL;
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
 
   /* Assign parameters in the user data structure. */
 
@@ -168,7 +182,9 @@ int main(int argc, char* argv[])
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
   data->pp = N_VClone(uu);
-  if(check_retval((void *)data->pp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)data->pp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Initialize uu, up. */
 
@@ -188,20 +204,30 @@ int main(int argc, char* argv[])
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   retval = IDASetConstraints(mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
+  if (check_retval(&retval, "IDASetConstraints", 1)) {
+    return (1);
+  }
   N_VDestroy(constraints);
 
   retval = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
   for (linsolver = 0; linsolver < 3; ++linsolver) {
@@ -213,8 +239,9 @@ int main(int argc, char* argv[])
 
       /* Re-initialize IDA */
       retval = IDAReInit(mem, t0, uu, up);
-      if (check_retval(&retval, "IDAReInit", 1)) return(1);
-
+      if (check_retval(&retval, "IDAReInit", 1)) {
+        return (1);
+      }
     }
 
     /* Free previous linear solver and attach a new linear solver module */
@@ -233,11 +260,15 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
-      if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver */
       retval = IDASetLinearSolver(mem, LS, NULL);
-      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -252,11 +283,15 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPBCGS(uu, SUN_PREC_LEFT, 0, ctx);
-      if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver */
       retval = IDASetLinearSolver(mem, LS, NULL);
-      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -271,11 +306,15 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPTFQMR(uu, SUN_PREC_LEFT, 0, ctx);
-      if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
+      if (check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver */
       retval = IDASetLinearSolver(mem, LS, NULL);
-      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -283,7 +322,9 @@ int main(int argc, char* argv[])
 
     /* Specify preconditioner */
     retval = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
-    if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
+    if (check_retval(&retval, "IDASetPreconditioner", 1)) {
+      return (1);
+    }
 
         /* Set the linear solver tolerance conversion factor */
     switch(nrmfactor) {
@@ -303,7 +344,9 @@ int main(int argc, char* argv[])
     }
 
     retval = IDASetLSNormFactor(mem, nrmfac);
-    if (check_retval(&retval, "IDASetLSNormFactor", 1)) return(1);
+    if (check_retval(&retval, "IDASetLSNormFactor", 1)) {
+      return (1);
+    }
 
     /* Print output heading. */
     PrintHeader(rtol, atol, linsolver);
@@ -318,7 +361,9 @@ int main(int argc, char* argv[])
 
     for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
       retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-      if(check_retval(&retval, "IDASolve", 1)) return(1);
+      if (check_retval(&retval, "IDASolve", 1)) {
+        return (1);
+      }
       PrintOutput(mem, tret, uu, linsolver);
     }
 
@@ -336,8 +381,10 @@ int main(int argc, char* argv[])
     printf("Nonlinear convergence failures = %ld\n", ncfn);
     printf("Linear convergence failures    = %ld\n", ncfl);
 
-    if (linsolver < 2)
-      printf("\n======================================================================\n\n");
+    if (linsolver < 2) {
+      printf("\n==============================================================="
+             "=======\n\n");
+    }
 
   } /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
 
@@ -520,7 +567,9 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     offset = mm*j;
     for (i = 0; i < mm; i++) {
       loc = offset + i;
-      if (j == 0 || j == mm1 || i == 0 || i == mm1 ) updata[loc] = ZERO;
+      if (j == 0 || j == mm1 || i == 0 || i == mm1) {
+        updata[loc] = ZERO;
+      }
     }
   }
 

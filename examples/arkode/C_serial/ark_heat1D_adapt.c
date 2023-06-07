@@ -120,7 +120,9 @@ int main() {
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* allocate and fill initial udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -128,7 +130,9 @@ int main() {
   udata->k = k;
   udata->refine_tol = refine;
   udata->x = malloc(N * sizeof(realtype));
-  for (i=0; i<N; i++)  udata->x[i] = ONE*i/(N-1);
+  for (i = 0; i < N; i++) {
+    udata->x[i] = ONE * i / (N - 1);
+  }
 
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
@@ -137,14 +141,18 @@ int main() {
 
   /* Initialize data structures */
   y = N_VNew_Serial(N, ctx);      /* Create initial serial vector for solution */
-  if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   N_VConst(ZERO, y);  /* Set initial conditions */
 
   /* output mesh to disk */
   XFID=fopen("heat_mesh.txt","w");
 
   /* output initial mesh to disk */
-  for (i=0; i<udata->N; i++)  fprintf(XFID," %.16"ESYM, udata->x[i]);
+  for (i = 0; i < udata->N; i++) {
+    fprintf(XFID, " %.16" ESYM, udata->x[i]);
+  }
   fprintf(XFID,"\n");
 
   /* Open output stream for results, access data array */
@@ -152,38 +160,60 @@ int main() {
 
   /* output initial condition to disk */
   data = N_VGetArrayPointer(y);
-  for (i=0; i<udata->N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
+  for (i = 0; i < udata->N; i++) {
+    fprintf(UFID, " %.16" ESYM, data[i]);
+  }
   fprintf(UFID,"\n");
 
   /* Initialize the ARK timestepper */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
-  if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) udata);   /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);         /* Increase max num steps  */
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
   flag = ARKStepSetAdaptivityMethod(arkode_mem, 2, 1, 0, NULL);  /* Set adaptivity method */
-  if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) {
+    return 1;
+  }
   flag = ARKStepSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
-  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) {
+    return 1;
+  }
 
   /* Specify linearly implicit RHS, with time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 1);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinear", 1)) {
+    return 1;
+  }
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
   LS = SUNLinSol_PCG(y, 0, (int) N, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
+  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) {
+    return 1;
+  }
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);        /* Attach linear solver to ARKStep */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
   flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) {
+    return 1;
+  }
 
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -199,21 +229,33 @@ int main() {
 
     /* "set" routines */
     flag = ARKStepSetStopTime(arkode_mem, Tf);
-    if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetStopTime", 1)) {
+      return 1;
+    }
 
     /* call integrator */
     flag = ARKStepEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      return 1;
+    }
 
     /* "get" routines */
     flag = ARKStepGetLastStep(arkode_mem, &olddt);
-    if (check_flag(&flag, "ARKStepGetLastStep", 1)) return 1;
+    if (check_flag(&flag, "ARKStepGetLastStep", 1)) {
+      return 1;
+    }
     flag = ARKStepGetCurrentStep(arkode_mem, &newdt);
-    if (check_flag(&flag, "ARKStepGetCurrentStep", 1)) return 1;
+    if (check_flag(&flag, "ARKStepGetCurrentStep", 1)) {
+      return 1;
+    }
     flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
+    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) {
+      return 1;
+    }
     flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return 1;
+    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) {
+      return 1;
+    }
 
     /* print current solution stats */
     iout++;
@@ -225,22 +267,32 @@ int main() {
 
     /* output results and current mesh to disk */
     data = N_VGetArrayPointer(y);
-    for (i=0; i<udata->N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
+    for (i = 0; i < udata->N; i++) {
+      fprintf(UFID, " %.16" ESYM, data[i]);
+    }
     fprintf(UFID,"\n");
-    for (i=0; i<udata->N; i++)  fprintf(XFID," %.16"ESYM, udata->x[i]);
+    for (i = 0; i < udata->N; i++) {
+      fprintf(XFID, " %.16" ESYM, udata->x[i]);
+    }
     fprintf(XFID,"\n");
 
     /* adapt the spatial mesh */
     xnew = adapt_mesh(y, &Nnew, udata);
-    if (check_flag(xnew, "ark_adapt", 0)) return 1;
+    if (check_flag(xnew, "ark_adapt", 0)) {
+      return 1;
+    }
 
     /* create N_Vector of new length */
     y2 = N_VNew_Serial(Nnew, ctx);
-    if (check_flag((void *) y2, "N_VNew_Serial", 0)) return 1;
+    if (check_flag((void *)y2, "N_VNew_Serial", 0)) {
+      return 1;
+    }
 
     /* project solution onto new mesh */
     flag = project(udata->N, udata->x, y, Nnew, xnew, y2);
-    if (check_flag(&flag, "project", 1)) return 1;
+    if (check_flag(&flag, "project", 1)) {
+      return 1;
+    }
 
     /* delete old vector, old mesh */
     N_VDestroy(y);
@@ -258,17 +310,24 @@ int main() {
 
     /* call ARKStepResize to notify integrator of change in mesh */
     flag = ARKStepResize(arkode_mem, y, hscale, t, NULL, NULL);
-    if (check_flag(&flag, "ARKStepResize", 1)) return 1;
+    if (check_flag(&flag, "ARKStepResize", 1)) {
+      return 1;
+    }
 
     /* destroy and re-allocate linear solver memory; reattach to ARKStep interface */
     SUNLinSolFree(LS);
     LS = SUNLinSol_PCG(y, 0, (int) N, ctx);
-    if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
+    if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) {
+      return 1;
+    }
     flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+      return 1;
+    }
     flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);
-    if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
-
+    if (check_flag(&flag, "ARKStepSetJacTimes", 1)) {
+      return 1;
+    }
   }
   printf(" ----------------------------------------------------------------------------------------\n");
 
@@ -308,9 +367,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* access data arrays */
   Y = N_VGetArrayPointer(y);
-  if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Y, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   Ydot = N_VGetArrayPointer(ydot);
-  if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Ydot, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* Initialize ydot to zero - also handles boundary conditions */
   N_VConst(ZERO, ydot);
@@ -345,9 +408,13 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 
   /* access data arrays */
   V = N_VGetArrayPointer(v);
-  if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)V, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   JV = N_VGetArrayPointer(Jv);
-  if (check_flag((void *) JV, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)JV, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* initialize Jv product to zero - also handles boundary conditions */
   N_VConst(ZERO, Jv);
@@ -386,7 +453,9 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
   /* Access current solution and mesh arrays */
   xold = udata->x;
   Y = N_VGetArrayPointer(y);
-  if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return NULL;
+  if (check_flag((void *)Y, "N_VGetArrayPointer", 0)) {
+    return NULL;
+  }
 
   /* create marking array */
   marks = calloc(udata->N-1, sizeof(int));
@@ -409,8 +478,11 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 
   /* allocate new mesh */
   num_refine = 0;
-  for (i=0; i<udata->N-1; i++)
-    if (marks[i] == 1)   num_refine++;
+  for (i = 0; i < udata->N - 1; i++) {
+    if (marks[i] == 1) {
+      num_refine++;
+    }
+  }
   N_new = udata->N + num_refine;
   *Nnew = N_new;            /* Store new array length */
   xnew = malloc((N_new) * sizeof(realtype));
@@ -466,9 +538,13 @@ static int project(sunindextype Nold, realtype *xold, N_Vector yold,
 
   /* Access data arrays */
   Yold = N_VGetArrayPointer(yold);    /* access data arrays */
-  if (check_flag((void *) Yold, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Yold, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   Ynew = N_VGetArrayPointer(ynew);
-  if (check_flag((void *) Ynew, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Ynew, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* loop over new mesh, finding corresponding interval within old mesh,
      and perform piecewise linear interpolation from yold to ynew */

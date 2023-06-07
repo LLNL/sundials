@@ -40,12 +40,16 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
   SUNMatrix_Ops ops;
 
   /* a context is required */
-  if (sunctx == NULL) return(NULL);
+  if (sunctx == NULL) {
+    return (NULL);
+  }
 
   /* create matrix object */
   A = NULL;
   A = (SUNMatrix) malloc(sizeof *A);
-  if (A == NULL) return(NULL);
+  if (A == NULL) {
+    return (NULL);
+  }
 
   /* create matrix ops structure */
   ops = NULL;
@@ -79,10 +83,14 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 
 void SUNMatFreeEmpty(SUNMatrix A)
 {
-  if (A == NULL)  return;
+  if (A == NULL) {
+    return;
+  }
 
   /* free non-NULL ops structure */
-  if (A->ops)  free(A->ops);
+  if (A->ops) {
+    free(A->ops);
+  }
   A->ops = NULL;
 
   /* free overall SUNMatrix object and return */
@@ -98,8 +106,12 @@ void SUNMatFreeEmpty(SUNMatrix A)
 int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
   /* Check that ops structures exist */
-  if (A == NULL || B == NULL) return(-1);
-  if (A->ops == NULL || B->ops == NULL) return(-1);
+  if (A == NULL || B == NULL) {
+    return (-1);
+  }
+  if (A->ops == NULL || B->ops == NULL) {
+    return (-1);
+  }
 
   /* Copy ops from A to B */
   B->ops->getid       = A->ops->getid;
@@ -140,11 +152,15 @@ SUNMatrix SUNMatClone(SUNMatrix A)
 
 void SUNMatDestroy(SUNMatrix A)
 {
-  if (A == NULL) return;
+  if (A == NULL) {
+    return;
+  }
 
   /* if the destroy operation exists use it */
-  if (A->ops)
-    if (A->ops->destroy) { A->ops->destroy(A); return; }
+  if (A->ops) {
+    if (A->ops->destroy) { A->ops->destroy(A); return;
+    }
+  }
 
   /* if we reach this point, either ops == NULL or destroy == NULL,
      try to cleanup by freeing the content, ops, and matrix */
@@ -195,8 +211,9 @@ int SUNMatMatvecSetup(SUNMatrix A)
 {
   int ier = 0;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
-  if (A->ops->matvecsetup)
+  if (A->ops->matvecsetup) {
     ier = A->ops->matvecsetup(A);
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(ier);
 }

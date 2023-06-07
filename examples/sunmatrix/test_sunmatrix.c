@@ -63,8 +63,9 @@ int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid)
     TEST_STATUS("    PASSED test -- SUNMatGetID \n", myid);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     PRINT_TIME("    SUNMatGetID Time: %22.15e \n \n", stop_time - start_time);
+  }
 
   return(0);
 }
@@ -120,8 +121,9 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
     TEST_STATUS("    PASSED test -- SUNMatClone \n", myid);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     PRINT_TIME("    SUNMatClone Time: %22.15e \n \n", stop_time - start_time);
+  }
 
   SUNMatDestroy(B);
   return(0);
@@ -167,8 +169,9 @@ int Test_SUNMatZero(SUNMatrix A, int myid)
     TEST_STATUS("    PASSED test -- SUNMatZero \n", myid);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     PRINT_TIME("    SUNMatZero Time: %22.15e \n \n", stop_time - start_time);
+  }
 
   SUNMatDestroy(B);
   return(0);
@@ -212,8 +215,9 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
     TEST_STATUS("    PASSED test -- SUNMatCopy \n", myid);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     PRINT_TIME("    SUNMatCopy Time: %22.15e \n \n", stop_time - start_time);
+  }
 
   SUNMatDestroy(B);
   return(0);
@@ -335,8 +339,10 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
       TEST_STATUS("    PASSED test -- SUNMatScaleAdd case 2 \n", myid);
     }
 
-    if (myid == 0)
-      PRINT_TIME("    SUNMatScaleAdd Time: %22.15e \n \n", stop_time - start_time);
+    if (myid == 0) {
+      PRINT_TIME("    SUNMatScaleAdd Time: %22.15e \n \n",
+                 stop_time - start_time);
+    }
 
     SUNMatDestroy(C);
     SUNMatDestroy(D);
@@ -396,8 +402,10 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
     TEST_STATUS("    PASSED test -- SUNMatScaleAddI \n", myid);
   }
 
-  if (myid == 0)
-    PRINT_TIME("    SUNMatScaleAddI Time: %22.15e \n \n", stop_time - start_time);
+  if (myid == 0) {
+    PRINT_TIME("    SUNMatScaleAddI Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
 
   SUNMatDestroy(B);
   return(0);
@@ -428,8 +436,10 @@ int Test_SUNMatMatvecSetup(SUNMatrix A, int myid)
     TEST_STATUS("    PASSED test -- SUNMatMatvecSetup\n", myid);
   }
 
-  if (myid == 0)
-    PRINT_TIME("    SUNMatMatvecSetup Time: %22.15e \n \n", stop_time - start_time);
+  if (myid == 0) {
+    PRINT_TIME("    SUNMatMatvecSetup Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
 
   return(0);
 }
@@ -532,8 +542,9 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
     TEST_STATUS("    PASSED test -- SUNMatMatvec \n", myid);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     PRINT_TIME("    SUNMatMatvec Time: %22.15e \n \n", stop_time - start_time);
+  }
 
   return(0);
 }
@@ -563,8 +574,9 @@ int Test_SUNMatSpace(SUNMatrix A, int myid)
     TEST_STATUS2("leniw=%li\n", leniw, myid);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     PRINT_TIME("    SUNMatSpace Time: %22.15e \n \n", stop_time - start_time);
+  }
 
   return(0);
 }

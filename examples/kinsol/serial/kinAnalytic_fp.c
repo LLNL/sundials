@@ -140,7 +140,9 @@ int main(int argc, char *argv[])
 
   /* Set default options */
   retval = SetDefaults(&uopt);
-  if (check_retval(&retval, "SetDefaults", 1)) return(1);
+  if (check_retval(&retval, "SetDefaults", 1)) {
+    return (1);
+  }
 
   retval = ReadInputs(&argc, &argv, uopt);
   if (check_retval(&retval, "ReadInputs", 1)) { free(uopt); return(1); }
@@ -168,34 +170,46 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
   u = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   scale = N_VClone(u);
-  if (check_retval((void *)scale, "N_VClone", 0)) return(1);
+  if (check_retval((void *)scale, "N_VClone", 0)) {
+    return (1);
+  }
 
   /* -----------------------------------------
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void *)kmem, "KINCreate", 0)) {
+    return (1);
+  }
 
   /* Set number of prior residuals used in Anderson acceleration */
   retval = KINSetMAA(kmem, uopt->m_aa);
 
   /* Set orthogonalization routine used in Anderson acceleration */
   retval = KINSetOrthAA(kmem, uopt->orth_aa);
-  if (check_retval(&retval, "KINSetOrthAA", 1)) return(1);
+  if (check_retval(&retval, "KINSetOrthAA", 1)) {
+    return (1);
+  }
 
   retval = KINInit(kmem, FPFunction, u);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) {
+    return (1);
+  }
 
   /* -------------------
    * Set optional inputs
@@ -203,11 +217,15 @@ int main(int argc, char *argv[])
 
   /* Specify stopping tolerance based on residual */
   retval = KINSetFuncNormTol(kmem, uopt->tol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) {
+    return (1);
+  }
 
   /* Set maximum number of iterations */
   retval = KINSetNumMaxIters(kmem, uopt->maxiter);
-  if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) {
+    return (1);
+  }
 
   /* Set Fixed point damping parameter */
   if (uopt->m_aa == 0)
@@ -220,22 +238,32 @@ int main(int argc, char *argv[])
   {
     /* Set damping parameter */
     retval = KINSetDampingAA(kmem, uopt->damping_aa);
-    if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
+    if (check_retval(&retval, "KINSetDampingAA", 1)) {
+      return (1);
+    }
 
     /* Set acceleration delay */
     retval = KINSetDelayAA(kmem, uopt->delay_aa);
-    if (check_retval(&retval, "KINSetDelayAA", 1)) return(1);
+    if (check_retval(&retval, "KINSetDelayAA", 1)) {
+      return (1);
+    }
   }
 
   /* Set info log file and print level */
   infofp = fopen("kinsol.log", "w");
-  if (check_retval((void *)infofp, "fopen", 0)) return(1);
+  if (check_retval((void *)infofp, "fopen", 0)) {
+    return (1);
+  }
 
   retval = KINSetInfoFile(kmem, infofp);
-  if (check_retval(&retval, "KINSetInfoFile", 1)) return(1);
+  if (check_retval(&retval, "KINSetInfoFile", 1)) {
+    return (1);
+  }
 
   retval = KINSetPrintLevel(kmem, 1);
-  if (check_retval(&retval, "KINSetPrintLevel", 1)) return(1);
+  if (check_retval(&retval, "KINSetPrintLevel", 1)) {
+    return (1);
+  }
 
   /* -------------
    * Initial guess
@@ -243,7 +271,9 @@ int main(int argc, char *argv[])
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return (1);
+  }
 
   data[0] =  PTONE;
   data[1] =  PTONE;
@@ -262,7 +292,9 @@ int main(int argc, char *argv[])
                   KIN_FP,       /* global strategy choice */
                   scale,        /* scaling vector, for the variable cc */
                   scale);       /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
+  if (check_retval(&retval, "KINSol", 1)) {
+    return (1);
+  }
 
   /* ------------------------------------
    * Get solver statistics
@@ -322,10 +354,14 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
 
   /* Get vector data arrays */
   udata = N_VGetArrayPointer(u);
-  if (check_retval((void*)udata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void *)udata, "N_VGetArrayPointer", 0)) {
+    return (-1);
+  }
 
   gdata = N_VGetArrayPointer(g);
-  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void *)gdata, "N_VGetArrayPointer", 0)) {
+    return (-1);
+  }
 
   x = udata[0];
   y = udata[1];
@@ -348,7 +384,9 @@ static int check_ans(N_Vector u, realtype tol)
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return (1);
+  }
 
   /* print the solution */
   printf("Computed solution:\n");
@@ -385,7 +423,9 @@ static int SetDefaults(UserOpt *uopt)
   /* Allocate options structure */
   *uopt = NULL;
   *uopt = (UserOpt) malloc(sizeof **uopt);
-  if (*uopt == NULL) return(-1);
+  if (*uopt == NULL) {
+    return (-1);
+  }
 
   /* Set default options values */
   (*uopt)->tol        = 100 * SQRT(UNIT_ROUNDOFF);

@@ -102,33 +102,45 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   scale = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)scale, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* ----------------------------------------------------------------------------------
    * Initialize and allocate memory for KINSOL, set parametrs for Anderson acceleration
    * ---------------------------------------------------------------------------------- */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void *)kmem, "KINCreate", 0)) {
+    return (1);
+  }
 
   /* y is used as a template */
 
   /* Use acceleration with up to 3 prior residuals */
   retval = KINSetMAA(kmem, 3);
-  if (check_retval(&retval, "KINSetMAA", 1)) return(1);
+  if (check_retval(&retval, "KINSetMAA", 1)) {
+    return (1);
+  }
 
   retval = KINInit(kmem, func, y);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) {
+    return (1);
+  }
 
   /* -------------------
    * Set optional inputs
@@ -138,38 +150,50 @@ int main()
 
   fnormtol  = FTOL;
   retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) {
+    return (1);
+  }
 
   /* Set information file */
 
   infofp = fopen("KINSOL.log", "w");
 
   retval = KINSetInfoFile(kmem, infofp);
-  if (check_retval(&retval, "KINSetInfoFile", 1)) return(1);
+  if (check_retval(&retval, "KINSetInfoFile", 1)) {
+    return (1);
+  }
 
   retval = KINSetPrintLevel(kmem, 3);
-  if (check_retval(&retval, "KINSetPrintLevel", 1)) return(1);
+  if (check_retval(&retval, "KINSetPrintLevel", 1)) {
+    return (1);
+  }
 
   /* ----------------------
    * Create SUNLinearSolver
    * ---------------------- */
 
   LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 10, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* --------------------
    * Attach linear solver
    * -------------------- */
 
   retval = KINSetLinearSolver(kmem, LS, NULL);
-  if(check_retval(&retval, "KINSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* ------------------------------------
    * Set Jacobian vector product function
    * ------------------------------------ */
 
   retval = KINSetJacTimesVecFn(kmem, jactimes);
-  if (check_retval(&retval, "KINSetJacTimesVecFn", 1)) return(1);
+  if (check_retval(&retval, "KINSetJacTimesVecFn", 1)) {
+    return (1);
+  }
 
   /* -------------
    * Initial guess
@@ -191,8 +215,9 @@ int main()
                 KIN_PICARD,     /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
-
+  if (check_retval(&retval, "KINSol", 1)) {
+    return (1);
+  }
 
   /* ------------------------------------
    * Print solution and solver statistics
@@ -201,7 +226,9 @@ int main()
   /* Get scaled norm of the system function */
 
   retval = KINGetFuncNorm(kmem, &fnorm);
-  if (check_retval(&retval, "KINGetfuncNorm", 1)) return(1);
+  if (check_retval(&retval, "KINGetfuncNorm", 1)) {
+    return (1);
+  }
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);

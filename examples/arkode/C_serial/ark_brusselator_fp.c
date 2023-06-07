@@ -108,7 +108,9 @@ int main(int argc, char *argv[])
   /* Create SUNDIALS context */
   SUNContext ctx = NULL;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* read inputs */
   if (argc == 2) {
@@ -147,14 +149,18 @@ int main(int argc, char *argv[])
 
   /* Open up info output file */
   INFOFID = NULL;
-  if (monitor) INFOFID = fopen("ark_brusselator_fp-info.txt","w");
+  if (monitor) {
+    INFOFID = fopen("ark_brusselator_fp-info.txt", "w");
+  }
 
   /* Initialize data structures */
   rdata[0] = a;    /* set user data  */
   rdata[1] = b;
   rdata[2] = ep;
   y = N_VNew_Serial(NEQ, ctx);           /* Create serial vector for solution */
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
@@ -163,27 +169,43 @@ int main(int argc, char *argv[])
      specify the right-hand side functions in y'=fe(t,y)+fi(t,y),
      the inital time T0, and the initial dependent variable vector y. */
   arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Initialize fixed-point nonlinear solver and attach to ARKStep */
   NLS = SUNNonlinSol_FixedPoint(y, fp_m, ctx);
-  if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
+  if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) {
+    return 1;
+  }
   if (monitor) {
     flag = SUNNonlinSolSetPrintLevel_FixedPoint(NLS, 1);
-    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
+    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) {
+      return (1);
+    }
     flag = SUNNonlinSolSetInfoFile_FixedPoint(NLS, INFOFID);
-    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
+    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) {
+      return (1);
+    }
   }
   flag = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-  if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
   flag = ARKStepSetMaxNonlinIters(arkode_mem, maxcor);       /* Increase default iterations */
-  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) {
+    return 1;
+  }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
@@ -202,7 +224,9 @@ int main(int argc, char *argv[])
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      break;
+    }
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",             /* access/print solution */
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
@@ -217,7 +241,9 @@ int main(int argc, char *argv[])
   }
   printf("   ----------------------------------------------\n");
   fclose(UFID);
-  if (monitor) fclose(INFOFID);
+  if (monitor) {
+    fclose(INFOFID);
+  }
 
   /* Print some final statistics */
   flag = ARKStepGetNumSteps(arkode_mem, &nst);

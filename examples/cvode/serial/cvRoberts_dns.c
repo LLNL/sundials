@@ -136,11 +136,15 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Initialize y */
   Ith(y,1) = Y1;
@@ -149,7 +153,9 @@ int main()
 
   /* Set the vector absolute tolerance */
   abstol = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   Ith(abstol,1) = ATOL1;
   Ith(abstol,2) = ATOL2;
@@ -158,38 +164,54 @@ int main()
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, RTOL, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) {
+    return (1);
+  }
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
   retval = CVodeRootInit(cvode_mem, 2, g);
-  if (check_retval(&retval, "CVodeRootInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeRootInit", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+    return (1);
+  }
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -205,11 +227,15 @@ int main()
 
     if (retval == CV_ROOT_RETURN) {
       retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
+      if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) {
+        return (1);
+      }
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
     if (retval == CV_SUCCESS) {
       iout++;
       tout *= TMULT;
@@ -217,7 +243,9 @@ int main()
 
     retval = CVodePrintAllStats(cvode_mem, FID, SUN_OUTPUTFORMAT_CSV);
 
-    if (iout == NOUT) break;
+    if (iout == NOUT) {
+      break;
+    }
   }
   fclose(FID);
 

@@ -112,7 +112,9 @@ int CVodeSetProjErrEst(void *cvode_mem, booleantype onoff)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeSetProjErrEst",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Set projection error flag */
   proj_mem->err_proj = onoff;
@@ -130,7 +132,9 @@ int CVodeSetProjFrequency(void *cvode_mem, long int freq)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeSetProjFrequency",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Set projection frequency */
   if (freq < 0)
@@ -165,7 +169,9 @@ int CVodeSetMaxNumProjFails(void *cvode_mem, int max_fails)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeSetMaxNumProjFails",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Set maximum number of projection failures in a step attempt */
   if (max_fails < 1)
@@ -192,7 +198,9 @@ int CVodeSetEpsProj(void *cvode_mem, realtype eps)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeSetEpsProj",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Set the projection tolerance */
   if (eps <= ZERO)
@@ -219,7 +227,9 @@ int CVodeSetProjFailEta(void *cvode_mem, realtype eta)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeSetProjFailEta",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Set the step size reduction factor for a projection failure */
   if ((eta <= ZERO) || (eta > ONE))
@@ -251,7 +261,9 @@ int CVodeGetNumProjEvals(void *cvode_mem, long int *nproj)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeGetNumProjectionEvals",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Get number of projection evaluations */
   *nproj = proj_mem->nproj;
@@ -269,7 +281,9 @@ int CVodeGetNumProjFails(void *cvode_mem, long int *npfails)
   /* Access memory structures */
   retval = cvAccessProjMem(cvode_mem, "CVodeGetNumProjFails",
                            &cv_mem, &proj_mem);
-  if (retval != CV_SUCCESS) return(retval);
+  if (retval != CV_SUCCESS) {
+    return (retval);
+  }
 
   /* Get number of projection fails */
   *npfails = proj_mem->npfails;
@@ -315,13 +329,16 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
      errP (recall that in this case we did not allocate vectors to for
      acorP and errP). */
   acorP = cv_mem->cv_tempv;
-  if (proj_mem->err_proj)
+  if (proj_mem->err_proj) {
     errP = cv_mem->cv_ftemp;
-  else
+  } else {
     errP = NULL;
+  }
 
   /* Copy acor into errP (if projecting the error) */
-  if (proj_mem->err_proj) N_VScale(ONE, cv_mem->cv_acor, errP);
+  if (proj_mem->err_proj) {
+    N_VScale(ONE, cv_mem->cv_acor, errP);
+  }
 
   /* Call the user projection function */
   retval = proj_mem->pfun(cv_mem->cv_tn, cv_mem->cv_y, acorP,
@@ -335,8 +352,9 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if (retval == CV_SUCCESS)
   {
     /* Recompute acnrm to be used in error test (if projecting the error) */
-    if (proj_mem->err_proj)
+    if (proj_mem->err_proj) {
       cv_mem->cv_acnrm = N_VWrmsNorm(errP, cv_mem->cv_ewt);
+    }
 
     /* The projection was successful, return now */
     cv_mem->proj_applied = SUNTRUE;
@@ -344,15 +362,21 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   }
 
   /* The projection failed, update the return value */
-  if (retval < 0) retval = CV_PROJFUNC_FAIL;
-  if (retval > 0) retval = PROJFUNC_RECVR;
+  if (retval < 0) {
+    retval = CV_PROJFUNC_FAIL;
+  }
+  if (retval > 0) {
+    retval = PROJFUNC_RECVR;
+  }
 
   /* Increment cumulative failure count and restore zn */
   proj_mem->npfails++;
   cvRestore(cv_mem, saved_t);
 
   /* Return if failed unrecoverably */
-  if (retval == CV_PROJFUNC_FAIL) return(CV_PROJFUNC_FAIL);
+  if (retval == CV_PROJFUNC_FAIL) {
+    return (CV_PROJFUNC_FAIL);
+  }
 
   /* Recoverable failure, increment failure count for this step attempt */
   (*npfailPtr)++;
@@ -362,7 +386,9 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if ((SUNRabs(cv_mem->cv_h) <= cv_mem->cv_hmin * ONEPSM) ||
       (*npfailPtr == proj_mem->max_fails))
   {
-    if (retval == PROJFUNC_RECVR) return(CV_REPTD_PROJFUNC_ERR);
+    if (retval == PROJFUNC_RECVR) {
+      return (CV_REPTD_PROJFUNC_ERR);
+    }
   }
 
   /* Reduce step size; return to reattempt the step */
@@ -378,7 +404,9 @@ int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 int cvProjInit(CVodeProjMem proj_mem)
 {
   /* check if projection memory exists */
-  if (proj_mem == NULL) return(CV_PROJ_MEM_NULL);
+  if (proj_mem == NULL) {
+    return (CV_PROJ_MEM_NULL);
+  }
 
   /* reset flags and counters */
   proj_mem->first_proj = SUNTRUE;
@@ -392,7 +420,9 @@ int cvProjInit(CVodeProjMem proj_mem)
 
 int cvProjFree(CVodeProjMem *proj_mem)
 {
-  if (*proj_mem == NULL) return(CV_SUCCESS);
+  if (*proj_mem == NULL) {
+    return (CV_SUCCESS);
+  }
 
   free(*proj_mem);
   *proj_mem = NULL;
@@ -413,14 +443,18 @@ static int cvProjCreate(CVodeProjMem *proj_mem)
   if (*proj_mem == NULL)
   {
     *proj_mem = (CVodeProjMem) malloc(sizeof(struct CVodeProjMemRec));
-    if (*proj_mem == NULL) return(CV_MEM_FAIL);
+    if (*proj_mem == NULL) {
+      return (CV_MEM_FAIL);
+    }
 
     /* Zero out proj_mem */
     memset(*proj_mem, 0, sizeof(struct CVodeProjMemRec));
 
     /* Initialize projection variables */
     retval = cvProjSetDefaults(*proj_mem);
-    if (retval != CV_SUCCESS) return(retval);
+    if (retval != CV_SUCCESS) {
+      return (retval);
+    }
   }
 
   return(CV_SUCCESS);
@@ -429,7 +463,9 @@ static int cvProjCreate(CVodeProjMem *proj_mem)
 
 static int cvProjSetDefaults(CVodeProjMem proj_mem)
 {
-  if (proj_mem == NULL) return(CV_MEM_FAIL);
+  if (proj_mem == NULL) {
+    return (CV_MEM_FAIL);
+  }
 
   proj_mem->internal_proj = SUNTRUE;
   proj_mem->err_proj      = SUNTRUE;

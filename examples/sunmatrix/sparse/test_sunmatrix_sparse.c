@@ -196,8 +196,9 @@ int main(int argc, char *argv[])
     matdata = SUNBandMatrix_Column(B, j);      /*     [ -2  0  2  4  0  0  0 ] */
     kstart = (j<uband) ? -j : -uband;          /*     [  0 -1  1  3  5  0  0 ] */
     kend = (j>N-1-lband) ? N-1-j: lband;       /*     [  0  0  0  2  4  6  0 ] */
-    for (k=kstart; k<=kend; k++)               /*     [  0  0  0  1  3  5  7 ] */
-      matdata[k] = j - k;                      /*     [  0  0  0  0  2  4  6 ] */
+    for (k = kstart; k <= kend; k++) { /*     [  0  0  0  1  3  5  7 ] */
+      matdata[k] = j - k;              /*     [  0  0  0  0  2  4  6 ] */
+    }
   }
 
   if (mattype == CSR_MAT) {
@@ -338,15 +339,17 @@ int main(int argc, char *argv[])
   y = N_VNew_Serial(matrows, sunctx);
   z = N_VNew_Serial(matrows, sunctx);
   vecdata = N_VGetArrayPointer(x);
-  for(i=0; i<matcols; i++)
-    vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+  for (i = 0; i < matcols; i++) {
+    vecdata[i] = (realtype)rand() / (realtype)RAND_MAX;
+  }
   if (SUNMatMatvec(C, x, y) != 0) {
     printf("FAIL: SUNMatrix module Dense matvec failure \n \n");
     SUNMatDestroy(A);  SUNMatDestroy(B);
     SUNMatDestroy(C);  SUNMatDestroy(D);
     N_VDestroy(x);  N_VDestroy(y);  N_VDestroy(z);
-    if (square)
+    if (square) {
       SUNMatDestroy(I);
+    }
     return(1);
   }
   if (SUNMatMatvec(D, x, z) != 0) {
@@ -354,8 +357,9 @@ int main(int argc, char *argv[])
     SUNMatDestroy(A);  SUNMatDestroy(B);
     SUNMatDestroy(C);  SUNMatDestroy(D);
     N_VDestroy(x);  N_VDestroy(y);  N_VDestroy(z);
-    if (square)
+    if (square) {
       SUNMatDestroy(I);
+    }
     return(1);
   }
 
@@ -407,8 +411,9 @@ int main(int argc, char *argv[])
   SUNMatDestroy(B);
   SUNMatDestroy(C);
   SUNMatDestroy(D);
-  if (square)
+  if (square) {
     SUNMatDestroy(I);
+  }
 
   SUNContext_Free(&sunctx);
 
@@ -865,22 +870,25 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   }
 
   /* compare sparsity patterns */
-  for (i=0; i<ANP; i++)
+  for (i = 0; i < ANP; i++) {
     failure += (Aindexptrs[i] != Bindexptrs[i]);
+  }
   if (failure > ZERO) {
     printf(">>> ERROR: check_matrix: Different indexptrs \n");
     return(1);
   }
-  for (i=0; i<Annz; i++)
+  for (i = 0; i < Annz; i++) {
     failure += (Aindexvals[i] != Bindexvals[i]);
+  }
   if (failure > ZERO) {
     printf(">>> ERROR: check_matrix: Different indexvals \n");
     return(1);
   }
 
   /* compare matrix values */
-  for(i=0; i<Annz; i++)
+  for (i = 0; i < Annz; i++) {
     failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
+  }
   if (failure > ZERO) {
     printf(">>> ERROR: check_matrix: Different entries \n");
     return(1);
@@ -906,10 +914,11 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     failure += SUNRCompareTol(Adata[i], val, tol);
   }
 
-  if (failure > ZERO)
+  if (failure > ZERO) {
     return(1);
-  else
-    return(0);
+  } else {
+    return (0);
+  }
 }
 
 int check_vector(N_Vector x, N_Vector y, realtype tol)
@@ -937,27 +946,30 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
   }
 
-  if (failure > ZERO)
+  if (failure > ZERO) {
     return(1);
-  else
-    return(0);
+  } else {
+    return (0);
+  }
 }
 
 booleantype has_data(SUNMatrix A)
 {
   realtype *Adata = SUNSparseMatrix_Data(A);
-  if (Adata == NULL)
+  if (Adata == NULL) {
     return SUNFALSE;
-  else
+  } else {
     return SUNTRUE;
+  }
 }
 
 booleantype is_square(SUNMatrix A)
 {
-  if (SUNSparseMatrix_Rows(A) == SUNSparseMatrix_Columns(A))
+  if (SUNSparseMatrix_Rows(A) == SUNSparseMatrix_Columns(A)) {
     return SUNTRUE;
-  else
+  } else {
     return SUNFALSE;
+  }
 }
 
 void sync_device(SUNMatrix A)

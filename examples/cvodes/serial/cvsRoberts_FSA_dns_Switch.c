@@ -112,7 +112,9 @@ int main(int argc, char *argv[])
   /* Create the SUNDIALS context object for this simulation */
   SUNContext sunctx = NULL;
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContextCreate", 1)) return(1);
+  if (check_retval(&retval, "SUNContextCreate", 1)) {
+    return (1);
+  }
 
   /* Allocate user data structure */
   data = (UserData) malloc(sizeof *data);
@@ -124,14 +126,20 @@ int main(int argc, char *argv[])
 
   /* Allocate initial condition vector and set context */
   y0 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y0, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Create solution and absolute tolerance vectors */
   y = N_VClone(y0);
-  if (check_retval((void *)y, "N_VClone", 0)) return(1);
+  if (check_retval((void *)y, "N_VClone", 0)) {
+    return (1);
+  }
 
   abstol = N_VClone(y0);
-  if (check_retval((void *)abstol, "N_VClone", 0)) return(1);
+  if (check_retval((void *)abstol, "N_VClone", 0)) {
+    return (1);
+  }
 
   /* Set initial conditions */
   NV_Ith_S(y0,0) = RCONST(1.0);
@@ -147,44 +155,62 @@ int main(int argc, char *argv[])
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function y'=f(t,y), the initial time T0, and
    * the intiial dependenet variable vector y0. */
   retval = CVodeInit(cvode_mem, f, T0, y0);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSVTolerances to specify the scalar relative tolerance
    * and vector absolute tolereance */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetUserData so the sensitivity params can be accessed
    * from user provided routines. */
   retval = CVodeSetUserData(cvode_mem, data);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetMaxNumSteps to set the maximum number of steps the
    * solver will take in an attempt to reach the next output time. */
   retval = CVodeSetMaxNumSteps(cvode_mem, MXSTEPS);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solvers */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Specifiy the Jacobian approximation routine to be used */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+    return (1);
+  }
 
   /* Sensitivity-related settings */
   data->sensi   = SUNTRUE;          /* sensitivity ON                */
@@ -200,18 +226,26 @@ int main(int argc, char *argv[])
   pbar[2] = data->p[2];
 
   plist = (int *) malloc(Ns * sizeof(int));
-  for (is=0; is<Ns; is++) plist[is] = is;
+  for (is = 0; is < Ns; is++) {
+    plist[is] = is;
+  }
 
   yS0 = N_VCloneVectorArray(Ns, y);
-  for (is=0;is<Ns;is++) N_VConst(ZERO, yS0[is]);
+  for (is = 0; is < Ns; is++) {
+    N_VConst(ZERO, yS0[is]);
+  }
 
   yS = N_VCloneVectorArray(Ns, y);
 
   retval = CVodeSensInit1(cvode_mem, Ns, data->meth, fS, yS0);
-  if (check_retval(&retval, "CVodeSensInit1", 1)) return(1);
+  if (check_retval(&retval, "CVodeSensInit1", 1)) {
+    return (1);
+  }
 
   retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-  if (check_retval(&retval, "CVodeSetSensParams", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetSensParams", 1)) {
+    return (1);
+  }
 
   /*
     Sensitivities are enabled
@@ -221,13 +255,19 @@ int main(int argc, char *argv[])
   */
 
   retval = CVodeSensEEtolerances(cvode_mem);
-  if (check_retval(&retval, "CVodeSensEEtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSensEEtolerances", 1)) {
+    return (1);
+  }
 
   retval = CVodeSetSensErrCon(cvode_mem, data->errconS);
-  if (check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetSensErrCon", 1)) {
+    return (1);
+  }
 
   retval = runCVode(cvode_mem, y, yS, data);
-  if (check_retval(&retval, "runCVode", 1)) return(1);
+  if (check_retval(&retval, "runCVode", 1)) {
+    return (1);
+  }
 
   /*
     Change parameters
@@ -242,13 +282,19 @@ int main(int argc, char *argv[])
   data->sensi = SUNFALSE;
 
   retval = CVodeReInit(cvode_mem, T0, y0);
-  if (check_retval(&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   retval = CVodeSensToggleOff(cvode_mem);
-  if (check_retval(&retval, "CVodeSensToggleOff", 1)) return(1);
+  if (check_retval(&retval, "CVodeSensToggleOff", 1)) {
+    return (1);
+  }
 
   retval = runCVode(cvode_mem, y, yS, data);
-  if (check_retval(&retval, "runCVode", 1)) return(1);
+  if (check_retval(&retval, "runCVode", 1)) {
+    return (1);
+  }
 
   /*
     Change parameters
@@ -265,14 +311,20 @@ int main(int argc, char *argv[])
   data->fsDQ  = SUNTRUE;
 
   retval = CVodeReInit(cvode_mem, T0, y0);
-  if (check_retval(&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   CVodeSensFree(cvode_mem);
   retval = CVodeSensInit1(cvode_mem, Ns, data->meth, NULL, yS0);
-  if (check_retval(&retval, "CVodeSensInit1", 1)) return(1);
+  if (check_retval(&retval, "CVodeSensInit1", 1)) {
+    return (1);
+  }
 
   retval = runCVode(cvode_mem, y, yS, data);
-  if (check_retval(&retval, "runCVode", 1)) return(1);
+  if (check_retval(&retval, "runCVode", 1)) {
+    return (1);
+  }
 
   /*
     Switch to partial error control
@@ -288,17 +340,25 @@ int main(int argc, char *argv[])
   data->meth    = CV_STAGGERED;
 
   retval = CVodeReInit(cvode_mem, T0, y0);
-  if (check_retval(&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   retval = CVodeSetSensErrCon(cvode_mem, data->errconS);
-  if (check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetSensErrCon", 1)) {
+    return (1);
+  }
 
   CVodeSensFree(cvode_mem);
   retval = CVodeSensInit1(cvode_mem, Ns, data->meth, fS, yS0);
-  if (check_retval(&retval, "CVodeSensInit1", 1)) return(1);
+  if (check_retval(&retval, "CVodeSensInit1", 1)) {
+    return (1);
+  }
 
   retval = runCVode(cvode_mem, y, yS, data);
-  if (check_retval(&retval, "runCVode", 1)) return(1);
+  if (check_retval(&retval, "runCVode", 1)) {
+    return (1);
+  }
 
   /*
     Free sensitivity-related memory
@@ -311,10 +371,14 @@ int main(int argc, char *argv[])
   CVodeSensFree(cvode_mem);
 
   retval = CVodeReInit(cvode_mem, T0, y0);
-  if (check_retval(&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   retval = runCVode(cvode_mem, y, yS, data);
-  if (check_retval(&retval, "runCVode", 1)) return(1);
+  if (check_retval(&retval, "runCVode", 1)) {
+    return (1);
+  }
 
   /* Free memory */
 
@@ -349,7 +413,9 @@ static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data)
 
   /* Call CVode in CV_NORMAL mode */
   retval = CVode(cvode_mem, T1, y, &t, CV_NORMAL);
-  if (retval != 0) return(retval);
+  if (retval != 0) {
+    return (retval);
+  }
 
   /* Print final statistics */
   retval = PrintFinalStats(cvode_mem, data);
@@ -479,10 +545,16 @@ static void PrintHeader(UserData data)
       printf("STAGGERED-1 + ");
       break;
     }
-    if (data->errconS) printf("FULL ERROR CONTROL + ");
-    else         printf("PARTIAL ERROR CONTROL + ");
-    if (data->fsDQ)    printf("DQ sensitivity RHS)\n");
-    else         printf("user-provided sensitivity RHS)\n");
+    if (data->errconS) {
+      printf("FULL ERROR CONTROL + ");
+    } else {
+      printf("PARTIAL ERROR CONTROL + ");
+    }
+    if (data->fsDQ) {
+      printf("DQ sensitivity RHS)\n");
+    } else {
+      printf("user-provided sensitivity RHS)\n");
+    }
   } else {
     printf("NO\n");
   }
@@ -515,10 +587,11 @@ static int PrintFinalStats(void *cvode_mem, UserData data)
     retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
     retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
     retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    if (data->errconS)
+    if (data->errconS) {
       retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    else
+    } else {
       netfS = 0;
+    }
     if (data->meth == CV_STAGGERED) {
       retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
       retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);

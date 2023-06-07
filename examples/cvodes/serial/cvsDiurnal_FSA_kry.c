@@ -204,16 +204,22 @@ int main(int argc, char *argv[])
 
   /* Problem parameters */
   data = AllocUserData();
-  if(check_retval((void *)data, "AllocUserData", 2)) return(1);
+  if (check_retval((void *)data, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(data);
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initial states */
   y = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   SetInitialProfiles(y, data->dx, data->dz);
 
   /* Tolerances */
@@ -222,33 +228,49 @@ int main(int argc, char *argv[])
 
   /* Create CVODES object */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   retval = CVodeSetMaxNumSteps(cvode_mem, 2000);
-  if(check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   /* Allocate CVODES memory */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create the SUNLinSol_SPGMR linear solver with left
      preconditioning and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* Attach the linear sovler */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
-  if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1)) {
+    return (1);
+  }
 
   printf("\n2-species diurnal advection-diffusion problem\n");
 
@@ -256,41 +278,67 @@ int main(int argc, char *argv[])
   if(sensi) {
 
     plist = (int *) malloc(NS * sizeof(int));
-    if(check_retval((void *)plist, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++) plist[is] = is;
+    if (check_retval((void *)plist, "malloc", 2)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      plist[is] = is;
+    }
 
     pbar = (realtype *) malloc(NS * sizeof(realtype));
-    if(check_retval((void *)pbar, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
+    if (check_retval((void *)pbar, "malloc", 2)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      pbar[is] = data->p[plist[is]];
+    }
 
     uS = N_VCloneVectorArray(NS, y);
-    if(check_retval((void *)uS, "N_VCloneVectorArray", 0)) return(1);
-    for(is=0;is<NS;is++)
-      N_VConst(ZERO,uS[is]);
+    if (check_retval((void *)uS, "N_VCloneVectorArray", 0)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      N_VConst(ZERO, uS[is]);
+    }
 
     retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
-    if(check_retval(&retval, "CVodeSensInit", 1)) return(1);
+    if (check_retval(&retval, "CVodeSensInit", 1)) {
+      return (1);
+    }
 
     retval = CVodeSensEEtolerances(cvode_mem);
-    if(check_retval(&retval, "CVodeSensEEtolerances", 1)) return(1);
+    if (check_retval(&retval, "CVodeSensEEtolerances", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetSensErrCon(cvode_mem, err_con);
-    if(check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensErrCon", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
-    if(check_retval(&retval, "CVodeSetSensDQMethod", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensDQMethod", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-    if(check_retval(&retval, "CVodeSetSensParams", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensParams", 1)) {
+      return (1);
+    }
 
     printf("Sensitivity: YES ");
-    if(sensi_meth == CV_SIMULTANEOUS)
+    if (sensi_meth == CV_SIMULTANEOUS) {
       printf("( SIMULTANEOUS +");
-    else
-      if(sensi_meth == CV_STAGGERED) printf("( STAGGERED +");
-      else                           printf("( STAGGERED1 +");
-    if(err_con) printf(" FULL ERROR CONTROL )");
-    else        printf(" PARTIAL ERROR CONTROL )");
+    } else if (sensi_meth == CV_STAGGERED) {
+      printf("( STAGGERED +");
+    } else {
+      printf("( STAGGERED1 +");
+    }
+    if (err_con) {
+      printf(" FULL ERROR CONTROL )");
+    } else {
+      printf(" PARTIAL ERROR CONTROL )");
+    }
 
   } else {
 
@@ -307,11 +355,15 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
     PrintOutput(cvode_mem, t, y);
     if (sensi) {
       retval = CVodeGetSens(cvode_mem, &t, uS);
-      if(check_retval(&retval, "CVodeGetSens", 1)) break;
+      if (check_retval(&retval, "CVodeGetSens", 1)) {
+        break;
+      }
       PrintOutputS(uS);
     }
 
@@ -478,9 +530,11 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
   /* jok = SUNTRUE: Copy Jbd to P */
 
-    for (jz=0; jz < MZ; jz++)
-      for (jx=0; jx < MX; jx++)
-        SUNDlsMat_denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+  for (jz = 0; jz < MZ; jz++) {
+    for (jx = 0; jx < MX; jx++) {
+      SUNDlsMat_denseCopy(Jbd[jx][jz], P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+    }
+  }
 
   *jcurPtr = SUNFALSE;
 
@@ -524,9 +578,11 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
 
   /* Scale by -gamma */
 
-    for (jz=0; jz < MZ; jz++)
-      for (jx=0; jx < MX; jx++)
-        SUNDlsMat_denseScale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+  for (jz = 0; jz < MZ; jz++) {
+    for (jx = 0; jx < MX; jx++) {
+      SUNDlsMat_denseScale(-gamma, P[jx][jz], NUM_SPECIES, NUM_SPECIES);
+    }
+  }
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
@@ -534,7 +590,9 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
     for (jz=0; jz < MZ; jz++) {
       SUNDlsMat_denseAddIdentity(P[jx][jz], NUM_SPECIES);
       retval = SUNDlsMat_denseGETRF(P[jx][jz], NUM_SPECIES, NUM_SPECIES, pivot[jx][jz]);
-      if (retval != 0) return(1);
+      if (retval != 0) {
+        return (1);
+      }
     }
   }
 
@@ -595,35 +653,41 @@ static void ProcessArgs(int argc, char *argv[],
   *sensi_meth = -1;
   *err_con = SUNFALSE;
 
-  if (argc < 2) WrongArgs(argv[0]);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = SUNFALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = SUNTRUE;
-  else
+  if (argc < 2) {
     WrongArgs(argv[0]);
+  }
+
+  if (strcmp(argv[1], "-nosensi") == 0) {
+    *sensi = SUNFALSE;
+  } else if (strcmp(argv[1], "-sensi") == 0) {
+    *sensi = SUNTRUE;
+  } else {
+    WrongArgs(argv[0]);
+  }
 
   if (*sensi) {
 
-    if (argc != 4)
+    if (argc != 4) {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[2],"sim") == 0)
+    if (strcmp(argv[2], "sim") == 0) {
       *sensi_meth = CV_SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
+    } else if (strcmp(argv[2], "stg") == 0) {
       *sensi_meth = CV_STAGGERED;
-    else if (strcmp(argv[2],"stg1") == 0)
+    } else if (strcmp(argv[2], "stg1") == 0) {
       *sensi_meth = CV_STAGGERED1;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[3],"t") == 0)
+    if (strcmp(argv[3], "t") == 0) {
       *err_con = SUNTRUE;
-    else if (strcmp(argv[3],"f") == 0)
+    } else if (strcmp(argv[3], "f") == 0) {
       *err_con = SUNFALSE;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
   }
 
 }

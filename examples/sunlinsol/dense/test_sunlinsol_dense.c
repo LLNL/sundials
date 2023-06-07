@@ -93,8 +93,9 @@ int main(int argc, char *argv[])
   /* Fill A matrix with uniform random data in [0,1/cols] */
   for (j=0; j<cols; j++) {
     colj = SUNDenseMatrix_Column(A, j);
-    for (k=0; k<rows; k++)
-      colj[k] = (realtype) rand() / (realtype) RAND_MAX / cols;
+    for (k = 0; k < rows; k++) {
+      colj[k] = (realtype)rand() / (realtype)RAND_MAX / cols;
+    }
   }
 
   /* Create anti-identity matrix */
@@ -197,19 +198,21 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   local_length = N_VGetLength_Serial(X);
 
   /* check vector data */
-  for(i=0; i < local_length; i++)
+  for (i = 0; i < local_length; i++) {
     failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+  }
 
   if (failure > ZERO) {
     maxerr = ZERO;
-    for(i=0; i < local_length; i++)
-      maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i]), maxerr);
+    for (i = 0; i < local_length; i++) {
+      maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]), maxerr);
+    }
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, tol);
     return(1);
+  } else {
+    return (0);
   }
-  else
-    return(0);
 }
 
 void sync_device()

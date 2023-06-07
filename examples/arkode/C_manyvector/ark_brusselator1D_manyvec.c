@@ -134,11 +134,15 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* allocate udata structure */
   userdata = (UserData) malloc(sizeof(*userdata));
-  if (check_flag((void *) userdata, "malloc", 2)) return 1;
+  if (check_flag((void *)userdata, "malloc", 2)) {
+    return 1;
+  }
 
   /* store the inputs in the UserData structure */
   userdata->N  = N;
@@ -161,23 +165,37 @@ int main()
   /* Initialize data structures */
   userdata->dx = ONE/(N-1);      /* set spatial mesh spacing */
   u = N_VNew_Serial(N, ctx);     /* Create serial vectors */
-  if (check_flag((void *) u, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)u, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   v = N_VClone(u);
-  if (check_flag((void *) v, "N_VClone", 0)) return 1;
+  if (check_flag((void *)v, "N_VClone", 0)) {
+    return 1;
+  }
   w = N_VClone(u);
-  if (check_flag((void *) w, "N_VClone", 0)) return 1;
+  if (check_flag((void *)w, "N_VClone", 0)) {
+    return 1;
+  }
 
   /* Create manyvector for solution */
   uvw[0] = u; uvw[1] = v; uvw[2] = w;
   y = N_VNew_ManyVector(Nvar, uvw, ctx);
-  if (check_flag((void *)y, "N_VNew_ManyVector", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_ManyVector", 0)) {
+    return 1;
+  }
 
   udata = N_VGetArrayPointer(u);     /* Access data array for new NVector u */
-  if (check_flag((void *)udata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)udata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   vdata = N_VGetArrayPointer(v);     /* Access data array for new NVector v */
-  if (check_flag((void *)vdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)vdata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   wdata = N_VGetArrayPointer(w);     /* Access data array for new NVector w */
-  if (check_flag((void *)wdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)wdata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* Set initial conditions into y */
   pi = RCONST(4.0)*atan(ONE);
@@ -192,27 +210,41 @@ int main()
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) userdata);  /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Initialize spgmr solver */
   LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 10, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return 1;
+  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return 1;
+  }
 
   /* Linear solver interface */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);       /* Attach linear solver */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
   flag = ARKStepSetJacTimes(arkode_mem, NULL, JacVI);        /* Set the Jacobian-vector product */
-  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) {
+    return 1;
+  }
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", userdata->dx*i);
+  for (i = 0; i < N; i++) {
+    fprintf(FID, "  %.16" ESYM "\n", userdata->dx * i);
+  }
   fclose(FID);
 
   /* Open output streams for results, access data array */
@@ -221,9 +253,15 @@ int main()
   WFID=fopen("bruss_w.txt","w");
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", udata[i]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", vdata[i]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", wdata[i]);
+  for (i = 0; i < N; i++) {
+    fprintf(UFID, " %.16" ESYM "", udata[i]);
+  }
+  for (i = 0; i < N; i++) {
+    fprintf(VFID, " %.16" ESYM "", vdata[i]);
+  }
+  for (i = 0; i < N; i++) {
+    fprintf(WFID, " %.16" ESYM "", wdata[i]);
+  }
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
@@ -239,7 +277,9 @@ int main()
 
     /* call integrator */
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      break;
+    }
 
     /* print solution statistics */
     unorm = N_VDotProd(u,u);
@@ -260,9 +300,15 @@ int main()
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", udata[i]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", vdata[i]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", wdata[i]);
+    for (i = 0; i < N; i++) {
+      fprintf(UFID, " %.16" ESYM "", udata[i]);
+    }
+    for (i = 0; i < N; i++) {
+      fprintf(VFID, " %.16" ESYM "", vdata[i]);
+    }
+    for (i = 0; i < N; i++) {
+      fprintf(WFID, " %.16" ESYM "", wdata[i]);
+    }
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
@@ -340,18 +386,30 @@ static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunindextype i;
 
   y_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 0));
-  if (check_flag((void *) y_u, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_u, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   y_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 1));
-  if (check_flag((void *) y_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   y_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 2));
-  if (check_flag((void *) y_w, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_w, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   f_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 0));
-  if (check_flag((void *) f_u, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)f_u, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   f_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 1));
-  if (check_flag((void *) f_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)f_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   f_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 2));
-  if (check_flag((void *) f_w, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)f_w, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   N_VConst(RCONST(0.0), ydot);              /* initialize ydot to zero */
 
@@ -391,18 +449,30 @@ static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunindextype i;
 
   y_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 0));
-  if (check_flag((void *) y_u, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_u, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   y_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 1));
-  if (check_flag((void *) y_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   y_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 2));
-  if (check_flag((void *) y_w, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_w, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   f_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 0));
-  if (check_flag((void *) f_u, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)f_u, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   f_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 1));
-  if (check_flag((void *) f_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)f_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   f_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 2));
-  if (check_flag((void *) f_w, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)f_w, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   N_VConst(0.0, ydot);                        /* initialize ydot to zero */
 
@@ -439,25 +509,43 @@ static int JacVI(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   sunindextype i;
 
   y_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 0));
-  if (check_flag((void *) y_u, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_u, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   y_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 1));
-  if (check_flag((void *) y_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   y_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 2));
-  if (check_flag((void *) y_w, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)y_w, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   v_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(v, 0));
-  if (check_flag((void *) v_u, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)v_u, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   v_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(v, 1));
-  if (check_flag((void *) v_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)v_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   v_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(v, 2));
-  if (check_flag((void *) v_w, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)v_w, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   Ju_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(Jv, 0));
-  if (check_flag((void *) Ju_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Ju_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   Jv_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(Jv, 1));
-  if (check_flag((void *) Jv_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Jv_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   Jw_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(Jv, 2));
-  if (check_flag((void *) Jw_v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Jw_v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   N_VConst(ZERO, Jv);      /* initialize Jv to zero */
 

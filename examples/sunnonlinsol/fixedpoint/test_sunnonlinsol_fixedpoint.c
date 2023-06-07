@@ -123,8 +123,12 @@ int main(int argc, char *argv[])
   SUNContext         sunctx     = NULL;
 
   /* Check if a acceleration/dampling values were provided */
-  if (argc > 1) maa     = (long int) atoi(argv[1]);
-  if (argc > 2) damping = (realtype) atof(argv[2]);
+  if (argc > 1) {
+    maa = (long int)atoi(argv[1]);
+  }
+  if (argc > 2) {
+    damping = (realtype)atof(argv[2]);
+  }
 
   /* Print problem description */
   printf("Solve the nonlinear system:\n");
@@ -143,28 +147,42 @@ int main(int argc, char *argv[])
 
   /* create SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* create proxy for integrator memory */
   Imem = (IntegratorMem) malloc(sizeof(struct IntegratorMemRec));
-  if (check_retval((void *)Imem, "Creating Integrator Memory", 0)) return(1);
+  if (check_retval((void *)Imem, "Creating Integrator Memory", 0)) {
+    return (1);
+  }
 
   /* create vectors */
   Imem->y0 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   Imem->ycor = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->ycor, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->ycor, "N_VClone", 0)) {
+    return (1);
+  }
 
   Imem->ycur = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->ycur, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->ycur, "N_VClone", 0)) {
+    return (1);
+  }
 
   Imem->w = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->w, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->w, "N_VClone", 0)) {
+    return (1);
+  }
 
   /* set initial guess */
   data = N_VGetArrayPointer(Imem->y0);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return (1);
+  }
 
   data[0] =  PTONE;
   data[1] =  PTONE;
@@ -178,35 +196,49 @@ int main(int argc, char *argv[])
 
   /* create nonlinear solver */
   NLS = SUNNonlinSol_FixedPoint(Imem->y0, maa, sunctx);
-  if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+  if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) {
+    return (1);
+  }
 
   /* set the nonlinear residual function */
   retval = SUNNonlinSolSetSysFn(NLS, FPFunction);
-  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) {
+    return (1);
+  }
 
   /* set the convergence test function */
   retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest, NULL);
-  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) {
+    return (1);
+  }
 
   /* set the maximum number of nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(NLS, mxiter);
-  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) {
+    return (1);
+  }
 
   /* set the damping parameter */
   retval = SUNNonlinSolSetDamping_FixedPoint(NLS, damping);
-  if (check_retval(&retval, "SUNNonlinSolSetDamping", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetDamping", 1)) {
+    return (1);
+  }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(NLS, Imem->y0, Imem->ycor, Imem->w, tol, SUNTRUE,
                              Imem);
-  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) {
+    return (1);
+  }
 
   /* update the initial guess with the final correction */
   N_VLinearSum(ONE, Imem->y0, ONE, Imem->ycor, Imem->ycur);
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
-  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) {
+    return (1);
+  }
 
   printf("Number of nonlinear iterations: %ld\n",niters);
 
@@ -234,8 +266,11 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
   /* compute the norm of the correction */
   delnrm = N_VMaxNorm(del);
 
-  if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
-  else               return(SUN_NLS_CONTINUE); /* not converged */
+  if (delnrm <= tol) {
+    return (SUN_NLS_SUCCESS); /* success       */
+  } else {
+    return (SUN_NLS_CONTINUE); /* not converged */
+  }
 }
 
 
@@ -277,10 +312,14 @@ int FPFunction(N_Vector ycor, N_Vector gvec, void *mem)
 
   /* Get vector data arrays */
   ydata = N_VGetArrayPointer(Imem->ycur);
-  if (check_retval((void*)ydata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void *)ydata, "N_VGetArrayPointer", 0)) {
+    return (-1);
+  }
 
   gdata = N_VGetArrayPointer(gvec);
-  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void *)gdata, "N_VGetArrayPointer", 0)) {
+    return (-1);
+  }
 
   /* get vector components */
   x = ydata[0];
@@ -307,7 +346,9 @@ static int check_ans(N_Vector ycur, realtype tol)
 
   /* Get vector data array */
   data = N_VGetArrayPointer(ycur);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) {
+    return (1);
+  }
 
   /* print the solution */
   printf("Computed solution:\n");

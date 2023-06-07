@@ -116,8 +116,10 @@ int CVDiag(void *cvode_mem)
     return(CVDIAG_ILL_INPUT);
   }
 
-  if (lfree != NULL) lfree(cv_mem);
-  
+  if (lfree != NULL) {
+    lfree(cv_mem);
+  }
+
   /* Set four main function fields in cv_mem */
   linit  = CVDiagInit;
   lsetup = CVDiagSetup;
@@ -496,7 +498,9 @@ int CVDiagB(void *cvode_mem, int which)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 

@@ -262,8 +262,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   pdata->nge = 0;
 
   /* make sure pdata is free from any previous allocations */
-  if (idals_mem->pfree)
+  if (idals_mem->pfree) {
     idals_mem->pfree(IDA_mem);
+  }
 
   /* Point to the new pdata field in the LS memory */
   idals_mem->pdata = pdata;
@@ -514,10 +515,14 @@ static int IDABBDPrecFree(IDAMem IDA_mem)
   IDALsMem idals_mem;
   IBBDPrecData pdata;
 
-  if (IDA_mem->ida_lmem == NULL) return(0);
+  if (IDA_mem->ida_lmem == NULL) {
+    return (0);
+  }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
-  if (idals_mem->pdata == NULL) return(0);
+  if (idals_mem->pdata == NULL) {
+    return (0);
+  }
   pdata = (IBBDPrecData) idals_mem->pdata;
 
   SUNLinSolFree(pdata->LS);
@@ -577,8 +582,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   ypdata    = N_VGetArrayPointer(yp);
   gtempdata = N_VGetArrayPointer(gtemp);
   ewtdata   = N_VGetArrayPointer(IDA_mem->ida_ewt);
-  if (IDA_mem->ida_constraintsSet)
+  if (IDA_mem->ida_constraintsSet) {
     cnsdata = N_VGetArrayPointer(IDA_mem->ida_constraints);
+  }
   ytempdata = N_VGetArrayPointer(ytemp);
   yptempdata= N_VGetArrayPointer(yptemp);
   grefdata = N_VGetArrayPointer(gref);
@@ -586,12 +592,16 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
   if (pdata->gcomm != NULL) {
     retval = pdata->gcomm(pdata->n_local, tt, yy, yp, IDA_mem->ida_user_data);
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
   }
 
   retval = pdata->glocal(pdata->n_local, tt, yy, yp, gref, IDA_mem->ida_user_data);
   pdata->nge++;
-  if (retval != 0) return(retval);
+  if (retval != 0) {
+    return (retval);
+  }
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = pdata->mldq + pdata->mudq + 1;
@@ -611,14 +621,23 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
          adjustment to give it the same sign as hh*ypj. */
       inc = pdata->rel_yy *
         SUNMAX(SUNRabs(yj), SUNMAX( SUNRabs(IDA_mem->ida_hh*ypj), ONE/ewtj));
-      if (IDA_mem->ida_hh*ypj < ZERO)  inc = -inc;
+      if (IDA_mem->ida_hh * ypj < ZERO) {
+        inc = -inc;
+      }
       inc = (yj + inc) - yj;
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (IDA_mem->ida_constraintsSet) {
         conj = cnsdata[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       /* Increment yj and ypj. */
@@ -631,7 +650,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
     retval = pdata->glocal(pdata->n_local, tt, ytemp, yptemp,
                            gtemp, IDA_mem->ida_user_data);
     pdata->nge++;
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
 
     /* Loop over components of the group again; restore ytemp and yptemp. */
     for(j = group-1; j < pdata->n_local; j += width) {
@@ -642,12 +663,21 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       /* Set increment inc as before .*/
       inc = pdata->rel_yy *
         SUNMAX(SUNRabs(yj), SUNMAX( SUNRabs(IDA_mem->ida_hh*ypj), ONE/ewtj));
-      if (IDA_mem->ida_hh*ypj < ZERO)  inc = -inc;
+      if (IDA_mem->ida_hh * ypj < ZERO) {
+        inc = -inc;
+      }
       inc = (yj + inc) - yj;
       if (IDA_mem->ida_constraintsSet) {
         conj = cnsdata[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       /* Form difference quotients and load into PP. */
@@ -655,9 +685,10 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
       col_j = SUNBandMatrix_Column(pdata->PP,j);
       i1 = SUNMAX(0, j - pdata->mukeep);
       i2 = SUNMIN(j + pdata->mlkeep, pdata->n_local-1);
-      for(i=i1; i <= i2; i++)
-        SM_COLUMN_ELEMENT_B(col_j,i,j) =
-          inc_inv * (gtempdata[i] - grefdata[i]);
+      for (i = i1; i <= i2; i++) {
+        SM_COLUMN_ELEMENT_B(col_j, i, j) =
+            inc_inv * (gtempdata[i] - grefdata[i]);
+      }
     }
   }
 

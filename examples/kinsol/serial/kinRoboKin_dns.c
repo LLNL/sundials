@@ -86,69 +86,101 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Create vectors for solution, scales, and constraints */
 
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   scale = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)scale, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   constraints = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Initialize and allocate memory for KINSOL */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void *)kmem, "KINCreate", 0)) {
+    return (1);
+  }
 
   retval = KINInit(kmem, func, y); /* y passed as a template */
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) {
+    return (1);
+  }
 
   /* Set optional inputs */
 
   N_VConst(ZERO,constraints);
-  for (i = NVAR+1; i <= NEQ; i++) Ith(constraints, i) = ONE;
+  for (i = NVAR + 1; i <= NEQ; i++) {
+    Ith(constraints, i) = ONE;
+  }
 
   retval = KINSetConstraints(kmem, constraints);
-  if (check_retval(&retval, "KINSetConstraints", 1)) return(1);
+  if (check_retval(&retval, "KINSetConstraints", 1)) {
+    return (1);
+  }
 
   fnormtol  = FTOL;
   retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) {
+    return (1);
+  }
 
   scsteptol = STOL;
   retval = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_retval(&retval, "KINSetScaledStepTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetScaledStepTol", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix */
   J = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if(check_retval((void *)J, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)J, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, J, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver to KINSOL */
   retval = KINSetLinearSolver(kmem, LS, J);
-  if(check_retval(&retval, "KINSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the Jacobian function */
   retval = KINSetJacFn(kmem, jac);
-  if (check_retval(&retval, "KINSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "KINSetJacFn", 1)) {
+    return (1);
+  }
 
   /* Indicate exact Newton */
 
   mset = 1;
   retval = KINSetMaxSetupCalls(kmem, mset);
-  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) return(1);
+  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) {
+    return (1);
+  }
 
   /* Initial guess */
 
   N_VConst(ONE, y);
-  for(i = 1; i <= NVAR; i++) Ith(y,i) = SUNRsqrt(TWO)/TWO;
+  for (i = 1; i <= NVAR; i++) {
+    Ith(y, i) = SUNRsqrt(TWO) / TWO;
+  }
 
   printf("Initial guess:\n");
   PrintOutput(y);
@@ -161,7 +193,9 @@ int main()
                 KIN_LINESEARCH, /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
+  if (check_retval(&retval, "KINSol", 1)) {
+    return (1);
+  }
 
   printf("\nComputed solution:\n");
   PrintOutput(y);

@@ -71,14 +71,18 @@ int SUNModifiedGS(N_Vector *v, realtype **h, int k, int p,
      by a very small vector length. */
 
   temp = FACTOR * vk_norm;
-  if ((temp + (*new_vk_norm)) != temp) return(0);
+  if ((temp + (*new_vk_norm)) != temp) {
+    return (0);
+  }
 
   new_norm_2 = ZERO;
 
   for (i=i0; i < k; i++) {
     new_product = N_VDotProd(v[i], v[k]);
     temp = FACTOR * h[i][k_minus_1];
-    if ((temp + new_product) == temp) continue;
+    if ((temp + new_product) == temp) {
+      continue;
+    }
     h[i][k_minus_1] += new_product;
     N_VLinearSum(ONE, v[k],-new_product, v[i], v[k]);
     new_norm_2 += SUNSQR(new_product);
@@ -119,7 +123,9 @@ int SUNClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_nor
   /* Perform Classical Gram-Schmidt */
 
   retval = N_VDotProdMulti(k-i0+1, v[k], v+i0, stemp);
-  if (retval != 0) return(-1);
+  if (retval != 0) {
+    return (-1);
+  }
 
   vk_norm = SUNRsqrt(stemp[k-i0]);
   for (i=k-i0-1; i >= 0; i--) {
@@ -131,7 +137,9 @@ int SUNClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_nor
   vtemp[0] = v[k];
 
   retval = N_VLinearCombination(k-i0+1, stemp, vtemp, v[k]);
-  if (retval != 0) return(-1);
+  if (retval != 0) {
+    return (-1);
+  }
 
   /* Compute the norm of the new vector at v[k] */
 
@@ -142,7 +150,9 @@ int SUNClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_nor
   if ((FACTOR * (*new_vk_norm)) < vk_norm) {
 
     retval = N_VDotProdMulti(k-i0, v[k], v+i0, stemp+1);
-    if (retval != 0) return(-1);
+    if (retval != 0) {
+      return (-1);
+    }
 
     stemp[0] = ONE;
     vtemp[0] = v[k];
@@ -153,7 +163,9 @@ int SUNClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_nor
     }
 
     retval = N_VLinearCombination(k+1, stemp, vtemp, v[k]);
-    if (retval != 0) return(-1);
+    if (retval != 0) {
+      return (-1);
+    }
 
     *new_vk_norm = SUNRsqrt(N_VDotProd(v[k],v[k]));
   }
@@ -219,7 +231,9 @@ int SUNQRfact(int n, realtype **h, realtype *q, int job)
       }
       q[q_ptr] = c;
       q[q_ptr+1] = s;
-      if( (h[k][k] = c*temp1 - s*temp2) == ZERO) code = k+1;
+      if ((h[k][k] = c * temp1 - s * temp2) == ZERO) {
+        code = k + 1;
+      }
     }
     break;
 
@@ -263,8 +277,9 @@ int SUNQRfact(int n, realtype **h, realtype *q, int job)
     q_ptr = 2*n_minus_1;
     q[q_ptr] = c;
     q[q_ptr+1] = s;
-    if ((h[n_minus_1][n_minus_1] = c*temp1 - s*temp2) == ZERO)
+    if ((h[n_minus_1][n_minus_1] = c * temp1 - s * temp2) == ZERO) {
       code = n;
+    }
   }
 
   return (code);
@@ -309,7 +324,9 @@ int SUNQRsol(int n, realtype **h, realtype *q, realtype *b)
       break;
     }
     b[k] /= h[k][k];
-    for (i=0; i < k; i++) b[i] -= b[k]*h[i][k];
+    for (i = 0; i < k; i++) {
+      b[i] -= b[k] * h[i][k];
+    }
   }
 
   return (code);

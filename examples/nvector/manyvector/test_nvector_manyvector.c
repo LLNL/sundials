@@ -278,12 +278,17 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   x1 = N_VGetSubvectorArrayPointer_ManyVector(X, 1);
 
   /* ensure that local_length = x0len + x1len */
-  if (local_length != x0len+x1len)
-    return(1);
+  if (local_length != x0len + x1len) {
+    return (1);
+  }
 
   /* check vector data */
-  for (i=0; i<x0len; i++)  failure += SUNRCompare(x0[i], ans);
-  for (i=0; i<x1len; i++)  failure += SUNRCompare(x1[i], ans);
+  for (i = 0; i < x0len; i++) {
+    failure += SUNRCompare(x0[i], ans);
+  }
+  for (i = 0; i < x1len; i++) {
+    failure += SUNRCompare(x1[i], ans);
+  }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -321,8 +326,12 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   x0len = N_VGetLength(Xsub[0]);
 
   /* set i-th element of data array (in appropriate subvector) */
-  for (i=is; i<x0len; i++)  NV_Ith_S(Xsub[0],i) = val;
-  for (i=x0len; i<=ie; i++)  NV_Ith_S(Xsub[1], i-x0len) = val;
+  for (i = is; i < x0len; i++) {
+    NV_Ith_S(Xsub[0], i) = val;
+  }
+  for (i = x0len; i <= ie; i++) {
+    NV_Ith_S(Xsub[1], i - x0len) = val;
+  }
 }
 
 realtype get_element(N_Vector X, sunindextype i)

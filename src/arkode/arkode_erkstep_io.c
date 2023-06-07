@@ -34,7 +34,9 @@
 int ERKStepSetDenseOrder(void *arkode_mem, int dord) {
   return(ERKStepSetInterpolantDegree(arkode_mem, dord)); }
 int ERKStepSetInterpolantDegree(void *arkode_mem, int degree) {
-  if (degree < 0) degree = ARK_INTERP_MAX_DEGREE;
+  if (degree < 0) {
+    degree = ARK_INTERP_MAX_DEGREE;
+  }
   return(arkSetInterpolantDegree(arkode_mem, degree)); }
 int ERKStepSetInterpolantType(void *arkode_mem, int itype) {
   return(arkSetInterpolantType(arkode_mem, itype)); }
@@ -171,7 +173,9 @@ int ERKStepSetDefaults(void* arkode_mem)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetDefaults",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Set default ARKODE infrastructure parameters */
   retval = arkSetDefaults(arkode_mem);
@@ -214,7 +218,9 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetOrder",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) {
@@ -259,7 +265,9 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetTable",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* check for legal inputs */
   if (B == NULL) {
@@ -317,7 +325,9 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID etable)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetTableNum",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* check that argument specifies an explicit table */
   if (etable<ARKODE_MIN_ERK_NUM || etable>ARKODE_MAX_ERK_NUM) {
@@ -388,7 +398,9 @@ int ERKStepGetNumRhsEvals(void *arkode_mem, long int *fevals)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetNumRhsEvals",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* get values from step_mem */
   *fevals = step_mem->nfe;
@@ -412,7 +424,9 @@ int ERKStepGetCurrentButcherTable(void *arkode_mem,
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetCurrentButcherTable",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* get tables from step_mem */
   *B = step_mem->B;
@@ -436,7 +450,9 @@ int ERKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetEstLocalErrors",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* copy vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
@@ -461,7 +477,9 @@ int ERKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetTimestepperStats",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* set expsteps and accsteps from adaptivity structure */
   *expsteps = ark_mem->hadapt_mem->nst_exp;
@@ -490,10 +508,14 @@ int ERKStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepPrintAllStats",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   retval = arkPrintAllStats(arkode_mem, outfile, fmt);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   switch(fmt)
   {
@@ -532,7 +554,9 @@ int ERKStepWriteParameters(void *arkode_mem, FILE *fp)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepWriteParameters",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* output ARKODE infrastructure parameters first */
   retval = arkWriteParameters(arkode_mem, fp);
@@ -566,7 +590,9 @@ int ERKStepWriteButcher(void *arkode_mem, FILE *fp)
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepWriteButcher",
                                  &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* check that Butcher table is non-NULL (otherwise report error) */
   if (step_mem->B == NULL) {

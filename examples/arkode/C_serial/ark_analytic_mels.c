@@ -85,7 +85,9 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
@@ -95,7 +97,9 @@ int main()
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   N_VConst(RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
@@ -103,23 +107,35 @@ int main()
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
-  if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   retval = ARKStepSetUserData(arkode_mem, (void *) &lamda);  /* Pass lamda to user functions */
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   retval = ARKStepSStolerances(arkode_mem, reltol, abstol);  /* Specify tolerances */
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Initialize custom matrix-embedded linear solver */
   LS = MatrixEmbeddedLS(arkode_mem, ctx);
-  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) return 1;
+  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) {
+    return 1;
+  }
   retval = ARKStepSetLinearSolver(arkode_mem, LS, NULL);     /* Attach linear solver */
-  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   retval = ARKStepSetLinear(arkode_mem, 0);
-  if (check_retval(&retval, "ARKStepSetLinear", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetLinear", 1)) {
+    return 1;
+  }
 
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached. */
@@ -130,7 +146,9 @@ int main()
   while (Tf - t > 1.0e-15) {
 
     retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);   /* call integrator */
-    if (check_retval(&retval, "ARKStepEvolve", 1)) break;
+    if (check_retval(&retval, "ARKStepEvolve", 1)) {
+      break;
+    }
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));      /* access/print solution */
     if (retval >= 0) {                                             /* successful solve: update time */
       tout += dTout;
@@ -210,7 +228,9 @@ static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem, SUNContext ctx)
 {
   /* Create an empty linear solver */
   SUNLinearSolver LS = SUNLinSolNewEmpty(ctx);
-  if (LS == NULL) return NULL;
+  if (LS == NULL) {
+    return NULL;
+  }
 
   /* Attach operations */
   LS->ops->gettype = MatrixEmbeddedLSType;
@@ -245,8 +265,9 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   /* retrieve implicit system data from ARKStep */
   retval = ARKStepGetNonlinearSystemData(LS->content, &tcur, &zpred, &z, &Fi,
                                          &gamma, &sdata, &user_data);
-  if (check_retval((void *)&retval, "ARKStepGetNonlinearSystemData", 1))
-    return(-1);
+  if (check_retval((void *)&retval, "ARKStepGetNonlinearSystemData", 1)) {
+    return (-1);
+  }
 
   /* extract stiffness parameter from user_data */
   rdata = (realtype *) user_data;
@@ -262,7 +283,9 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
 /* destructor */
 static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
-  if (LS == NULL) return(SUNLS_SUCCESS);
+  if (LS == NULL) {
+    return (SUNLS_SUCCESS);
+  }
   LS->content = NULL;
   SUNLinSolFreeEmpty(LS);
   return(SUNLS_SUCCESS);

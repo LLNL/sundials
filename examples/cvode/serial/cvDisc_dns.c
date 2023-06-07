@@ -69,7 +69,9 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate the vector of initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
@@ -86,34 +88,48 @@ int main()
   /* Call CVodeCreate to create CVODE memory block and specify the
    * Backward Differentiaion Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize integrator memory and specify the
    * user's right hand side function y'=f(t,y), the initial time T0
    * and the initial condiition vector y. */
   retval = CVodeInit(cvode_mem, f, t0, y);
-  if (check_retval((void *)&retval, "CVodeInit", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSStolerances to specify integration tolereances,
    * specifically the scalar relative and absolute tolerance. */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval((void *)&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Provide RHS flag as user data which can be access in user provided routines */
   retval = CVodeSetUserData(cvode_mem, &flag);
-  if (check_retval((void *)&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solver */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense linear solver for use by CVode */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the linear solver and matrix to CVode by calling CVodeSetLinearSolver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval((void *)&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /*
    * ---------------------------------------------------------------
@@ -130,7 +146,9 @@ int main()
 
   /* set TSTOP (max time solution proceeds to) - this is not required */
   retval = CVodeSetStopTime(cvode_mem, t1);
-  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   flag = RHS1; /* use -y for RHS */
   t = t0; /* set the integrator start time */
@@ -139,12 +157,16 @@ int main()
   while (t<t1) {
     /* advance solver just one internal step */
     retval = CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
-    if (check_retval((void *)&retval, "CVode", 1)) return(1);
+    if (check_retval((void *)&retval, "CVode", 1)) {
+      return (1);
+    }
     printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
   /* Get the number of steps the solver took to get to the discont. */
   retval = CVodeGetNumSteps(cvode_mem, &nst1);
-  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) return(1);
+  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   /* ---- Integrate from the discontinuity */
 
@@ -153,11 +175,15 @@ int main()
 
   /* Reinitialize the solver */
   retval = CVodeReInit(cvode_mem, t1, y);
-  if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   /* set TSTOP (max time solution proceeds to) - this is not required */
   retval = CVodeSetStopTime(cvode_mem, t2);
-  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   flag = RHS1; /* use -y for RHS */
   t = t1; /* set the integrator start time */
@@ -167,13 +193,17 @@ int main()
   while (t<t2) {
     /* advance solver just one internal step */
     retval = CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
-    if (check_retval((void *)&retval, "CVode", 1)) return(1);
+    if (check_retval((void *)&retval, "CVode", 1)) {
+      return (1);
+    }
     printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took after the discont. */
   retval = CVodeGetNumSteps(cvode_mem, &nst2);
-  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) return(1);
+  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   /* Print statistics */
   nst = nst1 + nst2;
@@ -196,13 +226,17 @@ int main()
    * so it can only be used when the new problem size is the same as
    * the problem size when CVodeCreate was called. */
   retval = CVodeReInit(cvode_mem, t0, y);
-  if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   /* ---- Integrate to the discontinuity */
 
   /* Set TSTOP (max time solution proceeds to) to location of discont. */
   retval = CVodeSetStopTime(cvode_mem, t1);
-  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   flag = RHS1; /* use -y for RHS */
   t = t0; /* set the integrator start time */
@@ -211,13 +245,17 @@ int main()
   while (t<t1) {
     /* advance solver just one internal step */
     retval = CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
-    if (check_retval((void *)&retval, "CVode", 1)) return(1);
+    if (check_retval((void *)&retval, "CVode", 1)) {
+      return (1);
+    }
     printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took to get to the discont. */
   retval = CVodeGetNumSteps(cvode_mem, &nst1);
-  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) return(1);
+  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   /* If TSTOP was not set, we'd need to find y(t1): */
   /* CVodeGetDky(cvode_mem, t1, 0, y); */
@@ -229,7 +267,9 @@ int main()
 
   /* set TSTOP (max time solution proceeds to) - this is not required */
   retval = CVodeSetStopTime(cvode_mem, t2);
-  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   flag = RHS2; /* use -5y for RHS */
   t = t1; /* set the integrator start time */
@@ -239,13 +279,17 @@ int main()
   while (t<t2) {
     /* advance solver just one internal step */
     retval = CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
-    if (check_retval((void *)&retval, "CVode", 1)) return(1);
+    if (check_retval((void *)&retval, "CVode", 1)) {
+      return (1);
+    }
     printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took after the discont. */
   retval = CVodeGetNumSteps(cvode_mem, &nst2);
-  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) return(1);
+  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   /* Print statistics */
   nst = nst1 + nst2;
@@ -269,13 +313,17 @@ int main()
    * so it can only be used when the new problem size is the same as
    * the problem size when CVodeCreate was called. */
   retval = CVodeReInit(cvode_mem, t0, y);
-  if (check_retval((void *)&retval, "CVodeReInit", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeReInit", 1)) {
+    return (1);
+  }
 
   /* ---- Integrate to the discontinuity */
 
   /* Set TSTOP (max time solution proceeds to) to location of discont. */
   retval = CVodeSetStopTime(cvode_mem, t1);
-  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   flag = RHS1; /* use -y for RHS */
   t = t0; /* set the integrator start time */
@@ -284,19 +332,25 @@ int main()
   while (t<t1) {
     /* advance solver just one internal step */
     retval = CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
-    if (check_retval((void *)&retval, "CVode", 1)) return(1);
+    if (check_retval((void *)&retval, "CVode", 1)) {
+      return (1);
+    }
     printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took to get to the discont. */
   retval = CVodeGetNumSteps(cvode_mem, &nst1);
-  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) return(1);
+  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   /* ---- Integrate from the discontinuity */
 
   /* set TSTOP (max time solution proceeds to) - this is not required */
   retval = CVodeSetStopTime(cvode_mem, t2);
-  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval((void *)&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   flag = RHS2; /* use -5y for RHS */
   t = t1; /* set the integrator start time */
@@ -306,13 +360,17 @@ int main()
   while (t<t2) {
     /* advance solver just one internal step */
     retval = CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
-    if (check_retval((void *)&retval, "CVode", 1)) return(1);
+    if (check_retval((void *)&retval, "CVode", 1)) {
+      return (1);
+    }
     printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took after the discont. */
   retval = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) return(1);
+  if (check_retval((void *)&retval, "CvodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   /* Print statistics */
   nst2 = nst - nst1;

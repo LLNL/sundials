@@ -98,11 +98,15 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Initialize y */
   NV_Ith_S(y,0) = Y1;
@@ -111,7 +115,9 @@ int main()
 
   /* Set the vector absolute tolerance */
   abstol = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   NV_Ith_S(abstol,0) = ATOL1;
   NV_Ith_S(abstol,1) = ATOL2;
@@ -120,34 +126,48 @@ int main()
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, RTOL, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetUserData to pass the check negative retval as user data */
   retval = CVodeSetUserData(cvode_mem, &check_negative);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Case 1: ignore negative solution components */
   printf("Ignore negative solution components\n\n");
@@ -159,7 +179,9 @@ int main()
     PrintOutput(t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     iout++;
     tout *= TMULT;
-    if (iout == NOUT) break;
+    if (iout == NOUT) {
+      break;
+    }
   }
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
@@ -179,7 +201,9 @@ int main()
     PrintOutput(t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     iout++;
     tout *= TMULT;
-    if (iout == NOUT) break;
+    if (iout == NOUT) {
+      break;
+    }
   }
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
@@ -215,8 +239,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   y1 = NV_Ith_S(y,0); y2 = NV_Ith_S(y,1); y3 = NV_Ith_S(y,2);
 
-  if ( *check_negative && (y1<0 || y2<0 || y3<0) )
-    return(1);
+  if (*check_negative && (y1 < 0 || y2 < 0 || y3 < 0)) {
+    return (1);
+  }
 
   yd1 = NV_Ith_S(ydot,0) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
   yd3 = NV_Ith_S(ydot,2) = RCONST(3.0e7)*y2*y2;

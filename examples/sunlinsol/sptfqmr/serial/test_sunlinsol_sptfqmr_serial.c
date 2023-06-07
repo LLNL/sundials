@@ -159,22 +159,35 @@ int main(int argc, char *argv[])
 
   /* Create vectors */
   x = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(x, "N_VNew_Serial", 0)) return 1;
+  if (check_flag(x, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   xhat = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(xhat, "N_VNew_Serial", 0)) return 1;
+  if (check_flag(xhat, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   b = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(b, "N_VNew_Serial", 0)) return 1;
+  if (check_flag(b, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   ProbData.d = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(ProbData.d, "N_VNew_Serial", 0)) return 1;
+  if (check_flag(ProbData.d, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   ProbData.s1 = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(ProbData.s1, "N_VNew_Serial", 0)) return 1;
+  if (check_flag(ProbData.s1, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   ProbData.s2 = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(ProbData.s2, "N_VNew_Serial", 0)) return 1;
+  if (check_flag(ProbData.s2, "N_VNew_Serial", 0)) {
+    return 1;
+  }
 
   /* Fill xhat vector with uniform random data in [1,2] */
   vecdata = N_VGetArrayPointer(xhat);
-  for (i=0; i<ProbData.N; i++)
+  for (i = 0; i < ProbData.N; i++) {
     vecdata[i] = ONE + urand();
+  }
 
   /* Fill Jacobi vector with matrix diagonal */
   N_VConst(FIVE, ProbData.d);
@@ -208,7 +221,9 @@ int main(int argc, char *argv[])
 
   /* Fill b vector with result of matrix-vector product */
   fails = ATimes(&ProbData, x, b);
-  if (check_flag(&fails, "ATimes", 1)) return 1;
+  if (check_flag(&fails, "ATimes", 1)) {
+    return 1;
+  }
 
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
@@ -240,7 +255,9 @@ int main(int argc, char *argv[])
 
   /* Fill b vector with result of matrix-vector product */
   fails = ATimes(&ProbData, x, b);
-  if (check_flag(&fails, "ATimes", 1)) return 1;
+  if (check_flag(&fails, "ATimes", 1)) {
+    return 1;
+  }
 
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
@@ -268,8 +285,9 @@ int main(int argc, char *argv[])
 
   /* set scaling vectors */
   vecdata = N_VGetArrayPointer(ProbData.s1);
-  for (i=0; i<ProbData.N; i++)
-    vecdata[i] = ONE + THOUSAND*urand();
+  for (i = 0; i < ProbData.N; i++) {
+    vecdata[i] = ONE + THOUSAND * urand();
+  }
   N_VConst(ONE, ProbData.s2);
 
   /* Fill x vector with scaled version */
@@ -277,7 +295,9 @@ int main(int argc, char *argv[])
 
   /* Fill b vector with result of matrix-vector product */
   fails = ATimes(&ProbData, x, b);
-  if (check_flag(&fails, "ATimes", 1)) return 1;
+  if (check_flag(&fails, "ATimes", 1)) {
+    return 1;
+  }
 
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
@@ -302,8 +322,9 @@ int main(int argc, char *argv[])
 
   /* set scaling vectors */
   vecdata = N_VGetArrayPointer(ProbData.s1);
-  for (i=0; i<ProbData.N; i++)
-    vecdata[i] = ONE + THOUSAND*urand();
+  for (i = 0; i < ProbData.N; i++) {
+    vecdata[i] = ONE + THOUSAND * urand();
+  }
   N_VConst(ONE, ProbData.s2);
 
   /* Fill x vector with scaled version */
@@ -311,7 +332,9 @@ int main(int argc, char *argv[])
 
   /* Fill b vector with result of matrix-vector product */
   fails = ATimes(&ProbData, x, b);
-  if (check_flag(&fails, "ATimes", 1)) return 1;
+  if (check_flag(&fails, "ATimes", 1)) {
+    return 1;
+  }
 
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
@@ -340,15 +363,18 @@ int main(int argc, char *argv[])
   /* set scaling vectors */
   N_VConst(ONE, ProbData.s1);
   vecdata = N_VGetArrayPointer(ProbData.s2);
-  for (i=0; i<ProbData.N; i++)
-    vecdata[i] = ONE + THOUSAND*urand();
+  for (i = 0; i < ProbData.N; i++) {
+    vecdata[i] = ONE + THOUSAND * urand();
+  }
 
   /* Fill x vector with scaled version */
   N_VDiv(xhat,ProbData.s2,x);
 
   /* Fill b vector with result of matrix-vector product */
   fails = ATimes(&ProbData, x, b);
-  if (check_flag(&fails, "ATimes", 1)) return 1;
+  if (check_flag(&fails, "ATimes", 1)) {
+    return 1;
+  }
 
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
@@ -374,15 +400,18 @@ int main(int argc, char *argv[])
   /* set scaling vector, Jacobi solver vector */
   N_VConst(ONE, ProbData.s1);
   vecdata = N_VGetArrayPointer(ProbData.s2);
-  for (i=0; i<ProbData.N; i++)
-    vecdata[i] = ONE + THOUSAND*urand();
+  for (i = 0; i < ProbData.N; i++) {
+    vecdata[i] = ONE + THOUSAND * urand();
+  }
 
   /* Fill x vector with scaled version */
   N_VDiv(xhat,ProbData.s2,x);
 
   /* Fill b vector with result of matrix-vector product */
   fails = ATimes(&ProbData, x, b);
-  if (check_flag(&fails, "ATimes", 1)) return 1;
+  if (check_flag(&fails, "ATimes", 1)) {
+    return 1;
+  }
 
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
@@ -435,21 +464,32 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   /* access user data structure and vector data */
   ProbData = (UserData *) Data;
   v = N_VGetArrayPointer(v_vec);
-  if (check_flag(v, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(v, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   z = N_VGetArrayPointer(z_vec);
-  if (check_flag(z, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(z, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   s1 = N_VGetArrayPointer(ProbData->s1);
-  if (check_flag(s1, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(s1, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   s2 = N_VGetArrayPointer(ProbData->s2);
-  if (check_flag(s2, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(s2, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   N = ProbData->N;
 
   /* perform product at the left domain boundary (note: v is zero at the boundary)*/
   z[0] = (FIVE*v[0]*s2[0] - v[1]*s2[1])/s1[0];
 
   /* iterate through interior of the domain, performing product */
-  for (i=1; i<N-1; i++)
-    z[i] = (-v[i-1]*s2[i-1] + FIVE*v[i]*s2[i] - v[i+1]*s2[i+1])/s1[i];
+  for (i = 1; i < N - 1; i++) {
+    z[i] =
+        (-v[i - 1] * s2[i - 1] + FIVE * v[i] * s2[i] - v[i + 1] * s2[i + 1]) /
+        s1[i];
+  }
 
   /* perform product at the right domain boundary (note: v is zero at the boundary)*/
   z[N-1] = (-v[N-2]*s2[N-2] + FIVE*v[N-1]*s2[N-1])/s1[N-1];
@@ -472,15 +512,22 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
   /* access user data structure and vector data */
   ProbData = (UserData *) Data;
   r = N_VGetArrayPointer(r_vec);
-  if (check_flag(r, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(r, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   z = N_VGetArrayPointer(z_vec);
-  if (check_flag(z, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(z, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   d = N_VGetArrayPointer(ProbData->d);
-  if (check_flag(d, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag(d, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate through domain, performing Jacobi solve */
-  for (i=0; i<ProbData->N; i++)
+  for (i = 0; i < ProbData->N; i++) {
     z[i] = r[i] / d[i];
+  }
 
   /* return with success */
   return 0;
@@ -530,19 +577,21 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   Ydata = N_VGetArrayPointer(Y);
 
   /* check vector data */
-  for(i=0; i<problem_size; i++)
+  for (i = 0; i < problem_size; i++) {
     failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+  }
 
   if (failure > ZERO) {
     maxerr = ZERO;
-    for(i=0; i < problem_size; i++)
-      maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
+    for (i = 0; i < problem_size; i++) {
+      maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]) / SUNRabs(Xdata[i]), maxerr);
+    }
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, tol);
     return(1);
+  } else {
+    return (0);
   }
-  else
-    return(0);
 }
 
 void sync_device()

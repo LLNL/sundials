@@ -50,22 +50,31 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
   sunindextype MatrixRows;
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_DENSE) return(NULL);
+  if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
+    return (NULL);
+  }
 
-  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A)) return(NULL);
+  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A)) {
+    return (NULL);
+  }
 
-  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
-    return(NULL);
+  if ((N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+      (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+      (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS)) {
+    return (NULL);
+  }
 
   MatrixRows = SUNDenseMatrix_Rows(A);
-  if (MatrixRows != N_VGetLength(y)) return(NULL);
+  if (MatrixRows != N_VGetLength(y)) {
+    return (NULL);
+  }
 
   /* Create an empty linear solver */
   S = NULL;
   S = SUNLinSolNewEmpty(sunctx);
-  if (S == NULL) return(NULL);
+  if (S == NULL) {
+    return (NULL);
+  }
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Dense;
@@ -126,8 +135,9 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
   sunindextype *pivots;
 
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) )
-    return(SUNLS_MEM_NULL);
+  if ((A == NULL) || (S == NULL)) {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* Ensure that A is a dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
@@ -150,8 +160,9 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
                                      SUNDenseMatrix_Columns(A), pivots);
 
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
-  if (LASTFLAG(S) > 0)
-    return(SUNLS_LUFACT_FAIL);
+  if (LASTFLAG(S) > 0) {
+    return (SUNLS_LUFACT_FAIL);
+  }
   return(SUNLS_SUCCESS);
 }
 
@@ -161,8 +172,9 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype **A_cols, *xdata;
   sunindextype *pivots;
 
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
-    return(SUNLS_MEM_NULL);
+  if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL)) {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* copy b into x */
   N_VScale(ONE, b, x);
@@ -188,7 +200,9 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  if (S == NULL) return(-1);
+  if (S == NULL) {
+    return (-1);
+  }
   return(LASTFLAG(S));
 }
 
@@ -204,7 +218,9 @@ int SUNLinSolSpace_Dense(SUNLinearSolver S,
 int SUNLinSolFree_Dense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) return(SUNLS_SUCCESS);
+  if (S == NULL) {
+    return (SUNLS_SUCCESS);
+  }
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {

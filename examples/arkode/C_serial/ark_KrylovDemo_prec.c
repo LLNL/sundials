@@ -257,16 +257,24 @@ int main(int argc, char* argv[])
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Retrieve the command-line options */
-  if (argc > 1) nrmfactor = atoi(argv[1]);
+  if (argc > 1) {
+    nrmfactor = atoi(argv[1]);
+  }
 
   /* Initializations */
   c = N_VNew_Serial(NEQ, ctx);
-  if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
+  if (check_flag((void *)c, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   wdata = AllocUserData(ctx);
-  if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
+  if (check_flag((void *)wdata, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(wdata);
   ns = wdata->ns;
   mxns = wdata->mxns;
@@ -287,36 +295,56 @@ int main(int argc, char* argv[])
       firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
       if (firstrun) {
         arkode_mem = ARKStepCreate(NULL, f, T0, c, ctx);
-        if(check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return(1);
+        if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+          return (1);
+        }
 
         wdata->arkode_mem = arkode_mem;
 
         flag = ARKStepSetUserData(arkode_mem, wdata);
-        if(check_flag(&flag, "ARKStepSetUserData", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+          return (1);
+        }
 
         flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-        if(check_flag(&flag, "ARKStepSStolerances", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+          return (1);
+        }
 
         flag = ARKStepSetMaxNumSteps(arkode_mem, 1000);
-        if(check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) {
+          return (1);
+        }
 
         flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
-        if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) {
+          return (1);
+        }
 
         LS = SUNLinSol_SPGMR(c, jpre, MAXL, ctx);
-        if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+        if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) {
+          return (1);
+        }
 
         flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-        if(check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+        if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+          return 1;
+        }
 
         flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
+        if (check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) {
+          return (1);
+        }
 
         flag = ARKStepSetEpsLin(arkode_mem, DELT);
-        if(check_flag(&flag, "ARKStepSetEpsLin", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetEpsLin", 1)) {
+          return (1);
+        }
 
         flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
-        if(check_flag(&flag, "ARKStepSetPreconditioner", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) {
+          return (1);
+        }
 
         /* Set the linear solver tolerance conversion factor */
         switch(nrmfactor) {
@@ -336,32 +364,49 @@ int main(int argc, char* argv[])
         }
 
         flag = ARKStepSetLSNormFactor(arkode_mem, nrmfac);
-        if (check_flag(&flag, "ARKStepSetLSNormFactor", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetLSNormFactor", 1)) {
+          return (1);
+        }
 
       } else {
 
         flag = ARKStepReInit(arkode_mem, NULL, f, T0, c);
-        if(check_flag(&flag, "ARKStepReInit", 1)) return(1);
+        if (check_flag(&flag, "ARKStepReInit", 1)) {
+          return (1);
+        }
 
         flag = SUNLinSol_SPGMRSetPrecType(LS, jpre);
-        if(check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
+        if (check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1)) {
+          return (1);
+        }
 
         flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
-
+        if (check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) {
+          return (1);
+        }
       }
 
       /* Print initial values */
-      if (firstrun) PrintAllSpecies(c, ns, mxns, T0);
+      if (firstrun) {
+        PrintAllSpecies(c, ns, mxns, T0);
+      }
 
       /* Loop over output points, call ARKStepEvolve, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
         flag = ARKStepEvolve(arkode_mem, tout, c, &t, ARK_NORMAL);
         PrintOutput(arkode_mem, t);
-        if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
-        if(check_flag(&flag, "ARKStepEvolve", 1)) break;
-        if (tout > RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT;
+        if (firstrun && (iout % 3 == 0)) {
+          PrintAllSpecies(c, ns, mxns, t);
+        }
+        if (check_flag(&flag, "ARKStepEvolve", 1)) {
+          break;
+        }
+        if (tout > RCONST(0.9)) {
+          tout += DTOUT;
+        } else {
+          tout *= TOUT_MULT;
+        }
       }
 
       /* Print final statistics, and loop for next case */
@@ -409,7 +454,11 @@ static void InitUserData(WebData wdata)
   coy = wdata->coy;
   ns = wdata->ns = NS;
 
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
+  for (j = 0; j < NS; j++) {
+    for (i = 0; i < NS; i++) {
+      acoef[i][j] = 0.;
+    }
+  }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
       acoef[NP+i][j] = EE;
@@ -464,15 +513,23 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
   int ig, j, len1, mper, ngm1;
 
   mper = m/ng; /* does integer division */
-  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
+  for (ig = 0; ig < ng; ig++) {
+    jg[ig] = ig * mper;
+  }
   jg[ng] = m;
 
   ngm1 = ng - 1;
   len1 = ngm1*mper;
-  for (j = 0; j < len1; j++) jig[j] = j/mper;
-  for (j = len1; j < m; j++) jig[j] = ngm1;
+  for (j = 0; j < len1; j++) {
+    jig[j] = j / mper;
+  }
+  for (j = len1; j < m; j++) {
+    jig[j] = ngm1;
+  }
 
-  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
+  for (ig = 0; ig < ngm1; ig++) {
+    jr[ig] = ((2 * ig + 1) * mper - 1) / 2;
+  }
   jr[ngm1] = (ngm1*mper+m-1)/2;
 }
 
@@ -558,15 +615,19 @@ static void PrintIntro(void)
 
 static void PrintHeader(int jpre, int gstype)
 {
-  if(jpre == SUN_PREC_LEFT)
+  if (jpre == SUN_PREC_LEFT) {
     printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_LEFT");
-  else
-    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_RIGHT");
+  } else {
+    printf("\n\nPreconditioner type is           jpre = %s\n",
+           "SUN_PREC_RIGHT");
+  }
 
-  if(gstype == SUN_MODIFIED_GS)
+  if (gstype == SUN_MODIFIED_GS) {
     printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_MODIFIED_GS");
-  else
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_CLASSICAL_GS");
+  } else {
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
+           "SUN_CLASSICAL_GS");
+  }
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
@@ -779,16 +840,20 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  for (i = 0; i < ns; i++)
+  for (i = 0; i < ns; i++) {
     rate[i] = ZERO;
+  }
 
-  for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
+  for (j = 0; j < ns; j++) {
+    for (i = 0; i < ns; i++) {
       rate[i] += c[j] * acoef[i][j];
+    }
+  }
 
   fac = ONE + ALPH*x*y;
-  for (i = 0; i < ns; i++)
-    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
+  for (i = 0; i < ns; i++) {
+    rate[i] = c[i] * (bcoef[i] * fac + rate[i]);
+  }
 }
 
 /*
@@ -823,7 +888,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   cdata = N_VGetArrayPointer(c);
   rewt = wdata->rewt;
   flag = ARKStepGetErrWeights(arkode_mem, rewt);
-  if(check_flag(&flag, "ARKStepGetErrWeights", 1)) return(1);
+  if (check_flag(&flag, "ARKStepGetErrWeights", 1)) {
+    return (1);
+  }
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
@@ -848,7 +915,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
 
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
-  if (r0 == ZERO) r0 = ONE;
+  if (r0 == ZERO) {
+    r0 = ONE;
+  }
 
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -879,7 +948,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   for (ig = 0; ig < ngrp; ig++) {
     SUNDlsMat_denseAddIdentity(P[ig], mp);
     ier = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-    if (ier != 0) return(1);
+    if (ier != 0) {
+      return (1);
+    }
   }
 
   *jcurPtr = SUNTRUE;
@@ -1138,26 +1209,34 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] += v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] += v[i] * w[i];
+  }
 }
 
 static void v_sum_prods(realtype u[], realtype p[], realtype q[],
                         realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] = p[i] * q[i] + v[i] * w[i];
+  }
 }
 
 static void v_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] = v[i] * w[i];
+  }
 }
 
 static void v_zero(realtype u[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = ZERO;
+  for (i = 0; i < n; i++) {
+    u[i] = ZERO;
+  }
 }
 
 /* Check function return value...

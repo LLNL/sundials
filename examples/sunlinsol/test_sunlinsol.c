@@ -432,10 +432,11 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   y = N_VClone(x);
 
   /* set initial guess for the linear system */
-  if (zeroguess)
+  if (zeroguess) {
     N_VConst(ZERO, y);
-  else
+  } else {
     N_VAddConst(x, SUNRsqrt(UNIT_ROUNDOFF), y);
+  }
 
   sync_device();
 

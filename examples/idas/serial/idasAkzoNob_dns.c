@@ -95,7 +95,9 @@ int main()
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Allocate user data. */
   data = (UserData) malloc(sizeof(*data));
@@ -113,9 +115,13 @@ int main()
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yy, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   yp = N_VClone(yy);
-  if (check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Set IC */
   Ith(yy,1) = y01;
@@ -135,47 +141,68 @@ int main()
 
  /* Create and initialize q0 for quadratures. */
   q = N_VNew_Serial(1, ctx);
-  if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)q, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(q,1) = ZERO;
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDAInit(mem, res, T0, yy, yp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
-
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   /* Set tolerances. */
   retval = IDASStolerances(mem, RTOL, ATOL);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   /* Attach user data. */
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Initialize QUADRATURE(S). */
   retval = IDAQuadInit(mem, rhsQ, q);
-  if (check_retval(&retval, "IDAQuadInit", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadInit", 1)) {
+    return (1);
+  }
 
   /* Set tolerances and error control for quadratures. */
   retval = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
-  if (check_retval(&retval, "IDAQuadSStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadSStolerances", 1)) {
+    return (1);
+  }
 
   retval = IDASetQuadErrCon(mem, SUNTRUE);
-  if (check_retval(&retval, "IDASetQuadErrCon", 1)) return(1);
+  if (check_retval(&retval, "IDASetQuadErrCon", 1)) {
+    return (1);
+  }
 
   PrintHeader(RTOL, ATOL, yy);
   /* Print initial states */
@@ -188,18 +215,24 @@ int main()
   while (1) {
 
     retval = IDASolve(mem, tout, &time, yy, yp, IDA_NORMAL);
-    if (check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (1);
+    }
 
     PrintOutput(mem, time, yy);
 
     nout++;
     tout *= incr;
 
-    if (nout>NF) break;
+    if (nout > NF) {
+      break;
+    }
   }
 
   retval = IDAGetQuad(mem, &time, q);
-  if (check_retval(&retval, "IDAGetQuad", 1)) return(1);
+  if (check_retval(&retval, "IDAGetQuad", 1)) {
+    return (1);
+  }
 
   printf("\n--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -210,7 +243,9 @@ int main()
   printf("--------------------------------------------------------\n\n");
 
   retval = PrintFinalStats(mem);
-  if (check_retval(&retval, "PrintFinalStats", 1)) return(1);
+  if (check_retval(&retval, "PrintFinalStats", 1)) {
+    return (1);
+  }
 
   IDAFree(&mem);
   SUNLinSolFree(LS);

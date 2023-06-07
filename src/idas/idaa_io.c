@@ -118,7 +118,9 @@ int IDASetNonlinearSolverB(void *ida_mem, int which, SUNNonlinearSolver NLS)
   /* Find the IDABMem entry in the linked list corresponding to 'which' */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if ( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -157,7 +159,9 @@ int IDASetUserDataB(void *ida_mem, int which, void *user_dataB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -198,7 +202,9 @@ int IDASetMaxOrdB(void *ida_mem, int which, int maxordB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -237,7 +243,9 @@ int IDASetMaxNumStepsB(void *ida_mem, int which, long int mxstepsB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -276,7 +284,9 @@ int IDASetInitStepB(void *ida_mem, int which, realtype hinB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -315,7 +325,9 @@ int IDASetMaxStepB(void *ida_mem, int which, realtype hmaxB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -354,7 +366,9 @@ int IDASetSuppressAlgB(void *ida_mem, int which,  booleantype suppressalgB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -393,7 +407,9 @@ int IDASetIdB(void *ida_mem, int which,  N_Vector idB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -432,7 +448,9 @@ int IDASetConstraintsB(void *ida_mem, int which,  N_Vector constraintsB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -476,7 +494,9 @@ int IDASetQuadErrConB(void *ida_mem, int which, int errconQB)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -531,7 +551,9 @@ void *IDAGetAdjIDABmem(void *ida_mem, int which)
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -629,7 +651,9 @@ int IDAGetConsistentICB(void *ida_mem, int which, N_Vector yyB0_mod, N_Vector yp
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   while (IDAB_mem != NULL) {
-    if( which == IDAB_mem->ida_index ) break;
+    if (which == IDAB_mem->ida_index) {
+      break;
+    }
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
@@ -693,8 +717,12 @@ int IDAGetAdjDataPointHermite(void *ida_mem, int which,
   *t = dt_mem[which]->t;
   content = (HermiteDataMem) dt_mem[which]->content;
 
-  if (yy != NULL) N_VScale(ONE, content->y, yy);
-  if (yd != NULL) N_VScale(ONE, content->yd, yd);
+  if (yy != NULL) {
+    N_VScale(ONE, content->y, yy);
+  }
+  if (yd != NULL) {
+    N_VScale(ONE, content->yd, yd);
+  }
 
   return(IDA_SUCCESS);
 }
@@ -741,8 +769,10 @@ int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
 
   *t = dt_mem[which]->t;
   content = (PolynomialDataMem) dt_mem[which]->content;
- 
-  if (y != NULL) N_VScale(ONE, content->y, y); 
+
+  if (y != NULL) {
+    N_VScale(ONE, content->y, y);
+  }
 
   *order = content->order;
 

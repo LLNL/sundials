@@ -126,16 +126,19 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1))
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
     return (1);
+  }
 
   /* Create serial vector of length NEQ for I.C. and abstol */
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void*)y, "N_VNew_Serial", 0))
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
     return (1);
+  }
   abstol = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void*)abstol, "N_VNew_Serial", 0))
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) {
     return (1);
+  }
 
   /* Initialize y */
   ydata    = N_VGetArrayPointer(y);
@@ -151,49 +154,58 @@ int main()
 
   /* Call CVodeCreate to create the solver memory and specify the Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void*)cvode_mem, "CVodeCreate", 0))
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
     return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the right-hand side function in
    * y'=f(t,y), the inital time T0, and the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1))
+  if (check_retval(&retval, "CVodeInit", 1)) {
     return (1);
+  }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1))
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) {
     return (1);
+  }
 
   /* Provide sunbooleantype engine_on as user data for use in f and g routines */
   retval = CVodeSetUserData(cvode_mem, &engine_on);
-  if (check_retval((void*)&retval, "CVodeSetUserData", 1))
+  if (check_retval((void *)&retval, "CVodeSetUserData", 1)) {
     return (1);
+  }
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
   retval = CVodeRootInit(cvode_mem, 2, g);
-  if (check_retval(&retval, "CVodeRootInit", 1))
+  if (check_retval(&retval, "CVodeRootInit", 1)) {
     return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void*)A, "SUNDenseMatrix", 0))
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
     return (1);
+  }
 
   /* Create dense SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_retval((void*)LS, "SUNLinSol_Dense", 0))
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
     return (1);
+  }
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1))
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
     return (1);
+  }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVodeSetJacFn", 1))
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
     return (1);
+  }
 
   /* In loop, call CVode, print results, check for root stops, and test for error.  On the first
      root return, restart with engine turned off. Break out of loop when NOUT preset output times
@@ -206,30 +218,35 @@ int main()
   numroot   = 2;
   while (1) {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1))
+    if (check_retval(&retval, "CVode", 1)) {
       return (1);
+    }
 
     PrintOutput(t, ydata[0], ydata[1]);
 
     if (engine_on && (retval == CV_ROOT_RETURN)) { /* engine cutoff */
       retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      if (check_retval(&retvalr, "CVodeGetRootInfo", 1))
+      if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) {
         return (1);
+      }
       PrintRootInfo(rootsfound[0], rootsfound[1], numroot);
       engine_on = SUNFALSE;
       numroot   = 1;
       /* Call CVodeRootInit to specify the root function g with 1 component */
       retval = CVodeRootInit(cvode_mem, 1, g);
-      if (check_retval(&retval, "CVodeRootInit", 1))
+      if (check_retval(&retval, "CVodeRootInit", 1)) {
         return (1);
+      }
       /* Reinitialize the solver with current t and y values. */
       retval = CVodeReInit(cvode_mem, t, y);
-      if (check_retval((void*)&retval, "CVodeReInit", 1))
+      if (check_retval((void *)&retval, "CVodeReInit", 1)) {
         return (1);
+      }
     } else if ((!engine_on) && (retval == CV_ROOT_RETURN)) { /* max.  height */
       retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      if (check_retval(&retvalr, "CVodeGetRootInfo", 1))
+      if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) {
         return (1);
+      }
       PrintRootInfo(rootsfound[0], rootsfound[1], numroot);
     }
 
@@ -238,10 +255,12 @@ int main()
       tout += TINC;
     }
 
-    if (iout == NOUT)
+    if (iout == NOUT) {
       break;
-    if (ydata[0] < ZERO)
+    }
+    if (ydata[0] < ZERO) {
       break;
+    }
   }
 
   /* Print some final statistics */
@@ -359,10 +378,12 @@ static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2)
 
 static void PrintRootInfo(int root_f1, int root_f2, int numroot)
 {
-  if (numroot == 2)
+  if (numroot == 2) {
     printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
-  if (numroot == 1)
+  }
+  if (numroot == 1) {
     printf("    rootsfound[] = %3d\n", root_f1);
+  }
 
   return;
 }

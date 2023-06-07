@@ -276,7 +276,9 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 
   /* set elements [is,ie] of the data array */
   realtype* xd = N_VGetArrayPointer(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) {
+    xd[i] = val;
+  }
 }
 
 realtype get_element(N_Vector X, sunindextype i)

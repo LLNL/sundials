@@ -127,11 +127,15 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
-  if (check_flag((void *) udata, "malloc", 2)) return 1;
+  if (check_flag((void *)udata, "malloc", 2)) {
+    return 1;
+  }
 
   /* store the inputs in the UserData structure */
   udata->N  = N;
@@ -156,21 +160,31 @@ int main()
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);           /* Create serial vector for solution */
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
 
   umask = N_VClone(y);
-  if (check_flag((void *)umask, "N_VClone", 0)) return 1;
+  if (check_flag((void *)umask, "N_VClone", 0)) {
+    return 1;
+  }
 
   vmask = N_VClone(y);
-  if (check_flag((void *)vmask, "N_VClone", 0)) return 1;
+  if (check_flag((void *)vmask, "N_VClone", 0)) {
+    return 1;
+  }
 
   wmask = N_VClone(y);
-  if (check_flag((void *)wmask, "N_VClone", 0)) return 1;
+  if (check_flag((void *)wmask, "N_VClone", 0)) {
+    return 1;
+  }
 
   /* Set initial conditions into y */
   udata->dx = RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   pi = RCONST(4.0)*atan(RCONST(1.0));
   for (i=0; i<N; i++) {
@@ -182,47 +196,75 @@ int main()
   /* Set mask array values for each solution component */
   N_VConst(0.0, umask);
   data = N_VGetArrayPointer(umask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,0)] = RCONST(1.0);
+  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    data[IDX(i, 0)] = RCONST(1.0);
+  }
 
   N_VConst(0.0, vmask);
   data = N_VGetArrayPointer(vmask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,1)] = RCONST(1.0);
+  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    data[IDX(i, 1)] = RCONST(1.0);
+  }
 
   N_VConst(0.0, wmask);
   data = N_VGetArrayPointer(wmask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
+  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    data[IDX(i, 2)] = RCONST(1.0);
+  }
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Initialize band matrix data structure and solver -- A will be factored, so set smu to ml+mu */
   A = SUNBandMatrix(NEQ, 4, 4, ctx);
-  if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
+  if (check_flag((void *)A, "SUNBandMatrix", 0)) {
+    return 1;
+  }
   LS = SUNLinSol_Band(y, A, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_Band", 0)) return 1;
+  if (check_flag((void *)LS, "SUNLinSol_Band", 0)) {
+    return 1;
+  }
 
   /* Linear solver interface */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
   flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) {
+    return 1;
+  }
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
+  for (i = 0; i < N; i++) {
+    fprintf(FID, "  %.16" ESYM "\n", udata->dx * i);
+  }
   fclose(FID);
 
   /* Open output streams for results, access data array */
@@ -232,10 +274,18 @@ int main()
 
   /* output initial condition to disk */
   data = N_VGetArrayPointer(y);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
+  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
+  for (i = 0; i < N; i++) {
+    fprintf(UFID, " %.16" ESYM "", data[IDX(i, 0)]);
+  }
+  for (i = 0; i < N; i++) {
+    fprintf(VFID, " %.16" ESYM "", data[IDX(i, 1)]);
+  }
+  for (i = 0; i < N; i++) {
+    fprintf(WFID, " %.16" ESYM "", data[IDX(i, 2)]);
+  }
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
@@ -250,7 +300,9 @@ int main()
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      break;
+    }
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
     u = sqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
@@ -267,9 +319,15 @@ int main()
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[IDX(i,0)]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM"", data[IDX(i,1)]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM"", data[IDX(i,2)]);
+    for (i = 0; i < N; i++) {
+      fprintf(UFID, " %.16" ESYM "", data[IDX(i, 0)]);
+    }
+    for (i = 0; i < N; i++) {
+      fprintf(VFID, " %.16" ESYM "", data[IDX(i, 1)]);
+    }
+    for (i = 0; i < N; i++) {
+      fprintf(WFID, " %.16" ESYM "", data[IDX(i, 2)]);
+    }
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
@@ -344,9 +402,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
-  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   dYdata = N_VGetArrayPointer(ydot);
-  if (check_flag((void *)dYdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)dYdata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   N_VConst(0.0, ydot);                        /* initialize ydot to zero */
 
   /* iterate over domain, computing all equations */
@@ -430,7 +492,9 @@ static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
   sunindextype i;
   realtype u, v, w;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
-  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
 
   /* iterate over nodes, filling in Jacobian of reaction terms */
   for (i=1; i<N-1; i++) {

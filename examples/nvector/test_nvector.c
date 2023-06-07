@@ -118,8 +118,9 @@ int Test_N_VMake(N_Vector X, sunindextype local_length, int myid)
     return(1);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VMake \n");
+  }
 
   return(0);
 }
@@ -191,8 +192,9 @@ int Test_N_VCloneVectorArray(int count, N_Vector W,
 
   N_VDestroyVectorArray(vs, count);
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VCloneVectorArray \n");
+  }
 
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
@@ -241,8 +243,9 @@ int Test_N_VCloneEmptyVectorArray(int count, N_Vector W, int myid)
 
   N_VDestroyVectorArray(vs, count);
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VCloneEmptyVectorArray \n");
+  }
 
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
@@ -282,8 +285,9 @@ int Test_N_VCloneEmpty(N_Vector W, int myid)
 
   N_VDestroy(X);
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VCloneEmpty \n");
+  }
 
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
@@ -341,8 +345,9 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
   }
   N_VDestroy(X);
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VClone \n");
+  }
 
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
@@ -396,8 +401,9 @@ int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid)
     return(1);
   }
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VGetArrayPointer \n");
+  }
 
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
@@ -452,8 +458,9 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
 
   free(Wdata);
 
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VSetArrayPointer \n");
+  }
 
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
@@ -494,8 +501,9 @@ int Test_N_VGetLength(N_Vector W, int myid)
            (long int) Wlength, (long int) Wlength2);
     return(1);
   }
-  if (myid == 0)
+  if (myid == 0) {
     printf("PASSED test -- N_VGetLength\n");
+  }
   return(0);
 }
 
@@ -527,8 +535,11 @@ int Test_N_VGetCommunicator(N_Vector W, void *comm, int myid)
     return(1);
   }
 
-  if (myid == 0)
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d has non-NULL comm with MPI disabled\n", myid);
+  if (myid == 0) {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d has non-NULL comm "
+           "with MPI disabled\n",
+           myid);
+  }
   return(0);
 }
 
@@ -1435,8 +1446,9 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal 0 */
-  if (ans < ZERO || ans >= SUN_SMALL_REAL)
+  if (ans < ZERO || ans >= SUN_SMALL_REAL) {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VMaxNorm Case 1, Proc %d \n", myid);
@@ -1458,10 +1470,11 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
 
   /* fill vector data */
   N_VConst(NEG_HALF, X);
-  if (myid == 0)
+  if (myid == 0) {
     set_element(X, local_length-1, NEG_TWO);
-  else
-    set_element(X, local_length-1, ONE);
+  } else {
+    set_element(X, local_length - 1, ONE);
+  }
 
   start_time = get_time();
   ans = N_VMaxNorm(X);
@@ -1546,8 +1559,9 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
 
   /* use all elements except one */
   N_VConst(ONE, ID);
-  if (myid == 0)
-    set_element(ID, local_length-1, ZERO);
+  if (myid == 0) {
+    set_element(ID, local_length - 1, ZERO);
+  }
 
   start_time = get_time();
   ans = N_VWrmsNormMask(X, W, ID);
@@ -1583,10 +1597,11 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 
   /* fill vector data */
   N_VConst(TWO, X);
-  if (myid == 0)
+  if (myid == 0) {
     set_element(X, local_length-1, HALF);
-  else
-    set_element(X, local_length-1, ONE);
+  } else {
+    set_element(X, local_length - 1, ONE);
+  }
 
   start_time = get_time();
   ans = N_VMin(X);
@@ -1610,10 +1625,11 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 
   /* fill vector data */
   N_VConst(TWO, X);
-  if (myid == 0)
+  if (myid == 0) {
     set_element(X, local_length-1, NEG_TWO);
-  else
-    set_element(X, local_length-1, NEG_ONE);
+  } else {
+    set_element(X, local_length - 1, NEG_ONE);
+  }
 
   start_time = get_time();
   ans = N_VMin(X);
@@ -1768,20 +1784,23 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
     case 0 :
       /* Z[i] == 0 */
-      if (get_element(Z, i) != ZERO)
+      if (get_element(Z, i) != ZERO) {
         failure = 1;
+      }
       break;
 
     case 1 :
       /* Z[i] == 1 */
-      if (get_element(Z, i) != ONE)
+      if (get_element(Z, i) != ONE) {
         failure = 1;
+      }
       break;
 
     case 2 :
       /* Z[i] == 1 */
-      if (get_element(Z, i) != ONE)
+      if (get_element(Z, i) != ONE) {
         failure = 1;
+      }
       break;
     }
   }
@@ -1873,11 +1892,13 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   /* check return vector */
   for(i=0; i < local_length; i++){
     if (i % 2) {
-      if (get_element(Z, i) != TWO)
+      if (get_element(Z, i) != TWO) {
         failure = 1;
+      }
     } else {
-      if (get_element(Z, i) != ZERO)
+      if (get_element(Z, i) != ZERO) {
         failure = 1;
+      }
     }
   }
 
@@ -2037,11 +2058,13 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   /* check mask vector */
   for(i=0; i < local_length; i++){
     if ((i % 5) == 2){
-      if (get_element(M, i) != ZERO)
+      if (get_element(M, i) != ZERO) {
         failure = 1;
+      }
     } else {
-      if (get_element(M, i) != ONE)
+      if (get_element(M, i) != ONE) {
         failure = 1;
+      }
     }
   }
 
@@ -2077,10 +2100,11 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
   /* fill vector data */
   N_VConst(TWO, NUM);
   N_VConst(TWO, DENOM);
-  if (myid == 0)
+  if (myid == 0) {
     set_element(NUM, local_length-1, HALF);
-  else
-    set_element(NUM, local_length-1, ONE);
+  } else {
+    set_element(NUM, local_length - 1, ONE);
+  }
 
   start_time = get_time();
   ans = N_VMinQuotient(NUM, DENOM);
@@ -2180,10 +2204,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Y1 should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Y1, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 1a, Proc %d \n", myid);
@@ -2213,10 +2238,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, X, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 1b, Proc %d \n", myid);
@@ -2247,10 +2273,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Y1 should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Y1, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 2a, Proc %d \n", myid);
@@ -2282,10 +2309,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, X, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 2b, Proc %d \n", myid);
@@ -2319,10 +2347,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Y1 should be vector of +3 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO+ONE, Y1, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 3a, Proc %d \n", myid);
@@ -2355,10 +2384,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Y1 should be vector of +2 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO, Y1, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 3b, Proc %d \n", myid);
@@ -2392,10 +2422,11 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* X should be vector of +2 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO, X, local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombination Case 3c, Proc %d \n", myid);
@@ -2454,10 +2485,11 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* V[0] should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, V[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VScaleAddMulti Case 1a, Proc %d \n", myid);
@@ -2488,10 +2520,11 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Z[0] should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VScaleAddMulti Case 1b, Proc %d \n", myid);
@@ -2628,10 +2661,11 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* dotprod[0] should equal the global vector length */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = SUNRCompare(dotprods[0], (realtype) global_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdMulti Case 1, Proc %d \n", myid);
@@ -2716,10 +2750,11 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
   stop_time = get_time();
 
   /* Z[0] should be a vector of 0 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ZERO, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearSumVectorArray Case 0, Proc %d \n", myid);
@@ -3422,10 +3457,11 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Y[0] should be a vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Y[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VScaleVectorArray Case 1a, Proc %d \n", myid);
@@ -3453,10 +3489,11 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Z[0] should be a vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VScaleVectorArray Case 1b, Proc %d \n", myid);
@@ -3579,10 +3616,11 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* Y[0] should be a vector of 1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VConstVectorArray Case 1a, Proc %d \n", myid);
@@ -3670,10 +3708,11 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* nrm should equal 1/4 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], HALF*HALF);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormVectorArray Case 1a, Proc %d \n", myid);
@@ -3771,8 +3810,9 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
 
   /* use all elements except one */
   N_VConst(ONE, X);
-  if (myid == 0)
-    set_element(X, local_length-1, ZERO);
+  if (myid == 0) {
+    set_element(X, local_length - 1, ZERO);
+  }
 
   nrm[0] = NEG_ONE;
   nrm[1] = NEG_ONE;
@@ -3784,10 +3824,11 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   stop_time = get_time();
 
   /* nrm should equal fac/4 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], fac*HALF*HALF);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormMaskVectorArray Case 1, Proc %d \n", myid);
@@ -3815,8 +3856,9 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
 
   /* use all elements except one */
   N_VConst(ONE, X);
-  if (myid == 0)
-    set_element(X, local_length-1, ZERO);
+  if (myid == 0) {
+    set_element(X, local_length - 1, ZERO);
+  }
 
   nrm[0] = NEG_ONE;
   nrm[1] = NEG_ONE;
@@ -3897,10 +3939,11 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
   stop_time = get_time();
 
   /* Y[0][0] should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Y[0][0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 1a, Proc %d \n", myid);
@@ -3931,10 +3974,11 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int 
   stop_time = get_time();
 
   /* Z[0][0] should be vector of +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Z[0][0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 1b, Proc %d \n", myid);
@@ -4301,10 +4345,11 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   stop_time = get_time();
 
   /* X[0][0] should equal +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, X[0][0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 1a, Proc %d \n", myid);
@@ -4333,10 +4378,11 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   stop_time = get_time();
 
   /* X[0][0] should equal +1 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(ONE, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 1b, Proc %d \n", myid);
@@ -4367,10 +4413,11 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO, X[0][0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 2a, Proc %d \n", myid);
@@ -4403,10 +4450,11 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 2b, Proc %d \n", myid);
@@ -4440,10 +4488,11 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO, X[0][0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 3a, Proc %d \n", myid);
@@ -4477,10 +4526,11 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   stop_time = get_time();
 
   /* Z[0] should equal +2 */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = check_ans(TWO, Z[0], local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 3b, Proc %d \n", myid);
@@ -5104,10 +5154,11 @@ int Test_N_VInvTestLocal(N_Vector X, N_Vector Z, sunindextype local_length, int 
   /* fill vector data */
   N_VConst(ZERO, Z);
   for (i=0; i < local_length; i++) {
-    if (i % 2)
+    if (i % 2) {
       set_element(X, i, HALF);
-    else
+    } else {
       set_element(X, i, ZERO);
+    }
   }
 
   start_time = get_time();
@@ -5118,11 +5169,13 @@ int Test_N_VInvTestLocal(N_Vector X, N_Vector Z, sunindextype local_length, int 
   /* check return vector */
   for (i=0; i < local_length; i++) {
     if (i % 2) {
-      if (get_element(Z, i) != TWO)
+      if (get_element(Z, i) != TWO) {
         failure = 1;
+      }
     } else {
-      if (get_element(Z, i) != ZERO)
+      if (get_element(Z, i) != ZERO) {
         failure = 1;
+      }
     }
   }
 
@@ -5283,11 +5336,13 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
   for (i=0; i < local_length; i++) {
 
     if (i % 5 == 2){
-      if (get_element(M, i) != ZERO)
+      if (get_element(M, i) != ZERO) {
         failure = 1;
+      }
     } else {
-      if (get_element(M, i) != ONE)
+      if (get_element(M, i) != ONE) {
         failure = 1;
+      }
     }
   }
 
@@ -5407,10 +5462,11 @@ int Test_N_VDotProdMultiLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* dotprod[0] should equal the local vector length */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = SUNRCompare(dotprods[0], (realtype) local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdMultiLocal Case 1, Proc %d \n", myid);
@@ -5480,7 +5536,9 @@ int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
 
   /* only test if the operation is implemented, local vectors (non-MPI) do not
      provide this function */
-  if (!(X->ops->nvdotprodmultiallreduce)) return 0;
+  if (!(X->ops->nvdotprodmultiallreduce)) {
+    return 0;
+  }
 
   /* get global length */
   global_length = N_VGetLength(X);
@@ -5502,10 +5560,11 @@ int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
   stop_time = get_time();
 
   /* dotprod[0] should equal the local vector length */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = SUNRCompare(dotprods[0], (realtype) local_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 1, Proc %d \n", myid);
@@ -5525,10 +5584,11 @@ int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
   stop_time = get_time();
 
   /* dotprod[0] should equal the global vector length */
-  if (ierr == 0)
+  if (ierr == 0) {
     failure = SUNRCompare(dotprods[0], (realtype) global_length);
-  else
+  } else {
     failure = 1;
+  }
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdMultiAllReduce Case 1, Proc %d \n", myid);
@@ -5795,9 +5855,10 @@ void SetTiming(int onoff, int myid)
   base_time_tv_sec = spec.tv_sec;
 
   clock_getres(CLOCK_MONOTONIC, &spec);
-  if (myid == 0)
-    printf("Timer resolution: %ld ns = %g s\n",
-           spec.tv_nsec, ((double)(spec.tv_nsec) / 1E9));
+  if (myid == 0) {
+    printf("Timer resolution: %ld ns = %g s\n", spec.tv_nsec,
+           ((double)(spec.tv_nsec) / 1E9));
+  }
 #endif
 
   /* only print from the root process */

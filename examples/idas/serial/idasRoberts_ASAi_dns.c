@@ -184,32 +184,42 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
   data->p[0] = RCONST(0.04);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
   /* Initialize y */
   yy = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yy, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(yy,1) = ONE;
   Ith(yy,2) = ZERO;
   Ith(yy,3) = ZERO;
 
   /* Initialize yprime */
   yp = N_VClone(yy);
-  if (check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(yp,1) = RCONST(-0.04);
   Ith(yp,2) = RCONST( 0.04);
   Ith(yp,3) = ZERO;
 
   /* Initialize q */
   q = N_VNew_Serial(1, ctx);
-  if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)q, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(q,1) = ZERO;
 
   /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
@@ -220,62 +230,90 @@ int main(int argc, char *argv[])
   printf("Create and allocate IDAS memory for forward runs\n");
 
   ida_mem = IDACreate(ctx);
-  if (check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)ida_mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDAInit(ida_mem, res, T0, yy, yp);
-  if (check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   retval = IDAWFtolerances(ida_mem, ewt);
-  if (check_retval(&retval, "IDAWFtolerances", 1)) return(1);
+  if (check_retval(&retval, "IDAWFtolerances", 1)) {
+    return (1);
+  }
 
   retval = IDASetUserData(ida_mem, data);
-  if (check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine */
   retval = IDASetJacFn(ida_mem, Jac);
-  if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
+  if (check_retval(&retval, "IDASetJacFn", 1)) {
+    return (1);
+  }
 
   /* Setup quadrature integration */
   retval = IDAQuadInit(ida_mem, rhsQ, q);
-  if (check_retval(&retval, "IDAQuadInit", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadInit", 1)) {
+    return (1);
+  }
 
   retval = IDAQuadSStolerances(ida_mem, reltolQ, abstolQ);
-  if (check_retval(&retval, "IDAQuadSStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadSStolerances", 1)) {
+    return (1);
+  }
 
   retval = IDASetQuadErrCon(ida_mem, SUNTRUE);
-  if (check_retval(&retval, "IDASetQuadErrCon", 1)) return(1);
+  if (check_retval(&retval, "IDASetQuadErrCon", 1)) {
+    return (1);
+  }
 
   /* Call IDASetMaxNumSteps to set the maximum number of steps the
    * solver will take in an attempt to reach the next output time
    * during forward integration. */
   retval = IDASetMaxNumSteps(ida_mem, 2500);
-  if (check_retval(&retval, "IDASetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "IDASetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   /* Allocate global memory */
 
   steps = STEPS;
   retval = IDAAdjInit(ida_mem, steps, IDA_HERMITE);
   /*retval = IDAAdjInit(ida_mem, steps, IDA_POLYNOMIAL);*/
-  if (check_retval(&retval, "IDAAdjInit", 1)) return(1);
+  if (check_retval(&retval, "IDAAdjInit", 1)) {
+    return (1);
+  }
 
   /* Perform forward run */
   printf("Forward integration ...\n");
 
   /* Integrate till TB1 and get the solution (y, y') at that time. */
   retval = IDASolveF(ida_mem, TB1, &time, yy, yp, IDA_NORMAL, &ncheck);
-  if (check_retval(&retval, "IDASolveF", 1)) return(1);
+  if (check_retval(&retval, "IDASolveF", 1)) {
+    return (1);
+  }
 
   yyTB1 = N_VClone(yy);
   ypTB1 = N_VClone(yp);
@@ -285,10 +323,14 @@ int main(int argc, char *argv[])
 
   /* Continue integrating till TOUT is reached. */
   retval = IDASolveF(ida_mem, TOUT, &time, yy, yp, IDA_NORMAL, &ncheck);
-  if (check_retval(&retval, "IDASolveF", 1)) return(1);
+  if (check_retval(&retval, "IDASolveF", 1)) {
+    return (1);
+  }
 
   retval = IDAGetQuad(ida_mem, &time, q);
-  if (check_retval(&retval, "IDAGetQuad", 1)) return(1);
+  if (check_retval(&retval, "IDAGetQuad", 1)) {
+    return (1);
+  }
 
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -337,7 +379,9 @@ int main(int argc, char *argv[])
 
   /* Allocate yB (i.e. lambda_0). */
   yB = N_VClone(yy);
-  if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Consistently initialize yB. */
   Ith(yB,1) = ZERO;
@@ -347,7 +391,9 @@ int main(int argc, char *argv[])
 
   /* Allocate ypB (i.e. lambda'_0). */
   ypB = N_VClone(yy);
-  if (check_retval((void *)ypB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)ypB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Consistently initialize ypB. */
   Ith(ypB,1) = ONE;
@@ -368,67 +414,98 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate IDAS memory for backward run\n");
 
   retval = IDACreateB(ida_mem, &indexB);
-  if (check_retval(&retval, "IDACreateB", 1)) return(1);
+  if (check_retval(&retval, "IDACreateB", 1)) {
+    return (1);
+  }
 
   retval = IDAInitB(ida_mem, indexB, resB, TB2, yB, ypB);
-  if (check_retval(&retval, "IDAInitB", 1)) return(1);
+  if (check_retval(&retval, "IDAInitB", 1)) {
+    return (1);
+  }
 
   retval = IDASStolerancesB(ida_mem, indexB, reltolB, abstolB);
-  if (check_retval(&retval, "IDASStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerancesB", 1)) {
+    return (1);
+  }
 
   retval = IDASetUserDataB(ida_mem, indexB, data);
-  if (check_retval(&retval, "IDASetUserDataB", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserDataB", 1)) {
+    return (1);
+  }
 
   retval = IDASetMaxNumStepsB(ida_mem, indexB, 1000);
-  if (check_retval(&retval, "IDASetMaxNumStepsB", 1)) return(1);
+  if (check_retval(&retval, "IDASetMaxNumStepsB", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   AB = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)AB, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)AB, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LSB = SUNLinSol_Dense(yB, AB, ctx);
-  if(check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LSB, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolverB(ida_mem, indexB, LSB, AB);
-  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolverB", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine */
   retval = IDASetJacFnB(ida_mem, indexB, JacB);
-  if(check_retval(&retval, "IDASetJacFnB", 1)) return(1);
+  if (check_retval(&retval, "IDASetJacFnB", 1)) {
+    return (1);
+  }
 
   /* Quadrature for backward problem. */
 
   /* Initialize qB */
   qB = N_VNew_Serial(NP, ctx);
-  if (check_retval((void *)qB, "N_VNew", 0)) return(1);
+  if (check_retval((void *)qB, "N_VNew", 0)) {
+    return (1);
+  }
   Ith(qB,1) = ZERO;
   Ith(qB,2) = ZERO;
   Ith(qB,3) = ZERO;
 
   retval = IDAQuadInitB(ida_mem, indexB, rhsQB, qB);
-  if (check_retval(&retval, "IDAQuadInitB", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadInitB", 1)) {
+    return (1);
+  }
 
   retval = IDAQuadSStolerancesB(ida_mem, indexB, reltolB, abstolQB);
-  if (check_retval(&retval, "IDAQuadSStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadSStolerancesB", 1)) {
+    return (1);
+  }
 
   /* Include quadratures in error control. */
   retval = IDASetQuadErrConB(ida_mem, indexB, SUNTRUE);
-  if (check_retval(&retval, "IDASetQuadErrConB", 1)) return(1);
-
+  if (check_retval(&retval, "IDASetQuadErrConB", 1)) {
+    return (1);
+  }
 
   /* Backward Integration */
   printf("Backward integration ...\n");
 
   retval = IDASolveB(ida_mem, T0, IDA_NORMAL);
-  if (check_retval(&retval, "IDASolveB", 1)) return(1);
+  if (check_retval(&retval, "IDASolveB", 1)) {
+    return (1);
+  }
 
   retval = IDAGetB(ida_mem, indexB, &time, yB, ypB);
-  if (check_retval(&retval, "IDAGetB", 1)) return(1);
+  if (check_retval(&retval, "IDAGetB", 1)) {
+    return (1);
+  }
 
   retval = IDAGetQuadB(ida_mem, indexB, &time, qB);
-  if (check_retval(&retval, "IDAGetB", 1)) return(1);
+  if (check_retval(&retval, "IDAGetB", 1)) {
+    return (1);
+  }
 
   PrintOutput(TB2, yB, ypB, qB);
 
@@ -462,11 +539,15 @@ int main(int argc, char *argv[])
   Ith(qB,3) = ZERO;
 
   retval = IDAReInitB(ida_mem, indexB, TB1, yB, ypB);
-  if (check_retval(&retval, "IDAReInitB", 1)) return(1);
+  if (check_retval(&retval, "IDAReInitB", 1)) {
+    return (1);
+  }
 
   /* Also reinitialize quadratures. */
   retval = IDAQuadReInitB(ida_mem, indexB, qB);
-  if (check_retval(&retval, "IDAQuadReInitB", 1)) return(1);
+  if (check_retval(&retval, "IDAQuadReInitB", 1)) {
+    return (1);
+  }
 
   /* Use IDACalcICB to compute consistent initial conditions
      for this backward problem. */
@@ -478,23 +559,35 @@ int main(int argc, char *argv[])
 
   /* Specify which variables are differential (1) and which algebraic (0).*/
   retval = IDASetIdB(ida_mem, indexB, id);
-  if (check_retval(&retval, "IDASetId", 1)) return(1);
+  if (check_retval(&retval, "IDASetId", 1)) {
+    return (1);
+  }
 
   retval = IDACalcICB(ida_mem, indexB, T1B, yyTB1, ypTB1);
-  if (check_retval(&retval, "IDACalcICB", 1)) return(1);
+  if (check_retval(&retval, "IDACalcICB", 1)) {
+    return (1);
+  }
 
   /* Get the consistent IC found by IDAS. */
   retval = IDAGetConsistentICB(ida_mem, indexB, yB, ypB);
-  if (check_retval(&retval, "IDAGetConsistentICB", 1)) return(1);
+  if (check_retval(&retval, "IDAGetConsistentICB", 1)) {
+    return (1);
+  }
 
   retval = IDASolveB(ida_mem, T0, IDA_NORMAL);
-  if (check_retval(&retval, "IDASolveB", 1)) return(1);
+  if (check_retval(&retval, "IDASolveB", 1)) {
+    return (1);
+  }
 
   retval = IDAGetB(ida_mem, indexB, &time, yB, ypB);
-  if (check_retval(&retval, "IDAGetB", 1)) return(1);
+  if (check_retval(&retval, "IDAGetB", 1)) {
+    return (1);
+  }
 
   retval = IDAGetQuadB(ida_mem, indexB, &time, qB);
-  if (check_retval(&retval, "IDAGetQuadB", 1)) return(1);
+  if (check_retval(&retval, "IDAGetQuadB", 1)) {
+    return (1);
+  }
 
   PrintOutput(TB1, yB, ypB, qB);
 
@@ -526,7 +619,9 @@ int main(int argc, char *argv[])
   N_VDestroy(yyTB1);
   N_VDestroy(ypTB1);
 
-  if (ckpnt != NULL) free(ckpnt);
+  if (ckpnt != NULL) {
+    free(ckpnt);
+  }
   free(data);
 
   SUNContext_Free(&ctx);
@@ -626,7 +721,9 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
   for (i=1; i<=3; i++) {
     yy = Ith(y,i);
     ww = rtol * SUNRabs(yy) + atol[i-1];
-    if (ww <= 0.0) return (-1);
+    if (ww <= 0.0) {
+      return (-1);
+    }
     Ith(w,i) = 1.0/ww;
   }
 

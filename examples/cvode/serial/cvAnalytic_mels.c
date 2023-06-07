@@ -86,7 +86,9 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
@@ -96,35 +98,49 @@ int main()
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, sunctx);          /* Create serial vector for solution */
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   N_VConst(RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetUserData to specify the stiffness factor */
   retval = CVodeSetUserData(cvode_mem, (void *) &lamda);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSStolerances to specify the scalar relative and absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create custom matrix-embedded linear solver */
   LS = MatrixEmbeddedLS(cvode_mem);
-  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) return 1;
+  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) {
+    return 1;
+  }
 
   /* Call CVodeSetLinearSolver to attach the linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -135,7 +151,9 @@ int main()
   while (Tf - t > 1.0e-15) {
 
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);             /* call integrator */
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));      /* access/print solution */
     if (retval >= 0) {                                             /* successful solve: update time */
       tout += dTout;
@@ -214,7 +232,9 @@ static SUNLinearSolver MatrixEmbeddedLS(void *cvode_mem)
 {
   /* Create an empty linear solver */
   SUNLinearSolver LS = SUNLinSolNewEmpty(sunctx);
-  if (LS == NULL) return NULL;
+  if (LS == NULL) {
+    return NULL;
+  }
 
   /* Attach operations */
   LS->ops->gettype = MatrixEmbeddedLSType;
@@ -249,8 +269,9 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   /* retrieve implicit system data from CVode */
   retval = CVodeGetNonlinearSystemData(LS->content, &tcur, &ypred, &y, &fn,
                                        &gamma, &rl1, &zn1, &user_data);
-  if (check_retval((void *)&retval, "CVodeGetNonlinearSystemData", 1))
-    return(-1);
+  if (check_retval((void *)&retval, "CVodeGetNonlinearSystemData", 1)) {
+    return (-1);
+  }
 
   /* extract stiffness parameter from user_data */
   rdata = (realtype *) user_data;
@@ -266,7 +287,9 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
 /* destructor */
 static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
-  if (LS == NULL) return(SUNLS_SUCCESS);
+  if (LS == NULL) {
+    return (SUNLS_SUCCESS);
+  }
   LS->content = NULL;
   SUNLinSolFreeEmpty(LS);
   return(SUNLS_SUCCESS);

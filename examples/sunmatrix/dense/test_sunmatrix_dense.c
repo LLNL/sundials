@@ -93,8 +93,9 @@ int main(int argc, char *argv[])
   y = N_VNew_Serial(matrows, sunctx);
   A = SUNDenseMatrix(matrows, matcols, sunctx);
   I = NULL;
-  if (square)
+  if (square) {
     I = SUNDenseMatrix(matrows, matcols, sunctx);
+  }
 
   /* Fill matrices and vectors */
   Adata = SUNDenseMatrix_Data(A);
@@ -156,8 +157,9 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   SUNMatDestroy(A);
-  if (square)
+  if (square) {
     SUNMatDestroy(I);
+  }
   SUNContext_Free(&sunctx);
 
   return(fails);
@@ -191,10 +193,11 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
   }
 
-  if (failure > ZERO)
+  if (failure > ZERO) {
     return(1);
-  else
-    return(0);
+  } else {
+    return (0);
+  }
 }
 
 int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
@@ -215,16 +218,19 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 
   if (failure > ZERO) {
     printf("Check_matrix_entry failures:\n");
-    for(i=0; i < Aldata; i++)
-      if (SUNRCompareTol(Adata[i], val, tol) != 0)
-        printf("  Adata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
-               Adata[i], val, SUNRabs(Adata[i]-val));
+    for (i = 0; i < Aldata; i++) {
+      if (SUNRCompareTol(Adata[i], val, tol) != 0) {
+        printf("  Adata[%ld] = %" GSYM " != %" GSYM " (err = %" GSYM ")\n",
+               (long int)i, Adata[i], val, SUNRabs(Adata[i] - val));
+      }
+    }
   }
 
-  if (failure > ZERO)
+  if (failure > ZERO) {
     return(1);
-  else
-    return(0);
+  } else {
+    return (0);
+  }
 }
 
 int check_vector(N_Vector x, N_Vector y, realtype tol)
@@ -248,38 +254,44 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
   }
 
   /* check vector data */
-  for(i=0; i < xldata; i++)
+  for (i = 0; i < xldata; i++) {
     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+  }
 
   if (failure > ZERO) {
     printf("Check_vector failures:\n");
-    for(i=0; i < xldata; i++)
-      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
-        printf("  xdata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
-               xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
+    for (i = 0; i < xldata; i++) {
+      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0) {
+        printf("  xdata[%ld] = %" GSYM " != %" GSYM " (err = %" GSYM ")\n",
+               (long int)i, xdata[i], ydata[i], SUNRabs(xdata[i] - ydata[i]));
+      }
+    }
   }
 
-  if (failure > ZERO)
+  if (failure > ZERO) {
     return(1);
-  else
-    return(0);
+  } else {
+    return (0);
+  }
 }
 
 booleantype has_data(SUNMatrix A)
 {
   realtype *Adata = SUNDenseMatrix_Data(A);
-  if (Adata == NULL)
+  if (Adata == NULL) {
     return SUNFALSE;
-  else
+  } else {
     return SUNTRUE;
+  }
 }
 
 booleantype is_square(SUNMatrix A)
 {
-  if (SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A))
+  if (SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A)) {
     return SUNTRUE;
-  else
+  } else {
     return SUNFALSE;
+  }
 }
 
 void sync_device(SUNMatrix A)

@@ -70,7 +70,9 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Initial problem output */
   printf("\nAnalytical ODE test problem:\n");
@@ -79,18 +81,24 @@ int main()
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   NV_Ith_S(y,0) = 0.0;             /* Specify initial condition */
 
   /* Call ERKStepCreate to initialize the ERK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y. */
   arkode_mem = ERKStepCreate(f, T0, y, ctx);
-  if (check_flag((void *)arkode_mem, "ERKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ERKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Specify tolerances */
   flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ERKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ERKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
@@ -108,7 +116,9 @@ int main()
   while (Tf - t > 1.0e-15) {
 
     flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
-    if (check_flag(&flag, "ERKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ERKStepEvolve", 1)) {
+      break;
+    }
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));           /* access/print solution */
     fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));
     if (flag >= 0) {                                          /* successful solve: update time */

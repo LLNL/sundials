@@ -38,7 +38,9 @@ ARKodeHAdaptMem arkAdaptInit()
 
   /* allocate structure */
   hadapt_mem = (ARKodeHAdaptMem) malloc(sizeof(struct ARKodeHAdaptMemRec));
-  if (hadapt_mem == NULL)  return(NULL);
+  if (hadapt_mem == NULL) {
+    return (NULL);
+  }
 
   /* initialize values (default parameters are set in arkSetDefaults) */
   memset(hadapt_mem, 0, sizeof(struct ARKodeHAdaptMemRec));
@@ -175,13 +177,18 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
-  if (h_cfl <= ZERO)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
+  if (h_cfl <= ZERO) {
+    h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
+  }
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "ARKadapt  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
-            ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1],
-            hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1], h_acc, h_cfl);
+  if (ark_mem->report) {
+    fprintf(ark_mem->diagfp,
+            "ARKadapt  adapt  %" RSYM "  %" RSYM "  %" RSYM "  %" RSYM
+            "  %" RSYM "  %" RSYM "  %" RSYM "  %" RSYM "  ",
+            ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1], hcur,
+            hadapt_mem->hhist[0], hadapt_mem->hhist[1], h_acc, h_cfl);
+  }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -210,8 +217,9 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamin*hcur));
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
+  if (ark_mem->report) {
+    fprintf(ark_mem->diagfp, "%" RSYM "  %" RSYM "  ", h_acc, h_cfl);
+  }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -220,17 +228,19 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 #endif
 
   /* increment the relevant step counter, set desired step */
-  if (SUNRabs(h_acc) < SUNRabs(h_cfl))
+  if (SUNRabs(h_acc) < SUNRabs(h_cfl)) {
     hadapt_mem->nst_acc++;
-  else
+  } else {
     hadapt_mem->nst_exp++;
+  }
   h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(h_cfl));
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
   if (dsm <= ONE) {
-    if ( (SUNRabs(h_acc) > SUNRabs(hcur*hadapt_mem->lbound*ONEMSM)) &&
-         (SUNRabs(h_acc) < SUNRabs(hcur*hadapt_mem->ubound*ONEPSM)) )
+    if ((SUNRabs(h_acc) > SUNRabs(hcur * hadapt_mem->lbound * ONEMSM)) &&
+        (SUNRabs(h_acc) < SUNRabs(hcur * hadapt_mem->ubound * ONEPSM))) {
       h_acc = hcur;
+    }
   }
 
   /* set basic value of ark_eta */
@@ -245,8 +255,9 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                          ark_mem->hmax_inv*ark_mem->eta);
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "%"RSYM"\n", ark_mem->eta);
+  if (ark_mem->report) {
+    fprintf(ark_mem->diagfp, "%" RSYM "\n", ark_mem->eta);
+  }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",

@@ -255,13 +255,19 @@ int main()
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initializations */
   c = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)c, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   wdata = AllocUserData();
-  if(check_retval((void *)wdata, "AllocUserData", 2)) return(1);
+  if (check_retval((void *)wdata, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(wdata);
   ns = wdata->ns;
   mxns = wdata->mxns;
@@ -282,57 +288,88 @@ int main()
       firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeCreate(CV_BDF, sunctx);
-        if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+        if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+          return (1);
+        }
 
         wdata->cvode_mem = cvode_mem;
 
         retval = CVodeSetUserData(cvode_mem, wdata);
-        if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+        if (check_retval(&retval, "CVodeSetUserData", 1)) {
+          return (1);
+        }
 
         retval = CVodeInit(cvode_mem, f, T0, c);
-        if(check_retval(&retval, "CVodeInit", 1)) return(1);
+        if (check_retval(&retval, "CVodeInit", 1)) {
+          return (1);
+        }
 
         retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-        if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+        if (check_retval(&retval, "CVodeSStolerances", 1)) {
+          return (1);
+        }
 
         LS = SUNLinSol_SPGMR(c, jpre, MAXL, sunctx);
-        if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+        if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+          return (1);
+        }
 
         retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-        if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+        if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+          return 1;
+        }
 
         retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
-        if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
+        if (check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) {
+          return (1);
+        }
 
         retval = CVodeSetEpsLin(cvode_mem, DELT);
-        if(check_retval(&retval, "CVodeSetEpsLin", 1)) return(1);
+        if (check_retval(&retval, "CVodeSetEpsLin", 1)) {
+          return (1);
+        }
 
         retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
-        if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+        if (check_retval(&retval, "CVodeSetPreconditioner", 1)) {
+          return (1);
+        }
 
       } else {
 
         retval = CVodeReInit(cvode_mem, T0, c);
-        if(check_retval(&retval, "CVodeReInit", 1)) return(1);
+        if (check_retval(&retval, "CVodeReInit", 1)) {
+          return (1);
+        }
 
         retval = SUNLinSol_SPGMRSetPrecType(LS, jpre);
         check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1);
         retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
-        if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
-
+        if (check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) {
+          return (1);
+        }
       }
 
       /* Print initial values */
-      if (firstrun) PrintAllSpecies(c, ns, mxns, T0);
+      if (firstrun) {
+        PrintAllSpecies(c, ns, mxns, T0);
+      }
 
       /* Loop over output points, call CVode, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
         retval = CVode(cvode_mem, tout, c, &t, CV_NORMAL);
         PrintOutput(cvode_mem, t);
-        if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
-        if(check_retval(&retval, "CVode", 1)) break;
-        if (tout > RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT;
+        if (firstrun && (iout % 3 == 0)) {
+          PrintAllSpecies(c, ns, mxns, t);
+        }
+        if (check_retval(&retval, "CVode", 1)) {
+          break;
+        }
+        if (tout > RCONST(0.9)) {
+          tout += DTOUT;
+        } else {
+          tout *= TOUT_MULT;
+        }
       }
 
       /* Print final statistics, and loop for next case */
@@ -381,7 +418,11 @@ static void InitUserData(WebData wdata)
   coy = wdata->coy;
   ns = wdata->ns = NS;
 
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
+  for (j = 0; j < NS; j++) {
+    for (i = 0; i < NS; i++) {
+      acoef[i][j] = 0.;
+    }
+  }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
       acoef[NP+i][j] = EE;
@@ -436,15 +477,23 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
   int ig, j, len1, mper, ngm1;
 
   mper = m/ng; /* does integer division */
-  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
+  for (ig = 0; ig < ng; ig++) {
+    jg[ig] = ig * mper;
+  }
   jg[ng] = m;
 
   ngm1 = ng - 1;
   len1 = ngm1*mper;
-  for (j = 0; j < len1; j++) jig[j] = j/mper;
-  for (j = len1; j < m; j++) jig[j] = ngm1;
+  for (j = 0; j < len1; j++) {
+    jig[j] = j / mper;
+  }
+  for (j = len1; j < m; j++) {
+    jig[j] = ngm1;
+  }
 
-  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
+  for (ig = 0; ig < ngm1; ig++) {
+    jr[ig] = ((2 * ig + 1) * mper - 1) / 2;
+  }
   jr[ngm1] = (ngm1*mper+m-1)/2;
 }
 
@@ -530,15 +579,19 @@ static void PrintIntro(void)
 
 static void PrintHeader(int jpre, int gstype)
 {
-  if(jpre == SUN_PREC_LEFT)
+  if (jpre == SUN_PREC_LEFT) {
     printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_LEFT");
-  else
-    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_RIGHT");
+  } else {
+    printf("\n\nPreconditioner type is           jpre = %s\n",
+           "SUN_PREC_RIGHT");
+  }
 
-  if(gstype == SUN_MODIFIED_GS)
+  if (gstype == SUN_MODIFIED_GS) {
     printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_MODIFIED_GS");
-  else
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_CLASSICAL_GS");
+  } else {
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
+           "SUN_CLASSICAL_GS");
+  }
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
@@ -752,16 +805,20 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  for (i = 0; i < ns; i++)
+  for (i = 0; i < ns; i++) {
     rate[i] = ZERO;
+  }
 
-  for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
+  for (j = 0; j < ns; j++) {
+    for (i = 0; i < ns; i++) {
       rate[i] += c[j] * acoef[i][j];
+    }
+  }
 
   fac = ONE + ALPH*x*y;
-  for (i = 0; i < ns; i++)
-    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
+  for (i = 0; i < ns; i++) {
+    rate[i] = c[i] * (bcoef[i] * fac + rate[i]);
+  }
 }
 
 /*
@@ -796,7 +853,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   cdata = N_VGetArrayPointer(c);
   rewt = wdata->rewt;
   retval = CVodeGetErrWeights(cvode_mem, rewt);
-  if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetErrWeights", 1)) {
+    return (1);
+  }
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
@@ -821,7 +880,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
 
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
-  if (r0 == ZERO) r0 = ONE;
+  if (r0 == ZERO) {
+    r0 = ONE;
+  }
 
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -852,7 +913,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   for (ig = 0; ig < ngrp; ig++) {
     SUNDlsMat_denseAddIdentity(P[ig], mp);
     ier = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-    if (ier != 0) return(1);
+    if (ier != 0) {
+      return (1);
+    }
   }
 
   *jcurPtr = SUNTRUE;
@@ -1111,26 +1174,34 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] += v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] += v[i] * w[i];
+  }
 }
 
 static void v_sum_prods(realtype u[], realtype p[], realtype q[],
                         realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] = p[i] * q[i] + v[i] * w[i];
+  }
 }
 
 static void v_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] = v[i] * w[i];
+  }
 }
 
 static void v_zero(realtype u[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = ZERO;
+  for (i = 0; i < n; i++) {
+    u[i] = ZERO;
+  }
 }
 
 /* Check function return value...

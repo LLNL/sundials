@@ -268,62 +268,88 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate and initialize user data */
 
   wdata = AllocUserData();
-  if(check_retval((void *)wdata, "AllocUserData", 2)) return(1);
+  if (check_retval((void *)wdata, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(wdata);
 
   /* Set-up forward problem */
 
   /* Initializations */
   c = N_VNew_Serial(NEQ+1, sunctx);
-  if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)c, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   CInit(c, wdata);
 
   /* Call CVodeCreate/CVodeInit for forward run */
   printf("\nCreate and allocate CVODES memory for forward run\n");
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
   retval = CVodeSetUserData(cvode_mem, wdata);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
   retval = CVodeInit(cvode_mem, f, T0, c);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create SUNLinSol_SPGMR linear solver for forward run */
   LS = SUNLinSol_SPGMR(c, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* Attach the linear sovler */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return 1;
+  }
 
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
-  if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetMaxNumSteps to set the maximum number of steps the
    * solver will take in an attempt to reach the next output time
    * during forward integration. */
   retval = CVodeSetMaxNumSteps(cvode_mem, 2500);
-  if(check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");
   retval = CVodeAdjInit(cvode_mem, NSTEPS, CV_HERMITE);
-  if(check_retval(&retval, "CVodeAdjInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeAdjInit", 1)) {
+    return (1);
+  }
 
   /* Perform forward run */
 
   printf("\nForward integration\n");
   retval = CVodeF(cvode_mem, TOUT, c, &t, CV_NORMAL, &ncheck);
-  if(check_retval(&retval, "CVodeF", 1)) return(1);
+  if (check_retval(&retval, "CVodeF", 1)) {
+    return (1);
+  }
 
   printf("\nncheck = %d\n", ncheck);
 
@@ -340,45 +366,67 @@ int main(int argc, char *argv[])
 
   /* Allocate cB */
   cB = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)cB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)cB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   /* Initialize cB = 0 */
   N_VConst(ZERO, cB);
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
   retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
-  if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
+  if (check_retval(&retval, "CVodeCreateB", 1)) {
+    return (1);
+  }
   retval = CVodeSetUserDataB(cvode_mem, indexB, wdata);
-  if(check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1)) {
+    return (1);
+  }
   retval = CVodeSetMaxNumStepsB(cvode_mem, indexB, 1000);
-  if(check_retval(&retval, "CVodeSetMaxNumStepsB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumStepsB", 1)) {
+    return (1);
+  }
   retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, cB);
-  if(check_retval(&retval, "CVodeInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeInitB", 1)) {
+    return (1);
+  }
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
-  if(check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1)) {
+    return (1);
+  }
 
   wdata->indexB = indexB;
 
   /* Create SUNLinSol_SPGMR linear solver for backward run */
   LSB = SUNLinSol_SPGMR(cB, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LSB, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LSB, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* Attach the linear sovler */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) {
+    return 1;
+  }
 
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditionerB(cvode_mem, indexB, PrecondB, PSolveB);
-  if(check_retval(&retval, "CVodeSetPreconditionerB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetPreconditionerB", 1)) {
+    return (1);
+  }
 
   /* Perform backward integration */
 
   printf("\nBackward integration\n");
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if(check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetB(cvode_mem, indexB, &t, cB);
-  if(check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) {
+    return (1);
+  }
 
   PrintOutput(cB, NS, MXNS, wdata);
 
@@ -494,7 +542,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   wdata = (WebData) user_data;
   rewt = wdata->rewt;
   retval = CVodeGetErrWeights(wdata->cvode_mem, rewt);
-  if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetErrWeights", 1)) {
+    return (1);
+  }
 
   cdata = N_VGetArrayPointer(c);
   rewtdata = N_VGetArrayPointer(rewt);
@@ -521,7 +571,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
 
   fac = N_VWrmsNorm (fc, rewt);
   r0 = RCONST(1000.0)*fabs(gamma)*uround*(NEQ+1)*fac;
-  if (r0 == ZERO) r0 = ONE;
+  if (r0 == ZERO) {
+    r0 = ONE;
+  }
 
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -552,7 +604,9 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
    for (ig = 0; ig < ngrp; ig++) {
      SUNDlsMat_denseAddIdentity(P[ig], mp);
      denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-     if (denseretval != 0) return(1);
+     if (denseretval != 0) {
+       return (1);
+     }
    }
 
   *jcurPtr = SUNTRUE;
@@ -648,7 +702,9 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
   dx = wdata->dx;
   dy = wdata->dy;
 
-  for ( i = 0; i < ns; i++ ) gu[i] = ZERO;
+  for (i = 0; i < ns; i++) {
+    gu[i] = ZERO;
+  }
   gu[ISPEC-1] = ONE;
 
   for (jy = 0; jy < MY; jy++) {
@@ -705,10 +761,14 @@ static int PrecondB(realtype t, N_Vector c,
 
   wdata = (WebData) user_data;
   cvode_mem = CVodeGetAdjCVodeBmem(wdata->cvode_mem, wdata->indexB);
-  if(check_retval((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) {
+    return (1);
+  }
   rewt = wdata->rewtB;
   retval = CVodeGetErrWeights(cvode_mem, rewt);
-  if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetErrWeights", 1)) {
+    return (1);
+  }
 
   cdata = N_VGetArrayPointer(c);
   rewtdata = N_VGetArrayPointer(rewt);
@@ -734,7 +794,9 @@ static int PrecondB(realtype t, N_Vector c,
   f1 = N_VGetArrayPointer(wdata->vtempB);
   fac = N_VWrmsNorm (fcB, rewt);
   r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
-  if (r0 == ZERO) r0 = ONE;
+  if (r0 == ZERO) {
+    r0 = ONE;
+  }
 
   for (igy = 0; igy < ngy; igy++) {
     jy = jyr[igy];
@@ -765,7 +827,9 @@ static int PrecondB(realtype t, N_Vector c,
    for (ig = 0; ig < ngrp; ig++) {
      SUNDlsMat_denseAddIdentity(P[ig], mp);
      denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-     if (denseretval != 0) return(1);
+     if (denseretval != 0) {
+       return (1);
+     }
    }
 
   *jcurPtr = SUNTRUE;
@@ -866,7 +930,11 @@ static void InitUserData(WebData wdata)
   coy = wdata->coy;
   ns = wdata->ns = NS;
 
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = ZERO; }
+  for (j = 0; j < NS; j++) {
+    for (i = 0; i < NS; i++) {
+      acoef[i][j] = ZERO;
+    }
+  }
   for (j = 0; j < NP; j++) {
     for (i = 0; i < NP; i++) {
       acoef[NP+i][j] = EE;
@@ -922,15 +990,23 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
   int ig, j, len1, mper, ngm1;
 
   mper = m/ng; /* does integer division */
-  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
+  for (ig = 0; ig < ng; ig++) {
+    jg[ig] = ig * mper;
+  }
   jg[ng] = m;
 
   ngm1 = ng - 1;
   len1 = ngm1*mper;
-  for (j = 0; j < len1; j++) jig[j] = j/mper;
-  for (j = len1; j < m; j++) jig[j] = ngm1;
+  for (j = 0; j < len1; j++) {
+    jig[j] = j / mper;
+  }
+  for (j = len1; j < m; j++) {
+    jig[j] = ngm1;
+  }
 
-  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
+  for (ig = 0; ig < ngm1; ig++) {
+    jr[ig] = ((2 * ig + 1) * mper - 1) / 2;
+  }
   jr[ngm1] = (ngm1*mper+m-1)/2;
 }
 
@@ -990,16 +1066,20 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  for (i = 0; i < ns; i++)
+  for (i = 0; i < ns; i++) {
     rate[i] = ZERO;
+  }
 
-  for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
+  for (j = 0; j < ns; j++) {
+    for (i = 0; i < ns; i++) {
       rate[i] += c[j] * acoef[i][j];
+    }
+  }
 
   fac = ONE + ALPH*x*y;
-  for (i = 0; i < ns; i++)
-    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
+  for (i = 0; i < ns; i++) {
+    rate[i] = c[i] * (bcoef[i] * fac + rate[i]);
+  }
 }
 
 /*
@@ -1019,21 +1099,26 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
 
   fac = ONE + ALPH*x*y;
 
-  for (i = 0; i < ns; i++)
-    rate[i] = bcoef[i]*fac;
+  for (i = 0; i < ns; i++) {
+    rate[i] = bcoef[i] * fac;
+  }
 
-  for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
-      rate[i] += acoef[i][j]*c[j];
+  for (j = 0; j < ns; j++) {
+    for (i = 0; i < ns; i++) {
+      rate[i] += acoef[i][j] * c[j];
+    }
+  }
 
   for (i = 0; i < ns; i++) {
     rateB[i] = cB[i]*rate[i];
     rate[i] = c[i]*rate[i];
   }
 
-  for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
-      rateB[i] += acoef[j][i]*c[j]*cB[j];
+  for (j = 0; j < ns; j++) {
+    for (i = 0; i < ns; i++) {
+      rateB[i] += acoef[j][i] * c[j] * cB[j];
+    }
+  }
 }
 
 /*
@@ -1220,26 +1305,34 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
 static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] += v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] += v[i] * w[i];
+  }
 }
 
 static void v_sum_prods(realtype u[], realtype p[], realtype q[],
                         realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] = p[i] * q[i] + v[i] * w[i];
+  }
 }
 
 static void v_prod(realtype u[], realtype v[], realtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = v[i]*w[i];
+  for (i = 0; i < n; i++) {
+    u[i] = v[i] * w[i];
+  }
 }
 
 static void v_zero(realtype u[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = ZERO;
+  for (i = 0; i < n; i++) {
+    u[i] = ZERO;
+  }
 }
 
 /*

@@ -97,7 +97,9 @@ int main() {
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -112,7 +114,9 @@ int main() {
 
   /* Initialize data structures */
   y = N_VNew_Serial(N, ctx);            /* Create serial vector for solution */
-  if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   N_VConst(0.0, y);                /* Set initial conditions */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
@@ -120,35 +124,55 @@ int main() {
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
-  if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) udata);   /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) {
+    return 1;
+  }
   flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);         /* Increase max num steps  */
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) {
+    return 1;
+  }
   flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
   LS = SUNLinSol_PCG(y, 0, (int) N, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
+  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) {
+    return 1;
+  }
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);       /* Attach linear solver to ARKStep */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
   flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) {
+    return 1;
+  }
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinear", 1)) {
+    return 1;
+  }
 
   /* output mesh to disk */
   FID=fopen("heat_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
+  for (i = 0; i < N; i++) {
+    fprintf(FID, "  %.16" ESYM "\n", udata->dx * i);
+  }
   fclose(FID);
 
   /* Open output stream for results, access data array */
@@ -156,7 +180,9 @@ int main() {
   data = N_VGetArrayPointer(y);
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
+  for (i = 0; i < N; i++) {
+    fprintf(UFID, " %.16" ESYM "", data[i]);
+  }
   fprintf(UFID,"\n");
 
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
@@ -170,7 +196,9 @@ int main() {
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      break;
+    }
     printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));   /* print solution stats */
     if (flag >= 0) {                                            /* successful solve: update output time */
       tout += dTout;
@@ -181,7 +209,9 @@ int main() {
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
+    for (i = 0; i < N; i++) {
+      fprintf(UFID, " %.16" ESYM "", data[i]);
+    }
     fprintf(UFID,"\n");
   }
   printf("   -------------------------\n");
@@ -246,9 +276,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunindextype i, isource;
 
   Y = N_VGetArrayPointer(y);      /* access data arrays */
-  if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Y, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   Ydot = N_VGetArrayPointer(ydot);
-  if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)Ydot, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
 
   /* iterate over domain, computing all equations */
@@ -256,8 +290,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   c2 = -RCONST(2.0)*k/dx/dx;
   isource = N/2;
   Ydot[0] = 0.0;                 /* left boundary condition */
-  for (i=1; i<N-1; i++)
-    Ydot[i] = c1*Y[i-1] + c2*Y[i] + c1*Y[i+1];
+  for (i = 1; i < N - 1; i++) {
+    Ydot[i] = c1 * Y[i - 1] + c2 * Y[i] + c1 * Y[i + 1];
+  }
   Ydot[N-1] = 0.0;               /* right boundary condition */
   Ydot[isource] += 0.01/dx;      /* source term */
 
@@ -277,17 +312,22 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   sunindextype i;
 
   V = N_VGetArrayPointer(v);       /* access data arrays */
-  if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)V, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   JV = N_VGetArrayPointer(Jv);
-  if (check_flag((void *) JV, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *)JV, "N_VGetArrayPointer", 0)) {
+    return 1;
+  }
   N_VConst(0.0, Jv);                         /* initialize Jv product to zero */
 
   /* iterate over domain, computing all Jacobian-vector products */
   c1 = k/dx/dx;
   c2 = -RCONST(2.0)*k/dx/dx;
   JV[0] = 0.0;
-  for (i=1; i<N-1; i++)
-    JV[i] = c1*V[i-1] + c2*V[i] + c1*V[i+1];
+  for (i = 1; i < N - 1; i++) {
+    JV[i] = c1 * V[i - 1] + c2 * V[i] + c1 * V[i + 1];
+  }
   JV[N-1] = 0.0;
 
   return 0;                                  /* Return with success */

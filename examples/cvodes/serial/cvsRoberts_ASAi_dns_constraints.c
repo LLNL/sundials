@@ -180,30 +180,40 @@ int main(int argc, char *argv[])
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
   data->p[0] = RCONST(0.04);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Initialize y */
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(y,1) = RCONST(1.0);
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
   /* Set constraints to all 1's for nonnegative solution values. */
   constraints = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   N_VConst(ONE, constraints);
 
   /* Initialize q */
   q = N_VNew_Serial(1, sunctx);
-  if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)q, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(q,1) = ZERO;
 
   /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
@@ -216,60 +226,84 @@ int main(int argc, char *argv[])
   /* Call CVodeCreate to create the solver memory and specify the
      Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
      user's right hand side function in y'=f(t,y), the initial time T0, and
      the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
      the multiplicative error weights w_i for use in the weighted RMS norm */
   retval = CVodeWFtolerances(cvode_mem, ewt);
-  if (check_retval(&retval, "CVodeWFtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeWFtolerances", 1)) {
+    return (1);
+  }
 
   /* Attach user data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetConstraints to initialize constraints */
   retval = CVodeSetConstraints(cvode_mem, constraints);
-  if (check_retval(&retval, "CVODESetConstraints", 1)) return(1);
+  if (check_retval(&retval, "CVODESetConstraints", 1)) {
+    return (1);
+  }
   N_VDestroy(constraints);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+    return (1);
+  }
 
   /* Call CVodeQuadInit to allocate initernal memory and initialize
      quadrature integration*/
   retval = CVodeQuadInit(cvode_mem, fQ, q);
-  if (check_retval(&retval, "CVodeQuadInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeQuadInit", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
   retval = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
-  if (check_retval(&retval, "CVodeSetQuadErrCon", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetQuadErrCon", 1)) {
+    return (1);
+  }
 
   /* Call CVodeQuadSStolerances to specify scalar relative and absolute
      tolerances. */
   retval = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  if (check_retval(&retval, "CVodeQuadSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeQuadSStolerances", 1)) {
+    return (1);
+  }
 
   /* Allocate global memory */
 
@@ -280,7 +314,9 @@ int main(int argc, char *argv[])
   /*
   retval = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
   */
-  if (check_retval(&retval, "CVodeAdjInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeAdjInit", 1)) {
+    return (1);
+  }
 
   /* Perform forward run */
   printf("Forward integration ... ");
@@ -288,15 +324,21 @@ int main(int argc, char *argv[])
   /* Call CVodeF to integrate the forward problem over an interval in time and
      saves checkpointing data */
   retval = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
-  if (check_retval(&retval, "CVodeF", 1)) return(1);
+  if (check_retval(&retval, "CVodeF", 1)) {
+    return (1);
+  }
   retval = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_retval(&retval, "CVodeGetNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetNumSteps", 1)) {
+    return (1);
+  }
 
   printf("done ( nst = %ld )\n",nst);
   printf("\nncheck = %d\n\n", ncheck);
 
   retval = CVodeGetQuad(cvode_mem, &time, q);
-  if (check_retval(&retval, "CVodeGetQuad", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetQuad", 1)) {
+    return (1);
+  }
 
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -333,14 +375,18 @@ int main(int argc, char *argv[])
 
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   Ith(yB,1) = ZERO;
   Ith(yB,2) = ZERO;
   Ith(yB,3) = ZERO;
 
   /* Initialize qB */
   qB = N_VNew_Serial(NP, sunctx);
-  if (check_retval((void *)qB, "N_VNew", 0)) return(1);
+  if (check_retval((void *)qB, "N_VNew", 0)) {
+    return (1);
+  }
   Ith(qB,1) = ZERO;
   Ith(qB,2) = ZERO;
   Ith(qB,3) = ZERO;
@@ -356,7 +402,9 @@ int main(int argc, char *argv[])
 
   /* Set constraints to all 1's for nonnegative solution values. */
   constraintsB = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)constraintsB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraintsB, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   N_VConst(ONE, constraintsB);
 
   /* Create and allocate CVODES memory for backward run */
@@ -365,58 +413,82 @@ int main(int argc, char *argv[])
   /* Call CVodeCreateB to specify the solution method for the backward
      problem. */
   retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
-  if (check_retval(&retval, "CVodeCreateB", 1)) return(1);
+  if (check_retval(&retval, "CVodeCreateB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeInitB to allocate internal memory and initialize the
      backward problem. */
   retval = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
-  if (check_retval(&retval, "CVodeInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeInitB", 1)) {
+    return (1);
+  }
 
   /* Set the scalar relative and absolute tolerances. */
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
-  if (check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1)) {
+    return (1);
+  }
 
   /* Attach the user data for backward problem. */
   retval = CVodeSetUserDataB(cvode_mem, indexB, data);
-  if (check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetConstraintsB to initialize constraints */
   retval = CVodeSetConstraintsB(cvode_mem, indexB, constraintsB);
-  if(check_retval(&retval, "CVodeSetConstraintsB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetConstraintsB", 1)) {
+    return (1);
+  }
   N_VDestroy(constraintsB);
 
   /* Create dense SUNMatrix for use in linear solves */
   AB = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)AB, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)AB, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LSB = SUNLinSol_Dense(yB, AB, sunctx);
-  if (check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LSB, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, AB);
-  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine JacB */
   retval = CVodeSetJacFnB(cvode_mem, indexB, JacB);
-  if (check_retval(&retval, "CVodeSetJacFnB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFnB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeQuadInitB to allocate internal memory and initialize backward
      quadrature integration. */
   retval = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
-  if (check_retval(&retval, "CVodeQuadInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeQuadInitB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
   retval = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
-  if (check_retval(&retval, "CVodeSetQuadErrConB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetQuadErrConB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
      for the backward problem. */
   retval = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
-  if (check_retval(&retval, "CVodeQuadSStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "CVodeQuadSStolerancesB", 1)) {
+    return (1);
+  }
 
   /* Backward Integration */
 
@@ -426,36 +498,50 @@ int main(int argc, char *argv[])
 
   /* Call CVodeB to integrate the backward ODE problem. */
   retval = CVodeB(cvode_mem, TBout1, CV_NORMAL);
-  if (check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeGetB to get yB of the backward ODE problem. */
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeGetAdjY to get the interpolated value of the forward solution
      y during a backward integration. */
   retval = CVodeGetAdjY(cvode_mem, TBout1, y);
-  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) {
+    return (1);
+  }
 
   PrintOutput1(time, TBout1, y, yB);
 
   /* Then at t = T0 */
 
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if (check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) {
+    return (1);
+  }
   CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
   printf("Done ( nst = %ld )\n", nstB);
 
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) {
+    return (1);
+  }
 
   /* Call CVodeGetQuadB to get the quadrature solution vector after a
      successful return from CVodeB. */
   retval = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
-  if (check_retval(&retval, "CVodeGetQuadB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetQuadB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetAdjY(cvode_mem, T0, y);
-  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) {
+    return (1);
+  }
 
   PrintOutput(time, y, yB, qB);
 
@@ -472,41 +558,59 @@ int main(int argc, char *argv[])
   printf("Re-initialize CVODES memory for backward run\n");
 
   retval = CVodeReInitB(cvode_mem, indexB, TB2, yB);
-  if (check_retval(&retval, "CVodeReInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeReInitB", 1)) {
+    return (1);
+  }
 
   retval = CVodeQuadReInitB(cvode_mem, indexB, qB);
-  if (check_retval(&retval, "CVodeQuadReInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeQuadReInitB", 1)) {
+    return (1);
+  }
 
   PrintHead(TB2);
 
   /* First get results at t = TBout1 */
 
   retval = CVodeB(cvode_mem, TBout1, CV_NORMAL);
-  if (check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetAdjY(cvode_mem, TBout1, y);
-  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) {
+    return (1);
+  }
 
   PrintOutput1(time, TBout1, y, yB);
 
   /* Then at t = T0 */
 
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if (check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) {
+    return (1);
+  }
   CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
   printf("Done ( nst = %ld )\n", nstB);
 
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
-  if (check_retval(&retval, "CVodeGetQuadB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetQuadB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetAdjY(cvode_mem, T0, y);
-  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) {
+    return (1);
+  }
 
   PrintOutput(time, y, yB, qB);
 
@@ -524,7 +628,9 @@ int main(int argc, char *argv[])
   SUNMatDestroy(AB);
   SUNContext_Free(&sunctx);
 
-  if (ckpnt != NULL) free(ckpnt);
+  if (ckpnt != NULL) {
+    free(ckpnt);
+  }
   free(data);
 
   return(0);
@@ -608,7 +714,9 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
   for (i=1; i<=3; i++) {
     yy = Ith(y,i);
     ww = rtol * SUNRabs(yy) + atol[i-1];
-    if (ww <= 0.0) return (-1);
+    if (ww <= 0.0) {
+      return (-1);
+    }
     Ith(w,i) = 1.0/ww;
   }
 

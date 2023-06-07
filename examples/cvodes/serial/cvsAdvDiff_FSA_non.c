@@ -137,11 +137,15 @@ int main(int argc, char *argv[])
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Set user data */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
   data->p = (realtype *) malloc(NP * sizeof(realtype));
   dx = data->dx = XMAX/((realtype)(MX+1));
   data->p[0] = RCONST(1.0);
@@ -149,7 +153,9 @@ int main(int argc, char *argv[])
 
   /* Allocate and set initial states */
   u = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   SetIC(u, dx);
 
   /* Set integration tolerances */
@@ -158,25 +164,37 @@ int main(int argc, char *argv[])
 
   /* Create CVODES object */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   /* Allocate CVODES memory */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* create fixed point nonlinear solver object */
   NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
-  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+  if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) {
+    return (1);
+  }
 
   /* attach nonlinear solver object to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetNonlinearSolver", 1)) {
+    return (1);
+  }
 
   printf("\n1-D advection-diffusion equation, mesh size =%3d\n", MX);
 
@@ -184,59 +202,91 @@ int main(int argc, char *argv[])
   if(sensi) {
 
     plist = (int *) malloc(NS * sizeof(int));
-    if(check_retval((void *)plist, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++) plist[is] = is;
+    if (check_retval((void *)plist, "malloc", 2)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      plist[is] = is;
+    }
 
     pbar  = (realtype *) malloc(NS * sizeof(realtype));
-    if(check_retval((void *)pbar, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
+    if (check_retval((void *)pbar, "malloc", 2)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
+      pbar[is] = data->p[plist[is]];
+    }
 
     uS = N_VCloneVectorArray(NS, u);
-    if(check_retval((void *)uS, "N_VCloneVectorArray", 0)) return(1);
-    for(is=0;is<NS;is++)
+    if (check_retval((void *)uS, "N_VCloneVectorArray", 0)) {
+      return (1);
+    }
+    for (is = 0; is < NS; is++) {
       N_VConst(ZERO, uS[is]);
+    }
 
     retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
-    if(check_retval(&retval, "CVodeSensInit1", 1)) return(1);
+    if (check_retval(&retval, "CVodeSensInit1", 1)) {
+      return (1);
+    }
 
     retval = CVodeSensEEtolerances(cvode_mem);
-    if(check_retval(&retval, "CVodeSensEEtolerances", 1)) return(1);
+    if (check_retval(&retval, "CVodeSensEEtolerances", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetSensErrCon(cvode_mem, err_con);
-    if(check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensErrCon", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
-    if(check_retval(&retval, "CVodeSetSensDQMethod", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensDQMethod", 1)) {
+      return (1);
+    }
 
     retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-    if(check_retval(&retval, "CVodeSetSensParams", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetSensParams", 1)) {
+      return (1);
+    }
 
     /* create sensitivity fixed point nonlinear solver object */
-    if (sensi_meth == CV_SIMULTANEOUS)
+    if (sensi_meth == CV_SIMULTANEOUS) {
       NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0, sunctx);
-    else if(sensi_meth == CV_STAGGERED)
+    } else if (sensi_meth == CV_STAGGERED) {
       NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0, sunctx);
-    else
+    } else {
       NLSsens = SUNNonlinSol_FixedPoint(u, 0, sunctx);
-    if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+    }
+    if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) {
+      return (1);
+    }
 
     /* attach nonlinear solver object to CVode */
-    if (sensi_meth == CV_SIMULTANEOUS)
+    if (sensi_meth == CV_SIMULTANEOUS) {
       retval = CVodeSetNonlinearSolverSensSim(cvode_mem, NLSsens);
-    else if(sensi_meth == CV_STAGGERED)
+    } else if (sensi_meth == CV_STAGGERED) {
       retval = CVodeSetNonlinearSolverSensStg(cvode_mem, NLSsens);
-    else
+    } else {
       retval = CVodeSetNonlinearSolverSensStg1(cvode_mem, NLSsens);
-    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+    }
+    if (check_retval(&retval, "CVodeSetNonlinearSolver", 1)) {
+      return (1);
+    }
 
     printf("Sensitivity: YES ");
-    if(sensi_meth == CV_SIMULTANEOUS)
+    if (sensi_meth == CV_SIMULTANEOUS) {
       printf("( SIMULTANEOUS +");
-    else
-      if(sensi_meth == CV_STAGGERED) printf("( STAGGERED +");
-      else                           printf("( STAGGERED1 +");
-    if(err_con) printf(" FULL ERROR CONTROL )");
-    else        printf(" PARTIAL ERROR CONTROL )");
+    } else if (sensi_meth == CV_STAGGERED) {
+      printf("( STAGGERED +");
+    } else {
+      printf("( STAGGERED1 +");
+    }
+    if (err_con) {
+      printf(" FULL ERROR CONTROL )");
+    } else {
+      printf(" PARTIAL ERROR CONTROL )");
+    }
 
   } else {
 
@@ -253,11 +303,15 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) {
+      break;
+    }
     PrintOutput(cvode_mem, t, u);
     if (sensi) {
       retval = CVodeGetSens(cvode_mem, &t, uS);
-      if(check_retval(&retval, "CVodeGetSens", 1)) break;
+      if (check_retval(&retval, "CVodeGetSens", 1)) {
+        break;
+      }
       PrintOutputS(uS);
     }
     printf("------------------------------------------------------------\n");
@@ -277,7 +331,9 @@ int main(int argc, char *argv[])
   free(data);
   CVodeFree(&cvode_mem);
   SUNNonlinSolFree(NLS);
-  if (sensi) SUNNonlinSolFree(NLSsens);
+  if (sensi) {
+    SUNNonlinSolFree(NLSsens);
+  }
   SUNContext_Free(&sunctx);
 
   return(0);
@@ -315,14 +371,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
     /* Extract u at x_i and two neighboring points */
     ui = udata[i];
-    if(i!=0)
+    if (i != 0) {
       ult = udata[i-1];
-    else
+    } else {
       ult = ZERO;
-    if(i!=NEQ-1)
+    }
+    if (i != NEQ - 1) {
       urt = udata[i+1];
-    else
+    } else {
       urt = ZERO;
+    }
 
     /* Set diffusion and advection terms and load into udot */
     hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
@@ -350,35 +408,41 @@ static void ProcessArgs(int argc, char *argv[],
   *sensi_meth = -1;
   *err_con = SUNFALSE;
 
-  if (argc < 2) WrongArgs(argv[0]);
-
-  if (strcmp(argv[1],"-nosensi") == 0)
-    *sensi = SUNFALSE;
-  else if (strcmp(argv[1],"-sensi") == 0)
-    *sensi = SUNTRUE;
-  else
+  if (argc < 2) {
     WrongArgs(argv[0]);
+  }
+
+  if (strcmp(argv[1], "-nosensi") == 0) {
+    *sensi = SUNFALSE;
+  } else if (strcmp(argv[1], "-sensi") == 0) {
+    *sensi = SUNTRUE;
+  } else {
+    WrongArgs(argv[0]);
+  }
 
   if (*sensi) {
 
-    if (argc != 4)
+    if (argc != 4) {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[2],"sim") == 0)
+    if (strcmp(argv[2], "sim") == 0) {
       *sensi_meth = CV_SIMULTANEOUS;
-    else if (strcmp(argv[2],"stg") == 0)
+    } else if (strcmp(argv[2], "stg") == 0) {
       *sensi_meth = CV_STAGGERED;
-    else if (strcmp(argv[2],"stg1") == 0)
+    } else if (strcmp(argv[2], "stg1") == 0) {
       *sensi_meth = CV_STAGGERED1;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
 
-    if (strcmp(argv[3],"t") == 0)
+    if (strcmp(argv[3], "t") == 0) {
       *err_con = SUNTRUE;
-    else if (strcmp(argv[3],"f") == 0)
+    } else if (strcmp(argv[3], "f") == 0) {
       *err_con = SUNFALSE;
-    else
+    } else {
       WrongArgs(argv[0]);
+    }
   }
 
 }

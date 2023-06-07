@@ -111,25 +111,37 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
 
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Allocate N-vectors and the user data structure. */
 
   uu = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)uu, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)up, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)res, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   data = (UserData) malloc(sizeof *data);
   data->pp = NULL;
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
 
   /* Assign parameters in the user data structure. */
 
@@ -137,7 +149,9 @@ int main()
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
   data->pp = N_VClone(uu);
-  if(check_retval((void *)data->pp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)data->pp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Initialize uu, up. */
 
@@ -157,37 +171,55 @@ int main()
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   retval = IDASetConstraints(mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
+  if (check_retval(&retval, "IDASetConstraints", 1)) {
+    return (1);
+  }
   N_VDestroy(constraints);
 
   retval = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   /* Create the linear solver SUNLinSol_SPGMR with left preconditioning
      and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
-  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
+  if (check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) {
+    return (1);
+  }
 
   /* Attach the linear solver */
   retval = IDASetLinearSolver(mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the preconditioner solve and setup functions */
   retval = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "IDASetPreconditioner", 1)) {
+    return (1);
+  }
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -209,7 +241,9 @@ int main()
 
   for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (1);
+    }
     PrintOutput(mem, tret, uu);
   }
 
@@ -241,10 +275,14 @@ int main()
   /* Re-initialize IDA and SPGMR */
 
   retval = IDAReInit(mem, t0, uu, up);
-  if(check_retval(&retval, "IDAReInit", 1)) return(1);
+  if (check_retval(&retval, "IDAReInit", 1)) {
+    return (1);
+  }
 
   retval = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
-  if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType",1)) return(1);
+  if (check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) {
+    return (1);
+  }
 
   /* Print case number, output table heading, and initial line of table. */
 
@@ -257,7 +295,9 @@ int main()
 
   for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (1);
+    }
     PrintOutput(mem, tret, uu);
   }
 
@@ -455,7 +495,9 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     offset = mm*j;
     for (i = 0; i < mm; i++) {
       loc = offset + i;
-      if (j == 0 || j == mm1 || i == 0 || i == mm1 ) updata[loc] = ZERO;
+      if (j == 0 || j == mm1 || i == 0 || i == mm1) {
+        updata[loc] = ZERO;
+      }
     }
   }
 

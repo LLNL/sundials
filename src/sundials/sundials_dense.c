@@ -145,12 +145,17 @@ sunindextype SUNDlsMat_denseGETRF(realtype **a, sunindextype m, sunindextype n, 
 
     /* find l = pivot row number */
     l=k;
-    for (i=k+1; i < m; i++)
-      if (SUNRabs(col_k[i]) > SUNRabs(col_k[l])) l=i;
+    for (i = k + 1; i < m; i++) {
+      if (SUNRabs(col_k[i]) > SUNRabs(col_k[l])) {
+        l = i;
+      }
+    }
     p[k] = l;
 
     /* check for zero pivot element */
-    if (col_k[l] == ZERO) return(k+1);
+    if (col_k[l] == ZERO) {
+      return (k + 1);
+    }
 
     /* swap a(k,1:n) and a(l,1:n) if necessary */
     if ( l!= k ) {
@@ -168,7 +173,9 @@ sunindextype SUNDlsMat_denseGETRF(realtype **a, sunindextype m, sunindextype n, 
      * in a(i,k), i=k+1, ..., m-1.
      */
     mult = ONE/col_k[k];
-    for(i=k+1; i < m; i++) col_k[i] *= mult;
+    for (i = k + 1; i < m; i++) {
+      col_k[i] *= mult;
+    }
 
     /* row_i = row_i - [a(i,k)/a(k,k)] row_k, i=k+1, ..., m-1 */
     /* row k is the pivot row after swapping with row l.      */
@@ -184,8 +191,9 @@ sunindextype SUNDlsMat_denseGETRF(realtype **a, sunindextype m, sunindextype n, 
       /* a_kj = a(k,j), col_k[i] = - a(i,k)/a(k,k) */
 
       if (a_kj != ZERO) {
-        for (i=k+1; i < m; i++)
+        for (i = k + 1; i < m; i++) {
           col_j[i] -= a_kj * col_k[i];
+        }
       }
     }
   }
@@ -218,14 +226,18 @@ void SUNDlsMat_denseGETRS(realtype **a, sunindextype n, sunindextype *p, realtyp
   /* Solve Ly = b, store solution y in b */
   for (k=0; k<n-1; k++) {
     col_k = a[k];
-    for (i=k+1; i<n; i++) b[i] -= col_k[i]*b[k];
+    for (i = k + 1; i < n; i++) {
+      b[i] -= col_k[i] * b[k];
+    }
   }
 
   /* Solve Ux = y, store solution x in b */
   for (k = n-1; k > 0; k--) {
     col_k = a[k];
     b[k] /= col_k[k];
-    for (i=0; i<k; i++) b[i] -= col_k[i]*b[k];
+    for (i = 0; i < k; i++) {
+      b[i] -= col_k[i] * b[k];
+    }
   }
   b[0] /= a[0][0];
 
@@ -263,11 +275,14 @@ sunindextype SUNDlsMat_densePOTRF(realtype **a, sunindextype m)
     }
 
     a_diag = a_col_j[j];
-    if (a_diag <= ZERO) return(j+1);
+    if (a_diag <= ZERO) {
+      return (j + 1);
+    }
     a_diag = SUNRsqrt(a_diag);
 
-    for(i=j; i<m; i++) a_col_j[i] /= a_diag;
-
+    for (i = j; i < m; i++) {
+      a_col_j[i] /= a_diag;
+    }
   }
 
   return(0);
@@ -294,8 +309,9 @@ void SUNDlsMat_densePOTRS(realtype **a, sunindextype m, realtype *b)
   for (j=0; j < m-1; j++) {
     col_j = a[j];
     b[j] /= col_j[j];
-    for (i=j+1; i < m; i++)
-      b[i] -= b[j]*col_j[i];
+    for (i = j + 1; i < m; i++) {
+      b[i] -= b[j] * col_j[i];
+    }
   }
   col_j = a[m-1];
   b[m-1] /= col_j[m-1];
@@ -306,8 +322,9 @@ void SUNDlsMat_densePOTRS(realtype **a, sunindextype m, realtype *b)
   b[m-1] /= col_j[m-1];
   for (i=m-2; i>=0; i--) {
     col_i = a[i];
-    for (j=i+1; j<m; j++)
-      b[i] -= col_i[j]*b[j];
+    for (j = i + 1; j < m; j++) {
+      b[i] -= col_i[j] * b[j];
+    }
     b[i] /= col_i[i];
   }
 
@@ -356,7 +373,9 @@ int SUNDlsMat_denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype 
       v1 = (ajj <= ZERO) ? ajj-mu : -s/(ajj+mu);
       v1_2 = v1*v1;
       beta[j] = TWO * v1_2 / (s + v1_2);
-      for(i=1; i<m-j; i++) v[i] /= v1;
+      for (i = 1; i < m - j; i++) {
+        v[i] /= v1;
+      }
     } else {
       beta[j] = ZERO;
     }
@@ -365,14 +384,20 @@ int SUNDlsMat_denseGEQRF(realtype **a, sunindextype m, sunindextype n, realtype 
     for(k=j; k<n; k++) {
       col_k = a[k];
       s = ZERO;
-      for(i=0; i<m-j; i++) s += col_k[i+j]*v[i];
+      for (i = 0; i < m - j; i++) {
+        s += col_k[i + j] * v[i];
+      }
       s *= beta[j];
-      for(i=0; i<m-j; i++) col_k[i+j] -= s*v[i];
+      for (i = 0; i < m - j; i++) {
+        col_k[i + j] -= s * v[i];
+      }
     }
 
     /* Update A (load Householder vector) */
     if(j<m-1) {
-      for(i=1; i<m-j; i++) col_j[i+j] = v[i];
+      for (i = 1; i < m - j; i++) {
+        col_j[i + j] = v[i];
+      }
     }
 
   }
@@ -405,8 +430,12 @@ int SUNDlsMat_denseORMQR(realtype **a, sunindextype m, sunindextype n, realtype 
   sunindextype i, j;
 
   /* Initialize vm */
-  for(i=0; i<n; i++) vm[i] = vn[i];
-  for(i=n; i<m; i++) vm[i] = ZERO;
+  for (i = 0; i < n; i++) {
+    vm[i] = vn[i];
+  }
+  for (i = n; i < m; i++) {
+    vm[i] = ZERO;
+  }
 
   /* Accumulate (backwards) corrections into vm */
   for(j=n-1; j>=0; j--) {
@@ -421,8 +450,9 @@ int SUNDlsMat_denseORMQR(realtype **a, sunindextype m, sunindextype n, realtype 
     }
     s *= beta[j];
 
-    for(i=0; i<m-j; i++) vm[i+j] -= s * v[i];
-
+    for (i = 0; i < m - j; i++) {
+      vm[i + j] -= s * v[i];
+    }
   }
 
   return(0);
@@ -441,8 +471,9 @@ void SUNDlsMat_denseCopy(realtype **a, realtype **b, sunindextype m, sunindextyp
   for (j=0; j < n; j++) {
     a_col_j = a[j];
     b_col_j = b[j];
-    for (i=0; i < m; i++)
+    for (i = 0; i < m; i++) {
       b_col_j[i] = a_col_j[i];
+    }
   }
 
 }
@@ -459,8 +490,9 @@ void SUNDlsMat_denseScale(realtype c, realtype **a, sunindextype m, sunindextype
 
   for (j=0; j < n; j++) {
     col_j = a[j];
-    for (i=0; i < m; i++)
+    for (i = 0; i < m; i++) {
       col_j[i] *= c;
+    }
   }
 }
 
@@ -473,7 +505,9 @@ void SUNDlsMat_denseAddIdentity(realtype **a, sunindextype n)
 {
   sunindextype i;
 
-  for (i=0; i < n; i++) a[i][i] += ONE;
+  for (i = 0; i < n; i++) {
+    a[i][i] += ONE;
+  }
 }
 
 void denseMatvec(realtype **a, realtype *x, realtype *y, sunindextype m, sunindextype n)
@@ -492,8 +526,9 @@ void SUNDlsMat_denseMatvec(realtype **a, realtype *x, realtype *y, sunindextype 
 
   for (j=0; j<n; j++) {
     col_j = a[j];
-    for (i=0; i<m; i++)
-      y[i] += col_j[i]*x[j];
+    for (i = 0; i < m; i++) {
+      y[i] += col_j[i] * x[j];
+    }
   }
 }
 

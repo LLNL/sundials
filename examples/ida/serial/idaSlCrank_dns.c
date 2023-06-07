@@ -88,7 +88,9 @@ int main(void)
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* User data */
 
@@ -137,15 +139,21 @@ int main(void)
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   PrintHeader(rtol, atol, yy);
 
@@ -157,7 +165,9 @@ int main(void)
   for (iout=1; iout<NOUT; iout++) {
     tout = iout*dt;
     retval = IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
-    if (retval < 0) break;
+    if (retval < 0) {
+      break;
+    }
 
     retval = PrintOutput(mem,tret,yy);
 

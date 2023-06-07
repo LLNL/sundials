@@ -54,23 +54,28 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl, SUNContext su
   SUNLinearSolverContent_SPGMR content;
 
   /* check for legal pretype and maxl values; if illegal use defaults */
-  if ((pretype != SUN_PREC_NONE)  && (pretype != SUN_PREC_LEFT) &&
-      (pretype != SUN_PREC_RIGHT) && (pretype != SUN_PREC_BOTH))
+  if ((pretype != SUN_PREC_NONE) && (pretype != SUN_PREC_LEFT) &&
+      (pretype != SUN_PREC_RIGHT) && (pretype != SUN_PREC_BOTH)) {
     pretype = SUN_PREC_NONE;
-  if (maxl <= 0)
+  }
+  if (maxl <= 0) {
     maxl = SUNSPGMR_MAXL_DEFAULT;
+  }
 
   /* check that the supplied N_Vector supports all requisite operations */
-  if ( (y->ops->nvclone == NULL) || (y->ops->nvdestroy == NULL) ||
-       (y->ops->nvlinearsum == NULL) || (y->ops->nvconst == NULL) ||
-       (y->ops->nvprod == NULL) || (y->ops->nvdiv == NULL) ||
-       (y->ops->nvscale == NULL) || (y->ops->nvdotprod == NULL) )
-    return(NULL);
+  if ((y->ops->nvclone == NULL) || (y->ops->nvdestroy == NULL) ||
+      (y->ops->nvlinearsum == NULL) || (y->ops->nvconst == NULL) ||
+      (y->ops->nvprod == NULL) || (y->ops->nvdiv == NULL) ||
+      (y->ops->nvscale == NULL) || (y->ops->nvdotprod == NULL)) {
+    return (NULL);
+  }
 
   /* Create linear solver */
   S = NULL;
   S = SUNLinSolNewEmpty(sunctx);
-  if (S == NULL) return(NULL);
+  if (S == NULL) {
+    return (NULL);
+  }
 
   /* Attach operations */
   S->ops->gettype           = SUNLinSolGetType_SPGMR;
@@ -151,7 +156,9 @@ int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
   }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* Set pretype */
   SPGMR_CONTENT(S)->pretype = pretype;
@@ -171,7 +178,9 @@ int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
   }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* Set pretype */
   SPGMR_CONTENT(S)->gstype = gstype;
@@ -186,11 +195,14 @@ int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 {
   /* Illegal maxrs implies use of default value */
-  if (maxrs < 0)
+  if (maxrs < 0) {
     maxrs = SUNSPGMR_MAXRS_DEFAULT;
+  }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* Set max_restarts */
   SPGMR_CONTENT(S)->max_restarts = maxrs;
@@ -222,22 +234,26 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   SUNLinearSolverContent_SPGMR content;
 
   /* set shortcut to SPGMR memory structure */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   content = SPGMR_CONTENT(S);
 
   /* ensure valid options */
-  if (content->max_restarts < 0)
+  if (content->max_restarts < 0) {
     content->max_restarts = SUNSPGMR_MAXRS_DEFAULT;
+  }
 
   if (content->ATimes == NULL) {
     LASTFLAG(S) = SUNLS_ATIMES_NULL;
     return(LASTFLAG(S));
   }
 
-  if ( (content->pretype != SUN_PREC_LEFT) &&
-       (content->pretype != SUN_PREC_RIGHT) &&
-       (content->pretype != SUN_PREC_BOTH) )
+  if ((content->pretype != SUN_PREC_LEFT) &&
+      (content->pretype != SUN_PREC_RIGHT) &&
+      (content->pretype != SUN_PREC_BOTH)) {
     content->pretype = SUN_PREC_NONE;
+  }
 
   if ((content->pretype != SUN_PREC_NONE) && (content->Psolve == NULL)) {
     LASTFLAG(S) = SUNLS_PSOLVE_NULL;
@@ -321,7 +337,9 @@ int SUNLinSolSetATimes_SPGMR(SUNLinearSolver S, void* ATData,
 {
   /* set function pointers to integrator-supplied ATimes routine
      and data, and return with success */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   SPGMR_CONTENT(S)->ATimes = ATimes;
   SPGMR_CONTENT(S)->ATData = ATData;
   LASTFLAG(S) = SUNLS_SUCCESS;
@@ -334,7 +352,9 @@ int SUNLinSolSetPreconditioner_SPGMR(SUNLinearSolver S, void* PData,
 {
   /* set function pointers to integrator-supplied Psetup and PSolve
      routines and data, and return with success */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   SPGMR_CONTENT(S)->Psetup = Psetup;
   SPGMR_CONTENT(S)->Psolve = Psolve;
   SPGMR_CONTENT(S)->PData = PData;
@@ -348,7 +368,9 @@ int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S, N_Vector s1,
 {
   /* set N_Vector pointers to integrator-supplied scaling vectors,
      and return with success */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   SPGMR_CONTENT(S)->s1 = s1;
   SPGMR_CONTENT(S)->s2 = s2;
   LASTFLAG(S) = SUNLS_SUCCESS;
@@ -359,7 +381,9 @@ int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S, N_Vector s1,
 int SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S, booleantype onff)
 {
   /* set flag indicating a zero initial guess */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   SPGMR_CONTENT(S)->zeroguess = onff;
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
@@ -373,7 +397,9 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
   void* PData;
 
   /* Set shortcuts to SPGMR memory structures */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   Psetup = SPGMR_CONTENT(S)->Psetup;
   PData = SPGMR_CONTENT(S)->PData;
 
@@ -417,7 +443,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   krydim = 0;
 
   /* Make local shorcuts to solver variables. */
-  if (S == NULL) return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
   l_max        = SPGMR_CONTENT(S)->maxl;
   max_restarts = SPGMR_CONTENT(S)->max_restarts;
   gstype       = SPGMR_CONTENT(S)->gstype;
@@ -540,9 +568,11 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     /* Initialize the Hessenberg matrix Hes and Givens rotation
        product.  Normalize the initial vector V[0] */
-    for (i=0; i<=l_max; i++)
-      for (j=0; j<l_max; j++)
+    for (i = 0; i <= l_max; i++) {
+      for (j = 0; j < l_max; j++) {
         Hes[i][j] = ZERO;
+      }
+    }
 
     rotation_product = ONE;
     N_VScale(ONE/r_norm, V[0], V[0]);
@@ -555,8 +585,11 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* Generate A-tilde V[l], where A-tilde = s1 P1_inv A P2_inv s2_inv */
 
       /*   Apply right scaling: vtemp = s2_inv V[l] */
-      if (scale2) N_VDiv(V[l], s2, vtemp);
-      else N_VScale(ONE, V[l], vtemp);
+      if (scale2) {
+        N_VDiv(V[l], s2, vtemp);
+      } else {
+        N_VScale(ONE, V[l], vtemp);
+      }
 
       /*   Apply right preconditioner: vtemp = P2_inv s2_inv V[l] */
       if (preOnRight) {
@@ -650,7 +683,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     /*   Construct g, then solve for y */
     yg[0] = r_norm;
-    for (i=1; i<=krydim; i++) yg[i]=ZERO;
+    for (i = 1; i <= krydim; i++) {
+      yg[i] = ZERO;
+    }
     if (SUNQRsol(krydim, Hes, givens, yg) != 0) {
       *zeroguess  = SUNFALSE;
       LASTFLAG(S) = SUNLS_QRSOL_FAIL;
@@ -676,7 +711,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (converged) {
 
       /* Apply right scaling and right precond.: vtemp = P2_inv s2_inv xcor */
-      if (scale2) N_VDiv(xcor, s2, xcor);
+      if (scale2) {
+        N_VDiv(xcor, s2, xcor);
+      }
       if (preOnRight) {
         ier = psolve(P_data, xcor, vtemp, delta, SUN_PREC_RIGHT);
         if (ier != 0) {
@@ -690,10 +727,11 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       }
 
       /* Add vtemp to initial x to get final solution x, and return */
-      if (*zeroguess)
+      if (*zeroguess) {
         N_VScale(ONE, vtemp, x);
-      else
+      } else {
         N_VLinearSum(ONE, x, ONE, vtemp, x);
+      }
 
       *zeroguess  = SUNFALSE;
       LASTFLAG(S) = SUNLS_SUCCESS;
@@ -701,7 +739,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
 
     /* Not yet converged; if allowed, prepare for restart */
-    if (ntries == max_restarts) break;
+    if (ntries == max_restarts) {
+      break;
+    }
 
     /* Construct last column of Q in yg */
     s_product = ONE;
@@ -713,8 +753,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     /* Scale r_norm and yg */
     r_norm *= s_product;
-    for (i=0; i<=krydim; i++)
+    for (i = 0; i <= krydim; i++) {
       yg[i] *= r_norm;
+    }
     r_norm = SUNRabs(r_norm);
 
     /* Multiply yg by V_(krydim+1) to get last residual vector; restart */
@@ -737,7 +778,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (rho < beta) {
 
     /* Apply right scaling and right precond.: vtemp = P2_inv s2_inv xcor */
-    if (scale2) N_VDiv(xcor, s2, xcor);
+    if (scale2) {
+      N_VDiv(xcor, s2, xcor);
+    }
     if (preOnRight) {
       ier = psolve(P_data, xcor, vtemp, delta, SUN_PREC_RIGHT);
       if (ier != 0) {
@@ -751,10 +794,11 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
 
     /* Add vtemp to initial x to get final solution x, and return */
-    if (*zeroguess)
+    if (*zeroguess) {
       N_VScale(ONE, vtemp, x);
-    else
+    } else {
       N_VLinearSum(ONE, x, ONE, vtemp, x);
+    }
 
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_RES_REDUCED;
@@ -770,7 +814,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 int SUNLinSolNumIters_SPGMR(SUNLinearSolver S)
 {
   /* return the stored 'numiters' value */
-  if (S == NULL) return(-1);
+  if (S == NULL) {
+    return (-1);
+  }
   return (SPGMR_CONTENT(S)->numiters);
 }
 
@@ -778,7 +824,9 @@ int SUNLinSolNumIters_SPGMR(SUNLinearSolver S)
 realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
-  if (S == NULL) return(-ONE);
+  if (S == NULL) {
+    return (-ONE);
+  }
   return (SPGMR_CONTENT(S)->resnorm);
 }
 
@@ -793,7 +841,9 @@ N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S)
 sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  if (S == NULL) return(-1);
+  if (S == NULL) {
+    return (-1);
+  }
   return (LASTFLAG(S));
 }
 
@@ -805,10 +855,11 @@ int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
   int maxl;
   sunindextype liw1, lrw1;
   maxl = SPGMR_CONTENT(S)->maxl;
-  if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
+  if (SPGMR_CONTENT(S)->vtemp->ops->nvspace) {
     N_VSpace(SPGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
-  else
+  } else {
     lrw1 = liw1 = 0;
+  }
   *lenrwLS = lrw1*(maxl + 5) + maxl*(maxl + 5) + 2;
   *leniwLS = liw1*(maxl + 5);
   return(SUNLS_SUCCESS);
@@ -819,7 +870,9 @@ int SUNLinSolFree_SPGMR(SUNLinearSolver S)
 {
   int k;
 
-  if (S == NULL) return(SUNLS_SUCCESS);
+  if (S == NULL) {
+    return (SUNLS_SUCCESS);
+  }
 
   if (S->content) {
     /* delete items from within the content structure */
@@ -837,11 +890,12 @@ int SUNLinSolFree_SPGMR(SUNLinearSolver S)
       SPGMR_CONTENT(S)->V = NULL;
     }
     if (SPGMR_CONTENT(S)->Hes) {
-      for (k=0; k<=SPGMR_CONTENT(S)->maxl; k++)
+      for (k = 0; k <= SPGMR_CONTENT(S)->maxl; k++) {
         if (SPGMR_CONTENT(S)->Hes[k]) {
           free(SPGMR_CONTENT(S)->Hes[k]);
           SPGMR_CONTENT(S)->Hes[k] = NULL;
         }
+      }
       free(SPGMR_CONTENT(S)->Hes);
       SPGMR_CONTENT(S)->Hes = NULL;
     }
@@ -873,8 +927,9 @@ int SUNLinSolSetInfoFile_SPGMR(SUNLinearSolver S,
                                FILE* info_file)
 {
   /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
 
   SPGMR_CONTENT(S)->info_file = info_file;
 
@@ -886,12 +941,14 @@ int SUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver S,
                                  int print_level)
 {
   /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
+  if (S == NULL) {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUNLS_ILL_INPUT);
+  if (print_level < 0 || print_level > 1) {
+    return (SUNLS_ILL_INPUT);
+  }
 
   SPGMR_CONTENT(S)->print_level = print_level;
 

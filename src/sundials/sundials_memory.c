@@ -49,7 +49,9 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
   SUNMemoryHelper helper = NULL;
 
-  if (sunctx == NULL) return(NULL);
+  if (sunctx == NULL) {
+    return (NULL);
+  }
 
   helper = (SUNMemoryHelper) malloc(sizeof(struct _SUNMemoryHelper));
   if (helper == NULL)
@@ -78,8 +80,9 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 int SUNMemoryHelper_CopyOps(SUNMemoryHelper src, SUNMemoryHelper dst)
 {
   /* Check that ops structures exist */
-  if (src == NULL || dst == NULL || src->ops == NULL || dst->ops == NULL)
-    return(-1);
+  if (src == NULL || dst == NULL || src->ops == NULL || dst->ops == NULL) {
+    return (-1);
+  }
   memcpy(dst->ops, src->ops, sizeof(struct _SUNMemoryHelper_Ops));
   return(0);
 }
@@ -209,10 +212,11 @@ int SUNMemoryHelper_CopyAsync(SUNMemoryHelper helper, SUNMemory dst,
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
-  if (helper->ops->copyasync == NULL)
+  if (helper->ops->copyasync == NULL) {
     ier = SUNMemoryHelper_Copy(helper, dst, src, memory_size, queue);
-  else
+  } else {
     ier = helper->ops->copyasync(helper, dst, src, memory_size, queue);
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
 }
@@ -220,7 +224,9 @@ int SUNMemoryHelper_CopyAsync(SUNMemoryHelper helper, SUNMemory dst,
 
 int SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 {
-  if (!helper) return 0;
+  if (!helper) {
+    return 0;
+  }
 
   if (helper->ops->destroy)
   {
@@ -255,7 +261,9 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
     else
     {
       SUNMemoryHelper hclone = SUNMemoryHelper_NewEmpty(helper->sunctx);
-      if (hclone) SUNMemoryHelper_CopyOps(helper, hclone);
+      if (hclone) {
+        SUNMemoryHelper_CopyOps(helper, hclone);
+      }
       return(hclone);
     }
   }

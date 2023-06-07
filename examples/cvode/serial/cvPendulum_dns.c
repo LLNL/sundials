@@ -146,21 +146,29 @@ int main(int argc, char* argv[])
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Read command line inputs */
   retval = ReadInputs(&argc, &argv, &rtol, &atol, &tf, &nout, &projerr);
-  if (check_retval(&retval, "ReadInputs", 1)) return(1);
+  if (check_retval(&retval, "ReadInputs", 1)) {
+    return (1);
+  }
 
   /* Compute reference solution */
   yref = N_VNew_Serial(4, sunctx);
 
   retval = RefSol(tf, yref, nout);
-  if (check_retval(&retval, "RefSol", 1)) return(1);
+  if (check_retval(&retval, "RefSol", 1)) {
+    return (1);
+  }
 
   /* Create serial vector to store the initial condition */
   yy0 = N_VNew_Serial(4, sunctx);
-  if (check_retval((void *)yy0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yy0, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Set the initial condition values */
   yy0data = N_VGetArrayPointer(yy0);
@@ -172,31 +180,45 @@ int main(int argc, char* argv[])
 
   /* Create CVODE memory */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Initialize CVODE */
   retval = CVodeInit(cvode_mem, f, ZERO, yy0);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(4, 4, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy0, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver to CVODE */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set a user-supplied projection function */
   retval = CVodeSetProjFn(cvode_mem, proj);
-  if(check_retval(&retval, "CVodeSetProjFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetProjFn", 1)) {
+    return (1);
+  }
 
   /* Set maximum number of steps between outputs */
   retval = CVodeSetMaxNumSteps(cvode_mem, 50000);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   /* Compute the solution with various tolerances */
   for (i = 0; i < 5; i++) {
@@ -209,11 +231,15 @@ int main(int argc, char* argv[])
 
     /* Compute solution with projection */
     retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNTRUE, projerr, yref);
-    if (check_retval(&retval, "GetSol", 1)) return(1);
+    if (check_retval(&retval, "GetSol", 1)) {
+      return (1);
+    }
 
     /* Compute solution without projection */
     retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNFALSE, SUNFALSE, yref);
-    if (check_retval(&retval, "GetSol", 1)) return(1);
+    if (check_retval(&retval, "GetSol", 1)) {
+      return (1);
+    }
 
     /* Reduce tolerance for next run */
     rtol /= RCONST(10.0);
@@ -264,16 +290,22 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype rtol, realtype atol,
   {
     printf("  YES   ");
     retval = CVodeSetProjFrequency(cvode_mem, 1);
-    if(check_retval(&retval, "CVodeSetProjFrequency", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjFrequency", 1)) {
+      return (1);
+    }
 
     /* Enable or disable error projection */
     retval = CVodeSetProjErrEst(cvode_mem, projerr);
-    if(check_retval(&retval, "CVodeSetProjErrEst", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjErrEst", 1)) {
+      return (1);
+    }
   }
   else
   {
     retval = CVodeSetProjFrequency(cvode_mem, 0);
-    if(check_retval(&retval, "CVodeSetProjFrequency", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjFrequency", 1)) {
+      return (1);
+    }
     printf("  NO    ");
   }
 
@@ -388,25 +420,39 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype rtol, realtype atol,
 
   /* Get integrator stats */
   retval = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_retval(&retval, "CVodeGetNumSteps", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumSteps", 1)) {
+    return (retval);
+  }
 
   retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  if (check_retval(&retval, "CVodeGetNumFctEvals", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumFctEvals", 1)) {
+    return (retval);
+  }
 
   retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  if (check_retval(&retval, "CVodeGetNumLinSolvSetups", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumLinSolvSetups", 1)) {
+    return (retval);
+  }
 
   retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  if (check_retval(&retval, "CVodeGetNumErrTestFails", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumErrTestFails", 1)) {
+    return (retval);
+  }
 
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  if (check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1)) {
+    return (retval);
+  }
 
   retval = CVodeGetNumJacEvals(cvode_mem, &nje);
-  if (check_retval(&retval, "CVodeGetNumJacEvals", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumJacEvals", 1)) {
+    return (retval);
+  }
 
   retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  if (check_retval(&retval, "CVodeGetNumLinRhsEvals", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumLinRhsEvals", 1)) {
+    return (retval);
+  }
 
   /* Output stats */
   printf(" %6ld   %6ld+%-4ld     %4ld (%3ld)     |  %3ld  %3ld\n",
@@ -436,7 +482,9 @@ int RefSol(realtype tf, N_Vector yref, int nout)
 
   /* Create the solution vector */
   yy = N_VNew_Serial(2, sunctx);
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(-1);
+  if (check_retval((void *)yy, "N_VNew_Serial", 0)) {
+    return (-1);
+  }
 
   /* Set the initial condition */
   yydata = N_VGetArrayPointer(yy);
@@ -446,34 +494,50 @@ int RefSol(realtype tf, N_Vector yref, int nout)
 
   /* Create CVODE memory */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   /* Initialize CVODE */
   retval = CVodeInit(cvode_mem, fref, ZERO, yy);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   /* Set integration tolerances */
   retval = CVodeSStolerances(cvode_mem, tol, tol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(2, 2, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver to CVODE */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set CVODE optional inputs */
   retval = CVodeSetMaxNumSteps(cvode_mem, 100000);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) {
+    return (1);
+  }
 
   retval = CVodeSetStopTime(cvode_mem, tf);
-  if (check_retval(&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetStopTime", 1)) {
+    return (1);
+  }
 
   /* Open output file */
   FID = fopen("cvPendulum_dns_ref.txt", "w");

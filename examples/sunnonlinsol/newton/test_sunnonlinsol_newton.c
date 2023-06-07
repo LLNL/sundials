@@ -99,26 +99,38 @@ int main(int argc, char *argv[])
 
   /* create SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* create proxy for integrator memory */
   Imem = (IntegratorMem) malloc(sizeof(struct IntegratorMemRec));
 
   /* create vector */
   Imem->y0 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   Imem->ycur = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->ycur, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->ycur, "N_VClone", 0)) {
+    return (1);
+  }
 
   Imem->ycor = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->ycor, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->ycor, "N_VClone", 0)) {
+    return (1);
+  }
 
   Imem->w = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->w, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->w, "N_VClone", 0)) {
+    return (1);
+  }
 
   Imem->x = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->x, "N_VClone", 0)) return(1);
+  if (check_retval((void *)Imem->x, "N_VClone", 0)) {
+    return (1);
+  }
 
   /* set initial guess for the state */
   NV_Ith_S(Imem->y0,0) = HALF;
@@ -137,42 +149,62 @@ int main(int argc, char *argv[])
 
   /* create dense matrix */
   Imem->A = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if (check_retval((void *)Imem->A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)Imem->A, "SUNDenseMatrix", 0)) {
+    return (1);
+  }
 
   /* create dense linear solver */
   Imem->LS = SUNLinSol_Dense(Imem->y0, Imem->A, sunctx);
-  if (check_retval((void *)Imem->LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void *)Imem->LS, "SUNLinSol_Dense", 0)) {
+    return (1);
+  }
 
   /* initialize the linear solver */
   retval = SUNLinSolInitialize(Imem->LS);
-  if (check_retval(&retval, "SUNLinSolInitialize", 1)) return(1);
+  if (check_retval(&retval, "SUNLinSolInitialize", 1)) {
+    return (1);
+  }
 
   /* create nonlinear solver */
   NLS = SUNNonlinSol_Newton(Imem->y0, sunctx);
-  if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+  if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) {
+    return (1);
+  }
 
   /* set the nonlinear residual function */
   retval = SUNNonlinSolSetSysFn(NLS, Res);
-  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) {
+    return (1);
+  }
 
   /* set the wrapper functions to linear solver setup and solve functions */
   retval = SUNNonlinSolSetLSetupFn(NLS, LSetup);
-  if (check_retval(&retval, "SUNNonlinSolSetSetupFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetSetupFn", 1)) {
+    return (1);
+  }
 
   retval = SUNNonlinSolSetLSolveFn(NLS, LSolve);
-  if (check_retval(&retval, "SUNNonlinSolSetSolveFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetSolveFn", 1)) {
+    return (1);
+  }
 
   retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest, NULL);
-  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) {
+    return (1);
+  }
 
   /* set the maximum number of nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(NLS, MAXIT);
-  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) {
+    return (1);
+  }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(NLS, Imem->y0, Imem->ycor, Imem->w, TOL, SUNTRUE,
                              Imem);
-  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) {
+    return (1);
+  }
 
   /* update the initial guess with the final correction */
   N_VLinearSum(ONE, Imem->y0, ONE, Imem->ycor, Imem->ycur);
@@ -191,7 +223,9 @@ int main(int argc, char *argv[])
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
-  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) {
+    return (1);
+  }
 
   printf("Number of nonlinear iterations: %ld\n",niters);
 
@@ -232,7 +266,9 @@ int LSetup(booleantype jbad, booleantype* jcur, void* mem)
 
   /* compute the Jacobian */
   retval = Jac(ZERO, Imem->ycur, NULL, Imem->A, NULL, NULL, NULL, NULL);
-  if (retval != 0) return(retval);
+  if (retval != 0) {
+    return (retval);
+  }
 
   /* update Jacobian status */
   *jcur = SUNTRUE;
@@ -272,8 +308,11 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
   /* compute the norm of the correction */
   delnrm = N_VWrmsNorm(del, ewt);
 
-  if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
-  else               return(SUN_NLS_CONTINUE); /* not converged */
+  if (delnrm <= tol) {
+    return (SUN_NLS_SUCCESS); /* success       */
+  } else {
+    return (SUN_NLS_CONTINUE); /* not converged */
+  }
 }
 
 

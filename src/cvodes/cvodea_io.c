@@ -115,7 +115,9 @@ int CVodeSetNonlinearSolverB(void *cvode_mem, int which, SUNNonlinearSolver NLS)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -153,7 +155,9 @@ int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -194,7 +198,9 @@ int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -237,7 +243,9 @@ int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -279,7 +287,9 @@ int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -321,7 +331,9 @@ int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -363,7 +375,9 @@ int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -405,7 +419,9 @@ int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -446,7 +462,9 @@ int CVodeSetConstraintsB(void *cvode_mem, int which, N_Vector constraintsB)
   /* Find the CVodeBMem entry in the linked list corresponding to 'which'. */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     /* advance */
     cvB_mem = cvB_mem->cv_next;
   }
@@ -494,7 +512,9 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -550,7 +570,9 @@ void *CVodeGetAdjCVodeBmem(void *cvode_mem, int which)
   /* Find the CVodeBMem entry in the linked list corresponding to which */
   cvB_mem = ca_mem->cvB_mem;
   while (cvB_mem != NULL) {
-    if ( which == cvB_mem->cv_index ) break;
+    if (which == cvB_mem->cv_index) {
+      break;
+    }
     cvB_mem = cvB_mem->cv_next;
   }
 
@@ -658,11 +680,13 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
 
   content = (HermiteDataMem) (dt_mem[which]->content);
 
-  if (y != NULL)
+  if (y != NULL) {
     N_VScale(ONE, content->y, y);
+  }
 
-  if (yd != NULL)
+  if (yd != NULL) {
     N_VScale(ONE, content->yd, yd);
+  }
 
   return(CV_SUCCESS);
 }
@@ -707,8 +731,9 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
 
   content = (PolynomialDataMem) (dt_mem[which]->content);
 
-  if (y != NULL)
+  if (y != NULL) {
     N_VScale(ONE, content->y, y);
+  }
 
   *order = content->order;
 

@@ -104,7 +104,9 @@ int main()
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext ctx = NULL;
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Set the initial contions */
   u0 = RCONST(1.0);
@@ -118,7 +120,9 @@ int main()
 
   /* Create and initialize serial vector for the solution */
   y = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
 
   NV_Ith_S(y,0) = u0;
   NV_Ith_S(y,1) = v0;
@@ -135,20 +139,28 @@ int main()
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
-  if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_retval((void *)inner_arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, -1, ARKODE_KNOTH_WOLKE_3_3);
-  if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetTableNum", 1)) {
+    return 1;
+  }
 
   /* Set the fast step size */
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
-  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) {
+    return 1;
+  }
 
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
                                             &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) {
+    return 1;
+  }
 
   /*
    * Create the slow integrator and set options
@@ -158,11 +170,15 @@ int main()
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
-  if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+  if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) {
+    return 1;
+  }
 
   /*
    * Integrate ODE
@@ -190,15 +206,21 @@ int main()
 
     /* call integrator */
     retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) break;
+    if (check_retval(&retval, "MRIStepEvolve", 1)) {
+      break;
+    }
 
     /* compute the analytic solution */
     retval = ans(t, ytrue, NULL);
-    if (check_retval(&retval, "ans", 1)) break;
+    if (check_retval(&retval, "ans", 1)) {
+      break;
+    }
 
     /* compute the error compared to the analytic solution */
     retval = err(y, ytrue, &error);
-    if (check_retval(&retval, "err", 1)) break;
+    if (check_retval(&retval, "err", 1)) {
+      break;
+    }
 
     /* access/print solution and error */
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",

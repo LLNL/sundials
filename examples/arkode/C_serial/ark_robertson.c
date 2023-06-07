@@ -93,7 +93,9 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Initial problem output */
   printf("\nRobertson ODE test problem:\n");
@@ -101,7 +103,9 @@ int main()
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);         /* Create serial vector for solution */
-  if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
+  if (check_flag((void *)y, "N_VNew_Serial", 0)) {
+    return 1;
+  }
   NV_Ith_S(y,0) = u0;             /* Set initial conditions into y */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
@@ -111,35 +115,59 @@ int main()
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) {
+    return 1;
+  }
 
   /* Set routines */
   flag = ARKStepSetInitStep(arkode_mem, h0);                  /* Set custom initial step */
-  if (check_flag(&flag, "ARKStepSetInitStep", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetInitStep", 1)) {
+    return 1;
+  }
   flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);           /* Increase max error test fails */
-  if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) {
+    return 1;
+  }
   flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
-  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) {
+    return 1;
+  }
   flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
-  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) {
+    return 1;
+  }
   flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) {
+    return 1;
+  }
   flag = ARKStepSetPredictorMethod(arkode_mem, 1);            /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) {
+    return 1;
+  }
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);     /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) {
+    return 1;
+  }
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
+  if (check_flag((void *)A, "SUNDenseMatrix", 0)) {
+    return 1;
+  }
   LS = SUNLinSol_Dense(y, A, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
+  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) {
+    return 1;
+  }
 
   /* Linear solver interface */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) {
+    return 1;
+  }
   flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) {
+    return 1;
+  }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
@@ -160,7 +188,9 @@ int main()
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) {
+      break;
+    }
     printf("  %10.3"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",              /* access/print solution */
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",

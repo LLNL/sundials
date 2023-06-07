@@ -69,7 +69,9 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBandPrecInit",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
@@ -169,8 +171,9 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   }
 
   /* make sure s_P_data is free from any previous allocations */
-  if (arkls_mem->pfree)
+  if (arkls_mem->pfree) {
     arkls_mem->pfree(ark_mem);
+  }
 
   /* Point to the new P_data field in the LS memory */
   arkls_mem->P_data = pdata;
@@ -199,7 +202,9 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBandPrecGetWorkSpace",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Return immediately if ARKBandPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -253,7 +258,9 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBandPrecGetNumRhsEvals",
                             &ark_mem, &arkls_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (retval != ARK_SUCCESS) {
+    return (retval);
+  }
 
   /* Return immediately if ARKBandPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
@@ -435,11 +442,17 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   ARKBandPrecData pdata;
 
   /* Return immediately if ARKodeMem, ARKLsMem or ARKBandPrecData are NULL */
-  if (ark_mem == NULL) return(0);
+  if (ark_mem == NULL) {
+    return (0);
+  }
   ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
-  if (ark_step_lmem == NULL) return(0);
+  if (ark_step_lmem == NULL) {
+    return (0);
+  }
   arkls_mem = (ARKLsMem) ark_step_lmem;
-  if (arkls_mem->P_data == NULL) return(0);
+  if (arkls_mem->P_data == NULL) {
+    return (0);
+  }
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
   SUNLinSolFree(pdata->LS);
@@ -482,7 +495,9 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   /* Access implicit RHS function */
   fi = NULL;
   fi = ark_mem->step_getimplicitrhs((void*) ark_mem);
-  if (fi == NULL)  return(-1);
+  if (fi == NULL) {
+    return (-1);
+  }
 
   /* Obtain pointers to the data for various vectors */
   ewt_data   = N_VGetArrayPointer(ark_mem->ewt);
@@ -517,8 +532,15 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (ark_mem->constraintsSet) {
         conj = cns_data[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       ytemp_data[j] += inc;
@@ -527,7 +549,9 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
     /* Evaluate f with incremented y. */
     retval = fi(t, ytemp, ftemp, ark_mem->user_data);
     pdata->nfeBP++;
-    if (retval != 0) return(retval);
+    if (retval != 0) {
+      return (retval);
+    }
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < pdata->N; j += width) {
@@ -539,16 +563,24 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
       /* Adjust sign(inc) as before. */
       if (ark_mem->constraintsSet) {
         conj = cns_data[j];
-        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
-        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+        if (SUNRabs(conj) == ONE)      {
+          if ((yj + inc) * conj < ZERO) {
+            inc = -inc;
+          }
+        } else if (SUNRabs(conj) == TWO) {
+          if ((yj + inc) * conj <= ZERO) {
+            inc = -inc;
+          }
+        }
       }
 
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mu);
       i2 = SUNMIN(j+pdata->ml, pdata->N-1);
-      for (i=i1; i <= i2; i++)
-        SM_COLUMN_ELEMENT_B(col_j,i,j) =
-          inc_inv * (ftemp_data[i] - fy_data[i]);
+      for (i = i1; i <= i2; i++) {
+        SM_COLUMN_ELEMENT_B(col_j, i, j) =
+            inc_inv * (ftemp_data[i] - fy_data[i]);
+      }
     }
   }
 

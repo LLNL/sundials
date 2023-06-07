@@ -53,10 +53,11 @@ int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem, realtype dgmax_lsetup)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Set value or use default */
-  if(dgmax_lsetup < ZERO)
+  if (dgmax_lsetup < ZERO) {
     cv_mem->cv_dgmax_lsetup = DGMAX_LSETUP_DEFAULT;
-  else
+  } else {
     cv_mem->cv_dgmax_lsetup = dgmax_lsetup;
+  }
 
   return(CV_SUCCESS);
 }
@@ -241,10 +242,11 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Passing mxsteps=0 sets the default. Passing mxsteps<0 disables the test. */
-  if (mxsteps == 0)
+  if (mxsteps == 0) {
     cv_mem->cv_mxstep = MXSTEP_DEFAULT;
-  else
+  } else {
     cv_mem->cv_mxstep = mxsteps;
+  }
 
   return(CV_SUCCESS);
 }
@@ -419,15 +421,17 @@ int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_min_fx < ZERO || eta_min_fx >= ONE)
+  if (eta_min_fx < ZERO || eta_min_fx >= ONE) {
     cv_mem->cv_eta_min_fx = ETA_MIN_FX_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_min_fx = eta_min_fx;
+  }
 
-  if (eta_max_fx <= ONE)
+  if (eta_max_fx <= ONE) {
     cv_mem->cv_eta_max_fx = ETA_MAX_FX_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_max_fx = eta_max_fx;
+  }
 
   return(CV_SUCCESS);
 }
@@ -451,10 +455,11 @@ int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_max_fs <= ONE)
+  if (eta_max_fs <= ONE) {
     cv_mem->cv_eta_max_fs = ETA_MAX_FS_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_max_fs = eta_max_fs;
+  }
 
   return(CV_SUCCESS);
 }
@@ -479,10 +484,11 @@ int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_max_es <= ONE)
+  if (eta_max_es <= ONE) {
     cv_mem->cv_eta_max_es = ETA_MAX_ES_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_max_es = eta_max_es;
+  }
 
   return(CV_SUCCESS);
 }
@@ -507,10 +513,11 @@ int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (small_nst < 0)
+  if (small_nst < 0) {
     cv_mem->cv_small_nst = SMALL_NST_DEFAULT;
-  else
+  } else {
     cv_mem->cv_small_nst = small_nst;
+  }
 
   return(CV_SUCCESS);
 }
@@ -534,10 +541,11 @@ int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_max_gs <= ONE)
+  if (eta_max_gs <= ONE) {
     cv_mem->cv_eta_max_gs = ETA_MAX_GS_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_max_gs = eta_max_gs;
+  }
 
   return(CV_SUCCESS);
 }
@@ -561,10 +569,11 @@ int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_min <= ZERO || eta_min >= ONE)
+  if (eta_min <= ZERO || eta_min >= ONE) {
     cv_mem->cv_eta_min = ETA_MIN_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_min = eta_min;
+  }
 
   return(CV_SUCCESS);
 }
@@ -588,10 +597,11 @@ int CVodeSetEtaMinErrFail(void* cvode_mem, realtype eta_min_ef)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_min_ef <= ZERO || eta_min_ef >= ONE)
+  if (eta_min_ef <= ZERO || eta_min_ef >= ONE) {
     cv_mem->cv_eta_min_ef = ETA_MIN_EF_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_min_ef = eta_min_ef;
+  }
 
   return(CV_SUCCESS);
 }
@@ -616,10 +626,11 @@ int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_max_ef <= ZERO || eta_max_ef >= ONE)
+  if (eta_max_ef <= ZERO || eta_max_ef >= ONE) {
     cv_mem->cv_eta_max_ef = ETA_MAX_EF_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_max_ef = eta_max_ef;
+  }
 
   return(CV_SUCCESS);
 }
@@ -644,10 +655,11 @@ int CVodeSetNumFailsEtaMaxErrFail(void* cvode_mem, int small_nef)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (small_nef < 0)
+  if (small_nef < 0) {
     cv_mem->cv_small_nef = SMALL_NEF_DEFAULT;
-  else
+  } else {
     cv_mem->cv_small_nef = small_nef;
+  }
 
   return(CV_SUCCESS);
 }
@@ -671,10 +683,11 @@ int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
   cv_mem = (CVodeMem) cvode_mem;
 
   /* set allowed value or use default */
-  if (eta_cf <= ZERO || eta_cf >= ONE)
+  if (eta_cf <= ZERO || eta_cf >= ONE) {
     cv_mem->cv_eta_cf = ETA_CF_DEFAULT;
-  else
+  } else {
     cv_mem->cv_eta_cf = eta_cf;
+  }
 
   return(CV_SUCCESS);
 }
@@ -887,7 +900,9 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
     return(CV_ILL_INPUT);
   }
 
-  for(i=0; i<nrt; i++) cv_mem->cv_rootdir[i] = rootdir[i];
+  for (i = 0; i < nrt; i++) {
+    cv_mem->cv_rootdir[i] = rootdir[i];
+  }
 
   return(CV_SUCCESS);
 }
@@ -1196,10 +1211,11 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (cv_mem->cv_sldeton==SUNFALSE)
+  if (cv_mem->cv_sldeton == SUNFALSE) {
     *nslred = 0;
-  else
+  } else {
     *nslred = cv_mem->cv_nor;
+  }
 
   return(CV_SUCCESS);
 }
@@ -1479,7 +1495,9 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 
   nrt = cv_mem->cv_nrtfn;
 
-  for (i=0; i<nrt; i++) rootsfound[i] = cv_mem->cv_iroots[i];
+  for (i = 0; i < nrt; i++) {
+    rootsfound[i] = cv_mem->cv_iroots[i];
+  }
 
   return(CV_SUCCESS);
 }

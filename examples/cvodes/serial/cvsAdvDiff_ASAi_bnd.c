@@ -150,7 +150,9 @@ int main(int argc, char *argv[])
   /* Allocate and initialize user data memory */
 
   data = (UserData) malloc(sizeof *data);
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
 
   dx = data->dx = XMAX/(MX+1);
   dy = data->dy = YMAX/(MY+1);
@@ -164,11 +166,15 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* Allocate u vector */
   u = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)u, "N_VNew", 0)) return(1);
+  if (check_retval((void *)u, "N_VNew", 0)) {
+    return (1);
+  }
 
   /* Initialize u vector */
   SetIC(u, data);
@@ -178,44 +184,64 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate CVODES memory for forward runs\n");
 
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) {
+    return (1);
+  }
 
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) {
+    return (1);
+  }
 
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) {
+    return (1);
+  }
 
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) {
+    return (1);
+  }
 
   /* Create banded SUNMatrix for the forward problem */
   A = SUNBandMatrix(NEQ, MY, MY, sunctx);
-  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNBandMatrix", 0)) {
+    return (1);
+  }
 
   /* Create banded SUNLinearSolver for the forward problem */
   LS = SUNLinSol_Band(u, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Band", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine for the forward problem */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) {
+    return (1);
+  }
 
   /* Allocate global memory */
 
   printf("\nAllocate global memory\n");
 
   retval = CVodeAdjInit(cvode_mem, NSTEP, CV_HERMITE);
-  if(check_retval(&retval, "CVodeAdjInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeAdjInit", 1)) {
+    return (1);
+  }
 
   /* Perform forward run */
   printf("\nForward integration\n");
   retval = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
-  if(check_retval(&retval, "CVodeF", 1)) return(1);
+  if (check_retval(&retval, "CVodeF", 1)) {
+    return (1);
+  }
 
   printf("\nncheck = %d\n", ncheck);
 
@@ -225,7 +251,9 @@ int main(int argc, char *argv[])
 
   /* Allocate uB */
   uB = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)uB, "N_VNew", 0)) return(1);
+  if (check_retval((void *)uB, "N_VNew", 0)) {
+    return (1);
+  }
   /* Initialize uB = 0 */
   N_VConst(ZERO, uB);
 
@@ -234,40 +262,60 @@ int main(int argc, char *argv[])
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
   retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
-  if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
+  if (check_retval(&retval, "CVodeCreateB", 1)) {
+    return (1);
+  }
 
   retval = CVodeSetUserDataB(cvode_mem, indexB, data);
-  if(check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1)) {
+    return (1);
+  }
 
   retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
-  if(check_retval(&retval, "CVodeInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeInitB", 1)) {
+    return (1);
+  }
 
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
-  if(check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1)) {
+    return (1);
+  }
 
   /* Create banded SUNMatrix for the backward problem */
   AB = SUNBandMatrix(NEQ, MY, MY, sunctx);
-  if(check_retval((void *)AB, "SUNBandMatrix", 0)) return(1);
+  if (check_retval((void *)AB, "SUNBandMatrix", 0)) {
+    return (1);
+  }
 
   /* Create banded SUNLinearSolver for the backward problem */
   LSB = SUNLinSol_Band(uB, AB, sunctx);
-  if(check_retval((void *)LSB, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void *)LSB, "SUNLinSol_Band", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, AB);
-  if(check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) {
+    return (1);
+  }
 
   /* Set the user-supplied Jacobian routine for the backward problem */
   retval = CVodeSetJacFnB(cvode_mem, indexB, JacB);
-  if(check_retval(&retval, "CVodeSetJacFnB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFnB", 1)) {
+    return (1);
+  }
 
   /* Perform backward integration */
   printf("\nBackward integration\n");
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if(check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) {
+    return (1);
+  }
 
   retval = CVodeGetB(cvode_mem, indexB, &t, uB);
-  if(check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) {
+    return (1);
+  }
 
   PrintOutput(uB, data);
 
@@ -371,10 +419,18 @@ static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
       /* set the kth column of J */
 
       SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = verdc;
-      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
+      if (i != 1) {
+        SM_COLUMN_ELEMENT_B(kthCol, k - MY, k) = hordc + horac;
+      }
+      if (i != MX) {
+        SM_COLUMN_ELEMENT_B(kthCol, k + MY, k) = hordc - horac;
+      }
+      if (j != 1) {
+        SM_COLUMN_ELEMENT_B(kthCol, k - 1, k) = verdc;
+      }
+      if (j != MY) {
+        SM_COLUMN_ELEMENT_B(kthCol, k + 1, k) = verdc;
+      }
     }
   }
 
@@ -457,10 +513,18 @@ static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB
       /* set the kth column of J */
 
       SM_COLUMN_ELEMENT_B(kthCol,k,k) = TWO*(verdc+hordc);
-      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = - hordc + horac;
-      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = - hordc - horac;
-      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = - verdc;
-      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = - verdc;
+      if (i != 1) {
+        SM_COLUMN_ELEMENT_B(kthCol, k - MY, k) = -hordc + horac;
+      }
+      if (i != MX) {
+        SM_COLUMN_ELEMENT_B(kthCol, k + MY, k) = -hordc - horac;
+      }
+      if (j != 1) {
+        SM_COLUMN_ELEMENT_B(kthCol, k - 1, k) = -verdc;
+      }
+      if (j != MY) {
+        SM_COLUMN_ELEMENT_B(kthCol, k + 1, k) = -verdc;
+      }
     }
   }
 

@@ -46,10 +46,11 @@ int IDASetDeltaCjLSetup(void *ida_mem, realtype dcj)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if (dcj < ZERO || dcj >= ONE)
+  if (dcj < ZERO || dcj >= ONE) {
     IDA_mem->ida_dcj = DCJ_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_dcj = dcj;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -122,15 +123,17 @@ int IDASetEtaFixedStepBounds(void *ida_mem, realtype eta_min_fx,
   IDA_mem = (IDAMem) ida_mem;
 
   /* set allowed value or use default */
-  if (eta_min_fx >= ZERO && eta_min_fx <= ONE)
+  if (eta_min_fx >= ZERO && eta_min_fx <= ONE) {
     IDA_mem->ida_eta_min_fx = eta_min_fx;
-  else
+  } else {
     IDA_mem->ida_eta_min_fx = ETA_MIN_FX_DEFAULT;
+  }
 
-  if (eta_max_fx >= ONE)
+  if (eta_max_fx >= ONE) {
     IDA_mem->ida_eta_max_fx = eta_max_fx;
-  else
+  } else {
     IDA_mem->ida_eta_max_fx = ETA_MAX_FX_DEFAULT;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -149,10 +152,11 @@ int IDASetEtaMax(void *ida_mem, realtype eta_max)
   IDA_mem = (IDAMem) ida_mem;
 
   /* set allowed value or use default */
-  if (eta_max <= ONE)
+  if (eta_max <= ONE) {
     IDA_mem->ida_eta_max = ETA_MAX_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_eta_max = eta_max;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -171,10 +175,11 @@ int IDASetEtaMin(void *ida_mem, realtype eta_min)
   IDA_mem = (IDAMem) ida_mem;
 
   /* set allowed value or use default */
-  if (eta_min <= ZERO || eta_min >= ONE)
+  if (eta_min <= ZERO || eta_min >= ONE) {
     IDA_mem->ida_eta_min = ETA_MIN_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_eta_min = eta_min;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -193,10 +198,11 @@ int IDASetEtaLow(void *ida_mem, realtype eta_low)
   IDA_mem = (IDAMem) ida_mem;
 
   /* set allowed value or use default */
-  if (eta_low <= ZERO || eta_low >= ONE)
+  if (eta_low <= ZERO || eta_low >= ONE) {
     IDA_mem->ida_eta_low = ETA_LOW_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_eta_low = eta_low;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -215,10 +221,11 @@ int IDASetEtaMinErrFail(void *ida_mem, realtype eta_min_ef)
   IDA_mem = (IDAMem) ida_mem;
 
   /* set allowed value or use default */
-  if (eta_min_ef <= ZERO || eta_min_ef >= ONE)
+  if (eta_min_ef <= ZERO || eta_min_ef >= ONE) {
     IDA_mem->ida_eta_min_ef = ETA_MIN_EF_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_eta_min_ef = eta_min_ef;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -237,10 +244,11 @@ int IDASetEtaConvFail(void *ida_mem, realtype eta_cf)
   IDA_mem = (IDAMem) ida_mem;
 
   /* set allowed value or use default */
-  if (eta_cf <= ZERO || eta_cf >= ONE)
+  if (eta_cf <= ZERO || eta_cf >= ONE) {
     IDA_mem->ida_eta_cf = ETA_CF_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_eta_cf = eta_cf;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -293,10 +301,11 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
 
   /* Passing mxsteps=0 sets the default. Passing mxsteps<0 disables the test. */
 
-  if (mxsteps == 0)
+  if (mxsteps == 0) {
     IDA_mem->ida_mxstep = MXSTEP_DEFAULT;
-  else
+  } else {
     IDA_mem->ida_mxstep = mxsteps;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -669,7 +678,9 @@ int IDASetRootDirection(void *ida_mem, int *rootdir)
     return(IDA_ILL_INPUT);
   }
 
-  for(i=0; i<nrt; i++) IDA_mem->ida_rootdir[i] = rootdir[i];
+  for (i = 0; i < nrt; i++) {
+    IDA_mem->ida_rootdir[i] = rootdir[i];
+  }
 
   return(IDA_SUCCESS);
 }
@@ -989,7 +1000,7 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
 
   /* pbar */
 
-  if (pbar != NULL)
+  if (pbar != NULL) {
     for (is=0; is<Ns; is++) {
       if (pbar[is] == ZERO) {
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensParams", MSG_BAD_PBAR);
@@ -997,13 +1008,15 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
       }
       IDA_mem->ida_pbar[is] = SUNRabs(pbar[is]);
     }
-  else
-    for (is=0; is<Ns; is++)
+  } else {
+    for (is = 0; is < Ns; is++) {
       IDA_mem->ida_pbar[is] = ONE;
+    }
+  }
 
   /* plist */
 
-  if (plist != NULL)
+  if (plist != NULL) {
     for (is=0; is<Ns; is++) {
       if ( plist[is] < 0 ) {
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASetSensParams", MSG_BAD_PLIST);
@@ -1011,9 +1024,11 @@ int IDASetSensParams(void *ida_mem, realtype *p, realtype *pbar, int *plist)
       }
       IDA_mem->ida_plist[is] = plist[is];
     }
-  else
-    for (is=0; is<Ns; is++)
+  } else {
+    for (is = 0; is < Ns; is++) {
       IDA_mem->ida_plist[is] = is;
+    }
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1165,8 +1180,12 @@ int IDAGetConsistentIC(void *ida_mem, N_Vector yy0, N_Vector yp0)
     return(IDA_ILL_INPUT);
   }
 
-  if(yy0 != NULL) N_VScale(ONE, IDA_mem->ida_phi[0], yy0);
-  if(yp0 != NULL) N_VScale(ONE, IDA_mem->ida_phi[1], yp0);
+  if (yy0 != NULL) {
+    N_VScale(ONE, IDA_mem->ida_phi[0], yy0);
+  }
+  if (yp0 != NULL) {
+    N_VScale(ONE, IDA_mem->ida_phi[1], yp0);
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1505,7 +1524,9 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 
   nrt = IDA_mem->ida_nrtfn;
 
-  for (i=0; i<nrt; i++) rootsfound[i] = IDA_mem->ida_iroots[i];
+  for (i = 0; i < nrt; i++) {
+    rootsfound[i] = IDA_mem->ida_iroots[i];
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1656,8 +1677,9 @@ int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight)
     return(IDA_NO_QUAD);
   }
 
-  if(IDA_mem->ida_errconQ)
+  if (IDA_mem->ida_errconQ) {
     N_VScale(ONE, IDA_mem->ida_ewtQ, eQweight);
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1759,9 +1781,11 @@ int IDAGetQuadSensErrWeights(void *ida_mem, N_Vector *eQSweight)
   }
   Ns = IDA_mem->ida_Ns;
 
-  if (IDA_mem->ida_errconQS)
-    for (is=0; is<Ns; is++)
+  if (IDA_mem->ida_errconQS) {
+    for (is = 0; is < Ns; is++) {
       N_VScale(ONE, IDA_mem->ida_ewtQS[is], eQSweight[is]);
+    }
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1823,13 +1847,15 @@ int IDAGetSensConsistentIC(void *ida_mem, N_Vector *yyS0, N_Vector *ypS0)
   }
 
   if(yyS0 != NULL) {
-    for (is=0; is<IDA_mem->ida_Ns; is++)
+    for (is = 0; is < IDA_mem->ida_Ns; is++) {
       N_VScale(ONE, IDA_mem->ida_phiS[0][is], yyS0[is]);
+    }
   }
 
   if(ypS0 != NULL) {
-    for (is=0; is<IDA_mem->ida_Ns; is++)
+    for (is = 0; is < IDA_mem->ida_Ns; is++) {
       N_VScale(ONE, IDA_mem->ida_phiS[1][is], ypS0[is]);
+    }
   }
 
   return(IDA_SUCCESS);
@@ -1946,8 +1972,9 @@ int IDAGetSensErrWeights(void *ida_mem, N_Vector_S eSweight)
     return(IDA_NO_SENS);
   }
 
-  for (is=0; is<IDA_mem->ida_Ns; is++)
+  for (is = 0; is < IDA_mem->ida_Ns; is++) {
     N_VScale(ONE, IDA_mem->ida_ewtS[is], eSweight[is]);
+  }
 
   return(IDA_SUCCESS);
 }

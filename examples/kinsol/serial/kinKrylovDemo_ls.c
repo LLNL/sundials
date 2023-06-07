@@ -222,19 +222,29 @@ int main(void)
   globalstrategy = KIN_NONE;
 
   data = AllocUserData();
-  if (check_flag((void *)data, "AllocUserData", 2)) return(1);
+  if (check_flag((void *)data, "AllocUserData", 2)) {
+    return (1);
+  }
   InitUserData(data);
 
   /* Create serial vectors of length NEQ */
   cc = N_VNew_Serial(NEQ, sunctx);
-  if (check_flag((void *)cc, "N_VNew_Serial", 0)) return(1);
+  if (check_flag((void *)cc, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   sc = N_VNew_Serial(NEQ, sunctx);
-  if (check_flag((void *)sc, "N_VNew_Serial", 0)) return(1);
+  if (check_flag((void *)sc, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   data->rates = N_VNew_Serial(NEQ, sunctx);
-  if (check_flag((void *)data->rates, "N_VNew_Serial", 0)) return(1);
+  if (check_flag((void *)data->rates, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   constraints = N_VNew_Serial(NEQ, sunctx);
-  if (check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_flag((void *)constraints, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   N_VConst(TWO, constraints);
 
   fnormtol=FTOL; scsteptol=STOL;
@@ -248,20 +258,32 @@ int main(void)
     /* Call KINCreate/KINInit to initialize KINSOL:
        A pointer to KINSOL problem memory is returned and stored in kmem. */
     kmem = KINCreate(sunctx);
-    if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
+    if (check_flag((void *)kmem, "KINCreate", 0)) {
+      return (1);
+    }
 
     /* Vector cc passed as template vector. */
     flag = KINInit(kmem, func, cc);
-    if (check_flag(&flag, "KINInit", 1)) return(1);
+    if (check_flag(&flag, "KINInit", 1)) {
+      return (1);
+    }
 
     flag = KINSetUserData(kmem, data);
-    if (check_flag(&flag, "KINSetUserData", 1)) return(1);
+    if (check_flag(&flag, "KINSetUserData", 1)) {
+      return (1);
+    }
     flag = KINSetConstraints(kmem, constraints);
-    if (check_flag(&flag, "KINSetConstraints", 1)) return(1);
+    if (check_flag(&flag, "KINSetConstraints", 1)) {
+      return (1);
+    }
     flag = KINSetFuncNormTol(kmem, fnormtol);
-    if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
+    if (check_flag(&flag, "KINSetFuncNormTol", 1)) {
+      return (1);
+    }
     flag = KINSetScaledStepTol(kmem, scsteptol);
-    if (check_flag(&flag, "KINSetScaledStepTol", 1)) return(1);
+    if (check_flag(&flag, "KINSetScaledStepTol", 1)) {
+      return (1);
+    }
 
     /* Attach a linear solver module */
     switch(linsolver) {
@@ -278,16 +300,22 @@ int main(void)
          maximum Krylov dimension maxl */
       maxl = 15;
       LS = SUNLinSol_SPGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
-      if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+      if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver to KINSOL */
       flag = KINSetLinearSolver(kmem, LS, NULL);
-      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) {
+        return 1;
+      }
 
       /* Set the maximum number of restarts */
       maxlrst = 2;
       flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
-      if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
+      if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) {
+        return (1);
+      }
 
       break;
 
@@ -303,11 +331,15 @@ int main(void)
          maximum Krylov dimension maxl */
       maxl = 15;
       LS = SUNLinSol_SPBCGS(cc, SUN_PREC_RIGHT, maxl, sunctx);
-      if(check_flag((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
+      if (check_flag((void *)LS, "SUNLinSol_SPBCGS", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver to KINSOL */
       flag = KINSetLinearSolver(kmem, LS, NULL);
-      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -323,11 +355,15 @@ int main(void)
          maximum Krylov dimension maxl */
       maxl = 25;
       LS = SUNLinSol_SPTFQMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
-      if(check_flag((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
+      if (check_flag((void *)LS, "SUNLinSol_SPTFQMR", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver to KINSOL */
       flag = KINSetLinearSolver(kmem, LS, NULL);
-      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) {
+        return 1;
+      }
 
       break;
 
@@ -343,16 +379,22 @@ int main(void)
          maximum Krylov dimension maxl */
       maxl = 15;
       LS = SUNLinSol_SPFGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
-      if(check_flag((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
+      if (check_flag((void *)LS, "SUNLinSol_SPFGMR", 0)) {
+        return (1);
+      }
 
       /* Attach the linear solver to KINSOL */
       flag = KINSetLinearSolver(kmem, LS, NULL);
-      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) {
+        return 1;
+      }
 
       /* Set the maximum number of restarts */
       maxlrst = 2;
       flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
-      if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
+      if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) {
+        return (1);
+      }
 
       break;
 
@@ -360,7 +402,9 @@ int main(void)
 
     /* Set preconditioner functions */
     flag = KINSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
-    if (check_flag(&flag, "KINSetPreconditioner", 1)) return(1);
+    if (check_flag(&flag, "KINSetPreconditioner", 1)) {
+      return (1);
+    }
 
     /* Print out the problem size, solution parameters, initial guess. */
     PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol, linsolver);
@@ -371,7 +415,9 @@ int main(void)
 		  globalstrategy, /* global strategy choice */
 		  sc,             /* scaling vector, for the variable cc */
 		  sc);            /* scaling vector for function values fval */
-    if (check_flag(&flag, "KINSol", 1)) return(1);
+    if (check_flag(&flag, "KINSol", 1)) {
+      return (1);
+    }
 
     printf("\n\nComputed equilibrium species concentrations:\n");
     PrintOutput(cc);
@@ -489,7 +535,9 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
   sqruround = data->sqruround;
   fac = N_VWL2Norm(fval, fscale);
   r0 = THOUSAND * uround * fac * NEQ;
-  if(r0 == ZERO) r0 = ONE;
+  if (r0 == ZERO) {
+    r0 = ONE;
+  }
 
   /* Loop over spatial points; get size NUM_SPECIES Jacobian block at each */
   for (jy = 0; jy < MY; jy++) {
@@ -517,15 +565,17 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
 
         /* Load the j-th column of difference quotients */
         Pxycol = Pxy[j];
-        for (i = 0; i < NUM_SPECIES; i++)
+        for (i = 0; i < NUM_SPECIES; i++) {
           Pxycol[i] = (perturb_rates[i] - ratesxy[i]) * fac;
-
+        }
 
       } /* end of j loop */
 
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
       ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
-      if (ret != 0) return(1);
+      if (ret != 0) {
+        return (1);
+      }
 
     } /* end of jx loop */
 
@@ -581,13 +631,15 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 
   data = (UserData)user_data;
 
-  for (i = 0; i<NUM_SPECIES; i++)
+  for (i = 0; i < NUM_SPECIES; i++) {
     ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);
+  }
 
   fac = ONE + ALPHA * xx * yy;
 
-  for (i = 0; i < NUM_SPECIES; i++)
-    ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );
+  for (i = 0; i < NUM_SPECIES; i++) {
+    ratesxy[i] = cxy[i] * (bcoef[i] * fac + ratesxy[i]);
+  }
 }
 
 /*
@@ -600,7 +652,9 @@ static realtype DotProd(int size, realtype *x1, realtype *x2)
   realtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
-  for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
+  for (i = 0; i < size; i++) {
+    temp += (*xx1++) * (*xx2++);
+  }
 
   return(temp);
 }
@@ -827,7 +881,9 @@ static void PrintOutput(N_Vector cc)
 
   /* Print out lines with up to 6 values per line */
   for (is = 0; is < NUM_SPECIES; is++){
-    if ((is%6)*6 == is) printf("\n");
+    if ((is % 6) * 6 == is) {
+      printf("\n");
+    }
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %Lg",ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -843,7 +899,9 @@ static void PrintOutput(N_Vector cc)
 
   /* Print out lines with up to 6 values per line */
   for (is = 0; is < NUM_SPECIES; is++) {
-    if ((is%6)*6 == is) printf("\n");
+    if ((is % 6) * 6 == is) {
+      printf("\n");
+    }
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %Lg",ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -885,8 +943,9 @@ static void PrintFinalStats(void *kmem, int linsolver)
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
 
-  if (linsolver < 3) printf("\n=========================================================\n\n");
-
+  if (linsolver < 3) {
+    printf("\n=========================================================\n\n");
+  }
 }
 
 /*

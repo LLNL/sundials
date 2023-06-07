@@ -104,23 +104,37 @@ int main(void)
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)uu, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)up, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)res, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) {
+    return (1);
+  }
   id = N_VClone(uu);
-  if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)id, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) {
+    return (1);
+  }
   data->mm = MGRID;
   data->dx = ONE/(MGRID - ONE);
   data->coeff = ONE/( (data->dx) * (data->dx) );
@@ -139,42 +153,62 @@ int main(void)
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   /* Set which components are algebraic or differential */
   retval = IDASetId(mem, id);
-  if(check_retval(&retval, "IDASetId", 1)) return(1);
+  if (check_retval(&retval, "IDASetId", 1)) {
+    return (1);
+  }
 
   retval = IDASetConstraints(mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
+  if (check_retval(&retval, "IDASetConstraints", 1)) {
+    return (1);
+  }
   N_VDestroy(constraints);
 
   retval = IDAInit(mem, heatres, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   /* Create banded SUNMatrix for use in linear solves */
   mu = MGRID; ml = MGRID;
   A = SUNBandMatrix(NEQ, mu, ml, ctx);
-  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNBandMatrix", 0)) {
+    return (1);
+  }
 
   /* Create banded SUNLinearSolver object */
   LS = SUNLinSol_Band(uu, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_Band", 0)) {
+    return (1);
+  }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Call IDACalcIC to correct the initial values. */
 
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
-  if(check_retval(&retval, "IDACalcIC", 1)) return(1);
+  if (check_retval(&retval, "IDACalcIC", 1)) {
+    return (1);
+  }
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -187,7 +221,9 @@ int main(void)
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (1);
+    }
 
     PrintOutput(mem, tret, uu);
 

@@ -116,24 +116,32 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return (1);
+  }
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   scale = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)scale, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   /* -----------------------------------------
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void *)kmem, "KINCreate", 0)) {
+    return (1);
+  }
 
   /* y is used as a template */
 
@@ -141,7 +149,9 @@ int main()
   retval = KINSetMAA(kmem, PRIORS);
 
   retval = KINInit(kmem, funcRoberts, y);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) {
+    return (1);
+  }
 
   /* -------------------
    * Set optional inputs
@@ -151,7 +161,9 @@ int main()
 
   fnormtol  = TOL;
   retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) {
+    return (1);
+  }
 
   /* -------------
    * Initial guess
@@ -173,8 +185,9 @@ int main()
                 KIN_FP,         /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
-
+  if (check_retval(&retval, "KINSol", 1)) {
+    return (1);
+  }
 
   /* ------------------------------------
    * Print solution and solver statistics
@@ -183,7 +196,9 @@ int main()
   /* Get scaled norm of the system function */
 
   retval = KINGetFuncNorm(kmem, &fnorm);
-  if (check_retval(&retval, "KINGetfuncNorm", 1)) return(1);
+  if (check_retval(&retval, "KINGetfuncNorm", 1)) {
+    return (1);
+  }
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);

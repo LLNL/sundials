@@ -210,7 +210,9 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
 
   retval = SUNContext_Create(NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) {
+    return 1;
+  }
 
   /* Allocate and initialize user data block webdata. */
 
@@ -230,13 +232,19 @@ int main()
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
   cc  = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)cc, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)cc, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   cp  = N_VClone(cc);
-  if(check_retval((void *)cp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)cp, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   id  = N_VClone(cc);
-  if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)id, "N_VNew_Serial", 0)) {
+    return (1);
+  }
 
   SetInitialProfiles(cc, cp, id, webdata);
 
@@ -249,19 +257,29 @@ int main()
   /* Call IDACreate and IDAMalloc to initialize IDA. */
 
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)mem, "IDACreate", 0)) {
+    return (1);
+  }
 
   retval = IDASetUserData(mem, webdata);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) {
+    return (1);
+  }
 
   retval = IDASetId(mem, id);
-  if(check_retval(&retval, "IDASetId", 1)) return(1);
+  if (check_retval(&retval, "IDASetId", 1)) {
+    return (1);
+  }
 
   retval = IDAInit(mem, resweb, t0, cc, cp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) {
+    return (1);
+  }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) {
+    return (1);
+  }
 
   webdata->ida_mem = mem;
 
@@ -269,25 +287,35 @@ int main()
      and maximum Krylov dimension maxl */
   maxl = 16;
   LS = SUNLinSol_SPGMR(cc, SUN_PREC_LEFT, maxl, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) {
+    return (1);
+  }
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
-  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
+  if (check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) {
+    return (1);
+  }
 
   /* Attach the linear sovler */
   retval = IDASetLinearSolver(mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) {
+    return (1);
+  }
 
   /* Set the preconditioner solve and setup functions */
   retval = IDASetPreconditioner(mem, Precond, PSolve);
-  if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "IDASetPreconditioner", 1)) {
+    return (1);
+  }
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
-  if(check_retval(&retval, "IDACalcIC", 1)) return(1);
+  if (check_retval(&retval, "IDACalcIC", 1)) {
+    return (1);
+  }
 
   /* Print heading, basic parameters, and initial values. */
 
@@ -299,12 +327,17 @@ int main()
   for (iout = 1; iout <= NOUT; iout++) {
 
     retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(retval);
+    if (check_retval(&retval, "IDASolve", 1)) {
+      return (retval);
+    }
 
     PrintOutput(mem, cc, tret);
 
-    if (iout < 3) tout *= TMULT; else tout += TADD;
-
+    if (iout < 3) {
+      tout *= TMULT;
+    } else {
+      tout += TADD;
+    }
   }
 
   /* Print final statistics and free memory. */
@@ -381,10 +414,11 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
     for (jx = 0; jx < MX; jx++) {
       loc = yloc + NUM_SPECIES * jx;
       for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np)
+        if (is < np) {
           resv[loc+is] = cpv[loc+is] - resv[loc+is];
-        else
-          resv[loc+is] = -resv[loc+is];
+        } else {
+          resv[loc + is] = -resv[loc + is];
+        }
       }
     }
   }
@@ -419,9 +453,13 @@ static int Precond(realtype tt,
   mem = webdata->ida_mem;
   ewt = webdata->ewt;
   retval = IDAGetErrWeights(mem, ewt);
-  if(check_retval(&retval, "IDAGetErrWeights", 1)) return(1);
+  if (check_retval(&retval, "IDAGetErrWeights", 1)) {
+    return (1);
+  }
   retval = IDAGetCurrentStep(mem, &hh);
-  if(check_retval(&retval, "IDAGetCurrentStep", 1)) return(1);
+  if (check_retval(&retval, "IDAGetCurrentStep", 1)) {
+    return (1);
+  }
 
   for (jy = 0; jy < MY; jy++) {
     yy = jy * del_y;
@@ -444,17 +482,22 @@ static int Precond(realtype tt,
 
         Pxycol = Pxy[js];
 
-        for (is = 0; is < NUM_SPECIES; is++)
-          Pxycol[is] = (perturb_rates[is] - ratesxy[is])*fac;
+        for (is = 0; is < NUM_SPECIES; is++) {
+          Pxycol[is] = (perturb_rates[is] - ratesxy[is]) * fac;
+        }
 
-        if (js < 1) Pxycol[js] += cj;
+        if (js < 1) {
+          Pxycol[js] += cj;
+        }
 
         cxy[js] = cctmp;
       }
 
       ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (webdata->pivot)[jx][jy]);
 
-      if (ret != 0) return(1);
+      if (ret != 0) {
+        return (1);
+      }
     }
   }
 
@@ -659,8 +702,9 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n",
          t, c_bl[0], c_tr[0], nst, kused, hused);
-  for (i=1;i<NUM_SPECIES;i++)
-    printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
+  for (i = 1; i < NUM_SPECIES; i++) {
+    printf("         %12.4e %12.4e   |\n", c_bl[i], c_tr[i]);
+  }
 #else
   printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n",
          t, c_bl[0], c_tr[0], nst, kused, hused);
@@ -770,14 +814,15 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   int is;
   realtype fac;
 
-  for (is = 0; is < NUM_SPECIES; is++)
+  for (is = 0; is < NUM_SPECIES; is++) {
     ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
+  }
 
   fac = ONE + ALPHA*xx*yy + BETA*sin(FOURPI*xx)*sin(FOURPI*yy);
 
-  for (is = 0; is < NUM_SPECIES; is++)
-    ratesxy[is] = cxy[is]*( bcoef[is]*fac + ratesxy[is] );
-
+  for (is = 0; is < NUM_SPECIES; is++) {
+    ratesxy[is] = cxy[is] * (bcoef[is] * fac + ratesxy[is]);
+  }
 }
 
 /*
@@ -790,7 +835,9 @@ static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
   realtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
-  for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
+  for (i = 0; i < size; i++) {
+    temp += (*xx1++) * (*xx2++);
+  }
   return(temp);
 
 }
