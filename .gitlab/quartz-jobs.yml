@@ -29,7 +29,7 @@
 # quartz_gcc:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: gcc@12.1.1
+#       - COMPILER_SPEC: gcc@10.3.1
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -39,7 +39,7 @@
 # quartz_intel:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: intel@22.1.0
+#       - COMPILER_SPEC: intel@19.1.2
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -65,7 +65,7 @@ quartz_clang_tpls:
 quartz_gcc_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: gcc@12.1.1
+      - COMPILER_SPEC: gcc@10.3.1
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
@@ -75,7 +75,7 @@ quartz_gcc_tpls:
 quartz_intel_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: intel@22.1.0
+      - COMPILER_SPEC: intel@19.1.2
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
