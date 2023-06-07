@@ -434,7 +434,8 @@ endforeach()
 # ===============================================================
 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26.0")
-  set(SUNDIALS_ENABLE_CLANG_TIDY ON CACHE BOOL "enable clang-tidy to run with the build")
+  set(SUNDIALS_ENABLE_CLANG_TIDY OFF CACHE BOOL "enable clang-tidy to run with the build")
+  mark_as_advanced(SUNDIALS_ENABLE_CLANG_TIDY)
   if(SUNDIALS_ENABLE_CLANG_TIDY)
     set(CMAKE_C_CLANG_TIDY clang-tidy)
     set(CMAKE_CXX_CLANG_TIDY clang-tidy)
