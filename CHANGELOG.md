@@ -1,5 +1,11 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.6.0
+
+Added the second order IMEX method from Giraldo, Kelly, and Constantinescu 2013
+as the default second order IMEX method in ARKStep. The explicit table is given
+by `ARKODE_ARK2_ERK_3_1_2` and the implicit table by `ARKODE_ARK2_DIRK_3_1_2`.
+
 ## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,
