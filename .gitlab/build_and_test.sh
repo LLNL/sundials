@@ -48,9 +48,14 @@ BUILD_JOBS=${BUILD_JOBS:-"1"}
 
 # load newer python to try the clingo concretizer
 # machine specific loads
+if [[ "${hostname}" == "lassen" ]]; then
+    echo "module load python/3.8.2"
+    module load python/3.8.2
+else
+    echo "module load python"
+    module load python
+fi
 if [[ "${hostname}" == "corona" ]]; then
-    echo "module load python/3.9.12"
-    module load python/3.9.12
     echo "module load rocm/5.4.1"
     module load rocm/5.4.1
 fi
