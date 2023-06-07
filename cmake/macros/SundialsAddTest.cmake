@@ -96,7 +96,11 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # check for a non-default output directory
       if(SUNDIALS_TEST_OUTPUT_DIR)
-        list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}/Testing")
+        if(SUN_CI_JOB_ID)
+          list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}/Testing/${SUN_CI_JOB_ID}")
+        else()
+          list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}/Testing")
+        endif()
       else()
         list(APPEND TEST_ARGS "--outputdir=${TEST_OUTPUT_DIR}")
       endif()

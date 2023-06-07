@@ -51,6 +51,7 @@ BUILD_JOBS=${BUILD_JOBS:-"1"}
 if [[ "${hostname}" == "corona" ]]; then
     echo "module load python/3.9.12"
     module load python/3.9.12
+    module load rocm/5.4.1
 else
     echo "module load python/3.8.2"
     module load python/3.8.2
@@ -188,7 +189,7 @@ then
     $cmake_exe \
         -C "${hostconfig_path}" \
         -DCMAKE_INSTALL_PREFIX=${install_dir} \
-        -DSUNDIALS_TEST_OUTPUT_DIR="/usr/workspace/sundials/caliper/run_${job_unique_id}" \
+        -DSUNDIALS_TEST_OUTPUT_DIR="/usr/workspace/sundials/caliper/" \
         "${project_dir}"
 
     # build
@@ -217,15 +218,6 @@ then
     fi
 
     cd "${build_dir}"
-
-    # configure .cali file output directory
-    if [[ "${BENCHMARK}" == "ON" ]] && [[ -d /usr/workspace/sundials ]]
-    then
-        output_dir="/usr/workspace/sundials/caliper"
-        $cmake_exe \
-            -DSUNDIALS_TEST_OUTPUT_DIR=${output_dir} \
-            "${project_dir}"
-    fi
 
     VERBOSE_TEST=${VERBOSE_TEST:-"ON"}
     if [[ "${VERBOSE_TEST}" == "ON" ]]; then
