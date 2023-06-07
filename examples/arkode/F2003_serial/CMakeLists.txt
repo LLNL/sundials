@@ -21,6 +21,8 @@
 set(FARKODE_examples
   "ark_analytic_f2003\;\;develop"
   "ark_bruss_f2003\;\;develop"
+  "ark_bruss1D_FEM_klu_f2003\;\;develop"
+  "ark_diurnal_kry_bp_f2003\;\;develop"
   "ark_kpr_mri_f2003\;\;develop"
   "ark_kpr_mri_f2003\;0 0.002\;develop"
   "ark_kpr_mri_f2003\;1 0.002\;develop"

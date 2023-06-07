@@ -46,15 +46,15 @@ module dae_mod
   contains
   
     ! ----------------------------------------------------------------
-    ! fcnrob: The DAE residual function
+    ! fcnirob: The DAE residual function
     !
     ! Return values:
     !    0 = success,
     !    1 = recoverable error,
     !   -1 = non-recoverable error
     ! ----------------------------------------------------------------
-    integer(c_int) function fcnrob(tres, sunvec_y, sunvec_yp, sunvec_r, user_data) &
-         result(ierr) bind(C,name='fcnrob')
+    integer(c_int) function fcnirob(tres, sunvec_y, sunvec_f, user_data) &
+         result(ierr) bind(C,name='fcnirob')
   
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
@@ -67,29 +67,75 @@ module dae_mod
       ! calling variables
       real(c_double), value :: tres      ! current time
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
-      type(N_Vector)        :: sunvec_r  ! residual N_Vector
+      type(N_Vector)        :: sunvec_f  ! function N_Vector
       type(c_ptr),    value :: user_data ! user-defined data
   
       ! pointers to data in SUNDIALS vectors
       real(c_double), pointer :: yval(:)
-      real(c_double), pointer :: rval(:)
+      real(c_double), pointer :: fval(:)
   
       !======= Internals ============
   
       ! get data arrays from SUNDIALS vectors
       yval  => FN_VGetArrayPointer(sunvec_y)
-      rval  => FN_VGetArrayPointer(sunvec_r)
+      fval  => FN_VGetArrayPointer(sunvec_f)
   
       ! fill residual vector
-      rval(1)  = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
-      rval(2)  = -rval(1) - 3.0d7*yval(2)**2 - 1.0d4*yval(2)*yval(3)
-      rval(3)  = 3.0d7*yval(2)**2
+      fval(1)  = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
+      fval(3)  = 3.0d7*yval(2)**2
+      fval(2)  = -fval(1) - fval(3)
   
       ! return success
       ierr = 0
       return
   
-    end function fcnrob
+    end function fcnirob
+
+    ! ----------------------------------------------------------------
+    ! fcnerob: The DAE residual function
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
+    integer(c_int) function fcnerob(tres, sunvec_y, sunvec_f, user_data) &
+         result(ierr) bind(C,name='fcnerob')
+  
+      !======= Inclusions ===========
+      use, intrinsic :: iso_c_binding
+      use fsundials_nvector_mod
+      use fnvector_serial_mod
+  
+      !======= Declarations =========
+      implicit none
+  
+      ! calling variables
+      real(c_double), value :: tres      ! current time
+      type(N_Vector)        :: sunvec_y  ! solution N_Vector
+      type(N_Vector)        :: sunvec_f  ! function N_Vector
+      type(c_ptr),    value :: user_data ! user-defined data
+  
+      ! pointers to data in SUNDIALS vectors
+      real(c_double), pointer :: yval(:)
+      real(c_double), pointer :: fval(:)
+  
+      !======= Internals ============
+  
+      ! get data arrays from SUNDIALS vectors
+      yval  => FN_VGetArrayPointer(sunvec_y)
+      fval  => FN_VGetArrayPointer(sunvec_f)
+  
+      ! fill residual vector
+      fval(1)  = 0.d0
+      fval(2)  = 0.d0
+      fval(3)  = 0.d0
+  
+      ! return success
+      ierr = 0
+      return
+  
+    end function fcnerob
   
     ! ----------------------------------------------------------------
     ! grob: The root function routine
@@ -142,7 +188,7 @@ module dae_mod
     !    1 = recoverable error,
     !   -1 = non-recoverable error
     ! ----------------------------------------------------------------
-    integer(c_int) function jacrob(t, cj, sunvec_y, sunvec_r, &
+    integer(c_int) function jacrob(t, cj, sunvec_y, sunvec_f, &
          sunmat_J, user_data, sunvec_t1, sunvec_t2, sunvec_t3) &
          result(ierr) bind(C,name='jacrob')
   
@@ -160,7 +206,7 @@ module dae_mod
       real(c_double), value :: t         ! current time
       real(c_double), value :: cj        ! step size scaling factor
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
-      type(N_Vector)        :: sunvec_r  ! residual N_Vector
+      type(N_Vector)        :: sunvec_f  ! residual N_Vector
       type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
       type(c_ptr),    value :: user_data ! user-defined data
       type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
@@ -179,15 +225,15 @@ module dae_mod
       J(1:3, 1:3) => FSUNDenseMatrix_Data(sunmat_J)
   
       ! fill Jacobian entries
-      J(1,1) = -0.04d0 - cj
+      J(1,1) = -0.04d0
       J(2,1) = 0.04d0
-      J(3,1) = 1.d0
+      J(3,1) = 0.d0
       J(1,2) = 1.d4*yval(3)
-      J(2,2) = -1.d4*yval(3) - 6.0d7*yval(2) - cj
-      J(3,2) = 1.d0
+      J(2,2) = -1.d4*yval(3) - 6.0d7*yval(2)
+      J(3,2) = 6.d7*yval(2)
       J(1,3) = 1.d4*yval(2)
       J(2,3) = -1.d4*yval(2)
-      J(3,3) = 1.d0
+      J(3,3) = 0.d0
   
       ! return success
       ierr = 0
@@ -244,7 +290,8 @@ module dae_mod
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
   
-    use fark_mod                      ! Fortran interface to ARKODE
+    use farkode_mod                   ! Fortran interface to ARKODE
+    use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
     use fsundials_context_mod         ! Fortran interface to SUNContext
     use fnvector_serial_mod           ! Fortran interface to serial N_Vector
     use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix
@@ -264,6 +311,7 @@ module dae_mod
     integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
   
     type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
+    type(N_Vector),           pointer :: sunvec_f      ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
@@ -272,7 +320,7 @@ module dae_mod
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
   
     ! solution and tolerance vectors, neq is set in the dae_mod module
-    real(c_double) :: yval(neq), avtol(neq)
+    real(c_double) :: yval(neq), fval(neq), avtol(neq)
   
     !======= Internals ============
   
@@ -282,16 +330,23 @@ module dae_mod
     yval(1) = 1.d0
     yval(2) = 0.d0
     yval(3) = 0.d0
+    fval    = 0.d0
   
     rtol = 1.d-4
   
     avtol(1) = 1.d-8
-    avtol(2) = 1.d-6
-    avtol(3) = 1.d-6
+    avtol(2) = 1.d-11
+    avtol(3) = 1.d-8
   
     ! create serial vectors
     sunvec_y => FN_VMake_Serial(neq, yval, sunctx)
     if (.not. associated(sunvec_y)) then
+       print *, 'ERROR: sunvec = NULL'
+       stop 1
+    end if
+
+    sunvec_f => FN_VMake_Serial(neq, fval, sunctx)
+    if (.not. associated(sunvec_f)) then
        print *, 'ERROR: sunvec = NULL'
        stop 1
     end if
@@ -309,11 +364,8 @@ module dae_mod
     call PrintHeader(rtol, avtol, yval)
   
     ! Call FARKStepCreate to initialize ARKODE memory
-    arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(fcnrob), t0, sunvec_y, sunctx)
-    if (.not. c_associated(arkode_mem)) then
-       print *, 'ERROR: arkode_mem = NULL'
-       stop 1
-    end if
+    arkode_mem = FARKStepCreate(c_funloc(fcnerob), c_funloc(fcnirob), t0, sunvec_y, sunctx)
+    if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
   
     ! Call FARKStepSVtolerances to set tolerances
     retval = FARKStepSVtolerances(arkode_mem, rtol, sunvec_av)
@@ -375,22 +427,21 @@ module dae_mod
        stop 1
     end if
   
-    ! In loop, call ARKStepSolve, print results, and test for error.
-    ! Break out of loop when NOUT preset output times have been reached.
+    ! In loop, call ARKStepEvolve, print results, and test for error.
   
     iout = 0
     tout = tout1
-    do
+    do while(iout < nout)
   
-       retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, tret, ARK_NORMAL)
+       retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, tret(1), ARK_NORMAL)
        if (retval < 0) then
-          print *, 'Error in FARKStepSolve, retval = ', retval, '; halting'
+          print *, 'Error in FARKStepEvolve, retval = ', retval, '; halting'
           stop 1
        endif
   
        call PrintOutput(arkode_mem, tret(1), yval)
   
-       if (retval .eq. ARKODE_ROOT_RETURN) then
+       if (retval .eq. ARK_ROOT_RETURN) then
           retvalr = FARKStepGetRootInfo(arkode_mem, rootsfound)
           if (retvalr < 0) then
              print *, 'Error in FARKStepGetRootInfo, retval = ', retval, '; halting'
@@ -399,13 +450,10 @@ module dae_mod
           print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
        end if
   
-       if (retval .eq. ARKODE_SUCCESS) then
-          iout = iout+1
-          tout = tout*10.d0
-       end if
-  
-       if (iout .eq. NOUT) exit
-  
+       if (retval .eq. ARK_SUCCESS) then
+          iout = iout + 1
+          tout = tout * 10.d0
+       end if  
     end do
   
     call PrintFinalStats(arkode_mem)
@@ -444,7 +492,7 @@ module dae_mod
     !======= Internals ============
   
     print *, " "
-    print *, "arkRoberts_dnsL.f03: Robertson kinetics DAE serial example problem for ARKODE"
+    print *, "arkRoberts_dnsL.f03: Robertson ARK ODE serial example problem for ARKODE"
     print *, "         Three equation chemical kinetics problem."
     print *, " "
     print *, "Linear solver: DENSE, with user-supplied Jacobian."
@@ -452,9 +500,9 @@ module dae_mod
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
     print *, "Constraints and id not used."
     print *, " "
-    print *, "-----------------------------------------------------------------------"
-    print *, "  t             y1           y2           y3     | nst  k      h"
-    print *, "-----------------------------------------------------------------------"
+    print *, "-----------------------------------------------------------------"
+    print *, "  t             y1           y2           y3       | nst  h"
+    print *, "-----------------------------------------------------------------"
   
     return
   end subroutine PrintHeader
@@ -467,7 +515,8 @@ module dae_mod
   
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fark_mod
+    use farkode_mod
+    use farkode_arkstep_mod
     use dae_mod
   
     !======= Declarations =========
@@ -484,12 +533,6 @@ module dae_mod
   
     !======= Internals ============
   
-    retval = FARKStepGetLastOrder(arkode_mem, kused)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetLastOrder, retval = ', retval, '; halting'
-       stop 1
-    end if
-  
     retval = FARKStepGetNumSteps(arkode_mem, nst)
     if (retval /= 0) then
        print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
@@ -502,8 +545,8 @@ module dae_mod
        stop 1
     end if
   
-    print '(es12.4,1x,3(es12.4,1x),a,i3,2x,i1,1x,es12.4)', &
-         t, y(1), y(2), y(3), "| ", nst, kused(1), hused(1)
+    print '(es12.4,1x,3(es12.4,1x),a,i3,2x,es12.4)', &
+         t, y(1), y(2), y(3), "| ", nst, hused(1)
   
   end subroutine PrintOutput
   
@@ -517,74 +560,121 @@ module dae_mod
   
     !======= Inclusions ===========
     use iso_c_binding
-    use fark_mod
+    use farkode_mod
+    use farkode_arkstep_mod
   
     !======= Declarations =========
     implicit none
-  
-    type(c_ptr), intent(in) :: arkode_mem
-    integer(c_int)  :: retval
-    integer(c_long) :: nst(1), nni(1), nje(1), nre(1), nreLS(1), nge(1), ncfn(1), netf(1)
-  
+
+    type(c_ptr), intent(in) :: arkode_mem ! solver memory structure
+
+    integer(c_int)  :: retval          ! error flag
+
+    integer(c_long) :: nsteps(1)     ! num steps
+    integer(c_long) :: nst_a(1)      ! num steps attempted
+    integer(c_long) :: nfe(1)        ! num explicit function evals
+    integer(c_long) :: nfi(1)        ! num implicit function evals
+    integer(c_long) :: nlinsetups(1) ! num linear solver setups
+    integer(c_long) :: netfails(1)   ! num error test fails
+
+    real(c_double)  :: hinused(1)    ! initial step size
+    real(c_double)  :: hlast(1)      ! last step size
+    real(c_double)  :: hcur(1)       ! step size for next step
+    real(c_double)  :: tcur(1)       ! internal time reached
+
+    integer(c_long) :: nniters(1)    ! nonlinear solver iterations
+    integer(c_long) :: nncfails(1)   ! nonlinear solver fails
+    integer(c_long) :: njacevals(1)  ! number of Jacobian evaluations
+
     !======= Internals ============
-  
-    retval = FARKStepGetNumSteps(arkode_mem, nst)
+
+    retval = FARKStepGetNumSteps(arkode_mem, nsteps)
     if (retval /= 0) then
        print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumResEvals(arkode_mem, nre)
+
+    retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumResEvals, retval = ', retval, '; halting'
+       print *, 'Error in FARKStepGetNumStepAttempts, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumJacEvals(arkode_mem, nje)
+
+    retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumJacEvals, retval = ', retval, '; halting'
+       print *, 'Error in FARKStepGetNumRhsEvals, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nni)
+
+    retval = FARKStepGetActualInitStep(arkode_mem, hinused)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumNonlinSolvIters, retval = ', retval, '; halting'
+       print *, 'Error in FARKStepGetActualInitStep, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumErrTestFails(arkode_mem, netf)
+
+    retval = FARKStepGetLastStep(arkode_mem, hlast)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepGetLastStep, retval = ', retval, '; halting'
+       stop 1
+    end if
+
+    retval = FARKStepGetCurrentStep(arkode_mem, hcur)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepGetCurrentStep, retval = ', retval, '; halting'
+       stop 1
+    end if
+
+    retval = FARKStepGetCurrentTime(arkode_mem, tcur)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepGetCurrentTime, retval = ', retval, '; halting'
+       stop 1
+    end if
+
+    retval = FARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepGetNumLinSolvSetups, retval = ', retval, '; halting'
+       stop 1
+    end if
+
+    retval = FARKStepGetNumErrTestFails(arkode_mem, netfails)
     if (retval /= 0) then
        print *, 'Error in FARKStepGetNumErrTestFails, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, ncfn)
+
+    retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepGetNumNonlinSolvIters, retval = ', retval, '; halting'
+       stop 1
+    end if
+
+    retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
     if (retval /= 0) then
        print *, 'Error in FARKStepGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumLinResEvals(arkode_mem, nreLS)
+
+    retval = FARKStepGetNumJacEvals(arkode_mem, njacevals)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumLinResEvals, retval = ', retval, '; halting'
+       print *, 'Error in FARKStepGetNumJacEvals, retval = ', retval, '; halting'
        stop 1
     end if
-  
-    retval = FARKStepGetNumGEvals(arkode_mem, nge)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumGEvals, retval = ', retval, '; halting'
-       stop 1
-    end if
-  
-    print *, " "
-    print *, "Final Run Statistics: "
-    print *, "Number of steps                    = ", nst
-    print *, "Number of residual evaluations     = ", nre+nreLS
-    print *, "Number of Jacobian evaluations     = ", nje
-    print *, "Number of nonlinear iterations     = ", nni
-    print *, "Number of error test failures      = ", netf
-    print *, "Number of nonlinear conv. failures = ", ncfn
-    print *, "Number of root fn. evaluations     = ", nge
+
+    print *, ' '
+    print *, ' General Solver Stats:'
+    print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
+    print '(4x,A,i9)'    ,'Total internal steps attempts =',nst_a
+    print '(4x,A,i9)'    ,'Total rhs exp function call   =',nfe
+    print '(4x,A,i9)'    ,'Total rhs imp function call   =',nfi
+    print '(4x,A,i9)'    ,'Num lin solver setup calls    =',nlinsetups
+    print '(4x,A,i9)'    ,'Num error test failures       =',netfails
+    print '(4x,A,es12.5)','First internal step size      =',hinused
+    print '(4x,A,es12.5)','Last internal step size       =',hlast
+    print '(4x,A,es12.5)','Next internal step size       =',hcur
+    print '(4x,A,es12.5)','Current internal time         =',tcur
+    print '(4x,A,i9)'    ,'Num nonlinear solver iters    =',nniters
+    print '(4x,A,i9)'    ,'Num nonlinear solver fails    =',nncfails
+    print *, ' '
   
     return
   
