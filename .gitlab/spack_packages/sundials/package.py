@@ -763,7 +763,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"),
                 # Profile examples
                 self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
-                self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples")
+                self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples"),
+                cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
             ]
         )
 

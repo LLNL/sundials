@@ -115,6 +115,8 @@
 #cmakedefine SUNDIALS_CI_JOB
 #define SUN_CI_JOB_ID "@SUN_CI_JOB_ID@"
 
+#define SUNDIALS_SPACK_VERSION "@SPACK_VERSION@"
+
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
  * -----------------------------------------------------------------*/
