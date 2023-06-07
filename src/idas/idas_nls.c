@@ -23,9 +23,10 @@
 #define TWENTY RCONST(20.0)   /* real 20.0   */
 
 /* nonlinear solver parameters */
-#define MAXIT   4           /* default max number of nonlinear iterations    */
-#define RATEMAX RCONST(0.9) /* max convergence rate used in divergence check \
-                             */
+#define MAXIT 4 /* default max number of nonlinear iterations    */
+#define RATEMAX                                                \
+  RCONST(0.9) /* max convergence rate used in divergence check \
+               */
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem);

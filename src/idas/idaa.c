@@ -2952,9 +2952,10 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t, N_Vector yy, N_Vector yp,
 
   /* For y'. */
   factor1 = factor1 / delta / delta; /* factor1 = 2(t-t0)/(t1-t0)^2 */
-  factor2 = factor1 * ((3 * t - 2 * t1 - t0) / delta); /* factor2 =
-                                                          (t-t0)(3*t-2*t1-t0)/(t1-t0)^3
-                                                        */
+  factor2 = factor1 *
+            ((3 * t - 2 * t1 - t0) / delta); /* factor2 =
+                                                (t-t0)(3*t-2*t1-t0)/(t1-t0)^3
+                                              */
   factor1 *= 2;
 
   cvals[0] = ONE;

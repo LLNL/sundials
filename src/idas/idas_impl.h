@@ -57,14 +57,15 @@ extern "C" {
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
-#define ETA_MAX_FX_DEFAULT RCONST(2.0)  /* threshold to increase step size   */
-#define ETA_MIN_FX_DEFAULT RCONST(1.0)  /* threshold to decrease step size   */
-#define ETA_MAX_DEFAULT    RCONST(2.0)  /* max step size increase factor     */
-#define ETA_MIN_DEFAULT    RCONST(0.5)  /* min step size decrease factor     */
-#define ETA_LOW_DEFAULT    RCONST(0.9)  /* upper bound on decrease factor    */
-#define ETA_MIN_EF_DEFAULT RCONST(0.25) /* err test fail min decrease factor \
-                                         */
-#define ETA_CF_DEFAULT RCONST(0.25)     /* NLS failure decrease factor       */
+#define ETA_MAX_FX_DEFAULT RCONST(2.0) /* threshold to increase step size   */
+#define ETA_MIN_FX_DEFAULT RCONST(1.0) /* threshold to decrease step size   */
+#define ETA_MAX_DEFAULT    RCONST(2.0) /* max step size increase factor     */
+#define ETA_MIN_DEFAULT    RCONST(0.5) /* min step size decrease factor     */
+#define ETA_LOW_DEFAULT    RCONST(0.9) /* upper bound on decrease factor    */
+#define ETA_MIN_EF_DEFAULT                                               \
+  RCONST(0.25)                      /* err test fail min decrease factor \
+                                     */
+#define ETA_CF_DEFAULT RCONST(0.25) /* NLS failure decrease factor       */
 
 #define DCJ_DEFAULT \
   RCONST(0.25) /* constant for updating Jacobian/preconditioner */
@@ -1154,7 +1155,7 @@ int IDASensResDQ(int Ns, realtype t, N_Vector yy, N_Vector yp, N_Vector resval,
   "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED                                                \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
-                 "manner."
+  "manner."
 #define MSG_NO_ROOT "Rootfinding was not initialized."
 #define MSG_INACTIVE_ROOTS                                             \
   "At the end of the first step, there are still some root functions " \
@@ -1169,10 +1170,10 @@ int IDASensResDQ(int Ns, realtype t, N_Vector yy, N_Vector yp, N_Vector resval,
 #define MSG_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSG_QRHSFUNC_FAILED                                               \
   "At " MSG_TIME ", the quadrature right-hand side routine failed in an " \
-                 "unrecoverable manner."
+  "unrecoverable manner."
 #define MSG_QRHSFUNC_UNREC                                                   \
   "At " MSG_TIME ", the quadrature right-hand side failed in a recoverable " \
-                 "manner, but no recovery is possible."
+  "manner, but no recovery is possible."
 #define MSG_QRHSFUNC_REPTD \
   "At " MSG_TIME           \
   "repeated recoverable quadrature right-hand side function errors."
@@ -1187,7 +1188,7 @@ int IDASensResDQ(int Ns, realtype t, N_Vector yy, N_Vector yp, N_Vector resval,
   ", the sensitivity residual routine failed in an unrecoverable manner."
 #define MSG_SRES_UNREC                                                         \
   "At " MSG_TIME ", the sensitivity residual failed in a recoverable manner, " \
-                 "but no recovery is possible."
+  "but no recovery is possible."
 #define MSG_SRES_REPTD \
   "At " MSG_TIME "repeated recoverable sensitivity residual function errors."
 
@@ -1202,10 +1203,10 @@ int IDASensResDQ(int Ns, realtype t, N_Vector yy, N_Vector yp, N_Vector resval,
   "At " MSG_TIME ", a component of ewtQS has become <= 0."
 #define MSG_QSRHSFUNC_FAILED                                             \
   "At " MSG_TIME ", the sensitivity quadrature right-hand side routine " \
-                 "failed in an unrecoverable manner."
+  "failed in an unrecoverable manner."
 #define MSG_QSRHSFUNC_REPTD                                                \
   "At " MSG_TIME "repeated recoverable sensitivity quadrature right-hand " \
-                 "side function errors."
+  "side function errors."
 #define MSG_QSRHSFUNC_FIRST \
   "The quadrature right-hand side routine failed at the first call."
 

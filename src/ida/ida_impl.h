@@ -58,14 +58,15 @@ extern "C" {
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
-#define ETA_MAX_FX_DEFAULT RCONST(2.0)  /* threshold to increase step size   */
-#define ETA_MIN_FX_DEFAULT RCONST(1.0)  /* threshold to decrease step size   */
-#define ETA_MAX_DEFAULT    RCONST(2.0)  /* max step size increase factor     */
-#define ETA_MIN_DEFAULT    RCONST(0.5)  /* min step size decrease factor     */
-#define ETA_LOW_DEFAULT    RCONST(0.9)  /* upper bound on decrease factor    */
-#define ETA_MIN_EF_DEFAULT RCONST(0.25) /* err test fail min decrease factor \
-                                         */
-#define ETA_CF_DEFAULT RCONST(0.25)     /* NLS failure decrease factor       */
+#define ETA_MAX_FX_DEFAULT RCONST(2.0) /* threshold to increase step size   */
+#define ETA_MIN_FX_DEFAULT RCONST(1.0) /* threshold to decrease step size   */
+#define ETA_MAX_DEFAULT    RCONST(2.0) /* max step size increase factor     */
+#define ETA_MIN_DEFAULT    RCONST(0.5) /* min step size decrease factor     */
+#define ETA_LOW_DEFAULT    RCONST(0.9) /* upper bound on decrease factor    */
+#define ETA_MIN_EF_DEFAULT                                               \
+  RCONST(0.25)                      /* err test fail min decrease factor \
+                                     */
+#define ETA_CF_DEFAULT RCONST(0.25) /* NLS failure decrease factor       */
 
 #define DCJ_DEFAULT \
   RCONST(0.25) /* constant for updating Jacobian/preconditioner */
@@ -585,7 +586,7 @@ int idaNlsInit(IDAMem IDA_mem);
   "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED                                                \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
-                 "manner."
+  "manner."
 #define MSG_NO_ROOT "Rootfinding was not initialized."
 #define MSG_INACTIVE_ROOTS                                             \
   "At the end of the first step, there are still some root functions " \

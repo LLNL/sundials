@@ -2073,14 +2073,14 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
   etable = itable = -1;
 
   /**** ImEx methods ****/
-  if (step_mem->explicit && step_mem->implicit) {
-
-    switch (step_mem->q) {
-
-    case(2):
+  if (step_mem->explicit && step_mem->implicit)
+  {
+    switch (step_mem->q)
+    {
+    case (2):
       etable = ARKSTEP_DEFAULT_ARK_ETABLE_2;
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_2;
-    case(3):
+    case (3):
       etable = ARKSTEP_DEFAULT_ARK_ETABLE_3;
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_3;
       break;

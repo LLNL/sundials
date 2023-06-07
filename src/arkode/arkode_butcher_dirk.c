@@ -68,8 +68,7 @@ ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod)
 #include "arkode_butcher_dirk.def"
 #undef ARK_BUTCHER_TABLE
 
-  arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
-                  "arkButcherTableDIRKNameToID",
+  arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", "arkButcherTableDIRKNameToID",
                   "Unknown Butcher table");
 
   return ARKODE_DIRK_NONE;
