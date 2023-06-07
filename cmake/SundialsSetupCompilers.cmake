@@ -211,28 +211,13 @@ check_c_source_compiles("
 " SUNDIALS_C_COMPILER_HAS_INLINE)
 
 # ---------------------------------------------------------------
-# Check for __builtin_expect
-# ---------------------------------------------------------------
-
-check_c_source_compiles("
-  int main() {
-    double a = 0.0;
-    if (__builtin_expect(a < 0, 0)) {
-      a = 0.0;
-    }
-    a = a + 1.0;
-  }
-" SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
-
-
-# ---------------------------------------------------------------
 # Check for POSIX timers
 # ---------------------------------------------------------------
 include(SundialsPOSIXTimers)
 
 if(SUNDIALS_POSIX_TIMERS AND POSIX_TIMERS_NEED_POSIX_C_SOURCE)
   set(DOCSTR "Value of _POSIX_C_SOURCE")
-  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "200112L"
+  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "199309L"
                   ADVANCED)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_POSIX_C_SOURCE=${SUNDIALS_POSIX_C_SOURCE}")
 endif()
