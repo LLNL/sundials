@@ -2,6 +2,7 @@
 Testing individual ERK methods:
 
 Testing method ARKODE_HEUN_EULER_2_1_2:  table matches predicted method/embedding orders of 2/1
+Testing method ARKODE_ARK2_ERK_3_1_2:  table matches predicted method/embedding orders of 2/1
 Testing method ARKODE_BOGACKI_SHAMPINE_4_2_3:  table matches predicted method/embedding orders of 3/2
 Testing method ARKODE_ARK324L2SA_ERK_4_2_3:  table matches predicted method/embedding orders of 3/2
 Testing method ARKODE_ZONNEVELD_5_3_4:  table matches predicted method/embedding orders of 4/3
@@ -25,6 +26,7 @@ Testing method ARKODE_ARK548L2SAb_ERK_8_4_5:  table matches predicted method/emb
 Testing individual DIRK methods:
 
 Testing method ARKODE_SDIRK_2_1_2:  table matches predicted method/embedding orders of 2/1
+Testing method ARKODE_ARK2_DIRK_3_1_2:  table matches predicted method/embedding orders of 2/1
 Testing method ARKODE_BILLINGTON_3_3_2:  table matches predicted method/embedding orders of 2/3
 Testing method ARKODE_TRBDF2_3_3_2:  table matches predicted method/embedding orders of 2/3
 Testing method ARKODE_KVAERNO_4_2_3:  table matches predicted method/embedding orders of 3/2
@@ -50,6 +52,7 @@ Testing method ARKODE_ESDIRK547L2SA2_7_4_5:  table matches predicted method/embe
 
 Testing ARK pairs:
 
+Testing method ARKODE_ARK2_3_1_2:  Method/embedding match predicted orders of 2/1
 Testing method ARKODE_ARK324L2SA_4_2_3:  Method/embedding match predicted orders of 3/2
 Testing method ARKODE_ARK436L2SA_6_3_4:  Method/embedding match predicted orders of 4/3
 Testing method ARKODE_ARK437L2SA_7_3_4:  Method/embedding match predicted orders of 4/3
