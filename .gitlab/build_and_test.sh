@@ -53,9 +53,6 @@ if [[ "${hostname}" == "corona" ]]; then
     module load python/3.9.12
     echo "module load rocm/5.4.1"
     module load rocm/5.4.1
-else
-    echo "module load python/3.8.2"
-    module load python/3.8.2
 fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
