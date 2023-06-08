@@ -168,6 +168,180 @@ contains
   end function Quad
 
 end module Quadrature
+
+module ode_mod
+
+   !======= Inclusions ===========
+   use, intrinsic :: iso_c_binding
+   use UserData
+
+   contains
+
+   ! ----------------------------------------------------------------
+   ! ExpRhsFn provides the right hand side explicit function for the
+   ! ODE: dy1/dt = f1(t,y1,y2,y3)
+   !      dy2/dt = f2(t,y1,y2,y3)
+   !      dy3/dt = f3(t,y1,y2,y3)
+   !
+   ! Return values:
+   !    0 = success,
+   !    1 = recoverable error,
+   !   -1 = non-recoverable error
+   ! ----------------------------------------------------------------
+   integer(c_int) function ExpRhsFn(tn, sunvec_y, sunvec_f, user_data) &
+      result(ierr) bind(C)
+
+   !======= Inclusions ===========
+   use fsundials_nvector_mod
+
+   !======= Declarations =========
+   implicit none
+
+   ! calling variables
+   real(c_double), value :: tn                  ! current time
+   type(N_Vector) :: sunvec_y   ! solution N_Vector
+   type(N_Vector) :: sunvec_f   ! rhs N_Vector
+   type(c_ptr) :: user_data                     ! user-defined data
+
+   ! local data
+   real(c_double) :: u, v, w
+
+   ! pointers to data in SUNDIALS vectors
+   real(c_double), pointer, dimension(neq) :: yvec(:)
+   real(c_double), pointer, dimension(neq) :: fvec(:)
+
+   !======= Internals ============
+
+   ! get data arrays from SUNDIALS vectors
+   yvec => FN_VGetArrayPointer(sunvec_y)
+   fvec => FN_VGetArrayPointer(sunvec_f)
+
+   ! set temporary values
+   u  = yvec(1)
+   v  = yvec(2)
+   w  = yvec(3)
+
+   ! fill RHS vector
+   fvec(1) = a - (w + 1.d0)*u + v*u*u
+   fvec(2) = w*u - v*u*u
+   fvec(3) = -w*u
+
+   ! return success
+   ierr = 0
+   return
+
+   end function ExpRhsFn
+
+
+   ! ----------------------------------------------------------------
+   ! ImpRhsFn provides the right hand side implicit function for the
+   ! ODE: dy1/dt = f1(t,y1,y2,y3)
+   !      dy2/dt = f2(t,y1,y2,y3)
+   !      dy3/dt = f3(t,y1,y2,y3)
+   !
+   ! Return values:
+   !    0 = success,
+   !    1 = recoverable error,
+   !   -1 = non-recoverable error
+   ! ----------------------------------------------------------------
+   integer(c_int) function ImpRhsFn(tn, sunvec_y, sunvec_f, user_data) &
+      result(ierr) bind(C)
+
+   !======= Inclusions ===========
+   use FEM
+   use Quadrature
+   use fsundials_nvector_mod
+
+   !======= Declarations =========
+   implicit none
+
+   ! calling variables
+   real(c_double), value :: tn                  ! current time
+   type(N_Vector) :: sunvec_y                   ! solution N_Vector
+   type(N_Vector) :: sunvec_f                   ! rhs N_Vector
+   type(c_ptr) :: user_data                     ! user-defined data
+
+   ! local data
+   real(c_double) :: u, v, w
+
+   ! pointers to data in SUNDIALS vectors
+   real(c_double), pointer, dimension(neq) :: yvec(:)
+   real(c_double), pointer, dimension(neq) :: fvec(:)
+
+   !======= Internals ============
+
+   ! get data arrays from SUNDIALS vectors
+   yvec => FN_VGetArrayPointer(sunvec_y)
+   fvec => FN_VGetArrayPointer(sunvec_f)
+
+   ! set temporary values
+   u  = yvec(1)
+   v  = yvec(2)
+   w  = yvec(3)
+
+   ! fill RHS vector
+   fvec(1) = 0.d0
+   fvec(2) = 0.d0
+   fvec(3) = (b-w)/ep
+
+   ! return success
+   ierr = 0
+   return
+
+   end function ImpRhsFn
+
+   ! ----------------------------------------------------------------
+   ! Jac: The Jacobian function
+   !
+   ! Return values:
+   !    0 = success,
+   !    1 = recoverable error,
+   !   -1 = non-recoverable error
+   ! ----------------------------------------------------------------
+   integer(c_int) function Jac(t, sunvec_y, sunvec_f, sunmat_J, user_data, &
+      sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) bind(C,name='Jac')
+
+   !======= Inclusions ===========
+   use FEM
+   use Quadrature   
+   use fsundials_nvector_mod
+   use fsundials_matrix_mod
+   use fnvector_serial_mod
+   use fsunmatrix_dense_mod
+
+   !======= Declarations =========
+   implicit none
+
+   ! calling variables
+   real(c_double), value :: t         ! current time
+   type(N_Vector)        :: sunvec_y  ! solution N_Vector
+   type(N_Vector)        :: sunvec_f  ! rhs N_Vector
+   type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
+   type(c_ptr),    value :: user_data ! user-defined data
+   type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
+   type(N_Vector)        :: sunvec_t2
+   type(N_Vector)        :: sunvec_t3
+
+   ! pointers to data in SUNDIALS vector and matrix
+   real(c_double), pointer :: J(:,:)
+
+
+   !======= Internals ============
+
+   ! get data arrays from SUNDIALS vectors
+   J(1:3, 1:3) => FSUNDenseMatrix_Data(sunmat_J)
+
+   ! fill Jacobian entries
+   J(1:3, 1:3) = 0.d0
+   J(3,3) = -1.d0/ep
+
+   ! return success
+   ierr = 0
+   return
+
+   end function Jac
+
+end module ode_mod
 !-----------------------------------------------------------------
 
 
@@ -209,7 +383,7 @@ end module Quadrature
    integer(c_int) :: nout                     ! number of outputs
    integer(c_int) :: outstep                  ! output loop counter
    integer(c_int) :: nt                       ! time-stepping information
-   integer(c_int) :: order, sparsetype        ! AMD and CSR respectively
+   integer(c_int) :: ordering, sparsetype     ! AMD and CSR types respectively
    integer(c_long):: mxsteps                  ! max num steps
    real(c_double) :: pi, h, z                 ! constants and variables to help with mesh
 
@@ -220,7 +394,8 @@ end module Quadrature
    type(N_Vector),        pointer :: sunvec_u    ! sundials vector
    type(N_Vector),        pointer :: sunvec_v    ! sundials vector
    type(N_Vector),        pointer :: sunvec_w    ! sundials vector
-   type(SUNMatrix),       pointer :: sunmat_A    ! sundials matrix
+   type(SUNMatrix),       pointer :: sunmat_A    ! sundials (linsol) matrix
+   type(SUNMatrix),       pointer :: sunmat_M    ! sundials (mass) matrix
    type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
    type(c_ptr)                    :: arkode_mem  ! ARKODE memory
    real(c_double),        pointer :: yvec(:,:)   ! underlying vector y
@@ -313,19 +488,28 @@ end module Quadrature
    if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
  
    ! Tell ARKODE to use a sparse linear solver.
-   sunmat_A => FSUNSparseMatrix(neq, neq, ctx)
+   nnz = 15*neq
+   ordering = 0
+   sparsetype = 1
+   sunmat_A => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
    if (.not. associated(sunmat_A)) then
-      print *, 'ERROR: sunmat = NULL'
+      print *, 'ERROR: sunmat_A = NULL'
+      stop 1
+   end if
+
+   sunmat_M => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
+   if (.not. associated(sunmat_M)) then
+      print *, 'ERROR: sunmat_M = NULL'
       stop 1
    end if
  
-   sunls => FSUNLinSol_Sparse(sunvec_y, sunmat_A, ctx)
+   sunls => FSUNLinSol_KLU(sunvec_y, sunmat_A, ctx)
    if (.not. associated(sunls)) then
       print *, 'ERROR: sunls = NULL'
       stop 1
    end if
  
-   ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
+   ierr = FARKStepSetMassLinearSolver(arkode_mem, sunls, sunmat_M)
    if (ierr /= 0) then
      print *, 'Error in FARKStepSetLinearSolver'
      stop 1
@@ -334,6 +518,12 @@ end module Quadrature
    ierr = FARKStepSetJacFn(arkode_mem, c_funloc(Jac))
    if (ierr /= 0) then
      print *, 'Error in FARKStepSetJacFn'
+     stop 1
+   end if
+
+   ierr = FARKStepSetMassFn(arkode_mem, c_funloc(Mass))
+   if (ierr /= 0) then
+     print *, 'Error in FARKStepSetMassFn'
      stop 1
    end if
  
@@ -345,12 +535,6 @@ end module Quadrature
    if (ierr /= 0) then
       print *, 'Error in FARKStepSStolerances, ierr = ', ierr, '; halting'
       stop 1
-   end if
- 
-   ierr = FARKStepSetOrder(arkode_mem, order)
-   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetOrder'
-     stop 1
    end if
  
    ierr = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
@@ -376,38 +560,49 @@ end module Quadrature
       stop 1
    end if
  
-     ! Open output stream for results, output comment line
-   open(100, file='solution.txt')
-   write(100,*) '# t u v w'
+   ! Open output stream for results
+   open(501, file='bruss_FEM_u.txt')
+   open(502, file='bruss_FEM_v.txt')
+   open(503, file='bruss_FEM_w.txt')
  
    ! output initial condition to disk
-   write(100,'(3x,4(es23.16,1x))') tstart, yvec
- 
+   write(501,*) ( y(1,i), i=1,N )
+   write(502,*) ( y(2,i), i=1,N )
+   write(503,*) ( y(3,i), i=1,N )
+
+   ! output solver parameters to screen
+   call FARKStepWriteParameters(arkode_mem, stdout)
  
    ! Start time stepping
    print *, '   '
    print *, 'Finished initialization, starting time steps'
    print *, '   '
-   print *, '       t           u           v           w       '
-   print *, ' ---------------------------------------------------'
-   print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
-   do outstep = 1,nout
+   print *, '        t         ||u||_rms    ||v||_rms    ||w||_rms'
+   print *, '  ----------------------------------------------------'
+   print '(3x,4(es12.5,1x))', tcur, sqrt(sum(y*y*umask)/N), &
+       sqrt(sum(y*y*vmask)/N), sqrt(sum(y*y*wmask)/N)   
+   do outstep = 1,nt
  
       ! call ARKStep
       tout = min(tout + dtout, tend)
       ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
-      if (ierr /= 0) then
+      if (ierr < 0) then
          print *, 'Error in FARKStepEvolve, ierr = ', ierr, '; halting'
          stop 1
       endif
  
-      ! output current solution
-      print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
-      write(100,'(3x,4(es23.16,1x))') tcur, yvec(1), yvec(2), yvec(3)
- 
-   enddo
+      ! output current solution information
+      print '(3x,4(es12.5,1x))', Tcur, sqrt(sum(y*y*umask)/N), &
+          sqrt(sum(y*y*vmask)/N), sqrt(sum(y*y*wmask)/N)
+      write(501,*) ( y(1,i), i=1,N )
+      write(502,*) ( y(2,i), i=1,N )
+      write(503,*) ( y(3,i), i=1,N )
+
+   end do
    print *, ' ----------------------------------------------------'
-   close(100)
+   close(501)
+   close(502)
+   close(503)
  
    ! diagnostics output
    call ARKStepStats(arkode_mem)
@@ -415,7 +610,11 @@ end module Quadrature
    ! clean up
    call FARKStepFree(arkode_mem)
    call FN_VDestroy(sunvec_y)
+   call FN_VDestroy(sunvec_u)
+   call FN_VDestroy(sunvec_v)
+   call FN_VDestroy(sunvec_w)
    call FSUNMatDestroy(sunmat_A)
+   call FSUNMatDestroy(sunmat_M)
    ierr = FSUNLinSolFree(sunls)
    ierr = FSUNContext_Free(ctx)
  
