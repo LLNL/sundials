@@ -36,15 +36,15 @@ module dae_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-  
+
     !======= Declarations =========
     implicit none
-  
+
     integer(c_long), parameter :: neq = 3
     integer(c_long), parameter :: nout = 12
-  
+
   contains
-  
+
     ! ----------------------------------------------------------------
     ! fcnirob: The DAE residual function
     !
@@ -55,40 +55,40 @@ module dae_mod
     ! ----------------------------------------------------------------
     integer(c_int) function fcnirob(tres, sunvec_y, sunvec_f, user_data) &
          result(ierr) bind(C,name='fcnirob')
-  
+
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
       use fnvector_serial_mod
-  
+
       !======= Declarations =========
       implicit none
-  
+
       ! calling variables
       real(c_double), value :: tres      ! current time
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
       type(N_Vector)        :: sunvec_f  ! function N_Vector
       type(c_ptr),    value :: user_data ! user-defined data
-  
+
       ! pointers to data in SUNDIALS vectors
       real(c_double), pointer :: yval(:)
       real(c_double), pointer :: fval(:)
-  
+
       !======= Internals ============
-  
+
       ! get data arrays from SUNDIALS vectors
       yval  => FN_VGetArrayPointer(sunvec_y)
       fval  => FN_VGetArrayPointer(sunvec_f)
-  
+
       ! fill residual vector
       fval(1)  = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
       fval(3)  = 3.0d7*yval(2)**2
       fval(2)  = -fval(1) - fval(3)
-  
+
       ! return success
       ierr = 0
       return
-  
+
     end function fcnirob
 
     ! ----------------------------------------------------------------
@@ -101,42 +101,42 @@ module dae_mod
     ! ----------------------------------------------------------------
     integer(c_int) function fcnerob(tres, sunvec_y, sunvec_f, user_data) &
          result(ierr) bind(C,name='fcnerob')
-  
+
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
       use fnvector_serial_mod
-  
+
       !======= Declarations =========
       implicit none
-  
+
       ! calling variables
       real(c_double), value :: tres      ! current time
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
       type(N_Vector)        :: sunvec_f  ! function N_Vector
       type(c_ptr),    value :: user_data ! user-defined data
-  
+
       ! pointers to data in SUNDIALS vectors
       real(c_double), pointer :: yval(:)
       real(c_double), pointer :: fval(:)
-  
+
       !======= Internals ============
-  
+
       ! get data arrays from SUNDIALS vectors
       yval  => FN_VGetArrayPointer(sunvec_y)
       fval  => FN_VGetArrayPointer(sunvec_f)
-  
+
       ! fill residual vector
       fval(1)  = 0.d0
       fval(2)  = 0.d0
       fval(3)  = 0.d0
-  
+
       ! return success
       ierr = 0
       return
-  
+
     end function fcnerob
-  
+
     ! ----------------------------------------------------------------
     ! grob: The root function routine
     !
@@ -147,39 +147,39 @@ module dae_mod
     ! ----------------------------------------------------------------
     integer(c_int) function grob(t, sunvec_y, gout, user_data) &
          result(ierr) bind(C,name='grob')
-  
+
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
       use fnvector_serial_mod
-  
+
       !======= Declarations =========
       implicit none
-  
+
       ! calling variables
       real(c_double), value :: t         ! current time
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
       real(c_double)        :: gout(2)   ! root function values
       type(c_ptr),    value :: user_data ! user-defined data
-  
+
       ! pointers to data in SUNDIALS vectors
       real(c_double), pointer :: yval(:)
-  
+
       !======= Internals ============
-  
+
       ! get data array from SUNDIALS vector
       yval => FN_VGetArrayPointer(sunvec_y)
-  
+
       ! fill root vector
       gout(1) = yval(1) - 0.0001d0
       gout(2) = yval(3) - 0.01d0
-  
+
       ! return success
       ierr = 0
       return
-  
+
     end function grob
-  
+
     ! ----------------------------------------------------------------
     ! jacrob: The DAE Jacobian function
     !
@@ -188,23 +188,22 @@ module dae_mod
     !    1 = recoverable error,
     !   -1 = non-recoverable error
     ! ----------------------------------------------------------------
-    integer(c_int) function jacrob(t, cj, sunvec_y, sunvec_f, &
+    integer(c_int) function jacrob(t, sunvec_y, sunvec_f, &
          sunmat_J, user_data, sunvec_t1, sunvec_t2, sunvec_t3) &
          result(ierr) bind(C,name='jacrob')
-  
+
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
       use fsundials_matrix_mod
       use fnvector_serial_mod
       use fsunmatrix_dense_mod
-  
+
       !======= Declarations =========
       implicit none
-  
+
       ! calling variables
       real(c_double), value :: t         ! current time
-      real(c_double), value :: cj        ! step size scaling factor
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
       type(N_Vector)        :: sunvec_f  ! residual N_Vector
       type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
@@ -212,18 +211,18 @@ module dae_mod
       type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
       type(N_Vector)        :: sunvec_t2
       type(N_Vector)        :: sunvec_t3
-  
+
       ! pointers to data in SUNDIALS vector and matrix
       real(c_double), pointer :: yval(:)
       real(c_double), pointer :: J(:,:)
-  
-  
+
+
       !======= Internals ============
-  
+
       ! get data arrays from SUNDIALS vectors
       yval => FN_VGetArrayPointer(sunvec_y)
       J(1:3, 1:3) => FSUNDenseMatrix_Data(sunmat_J)
-  
+
       ! fill Jacobian entries
       J(1,1) = -0.04d0
       J(2,1) = 0.04d0
@@ -234,40 +233,40 @@ module dae_mod
       J(1,3) = 1.d4*yval(2)
       J(2,3) = -1.d4*yval(2)
       J(3,3) = 0.d0
-  
+
       ! return success
       ierr = 0
       return
-  
+
     end function jacrob
-  
+
     ! ----------------------------------------------------------------
     ! check_ans: checks the solution error
     ! ----------------------------------------------------------------
     integer(c_int) function check_ans(y, t, rtol, atol) result(passfail)
-  
+
       !======= Inclusions ===========
       use iso_c_binding
-  
+
       !======= Declarations =========
       implicit none
       real(c_double) :: y(neq), atol(neq), t, rtol
       real(c_double) :: ref(neq), ewt(neq), err
-  
+
       !======= Internals ============
-  
+
       ! set the reference solution data
       ref(1) = 5.2083474251394888d-8
       ref(2) = 2.0833390772616859d-13
       ref(3) = 9.9999994791631752d-1
-  
+
       ! compute the error weight vector, loosen atol by 10x
       ewt = 1.d0/(rtol*dabs(ref) + 10.d0*atol)
-  
+
       ! compute the solution error
       ref = y-ref
       err = dsqrt( dot_product(ewt*ref,ewt*ref)/3 )
-  
+
       ! is the solution within the tolerances (pass=0 or fail=1)?
       passfail = 0
       if (err .ge. 1.d0) then
@@ -276,20 +275,20 @@ module dae_mod
          print *, "SUNDIALS_WARNING: check_ans error=", err
          print *, " "
       end if
-  
+
       return
-  
+
     end function check_ans
-  
+
   end module dae_mod
   ! ------------------------------------------------------------------
-  
-  
+
+
   program main
-  
+
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-  
+
     use farkode_mod                   ! Fortran interface to ARKODE
     use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
     use fsundials_context_mod         ! Fortran interface to SUNContext
@@ -302,14 +301,14 @@ module dae_mod
     use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
     use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
     use dae_mod                       ! ODE functions
-  
+
     !======= Declarations =========
     implicit none
-  
+
     ! local variables
     real(c_double) :: rtol, t0, tout1, tout, tret(1)
     integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
-  
+
     type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_f      ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
@@ -318,26 +317,26 @@ module dae_mod
     type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
     type(c_ptr)                       :: arkode_mem    ! ARKODE memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
-  
+
     ! solution and tolerance vectors, neq is set in the dae_mod module
     real(c_double) :: yval(neq), fval(neq), avtol(neq)
-  
+
     !======= Internals ============
-  
+
     retval = FSUNContext_Create(c_null_ptr, sunctx)
-  
+
     ! initialize solution vectors and tolerances
     yval(1) = 1.d0
     yval(2) = 0.d0
     yval(3) = 0.d0
     fval    = 0.d0
-  
+
     rtol = 1.d-4
-  
+
     avtol(1) = 1.d-8
     avtol(2) = 1.d-11
     avtol(3) = 1.d-8
-  
+
     ! create serial vectors
     sunvec_y => FN_VMake_Serial(neq, yval, sunctx)
     if (.not. associated(sunvec_y)) then
@@ -350,30 +349,30 @@ module dae_mod
        print *, 'ERROR: sunvec = NULL'
        stop 1
     end if
-  
+
     sunvec_av => FN_VMake_Serial(neq, avtol, sunctx)
     if (.not. associated(sunvec_av)) then
        print *, 'ERROR: sunvec = NULL'
        stop 1
     end if
-  
+
     ! set integration limits
     t0 = 0.d0
     tout1 = 0.4d0
-  
+
     call PrintHeader(rtol, avtol, yval)
-  
+
     ! Call FARKStepCreate to initialize ARKODE memory
     arkode_mem = FARKStepCreate(c_funloc(fcnerob), c_funloc(fcnirob), t0, sunvec_y, sunctx)
     if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
-  
+
     ! Call FARKStepSVtolerances to set tolerances
     retval = FARKStepSVtolerances(arkode_mem, rtol, sunvec_av)
     if (retval /= 0) then
        print *, 'Error in FARKStepSVtolerances, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
     ! Call FARKStepRootInit to specify the root function grob with 2 components
     nrtfn = 2
     retval = FARKStepRootInit(arkode_mem, nrtfn, c_funloc(grob))
@@ -381,35 +380,47 @@ module dae_mod
        print *, 'Error in FARKStepRootInit, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
     ! Create dense SUNMatrix for use in linear solves
     sunmat_A => FSUNDenseMatrix(neq, neq, sunctx)
     if (.not. associated(sunmat_A)) then
        print *, 'ERROR: sunmat = NULL'
        stop 1
     end if
-  
+
     ! Create dense SUNLinearSolver object
     sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_A, sunctx)
     if (.not. associated(sunlinsol_LS)) then
        print *, 'ERROR: sunlinsol = NULL'
        stop 1
     end if
-  
+
     ! Attach the matrix and linear solver
     retval = FARKStepSetLinearSolver(arkode_mem, sunlinsol_LS, sunmat_A);
     if (retval /= 0) then
        print *, 'Error in FARKStepSetLinearSolver, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
+    ! Need to specify a maximum of 10000 steps
+
+    ! Need to specify an initial step size of 1.d-4 * rtol
+
+    ! Need to specify a nonlinear solver conv coeff of 1d-7
+
+    ! Need to set a maximum of 8 nonlinear iterations per solve
+
+    ! Need to specify the predictor method 1
+
+    ! Need to specify a maximum number of error test fails of 20
+
     ! Set the user-supplied Jacobian routine
     retval = FARKStepSetJacFn(arkode_mem, c_funloc(jacrob))
     if (retval /= 0) then
        print *, 'Error in FARKStepSetJacFn, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
     ! Create Newton SUNNonlinearSolver object. ARKODE uses a
     ! Newton SUNNonlinearSolver by default, so it is not necessary
     ! to create it and attach it. It is done in this example code
@@ -419,28 +430,28 @@ module dae_mod
        print *, 'ERROR: sunnonlinsol = NULL'
        stop 1
     end if
-  
+
     ! Attach the nonlinear solver
     retval = FARKStepSetNonlinearSolver(arkode_mem, sunnonlin_NLS)
     if (retval /= 0) then
        print *, 'Error in FARKStepSetNonlinearSolver, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
     ! In loop, call ARKStepEvolve, print results, and test for error.
-  
+
     iout = 0
     tout = tout1
     do while(iout < nout)
-  
+
        retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, tret(1), ARK_NORMAL)
        if (retval < 0) then
           print *, 'Error in FARKStepEvolve, retval = ', retval, '; halting'
           stop 1
        endif
-  
+
        call PrintOutput(arkode_mem, tret(1), yval)
-  
+
        if (retval .eq. ARK_ROOT_RETURN) then
           retvalr = FARKStepGetRootInfo(arkode_mem, rootsfound)
           if (retvalr < 0) then
@@ -449,17 +460,20 @@ module dae_mod
           endif
           print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
        end if
-  
+
        if (retval .eq. ARK_SUCCESS) then
           iout = iout + 1
           tout = tout * 10.d0
-       end if  
+       end if
     end do
-  
+
+    ! Need to call FARKStepGetDky(?) for first derivative at tret(1), and output this to stdout
+
     call PrintFinalStats(arkode_mem)
-  
+
+    ! Need to remove check_ans from file
     retval = check_ans(yval, tret(1), rtol, avtol)
-  
+
     ! free memory
     call FARKStepFree(arkode_mem)
     retval = FSUNNonlinSolFree(sunnonlin_NLS)
@@ -468,29 +482,29 @@ module dae_mod
     call FN_VDestroy(sunvec_y)
     call FN_VDestroy(sunvec_av)
     retval = FSUNContext_Free(sunctx)
-  
+
   end program main
-  
-  
+
+
   ! ----------------------------------------------------------------
   ! PrintHeader: prints first lines of output (problem description)
   ! ----------------------------------------------------------------
   subroutine PrintHeader(rtol, avtol, y)
-  
+
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use dae_mod
-  
+
     !======= Declarations =========
     implicit none
-  
+
     ! calling variable
     real(c_double) :: rtol
     real(c_double) :: avtol(neq)
     real(c_double) :: y(neq)
-  
+
     !======= Internals ============
-  
+
     print *, " "
     print *, "arkRoberts_dnsL.f03: Robertson ARK ODE serial example problem for ARKODE"
     print *, "         Three equation chemical kinetics problem."
@@ -503,66 +517,66 @@ module dae_mod
     print *, "-----------------------------------------------------------------"
     print *, "  t             y1           y2           y3       | nst  h"
     print *, "-----------------------------------------------------------------"
-  
+
     return
   end subroutine PrintHeader
-  
-  
+
+
   ! ----------------------------------------------------------------
   ! PrintOutput
   ! ----------------------------------------------------------------
   subroutine PrintOutput(arkode_mem, t, y)
-  
+
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use farkode_mod
     use farkode_arkstep_mod
     use dae_mod
-  
+
     !======= Declarations =========
     implicit none
-  
+
     ! calling variable
     type(c_ptr)    :: arkode_mem
     real(c_double) :: t, y(neq)
-  
+
     ! internal variables
     integer(c_int)  :: retval, kused(1)
     integer(c_long) :: nst(1)
     real(c_double)  :: hused(1)
-  
+
     !======= Internals ============
-  
+
     retval = FARKStepGetNumSteps(arkode_mem, nst)
     if (retval /= 0) then
        print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
     retval = FARKStepGetLastStep(arkode_mem, hused)
     if (retval /= 0) then
        print *, 'Error in FARKStepGetLastStep, retval = ', retval, '; halting'
        stop 1
     end if
-  
+
     print '(es12.4,1x,3(es12.4,1x),a,i3,2x,es12.4)', &
          t, y(1), y(2), y(3), "| ", nst, hused(1)
-  
+
   end subroutine PrintOutput
-  
-  
+
+
   ! ----------------------------------------------------------------
   ! PrintFinalStats
   !
   ! Print ARKSOL statstics to standard out
   ! ----------------------------------------------------------------
   subroutine PrintFinalStats(arkode_mem)
-  
+
     !======= Inclusions ===========
     use iso_c_binding
     use farkode_mod
     use farkode_arkstep_mod
-  
+
     !======= Declarations =========
     implicit none
 
@@ -675,8 +689,7 @@ module dae_mod
     print '(4x,A,i9)'    ,'Num nonlinear solver iters    =',nniters
     print '(4x,A,i9)'    ,'Num nonlinear solver fails    =',nncfails
     print *, ' '
-  
+
     return
-  
+
   end subroutine PrintFinalStats
-  
