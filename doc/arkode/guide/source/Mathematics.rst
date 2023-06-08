@@ -460,6 +460,28 @@ simplified form admits a more efficient and memory-friendly implementation
 than the more general form :eq:`ARKODE_IVP_simple_explicit`.
 
 
+.. _ARKODE.Mathematics.SPRKStep:
+
+SPRKStep -- Symplectic Partitioned Runge--Kutta methods
+=======================================================
+
+The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
+
+.. math::
+   \dot{y} = [\dot{p}, \dot{q}]^T, \quad 
+   \dot{p} = f(q,t) = \frac{\partial V(q,t)}{\partial q}, \quad 
+   \dot{q} = g(p) = \frac{\partial T(p)}{\partial p}, 
+   \qquad y(t_0) = [p_0, q_0]^T,\quad p(t_0) = p_0,\quad q(t_0) = q_0,
+   :label: ARKODE_IVP_Hamiltonian
+
+where
+
+.. math::
+   H(p, q, t) = T(p) + V(q, t)
+
+is a separable Hamiltonian. Symplectic Partitioned Runge-Kutta (SPRK) methods approximately conserve a nearby Hamiltonian for
+exponentially long times (((CITE))). For separable Hamiltonian problems, SPRK methids are also explicit. 
+
 .. _ARKODE.Mathematics.MRIStep:
 
 MRIStep -- Multirate infinitesimal step methods
