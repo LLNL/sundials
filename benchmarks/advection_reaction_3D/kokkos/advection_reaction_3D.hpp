@@ -117,16 +117,11 @@ struct UserData
   UserOptions* uopt;
 
   /* Constructor that takes the context */
-  UserData(SUNContext ctx) : ctx(ctx) {
+  UserData(SUNContext ctx)
+    : ctx(ctx), umask(nullptr), vmask(nullptr), wmask(nullptr), uopt(nullptr),
+      TFID(nullptr), UFID(nullptr), VFID(nullptr), WFID(nullptr)
+  {
     SUNContext_GetProfiler(ctx, &prof);
-    umask = nullptr;
-    vmask = nullptr;
-    wmask = nullptr;
-    TFID = nullptr;
-    UFID = nullptr;
-    VFID = nullptr;
-    WFID = nullptr;
-    uopt = nullptr;
   }
 
   /* destructor frees the problem data */
