@@ -382,7 +382,6 @@ end module ode_mod
    integer(c_int) :: ierr                     ! error flag from C functions
    integer(c_int) :: nout                     ! number of outputs
    integer(c_int) :: outstep                  ! output loop counter
-   integer(c_int) :: nt                       ! time-stepping information
    integer(c_int) :: ordering, sparsetype     ! AMD and CSR types respectively
    integer(c_long):: mxsteps                  ! max num steps
    real(c_double) :: pi, h, z                 ! constants and variables to help with mesh
@@ -413,7 +412,7 @@ end module ode_mod
    tend   = 10.0d0
    tcur   = tstart
    tout   = tstart
-   dtout  = 1.0d0
+   dtout  = (tend - tstart)/10.d0
    nout   = ceiling(tend/dtout)
  
    ! create and assign SUNDIALS N_Vector
@@ -461,10 +460,6 @@ end module ode_mod
       write(200,*) x(i)
    end do
    close(200)
-
-   ! time-stepping information
-   dtout = (tend - tstart)/10.d0
-   nt = tend/dtout + 0.5
 
    ! set initial conditions
    do i=1,N
@@ -581,7 +576,7 @@ end module ode_mod
    print *, '  ----------------------------------------------------'
    print '(3x,4(es12.5,1x))', tcur, sqrt(sum(y*y*umask)/N), &
        sqrt(sum(y*y*vmask)/N), sqrt(sum(y*y*wmask)/N)   
-   do outstep = 1,nt
+   do outstep = 1,nout
  
       ! call ARKStep
       tout = min(tout + dtout, tend)
