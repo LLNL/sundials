@@ -35,9 +35,6 @@ using sundials_tools::BoundaryType;
 using sundials_tools::StencilType;
 using std::string;
 
-/* Number of dimensions */
-constexpr int NDIMS = 3;
-
 /* Maximum size of output directory string */
 constexpr int MXSTR = 2048;
 
@@ -107,7 +104,7 @@ struct UserData
   realtype  c;    /* advection coefficient        */
 
   /* parallel mesh */
-  ParallelGrid<realtype,sunindextype,NDIMS>* grid;
+  ParallelGrid<realtype,sunindextype>* grid;
 
   /* count of implicit function evals by the task local nonlinear solver */
   long int nnlfi;

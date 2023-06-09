@@ -41,16 +41,16 @@ enum class StencilType
   UPWIND
 };
 
-template<typename REAL, typename GLOBALINT, int NDIMS>
+template<typename REAL, typename GLOBALINT>
 class ParallelGrid
 {
 public:
   // Constructor that creates a new ParallelGrid object.
   // [in] - the memory helper to use for allocating the MPI buffers
   // [in,out] comm - on input, the overal MPI communicator, on output, the cartesian communicator
-  // [in] a[] - an array of length NDIMS which defines the domain [a,b]
-  // [in] b[] - an array of length NDIMS which defines the domain [a,b]
-  // [in] npts[] - an array of length NDIMS which defines the number of mesh points in each dimension
+  // [in] a[] - an array of length 3 which defines the domain [a,b]
+  // [in] b[] - an array of length 3 which defines the domain [a,b]
+  // [in] npts[] - an array of length 3 which defines the number of mesh points in each dimension
   // [in] dof - the number of degrees of freedom in each dimension
   // [in] bc - the type of boundary conditions (see BoundaryType)
   // [in] st - the stencil to use (see StencilType)
@@ -73,29 +73,28 @@ public:
       memhelp(memhelp)
 
   {
-    static_assert((NDIMS >= 1 && NDIMS <= 3), "ParallelGrid NDIMS must be 1, 2 or 3");
     assert(st == StencilType::UPWIND);
 
     /* Set up MPI Cartesian communicator */
     if (npxyz)
     {
       dims[0] = npxyz[0];
-      if (NDIMS >= 2) dims[1] = npxyz[1];
-      if (NDIMS == 3) dims[2] = npxyz[2];
+      dims[1] = npxyz[1];
+      dims[2] = npxyz[2];
     }
 
     int retval, nprocs;
     MPI_Comm_size(*comm, &nprocs);
-    retval = MPI_Dims_create(nprocs, NDIMS, dims);
+    retval = MPI_Dims_create(nprocs, 3, dims);
     assert(retval == MPI_SUCCESS);
 
     int periods[] = { bc == BoundaryType::PERIODIC,
                       bc == BoundaryType::PERIODIC,
                       bc == BoundaryType::PERIODIC };
-    retval = MPI_Cart_create(*comm, NDIMS, dims, periods, reorder, comm);
+    retval = MPI_Cart_create(*comm, 3, dims, periods, reorder, comm);
     assert(retval == MPI_SUCCESS);
 
-    retval = MPI_Cart_get(*comm, NDIMS, dims, periods, coords);
+    retval = MPI_Cart_get(*comm, 3, dims, periods, coords);
     assert(retval == MPI_SUCCESS);
 
     cart_comm = *comm;
@@ -114,33 +113,27 @@ public:
     nxl = ie-is+1;
     neq = dof * nxl;
 
-    if (NDIMS >= 2)
-    {
-      /* Set up information for the second spatial dimension (if applicable) */
-      npy = dims[1];
-      ny  = npts[1];
-      ay  = a[1];
-      by  = b[1];
-      dy  = (by-ay) / (REAL) ny;
-      int js = ny*(coords[1])/npy;
-      int je = ny*(coords[1]+1)/npy-1;
-      nyl = je-js+1;
-      neq *= nyl;
-    }
+    /* Set up information for the second spatial dimension */
+    npy = dims[1];
+    ny  = npts[1];
+    ay  = a[1];
+    by  = b[1];
+    dy  = (by-ay) / (REAL) ny;
+    int js = ny*(coords[1])/npy;
+    int je = ny*(coords[1]+1)/npy-1;
+    nyl = je-js+1;
+    neq *= nyl;
 
-    if (NDIMS == 3)
-    {
-      /* Set up information for the third spatial dimension (if applicable) */
-      npz = dims[2];
-      nz  = npts[2];
-      az  = a[2];
-      bz  = b[2];
-      dz  = (bz-az) / (REAL) nz;
-      int ks = nz*(coords[2])/npz;
-      int ke = nz*(coords[2]+1)/npz-1;
-      nzl = ke-ks+1;
-      neq *= nzl;
-    }
+    /* Set up information for the third spatial dimension */
+    npz = dims[2];
+    nz  = npts[2];
+    az  = a[2];
+    bz  = b[2];
+    dz  = (bz-az) / (REAL) nz;
+    int ks = nz*(coords[2])/npz;
+    int ke = nz*(coords[2]+1)/npz-1;
+    nzl = ke-ks+1;
+    neq *= nzl;
 
     /* Allocate buffers for nearest-neighbor exchange */
     if (st == StencilType::UPWIND)
@@ -183,66 +176,60 @@ public:
       assert(retval == MPI_SUCCESS);
     }
 
-    if (NDIMS >= 2)
-    {
-      /* Allocate send/receive buffers and determine ID for communication South */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Srecv_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Ssend_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
-      ipS = MPI_PROC_NULL;
-      if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
-        assert(retval == MPI_SUCCESS);
-      }
-
-      /* Allocate send/receive buffers and determine ID for communication North */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Nsend_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Nrecv_, sizeof(REAL)*dof*width*nxl*nzl,
-                              memoryType(), nullptr);
-      ipN = MPI_PROC_NULL;
-      if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
-        assert(retval == MPI_SUCCESS);
-      }
+    /* Allocate send/receive buffers and determine ID for communication South */
+    if (upwindRight)
+      SUNMemoryHelper_Alloc(memhelp, &Srecv_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
+    else
+      SUNMemoryHelper_Alloc(memhelp, &Ssend_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
+    ipS = MPI_PROC_NULL;
+    if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
+      assert(retval == MPI_SUCCESS);
     }
 
-    if (NDIMS == 3)
-    {
-      /* Allocate send/receive buffers and determine ID for communication Back */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Brecv_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Bsend_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
-      ipB = MPI_PROC_NULL;
-      if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1], coords[2]-1};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
-        assert(retval == MPI_SUCCESS);
-      }
+    /* Allocate send/receive buffers and determine ID for communication North */
+    if (upwindRight)
+      SUNMemoryHelper_Alloc(memhelp, &Nsend_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
+    else
+      SUNMemoryHelper_Alloc(memhelp, &Nrecv_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
+    ipN = MPI_PROC_NULL;
+    if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
+      assert(retval == MPI_SUCCESS);
+    }
 
-      /* Allocate send/receive buffers and determine ID for communication Front */
-      if (upwindRight)
-        SUNMemoryHelper_Alloc(memhelp, &Fsend_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
-      else
-        SUNMemoryHelper_Alloc(memhelp, &Frecv_, sizeof(REAL)*dof*width*nxl*nyl,
-                              memoryType(), nullptr);
-      ipF = MPI_PROC_NULL;
-      if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1], coords[2]+1};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
-        assert(retval == MPI_SUCCESS);
-      }
+    /* Allocate send/receive buffers and determine ID for communication Back */
+    if (upwindRight)
+      SUNMemoryHelper_Alloc(memhelp, &Brecv_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
+    else
+      SUNMemoryHelper_Alloc(memhelp, &Bsend_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
+    ipB = MPI_PROC_NULL;
+    if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1], coords[2]-1};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
+      assert(retval == MPI_SUCCESS);
+    }
+
+    /* Allocate send/receive buffers and determine ID for communication Front */
+    if (upwindRight)
+      SUNMemoryHelper_Alloc(memhelp, &Fsend_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
+    else
+      SUNMemoryHelper_Alloc(memhelp, &Frecv_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
+    ipF = MPI_PROC_NULL;
+    if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1], coords[2]+1};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
+      assert(retval == MPI_SUCCESS);
     }
 
   }
@@ -274,42 +261,36 @@ public:
       nreq++;
     }
 
-    if (NDIMS >= 2)
+    if ((ipS != MPI_PROC_NULL) && (upwindRight))
     {
-      if ((ipS != MPI_PROC_NULL) && (upwindRight))
-      {
-        retval = MPI_Irecv(getRecvBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS,
-                           3, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
-
-      if ((ipN != MPI_PROC_NULL) && (!upwindRight))
-      {
-        retval = MPI_Irecv(getRecvBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN,
-                           2, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      retval = MPI_Irecv(getRecvBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS,
+                         3, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
-    if (NDIMS >= 3)
+    if ((ipN != MPI_PROC_NULL) && (!upwindRight))
     {
-      if ((ipB != MPI_PROC_NULL) && (upwindRight))
-      {
-        retval = MPI_Irecv(getRecvBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB,
-                           5, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      retval = MPI_Irecv(getRecvBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN,
+                         2, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
 
-      if ((ipF != MPI_PROC_NULL) && (!upwindRight))
-      {
-        retval = MPI_Irecv(getRecvBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF,
-                           4, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+    if ((ipB != MPI_PROC_NULL) && (upwindRight))
+    {
+      retval = MPI_Irecv(getRecvBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB,
+                         5, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
+
+    if ((ipF != MPI_PROC_NULL) && (!upwindRight))
+    {
+      retval = MPI_Irecv(getRecvBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF,
+                         4, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
     // Send data to neighbors
@@ -329,42 +310,36 @@ public:
       nreq++;
     }
 
-    if (NDIMS >= 2)
+    if ((ipS != MPI_PROC_NULL) && (!upwindRight))
     {
-      if ((ipS != MPI_PROC_NULL) && (!upwindRight))
-      {
-        retval = MPI_Isend(getSendBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
-
-      if ((ipN != MPI_PROC_NULL) && (upwindRight))
-      {
-        retval = MPI_Isend(getSendBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      retval = MPI_Isend(getSendBuffer("SOUTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
-    if (NDIMS == 3)
+    if ((ipN != MPI_PROC_NULL) && (upwindRight))
     {
-      if ((ipB != MPI_PROC_NULL) && (!upwindRight))
-      {
-        retval = MPI_Isend(getSendBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      retval = MPI_Isend(getSendBuffer("NORTH"), dof*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
 
-      if ((ipF != MPI_PROC_NULL) && (upwindRight))
-      {
-        retval = MPI_Isend(getSendBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+    if ((ipB != MPI_PROC_NULL) && (!upwindRight))
+    {
+      retval = MPI_Isend(getSendBuffer("BACK"), dof*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
+
+    if ((ipF != MPI_PROC_NULL) && (upwindRight))
+    {
+      retval = MPI_Isend(getSendBuffer("FRONT"), dof*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
     return retval;
@@ -391,7 +366,7 @@ public:
   void PrintInfo()
   {
     printf("ParallelGrid Info:\n");
-    printf("    dimensions = %d\n", NDIMS);
+    printf("    dimensions = %d\n", 3);
     printf("    processors = {%d, %d, %d}\n", npx, npy, npz);
     printf("        domain = {[%g,%g], [%g,%g], [%g,%g]}\n", ax, bx, ay, by, az, bz);
     printf("   global npts = {%li, %li, %li}\n", (long int) nx, (long int) ny, (long int) nz);
@@ -432,16 +407,12 @@ public:
 
   GLOBALINT npts() const
   {
-    if (NDIMS == 1) return nx;
-    if (NDIMS == 2) return nx*ny;
-    if (NDIMS == 3) return nx*ny*nz;
+    return nx*ny*nz;
   }
 
   GLOBALINT nptsl() const
   {
-    if (NDIMS == 1) return nxl;
-    if (NDIMS == 2) return nxl*nyl;
-    if (NDIMS == 3) return nxl*nyl*nzl;
+    return nxl*nyl*nzl;
   }
 
   GLOBALINT neql() const
