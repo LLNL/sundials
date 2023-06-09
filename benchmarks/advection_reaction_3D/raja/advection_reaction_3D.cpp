@@ -199,15 +199,9 @@ int FillSendBuffers(N_Vector y, UserData* udata)
 
     /* Flow moving in the positive directions uses backward difference. */
 
-    /* Create 3D views of send buffers */
+    /* Fill 3D views of send buffers on device */
     RAJA::View<realtype, RAJA::Layout<3> >
       Esend(udata->grid->getSendBuffer("EAST"),  nyl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Nsend(udata->grid->getSendBuffer("NORTH"), nxl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Fsend(udata->grid->getSendBuffer("FRONT"), nxl, nyl, dof);
-
-    /* Fill buffers on device */
     auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
                                       RAJA::RangeSegment(0, nzl),
                                       RAJA::RangeSegment(0, dof));
@@ -215,36 +209,39 @@ int FillSendBuffers(N_Vector y, UserData* udata)
       [=] DEVICE_FUNC (int j, int k, int l) {
         Esend(j,k,l) = Yview(nxl-1,j,k,l);
     });
-    auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                       RAJA::RangeSegment(0, nzl),
-                                       RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(north_face,
-      [=] DEVICE_FUNC (int i, int k, int l) {
-        Nsend(i,k,l) = Yview(i,nyl-1,k,l);
-    });
-    auto front_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                       RAJA::RangeSegment(0, nyl),
-                                       RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(front_face,
-      [=] DEVICE_FUNC (int i, int j, int l) {
-        Fsend(i,j,l) = Yview(i,j,nzl-1,l);
-    });
-
+    if (NDIMS >= 2)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Nsend(udata->grid->getSendBuffer("NORTH"), nxl, nzl, dof);
+      auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(north_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+          Nsend(i,k,l) = Yview(i,nyl-1,k,l);
+      });
+    }
+    if (NDIMS == 3)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Fsend(udata->grid->getSendBuffer("FRONT"), nxl, nyl, dof);
+      auto front_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nyl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(front_face,
+        [=] DEVICE_FUNC (int i, int j, int l) {
+          Fsend(i,j,l) = Yview(i,j,nzl-1,l);
+      });
+    }
   }
   else if (c < 0.0)
   {
 
     /* Flow moving in the negative directions uses forward difference. */
 
-    /* Create 3D views of send buffers */
+    /* Fill 3D views of send buffers on device */
     RAJA::View<realtype, RAJA::Layout<3> >
       Wsend(udata->grid->getSendBuffer("WEST"),  nyl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Ssend(udata->grid->getSendBuffer("SOUTH"), nxl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Bsend(udata->grid->getSendBuffer("BACK"),  nxl, nyl, dof);
-
-    /* Fill buffers on device */
     auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
                                       RAJA::RangeSegment(0, nzl),
                                       RAJA::RangeSegment(0, dof));
@@ -252,21 +249,32 @@ int FillSendBuffers(N_Vector y, UserData* udata)
       [=] DEVICE_FUNC (int j, int k, int l) {
         Wsend(j,k,l) = Yview(0,j,k,l);
     });
-    auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                       RAJA::RangeSegment(0, nzl),
-                                       RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(south_face,
-      [=] DEVICE_FUNC (int i, int k, int l) {
-        Ssend(i,k,l) = Yview(i,0,k,l);
-    });
-    auto back_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                      RAJA::RangeSegment(0, nyl),
-                                      RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(back_face,
-      [=] DEVICE_FUNC (int i, int j, int l) {
-        Bsend(i,j,l) = Yview(i,j,0,l);
-    });
 
+    if (NDIMS >= 2)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Ssend(udata->grid->getSendBuffer("SOUTH"), nxl, nzl, dof);
+      auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(south_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+          Ssend(i,k,l) = Yview(i,0,k,l);
+      });
+    }
+
+    if (NDIMS == 3)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Bsend(udata->grid->getSendBuffer("BACK"),  nxl, nyl, dof);
+      auto back_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                        RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(back_face,
+        [=] DEVICE_FUNC (int i, int j, int l) {
+          Bsend(i,j,l) = Yview(i,j,0,l);
+      });
+    }
   }
 
   return(0);

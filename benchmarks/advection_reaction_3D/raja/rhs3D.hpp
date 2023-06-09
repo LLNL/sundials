@@ -67,59 +67,159 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   if (c > 0.0)
   {
     /* flow moving in the positive x,y,z direction */
-    auto range = RAJA::make_tuple(RAJA::RangeSegment(1, nxl),
-                                  RAJA::RangeSegment(1, nyl),
-                                  RAJA::RangeSegment(1, nzl));
+    if (NDIMS == 3)
+    {
+      auto range = RAJA::make_tuple(RAJA::RangeSegment(1, nxl),
+                                    RAJA::RangeSegment(1, nyl),
+                                    RAJA::RangeSegment(1, nzl));
+      RAJA::kernel<XYZ_KERNEL_POL>(range,
+        [=] DEVICE_FUNC (int i, int j, int k) {
+        const realtype u_ijk = Yview(i,j,k,0);
+        const realtype v_ijk = Yview(i,j,k,1);
+        const realtype w_ijk = Yview(i,j,k,2);
 
-    RAJA::kernel<XYZ_KERNEL_POL>(range,
-      [=] DEVICE_FUNC (int i, int j, int k) {
-      const realtype u_ijk = Yview(i,j,k,0);
-      const realtype v_ijk = Yview(i,j,k,1);
-      const realtype w_ijk = Yview(i,j,k,2);
+        // grad * u
+        dYview(i,j,k,0) =  cz * (u_ijk - Yview(i,j,k-1,0)); // du/dz
+        dYview(i,j,k,0) += cy * (u_ijk - Yview(i,j-1,k,0)); // du/dy
+        dYview(i,j,k,0) += cx * (u_ijk - Yview(i-1,j,k,0)); // du/dx
 
-      // grad * u
-      dYview(i,j,k,0) =  cz * (u_ijk - Yview(i,j,k-1,0)); // du/dz
-      dYview(i,j,k,0) += cy * (u_ijk - Yview(i,j-1,k,0)); // du/dy
-      dYview(i,j,k,0) += cx * (u_ijk - Yview(i-1,j,k,0)); // du/dx
+        // grad * v
+        dYview(i,j,k,1) =  cz * (v_ijk - Yview(i,j,k-1,1)); // dv/dz
+        dYview(i,j,k,1) += cy * (v_ijk - Yview(i,j-1,k,1)); // dv/dy
+        dYview(i,j,k,1) += cx * (v_ijk - Yview(i-1,j,k,1)); // dv/dx
 
-      // grad * v
-      dYview(i,j,k,1) =  cz * (v_ijk - Yview(i,j,k-1,1)); // dv/dz
-      dYview(i,j,k,1) += cy * (v_ijk - Yview(i,j-1,k,1)); // dv/dy
-      dYview(i,j,k,1) += cx * (v_ijk - Yview(i-1,j,k,1)); // dv/dx
+        // grad * w
+        dYview(i,j,k,2) =  cz * (w_ijk - Yview(i,j,k-1,2)); // dw/dz
+        dYview(i,j,k,2) += cy * (w_ijk - Yview(i,j-1,k,2)); // dw/dy
+        dYview(i,j,k,2) += cx * (w_ijk - Yview(i-1,j,k,2)); // dw/dx
+      });
+    }
 
-      // grad * w
-      dYview(i,j,k,2) =  cz * (w_ijk - Yview(i,j,k-1,2)); // dw/dz
-      dYview(i,j,k,2) += cy * (w_ijk - Yview(i,j-1,k,2)); // dw/dy
-      dYview(i,j,k,2) += cx * (w_ijk - Yview(i-1,j,k,2)); // dw/dx
-    });
+    if (NDIMS == 2)
+    {
+      auto range = RAJA::make_tuple(RAJA::RangeSegment(1, nxl),
+                                    RAJA::RangeSegment(1, nyl),
+                                    RAJA::RangeSegment(0, nzl));
+      RAJA::kernel<XYZ_KERNEL_POL>(range,
+        [=] DEVICE_FUNC (int i, int j, int k) {
+        const realtype u_ijk = Yview(i,j,k,0);
+        const realtype v_ijk = Yview(i,j,k,1);
+        const realtype w_ijk = Yview(i,j,k,2);
+
+        // grad * u
+        dYview(i,j,k,0) =  cy * (u_ijk - Yview(i,j-1,k,0)); // du/dy
+        dYview(i,j,k,0) += cx * (u_ijk - Yview(i-1,j,k,0)); // du/dx
+
+        // grad * v
+        dYview(i,j,k,1) =  cy * (v_ijk - Yview(i,j-1,k,1)); // dv/dy
+        dYview(i,j,k,1) += cx * (v_ijk - Yview(i-1,j,k,1)); // dv/dx
+
+        // grad * w
+        dYview(i,j,k,2) =  cy * (w_ijk - Yview(i,j-1,k,2)); // dw/dy
+        dYview(i,j,k,2) += cx * (w_ijk - Yview(i-1,j,k,2)); // dw/dx
+      });
+    }
+
+    if (NDIMS == 1)
+    {
+      auto range = RAJA::make_tuple(RAJA::RangeSegment(1, nxl),
+                                    RAJA::RangeSegment(0, nyl),
+                                    RAJA::RangeSegment(0, nzl));
+      RAJA::kernel<XYZ_KERNEL_POL>(range,
+        [=] DEVICE_FUNC (int i, int j, int k) {
+        const realtype u_ijk = Yview(i,j,k,0);
+        const realtype v_ijk = Yview(i,j,k,1);
+        const realtype w_ijk = Yview(i,j,k,2);
+
+        // grad * u
+        dYview(i,j,k,0) = cx * (u_ijk - Yview(i-1,j,k,0)); // du/dx
+
+        // grad * v
+        dYview(i,j,k,1) = cx * (v_ijk - Yview(i-1,j,k,1)); // dv/dx
+
+        // grad * w
+        dYview(i,j,k,2) = cx * (w_ijk - Yview(i-1,j,k,2)); // dw/dx
+      });
+    }
   }
   else if (c < 0.0)
   {
     /* flow moving in the negative x,y,z direction */
-    auto range = RAJA::make_tuple(RAJA::RangeSegment(0, nxl-1),
-                                  RAJA::RangeSegment(0, nyl-1),
-                                  RAJA::RangeSegment(0, nzl-1));
-    RAJA::kernel<XYZ_KERNEL_POL>(range,
-      [=] DEVICE_FUNC (int i, int j, int k) {
-      const realtype u_ijk = Yview(i,j,k,0);
-      const realtype v_ijk = Yview(i,j,k,1);
-      const realtype w_ijk = Yview(i,j,k,2);
+    if (NDIMS == 3)
+    {
+      auto range = RAJA::make_tuple(RAJA::RangeSegment(0, nxl-1),
+                                    RAJA::RangeSegment(0, nyl-1),
+                                    RAJA::RangeSegment(0, nzl-1));
+      RAJA::kernel<XYZ_KERNEL_POL>(range,
+        [=] DEVICE_FUNC (int i, int j, int k) {
+        const realtype u_ijk = Yview(i,j,k,0);
+        const realtype v_ijk = Yview(i,j,k,1);
+        const realtype w_ijk = Yview(i,j,k,2);
 
-      // grad * u
-      dYview(i,j,k,0) =  cz * (Yview(i,j,k+1,0) - u_ijk); // du/dz
-      dYview(i,j,k,0) += cy * (Yview(i,j+1,k,0) - u_ijk); // du/dy
-      dYview(i,j,k,0) += cx * (Yview(i+1,j,k,0) - u_ijk); // du/dx
+        // grad * u
+        dYview(i,j,k,0) =  cz * (Yview(i,j,k+1,0) - u_ijk); // du/dz
+        dYview(i,j,k,0) += cy * (Yview(i,j+1,k,0) - u_ijk); // du/dy
+        dYview(i,j,k,0) += cx * (Yview(i+1,j,k,0) - u_ijk); // du/dx
 
-      // grad * v
-      dYview(i,j,k,1) =  cz * (Yview(i,j,k+1,1) - v_ijk); // dv/dz
-      dYview(i,j,k,1) += cy * (Yview(i,j+1,k,1) - v_ijk); // dv/dy
-      dYview(i,j,k,1) += cx * (Yview(i+1,j,k,1) - v_ijk); // dv/dx
+        // grad * v
+        dYview(i,j,k,1) =  cz * (Yview(i,j,k+1,1) - v_ijk); // dv/dz
+        dYview(i,j,k,1) += cy * (Yview(i,j+1,k,1) - v_ijk); // dv/dy
+        dYview(i,j,k,1) += cx * (Yview(i+1,j,k,1) - v_ijk); // dv/dx
 
-      // grad * w
-      dYview(i,j,k,2) =  cz * (Yview(i,j,k+1,2) - w_ijk); // dw/dz
-      dYview(i,j,k,2) += cy * (Yview(i,j+1,k,2) - w_ijk); // dw/dy
-      dYview(i,j,k,2) += cx * (Yview(i+1,j,k,2) - w_ijk); // dw/dx
-    });
+        // grad * w
+        dYview(i,j,k,2) =  cz * (Yview(i,j,k+1,2) - w_ijk); // dw/dz
+        dYview(i,j,k,2) += cy * (Yview(i,j+1,k,2) - w_ijk); // dw/dy
+        dYview(i,j,k,2) += cx * (Yview(i+1,j,k,2) - w_ijk); // dw/dx
+      });
+    }
+
+    if (NDIMS == 2)
+    {
+      auto range = RAJA::make_tuple(RAJA::RangeSegment(0, nxl-1),
+                                    RAJA::RangeSegment(0, nyl-1),
+                                    RAJA::RangeSegment(0, nzl));
+      RAJA::kernel<XYZ_KERNEL_POL>(range,
+        [=] DEVICE_FUNC (int i, int j, int k) {
+        const realtype u_ijk = Yview(i,j,k,0);
+        const realtype v_ijk = Yview(i,j,k,1);
+        const realtype w_ijk = Yview(i,j,k,2);
+
+        // grad * u
+        dYview(i,j,k,0) =  cy * (Yview(i,j+1,k,0) - u_ijk); // du/dy
+        dYview(i,j,k,0) += cx * (Yview(i+1,j,k,0) - u_ijk); // du/dx
+
+        // grad * v
+        dYview(i,j,k,1) =  cy * (Yview(i,j+1,k,1) - v_ijk); // dv/dy
+        dYview(i,j,k,1) += cx * (Yview(i+1,j,k,1) - v_ijk); // dv/dx
+
+        // grad * w
+        dYview(i,j,k,2) =  cy * (Yview(i,j+1,k,2) - w_ijk); // dw/dy
+        dYview(i,j,k,2) += cx * (Yview(i+1,j,k,2) - w_ijk); // dw/dx
+      });
+    }
+
+    if (NDIMS == 1)
+    {
+      auto range = RAJA::make_tuple(RAJA::RangeSegment(0, nxl-1),
+                                    RAJA::RangeSegment(0, nyl),
+                                    RAJA::RangeSegment(0, nzl));
+      RAJA::kernel<XYZ_KERNEL_POL>(range,
+        [=] DEVICE_FUNC (int i, int j, int k) {
+        const realtype u_ijk = Yview(i,j,k,0);
+        const realtype v_ijk = Yview(i,j,k,1);
+        const realtype w_ijk = Yview(i,j,k,2);
+
+        // grad * u
+        dYview(i,j,k,0) = cx * (Yview(i+1,j,k,0) - u_ijk); // du/dx
+
+        // grad * v
+        dYview(i,j,k,1) = cx * (Yview(i+1,j,k,1) - v_ijk); // dv/dx
+
+        // grad * w
+        dYview(i,j,k,2) = cx * (Yview(i+1,j,k,2) - w_ijk); // dw/dx
+      });
+    }
+
   }
 
   /* finish exchanging boundary information */
@@ -139,52 +239,108 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     /*   Create 3D views of receive buffers */
     RAJA::View<realtype, RAJA::Layout<NDIMS> >
       Wrecv(udata->grid->getRecvBuffer("WEST"),  nyl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<NDIMS> >
-      Srecv(udata->grid->getRecvBuffer("SOUTH"), nxl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<NDIMS> >
-      Brecv(udata->grid->getRecvBuffer("BACK"),  nxl, nyl, dof);
+    if (NDIMS >= 2)
+    {
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Srecv(udata->grid->getRecvBuffer("SOUTH"), nxl, nzl, dof);
+    }
+    if (NDIMS == 3)
+    {
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Brecv(udata->grid->getRecvBuffer("BACK"),  nxl, nyl, dof);
+    }
 
     /*   Perform calculations on each "lower" face */
-    auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
-                                      RAJA::RangeSegment(0, nzl),
-                                      RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(west_face,
-      [=] DEVICE_FUNC (int j, int k, int l) {
-      const int i = 0;
-      const realtype Yijkl  = Yview(i,j,k,l);
-      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
-      const realtype YBack  = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,l);
-      dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
-      dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
-      dYview(i,j,k,l) += cz * (Yijkl - YBack);        // d/dz
-    });
-    auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                       RAJA::RangeSegment(0, nzl),
-                                       RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(south_face,
-      [=] DEVICE_FUNC (int i, int k, int l) {
-      const int j = 0;
-      const realtype Yijkl  = Yview(i,j,k,l);
-      const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
-      const realtype YBack = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,l);
-      dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
-      dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,k,l)); // d/dy
-      dYview(i,j,k,l) += cz * (Yijkl - YBack);        // d/dz
-    });
-    auto back_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                      RAJA::RangeSegment(0, nyl),
-                                      RAJA::RangeSegment(0, dof));
+    if (NDIMS == 3)
+    {
+      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
+        const realtype YBack  = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
+        dYview(i,j,k,l) += cz * (Yijkl - YBack);        // d/dz
+      });
+    }
+    if (NDIMS == 2)
+    {
+      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
+      });
+    }
+    if (NDIMS == 1)
+    {
+      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        dYview(i,j,k,l) = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
+      });
+    }
 
-    RAJA::kernel<XYZ_KERNEL_POL>(back_face,
-      [=] DEVICE_FUNC (int i, int j, int l) {
-      const int k = 0;
-      const realtype Yijkl  = Yview(i,j,k,l);
-      const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
-      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
-      dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
-      dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
-      dYview(i,j,k,l) += cz * (Yijkl - Brecv(i,j,l)); // d/dz
-    });
+    if (NDIMS == 3)
+    {
+      auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(south_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+        const int j = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
+        const realtype YBack = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,k,l)); // d/dy
+        dYview(i,j,k,l) += cz * (Yijkl - YBack);        // d/dz
+      });
+    }
+    if (NDIMS == 2)
+    {
+      auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(south_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+        const int j = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,k,l)); // d/dy
+      });
+    }
+
+    if (NDIMS == 3)
+    {
+      auto back_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                        RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(back_face,
+        [=] DEVICE_FUNC (int i, int j, int l) {
+        const int k = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
+        const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
+        dYview(i,j,k,l) += cz * (Yijkl - Brecv(i,j,l)); // d/dz
+      });
+    }
 
   }
   else if (c < 0.0)
@@ -196,51 +352,108 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     /*   Create 3D views of receive buffers */
     RAJA::View<realtype, RAJA::Layout<3> >
       Erecv(udata->grid->getRecvBuffer("EAST"),  nyl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Nrecv(udata->grid->getRecvBuffer("NORTH"), nxl, nzl, dof);
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Frecv(udata->grid->getRecvBuffer("FRONT"), nxl, nyl, dof);
+    if (NDIMS >= 2)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Nrecv(udata->grid->getRecvBuffer("NORTH"), nxl, nzl, dof);
+    }
+    if (NDIMS == 3)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Frecv(udata->grid->getRecvBuffer("FRONT"), nxl, nyl, dof);
+    }
 
     /*   Perform calculations on each "upper" face */
-    auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
-                                      RAJA::RangeSegment(0, nzl),
-                                      RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(east_face,
-      [=] DEVICE_FUNC (int j, int k, int l) {
-      const int i = nxl-1;
-      const realtype Yijkl = Yview(i,j,k,l);
-      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
-      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,l);
-      dYview(i,j,k,l)  = cx * (Erecv(j,k,l) - Yijkl); // d/dx
-      dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
-      dYview(i,j,k,l) += cz * (YFront - Yijkl);       // d/dz
-    });
-    auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                       RAJA::RangeSegment(0, nzl),
-                                       RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(north_face,
-      [=] DEVICE_FUNC (int i, int k, int l) {
-      const int j = nyl-1;
-      const realtype Yijkl = Yview(i,j,k,l);
-      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
-      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,l);
-      dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
-      dYview(i,j,k,l) += cy * (Nrecv(i,k,l) - Yijkl); // d/dy
-      dYview(i,j,k,l) += cz * (YFront - Yijkl);       // d/dz
-    });
-    auto front_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                       RAJA::RangeSegment(0, nyl),
-                                       RAJA::RangeSegment(0, dof));
-    RAJA::kernel<XYZ_KERNEL_POL>(front_face,
-      [=] DEVICE_FUNC (int i, int j, int l) {
-      const int k = nzl-1;
-      const realtype Yijkl = Yview(i,j,k,l);
-      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
-      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
-      dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
-      dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
-      dYview(i,j,k,l) += cz * (Frecv(i,j,l) - Yijkl); // d/dz
-    });
+    if (NDIMS == 3)
+    {
+      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = nxl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
+        const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,l);
+        dYview(i,j,k,l)  = cx * (Erecv(j,k,l) - Yijkl); // d/dx
+        dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
+        dYview(i,j,k,l) += cz * (YFront - Yijkl);       // d/dz
+      });
+    }
+    if (NDIMS == 2)
+    {
+      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = nxl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
+        dYview(i,j,k,l)  = cx * (Erecv(j,k,l) - Yijkl); // d/dx
+        dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
+      });
+    }
+    if (NDIMS == 1)
+    {
+      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = nxl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        dYview(i,j,k,l) = cx * (Erecv(j,k,l) - Yijkl); // d/dx
+      });
+    }
+
+    if (NDIMS == 3)
+    {
+      auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(north_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+        const int j = nyl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
+        const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,l);
+        dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
+        dYview(i,j,k,l) += cy * (Nrecv(i,k,l) - Yijkl); // d/dy
+        dYview(i,j,k,l) += cz * (YFront - Yijkl);       // d/dz
+      });
+    }
+    if (NDIMS == 2)
+    {
+      auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(north_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+        const int j = nyl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
+        dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
+        dYview(i,j,k,l) += cy * (Nrecv(i,k,l) - Yijkl); // d/dy
+      });
+    }
+
+    if (NDIMS == 3)
+    {
+      auto front_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nyl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(front_face,
+        [=] DEVICE_FUNC (int i, int j, int l) {
+        const int k = nzl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
+        const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
+        dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
+        dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
+        dYview(i,j,k,l) += cz * (Frecv(i,j,l) - Yijkl); // d/dz
+      });
+    }
   }
 
   /* return success */
@@ -367,10 +580,10 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   const int nxl = udata->grid->nxl;
   const int nyl = udata->grid->nyl;
   const int nzl = udata->grid->nzl;
-  const realtype k2  = udata->k2;
-  const realtype k3  = udata->k3;
-  const realtype k4  = udata->k4;
-  const realtype k6  = udata->k6;
+  const realtype k2 = udata->k2;
+  const realtype k3 = udata->k3;
+  const realtype k4 = udata->k4;
+  const realtype k6 = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
   RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(GetVecData(y),
