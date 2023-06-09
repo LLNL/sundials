@@ -58,39 +58,15 @@ foreach(_item ${SUNDIALS_BUILD_LIST})
   endif()
 endforeach()
 
-# prepare substitution variable SUNDIALS_CALIPER_ENABLED for sundials_config.h
-if(ENABLE_CALIPER)
-  set(SUNDIALS_CALIPER_ENABLED TRUE)
-endif()
-
-# prepare substitution variable SUNDIALS_ADIAK_ENABLED for sundials_config.h
-if(ENABLE_ADIAK)
-  set(SUNDIALS_ADIAK_ENABLED TRUE)
-endif()
-
-# prepare substitution variable SUNDIALS_MPI_ENABLED for sundials_config.h
-if(ENABLE_MPI)
-  set(SUNDIALS_MPI_ENABLED TRUE)
-endif()
+# prepare substitution variable SUNDIALS_${TPL NAME}_ENABLED for sundials_config.h
+foreach(tpl ${SUNDIALS_TPL_LIST})
+  set(SUNDIALS_${tpl}_ENABLED TRUE)
+endforeach()
+list(LENGTH SUNDIALS_TPL_LIST SUNDIALS_TPL_LIST_SIZE)
 
 # prepare substitution variable SUNDIALS_TRILINOS_HAVE_MPI for sundials_config.h
 if(Trilinos_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
-endif()
-
-# prepare substitution variable SUNDIALS_RAJA_ENABLED for sundials_config.h
-if(ENABLE_RAJA)
-  set(SUNDIALS_RAJA_ENABLED TRUE)
-endif()
-
-# prepare substitution variable SUNDIALS_CUDA_ENABLED for sundials_config.h
-if(ENABLE_CUDA)
-  set(SUNDIALS_CUDA_ENABLED TRUE)
-endif()
-
-# prepare substitution variable SUNDIALS_MPI_ENABLED for sundials_config.h
-if(ENABLE_HIP)
-  set(SUNDIALS_HIP_ENABLED TRUE)
 endif()
 
 # prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
