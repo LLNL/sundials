@@ -77,16 +77,6 @@ int SPRKStepSetInitStep(void* arkode_mem, realtype hin)
   return (arkSetInitStep(arkode_mem, hin));
 }
 
-int SPRKStepSetMinStep(void* arkode_mem, realtype hmin)
-{
-  return (arkSetMinStep(arkode_mem, hmin));
-}
-
-int SPRKStepSetMaxStep(void* arkode_mem, realtype hmax)
-{
-  return (arkSetMaxStep(arkode_mem, hmax));
-}
-
 int SPRKStepSetStopTime(void* arkode_mem, realtype tstop)
 {
   return (arkSetStopTime(arkode_mem, tstop));
@@ -101,11 +91,6 @@ int SPRKStepSetNoInactiveRootWarn(void* arkode_mem)
 {
   return (arkSetNoInactiveRootWarn(arkode_mem));
 }
-
-// int SPRKStepSetConstraints(void* arkode_mem, N_Vector constraints)
-// {
-//   return (arkSetConstraints(arkode_mem, constraints));
-// }
 
 int SPRKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
 {
@@ -122,81 +107,10 @@ int SPRKStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStag
   return (arkSetPostprocessStageFn(arkode_mem, ProcessStage));
 }
 
-// int SPRKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
-// {
-//   return (arkSetCFLFraction(arkode_mem, cfl_frac));
-// }
-
-// int SPRKStepSetSafetyFactor(void* arkode_mem, realtype safety)
-// {
-//   return (arkSetSafetyFactor(arkode_mem, safety));
-// }
-
-// int SPRKStepSetErrorBias(void* arkode_mem, realtype bias)
-// {
-//   return (arkSetErrorBias(arkode_mem, bias));
-// }
-
-// int SPRKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
-// {
-//   return (arkSetMaxGrowth(arkode_mem, mx_growth));
-// }
-
-// int SPRKStepSetMinReduction(void* arkode_mem, realtype eta_min)
-// {
-//   return (arkSetMinReduction(arkode_mem, eta_min));
-// }
-
-// int SPRKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)
-// {
-//   return (arkSetFixedStepBounds(arkode_mem, lb, ub));
-// }
-
-int SPRKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault,
-                                int pq, realtype adapt_params[3])
-{
-  return (arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params));
-}
-
 int SPRKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 {
   return (arkSetAdaptivityFn(arkode_mem, hfun, h_data));
 }
-
-// int SPRKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
-// {
-//   return (arkSetMaxFirstGrowth(arkode_mem, etamx1));
-// }
-
-// int SPRKStepSetMaxEFailGrowth(void* arkode_mem, realtype etamxf)
-// {
-//   return (arkSetMaxEFailGrowth(arkode_mem, etamxf));
-// }
-
-// int SPRKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
-// {
-//   return (arkSetSmallNumEFails(arkode_mem, small_nef));
-// }
-
-// int SPRKStepSetMaxCFailGrowth(void* arkode_mem, realtype etacf)
-// {
-//   return (arkSetMaxCFailGrowth(arkode_mem, etacf));
-// }
-
-int SPRKStepSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
-{
-  return (arkSetStabilityFn(arkode_mem, EStab, estab_data));
-}
-
-// int SPRKStepSetMaxErrTestFails(void* arkode_mem, int maxnef)
-// {
-//   return (arkSetMaxErrTestFails(arkode_mem, maxnef));
-// }
-
-// int SPRKStepSetMaxConvFails(void* arkode_mem, int maxncf)
-// {
-//   return (arkSetMaxConvFails(arkode_mem, maxncf));
-// }
 
 int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed)
 {
@@ -215,11 +129,6 @@ int SPRKStepGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts)
 int SPRKStepGetNumSteps(void* arkode_mem, long int* nsteps)
 {
   return (arkGetNumSteps(arkode_mem, nsteps));
-}
-
-int SPRKStepGetActualInitStep(void* arkode_mem, realtype* hinused)
-{
-  return (arkGetActualInitStep(arkode_mem, hinused));
 }
 
 int SPRKStepGetLastStep(void* arkode_mem, realtype* hlast)
@@ -242,26 +151,6 @@ int SPRKStepGetCurrentState(void* arkode_mem, N_Vector* state)
   return (arkGetCurrentState(arkode_mem, state));
 }
 
-// int SPRKStepGetTolScaleFactor(void* arkode_mem, realtype* tolsfact)
-// {
-//   return (arkGetTolScaleFactor(arkode_mem, tolsfact));
-// }
-
-// int SPRKStepGetErrWeights(void* arkode_mem, N_Vector eweight)
-// {
-//   return (arkGetErrWeights(arkode_mem, eweight));
-// }
-
-// int SPRKStepGetResWeights(void* arkode_mem, N_Vector rweight)
-// {
-//   return (arkGetResWeights(arkode_mem, rweight));
-// }
-
-// int SPRKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
-// {
-//   return (arkGetWorkSpace(arkode_mem, lenrw, leniw));
-// }
-
 int SPRKStepGetRootInfo(void* arkode_mem, int* rootsfound)
 {
   return (arkGetRootInfo(arkode_mem, rootsfound));
@@ -276,26 +165,6 @@ int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused,
 int SPRKStepGetNumConstrFails(void* arkode_mem, long int* nconstrfails)
 {
   return (arkGetNumConstrFails(arkode_mem, nconstrfails));
-}
-
-int SPRKStepGetNumExpSteps(void* arkode_mem, long int* nsteps)
-{
-  return (arkGetNumExpSteps(arkode_mem, nsteps));
-}
-
-int SPRKStepGetNumAccSteps(void* arkode_mem, long int* nsteps)
-{
-  return (arkGetNumAccSteps(arkode_mem, nsteps));
-}
-
-int SPRKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)
-{
-  return (arkGetNumErrTestFails(arkode_mem, netfails));
-}
-
-int SPRKStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails)
-{
-  return (arkGetNumStepSolveFails(arkode_mem, nncfails));
 }
 
 int SPRKStepGetUserData(void* arkode_mem, void** user_data)
@@ -485,27 +354,6 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
   *nf1 = step_mem->nf1;
   *nf2 = step_mem->nf2;
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  SPRKStepGetTimestepperStats:
-
-  Returns integrator statistics
-  ---------------------------------------------------------------*/
-int SPRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
-                                long int* accsteps, long int* step_attempts,
-                                long int* nf1, long int* nf2,
-                                long int* nlinsetups, long int* netfails)
-{
-  ARKodeMem ark_mem;
-
-  SPRKStepGetNumExpSteps(arkode_mem, expsteps);
-  SPRKStepGetNumAccSteps(arkode_mem, accsteps);
-  SPRKStepGetNumRhsEvals(arkode_mem, nf1, nf2);
-  SPRKStepGetNumStepAttempts(arkode_mem, step_attempts);
-  SPRKStepGetNumErrTestFails(arkode_mem, netfails);
 
   return (ARK_SUCCESS);
 }

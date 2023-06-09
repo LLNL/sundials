@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
   {
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
-    /* Enable temporal root-finding */
+    /* Optional: enable temporal root-finding */
     SPRKStepRootInit(arkode_mem, 1, rootfn);
     if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
 
