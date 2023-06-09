@@ -20,46 +20,47 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_analytic\;\;"
-  "ark_analytic_mels\;\;develop"
-  "ark_analytic_nonlin\;\;develop"
-  "ark_brusselator\;\;develop"
-  "ark_brusselator_fp\;\;exclude-single"
-  "ark_brusselator1D\;\;exclude-single"
-  "ark_heat1D\;\;develop"
-  "ark_heat1D_adapt\;\;develop"
-  "ark_KrylovDemo_prec\;\;exclude-single"
-  "ark_KrylovDemo_prec\;1\;exclude-single"
-  "ark_KrylovDemo_prec\;2\;exclude-single"
-  "ark_robertson\;\;exclude-single"
-  "ark_robertson_constraints\;\;exclude-single"
-  "ark_robertson_root\;\;exclude-single"
-  "ark_brusselator_mri\;\;develop"
-  "ark_onewaycouple_mri\;\;develop"
-  "ark_twowaycouple_mri\;\;develop"
-  "ark_reaction_diffusion_mri\;\;develop"
-  "ark_brusselator_1D_mri\;\;develop"
-  "ark_kpr_mri\;\;develop"
-  "ark_kpr_mri\;0 0.002\;develop"
-  "ark_kpr_mri\;1 0.002\;develop"
-  "ark_kpr_mri\;2 0.005\;develop"
-  "ark_kpr_mri\;3 0.01\;develop"
-  "ark_kpr_mri\;4 0.002\;develop"
-  "ark_kpr_mri\;5 0.002\;develop"
-  "ark_kpr_mri\;6 0.005\;develop"
-  "ark_kpr_mri\;7 0.001\;exclude-single"
-  "ark_kpr_mri\;7 0.001 -100 100 0.5 1\;exclude-single"
-  "ark_kpr_mri\;8 0.001\;exclude-single"
-  "ark_kpr_mri\;8 0.001 -100 100 0.5 1\;exclude-single"
-  "ark_kpr_mri\;9 0.001\;exclude-single"
-  "ark_kpr_mri\;9 0.001 -100 100 0.5 1\;exclude-single"
-  "ark_brusselator1D_imexmri\;0 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri\;2 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri\;3 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri\;4 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri\;5 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri\;6 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri\;7 0.001\;exclude-single"
+  "ark_analytic.c\;\;"
+  "ark_analytic_mels.c\;\;develop"
+  "ark_analytic_nonlin.c\;\;develop"
+  "ark_brusselator.c\;\;develop"
+  "ark_brusselator_fp.c\;\;exclude-single"
+  "ark_brusselator1D.c\;\;exclude-single"
+  "ark_heat1D.c\;\;develop"
+  "ark_heat1D_adapt.c\;\;develop"
+  "ark_KrylovDemo_prec.c\;\;exclude-single"
+  "ark_KrylovDemo_prec.c\;1\;exclude-single"
+  "ark_KrylovDemo_prec.c\;2\;exclude-single"
+  "ark_robertson.c\;\;exclude-single"
+  "ark_robertson_constraints.c\;\;exclude-single"
+  "ark_robertson_root.c\;\;exclude-single"
+  "ark_brusselator_mri.c\;\;develop"
+  "ark_onewaycouple_mri.c\;\;develop"
+  "ark_twowaycouple_mri.c\;\;develop"
+  "ark_reaction_diffusion_mri.c\;\;develop"
+  "ark_brusselator_1D_mri.c\;\;develop"
+  "ark_kpr_mri.c\;\;develop"
+  "ark_kpr_mri.c\;0 0.002\;develop"
+  "ark_kpr_mri.c\;1 0.002\;develop"
+  "ark_kpr_mri.c\;2 0.005\;develop"
+  "ark_kpr_mri.c\;3 0.01\;develop"
+  "ark_kpr_mri.c\;4 0.002\;develop"
+  "ark_kpr_mri.c\;5 0.002\;develop"
+  "ark_kpr_mri.c\;6 0.005\;develop"
+  "ark_kpr_mri.c\;7 0.001\;exclude-single"
+  "ark_kpr_mri.c\;7 0.001 -100 100 0.5 1\;exclude-single"
+  "ark_kpr_mri.c\;8 0.001\;exclude-single"
+  "ark_kpr_mri.c\;8 0.001 -100 100 0.5 1\;exclude-single"
+  "ark_kpr_mri.c\;9 0.001\;exclude-single"
+  "ark_kpr_mri.c\;9 0.001 -100 100 0.5 1\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;0 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;1 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;2 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;3 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;4 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;5 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;6 0.001\;exclude-single"
+  "ark_brusselator1D_imexmri.c\;7 0.001\;exclude-single"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
@@ -108,7 +109,7 @@ foreach(example_tuple ${ARKODE_examples})
 
   if (NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -131,12 +132,6 @@ foreach(example_tuple ${ARKODE_examples})
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${test_name}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-  endif()
-
 endforeach(example_tuple ${ARKODE_examples})
 
 
@@ -156,7 +151,7 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -168,12 +163,6 @@ if(BUILD_SUNLINSOL_KLU)
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
-
-    # install example source and out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-    endif()
 
   endforeach(example_tuple ${ARKODE_examples_KLU})
 
@@ -196,7 +185,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -209,89 +198,115 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
 
-    # install example source and out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-    endif()
-
-  endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
+    endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
 endif()
 
 
-# create Makfile and CMakeLists.txt for examples
+# # create Makfile and CMakeLists.txt for examples
+# if(EXAMPLES_INSTALL)
+
+#   # Install the README file
+#   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
+
+#   # Install the extra files
+#   foreach(extrafile ${ARKODE_extras})
+#     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
+#   endforeach(extrafile ${ARKODE_extras})
+
+#   # Prepare substitution variables for Makefile and/or CMakeLists templates
+#   set(SOLVER "ARKODE")
+#   set(SOLVER_LIB "sundials_arkode")
+
+#   examples2string(ARKODE_examples EXAMPLES)
+
+#   if(BUILD_SUNLINSOL_KLU)
+#     examples2string(ARKODE_examples_KLU EXAMPLES_KLU)
+#   else()
+#     set(EXAMPLES_KLU "")
+#   endif()
+
+#   if(BUILD_SUNLINSOL_SUPERLUMT)
+#     examples2string(ARKODE_examples_SUPERLUMT EXAMPLES_SLUMT)
+#     if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+#       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
+#     else()
+#       set(THREAD_LIBRARY_SLUMT "")
+#     endif()
+#   else()
+#     set(EXAMPLES_SLUMT "")
+#     set(THREAD_LIBRARY_SLUMT "")
+#   endif()
+
+#   # Regardless of the platform we're on, we will generate and install
+#   # CMakeLists.txt file for building the examples. This file  can then
+#   # be used as a template for the user's own programs.
+
+#   # generate CMakelists.txt in the binary directory
+#   configure_file(
+#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+#     ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
+#     @ONLY
+#     )
+
+#   # install CMakelists.txt
+#   install(
+#     FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
+#     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
+#     )
+
+#   # On UNIX-type platforms, we also  generate and install a makefile for
+#   # building the examples. This makefile can then be used as a template
+#   # for the user's own programs.
+
+#   if(UNIX)
+#     # generate Makefile and place it in the binary dir
+#     configure_file(
+#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+#       ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
+#       @ONLY
+#       )
+#     # install the configured Makefile_ex as Makefile
+#     install(
+#       FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
+#       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
+#       RENAME Makefile
+#       )
+#   endif()
+
+#   # add test_install target
+#   sundials_add_test_install(arkode C_serial EXECUTABLE ark_analytic)
+
+# endif()
+
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-
-  # Install the extra files
-  foreach(extrafile ${ARKODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-  endforeach(extrafile ${ARKODE_extras})
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "ARKODE")
-  set(SOLVER_LIB "sundials_arkode")
-
-  examples2string(ARKODE_examples EXAMPLES)
+  if(BUILD_SUNLINSOL_SUPERLUMT)
+    set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+  endif()
 
   if(BUILD_SUNLINSOL_KLU)
-    examples2string(ARKODE_examples_KLU EXAMPLES_KLU)
-  else()
-    set(EXAMPLES_KLU "")
+    set(_include_sunlinsolklu sunlinsolklu)
   endif()
 
-  if(BUILD_SUNLINSOL_SUPERLUMT)
-    examples2string(ARKODE_examples_SUPERLUMT EXAMPLES_SLUMT)
-    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-      set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
-    else()
-      set(THREAD_LIBRARY_SLUMT "")
-    endif()
-  else()
-    set(EXAMPLES_SLUMT "")
-    set(THREAD_LIBRARY_SLUMT "")
-  endif()
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
-      RENAME Makefile
-      )
-  endif()
-
-  # add test_install target
-  sundials_add_test_install(arkode C_serial EXECUTABLE ark_analytic)
+  sundials_install_examples(arkode ARKODE_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      arkode
+      ${_include_sunlinsolsuperlumt}
+      ${_include_sunlinsolklu}
+    DESTINATION
+      arkode/C_serial
+    EXTRA_FILES
+      README
+      ${ARKODE_extras}
+      ${ARKODE_headers}
+    TEST_INSTALL
+      C_serial
+  )
 
 endif()
