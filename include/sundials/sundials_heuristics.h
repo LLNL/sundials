@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_context.h>
 #include "sundials/sundials_types.h"
+#include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -61,14 +62,16 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNHeuristics* SUNHeuristics;
 struct _generic_SUNHeuristics_Ops
 {
   /* REQUIRED of all heuristics implementations. */
+  SUNHeuristics_ID (*getid)(SUNHeuristics H);
+  void (*destroy)(SUNHeuristics H);
+
+  /* OPTIONAL for all SUNHeuristics implementations. */
   int (*constrainstep)(SUNHeuristics H, realtype hcur,
                        realtype hnew, booleantype efail,
                        booleantype cfail, realtype *hconstr);
-
-  /* OPTIONAL for all SUNHeuristics implementations. */
   int (*reset)(SUNHeuristics H);
-  int (*setdefaultparameters)(SUNHeuristics H);
-  int (*writeparameters)(SUNHeuristics H, FILE* fptr);
+  int (*setdefaults)(SUNHeuristics H);
+  int (*write)(SUNHeuristics H, FILE* fptr);
   int (*setexpstabfn)(SUNHeuristics H, SUNExpStabFn EStab, void* estab_data);
   int (*setcflfraction)(SUNHeuristics H, realtype cfl_frac);
   int (*setmaxgrowth)(SUNHeuristics H, realtype mx_growth);
@@ -112,8 +115,8 @@ SUNDIALS_EXPORT int SUNHeuristicsConstrainStep(
                        realtype hnew, booleantype efail,
                        booleantype cfail, realtype *hconstr);
 SUNDIALS_EXPORT int SUNHeuristicsReset(SUNHeuristics H);
-SUNDIALS_EXPORT int SUNHeuristicsSetDefaultParameters(SUNHeuristics H);
-SUNDIALS_EXPORT int SUNHeuristicsWriteParameters(SUNHeuristics H, FILE* fptr);
+SUNDIALS_EXPORT int SUNHeuristicsSetDefaults(SUNHeuristics H);
+SUNDIALS_EXPORT int SUNHeuristicsWrite(SUNHeuristics H, FILE* fptr);
 
 SUNDIALS_EXPORT int SUNHeuristicsSetExpStabFn(
                        SUNHeuristics H, SUNExpStabFn EStab, void* estab_data);

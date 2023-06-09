@@ -35,7 +35,6 @@ extern "C" {
  *    H       - controls a single-rate step size
  *    HQ      - controls a single-rate step size and method order
  *    MRI_H   - controls two multirate step sizes
- *    MRI_M   - controls slow step size and multirate ratio
  *    MRI_TOL - controls slow and fast relative tolerances
  * ----------------------------------------------------------------- */
 
@@ -44,7 +43,6 @@ typedef enum
   SUNDIALS_CONTROL_H,
   SUNDIALS_CONTROL_HQ,
   SUNDIALS_CONTROL_MRI_H,
-  SUNDIALS_CONTROL_MRI_M,
   SUNDIALS_CONTROL_MRI_TOL
 } SUNControl_ID;
 
@@ -62,7 +60,10 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNControl* SUNControl;
 struct _generic_SUNControl_Ops
 {
   /* REQUIRED of all controller implementations. */
-  int (*reset)(SUNControl C);
+  SUNControl_ID (*getid)(SUNControl C);
+  void (*destroy)(SUNControl C);
+
+  /* REQUIRED for controllers of SUNDIALS_CONTROL_H type. */
   int (*estimatestep)(SUNControl C, realtype h,
                       realtype dsm, realtype* hnew);
 
@@ -71,17 +72,18 @@ struct _generic_SUNControl_Ops
                               realtype dsm, realtype* hnew, int *qnew);
 
   /* REQUIRED for controllers of SUNDIALS_CONTROL_MRI_H type. */
-  int (*estimatefaststep)(SUNControl C, realtype hslow, realtype* hfast);
-
-  /* REQUIRED for controllers of SUNDIALS_CONTROL_MRI_M type. */
-  int (*estimatemratio)(SUNControl C, realtype hslow, int* mratio);
+  int (*estimatemristeps)(SUNControl C, realtype H, realtype h,
+                          realtype DSM, realtype* Hnew, realtype *hnew);
 
   /* REQUIRED for controllers of SUNDIALS_CONTROL_MRI_TOL type. */
-  int (*estimatefasttol)(SUNControl C, realtype slowrtol, realtype* fastrtol);
+  int (*estimatesteptol)(SUNControl C, realtype H, realtype tolfac,
+                         realtype DSM, realtype *Hnew,
+                         realtype* tolfacnew);
 
   /* OPTIONAL for all SUNControl implementations. */
-  int (*setdefaultparameters)(SUNControl C);
-  int (*writeparameters)(SUNControl C, FILE* fptr);
+  int (*reset)(SUNControl C);
+  int (*setdefaults)(SUNControl C);
+  int (*write)(SUNControl C, FILE* fptr);
   int (*setmethodorder)(SUNControl C, int q);
   int (*setembeddingorder)(SUNControl C, int p);
   int (*setsafetyfactor)(SUNControl C, realtype safety);
@@ -114,21 +116,21 @@ struct _generic_SUNControl
 SUNDIALS_EXPORT SUNControl SUNControlNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT void SUNControlFreeEmpty(SUNControl C);
 SUNDIALS_EXPORT SUNControl_ID SUNControlGetID(SUNControl C);
-SUNDIALS_EXPORT int SUNControlReset(SUNControl C);
 SUNDIALS_EXPORT int SUNControlEstimateStep(
                        SUNControl C, realtype h, realtype dsm,
                        realtype* hnew);
 SUNDIALS_EXPORT int SUNControlEstimateStepAndOrder(
                        SUNControl C, realtype h, int q,
                        realtype dsm, realtype* hnew, int *qnew);
-SUNDIALS_EXPORT int SUNControlEstimateFastStep(
-                       SUNControl C, realtype hslow, realtype* hfast);
-SUNDIALS_EXPORT int SUNControlEstimateMRatio(
-                       SUNControl C, realtype hslow, int* mratio);
-SUNDIALS_EXPORT int SUNControlEstimateFastTol(
-                       SUNControl C, realtype stol, realtype* ftol);
-SUNDIALS_EXPORT int SUNControlSetDefaultParameters(SUNControl C);
-SUNDIALS_EXPORT int SUNControlWriteParameters(SUNControl C, FILE* fptr);
+SUNDIALS_EXPORT int SUNControlEstimateMRISteps(
+                       SUNControl C, realtype H, realtype h,
+                       realtype dsm, realtype* Hnew, realtype *hnew);
+SUNDIALS_EXPORT int SUNControlEstimateStepTol(
+                       SUNControl C, realtype H, realtype tolfac,
+                       realtype dsm, realtype *Hnew, realtype* tolfacnew);
+SUNDIALS_EXPORT int SUNControlReset(SUNControl C);
+SUNDIALS_EXPORT int SUNControlSetDefaults(SUNControl C);
+SUNDIALS_EXPORT int SUNControlWrite(SUNControl C, FILE* fptr);
 SUNDIALS_EXPORT int SUNControlSetMethodOrder(SUNControl C, int q);
 SUNDIALS_EXPORT int SUNControlSetEmbeddingOrder(SUNControl C, int p);
 SUNDIALS_EXPORT int SUNControlSetSafetyFactor(SUNControl C, realtype safety);
