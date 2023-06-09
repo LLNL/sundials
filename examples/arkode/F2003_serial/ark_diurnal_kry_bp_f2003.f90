@@ -28,9 +28,9 @@
 ! vary diurnally.
 !
 ! The problem is posed on the square
-! 0 .le. x .le. 20,    30 .le. y .le. 50   (all in km),
+! 0 <= x <= 20,    30 <= y <= 50   (all in km),
 ! with homogeneous Neumann boundary conditions, and for time t in
-! 0 .le. t .le. 86400 sec (1 day).
+! 0 <= t <= 86400 sec (1 day).
 !
 ! The PDE system is treated by central differences on a uniform
 ! 10 x 10 mesh, with simple polynomial initial profiles.

@@ -206,30 +206,164 @@ module ode_mod
    type(N_Vector) :: sunvec_f                   ! rhs N_Vector
    type(c_ptr) :: user_data                     ! user-defined data
 
-   ! local data
-   real(c_double) :: u, v, w
+   ! Local data
+   integer(c_int) :: ix
+   logical        :: left, right
+   real(c_double) :: ul, ur, vl, vr, wl, wr, xl, xr, u, v, w, f1, f2, f3
 
    ! pointers to data in SUNDIALS vectors
-   ! Update to make these 2D pointers
-   real(c_double), pointer, dimension(neq) :: yvec(:)
-   real(c_double), pointer, dimension(neq) :: fvec(:)
+   real(c_double), pointer, dimension(neqreal, N) :: yvec(:,:)
+   real(c_double), pointer, dimension(neqreal, N) :: fvec(:,:)
 
-   !======= Internals ============
+   ! clear out rhs
+   fvec = 0.d0
 
-   ! get data arrays from SUNDIALS vectors
-   ! Update these to make them 2D pointers
-   yvec => FN_VGetArrayPointer(sunvec_y)
-   fvec => FN_VGetArrayPointer(sunvec_f)
+   ! iterate over intervals, filling in rhs function
+   do ix=1,N-1
 
-   ! set temporary values
-   u  = yvec(1)
-   v  = yvec(2)
-   w  = yvec(3)
+      ! set booleans to determine whether equations exist on the left/right */
+      left  = .true.
+      right = .true.
+      if (ix==1)      left  = .false.
+      if (ix==(N-1))  right = .false.
 
-   ! fill RHS vector
-   fvec(1) = 0.d0
-   fvec(2) = 0.d0
-   fvec(3) = (b-w)/ep
+      ! set nodal value shortcuts (interval index aligns with left node)
+      ul = yvec(1,ix)
+      vl = yvec(2,ix)
+      wl = yvec(3,ix)
+      ur = yvec(1,ix+1)
+      vr = yvec(2,ix+1)
+      wr = yvec(3,ix+1)
+
+      ! set mesh shortcuts
+      xl = x(ix)
+      xr = x(ix+1)
+
+      !    left test function
+      if (left) then
+
+         ! u -- reaction
+         u = Eval(ul, ur, xl, xr, X1(xl,xr))
+         v = Eval(vl, vr, xl, xr, X1(xl,xr))
+         w = Eval(wl, wr, xl, xr, X1(xl,xr))
+         f1 = (a - (w+1.d0)*u + v*u*u) * ChiL(xl,xr,X1(xl,xr))
+         u = Eval(ul, ur, xl, xr, X2(xl,xr))
+         v = Eval(vl, vr, xl, xr, X2(xl,xr))
+         w = Eval(wl, wr, xl, xr, X2(xl,xr))
+         f2 = (a - (w+1.d0)*u + v*u*u) * ChiL(xl,xr,X2(xl,xr))
+         u = Eval(ul, ur, xl, xr, X3(xl,xr))
+         v = Eval(vl, vr, xl, xr, X3(xl,xr))
+         w = Eval(wl, wr, xl, xr, X3(xl,xr))
+         f3 = (a - (w+1.d0)*u + v*u*u) * ChiL(xl,xr,X3(xl,xr))
+         fvec(1,ix) = fvec(1,ix) + Quad(f1,f2,f3,xl,xr)
+
+         ! u -- diffusion
+         f1 = -du * Eval_x(ul,ur,xl,xr) * ChiL_x(xl,xr)
+         fvec(1,ix) = fvec(1,ix) + Quad(f1,f1,f1,xl,xr)
+
+         ! v -- reaction
+         u = Eval(ul, ur, xl, xr, X1(xl,xr))
+         v = Eval(vl, vr, xl, xr, X1(xl,xr))
+         w = Eval(wl, wr, xl, xr, X1(xl,xr))
+         f1 = (w*u - v*u*u) * ChiL(xl,xr,X1(xl,xr))
+         u = Eval(ul, ur, xl, xr, X2(xl,xr))
+         v = Eval(vl, vr, xl, xr, X2(xl,xr))
+         w = Eval(wl, wr, xl, xr, X2(xl,xr))
+         f2 = (w*u - v*u*u) * ChiL(xl,xr,X2(xl,xr))
+         u = Eval(ul, ur, xl, xr, X3(xl,xr))
+         v = Eval(vl, vr, xl, xr, X3(xl,xr))
+         w = Eval(wl, wr, xl, xr, X3(xl,xr))
+         f3 = (w*u - v*u*u) * ChiL(xl,xr,X3(xl,xr))
+         fvec(2,ix) = fvec(2,ix) + Quad(f1,f2,f3,xl,xr)
+
+         ! v -- diffusion
+         f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiL_x(xl,xr)
+         fvec(2,ix) = fvec(2,ix) + Quad(f1,f1,f1,xl,xr)
+
+         ! w -- reaction
+         u = Eval(ul, ur, xl, xr, X1(xl,xr))
+         v = Eval(vl, vr, xl, xr, X1(xl,xr))
+         w = Eval(wl, wr, xl, xr, X1(xl,xr))
+         f1 = ((b-w)/ep - w*u) * ChiL(xl,xr,X1(xl,xr))
+         u = Eval(ul, ur, xl, xr, X2(xl,xr))
+         v = Eval(vl, vr, xl, xr, X2(xl,xr))
+         w = Eval(wl, wr, xl, xr, X2(xl,xr))
+         f2 = ((b-w)/ep - w*u) * ChiL(xl,xr,X2(xl,xr))
+         u = Eval(ul, ur, xl, xr, X3(xl,xr))
+         v = Eval(vl, vr, xl, xr, X3(xl,xr))
+         w = Eval(wl, wr, xl, xr, X3(xl,xr))
+         f3 = ((b-w)/ep - w*u) * ChiL(xl,xr,X3(xl,xr))
+         fvec(3,ix) = fvec(3,ix) + Quad(f1,f2,f3,xl,xr)
+
+         ! w -- diffusion
+         f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiL_x(xl,xr)
+         fvec(3,ix) = fvec(3,ix) + Quad(f1,f1,f1,xl,xr)
+
+      end if
+
+      !    right test function
+      if (right) then
+
+         ! u -- reaction
+         u = Eval(ul, ur, xl, xr, X1(xl,xr))
+         v = Eval(vl, vr, xl, xr, X1(xl,xr))
+         w = Eval(wl, wr, xl, xr, X1(xl,xr))
+         f1 = (a - (w+1.d0)*u + v*u*u) * ChiR(xl,xr,X1(xl,xr))
+         u = Eval(ul, ur, xl, xr, X2(xl,xr))
+         v = Eval(vl, vr, xl, xr, X2(xl,xr))
+         w = Eval(wl, wr, xl, xr, X2(xl,xr))
+         f2 = (a - (w+1.d0)*u + v*u*u) * ChiR(xl,xr,X2(xl,xr))
+         u = Eval(ul, ur, xl, xr, X3(xl,xr))
+         v = Eval(vl, vr, xl, xr, X3(xl,xr))
+         w = Eval(wl, wr, xl, xr, X3(xl,xr))
+         f3 = (a - (w+1.d0)*u + v*u*u) * ChiR(xl,xr,X3(xl,xr))
+         fvec(1,ix+1) = fvec(1,ix+1) + Quad(f1,f2,f3,xl,xr)
+
+         ! u -- diffusion
+         f1 = -du * Eval_x(ul,ur,xl,xr) * ChiR_x(xl,xr)
+         fvec(1,ix+1) = fvec(1,ix+1) + Quad(f1,f1,f1,xl,xr)
+
+         ! v -- reaction
+         u = Eval(ul, ur, xl, xr, X1(xl,xr))
+         v = Eval(vl, vr, xl, xr, X1(xl,xr))
+         w = Eval(wl, wr, xl, xr, X1(xl,xr))
+         f1 = (w*u - v*u*u) * ChiR(xl,xr,X1(xl,xr))
+         u = Eval(ul, ur, xl, xr, X2(xl,xr))
+         v = Eval(vl, vr, xl, xr, X2(xl,xr))
+         w = Eval(wl, wr, xl, xr, X2(xl,xr))
+         f2 = (w*u - v*u*u) * ChiR(xl,xr,X2(xl,xr))
+         u = Eval(ul, ur, xl, xr, X3(xl,xr))
+         v = Eval(vl, vr, xl, xr, X3(xl,xr))
+         w = Eval(wl, wr, xl, xr, X3(xl,xr))
+         f3 = (w*u - v*u*u) * ChiR(xl,xr,X3(xl,xr))
+         fvec(2,ix+1) = fvec(2,ix+1) + Quad(f1,f2,f3,xl,xr)
+
+         ! v -- diffusion
+         f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiR_x(xl,xr)
+         fvec(2,ix+1) = fvec(2,ix+1) + Quad(f1,f1,f1,xl,xr)
+
+         ! w -- reaction
+         u = Eval(ul, ur, xl, xr, X1(xl,xr))
+         v = Eval(vl, vr, xl, xr, X1(xl,xr))
+         w = Eval(wl, wr, xl, xr, X1(xl,xr))
+         f1 = ((b-w)/ep - w*u) * ChiR(xl,xr,X1(xl,xr))
+         u = Eval(ul, ur, xl, xr, X2(xl,xr))
+         v = Eval(vl, vr, xl, xr, X2(xl,xr))
+         w = Eval(wl, wr, xl, xr, X2(xl,xr))
+         f2 = ((b-w)/ep - w*u) * ChiR(xl,xr,X2(xl,xr))
+         u = Eval(ul, ur, xl, xr, X3(xl,xr))
+         v = Eval(vl, vr, xl, xr, X3(xl,xr))
+         w = Eval(wl, wr, xl, xr, X3(xl,xr))
+         f3 = ((b-w)/ep - w*u) * ChiR(xl,xr,X3(xl,xr))
+         fvec(3,ix+1) = fvec(3,ix+1) + Quad(f1,f2,f3,xl,xr)
+
+         ! w -- diffusion
+         f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiR_x(xl,xr)
+         fvec(3,ix+1) = fvec(3,ix+1) + Quad(f1,f1,f1,xl,xr)
+
+      end if
+
+   end do
 
    ! return success
    ierr = 0
@@ -268,19 +402,417 @@ module ode_mod
    type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
    type(N_Vector)        :: sunvec_t2
    type(N_Vector)        :: sunvec_t3
+   integer(c_int)        :: ierr      ! error return value
 
-   ! pointers to data in SUNDIALS vector and matrix
-   real(c_double), pointer :: J(:,:)
+   ! Local data
+   integer(c_int)  :: ix, nz, Nint
+   integer(c_long) :: Jcolvals(nnz), Jrowptrs(neq+1)
+   real(c_double)  :: Jdata(nnz)
+   real(c_double)  :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
+   real(c_double)  :: u1, u2, u3, v1, v2, v3, w1, w2, w3
+   real(c_double)  :: f1, f2, f3, df1, df2, df3, dQdf1, dQdf2, dQdf3
+   real(c_double)  :: ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
+   real(c_double), dimension(3,-1:1) :: Ju, Jv, Jw
+
+   ! check that vector/matrix dimensions match up
+   if ((3*N /= neq) .or. (nnz < 27*(N-2))) then
+      ier = 1
+      return
+   end if
+
+   ! set integer*4 version of N for call to idx()
+   Nint = N
+
+   ! clear out Jacobian matrix data
+   Jdata = 0.d0
+   nz = 0
+
+   ! Dirichlet boundary at left
+   Jrowptrs(idx(1,1)+1) = nz
+   Jrowptrs(idx(1,2)+1) = nz
+   Jrowptrs(idx(1,3)+1) = nz
+
+   ! iterate through nodes, filling in matrix by rows
+   do ix=2,N-1
+
+      ! set nodal value shortcuts (interval index aligns with left node)
+      xl = x(ix-1)
+      ul = y(1,ix-1)
+      vl = y(2,ix-1)
+      wl = y(3,ix-1)
+      xc = x(ix)
+      uc = y(1,ix)
+      vc = y(2,ix)
+      wc = y(3,ix)
+      xr = x(ix+1)
+      ur = y(1,ix+1)
+      vr = y(2,ix+1)
+      wr = y(3,ix+1)
+
+      ! compute entries of all Jacobian rows at node ix
+      Ju = 0.d0
+      Jv = 0.d0
+      Jw = 0.d0
+
+      ! first compute dependence on values to left and center
+
+      !    evaluate relevant variables in left subinterval
+      u1 = Eval(ul, uc, xl, xc, X1(xl,xc))
+      v1 = Eval(vl, vc, xl, xc, X1(xl,xc))
+      w1 = Eval(wl, wc, xl, xc, X1(xl,xc))
+      u2 = Eval(ul, uc, xl, xc, X2(xl,xc))
+      v2 = Eval(vl, vc, xl, xc, X2(xl,xc))
+      w2 = Eval(wl, wc, xl, xc, X2(xl,xc))
+      u3 = Eval(ul, uc, xl, xc, X3(xl,xc))
+      v3 = Eval(vl, vc, xl, xc, X3(xl,xc))
+      w3 = Eval(wl, wc, xl, xc, X3(xl,xc))
+
+      dQdf1 = Quad(1.d0, 0.d0, 0.d0, xl, xc)
+      dQdf2 = Quad(0.d0, 1.d0, 0.d0, xl, xc)
+      dQdf3 = Quad(0.d0, 0.d0, 1.d0, xl, xc)
+
+      ChiL1 = ChiL(xl, xc, X1(xl,xc))
+      ChiL2 = ChiL(xl, xc, X2(xl,xc))
+      ChiL3 = ChiL(xl, xc, X3(xl,xc))
+      ChiR1 = ChiR(xl, xc, X1(xl,xc))
+      ChiR2 = ChiR(xl, xc, X2(xl,xc))
+      ChiR3 = ChiR(xl, xc, X3(xl,xc))
 
 
-   !======= Internals ============
+      !    compute diffusion Jacobian components
 
-   ! get data arrays from SUNDIALS vectors
-   J(1:3, 1:3) => FSUNDenseMatrix_Data(sunmat_J)
+      !    L_u = -du * u_x * ChiR_x
+      !     dL_u/dul
+      Ju(1,-1) = (-du) * Quad(1.d0,1.d0,1.d0,xl,xc) * ChiL_x(xl,xc) * ChiR_x(xl,xc)
+      !     dL_u/duc
+      Ju(1,0)  = (-du) * Quad(1.d0,1.d0,1.d0,xl,xc) * ChiR_x(xl,xc) * ChiR_x(xl,xc)
 
-   ! fill Jacobian entries
-   J(1:3, 1:3) = 0.d0
-   J(3,3) = -1.d0/ep
+      !    L_v = -dv * v_x * ChiR_x
+      !     dL_v/dvl
+      Jv(2,-1) = (-dv) * Quad(1.d0,1.d0,1.d0,xl,xc) * ChiL_x(xl,xc) * ChiR_x(xl,xc)
+      !     dL_v/dvc
+      Jv(2,0)  = (-dv) * Quad(1.d0,1.d0,1.d0,xl,xc) * ChiR_x(xl,xc) * ChiR_x(xl,xc)
+
+      !    L_w =  -dw * w_x * ChiR_x
+      !     dL_w/dwl
+      Jw(3,-1) = (-dw) * Quad(1.d0,1.d0,1.d0,xl,xc) * ChiL_x(xl,xc) * ChiR_x(xl,xc)
+      !     dL_w/dwc
+      Jw(3,0)  = (-dw) * Quad(1.d0,1.d0,1.d0,xl,xc) * ChiR_x(xl,xc) * ChiR_x(xl,xc)
+
+
+      !    compute reaction Jacobian components
+
+      !    R_u = (a - (w+1.d0)*u + v*u*u)
+      !     dR_u/dul
+      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiL1 * ChiR1
+      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiL2 * ChiR2
+      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiL3 * ChiR3
+      Ju(1,-1) = Ju(1,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/duc
+      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiR1 * ChiR1
+      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiR2 * ChiR2
+      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiR3 * ChiR3
+      Ju(1,0) = Ju(1,0)+ dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dvl
+      df1 = (u1*u1) * ChiL1 * ChiR1
+      df2 = (u2*u2) * ChiL2 * ChiR2
+      df3 = (u3*u3) * ChiL3 * ChiR3
+      Ju(2,-1) = Ju(2,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dvc
+      df1 = (u1*u1) * ChiR1 * ChiR1
+      df2 = (u2*u2) * ChiR2 * ChiR2
+      df3 = (u3*u3) * ChiR3 * ChiR3
+      Ju(2,0) = Ju(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dwl
+      df1 = (-u1) * ChiL1 * ChiR1
+      df2 = (-u2) * ChiL2 * ChiR2
+      df3 = (-u3) * ChiL3 * ChiR3
+      Ju(3,-1) = Ju(3,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dwc
+      df1 = (-u1) * ChiR1 * ChiR1
+      df2 = (-u2) * ChiR2 * ChiR2
+      df3 = (-u3) * ChiR3 * ChiR3
+      Ju(3,0) = Ju(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+
+      !    R_v = (w*u - v*u*u)
+      !     dR_v/dul
+      df1 = (w1 - 2.d0*v1*u1) * ChiL1 * ChiR1
+      df2 = (w2 - 2.d0*v2*u2) * ChiL2 * ChiR2
+      df3 = (w3 - 2.d0*v3*u3) * ChiL3 * ChiR3
+      Jv(1,-1) = Jv(1,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/duc
+      df1 = (w1 - 2.d0*v1*u1) * ChiR1 * ChiR1
+      df2 = (w2 - 2.d0*v2*u2) * ChiR2 * ChiR2
+      df3 = (w3 - 2.d0*v3*u3) * ChiR3 * ChiR3
+      Jv(1,0) = Jv(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dvl
+      df1 = (-u1*u1) * ChiL1 * ChiR1
+      df2 = (-u2*u2) * ChiL2 * ChiR2
+      df3 = (-u3*u3) * ChiL3 * ChiR3
+      Jv(2,-1) = Jv(2,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dvc
+      df1 = (-u1*u1) * ChiR1 * ChiR1
+      df2 = (-u2*u2) * ChiR2 * ChiR2
+      df3 = (-u3*u3) * ChiR3 * ChiR3
+      Jv(2,0) = Jv(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dwl
+      df1 = (u1) * ChiL1 * ChiR1
+      df2 = (u2) * ChiL2 * ChiR2
+      df3 = (u3) * ChiL3 * ChiR3
+      Jv(3,-1) = Jv(3,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dwc
+      df1 = (u1) * ChiR1 * ChiR1
+      df2 = (u2) * ChiR2 * ChiR2
+      df3 = (u3) * ChiR3 * ChiR3
+      Jv(3,0) = Jv(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+
+      !    R_w = ((b-w)/ep - w*u)
+      !     dR_w/dul
+      df1 = (-w1) * ChiL1 * ChiR1
+      df2 = (-w2) * ChiL2 * ChiR2
+      df3 = (-w3) * ChiL3 * ChiR3
+      Jw(1,-1) = Jw(1,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_w/duc
+      df1 = (-w1) * ChiR1 * ChiR1
+      df2 = (-w2) * ChiR2 * ChiR2
+      df3 = (-w3) * ChiR3 * ChiR3
+      Jw(1,0) = Jw(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_w/dwl
+      df1 = (-1.d0/ep - u1) * ChiL1 * ChiR1
+      df2 = (-1.d0/ep - u2) * ChiL2 * ChiR2
+      df3 = (-1.d0/ep - u3) * ChiL3 * ChiR3
+      Jw(3,-1) = Jw(3,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_w/dwc
+      df1 = (-1.d0/ep - u1) * ChiR1 * ChiR1
+      df2 = (-1.d0/ep - u2) * ChiR2 * ChiR2
+      df3 = (-1.d0/ep - u3) * ChiR3 * ChiR3
+      Jw(3,0) = Jw(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+
+      ! second compute dependence on values to center and right
+
+      !    evaluate relevant variables in right subinterval
+      u1 = Eval(uc, ur, xc, xr, X1(xc,xr))
+      v1 = Eval(vc, vr, xc, xr, X1(xc,xr))
+      w1 = Eval(wc, wr, xc, xr, X1(xc,xr))
+      u2 = Eval(uc, ur, xc, xr, X2(xc,xr))
+      v2 = Eval(vc, vr, xc, xr, X2(xc,xr))
+      w2 = Eval(wc, wr, xc, xr, X2(xc,xr))
+      u3 = Eval(uc, ur, xc, xr, X3(xc,xr))
+      v3 = Eval(vc, vr, xc, xr, X3(xc,xr))
+      w3 = Eval(wc, wr, xc, xr, X3(xc,xr))
+
+      dQdf1 = Quad(1.d0, 0.d0, 0.d0, xc, xr)
+      dQdf2 = Quad(0.d0, 1.d0, 0.d0, xc, xr)
+      dQdf3 = Quad(0.d0, 0.d0, 1.d0, xc, xr)
+
+      ChiL1 = ChiL(xc, xr, X1(xc,xr))
+      ChiL2 = ChiL(xc, xr, X2(xc,xr))
+      ChiL3 = ChiL(xc, xr, X3(xc,xr))
+      ChiR1 = ChiR(xc, xr, X1(xc,xr))
+      ChiR2 = ChiR(xc, xr, X2(xc,xr))
+      ChiR3 = ChiR(xc, xr, X3(xc,xr))
+
+
+      !    compute diffusion Jacobian components
+
+      !    L_u = -du * u_x * ChiL_x
+      !     dL_u/duc
+      Ju(1,0) = Ju(1,0) + (-du) * Quad(1.d0,1.d0,1.d0,xc,xr) * ChiL_x(xc,xr) * ChiL_x(xc,xr)
+
+      !     dL_u/dur
+      Ju(1,1) = Ju(1,1) + (-du) * Quad(1.d0,1.d0,1.d0,xc,xr) * ChiL_x(xc,xr) * ChiR_x(xc,xr)
+
+      !    L_v = -dv * v_x * ChiL_x
+      !     dL_v/dvc
+      Jv(2,0) = Jv(2,0) + (-dv) * Quad(1.d0,1.d0,1.d0,xc,xr) * ChiL_x(xc,xr) * ChiL_x(xc,xr)
+
+      !     dL_v/dvr
+      Jv(2,1) = Jv(2,1) + (-dv) * Quad(1.d0,1.d0,1.d0,xc,xr) * ChiL_x(xc,xr) * ChiR_x(xc,xr)
+
+      !    L_w =  -dw * w_x * ChiL_x
+      !     dL_w/dwc
+      Jw(3,0) = Jw(3,0) + (-dw) * Quad(1.d0,1.d0,1.d0,xc,xr) * ChiL_x(xc,xr) * ChiL_x(xc,xr)
+
+      !     dL_w/dwr
+      Jw(3,1) = Jw(3,1) + (-dw) * Quad(1.d0,1.d0,1.d0,xc,xr) * ChiL_x(xc,xr) * ChiR_x(xc,xr)
+
+
+      !    compute reaction Jacobian components
+
+      !    R_u = (a - (w+1.d0)*u + v*u*u)
+      !     dR_u/duc
+      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiL1 * ChiL1
+      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiL2 * ChiL2
+      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiL3 * ChiL3
+      Ju(1,0) = Ju(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dur
+      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiL1 * ChiR1
+      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiL2 * ChiR2
+      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiL3 * ChiR3
+      Ju(1,1) = Ju(1,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dvc
+      df1 = (u1*u1) * ChiL1 * ChiL1
+      df2 = (u2*u2) * ChiL2 * ChiL2
+      df3 = (u3*u3) * ChiL3 * ChiL3
+      Ju(2,0) = Ju(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dvr
+      df1 = (u1*u1) * ChiL1 * ChiR1
+      df2 = (u2*u2) * ChiL2 * ChiR2
+      df3 = (u3*u3) * ChiL3 * ChiR3
+      Ju(2,1) = Ju(2,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dwc
+      df1 = (-u1) * ChiL1 * ChiL1
+      df2 = (-u2) * ChiL2 * ChiL2
+      df3 = (-u3) * ChiL3 * ChiL3
+      Ju(3,0) = Ju(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_u/dwr
+      df1 = (-u1) * ChiL1 * ChiR1
+      df2 = (-u2) * ChiL2 * ChiR2
+      df3 = (-u3) * ChiL3 * ChiR3
+      Ju(3,1) = Ju(3,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+
+      !    R_v = (w*u - v*u*u)
+      !     dR_v/duc
+      df1 = (w1 - 2.d0*v1*u1) * ChiL1 * ChiL1
+      df2 = (w2 - 2.d0*v2*u2) * ChiL2 * ChiL2
+      df3 = (w3 - 2.d0*v3*u3) * ChiL3 * ChiL3
+      Jv(1,0) = Jv(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dur
+      df1 = (w1 - 2.d0*v1*u1) * ChiL1 * ChiR1
+      df2 = (w2 - 2.d0*v2*u2) * ChiL2 * ChiR2
+      df3 = (w3 - 2.d0*v3*u3) * ChiL3 * ChiR3
+      Jv(1,1) = Jv(1,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dvc
+      df1 = (-u1*u1) * ChiL1 * ChiL1
+      df2 = (-u2*u2) * ChiL2 * ChiL2
+      df3 = (-u3*u3) * ChiL3 * ChiL3
+      Jv(2,0) = Jv(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dvr
+      df1 = (-u1*u1) * ChiL1 * ChiR1
+      df2 = (-u2*u2) * ChiL2 * ChiR2
+      df3 = (-u3*u3) * ChiL3 * ChiR3
+      Jv(2,1) = Jv(2,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dwc
+      df1 = (u1) * ChiL1 * ChiL1
+      df2 = (u2) * ChiL2 * ChiL2
+      df3 = (u3) * ChiL3 * ChiL3
+      Jv(3,0) = Jv(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_v/dwr
+      df1 = (u1) * ChiL1 * ChiR1
+      df2 = (u2) * ChiL2 * ChiR2
+      df3 = (u3) * ChiL3 * ChiR3
+      Jv(3,1) = Jv(3,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+
+      !    R_w = ((b-w)/ep - w*u)
+      !     dR_w/duc
+      df1 = (-w1) * ChiL1 * ChiL1
+      df2 = (-w2) * ChiL2 * ChiL2
+      df3 = (-w3) * ChiL3 * ChiL3
+      Jw(1,0) = Jw(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_w/dur
+      df1 = (-w1) * ChiL1 * ChiR1
+      df2 = (-w2) * ChiL2 * ChiR2
+      df3 = (-w3) * ChiL3 * ChiR3
+      Jw(1,1) = Jw(1,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_w/dwc
+      df1 = (-1.d0/ep - u1) * ChiL1 * ChiL1
+      df2 = (-1.d0/ep - u2) * ChiL2 * ChiL2
+      df3 = (-1.d0/ep - u3) * ChiL3 * ChiL3
+      Jw(3,0) = Jw(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+      !     dR_w/dwr
+      df1 = (-1.d0/ep - u1) * ChiL1 * ChiR1
+      df2 = (-1.d0/ep - u2) * ChiL2 * ChiR2
+      df3 = (-1.d0/ep - u3) * ChiL3 * ChiR3
+      Jw(3,1) = Jw(3,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
+
+
+      ! insert Jacobian entries into CSR matrix structure
+
+      !   Ju row
+      Jrowptrs(idx(ix,1)+1) = nz
+
+      Jdata(nz+1:nz+3) = (/ Ju(1,-1), Ju(2,-1), Ju(3,-1) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix-1,1), idx(ix-1,2), idx(ix-1,3) /)
+      nz = nz+3
+
+      Jdata(nz+1:nz+3) = (/ Ju(1,0), Ju(2,0), Ju(3,0) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix,1), idx(ix,2), idx(ix,3) /)
+      nz = nz+3
+
+      Jdata(nz+1:nz+3) = (/ Ju(1,1), Ju(2,1), Ju(3,1) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix+1,1), idx(ix+1,2), idx(ix+1,3) /)
+      nz = nz+3
+
+      !   Jv row
+      Jrowptrs(idx(ix,2)+1) = nz
+
+      Jdata(nz+1:nz+3) = (/ Jv(1,-1), Jv(2,-1), Jv(3,-1) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix-1,1), idx(ix-1,2), idx(ix-1,3) /)
+      nz = nz+3
+
+      Jdata(nz+1:nz+3) = (/ Jv(1,0), Jv(2,0), Jv(3,0) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix,1), idx(ix,2), idx(ix,3) /)
+      nz = nz+3
+
+      Jdata(nz+1:nz+3) = (/ Jv(1,1), Jv(2,1), Jv(3,1) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix+1,1), idx(ix+1,2), idx(ix+1,3) /)
+      nz = nz+3
+
+      !   Jw row
+      Jrowptrs(idx(ix,3)+1) = nz
+
+      Jdata(nz+1:nz+3) = (/ Jw(1,-1), Jw(2,-1), Jw(3,-1) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix-1,1), idx(ix-1,2), idx(ix-1,3) /)
+      nz = nz+3
+
+      Jdata(nz+1:nz+3) = (/ Jw(1,0), Jw(2,0), Jw(3,0) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix,1), idx(ix,2), idx(ix,3) /)
+      nz = nz+3
+
+      Jdata(nz+1:nz+3) = (/ Jw(1,1), Jw(2,1), Jw(3,1) /)
+      Jcolvals(nz+1:nz+3) = (/ idx(ix+1,1), idx(ix+1,2), idx(ix+1,3) /)
+      nz = nz+3
+
+   end do
+
+   ! Dirichlet boundary at right
+   Jrowptrs(idx(Nint,1)+1) = nz
+   Jrowptrs(idx(Nint,2)+1) = nz
+   Jrowptrs(idx(Nint,3)+1) = nz
+
+   ! signal end of data in CSR matrix
+   Jrowptrs(idx(Nint,3)+2) = nz
 
    ! return success
    ierr = 0
@@ -411,9 +943,9 @@ end module ode_mod
 
    ! set initial conditions into yvec (Update)
    do i=1,N
-      y(1,i) =  a  + 0.1d0*sin(pi*x(i))   ! u0
-      y(2,i) = b/a + 0.1d0*sin(pi*x(i))   ! v0
-      y(3,i) =  b  + 0.1d0*sin(pi*x(i))   ! w0
+      yvec(1,i) =  a  + 0.1d0*sin(pi*x(i))   ! u0
+      yvec(2,i) = b/a + 0.1d0*sin(pi*x(i))   ! v0
+      yvec(3,i) =  b  + 0.1d0*sin(pi*x(i))   ! w0
    end do
 
    ! set mask values for each solution component
@@ -526,9 +1058,9 @@ end module ode_mod
    open(503, file='bruss_FEM_w.txt')
 
    ! output initial condition to disk (using yvec)
-   write(501,*) ( y(1,i), i=1,N )
-   write(502,*) ( y(2,i), i=1,N )
-   write(503,*) ( y(3,i), i=1,N )
+   write(501,*) ( yvec(1,i), i=1,N )
+   write(502,*) ( yvec(2,i), i=1,N )
+   write(503,*) ( yvec(3,i), i=1,N )
 
    ! output solver parameters to screen
    call FARKStepWriteParameters(arkode_mem, stdout)
@@ -539,8 +1071,8 @@ end module ode_mod
    print *, '   '
    print *, '        t         ||u||_rms    ||v||_rms    ||w||_rms'
    print *, '  ----------------------------------------------------'
-   print '(3x,4(es12.5,1x))', tcur, sqrt(sum(y*y*umask)/N), &
-       sqrt(sum(y*y*vmask)/N), sqrt(sum(y*y*wmask)/N)
+   print '(3x,4(es12.5,1x))', tcur, sqrt(sum(yvec*yvec*umask)/N), &
+       sqrt(sum(yvec*yvec*vmask)/N), sqrt(sum(yvec*yvec*wmask)/N)
    do outstep = 1,nout
 
       ! set the next output time
@@ -556,11 +1088,11 @@ end module ode_mod
       endif
 
       ! output current solution information (using yvec)
-      print '(3x,4(es12.5,1x))', Tcur, sqrt(sum(y*y*umask)/N), &
-          sqrt(sum(y*y*vmask)/N), sqrt(sum(y*y*wmask)/N)
-      write(501,*) ( y(1,i), i=1,N )
-      write(502,*) ( y(2,i), i=1,N )
-      write(503,*) ( y(3,i), i=1,N )
+      print '(3x,4(es12.5,1x))', Tcur, sqrt(sum(yvec*yvec*umask)/N), &
+          sqrt(sum(yvec*yvec*vmask)/N), sqrt(sum(yvec*yvec*wmask)/N)
+      write(501,*) ( yvec(1,i), i=1,N )
+      write(502,*) ( yvec(2,i), i=1,N )
+      write(503,*) ( yvec(3,i), i=1,N )
 
    end do
    print *, ' ----------------------------------------------------'

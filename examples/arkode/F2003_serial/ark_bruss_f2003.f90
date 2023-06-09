@@ -137,8 +137,8 @@ contains
 
     ! calling variables
     real(c_double), value :: tn                  ! current time
-    type(N_Vector) :: sunvec_y   ! solution N_Vector
-    type(N_Vector) :: sunvec_f   ! rhs N_Vector
+    type(N_Vector) :: sunvec_y                   ! solution N_Vector
+    type(N_Vector) :: sunvec_f                   ! rhs N_Vector
     type(c_ptr) :: user_data                     ! user-defined data
 
     ! local data

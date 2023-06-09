@@ -32,7 +32,7 @@
 ! t = .4, 4, 40, ..., 4e10.
 ! ------------------------------------------------------------------
 
-module dae_mod
+module dnsL_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -46,7 +46,7 @@ module dae_mod
   contains
 
     ! ----------------------------------------------------------------
-    ! fcnirob: The DAE residual function
+    ! fcnirob: The implicit RSH operator function
     !
     ! Return values:
     !    0 = success,
@@ -92,7 +92,7 @@ module dae_mod
     end function fcnirob
 
     ! ----------------------------------------------------------------
-    ! fcnerob: The DAE residual function
+    ! fcnerob: The explicit RHS operator function
     !
     ! Return values:
     !    0 = success,
@@ -240,47 +240,7 @@ module dae_mod
 
     end function jacrob
 
-    ! ----------------------------------------------------------------
-    ! check_ans: checks the solution error
-    ! ----------------------------------------------------------------
-    integer(c_int) function check_ans(y, t, rtol, atol) result(passfail)
-
-      !======= Inclusions ===========
-      use iso_c_binding
-
-      !======= Declarations =========
-      implicit none
-      real(c_double) :: y(neq), atol(neq), t, rtol
-      real(c_double) :: ref(neq), ewt(neq), err
-
-      !======= Internals ============
-
-      ! set the reference solution data
-      ref(1) = 5.2083474251394888d-8
-      ref(2) = 2.0833390772616859d-13
-      ref(3) = 9.9999994791631752d-1
-
-      ! compute the error weight vector, loosen atol by 10x
-      ewt = 1.d0/(rtol*dabs(ref) + 10.d0*atol)
-
-      ! compute the solution error
-      ref = y-ref
-      err = dsqrt( dot_product(ewt*ref,ewt*ref)/3 )
-
-      ! is the solution within the tolerances (pass=0 or fail=1)?
-      passfail = 0
-      if (err .ge. 1.d0) then
-         passfail = 1
-         print *, " "
-         print *, "SUNDIALS_WARNING: check_ans error=", err
-         print *, " "
-      end if
-
-      return
-
-    end function check_ans
-
-  end module dae_mod
+  end module dnsL_mod
   ! ------------------------------------------------------------------
 
 
@@ -300,7 +260,7 @@ module dae_mod
     use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
     use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
     use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
-    use dae_mod                       ! ODE functions
+    use dnsL_mod                       ! ODE functions
 
     !======= Declarations =========
     implicit none
@@ -310,6 +270,7 @@ module dae_mod
     integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
     type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
+    type(N_Vector),           pointer :: sunvec_dky    ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_f      ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
@@ -319,7 +280,12 @@ module dae_mod
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
     ! solution and tolerance vectors, neq is set in the dae_mod module
-    real(c_double) :: yval(neq), fval(neq), avtol(neq)
+    real(c_double) :: yval(neq), fval(neq), avtol(neq), dkyval(neq)
+
+    ! fine-tuning initialized here
+    real(c_double)  :: initsize, nlscoef
+    integer(c_long) :: mxsteps
+    integer(c_int)  :: nliters, pmethod, maxetf
 
     !======= Internals ============
 
@@ -402,17 +368,47 @@ module dae_mod
        stop 1
     end if
 
-    ! Need to specify a maximum of 10000 steps
+    mxsteps = 10000
+    retval = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepSetMaxNumSteps'
+       stop 1
+    end if
 
-    ! Need to specify an initial step size of 1.d-4 * rtol
+    initsize = 1.d-4 * rtol
+    retval = FARKStepSetInitStep(arkode_mem, initsize)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepSetInitStep'
+       stop 1
+    end if
 
-    ! Need to specify a nonlinear solver conv coeff of 1d-7
+    nlscoef = 1.d-7
+    retval = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepSetNonlinConvCoef'
+       stop 1
+    end if
 
-    ! Need to set a maximum of 8 nonlinear iterations per solve
+    nliters = 8
+    retval = FARKStepSetMaxNonlinIters(arkode_mem, nliters)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepSetMaxNonlinIters'
+       stop 1
+    end if
 
-    ! Need to specify the predictor method 1
+    pmethod = 1
+    retval = FARKStepSetPredictorMethod(arkode_mem, pmethod)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepSetPredictorMethod'
+       stop 1
+    end if
 
-    ! Need to specify a maximum number of error test fails of 20
+    maxetf = 20
+    retval = FARKStepSetMaxErrTestFails(arkode_mem, maxetf)
+    if (retval /= 0) then
+       print *, 'Error in FARKStepSetMaxErrTestFails'
+       stop 1
+    end if
 
     ! Set the user-supplied Jacobian routine
     retval = FARKStepSetJacFn(arkode_mem, c_funloc(jacrob))
@@ -467,12 +463,25 @@ module dae_mod
        end if
     end do
 
-    ! Need to call FARKStepGetDky(?) for first derivative at tret(1), and output this to stdout
+    sunvec_dky => FN_VMake_Serial(neq, dkyval, sunctx)
+    if (.not. associated(sunvec_dky)) then
+       print *, 'ERROR: sunvec = NULL'
+       stop 1
+    end if
+
+    ! find and print derivative at tret(1)
+    retval = FARKStepGetDky(arkode_mem, tret(1), 1, sunvec_dky)
+    if (retval /= 0) then
+       print *, 'Error in ARKStepGetDky'
+       stop 1
+    end if
+    print *, " "
+    print *, "------------------------------------------------------------------------------"
+    print *, "  Final          y1'                  y2'                        y3'"
+    print *, "------------------------------------------------------------------------------"
+    print *, dkyval
 
     call PrintFinalStats(arkode_mem)
-
-    ! Need to remove check_ans from file
-    retval = check_ans(yval, tret(1), rtol, avtol)
 
     ! free memory
     call FARKStepFree(arkode_mem)
@@ -480,6 +489,7 @@ module dae_mod
     retval = FSUNLinSolFree(sunlinsol_LS)
     call FSUNMatDestroy(sunmat_A)
     call FN_VDestroy(sunvec_y)
+    call FN_VDestroy(sunvec_dky)
     call FN_VDestroy(sunvec_av)
     retval = FSUNContext_Free(sunctx)
 
@@ -493,7 +503,7 @@ module dae_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use dae_mod
+    use dnsL_mod
 
     !======= Declarations =========
     implicit none
@@ -531,7 +541,7 @@ module dae_mod
     use, intrinsic :: iso_c_binding
     use farkode_mod
     use farkode_arkstep_mod
-    use dae_mod
+    use dnsL_mod
 
     !======= Declarations =========
     implicit none
