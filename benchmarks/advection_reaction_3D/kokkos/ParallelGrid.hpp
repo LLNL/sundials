@@ -69,16 +69,16 @@ enum class StencilType
   UPWIND
 };
 
-template<typename GLOBALINT, int NDIMS>
+template<typename GLOBALINT>
 class ParallelGrid
 {
 public:
   // Constructor that creates a new ParallelGrid object.
   // [in] - the memory helper to use for allocating the MPI buffers
   // [in,out] comm - on input, the overal MPI communicator, on output, the cartesian communicator
-  // [in] a[] - an array of length NDIMS which defines the domain [a,b]
-  // [in] b[] - an array of length NDIMS which defines the domain [a,b]
-  // [in] npts[] - an array of length NDIMS which defines the number of mesh points in each dimension
+  // [in] a[] - an array of length 3 which defines the domain [a,b]
+  // [in] b[] - an array of length 3 which defines the domain [a,b]
+  // [in] npts[] - an array of length 3 which defines the number of mesh points in each dimension
   // [in] dof - the number of degrees of freedom in each dimension
   // [in] bc - the type of boundary conditions (see BoundaryType)
   // [in] st - the stencil to use (see StencilType)
@@ -98,29 +98,28 @@ public:
       bc(bc), st(st), width(width),
       upwindRight(true)
   {
-    static_assert((NDIMS >= 1 && NDIMS <= 3), "ParallelGrid NDIMS must be 1, 2 or 3");
     assert(st == StencilType::UPWIND);
 
     /* Set up MPI Cartesian communicator */
     if (npxyz)
     {
       dims[0] = npxyz[0];
-      if (NDIMS >= 2) dims[1] = npxyz[1];
-      if (NDIMS == 3) dims[2] = npxyz[2];
+      dims[1] = npxyz[1];
+      dims[2] = npxyz[2];
     }
 
     int retval, nprocs;
     MPI_Comm_size(*comm, &nprocs);
-    retval = MPI_Dims_create(nprocs, NDIMS, dims);
+    retval = MPI_Dims_create(nprocs, 3, dims);
     assert(retval == MPI_SUCCESS);
 
     int periods[] = { bc == BoundaryType::PERIODIC,
                       bc == BoundaryType::PERIODIC,
                       bc == BoundaryType::PERIODIC };
-    retval = MPI_Cart_create(*comm, NDIMS, dims, periods, reorder, comm);
+    retval = MPI_Cart_create(*comm, 3, dims, periods, reorder, comm);
     assert(retval == MPI_SUCCESS);
 
-    retval = MPI_Cart_get(*comm, NDIMS, dims, periods, coords);
+    retval = MPI_Cart_get(*comm, 3, dims, periods, coords);
     assert(retval == MPI_SUCCESS);
 
     cart_comm = *comm;
@@ -139,33 +138,27 @@ public:
     nxl = ie-is+1;
     neq = dof * nxl;
 
-    if (NDIMS >= 2)
-    {
-      /* Set up information for the second spatial dimension (if applicable) */
-      npy = dims[1];
-      ny  = npts[1];
-      ay  = a[1];
-      by  = b[1];
-      dy  = (by-ay) / (realtype) ny;
-      int js = ny*(coords[1])/npy;
-      int je = ny*(coords[1]+1)/npy-1;
-      nyl = je-js+1;
-      neq *= nyl;
-    }
+    /* Set up information for the second spatial dimension */
+    npy = dims[1];
+    ny  = npts[1];
+    ay  = a[1];
+    by  = b[1];
+    dy  = (by-ay) / (realtype) ny;
+    int js = ny*(coords[1])/npy;
+    int je = ny*(coords[1]+1)/npy-1;
+    nyl = je-js+1;
+    neq *= nyl;
 
-    if (NDIMS == 3)
-    {
-      /* Set up information for the third spatial dimension (if applicable) */
-      npz = dims[2];
-      nz  = npts[2];
-      az  = a[2];
-      bz  = b[2];
-      dz  = (bz-az) / (realtype) nz;
-      int ks = nz*(coords[2])/npz;
-      int ke = nz*(coords[2]+1)/npz-1;
-      nzl = ke-ks+1;
-      neq *= nzl;
-    }
+    /* Set up information for the third spatial dimension */
+    npz = dims[2];
+    nz  = npts[2];
+    az  = a[2];
+    bz  = b[2];
+    dz  = (bz-az) / (realtype) nz;
+    int ks = nz*(coords[2])/npz;
+    int ke = nz*(coords[2]+1)/npz-1;
+    nzl = ke-ks+1;
+    neq *= nzl;
 
     /* Allocate buffers for nearest-neighbor exchange */
     if (st == StencilType::UPWIND)
@@ -210,70 +203,64 @@ public:
       assert(retval == MPI_SUCCESS);
     }
 
-    if (NDIMS >= 2)
-    {
-      /* Allocate send/receive buffers and determine ID for communication South */
-      if (upwindRight) {
-        Srecv_  = Vec1D("Srecv", dof*width*nxl*nzl);
-        SrecvH_ = Kokkos::create_mirror_view(Srecv_);
-      } else {
-        Ssend_  = Vec1D("Ssend", dof*width*nxl*nzl);
-        SsendH_ = Kokkos::create_mirror_view(Ssend_);
-      }
-      ipS = MPI_PROC_NULL;
-      if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
-        assert(retval == MPI_SUCCESS);
-      }
-
-      /* Allocate send/receive buffers and determine ID for communication North */
-      if (upwindRight) {
-        Nsend_  = Vec1D("Nsend", dof*width*nxl*nzl);
-        NsendH_ = Kokkos::create_mirror_view(Nsend_);
-      } else {
-        Nrecv_  = Vec1D("Nrecv", dof*width*nxl*nzl);
-        NrecvH_ = Kokkos::create_mirror_view(Nrecv_);
-      }
-      ipN = MPI_PROC_NULL;
-      if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
-        assert(retval == MPI_SUCCESS);
-      }
+    /* Allocate send/receive buffers and determine ID for communication South */
+    if (upwindRight) {
+      Srecv_  = Vec1D("Srecv", dof*width*nxl*nzl);
+      SrecvH_ = Kokkos::create_mirror_view(Srecv_);
+    } else {
+      Ssend_  = Vec1D("Ssend", dof*width*nxl*nzl);
+      SsendH_ = Kokkos::create_mirror_view(Ssend_);
+    }
+    ipS = MPI_PROC_NULL;
+    if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1]-1, coords[2]};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
+      assert(retval == MPI_SUCCESS);
     }
 
-    if (NDIMS == 3)
-    {
-      /* Allocate send/receive buffers and determine ID for communication Back */
-      if (upwindRight) {
-        Brecv_  = Vec1D("Brecv", dof*width*nxl*nyl);
-        BrecvH_ = Kokkos::create_mirror_view(Brecv_);
-      } else {
-        Bsend_  = Vec1D("Bsend", dof*width*nxl*nyl);
-        BsendH_ = Kokkos::create_mirror_view(Bsend_);
-      }
-      ipB = MPI_PROC_NULL;
-      if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1], coords[2]-1};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
-        assert(retval == MPI_SUCCESS);
-      }
+    /* Allocate send/receive buffers and determine ID for communication North */
+    if (upwindRight) {
+      Nsend_  = Vec1D("Nsend", dof*width*nxl*nzl);
+      NsendH_ = Kokkos::create_mirror_view(Nsend_);
+    } else {
+      Nrecv_  = Vec1D("Nrecv", dof*width*nxl*nzl);
+      NrecvH_ = Kokkos::create_mirror_view(Nrecv_);
+    }
+    ipN = MPI_PROC_NULL;
+    if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1]+1, coords[2]};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
+      assert(retval == MPI_SUCCESS);
+    }
 
-      /* Allocate send/receive buffers and determine ID for communication Front */
-      if (upwindRight) {
-        Fsend_  = Vec1D("Fsend", dof*width*nxl*nyl);
-        FsendH_ = Kokkos::create_mirror_view(Fsend_);
-      } else {
-        Frecv_  = Vec1D("Frecv", dof*width*nxl*nyl);
-        FrecvH_ = Kokkos::create_mirror_view(Frecv_);
-      }
-      ipF = MPI_PROC_NULL;
-      if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
-        int nbcoords[] = {coords[0], coords[1], coords[2]+1};
-        int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
-        assert(retval == MPI_SUCCESS);
-      }
+    /* Allocate send/receive buffers and determine ID for communication Back */
+    if (upwindRight) {
+      Brecv_  = Vec1D("Brecv", dof*width*nxl*nyl);
+      BrecvH_ = Kokkos::create_mirror_view(Brecv_);
+    } else {
+      Bsend_  = Vec1D("Bsend", dof*width*nxl*nyl);
+      BsendH_ = Kokkos::create_mirror_view(Bsend_);
+    }
+    ipB = MPI_PROC_NULL;
+    if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1], coords[2]-1};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
+      assert(retval == MPI_SUCCESS);
+    }
+
+    /* Allocate send/receive buffers and determine ID for communication Front */
+    if (upwindRight) {
+      Fsend_  = Vec1D("Fsend", dof*width*nxl*nyl);
+      FsendH_ = Kokkos::create_mirror_view(Fsend_);
+    } else {
+      Frecv_  = Vec1D("Frecv", dof*width*nxl*nyl);
+      FrecvH_ = Kokkos::create_mirror_view(Frecv_);
+    }
+    ipF = MPI_PROC_NULL;
+    if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
+      int nbcoords[] = {coords[0], coords[1], coords[2]+1};
+      int retval = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
+      assert(retval == MPI_SUCCESS);
     }
 
   }
@@ -305,42 +292,36 @@ public:
       nreq++;
     }
 
-    if (NDIMS >= 2)
+    if ((ipS != MPI_PROC_NULL) && (upwindRight))
     {
-      if ((ipS != MPI_PROC_NULL) && (upwindRight))
-      {
-        retval = MPI_Irecv(SrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS,
-                           3, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
-
-      if ((ipN != MPI_PROC_NULL) && (!upwindRight))
-      {
-        retval = MPI_Irecv(NrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN,
-                           2, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      retval = MPI_Irecv(SrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS,
+                         3, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
-    if (NDIMS >= 3)
+    if ((ipN != MPI_PROC_NULL) && (!upwindRight))
     {
-      if ((ipB != MPI_PROC_NULL) && (upwindRight))
-      {
-        retval = MPI_Irecv(BrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB,
-                           5, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      retval = MPI_Irecv(NrecvH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN,
+                         2, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
 
-      if ((ipF != MPI_PROC_NULL) && (!upwindRight))
-      {
-        retval = MPI_Irecv(FrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF,
-                           4, cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+    if ((ipB != MPI_PROC_NULL) && (upwindRight))
+    {
+      retval = MPI_Irecv(BrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB,
+                         5, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
+
+    if ((ipF != MPI_PROC_NULL) && (!upwindRight))
+    {
+      retval = MPI_Irecv(FrecvH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF,
+                         4, cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
     // Send data to neighbors, first copying from device to host buffers
@@ -362,46 +343,40 @@ public:
       nreq++;
     }
 
-    if (NDIMS >= 2)
+    if ((ipS != MPI_PROC_NULL) && (!upwindRight))
     {
-      if ((ipS != MPI_PROC_NULL) && (!upwindRight))
-      {
-        Kokkos::deep_copy(SsendH_, Ssend_);
-        retval = MPI_Isend(SsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
-
-      if ((ipN != MPI_PROC_NULL) && (upwindRight))
-      {
-        Kokkos::deep_copy(NsendH_, Nsend_);
-        retval = MPI_Isend(NsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      Kokkos::deep_copy(SsendH_, Ssend_);
+      retval = MPI_Isend(SsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipS, 2,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
-    if (NDIMS == 3)
+    if ((ipN != MPI_PROC_NULL) && (upwindRight))
     {
-      if ((ipB != MPI_PROC_NULL) && (!upwindRight))
-      {
-        Kokkos::deep_copy(BsendH_, Bsend_);
-        retval = MPI_Isend(BsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+      Kokkos::deep_copy(NsendH_, Nsend_);
+      retval = MPI_Isend(NsendH_.data(), dof*width*nxl*nzl, MPI_SUNREALTYPE, ipN, 3,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
 
-      if ((ipF != MPI_PROC_NULL) && (upwindRight))
-      {
-        Kokkos::deep_copy(FsendH_, Fsend_);
-        retval = MPI_Isend(FsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
-                           cart_comm, req+nreq);
-        assert(retval == MPI_SUCCESS);
-        nreq++;
-      }
+    if ((ipB != MPI_PROC_NULL) && (!upwindRight))
+    {
+      Kokkos::deep_copy(BsendH_, Bsend_);
+      retval = MPI_Isend(BsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipB, 4,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
+    }
+
+    if ((ipF != MPI_PROC_NULL) && (upwindRight))
+    {
+      Kokkos::deep_copy(FsendH_, Fsend_);
+      retval = MPI_Isend(FsendH_.data(), dof*width*nxl*nyl, MPI_SUNREALTYPE, ipF, 5,
+                         cart_comm, req+nreq);
+      assert(retval == MPI_SUCCESS);
+      nreq++;
     }
 
     return retval;
@@ -426,18 +401,14 @@ public:
       Kokkos::deep_copy(Wrecv_, WrecvH_);
     if ((ipE != MPI_PROC_NULL) && (!upwindRight))
       Kokkos::deep_copy(Erecv_, ErecvH_);
-    if (NDIMS >= 2) {
-      if ((ipS != MPI_PROC_NULL) && (upwindRight))
-        Kokkos::deep_copy(Srecv_, SrecvH_);
-      if ((ipN != MPI_PROC_NULL) && (!upwindRight))
-        Kokkos::deep_copy(Nrecv_, NrecvH_);
-    }
-    if (NDIMS >= 3) {
-      if ((ipB != MPI_PROC_NULL) && (upwindRight))
-        Kokkos::deep_copy(Brecv_, BrecvH_);
-      if ((ipF != MPI_PROC_NULL) && (!upwindRight))
-        Kokkos::deep_copy(Frecv_, FrecvH_);
-    }
+    if ((ipS != MPI_PROC_NULL) && (upwindRight))
+      Kokkos::deep_copy(Srecv_, SrecvH_);
+    if ((ipN != MPI_PROC_NULL) && (!upwindRight))
+      Kokkos::deep_copy(Nrecv_, NrecvH_);
+    if ((ipB != MPI_PROC_NULL) && (upwindRight))
+      Kokkos::deep_copy(Brecv_, BrecvH_);
+    if ((ipF != MPI_PROC_NULL) && (!upwindRight))
+      Kokkos::deep_copy(Frecv_, FrecvH_);
 
     return retval;
   }
@@ -446,7 +417,7 @@ public:
   void PrintInfo()
   {
     printf("ParallelGrid Info:\n");
-    printf("    dimensions = %d\n", NDIMS);
+    printf("    dimensions = %d\n", 3);
     printf("    processors = {%d, %d, %d}\n", npx, npy, npz);
     printf("        domain = {[%g,%g], [%g,%g], [%g,%g]}\n", ax, bx, ay, by, az, bz);
     printf("   global npts = {%li, %li, %li}\n", (long int) nx, (long int) ny, (long int) nz);
@@ -487,16 +458,12 @@ public:
 
   GLOBALINT npts() const
   {
-    if (NDIMS == 1) return nx;
-    if (NDIMS == 2) return nx*ny;
-    if (NDIMS == 3) return nx*ny*nz;
+    return nx*ny*nz;
   }
 
   GLOBALINT nptsl() const
   {
-    if (NDIMS == 1) return nxl;
-    if (NDIMS == 2) return nxl*nyl;
-    if (NDIMS == 3) return nxl*nyl*nzl;
+    return nxl*nyl*nzl;
   }
 
   GLOBALINT neql() const

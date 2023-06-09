@@ -36,9 +36,6 @@ using sundials_tools::BoundaryType;
 using sundials_tools::StencilType;
 using std::string;
 
-/* Number of dimensions */
-constexpr int NDIMS = 3;
-
 /* Maximum size of output directory string */
 constexpr int MXSTR = 2048;
 
@@ -108,7 +105,7 @@ struct UserData
   realtype  c;    /* advection coefficient        */
 
   /* Parallel mesh */
-  ParallelGrid<sunindextype,NDIMS>* grid;
+  ParallelGrid<sunindextype>* grid;
 
   /* Count of implicit function evals by the task local nonlinear solver */
   long int nnlfi;
@@ -117,16 +114,12 @@ struct UserData
   UserOptions* uopt;
 
   /* Constructor that takes the context */
-  UserData(SUNContext ctx) : ctx(ctx) {
+  UserData(SUNContext ctx)
+    : ctx(ctx), umask(nullptr), vmask(nullptr),
+      wmask(nullptr), TFID(nullptr), UFID(nullptr),
+      VFID(nullprt), WFID(nullptr), uopt(nullptr)
+  {
     SUNContext_GetProfiler(ctx, &prof);
-    umask = nullptr;
-    vmask = nullptr;
-    wmask = nullptr;
-    TFID = nullptr;
-    UFID = nullptr;
-    VFID = nullptr;
-    WFID = nullptr;
-    uopt = nullptr;
   }
 
   /* destructor frees the problem data */
