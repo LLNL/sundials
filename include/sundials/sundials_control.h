@@ -116,6 +116,7 @@ struct _generic_SUNControl
 SUNDIALS_EXPORT SUNControl SUNControlNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT void SUNControlFreeEmpty(SUNControl C);
 SUNDIALS_EXPORT SUNControl_ID SUNControlGetID(SUNControl C);
+SUNDIALS_EXPORT void SUNControlDestroy(SUNControl C);
 SUNDIALS_EXPORT int SUNControlEstimateStep(
                        SUNControl C, realtype h, realtype dsm,
                        realtype* hnew);
