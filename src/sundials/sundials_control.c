@@ -46,9 +46,8 @@ SUNControl SUNControlNewEmpty(SUNContext sunctx)
   ops->reset                = NULL;
   ops->estimatestep         = NULL;
   ops->estimatestepandorder = NULL;
-  ops->estimatefaststep     = NULL;
-  ops->estimatemratio       = NULL;
-  ops->estimatefasttol      = NULL;
+  ops->estimatemristeps     = NULL;
+  ops->estimatesteptol      = NULL;
   ops->setdefaults          = NULL;
   ops->write                = NULL;
   ops->setmethodorder       = NULL;
@@ -187,7 +186,7 @@ int SUNControlSetDefaults(SUNControl C)
 int SUNControlWrite(SUNControl C, FILE* fptr)
 {
   int ier = 0;
-  if (C->ops->write) { ier = C->ops->write(C, ftpr); }
+  if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return(ier);
 }
 
