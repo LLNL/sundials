@@ -236,23 +236,16 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     /* Flow moving in the positive x,y,z direction:
     *  boundaries are west face, south face, back face */
 
-    /*   Create 3D views of receive buffers */
-    RAJA::View<realtype, RAJA::Layout<NDIMS> >
-      Wrecv(udata->grid->getRecvBuffer("WEST"),  nyl, nzl, dof);
-    if (NDIMS >= 2)
-    {
-      RAJA::View<realtype, RAJA::Layout<NDIMS> >
-        Srecv(udata->grid->getRecvBuffer("SOUTH"), nxl, nzl, dof);
-    }
-    if (NDIMS == 3)
-    {
-      RAJA::View<realtype, RAJA::Layout<NDIMS> >
-        Brecv(udata->grid->getRecvBuffer("BACK"),  nxl, nyl, dof);
-    }
-
     /*   Perform calculations on each "lower" face */
     if (NDIMS == 3)
     {
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Wrecv(udata->grid->getRecvBuffer("WEST"),  nyl, nzl, dof);
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Srecv(udata->grid->getRecvBuffer("SOUTH"), nxl, nzl, dof);
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Brecv(udata->grid->getRecvBuffer("BACK"),  nxl, nyl, dof);
+
       auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
                                         RAJA::RangeSegment(0, nzl),
                                         RAJA::RangeSegment(0, dof));
@@ -266,36 +259,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
         dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
         dYview(i,j,k,l) += cz * (Yijkl - YBack);        // d/dz
       });
-    }
-    if (NDIMS == 2)
-    {
-      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
-                                        RAJA::RangeSegment(0, nzl),
-                                        RAJA::RangeSegment(0, dof));
-      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
-        [=] DEVICE_FUNC (int j, int k, int l) {
-        const int i = 0;
-        const realtype Yijkl  = Yview(i,j,k,l);
-        const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
-        dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
-        dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
-      });
-    }
-    if (NDIMS == 1)
-    {
-      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
-                                        RAJA::RangeSegment(0, nzl),
-                                        RAJA::RangeSegment(0, dof));
-      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
-        [=] DEVICE_FUNC (int j, int k, int l) {
-        const int i = 0;
-        const realtype Yijkl  = Yview(i,j,k,l);
-        dYview(i,j,k,l) = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
-      });
-    }
 
-    if (NDIMS == 3)
-    {
       auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
                                          RAJA::RangeSegment(0, nzl),
                                          RAJA::RangeSegment(0, dof));
@@ -309,24 +273,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
         dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,k,l)); // d/dy
         dYview(i,j,k,l) += cz * (Yijkl - YBack);        // d/dz
       });
-    }
-    if (NDIMS == 2)
-    {
-      auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                         RAJA::RangeSegment(0, nzl),
-                                         RAJA::RangeSegment(0, dof));
-      RAJA::kernel<XYZ_KERNEL_POL>(south_face,
-        [=] DEVICE_FUNC (int i, int k, int l) {
-        const int j = 0;
-        const realtype Yijkl  = Yview(i,j,k,l);
-        const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
-        dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
-        dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,k,l)); // d/dy
-      });
-    }
 
-    if (NDIMS == 3)
-    {
       auto back_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
                                         RAJA::RangeSegment(0, nyl),
                                         RAJA::RangeSegment(0, dof));
@@ -341,7 +288,51 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
         dYview(i,j,k,l) += cz * (Yijkl - Brecv(i,j,l)); // d/dz
       });
     }
+    if (NDIMS == 2)
+    {
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Wrecv(udata->grid->getRecvBuffer("WEST"),  nyl, nzl, dof);
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Srecv(udata->grid->getRecvBuffer("SOUTH"), nxl, nzl, dof);
 
+      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,k,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - YSouth);       // d/dy
+      });
+      auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(south_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+        const int j = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(j,k,l);
+        dYview(i,j,k,l)  = cx * (Yijkl - YWest);        // d/dx
+        dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,k,l)); // d/dy
+      });
+    }
+    if (NDIMS == 1)
+    {
+      RAJA::View<realtype, RAJA::Layout<NDIMS> >
+        Wrecv(udata->grid->getRecvBuffer("WEST"),  nyl, nzl, dof);
+      auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+
+      RAJA::kernel<XYZ_KERNEL_POL>(west_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = 0;
+        const realtype Yijkl  = Yview(i,j,k,l);
+        dYview(i,j,k,l) = cx * (Yijkl - Wrecv(j,k,l)); // d/dx
+      });
+    }
   }
   else if (c < 0.0)
   {
@@ -349,23 +340,16 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     /* Flow moving in the negative x,y,z direction:
     *  boundaries are east face, north face, and front face */
 
-    /*   Create 3D views of receive buffers */
-    RAJA::View<realtype, RAJA::Layout<3> >
-      Erecv(udata->grid->getRecvBuffer("EAST"),  nyl, nzl, dof);
-    if (NDIMS >= 2)
-    {
-      RAJA::View<realtype, RAJA::Layout<3> >
-        Nrecv(udata->grid->getRecvBuffer("NORTH"), nxl, nzl, dof);
-    }
-    if (NDIMS == 3)
-    {
-      RAJA::View<realtype, RAJA::Layout<3> >
-        Frecv(udata->grid->getRecvBuffer("FRONT"), nxl, nyl, dof);
-    }
-
     /*   Perform calculations on each "upper" face */
     if (NDIMS == 3)
     {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Erecv(udata->grid->getRecvBuffer("EAST"),  nyl, nzl, dof);
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Nrecv(udata->grid->getRecvBuffer("NORTH"), nxl, nzl, dof);
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Frecv(udata->grid->getRecvBuffer("FRONT"), nxl, nyl, dof);
+
       auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
                                         RAJA::RangeSegment(0, nzl),
                                         RAJA::RangeSegment(0, dof));
@@ -379,36 +363,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
         dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
         dYview(i,j,k,l) += cz * (YFront - Yijkl);       // d/dz
       });
-    }
-    if (NDIMS == 2)
-    {
-      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
-                                        RAJA::RangeSegment(0, nzl),
-                                        RAJA::RangeSegment(0, dof));
-      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
-        [=] DEVICE_FUNC (int j, int k, int l) {
-        const int i = nxl-1;
-        const realtype Yijkl = Yview(i,j,k,l);
-        const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
-        dYview(i,j,k,l)  = cx * (Erecv(j,k,l) - Yijkl); // d/dx
-        dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
-      });
-    }
-    if (NDIMS == 1)
-    {
-      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
-                                        RAJA::RangeSegment(0, nzl),
-                                        RAJA::RangeSegment(0, dof));
-      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
-        [=] DEVICE_FUNC (int j, int k, int l) {
-        const int i = nxl-1;
-        const realtype Yijkl = Yview(i,j,k,l);
-        dYview(i,j,k,l) = cx * (Erecv(j,k,l) - Yijkl); // d/dx
-      });
-    }
 
-    if (NDIMS == 3)
-    {
       auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
                                          RAJA::RangeSegment(0, nzl),
                                          RAJA::RangeSegment(0, dof));
@@ -422,24 +377,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
         dYview(i,j,k,l) += cy * (Nrecv(i,k,l) - Yijkl); // d/dy
         dYview(i,j,k,l) += cz * (YFront - Yijkl);       // d/dz
       });
-    }
-    if (NDIMS == 2)
-    {
-      auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
-                                         RAJA::RangeSegment(0, nzl),
-                                         RAJA::RangeSegment(0, dof));
-      RAJA::kernel<XYZ_KERNEL_POL>(north_face,
-        [=] DEVICE_FUNC (int i, int k, int l) {
-        const int j = nyl-1;
-        const realtype Yijkl = Yview(i,j,k,l);
-        const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
-        dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
-        dYview(i,j,k,l) += cy * (Nrecv(i,k,l) - Yijkl); // d/dy
-      });
-    }
 
-    if (NDIMS == 3)
-    {
       auto front_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
                                          RAJA::RangeSegment(0, nyl),
                                          RAJA::RangeSegment(0, dof));
@@ -452,6 +390,52 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
         dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
         dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
         dYview(i,j,k,l) += cz * (Frecv(i,j,l) - Yijkl); // d/dz
+      });
+    }
+    if (NDIMS == 2)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Erecv(udata->grid->getRecvBuffer("EAST"),  nyl, nzl, dof);
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Nrecv(udata->grid->getRecvBuffer("NORTH"), nxl, nzl, dof);
+
+      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = nxl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,k,l);
+        dYview(i,j,k,l)  = cx * (Erecv(j,k,l) - Yijkl); // d/dx
+        dYview(i,j,k,l) += cy * (YNorth - Yijkl);       // d/dy
+      });
+
+      auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                         RAJA::RangeSegment(0, nzl),
+                                         RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(north_face,
+        [=] DEVICE_FUNC (int i, int k, int l) {
+        const int j = nyl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(j,k,l);
+        dYview(i,j,k,l)  = cx * (YEast - Yijkl);        // d/dx
+        dYview(i,j,k,l) += cy * (Nrecv(i,k,l) - Yijkl); // d/dy
+      });
+    }
+    if (NDIMS == 1)
+    {
+      RAJA::View<realtype, RAJA::Layout<3> >
+        Erecv(udata->grid->getRecvBuffer("EAST"),  nyl, nzl, dof);
+
+      auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                        RAJA::RangeSegment(0, nzl),
+                                        RAJA::RangeSegment(0, dof));
+      RAJA::kernel<XYZ_KERNEL_POL>(east_face,
+        [=] DEVICE_FUNC (int j, int k, int l) {
+        const int i = nxl-1;
+        const realtype Yijkl = Yview(i,j,k,l);
+        dYview(i,j,k,l) = cx * (Erecv(j,k,l) - Yijkl); // d/dx
       });
     }
   }
