@@ -42,47 +42,31 @@ project(@SOLVER@_C_serial_examples C)
 # Enable testing
 include(CTest)
 
+@EXAMPLES_FIND_PACKAGE@
+
 # ------------------------------------------------------------------------------
 
-# Specify the path to SUNDIALS header files
-set(SUNDIALS_INCLUDE_DIR
-  @CMAKE_INSTALL_PREFIX@/include
-  CACHE PATH "Location of SUNDIALS header files")
+# Specify the path to SUNDIALSConfig.cmake
+set(SUNDIALS_DIR
+  "@CMAKE_INSTALL_PREFIX@/@SUNDIALS_INSTALL_CMAKEDIR@"
+  CACHE PATH "Location of SUNDIALSConfig.cmake")
 
-# Specify the path to SUNDIALS libraries
-set(SUNDIALS_LIBRARY_DIR
-  @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
-  CACHE PATH "Location of SUNDIALS libraries")
+# Find SUNDIALS
+find_package(SUNDIALS
+  COMPONENTS @EXAMPLES_CMAKE_COMPONENTS@
+  REQUIRED NO_DEFAULT_PATH)
 
-# Find the SUNDIALS libraries
-find_library(SUNDIALS_SOLVER_LIB
-  @SOLVER_LIB@ ${SUNDIALS_LIBRARY_DIR}
-  DOC "@SOLVER@ library")
+# Set the SUNDIALS targets
+set(SUNDIALS_TARGETS
+  @EXAMPLES_CMAKE_TARGETS@)
 
-find_library(SUNDIALS_NVEC_LIB
-  sundials_nvecserial ${SUNDIALS_LIBRARY_DIR}
-  DOC "NVECTOR_SERIAL library")
+# Set any additional libraries needed
+set(EXTRA_LIBS
+  @EXAMPLES_EXTRA_LIBS@
+  CACHE STRING "Additional libraries")
 
-find_library(SUNDIALS_MANYVEC_LIB
-  sundials_nvecmanyvector ${SUNDIALS_LIBRARY_DIR}
-  DOC "NVECTOR_MANYVECTOR library")
-
-# Set additional libraries
-set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
-
-# For SUNDIALS module examples the solver library is not needed
-if(NOT SUNDIALS_SOLVER_LIB)
-  set(SUNDIALS_SOLVER_LIB "")
-endif()
-
-# List of SUNDIALS libraries
-set(SUNDIALS_LIBRARIES
-  -L${SUNDIALS_LIBRARY_DIR}
-  ${SUNDIALS_SOLVER_LIB}
-  ${SUNDIALS_NVEC_LIB}
-  ${SUNDIALS_MANYVEC_LIB}
-  ${SUNDIALS_EXTRA_LIBS})
-
+# Additional includes
+include_directories(. @EXTRA_INCLUDES@)
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies
@@ -95,17 +79,17 @@ endif()
 # Create targets for each example
 foreach(example ${examples})
 
-  # example source files
-  add_executable(${example} ${example}.c ${examples_dependencies})
+  # get filename without extension
+  get_filename_component(example_target ${example} NAME_WE)
 
-  # directories to include
-  target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
+  # create target with example source files
+  add_executable(${example_target} ${example} ${examples_dependencies})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBRARIES})
+  target_link_libraries(${example_target} ${SUNDIALS_TARGETS} ${EXTRA_LIBS})
 
   # add the example to ctest
-  add_test(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example_target} COMMAND ${example_target})
 
 endforeach()
 
@@ -136,9 +120,12 @@ if(LAPACK_LIBRARIES AND examples_bl)
 
   # Create targets for each example
   foreach(example ${examples_bl})
+    
+    # get filename without extension
+    get_filename_component(example_target ${example} NAME_WE)
 
     # example source files
-    add_executable(${example} ${example}.c ${examples_dependencies_bl})
+    add_executable(${example} ${example} ${examples_dependencies_bl})
 
     # directories to include
     target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
@@ -184,8 +171,11 @@ if(KLU_LIBRARIES AND examples_klu)
   # Create targets for each example
   foreach(example ${examples_klu})
 
+    # get filename without extension
+    get_filename_component(example_target ${example} NAME_WE)
+
     # example source files
-    add_executable(${example} ${example}.c ${examples_dependencies_klu})
+    add_executable(${example} ${example} ${examples_dependencies_klu})
 
     # directories to include
     target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
@@ -244,8 +234,11 @@ if(SUPERLUMT_LIBRARIES AND examples_slumt)
   # Create targets for each example
   foreach(example ${examples_slumt})
 
+    # get filename without extension
+    get_filename_component(example_target ${example} NAME_WE)
+
     # example source files
-    add_executable(${example} ${example}.c ${examples_dependencies_slumt})
+    add_executable(${example} ${example} ${examples_dependencies_slumt})
 
     # directories to include
     target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})

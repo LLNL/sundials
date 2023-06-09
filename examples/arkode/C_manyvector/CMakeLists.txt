@@ -119,7 +119,7 @@ if(EXAMPLES_INSTALL)
 
   sundials_install_examples(arkode ARKODE_examples
     CMAKE_TEMPLATE
-      cmakelists_C_ex.in
+    cmakelists_serial_C_ex.in
     MAKE_TEMPLATE
       makefile_serial_C_ex.in
     SUNDIALS_TARGETS
