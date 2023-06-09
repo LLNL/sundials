@@ -468,19 +468,92 @@ SPRKStep -- Symplectic Partitioned Runge--Kutta methods
 The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
 
 .. math::
-   \dot{y} = [\dot{p}, \dot{q}]^T, \quad 
    \dot{p} = f(q,t) = \frac{\partial V(q,t)}{\partial q}, \quad 
    \dot{q} = g(p) = \frac{\partial T(p)}{\partial p}, 
-   \qquad y(t_0) = [p_0, q_0]^T,\quad p(t_0) = p_0,\quad q(t_0) = q_0,
+   \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
    :label: ARKODE_IVP_Hamiltonian
-
+  
 where
 
 .. math::
    H(p, q, t) = T(p) + V(q, t)
 
-is a separable Hamiltonian. Symplectic Partitioned Runge-Kutta (SPRK) methods approximately conserve a nearby Hamiltonian for
-exponentially long times (((CITE))). For separable Hamiltonian problems, SPRK methids are also explicit. 
+is the system Hamiltonian. When :math:`dH/dt = 0`, i.e. when *H* is autonomous, then H is a conserved quantity. 
+Often this correponds to the conservation of energy (for example, in *n*-body problems).
+
+In solving the IVP :ref:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
+
+.. math::
+   \dot{y} = 
+      \begin{bmatrix}
+         f(q,t) \\
+         g(p)
+      \end{bmatrix} \qquad 
+      y(t_0) = 
+      \begin{bmatrix}
+         p_0\\
+         q_0
+      \end{bmatrix}
+   :label: ARKODE_IVP_Hamiltonian 
+
+SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair of Butcher tableau,
+
+.. math::
+   \begin{array}{c|cccc}
+   c_1 & 0 & \cdots & 0 & 0 \\
+   c_2 & a_1 & 0 & \cdots & \vdots \\
+   \vdots & \vdots & \ddots & \ddots & \vdots \\
+   c_s & a_1 & \cdots & a_{s-1} & 0 \\
+   \hline
+   & a_1 & \cdots & a_{s-1} & a_s 
+   \end{array}
+   \qquad \qquad
+   \begin{array}{c|cccc}
+   C_1 & b_1 & \cdots & 0 & 0 \\
+   C_2 & b_1 & b_2 & \cdots & \vdots \\
+   \vdots & \vdots & \ddots & \ddots & \vdots \\
+   C_s & b_1 & b_2 & \cdots & b_{s-1} \\
+   \hline
+   & b_1 & b_2 & \cdots & b_{s-1}
+   \end{array}
+
+We use a compact storage of these coefficients in terms of two arrays, one for *a* and one for *b*.
+The time weights are computed on the fly. These methods approximately conserve a nearby Hamiltonian 
+for exponentially long times :cite:p:`HaWa:06`.  SPRKStep makes the assumption that the Hamiltonian is separable,
+in which case the schemes are explicit. SPRKStep provides methods with order of accuracy and conservation 
+of :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these methods, and the default methods used, 
+are given in the section ???.
+
+In the default case, the algorithm for a single time-step is as follows
+
+#. Set :math:`P_0 = p_n, Q_1 = q_n`
+
+#. For :math:`i = 1,\ldots,s` do:
+
+   #. :math:`P_i = P_{i-1} + h_{n+1} a_i f(Q_i, t_n + C_i h_{n+1})`
+   #. :math:`Q_{i+1} = Q_i + h_{n+1} b_i g(P_i)`
+
+#. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
+
+Optionally, a different algorithm can be used that is more robust to roundoff error at the expense of 
+additional storage and vector operations :cite:p:`Sof:03`.
+
+#. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
+
+#. For :math:`i = 1,\ldots,s` do:
+
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} a_i f(q_n + \Delta Q_i, t_n + C_i h_{n+1})`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} b_i g(p_n + \Delta P_i)`
+
+#. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
+
+#. Using compensated summation, set :math:`p_{n+1} = p_n + \Delta p_{n+1}, q_{n+1} = q_n + \Delta Q_{s+1}`
+
+Since temporal error based adaptive time-stepping is known to ruin the conservation property :cite:p:`HaWa:06`, 
+SPRKStep employs a fixed time-step size by default. However, it is possible for a user to provide a
+problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
+The `ark_kepler.c` example demonstrates an implementation of such controller. 
+
 
 .. _ARKODE.Mathematics.MRIStep:
 
@@ -1024,14 +1097,12 @@ Here the explicit stability step factor :math:`c>0` (often called the
 Fixed time stepping
 ===================
 
-While both the ARKStep and ERKStep time-stepping modules are designed
-for tolerance-based time step adaptivity, they additionally support a
-"fixed-step" mode (*note: fixed-step mode is currently required for
-the slow time scale in the MRIStep module*).  This mode is typically
-used for debugging purposes, for verification against hand-coded
-Runge--Kutta methods, or for problems where the time steps should be
-chosen based on other problem-specific information.  In this mode,
-all internal time step adaptivity is disabled:
+While both the ARKStep and ERKStep time-stepping modules are
+designed for tolerance-based time step adaptivity, they additionally support a
+"fixed-step" mode. This mode is typically used for debugging
+purposes, for verification against hand-coded Runge--Kutta methods, or for
+problems where the time steps should be chosen based on other problem-specific
+information.  In this mode, all internal time step adaptivity is disabled:
 
 * temporal error control is disabled,
 
@@ -1040,14 +1111,20 @@ all internal time step adaptivity is disabled:
 
 * no check against an explicit stability condition is performed.
 
+.. note::
+   Since temporal error based adaptive time-stepping is known to ruin the
+   conservation property of SPRK methods, the SPRKStep employs a fixed time-step
+   size by default. 
+   
+.. note:: 
+   Fixed-step mode is currently required for the slow time scale in the MRIStep module.
+
 
 Additional information on this mode is provided in the sections
 :ref:`ARKStep Optional Inputs <ARKODE.Usage.ARKStep.OptionalInputs>`,
-:ref:`ERKStep Optional Inputs <ARKODE.Usage.ERKStep.OptionalInputs>`, and
+:ref:`SPRKStep Optional Inputs <ARKODE.Usage.SPRKStep.OptionalInputs>`, 
+:ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`, and
 :ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`.
-
-
-
 
 
 .. _ARKODE.Mathematics.AlgebraicSolvers:
