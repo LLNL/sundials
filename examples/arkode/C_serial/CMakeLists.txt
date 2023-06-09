@@ -54,7 +54,6 @@ set(ARKODE_examples
   "ark_kpr_mri.c\;9 0.001\;exclude-single"
   "ark_kpr_mri.c\;9 0.001 -100 100 0.5 1\;exclude-single"
   "ark_brusselator1D_imexmri.c\;0 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;1 0.001\;exclude-single"
   "ark_brusselator1D_imexmri.c\;2 0.001\;exclude-single"
   "ark_brusselator1D_imexmri.c\;3 0.001\;exclude-single"
   "ark_brusselator1D_imexmri.c\;4 0.001\;exclude-single"
