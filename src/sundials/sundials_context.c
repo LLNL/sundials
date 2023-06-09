@@ -234,7 +234,7 @@ void sunAdiakCollectMetadata() {
 
   adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
   adiak_namevalue("build_type", 2, NULL, "%s", SUN_BUILD_TYPE);
-  adiak_namevalue("third_party_libraries", 2, NULL "{}", SUN_TPL_LIST, SUN_TPL_LIST_SIZE);
+  adiak_namevalue("third_party_libraries", 2, NULL "{%s}", SUN_TPL_LIST, SUN_TPL_LIST_SIZE);
 
 #ifdef SUNDIALS_SPACK_VERSION
   adiak_namevalue("spack_version", 2, NULL, "%s", SUNDIALS_SPACK_VERSION);
