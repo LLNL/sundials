@@ -17,11 +17,10 @@ $A$ and $B$ are the concentrations of chemical species that remain constant over
 space and time, and $\epsilon$ is a parameter that varies the stiffness of the
 system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$,
 for times $t$ in $[0,t_f]$. The initial condition is
-```
+```math
     u(0,X) = A + p(X)
     v(0,X) = B / A + p(X)
     w(0,X) = 3.0 + p(X)
-```
 where the perturbation function is
 ```
     p(X) = alpha * e^( -((X-mu)^T sigma^{-1} (X-mu)) / (2*sqrt(|sigma| 8 pi^3)) )
