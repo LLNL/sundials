@@ -8,11 +8,10 @@ Kokkos performance portability layer with serial, OpenMP, CUDA, or HIP backends.
 This code simulates the advection and reaction of three chemical species where
 the reaction mechanism is a variation of the Brusselator problem from chemical
 kinetics. The PDE system is given by
-```
-    u_t = -c grad(u) + A - (w+1) * u + v * u^2
-    v_t = -c grad(v) + w * u - v * u^2
-    w_t = -c grad(w) + (B - w) / epsilon - w * u
-```
+```math
+    u_t = -c \nabla u + A - (w+1) u + v u^2
+    v_t = -c \nabla v + w u - v u^2
+    w_t = -c \nabla w + (B - w) / \epsilon - w u
 where `u`, `v`, and `w` are chemical concentrations, `c` is the advection speed,
 `A` and `B` are the concentrations of chemical species that remain constant over
 space and time, and `epsilon` is a parameter that varies the stiffness of the
