@@ -357,9 +357,9 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
 
-  const auto a         = udata->a;
-  const auto b         = udata->b;
-  const auto ep        = udata->ep;
+  const auto a  = udata->a;
+  const auto b  = udata->b;
+  const auto ep = udata->ep;
 
   Vec2D y2d(N_VGetDeviceArrayPointer(y), nbatches, batchSize);
   Vec2D ydot2d(N_VGetDeviceArrayPointer(ydot), nbatches, batchSize);
