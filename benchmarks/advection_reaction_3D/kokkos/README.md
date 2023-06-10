@@ -70,7 +70,7 @@ listed below.
 ## Building and Running
 
 To build the benchmark executables SUNDIALS must be configured with ARKODE,
-CVODE, and IDA enabled and with MPI and RAJA support on. Additionally, either
+CVODE, and IDA enabled and with MPI and Kokkos support on. Additionally, either
 CUDA or HIP support must be on to build executables utilizing NVIDIA or AMD
 GPUs. See the installation guide for more details on configuring, building,
 and installing SUNDIALS.
