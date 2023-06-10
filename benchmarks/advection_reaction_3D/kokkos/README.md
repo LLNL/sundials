@@ -1,7 +1,7 @@
 # Benchmark: 3D Advection-Reaction
 
 This benchmark problem implements a 3D advection-reaction equation using the
-RAJA performance portability layer with serial, CUDA, or HIP backends.
+Kokkos performance portability layer with serial, OpenMP, CUDA, or HIP backends.
 
 ## Problem description
 
