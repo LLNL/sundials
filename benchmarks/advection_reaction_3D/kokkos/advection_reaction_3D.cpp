@@ -61,8 +61,6 @@
 
 #include "advection_reaction_3D.hpp"
 
-#define STENCIL_WIDTH 1
-
 
 /* Main Program */
 int main(int argc, char *argv[])
@@ -473,7 +471,7 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   const realtype amax[] = {0.0, 0.0, 0.0};
   const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
   udata->grid = new ParallelGrid<sunindextype>(&udata->comm, amax, bmax, npts,
-      3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, STENCIL_WIDTH, uopt->npxyz);
+      3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, uopt->npxyz);
 
   /* Create the solution masks */
   SUNVector *umaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
