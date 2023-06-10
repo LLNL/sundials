@@ -198,7 +198,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
       const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (Erecv(0,j,k,l) - Yijkl); // d/dx
       dYview(i,j,k,l) += cy * (YNorth - Yijkl);         // d/dy
-      dYview(i,j,k,l) += cx * (YFront - Yijkl);         // d/dz
+      dYview(i,j,k,l) += cz * (YFront - Yijkl);         // d/dz
     });
     Kokkos::parallel_for("AdvectionBoundaryNorth",
                          Range3D({0,0,0},{nxl,nzl,dof}),
