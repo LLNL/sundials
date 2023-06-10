@@ -389,7 +389,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
 
-  const auto ep        = udata->ep;
+  const auto ep = udata->ep;
   Vec2D y2d(N_VGetDeviceArrayPointer(y), nbatches, batchSize);
 
   Kokkos::parallel_for(
