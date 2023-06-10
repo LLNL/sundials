@@ -22,9 +22,8 @@ for times $t$ in $[0,t_f]$. The initial condition is
     v(0,X) = B / A + p(X)
     w(0,X) = 3.0 + p(X)
 where the perturbation function is
-```
-    p(X) = alpha * e^( -((X-mu)^T sigma^{-1} (X-mu)) / (2*sqrt(|sigma| 8 pi^3)) )
-```
+```math
+    p(X) = \alpha e^( -((X-\mu)^T \sigma^{-1} (X-\mu)) / (2 \sqrt(|\sigma| 8 \pi^3)) )
 with `alpha = 0.1`, `mu = 0.5 X_max`, and `sigma` is a diagonal matrix with
 entries `0.25 X_max`.
 
