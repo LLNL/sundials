@@ -12,11 +12,11 @@ kinetics. The PDE system is given by
     u_t = -c \nabla u + A - (w+1) u + v u^2
     v_t = -c \nabla v + w u - v u^2
     w_t = -c \nabla w + (B - w) / \epsilon - w u
-where `u`, `v`, and `w` are chemical concentrations, `c` is the advection speed,
-`A` and `B` are the concentrations of chemical species that remain constant over
-space and time, and `epsilon` is a parameter that varies the stiffness of the
-system. The problem is solved on the domain `(x,y,z) = X` in `[0, X_max]^3`,
-for times `t` in `[0,t_f]`. The initial condition is
+where $u$, $v$, and $w$ are chemical concentrations, $c$ is the advection speed,
+$A$ and $B$ are the concentrations of chemical species that remain constant over
+space and time, and $\epsilon$ is a parameter that varies the stiffness of the
+system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$,
+for times $t$ in $[0,t_f]$. The initial condition is
 ```
     u(0,X) = A + p(X)
     v(0,X) = B / A + p(X)
