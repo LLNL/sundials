@@ -1,28 +1,26 @@
 # Benchmark: 3D Advection-Reaction
 
 This benchmark problem implements a 3D advection-reaction equation using the
-RAJA performance portability layer with serial, CUDA, or HIP backends.
+Kokkos performance portability layer with serial, OpenMP, CUDA, or HIP backends.
 
 ## Problem description
 
 This code simulates the advection and reaction of three chemical species where
 the reaction mechanism is a variation of the Brusselator problem from chemical
 kinetics. The PDE system is given by
-```
-    u_t = -c grad(u) + A - (w+1) * u + v * u^2
-    v_t = -c grad(v) + w * u - v * u^2
-    w_t = -c grad(w) + (B - w) / epsilon - w * u
-```
-where `u`, `v`, and `w` are chemical concentrations, `c` is the advection speed,
-`A` and `B` are the concentrations of chemical species that remain constant over
-space and time, and `epsilon` is a parameter that varies the stiffness of the
-system. The problem is solved on the domain `(x,y,z) = X` in `[0, X_max]^3`,
-for times `t` in `[0,t_f]`. The initial condition is
-```
+```math
+    u_t = -c \nabla u + A - (w+1) u + v u^2
+    v_t = -c \nabla v + w u - v u^2
+    w_t = -c \nabla w + (B - w) / \epsilon - w u
+where $u$, $v$, and $w$ are chemical concentrations, $c$ is the advection speed,
+$A$ and $B$ are the concentrations of chemical species that remain constant over
+space and time, and $\epsilon$ is a parameter that varies the stiffness of the
+system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$,
+for times $t$ in $[0,t_f]$. The initial condition is
+```math
     u(0,X) = A + p(X)
     v(0,X) = B / A + p(X)
     w(0,X) = 3.0 + p(X)
-```
 where the perturbation function is
 ```
     p(X) = alpha * e^( -((X-mu)^T sigma^{-1} (X-mu)) / (2*sqrt(|sigma| 8 pi^3)) )
