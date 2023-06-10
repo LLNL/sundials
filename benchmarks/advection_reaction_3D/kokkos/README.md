@@ -91,7 +91,7 @@ On Summit, with the default environment
 ```
 an example `jsrun` command is
 ```
-jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_mpicuda
+jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_kokkos.CUDA
 ```
 
 On Lassen, with the environment
