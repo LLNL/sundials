@@ -78,9 +78,10 @@ and installing SUNDIALS.
 Based on the configuration the following executables will be built and installed
 in the `<install prefix>/bin/benchmarks/advection_reaction_3D/kokkos` directory:
 
-* `advection_reaction_3D` -- MPI parallelism
-* `advection_reaction_3D_mpicuda` -- MPI + CUDA parallelism
-* `advection_reaction_3D_mpihip` -- MPI + HIP parallelism
+* `advection_reaction_3D_kokkos.SERIAL` -- MPI parallelism
+* `advection_reaction_3D_kokkos.OPENMP` -- MPI + OpenMP parallelism
+* `advection_reaction_3D_kokkos.CUDA` -- MPI + CUDA parallelism
+* `advection_reaction_3D_kokkos.HIP` -- MPI + HIP parallelism
 
 On Summit, with the default environment
 ```
