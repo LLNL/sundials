@@ -18,7 +18,7 @@
 .. _serial_f90:
 
 ====================================
-Serial Fortran 90 example problems
+Serial Fortran 2003 example problems
 ====================================
 
 

@@ -79,17 +79,17 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn                  ! current time
+    double precision, value :: tn                  ! current time
     type(N_Vector) :: sunvec_y   ! solution N_Vector
     type(N_Vector) :: sunvec_f   ! rhs N_Vector
     type(c_ptr) :: user_data                     ! user-defined data
 
     ! local data
-    real(c_double) :: u, v, w
+    double precision :: u, v, w
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(neq) :: yvec(:)
-    real(c_double), pointer, dimension(neq) :: fvec(:)
+    double precision, pointer, dimension(neq) :: yvec(:)
+    double precision, pointer, dimension(neq) :: fvec(:)
 
     !======= Internals ============
 
@@ -136,17 +136,17 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn                  ! current time
+    double precision, value :: tn                  ! current time
     type(N_Vector) :: sunvec_y                   ! solution N_Vector
     type(N_Vector) :: sunvec_f                   ! rhs N_Vector
     type(c_ptr) :: user_data                     ! user-defined data
 
     ! local data
-    real(c_double) :: u, v, w
+    double precision :: u, v, w
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(neq) :: yvec(:)
-    real(c_double), pointer, dimension(neq) :: fvec(:)
+    double precision, pointer, dimension(neq) :: yvec(:)
+    double precision, pointer, dimension(neq) :: fvec(:)
 
     !======= Internals ============
 
@@ -192,7 +192,7 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: t         ! current time
+    double precision, value :: t         ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
@@ -202,7 +202,7 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! pointers to data in SUNDIALS vector and matrix
-    real(c_double), pointer :: J(:,:)
+    double precision, pointer :: J(:,:)
 
 
     !======= Internals ============
@@ -243,27 +243,27 @@ program main
 
   ! local variables
   type(c_ptr)    :: ctx                      ! SUNDIALS context for the simulation
-  real(c_double) :: tstart                   ! initial time
-  real(c_double) :: tend                     ! final time
-  real(c_double) :: rtol, atol               ! relative and absolute tolerance
-  real(c_double) :: dtout                    ! output time interval
-  real(c_double) :: tout                     ! output time
-  real(c_double) :: tcur(1)                  ! current time
+  double precision :: tstart                   ! initial time
+  double precision :: tend                     ! final time
+  double precision :: rtol, atol               ! relative and absolute tolerance
+  double precision :: dtout                    ! output time interval
+  double precision :: tout                     ! output time
+  double precision :: tcur(1)                  ! current time
   integer(c_int) :: imethod, idefault, pq    ! time step adaptivity parameters
-  real(c_double) :: adapt_params(3)          ! time step adaptivity parameters
+  double precision :: adapt_params(3)          ! time step adaptivity parameters
   integer(c_int) :: ierr                     ! error flag from C functions
   integer(c_int) :: nout                     ! number of outputs
   integer(c_int) :: outstep                  ! output loop counter
   integer(c_long):: mxsteps                  ! max num steps
 
-  real(c_double), parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
+  double precision, parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
   integer(c_int), parameter :: order = 3        ! method order
 
   type(N_Vector),        pointer :: sunvec_y    ! sundials vector
   type(SUNMatrix),       pointer :: sunmat_A    ! sundials matrix
   type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
   type(c_ptr)                    :: arkode_mem  ! ARKODE memory
-  real(c_double),        pointer :: yvec(:)     ! underlying vector
+  double precision,        pointer :: yvec(:)     ! underlying vector
 
   !======= Internals ============
 
@@ -429,10 +429,10 @@ subroutine ARKStepStats(arkode_mem)
   integer(c_long) :: nlinsetups(1) ! num linear solver setups
   integer(c_long) :: netfails(1)   ! num error test fails
 
-  real(c_double)  :: hinused(1)    ! initial step size
-  real(c_double)  :: hlast(1)      ! last step size
-  real(c_double)  :: hcur(1)       ! step size for next step
-  real(c_double)  :: tcur(1)       ! internal time reached
+  double precision  :: hinused(1)    ! initial step size
+  double precision  :: hlast(1)      ! last step size
+  double precision  :: hcur(1)       ! step size for next step
+  double precision  :: tcur(1)       ! internal time reached
 
   integer(c_long) :: nniters(1)    ! nonlinear solver iterations
   integer(c_long) :: nncfails(1)   ! nonlinear solver fails
@@ -516,8 +516,9 @@ subroutine ARKStepStats(arkode_mem)
   print *, ' General Solver Stats:'
   print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
   print '(4x,A,i9)'    ,'Total internal steps attempts =',nst_a
-  print '(4x,A,i9)'    ,'Total rhs exp function call   =',nfe
-  print '(4x,A,i9)'    ,'Total rhs imp function call   =',nfi
+  print '(4x,A,i9)'    ,'Total rhs exp function calls  =',nfe
+  print '(4x,A,i9)'    ,'Total rhs imp function calls  =',nfi
+  print '(4x,A,i9)'    ,'Total jac function calls      =',njacevals
   print '(4x,A,i9)'    ,'Num lin solver setup calls    =',nlinsetups
   print '(4x,A,i9)'    ,'Num error test failures       =',netfails
   print '(4x,A,es12.5)','First internal step size      =',hinused

@@ -77,6 +77,7 @@ module UserData
    ! ODE parameters
    integer(c_long), parameter  :: N = 201           ! number of intervals
    integer(c_long), parameter  :: neq = neqreal*N   ! set overall problem size
+   integer(c_long), parameter  :: nnz = 15*neq
    double precision, parameter :: a = 0.6d0         ! constant forcing on u
    double precision, parameter :: b = 2.d0          ! steady-state value of w
    double precision, parameter :: du = 2.5d-2       ! diffusion coeff for u
@@ -89,13 +90,12 @@ module UserData
 
    ! function that maps 2D data into 1D address space
    ! (0-based since CSR matrix will be sent to C solver)
-   integer(c_long) function idx(ix, ivar)
-     integer(c_long) :: ivar, ix
+   integer(c_int) function idx(ix, ivar)
+     integer(c_int) :: ivar, ix
      idx = neqreal*(ix - 1) + ivar - 1
    end function idx
 
 end module UserData
-
 
 ! finite element basis functions
 module FEM
@@ -160,11 +160,11 @@ contains
 
   ! quadrature
   double precision function Quad(f1,f2,f3,xl,xr)
-    ! Update these to use "double precision" instead of real(c_double)
-    real(c_double) :: f1, f2, f3, xl, xr
-    real(c_double), parameter :: wt1=0.55555555555555555555555555555556d0
-    real(c_double), parameter :: wt2=0.88888888888888888888888888888889d0
-    real(c_double), parameter :: wt3=0.55555555555555555555555555555556d0
+    ! Update these to use "double precision" instead of double precision
+    double precision :: f1, f2, f3, xl, xr
+    double precision, parameter :: wt1=0.55555555555555555555555555555556d0
+    double precision, parameter :: wt2=0.88888888888888888888888888888889d0
+    double precision, parameter :: wt3=0.55555555555555555555555555555556d0
     Quad = 0.5d0*(xr-xl)*(wt1*f1 + wt2*f2 + wt3*f3)
   end function Quad
 
@@ -201,19 +201,24 @@ module ode_mod
    implicit none
 
    ! calling variables
-   real(c_double), value :: tn                  ! current time
+   double precision, value :: tn                ! current time
    type(N_Vector) :: sunvec_y                   ! solution N_Vector
    type(N_Vector) :: sunvec_f                   ! rhs N_Vector
    type(c_ptr) :: user_data                     ! user-defined data
 
    ! Local data
-   integer(c_int) :: ix
-   logical        :: left, right
-   real(c_double) :: ul, ur, vl, vr, wl, wr, xl, xr, u, v, w, f1, f2, f3
+   integer(c_int)   :: ix
+   logical          :: left, right
+   double precision :: ul, ur, vl, vr, wl, wr, xl, xr, u, v, w, f1, f2, f3
 
    ! pointers to data in SUNDIALS vectors
-   real(c_double), pointer, dimension(neqreal, N) :: yvec(:,:)
-   real(c_double), pointer, dimension(neqreal, N) :: fvec(:,:)
+   double precision, pointer, dimension(neqreal, N) :: yvec(:,:)
+   double precision, pointer, dimension(neqreal, N) :: fvec(:,:)
+
+   !======= Internals ============
+   ! get data arrays from SUNDIALS vectors
+   yvec(1:neqreal, 1:N) => FN_VGetArrayPointer(sunvec_y)
+   fvec(1:neqreal, 1:N) => FN_VGetArrayPointer(sunvec_f)
 
    ! clear out rhs
    fvec = 0.d0
@@ -388,35 +393,49 @@ module ode_mod
    use fsundials_nvector_mod
    use fsundials_matrix_mod
    use fnvector_serial_mod
-   use fsunmatrix_dense_mod
+   use fsunmatrix_sparse_mod
 
    !======= Declarations =========
    implicit none
 
    ! calling variables
-   real(c_double), value :: t         ! current time
-   type(N_Vector)        :: sunvec_y  ! solution N_Vector
-   type(N_Vector)        :: sunvec_f  ! rhs N_Vector
-   type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-   type(c_ptr),    value :: user_data ! user-defined data
-   type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
-   type(N_Vector)        :: sunvec_t2
-   type(N_Vector)        :: sunvec_t3
-   integer(c_int)        :: ierr      ! error return value
+   double precision, value :: t         ! current time
+   type(N_Vector)          :: sunvec_y  ! solution N_Vector
+   type(N_Vector)          :: sunvec_f  ! rhs N_Vector
+   type(SUNMatrix)         :: sunmat_J  ! Jacobian SUNMatrix
+   type(c_ptr),    value   :: user_data ! user-defined data
+   type(N_Vector)          :: sunvec_t1 ! temporary N_Vectors
+   type(N_Vector)          :: sunvec_t2
+   type(N_Vector)          :: sunvec_t3
 
    ! Local data
-   integer(c_int)  :: ix, nz, Nint
-   integer(c_long) :: Jcolvals(nnz), Jrowptrs(neq+1)
-   real(c_double)  :: Jdata(nnz)
-   real(c_double)  :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
-   real(c_double)  :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-   real(c_double)  :: f1, f2, f3, df1, df2, df3, dQdf1, dQdf2, dQdf3
-   real(c_double)  :: ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
-   real(c_double), dimension(3,-1:1) :: Ju, Jv, Jw
+   integer(c_int)   :: ix, nz, Nint
+   
+   double precision :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
+   double precision :: u1, u2, u3, v1, v2, v3, w1, w2, w3
+   double precision :: f1, f2, f3, df1, df2, df3, dQdf1, dQdf2, dQdf3
+   double precision :: ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
+   double precision, dimension(3,-1:1) :: Ju, Jv, Jw
+
+   ! pointers to data in SUNDIALS vectors
+   integer(c_long), pointer, dimension(nnz)   :: Jcolvals(:)
+   integer(c_long), pointer, dimension(neq+1) :: Jrowptrs(:)
+   double precision, pointer, dimension(nnz)  :: Jdata(:)
+   double precision, pointer, dimension(neqreal, N) :: yvec(:,:)
+   double precision, pointer, dimension(neqreal, N) :: fvec(:,:)
+   
+
+   !======= Internals ============
+   ! get data arrays from SUNDIALS vectors
+   yvec(1:neqreal, 1:N) => FN_VGetArrayPointer(sunvec_y)
+   fvec(1:neqreal, 1:N) => FN_VGetArrayPointer(sunvec_f)
+   Jdata(1:nnz)         => FSUNSparseMatrix_Data(sunmat_J)
+   Jcolvals(1:nnz)      => FSUNSparseMatrix_IndexValues(sunmat_J)
+   Jrowptrs(1:neq+1)    => FSUNSparseMatrix_IndexPointers(sunmat_J)
 
    ! check that vector/matrix dimensions match up
    if ((3*N /= neq) .or. (nnz < 27*(N-2))) then
-      ier = 1
+      ierr = 1
       return
    end if
 
@@ -437,17 +456,17 @@ module ode_mod
 
       ! set nodal value shortcuts (interval index aligns with left node)
       xl = x(ix-1)
-      ul = y(1,ix-1)
-      vl = y(2,ix-1)
-      wl = y(3,ix-1)
+      ul = yvec(1,ix-1)
+      vl = yvec(2,ix-1)
+      wl = yvec(3,ix-1)
       xc = x(ix)
-      uc = y(1,ix)
-      vc = y(2,ix)
-      wc = y(3,ix)
+      uc = yvec(1,ix)
+      vc = yvec(2,ix)
+      wc = yvec(3,ix)
       xr = x(ix+1)
-      ur = y(1,ix+1)
-      vr = y(2,ix+1)
-      wr = y(3,ix+1)
+      ur = yvec(1,ix+1)
+      vr = yvec(2,ix+1)
+      wr = yvec(3,ix+1)
 
       ! compute entries of all Jacobian rows at node ix
       Ju = 0.d0
@@ -477,7 +496,6 @@ module ode_mod
       ChiR1 = ChiR(xl, xc, X1(xl,xc))
       ChiR2 = ChiR(xl, xc, X2(xl,xc))
       ChiR3 = ChiR(xl, xc, X3(xl,xc))
-
 
       !    compute diffusion Jacobian components
 
@@ -820,6 +838,175 @@ module ode_mod
 
    end function Jac
 
+   !-----------------------------------------------------------------
+   ! Mass matrix computation routine
+   !-----------------------------------------------------------------
+   integer(c_int) function Mass(t, sunmat_M, user_data, &
+   sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) bind(C,name='Mass')
+
+   !======= Inclusions ===========
+   use FEM
+   use Quadrature
+   use fsundials_nvector_mod
+   use fsundials_matrix_mod
+   use fnvector_serial_mod
+   use fsunmatrix_sparse_mod
+
+   !======= Declarations =========
+   implicit none
+
+   ! calling variables
+   double precision, value :: t          ! current time
+   type(SUNMatrix)         :: sunmat_M   ! Jacobian SUNMatrix
+   type(c_ptr),    value   :: user_data  ! user-defined data
+   type(N_Vector)          :: sunvec_t1  ! temporary N_Vectors
+   type(N_Vector)          :: sunvec_t2
+   type(N_Vector)          :: sunvec_t3
+
+   ! Local data
+   integer(c_int)   :: ix, nz, Nint
+   double precision :: xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
+   logical          :: left, right
+
+   ! pointers to data in SUNDIALS vectors
+   integer(c_long), pointer, dimension(nnz)    :: Mcolvals(:)
+   integer(c_long), pointer, dimension(neq+1)  :: Mrowptrs(:)
+   double precision, pointer, dimension(nnz)   :: Mdata(:)
+
+   !======= Internals ============
+   ! get data arrays from SUNDIALS vectors
+   Mdata(1:nnz)         => FSUNSparseMatrix_Data(sunmat_M)
+   Mcolvals(1:nnz)      => FSUNSparseMatrix_IndexValues(sunmat_M)
+   Mrowptrs(1:neq+1)    => FSUNSparseMatrix_IndexPointers(sunmat_M)
+
+   ! check that vector/matrix dimensions match up
+   if ((3*N /= neq) .or. (nnz /= 15*neq)) then
+      ierr = 1
+      return
+   end if
+
+   ! set integer*4 version of N for call to idx()
+   Nint = N
+
+   ! clear out Jacobian matrix data
+   Mdata = 0.d0
+   nz = 0
+
+   ! iterate through nodes, filling in matrix by rows
+   do ix=1,N
+
+      ! set booleans to determine whether intervals exist on the left/right */
+      left  = .true.
+      right = .true.
+      if (ix==1)  left  = .false.
+      if (ix==N)  right = .false.
+
+      ! set nodal value shortcuts (interval index aligns with left node)
+      if (left) then
+         xl = x(ix-1)
+      end if
+      xc = x(ix)
+      if (right) then
+         xr = x(ix+1)
+      end if
+
+      ! compute entries of all mass matrix rows at node ix
+      Ml = 0.d0
+      Mc = 0.d0
+      Mr = 0.d0
+
+      ! first compute dependence on values to left and center
+      if (left) then
+
+         ChiL1 = ChiL(xl, xc, X1(xl,xc))
+         ChiL2 = ChiL(xl, xc, X2(xl,xc))
+         ChiL3 = ChiL(xl, xc, X3(xl,xc))
+         ChiR1 = ChiR(xl, xc, X1(xl,xc))
+         ChiR2 = ChiR(xl, xc, X2(xl,xc))
+         ChiR3 = ChiR(xl, xc, X3(xl,xc))
+
+         Ml = Ml + Quad(ChiL1*ChiR1, ChiL2*ChiR2, ChiL3*ChiR3, xl, xc)
+         Mc = Mc + Quad(ChiR1*ChiR1, ChiR2*ChiR2, ChiR3*ChiR3, xl, xc)
+
+      end if
+
+      ! second compute dependence on values to center and right
+      if (right) then
+
+         ChiL1 = ChiL(xc, xr, X1(xc,xr))
+         ChiL2 = ChiL(xc, xr, X2(xc,xr))
+         ChiL3 = ChiL(xc, xr, X3(xc,xr))
+         ChiR1 = ChiR(xc, xr, X1(xc,xr))
+         ChiR2 = ChiR(xc, xr, X2(xc,xr))
+         ChiR3 = ChiR(xc, xr, X3(xc,xr))
+
+         Mc = Mc + Quad(ChiL1*ChiL1, ChiL2*ChiL2, ChiL3*ChiL3, xc, xr)
+         Mr = Mr + Quad(ChiL1*ChiR1, ChiL2*ChiR2, ChiL3*ChiR3, xc, xr)
+
+      end if
+
+
+      ! insert mass matrix entries into CSR matrix structure
+
+      !   u row
+      Mrowptrs(idx(ix,1)+1) = nz
+      if (left) then
+         nz = nz+1
+         Mdata(nz) = Ml
+         Mcolvals(nz) = idx(ix-1,1)
+      end if
+      nz = nz+1
+      Mdata(nz) = Mc
+      Mcolvals(nz) = idx(ix,1)
+      if (right) then
+         nz = nz+1
+         Mdata(nz) = Mr
+         Mcolvals(nz) = idx(ix+1,1)
+      end if
+
+      !   v row
+      Mrowptrs(idx(ix,2)+1) = nz
+      if (left) then
+         nz = nz+1
+         Mdata(nz) = Ml
+         Mcolvals(nz) = idx(ix-1,2)
+      end if
+      nz = nz+1
+      Mdata(nz) = Mc
+      Mcolvals(nz) = idx(ix,2)
+      if (right) then
+         nz = nz+1
+         Mdata(nz) = Mr
+         Mcolvals(nz) = idx(ix+1,2)
+      end if
+
+      !   w row
+      Mrowptrs(idx(ix,3)+1) = nz
+      if (left) then
+         nz = nz+1
+         Mdata(nz) = Ml
+         Mcolvals(nz) = idx(ix-1,3)
+      end if
+      nz = nz+1
+      Mdata(nz) = Mc
+      Mcolvals(nz) = idx(ix,3)
+      if (right) then
+         nz = nz+1
+         Mdata(nz) = Mr
+         Mcolvals(nz) = idx(ix+1,3)
+      end if
+
+   end do
+
+   ! signal end of data in CSR matrix
+   Mrowptrs(idx(Nint,3)+2) = nz
+
+   ! return success
+   ierr = 0
+   return
+
+   end function Mass
+
 end module ode_mod
 !-----------------------------------------------------------------
 
@@ -840,8 +1027,8 @@ end module ode_mod
    use fsundials_matrix_mod       ! Fortran interface to the generic SUNMatrix
    use fsundials_linearsolver_mod ! Fortran interface to the generic SUNLinearSolver
    use fnvector_serial_mod        ! Fortran interface to serial N_Vector
-   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
-   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
+   use fsunmatrix_sparse_mod      ! Fortran interface to sparse SUNMatrix
+   use fsunlinsol_klu_mod         ! Fortran interface to dense SUNLinearSolver
    use fsundials_context_mod      ! Fortran interface to SUNContext
    use UserData                   ! Declarations and indexing
 
@@ -849,25 +1036,21 @@ end module ode_mod
    implicit none
 
    ! local variables
-   type(c_ptr)    :: ctx                      ! SUNDIALS context for the simulation
-   real(c_double) :: tstart                   ! initial time
-   real(c_double) :: tend                     ! final time
-   real(c_double) :: rtol, atol               ! relative and absolute tolerance
-   real(c_double) :: dtout                    ! output time interval
-   real(c_double) :: tout                     ! output time
-   real(c_double) :: tcur(1)                  ! current time
-   integer(c_int) :: imethod, idefault, pq    ! time step adaptivity parameters
-   real(c_double) :: adapt_params(3)          ! time step adaptivity parameters
-   integer(c_int) :: ierr                     ! error flag from C functions
-   integer(c_int) :: nout                     ! number of outputs
-   integer(c_int) :: outstep                  ! output loop counter
-   integer(c_int) :: ordering, sparsetype     ! AMD and CSR types respectively
-   integer(c_long):: mxsteps                  ! max num steps
-   real(c_double) :: pi, h, z                 ! constants and variables to help with mesh
-
-   ! real(c_double), parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
-   ! integer(c_int), parameter :: order = 3        ! method order
-
+   type(c_ptr)      :: ctx                      ! SUNDIALS context for the simulation
+   double precision :: tstart                   ! initial time
+   double precision :: tend                     ! final time
+   double precision :: rtol, atol               ! relative and absolute tolerance
+   double precision :: dtout                    ! output time interval
+   double precision :: tout                     ! output time
+   double precision :: tcur(1)                  ! current time
+   double precision :: pi, h, z                 ! constants and variables to help with mesh
+   integer(c_int)   :: time_dep                 ! time dependence parameter
+   integer(c_int)   :: ierr                     ! error flag from C functions
+   integer(c_int)   :: nout                     ! number of outputs
+   integer(c_int)   :: outstep                  ! output loop counter
+   integer(c_int)   :: sparsetype               ! CSR signal, here
+   integer(c_long)  :: mxsteps                  ! max num steps
+   
    type(N_Vector),        pointer :: sunvec_y    ! sundials vector
    type(N_Vector),        pointer :: sunvec_u    ! sundials vector
    type(N_Vector),        pointer :: sunvec_v    ! sundials vector
@@ -877,10 +1060,10 @@ end module ode_mod
    type(SUNLinearSolver), pointer :: sunls_A     ! sundials linear solver
    type(SUNLinearSolver), pointer :: sunls_M     ! sundials linear solver
    type(c_ptr)                    :: arkode_mem  ! ARKODE memory
-   real(c_double),        pointer :: yvec(:,:)   ! underlying vector y
-   real(c_double),        pointer :: umask(:,:)  ! identifier for u
-   real(c_double),        pointer :: vmask(:,:)  ! identifier for v
-   real(c_double),        pointer :: wmask(:,:)  ! identifier for w
+   double precision,      pointer :: yvec(:,:)   ! underlying vector y
+   double precision,      pointer :: umask(:,:)  ! identifier for u
+   double precision,      pointer :: vmask(:,:)  ! identifier for v
+   double precision,      pointer :: wmask(:,:)  ! identifier for w
 
    !======= Internals ============
 
@@ -941,7 +1124,7 @@ end module ode_mod
    end do
    close(200)
 
-   ! set initial conditions into yvec (Update)
+   ! set initial conditions into yvec
    do i=1,N
       yvec(1,i) =  a  + 0.1d0*sin(pi*x(i))   ! u0
       yvec(2,i) = b/a + 0.1d0*sin(pi*x(i))   ! v0
@@ -963,8 +1146,6 @@ end module ode_mod
    if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
 
    ! Tell ARKODE to use a sparse linear solver.
-   nnz = 15*neq
-   ordering = 0
    sparsetype = 1
    sunmat_A => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
    if (.not. associated(sunmat_A)) then
@@ -996,22 +1177,22 @@ end module ode_mod
      stop 1
    end if
 
+   ierr = FARKStepSetMassFn(arkode_mem, c_funloc(Mass))
+   if (ierr /= 0) then
+     print *, 'Error in FARKStepSetMassFn'
+     stop 1
+   end if
+
    sunls_M => FSUNLinSol_KLU(sunvec_y, sunmat_M, ctx)
    if (.not. associated(sunls_M)) then
       print *, 'ERROR: sunls_M = NULL'
       stop 1
    end if
 
-   ! Update to include time_dep = 0
-   ierr = FARKStepSetMassLinearSolver(arkode_mem, sunls_M, sunmat_M)
+   time_dep = 0
+   ierr = FARKStepSetMassLinearSolver(arkode_mem, sunls_M, sunmat_M, time_dep)
    if (ierr /= 0) then
      print *, 'Error in FARKStepSetMassLinearSolver'
-     stop 1
-   end if
-
-   ierr = FARKStepSetMassFn(arkode_mem, c_funloc(Mass))
-   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetMassFn'
      stop 1
    end if
 
@@ -1025,13 +1206,11 @@ end module ode_mod
       stop 1
    end if
 
-   ! Need to call FARKStepSetResTolerance(?) with the same atol as above
-
-   ! Update to remove this
-   ierr = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
+   ! set residual tolerance with the same atol as above
+   ierr = FARKStepResStolerance(arkode_mem, atol)
    if (ierr /= 0) then
-     print *, 'Error in FARKStepSetNonlinConvCoef'
-     stop 1
+      print *, 'Error in FARKStepResStolerance, ierr = ', ierr, '; halting'
+      stop 1
    end if
 
    mxsteps = 1000
@@ -1041,23 +1220,12 @@ end module ode_mod
      stop 1
    end if
 
-   ! Update to remove this
-   imethod = 0
-   idefault = 1
-   pq = 0
-   adapt_params = 0.d0
-   ierr = FARKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
-   if (ierr /= 0) then
-      print *, 'Error in FARKStepSetAdaptivityMethod, ierr = ', ierr, '; halting'
-      stop 1
-   end if
-
    ! Open output stream for results
    open(501, file='bruss_FEM_u.txt')
    open(502, file='bruss_FEM_v.txt')
    open(503, file='bruss_FEM_w.txt')
 
-   ! output initial condition to disk (using yvec)
+   ! output initial condition to disk
    write(501,*) ( yvec(1,i), i=1,N )
    write(502,*) ( yvec(2,i), i=1,N )
    write(503,*) ( yvec(3,i), i=1,N )
@@ -1078,14 +1246,18 @@ end module ode_mod
       ! set the next output time
       tout = min(tout + dtout, tend)
 
-      ! Update to add a call to FARKStepSetStopTime
+      ierr = FARKStepSetStopTime(arkode_mem, tout)
+      if (ierr /= 0) then
+         print *, 'Error in FARKStepSetStopTime, ierr = ', ierr, '; halting'
+         stop 1
+      end if
 
       ! call ARKStep
       ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
       if (ierr < 0) then
          print *, 'Error in FARKStepEvolve, ierr = ', ierr, '; halting'
          stop 1
-      endif
+      end if
 
       ! output current solution information (using yvec)
       print '(3x,4(es12.5,1x))', Tcur, sqrt(sum(yvec*yvec*umask)/N), &
@@ -1137,21 +1309,21 @@ end module ode_mod
 
    integer(c_int)  :: ierr          ! error flag
 
-   integer(c_long) :: nsteps(1)     ! num steps
-   integer(c_long) :: nst_a(1)      ! num steps attempted
-   integer(c_long) :: nfe(1)        ! num explicit function evals
-   integer(c_long) :: nfi(1)        ! num implicit function evals
-   integer(c_long) :: nlinsetups(1) ! num linear solver setups
-   integer(c_long) :: netfails(1)   ! num error test fails
+   integer(c_long)  :: nsteps(1)     ! num steps
+   integer(c_long)  :: nst_a(1)      ! num steps attempted
+   integer(c_long)  :: nfe(1)        ! num explicit function evals
+   integer(c_long)  :: nfi(1)        ! num implicit function evals
+   integer(c_long)  :: nlinsetups(1) ! num linear solver setups
+   integer(c_long)  :: netfails(1)   ! num error test fails
 
-   real(c_double)  :: hinused(1)    ! initial step size
-   real(c_double)  :: hlast(1)      ! last step size
-   real(c_double)  :: hcur(1)       ! step size for next step
-   real(c_double)  :: tcur(1)       ! internal time reached
+   double precision :: hlast(1)      ! last step size
+   double precision :: hcur(1)       ! step size for next step
+   double precision :: tcur(1)       ! internal time reached
 
-   integer(c_long) :: nniters(1)    ! nonlinear solver iterations
-   integer(c_long) :: nncfails(1)   ! nonlinear solver fails
-   integer(c_long) :: njacevals(1)  ! number of Jacobian evaluations
+   integer(c_long)  :: nniters(1)    ! nonlinear solver iterations
+   integer(c_long)  :: nncfails(1)   ! nonlinear solver fails
+   integer(c_long)  :: njacevals(1)  ! number of Jacobian evaluations
+   integer(c_long)  :: nmassevals(1) ! number of Mass matrix evaluations
 
    !======= Internals ============
 
@@ -1170,12 +1342,6 @@ end module ode_mod
    ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
    if (ierr /= 0) then
       print *, 'Error in FARKStepGetNumRhsEvals, retval = ', ierr, '; halting'
-      stop 1
-   end if
-
-   ierr = FARKStepGetActualInitStep(arkode_mem, hinused)
-   if (ierr /= 0) then
-      print *, 'Error in FARKStepGetActualInitStep, retval = ', ierr, '; halting'
       stop 1
    end if
 
@@ -1227,15 +1393,22 @@ end module ode_mod
       stop 1
    end if
 
+   ierr = FARKStepGetNumMassEvals(arkode_mem, nmassevals)
+   if (ierr /= 0) then
+      print *, 'Error in FARKStepGetNumMassEvals, retval = ', ierr, '; halting'
+      stop 1
+   end if
+
    print *, ' '
    print *, ' General Solver Stats:'
    print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
    print '(4x,A,i9)'    ,'Total internal steps attempts =',nst_a
-   print '(4x,A,i9)'    ,'Total rhs exp function call   =',nfe
-   print '(4x,A,i9)'    ,'Total rhs imp function call   =',nfi
+   print '(4x,A,i9)'    ,'Total rhs exp function calls  =',nfe
+   print '(4x,A,i9)'    ,'Total rhs imp function calls  =',nfi
+   print '(4x,A,i9)'    ,'Total jac function calls      =',njacevals
+   print '(4x,A,i9)'    ,'Total mass function calls     =',nmassevals
    print '(4x,A,i9)'    ,'Num lin solver setup calls    =',nlinsetups
    print '(4x,A,i9)'    ,'Num error test failures       =',netfails
-   print '(4x,A,es12.5)','First internal step size      =',hinused
    print '(4x,A,es12.5)','Last internal step size       =',hlast
    print '(4x,A,es12.5)','Next internal step size       =',hcur
    print '(4x,A,es12.5)','Current internal time         =',tcur
