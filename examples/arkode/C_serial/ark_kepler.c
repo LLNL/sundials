@@ -365,7 +365,6 @@ int main(int argc, char* argv[])
     {
       sunrealtype hlast = SUN_RCONST(0.0);
 
-      SPRKStepSetStopTime(arkode_mem, tout);
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       if (retval == ARK_ROOT_RETURN)
@@ -412,7 +411,6 @@ int main(int argc, char* argv[])
   {
     for (iout = 0; iout < num_output_times; iout++)
     {
-      ARKStepSetStopTime(arkode_mem, tout);
       retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       if (retval == ARK_ROOT_RETURN)

@@ -696,6 +696,16 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if (retval!= ARK_SUCCESS) return(retval);
   }
 
+  /* In fixed-step mode, use tstop mode by default since a fixed-step
+     user will expect to hit an exact multiple of their step size. 
+     We have to call arkSetStopTime in arkEvolve (here) with tout since
+     we don't know tout until now.  In this scenario if tstopset is false, 
+     then this means that arkSetClearStopTime was called as we set tstopset
+     when the fixed step is set. */
+  if (ark_mem->fixedstep && ark_mem->tstopset) {
+    arkSetStopTime(ark_mem, tout);
+  }
+
   /* perform stopping tests */
   if (!ark_mem->initsetup)
     if (arkStopTests(ark_mem, tout, yout, tret, itask, &retval))

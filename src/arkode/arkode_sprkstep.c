@@ -155,7 +155,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   /* We use Lagrange interpolation by default otherwise extra RHS calls are
      needed. This is because we cannot reuse the f2 RHS in TakeStep since it is
      a staggered time step. Additionally, it seems Lagrange interpolation does
-     a better job of conservation. */
+     a better job conserving the system Hamiltonian. */
   arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
@@ -304,7 +304,15 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
 {
   int retval;
   SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+
+  /* We set the tstop with SPRKStep by default because we usually 
+     want to hit the tout exactly since a fixed time step is typically used. 
+     The stop time can be cleared by a user with SPRKStepClearStopTime. */
+  if (arkode_mem)
+  arkSetStopTime((ARKodeMem)arkode_mem, tout);
+
   retval = arkEvolve((ARKodeMem)arkode_mem, tout, yout, tret, itask);
+
   SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
   return (retval);
 }
