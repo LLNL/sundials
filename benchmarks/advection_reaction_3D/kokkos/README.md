@@ -83,7 +83,7 @@ GPUs. See the installation guide for more details on configuring, building,
 and installing SUNDIALS.
 
 Based on the configuration the following executables will be built and installed
-in the `<install prefix>/bin/benchmarks/advection_reaction_3D/kokkos` directory:
+in the `<benchmarks install prefix>/advection_reaction_3D/kokkos` directory:
 
 * `advection_reaction_3D_kokkos.SERIAL` -- MPI parallelism
 * `advection_reaction_3D_kokkos.OPENMP` -- MPI + OpenMP parallelism
