@@ -85,20 +85,25 @@
 // Execution space
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
+using MemSpace  = Kokkos::CudaSpace;
 #elif defined(USE_HIP)
 #if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
+using MemSpace  = Kokkos::HIPSpace;
 #else
 using ExecSpace = Kokkos::Experimental::HIP;
+using MemSpace  = Kokkos::Experimental::HIPSpace;
 #endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
+using MemSpace  = Kokkos::HostSpace;
 #else
 using ExecSpace = Kokkos::Serial;
+using MemSpace  = Kokkos::HostSpace;
 #endif
 
-using Vec1D     = Kokkos::View<realtype*>;
-using Vec2D     = Kokkos::View<realtype**, Kokkos::LayoutRight>;
+using Vec1D     = Kokkos::View<realtype*, MemSpace>;
+using Vec2D     = Kokkos::View<realtype**, Kokkos::LayoutRight, MemSpace>;
 using Vec2DHost = Vec2D::HostMirror;
 using VecType   = sundials::kokkos::Vector<ExecSpace>;
 using MatType   = sundials::kokkos::DenseMatrix<ExecSpace>;
