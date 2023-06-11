@@ -9,9 +9,11 @@ This code simulates the advection and reaction of three chemical species where
 the reaction mechanism is a variation of the Brusselator problem from chemical
 kinetics. The PDE system is given by
 ```math
-    u_t = -c \nabla u + A - (w+1) u + v u^2
-    v_t = -c \nabla v + w u - v u^2
-    w_t = -c \nabla w + (B - w) / \epsilon - w u
+\begin{align}
+  u_t &= -c \nabla u + A - (w+1) u + v u^2 \\
+  v_t &= -c \nabla v + w u - v u^2 \\
+  w_t &= -c \nabla w + (B - w) / \epsilon - w u
+\end{align}
 ```
 where $u$, $v$, and $w$ are chemical concentrations, $c$ is the advection speed,
 $A$ and $B$ are the concentrations of chemical species that remain constant over
@@ -19,13 +21,15 @@ space and time, and $\epsilon$ is a parameter that varies the stiffness of the
 system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$, 
 for times $t$ in $[0,t_f]$. The initial condition is
 ```math
-    u(0,X) = A + p(X)
-    v(0,X) = B / A + p(X)
-    w(0,X) = 3.0 + p(X)
+\begin{align}
+    u(0,X) &= A + p(X) \\
+    v(0,X) &= B / A + p(X) \\
+    w(0,X) &= 3.0 + p(X)
+\end{align}
 ```
 where the perturbation function is
 ```math
-    p(X) = \alpha e^( -((X-\mu)^T \sigma^{-1} (X-\mu)) / (2 \sqrt(|\sigma| 8 \pi^3)) )
+    p(X) = \alpha e^{-(X-\mu)^T \sigma^{-1} (X-\mu) / 2 \sqrt{|\sigma| 8 \pi^3}}
 ```
 with $\alpha = 0.1$, $\mu = 0.5 X_{\text{max}}$, and $\sigma$ is a diagonal 
 matrix with entries $0.25 X_{\text{max}}$.
