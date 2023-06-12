@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 # required native matrices
-#add_subdirectory(exp_gus)
+add_subdirectory(exp_gus)
 add_subdirectory(fixed)
 add_subdirectory(i_control)
 #add_subdirectory(imex_gus)
