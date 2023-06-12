@@ -62,7 +62,6 @@ endforeach()
 foreach(tpl ${SUNDIALS_TPL_LIST})
   set(SUNDIALS_${tpl}_ENABLED TRUE)
 endforeach()
-list(LENGTH SUNDIALS_TPL_LIST SUNDIALS_TPL_LIST_SIZE)
 
 # prepare substitution variable SUNDIALS_TRILINOS_HAVE_MPI for sundials_config.h
 if(Trilinos_MPI)

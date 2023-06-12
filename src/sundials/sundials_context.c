@@ -225,7 +225,6 @@ void sunAdiakCollectMetadata() {
   adiak_clustername();
 
   adiak_job_size();
-  adiak_hostlist();
   adiak_num_hosts();
 
   adiak_namevalue("cxx_compiler", 2, NULL, "%s", SUN_CXX_COMPILER);
