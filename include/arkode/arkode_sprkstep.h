@@ -84,7 +84,6 @@ SUNDIALS_EXPORT int SPRKStepSetErrHandlerFn(void* arkode_mem,
 SUNDIALS_EXPORT int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp);
 SUNDIALS_EXPORT int SPRKStepSetUserData(void* arkode_mem, void* user_data);
 
-/* TODO(CJB): implement these */
 SUNDIALS_EXPORT int SPRKStepSetPostprocessStepFn(void* arkode_mem,
                                                  ARKPostProcessFn ProcessStep);
 SUNDIALS_EXPORT int SPRKStepSetPostprocessStageFn(void* arkode_mem,

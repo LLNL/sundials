@@ -429,7 +429,7 @@ int sprkStep_Init(void* arkode_mem, int init_type)
   ark_mem->call_fullrhs = SUNFALSE;
 
   // TODO(CJB): setting this to NULL is not supported in arkode right now.
-  // Should this really exist in fixed step mode? 
+  // Should this really exist in fixed step mode?
   // ark_mem->hadapt_mem = NULL;
 
   return (ARK_SUCCESS);
@@ -585,6 +585,14 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
     /* Velocity update */
     N_VLinearSum(ONE, curr_stage, ark_mem->h * ai, step_mem->sdata, curr_stage);
 
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur, ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) return (ARK_POSTPROCESS_STAGE_FAIL);
+    }
+
     /* keep track of the stage number */
     step_mem->istage++;
 
@@ -667,6 +675,17 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
        [            ] = [                ] + [       ] */
     N_VLinearSum(ONE, delta_Yi, ark_mem->h * method->a[is], step_mem->sdata,
                  delta_Yi);
+
+    /* if user-supplied stage postprocessing function, we error out since it
+     * wont work with the increment form */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      arkProcessError(ark_mem, ARK_POSTPROCESS_STAGE_FAIL, "SPRKStep",
+                      "sprkStep_TakeStep_Compensated",
+                      "Compensated summation is not compatible with stage "
+                      "PostProcessing!\n");
+      return (ARK_POSTPROCESS_STAGE_FAIL);
+    }
   }
 
   /*
