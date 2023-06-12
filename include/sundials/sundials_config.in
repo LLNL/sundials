@@ -159,7 +159,6 @@
 #define SUN_MAGMA_VERSION "@MAGMA_VERSION@"
 
 /* MPI */
-#cmakedefine SUNDIALS_MPI_ENABLED
 #define SUN_MPI_VERSION "@MPI_VERSION@"
 
 /* ONEMKL */
