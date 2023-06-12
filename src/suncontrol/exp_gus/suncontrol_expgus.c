@@ -31,7 +31,20 @@
 #define SC_EXPGUS_SAFETY(C)      ( SC_EXPGUS_CONTENT(C)->safety )
 #define SC_EXPGUS_EP(C)          ( SC_EXPGUS_CONTENT(C)->ep )
 #define SC_EXPGUS_P(C)           ( SC_EXPGUS_CONTENT(C)->p )
+#define SC_EXPGUS_PQ(C)          ( SC_EXPGUS_CONTENT(C)->pq )
 #define SC_EXPGUS_FIRSTSTEP(C)   ( SC_EXPGUS_CONTENT(C)->firststep )
+
+/* ------------------
+ * Default parameters
+ * ------------------ */
+
+#define DEFAULT_K1     RCONST(0.367)
+#define DEFAULT_K2     RCONST(0.268)
+#define DEFAULT_BIAS   RCONST(1.5)
+#define DEFAULT_SAFETY RCONST(0.96)
+#define DEFAULT_PQ     SUNFALSE
+#define TINY           RCONST(1.0e-10)
+
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -52,17 +65,18 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid           = SUNControlGetID_ExpGus;
-  C->ops->destroy         = SUNControlDestroy_ExpGus;
-  C->ops->estimatestep    = SUNControlEstimateStep_ExpGus;
-  C->ops->reset           = SUNControlReset_ExpGus;
-  C->ops->setdefaults     = SUNControlSetDefaults_ExpGus;
-  C->ops->write           = SUNControlWrite_ExpGus;
-  C->ops->setmethodorder  = SUNControlSetMethodOrder_ExpGus;
-  C->ops->setsafetyfactor = SUNControlSetSafetyFactor_ExpGus;
-  C->ops->seterrorbias    = SUNControlSetErrorBias_ExpGus;
-  C->ops->update          = SUNControlUpdate_ExpGus;
-  C->ops->space           = SUNControlSpace_ExpGus;
+  C->ops->getid             = SUNControlGetID_ExpGus;
+  C->ops->destroy           = SUNControlDestroy_ExpGus;
+  C->ops->estimatestep      = SUNControlEstimateStep_ExpGus;
+  C->ops->reset             = SUNControlReset_ExpGus;
+  C->ops->setdefaults       = SUNControlSetDefaults_ExpGus;
+  C->ops->write             = SUNControlWrite_ExpGus;
+  C->ops->setmethodorder    = SUNControlSetMethodOrder_ExpGus;
+  C->ops->setembeddingorder = SUNControlSetMethodOrder_ExpGus;
+  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_ExpGus;
+  C->ops->seterrorbias      = SUNControlSetErrorBias_ExpGus;
+  C->ops->update            = SUNControlUpdate_ExpGus;
+  C->ops->space             = SUNControlSpace_ExpGus;
 
   /* Create content */
   content = NULL;
@@ -85,6 +99,20 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
 
   /* Attach content and return */
   return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set ExpGus parameters
+ */
+
+SUNControl SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
+                                      realtype k1, realtype k2)
+{
+  /* store legal inputs, and return with success */
+  SC_EXPGUS_PQ(C) = pq;
+  if (k1 >= RCONST(0.0)) { SC_EXPGUS_K1(C) = k1; }
+  if (k2 >= RCONST(0.0)) { SC_EXPGUS_K2(C) = k2; }
+  return SUNCONTROL_SUCCESS;
 }
 
 
@@ -135,7 +163,6 @@ int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
     const realtype k1 = -SC_EXPGUS_K1(C) / SC_EXPGUS_P(C);
     const realtype k2 = -SC_EXPGUS_K2(C) / SC_EXPGUS_P(C);
     const realtype ecur = SC_EXPGUS_BIAS(C) * dsm;
-    const realtype TINY = RCONST(1.0e-10);
     const realtype e1 = SUNMAX(ecur, TINY);
     const realtype e2 = e1 / SUNMAX(SC_EXPGUS_EP(C), TINY);
 
@@ -155,67 +182,103 @@ int SUNControlReset_ExpGus(SUNControl C)
 
 int SUNControlSetDefaults_ExpGus(SUNControl C)
 {
-  SC_EXPGUS_K1(C)     = RCONST(0.367);
-  SC_EXPGUS_K2(C)     = RCONST(0.268);
-  SC_EXPGUS_BIAS(C)   = RCONST(1.5);
-  SC_EXPGUS_SAFETY(C) = RCONST(0.96);
+  SC_EXPGUS_K1(C)     = DEFAULT_K1;
+  SC_EXPGUS_K2(C)     = DEFAULT_K2;
+  SC_EXPGUS_BIAS(C)   = DEFAULT_BIAS;
+  SC_EXPGUS_SAFETY(C) = DEFAULT_SAFETY;
+  SC_EXPGUS_PQ(C)     = DEFAULT_PQ;
 }
 
 int SUNControlWrite_ExpGus(SUNControl C, FILE *fptr)
 {
   fprintf(fptr, "SUNControl_ExpGus module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1 = %12Lg", SC_EXPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12Lg", SC_EXPGUS_K2(C));
-  fprintf(fptr, "  bias = %12Lg", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg", SC_EXPGUS_SAFETY(C));
-  fprintf(fptr, "  ep = %12Lg", SC_EXPGUS_EP(C));
+  fprintf(fptr, "  k1 = %12Lg\n", SC_EXPGUS_K1(C));
+  fprintf(fptr, "  k2 = %12Lg\n", SC_EXPGUS_K2(C));
+  fprintf(fptr, "  bias = %12Lg\n", SC_EXPGUS_BIAS(C));
+  fprintf(fptr, "  safety = %12Lg\n", SC_EXPGUS_SAFETY(C));
+  fprintf(fptr, "  ep = %12Lg\n", SC_EXPGUS_EP(C));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g", SC_EXPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12g", SC_EXPGUS_K2(C));
-  fprintf(fptr, "  bias = %12g", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g", SC_EXPGUS_SAFETY(C));
-  fprintf(fptr, "  ep = %12g", SC_EXPGUS_EP(C));
+  fprintf(fptr, "  k1 = %12g\n", SC_EXPGUS_K1(C));
+  fprintf(fptr, "  k2 = %12g\n", SC_EXPGUS_K2(C));
+  fprintf(fptr, "  bias = %12g\n", SC_EXPGUS_BIAS(C));
+  fprintf(fptr, "  safety = %12g\n", SC_EXPGUS_SAFETY(C));
+  fprintf(fptr, "  ep = %12g\n", SC_EXPGUS_EP(C));
 #else
-  fprintf(fptr, "  k1 = %12g", SC_EXPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12g", SC_EXPGUS_K2(C));
-  fprintf(fptr, "  bias = %12g", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g", SC_EXPGUS_SAFETY(C));
-  fprintf(fptr, "  ep = %12g", SC_EXPGUS_EP(C));
+  fprintf(fptr, "  k1 = %12g\n", SC_EXPGUS_K1(C));
+  fprintf(fptr, "  k2 = %12g\n", SC_EXPGUS_K2(C));
+  fprintf(fptr, "  bias = %12g\n", SC_EXPGUS_BIAS(C));
+  fprintf(fptr, "  safety = %12g\n", SC_EXPGUS_SAFETY(C));
+  fprintf(fptr, "  ep = %12g\n", SC_EXPGUS_EP(C));
 #endif
-  fprintf(fptr, "  p = %i", SC_EXPGUS_P(C));
-  fprintf(fptr, "  firststep = %i", SC_EXPGUS_FIRSTSTEP(C));
+  if (SC_EXPGUS_PQ(C))
+  {
+    fprintf(fptr, "  p = %i (method order)\n", SC_EXPGUS_PI(C));
+  }
+  else
+  {
+    fprintf(fptr, "  p = %i (embedding order)\n", SC_EXPGUS_PI(C));
+  }
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetMethodOrder_ExpGus(SUNControl C, int p)
+int SUNControlSetMethodOrder_EXPGUS(SUNControl C, int q)
 {
-  SC_EXPGUS_P(C) = p;
+  /* check for legal input */
+  if (q <= 0) { return SUNCONTROL_ILL_INPUT; }
+
+  /* store if "pq" specifies to use method order */
+  if (SC_EXPGUS_PQ(C)) { SC_EXPGUS_P(C) = q; }
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetSafetyFactor_ExpGus(SUNControl C, realtype safety)
+int SUNControlSetEmbeddingOrder_EXPGUS(SUNControl C, int p)
 {
-  SC_EXPGUS_SAFETY(C) = safety;
+  /* check for legal input */
+  if (p <= 0) { return SUNCONTROL_ILL_INPUT; }
+
+  /* store if "pq" specifies to use method order */
+  if (!SC_EXPGUS_PQ(C)) { SC_EXPGUS_P(C) = p; }
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetErrorBias_ExpGus(SUNControl C, realtype bias)
+int SUNControlSetSafetyFactor_EXPGUS(SUNControl C, realtype safety)
 {
-  SC_EXPGUS_BIAS(C) = bias;
+  /* check for legal input */
+  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
+
+  /* set positive-valued parameters, otherwise set default */
+  if (safety <= RCONST(0.0)) {
+    SC_EXPGUS_SAFETY(C) = DEFAULT_SAFETY;
+  } else {
+    SC_EXPGUS_SAFETY(C) = safety;
+  }
+
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlUpdate_ExpGus(SUNControl C, realtype h, realtype dsm)
+int SUNControlSetErrorBias_EXPGUS(SUNControl C, realtype bias)
+{
+  /* set allowed value, otherwise set default */
+  if (bias <= RCONST(0.0)) {
+    SC_EXPGUS_BIAS(C) = DEFAULT_BIAS;
+  } else {
+    SC_EXPGUS_BIAS(C) = bias;
+  }
+
+  return SUNCONTROL_SUCCESS;
+}
+
+int SUNControlUpdate_EXPGUS(SUNControl C, realtype h, realtype dsm)
 {
   SC_EXPGUS_EP(C) = SC_EXPGUS_BIAS(C) * dsm;
   SC_EXPGUS_FIRSTSTEP(C) = SUNFALSE;
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSpace_ExpGus(SUNControl C, long int* lenrw, long int* leniw)
+int SUNControlSpace_EXPGUS(SUNControl C, long int* lenrw, long int* leniw)
 {
   *lenrw = 5;
-  *leniw = 2;
+  *leniw = 3;
   return SUNCONTROL_SUCCESS;
 }

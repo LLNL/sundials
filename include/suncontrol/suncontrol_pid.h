@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -29,14 +29,15 @@ extern "C" {
  * -------------------------------- */
 
 struct _SUNControlContent_PID {
-  realtype k1;     /* internal controller parameters */
+  realtype k1;        /* internal controller parameters */
   realtype k2;
   realtype k3;
-  realtype bias;   /* error bias factor */
-  realtype safety; /* step safety factor */
-  realtype ep;     /* error from previous step */
-  realtype epp;    /* error from 2 steps ago */
-  int p;           /* order of accuracy to use for controller */
+  realtype bias;      /* error bias factor */
+  realtype safety;    /* step safety factor */
+  realtype ep;        /* error from previous step */
+  realtype epp;       /* error from 2 steps ago */
+  int p;              /* order of accuracy to use for controller */
+  sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
 };
 
 typedef struct _SUNControlContent_PID *SUNControlContent_PID;
@@ -48,8 +49,8 @@ typedef struct _SUNControlContent_PID *SUNControlContent_PID;
 SUNDIALS_EXPORT
 SUNControl SUNControlPID(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlPID_SetParams(SUNControl C, int p, realtype k1,
-                                   realtype k2, realtype k3);
+SUNControl SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
+                                   realtype k1, realtype k2, realtype k3);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_PID(SUNControl C);
 SUNDIALS_EXPORT
@@ -64,7 +65,9 @@ int SUNControlSetDefaults_PID(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlWrite_PID(SUNControl C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetMethodOrder_PID(SUNControl C, int p);
+int SUNControlSetMethodOrder_PID(SUNControl C, int q);
+SUNDIALS_EXPORT
+int SUNControlSetEmbeddingOrder_PID(SUNControl C, int p);
 SUNDIALS_EXPORT
 int SUNControlSetSafetyFactor_PID(SUNControl C, realtype safety);
 SUNDIALS_EXPORT

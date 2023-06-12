@@ -33,6 +33,20 @@
 #define SC_PID_EP(C)          ( SC_PID_CONTENT(C)->ep )
 #define SC_PID_EPP(C)         ( SC_PID_CONTENT(C)->epp )
 #define SC_PID_P(C)           ( SC_PID_CONTENT(C)->p )
+#define SC_PID_PQ(C)          ( SC_PID_CONTENT(C)->pq )
+
+/* ------------------
+ * Default parameters
+ * ------------------ */
+
+#define DEFAULT_K1     RCONST(0.58)
+#define DEFAULT_K2     RCONST(0.21)
+#define DEFAULT_K3     RCONST(0.1)
+#define DEFAULT_BIAS   RCONST(1.5)
+#define DEFAULT_SAFETY RCONST(0.96)
+#define DEFAULT_PQ     SUNFALSE
+#define TINY           RCONST(1.0e-10)
+
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -53,17 +67,18 @@ SUNControl SUNControlPID(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid           = SUNControlGetID_PID;
-  C->ops->destroy         = SUNControlDestroy_PID;
-  C->ops->estimatestep    = SUNControlEstimateStep_PID;
-  C->ops->reset           = SUNControlReset_PID;
-  C->ops->setdefaults     = SUNControlSetDefaults_PID;
-  C->ops->write           = SUNControlWrite_PID;
-  C->ops->setmethodorder  = SUNControlSetMethodOrder_PID;
-  C->ops->setsafetyfactor = SUNControlSetSafetyFactor_PID;
-  C->ops->seterrorbias    = SUNControlSetErrorBias_PID;
-  C->ops->update          = SUNControlUpdate_PID;
-  C->ops->space           = SUNControlSpace_PID;
+  C->ops->getid             = SUNControlGetID_PID;
+  C->ops->destroy           = SUNControlDestroy_PID;
+  C->ops->estimatestep      = SUNControlEstimateStep_PID;
+  C->ops->reset             = SUNControlReset_PID;
+  C->ops->setdefaults       = SUNControlSetDefaults_PID;
+  C->ops->write             = SUNControlWrite_PID;
+  C->ops->setmethodorder    = SUNControlSetMethodOrder_PID;
+  C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_PID;
+  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_PID;
+  C->ops->seterrorbias      = SUNControlSetErrorBias_PID;
+  C->ops->update            = SUNControlUpdate_PID;
+  C->ops->space             = SUNControlSpace_PID;
 
   /* Create content */
   content = NULL;
@@ -88,6 +103,20 @@ SUNControl SUNControlPID(SUNContext sunctx)
   return (C);
 }
 
+/* -----------------------------------------------------------------
+ * Function to set PID parameters
+ */
+
+SUNControl SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
+                                   realtype k1, realtype k2, realtype k3)
+{
+  /* store legal inputs, and return with success */
+  SC_PID_PQ(C) = pq;
+  if (k1 >= RCONST(0.0)) { SC_PID_K1(C) = k1; }
+  if (k2 >= RCONST(0.0)) { SC_PID_K2(C) = k2; }
+  if (k3 >= RCONST(0.0)) { SC_PID_K3(C) = k3; }
+  return SUNCONTROL_SUCCESS;
+}
 
 
 /* -----------------------------------------------------------------
@@ -125,7 +154,6 @@ int SUNControlEstimateStep_PID(SUNControl C, realtype h,
   const realtype k2 =  SC_PID_K2(C) / SC_PID_P(C);
   const realtype k3 = -SC_PID_K3(C) / SC_PID_P(C);
   const realtype ecur = SC_PID_BIAS(C) * dsm;
-  const realtype TINY = RCONST(1.0e-10);
   const realtype e1 = SUNMAX(ecur, TINY);
   const realtype e2 = SUNMAX(SC_PID_EP(C), TINY);
   const realtype e3 = SUNMAX(SC_PID_EPP(C), TINY);
@@ -144,60 +172,97 @@ int SUNControlReset_PI(SUNControl C)
 
 int SUNControlSetDefaults_PID(SUNControl C)
 {
-  SC_PID_K1(C)     = RCONST(0.58);
-  SC_PID_K2(C)     = RCONST(0.21);
-  SC_PID_K3(C)     = RCONST(0.1);
-  SC_PID_BIAS(C)   = RCONST(1.5);
-  SC_PID_SAFETY(C) = RCONST(0.96);
+  SC_PID_K1(C)     = DEFAULT_K1;
+  SC_PID_K2(C)     = DEFAULT_K2;
+  SC_PID_K3(C)     = DEFAULT_K3;
+  SC_PID_BIAS(C)   = DEFAULT_BIAS;
+  SC_PID_SAFETY(C) = DEFAULT_SAFETY;
+  SC_PID_PQ(C)     = DEFAULT_PQ;
 }
 
 int SUNControlWrite_PID(SUNControl C, FILE *fptr)
 {
   fprintf(fptr, "SUNControl_PID module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1 = %12Lg", SC_PID_K1(C));
-  fprintf(fptr, "  k2 = %12Lg", SC_PID_K2(C));
-  fprintf(fptr, "  k3 = %12Lg", SC_PID_K3(C));
-  fprintf(fptr, "  bias = %12Lg", SC_PID_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg", SC_PID_SAFETY(C));
-  fprintf(fptr, "  ep = %12Lg", SC_PID_EP(C));
-  fprintf(fptr, "  epp = %12Lg", SC_PID_EPP(C));
+  fprintf(fptr, "  k1 = %12Lg\n", SC_PID_K1(C));
+  fprintf(fptr, "  k2 = %12Lg\n", SC_PID_K2(C));
+  fprintf(fptr, "  k3 = %12Lg\n", SC_PID_K3(C));
+  fprintf(fptr, "  bias = %12Lg\n", SC_PID_BIAS(C));
+  fprintf(fptr, "  safety = %12Lg\n", SC_PID_SAFETY(C));
+  fprintf(fptr, "  ep = %12Lg\n", SC_PID_EP(C));
+  fprintf(fptr, "  epp = %12Lg\n", SC_PID_EPP(C));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g", SC_PID_K1(C));
-  fprintf(fptr, "  k2 = %12g", SC_PID_K2(C));
-  fprintf(fptr, "  k3 = %12g", SC_PID_K3(C));
-  fprintf(fptr, "  bias = %12g", SC_PID_BIAS(C));
-  fprintf(fptr, "  safety = %12g", SC_PID_SAFETY(C));
-  fprintf(fptr, "  ep = %12g", SC_PID_EP(C));
-  fprintf(fptr, "  epp = %12g", SC_PID_EPP(C));
+  fprintf(fptr, "  k1 = %12g\n", SC_PID_K1(C));
+  fprintf(fptr, "  k2 = %12g\n", SC_PID_K2(C));
+  fprintf(fptr, "  k3 = %12g\n", SC_PID_K3(C));
+  fprintf(fptr, "  bias = %12g\n", SC_PID_BIAS(C));
+  fprintf(fptr, "  safety = %12g\n", SC_PID_SAFETY(C));
+  fprintf(fptr, "  ep = %12g\n", SC_PID_EP(C));
+  fprintf(fptr, "  epp = %12g\n", SC_PID_EPP(C));
 #else
-  fprintf(fptr, "  k1 = %12g", SC_PID_K1(C));
-  fprintf(fptr, "  k2 = %12g", SC_PID_K2(C));
-  fprintf(fptr, "  k3 = %12g", SC_PID_K3(C));
-  fprintf(fptr, "  bias = %12g", SC_PID_BIAS(C));
-  fprintf(fptr, "  safety = %12g", SC_PID_SAFETY(C));
-  fprintf(fptr, "  ep = %12g", SC_PID_EP(C));
-  fprintf(fptr, "  epp = %12g", SC_PID_EPP(C));
+  fprintf(fptr, "  k1 = %12g\n", SC_PID_K1(C));
+  fprintf(fptr, "  k2 = %12g\n", SC_PID_K2(C));
+  fprintf(fptr, "  k3 = %12g\n", SC_PID_K3(C));
+  fprintf(fptr, "  bias = %12g\n", SC_PID_BIAS(C));
+  fprintf(fptr, "  safety = %12g\n", SC_PID_SAFETY(C));
+  fprintf(fptr, "  ep = %12g\n", SC_PID_EP(C));
+  fprintf(fptr, "  epp = %12g\n", SC_PID_EPP(C));
 #endif
-  fprintf(fptr, "  p = %i", SC_PID_P(C));
+  if (SC_PID_PQ(C))
+  {
+    fprintf(fptr, "  p = %i (method order)\n", SC_PID_PI(C));
+  }
+  else
+  {
+    fprintf(fptr, "  p = %i (embedding order)\n", SC_PID_PI(C));
+  }
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetMethodOrder_PID(SUNControl C, int p)
+int SUNControlSetMethodOrder_PID(SUNControl C, int q)
 {
-  SC_PID_P(C) = p;
+  /* check for legal input */
+  if (q <= 0) { return SUNCONTROL_ILL_INPUT; }
+
+  /* store if "pq" specifies to use method order */
+  if (SC_PID_PQ(C)) { SC_PID_P(C) = q; }
+  return SUNCONTROL_SUCCESS;
+}
+
+int SUNControlSetEmbeddingOrder_PID(SUNControl C, int p)
+{
+  /* check for legal input */
+  if (p <= 0) { return SUNCONTROL_ILL_INPUT; }
+
+  /* store if "pq" specifies to use method order */
+  if (!SC_PID_PQ(C)) { SC_PID_P(C) = p; }
   return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetSafetyFactor_PID(SUNControl C, realtype safety)
 {
-  SC_PID_SAFETY(C) = safety;
+  /* check for legal input */
+  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
+
+  /* set positive-valued parameters, otherwise set default */
+  if (safety <= RCONST(0.0)) {
+    SC_PID_SAFETY(C) = DEFAULT_SAFETY;
+  } else {
+    SC_PID_SAFETY(C) = safety;
+  }
+
   return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetErrorBias_PID(SUNControl C, realtype bias)
 {
-  SC_PID_BIAS(C) = bias;
+  /* set allowed value, otherwise set default */
+  if (bias <= RCONST(0.0)) {
+    SC_PID_BIAS(C) = DEFAULT_BIAS;
+  } else {
+    SC_PID_BIAS(C) = bias;
+  }
+
   return SUNCONTROL_SUCCESS;
 }
 
@@ -211,6 +276,6 @@ int SUNControlUpdate_PID(SUNControl C, realtype h, realtype dsm)
 int SUNControlSpace_PID(SUNControl C, long int* lenrw, long int* leniw)
 {
   *lenrw = 7;
-  *leniw = 1;
+  *leniw = 2;
   return SUNCONTROL_SUCCESS;
 }

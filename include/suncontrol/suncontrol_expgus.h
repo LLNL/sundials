@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -29,13 +29,14 @@ extern "C" {
  * ------------------------------------------------ */
 
 struct _SUNControlContent_ExpGus {
-  realtype k1;            /* internal controller parameters */
+  realtype k1;              /* internal controller parameters */
   realtype k2;
-  realtype bias;          /* error bias factor */
-  realtype safety;        /* step safety factor */
-  realtype ep;            /* error from previous step */
-  int p;                  /* order of accuracy to use for controller */
-  booleantype firststep;  /* flag indicating first step */
+  realtype bias;            /* error bias factor */
+  realtype safety;          /* step safety factor */
+  realtype ep;              /* error from previous step */
+  int p;                    /* order of accuracy to use for controller */
+  sunbooleantype pq;        /* p is embedding order (FALSE) or method order (TRUE) */
+  sunbooleantype firststep; /* flag indicating first step */
 };
 
 typedef struct _SUNControlContent_ExpGus *SUNControlContent_ExpGus;
@@ -47,8 +48,8 @@ typedef struct _SUNControlContent_ExpGus *SUNControlContent_ExpGus;
 SUNDIALS_EXPORT
 SUNControl SUNControlExpGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlExpGus_SetParams(SUNControl C, int p, realtype k1,
-                                      realtype k2, realtype k3);
+SUNControl SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
+                                      realtype k1, realtype k2);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_ExpGus(SUNControl C);
 SUNDIALS_EXPORT
@@ -63,7 +64,9 @@ int SUNControlSetDefaults_ExpGus(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlWrite_ExpGus(SUNControl C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetMethodOrder_ExpGus(SUNControl C, int p);
+int SUNControlSetMethodOrder_ExpGus(SUNControl C, int q);
+SUNDIALS_EXPORT
+int SUNControlSetEmbeddingOrder_ExpGus(SUNControl C, int p);
 SUNDIALS_EXPORT
 int SUNControlSetSafetyFactor_ExpGus(SUNControl C, realtype safety);
 SUNDIALS_EXPORT

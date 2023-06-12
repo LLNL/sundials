@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -29,12 +29,13 @@ extern "C" {
  * ------------------------------- */
 
 struct _SUNControlContent_PI {
-  realtype k1;     /* internal controller parameters */
+  realtype k1;        /* internal controller parameters */
   realtype k2;
-  realtype bias;   /* error bias factor */
-  realtype safety; /* step safety factor */
-  realtype ep;     /* error from previous step */
-  int p;           /* order of accuracy to use for controller */
+  realtype bias;      /* error bias factor */
+  realtype safety;    /* step safety factor */
+  realtype ep;        /* error from previous step */
+  int p;              /* order of accuracy to use for controller */
+  sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
 };
 
 typedef struct _SUNControlContent_PI *SUNControlContent_PI;
@@ -46,8 +47,8 @@ typedef struct _SUNControlContent_PI *SUNControlContent_PI;
 SUNDIALS_EXPORT
 SUNControl SUNControlPI(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlPI_SetParams(SUNControl C, int p, realtype k1,
-                                  realtype k2, realtype k3);
+SUNControl SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
+                                  realtype k1, realtype k2);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_PI(SUNControl C);
 SUNDIALS_EXPORT
@@ -62,7 +63,9 @@ int SUNControlSetDefaults_PI(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlWrite_PI(SUNControl C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetMethodOrder_PI(SUNControl C, int p);
+int SUNControlSetMethodOrder_PI(SUNControl C, int q);
+SUNDIALS_EXPORT
+int SUNControlSetEmbeddingOrder_PI(SUNControl C, int p);
 SUNDIALS_EXPORT
 int SUNControlSetSafetyFactor_PI(SUNControl C, realtype safety);
 SUNDIALS_EXPORT
