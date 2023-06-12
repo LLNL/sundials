@@ -106,8 +106,8 @@ Problem                  Integrator  Nonlinear    Linear  Size           Extras
 =======================  ==========  ===========  ======  =============  =================================
 
 
-ARKode example problems written in Fortran 77 are summarized in the table
-below, and are further described in the chapters :ref:`serial_f77` and
+ARKode example problems written in Fortran 2003 are summarized in the table
+below, and are further described in the chapters :ref:`serial_f2003` and
 :ref:`parallel_f77`. 
 
 .. cssclass:: table-bordered
@@ -117,24 +117,12 @@ Problem                      Integrator  Nonlinear    Linear  Size           Ext
 ==========================   ==========  ===========  ======  =============  =================================
 :ref:`fark_diurnal_kry_bp`   DIRK        Newton       SPGMR   10             banded preconditioner
 :ref:`fark_roberts_dnsL`     DIRK        Newton       Dense   3              LAPACK dense solver, rootfinding
+:ref:`ark_bruss`             ARK         Newton       Dense   3              
+:ref:`ark_bruss1D_FEM_klu`   DIRK        Newton       KLU     3N             finite-element, :math:`M\ne I`, sparse matrices
 :ref:`fark_diag_kry_bbd_p`   DIRK        Newton       SPGMR   10*NProcs      parallel BBD preconditioner
 :ref:`fark_diag_non_p`       ERK         N.A.         N.A.    10*NProcs      parallel
+:ref:`fark_heat2D`           DIRK        Newton       PCG     :math:`nx*ny`  parallel
 ==========================   ==========  ===========  ======  =============  =================================
-
-
-ARKode example problems written in Fortran 90 are summarized in the table
-below, and are further described in the chapters :ref:`serial_f90` and
-:ref:`parallel_f90`. 
-
-.. cssclass:: table-bordered
-
-==========================  ==========  =========  ======  =============  ===============================================
-Problem                     Integrator  Nonlinear  Linear  Size           Extras
-==========================  ==========  =========  ======  =============  ===============================================
-:ref:`ark_bruss`            ARK         Newton     Dense   3              
-:ref:`ark_bruss1D_FEM_klu`  DIRK        Newton     KLU     3N             finite-element, :math:`M\ne I`, sparse matrices
-:ref:`fark_heat2D`          DIRK        Newton     PCG     :math:`nx*ny`  parallel
-==========================  ==========  =========  ======  =============  ===============================================
 
 
 
@@ -154,9 +142,8 @@ Problem                     Integrator  Nonlinear  Linear  Size           Extras
    c_parhyp
    cpp_serial
    cpp_parallel
-   f77_serial
+   f2003_serial
    f77_parallel
-   f90_serial
    f90_parallel
    References           
    
