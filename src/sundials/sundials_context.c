@@ -243,7 +243,7 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("ci_job_id", 2, NULL, "%s", SUN_CI_JOB_ID);
 #endif
 
-#ifdef SUNDIALS_GINGKO_ENABLED
+#ifdef SUNDIALS_GINKGO_ENABLED
   adiak_namevalue("ginkgo_version", 2, NULL, "%s", SUN_GINKGO_VERSION);
 #endif
 
