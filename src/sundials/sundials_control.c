@@ -51,7 +51,6 @@ SUNControl SUNControlNewEmpty(SUNContext sunctx)
   ops->setdefaults          = NULL;
   ops->write                = NULL;
   ops->setmethodorder       = NULL;
-  ops->setembeddingorder    = NULL;
   ops->setsafetyfactor      = NULL;
   ops->seterrorbias         = NULL;
   ops->update               = NULL;
@@ -190,20 +189,10 @@ int SUNControlWrite(SUNControl C, FILE* fptr)
   return(ier);
 }
 
-int SUNControlSetMethodOrder(SUNControl C, int q)
+int SUNControlSetMethodOrder(SUNControl C, int p)
 {
   int ier = 0;
-  if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, q); }
-  return(ier);
-}
-
-int SUNControlSetEmbeddingOrder(SUNControl C, int p)
-{
-  int ier = 0;
-  if (C->ops->setembeddingorder)
-  {
-    ier = C->ops->setembeddingorder(C, p);
-  }
+  if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, p); }
   return(ier);
 }
 

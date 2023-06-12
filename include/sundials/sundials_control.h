@@ -84,8 +84,7 @@ struct _generic_SUNControl_Ops
   int (*reset)(SUNControl C);
   int (*setdefaults)(SUNControl C);
   int (*write)(SUNControl C, FILE* fptr);
-  int (*setmethodorder)(SUNControl C, int q);
-  int (*setembeddingorder)(SUNControl C, int p);
+  int (*setmethodorder)(SUNControl C, int p);
   int (*setsafetyfactor)(SUNControl C, realtype safety);
   int (*seterrorbias)(SUNControl C, realtype bias);
   int (*update)(SUNControl C, realtype h, realtype dsm);
@@ -132,8 +131,7 @@ SUNDIALS_EXPORT int SUNControlEstimateStepTol(
 SUNDIALS_EXPORT int SUNControlReset(SUNControl C);
 SUNDIALS_EXPORT int SUNControlSetDefaults(SUNControl C);
 SUNDIALS_EXPORT int SUNControlWrite(SUNControl C, FILE* fptr);
-SUNDIALS_EXPORT int SUNControlSetMethodOrder(SUNControl C, int q);
-SUNDIALS_EXPORT int SUNControlSetEmbeddingOrder(SUNControl C, int p);
+SUNDIALS_EXPORT int SUNControlSetMethodOrder(SUNControl C, int p);
 SUNDIALS_EXPORT int SUNControlSetSafetyFactor(SUNControl C, realtype safety);
 SUNDIALS_EXPORT int SUNControlSetErrorBias(SUNControl C, realtype bias);
 SUNDIALS_EXPORT int SUNControlUpdate(SUNControl C, realtype h, realtype dsm);
