@@ -152,7 +152,7 @@ int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
   {
     /* set usable time-step adaptivity parameters */
     const realtype k = -RCONST(1.0) / SC_EXPGUS_P(C);
-    const realtype e = SUNMAX(SC_EXPGUS_BIAS(C) * dsm, RCONST(1.0e-10));
+    const realtype e = SUNMAX(SC_EXPGUS_BIAS(C) * dsm, TINY);
 
     /* compute estimated optimal time step size */
     *hnew = SC_EXPGUS_SAFETY(C) * h * SUNRpowerR(e,k);
@@ -222,7 +222,7 @@ int SUNControlWrite_ExpGus(SUNControl C, FILE *fptr)
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetMethodOrder_EXPGUS(SUNControl C, int q)
+int SUNControlSetMethodOrder_ExpGus(SUNControl C, int q)
 {
   /* check for legal input */
   if (q <= 0) { return SUNCONTROL_ILL_INPUT; }
@@ -232,7 +232,7 @@ int SUNControlSetMethodOrder_EXPGUS(SUNControl C, int q)
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetEmbeddingOrder_EXPGUS(SUNControl C, int p)
+int SUNControlSetEmbeddingOrder_ExpGus(SUNControl C, int p)
 {
   /* check for legal input */
   if (p <= 0) { return SUNCONTROL_ILL_INPUT; }
@@ -242,7 +242,7 @@ int SUNControlSetEmbeddingOrder_EXPGUS(SUNControl C, int p)
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetSafetyFactor_EXPGUS(SUNControl C, realtype safety)
+int SUNControlSetSafetyFactor_ExpGus(SUNControl C, realtype safety)
 {
   /* check for legal input */
   if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
@@ -257,7 +257,7 @@ int SUNControlSetSafetyFactor_EXPGUS(SUNControl C, realtype safety)
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSetErrorBias_EXPGUS(SUNControl C, realtype bias)
+int SUNControlSetErrorBias_ExpGus(SUNControl C, realtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -269,14 +269,14 @@ int SUNControlSetErrorBias_EXPGUS(SUNControl C, realtype bias)
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlUpdate_EXPGUS(SUNControl C, realtype h, realtype dsm)
+int SUNControlUpdate_ExpGus(SUNControl C, realtype h, realtype dsm)
 {
   SC_EXPGUS_EP(C) = SC_EXPGUS_BIAS(C) * dsm;
   SC_EXPGUS_FIRSTSTEP(C) = SUNFALSE;
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlSpace_EXPGUS(SUNControl C, long int* lenrw, long int* leniw)
+int SUNControlSpace_ExpGus(SUNControl C, long int* lenrw, long int* leniw)
 {
   *lenrw = 5;
   *leniw = 3;
