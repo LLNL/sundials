@@ -39,14 +39,14 @@ SPRKStep initialization and deallocation functions
 ------------------------------------------------------
 
 
-.. c:function:: void* SPRKStepCreate(ARKRhsFn f, ARKRhsFn g, realtype t0,\
+.. c:function:: void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0,\
                                      N_Vector y0, SUNContext sunctx)
 
    This function allocates and initializes memory for a problem to
    be solved using the SPRKStep time-stepping module in ARKODE.
 
-   :param f: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f(q,t) = \frac{\partial V(q,t)}{\partial q}`
-   :param g:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`g(p) = \frac{\partial T(p)}{\partial p}`
+   :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f1(q,t) = \frac{\partial V(q,t)}{\partial q}`
+   :param f2:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f2(p) = \frac{\partial T(p)}{\partial p}`
    :param t0: the initial value of :math:`t`
    :param y0: the initial condition vector :math:`y(t_0)`
    :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -262,7 +262,7 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Return SPRKStep solver parameters to their defaults | :c:func:`SPRKStepSetDefaults()`          | internal               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Set dense output interpolation type                 | :c:func:`SPRKStepSetInterpolantType()`   | ``ARK_INTERP_HERMITE`` |
+  | Set dense output interpolation type                 | :c:func:`SPRKStepSetInterpolantType()`   | ``ARK_INTERP_LAGRANGE``|
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set dense output polynomial degree                  | :c:func:`SPRKStepSetInterpolantDegree()` | 5                      |
   +-----------------------------------------------------+------------------------------------------+------------------------+
@@ -338,7 +338,7 @@ Optional inputs for SPRKStep
       After the first call to :c:func:`SPRKStepEvolve()` the interpolation type may
       not be changed without first calling :c:func:`SPRKStepReInit()`.
 
-      If this routine is not called, the Hermite interpolation module will be used.
+      If this routine is not called, the Lagrange interpolation module will be used.
 
 
 
@@ -380,15 +380,6 @@ Optional inputs for SPRKStep
          When :math:`q=1`, a linear interpolant is the default to ensure values
          obtained by the integrator are returned at the ends of the time
          interval.
-
-
-
-.. c:function:: int SPRKStepSetDenseOrder(void* arkode_mem, int dord)
-
-   *This function is deprecated, and will be removed in a future release.
-   Users should transition to calling* :c:func:`SPRKStepSetInterpolantDegree()`
-   *instead.*
-
 
 
 .. c:function:: int SPRKStepSetDiagnostics(void* arkode_mem, FILE* diagfp)
@@ -465,8 +456,6 @@ Optional inputs for SPRKStep
       ``NULL`` will always be directed to ``stderr``.
 
 
-
-
 .. c:function:: int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed)
 
    Disabled time step adaptivity within SPRKStep, and specifies the
@@ -540,6 +529,28 @@ Optional inputs for SPRKStep
       Passing *mxsteps* < 0 disables the test (not recommended).
 
 
+.. c:function:: int SPRKStepSetMaxHnilWarns(void* arkode_mem, int mxhnil)
+
+   Specifies the maximum number of messages issued by the
+   solver to warn that :math:`t+h=t` on the next internal step, before
+   ERKStep will instead return with an error.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *mxhnil* -- maximum allowed number of warning messages :math:`(>0)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      The default value is 10; set *mxhnil* to zero to specify
+      this default.
+
+      A negative value indicates that no warning messages should be issued.
+
+
 .. c:function:: int SPRKStepSetStopTime(void* arkode_mem, realtype tstop)
 
    Specifies the value of the independent variable
@@ -609,13 +620,15 @@ Optional inputs for IVP method selection
 .. _ARKODE.Usage.SPRKStep.SPRKStepMethodInputTable:
 .. table:: Optional inputs for IVP method selection
 
-   +--------------------------------------+----------------------------------+------------------+
-   | Optional input                       | Function name                    | Default          |
-   +--------------------------------------+----------------------------------+------------------+
-   | Set integrator method order          | :c:func:`SPRKStepSetOrder()`     | 4                |
-   +--------------------------------------+----------------------------------+------------------+
-   | Set SPRK method pair                 | :c:func:`SPRKStepSetMethod()`    | internal         |
-   +--------------------------------------+----------------------------------+------------------+
+   +-----------------------------+-------------------------------------------+----------+
+   | Optional input              | Function name                             | Default  |
+   +-----------------------------+-------------------------------------------+----------+
+   | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4        |
+   +-----------------------------+-------------------------------------------+----------+
+   | Set SPRK method pair        | :c:func:`SPRKStepSetMethod()`             | internal |
+   +-----------------------------+-------------------------------------------+----------+
+   | Use compensated summation   | :c:func:`SPRKStepSetUseCompensatedSums()` | false    |
+   +-----------------------------+-------------------------------------------+----------+
 
 
 .. c:function:: int SPRKStepSetOrder(void* arkode_mem, int ord)
@@ -639,6 +652,24 @@ Optional inputs for IVP method selection
       :c:func:`SPRKStepEvolve()`, unless :c:func:`SPRKStepReInit()` is called.
 
 
+.. c:function:: int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
+
+   Specifies if compensated summation should be used where applicable. 
+
+   :param arkode_mem: pointer to the SPRKStep memory block.
+   :param onoff: should compensated summation be used (1) or not (0)
+
+   :return:
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      This increases the computational cost and memory usage of the SPRK methods
+      per stage, however, it signficantly more robust to roundoff error
+      accumulation. 
+
+
 .. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKMem sprk_mem)
 
    Specifies the SPRK method.
@@ -654,7 +685,7 @@ Optional inputs for IVP method selection
    **Notes:**
 
       For a description of the :c:type:`ARKodeSPRKMem` type and related
-      functions for creating Butcher tables, see :numref:`ARKodeSPRKMem`.
+      functions for creating the method structure, see :numref:`ARKodeSPRKMem`.
 
       No error checking is performed to ensure that either the method order *p* or
       specified in the method structure correctly describe the coefficients.
@@ -881,13 +912,13 @@ Main solver optional output functions
   +-----------------------------------------------------+--------------------------------------------+
   | Cumulative number of internal steps                 | :c:func:`SPRKStepGetNumSteps()`            |
   +-----------------------------------------------------+--------------------------------------------+
-  | Actual initial time step size used                  | :c:func:`SPRKStepGetActualInitStep()`      |
-  +-----------------------------------------------------+--------------------------------------------+
   | Step size used for the last successful step         | :c:func:`SPRKStepGetLastStep()`            |
   +-----------------------------------------------------+--------------------------------------------+
   | Step size to be attempted on the next step          | :c:func:`SPRKStepGetCurrentStep()`         |
   +-----------------------------------------------------+--------------------------------------------+
   | Current internal time reached by the solver         | :c:func:`SPRKStepGetCurrentTime()`         |
+  +-----------------------------------------------------+--------------------------------------------+
+  | Current internal state reached by the solver        | :c:func:`SPRKStepGetCurrentState()`        |
   +-----------------------------------------------------+--------------------------------------------+
   | Single accessor to many statistics at once          | :c:func:`SPRKStepGetStepStats()`           |
   +-----------------------------------------------------+--------------------------------------------+
@@ -956,6 +987,24 @@ Main solver optional output functions
       * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
 
 
+.. c:function:: int SPRKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
+
+   Returns the current internal solution reached by the solver.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *ycur* -- current internal solution.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   **Notes:**
+      Users should exercise extreme caution when using this function,
+      as altering values of *ycur* may lead to undesirable behavior, depending
+      on the particular use case and on when this routine is called.
+
+
 .. c:function:: int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused, realtype* hlast, realtype* hcur, realtype* tcur)
 
    Returns many of the most useful optional outputs in a single call.
@@ -1022,13 +1071,14 @@ Main solver optional output functions
       * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
 
 
-.. c:function:: int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf_evals)
+.. c:function:: int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
    Returns the number of calls to the user's right-hand
-   side function, :math:`f` (so far).
+   side functions, :math:`f_1` and :math:`f_2` (so far).
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param nf_evals: number of calls to the user's :math:`f(t,y)` function.
+   :param nf1: number of calls to the user's :math:`f_1(t,p)` function.
+   :param nf2: number of calls to the user's :math:`f_2(q)` function.
 
    :return:
       * *ARK_SUCCESS* if successful
@@ -1248,14 +1298,14 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int SPRKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
+.. c:function:: int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0)
 
    Provides required problem specifications and re-initializes the
    SPRKStep time-stepper module.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param f: the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the right-hand side function in :math:`\dot{y} = f(t,y)`.
+   :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f1(q,t) = \frac{\partial V(q,t)}{\partial q}`
+   :param f2:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f2(p) = \frac{\partial T(p)}{\partial p}`
    :param t0: the initial value of :math:`t`.
    :param y0: the initial condition vector :math:`y(t_0)`.
 

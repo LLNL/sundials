@@ -234,7 +234,7 @@ int SPRKStepSetDefaults(void* arkode_mem)
     return (retval);
   }
 
-  /* set using default method order */
+  /* use the default method order */
   SPRKStepSetOrder(arkode_mem, 0);
 
   return (ARK_SUCCESS);
@@ -354,6 +354,27 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
   *nf1 = step_mem->nf1;
   *nf2 = step_mem->nf2;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  SPRKStepGetCurrentMethod:
+
+  Returns the stepper method structure.
+  ---------------------------------------------------------------*/
+int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKMem* sprk_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeSPRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepGetNumRhsEvals",
+                                  &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return (retval);
+
+  *sprk_mem = step_mem->method;
 
   return (ARK_SUCCESS);
 }
