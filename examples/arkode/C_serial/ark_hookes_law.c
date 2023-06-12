@@ -31,7 +31,7 @@
  *
  * Order sets the order of the method to use, dt is the time step size, and
  * use_compsums turns on (1) or off (0) compensated summation inside SPRKStep.
- * Compensated summation increases accuracy but at increased cost.
+ * Compensated summation increases accuracy but at increased cost. 
  * --------------------------------------------------------------------------*/
 
 #include <arkode/arkode_sprk.h>
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   y        = NULL;
   solution = NULL;
 
-  /* Set the default problem parameters */
+  /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
   sunrealtype Tf          = SUN_RCONST(0.1);
   sunrealtype dt          = SUN_RCONST(1e-4);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   const sunrealtype B     = SUN_RCONST(0.0);
   const sunrealtype omega = SUN_RCONST(64.0);
 
-  /* Set the default integrator Options */
+  /* Default integrator Options */
   int method                 = 0;
   int order                  = 4;
   int use_compsums           = 1;
@@ -93,13 +93,13 @@ int main(int argc, char* argv[])
 
   printf("\n   Begin Hooke's Law Problem\n\n");
 
-  /* Parse the CLI args */
+  /* Parse CLI args */
   argi = 0;
   if (argc > 1) { order = atoi(argv[++argi]); }
   if (argc > 2) { dt = atof(argv[++argi]); }
   if (argc > 3) { use_compsums = atoi(argv[++argi]); }
 
-  /* Allocate and fill the user data structure */
+  /* Allocate and fill udata structure */
   udata        = (UserData)malloc(sizeof(*udata));
   udata->A     = A;
   udata->B     = B;
@@ -109,41 +109,29 @@ int main(int argc, char* argv[])
   retval = SUNContext_Create(NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
-  /* Required: Allocate our state vector */
-  y = N_VNew_Serial(2, sunctx);
-
-  /* Optional: Allocate a vector for the exact solution */
+  /* Allocate our state vector */
+  y        = N_VNew_Serial(2, sunctx);
   solution = N_VClone(y);
 
-  /* Required: Fill the initial conditions */
+  /* Fill the initial conditions */
   InitialConditions(y);
 
-  /* Required: Create SPRKStep integrator */
+  /* Create SPRKStep integrator */
   arkode_mem = SPRKStepCreate(Force, Velocity, T0, y, sunctx);
 
-  /* Optional: set the order of accuracy to use */
   retval = SPRKStepSetOrder(arkode_mem, order);
   if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
 
-  /* Optional: set the user data pointer that will be provided in callbacks  */
   retval = SPRKStepSetUserData(arkode_mem, udata);
   if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
 
-  /* Optional: enable the compensated summation version of the SPRK
-   * implementation */
   retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
   if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;
 
-  /* Conditionally optional: set the time step size to use
-    While this is technically optional, it is required unless a user-provied
-    adaptivity module is attached with SPRKStepSetAdaptivityMethod. */
   retval = SPRKStepSetFixedStep(arkode_mem, dt);
   if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
 
-  /* Conditionally optional: set the max number of time steps to take
-    While this is optional, it is often necessary with a fixed time step
-    size since the default is only 500. */
-  retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)));
+  retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 2);
   if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
 
   /* Print out starting energy, momentum before integrating */
@@ -151,20 +139,17 @@ int main(int argc, char* argv[])
   tout = T0 + dTout;
   fprintf(stdout, "t = %.6Lf, energy = %.6Lf\n", tret, Energy(y, dt, udata));
 
-  /* Do integration by looping over the output intervals.
-     We do this so we can output the integration status at a regular
-     interval. We do not have to do this and could just call SPRKStepEvolve
-     with the final time instead. */
+  /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
   {
-    /* Required: evolve the solution in time */
+    SPRKStepSetStopTime(arkode_mem, tout);
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
-    /* Optional: output current integration status */
+    /* Output current integration status */
     fprintf(stdout, "t = %.6Lf, sol. err = %.6Lf, energy = %.6Lf\n", tret,
             Solution(tret, y, solution, udata), Energy(y, dt, udata));
 
-    /* Recommended: check if the solve was successful
+    /* Check if the solve was successful, if so, update the time and continue
      */
     if (retval >= 0)
     {
@@ -178,14 +163,10 @@ int main(int argc, char* argv[])
     }
   }
 
-  fprintf(stdout, "\n");
-
-  /* Optional: output integrator statistics like the number of steps taken */
-  SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-
-  /* Required: free the user data and SUNDIALS objects */
   free(udata);
   N_VDestroy(y);
+  fprintf(stdout, "\n");
+  SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   SPRKStepFree(&arkode_mem);
   SUNContext_Free(&sunctx);
 

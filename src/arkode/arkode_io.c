@@ -569,13 +569,6 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* By default, with a fixed-step we assume the user wants to hit 
-     a multiple of the step size exactly. Setting the stop time 
-     ensures this. However, we dont know the tout until arkEvolve
-     so we just set it to hfixed for now to ensure tstopset is set 
-     to true. Later, in arkEvolve, we set the actual tstop value. */
-  arkSetStopTime(ark_mem, hfixed);
-
   /* re-attach internal error weight functions if necessary */
   if ((hfixed == ZERO) && (!ark_mem->user_efun)) {
     if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL)
