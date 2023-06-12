@@ -19,7 +19,25 @@
 /* Create a file pointer with the given file name and mode. */
 FILE* SUNDIALSFileOpen(const char* filename, const char* mode)
 {
-  return fopen(filename, mode);
+  FILE* fp = NULL;
+
+  if (filename)
+  {
+    if (!strcmp(filename, "stdout"))
+    {
+      fp = stdout;
+    }
+    else if (!strcmp(filename, "stderr"))
+    {
+      fp = stderr;
+    }
+    else
+    {
+      fp = fopen(filename, mode);
+    }
+  }
+
+  return fp;
 }
 
 /* Close a file pointer with the given file name. */
