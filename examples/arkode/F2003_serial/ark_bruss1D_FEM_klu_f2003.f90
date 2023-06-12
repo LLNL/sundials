@@ -1241,6 +1241,7 @@ end module ode_mod
      print *, 'Error in FARKStepWriteParameters'
      stop 1
    end if
+   call FSUNDIALSFileClose(outstr)
 
    ! Start time stepping
    print *, '   '
