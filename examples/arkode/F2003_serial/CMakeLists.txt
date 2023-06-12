@@ -21,21 +21,37 @@
 set(FARKODE_examples
   "ark_analytic_f2003\;\;develop"
   "ark_bruss_f2003\;\;develop"
-  "ark_bruss1D_FEM_klu_f2003\;\;develop"
-  "ark_diurnal_kry_bp_f2003\;\;develop"
-  "ark_kpr_mri_f2003\;\;develop"
-  "ark_kpr_mri_f2003\;0 0.002\;develop"
-  "ark_kpr_mri_f2003\;1 0.002\;develop"
-  "ark_kpr_mri_f2003\;2 0.005\;develop"
-  "ark_kpr_mri_f2003\;3 0.01\;develop"
-  "ark_kpr_mri_f2003\;4 0.002\;develop"
-  "ark_kpr_mri_f2003\;5 0.002\;develop"
-  "ark_kpr_mri_f2003\;6 0.005\;develop"
-  "ark_kpr_mri_f2003\;7 0.001\;develop"
-  "ark_kpr_mri_f2003\;8 0.001\;develop"
-  "ark_kpr_mri_f2003\;9 0.001\;develop"
-  "ark_roberts_dnsL_f2003\;\;develop"
+  #"ark_kpr_mri_f2003\;\;develop"
+  #"ark_kpr_mri_f2003\;0 0.002\;develop"
+  #"ark_kpr_mri_f2003\;1 0.002\;develop"
+  #"ark_kpr_mri_f2003\;2 0.005\;develop"
+  #"ark_kpr_mri_f2003\;3 0.01\;develop"
+  #"ark_kpr_mri_f2003\;4 0.002\;develop"
+  #"ark_kpr_mri_f2003\;5 0.002\;develop"
+  #"ark_kpr_mri_f2003\;6 0.005\;develop"
+  #"ark_kpr_mri_f2003\;7 0.001\;develop"
+  #"ark_kpr_mri_f2003\;8 0.001\;develop"
+  #"ark_kpr_mri_f2003\;9 0.001\;develop"
   )
+
+# Examples using SUNDIALS KLU interface
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+
+  set(FARKODE_examples_KLU
+    "ark_bruss1D_FEM_klu_f2003\;develop"
+    )
+
+endif()
+
+# Examples using LAPACK interface
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+
+  set(FARKODE_examples_LAPACK
+    "ark_roberts_dnsL_f2003\;\;develop"
+    )
+
+endif()
+
 
 set(FARKODE_tests
   "test_ark_butcher_f2003\;develop"
@@ -90,6 +106,50 @@ foreach(example_tuple ${FARKODE_examples})
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
   endif()
 endforeach(example_tuple ${FARKODE_examples})
+
+
+# Add the build and install targets for each KLU example (if needed)
+if(BUILD_SUNLINSOL_KLU)
+
+  # Sundials KLU linear solver module
+  set(SUNLINSOLKLU_LIBS
+    sundials_sunlinsolklu
+    sundials_fsunlinsolklu_mod)
+
+  # KLU libraries
+  list(APPEND SUNLINSOLKLU_LIBS)
+
+  foreach(example_tuple ${FARKODE_examples_KLU})
+
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_type)
+
+    # example source files
+    add_executable(${example} ${example}.f90)
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    # add example to regression tests
+    sundials_add_test(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+
+     # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f90 ${example}.out
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
+    endif()
+
+  endforeach(example_tuple ${FARKODE_examples_KLU})
+
+endif()
+
 
 # Add the build and install targets for regression test
 foreach(example_tuple ${FARKODE_tests})

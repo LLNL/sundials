@@ -410,7 +410,7 @@ module ode_mod
 
    ! Local data
    integer(c_int)   :: ix, nz, Nint
-   
+
    double precision :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
    double precision :: u1, u2, u3, v1, v2, v3, w1, w2, w3
    double precision :: f1, f2, f3, df1, df2, df3, dQdf1, dQdf2, dQdf3
@@ -423,7 +423,7 @@ module ode_mod
    double precision, pointer, dimension(nnz)  :: Jdata(:)
    double precision, pointer, dimension(neqreal, N) :: yvec(:,:)
    double precision, pointer, dimension(neqreal, N) :: fvec(:,:)
-   
+
 
    !======= Internals ============
    ! get data arrays from SUNDIALS vectors
@@ -1021,6 +1021,7 @@ end module ode_mod
    !======= Inclusions ===========
    use, intrinsic :: iso_c_binding
 
+   use ode_mod                    ! custom problem-specification module
    use farkode_mod                ! Fortran interface to the ARKode module
    use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
    use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
@@ -1030,6 +1031,7 @@ end module ode_mod
    use fsunmatrix_sparse_mod      ! Fortran interface to sparse SUNMatrix
    use fsunlinsol_klu_mod         ! Fortran interface to dense SUNLinearSolver
    use fsundials_context_mod      ! Fortran interface to SUNContext
+   use fsundials_futils_mod       ! Extra Fortran utility routines
    use UserData                   ! Declarations and indexing
 
    !======= Declarations =========
@@ -1050,7 +1052,8 @@ end module ode_mod
    integer(c_int)   :: outstep                  ! output loop counter
    integer(c_int)   :: sparsetype               ! CSR signal, here
    integer(c_long)  :: mxsteps                  ! max num steps
-   
+   integer          :: i
+
    type(N_Vector),        pointer :: sunvec_y    ! sundials vector
    type(N_Vector),        pointer :: sunvec_u    ! sundials vector
    type(N_Vector),        pointer :: sunvec_v    ! sundials vector
@@ -1060,6 +1063,7 @@ end module ode_mod
    type(SUNLinearSolver), pointer :: sunls_A     ! sundials linear solver
    type(SUNLinearSolver), pointer :: sunls_M     ! sundials linear solver
    type(c_ptr)                    :: arkode_mem  ! ARKODE memory
+   type(c_ptr)                    :: outstr      ! standard output file stream
    double precision,      pointer :: yvec(:,:)   ! underlying vector y
    double precision,      pointer :: umask(:,:)  ! identifier for u
    double precision,      pointer :: vmask(:,:)  ! identifier for v
@@ -1177,12 +1181,6 @@ end module ode_mod
      stop 1
    end if
 
-   ierr = FARKStepSetMassFn(arkode_mem, c_funloc(Mass))
-   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetMassFn'
-     stop 1
-   end if
-
    sunls_M => FSUNLinSol_KLU(sunvec_y, sunmat_M, ctx)
    if (.not. associated(sunls_M)) then
       print *, 'ERROR: sunls_M = NULL'
@@ -1193,6 +1191,12 @@ end module ode_mod
    ierr = FARKStepSetMassLinearSolver(arkode_mem, sunls_M, sunmat_M, time_dep)
    if (ierr /= 0) then
      print *, 'Error in FARKStepSetMassLinearSolver'
+     stop 1
+   end if
+
+   ierr = FARKStepSetMassFn(arkode_mem, c_funloc(Mass))
+   if (ierr /= 0) then
+     print *, 'Error in FARKStepSetMassFn'
      stop 1
    end if
 
@@ -1231,7 +1235,12 @@ end module ode_mod
    write(503,*) ( yvec(3,i), i=1,N )
 
    ! output solver parameters to screen
-   call FARKStepWriteParameters(arkode_mem, stdout)
+   outstr = FSUNDIALSFileOpen('stdout', 'w')
+   ierr = FARKStepWriteParameters(arkode_mem, outstr)
+   if (ierr /= 0) then
+     print *, 'Error in FARKStepWriteParameters'
+     stop 1
+   end if
 
    ! Start time stepping
    print *, '   '
@@ -1393,9 +1402,9 @@ end module ode_mod
       stop 1
    end if
 
-   ierr = FARKStepGetNumMassEvals(arkode_mem, nmassevals)
+   ierr = FARKStepGetNumMassSetups(arkode_mem, nmassevals)
    if (ierr /= 0) then
-      print *, 'Error in FARKStepGetNumMassEvals, retval = ', ierr, '; halting'
+      print *, 'Error in FARKStepGetNumMassSetups, retval = ', ierr, '; halting'
       stop 1
    end if
 
