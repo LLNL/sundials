@@ -131,6 +131,11 @@ int SUNControlEstimateStep_PI(SUNControl C, realtype h,
   return SUNCONTROL_SUCCESS;
 }
 
+int SUNControlReset_PI(SUNControl C)
+{
+  SC_PI_EP(C) = RCONST(1.0);
+}
+
 int SUNControlSetDefaults_PI(SUNControl C)
 {
   SC_PI_K1(C)     = RCONST(0.8);

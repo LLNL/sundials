@@ -47,14 +47,14 @@ SUNDIALS_EXPORT
 SUNControl SUNControlPI(SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNControl SUNControlPI_SetParams(SUNControl C, int p, realtype k1,
-                                   realtype k2, realtype k3);
+                                  realtype k2, realtype k3);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_PI(SUNControl C);
 SUNDIALS_EXPORT
 void SUNControlDestroy_PI(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlEstimateStep_PI(SUNControl C, realtype h,
-                                 realtype dsm, realtype* hnew);
+                              realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
 int SUNControlReset_PI(SUNControl C);
 SUNDIALS_EXPORT
@@ -71,7 +71,7 @@ SUNDIALS_EXPORT
 int SUNControlUpdate_PI(SUNControl C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
 int SUNControlSpace_PI(SUNControl C, long int *lenrw,
-                          long int *leniw);
+                       long int *leniw);
 
 #ifdef __cplusplus
 }

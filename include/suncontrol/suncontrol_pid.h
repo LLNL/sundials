@@ -56,7 +56,7 @@ SUNDIALS_EXPORT
 void SUNControlDestroy_PID(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlEstimateStep_PID(SUNControl C, realtype h,
-                                 realtype dsm, realtype* hnew);
+                               realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
 int SUNControlReset_PID(SUNControl C);
 SUNDIALS_EXPORT
@@ -73,7 +73,7 @@ SUNDIALS_EXPORT
 int SUNControlUpdate_PID(SUNControl C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
 int SUNControlSpace_PID(SUNControl C, long int *lenrw,
-                          long int *leniw);
+                        long int *leniw);
 
 #ifdef __cplusplus
 }

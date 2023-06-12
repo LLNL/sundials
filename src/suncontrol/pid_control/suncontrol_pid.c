@@ -136,6 +136,12 @@ int SUNControlEstimateStep_PID(SUNControl C, realtype h,
   return SUNCONTROL_SUCCESS;
 }
 
+int SUNControlReset_PI(SUNControl C)
+{
+  SC_PI_EP(C)  = RCONST(1.0);
+  SC_PI_EPP(C) = RCONST(1.0);
+}
+
 int SUNControlSetDefaults_PID(SUNControl C)
 {
   SC_PID_K1(C)     = RCONST(0.58);
