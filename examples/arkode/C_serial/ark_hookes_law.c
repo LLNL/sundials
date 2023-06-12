@@ -142,7 +142,6 @@ int main(int argc, char* argv[])
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
   {
-    SPRKStepSetStopTime(arkode_mem, tout);
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
     /* Output current integration status */

@@ -377,6 +377,10 @@ int main(int argc, char* argv[])
     {
       sunrealtype hlast = SUN_RCONST(0.0);
 
+      /* Optional: if the stop time is not set, then its possible that the the
+         exact requested output time will not be hit (even with a fixed
+         time-step due to roundoff error accumulation) and interpolation will be
+         used to get the solution at the output time. */
       SPRKStepSetStopTime(arkode_mem, tout);
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
@@ -424,6 +428,10 @@ int main(int argc, char* argv[])
   {
     for (iout = 0; iout < num_output_times; iout++)
     {
+      /* Optional: if the stop time is not set, then its possible that the the
+         exact requested output time will not be hit (even with a fixed
+         time-step due to roundoff error accumulation) and interpolation will be
+         used to get the solution at the output time. */
       ARKStepSetStopTime(arkode_mem, tout);
       retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
@@ -696,7 +704,8 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 
 void PrintHelp()
 {
-  fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep time-stepping module solving the Kepler problem\n");
+  fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep "
+                  "time-stepping module solving the Kepler problem\n");
   fprintf(stderr, "  --step-mode <fixed, adapt>  should we use a fixed "
                   "time-step or adaptive time-step (default fixed)\n");
   fprintf(stderr, "  --stepper <ark, sprk>  should we use the ARKStep or "
