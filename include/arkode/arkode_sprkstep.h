@@ -124,11 +124,6 @@ SUNDIALS_EXPORT int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
 /* Free function */
 SUNDIALS_EXPORT void SPRKStepFree(void** arkode_mem);
 
-/* MRIStep interface functions */
-/* TODO(CJB): implement */
-SUNDIALS_EXPORT int SPRKStepCreateMRIStepInnerStepper(void* arkode_mem,
-                                                      MRIStepInnerStepper* stepper);
-
 #ifdef __cplusplus
 }
 #endif
