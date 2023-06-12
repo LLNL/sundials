@@ -1,3 +1,4 @@
+/* clang-format off */
 /* ----------------------------------------------------------------------------
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
@@ -34,25 +35,26 @@
  * fixed time-step size.
  *
  * The program also accepts command line arguments to change the method
- * used and time-stepping strategy. The program can be run like so
- *     ./ark_kepler [step mode] [method family] [method order/variant] [dt]
- * [compensated sums] where [step mode] = 0 uses a fixed time step dt [step
- * mode] = 1 uses adaptive time stepping [method family] = 0 indicates a SPRK
- * method should be used [method family] = 1 indicates an ERK method should be
- * used [method order] in {1, 2, 22, 222, 3, 33, 4, 44, 5, 6, 8, 10} indicates
- * the method order, and for 2nd, 3rd, and 4th order SPRK, the variant of the
- * method family to use. I.e., when method family = 1, then: 1 - Symplectic
- * Euler, 2 - 2nd order Leapfrog, 22 - 2nd order Pseudo Leapfrog, 222 - 2nd
- * order McLachlan, 3 - 3rd order Ruth, 33 - 3rd order McLachlan, 4 - 4th order
- * Candy-Rozmus, 44 - 4th order McLachlan, 5 - 5th order McLachlan, 6 - 6th
- * order Yoshida, 8 - 8th order McLachlan, 10 - 10th order Sofroniou When method
- * family = 1, then method order just is the order of the ERK method. [dt] -
- * time step size for fixed-step time stepping, or when using adaptivity the
- *      constant which bounds the error like O(eps^p) where p is the method
- * order. [compensated sums] = 0, dont use compensated summation for greater
- * accuracy when using SPRK methods [compensated sums] = 1, use compensated
- * summation for greater accuracy when using SPRK methods
- *
+ * used and time-stepping strategy. The program has the following CLI arguments:
+ * 
+ *   --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)
+ *   --stepper <ark, sprk>  should we use the ARKStep or SPRKStep time-stepping module
+ *   --order <1,2,22,222,3,33,4,44,5,6,8,10>  which method order and specific method to use (default 4)
+ *      1   - Symplectic Euler
+ *      2   - 2nd order Leapfrog
+ *      22  - 2nd order Pseudo Leapfrog
+ *      222 - 2nd order McLachlan
+ *      3   - 3rd order Ruth
+ *      33  - 3rd order McLachlan
+ *      4   - 4th order Candy-Rozmus
+ *      44  - 4th order McLachlan
+ *      5   - 5th order McLachlan
+ *      6   - 6th order Yoshida
+ *      8   - 8th order McLachlan
+ *      10  - 10th order Sofroniou
+ *   --dt <Real>  the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
+ *   --use-compensated-sums  turns on compensated summation in ARKODE where applicable
+ * 
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
  *    Geometric Numerical Integration: Structure-Preserving
@@ -60,6 +62,7 @@
  *    Springer, 2006,
  *    ISSN 0179-3632
  * --------------------------------------------------------------------------*/
+/* clang-format on */
 
 #include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
 #include <arkode/arkode_sprk.h>
@@ -67,6 +70,7 @@
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
+#include <string.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
 #include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_nvector.h>
@@ -75,7 +79,33 @@
 
 #include "arkode/arkode.h"
 
+typedef struct
+{
+  sunrealtype ecc;
+
+  /* for time-step control */
+  sunrealtype eps;
+  sunrealtype alpha;
+  sunrealtype rho_0;
+  sunrealtype rho_nphalf;
+  sunrealtype rho_n;
+  sunrealtype Q0;
+
+  FILE* hhist_fp;
+} * UserData;
+
+typedef struct
+{
+  int step_mode;
+  int method;
+  int order;
+  int use_compsums;
+  sunrealtype dt;
+} ProgramArgs;
+
 static int check_retval(void* returnvalue, const char* funcname, int opt);
+static int ParseArgs(int argc, char* argv[], ProgramArgs* args);
+static void PrintHelp();
 
 static void InitialConditions(N_Vector y0, sunrealtype ecc);
 static sunrealtype Hamiltonian(N_Vector yvec);
@@ -93,60 +123,42 @@ static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
                  int q, int p, sunrealtype* hnew, void* user_data);
 static sunrealtype ControlError(N_Vector yvec, void* user_data);
 
-typedef struct
-{
-  sunrealtype ecc;
-
-  /* for time-step control */
-  sunrealtype eps;
-  sunrealtype alpha;
-  sunrealtype rho_0;
-  sunrealtype rho_nphalf;
-  sunrealtype rho_n;
-  sunrealtype Q0;
-
-  FILE* hhist_fp;
-} * UserData;
-
 int main(int argc, char* argv[])
 {
-  SUNContext sunctx;
-  N_Vector y;
-  SUNNonlinearSolver NLS;
-  UserData udata;
-  sunrealtype tout, tret;
-  sunrealtype H0, L0;
-  void* arkode_mem;
-  FILE *conserved_fp, *solution_fp, *times_fp;
-  int argi, iout, retval;
-  int rootsfound = 0;
+  ProgramArgs args;
+  void* arkode_mem       = NULL;
+  SUNContext sunctx      = NULL;
+  N_Vector y             = NULL;
+  SUNNonlinearSolver NLS = NULL;
+  UserData udata         = NULL;
+  sunrealtype tout       = NAN;
+  sunrealtype tret       = NAN;
+  sunrealtype H0         = NAN;
+  sunrealtype L0         = NAN;
+  FILE* conserved_fp     = NULL;
+  FILE* solution_fp      = NULL;
+  FILE* times_fp         = NULL;
+  int rootsfound         = 0;
+  int argi               = 0;
+  int iout               = 0;
+  int retval             = 0;
 
-  NLS = NULL;
-  y   = NULL;
+  /* CLI args */
+  if (ParseArgs(argc, argv, &args)) { return -1; };
+  const int step_mode    = args.step_mode;
+  const int method       = args.method;
+  const int order        = args.order;
+  const int use_compsums = args.use_compsums;
+  const sunrealtype dt   = args.dt;
 
   /* Default problem parameters */
-  const sunrealtype T0  = SUN_RCONST(0.0);
-  sunrealtype Tf        = SUN_RCONST(50.0);
-  sunrealtype dt        = SUN_RCONST(1e-2);
-  const sunrealtype ecc = SUN_RCONST(0.6);
-
-  /* Default integrator Options */
-  int step_mode              = 0;
-  int method                 = 0;
-  int order                  = 4;
-  int use_compsums           = 0;
-  const sunrealtype dTout    = 10*dt; // SUN_RCONST(1.);
+  const sunrealtype T0       = SUN_RCONST(0.0);
+  sunrealtype Tf             = SUN_RCONST(50.0);
+  const sunrealtype ecc      = SUN_RCONST(0.6);
+  const sunrealtype dTout    = 10 * dt; // SUN_RCONST(1.);
   const int num_output_times = (int)ceil(Tf / dTout);
 
   printf("\n   Begin Kepler Problem\n\n");
-
-  /* Parse CLI args */
-  argi = 0;
-  if (argc > 1) { step_mode = atoi(argv[++argi]); }
-  if (argc > 2) { method = atoi(argv[++argi]); }
-  if (argc > 3) { order = atoi(argv[++argi]); }
-  if (argc > 4) { dt = atof(argv[++argi]); }
-  if (argc > 5) { use_compsums = atoi(argv[++argi]); }
 
   /* Allocate and fill udata structure */
   udata      = (UserData)malloc(sizeof(*udata));
@@ -611,8 +623,6 @@ int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
 
   *hnew = udata->eps / udata->rho_nphalf;
 
-  // fprintf(stderr, "<<< hnew  =%g\n", (double) *hnew);
-
   return 0;
 }
 
@@ -620,6 +630,95 @@ sunrealtype ControlError(N_Vector yvec, void* user_data)
 {
   UserData udata = (UserData)user_data;
   return udata->rho_n * Q(yvec, udata->alpha) - udata->rho_0 * udata->Q0;
+}
+
+int ParseArgs(int argc, char* argv[], ProgramArgs* args)
+{
+  args->step_mode    = 0;
+  args->method       = 0;
+  args->order        = 4;
+  args->use_compsums = 0;
+  args->dt           = SUN_RCONST(1e-2);
+
+  for (int argi = 1; argi < argc; argi++)
+  {
+    if (!strcmp(argv[argi], "--step-mode"))
+    {
+      argi++;
+      if (!strcmp(argv[argi], "fixed")) { args->step_mode = 0; }
+      else if (!strcmp(argv[argi], "adapt")) { args->step_mode = 1; }
+      else
+      {
+        fprintf(stderr, "--step-mode must be 'fixed' or 'adapt'\n");
+        return -1;
+      }
+    }
+    else if (!strcmp(argv[argi], "--stepper"))
+    {
+      argi++;
+      if (!strcmp(argv[argi], "sprk")) { args->method = 0; }
+      else if (!strcmp(argv[argi], "ark")) { args->method = 1; }
+      else
+      {
+        fprintf(stderr, "--stepper must be 'ark' or 'sprk'\n");
+        return -1;
+      }
+    }
+    else if (!strcmp(argv[argi], "--order"))
+    {
+      argi++;
+      args->order = atoi(argv[argi]);
+    }
+    else if (!strcmp(argv[argi], "--dt"))
+    {
+      argi++;
+      args->dt = atof(argv[argi]);
+    }
+    else if (!strcmp(argv[argi], "--use-compensated-sums"))
+    {
+      args->use_compsums = 1;
+    }
+    else if (!strcmp(argv[argi], "--help"))
+    {
+      PrintHelp();
+      return -1;
+    }
+    else
+    {
+      fprintf(stderr, "Unrecognized argument %s\n", argv[argi]);
+      PrintHelp();
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+void PrintHelp()
+{
+  fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep time-stepping module solving the Kepler problem\n");
+  fprintf(stderr, "  --step-mode <fixed, adapt>  should we use a fixed "
+                  "time-step or adaptive time-step (default fixed)\n");
+  fprintf(stderr, "  --stepper <ark, sprk>  should we use the ARKStep or "
+                  "SPRKStep time-stepping module\n");
+  fprintf(stderr, "  --order <1,2,22,222,3,33,4,44,5,6,8,10>  which method "
+                  "order and specific method to use (default 4)\n");
+  fprintf(stderr, "     1   - Symplectic Euler\n");
+  fprintf(stderr, "     2   - 2nd order Leapfrog\n");
+  fprintf(stderr, "     22  - 2nd order Pseudo Leapfrog\n");
+  fprintf(stderr, "     222 - 2nd order McLachlan\n");
+  fprintf(stderr, "     3   - 3rd order Ruth\n");
+  fprintf(stderr, "     33  - 3rd order McLachlan\n");
+  fprintf(stderr, "     4   - 4th order Candy-Rozmus\n");
+  fprintf(stderr, "     44  - 4th order McLachlan\n");
+  fprintf(stderr, "     5   - 5th order McLachlan\n");
+  fprintf(stderr, "     6   - 6th order Yoshida\n");
+  fprintf(stderr, "     8   - 8th order McLachlan\n");
+  fprintf(stderr, "     10  - 10th order Sofroniou\n");
+  fprintf(stderr, "  --dt <Real>  the fixed-time step size to use if fixed "
+                  "time stepping is turned on (default 0.01)\n");
+  fprintf(stderr, "  --use-compensated-sums  turns on compensated summation in "
+                  "ARKODE where applicable\n");
 }
 
 /* Check function return value...
