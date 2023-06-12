@@ -1,7 +1,7 @@
 # Benchmark: 3D Advection-Reaction
 
 This benchmark problem implements a 3D advection-reaction equation using the
-RAJA performance portability layer with serial, CUDA, or HIP backends.
+Kokkos performance portability layer with serial, OpenMP, CUDA, or HIP backends.
 
 ## Problem description
 
@@ -18,7 +18,7 @@ kinetics. The PDE system is given by
 where $u$, $v$, and $w$ are chemical concentrations, $c$ is the advection speed,
 $A$ and $B$ are the concentrations of chemical species that remain constant over
 space and time, and $\epsilon$ is a parameter that varies the stiffness of the
-system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$,
+system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$, 
 for times $t$ in $[0,t_f]$. The initial condition is
 ```math
 \begin{align}
@@ -77,17 +77,18 @@ listed below.
 ## Building and Running
 
 To build the benchmark executables SUNDIALS must be configured with ARKODE,
-CVODE, and IDA enabled and with MPI and RAJA support on. Additionally, either
+CVODE, and IDA enabled and with MPI and Kokkos support on. Additionally, either
 CUDA or HIP support must be on to build executables utilizing NVIDIA or AMD
 GPUs. See the installation guide for more details on configuring, building,
 and installing SUNDIALS.
 
 Based on the configuration the following executables will be built and installed
-in the `<benchmarks install prefix>/advection_reaction_3D/raja` directory:
+in the `<benchmarks install prefix>/advection_reaction_3D/kokkos` directory:
 
-* `advection_reaction_3D_raja` -- MPI parallelism
-* `advection_reaction_3D_raja_mpicuda` -- MPI + CUDA parallelism
-* `advection_reaction_3D_raja_mpihip` -- MPI + HIP parallelism
+* `advection_reaction_3D_kokkos.SERIAL` -- MPI parallelism
+* `advection_reaction_3D_kokkos.OPENMP` -- MPI + OpenMP parallelism
+* `advection_reaction_3D_kokkos.CUDA` -- MPI + CUDA parallelism
+* `advection_reaction_3D_kokkos.HIP` -- MPI + HIP parallelism
 
 On Summit, with the default environment
 ```
@@ -97,7 +98,7 @@ On Summit, with the default environment
 ```
 an example `jsrun` command is
 ```
-jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_raja_mpicuda
+jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_kokkos.CUDA
 ```
 
 On Lassen, with the environment
@@ -108,5 +109,5 @@ On Lassen, with the environment
 ```
 an example `jsrun` command is
 ```
-jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_raja_mpicuda
+jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_kokkos.CUDA
 ```
