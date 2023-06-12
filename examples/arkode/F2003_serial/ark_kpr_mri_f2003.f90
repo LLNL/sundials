@@ -71,7 +71,7 @@
 ! at the end.
 !--------------------------------------------------------------------
 
-module ode_mod
+module kpr_mod
 
   use, intrinsic :: iso_c_binding
   use farkode_mod
@@ -337,6 +337,7 @@ contains
     result(ierr) bind(C)
 
     use, intrinsic :: iso_c_binding
+    use fsundials_nvector_mod
     implicit none
 
     real(c_double), value  :: t
@@ -559,7 +560,7 @@ end module
 
 program main
 
-  use ode_mod
+  use kpr_mod
   implicit none
 
 
