@@ -468,8 +468,8 @@ SPRKStep -- Symplectic Partitioned Runge--Kutta methods
 The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
 
 .. math::
-   \dot{p} = f(q,t) = \frac{\partial V(q,t)}{\partial q}, \quad 
-   \dot{q} = g(p) = \frac{\partial T(p)}{\partial p}, 
+   \dot{p} = f_1(q,t) = \frac{\partial V(q,t)}{\partial q}, \quad 
+   \dot{q} = f_2(p) = \frac{\partial T(p)}{\partial p}, 
    \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
    :label: ARKODE_IVP_Hamiltonian
   
@@ -481,20 +481,19 @@ where
 is the system Hamiltonian. When :math:`dH/dt = 0`, i.e. when *H* is autonomous, then H is a conserved quantity. 
 Often this correponds to the conservation of energy (for example, in *n*-body problems).
 
-In solving the IVP :ref:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
+In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
 
 .. math::
    \dot{y} = 
       \begin{bmatrix}
-         f(q,t) \\
-         g(p)
+         f_1(q,t) \\
+         f_2(p)
       \end{bmatrix} \qquad 
       y(t_0) = 
       \begin{bmatrix}
          p_0\\
          q_0
       \end{bmatrix}
-   :label: ARKODE_IVP_Hamiltonian 
 
 SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair of Butcher tableau,
 
@@ -530,8 +529,8 @@ In the default case, the algorithm for a single time-step is as follows
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`P_i = P_{i-1} + h_{n+1} a_i f(Q_i, t_n + C_i h_{n+1})`
-   #. :math:`Q_{i+1} = Q_i + h_{n+1} b_i g(P_i)`
+   #. :math:`P_i = P_{i-1} + h_{n+1} a_i f_1(Q_i, t_n + C_i h_{n+1})`
+   #. :math:`Q_{i+1} = Q_i + h_{n+1} b_i f_2(P_i)`
 
 #. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
 
@@ -542,8 +541,8 @@ additional storage and vector operations :cite:p:`Sof:03`.
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} a_i f(q_n + \Delta Q_i, t_n + C_i h_{n+1})`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} b_i g(p_n + \Delta P_i)`
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} a_i f_1(q_n + \Delta Q_i, t_n + C_i h_{n+1})`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} b_i f_2(p_n + \Delta P_i)`
 
 #. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
 

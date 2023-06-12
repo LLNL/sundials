@@ -24,7 +24,8 @@ ordinary differential equations (ODEs).  ARKODE itself is structured
 to support a wide range of one-step (but multi-stage) methods,
 allowing for rapid development of parallel implementations of
 state-of-the-art time integration methods.  At present, ARKODE is
-packaged with two time-stepping modules, *ARKStep* and *ERKStep*.
+packaged with four time-stepping modules, *ARKStep*, *ERKStep*, *SPRKStep*,
+and *MRIStep*.
 
 
 *ARKStep* supports ODE systems posed in split, linearly-implicit form,
@@ -78,6 +79,17 @@ The algorithms used in ERKStep are adaptive- and fixed-step explicit
 Runge--Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-8.
 
+*SPRKStep* focuses on Hamiltonian systems posed in the form,
+
+.. math::
+   H(p, q, t) = T(p) + V(q, t)
+
+.. math::
+   \dot{p} = f_1(q,t) = \frac{\partial V(q,t)}{\partial q}, \quad 
+   \dot{q} = f_2(p) = \frac{\partial T(p)}{\partial p}, 
+   :label: ARKODE_ODE_hamiltonian
+
+allowing for conservation of quadratic invariants.
 
 *MRIStep* focuses specifically on problems posed in additive form,
 
