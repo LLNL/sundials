@@ -99,7 +99,6 @@ SUNControl SUNControlPID(SUNContext sunctx)
   SUNControlSetDefaults_PID(C);
   SUNControlReset_PID(C);
 
-  /* Attach content and return */
   return (C);
 }
 

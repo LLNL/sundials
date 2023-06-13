@@ -102,7 +102,6 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
   SUNControlSetDefaults_ImExGus(C);
   SUNControlReset_ImExGus(C);
 
-  /* Attach content and return */
   return (C);
 }
 

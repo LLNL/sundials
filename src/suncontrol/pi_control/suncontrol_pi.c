@@ -96,7 +96,6 @@ SUNControl SUNControlPI(SUNContext sunctx)
   SUNControlSetDefaults_PI(C);
   SUNControlReset_PI(C);
 
-  /* Attach content and return */
   return (C);
 }
 

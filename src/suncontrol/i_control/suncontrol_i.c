@@ -90,7 +90,6 @@ SUNControl SUNControlI(SUNContext sunctx)
   /* Fill content with default values */
   SUNControlSetDefaults_I(C);
 
-  /* Attach content and return */
   return (C);
 }
 

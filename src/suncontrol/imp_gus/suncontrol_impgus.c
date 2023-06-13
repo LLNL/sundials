@@ -98,7 +98,6 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
   SUNControlSetDefaults_ImpGus(C);
   SUNControlReset_ImpGus(C);
 
-  /* Attach content and return */
   return (C);
 }
 

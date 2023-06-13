@@ -97,7 +97,6 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
   SUNControlSetDefaults_ExpGus(C);
   SUNControlReset_ExpGus(C);
 
-  /* Attach content and return */
   return (C);
 }
 
