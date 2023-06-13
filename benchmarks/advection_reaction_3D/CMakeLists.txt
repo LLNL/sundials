@@ -15,3 +15,7 @@
 if(ENABLE_RAJA)
   add_subdirectory(raja)
 endif()
+
+if(ENABLE_KOKKOS AND BUILD_NVECTOR_KOKKOS)
+  add_subdirectory(kokkos)
+endif()
